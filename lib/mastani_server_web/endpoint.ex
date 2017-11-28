@@ -36,6 +36,10 @@ defmodule MastaniServerWeb.Endpoint do
     key: "_mastani_server_key",
     signing_salt: "2JKvW5ic"
 
+  plug Corsica, origins: "*",
+    allow_headers: ["accept", "authorization", "content-type", "origin", "x-requested-with"],
+    allow_credentials: true
+
   plug MastaniServerWeb.Router
 
   @doc """

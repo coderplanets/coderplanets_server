@@ -39,8 +39,10 @@ defmodule MastaniServer.Mixfile do
       {:postgrex, ">= 0.13.3"},
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
+      {:absinthe, "~> 1.4"},
       {:absinthe_ecto, "~> 0.1.3"},
-      {:absinthe_plug, "~> 1.4.0"}
+      {:absinthe_plug, "~> 1.4.0"},
+      {:corsica, "~> 1.0"}
     ]
   end
 

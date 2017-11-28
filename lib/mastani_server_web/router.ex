@@ -14,7 +14,7 @@ defmodule MastaniServerWeb.Router do
 
     forward "/graphiql", Absinthe.Plug.GraphiQL,
       schema: MastaniServerWeb.Schema,
-      interface: :simple,
+      interface: :playground,
       context: %{pubsub: MastaniServerWeb.Endpoint}
   end
 end
