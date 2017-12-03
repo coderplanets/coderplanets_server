@@ -1,0 +1,18 @@
+<h2>Show Item</h2>
+
+<%= form_for @conn, item_path(@conn, :show, @item), fn f -> %>
+  <div class="form-group">
+    <label>
+      Since: <%=# date_select f, :since %>
+    </label>
+
+    <%= submit "Submit", class: "btn btn-primary" %>
+  </div>
+<% end %>
+
+<ul>
+  BRUCE HELP FINISH THIS CODE
+</ul>
+
+<span><%= link "Edit", to: item_path(@conn, :edit, @item) %></span>
+<span><%= link "Back", to: item_path(@conn, :index) %></span>

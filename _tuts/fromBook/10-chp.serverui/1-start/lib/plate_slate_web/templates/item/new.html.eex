@@ -1,0 +1,5 @@
+<h2>New Item</h2>
+
+<%= render "form.html", Map.put(assigns, :action, item_path(@conn, :create)) %>
+
+<span><%= link "Back", to: item_path(@conn, :index) %></span>

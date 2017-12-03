@@ -1,0 +1,16 @@
+<h2>Listing Items</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Menu Item</th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for item <- @items do %>
+    <tr>
+      <td><%= item["name"] %></td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
