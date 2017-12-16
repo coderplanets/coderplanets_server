@@ -34,15 +34,18 @@ defmodule MastaniServer.Mixfile do
   defp deps do
     [
       {:phoenix, "~> 1.3.0"},
-      {:phoenix_pubsub, "~> 1.0"},
-      {:phoenix_ecto, "~> 3.2"},
+      {:phoenix_pubsub, "~> 1.0.2"},
+      {:phoenix_ecto, "~> 3.3.0"},
+      {:ecto, "~> 2.2.6"},
       {:postgrex, ">= 0.13.3"},
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
-      {:absinthe, "~> 1.4"},
+      {:absinthe, "~> 1.4.5"}, # GraphQl tool
       {:absinthe_ecto, "~> 0.1.3"},
-      {:absinthe_plug, "~> 1.4.0"},
-      {:corsica, "~> 1.0"}
+      {:absinthe_plug, "~> 1.4.2"}, # Plug support for Absinthe
+      {:comeonin, "~> 4.0"}, # Password hashing lib
+      {:argon2_elixir, "~> 1.2"}, # Argon2 password hashing algorithm
+      {:corsica, "~> 1.0"} # for cors settings
     ]
   end
 
