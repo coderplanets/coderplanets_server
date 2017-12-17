@@ -1,4 +1,11 @@
 
+
+## Todo 
+
+[ ] a git hook for format code
+
+
+
 ## releated 
 
 [apollo engine](https://www.apollographql.com/engine/)

@@ -1,46 +1,60 @@
 defmodule MastaniServerWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :mastani_server
 
-  socket "/socket", MastaniServerWeb.UserSocket
+  socket("/socket", MastaniServerWeb.UserSocket)
 
+  # TODO: delete later
   # Serve at "/" the static files from "priv/static" directory.
   #
   # You should set gzip to true if you are running phoenix.digest
   # when deploying your static files in production.
-  plug Plug.Static,
-    at: "/", from: :mastani_server, gzip: false,
+  plug(
+    Plug.Static,
+    at: "/",
+    from: :mastani_server,
+    gzip: false,
     only: ~w(css fonts images js favicon.ico robots.txt)
+  )
 
+  # TODO: Delete later
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
-  if code_reloading? do
-    plug Phoenix.CodeReloader
-  end
+  # if code_reloading? do
+  # plug Phoenix.CodeReloader
+  # end
 
-  plug Plug.RequestId
-  plug Plug.Logger
+  plug(Plug.RequestId)
+  plug(Plug.Logger)
 
-  plug Plug.Parsers,
+  plug(
+    Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
     json_decoder: Poison
+  )
 
-  plug Plug.MethodOverride
-  plug Plug.Head
+  plug(Plug.MethodOverride)
+  plug(Plug.Head)
 
+  # TODO: delete later
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
-  plug Plug.Session,
+  plug(
+    Plug.Session,
     store: :cookie,
     key: "_mastani_server_key",
     signing_salt: "2JKvW5ic"
+  )
 
-  plug Corsica, origins: "*",
+  plug(
+    Corsica,
+    origins: "*",
     allow_headers: ["accept", "authorization", "content-type", "origin", "x-requested-with"],
     allow_credentials: true
+  )
 
-  plug MastaniServerWeb.Router
+  plug(MastaniServerWeb.Router)
 
   @doc """
   Callback invoked for dynamically configuring the endpoint.

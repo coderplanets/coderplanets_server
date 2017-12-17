@@ -6,16 +6,14 @@
 use Mix.Config
 
 # General application configuration
-config :mastani_server,
-  ecto_repos: [MastaniServer.Repo]
+config :mastani_server, ecto_repos: [MastaniServer.Repo]
 
 # Configures the endpoint
 config :mastani_server, MastaniServerWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "Ru3N3sehqeuFjBV2Z6k7FuyA59fH8bWm8D4aZWu2RifP3xKMBYo3YRILrnXAGezM",
   render_errors: [view: MastaniServerWeb.ErrorView, accepts: ~w(json)],
-  pubsub: [name: MastaniServer.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: MastaniServer.PubSub, adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -24,4 +22,4 @@ config :logger, :console,
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"

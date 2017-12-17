@@ -3,11 +3,10 @@ defmodule MastaniServer.Repo.Migrations.CreateLinks do
 
   def change do
     create table(:links) do
-      add :url, :string
-      add :description, :text
+      add(:url, :string)
+      add(:description, :text)
 
       timestamps()
     end
-
   end
 end

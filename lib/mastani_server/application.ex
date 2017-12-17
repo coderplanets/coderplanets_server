@@ -11,7 +11,7 @@ defmodule MastaniServer.Application do
       # Start the Ecto repository
       supervisor(MastaniServer.Repo, []),
       # Start the endpoint when the application starts
-      supervisor(MastaniServerWeb.Endpoint, []),
+      supervisor(MastaniServerWeb.Endpoint, [])
       # Start your own worker by calling: MastaniServer.Worker.start_link(arg1, arg2, arg3)
       # worker(MastaniServer.Worker, [arg1, arg2, arg3]),
     ]

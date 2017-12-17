@@ -28,8 +28,9 @@ defmodule MastaniServerWeb do
 
   def view do
     quote do
-      use Phoenix.View, root: "lib/mastani_server_web/templates",
-                        namespace: MastaniServerWeb
+      use Phoenix.View,
+        root: "lib/mastani_server_web/templates",
+        namespace: MastaniServerWeb
 
       # Import convenience functions from controllers
       import Phoenix.Controller, only: [get_flash: 2, view_module: 1]

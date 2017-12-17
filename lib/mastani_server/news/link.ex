@@ -3,10 +3,9 @@ defmodule MastaniServer.News.Link do
   import Ecto.Changeset
   alias MastaniServer.News.Link
 
-
   schema "links" do
-    field :description, :string
-    field :url, :string
+    field(:description, :string)
+    field(:url, :string)
 
     timestamps()
   end

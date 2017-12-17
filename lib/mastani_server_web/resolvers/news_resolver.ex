@@ -11,6 +11,7 @@ defmodule MastaniServerWeb.NewsResolver do
     case News.create_link(args) do
       {:ok, link} ->
         {:ok, link}
+
       _error ->
         {:error, "could not create link"}
     end

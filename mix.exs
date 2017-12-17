@@ -6,9 +6,9 @@ defmodule MastaniServer.Mixfile do
       app: :mastani_server,
       version: "0.0.1",
       elixir: "~> 1.4",
-      elixirc_paths: elixirc_paths(Mix.env),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers,
-      start_permanent: Mix.env == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
+      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps()
     ]
@@ -20,13 +20,14 @@ defmodule MastaniServer.Mixfile do
   def application do
     [
       mod: {MastaniServer.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :faker]
     ]
   end
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(:mock), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Specifies your project dependencies.
   #
@@ -40,12 +41,19 @@ defmodule MastaniServer.Mixfile do
       {:postgrex, ">= 0.13.3"},
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
-      {:absinthe, "~> 1.4.5"}, # GraphQl tool
+      # GraphQl tool
+      {:absinthe, "~> 1.4.5"},
       {:absinthe_ecto, "~> 0.1.3"},
-      {:absinthe_plug, "~> 1.4.2"}, # Plug support for Absinthe
-      {:comeonin, "~> 4.0"}, # Password hashing lib
-      {:argon2_elixir, "~> 1.2"}, # Argon2 password hashing algorithm
-      {:corsica, "~> 1.0"} # for cors settings
+      # Plug support for Absinthe
+      {:absinthe_plug, "~> 1.4.2"},
+      # Password hashing lib
+      {:comeonin, "~> 4.0"},
+      # Argon2 password hashing algorithm
+      {:argon2_elixir, "~> 1.2"},
+      # for cors settings
+      {:corsica, "~> 1.0"},
+      # for fake data in test env
+      {:faker, "~> 0.9"}
     ]
   end
 
@@ -59,7 +67,7 @@ defmodule MastaniServer.Mixfile do
     [
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      "test": ["ecto.create --quiet", "ecto.migrate", "test"]
+      test: ["ecto.create --quiet", "ecto.migrate", "test"]
     ]
   end
 end
