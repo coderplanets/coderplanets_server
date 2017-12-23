@@ -34,3 +34,9 @@ env PORT=4001  MIX_ENV=mock mix phx.server
 env MIX_ENV=mock mix run priv/repo/seeds.ex
 ```
 
+## mock data
+
+```sh
+env MIX_ENV=mock iex -S mix phx.server
+```
+
