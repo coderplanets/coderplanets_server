@@ -6,9 +6,36 @@ defmodule MastaniServer.CMSTest do
   describe "cms_posts" do
     alias MastaniServer.CMS.Post
 
-    @valid_attrs %{body: "some body", isRefined: true, isSticky: true, title: "some title", viewerCanCollect: "some viewerCanCollect", viewerCanStar: true, viewerCanWatch: "some viewerCanWatch", viewsCount: 42}
-    @update_attrs %{body: "some updated body", isRefined: false, isSticky: false, title: "some updated title", viewerCanCollect: "some updated viewerCanCollect", viewerCanStar: false, viewerCanWatch: "some updated viewerCanWatch", viewsCount: 43}
-    @invalid_attrs %{body: nil, isRefined: nil, isSticky: nil, title: nil, viewerCanCollect: nil, viewerCanStar: nil, viewerCanWatch: nil, viewsCount: nil}
+    @valid_attrs %{
+      body: "some body",
+      isRefined: true,
+      isSticky: true,
+      title: "some title",
+      viewerCanCollect: "some viewerCanCollect",
+      viewerCanStar: true,
+      viewerCanWatch: "some viewerCanWatch",
+      viewsCount: 42
+    }
+    @update_attrs %{
+      body: "some updated body",
+      isRefined: false,
+      isSticky: false,
+      title: "some updated title",
+      viewerCanCollect: "some updated viewerCanCollect",
+      viewerCanStar: false,
+      viewerCanWatch: "some updated viewerCanWatch",
+      viewsCount: 43
+    }
+    @invalid_attrs %{
+      body: nil,
+      isRefined: nil,
+      isSticky: nil,
+      title: nil,
+      viewerCanCollect: nil,
+      viewerCanStar: nil,
+      viewerCanWatch: nil,
+      viewsCount: nil
+    }
 
     def post_fixture(attrs \\ %{}) do
       {:ok, post} =
@@ -74,6 +101,66 @@ defmodule MastaniServer.CMSTest do
     test "change_post/1 returns a post changeset" do
       post = post_fixture()
       assert %Ecto.Changeset{} = CMS.change_post(post)
+    end
+  end
+
+  describe "cms_authors" do
+    alias MastaniServer.CMS.Author
+
+    @valid_attrs %{role: "some role"}
+    @update_attrs %{role: "some updated role"}
+    @invalid_attrs %{role: nil}
+
+    def author_fixture(attrs \\ %{}) do
+      {:ok, author} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> CMS.create_author()
+
+      author
+    end
+
+    test "list_cms_authors/0 returns all cms_authors" do
+      author = author_fixture()
+      assert CMS.list_cms_authors() == [author]
+    end
+
+    test "get_author!/1 returns the author with given id" do
+      author = author_fixture()
+      assert CMS.get_author!(author.id) == author
+    end
+
+    test "create_author/1 with valid data creates a author" do
+      assert {:ok, %Author{} = author} = CMS.create_author(@valid_attrs)
+      assert author.role == "some role"
+    end
+
+    test "create_author/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = CMS.create_author(@invalid_attrs)
+    end
+
+    test "update_author/2 with valid data updates the author" do
+      author = author_fixture()
+      assert {:ok, author} = CMS.update_author(author, @update_attrs)
+      assert %Author{} = author
+      assert author.role == "some updated role"
+    end
+
+    test "update_author/2 with invalid data returns error changeset" do
+      author = author_fixture()
+      assert {:error, %Ecto.Changeset{}} = CMS.update_author(author, @invalid_attrs)
+      assert author == CMS.get_author!(author.id)
+    end
+
+    test "delete_author/1 deletes the author" do
+      author = author_fixture()
+      assert {:ok, %Author{}} = CMS.delete_author(author)
+      assert_raise Ecto.NoResultsError, fn -> CMS.get_author!(author.id) end
+    end
+
+    test "change_author/1 returns a author changeset" do
+      author = author_fixture()
+      assert %Ecto.Changeset{} = CMS.change_author(author)
     end
   end
 end

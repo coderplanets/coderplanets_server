@@ -10,7 +10,6 @@ alias MastaniServer.Accounts.User
 alias MastaniServer.Repo
 
 defmodule MastaniServer.Populater do
-
   alias MastaniServer.Repo
 
   def user_attrs do

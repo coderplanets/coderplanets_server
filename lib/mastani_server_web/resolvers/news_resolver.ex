@@ -1,4 +1,4 @@
-defmodule MastaniServerWeb.NewsResolver do
+defmodule MastaniServerWeb.Resolvers.News do
   alias MastaniServer.News
 
   def all_links(_root, _args, _info) do
