@@ -1,17 +1,18 @@
 defmodule MastaniServer.CMS.Post do
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.Post
+  alias MastaniServer.CMS.{Post, Author}
 
   schema "cms_posts" do
     field(:body, :string)
     field(:isRefined, :boolean, default: false)
     field(:isSticky, :boolean, default: false)
     field(:title, :string)
-    field(:viewerCanCollect, :string)
+    field(:viewerCanCollect, :boolean, default: false)
     field(:viewerCanStar, :boolean, default: false)
-    field(:viewerCanWatch, :string)
+    field(:viewerCanWatch, :boolean, default: false)
     field(:viewsCount, :integer)
+    belongs_to :author, Author
 
     timestamps()
   end
@@ -23,21 +24,15 @@ defmodule MastaniServer.CMS.Post do
       :title,
       :body,
       :viewsCount,
-      :isRefined,
-      :isSticky,
-      :viewerCanStar,
-      :viewerCanWatch,
-      :viewerCanCollect
+      # :isRefined,
+      # :isSticky,
+      # :viewerCanStar,
+      # :viewerCanWatch,
+      # :viewerCanCollect
     ])
     |> validate_required([
       :title,
       :body,
-      :viewsCount,
-      :isRefined,
-      :isSticky,
-      :viewerCanStar,
-      :viewerCanWatch,
-      :viewerCanCollect
     ])
   end
 end

@@ -3,16 +3,12 @@
 #
 #     MastaniServer.Repo.insert!(%MastaniServer.SomeSchema{})
 #
-# We recommend using the bang functions (`insert!`, `update!`
-# and so on) as they will fail if something goes wrong.
-
-alias MastaniServer.Accounts.User
-alias MastaniServer.Repo
 
 defmodule MastaniServer.Mock.User do
   alias MastaniServer.Repo
+  alias MastaniServer.Accounts.User
 
-  def user_attrs do
+  def random_attrs do
     %{
       username: Faker.Name.first_name() <> " " <> Faker.Name.last_name(),
       nickname: Faker.Name.first_name() <> " " <> Faker.Name.last_name(),
@@ -23,7 +19,7 @@ defmodule MastaniServer.Mock.User do
 
   def random(count \\ 1) do
     for _u <- 1..count do
-      insert_mock_user()
+      insert_multi()
     end
   end
 
@@ -32,8 +28,8 @@ defmodule MastaniServer.Mock.User do
     |> Repo.insert!
   end
 
-  defp insert_mock_user do
-    User.changeset(%User{}, user_attrs())
+  defp insert_multi do
+    User.changeset(%User{}, random_attrs())
     |> Repo.insert!()
   end
 end
