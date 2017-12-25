@@ -26,7 +26,7 @@ defmodule MastaniServer.Mixfile do
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(:mock), do: ["lib", "test/support"]
+  defp elixirc_paths(:mock), do: ["lib", "priv/mock"]
   defp elixirc_paths(_), do: ["lib"]
 
   # Specifies your project dependencies.

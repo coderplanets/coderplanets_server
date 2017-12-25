@@ -6,6 +6,6 @@ defmodule MastaniServer.Repo.Migrations.AddCmsAuthorIdToPosts do
       add(:author_id, references(:cms_authors, on_delete: :delete_all), null: false)
     end
 
-    create index(:cms_posts, [:author_id])
+    create(index(:cms_posts, [:author_id]))
   end
 end

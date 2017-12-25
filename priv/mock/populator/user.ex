@@ -9,7 +9,7 @@
 alias MastaniServer.Accounts.User
 alias MastaniServer.Repo
 
-defmodule MastaniServer.Populater do
+defmodule MastaniServer.Mock.User do
   alias MastaniServer.Repo
 
   def user_attrs do
@@ -21,16 +21,19 @@ defmodule MastaniServer.Populater do
     }
   end
 
-  def mock_user(count \\ 1) do
+  def random(count \\ 1) do
     for _u <- 1..count do
-      insert_user()
+      insert_mock_user()
     end
   end
 
-  defp insert_user do
+  def insert(user) do
+    User.changeset(%User{}, user)
+    |> Repo.insert!
+  end
+
+  defp insert_mock_user do
     User.changeset(%User{}, user_attrs())
     |> Repo.insert!()
   end
 end
-
-# MastaniServer.Populater.mock_user(10)

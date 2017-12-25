@@ -30,5 +30,4 @@ defmodule MastaniServerWeb.Schema.AccountTypes do
       resolve(&Accounts.create_user/3)
     end
   end
-
 end

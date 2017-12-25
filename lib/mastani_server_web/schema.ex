@@ -1,8 +1,8 @@
 defmodule MastaniServerWeb.Schema do
   use Absinthe.Schema
 
-  import_types Absinthe.Type.Custom
-  import_types MastaniServerWeb.Schema.AccountTypes
+  import_types(Absinthe.Type.Custom)
+  import_types(MastaniServerWeb.Schema.AccountTypes)
 
   alias MastaniServerWeb.Resolvers
 
@@ -19,7 +19,7 @@ defmodule MastaniServerWeb.Schema do
       resolve(&Resolvers.News.all_links/3)
     end
 
-    import_fields :account_queries
+    import_fields(:account_queries)
   end
 
   mutation do
@@ -30,7 +30,6 @@ defmodule MastaniServerWeb.Schema do
       resolve(&Resolvers.News.create_link/3)
     end
 
-    import_fields :account_mutations
-
+    import_fields(:account_mutations)
   end
 end
