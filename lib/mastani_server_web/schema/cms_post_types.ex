@@ -30,7 +30,6 @@ defmodule MastaniServerWeb.Schema.CMS.PostTypes do
     field :create_post, :post do
       arg(:title, non_null(:string))
       arg(:body, non_null(:string))
-      arg(:user_id, non_null(:id))
 
       resolve(&Resolvers.CMS.Post.create_post/3)
     end

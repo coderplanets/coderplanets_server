@@ -3,6 +3,7 @@ defmodule MastaniServerWeb.Router do
 
   pipeline :api do
     plug(:accepts, ["json"])
+    plug(MastaniServerWeb.Context)
   end
 
   scope "/api", MastaniServerWeb do

@@ -51,9 +51,8 @@ defmodule MastaniServer.CMS do
 
   """
 
-  # def create_post(%Author{} = author, attrs \\ %{}) do
-  def create_post(attrs \\ %{}) do
-    case ensure_author_exists(%Accounts.User{id: 61}) do
+  def create_post(%Author{} = author, attrs \\ %{}) do
+    case ensure_author_exists(%Accounts.User{id: author.user_id}) do
       {:ok, author} ->
         %Post{}
         |> Post.changeset(attrs)
@@ -66,10 +65,12 @@ defmodule MastaniServer.CMS do
   end
 
   def ensure_author_exists(%Accounts.User{} = user) do
+    # unique_constraint: avoid race conditions
+    # foreign_key_constraint: check user_id exsit
     %Author{user_id: user.id}
     |> Ecto.Changeset.change()
-    |> Ecto.Changeset.unique_constraint(:user_id) # avoid race conditions
-    |> Ecto.Changeset.foreign_key_constraint(:user_id) # check user_id exsit
+    |> Ecto.Changeset.unique_constraint(:user_id)
+    |> Ecto.Changeset.foreign_key_constraint(:user_id)
     |> Repo.insert()
     |> handle_existing_author()
   end
