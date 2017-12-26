@@ -15,6 +15,7 @@ defmodule MastaniServer.CMS.Author do
 
   @doc false
   def changeset(%Author{} = author, attrs) do
+    # |> foreign_key_constraint(:user_id)
     author
     |> cast(attrs, [:role])
     |> validate_required([:role])

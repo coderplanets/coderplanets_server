@@ -9,21 +9,15 @@ defmodule MastaniServerWeb.Resolvers.CMS.Post do
   end
 
   def create_post(_root, args, _info) do
-    IO.inspect args, label: "create_post args"
-    author = require_existing_author(%Accounts.User{id: 39}) # todo: use current_User context
+    # IO.inspect args, label: "create_post args"
+    # author = require_existing_author(%Accounts.User{id: 60}) # todo: use current_User context
 
-    IO.inspect author, label: "create_post author"
-    case CMS.create_post(author, args) do
-      {:ok, link} ->
-        {:ok, link}
+    case CMS.create_post(args) do
+      {:ok, post} ->
+        {:ok, post}
 
-      _error ->
-        {:error, "could not create post"}
+      {:error, reason} ->
+        {:error, reason}
     end
-  end
-
-  defp require_existing_author(%Accounts.User{} = user) do
-    author = CMS.ensure_author_exists(user)
-    author
   end
 end

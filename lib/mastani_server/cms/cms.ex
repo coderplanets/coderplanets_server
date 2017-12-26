@@ -50,31 +50,40 @@ defmodule MastaniServer.CMS do
       {:error, %Ecto.Changeset{}}
 
   """
-  # def create_post(attrs \\ %{}) do
-  # %Post{}
-  # |> Post.changeset(attrs)
-  # |> Repo.insert()
-  # end
 
-  def create_post(%Author{} = author, attrs \\ %{}) do
-    %Post{}
-    |> Post.changeset(attrs)
-    |> Ecto.Changeset.put_change(:author_id, author.id)
-    |> Repo.insert()
+  # def create_post(%Author{} = author, attrs \\ %{}) do
+  def create_post(attrs \\ %{}) do
+    case ensure_author_exists(%Accounts.User{id: 61}) do
+      {:ok, author} ->
+        %Post{}
+        |> Post.changeset(attrs)
+        |> Ecto.Changeset.put_change(:author_id, author.id)
+        |> Repo.insert()
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
   def ensure_author_exists(%Accounts.User{} = user) do
     %Author{user_id: user.id}
     |> Ecto.Changeset.change()
     |> Ecto.Changeset.unique_constraint(:user_id) # avoid race conditions
+    |> Ecto.Changeset.foreign_key_constraint(:user_id) # check user_id exsit
     |> Repo.insert()
     |> handle_existing_author()
   end
 
-  defp handle_existing_author({:ok, author}), do: author
+  defp handle_existing_author({:ok, author}), do: {:ok, author}
 
   defp handle_existing_author({:error, changeset}) do
-    Repo.get_by!(Author, user_id: changeset.data.user_id)
+    case Repo.get_by(Author, user_id: changeset.data.user_id) do
+      nil ->
+        {:error, "user is not exsit"}
+
+      user ->
+        {:ok, user}
+    end
   end
 
   @doc """

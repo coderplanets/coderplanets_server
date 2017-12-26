@@ -6,16 +6,16 @@ defmodule MastaniServerWeb.Schema.CMS.PostTypes do
 
   # TODO: remove ()
   object :post do
-    field :id, non_null(:id)
-    field :title, non_null(:string)
-    field :body, non_null(:string)
-    field :author, :author, resolve: assoc(:author)
+    field(:id, non_null(:id))
+    field(:title, non_null(:string))
+    field(:body, non_null(:string))
+    field(:author, :author, resolve: assoc(:author))
   end
 
   object :author do
-    field :id, non_null(:id)
-    field :role, :string
-    field :posts, list_of(:post), resolve: assoc(:posts)
+    field(:id, non_null(:id))
+    field(:role, :string)
+    field(:posts, list_of(:post), resolve: assoc(:posts))
   end
 
   object :cms_post_queries do
@@ -28,12 +28,11 @@ defmodule MastaniServerWeb.Schema.CMS.PostTypes do
   object :cms_post_mutations do
     @desc "hehehef: create a user"
     field :create_post, :post do
-      arg :title, non_null(:string)
-      arg :body, non_null(:string)
-      arg :user_id, non_null(:id)
+      arg(:title, non_null(:string))
+      arg(:body, non_null(:string))
+      arg(:user_id, non_null(:id))
 
       resolve(&Resolvers.CMS.Post.create_post/3)
     end
   end
-
 end

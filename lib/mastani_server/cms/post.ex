@@ -22,8 +22,8 @@ defmodule MastaniServer.CMS.Post do
     post
     |> cast(attrs, [
       :title,
-      :body,
-      #:viewsCount
+      :body
+      # :viewsCount
       # :isRefined,
       # :isSticky,
       # :viewerCanStar,
