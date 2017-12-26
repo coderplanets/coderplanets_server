@@ -18,8 +18,8 @@ defmodule MastaniServer.Mock.CMS.Post do
   end
 
   # def insert(user) do
-    # User.changeset(%User{}, user)
-    # |> Repo.insert!
+  # User.changeset(%User{}, user)
+  # |> Repo.insert!
   # end
 
   defp insert_multi do

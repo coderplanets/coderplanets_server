@@ -25,7 +25,7 @@ defmodule MastaniServer.Mock.User do
 
   def insert(user) do
     User.changeset(%User{}, user)
-    |> Repo.insert!
+    |> Repo.insert!()
   end
 
   defp insert_multi do

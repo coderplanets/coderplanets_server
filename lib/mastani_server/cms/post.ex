@@ -12,7 +12,7 @@ defmodule MastaniServer.CMS.Post do
     field(:viewerCanStar, :boolean, default: false)
     field(:viewerCanWatch, :boolean, default: false)
     field(:viewsCount, :integer)
-    belongs_to :author, Author
+    belongs_to(:author, Author)
 
     timestamps()
   end
@@ -23,7 +23,7 @@ defmodule MastaniServer.CMS.Post do
     |> cast(attrs, [
       :title,
       :body,
-      :viewsCount,
+      #:viewsCount
       # :isRefined,
       # :isSticky,
       # :viewerCanStar,
@@ -32,7 +32,7 @@ defmodule MastaniServer.CMS.Post do
     ])
     |> validate_required([
       :title,
-      :body,
+      :body
     ])
   end
 end

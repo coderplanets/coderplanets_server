@@ -6,7 +6,8 @@ defmodule MastaniServer.CMS do
   import Ecto.Query, warn: false
   alias MastaniServer.Repo
 
-  alias MastaniServer.CMS.Post
+  alias MastaniServer.CMS.{Post, Author}
+  alias MastaniServer.Accounts
 
   @doc """
   Returns the list of cms_posts.
@@ -49,10 +50,31 @@ defmodule MastaniServer.CMS do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_post(attrs \\ %{}) do
+  # def create_post(attrs \\ %{}) do
+  # %Post{}
+  # |> Post.changeset(attrs)
+  # |> Repo.insert()
+  # end
+
+  def create_post(%Author{} = author, attrs \\ %{}) do
     %Post{}
     |> Post.changeset(attrs)
+    |> Ecto.Changeset.put_change(:author_id, author.id)
     |> Repo.insert()
+  end
+
+  def ensure_author_exists(%Accounts.User{} = user) do
+    %Author{user_id: user.id}
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.unique_constraint(:user_id) # avoid race conditions
+    |> Repo.insert()
+    |> handle_existing_author()
+  end
+
+  defp handle_existing_author({:ok, author}), do: author
+
+  defp handle_existing_author({:error, changeset}) do
+    Repo.get_by!(Author, user_id: changeset.data.user_id)
   end
 
   @doc """

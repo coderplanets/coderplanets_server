@@ -3,6 +3,7 @@ defmodule MastaniServerWeb.Schema do
 
   import_types(Absinthe.Type.Custom)
   import_types(MastaniServerWeb.Schema.AccountTypes)
+  import_types(MastaniServerWeb.Schema.CMS.PostTypes)
 
   alias MastaniServerWeb.Resolvers
 
@@ -20,6 +21,7 @@ defmodule MastaniServerWeb.Schema do
     end
 
     import_fields(:account_queries)
+    import_fields(:cms_post_queries)
   end
 
   mutation do
@@ -31,5 +33,6 @@ defmodule MastaniServerWeb.Schema do
     end
 
     import_fields(:account_mutations)
+    import_fields(:cms_post_mutations)
   end
 end
