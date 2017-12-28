@@ -3,6 +3,7 @@ defmodule MastaniServer.Accounts do
   alias MastaniServer.Repo
 
   alias MastaniServer.Accounts.User
+  alias MastaniServer.Utils.Hepler
 
   def list_users do
     Repo.all(User)
@@ -11,9 +12,11 @@ defmodule MastaniServer.Accounts do
   def get_user!(id), do: Repo.get!(User, id)
 
   def create_user(attrs \\ %{}) do
+    # changeset = User.changeset(%User{}, attrs)
+    # Hepler.repo_insert(changeset)
     %User{}
     |> User.changeset(attrs)
-    |> Repo.insert()
+    |> Hepler.repo_insert()
   end
 
   @doc """

@@ -6,13 +6,19 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     {:ok, users}
   end
 
-  def create_user(_root, args, _info) do
+  def create_user(_root, args, %{context: %{current_user: %{root: true}}}) do
+    # IO.inspect(user, label: "create_post current_user")
+    # IO.inspect(args, label: "create_post args")
     case Accounts.create_user(args) do
-      {:ok, link} ->
-        {:ok, link}
+      {:ok, user} ->
+        {:ok, user}
 
-      _error ->
-        {:error, "could not create user"}
+      {:error, errors} ->
+        {:error, errors}
     end
+  end
+
+  def create_user(_root, _args, _info) do
+    {:error, "Access denied."}
   end
 end

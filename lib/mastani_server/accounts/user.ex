@@ -12,11 +12,17 @@ defmodule MastaniServer.Accounts.User do
     timestamps()
   end
 
+  @required_fields ~w(username)a
+  @optional_fields ~w(nickname bio company)a
+
   @doc false
   def changeset(%User{} = user, attrs) do
     user
-    |> cast(attrs, [:username, :nickname, :bio, :company])
-    |> validate_required([:username])
+    |> cast(attrs, @required_fields, @optional_fields)
+    # |> cast(attrs, [:username, :nickname, :bio, :company])
+    # |> validate_required([:username])
+    |> validate_required(@required_fields)
+    |> validate_length(:username, max: 5)
     |> unique_constraint(:username)
   end
 end

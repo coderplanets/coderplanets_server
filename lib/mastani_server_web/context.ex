@@ -35,10 +35,10 @@ defmodule MastaniServerWeb.Context do
     # Repo.get_by(Accounts.User, user_id: changeset.data.user_id)
     case Repo.get_by(Accounts.User, username: "mydearxym") do
       nil ->
-        {:error, "authorize user is not exsit"}
+        {:error, "authorize user is not exsit, have you run the seeds?"}
 
       user ->
-        {:ok, Map.put(user, :finch, true)}
+        {:ok, Map.put(user, :root, true)}
     end
   end
 end
