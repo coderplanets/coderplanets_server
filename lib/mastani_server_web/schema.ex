@@ -2,7 +2,7 @@ defmodule MastaniServerWeb.Schema do
   use Absinthe.Schema
 
   import_types(Absinthe.Type.Custom)
-  import_types(MastaniServerWeb.Schema.AccountTypes)
+  # import_types(MastaniServerWeb.Schema.AccountTypes)
   import_types(MastaniServerWeb.Schema.CMS.PostTypes)
 
   alias MastaniServerWeb.Resolvers

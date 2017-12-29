@@ -4,12 +4,15 @@ defmodule MastaniServerWeb.Schema.CMS.PostTypes do
 
   alias MastaniServerWeb.Resolvers
 
-  # TODO: remove ()
+  import_types(MastaniServerWeb.Schema.AccountTypes)
+
   object :post do
     field(:id, non_null(:id))
     field(:title, non_null(:string))
     field(:body, non_null(:string))
     field(:author, :author, resolve: assoc(:author))
+    # note the name convention here
+    field(:starred_users, list_of(:user), resolve: assoc(:starredUsers))
   end
 
   object :author do
@@ -33,5 +36,12 @@ defmodule MastaniServerWeb.Schema.CMS.PostTypes do
 
       resolve(&Resolvers.CMS.Post.create_post/3)
     end
+
+    # field :star_post, :post do
+      # arg(:title, non_null(:string))
+      # arg(:body, non_null(:string))
+
+      # resolve(&Resolvers.CMS.Post.start_post/3)
+    # end
   end
 end
