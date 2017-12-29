@@ -38,4 +38,19 @@ defmodule MastaniServer.Utils.Hepler do
   defp render_detail(message) do
     message
   end
+
+  @doc """
+  return General {:ok, ..} or {:error, ..} return value
+  """
+
+  def deal_withit(message) do
+    case message do
+      {:ok, whatever} ->
+        {:ok, whatever}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
 end
