@@ -20,7 +20,7 @@ defmodule MastaniServer.Mixfile do
   def application do
     [
       mod: {MastaniServer.Application, []},
-      extra_applications: [:logger, :runtime_tools, :faker]
+      extra_applications: [:logger, :runtime_tools, :faker, :scrivener_ecto]
     ]
   end
 
@@ -49,11 +49,12 @@ defmodule MastaniServer.Mixfile do
       # Password hashing lib
       {:comeonin, "~> 4.0"},
       # Argon2 password hashing algorithm
-      {:argon2_elixir, "~> 1.2"},
+      # {:argon2_elixir, "~> 1.2"},
       # for cors settings
       {:corsica, "~> 1.0"},
       # for fake data in test env
-      {:faker, "~> 0.9"}
+      {:faker, "~> 0.9"},
+      {:scrivener_ecto, "~> 1.3.0"}
     ]
   end
 

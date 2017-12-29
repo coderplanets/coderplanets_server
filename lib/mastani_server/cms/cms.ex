@@ -98,9 +98,8 @@ defmodule MastaniServer.CMS do
   def star_post(post_id, user_id) do
     with {:ok, post} <- find_post(post_id),
          {:ok, user} <- Accounts.find_user(user_id) do
-      IO.inspect(post, label: 'start_post post')
-      IO.inspect(user, label: 'start_post user')
-
+      # IO.inspect(post, label: 'start_post post')
+      # IO.inspect(user, label: 'start_post user')
       post
       |> Repo.preload(:starredUsers)
       |> Ecto.Changeset.change()
@@ -108,7 +107,6 @@ defmodule MastaniServer.CMS do
       |> Repo.update()
     else
       {:error, reason} ->
-        # IO.inspect(error, label: 'start_post error')
         {:error, reason}
     end
   end

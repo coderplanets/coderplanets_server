@@ -3,6 +3,7 @@ defmodule MastaniServerWeb.Schema.CMS.PostTypes do
   use Absinthe.Ecto, repo: MastaniServer.Repo
 
   alias MastaniServerWeb.Resolvers
+  import Ecto.Query, only: [order_by: 2, first: 2, first: 1]
 
   import_types(MastaniServerWeb.Schema.AccountTypes)
 
@@ -12,7 +13,20 @@ defmodule MastaniServerWeb.Schema.CMS.PostTypes do
     field(:body, non_null(:string))
     field(:author, :author, resolve: assoc(:author))
     # note the name convention here
-    field(:starred_users, list_of(:user), resolve: assoc(:starredUsers))
+    # field(:starred_users, list_of(:user), resolve: assoc(:starredUsers))
+    field :starred_users, list_of(:user) do
+      resolve(
+        assoc(:starredUsers, fn posts_query, _args, _context ->
+          # |> order_by(asc: :username)
+          # |> first(:inserted_at)
+          posts_query
+          |> IO.inspect(label: 'didi: ')
+          |> first
+
+          # |> MastaniServer.Repo.paginate(page: 1, page_size: 5)
+        end)
+      )
+    end
   end
 
   object :author do

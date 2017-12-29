@@ -60,6 +60,7 @@ env MIX_ENV=mock iex -S mix phx.server
 
 ## packages
 
+[翻页](https://snippets.aktagon.com/snippets/776-pagination-with-elixir-and-ecto)
 [翻页](https://github.com/drewolson/scrivener_ecto)
 [邮件](https://github.com/thoughtbot/bamboo)
 
