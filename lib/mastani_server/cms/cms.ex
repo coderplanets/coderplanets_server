@@ -4,10 +4,9 @@ defmodule MastaniServer.CMS do
   """
 
   import Ecto.Query, warn: false
-  alias MastaniServer.Repo
 
   alias MastaniServer.CMS.{Post, Author}
-  alias MastaniServer.Accounts
+  alias MastaniServer.{Repo, Accounts}
 
   @doc """
   Returns the list of cms_posts.
@@ -21,22 +20,6 @@ defmodule MastaniServer.CMS do
   def list_cms_posts do
     Repo.all(Post)
   end
-
-  @doc """
-  Gets a single post.
-
-  Raises `Ecto.NoResultsError` if the Post does not exist.
-
-  ## Examples
-
-      iex> get_post!(123)
-      %Post{}
-
-      iex> get_post!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_post!(id), do: Repo.get!(Post, id)
 
   @doc """
   Creates a post.
@@ -84,6 +67,49 @@ defmodule MastaniServer.CMS do
 
       user ->
         {:ok, user}
+    end
+  end
+
+  @doc """
+  Gets a single post.
+
+  Raises nil if the Post does not exist.
+
+  ## Examples
+
+  iex> get_post!(123)
+  %Post{}
+
+  iex> get_post(456)
+  ** nil
+  """
+  def get_post(id), do: Repo.get(Post, id)
+
+  def find_post(id) do
+    case get_post(id) do
+      nil ->
+        {:error, "post id #{id} not found."}
+
+      post ->
+        {:ok, post}
+    end
+  end
+
+  def star_post(post_id, user_id) do
+    with {:ok, post} <- find_post(post_id),
+         {:ok, user} <- Accounts.find_user(user_id) do
+      IO.inspect(post, label: 'start_post post')
+      IO.inspect(user, label: 'start_post user')
+
+      post
+      |> Repo.preload(:starredUsers)
+      |> Ecto.Changeset.change()
+      |> Ecto.Changeset.put_assoc(:starredUsers, [user])
+      |> Repo.update()
+    else
+      {:error, reason} ->
+        # IO.inspect(error, label: 'start_post error')
+        {:error, reason}
     end
   end
 

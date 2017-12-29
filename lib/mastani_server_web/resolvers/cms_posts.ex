@@ -19,7 +19,19 @@ defmodule MastaniServerWeb.Resolvers.CMS.Post do
     end
   end
 
+  # TODO: use middleware
   def create_post(_root, _args, _info) do
     {:error, "Access denied"}
+  end
+
+  # def start_post(_root, args, _info) do
+  def start_post(_root, %{user_id: user_id, post_id: post_id}, _info) do
+    case CMS.star_post(post_id, user_id) do
+      {:ok, post} ->
+        {:ok, post}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 end

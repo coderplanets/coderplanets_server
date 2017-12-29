@@ -9,7 +9,17 @@ defmodule MastaniServer.Accounts do
     Repo.all(User)
   end
 
-  def get_user!(id), do: Repo.get!(User, id)
+  def get_user(id), do: Repo.get(User, id)
+
+  def find_user(id) do
+    case get_user(id) do
+      nil ->
+        {:error, "user id #{id} not found."}
+
+      user ->
+        {:ok, user}
+    end
+  end
 
   def create_user(attrs \\ %{}) do
     # changeset = User.changeset(%User{}, attrs)

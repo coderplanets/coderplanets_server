@@ -37,11 +37,13 @@ defmodule MastaniServerWeb.Schema.CMS.PostTypes do
       resolve(&Resolvers.CMS.Post.create_post/3)
     end
 
-    # field :star_post, :post do
-      # arg(:title, non_null(:string))
-      # arg(:body, non_null(:string))
+    @desc "star a post"
+    field :star_post, :post do
+      arg(:post_id, non_null(:id))
+      # not need user id, use current_user
+      arg(:user_id, non_null(:id))
 
-      # resolve(&Resolvers.CMS.Post.start_post/3)
-    # end
+      resolve(&Resolvers.CMS.Post.start_post/3)
+    end
   end
 end
