@@ -22,7 +22,6 @@ defmodule MastaniServerWeb.Schema.CMS.PostTypes do
           posts_query
           |> IO.inspect(label: 'didi: ')
           |> first
-
           # |> MastaniServer.Repo.paginate(page: 1, page_size: 5)
         end)
       )

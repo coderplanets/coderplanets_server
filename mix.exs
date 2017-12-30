@@ -54,7 +54,8 @@ defmodule MastaniServer.Mixfile do
       {:corsica, "~> 1.0"},
       # for fake data in test env
       {:faker, "~> 0.9"},
-      {:scrivener_ecto, "~> 1.3.0"}
+      {:scrivener_ecto, "~> 1.3.0"},
+      {:guardian, "~> 1.0"}
     ]
   end
 

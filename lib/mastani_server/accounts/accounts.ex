@@ -3,7 +3,7 @@ defmodule MastaniServer.Accounts do
   alias MastaniServer.Repo
 
   alias MastaniServer.Accounts.User
-  alias MastaniServer.Utils.Hepler
+  alias MastaniServer.Utils.{Hepler, Guardian}
 
   def list_users do
     Repo.all(User)
@@ -27,6 +27,17 @@ defmodule MastaniServer.Accounts do
     %User{}
     |> User.changeset(attrs)
     |> Hepler.repo_insert()
+  end
+
+  def login(user_id) do
+    case find_user(user_id) do
+      {:ok, user} ->
+        IO.inspect user, label: "sign token: "
+        Guardian.encode_and_sign(user, %{hello: "world"})
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
   @doc """
