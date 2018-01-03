@@ -23,7 +23,8 @@ config :logger, :console,
 config :mastani_server, MastaniServer.Utils.Guardian,
   issuer: "mastani_server",
   secret_key: "kSTPDbCUSRhiEmv86eYMUplL7xI5fDa/+6MWKzK2VYGxjwL0XGHHVJiSPNPe9hJe"
-  # secret_key: {:system, "GUARDIAN_DEMO_SECRET_KEY"}
+
+# secret_key: {:system, "GUARDIAN_DEMO_SECRET_KEY"}
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

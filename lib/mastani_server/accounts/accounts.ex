@@ -32,7 +32,7 @@ defmodule MastaniServer.Accounts do
   def login(user_id) do
     case find_user(user_id) do
       {:ok, user} ->
-        IO.inspect user, label: "sign token: "
+        IO.inspect(user, label: "sign token: ")
         Guardian.encode_and_sign(user, %{hello: "world"})
 
       {:error, reason} ->
