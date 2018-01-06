@@ -38,7 +38,7 @@ env MIX_ENV=mock mix ecto.setup
 ```
 
 ```sh
-env PORT=4001  MIX_ENV=mock mix phx.server
+env PORT=4001 MIX_ENV=mock mix phx.server
 ```
 
 ```sh

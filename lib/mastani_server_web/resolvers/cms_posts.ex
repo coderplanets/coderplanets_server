@@ -20,4 +20,9 @@ defmodule MastaniServerWeb.Resolvers.CMS.Post do
   def start_post(_root, %{user_id: user_id, post_id: post_id}, _info) do
     CMS.star_post(post_id, user_id) |> Hepler.deal_withit()
   end
+
+  def delete_post(_root, %{post_id: post_id}, _info) do
+    CMS.delete_content(post_id) |> Hepler.deal_withit()
+  end
+
 end

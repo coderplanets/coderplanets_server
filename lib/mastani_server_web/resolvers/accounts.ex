@@ -12,8 +12,8 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     # |> MastaniServer.Repo.paginate(page: 1, page_size: 2)
     # IO.inspect test, label: "see ? "
     {:ok, token, claims} = Accounts.login(39)
-    IO.inspect(token, label: 'token: ')
-    IO.inspect(claims, label: 'claims: ')
+    # IO.inspect(token, label: 'token: ')
+    # IO.inspect(claims, label: 'claims: ')
 
     {:ok, %{entries: users, total_count: 100, page_size: 2}}
   end

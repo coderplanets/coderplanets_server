@@ -16,16 +16,17 @@ defmodule MastaniServerWeb.Endpoint do
   plug(Plug.MethodOverride)
   plug(Plug.Head)
 
+  # plug(:inspect_conn)
 
-  plug(:inspect_conn)
   plug(
     Corsica,
-    # log: [rejected: :error],
+    log: [rejected: :error],
     origins: "*",
     allow_headers: [
       # "authorization",
       "content-type",
       "special",
+      "authorization"
       # "accept",
       # "origin",
       # "x-requested-with"
@@ -50,6 +51,5 @@ defmodule MastaniServerWeb.Endpoint do
     end
   end
 
-  # defp inspect_conn(conn, _), do: IO.inspect(conn)
-
+  #  defp inspect_conn(conn, _), do: IO.inspect(conn)
 end

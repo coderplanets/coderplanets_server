@@ -13,20 +13,17 @@ defmodule MastaniServerWeb.Schema.CMS.PostTypes do
     field(:body, non_null(:string))
     field(:author, :author, resolve: assoc(:author))
     # note the name convention here
-    # field(:starred_users, list_of(:user), resolve: assoc(:starredUsers))
-    field :starred_users, list_of(:user) do
-      resolve(
-        assoc(:starredUsers, fn posts_query, _args, _context ->
-          # |> order_by(asc: :username)
-          # |> first(:inserted_at)
-          posts_query
-          |> IO.inspect(label: 'didi: ')
-          |> first
+    field(:starred_users, list_of(:user), resolve: assoc(:starredUsers))
 
-          # |> MastaniServer.Repo.paginate(page: 1, page_size: 5)
-        end)
-      )
-    end
+    # field :starred_users, list_of(:user) do
+    # resolve(
+    # assoc(:starredUsers, fn posts_query, _args, _context ->
+    # posts_query
+    # |> IO.inspect(label: 'didi: ')
+    # |> first
+    # end)
+    # )
+    # end
   end
 
   object :author do
@@ -59,5 +56,13 @@ defmodule MastaniServerWeb.Schema.CMS.PostTypes do
 
       resolve(&Resolvers.CMS.Post.start_post/3)
     end
+
+    @desc "delete a cms/post"
+    field :delete_post, :post do
+      arg(:post_id, non_null(:id))
+
+      resolve(&Resolvers.CMS.Post.delete_post/3)
+    end
+
   end
 end

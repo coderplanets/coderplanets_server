@@ -98,17 +98,30 @@ defmodule MastaniServer.CMS do
   def star_post(post_id, user_id) do
     with {:ok, post} <- find_post(post_id),
          {:ok, user} <- Accounts.find_user(user_id) do
-      # IO.inspect(post, label: 'start_post post')
-      # IO.inspect(user, label: 'start_post user')
-      post
-      |> Repo.preload(:starredUsers)
+      # |> Ecto.Changeset.put_assoc(:starredUsers, [user])
+      # |> Ecto.Changeset.put_assoc(:starredUsers, Enum.map([user], &Ecto.Changeset.change/1))
+      post_with_starredUsers = post |> Repo.preload(:starredUsers)
+      # see virviil's answer in:
+      # https://elixirforum.com/t/many-to-many-associations-in-phoenix-and-ecto/1043/6
+
+      post_with_starredUsers
       |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:starredUsers, [user])
+      |> Ecto.Changeset.put_assoc(:starredUsers, post_with_starredUsers.starredUsers ++ [user])
       |> Repo.update()
     else
       {:error, reason} ->
         {:error, reason}
     end
+  end
+
+  def delete_content(content_id) do
+    with {:ok, post} <- find_post(content_id) do
+     delete_post(post)
+    else
+      {:error, reason} ->
+        {:error, reason}
+    end
+
   end
 
   @doc """
