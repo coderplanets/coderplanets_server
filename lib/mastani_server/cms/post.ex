@@ -14,7 +14,13 @@ defmodule MastaniServer.CMS.Post do
     field(:viewerCanWatch, :boolean, default: false)
     field(:viewsCount, :integer)
     belongs_to(:author, Author)
-    many_to_many(:starredUsers, Accounts.User, join_through: "users_posts_stars", on_delete: :delete_all)
+
+    many_to_many(
+      :starredUsers,
+      Accounts.User,
+      join_through: "users_posts_stars",
+      on_delete: :delete_all
+    )
 
     timestamps()
   end

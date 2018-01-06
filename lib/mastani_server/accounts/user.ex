@@ -9,7 +9,13 @@ defmodule MastaniServer.Accounts.User do
     field(:nickname, :string)
     field(:bio, :string)
     field(:company, :string)
-    many_to_many(:starredPosts, CMS.Post, join_through: "users_posts_stars", on_delete: :delete_all)
+
+    many_to_many(
+      :starredPosts,
+      CMS.Post,
+      join_through: "users_posts_stars",
+      on_delete: :delete_all
+    )
 
     timestamps()
   end

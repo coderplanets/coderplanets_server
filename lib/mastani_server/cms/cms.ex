@@ -116,12 +116,11 @@ defmodule MastaniServer.CMS do
 
   def delete_content(content_id) do
     with {:ok, post} <- find_post(content_id) do
-     delete_post(post)
+      delete_post(post)
     else
       {:error, reason} ->
         {:error, reason}
     end
-
   end
 
   @doc """

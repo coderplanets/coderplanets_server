@@ -63,6 +63,5 @@ defmodule MastaniServerWeb.Schema.CMS.PostTypes do
 
       resolve(&Resolvers.CMS.Post.delete_post/3)
     end
-
   end
 end

@@ -24,5 +24,4 @@ defmodule MastaniServerWeb.Resolvers.CMS.Post do
   def delete_post(_root, %{post_id: post_id}, _info) do
     CMS.delete_content(post_id) |> Hepler.deal_withit()
   end
-
 end
