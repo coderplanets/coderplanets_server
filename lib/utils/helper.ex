@@ -43,7 +43,7 @@ defmodule MastaniServer.Utils.Hepler do
   return General {:ok, ..} or {:error, ..} return value
   """
 
-  def deal_withit(message) do
+  def orm_resp(message) do
     case message do
       {:ok, whatever} ->
         {:ok, whatever}

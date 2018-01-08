@@ -34,6 +34,8 @@ defmodule MastaniServer.CMS do
 
   """
 
+  # def create_content(%Author{} = author, attrs \\ %{}), do ...
+
   def create_post(%Author{} = author, attrs \\ %{}) do
     case ensure_author_exists(%Accounts.User{id: author.user_id}) do
       {:ok, author} ->
@@ -47,9 +49,10 @@ defmodule MastaniServer.CMS do
     end
   end
 
-  def ensure_author_exists(%Accounts.User{} = user) do
-    # unique_constraint: avoid race conditions
-    # foreign_key_constraint: check user_id exsit
+  defp ensure_author_exists(%Accounts.User{} = user) do
+    # unique_constraint: avoid race conditions, make sure user_id unique
+    # foreign_key_constraint: check foreign key: user_id exsit or not
+    # see alos no_assoc_constraint in https://hexdocs.pm/ecto/Ecto.Changeset.html
     %Author{user_id: user.id}
     |> Ecto.Changeset.change()
     |> Ecto.Changeset.unique_constraint(:user_id)
@@ -70,43 +73,15 @@ defmodule MastaniServer.CMS do
     end
   end
 
-  @doc """
-  Gets a single post.
-
-  Raises nil if the Post does not exist.
-
-  ## Examples
-
-  iex> get_post!(123)
-  %Post{}
-
-  iex> get_post(456)
-  ** nil
-  """
-  def get_post(id), do: Repo.get(Post, id)
-
-  def find_post(id) do
-    case get_post(id) do
-      nil ->
-        {:error, "post id #{id} not found."}
-
-      post ->
-        {:ok, post}
-    end
-  end
-
-  def star_post(post_id, user_id) do
-    with {:ok, post} <- find_post(post_id),
+  def star_content(type, content_id, user_id) do
+    with {:ok, content} <- which_content(type),
+         {:ok, target} <- find_content(content, content_id),
          {:ok, user} <- Accounts.find_user(user_id) do
-      # |> Ecto.Changeset.put_assoc(:starredUsers, [user])
-      # |> Ecto.Changeset.put_assoc(:starredUsers, Enum.map([user], &Ecto.Changeset.change/1))
-      post_with_starredUsers = post |> Repo.preload(:starredUsers)
-      # see virviil's answer in:
-      # https://elixirforum.com/t/many-to-many-associations-in-phoenix-and-ecto/1043/6
+      target_with_starredUsers = target |> Repo.preload(:starredUsers)
 
-      post_with_starredUsers
+      target_with_starredUsers
       |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:starredUsers, post_with_starredUsers.starredUsers ++ [user])
+      |> Ecto.Changeset.put_assoc(:starredUsers, target_with_starredUsers.starredUsers ++ [user])
       |> Repo.update()
     else
       {:error, reason} ->
@@ -114,9 +89,10 @@ defmodule MastaniServer.CMS do
     end
   end
 
-  def delete_content(content_id) do
-    with {:ok, post} <- find_post(content_id) do
-      delete_post(post)
+  def delete_content(type, id) do
+    with {:ok, content} <- which_content(type),
+         {:ok, target} <- find_content(content, id) do
+      target |> Repo.delete()
     else
       {:error, reason} ->
         {:error, reason}
@@ -139,22 +115,6 @@ defmodule MastaniServer.CMS do
     post
     |> Post.changeset(attrs)
     |> Repo.update()
-  end
-
-  @doc """
-  Deletes a Post.
-
-  ## Examples
-
-      iex> delete_post(post)
-      {:ok, %Post{}}
-
-      iex> delete_post(post)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_post(%Post{} = post) do
-    Repo.delete(post)
   end
 
   @doc """
@@ -264,5 +224,18 @@ defmodule MastaniServer.CMS do
   """
   def change_author(%Author{} = author) do
     Author.changeset(author, %{})
+  end
+
+  defp which_content(:post), do: {:ok, Post}
+  defp which_content(_), do: {:error, "cms do not support this content"}
+
+  defp find_content(content, id) do
+    case Repo.get(content, id) do
+      nil ->
+        {:error, "#{content} id #{id} not found."}
+
+      content ->
+        {:ok, content}
+    end
   end
 end

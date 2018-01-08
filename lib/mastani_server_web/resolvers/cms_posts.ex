@@ -8,7 +8,7 @@ defmodule MastaniServerWeb.Resolvers.CMS.Post do
   end
 
   def create_post(_root, args, %{context: %{current_user: user}}) do
-    CMS.create_post(%CMS.Author{user_id: user.id}, args) |> Hepler.deal_withit()
+    CMS.create_post(%CMS.Author{user_id: user.id}, args) |> Hepler.orm_resp()
   end
 
   # TODO: use middleware
@@ -18,10 +18,10 @@ defmodule MastaniServerWeb.Resolvers.CMS.Post do
 
   # def start_post(_root, args, _info) do
   def start_post(_root, %{user_id: user_id, post_id: post_id}, _info) do
-    CMS.star_post(post_id, user_id) |> Hepler.deal_withit()
+    CMS.star_content(:post, post_id, user_id) |> Hepler.orm_resp()
   end
 
   def delete_post(_root, %{post_id: post_id}, _info) do
-    CMS.delete_content(post_id) |> Hepler.deal_withit()
+    CMS.delete_content(:post, post_id) |> Hepler.orm_resp()
   end
 end
