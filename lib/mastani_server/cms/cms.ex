@@ -5,7 +5,7 @@ defmodule MastaniServer.CMS do
 
   import Ecto.Query, warn: false
 
-  alias MastaniServer.CMS.{Post, Author,Comment}
+  alias MastaniServer.CMS.{Post, Author, Comment}
   alias MastaniServer.{Repo, Accounts}
 
   @doc """
@@ -93,13 +93,14 @@ defmodule MastaniServer.CMS do
     # TODO: use Multi to do it
     with {:ok, post} <- find_content(Post, post_id),
          {:ok, comment} <- create_comment(%{body: body}) do
+      post_with_comments = post |> Repo.preload(:comments)
 
-    post_with_comments = post |> Repo.preload(:comments)
-    post_with_comments
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_assoc(:comments, post_with_comments.comments ++ [comment])
-    |> Repo.update()
-    # die
+      post_with_comments
+      |> Ecto.Changeset.change()
+      |> Ecto.Changeset.put_assoc(:comments, post_with_comments.comments ++ [comment])
+      |> Repo.update()
+
+      # die
     else
       {:error, reason} ->
         {:error, reason}

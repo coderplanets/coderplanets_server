@@ -54,6 +54,5 @@ defmodule MastaniServerWeb.Schema.CMSOps do
       # TDOO: use a comment resolver
       resolve(&Resolvers.CMS.Post.create_comment/3)
     end
-
   end
 end

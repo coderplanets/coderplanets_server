@@ -32,5 +32,4 @@ defmodule MastaniServerWeb.Resolvers.CMS.Post do
   def create_comment(_root, %{body: body}, _info) do
     CMS.create_comment(%{body: body}) |> Hepler.orm_resp()
   end
-
 end

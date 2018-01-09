@@ -3,7 +3,7 @@ defmodule MastaniServer.Repo.Migrations.CreateComments do
 
   def change do
     create table(:cms_comments) do
-      add :body, :string
+      add(:body, :string)
 
       timestamps()
     end

@@ -1,4 +1,3 @@
-
 defmodule MastaniServerWeb.Schema.CMSTypes do
   use Absinthe.Schema.Notation
   use Absinthe.Ecto, repo: MastaniServer.Repo
@@ -29,9 +28,8 @@ defmodule MastaniServerWeb.Schema.CMSTypes do
     field(:posts, list_of(:post), resolve: assoc(:posts))
   end
 
-  object :comment  do
+  object :comment do
     field(:id, non_null(:id))
     field(:body, :string)
   end
-
 end

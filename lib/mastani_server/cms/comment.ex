@@ -3,9 +3,8 @@ defmodule MastaniServer.CMS.Comment do
   import Ecto.Changeset
   alias MastaniServer.CMS.Comment
 
-
   schema "cms_comments" do
-    field :body, :string
+    field(:body, :string)
 
     timestamps()
   end

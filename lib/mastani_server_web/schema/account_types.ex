@@ -23,5 +23,4 @@ defmodule MastaniServerWeb.Schema.AccountOps do
     field(:total_count, :integer)
     field(:page_size, :integer)
   end
-
 end

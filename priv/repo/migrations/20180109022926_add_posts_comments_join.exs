@@ -6,6 +6,5 @@ defmodule MastaniServer.Repo.Migrations.AddPostsCommentsJoin do
       add(:post_id, references(:cms_posts))
       add(:comment_id, references(:cms_comments))
     end
-
   end
 end
