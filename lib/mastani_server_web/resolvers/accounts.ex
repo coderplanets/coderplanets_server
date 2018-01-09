@@ -1,5 +1,5 @@
 defmodule MastaniServerWeb.Resolvers.Accounts do
-  alias MastaniServer.Accounts
+  alias MastaniServer.{Repo, Accounts}
 
   def all_users(_root, _args, _info) do
     users = Accounts.list_users()
@@ -14,6 +14,9 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     {:ok, token, claims} = Accounts.login(39)
     # IO.inspect(token, label: 'token: ')
     # IO.inspect(claims, label: 'claims: ')
+
+    # fuck = Accounts.User |> Repo.paginate(page: 1, page_size: 2)
+    # IO.inspect fuck.entries, label: 'fuck'
 
     {:ok, %{entries: users, total_count: 100, page_size: 2}}
   end

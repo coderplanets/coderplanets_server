@@ -8,7 +8,8 @@ defmodule MastaniServer.CMS.Author do
     field(:role, :string)
     # field(:user_id, :id)
     has_many(:posts, Post)
-    belongs_to(:user, Accounts.User) # user_id filed in own-table
+    # user_id filed in own-table
+    belongs_to(:user, Accounts.User)
 
     timestamps()
   end
