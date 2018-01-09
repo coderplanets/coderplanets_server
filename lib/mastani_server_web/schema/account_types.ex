@@ -1,8 +1,6 @@
-defmodule MastaniServerWeb.Schema.AccountOps do
+defmodule MastaniServerWeb.Schema.Account.Types do
   use Absinthe.Schema.Notation
   use Absinthe.Ecto, repo: MastaniServerWeb.Repo
-
-  alias MastaniServerWeb.Resolvers.Accounts
 
   object :page_info do
     field(:total_count, :integer)
@@ -22,5 +20,7 @@ defmodule MastaniServerWeb.Schema.AccountOps do
     field(:entries, non_null(list_of(non_null(:user))))
     field(:total_count, :integer)
     field(:page_size, :integer)
+    field(:total_pages, :integer)
+    field(:page_number, :integer)
   end
 end

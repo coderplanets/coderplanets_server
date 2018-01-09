@@ -1,15 +1,40 @@
 defmodule MastaniServer.Utils.Hepler do
-  alias MastaniServer.Repo
+  @doc """
+  return General {:ok, ..} or {:error, ..} return value
+  """
 
-  def repo_insert(changeset) do
-    case Repo.insert(changeset) do
+  # defguardp is_empty(s) when byte_sise(error) == 0
+
+  def access_deny(type) do
+    case type do
+      :login -> {:error, "Access denied: need login"}
+      :root -> {:error, "need root to do this"}
+    end
+  end
+
+  def orm_resp(message) do
+    case message do
       {:ok, whatever} ->
         {:ok, whatever}
 
-      {:error, changeset} ->
-        # IO.inspect(changeset, label: "create user")
-        # IO.inspect(errors, label: "after")
+      {:error, %Ecto.Changeset{} = changeset} ->
         {:error, format_error(changeset)}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  def orm_resp(message, err_code: code) do
+    case message do
+      {:ok, whatever} ->
+        {:ok, whatever}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:error, format_error(changeset, code)}
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
@@ -19,12 +44,11 @@ defmodule MastaniServer.Utils.Hepler do
   #   {:error, %{message: "A database error occurred", details: "format_db_error(some_value)", code: 234}}
   #   {:error, ["Something bad", "Even worse"]}
   #   {:error, message: "Unknown user", code: 21}
-  defp format_error(changeset) do
+  defp format_error(changeset, code \\ 710) do
     Enum.map(changeset.errors, fn {field, detail} ->
       %{
-        code: 22,
-        message: "#{field}",
-        detail: render_detail(detail)
+        code: code,
+        message: "#{field} #{render_detail(detail)}"
       }
     end)
   end
@@ -37,19 +61,5 @@ defmodule MastaniServer.Utils.Hepler do
 
   defp render_detail(message) do
     message
-  end
-
-  @doc """
-  return General {:ok, ..} or {:error, ..} return value
-  """
-
-  def orm_resp(message) do
-    case message do
-      {:ok, whatever} ->
-        {:ok, whatever}
-
-      {:error, reason} ->
-        {:error, reason}
-    end
   end
 end

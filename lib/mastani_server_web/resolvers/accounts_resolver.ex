@@ -1,5 +1,6 @@
 defmodule MastaniServerWeb.Resolvers.Accounts do
   alias MastaniServer.{Repo, Accounts}
+  alias MastaniServer.Utils.Hepler
 
   def all_users(_root, _args, _info) do
     users = Accounts.list_users()
@@ -24,13 +25,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   def create_user(_root, args, %{context: %{current_user: %{root: true}}}) do
     # IO.inspect(user, label: "create_post current_user")
     # IO.inspect(args, label: "create_post args")
-    case Accounts.create_user(args) do
-      {:ok, user} ->
-        {:ok, user}
-
-      {:error, errors} ->
-        {:error, errors}
-    end
+    Accounts.create_user(args) |> Hepler.orm_resp()
   end
 
   def create_user(_root, _args, _info) do

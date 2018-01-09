@@ -1,6 +1,8 @@
-defmodule MastaniServerWeb.Schema.CMSTypes do
+defmodule MastaniServerWeb.Schema.CMS.Types do
   use Absinthe.Schema.Notation
   use Absinthe.Ecto, repo: MastaniServer.Repo
+
+  alias MastaniServerWeb.Resolvers
 
   object :post do
     field(:id, non_null(:id))
@@ -9,6 +11,13 @@ defmodule MastaniServerWeb.Schema.CMSTypes do
     field(:author, :author, resolve: assoc(:author))
     # note the name convention here
     field(:starred_users, list_of(:user), resolve: assoc(:starredUsers))
+
+    # TODO: isViewerfavorited
+    field :favorites, list_of(:user) do
+      resolve(&Resolvers.CMS.favorites_users/3)
+    end
+
+    # field(:starred_users, list_of(:user), resolve: assoc(:starredUsers))
 
     # field :starred_users, list_of(:user) do
     # resolve(

@@ -223,4 +223,124 @@ defmodule MastaniServer.CMSTest do
       assert %Ecto.Changeset{} = CMS.change_comment(comment)
     end
   end
+
+  describe "post_favorites" do
+    alias MastaniServer.CMS.PostFavorite
+
+    @valid_attrs %{todo: "some todo"}
+    @update_attrs %{todo: "some updated todo"}
+    @invalid_attrs %{todo: nil}
+
+    def post_favorite_fixture(attrs \\ %{}) do
+      {:ok, post_favorite} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> CMS.create_post_favorite()
+
+      post_favorite
+    end
+
+    test "list_post_favorites/0 returns all post_favorites" do
+      post_favorite = post_favorite_fixture()
+      assert CMS.list_post_favorites() == [post_favorite]
+    end
+
+    test "get_post_favorite!/1 returns the post_favorite with given id" do
+      post_favorite = post_favorite_fixture()
+      assert CMS.get_post_favorite!(post_favorite.id) == post_favorite
+    end
+
+    test "create_post_favorite/1 with valid data creates a post_favorite" do
+      assert {:ok, %PostFavorite{} = post_favorite} = CMS.create_post_favorite(@valid_attrs)
+      assert post_favorite.todo == "some todo"
+    end
+
+    test "create_post_favorite/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = CMS.create_post_favorite(@invalid_attrs)
+    end
+
+    test "update_post_favorite/2 with valid data updates the post_favorite" do
+      post_favorite = post_favorite_fixture()
+      assert {:ok, post_favorite} = CMS.update_post_favorite(post_favorite, @update_attrs)
+      assert %PostFavorite{} = post_favorite
+      assert post_favorite.todo == "some updated todo"
+    end
+
+    test "update_post_favorite/2 with invalid data returns error changeset" do
+      post_favorite = post_favorite_fixture()
+      assert {:error, %Ecto.Changeset{}} = CMS.update_post_favorite(post_favorite, @invalid_attrs)
+      assert post_favorite == CMS.get_post_favorite!(post_favorite.id)
+    end
+
+    test "delete_post_favorite/1 deletes the post_favorite" do
+      post_favorite = post_favorite_fixture()
+      assert {:ok, %PostFavorite{}} = CMS.delete_post_favorite(post_favorite)
+      assert_raise Ecto.NoResultsError, fn -> CMS.get_post_favorite!(post_favorite.id) end
+    end
+
+    test "change_post_favorite/1 returns a post_favorite changeset" do
+      post_favorite = post_favorite_fixture()
+      assert %Ecto.Changeset{} = CMS.change_post_favorite(post_favorite)
+    end
+  end
+
+  describe "post_stars" do
+    alias MastaniServer.CMS.PostStar
+
+    @valid_attrs %{todo: "some todo"}
+    @update_attrs %{todo: "some updated todo"}
+    @invalid_attrs %{todo: nil}
+
+    def post_star_fixture(attrs \\ %{}) do
+      {:ok, post_star} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> CMS.create_post_star()
+
+      post_star
+    end
+
+    test "list_post_stars/0 returns all post_stars" do
+      post_star = post_star_fixture()
+      assert CMS.list_post_stars() == [post_star]
+    end
+
+    test "get_post_star!/1 returns the post_star with given id" do
+      post_star = post_star_fixture()
+      assert CMS.get_post_star!(post_star.id) == post_star
+    end
+
+    test "create_post_star/1 with valid data creates a post_star" do
+      assert {:ok, %PostStar{} = post_star} = CMS.create_post_star(@valid_attrs)
+      assert post_star.todo == "some todo"
+    end
+
+    test "create_post_star/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = CMS.create_post_star(@invalid_attrs)
+    end
+
+    test "update_post_star/2 with valid data updates the post_star" do
+      post_star = post_star_fixture()
+      assert {:ok, post_star} = CMS.update_post_star(post_star, @update_attrs)
+      assert %PostStar{} = post_star
+      assert post_star.todo == "some updated todo"
+    end
+
+    test "update_post_star/2 with invalid data returns error changeset" do
+      post_star = post_star_fixture()
+      assert {:error, %Ecto.Changeset{}} = CMS.update_post_star(post_star, @invalid_attrs)
+      assert post_star == CMS.get_post_star!(post_star.id)
+    end
+
+    test "delete_post_star/1 deletes the post_star" do
+      post_star = post_star_fixture()
+      assert {:ok, %PostStar{}} = CMS.delete_post_star(post_star)
+      assert_raise Ecto.NoResultsError, fn -> CMS.get_post_star!(post_star.id) end
+    end
+
+    test "change_post_star/1 returns a post_star changeset" do
+      post_star = post_star_fixture()
+      assert %Ecto.Changeset{} = CMS.change_post_star(post_star)
+    end
+  end
 end

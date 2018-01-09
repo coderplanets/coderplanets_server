@@ -1,7 +1,7 @@
 defmodule MastaniServer.CMS.Post do
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Post, Author, Comment}
+  alias MastaniServer.CMS.{Post, Author, Comment, PostFavorite, PostStar}
   alias MastaniServer.Accounts
 
   schema "cms_posts" do
@@ -23,6 +23,9 @@ defmodule MastaniServer.CMS.Post do
     )
 
     many_to_many(:comments, Comment, join_through: "cms_posts_comments")
+    has_many(:favorites, {"post_favorites", PostFavorite})
+    has_many(:stars, {"post_stars", PostStar})
+    # has_many(:watches, {"post_watches", PostWatch})
 
     timestamps()
   end

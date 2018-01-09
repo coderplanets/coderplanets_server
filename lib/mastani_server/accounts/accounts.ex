@@ -3,7 +3,7 @@ defmodule MastaniServer.Accounts do
   alias MastaniServer.Repo
 
   alias MastaniServer.Accounts.User
-  alias MastaniServer.Utils.{Hepler, Guardian}
+  alias MastaniServer.Utils.Guardian
 
   def list_users do
     Repo.all(User)
@@ -23,10 +23,9 @@ defmodule MastaniServer.Accounts do
 
   def create_user(attrs \\ %{}) do
     # changeset = User.changeset(%User{}, attrs)
-    # Hepler.repo_insert(changeset)
     %User{}
     |> User.changeset(attrs)
-    |> Hepler.repo_insert()
+    |> Repo.insert()
   end
 
   def login(user_id) do

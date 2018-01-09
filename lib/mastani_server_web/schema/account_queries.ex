@@ -1,4 +1,4 @@
-defmodule MastaniServerWeb.Schema.AccountTypes do
+defmodule MastaniServerWeb.Schema.Account.Queries do
   use Absinthe.Schema.Notation
   use Absinthe.Ecto, repo: MastaniServerWeb.Repo
 
@@ -12,18 +12,6 @@ defmodule MastaniServerWeb.Schema.AccountTypes do
 
     field :all_users2, non_null(:paged_users) do
       resolve(&Accounts.all_users2/3)
-    end
-  end
-
-  object :account_mutations do
-    @desc "hehehef: create a user"
-    field :create_user, :user do
-      arg(:username, non_null(:string))
-      arg(:nickname, non_null(:string))
-      arg(:bio, non_null(:string))
-      arg(:company, non_null(:string))
-
-      resolve(&Accounts.create_user/3)
     end
   end
 end
