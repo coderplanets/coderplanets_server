@@ -6,7 +6,7 @@ defmodule MastaniServer.CMS.PostStar do
 
   @required_fields ~w(user_id post_id)a
 
-  schema "post_stars" do
+  schema "posts_stars" do
     belongs_to(:user, Accounts.User, foreign_key: :user_id)
     belongs_to(:post, Post, foreign_key: :post_id)
 
@@ -19,6 +19,6 @@ defmodule MastaniServer.CMS.PostStar do
     post_star
     |> cast(attrs, @required_fields)
     |> validate_required(@required_fields)
-    |> unique_constraint(:user_id, name: :post_stars_user_id_post_id_index)
+    |> unique_constraint(:user_id, name: :posts_stars_user_id_post_id_index)
   end
 end

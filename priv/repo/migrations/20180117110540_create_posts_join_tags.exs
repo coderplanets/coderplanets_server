@@ -1,0 +1,12 @@
+defmodule MastaniServer.Repo.Migrations.CreatePostsJoinTags do
+  use Ecto.Migration
+
+  def change do
+    create table(:posts_join_tags) do
+      add(:tag_id, references(:post_tags, on_delete: :delete_all), null: false)
+      add(:post_id, references(:cms_posts, on_delete: :delete_all), null: false)
+    end
+
+    create(unique_index(:posts_join_tags, [:tag_id, :post_id]))
+  end
+end

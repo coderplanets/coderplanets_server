@@ -1,30 +1,28 @@
 defmodule MastaniServer.CMS.Post do
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Post, Author, Comment, PostFavorite, PostStar}
-  alias MastaniServer.Accounts
+  alias MastaniServer.CMS.{Post, Author, PostComment, PostFavorite, PostStar, PostTag}
+  # alias MastaniServer.Accounts
 
   schema "cms_posts" do
     field(:body, :string)
-    field(:isRefined, :boolean, default: false)
-    field(:isSticky, :boolean, default: false)
     field(:title, :string)
-    field(:viewerCanCollect, :boolean, default: false)
-    field(:viewerCanStar, :boolean, default: false)
-    field(:viewerCanWatch, :boolean, default: false)
-    field(:viewsCount, :integer)
+    field(:views, :integer, default: 0)
     belongs_to(:author, Author)
 
+    # many_to_many(:comments, Comment, join_through: "posts_comments")
+    has_many(:comments, {"posts_comments", PostComment})
+    has_many(:favorites, {"posts_favorites", PostFavorite})
+    has_many(:stars, {"posts_stars", PostStar})
+    # The keys are inflected from the schema names!
+    # see https://hexdocs.pm/ecto/Ecto.Schema.html
     many_to_many(
-      :starredUsers,
-      Accounts.User,
-      join_through: "users_posts_stars",
-      on_delete: :delete_all
+      :tags,
+      PostTag,
+      join_through: "posts_join_tags",
+      join_keys: [post_id: :id, tag_id: :id]
     )
 
-    many_to_many(:comments, Comment, join_through: "cms_posts_comments")
-    has_many(:favorites, {"post_favorites", PostFavorite})
-    has_many(:stars, {"post_stars", PostStar})
     # has_many(:watches, {"post_watches", PostWatch})
 
     timestamps()

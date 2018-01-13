@@ -42,7 +42,7 @@ defmodule MastaniServer.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       # GraphQl tool
-      {:absinthe, "~> 1.4.5"},
+      {:absinthe, "~> 1.4.6"},
       {:absinthe_ecto, "~> 0.1.3"},
       # Plug support for Absinthe
       {:absinthe_plug, "~> 1.4.2"},

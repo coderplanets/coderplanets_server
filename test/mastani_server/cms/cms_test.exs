@@ -284,7 +284,7 @@ defmodule MastaniServer.CMSTest do
     end
   end
 
-  describe "post_stars" do
+  describe "posts_stars" do
     alias MastaniServer.CMS.PostStar
 
     @valid_attrs %{todo: "some todo"}
@@ -341,6 +341,66 @@ defmodule MastaniServer.CMSTest do
     test "change_post_star/1 returns a post_star changeset" do
       post_star = post_star_fixture()
       assert %Ecto.Changeset{} = CMS.change_post_star(post_star)
+    end
+  end
+
+  describe "posts_comments" do
+    alias MastaniServer.CMS.PostComment
+
+    @valid_attrs %{body: "some body"}
+    @update_attrs %{body: "some updated body"}
+    @invalid_attrs %{body: nil}
+
+    def post_comment_fixture(attrs \\ %{}) do
+      {:ok, post_comment} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> CMS.create_post_comment()
+
+      post_comment
+    end
+
+    test "list_posts_comments/0 returns all posts_comments" do
+      post_comment = post_comment_fixture()
+      assert CMS.list_posts_comments() == [post_comment]
+    end
+
+    test "get_post_comment!/1 returns the post_comment with given id" do
+      post_comment = post_comment_fixture()
+      assert CMS.get_post_comment!(post_comment.id) == post_comment
+    end
+
+    test "create_post_comment/1 with valid data creates a post_comment" do
+      assert {:ok, %PostComment{} = post_comment} = CMS.create_post_comment(@valid_attrs)
+      assert post_comment.body == "some body"
+    end
+
+    test "create_post_comment/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = CMS.create_post_comment(@invalid_attrs)
+    end
+
+    test "update_post_comment/2 with valid data updates the post_comment" do
+      post_comment = post_comment_fixture()
+      assert {:ok, post_comment} = CMS.update_post_comment(post_comment, @update_attrs)
+      assert %PostComment{} = post_comment
+      assert post_comment.body == "some updated body"
+    end
+
+    test "update_post_comment/2 with invalid data returns error changeset" do
+      post_comment = post_comment_fixture()
+      assert {:error, %Ecto.Changeset{}} = CMS.update_post_comment(post_comment, @invalid_attrs)
+      assert post_comment == CMS.get_post_comment!(post_comment.id)
+    end
+
+    test "delete_post_comment/1 deletes the post_comment" do
+      post_comment = post_comment_fixture()
+      assert {:ok, %PostComment{}} = CMS.delete_post_comment(post_comment)
+      assert_raise Ecto.NoResultsError, fn -> CMS.get_post_comment!(post_comment.id) end
+    end
+
+    test "change_post_comment/1 returns a post_comment changeset" do
+      post_comment = post_comment_fixture()
+      assert %Ecto.Changeset{} = CMS.change_post_comment(post_comment)
     end
   end
 end

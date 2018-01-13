@@ -6,7 +6,7 @@ defmodule MastaniServer.CMS.PostFavorite do
 
   @required_fields ~w(user_id post_id)a
 
-  schema "post_favorites" do
+  schema "posts_favorites" do
     belongs_to(:user, Accounts.User, foreign_key: :user_id)
     belongs_to(:post, Post, foreign_key: :post_id)
 
@@ -15,10 +15,9 @@ defmodule MastaniServer.CMS.PostFavorite do
 
   @doc false
   def changeset(%PostFavorite{} = post_favorite, attrs) do
-    # |> unique_constraint(:user_id, name: :favorites_user_id_article_id_index)
     post_favorite
     |> cast(attrs, @required_fields)
     |> validate_required(@required_fields)
-    |> unique_constraint(:user_id, name: :post_favorites_user_id_post_id_index)
+    |> unique_constraint(:user_id, name: :posts_favorites_user_id_post_id_index)
   end
 end

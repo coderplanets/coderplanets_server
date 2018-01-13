@@ -2,20 +2,12 @@ defmodule MastaniServer.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
   alias MastaniServer.Accounts.User
-  alias MastaniServer.CMS
 
   schema "users" do
     field(:username, :string)
     field(:nickname, :string)
     field(:bio, :string)
     field(:company, :string)
-
-    many_to_many(
-      :starredPosts,
-      CMS.Post,
-      join_through: "users_posts_stars",
-      on_delete: :delete_all
-    )
 
     timestamps()
   end
