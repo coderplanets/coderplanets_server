@@ -9,16 +9,33 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
     field :create_post, :post do
       arg(:title, non_null(:string))
       arg(:body, non_null(:string))
+      arg(:digest, non_null(:string))
+      arg(:length, non_null(:integer))
+      arg(:link_addr, :string)
 
       resolve(&Resolvers.CMS.create_post/3)
     end
 
-    @desc "create a post tag"
+    @desc "create a tag by part"
     field :create_tag, :tag do
       arg(:title, non_null(:string))
+      arg(:color, non_null(:rainbow_color_enum))
+      arg(:community, non_null(:string))
       arg(:type, :cms_part, default_value: :post)
 
       resolve(&Resolvers.CMS.create_tag/3)
+    end
+
+    field :create_community, :community do
+      arg(:title, non_null(:string))
+      arg(:desc, non_null(:string))
+
+      resolve(&Resolvers.CMS.create_community/3)
+    end
+
+    field :delete_community, :community do
+      arg(:id, non_null(:id))
+      resolve(&Resolvers.CMS.delete_community/3)
     end
 
     field :set_tag, :tag do

@@ -1,12 +1,15 @@
 defmodule MastaniServer.CMS.Post do
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Post, Author, PostComment, PostFavorite, PostStar, PostTag}
+  alias MastaniServer.CMS.{Post, Author, PostComment, PostFavorite, PostStar, Tag, Community}
   # alias MastaniServer.Accounts
 
   schema "cms_posts" do
     field(:body, :string)
     field(:title, :string)
+    field(:digest, :string)
+    field(:link_addr, :string)
+    field(:length, :integer)
     field(:views, :integer, default: 0)
     belongs_to(:author, Author)
 
@@ -18,12 +21,16 @@ defmodule MastaniServer.CMS.Post do
     # see https://hexdocs.pm/ecto/Ecto.Schema.html
     many_to_many(
       :tags,
-      PostTag,
-      join_through: "posts_join_tags",
+      Tag,
+      join_through: "posts_tags",
       join_keys: [post_id: :id, tag_id: :id]
     )
 
-    # has_many(:watches, {"post_watches", PostWatch})
+    many_to_many(
+      :communities,
+      Community,
+      join_through: "communities_posts"
+    )
 
     timestamps()
   end
@@ -43,22 +50,13 @@ defmodule MastaniServer.CMS.Post do
   # end
   # create(index(:cms_posts, [:author_id]))
 
+  @required_fields ~w(title body digest length)a
+  @optional_fields ~w(link_addr)a
+
   @doc false
   def changeset(%Post{} = post, attrs) do
     post
-    |> cast(attrs, [
-      :title,
-      :body
-      # :viewsCount
-      # :isRefined,
-      # :isSticky,
-      # :viewerCanStar,
-      # :viewerCanWatch,
-      # :viewerCanCollect
-    ])
-    |> validate_required([
-      :title,
-      :body
-    ])
+    |> cast(attrs, @optional_fields ++ @required_fields)
+    |> validate_required(@required_fields)
   end
 end

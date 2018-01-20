@@ -3,7 +3,6 @@ defmodule MastaniServer.Repo.Migrations.AddViewsToCmsPosts do
 
   def change do
     alter table(:cms_posts) do
-      remove(:viewsCount)
       add(:views, :integer, default: 0)
     end
   end

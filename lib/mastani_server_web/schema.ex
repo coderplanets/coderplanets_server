@@ -1,16 +1,16 @@
 defmodule MastaniServerWeb.Schema do
   use Absinthe.Schema
-  alias MastaniServerWeb.Schema.{Account, CMS}
+  alias MastaniServerWeb.Schema
 
   import_types(Absinthe.Type.Custom)
 
-  import_types(Account.Types)
-  import_types(Account.Queries)
-  import_types(Account.Mutations)
+  import_types(Schema.Account.Types)
+  import_types(Schema.Account.Queries)
+  import_types(Schema.Account.Mutations)
 
-  import_types(CMS.Types)
-  import_types(CMS.Queries)
-  import_types(CMS.Mutations)
+  import_types(Schema.CMS.Types)
+  import_types(Schema.CMS.Queries)
+  import_types(Schema.CMS.Mutations)
 
   query do
     import_fields(:account_queries)

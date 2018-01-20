@@ -23,7 +23,7 @@ defmodule MastaniServer.Accounts.User do
     user
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
-    |> validate_length(:username, max: 5)
+    |> validate_length(:username, max: 20)
     |> unique_constraint(:username)
   end
 end

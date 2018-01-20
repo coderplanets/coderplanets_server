@@ -5,7 +5,7 @@ defmodule MastaniServer.CMS do
 
   import Ecto.Query, warn: false
 
-  alias MastaniServer.CMS.{Post, Author, PostFavorite, PostStar, PostComment, PostTag}
+  alias MastaniServer.CMS.{Post, Author, PostFavorite, PostStar, PostComment, Tag, Community}
   alias MastaniServer.{Repo, Accounts}
   alias MastaniServer.Utils.Helper
 
@@ -16,7 +16,8 @@ defmodule MastaniServer.CMS do
 
   defp match_action(:post, :star), do: {:ok, %{target: Post, reactor: PostStar, preload: :user}}
 
-  defp match_action(:post, :tag), do: {:ok, %{target: Post, reactor: PostTag}}
+  # defp match_action(:post, :tag), do: {:ok, %{target: Post, reactor: PostTag}}
+  defp match_action(:post, :tag), do: {:ok, %{target: Post, reactor: Tag}}
 
   defp match_action(:post, :comment),
     do: {:ok, %{target: Post, reactor: PostComment, preload: :author}}
@@ -41,13 +42,29 @@ defmodule MastaniServer.CMS do
     end
   end
 
+  def create_community(attrs) do
+    with {:ok, user} <- Helper.find(Accounts.User, attrs.user_id) do
+      %Community{}
+      |> Community.changeset(attrs |> Map.merge(%{user_id: user.id}))
+      |> Repo.insert()
+    end
+  end
+
+  def delete_community(id) do
+    with {:ok, community} <- Helper.find(Community, id) do
+      Repo.delete(community)
+    end
+  end
+
   @doc """
   create a Tag base on type: post / tuts / videos ...
   """
   def create_tag(part, attrs) when valid_part(part) do
-    with {:ok, action} <- match_action(part, :tag) do
+    # TODO: find user
+    with {:ok, action} <- match_action(part, :tag),
+         {:ok, community} <- Repo.get_by(Community, title: attrs.community) |> Helper.one_resp() do
       struct(action.reactor)
-      |> action.reactor.changeset(attrs)
+      |> action.reactor.changeset(attrs |> Map.merge(%{community_id: community.id}))
       |> Repo.insert()
     end
   end
@@ -55,6 +72,7 @@ defmodule MastaniServer.CMS do
   @doc """
   set tag for post / tuts / videos ...
   """
+  # check community first
   def set_tag(part, part_id, tag_id) when valid_part(part) do
     with {:ok, action} <- match_action(part, :tag),
          {:ok, content} <- Helper.find(action.target, part_id, preload: :tags),
@@ -64,6 +82,19 @@ defmodule MastaniServer.CMS do
       |> Ecto.Changeset.put_assoc(:tags, content.tags ++ [tag])
       |> Repo.update()
     end
+  end
+
+  # TODO: check community exsit
+  def get_tags(community, part) do
+    query =
+      Tag
+      |> join(:inner, [t], c in assoc(t, :community))
+      |> where([t, c], c.title == ^community and t.part == ^part)
+      |> distinct([t], t.title)
+
+    # |> select([t])
+    # IO.inspect Repo.all(query), label: "get tags"
+    {:ok, Repo.all(query)}
   end
 
   @doc """
@@ -186,15 +217,15 @@ defmodule MastaniServer.CMS do
       try do
         %{page: page, size: size} = filters
         filters = filters |> Map.delete(:page) |> Map.delete(:size)
-        plan_b(action, where, filters, page, size)
+        get_reaction_users_with_page(action, where, filters, page, size)
       rescue
         _ in MatchError ->
-          plan_a(action, react, where, filters)
+          get_reaction_users_without_page(action, react, where, filters)
       end
     end
   end
 
-  def plan_a(action, react, where, filters) do
+  defp get_reaction_users_without_page(action, react, where, filters) do
     query =
       action.reactor
       |> where(^where)
@@ -209,7 +240,7 @@ defmodule MastaniServer.CMS do
     end
   end
 
-  def plan_b(action, where, filters, page, size) do
+  def get_reaction_users_with_page(action, where, filters, page, size) do
     page =
       action.reactor
       |> where(^where)

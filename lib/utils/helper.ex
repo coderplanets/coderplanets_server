@@ -21,7 +21,7 @@ defmodule MastaniServer.Utils.Helper do
     |> one_resp()
   end
 
-  defp one_resp(message) do
+  def one_resp(message) do
     case message do
       nil ->
         {:error, "record not found."}

@@ -2,13 +2,13 @@
 
 alias MastaniServer.Mock
 
-# user = %{
-# username: "mydearxym",
-# nickname: "simon",
-# bio: "live everyday to the fullest",
-# company: "infomedia"
-# }
+user = %{
+  username: "mydearxym",
+  nickname: "simon",
+  bio: "live everyday to the fullest",
+  company: "infomedia"
+}
 
-# Mock.User.insert(user)
+Mock.User.insert(user)
 
-Mock.User.random(10)
+# Mock.User.random(10)
