@@ -18,7 +18,7 @@ defmodule MastaniServer.CMS.Community do
       join_keys: [community_id: :id, post_id: :id]
     )
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   def changeset(%Community{} = community, attrs) do

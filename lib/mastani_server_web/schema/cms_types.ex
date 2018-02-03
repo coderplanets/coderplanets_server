@@ -10,10 +10,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:id, non_null(:id))
     field(:body, non_null(:string))
     field(:author, non_null(:user))
-  end
-
-  object :tag do
-    field(:title, :string)
+    field(:inserted_at, :datetime)
+    field(:updated_at, :datetime)
   end
 
   object :post do
@@ -26,6 +24,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:body, :string)
     field(:views, :integer)
     field(:tags, list_of(:tag), resolve: assoc(:tags))
+    field(:inserted_at, :datetime)
+    field(:updated_at, :datetime)
 
     field :author, :user do
       resolve(&Resolvers.CMS.load_author/3)
@@ -78,12 +78,16 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   object :community do
     field(:title, :string)
     field(:desc, :string)
+    field(:inserted_at, :datetime)
+    field(:updated_at, :datetime)
   end
 
   object :tag do
     field(:title, :string)
     field(:color, :string)
     field(:part, :string)
+    field(:inserted_at, :datetime)
+    field(:updated_at, :datetime)
   end
 
   # object :author do

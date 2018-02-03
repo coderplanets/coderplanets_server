@@ -9,7 +9,7 @@ defmodule MastaniServer.Accounts.User do
     field(:bio, :string)
     field(:company, :string)
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   @required_fields ~w(username)a

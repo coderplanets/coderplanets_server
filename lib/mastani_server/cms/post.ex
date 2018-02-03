@@ -32,7 +32,7 @@ defmodule MastaniServer.CMS.Post do
       join_through: "communities_posts"
     )
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   # create table(:cms_posts_comments) do

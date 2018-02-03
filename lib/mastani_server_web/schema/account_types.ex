@@ -14,6 +14,8 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:bio, non_null(:string))
     field(:company, non_null(:string))
     field(:page_info, :page_info)
+    field(:inserted_at, :datetime)
+    field(:updated_at, :datetime)
   end
 
   object :paged_users do

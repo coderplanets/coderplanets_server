@@ -11,7 +11,7 @@ defmodule MastaniServer.CMS.Author do
     # user_id filed in own-table
     belongs_to(:user, Accounts.User)
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   @doc false

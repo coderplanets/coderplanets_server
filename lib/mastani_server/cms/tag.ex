@@ -21,7 +21,7 @@ defmodule MastaniServer.CMS.Tag do
       join_keys: [post_id: :id, tag_id: :id]
     )
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   def changeset(%Tag{} = tag, attrs) do

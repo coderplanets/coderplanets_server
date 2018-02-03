@@ -10,7 +10,7 @@ defmodule MastaniServer.CMS.PostStar do
     belongs_to(:user, Accounts.User, foreign_key: :user_id)
     belongs_to(:post, Post, foreign_key: :post_id)
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   @doc false

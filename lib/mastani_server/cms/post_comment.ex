@@ -11,7 +11,7 @@ defmodule MastaniServer.CMS.PostComment do
     belongs_to(:author, Accounts.User, foreign_key: :author_id)
     belongs_to(:post, Post)
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   @doc false
