@@ -20,7 +20,7 @@ defmodule MastaniServer.Mixfile do
   def application do
     [
       mod: {MastaniServer.Application, []},
-      extra_applications: [:corsica, :logger, :runtime_tools, :faker, :scrivener_ecto]
+      extra_applications: [:corsica, :logger, :runtime_tools, :faker, :scrivener_ecto, :timex]
     ]
   end
 
@@ -55,7 +55,8 @@ defmodule MastaniServer.Mixfile do
       # for fake data in test env
       {:faker, "~> 0.9"},
       {:scrivener_ecto, "~> 1.3.0"},
-      {:guardian, "~> 1.0"}
+      {:guardian, "~> 1.0"},
+      {:timex, "~> 3.1.25"}
     ]
   end
 

@@ -135,6 +135,37 @@ defmodule MastaniServer.Utils.Helper do
         |> select([p], p)
         |> order_by([p, s], asc: fragment("count(?)", s.id))
 
+      {:when, :today}, query ->
+        # date = DateTime.utc_now() |> Timex.to_datetime()
+        # use timezone info is server is not in the some timezone
+        # Timex.now("America/Chicago")
+        date = Timex.now
+
+        query
+        |> where([p], p.inserted_at >= ^Timex.beginning_of_day(date))
+        |> where([p], p.inserted_at <= ^Timex.end_of_day(date))
+
+      {:when, :this_week}, query ->
+        date = Timex.now
+
+        query
+        |> where([p], p.inserted_at >= ^Timex.beginning_of_week(date))
+        |> where([p], p.inserted_at <= ^Timex.end_of_week(date))
+
+      {:when, :this_month}, query ->
+        date = Timex.now
+
+        query
+        |> where([p], p.inserted_at >= ^Timex.beginning_of_month(date))
+        |> where([p], p.inserted_at <= ^Timex.end_of_month(date))
+
+      {:when, :this_year}, query ->
+        date = Timex.now
+
+        query
+        |> where([p], p.inserted_at >= ^Timex.beginning_of_year(date))
+        |> where([p], p.inserted_at <= ^Timex.end_of_year(date))
+
       # TODO :all
       {_, :all}, query ->
         query
