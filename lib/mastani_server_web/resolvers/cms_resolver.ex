@@ -54,7 +54,10 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   def create_post(_root, args, %{context: %{current_user: user}}) do
-    CMS.create_post(%CMS.Author{user_id: user.id}, args) |> Helper.orm_resp()
+    # args.community = "elxiir"
+    IO.inspect(args, label: "fuck")
+    # CMS.create_post(%CMS.Author{user_id: user.id}, args) |> Helper.orm_resp()
+    CMS.create_content(:post, %CMS.Author{user_id: user.id}, args) |> Helper.orm_resp()
   end
 
   def create_post(_root, _args, _info), do: Helper.access_deny(:login)

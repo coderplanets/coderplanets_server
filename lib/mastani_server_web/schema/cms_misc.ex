@@ -98,6 +98,7 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     field(:when, :when_enum)
     field(:sort, :sort_enum)
     field(:tag, :string, default_value: :all)
+    field(:community, :string)
 
     # @desc "Matching a name"
     # field(:order, :order_enum, default_value: :desc)

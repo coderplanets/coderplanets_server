@@ -12,6 +12,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:digest, non_null(:string))
       arg(:length, non_null(:integer))
       arg(:link_addr, :string)
+      arg(:community, non_null(:string))
 
       resolve(&Resolvers.CMS.create_post/3)
     end

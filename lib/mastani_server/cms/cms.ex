@@ -18,6 +18,7 @@ defmodule MastaniServer.CMS do
 
   # defp match_action(:post, :tag), do: {:ok, %{target: Post, reactor: PostTag}}
   defp match_action(:post, :tag), do: {:ok, %{target: Post, reactor: Tag}}
+  defp match_action(:post, :community), do: {:ok, %{target: Post, reactor: Community}}
 
   defp match_action(:post, :comment),
     do: {:ok, %{target: Post, reactor: PostComment, preload: :author}}
@@ -97,29 +98,40 @@ defmodule MastaniServer.CMS do
     {:ok, Repo.all(query)}
   end
 
+  def set_community(part, part_id, community_id) when valid_part(part) do
+    with {:ok, action} <- match_action(part, :community),
+         {:ok, content} <- Helper.find(action.target, part_id, preload: :communities),
+         {:ok, community} <- Helper.find(action.reactor, community_id) do
+      content
+      |> Ecto.Changeset.change()
+      |> Ecto.Changeset.put_assoc(:communities, content.communities ++ [community])
+      |> Repo.update()
+    end
+  end
+
   @doc """
-  Creates a post.
+  Creates a content(post/job ...), and set community.
 
   ## Examples
 
-      iex> create_post(%{field: value})
-      {:ok, %Post{}}
+  iex> create_post(%{field: value})
+  {:ok, %Post{}}
 
-      iex> create_post(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+  iex> create_post(%{field: bad_value})
+  {:error, %Ecto.Changeset{}}
 
   """
-
-  def create_post(%Author{} = author, attrs \\ %{}) do
-    case ensure_author_exists(%Accounts.User{id: author.user_id}) do
-      {:ok, author} ->
-        %Post{}
-        |> Post.changeset(attrs)
-        |> Ecto.Changeset.put_change(:author_id, author.id)
-        |> Repo.insert()
-
-      {:error, reason} ->
-        {:error, reason}
+  def create_content(part, %Author{} = author, attrs \\ %{}) do
+    with {:ok, author} <- ensure_author_exists(%Accounts.User{id: author.user_id}),
+         {:ok, action} <- match_action(part, :community),
+         {:ok, community} <- Repo.get_by(Community, title: attrs.community) |> Helper.one_resp(),
+         # {:ok, community} <- Helper.find(action.target, 1),
+         {:ok, content} <-
+           struct(action.target)
+           |> Post.changeset(attrs)
+           |> Ecto.Changeset.put_change(:author_id, author.id)
+           |> Repo.insert() do
+      set_community(part, content.id, community.id)
     end
   end
 
@@ -166,7 +178,8 @@ defmodule MastaniServer.CMS do
         filters = filters |> Map.delete(:page) |> Map.delete(:size)
 
         result =
-          action.target |> Helper.filter_pack(filters)
+          action.target
+          |> Helper.filter_pack(filters)
           |> Repo.paginate(page: page, page_size: size)
 
         {:ok, result}
@@ -248,13 +261,14 @@ defmodule MastaniServer.CMS do
       |> preload(:user)
       |> Repo.paginate(page: page, page_size: size)
 
-    {:ok, %{
-      entries: Enum.map(page.entries, & &1.user),
-      page_number: page.page_number,
-      page_size: page.page_size,
-      total_pages: page.total_pages,
-      total_count: page.total_entries
-    }}
+    {:ok,
+     %{
+       entries: Enum.map(page.entries, & &1.user),
+       page_number: page.page_number,
+       page_size: page.page_size,
+       total_pages: page.total_pages,
+       total_count: page.total_entries
+     }}
   end
 
   def delete_content(part, react, id, %Accounts.User{} = current_user) do
