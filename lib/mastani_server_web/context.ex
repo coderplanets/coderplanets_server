@@ -12,7 +12,9 @@ defmodule MastaniServerWeb.Context do
 
   def call(conn, _) do
     context = build_context(conn)
-    put_private(conn, :absinthe, %{context: context})
+    # put_private(conn, :absinthe, %{context: context})
+    # TODO: use https://github.com/absinthe-graphql/absinthe/pull/497/files
+    Absinthe.Plug.put_options(conn, context: context)
   end
 
   @doc """

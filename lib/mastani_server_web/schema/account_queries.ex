@@ -5,12 +5,13 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
   alias MastaniServerWeb.Resolvers.Accounts
 
   object :account_queries do
-    @desc "hehehef: Get all links"
-    field :all_users, non_null(list_of(non_null(:user))) do
-      resolve(&Accounts.all_users/3)
-    end
+    # @desc "hehehef: Get all links"
+    # field :all_users, non_null(list_of(non_null(:user))) do
+    # resolve(&Accounts.all_users/3)
+    # end
 
-    field :all_users2, non_null(:paged_users) do
+    @desc "get all users"
+    field :all_users, non_null(:paged_users) do
       resolve(&Accounts.all_users2/3)
     end
   end

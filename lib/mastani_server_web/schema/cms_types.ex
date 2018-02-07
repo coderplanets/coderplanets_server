@@ -44,7 +44,21 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     # resolve(&Resolvers.CMS.load_tags/3)
     # end
 
-    field :favorites, list_of(:user) do
+    field :viewer_has_favorited, :boolean do
+      arg(:type, :post_type, default_value: :post)
+      arg(:action, :favorite_action, default_value: :favorite)
+
+      resolve(&Resolvers.CMS.viewer_has_reacted/3)
+    end
+
+    field :viewer_has_starred, :boolean do
+      arg(:type, :post_type, default_value: :post)
+      arg(:action, :star_action, default_value: :star)
+
+      resolve(&Resolvers.CMS.viewer_has_reacted/3)
+    end
+
+    field :favorited_users, list_of(:user) do
       # TODO: tmp
       arg(:filter, :article_filter)
       arg(:type, :post_type, default_value: :post)
@@ -52,14 +66,19 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       resolve(&Resolvers.CMS.inline_reaction_users/3)
     end
 
-    field :star_count, :integer do
+    field :favorited_count, :integer do
+      arg(:type, :post_type, default_value: :post)
+      arg(:action, :favorite_action, default_value: :favorite)
+      resolve(&Resolvers.CMS.inline_reaction_users_count/3)
+    end
+
+    field :starred_count, :integer do
       arg(:type, :post_type, default_value: :post)
       arg(:action, :star_action, default_value: :star)
       resolve(&Resolvers.CMS.inline_reaction_users_count/3)
     end
 
-    field :stars, list_of(:user) do
-      # TODO: tmp
+    field :starred_users, list_of(:user) do
       arg(:filter, :article_filter)
       arg(:type, :post_type, default_value: :post)
       arg(:action, :star_action, default_value: :star)

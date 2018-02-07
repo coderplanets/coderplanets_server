@@ -13,7 +13,7 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:nickname, non_null(:string))
     field(:bio, non_null(:string))
     field(:company, non_null(:string))
-    field(:page_info, :page_info)
+    # field(:page_info, :page_info)
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
   end

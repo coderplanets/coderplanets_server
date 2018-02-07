@@ -14,6 +14,11 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def post(_root, %{id: id}, _info), do: CMS.one_conent(:post, :self, id) |> Helper.orm_resp()
 
   def posts(_root, %{filter: filter}, _info) do
+    filter =
+      if Map.has_key?(filter, :sort),
+        do: filter,
+        else: Map.merge(filter, %{sort: :desc_inserted})
+
     CMS.contents(:post, :self, filter) |> Helper.orm_resp()
   end
 
@@ -90,6 +95,12 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def inline_reaction_users_count(root, %{type: type, action: action}, _info) do
     CMS.reaction_users_count(type, action, root.id) |> Helper.orm_resp()
   end
+
+  def viewer_has_reacted(root, %{type: type, action: action}, %{context: %{current_user: user}}) do
+    CMS.viewer_has_reacted(type, action, root.id, user.id)
+  end
+
+  def viewer_has_reacted(_root, _args, _info), do: Helper.access_deny(:login)
 
   # TODO delete should be root, one should be use invisible_post ..
   def delete_post(_root, %{post_id: id}, %{context: %{current_user: user}}) do

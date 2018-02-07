@@ -1,4 +1,17 @@
+defmodule MastaniServer.CMSValidator do
+  # TODO: move it to helper
+  @support_part [:post, :video, :job]
+  @support_react [:favorite, :star, :watch, :comment, :tag, :self]
+
+  defguard valid_part(part) when part in @support_part
+
+  defguard valid_reaction(part, react)
+            when valid_part(part) and react in @support_react
+end
+
 defmodule MastaniServer.CMS do
+  import MastaniServer.CMSValidator
+
   @moduledoc """
   The CMS context.
   """
@@ -22,14 +35,6 @@ defmodule MastaniServer.CMS do
 
   defp match_action(:post, :comment),
     do: {:ok, %{target: Post, reactor: PostComment, preload: :author}}
-
-  @support_part [:post, :video, :job]
-  @support_react [:favorite, :star, :watch, :comment, :tag, :self]
-
-  defguardp valid_part(part) when part in @support_part
-
-  defguardp valid_reaction(part, react)
-            when valid_part(part) and react in @support_react
 
   # defguardp valid_pagi(page, size)
   # when is_integer(page) and page > 0 and is_integer(size) and size > 0
@@ -234,6 +239,39 @@ defmodule MastaniServer.CMS do
       rescue
         _ in MatchError ->
           get_reaction_users_without_page(action, react, where, filters)
+      end
+    end
+  end
+
+  @doc """
+  check the if the viewer has reacted to content
+  find post_id and user_id in PostFavorite
+  ...
+  jobs's favorites/stars/comments ...
+
+  with or without page info
+  """
+  def viewer_has_reacted(part, react, part_id, user_id) when valid_reaction(part, react) do
+    # find post_id and user_id in PostFavorite
+    with {:ok, action} <- match_action(part, react) do
+      where =
+        case part do
+          :post -> dynamic([p], p.post_id == ^part_id)
+          :job -> dynamic([p], p.job_id == ^part_id)
+          :meetup -> dynamic([p], p.meetup_id == ^part_id)
+        end
+
+      query =
+        action.reactor
+        |> where(^where)
+        |> where([a], a.user_id == ^user_id)
+
+      case Repo.one(query) do
+        nil ->
+          {:ok, false}
+
+        _ ->
+          {:ok, true}
       end
     end
   end
