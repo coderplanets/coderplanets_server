@@ -3,6 +3,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
   use Absinthe.Ecto, repo: MastaniServer.Repo
 
   alias MastaniServerWeb.Resolvers
+  alias MastaniServerWeb.Schema.Middleware
 
   object :cms_mutations do
     @desc "hehehef: create a user"
@@ -14,6 +15,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:link_addr, :string)
       arg(:community, non_null(:string))
 
+      middleware(Middleware.Authorize, :login)
       resolve(&Resolvers.CMS.create_post/3)
     end
 
@@ -31,11 +33,13 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:title, non_null(:string))
       arg(:desc, non_null(:string))
 
+      middleware(Middleware.Authorize, :login)
       resolve(&Resolvers.CMS.create_community/3)
     end
 
     field :delete_community, :community do
       arg(:id, non_null(:id))
+      middleware(Middleware.Authorize, :root)
       resolve(&Resolvers.CMS.delete_community/3)
     end
 
@@ -46,6 +50,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:datetime, :datetime)
       arg(:type, :cms_part, default_value: :post)
 
+      middleware(Middleware.Authorize, :community_admin)
       resolve(&Resolvers.CMS.set_tag/3)
     end
 
@@ -53,6 +58,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:id, non_null(:id))
       arg(:type, non_null(:cms_part))
       arg(:action, non_null(:cms_action))
+
+      middleware(Middleware.Authorize, :login)
       resolve(&Resolvers.CMS.reaction/3)
     end
 
@@ -60,6 +67,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:id, non_null(:id))
       arg(:type, non_null(:cms_part))
       arg(:action, non_null(:cms_action))
+
+      middleware(Middleware.Authorize, :login)
       resolve(&Resolvers.CMS.undo_reaction/3)
     end
 
@@ -67,6 +76,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
     field :delete_post, :post do
       arg(:post_id, non_null(:id))
 
+      middleware(Middleware.Authorize, :login)
       resolve(&Resolvers.CMS.delete_post/3)
     end
 
@@ -77,6 +87,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:body, non_null(:string))
 
       # TDOO: use a comment resolver
+      middleware(Middleware.Authorize, :login)
       resolve(&Resolvers.CMS.create_comment/3)
     end
 
@@ -87,6 +98,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:type, :cms_part, default_value: :post)
       # arg(:body, non_null(:string))
 
+      middleware(Middleware.Authorize, :login)
       resolve(&Resolvers.CMS.delete_comment/3)
     end
 

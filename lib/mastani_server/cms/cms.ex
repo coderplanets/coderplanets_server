@@ -6,11 +6,30 @@ defmodule MastaniServer.CMSValidator do
   defguard valid_part(part) when part in @support_part
 
   defguard valid_reaction(part, react)
-            when valid_part(part) and react in @support_react
+           when valid_part(part) and react in @support_react
+end
+
+defmodule MastaniServer.CMSMatcher do
+  alias MastaniServer.CMS.{Post, PostFavorite, PostStar, PostComment, Tag, Community}
+
+  def match_action(:post, :self), do: {:ok, %{target: Post, reactor: Post, preload: :author}}
+
+  def match_action(:post, :favorite),
+    do: {:ok, %{target: Post, reactor: PostFavorite, preload: :user, preload_right: :post}}
+
+  def match_action(:post, :star), do: {:ok, %{target: Post, reactor: PostStar, preload: :user}}
+
+  # defp match_action(:post, :tag), do: {:ok, %{target: Post, reactor: PostTag}}
+  def match_action(:post, :tag), do: {:ok, %{target: Post, reactor: Tag}}
+  def match_action(:post, :community), do: {:ok, %{target: Post, reactor: Community}}
+
+  def match_action(:post, :comment),
+    do: {:ok, %{target: Post, reactor: PostComment, preload: :author}}
 end
 
 defmodule MastaniServer.CMS do
   import MastaniServer.CMSValidator
+  import MastaniServer.CMSMatcher
 
   @moduledoc """
   The CMS context.
@@ -18,23 +37,9 @@ defmodule MastaniServer.CMS do
 
   import Ecto.Query, warn: false
 
-  alias MastaniServer.CMS.{Post, Author, PostFavorite, PostStar, PostComment, Tag, Community}
+  alias MastaniServer.CMS.{Post, Author, Tag, Community}
   alias MastaniServer.{Repo, Accounts}
   alias MastaniServer.Utils.Helper
-
-  defp match_action(:post, :self), do: {:ok, %{target: Post, reactor: Post, preload: :author}}
-
-  defp match_action(:post, :favorite),
-    do: {:ok, %{target: Post, reactor: PostFavorite, preload: :user, preload_right: :post}}
-
-  defp match_action(:post, :star), do: {:ok, %{target: Post, reactor: PostStar, preload: :user}}
-
-  # defp match_action(:post, :tag), do: {:ok, %{target: Post, reactor: PostTag}}
-  defp match_action(:post, :tag), do: {:ok, %{target: Post, reactor: Tag}}
-  defp match_action(:post, :community), do: {:ok, %{target: Post, reactor: Community}}
-
-  defp match_action(:post, :comment),
-    do: {:ok, %{target: Post, reactor: PostComment, preload: :author}}
 
   # defguardp valid_pagi(page, size)
   # when is_integer(page) and page > 0 and is_integer(size) and size > 0
@@ -195,6 +200,8 @@ defmodule MastaniServer.CMS do
       end
     end
   end
+
+  def contents(part, react, _), do: {:error, "cms do not support [#{react}] on [#{part}]"}
 
   @doc """
   return part's star/favorite/watch .. count
