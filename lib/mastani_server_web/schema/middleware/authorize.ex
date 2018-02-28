@@ -6,7 +6,7 @@ defmodule MastaniServerWeb.Schema.Middleware.Authorize do
   @behaviour Absinthe.Middleware
 
   def call(resolution, role) do
-    IO.inspect(resolution.context, label: 'context')
+    # IO.inspect(resolution.context, label: 'Authorize')
 
     with %{current_user: current_user} <- resolution.context,
          true <- valid_role?(current_user, role) do

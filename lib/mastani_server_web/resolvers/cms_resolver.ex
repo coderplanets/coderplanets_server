@@ -108,5 +108,4 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def delete_comment(_root, %{type: type, id: id}, %{context: %{current_user: user}}) do
     CMS.delete_content(type, :comment, id, user)
   end
-
 end

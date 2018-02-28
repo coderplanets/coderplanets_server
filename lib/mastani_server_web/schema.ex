@@ -4,16 +4,15 @@ defmodule MastaniServerWeb.Schema do
   # alias MastaniServerWeb.Schema.Middleware
 
   def middleware(middleware, _field, %{identifier: :query}) do
-    middleware ++ [Middleware.ChangesetErrors]
+    middleware ++ [Middleware.GeneralError]
   end
 
   def middleware(middleware, _field, %{identifier: :mutation}) do
     # middleware |> IO.inspect(label: 'middleware')
     # field |> IO.inspect(label: 'field')
     # object |> IO.inspect(label: 'object')
-
     # middleware
-    middleware ++ [Middleware.ChangesetErrors]
+    middleware ++ [Middleware.ChangesetErrors] ++ [Middleware.GeneralError]
   end
 
   def middleware(middleware, _field, _object) do
