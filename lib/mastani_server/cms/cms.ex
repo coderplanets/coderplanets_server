@@ -65,8 +65,6 @@ defmodule MastaniServer.CMS do
   end
 
   def query(Author, args) do
-    IO.inspect(args, label: '->args is')
-    IO.inspect(Author, label: '->Author is')
     # you cannot use preload with select together
     # https://stackoverflow.com/questions/43010352/ecto-select-relations-from-preload
     # see also
@@ -86,15 +84,7 @@ defmodule MastaniServer.CMS do
     end
   end
 
-  def query({"posts_favorites", PostFavorite}, args) do
-    IO.inspect(args, label: 'x is')
-    PostFavorite
-  end
-
-  def query(queryable, _args) do
-    IO.inspect(queryable, label: 'default queryable')
-    queryable
-  end
+  def query(queryable, _args), do: queryable
 
   @doc """
   get the author info for CMS.conent
