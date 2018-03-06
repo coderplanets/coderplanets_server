@@ -95,8 +95,6 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.viewer_has_reacted(type, action, root.id, user.id)
   end
 
-  def viewer_has_reacted(_root, _args, _info), do: Helper.access_deny(:login)
-
   # TODO delete should be root, one should be use invisible_post ..
   def delete_post(_root, %{post_id: id}, %{context: %{current_user: user}}) do
     CMS.delete_content(:post, :self, id, user)

@@ -10,6 +10,7 @@ defmodule MastaniServer.CMSValidator do
 end
 
 defmodule MastaniServer.CMSMatcher do
+  import Ecto.Query, warn: false
   alias MastaniServer.CMS.{Post, PostFavorite, PostStar, PostComment, Tag, Community}
 
   def match_action(:post, :self), do: {:ok, %{target: Post, reactor: Post, preload: :author}}
@@ -25,6 +26,20 @@ defmodule MastaniServer.CMSMatcher do
 
   def match_action(:post, :comment),
     do: {:ok, %{target: Post, reactor: PostComment, preload: :author}}
+
+  def match_where(part, id) do
+    case part do
+      :post ->
+        dynamic([p], p.post_id == ^id)
+
+      :job ->
+        dynamic([p], p.job_id == ^id)
+
+      :meetup ->
+        dynamic([p], p.meetup_id == ^id)
+        # ....
+    end
+  end
 end
 
 defmodule MastaniServer.CMS do
@@ -37,10 +52,11 @@ defmodule MastaniServer.CMS do
 
   import Ecto.Query, warn: false
 
-  alias MastaniServer.CMS.{Post, Author, Tag, Community}
+  alias MastaniServer.CMS.{Post, Author, Tag, Community, PostFavorite, PostComment}
   alias MastaniServer.{Repo, Accounts}
   alias MastaniServer.Utils.Helper
 
+  @page_size_max 30
   # defguardp valid_pagi(page, size)
   # when is_integer(page) and page > 0 and is_integer(size) and size > 0
 
@@ -48,7 +64,9 @@ defmodule MastaniServer.CMS do
     Dataloader.Ecto.new(Repo, query: &query/2)
   end
 
-  def query(Author, _args) do
+  def query(Author, args) do
+    IO.inspect(args, label: '->args is')
+    IO.inspect(Author, label: '->Author is')
     # you cannot use preload with select together
     # https://stackoverflow.com/questions/43010352/ecto-select-relations-from-preload
     # see also
@@ -60,7 +78,21 @@ defmodule MastaniServer.CMS do
     from(a in Author, join: u in assoc(a, :user), select: u)
   end
 
+  # def query(PostFavorite, args) do
+  def query({"posts_comments", PostComment}, args) do
+    case Map.has_key?(args, :filter) do
+      true -> PostComment |> Helper.filter_pack(args.filter)
+      _ -> PostComment
+    end
+  end
+
+  def query({"posts_favorites", PostFavorite}, args) do
+    IO.inspect(args, label: 'x is')
+    PostFavorite
+  end
+
   def query(queryable, _args) do
+    IO.inspect(queryable, label: 'default queryable')
     queryable
   end
 
@@ -203,31 +235,93 @@ defmodule MastaniServer.CMS do
   @doc """
   get CMS contents (posts, tuts, videos, jobs ...) with or without page info
   """
+  def contents(_, _, %{size: size}) when size > @page_size_max,
+    do: {:error, "size should less then #{@page_size_max}"}
+
+  def contents(part, react, %{page: page, size: size} = filters)
+      when valid_reaction(part, react) and size <= @page_size_max do
+    with {:ok, action} <- match_action(part, react) do
+      filters = filters |> Map.delete(:page) |> Map.delete(:size)
+
+      result =
+        action.target
+        |> Helper.filter_pack(filters)
+        |> Repo.paginate(page: page, page_size: size)
+
+      {:ok, result}
+    end
+  end
+
+  def contents(_, _, %{first: size}) when size > @page_size_max,
+    do: {:error, "size should less then #{@page_size_max}"}
+
   def contents(part, react, filters) when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react) do
-      try do
-        %{page: page, size: size} = filters
-        filters = filters |> Map.delete(:page) |> Map.delete(:size)
-
-        result =
-          action.target
-          |> Helper.filter_pack(filters)
-          |> Repo.paginate(page: page, page_size: size)
-
-        {:ok, result}
-      rescue
-        _ in MatchError ->
-          query = action.target |> Helper.filter_pack(filters)
-          {:ok, Repo.all(query)}
-      end
+      query = action.target |> Helper.filter_pack(filters)
+      {:ok, Repo.all(query)}
     end
   end
 
   def contents(part, react, _), do: {:error, "cms do not support [#{react}] on [#{part}]"}
 
   @doc """
-  return part's star/favorite/watch .. count
+  get CMS contents
+  post's favorites/stars/comments ...
+  ...
+  jobs's favorites/stars/comments ...
 
+  with or without page info
+  """
+
+  def reaction_users(_, _, _, %{size: size}) when size > @page_size_max,
+    do: {:error, "size should less then #{@page_size_max}"}
+
+  def reaction_users(part, react, part_id, %{page: page, size: size} = filters)
+      when valid_reaction(part, react) do
+    with {:ok, action} <- match_action(part, react),
+         {:ok, content} <- Helper.find(action.target, part_id) do
+      where = match_where(part, content.id)
+      # filters = filters |> Map.delete(:page) |> Map.delete(:size)
+      page =
+        action.reactor
+        |> where(^where)
+        |> Helper.filter_pack(filters)
+        |> preload(:user)
+        |> Repo.paginate(page: page, page_size: size)
+
+      {:ok,
+       %{
+         entries: Enum.map(page.entries, & &1.user),
+         page_number: page.page_number,
+         page_size: page.page_size,
+         total_pages: page.total_pages,
+         total_count: page.total_entries
+       }}
+    end
+  end
+
+  def reaction_users(_, _, _, %{first: size}) when size > @page_size_max,
+    do: {:error, "size should less then #{@page_size_max}"}
+
+  def reaction_users(part, react, part_id, filters) when valid_reaction(part, react) do
+    with {:ok, action} <- match_action(part, react),
+         {:ok, content} <- Helper.find(action.target, part_id) do
+      where = match_where(part, content.id)
+
+      query =
+        action.reactor
+        |> where(^where)
+        |> Helper.filter_pack(filters)
+        |> preload(^action.preload)
+
+      result = Repo.all(query) |> Enum.map(& &1.user)
+
+      {:ok, result}
+    end
+  end
+
+  @doc """
+  return part's star/favorite/watch .. count
   """
   def reaction_users_count(part, react, part_id) when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react) do
@@ -244,35 +338,6 @@ defmodule MastaniServer.CMS do
   end
 
   @doc """
-  get CMS contents
-  post's favorites/stars/comments ...
-  ...
-  jobs's favorites/stars/comments ...
-
-  with or without page info
-  """
-
-  def reaction_users(part, react, part_id, filters) when valid_reaction(part, react) do
-    with {:ok, action} <- match_action(part, react),
-         {:ok, content} <- Helper.find(action.target, part_id) do
-      where =
-        case part do
-          :post -> dynamic([p], p.post_id == ^content.id)
-          :meetup -> dynamic([p], p.meetup_id == ^content.id)
-        end
-
-      try do
-        %{page: page, size: size} = filters
-        filters = filters |> Map.delete(:page) |> Map.delete(:size)
-        get_reaction_users_with_page(action, where, filters, page, size)
-      rescue
-        _ in MatchError ->
-          get_reaction_users_without_page(action, react, where, filters)
-      end
-    end
-  end
-
-  @doc """
   check the if the viewer has reacted to content
   find post_id and user_id in PostFavorite
   ...
@@ -283,19 +348,13 @@ defmodule MastaniServer.CMS do
   def viewer_has_reacted(part, react, part_id, user_id) when valid_reaction(part, react) do
     # find post_id and user_id in PostFavorite
     with {:ok, action} <- match_action(part, react) do
-      where =
-        case part do
-          :post -> dynamic([p], p.post_id == ^part_id)
-          :job -> dynamic([p], p.job_id == ^part_id)
-          :meetup -> dynamic([p], p.meetup_id == ^part_id)
-        end
+      where = match_where(part, part_id)
 
-      query =
-        action.reactor
-        |> where(^where)
-        |> where([a], a.user_id == ^user_id)
-
-      case Repo.one(query) do
+      action.reactor
+      |> where(^where)
+      |> where([a], a.user_id == ^user_id)
+      |> Repo.one()
+      |> case do
         nil ->
           {:ok, false}
 
@@ -303,39 +362,6 @@ defmodule MastaniServer.CMS do
           {:ok, true}
       end
     end
-  end
-
-  defp get_reaction_users_without_page(action, react, where, filters) do
-    query =
-      action.reactor
-      |> where(^where)
-      |> Helper.filter_pack(filters)
-      |> preload(^action.preload)
-
-    result = Repo.all(query)
-
-    case react do
-      :comment -> {:ok, result}
-      _ -> {:ok, result |> Enum.map(& &1.user)}
-    end
-  end
-
-  def get_reaction_users_with_page(action, where, filters, page, size) do
-    page =
-      action.reactor
-      |> where(^where)
-      |> Helper.filter_pack(filters)
-      |> preload(:user)
-      |> Repo.paginate(page: page, page_size: size)
-
-    {:ok,
-     %{
-       entries: Enum.map(page.entries, & &1.user),
-       page_number: page.page_number,
-       page_size: page.page_size,
-       total_pages: page.total_pages,
-       total_count: page.total_entries
-     }}
   end
 
   def delete_content(part, react, id, %Accounts.User{} = current_user) do

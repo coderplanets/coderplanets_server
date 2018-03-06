@@ -3,8 +3,9 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   use Absinthe.Ecto, repo: MastaniServer.Repo
 
   import Absinthe.Resolution.Helpers
-  alias MastaniServer.{CMS, Accounts}
+  alias MastaniServer.CMS
   alias MastaniServerWeb.{Resolvers, Schema}
+  alias MastaniServerWeb.Schema.Middleware
 
   import_types(Schema.CMS.Misc)
 
@@ -25,40 +26,38 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:link_addr, :string)
     field(:body, :string)
     field(:views, :integer)
-    field(:tags, list_of(:tag), resolve: assoc(:tags))
+    field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
 
     # field :author_not_use_dataloader, :user do
-      # resolve(&Resolvers.CMS.load_author/3)
+    # resolve(&Resolvers.CMS.load_author/3)
     # end
 
-    field :author, :user, resolve: dataloader(CMS, :author)
+    field(:author, :user, resolve: dataloader(CMS, :author))
 
-    # TODO: isViewerfavorited, commentsCount, favoritesCount, starsCount ...
     field :comments, list_of(:comment) do
-      # arg(:type, :cms_part, default_value: :post)
       arg(:type, :post_type, default_value: :post)
       arg(:filter, :article_filter)
       arg(:action, :comment_action, default_value: :comment)
-      resolve(&Resolvers.CMS.inline_reaction_users/3)
+      # resolve(&Resolvers.CMS.inline_reaction_users/3)
+      resolve(dataloader(CMS, :comments))
     end
-
-    # field :tags, list_of(:tag) do
-    # resolve(&Resolvers.CMS.load_tags/3)
-    # end
 
     field :viewer_has_favorited, :boolean do
       arg(:type, :post_type, default_value: :post)
       arg(:action, :favorite_action, default_value: :favorite)
 
+      middleware(Middleware.Authorize, :login)
       resolve(&Resolvers.CMS.viewer_has_reacted/3)
+      # resolve(dataloader(CMS, :favorites)) # too complex
     end
 
     field :viewer_has_starred, :boolean do
       arg(:type, :post_type, default_value: :post)
       arg(:action, :star_action, default_value: :star)
 
+      middleware(Middleware.Authorize, :login)
       resolve(&Resolvers.CMS.viewer_has_reacted/3)
     end
 

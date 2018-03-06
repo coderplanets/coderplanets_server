@@ -20,12 +20,13 @@ defmodule MastaniServerWeb.Schema do
   end
 
   def plugins do
-    [Absinthe.Middleware.Dataloader | Absinthe.Plugin.defaults]
+    [Absinthe.Middleware.Dataloader | Absinthe.Plugin.defaults()]
   end
 
   def dataloader() do
     alias MastaniServer.{CMS}
-    Dataloader.new
+
+    Dataloader.new()
     |> Dataloader.add_source(CMS, CMS.data())
   end
 
