@@ -44,8 +44,29 @@ defmodule MastaniServer.CMS do
   # defguardp valid_pagi(page, size)
   # when is_integer(page) and page > 0 and is_integer(size) and size > 0
 
+  def data() do
+    Dataloader.Ecto.new(Repo, query: &query/2)
+  end
+
+  def query(Author, _args) do
+    # you cannot use preload with select together
+    # https://stackoverflow.com/questions/43010352/ecto-select-relations-from-preload
+    # see also
+    # https://github.com/elixir-ecto/ecto/issues/1145
+
+    # from(a in Author, join: u in assoc(a, :user), select: %{id: u.id, username: u.username})
+    # or from(a in Author, join: u in assoc(a, :user), select: struct(u, [:id, :username, :nickname]))
+    # or from(a in Author, join: u in assoc(a, :user), select: map(u, [:id, :username, :nickname]))
+    from(a in Author, join: u in assoc(a, :user), select: u)
+  end
+
+  def query(queryable, _args) do
+    queryable
+  end
+
   @doc """
   get the author info for CMS.conent
+  just for compare
   """
   def load_author(%Author{} = author) do
     with {:ok, result} <- Helper.find(Author, author.id, preload: :user) do
@@ -55,6 +76,7 @@ defmodule MastaniServer.CMS do
 
   def create_community(attrs) do
     with {:ok, user} <- Helper.find(Accounts.User, attrs.user_id) do
+      # {:error, "custom error."}
       %Community{}
       |> Community.changeset(attrs |> Map.merge(%{user_id: user.id}))
       |> Repo.insert()

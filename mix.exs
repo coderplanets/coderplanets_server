@@ -56,7 +56,8 @@ defmodule MastaniServer.Mixfile do
       {:faker, "~> 0.9"},
       {:scrivener_ecto, "~> 1.3.0"},
       {:guardian, "~> 1.0"},
-      {:timex, "~> 3.1.25"}
+      {:timex, "~> 3.1.25"},
+      {:dataloader, "~> 1.0.0"}
     ]
   end
 

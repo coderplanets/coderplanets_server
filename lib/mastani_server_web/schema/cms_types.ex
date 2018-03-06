@@ -2,6 +2,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   use Absinthe.Schema.Notation
   use Absinthe.Ecto, repo: MastaniServer.Repo
 
+  import Absinthe.Resolution.Helpers
+  alias MastaniServer.{CMS, Accounts}
   alias MastaniServerWeb.{Resolvers, Schema}
 
   import_types(Schema.CMS.Misc)
@@ -27,9 +29,11 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
 
-    field :author, :user do
-      resolve(&Resolvers.CMS.load_author/3)
-    end
+    # field :author_not_use_dataloader, :user do
+      # resolve(&Resolvers.CMS.load_author/3)
+    # end
+
+    field :author, :user, resolve: dataloader(CMS, :author)
 
     # TODO: isViewerfavorited, commentsCount, favoritesCount, starsCount ...
     field :comments, list_of(:comment) do

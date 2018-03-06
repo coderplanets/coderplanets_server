@@ -19,6 +19,21 @@ defmodule MastaniServerWeb.Schema do
     middleware
   end
 
+  def plugins do
+    [Absinthe.Middleware.Dataloader | Absinthe.Plugin.defaults]
+  end
+
+  def dataloader() do
+    alias MastaniServer.{CMS}
+    Dataloader.new
+    |> Dataloader.add_source(CMS, CMS.data())
+  end
+
+  def context(ctx) do
+    ctx
+    |> Map.put(:loader, dataloader())
+  end
+
   import_types(Absinthe.Type.Custom)
 
   import_types(Account.Types)
