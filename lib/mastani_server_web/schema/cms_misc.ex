@@ -16,6 +16,14 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:favorite)
   end
 
+  enum :arg_count do
+    value(:arg_count)
+  end
+
+  enum :arg_viewer_reacted do
+    value(:arg_viewer_reacted)
+  end
+
   enum :star_action do
     value(:star)
   end

@@ -109,6 +109,12 @@ defmodule MastaniServer.Utils.Helper do
 
   def filter_pack(query, filter) do
     Enum.reduce(filter, query, fn
+      # {:preload, :user}, query ->
+      # query
+      # |> join(:inner, [p], f in assoc(p, :favorite))
+      # |> preload([p, f], [:favorite, :user])
+      # from(a in Author, join: u in assoc(a, :user), select: u)
+
       {:sort, :desc_inserted}, query ->
         query |> order_by(desc: :inserted_at)
 
@@ -182,10 +188,12 @@ defmodule MastaniServer.Utils.Helper do
         )
 
       {:first, first}, query ->
-        cond do
-          first > 30 -> query |> limit(30)
-          true -> query |> limit(^first)
-        end
+        query |> limit(^first)
+
+      # cond do
+      # first > 30 -> query |> limit(30)
+      # true -> query |> limit(^first)
+      # end
 
       {_, _}, query ->
         query

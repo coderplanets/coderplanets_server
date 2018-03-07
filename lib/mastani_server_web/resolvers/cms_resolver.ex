@@ -75,20 +75,26 @@ defmodule MastaniServerWeb.Resolvers.CMS do
       }),
       do: CMS.undo_reaction(type, action, id, user.id)
 
-  def reaction_users(_root, %{type: type, id: id, filter: filter}, _info),
-    do: CMS.reaction_users(type, :favorite, id, filter)
-
-  def inline_reaction_users(root, %{type: type, action: action, filter: filter}, _info) do
-    CMS.reaction_users(type, action, root.id, filter)
+  def reaction_users(root, %{type: type, action: action, filter: filter}, _info) do
+    CMS.reaction_users(type, action, root, filter)
   end
 
-  def inline_reaction_users(root, %{type: type, action: action}, _info) do
+  def reaction_users(root, %{type: type, action: action}, _info) do
     default_filter = %{first: 3}
-    CMS.reaction_users(type, action, root.id, default_filter)
+    CMS.reaction_users(type, action, root, default_filter)
   end
 
-  def inline_reaction_users_count(root, %{type: type, action: action}, _info) do
-    CMS.reaction_users_count(type, action, root.id)
+  # def inline_reaction_users(root, %{type: type, action: action, filter: filter}, _info) do
+  # CMS.reaction_users(type, action, root, filter)
+  # end
+
+  # def inline_reaction_users(root, %{type: type, action: action}, _info) do
+  # default_filter = %{first: 3}
+  # CMS.reaction_users(type, action, root.id, default_filter)
+  # end
+
+  def reaction_count(root, %{type: type, action: action}, _info) do
+    CMS.reaction_count(type, action, root.id)
   end
 
   def viewer_has_reacted(root, %{type: type, action: action}, %{context: %{current_user: user}}) do

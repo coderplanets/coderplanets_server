@@ -30,9 +30,9 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
 
-    # field :author_not_use_dataloader, :user do
-    # resolve(&Resolvers.CMS.load_author/3)
-    # end
+    field :author_old, :user do
+      resolve(&Resolvers.CMS.load_author/3)
+    end
 
     field(:author, :user, resolve: dataloader(CMS, :author))
 
@@ -40,8 +40,20 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       arg(:type, :post_type, default_value: :post)
       arg(:filter, :article_filter)
       arg(:action, :comment_action, default_value: :comment)
-      # resolve(&Resolvers.CMS.inline_reaction_users/3)
       resolve(dataloader(CMS, :comments))
+    end
+
+    field :viewer_has_favorited_loader, :boolean do
+      arg(:arg_viewer_reacted, :arg_viewer_reacted, default_value: :arg_viewer_reacted)
+
+      middleware(Middleware.Authorize, :login)
+      middleware(Middleware.PutCurrentUser)
+
+      resolve(dataloader(CMS, :favorites))
+      middleware(Middleware.ViewerReactedConvert)
+      # resolve(fn root, _args, %{context: %{loader: loader, current_user: cur_user}} ->
+      # CMS.is_viewer_reacted(loader, cur_user, :favorites, root)
+      # end)
     end
 
     field :viewer_has_favorited, :boolean do
@@ -50,7 +62,6 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
       middleware(Middleware.Authorize, :login)
       resolve(&Resolvers.CMS.viewer_has_reacted/3)
-      # resolve(dataloader(CMS, :favorites)) # too complex
     end
 
     field :viewer_has_starred, :boolean do
@@ -64,28 +75,47 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field :favorited_users, list_of(:user) do
       # TODO: tmp
       arg(:filter, :article_filter)
+
+      resolve(dataloader(CMS, :favorites))
+      # resolve(fn root, args, %{context: %{loader: loader}} ->
+      # CMS.reaction_members(loader, :favorites, root, args)
+      # end)
+    end
+
+    field :favorited_users_old, list_of(:user) do
+      arg(:filter, :article_filter)
       arg(:type, :post_type, default_value: :post)
       arg(:action, :favorite_action, default_value: :favorite)
-      resolve(&Resolvers.CMS.inline_reaction_users/3)
+      resolve(&Resolvers.CMS.reaction_users/3)
     end
 
     field :favorited_count, :integer do
+      arg(:arg_count, :arg_count, default_value: :arg_count)
+      # middleware(Middleware.SeeMe)
+      resolve(dataloader(CMS, :favorites))
+      middleware(Middleware.ConvertToInt)
+      # resolve(fn root, _, %{context: %{loader: loader}} ->
+      # CMS.reaction_count_loader(loader, :favorites, root)
+      # end)
+    end
+
+    field :favorited_count_old, :integer do
       arg(:type, :post_type, default_value: :post)
       arg(:action, :favorite_action, default_value: :favorite)
-      resolve(&Resolvers.CMS.inline_reaction_users_count/3)
+      resolve(&Resolvers.CMS.reaction_count/3)
     end
 
     field :starred_count, :integer do
       arg(:type, :post_type, default_value: :post)
       arg(:action, :star_action, default_value: :star)
-      resolve(&Resolvers.CMS.inline_reaction_users_count/3)
+      resolve(&Resolvers.CMS.reaction_count/3)
     end
 
     field :starred_users, list_of(:user) do
       arg(:filter, :article_filter)
       arg(:type, :post_type, default_value: :post)
       arg(:action, :star_action, default_value: :star)
-      resolve(&Resolvers.CMS.inline_reaction_users/3)
+      resolve(&Resolvers.CMS.reaction_users/3)
     end
   end
 

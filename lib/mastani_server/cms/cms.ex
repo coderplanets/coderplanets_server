@@ -3,6 +3,12 @@ defmodule MastaniServer.CMSValidator do
   @support_part [:post, :video, :job]
   @support_react [:favorite, :star, :watch, :comment, :tag, :self]
 
+  @page_size_max 30
+
+  def page_size_boundary, do: @page_size_max
+
+  defguard invalid_page_size(size) when size > @page_size_max or size <= 0
+
   defguard valid_part(part) when part in @support_part
 
   defguard valid_reaction(part, react)
@@ -27,17 +33,19 @@ defmodule MastaniServer.CMSMatcher do
   def match_action(:post, :comment),
     do: {:ok, %{target: Post, reactor: PostComment, preload: :author}}
 
-  def match_where(part, id) do
+  def dynamic_where(part, id) do
     case part do
       :post ->
-        dynamic([p], p.post_id == ^id)
+        {:ok, dynamic([p], p.post_id == ^id)}
 
       :job ->
-        dynamic([p], p.job_id == ^id)
+        {:ok, dynamic([p], p.job_id == ^id)}
 
       :meetup ->
-        dynamic([p], p.meetup_id == ^id)
-        # ....
+        {:ok, dynamic([p], p.meetup_id == ^id)}
+
+      _ ->
+        {:error, 'where is not match'}
     end
   end
 end
@@ -45,6 +53,7 @@ end
 defmodule MastaniServer.CMS do
   import MastaniServer.CMSValidator
   import MastaniServer.CMSMatcher
+  import Absinthe.Resolution.Helpers
 
   @moduledoc """
   The CMS context.
@@ -52,31 +61,22 @@ defmodule MastaniServer.CMS do
 
   import Ecto.Query, warn: false
 
-  alias MastaniServer.CMS.{Post, Author, Tag, Community, PostFavorite, PostComment}
+  alias MastaniServer.CMS.{Post, Author, Tag, Community, PostComment, PostFavorite}
   alias MastaniServer.{Repo, Accounts}
   alias MastaniServer.Utils.Helper
-
-  @page_size_max 30
-  # defguardp valid_pagi(page, size)
-  # when is_integer(page) and page > 0 and is_integer(size) and size > 0
 
   def data() do
     Dataloader.Ecto.new(Repo, query: &query/2)
   end
 
-  def query(Author, args) do
+  def query(Author, _args) do
     # you cannot use preload with select together
     # https://stackoverflow.com/questions/43010352/ecto-select-relations-from-preload
     # see also
     # https://github.com/elixir-ecto/ecto/issues/1145
-
-    # from(a in Author, join: u in assoc(a, :user), select: %{id: u.id, username: u.username})
-    # or from(a in Author, join: u in assoc(a, :user), select: struct(u, [:id, :username, :nickname]))
-    # or from(a in Author, join: u in assoc(a, :user), select: map(u, [:id, :username, :nickname]))
     from(a in Author, join: u in assoc(a, :user), select: u)
   end
 
-  # def query(PostFavorite, args) do
   def query({"posts_comments", PostComment}, args) do
     case Map.has_key?(args, :filter) do
       true -> PostComment |> Helper.filter_pack(args.filter)
@@ -84,7 +84,43 @@ defmodule MastaniServer.CMS do
     end
   end
 
-  def query(queryable, _args), do: queryable
+  def query({"posts_favorites", PostFavorite}, %{
+        arg_viewer_reacted: _,
+        current_user: current_user
+      }) do
+    PostFavorite
+    |> where([f], f.user_id == ^current_user.id)
+  end
+
+  def query({"posts_favorites", PostFavorite}, %{arg_count: _}) do
+    # IO.inspect(current_user, label: 'context user--> ')
+    PostFavorite
+    |> group_by([f], f.post_id)
+    |> select([f], count(f.id))
+  end
+
+  def query({"posts_favorites", PostFavorite}, args) do
+    # TODO: Repo.paginate(page: page, page_size: size)
+    # TODO: default filter
+    case Map.has_key?(args, :filter) do
+      true ->
+        PostFavorite
+        |> join(:inner, [f], u in assoc(f, :user))
+        |> select([f, u], u)
+        |> Helper.filter_pack(args.filter)
+
+      _ ->
+        PostFavorite
+    end
+
+    # IO.inspect(args, label: 'args')
+    # IO.inspect(PostFavorite, label: 'PostFavorite')
+    # from(f in PostFavorite, join: u in assoc(f, :user), select: u) |> Helper.filter_pack(args.filter)
+  end
+
+  def query(queryable, _args) do
+    queryable
+  end
 
   @doc """
   get the author info for CMS.conent
@@ -225,11 +261,19 @@ defmodule MastaniServer.CMS do
   @doc """
   get CMS contents (posts, tuts, videos, jobs ...) with or without page info
   """
-  def contents(_, _, %{size: size}) when size > @page_size_max,
-    do: {:error, "size should less then #{@page_size_max}"}
+  def contents(_, _, %{size: size}) when invalid_page_size(size),
+    do:
+      {:error,
+       "invalid size request: size should less than #{page_size_boundary()} and more than 0"}
 
+  def contents(_, _, %{first: size}) when invalid_page_size(size),
+    do:
+      {:error,
+       "invalid size request: size should less than #{page_size_boundary()} and more than 0"}
+
+  # TODO: try default size
   def contents(part, react, %{page: page, size: size} = filters)
-      when valid_reaction(part, react) and size <= @page_size_max do
+      when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react) do
       filters = filters |> Map.delete(:page) |> Map.delete(:size)
 
@@ -241,9 +285,6 @@ defmodule MastaniServer.CMS do
       {:ok, result}
     end
   end
-
-  def contents(_, _, %{first: size}) when size > @page_size_max,
-    do: {:error, "size should less then #{@page_size_max}"}
 
   def contents(part, react, filters) when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react) do
@@ -262,15 +303,20 @@ defmodule MastaniServer.CMS do
 
   with or without page info
   """
+  def reaction_users(_, _, _, %{size: size}) when invalid_page_size(size),
+    do:
+      {:error,
+       "invalid size request: size should less than #{page_size_boundary()} and more than 0"}
 
-  def reaction_users(_, _, _, %{size: size}) when size > @page_size_max,
-    do: {:error, "size should less then #{@page_size_max}"}
+  def reaction_users(_, _, _, %{first: size}) when invalid_page_size(size),
+    do:
+      {:error,
+       "invalid size request: size should less than #{page_size_boundary()} and more than 0"}
 
-  def reaction_users(part, react, part_id, %{page: page, size: size} = filters)
+  def reaction_users(part, react, root, %{page: page, size: size} = filters)
       when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react),
-         {:ok, content} <- Helper.find(action.target, part_id) do
-      where = match_where(part, content.id)
+         {:ok, where} <- dynamic_where(part, root.id) do
       # filters = filters |> Map.delete(:page) |> Map.delete(:size)
       page =
         action.reactor
@@ -290,30 +336,78 @@ defmodule MastaniServer.CMS do
     end
   end
 
-  def reaction_users(_, _, _, %{first: size}) when size > @page_size_max,
-    do: {:error, "size should less then #{@page_size_max}"}
-
-  def reaction_users(part, react, part_id, filters) when valid_reaction(part, react) do
+  def reaction_users(part, react, root, filters) when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react),
-         {:ok, content} <- Helper.find(action.target, part_id) do
-      where = match_where(part, content.id)
-
-      query =
+         {:ok, where} <- dynamic_where(part, root.id) do
+      result =
         action.reactor
         |> where(^where)
         |> Helper.filter_pack(filters)
         |> preload(^action.preload)
-
-      result = Repo.all(query) |> Enum.map(& &1.user)
+        |> Repo.all()
+        |> Enum.map(& &1.user)
 
       {:ok, result}
+    end
+  end
+
+  def reaction_members(loader, association, root, args) do
+    loader
+    |> Dataloader.load(MastaniServer.CMS, association, root)
+    |> on_load(fn loader ->
+      ids =
+        loader
+        |> Dataloader.get(MastaniServer.CMS, association, root)
+        # <- may have performence issue when very big
+        |> Enum.map(& &1.id)
+
+      users =
+        MastaniServer.CMS.PostFavorite
+        |> where([f], f.id in ^ids)
+        |> Helper.filter_pack(args.filter)
+        |> preload(:user)
+        |> Repo.all()
+        |> Enum.map(& &1.user)
+
+      # |> IO.inspect(label: 'fucking2')
+
+      {:ok, users}
+    end)
+  end
+
+  @doc """
+  TODO: remove
+  loader is the dataloader loader which is in context
+  association is must exist in the model
+  like post's favorites:
+  ----------
+  has_many(:favorites, {"posts_favorites", PostFavorite})
+  """
+  def reaction_count_loader(loader, association, root) do
+    # IO.inspect(Map.has_key?(root, association), label: 'do root check')
+    # this check is not nessery, just in case
+    case Map.has_key?(root, association) do
+      true ->
+        loader
+        |> Dataloader.load(MastaniServer.CMS, association, root)
+        |> on_load(fn loader ->
+          result =
+            loader
+            |> Dataloader.get(MastaniServer.CMS, association, root)
+            |> length
+
+          {:ok, result}
+        end)
+
+      _ ->
+        {:error, "reaction_count root and association not match"}
     end
   end
 
   @doc """
   return part's star/favorite/watch .. count
   """
-  def reaction_users_count(part, react, part_id) when valid_reaction(part, react) do
+  def reaction_count(part, react, part_id) when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react) do
       assoc_field = String.to_atom("#{react}s")
 
@@ -335,11 +429,26 @@ defmodule MastaniServer.CMS do
 
   with or without page info
   """
+  # loader, association, root
+  def is_viewer_reacted(loader, cur_user, association, root) do
+    IO.inspect(root, label: 'root is')
+
+    loader
+    |> Dataloader.load(MastaniServer.CMS, association, root)
+    |> on_load(fn loader ->
+      result =
+        loader
+        |> Dataloader.get(MastaniServer.CMS, association, root)
+        |> IO.inspect()
+
+      {:ok, true}
+    end)
+  end
+
   def viewer_has_reacted(part, react, part_id, user_id) when valid_reaction(part, react) do
     # find post_id and user_id in PostFavorite
-    with {:ok, action} <- match_action(part, react) do
-      where = match_where(part, part_id)
-
+    with {:ok, action} <- match_action(part, react),
+         {:ok, where} <- dynamic_where(part, part_id) do
       action.reactor
       |> where(^where)
       |> where([a], a.user_id == ^user_id)
