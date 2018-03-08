@@ -79,7 +79,9 @@ defmodule MastaniServer.CMS do
 
   def query({"posts_comments", PostComment}, args) do
     case Map.has_key?(args, :filter) do
-      true -> PostComment |> Helper.filter_pack(args.filter)
+      true -> PostComment
+      # |> join(:inner, [f], u in assoc(f, :author))
+      |> Helper.filter_pack(args.filter)
       _ -> PostComment
     end
   end
@@ -99,26 +101,35 @@ defmodule MastaniServer.CMS do
     |> select([f], count(f.id))
   end
 
+  # def query(PostFavorite, %{id: id, filter: %{page: page, size: size} = filters}) do
+  # IO.inspect(id, label: 'heihei id')
+
+  # PostFavorite
+  # |> join(:inner, [f], u in assoc(f, :user))
+  # |> select([f, u], u)
+  # |> Helper.filter_pack(filters)
+  # |> where([p], p.post_id == ^id)
+  # |> Repo.paginate(page: page, page_size: size)
+  # end
+
+  def query({"posts_favorites", PostFavorite}, %{filter: _} = args) do
+    PostFavorite
+    |> join(:inner, [f], u in assoc(f, :user))
+    |> select([f, u], u)
+    |> Helper.filter_pack(args.filter)
+  end
+
   def query({"posts_favorites", PostFavorite}, args) do
-    # TODO: Repo.paginate(page: page, page_size: size)
-    # TODO: default filter
-    case Map.has_key?(args, :filter) do
-      true ->
-        PostFavorite
-        |> join(:inner, [f], u in assoc(f, :user))
-        |> select([f, u], u)
-        |> Helper.filter_pack(args.filter)
+    default_filter = %{first: 1}
 
-      _ ->
-        PostFavorite
-    end
-
-    # IO.inspect(args, label: 'args')
-    # IO.inspect(PostFavorite, label: 'PostFavorite')
-    # from(f in PostFavorite, join: u in assoc(f, :user), select: u) |> Helper.filter_pack(args.filter)
+    PostFavorite
+    |> join(:inner, [f], u in assoc(f, :user))
+    |> select([f, u], u)
+    |> Helper.filter_pack(default_filter)
   end
 
   def query(queryable, _args) do
+    IO.inspect(queryable, label: 'default queryable')
     queryable
   end
 
@@ -303,51 +314,38 @@ defmodule MastaniServer.CMS do
 
   with or without page info
   """
-  def reaction_users(_, _, _, %{size: size}) when invalid_page_size(size),
-    do:
-      {:error,
-       "invalid size request: size should less than #{page_size_boundary()} and more than 0"}
+  def target_bg({"posts_favorites", PostFavorite}, args) do
+    # TODO: Repo.paginate(page: page, page_size: size)
+    case Map.has_key?(args, :filter) do
+      true ->
+        PostFavorite
+        |> join(:inner, [f], u in assoc(f, :user))
+        |> select([f, u], u)
+        |> Helper.filter_pack(args.filter)
 
-  def reaction_users(_, _, _, %{first: size}) when invalid_page_size(size),
-    do:
-      {:error,
-       "invalid size request: size should less than #{page_size_boundary()} and more than 0"}
-
-  def reaction_users(part, react, root, %{page: page, size: size} = filters)
-      when valid_reaction(part, react) do
-    with {:ok, action} <- match_action(part, react),
-         {:ok, where} <- dynamic_where(part, root.id) do
-      # filters = filters |> Map.delete(:page) |> Map.delete(:size)
-      page =
-        action.reactor
-        |> where(^where)
-        |> Helper.filter_pack(filters)
-        |> preload(:user)
-        |> Repo.paginate(page: page, page_size: size)
-
-      {:ok,
-       %{
-         entries: Enum.map(page.entries, & &1.user),
-         page_number: page.page_number,
-         page_size: page.page_size,
-         total_pages: page.total_pages,
-         total_count: page.total_entries
-       }}
+      _ ->
+        PostFavorite
+        |> join(:inner, [f], u in assoc(f, :user))
+        |> select([f, u], u)
+        |> Helper.filter_pack(%{first: 5})
     end
   end
 
-  def reaction_users(part, react, root, filters) when valid_reaction(part, react) do
-    with {:ok, action} <- match_action(part, react),
-         {:ok, where} <- dynamic_where(part, root.id) do
-      result =
-        action.reactor
-        |> where(^where)
-        |> Helper.filter_pack(filters)
-        |> preload(^action.preload)
-        |> Repo.all()
-        |> Enum.map(& &1.user)
+  # def common_filter(target, ) do
 
-      {:ok, result}
+  # end
+
+  def reaction_users(part, react, id, %{page: page, size: size} = filters)
+      when valid_reaction(part, react) do
+    with {:ok, action} <- match_action(part, react),
+         {:ok, where} <- dynamic_where(part, id) do
+      # common_filter(action.reactor)
+      action.reactor
+      |> join(:inner, [f], u in assoc(f, :user))
+      |> select([f, u], u)
+      |> Helper.filter_pack(filters)
+      |> where(^where)
+      |> Helper.paginater(page: page, size: size)
     end
   end
 
@@ -370,7 +368,6 @@ defmodule MastaniServer.CMS do
         |> Enum.map(& &1.user)
 
       # |> IO.inspect(label: 'fucking2')
-
       {:ok, users}
     end)
   end
@@ -429,22 +426,6 @@ defmodule MastaniServer.CMS do
 
   with or without page info
   """
-  # loader, association, root
-  def is_viewer_reacted(loader, cur_user, association, root) do
-    IO.inspect(root, label: 'root is')
-
-    loader
-    |> Dataloader.load(MastaniServer.CMS, association, root)
-    |> on_load(fn loader ->
-      result =
-        loader
-        |> Dataloader.get(MastaniServer.CMS, association, root)
-        |> IO.inspect()
-
-      {:ok, true}
-    end)
-  end
-
   def viewer_has_reacted(part, react, part_id, user_id) when valid_reaction(part, react) do
     # find post_id and user_id in PostFavorite
     with {:ok, action} <- match_action(part, react),

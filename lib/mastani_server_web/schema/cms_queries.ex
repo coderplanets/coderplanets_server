@@ -3,6 +3,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
   use Absinthe.Ecto, repo: MastaniServer.Repo
 
   alias MastaniServerWeb.Resolvers
+  alias MastaniServerWeb.Schema.Middleware
 
   input_object :pagi_input do
     field(:page, :integer, default_value: 1)
@@ -26,15 +27,19 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
     field :paged_posts, non_null(list_of(non_null(:paged_posts))) do
       arg(:filter, :paged_article_filter)
+      middleware(Middleware.SizeChecker)
       resolve(&Resolvers.CMS.posts/3)
     end
 
     field :favorite_users, non_null(list_of(non_null(:paged_users))) do
       arg(:id, non_null(:id))
       arg(:type, :cms_part, default_value: :post)
-      # TODO: tmp
+      arg(:action, :favorite_action, default_value: :favorite)
       arg(:filter, :paged_article_filter)
+
+      middleware(Middleware.SizeChecker)
       resolve(&Resolvers.CMS.reaction_users/3)
+      middleware(Middleware.FormatPagination)
     end
 
     field :tags, non_null(list_of(non_null(:tag))) do

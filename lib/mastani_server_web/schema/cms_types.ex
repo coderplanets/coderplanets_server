@@ -10,9 +10,9 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   import_types(Schema.CMS.Misc)
 
   object :comment do
-    field(:id, non_null(:id))
-    field(:body, non_null(:string))
-    field(:author, non_null(:user))
+    field(:id, :id)
+    field(:body, :string)
+    field(:author, :user, resolve: dataloader(CMS, :author))
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
   end
@@ -48,12 +48,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
       middleware(Middleware.Authorize, :login)
       middleware(Middleware.PutCurrentUser)
-
       resolve(dataloader(CMS, :favorites))
       middleware(Middleware.ViewerReactedConvert)
-      # resolve(fn root, _args, %{context: %{loader: loader, current_user: cur_user}} ->
-      # CMS.is_viewer_reacted(loader, cur_user, :favorites, root)
-      # end)
     end
 
     field :viewer_has_favorited, :boolean do
@@ -76,6 +72,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       # TODO: tmp
       arg(:filter, :article_filter)
 
+      # TODO a size control middleware
+      middleware(Middleware.SizeChecker)
       resolve(dataloader(CMS, :favorites))
       # resolve(fn root, args, %{context: %{loader: loader}} ->
       # CMS.reaction_members(loader, :favorites, root, args)

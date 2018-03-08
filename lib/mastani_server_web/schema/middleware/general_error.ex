@@ -11,6 +11,7 @@ defmodule MastaniServerWeb.Schema.Middleware.GeneralError do
       # IO.inspect errors, label: 'GeneralError2'
       message = [%{message: errors}]
       %{res | value: [], errors: message}
+      # res |> Absinthe.Resolution.put_result({:error, msg})
     end
   end
 end

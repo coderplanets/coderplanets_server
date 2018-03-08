@@ -107,6 +107,11 @@ defmodule MastaniServer.Utils.Helper do
     message
   end
 
+  def paginater(queryable, page: page, size: size) do
+    result = queryable |> Repo.paginate(page: page, page_size: size)
+    {:ok, result}
+  end
+
   def filter_pack(query, filter) do
     Enum.reduce(filter, query, fn
       # {:preload, :user}, query ->

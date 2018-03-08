@@ -9,6 +9,7 @@ defmodule MastaniServerWeb.Schema.Middleware.ChangesetErrors do
     with %{errors: [%Ecto.Changeset{} = changeset]} <- res do
       # IO.inspect transform_errors(changeset), label: 'changeset call'
       %{res | value: [], errors: transform_errors(changeset)}
+      # res |> Absinthe.Resolution.put_result({:error, msg})
     end
   end
 

@@ -1,3 +1,4 @@
+# TODO rename to CMSResolvers
 defmodule MastaniServerWeb.Resolvers.CMS do
   alias MastaniServer.CMS
   alias MastaniServer.Utils.Helper
@@ -75,14 +76,18 @@ defmodule MastaniServerWeb.Resolvers.CMS do
       }),
       do: CMS.undo_reaction(type, action, id, user.id)
 
-  def reaction_users(root, %{type: type, action: action, filter: filter}, _info) do
-    CMS.reaction_users(type, action, root, filter)
+  def reaction_users(_root, %{id: id, action: action, type: type, filter: filter}, _info) do
+    IO.inspect(id, label: "fuck 1")
+    CMS.reaction_users(type, action, id, filter)
   end
 
-  def reaction_users(root, %{type: type, action: action}, _info) do
-    default_filter = %{first: 3}
-    CMS.reaction_users(type, action, root, default_filter)
-  end
+  # def reaction_users(root, %{id: id, type: type, action: action}, _info) do
+  # def reaction_users(_root, %{id: id, type: type}, _info) do
+  # IO.inspect(id, label: "fuck me")
+  # default_filter = %{first: 3}
+  # CMS.reaction_users(type, action, root, default_filter)
+  # CMS.reaction_users(type, :favorite, id, default_filter)
+  # end
 
   # def inline_reaction_users(root, %{type: type, action: action, filter: filter}, _info) do
   # CMS.reaction_users(type, action, root, filter)
