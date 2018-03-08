@@ -1,16 +1,9 @@
 # TODO rename to CMSResolvers
 defmodule MastaniServerWeb.Resolvers.CMS do
   alias MastaniServer.CMS
-  alias MastaniServer.Utils.Helper
+  # alias MastaniServer.Utils.Helper
 
   # TODO: delete tag
-
-  def load_author(root, _args, _info),
-    do: CMS.load_author(%CMS.Author{id: root.author_id}) |> Helper.orm_resp()
-
-  # def load_tags(root, _args, _info) do
-  # CMS.contents(:post, :comment, root.id, first) |> Helper.orm_resp()
-  # end
 
   def post(_root, %{id: id}, _info), do: CMS.one_conent(:post, :self, id)
 
@@ -20,7 +13,6 @@ defmodule MastaniServerWeb.Resolvers.CMS do
         do: filter,
         else: Map.merge(filter, %{sort: :desc_inserted})
 
-    # CMS.contents(:post, :self, filter) # |> Helper.orm_resp()
     CMS.contents(:post, :self, filter)
   end
 
@@ -51,7 +43,6 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def set_tag(_root, %{type: type, id: id, tag_id: tag_id}, %{context: %{current_user: user}}) do
     IO.inspect(user.id, label: "log this user to post history / system log")
-    # CMS.set_tag(type, id, tag_id) |> Helper.orm_resp()
     CMS.set_tag(type, id, tag_id)
   end
 
@@ -61,13 +52,10 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def create_post(_root, args, %{context: %{current_user: user}}) do
     # args.community = "elxiir"
-    # CMS.create_post(%CMS.Author{user_id: user.id}, args) |> Helper.orm_resp()
-    # CMS.create_content(:post, %CMS.Author{user_id: user.id}, args) |> Helper.orm_resp()
     CMS.create_content(:post, %CMS.Author{user_id: user.id}, args)
   end
 
   def reaction(_root, %{type: type, action: action, id: id}, %{context: %{current_user: user}}) do
-    # CMS.reaction(type, action, id, user.id) |> Helper.orm_resp()
     CMS.reaction(type, action, id, user.id)
   end
 
@@ -77,7 +65,6 @@ defmodule MastaniServerWeb.Resolvers.CMS do
       do: CMS.undo_reaction(type, action, id, user.id)
 
   def reaction_users(_root, %{id: id, action: action, type: type, filter: filter}, _info) do
-    IO.inspect(id, label: "fuck 1")
     CMS.reaction_users(type, action, id, filter)
   end
 

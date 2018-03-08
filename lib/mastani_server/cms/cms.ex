@@ -53,7 +53,7 @@ end
 defmodule MastaniServer.CMS do
   import MastaniServer.CMSValidator
   import MastaniServer.CMSMatcher
-  import Absinthe.Resolution.Helpers
+  # import Absinthe.Resolution.Helpers
 
   @moduledoc """
   The CMS context.
@@ -61,9 +61,10 @@ defmodule MastaniServer.CMS do
 
   import Ecto.Query, warn: false
 
-  alias MastaniServer.CMS.{Post, Author, Tag, Community, PostComment, PostFavorite}
+  alias MastaniServer.CMS.{Post, Author, Tag, Community, PostComment, PostFavorite, PostStar}
   alias MastaniServer.{Repo, Accounts}
   alias MastaniServer.Utils.Helper
+  alias MastaniServer.Utils.QueryPuzzle
 
   def data() do
     Dataloader.Ecto.new(Repo, query: &query/2)
@@ -77,70 +78,28 @@ defmodule MastaniServer.CMS do
     from(a in Author, join: u in assoc(a, :user), select: u)
   end
 
-  def query({"posts_comments", PostComment}, args) do
-    case Map.has_key?(args, :filter) do
-      true -> PostComment
-      # |> join(:inner, [f], u in assoc(f, :author))
-      |> Helper.filter_pack(args.filter)
-      _ -> PostComment
-    end
+  def query({"posts_comments", PostComment}, %{filter: filter}) do
+    PostComment
+    |> QueryPuzzle.filter_pack(filter)
   end
 
-  def query({"posts_favorites", PostFavorite}, %{
-        arg_viewer_reacted: _,
-        current_user: current_user
-      }) do
-    PostFavorite
-    |> where([f], f.user_id == ^current_user.id)
-  end
-
-  def query({"posts_favorites", PostFavorite}, %{arg_count: _}) do
-    # IO.inspect(current_user, label: 'context user--> ')
-    PostFavorite
-    |> group_by([f], f.post_id)
-    |> select([f], count(f.id))
-  end
-
-  # def query(PostFavorite, %{id: id, filter: %{page: page, size: size} = filters}) do
-  # IO.inspect(id, label: 'heihei id')
-
-  # PostFavorite
-  # |> join(:inner, [f], u in assoc(f, :user))
-  # |> select([f, u], u)
-  # |> Helper.filter_pack(filters)
-  # |> where([p], p.post_id == ^id)
-  # |> Repo.paginate(page: page, page_size: size)
-  # end
-
-  def query({"posts_favorites", PostFavorite}, %{filter: _} = args) do
-    PostFavorite
-    |> join(:inner, [f], u in assoc(f, :user))
-    |> select([f, u], u)
-    |> Helper.filter_pack(args.filter)
-  end
-
+  @doc """
+  handle query:
+  1. bacic filter of pagi,when,sort ...
+  2. count of the reactions
+  3. check is viewer reacted
+  """
   def query({"posts_favorites", PostFavorite}, args) do
-    default_filter = %{first: 1}
+    QueryPuzzle.reactions_hanlder(PostFavorite, args)
+  end
 
-    PostFavorite
-    |> join(:inner, [f], u in assoc(f, :user))
-    |> select([f, u], u)
-    |> Helper.filter_pack(default_filter)
+  def query({"posts_stars", PostStar}, args) do
+    QueryPuzzle.reactions_hanlder(PostStar, args)
   end
 
   def query(queryable, _args) do
     IO.inspect(queryable, label: 'default queryable')
     queryable
-  end
-
-  @doc """
-  get the author info for CMS.conent
-  just for compare
-  """
-  def load_author(%Author{} = author) do
-    with {:ok, result} <- Helper.find(Author, author.id, preload: :user) do
-      {:ok, result.user}
-    end
   end
 
   def create_community(attrs) do
@@ -290,7 +249,7 @@ defmodule MastaniServer.CMS do
 
       result =
         action.target
-        |> Helper.filter_pack(filters)
+        |> QueryPuzzle.filter_pack(filters)
         |> Repo.paginate(page: page, page_size: size)
 
       {:ok, result}
@@ -299,7 +258,7 @@ defmodule MastaniServer.CMS do
 
   def contents(part, react, filters) when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react) do
-      query = action.target |> Helper.filter_pack(filters)
+      query = action.target |> QueryPuzzle.filter_pack(filters)
       {:ok, Repo.all(query)}
     end
   end
@@ -314,23 +273,6 @@ defmodule MastaniServer.CMS do
 
   with or without page info
   """
-  def target_bg({"posts_favorites", PostFavorite}, args) do
-    # TODO: Repo.paginate(page: page, page_size: size)
-    case Map.has_key?(args, :filter) do
-      true ->
-        PostFavorite
-        |> join(:inner, [f], u in assoc(f, :user))
-        |> select([f, u], u)
-        |> Helper.filter_pack(args.filter)
-
-      _ ->
-        PostFavorite
-        |> join(:inner, [f], u in assoc(f, :user))
-        |> select([f, u], u)
-        |> Helper.filter_pack(%{first: 5})
-    end
-  end
-
   # def common_filter(target, ) do
 
   # end
@@ -341,63 +283,12 @@ defmodule MastaniServer.CMS do
          {:ok, where} <- dynamic_where(part, id) do
       # common_filter(action.reactor)
       action.reactor
-      |> join(:inner, [f], u in assoc(f, :user))
-      |> select([f, u], u)
-      |> Helper.filter_pack(filters)
+      |> QueryPuzzle.reaction_members(filters)
+      # |> join(:inner, [f], u in assoc(f, :user))
+      # |> select([f, u], u)
+      # |> QueryPuzzle.filter_pack(filters)
       |> where(^where)
       |> Helper.paginater(page: page, size: size)
-    end
-  end
-
-  def reaction_members(loader, association, root, args) do
-    loader
-    |> Dataloader.load(MastaniServer.CMS, association, root)
-    |> on_load(fn loader ->
-      ids =
-        loader
-        |> Dataloader.get(MastaniServer.CMS, association, root)
-        # <- may have performence issue when very big
-        |> Enum.map(& &1.id)
-
-      users =
-        MastaniServer.CMS.PostFavorite
-        |> where([f], f.id in ^ids)
-        |> Helper.filter_pack(args.filter)
-        |> preload(:user)
-        |> Repo.all()
-        |> Enum.map(& &1.user)
-
-      # |> IO.inspect(label: 'fucking2')
-      {:ok, users}
-    end)
-  end
-
-  @doc """
-  TODO: remove
-  loader is the dataloader loader which is in context
-  association is must exist in the model
-  like post's favorites:
-  ----------
-  has_many(:favorites, {"posts_favorites", PostFavorite})
-  """
-  def reaction_count_loader(loader, association, root) do
-    # IO.inspect(Map.has_key?(root, association), label: 'do root check')
-    # this check is not nessery, just in case
-    case Map.has_key?(root, association) do
-      true ->
-        loader
-        |> Dataloader.load(MastaniServer.CMS, association, root)
-        |> on_load(fn loader ->
-          result =
-            loader
-            |> Dataloader.get(MastaniServer.CMS, association, root)
-            |> length
-
-          {:ok, result}
-        end)
-
-      _ ->
-        {:error, "reaction_count root and association not match"}
     end
   end
 

@@ -25,7 +25,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   def create_user(_root, args, %{context: %{current_user: %{root: true}}}) do
     # IO.inspect(user, label: "create_post current_user")
     # IO.inspect(args, label: "create_post args")
-    Accounts.create_user(args) |> Helper.orm_resp()
+    Accounts.create_user(args)
   end
 
   def create_user(_root, _args, _info) do
