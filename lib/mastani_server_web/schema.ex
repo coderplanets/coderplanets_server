@@ -1,7 +1,7 @@
 defmodule MastaniServerWeb.Schema do
   use Absinthe.Schema
-  alias MastaniServerWeb.Schema.{Account, CMS, Middleware}
-  # alias MastaniServerWeb.Schema.Middleware
+  alias MastaniServerWeb.Schema.{Account, CMS}
+  alias MastaniServerWeb.Middleware
 
   def middleware(middleware, _field, %{identifier: :query}) do
     middleware ++ [Middleware.GeneralError]

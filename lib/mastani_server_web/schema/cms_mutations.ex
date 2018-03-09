@@ -3,7 +3,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
   use Absinthe.Ecto, repo: MastaniServer.Repo
 
   alias MastaniServerWeb.Resolvers
-  alias MastaniServerWeb.Schema.Middleware
+  alias MastaniServerWeb.Middleware
 
   object :cms_mutations do
     @desc "hehehef: create a user"

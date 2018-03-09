@@ -2,7 +2,7 @@
 # Absinthe.Middleware behaviour
 # TODO
 # ---
-defmodule MastaniServerWeb.Schema.Middleware.Authorize do
+defmodule MastaniServerWeb.Middleware.Authorize do
   @behaviour Absinthe.Middleware
 
   def call(resolution, role) do

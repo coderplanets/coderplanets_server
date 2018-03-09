@@ -2,7 +2,7 @@
 # Absinthe.Middleware behaviour
 # see https://hexdocs.pm/absinthe/Absinthe.Middleware.html#content
 # ---
-defmodule MastaniServerWeb.Schema.Middleware.ChangesetErrors do
+defmodule MastaniServerWeb.Middleware.ChangesetErrors do
   @behaviour Absinthe.Middleware
 
   def call(res, _) do

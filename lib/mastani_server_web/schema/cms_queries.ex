@@ -3,7 +3,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
   use Absinthe.Ecto, repo: MastaniServer.Repo
 
   alias MastaniServerWeb.Resolvers
-  alias MastaniServerWeb.Schema.Middleware
+  alias MastaniServerWeb.Middleware
 
   input_object :pagi_input do
     field(:page, :integer, default_value: 1)

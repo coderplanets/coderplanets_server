@@ -2,15 +2,16 @@
 # Absinthe.Middleware behaviour
 # see https://hexdocs.pm/absinthe/Absinthe.Middleware.html#content
 # ---
-defmodule MastaniServerWeb.Schema.Middleware.ConvertToInt do
+defmodule MastaniServerWeb.Middleware.ViewerReactedConvert do
   @behaviour Absinthe.Middleware
   # google: must appear in the GROUP BY clause or be used in an aggregate function
 
   def call(res, _) do
-    # with %{errors: errors} <- res do
+    # IO.inspect res.value, label: 'ViewerReactedConvert'
+
     case List.first(res.value) do
-      nil -> %{res | value: 0}
-      count -> %{res | value: count}
+      nil -> %{res | value: false}
+      count -> %{res | value: true}
     end
   end
 end

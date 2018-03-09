@@ -2,7 +2,7 @@
 # Absinthe.Middleware behaviour
 # see https://hexdocs.pm/absinthe/Absinthe.Middleware.html#content
 # ---
-defmodule MastaniServerWeb.Schema.Middleware.SizeChecker do
+defmodule MastaniServerWeb.Middleware.SizeChecker do
   @behaviour Absinthe.Middleware
   @max_page_size 30
   @default_page_size 10

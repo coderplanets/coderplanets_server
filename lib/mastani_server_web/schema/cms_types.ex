@@ -5,7 +5,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   import Absinthe.Resolution.Helpers
   alias MastaniServer.CMS
   alias MastaniServerWeb.{Resolvers, Schema}
-  alias MastaniServerWeb.Schema.Middleware
+  alias MastaniServerWeb.Middleware
 
   import_types(Schema.CMS.Misc)
 
