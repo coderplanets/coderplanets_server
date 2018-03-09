@@ -52,14 +52,15 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       middleware(Middleware.PutCurrentUser)
       resolve(dataloader(CMS, :favorites))
       middleware(Middleware.ViewerReactedConvert)
+      #TODO: Middleware.Logger
     end
 
     # field :viewer_has_favorited_old, :boolean do
-      # arg(:type, :post_type, default_value: :post)
-      # arg(:action, :favorite_action, default_value: :favorite)
+    # arg(:type, :post_type, default_value: :post)
+    # arg(:action, :favorite_action, default_value: :favorite)
 
-      # middleware(Middleware.Authorize, :login)
-      # resolve(&Resolvers.CMS.viewer_has_reacted/3)
+    # middleware(Middleware.Authorize, :login)
+    # resolve(&Resolvers.CMS.viewer_has_reacted/3)
     # end
 
     field :viewer_has_starred, :boolean do
@@ -72,11 +73,11 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     end
 
     # field :viewer_has_starred_old, :boolean do
-      # arg(:type, :post_type, default_value: :post)
-      # arg(:action, :star_action, default_value: :star)
+    # arg(:type, :post_type, default_value: :post)
+    # arg(:action, :star_action, default_value: :star)
 
-      # middleware(Middleware.Authorize, :login)
-      # resolve(&Resolvers.CMS.viewer_has_reacted/3)
+    # middleware(Middleware.Authorize, :login)
+    # resolve(&Resolvers.CMS.viewer_has_reacted/3)
     # end
 
     field :favorited_users, list_of(:user) do
@@ -88,10 +89,10 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     end
 
     # field :favorited_users_old, list_of(:user) do
-      # arg(:filter, :article_filter)
-      # arg(:type, :post_type, default_value: :post)
-      # arg(:action, :favorite_action, default_value: :favorite)
-      # resolve(&Resolvers.CMS.reaction_users/3)
+    # arg(:filter, :article_filter)
+    # arg(:type, :post_type, default_value: :post)
+    # arg(:action, :favorite_action, default_value: :favorite)
+    # resolve(&Resolvers.CMS.reaction_users/3)
     # end
 
     field :favorited_count, :integer do
@@ -102,9 +103,9 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     end
 
     # field :favorited_count_old, :integer do
-      # arg(:type, :post_type, default_value: :post)
-      # arg(:action, :favorite_action, default_value: :favorite)
-      # resolve(&Resolvers.CMS.reaction_count/3)
+    # arg(:type, :post_type, default_value: :post)
+    # arg(:action, :favorite_action, default_value: :favorite)
+    # resolve(&Resolvers.CMS.reaction_count/3)
     # end
 
     field :starred_count, :integer do
@@ -114,9 +115,9 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     end
 
     # field :starred_count_old, :integer do
-      # arg(:type, :post_type, default_value: :post)
-      # arg(:action, :star_action, default_value: :star)
-      # resolve(&Resolvers.CMS.reaction_count/3)
+    # arg(:type, :post_type, default_value: :post)
+    # arg(:action, :star_action, default_value: :star)
+    # resolve(&Resolvers.CMS.reaction_count/3)
     # end
 
     field :starred_users, list_of(:user) do
@@ -128,10 +129,10 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     end
 
     # field :starred_users_old, list_of(:user) do
-      # arg(:filter, :article_filter)
-      # arg(:type, :post_type, default_value: :post)
-      # arg(:action, :star_action, default_value: :star)
-      # resolve(&Resolvers.CMS.reaction_users/3)
+    # arg(:filter, :article_filter)
+    # arg(:type, :post_type, default_value: :post)
+    # arg(:action, :star_action, default_value: :star)
+    # resolve(&Resolvers.CMS.reaction_users/3)
     # end
   end
 

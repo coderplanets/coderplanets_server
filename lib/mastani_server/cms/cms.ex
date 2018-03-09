@@ -79,8 +79,7 @@ defmodule MastaniServer.CMS do
   end
 
   def query({"posts_comments", PostComment}, %{filter: filter}) do
-    PostComment
-    |> QueryPuzzle.filter_pack(filter)
+    PostComment |> QueryPuzzle.filter_pack(filter)
   end
 
   @doc """
@@ -90,15 +89,15 @@ defmodule MastaniServer.CMS do
   3. check is viewer reacted
   """
   def query({"posts_favorites", PostFavorite}, args) do
-    QueryPuzzle.reactions_hanlder(PostFavorite, args)
+    PostFavorite |> QueryPuzzle.reactions_hanlder(args)
   end
 
   def query({"posts_stars", PostStar}, args) do
-    QueryPuzzle.reactions_hanlder(PostStar, args)
+    PostStar |> QueryPuzzle.reactions_hanlder(args)
   end
 
   def query(queryable, _args) do
-    IO.inspect(queryable, label: 'default queryable')
+    # IO.inspect(queryable, label: 'default queryable')
     queryable
   end
 
@@ -283,11 +282,8 @@ defmodule MastaniServer.CMS do
          {:ok, where} <- dynamic_where(part, id) do
       # common_filter(action.reactor)
       action.reactor
-      |> QueryPuzzle.reaction_members(filters)
-      # |> join(:inner, [f], u in assoc(f, :user))
-      # |> select([f, u], u)
-      # |> QueryPuzzle.filter_pack(filters)
       |> where(^where)
+      |> QueryPuzzle.reaction_members(filters)
       |> Helper.paginater(page: page, size: size)
     end
   end

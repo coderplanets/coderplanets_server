@@ -8,10 +8,6 @@ defmodule MastaniServerWeb.Schema do
   end
 
   def middleware(middleware, _field, %{identifier: :mutation}) do
-    # middleware |> IO.inspect(label: 'middleware')
-    # field |> IO.inspect(label: 'field')
-    # object |> IO.inspect(label: 'object')
-    # middleware
     middleware ++ [Middleware.ChangesetErrors] ++ [Middleware.GeneralError]
   end
 
