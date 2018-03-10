@@ -25,10 +25,11 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       resolve(&Resolvers.CMS.posts/3)
     end
 
-    field :paged_posts, non_null(list_of(non_null(:paged_posts))) do
-      arg(:filter, :paged_article_filter)
+    field :paged_posts, non_null((:paged_posts)) do
+      arg(:filter, non_null(:paged_article_filter))
       middleware(Middleware.SizeChecker)
       resolve(&Resolvers.CMS.posts/3)
+      middleware(Middleware.FormatPagination)
     end
 
     field :favorite_users, non_null(list_of(non_null(:paged_users))) do

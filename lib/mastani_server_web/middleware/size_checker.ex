@@ -22,6 +22,8 @@ defmodule MastaniServerWeb.Middleware.SizeChecker do
 
   defp valid_size(%{filter: %{first: size}} = arg), do: do_size_check(size, arg)
 
+  # Scrivener default size is defined in mastani_server/repo.ex
+  # see tuts: https://www.dailydrip.com/topics/elixirsips/drips/phoenix-api-pagination-with-scrivener
   defp valid_size(%{filter: %{size: size}} = arg), do: do_size_check(size, arg)
 
   defp valid_size(arg), do: Map.merge(arg, %{filter: %{first: @default_page_size}})

@@ -1,14 +1,13 @@
 # use /test/support/populater
 
-alias MastaniServer.Mock
+import MastaniServer.Factory
 
-user = %{
-  username: "mydearxym",
+default_user = %{
+  username: "mydearxym2",
   nickname: "simon",
-  bio: "live everyday to the fullest",
+  bio: "i am from seed",
   company: "infomedia"
 }
 
-Mock.User.insert(user)
-
-# Mock.User.random(10)
+# db_insert(:user, default_user)
+db_insert_multi!(:user)

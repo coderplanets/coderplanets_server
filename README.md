@@ -1,5 +1,7 @@
 
 
+[![Deps Status](https://beta.hexfaktor.org/badge/all/github/mydearxym/mastani_server.svg)](https://beta.hexfaktor.org/github/mydearxym/mastani_server)
+
 ## Todo 
 
 [ ] a git hook for format code

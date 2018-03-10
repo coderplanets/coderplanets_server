@@ -24,6 +24,7 @@ config :mastani_server, MastaniServer.Utils.Guardian,
   issuer: "mastani_server",
   secret_key: "kSTPDbCUSRhiEmv86eYMUplL7xI5fDa/+6MWKzK2VYGxjwL0XGHHVJiSPNPe9hJe"
 
+config :mastani_server, :mix_test_watch, exclude: [~r/docs\/.*/, ~r/deps\/.*/, ~r/mix.exs/]
 # secret_key: {:system, "GUARDIAN_DEMO_SECRET_KEY"}
 
 # Import environment specific config. This must remain at the bottom

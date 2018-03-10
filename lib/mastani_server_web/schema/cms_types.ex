@@ -49,10 +49,11 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       arg(:arg_viewer_reacted, :arg_viewer_reacted, default_value: :arg_viewer_reacted)
 
       middleware(Middleware.Authorize, :login)
+      # middleware(Middleware.SeeMe)
       middleware(Middleware.PutCurrentUser)
       resolve(dataloader(CMS, :favorites))
       middleware(Middleware.ViewerReactedConvert)
-      #TODO: Middleware.Logger
+      # TODO: Middleware.Logger
     end
 
     # field :viewer_has_favorited_old, :boolean do
@@ -138,7 +139,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
   object :paged_posts do
     field(:entries, list_of(:post))
-    field(:total_entries, :integer)
+    field(:total_count, :integer)
     field(:page_size, :integer)
     field(:total_pages, :integer)
     field(:page_number, :integer)

@@ -1,5 +1,5 @@
-alias MastaniServer.Mock
+# doc ..
+import MastaniServer.Factory
 
-# Mock.CMS.Post.random(10)
-
-Mock.CMS.Comment.random(10000)
+db_insert(:post)
+# db_insert_multi!(:user)

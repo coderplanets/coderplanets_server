@@ -17,6 +17,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   def posts(_root, _args, _info) do
+    IO.inspect("hello 1")
     default_filter = %{first: 10}
     CMS.contents(:post, :self, default_filter)
   end

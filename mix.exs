@@ -26,7 +26,7 @@ defmodule MastaniServer.Mixfile do
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(:mock), do: ["lib", "priv/mock"]
+  defp elixirc_paths(:mock), do: ["lib", "priv/mock", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
   # Specifies your project dependencies.
@@ -57,7 +57,9 @@ defmodule MastaniServer.Mixfile do
       {:scrivener_ecto, "~> 1.3.0"},
       {:guardian, "~> 1.0"},
       {:timex, "~> 3.1.25"},
-      {:dataloader, "~> 1.0.0"}
+      {:dataloader, "~> 1.0.0"},
+      {:mix_test_watch, "~> 0.5", only: :dev, runtime: false},
+      {:ex_unit_notifier, "~> 0.1", only: :test}
     ]
   end
 
@@ -68,6 +70,7 @@ defmodule MastaniServer.Mixfile do
   #
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
+    # test.watch is powerd by: https://github.com/lpil/mix-test.watch
     [
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/mock/user_seeds.exs"],
       # "ecto.setup": ["ecto.create", "ecto.migrate"],

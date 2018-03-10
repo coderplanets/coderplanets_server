@@ -89,6 +89,7 @@ defmodule MastaniServer.CMS do
   3. check is viewer reacted
   """
   def query({"posts_favorites", PostFavorite}, args) do
+    IO.inspect("wo --fff")
     PostFavorite |> QueryPuzzle.reactions_hanlder(args)
   end
 
@@ -251,6 +252,7 @@ defmodule MastaniServer.CMS do
         |> QueryPuzzle.filter_pack(filters)
         |> Repo.paginate(page: page, page_size: size)
 
+      # IO.inspect result, label: "fuck the result"
       {:ok, result}
     end
   end
