@@ -55,7 +55,7 @@ defmodule MastaniServer.Query.PagedPostsTest do
     }
   }
   """
-  test "pagination has default page and size arg", %{conn: conn} do
+  test "pagination should have default page and size arg", %{conn: conn} do
     variables = %{filter: %{}}
     results = conn |> query_get_result_of(@query, variables, "pagedPosts")
     # IO.inspect(results, label: "ff ")

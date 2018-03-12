@@ -43,6 +43,9 @@ defmodule MastaniServer.Factory do
   end
 
   def db_insert(factory_name, attributes \\ []) do
+    # not use changeset because in test we may insert some attrs which not in schema
+    # like: views, insert/update ... to test filter-sort,when ...
+
     # User.changeset(%User{}, attrs)
     # |> Repo.insert!()
     Repo.insert(mock(factory_name, attributes))
