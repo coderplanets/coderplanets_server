@@ -89,7 +89,6 @@ defmodule MastaniServer.CMS do
   3. check is viewer reacted
   """
   def query({"posts_favorites", PostFavorite}, args) do
-    IO.inspect("wo --fff")
     PostFavorite |> QueryPuzzle.reactions_hanlder(args)
   end
 
