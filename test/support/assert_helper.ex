@@ -37,6 +37,18 @@ defmodule MastaniServer.AssertHelper do
     |> Map.get(key)
   end
 
+  def query_get_result_of(conn, query, variables, key, :debug) do
+    IO.inspect query, label: "query"
+    IO.inspect variables, label: "variables"
+
+    conn
+    |> get("/graphiql", query: query, variables: variables)
+    |> IO.inspect(label: "query_get_result_of")
+    |> json_response(200)
+    |> Map.get("data")
+    |> Map.get(key)
+  end
+
   def query_get_result_of(conn, query, key) do
     conn
     |> get("/graphiql", query: query, variables: %{})

@@ -1,8 +1,13 @@
 defmodule MastaniServer.Query.PagedPostsTest do
   # use MastaniServerWeb.ConnCase, async: true
   use MastaniServerWeb.ConnCase, async: true
+
   import MastaniServer.Factory
   import MastaniServer.AssertHelper
+  import Ecto.Query, warn: false
+
+  alias MastaniServer.CMS
+  alias MastaniServer.Repo
 
   @posts_count 38
 
@@ -64,5 +69,26 @@ defmodule MastaniServer.Query.PagedPostsTest do
     assert results["totalCount"] == @posts_count
   end
 
-  #TODO test sort, when ...
+  @query """
+  query PagedPosts($filter: PagedArticleFilter!) {
+    pagedPosts(filter: $filter) {
+      entries {
+        id
+        views
+      }
+    }
+  }
+  """
+  test "filter sort MOST_VIEWS should work", %{conn: conn} do
+    most_views_post = CMS.Post |> order_by(desc: :views) |> limit(1) |> Repo.one
+    variables = %{filter: %{sort: "MOST_VIEWS"}}
+
+    results = conn |> query_get_result_of(@query, variables, "pagedPosts")
+    find_post = results |> Map.get("entries") |> hd
+
+    assert find_post["id"] == most_views_post |> Map.get(:id) |> to_string
+    assert find_post["views"] == most_views_post |> Map.get(:views)
+  end
+
+  #TODO test  sort, tag, community, when ...
 end

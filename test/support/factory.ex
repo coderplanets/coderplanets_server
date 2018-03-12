@@ -17,7 +17,8 @@ defmodule MastaniServer.Factory do
       body: body,
       digest: String.slice(body, 1, 150),
       length: String.length(body),
-      author: mock(:author)
+      author: mock(:author),
+      views: Enum.random(0..2000)
     }
   end
 
