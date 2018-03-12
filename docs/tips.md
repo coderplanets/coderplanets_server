@@ -3,7 +3,11 @@
 ## run your project
 
 ```sh
-  iex -S mix
+  env MIX_ENV=mock iex -S mix
+  alias MastaniServer.CMS
+  import Ecto.Query, warn: false
+  alias MastaniServer.Repo
+  CMS.Post |> order_by(desc: :views) |> Repo.one
 ```
 `recompile()` to recompile your project
 
