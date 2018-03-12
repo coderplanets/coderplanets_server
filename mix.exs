@@ -34,24 +34,24 @@ defmodule MastaniServer.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.3.0"},
+      {:phoenix, "~> 1.3.2"},
       {:phoenix_pubsub, "~> 1.0.2"},
       {:phoenix_ecto, "~> 3.3.0"},
-      {:ecto, "~> 2.2.6"},
-      {:postgrex, ">= 0.13.3"},
+      {:ecto, "~> 2.2.9"},
+      {:postgrex, ">= 0.13.5"},
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       # GraphQl tool
-      {:absinthe, "~> 1.4.6"},
+      {:absinthe, "~> 1.4.8"},
       {:absinthe_ecto, "~> 0.1.3"},
       # Plug support for Absinthe
       {:absinthe_plug, "~> 1.4.2"},
       # Password hashing lib
-      {:comeonin, "~> 4.0"},
+      {:comeonin, "~> 4.0.3"},
       # Argon2 password hashing algorithm
       # {:argon2_elixir, "~> 1.2"},
       # for cors settings
-      {:corsica, "~> 1.1.0"},
+      {:corsica, "~> 1.1.1"},
       # for fake data in test env
       {:faker, "~> 0.9"},
       {:scrivener_ecto, "~> 1.3.0"},
