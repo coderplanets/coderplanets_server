@@ -33,7 +33,7 @@ defmodule MastaniServer.Query.PagedPostsTest do
     }
   }
   """
-  test "get full pagination info", %{conn: conn} do
+  test "should get pagination info", %{conn: conn} do
     variables = %{page: 1, size: 10}
     results = conn |> query_get_result_of(@query, variables, "pagedPosts")
 
