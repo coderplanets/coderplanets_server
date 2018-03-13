@@ -21,7 +21,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
     field :posts, non_null(list_of(non_null(:post))) do
       # case error when refresh the schema
       # arg(:filter, :article_filter, default_value: %{first: 20})
-      arg(:filter, :article_filter)
+      middleware(Middleware.SizeChecker)
       resolve(&Resolvers.CMS.posts/3)
     end
 

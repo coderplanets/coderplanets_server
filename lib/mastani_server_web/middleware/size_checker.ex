@@ -5,7 +5,7 @@
 defmodule MastaniServerWeb.Middleware.SizeChecker do
   @behaviour Absinthe.Middleware
   @max_page_size 30
-  @default_page_size 10
+  @default_page_size 20
   # 1. if has filter:first and filter:size -> makesure it not too large
   # 2. if not has filter: marge to default first: 5
   # 3. large size should trigger error
@@ -26,7 +26,7 @@ defmodule MastaniServerWeb.Middleware.SizeChecker do
   # see tuts: https://www.dailydrip.com/topics/elixirsips/drips/phoenix-api-pagination-with-scrivener
   defp valid_size(%{filter: %{size: size}} = arg), do: do_size_check(size, arg)
 
-  defp valid_size(arg), do: Map.merge(arg, %{filter: %{first: @default_page_size}})
+  defp valid_size(arg), do: arg |> Map.merge(%{filter: %{first: @default_page_size}})
 
   defp do_size_check(size, arg) do
     case size in 0..@max_page_size do

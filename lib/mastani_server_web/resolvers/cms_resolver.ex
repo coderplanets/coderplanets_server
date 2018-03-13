@@ -11,14 +11,9 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     filter =
       if Map.has_key?(filter, :sort),
         do: filter,
-        else: Map.merge(filter, %{sort: :desc_inserted})
+        else: filter |> Map.merge(%{sort: :desc_inserted})
 
     CMS.contents(:post, :self, filter)
-  end
-
-  def posts(_root, _args, _info) do
-    default_filter = %{first: 10}
-    CMS.contents(:post, :self, default_filter)
   end
 
   def create_community(_root, args, %{context: %{current_user: user}}) do
