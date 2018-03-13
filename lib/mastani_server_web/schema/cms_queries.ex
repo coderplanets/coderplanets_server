@@ -25,7 +25,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       resolve(&Resolvers.CMS.posts/3)
     end
 
-    field :paged_posts, non_null((:paged_posts)) do
+    field :paged_posts, non_null(:paged_posts) do
       arg(:filter, non_null(:paged_article_filter))
       middleware(Middleware.SizeChecker)
       resolve(&Resolvers.CMS.posts/3)

@@ -25,7 +25,7 @@ defmodule MastaniServer.AssertHelper do
 
   def is_valid_pagination?(obj) when is_map(obj) do
     obj |> is_valid_key?("entries", :list) and obj |> is_valid_key?("totalPages", :int) and
-    obj |> is_valid_key?("totalCount", :int) and obj |> is_valid_key?("pageSize", :int) and
+      obj |> is_valid_key?("totalCount", :int) and obj |> is_valid_key?("pageSize", :int) and
       obj |> is_valid_key?("pageNumber", :int)
   end
 
@@ -38,8 +38,8 @@ defmodule MastaniServer.AssertHelper do
   end
 
   def query_get_result_of(conn, query, variables, key, :debug) do
-    IO.inspect query, label: "query"
-    IO.inspect variables, label: "variables"
+    IO.inspect(query, label: "query")
+    IO.inspect(variables, label: "variables")
 
     conn
     |> get("/graphiql", query: query, variables: variables)
