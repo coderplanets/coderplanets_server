@@ -62,6 +62,11 @@ defmodule MastaniServer.Query.PagedPostsTest do
     assert results["totalCount"] == @posts_total_count
   end
 
+  test "request large size should get error", %{conn: conn} do
+    variables = %{page: 1, size: 200}
+    assert conn |> query_get_error?(@query, variables)
+  end
+
   @query """
   query PagedPosts($filter: PagedArticleFilter!) {
     pagedPosts(filter: $filter) {

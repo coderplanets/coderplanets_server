@@ -4,9 +4,15 @@
 # ---
 defmodule MastaniServerWeb.Middleware.FormatPagination do
   @behaviour Absinthe.Middleware
-  # google: must appear in the GROUP BY clause or be used in an aggregate function
 
   def call(res, _) do
+    case List.first(res.errors) do
+      nil -> format_pagi(res)
+      _ -> %{res | value: [], errors: res.errors}
+    end
+  end
+
+  def format_pagi(res) do
     formated = %{
       entries: res.value.entries,
       page_number: res.value.page_number,
