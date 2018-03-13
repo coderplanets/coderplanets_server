@@ -49,7 +49,6 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       arg(:arg_viewer_reacted, :arg_viewer_reacted, default_value: :arg_viewer_reacted)
 
       middleware(Middleware.Authorize, :login)
-      # middleware(Middleware.SeeMe)
       middleware(Middleware.PutCurrentUser)
       resolve(dataloader(CMS, :favorites))
       middleware(Middleware.ViewerReactedConvert)

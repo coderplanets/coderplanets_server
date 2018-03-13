@@ -33,129 +33,129 @@ defmodule MastaniServer.Query.PagedPostsTest do
     conn =
       build_conn()
       |> put_req_header("authorization", "Bearer fake-token")
-      |> put_req_header("content-type", "application/json")
 
     conn_without_token = build_conn()
-    # |> put_req_header("content-type", "application/json")
+
     {:ok, conn: conn, conn_without_token: conn_without_token}
   end
 
-  @query """
-  query PagedPosts($page: Int!, $size: Int!) {
-    pagedPosts(filter: {page: $page, size: $size}) {
-      entries {
-        id
-      }
-      totalPages
-      totalCount
-      pageSize
-      pageNumber
-    }
-  }
-  """
-  test "should get pagination info", %{conn: conn} do
-    variables = %{page: 1, size: 10}
-    results = conn |> query_get_result_of(@query, variables, "pagedPosts")
-
-    assert results |> is_valid_pagination?
-    assert results["pageSize"] == 10
-    assert results["totalCount"] == @posts_total_count
-  end
-
-  test "request large size should get error", %{conn: conn} do
-    variables = %{page: 1, size: 200}
-    assert conn |> query_get_error?(@query, variables)
-  end
-
-  @query """
-  query PagedPosts($filter: PagedArticleFilter!) {
-    pagedPosts(filter: $filter) {
-      entries {
-        id
-      }
-      totalPages
-      totalCount
-      pageSize
-      pageNumber
-    }
-  }
-  """
-  test "pagination should have default page and size arg", %{conn: conn} do
-    variables = %{filter: %{}}
-    results = conn |> query_get_result_of(@query, variables, "pagedPosts")
-    # IO.inspect(results, label: "ff ")
-    assert results |> is_valid_pagination?
-    assert results["pageSize"] == 20
-    assert results["totalCount"] == @posts_total_count
-  end
-
-  @query """
-  query PagedPosts($filter: PagedArticleFilter!) {
-    pagedPosts(filter: $filter) {
-      entries {
-        id
-        views
+  describe "filter pagination" do
+    @query """
+    query PagedPosts($filter: PagedArticleFilter!) {
+      pagedPosts(filter: $filter) {
+        entries {
+          id
+        }
+        totalPages
+        totalCount
+        pageSize
+        pageNumber
       }
     }
-  }
-  """
-  test "filter sort MOST_VIEWS should work", %{conn: conn} do
-    most_views_post = CMS.Post |> order_by(desc: :views) |> limit(1) |> Repo.one()
-    variables = %{filter: %{sort: "MOST_VIEWS"}}
+    """
+    test "should get pagination info", %{conn: conn} do
+      variables = %{filter: %{page: 1, size: 10}}
+      results = conn |> query_get_result_of(@query, variables, "pagedPosts")
 
-    results = conn |> query_get_result_of(@query, variables, "pagedPosts")
-    find_post = results |> Map.get("entries") |> hd
+      assert results |> is_valid_pagination?
+      assert results["pageSize"] == 10
+      assert results["totalCount"] == @posts_total_count
+    end
 
-    assert find_post["id"] == most_views_post |> Map.get(:id) |> to_string
-    assert find_post["views"] == most_views_post |> Map.get(:views)
+    test "request large size should get error", %{conn: conn} do
+      variables = %{filter: %{page: 1, size: 200}}
+      assert conn |> query_get_error?(@query, variables)
+    end
+
+    test "request 0 or neg-size should get error", %{conn: conn} do
+      variables_0 = %{filter: %{page: 1, size: 0}}
+      variables_neg_1 = %{filter: %{page: 1, size: -1}}
+
+      assert conn |> query_get_error?(@query, variables_0)
+      assert conn |> query_get_error?(@query, variables_neg_1)
+    end
+
+    test "pagination should have default page and size arg", %{conn: conn} do
+      variables = %{filter: %{}}
+      results = conn |> query_get_result_of(@query, variables, "pagedPosts")
+      # IO.inspect(results, label: "ff ")
+      assert results |> is_valid_pagination?
+      assert results["pageSize"] == 20
+      assert results["totalCount"] == @posts_total_count
+    end
+  end
+
+  describe "filter sort" do
+    @query """
+    query PagedPosts($filter: PagedArticleFilter!) {
+      pagedPosts(filter: $filter) {
+        entries {
+          id
+          views
+        }
+      }
+    }
+    """
+    test "FILTER sort MOST_VIEWS should work", %{conn: conn} do
+      most_views_post = CMS.Post |> order_by(desc: :views) |> limit(1) |> Repo.one()
+      variables = %{filter: %{sort: "MOST_VIEWS"}}
+
+      results = conn |> query_get_result_of(@query, variables, "pagedPosts")
+      find_post = results |> Map.get("entries") |> hd
+
+      assert find_post["id"] == most_views_post |> Map.get(:id) |> to_string
+      assert find_post["views"] == most_views_post |> Map.get(:views)
+    end
   end
 
   # TODO test  sort, tag, community, when ...
   @doc """
-  test: filter when [TODAY] [THIS_WEEK] [THIS_MONTH] [THIS_YEAR]
+  test: FILTER when [TODAY] [THIS_WEEK] [THIS_MONTH] [THIS_YEAR]
   """
-  @query """
-  query PagedPosts($filter: PagedArticleFilter!) {
-    pagedPosts(filter: $filter) {
-      entries {
-        id
-        views
-        inserted_at
+  describe "filter when" do
+    @query """
+    query PagedPosts($filter: PagedArticleFilter!) {
+      pagedPosts(filter: $filter) {
+        entries {
+          id
+          views
+          inserted_at
+        }
+        totalCount
       }
-      totalCount
     }
-  }
-  """
-  test "filter when TODAY should work", %{conn: conn} do
-    variables = %{filter: %{when: "TODAY"}}
-    results = conn |> query_get_result_of(@query, variables, "pagedPosts")
+    """
+    test "THIS_YEAR option should work", %{conn: conn} do
+      variables = %{filter: %{when: "THIS_YEAR"}}
+      results = conn |> query_get_result_of(@query, variables, "pagedPosts")
 
-    expect_count =
-      @posts_total_count - @posts_last_year_count - @posts_last_month_count -
-        @posts_last_week_count
+      expect_count = @posts_total_count - @posts_last_year_count
+      assert results |> Map.get("totalCount") == expect_count
+    end
 
-    assert results |> Map.get("totalCount") == expect_count
-  end
+    test "TODAY option should work", %{conn: conn} do
+      variables = %{filter: %{when: "TODAY"}}
+      results = conn |> query_get_result_of(@query, variables, "pagedPosts")
 
-  test "filter when THIS_WEEK should work", %{conn: conn} do
-    variables = %{filter: %{when: "THIS_WEEK"}}
-    results = conn |> query_get_result_of(@query, variables, "pagedPosts")
-    assert results |> Map.get("totalCount") == @posts_today_count
-  end
+      expect_count =
+        @posts_total_count - @posts_last_year_count - @posts_last_month_count -
+          @posts_last_week_count
 
-  test "filter when THIS_MONTH should work", %{conn: conn} do
-    variables = %{filter: %{when: "THIS_MONTH"}}
-    results = conn |> query_get_result_of(@query, variables, "pagedPosts")
+      assert results |> Map.get("totalCount") == expect_count
+    end
 
-    expect_count = @posts_total_count - @posts_last_year_count - @posts_last_month_count
-    assert results |> Map.get("totalCount") == expect_count
-  end
+    test "THIS_WEEK option should work", %{conn: conn} do
+      variables = %{filter: %{when: "THIS_WEEK"}}
+      results = conn |> query_get_result_of(@query, variables, "pagedPosts")
+      assert results |> Map.get("totalCount") == @posts_today_count
+    end
 
-  test "filter when THIS_YEAR should work", %{conn: conn} do
-    variables = %{filter: %{when: "THIS_YEAR"}}
-    results = conn |> query_get_result_of(@query, variables, "pagedPosts")
+    test "THIS_MONTH option should work", %{conn: conn} do
+      variables = %{filter: %{when: "THIS_MONTH"}}
+      results = conn |> query_get_result_of(@query, variables, "pagedPosts")
 
-    expect_count = @posts_total_count - @posts_last_year_count
-    assert results |> Map.get("totalCount") == expect_count
+      expect_count = @posts_total_count - @posts_last_year_count - @posts_last_month_count
+      assert results |> Map.get("totalCount") == expect_count
+    end
   end
 end

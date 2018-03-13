@@ -5,19 +5,11 @@
 defmodule MastaniServerWeb.Middleware.PutCurrentUser do
   @behaviour Absinthe.Middleware
 
-  def call(resolution, _) do
-    case Map.has_key?(resolution.context, :current_user) do
-      true ->
-        %{
-          resolution
-          | arguments:
-              Map.merge(resolution.arguments, %{current_user: resolution.context.current_user})
-        }
+  def call(%{context: %{current_user: current_user}} = resolution, _) do
+    arguments = Map.merge(resolution.arguments, %{current_user: resolution.context.current_user})
 
-      _ ->
-        resolution
-    end
-
-    # %{resolution | arguments: Map.merge(resolution.arguments, %{current_user: resolution.context.current_user})}
+    %{resolution | arguments: arguments}
   end
+
+  def call(resolution, _), do: resolution
 end

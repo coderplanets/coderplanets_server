@@ -5,22 +5,23 @@
 defmodule MastaniServerWeb.Middleware.FormatPagination do
   @behaviour Absinthe.Middleware
 
-  def call(res, _) do
-    case List.first(res.errors) do
-      nil -> format_pagi(res)
-      _ -> %{res | value: [], errors: res.errors}
-    end
+  def call(%{errors: [errors], value: nil} = resolution, _) do
+    %{resolution | value: [], errors: [errors]}
   end
 
-  def format_pagi(res) do
+  def call(%{value: value} = resolution, _) do
+    format_pagi(resolution)
+  end
+
+  def format_pagi(resolution) do
     formated = %{
-      entries: res.value.entries,
-      page_number: res.value.page_number,
-      page_size: res.value.page_size,
-      total_pages: res.value.total_pages,
-      total_count: res.value.total_entries
+      entries: resolution.value.entries,
+      page_number: resolution.value.page_number,
+      page_size: resolution.value.page_size,
+      total_pages: resolution.value.total_pages,
+      total_count: resolution.value.total_entries
     }
 
-    %{res | value: formated}
+    %{resolution | value: formated}
   end
 end

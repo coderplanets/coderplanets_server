@@ -5,13 +5,10 @@
 defmodule MastaniServerWeb.Middleware.GeneralError do
   @behaviour Absinthe.Middleware
 
-  def call(res, _) do
-    # with %{errors: errors} <- res do
-    with %{errors: [List = errors]} <- res do
-      # IO.inspect errors, label: 'GeneralError2'
-      message = [%{message: errors}]
-      %{res | value: [], errors: message}
-      # res |> Absinthe.Resolution.put_result({:error, msg})
-    end
+  def call(%{errors: [List = errors]} = resolution, _) do
+    message = [%{message: errors}]
+    %{resolution | value: [], errors: message}
   end
+
+  def call(resolution, _), do: resolution
 end

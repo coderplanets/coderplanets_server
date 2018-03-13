@@ -10,12 +10,11 @@ defmodule MastaniServerWeb.Middleware.ViewerReactedConvert do
     %{resolution | value: false}
   end
 
-  def call(%{value: value} = resolution, _) do
-    case List.first(value) do
-      nil -> %{resolution | value: false}
-      count -> %{resolution | value: true}
-    end
+  def call(%{value: []} = resolution, _) do
+    %{resolution | value: false}
   end
 
-  def call(resolution, _), do: resolution
+  def call(%{value: [_]} = resolution, _) do
+    %{resolution | value: true}
+  end
 end

@@ -29,7 +29,7 @@ defmodule MastaniServerWeb.Middleware.SizeChecker do
   defp valid_size(arg), do: Map.merge(arg, %{filter: %{first: @default_page_size}})
 
   defp do_size_check(size, arg) do
-    case size <= @max_page_size and size > 0 do
+    case size in 0..@max_page_size do
       true ->
         arg
 

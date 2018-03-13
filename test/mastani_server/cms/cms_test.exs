@@ -2,26 +2,88 @@ defmodule MastaniServer.CMSTest do
   # use MastaniServer.DataCase
   use MastaniServerWeb.ConnCase, async: true
 
+  import MastaniServer.Factory
+  alias MastaniServer.CMS
+  alias MastaniServer.Accounts
+  alias MastaniServer.Repo
+
+  @valid_user %{
+    username: "mydearxym",
+    nickname: "simon",
+    bio: "bio",
+    company: "infomedia"
+  }
   # alias MastaniServer.CMS
+  setup do
+    # TODO: token
+    db_insert(:user, @valid_user)
+
+    conn =
+      build_conn()
+      |> put_req_header("authorization", "Bearer fake-token")
+
+    {:ok, conn: conn}
+  end
+
+  describe "cms_community" do
+    test "create a community with a existing user" do
+      user = Repo.get_by(Accounts.User, username: @valid_user.username)
+
+      community_attr = %{
+        title: "elixir community",
+        desc: "function pragraming for everyone",
+        user_id: user.id
+      }
+
+      assert Repo.get_by(CMS.Community, title: "elixir community") == nil
+      {:ok, community} = CMS.create_community(community_attr)
+
+      assert community.title == community_attr.title
+    end
+
+    test "create a community with a empty title fails" do
+      user = Repo.get_by(Accounts.User, username: @valid_user.username)
+
+      invalid_community_attr = %{
+        title: "",
+        desc: "function pragraming for everyone",
+        user_id: user.id
+      }
+
+      assert {:error, %Ecto.Changeset{}} = CMS.create_community(invalid_community_attr)
+    end
+
+    test "create a community with a non-exist user fails" do
+      community_attr = %{
+        title: "elixir community",
+        desc: "function pragraming for everyone",
+        user_id: 10000
+      }
+
+      assert {:error, _} = CMS.create_community(community_attr)
+    end
+  end
 
   describe "cms_posts" do
-    import MastaniServer.Factory
-    alias MastaniServer.CMS
-    # alias MastaniServer.AbsintheHelpers
-    # alias MastaniServer.Accounts
-    alias MastaniServer.Repo
-    # setup do
-    # Code.load_file("priv/mock/user_seeds.exs")
-    # end
-
-    test "fake cms test" do
-      # {:ok, post} = db_insert(:post)
-      # IO.inspect post, label: 'insert post'
-      # |> preload(:author)
-      # query = CMS.Post
-      # result = Repo.all(query)
-      assert true == true
+    test "post staff " do
+      # ...
+      true
     end
+
+    # test "create a post" do
+    # attrs = %{
+    # title: "test title",
+    # body: "test body",
+    # digest: "test digest",
+    # length: 20,
+    # community: "js",
+    # }
+
+    # create_content(part, %Author{} = author, attrs \\ %{})
+
+    # CMS.create_content(:post, )
+    # assert true == true
+    # end
 
     # @valid_attrs %{
     # body: "some body",
