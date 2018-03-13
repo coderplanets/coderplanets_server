@@ -2,21 +2,21 @@ defmodule MastaniServer.AssertHelper do
   import Phoenix.ConnTest
   @endpoint MastaniServerWeb.Endpoint
 
-  def is_valid_key?(obj, key, :list) when is_map(obj) do
+  def is_valid_kv?(obj, key, :list) when is_map(obj) do
     case Map.has_key?(obj, key) do
       true -> obj |> Map.get(key) |> is_list
       _ -> false
     end
   end
 
-  def is_valid_key?(obj, key, :int) when is_map(obj) do
+  def is_valid_kv?(obj, key, :int) when is_map(obj) do
     case Map.has_key?(obj, key) do
       true -> obj |> Map.get(key) |> is_integer
       _ -> false
     end
   end
 
-  def is_valid_key?(obj, key, :string) when is_map(obj) and is_binary(key) do
+  def is_valid_kv?(obj, key, :string) when is_map(obj) and is_binary(key) do
     case Map.has_key?(obj, key) do
       true -> String.length(Map.get(obj, key)) != 0
       _ -> false
@@ -24,9 +24,13 @@ defmodule MastaniServer.AssertHelper do
   end
 
   def is_valid_pagination?(obj) when is_map(obj) do
-    obj |> is_valid_key?("entries", :list) and obj |> is_valid_key?("totalPages", :int) and
-      obj |> is_valid_key?("totalCount", :int) and obj |> is_valid_key?("pageSize", :int) and
-      obj |> is_valid_key?("pageNumber", :int)
+    obj |> is_valid_kv?("entries", :list) and obj |> is_valid_kv?("totalPages", :int) and
+      obj |> is_valid_kv?("totalCount", :int) and obj |> is_valid_kv?("pageSize", :int) and
+      obj |> is_valid_kv?("pageNumber", :int)
+  end
+
+  def has_boolen_value?(obj, key) do
+    obj |> Map.get(key) |> is_boolean
   end
 
   def query_get_result_of(conn, query, variables, key) do
@@ -55,10 +59,6 @@ defmodule MastaniServer.AssertHelper do
     |> json_response(200)
     |> Map.get("data")
     |> Map.get(key)
-  end
-
-  def has_boolen_value?(obj, key) do
-    obj |> Map.get(key) |> is_boolean
   end
 
   def query_get_error?(conn, query, variables) do

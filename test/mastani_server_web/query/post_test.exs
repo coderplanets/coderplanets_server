@@ -41,8 +41,8 @@ defmodule MastaniServer.Query.PostTest do
     results = conn |> query_get_result_of(@query, variables, "post")
 
     assert results["id"] == to_string(post.id)
-    assert is_valid_key?(results, "title", :string)
-    assert is_valid_key?(results, "body", :string)
+    assert is_valid_kv?(results, "title", :string)
+    assert is_valid_kv?(results, "body", :string)
     assert length(Map.keys(results)) == 3
   end
 
@@ -55,8 +55,8 @@ defmodule MastaniServer.Query.PostTest do
     results = conn_without_token |> query_get_result_of(@query, variables, "post")
 
     assert results["id"] == to_string(post.id)
-    assert is_valid_key?(results, "title", :string)
-    assert is_valid_key?(results, "body", :string)
+    assert is_valid_kv?(results, "title", :string)
+    assert is_valid_kv?(results, "body", :string)
   end
 
   @query """
