@@ -37,6 +37,14 @@ defmodule MastaniServer.Factory do
     }
   end
 
+  def mock(:community) do
+    %CMS.Community{
+      title: "test community",
+      desc: "community desc",
+      author: mock(:user)
+    }
+  end
+
   # ---
   def mock(factory_name, attributes) do
     # merge attributes as need

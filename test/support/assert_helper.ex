@@ -69,8 +69,8 @@ defmodule MastaniServer.AssertHelper do
   end
 
   def query_get_error?(conn, query, variables, :debug) do
-    IO.inspect query, label: "query_get_error? query"
-    IO.inspect variables, label: "query_get_error? variables"
+    IO.inspect(query, label: "query_get_error? query")
+    IO.inspect(variables, label: "query_get_error? variables")
 
     conn
     |> get("/graphiql", query: query, variables: variables)

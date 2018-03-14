@@ -56,17 +56,15 @@ defmodule MastaniServer.CMS do
   @moduledoc """
   The CMS context.
   """
-
   import Ecto.Query, warn: false
+  # import MastaniServer.Utils.Helper, only: [done: 1, done: 2, done: 3]
+  import MastaniServer.Utils.Helper
 
   alias MastaniServer.CMS.{Post, Author, Tag, Community, PostComment, PostFavorite, PostStar}
   alias MastaniServer.{Repo, Accounts}
-  alias MastaniServer.Utils.Helper
   alias MastaniServer.Utils.QueryPuzzle
 
-  def data() do
-    Dataloader.Ecto.new(Repo, query: &query/2)
-  end
+  def data(), do: Dataloader.Ecto.new(Repo, query: &query/2)
 
   def query(Author, _args) do
     # you cannot use preload with select together
@@ -100,7 +98,8 @@ defmodule MastaniServer.CMS do
   end
 
   def create_community(attrs) do
-    with {:ok, user} <- Helper.find(Accounts.User, attrs.user_id) do
+    with {:ok, user} <- Accounts.User |> find(attrs.user_id) do
+      # with {:ok, user} <- Repo.get(Accounts.User, attrs.user_id) |> done() do
       # {:error, "custom error."}
       %Community{}
       |> Community.changeset(attrs |> Map.merge(%{user_id: user.id}))
@@ -109,7 +108,7 @@ defmodule MastaniServer.CMS do
   end
 
   def delete_community(id) do
-    with {:ok, community} <- Helper.find(Community, id) do
+    with {:ok, community} <- find(Community, id) do
       Repo.delete(community)
     end
   end
@@ -120,7 +119,9 @@ defmodule MastaniServer.CMS do
   def create_tag(part, attrs) when valid_part(part) do
     # TODO: find user
     with {:ok, action} <- match_action(part, :tag),
-         {:ok, community} <- Repo.get_by(Community, title: attrs.community) |> Helper.one_resp() do
+         {:ok, community} <-
+           Repo.get_by(Community, title: attrs.community)
+           |> done(:maybe, "community(#{attrs.community}) not found") do
       struct(action.reactor)
       |> action.reactor.changeset(attrs |> Map.merge(%{community_id: community.id}))
       |> Repo.insert()
@@ -133,8 +134,8 @@ defmodule MastaniServer.CMS do
   # check community first
   def set_tag(part, part_id, tag_id) when valid_part(part) do
     with {:ok, action} <- match_action(part, :tag),
-         {:ok, content} <- Helper.find(action.target, part_id, preload: :tags),
-         {:ok, tag} <- Helper.find(action.reactor, tag_id) do
+         {:ok, content} <- find(action.target, part_id, preload: :tags),
+         {:ok, tag} <- find(action.reactor, tag_id) do
       content
       |> Ecto.Changeset.change()
       |> Ecto.Changeset.put_assoc(:tags, content.tags ++ [tag])
@@ -144,21 +145,18 @@ defmodule MastaniServer.CMS do
 
   # TODO: check community exsit
   def get_tags(community, part) do
-    query =
-      Tag
-      |> join(:inner, [t], c in assoc(t, :community))
-      |> where([t, c], c.title == ^community and t.part == ^part)
-      |> distinct([t], t.title)
-
-    # |> select([t])
-    # IO.inspect Repo.all(query), label: "get tags"
-    {:ok, Repo.all(query)}
+    Tag
+    |> join(:inner, [t], c in assoc(t, :community))
+    |> where([t, c], c.title == ^community and t.part == ^part)
+    |> distinct([t], t.title)
+    |> Repo.all()
+    |> done()
   end
 
   def set_community(part, part_id, community_id) when valid_part(part) do
     with {:ok, action} <- match_action(part, :community),
-         {:ok, content} <- Helper.find(action.target, part_id, preload: :communities),
-         {:ok, community} <- Helper.find(action.reactor, community_id) do
+         {:ok, content} <- find(action.target, part_id, preload: :communities),
+         {:ok, community} <- find(action.reactor, community_id) do
       content
       |> Ecto.Changeset.change()
       |> Ecto.Changeset.put_assoc(:communities, content.communities ++ [community])
@@ -181,8 +179,7 @@ defmodule MastaniServer.CMS do
   def create_content(part, %Author{} = author, attrs \\ %{}) do
     with {:ok, author} <- ensure_author_exists(%Accounts.User{id: author.user_id}),
          {:ok, action} <- match_action(part, :community),
-         {:ok, community} <- Repo.get_by(Community, title: attrs.community) |> Helper.one_resp(),
-         # {:ok, community} <- Helper.find(action.target, 1),
+         {:ok, community} <- Repo.get_by(Community, title: attrs.community) |> done(:maybe),
          {:ok, content} <-
            struct(action.target)
            |> Post.changeset(attrs)
@@ -194,7 +191,7 @@ defmodule MastaniServer.CMS do
 
   def create_comment(part, react, part_id, user_id, body) do
     with {:ok, action} <- match_action(part, react),
-         {:ok, content} <- Helper.find(action.target, part_id),
+         {:ok, content} <- find(action.target, part_id),
          {:ok, user} <- Accounts.find_user(user_id) do
       struct(action.reactor)
       |> action.reactor.changeset(%{post_id: content.id, author_id: user.id, body: body})
@@ -218,8 +215,8 @@ defmodule MastaniServer.CMS do
   """
   def one_conent(part, react, id) when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react),
-         {:ok, result} <- Helper.find(action.target, id) do
-      {:ok, result |> inc_views_count(action.target)}
+         {:ok, result} <- find(action.target, id) do
+      result |> inc_views_count(action.target) |> done()
     end
   end
 
@@ -229,46 +226,44 @@ defmodule MastaniServer.CMS do
   get CMS contents (posts, tuts, videos, jobs ...) with or without page info
   """
 
-  # TODO: try default size
   def contents(part, react, %{page: page, size: size} = filters)
       when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react) do
       filters = filters |> Map.delete(:page) |> Map.delete(:size)
 
-      result =
-        action.target
-        |> QueryPuzzle.filter_pack(filters)
-        |> Repo.paginate(page: page, page_size: size)
-
-      {:ok, result}
+      action.target
+      |> QueryPuzzle.filter_pack(filters)
+      |> Repo.paginate(page: page, page_size: size)
+      |> done()
     end
   end
 
   def contents(part, react, filters) when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react) do
-      query = action.target |> QueryPuzzle.filter_pack(filters)
-      {:ok, Repo.all(query)}
+      # query = action.target |> QueryPuzzle.filter_pack(filters)
+      # {:ok, Repo.all(query)}
+      action.target |> QueryPuzzle.filter_pack(filters) |> Repo.all() |> done()
     end
   end
 
-  def contents(part, react, _), do: {:error, "cms do not support [#{react}] on [#{part}]"}
+  # def contents(part, react, _), do: {:error, "cms do not support [#{react}] on [#{part}]"}
 
-  @doc """
-  Updates a post.
+  # @doc """
+  # Updates a post.
 
-  ## Examples
+  # Examples
 
-  iex> update_post(post, %{field: new_value})
-  {:ok, %Post{}}
+  # iex> update_post(post, %{field: new_value})
+  # {:ok, %Post{}}
 
-  iex> update_post(post, %{field: bad_value})
-  {:error, %Ecto.Changeset{}}
+  # iex> update_post(post, %{field: bad_value})
+  # {:error, %Ecto.Changeset{}}
 
-  """
+  # """
   # def update_post(%Post{} = post, attrs) do
-    # post
-    # |> Post.changeset(attrs)
-    # |> Repo.update()
+  # post
+  # |> Post.changeset(attrs)
+  # |> Repo.update()
   # end
 
   @doc """
@@ -279,10 +274,6 @@ defmodule MastaniServer.CMS do
 
   with or without page info
   """
-  # def common_filter(target, ) do
-
-  # end
-
   def reaction_users(part, react, id, %{page: page, size: size} = filters)
       when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react),
@@ -291,7 +282,7 @@ defmodule MastaniServer.CMS do
       action.reactor
       |> where(^where)
       |> QueryPuzzle.reaction_members(filters)
-      |> Helper.paginater(page: page, size: size)
+      |> paginater(page: page, size: size)
     end
   end
 
@@ -302,13 +293,12 @@ defmodule MastaniServer.CMS do
     with {:ok, action} <- match_action(part, react) do
       assoc_field = String.to_atom("#{react}s")
 
-      query =
-        action.target
-        |> join(:left, [p], s in assoc(p, ^assoc_field))
-        |> where([p, s], s.post_id == ^part_id)
-        |> select([s], count(s.id))
-
-      {:ok, Repo.one(query)}
+      action.target
+      |> join(:left, [p], s in assoc(p, ^assoc_field))
+      |> where([p, s], s.post_id == ^part_id)
+      |> select([s], count(s.id))
+      |> Repo.one()
+      |> done()
     end
   end
 
@@ -328,19 +318,34 @@ defmodule MastaniServer.CMS do
       |> where(^where)
       |> where([a], a.user_id == ^user_id)
       |> Repo.one()
-      |> case do
-        nil ->
-          {:ok, false}
+      |> done(:boolean)
+    end
+  end
+
+  def update_content(part, react, part_id, %Accounts.User{} = current_user, attrs \\ %{}) do
+    with {:ok, action} <- match_action(part, react),
+         {:ok, content} <- find(action.target, part_id, preload: action.preload) do
+      content_author_id =
+        case react do
+          :comment -> content.author.id
+          _ -> content.author.user_id
+        end
+
+      case current_user.id == content_author_id do
+        true ->
+          content
+          |> action.target.changeset(attrs)
+          |> Repo.update()
 
         _ ->
-          {:ok, true}
+          operation_deny(:owner_required)
       end
     end
   end
 
   def delete_content(part, react, id, %Accounts.User{} = current_user) do
     with {:ok, action} <- match_action(part, react),
-         {:ok, content} <- Helper.find(action.reactor, id, preload: action.preload) do
+         {:ok, content} <- find(action.reactor, id, preload: action.preload) do
       content_author_id =
         case react do
           :comment -> content.author.id
@@ -349,7 +354,7 @@ defmodule MastaniServer.CMS do
 
       case current_user.id == content_author_id do
         true -> Repo.delete(content)
-        _ -> Helper.access_deny(:owner_required)
+        _ -> operation_deny(:owner_required)
       end
     end
   end
@@ -359,7 +364,7 @@ defmodule MastaniServer.CMS do
   """
   def reaction(part, react, part_id, user_id) when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react),
-         {:ok, content} <- Helper.find(action.target, part_id),
+         {:ok, content} <- find(action.target, part_id),
          {:ok, user} <- Accounts.find_user(user_id) do
       params = Map.put(%{}, "user_id", user.id) |> Map.put("#{part}_id", content.id)
 
@@ -373,14 +378,14 @@ defmodule MastaniServer.CMS do
     end
   end
 
-  def reaction(part, react, _, _), do: {:error, "cms do not support [#{react}] on [#{part}]"}
+  # def reaction(part, react, _, _), do: {:error, "cms do not support [#{react}] on [#{part}]"}
 
   @doc """
   unfavorite / unstar / unwatch CMS contents like post / tuts / video ...
   """
   def undo_reaction(part, react, part_id, user_id) when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react),
-         {:ok, content} <- Helper.find(action.target, part_id) do
+         {:ok, content} <- find(action.target, part_id) do
       the_user = dynamic([u], u.user_id == ^user_id)
 
       where =
@@ -402,24 +407,8 @@ defmodule MastaniServer.CMS do
     end
   end
 
-  def undo_reaction(part, react, _, _),
-    do: {:error, "cms do not support [un#{react}] on [#{part}]"}
-
-  @doc """
-  Deletes a Author.
-
-  ## Examples
-
-      iex> delete_author(author)
-      {:ok, %Author{}}
-
-      iex> delete_author(author)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_author(%Author{} = author) do
-    Repo.delete(author)
-  end
+  # def undo_reaction(part, react, _, _),
+  # do: {:error, "cms do not support [un#{react}] on [#{part}]"}
 
   defp ensure_author_exists(%Accounts.User{} = user) do
     # unique_constraint: avoid race conditions, make sure user_id unique

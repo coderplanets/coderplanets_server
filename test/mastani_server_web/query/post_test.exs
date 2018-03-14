@@ -36,7 +36,6 @@ defmodule MastaniServer.Query.PostTest do
   }
   """
   test "basic graphql query on post with logined user", %{post: post, conn: conn} do
-    # conn = build_conn()
     variables = %{id: post.id}
     results = conn |> query_get_result_of(@query, variables, "post")
 
@@ -50,13 +49,28 @@ defmodule MastaniServer.Query.PostTest do
     post: post,
     conn_without_token: conn_without_token
   } do
-    # conn = build_conn()
     variables = %{id: post.id}
     results = conn_without_token |> query_get_result_of(@query, variables, "post")
 
     assert results["id"] == to_string(post.id)
     assert is_valid_kv?(results, "title", :string)
     assert is_valid_kv?(results, "body", :string)
+  end
+
+  @query """
+  query Post($id: ID!) {
+    post(id: $id) {
+      views
+    }
+  }
+  """
+  test "views should +1 after query the post", %{post: post, conn: conn} do
+    variables_1 = %{id: post.id}
+    views_1 = conn |> query_get_result_of(@query, variables_1, "post") |> Map.get("views")
+
+    variables_2 = %{id: post.id}
+    views_2 = conn |> query_get_result_of(@query, variables_2, "post") |> Map.get("views")
+    assert views_2 == views_1 + 1
   end
 
   @query """

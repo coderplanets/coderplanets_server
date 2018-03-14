@@ -8,32 +8,32 @@ defmodule MastaniServer.Utils.Helper do
 
   def find(queryable, id, preload: preload) do
     queryable
-    |> where([c], c.id == ^id)
     |> preload(^preload)
-    |> Repo.one()
-    |> one_resp()
+    |> Repo.get(id)
+    |> done()
   end
 
   def find(queryable, id) do
     queryable
-    |> where([c], c.id == ^id)
-    |> Repo.one()
-    |> one_resp()
+    |> Repo.get(id)
+    |> done()
   end
 
-  def one_resp(message) do
-    case message do
-      nil ->
-        {:error, "record not found."}
+  def done(nil), do: {:error, "record not found."}
+  def done(result), do: {:ok, result}
 
-      result ->
-        {:ok, result}
-    end
-  end
+  def done(nil, :boolean), do: {:ok, false}
+  def done(result, :boolean), do: {:ok, true}
 
-  def access_deny(type) do
+  # def done(nil, :iferror)
+  def done(nil, :maybe), do: {:error, "record not found."}
+  def done(result, :maybe), do: {:ok, result}
+
+  def done(nil, :maybe, message), do: {:error, message}
+  def done(result, :maybe, _), do: {:ok, result}
+
+  def operation_deny(type) do
     case type do
-      :login -> {:error, "Access denied: need login to do this"}
       :owner_required -> {:error, "Access denied: need owner to do this"}
       :root -> {:error, "need root to do this"}
     end

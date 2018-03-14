@@ -7,27 +7,179 @@ defmodule MastaniServer.CMSTest do
   alias MastaniServer.Accounts
   alias MastaniServer.Repo
 
-  @valid_user %{
+  @mock_user %{
     username: "mydearxym",
     nickname: "simon",
     bio: "bio",
     company: "infomedia"
   }
+
+  @mock_user2 %{
+    username: "other_user",
+    nickname: "simon",
+    bio: "bio",
+    company: "infomedia"
+  }
+
+  @mock_community %{
+    title: "fake_community",
+    desc: "fake community desc",
+    author: mock(:user)
+  }
+
+  @mock_post %{
+    title: Faker.Lorem.Shakespeare.king_richard_iii(),
+    body: Faker.Lorem.sentence(%Range{first: 80, last: 120}),
+    digest: "fake digest",
+    length: 100,
+    community: @mock_community.title
+  }
+
   # alias MastaniServer.CMS
   setup do
-    # TODO: token
-    db_insert(:user, @valid_user)
+    db_insert(:user, @mock_user)
+    db_insert(:user, @mock_user2)
+    db_insert(:community, @mock_community)
+    :ok
+  end
 
-    conn =
-      build_conn()
-      |> put_req_header("authorization", "Bearer fake-token")
+  describe "cms reaction" do
+    test "favorite and undo favorite reaction to post" do
+      user = Repo.get_by(Accounts.User, username: @mock_user.username)
+      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @mock_post)
 
-    {:ok, conn: conn}
+      {:ok, _} = CMS.reaction(:post, :favorite, post.id, user.id)
+      {:ok, reaction_users} = CMS.reaction_users(:post, :favorite, post.id, %{page: 1, size: 1})
+      reaction_users = reaction_users |> Map.get(:entries)
+      assert 1 == reaction_users |> Enum.filter(fn ruser -> user.id == ruser.id end) |> length
+
+      # undo test
+      {:ok, _} = CMS.undo_reaction(:post, :favorite, post.id, user.id)
+      {:ok, reaction_users2} = CMS.reaction_users(:post, :favorite, post.id, %{page: 1, size: 1})
+      reaction_users2 = reaction_users2 |> Map.get(:entries)
+
+      assert 0 == reaction_users2 |> Enum.filter(fn ruser -> user.id == ruser.id end) |> length
+    end
+  end
+
+  describe "cms_post" do
+    test "create post with valid attrs" do
+      user = Repo.get_by(Accounts.User, username: @mock_user.username)
+
+      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @mock_post)
+      assert post.title == @mock_post.title
+    end
+
+    test "create post with on exsit community fails" do
+      user = Repo.get_by(Accounts.User, username: @mock_user.username)
+      body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
+
+      invalid_attrs = %{
+        title: Faker.Lorem.Shakespeare.king_richard_iii(),
+        body: body,
+        digest: String.slice(body, 1, 150),
+        length: String.length(body),
+        community: "non-exsit community"
+      }
+
+      assert {:error, _} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, invalid_attrs)
+    end
+
+    # TODO: update post
+    test "update a post by post's author" do
+      user = Repo.get_by(Accounts.User, username: @mock_user.username)
+      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @mock_post)
+
+      new_attrs = %{
+        title: "update title"
+      }
+
+      current_user = %Accounts.User{id: user.id}
+      {:ok, update_post} = CMS.update_content(:post, :self, post.id, current_user, new_attrs)
+
+      assert update_post.title == new_attrs.title
+    end
+
+    test "update a post by other user fails" do
+      user = Repo.get_by(Accounts.User, username: @mock_user.username)
+      other_user = Repo.get_by(Accounts.User, username: @mock_user2.username)
+      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @mock_post)
+
+      new_attrs = %{
+        title: "update title"
+      }
+
+      current_user = %Accounts.User{id: other_user.id}
+      result = CMS.update_content(:post, :self, post.id, current_user, new_attrs)
+
+      assert {:error, _} = result
+    end
+
+    test "delete post by post's author" do
+      user = Repo.get_by(Accounts.User, username: @mock_user.username)
+      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @mock_post)
+      {:ok, deleted_post} = CMS.delete_content(:post, :self, post.id, %Accounts.User{id: user.id})
+
+      assert deleted_post.id == post.id
+      assert nil == Repo.get(CMS.Post, post.id)
+    end
+
+    test "delete post by the other user(not the post author) fails" do
+      user = Repo.get_by(Accounts.User, username: @mock_user.username)
+      other_user = Repo.get_by(Accounts.User, username: @mock_user2.username)
+      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @mock_post)
+
+      current_user = %Accounts.User{id: other_user.id}
+      assert {:error, _} = CMS.delete_content(:post, :self, post.id, current_user)
+    end
+  end
+
+  describe "cms_tags" do
+    test "create tag with valid data" do
+      user = Repo.get_by(Accounts.User, username: @mock_user.username)
+
+      valid_attrs = %{
+        title: "fake_tag",
+        part: "POST",
+        color: "RED",
+        community: @mock_community.title,
+        user_id: user.id
+      }
+
+      {:ok, tag} = CMS.create_tag(:post, valid_attrs)
+      assert tag.title == valid_attrs.title
+    end
+
+    test "create tag with non-exsit user fails" do
+      invalid_attrs = %{
+        title: "fake_tag",
+        part: "POST",
+        color: "RED",
+        community: @mock_community.title,
+        user_id: 100_000
+      }
+
+      assert {:error, %Ecto.Changeset{}} = CMS.create_tag(:post, invalid_attrs)
+    end
+
+    test "create tag with non-exsit community fails" do
+      user = Repo.get_by(Accounts.User, username: @mock_user.username)
+
+      invalid_attrs = %{
+        title: "fake_tag",
+        part: "POST",
+        color: "RED",
+        community: "not exsit",
+        user_id: user.id
+      }
+
+      assert {:error, _} = CMS.create_tag(:post, invalid_attrs)
+    end
   end
 
   describe "cms_community" do
     test "create a community with a existing user" do
-      user = Repo.get_by(Accounts.User, username: @valid_user.username)
+      user = Repo.get_by(Accounts.User, username: @mock_user.username)
 
       community_attr = %{
         title: "elixir community",
@@ -42,7 +194,7 @@ defmodule MastaniServer.CMSTest do
     end
 
     test "create a community with a empty title fails" do
-      user = Repo.get_by(Accounts.User, username: @valid_user.username)
+      user = Repo.get_by(Accounts.User, username: @mock_user.username)
 
       invalid_community_attr = %{
         title: "",
@@ -62,124 +214,5 @@ defmodule MastaniServer.CMSTest do
 
       assert {:error, _} = CMS.create_community(community_attr)
     end
-  end
-
-  describe "cms_posts" do
-    test "post staff " do
-      # ...
-      true
-    end
-
-    # test "create a post" do
-    # attrs = %{
-    # title: "test title",
-    # body: "test body",
-    # digest: "test digest",
-    # length: 20,
-    # community: "js",
-    # }
-
-    # create_content(part, %Author{} = author, attrs \\ %{})
-
-    # CMS.create_content(:post, )
-    # assert true == true
-    # end
-
-    # @valid_attrs %{
-    # body: "some body",
-    # isRefined: true,
-    # isSticky: true,
-    # title: "some title",
-    # viewerCanCollect: "some viewerCanCollect",
-    # viewerCanStar: true,
-    # viewerCanWatch: "some viewerCanWatch",
-    # viewsCount: 42
-    # }
-    # @update_attrs %{
-    # body: "some updated body",
-    # isRefined: false,
-    # isSticky: false,
-    # title: "some updated title",
-    # viewerCanCollect: "some updated viewerCanCollect",
-    # viewerCanStar: false,
-    # viewerCanWatch: "some updated viewerCanWatch",
-    # viewsCount: 43
-    # }
-    # @invalid_attrs %{
-    # body: nil,
-    # isRefined: nil,
-    # isSticky: nil,
-    # title: nil,
-    # viewerCanCollect: nil,
-    # viewerCanStar: nil,
-    # viewerCanWatch: nil,
-    # viewsCount: nil
-    # }
-
-    # def post_fixture(attrs \\ %{}) do
-    # {:ok, post} =
-    # attrs
-    # |> Enum.into(@valid_attrs)
-    # |> CMS.create_post()
-
-    # post
-    # end
-
-    # test "list_cms_posts/0 returns all cms_posts" do
-    # post = post_fixture()
-    # assert CMS.list_cms_posts() == [post]
-    # end
-
-    # test "get_post!/1 returns the post with given id" do
-    # post = post_fixture()
-    # assert CMS.get_post!(post.id) == post
-    # end
-
-    # test "create_post/1 with valid data creates a post" do
-    # assert {:ok, %Post{} = post} = CMS.create_post(@valid_attrs)
-    # assert post.body == "some body"
-    # assert post.isRefined == true
-    # assert post.isSticky == true
-    # assert post.title == "some title"
-    # assert post.viewerCanCollect == "some viewerCanCollect"
-    # assert post.viewerCanStar == true
-    # assert post.viewerCanWatch == "some viewerCanWatch"
-    # assert post.viewsCount == 42
-    # end
-
-    # test "create_post/1 with invalid data returns error changeset" do
-    # assert {:error, %Ecto.Changeset{}} = CMS.create_post(@invalid_attrs)
-    # end
-
-    # test "update_post/2 with valid data updates the post" do
-    # post = post_fixture()
-    # assert {:ok, post} = CMS.update_post(post, @update_attrs)
-    # assert %Post{} = post
-    # assert post.body == "some updated body"
-    # assert post.isRefined == false
-    # assert post.isSticky == false
-    # assert post.title == "some updated title"
-    # assert post.viewerCanCollect == "some updated viewerCanCollect"
-    # assert post.viewerCanStar == false
-    # assert post.viewerCanWatch == "some updated viewerCanWatch"
-    # assert post.viewsCount == 43
-    # end
-
-    # test "update_post/2 with invalid data returns error changeset" do
-    # post = post_fixture()
-    # assert {:error, %Ecto.Changeset{}} = CMS.update_post(post, @invalid_attrs)
-    # assert post == CMS.get_post!(post.id)
-    # end
-
-    # test "delete_post/1 deletes the post" do
-    # post = post_fixture()
-    # assert {:ok, %Post{}} = CMS.delete_post(post)
-    # assert_raise Ecto.NoResultsError, fn -> CMS.get_post!(post.id) end
-    # end
-
-    # test "change_post/1 returns a post changeset" do
-    # post = post_fixture()
-    # assert %Ecto.Changeset{} = CMS.change_post(post)
-    # end
   end
 end
