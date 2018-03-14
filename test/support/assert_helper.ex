@@ -67,4 +67,15 @@ defmodule MastaniServer.AssertHelper do
     |> json_response(200)
     |> Map.has_key?("errors")
   end
+
+  def query_get_error?(conn, query, variables, :debug) do
+    IO.inspect query, label: "query_get_error? query"
+    IO.inspect variables, label: "query_get_error? variables"
+
+    conn
+    |> get("/graphiql", query: query, variables: variables)
+    |> IO.inspect(label: "query_get_error?")
+    |> json_response(200)
+    |> Map.has_key?("errors")
+  end
 end

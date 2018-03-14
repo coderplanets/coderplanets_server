@@ -7,8 +7,6 @@ defmodule MastaniServer.CMSValidator do
 
   def page_size_boundary, do: @page_size_max
 
-  defguard invalid_page_size(size) when size > @page_size_max or size <= 0
-
   defguard valid_part(part) when part in @support_part
 
   defguard valid_reaction(part, react)
@@ -230,15 +228,6 @@ defmodule MastaniServer.CMS do
   @doc """
   get CMS contents (posts, tuts, videos, jobs ...) with or without page info
   """
-  def contents(_, _, %{size: size}) when invalid_page_size(size),
-    do:
-      {:error,
-       "invalid size request: size should less than #{page_size_boundary()} and more than 0"}
-
-  def contents(_, _, %{first: size}) when invalid_page_size(size),
-    do:
-      {:error,
-       "invalid size request: size should less than #{page_size_boundary()} and more than 0"}
 
   # TODO: try default size
   def contents(part, react, %{page: page, size: size} = filters)
@@ -251,7 +240,6 @@ defmodule MastaniServer.CMS do
         |> QueryPuzzle.filter_pack(filters)
         |> Repo.paginate(page: page, page_size: size)
 
-      # IO.inspect result, label: "fuck the result"
       {:ok, result}
     end
   end
@@ -264,6 +252,24 @@ defmodule MastaniServer.CMS do
   end
 
   def contents(part, react, _), do: {:error, "cms do not support [#{react}] on [#{part}]"}
+
+  @doc """
+  Updates a post.
+
+  ## Examples
+
+  iex> update_post(post, %{field: new_value})
+  {:ok, %Post{}}
+
+  iex> update_post(post, %{field: bad_value})
+  {:error, %Ecto.Changeset{}}
+
+  """
+  # def update_post(%Post{} = post, attrs) do
+    # post
+    # |> Post.changeset(attrs)
+    # |> Repo.update()
+  # end
 
   @doc """
   get CMS contents
@@ -398,76 +404,6 @@ defmodule MastaniServer.CMS do
 
   def undo_reaction(part, react, _, _),
     do: {:error, "cms do not support [un#{react}] on [#{part}]"}
-
-  @doc """
-  Updates a post.
-
-  ## Examples
-
-      iex> update_post(post, %{field: new_value})
-      {:ok, %Post{}}
-
-      iex> update_post(post, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_post(%Post{} = post, attrs) do
-    post
-    |> Post.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
-  Gets a single author.
-
-  Raises `Ecto.NoResultsError` if the Author does not exist.
-
-  ## Examples
-
-      iex> get_author!(123)
-      %Author{}
-
-      iex> get_author!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_author!(id), do: Repo.get!(Author, id)
-
-  @doc """
-  Creates a author.
-
-  ## Examples
-
-      iex> create_author(%{field: value})
-      {:ok, %Author{}}
-
-      iex> create_author(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_author(attrs \\ %{}) do
-    %Author{}
-    |> Author.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  @doc """
-  Updates a author.
-
-  ## Examples
-
-      iex> update_author(author, %{field: new_value})
-      {:ok, %Author{}}
-
-      iex> update_author(author, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_author(%Author{} = author, attrs) do
-    author
-    |> Author.changeset(attrs)
-    |> Repo.update()
-  end
 
   @doc """
   Deletes a Author.

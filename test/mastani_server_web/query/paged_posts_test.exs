@@ -62,12 +62,12 @@ defmodule MastaniServer.Query.PagedPostsTest do
       assert results["totalCount"] == @posts_total_count
     end
 
-    test "request large size should get error", %{conn: conn} do
+    test "request large size fails", %{conn: conn} do
       variables = %{filter: %{page: 1, size: 200}}
       assert conn |> query_get_error?(@query, variables)
     end
 
-    test "request 0 or neg-size should get error", %{conn: conn} do
+    test "request 0 or neg-size fails", %{conn: conn} do
       variables_0 = %{filter: %{page: 1, size: 0}}
       variables_neg_1 = %{filter: %{page: 1, size: -1}}
 
@@ -78,7 +78,6 @@ defmodule MastaniServer.Query.PagedPostsTest do
     test "pagination should have default page and size arg", %{conn: conn} do
       variables = %{filter: %{}}
       results = conn |> query_get_result_of(@query, variables, "pagedPosts")
-      # IO.inspect(results, label: "ff ")
       assert results |> is_valid_pagination?
       assert results["pageSize"] == 20
       assert results["totalCount"] == @posts_total_count
