@@ -3,9 +3,8 @@ defmodule MastaniServer.Utils.Helper do
   import Ecto.Query, warn: false
 
   @doc """
-  return General {:ok, ..} or {:error, ..} return value
+  wrap Repo.get with result/errer format handle
   """
-
   def find(queryable, id, preload: preload) do
     queryable
     |> preload(^preload)
@@ -24,15 +23,19 @@ defmodule MastaniServer.Utils.Helper do
     |> Repo.get_by(clauses)
     |> case do
       nil ->
-        sort_name = queryable |> to_string |> String.split(".") |> List.last()
+        # error should be eval only when needed
+        modal_sortname = queryable |> to_string |> String.split(".") |> List.last()
         detail = clauses |> Enum.into(%{}) |> Map.values() |> to_string
-        {:error, "#{sort_name}(#{detail}) not found"}
+        {:error, "#{modal_sortname}(#{detail}) not found"}
 
       result ->
         {:ok, result}
     end
   end
 
+  @doc """
+  return General {:ok, ..} or {:error, ..} return value
+  """
   def done(nil), do: {:error, "record not found."}
   def done(result), do: {:ok, result}
 
