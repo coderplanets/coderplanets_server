@@ -98,9 +98,7 @@ defmodule MastaniServer.CMS do
   end
 
   def create_community(attrs) do
-    with {:ok, user} <- Accounts.User |> find(attrs.user_id) do
-      # with {:ok, user} <- Repo.get(Accounts.User, attrs.user_id) |> done() do
-      # {:error, "custom error."}
+    with {:ok, user} <- find(Accounts.User, attrs.user_id) do
       %Community{}
       |> Community.changeset(attrs |> Map.merge(%{user_id: user.id}))
       |> Repo.insert()
