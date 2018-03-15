@@ -65,9 +65,19 @@ defmodule MastaniServer.CMSTest do
   describe "cms_post" do
     test "create post with valid attrs" do
       user = Repo.get_by(Accounts.User, username: @mock_user.username)
+      assert nil == Repo.get_by(CMS.Author, user_id: user.id)
 
       {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @mock_post)
       assert post.title == @mock_post.title
+    end
+
+    test "add user to cms authors, if the user is not exsit in cms authors" do
+      user = Repo.get_by(Accounts.User, username: @mock_user.username)
+      assert nil == Repo.get_by(CMS.Author, user_id: user.id)
+
+      {:ok, _} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @mock_post)
+      author = Repo.get_by(CMS.Author, user_id: user.id)
+      assert author.user_id == user.id
     end
 
     test "create post with on exsit community fails" do

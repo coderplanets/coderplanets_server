@@ -187,6 +187,9 @@ defmodule MastaniServer.CMS do
     end
   end
 
+  @doc """
+  Creates a comment for psot, job ...
+  """
   def create_comment(part, react, part_id, user_id, body) do
     with {:ok, action} <- match_action(part, react),
          {:ok, content} <- find(action.target, part_id),
@@ -423,12 +426,6 @@ defmodule MastaniServer.CMS do
   defp handle_existing_author({:ok, author}), do: {:ok, author}
 
   defp handle_existing_author({:error, changeset}) do
-    case Repo.get_by(Author, user_id: changeset.data.user_id) do
-      nil ->
-        {:error, "user is not exsit"}
-
-      user ->
-        {:ok, user}
-    end
+    find_by(Author, user_id: changeset.data.user_id)
   end
 end

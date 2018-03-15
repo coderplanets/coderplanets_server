@@ -18,6 +18,8 @@ defmodule MastaniServer.Utils.Helper do
     |> done()
   end
 
+  # def find_by(queryable, [id: _]), do: consider using find/1
+
   def find_by(queryable, clauses) do
     queryable
     |> Repo.get_by(clauses)
@@ -25,7 +27,14 @@ defmodule MastaniServer.Utils.Helper do
       nil ->
         # error should be eval only when needed
         modal_sortname = queryable |> to_string |> String.split(".") |> List.last()
-        detail = clauses |> Enum.into(%{}) |> Map.values() |> to_string
+
+        detail =
+          clauses
+          |> Enum.into(%{})
+          |> Map.values()
+          |> List.first()
+          |> to_string
+
         {:error, "#{modal_sortname}(#{detail}) not found"}
 
       result ->
