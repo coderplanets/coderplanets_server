@@ -51,7 +51,7 @@ defmodule MastaniServer.Utils.Helper do
   def operation_deny(type) do
     case type do
       :owner_required -> {:error, "Access denied: need owner to do this"}
-      :root -> {:error, "need root to do this"}
+      :root -> {:error, "Access denied: need root to do this"}
     end
   end
 

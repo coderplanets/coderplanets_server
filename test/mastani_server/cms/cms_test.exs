@@ -7,81 +7,39 @@ defmodule MastaniServer.CMSTest do
   alias MastaniServer.Accounts
   alias MastaniServer.Repo
 
-  @mock_user %{
-    username: "mydearxym",
-    nickname: "simon",
-    bio: "bio",
-    company: "infomedia"
-  }
-
-  @mock_user2 %{
-    username: "other_user",
-    nickname: "simon",
-    bio: "bio",
-    company: "infomedia"
-  }
-
-  @mock_community %{
-    title: "fake_community",
-    desc: "fake community desc",
-    author: mock(:user)
-  }
-
-  @mock_post %{
-    title: Faker.Lorem.Shakespeare.king_richard_iii(),
-    body: Faker.Lorem.sentence(%Range{first: 80, last: 120}),
-    digest: "fake digest",
-    length: 100,
-    community: @mock_community.title
-  }
+  @valid_user mock_attrs(:user)
+  @valid_user2 mock_attrs(:user)
+  @valid_community mock_attrs(:community)
+  @valid_post mock_attrs(:post, %{community: @valid_community.title})
 
   # alias MastaniServer.CMS
   setup do
-    db_insert(:user, @mock_user)
-    db_insert(:user, @mock_user2)
-    db_insert(:community, @mock_community)
+    db_insert(:user, @valid_user)
+    db_insert(:user, @valid_user2)
+    db_insert(:community, @valid_community)
     :ok
-  end
-
-  describe "cms reaction" do
-    test "favorite and undo favorite reaction to post" do
-      user = Repo.get_by(Accounts.User, username: @mock_user.username)
-      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @mock_post)
-
-      {:ok, _} = CMS.reaction(:post, :favorite, post.id, user.id)
-      {:ok, reaction_users} = CMS.reaction_users(:post, :favorite, post.id, %{page: 1, size: 1})
-      reaction_users = reaction_users |> Map.get(:entries)
-      assert 1 == reaction_users |> Enum.filter(fn ruser -> user.id == ruser.id end) |> length
-
-      # undo test
-      {:ok, _} = CMS.undo_reaction(:post, :favorite, post.id, user.id)
-      {:ok, reaction_users2} = CMS.reaction_users(:post, :favorite, post.id, %{page: 1, size: 1})
-      reaction_users2 = reaction_users2 |> Map.get(:entries)
-
-      assert 0 == reaction_users2 |> Enum.filter(fn ruser -> user.id == ruser.id end) |> length
-    end
   end
 
   describe "cms_post" do
     test "create post with valid attrs" do
-      user = Repo.get_by(Accounts.User, username: @mock_user.username)
+      user = Repo.get_by(Accounts.User, username: @valid_user.username)
       assert nil == Repo.get_by(CMS.Author, user_id: user.id)
 
-      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @mock_post)
-      assert post.title == @mock_post.title
+      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @valid_post)
+      assert post.title == @valid_post.title
     end
 
     test "add user to cms authors, if the user is not exsit in cms authors" do
-      user = Repo.get_by(Accounts.User, username: @mock_user.username)
+      user = Repo.get_by(Accounts.User, username: @valid_user.username)
       assert nil == Repo.get_by(CMS.Author, user_id: user.id)
 
-      {:ok, _} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @mock_post)
+      {:ok, _} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @valid_post)
       author = Repo.get_by(CMS.Author, user_id: user.id)
       assert author.user_id == user.id
     end
 
     test "create post with on exsit community fails" do
-      user = Repo.get_by(Accounts.User, username: @mock_user.username)
+      user = Repo.get_by(Accounts.User, username: @valid_user.username)
       body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
 
       invalid_attrs = %{
@@ -97,8 +55,8 @@ defmodule MastaniServer.CMSTest do
 
     # TODO: update post
     test "update a post by post's author" do
-      user = Repo.get_by(Accounts.User, username: @mock_user.username)
-      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @mock_post)
+      user = Repo.get_by(Accounts.User, username: @valid_user.username)
+      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @valid_post)
 
       new_attrs = %{
         title: "update title"
@@ -111,9 +69,9 @@ defmodule MastaniServer.CMSTest do
     end
 
     test "update a post by other user fails" do
-      user = Repo.get_by(Accounts.User, username: @mock_user.username)
-      other_user = Repo.get_by(Accounts.User, username: @mock_user2.username)
-      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @mock_post)
+      user = Repo.get_by(Accounts.User, username: @valid_user.username)
+      other_user = Repo.get_by(Accounts.User, username: @valid_user2.username)
+      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @valid_post)
 
       new_attrs = %{
         title: "update title"
@@ -126,8 +84,8 @@ defmodule MastaniServer.CMSTest do
     end
 
     test "delete post by post's author" do
-      user = Repo.get_by(Accounts.User, username: @mock_user.username)
-      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @mock_post)
+      user = Repo.get_by(Accounts.User, username: @valid_user.username)
+      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @valid_post)
       {:ok, deleted_post} = CMS.delete_content(:post, :self, post.id, %Accounts.User{id: user.id})
 
       assert deleted_post.id == post.id
@@ -135,9 +93,9 @@ defmodule MastaniServer.CMSTest do
     end
 
     test "delete post by the other user(not the post author) fails" do
-      user = Repo.get_by(Accounts.User, username: @mock_user.username)
-      other_user = Repo.get_by(Accounts.User, username: @mock_user2.username)
-      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @mock_post)
+      user = Repo.get_by(Accounts.User, username: @valid_user.username)
+      other_user = Repo.get_by(Accounts.User, username: @valid_user2.username)
+      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @valid_post)
 
       current_user = %Accounts.User{id: other_user.id}
       assert {:error, _} = CMS.delete_content(:post, :self, post.id, current_user)
@@ -146,13 +104,13 @@ defmodule MastaniServer.CMSTest do
 
   describe "cms_tags" do
     test "create tag with valid data" do
-      user = Repo.get_by(Accounts.User, username: @mock_user.username)
+      user = Repo.get_by(Accounts.User, username: @valid_user.username)
 
       valid_attrs = %{
         title: "fake_tag",
         part: "POST",
         color: "RED",
-        community: @mock_community.title,
+        community: @valid_community.title,
         user_id: user.id
       }
 
@@ -165,7 +123,7 @@ defmodule MastaniServer.CMSTest do
         title: "fake_tag",
         part: "POST",
         color: "RED",
-        community: @mock_community.title,
+        community: @valid_community.title,
         user_id: 100_000
       }
 
@@ -173,7 +131,7 @@ defmodule MastaniServer.CMSTest do
     end
 
     test "create tag with non-exsit community fails" do
-      user = Repo.get_by(Accounts.User, username: @mock_user.username)
+      user = Repo.get_by(Accounts.User, username: @valid_user.username)
 
       invalid_attrs = %{
         title: "fake_tag",
@@ -189,7 +147,7 @@ defmodule MastaniServer.CMSTest do
 
   describe "cms_community" do
     test "create a community with a existing user" do
-      user = Repo.get_by(Accounts.User, username: @mock_user.username)
+      user = Repo.get_by(Accounts.User, username: @valid_user.username)
 
       community_attr = %{
         title: "elixir community",
@@ -204,7 +162,7 @@ defmodule MastaniServer.CMSTest do
     end
 
     test "create a community with a empty title fails" do
-      user = Repo.get_by(Accounts.User, username: @mock_user.username)
+      user = Repo.get_by(Accounts.User, username: @valid_user.username)
 
       invalid_community_attr = %{
         title: "",

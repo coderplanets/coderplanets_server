@@ -5,16 +5,14 @@ defmodule MastaniServer.Query.PostTest do
   import MastaniServer.AssertHelper
   alias MastaniServer.Accounts
 
+  # TODO
+  @valid_user mock_attrs(:user, %{username: "mydearxym"})
+
   setup do
     {:ok, post} = db_insert(:post)
 
     # TODO: token
-    db_insert(:user, %{
-      username: "mydearxym",
-      nickname: "mydearxym",
-      bio: "mydearxym",
-      company: "fake "
-    })
+    db_insert(:user, @valid_user)
 
     conn =
       build_conn()
