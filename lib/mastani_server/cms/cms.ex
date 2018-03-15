@@ -119,9 +119,7 @@ defmodule MastaniServer.CMS do
   def create_tag(part, attrs) when valid_part(part) do
     # TODO: find user
     with {:ok, action} <- match_action(part, :tag),
-         {:ok, community} <-
-           Repo.get_by(Community, title: attrs.community)
-           |> done(:maybe, "community(#{attrs.community}) not found") do
+         {:ok, community} <- find_by(Community, title: attrs.community) do
       struct(action.reactor)
       |> action.reactor.changeset(attrs |> Map.merge(%{community_id: community.id}))
       |> Repo.insert()
@@ -179,7 +177,7 @@ defmodule MastaniServer.CMS do
   def create_content(part, %Author{} = author, attrs \\ %{}) do
     with {:ok, author} <- ensure_author_exists(%Accounts.User{id: author.user_id}),
          {:ok, action} <- match_action(part, :community),
-         {:ok, community} <- Repo.get_by(Community, title: attrs.community) |> done(:maybe),
+         {:ok, community} <- find_by(Community, title: attrs.community),
          {:ok, content} <-
            struct(action.target)
            |> Post.changeset(attrs)
