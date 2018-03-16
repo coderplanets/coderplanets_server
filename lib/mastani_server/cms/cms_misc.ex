@@ -9,9 +9,13 @@ defmodule MastaniServer.CMSMisc do
   @support_react [:favorite, :star, :watch, :comment, :tag, :self]
 
   defguard valid_part(part) when part in @support_part
+  defguard invalid_part(part) when part not in @support_part
 
   defguard valid_reaction(part, react)
            when valid_part(part) and react in @support_react
+
+  defguard invalid_reaction(part, react)
+           when invalid_part(part) and react not in @support_react
 
   def match_action(:post, :self), do: {:ok, %{target: Post, reactor: Post, preload: :author}}
 

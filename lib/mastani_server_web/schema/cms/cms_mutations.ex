@@ -77,12 +77,24 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:id, non_null(:id))
 
       middleware(Middleware.Authorize, :login)
-      # TODO: use middleware to check if is owner
-      # middleware(Middleware.OwnerRequired, match: [:post, :self], others: ['admin'])
       middleware(Middleware.OwnerRequired, match: :post, others: ["admin"])
-      # middleware(Middleware.OwnerRequired, match: [:post, :comment], others: ["admin"])
       resolve(&Resolvers.CMS.delete_post/3)
     end
+
+    @desc "update a cms/post"
+    field :update_post, :post do
+      arg(:id, non_null(:id))
+      arg(:title, :string)
+      arg(:body, :string)
+      arg(:digest, :string)
+
+      middlewared(Middleware.Authorize, :login)
+      middleware(Middleware.OwnerRequired, match: :post, others: ["admin"])
+
+      resolve(&Resolvers.CMS.update_post/3)
+    end
+
+    # TODO: set community, tag ...
 
     @desc "create a comment"
     field :create_comment, :comment do
@@ -103,6 +115,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       # arg(:body, non_null(:string))
 
       middleware(Middleware.Authorize, :login)
+      middleware(Middleware.OwnerRequired, match: [:post, :comment], others: ["admin"])
       resolve(&Resolvers.CMS.delete_comment/3)
     end
 

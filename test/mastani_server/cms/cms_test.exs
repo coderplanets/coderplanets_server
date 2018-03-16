@@ -52,61 +52,6 @@ defmodule MastaniServer.CMSTest do
 
       assert {:error, _} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, invalid_attrs)
     end
-
-    # TODO: update post
-    test "update a post by post's author" do
-      user = Repo.get_by(Accounts.User, username: @valid_user.username)
-      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @valid_post)
-
-      new_attrs = %{
-        title: "update title"
-      }
-
-      current_user = %Accounts.User{id: user.id}
-      {:ok, update_post} = CMS.update_content(:post, :self, post.id, current_user, new_attrs)
-
-      assert update_post.title == new_attrs.title
-    end
-
-    test "update a post by other user fails" do
-      user = Repo.get_by(Accounts.User, username: @valid_user.username)
-      other_user = Repo.get_by(Accounts.User, username: @valid_user2.username)
-      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @valid_post)
-
-      new_attrs = %{
-        title: "update title"
-      }
-
-      current_user = %Accounts.User{id: other_user.id}
-      result = CMS.update_content(:post, :self, post.id, current_user, new_attrs)
-
-      assert {:error, _} = result
-    end
-
-    test "delete post by post's author" do
-      user = Repo.get_by(Accounts.User, username: @valid_user.username)
-      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @valid_post)
-      {:ok, deleted_post} = CMS.delete_content(:post, :self, post.id, %Accounts.User{id: user.id})
-
-      assert deleted_post.id == post.id
-      assert nil == Repo.get(CMS.Post, post.id)
-    end
-
-    test "delete post by the other user(not the post author) fails" do
-      user = Repo.get_by(Accounts.User, username: @valid_user.username)
-      other_user = Repo.get_by(Accounts.User, username: @valid_user2.username)
-      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @valid_post)
-
-      current_user = %Accounts.User{id: other_user.id}
-      assert {:error, _} = CMS.delete_content(:post, :self, post.id, current_user)
-    end
-
-    test "delete a non-exsit post fails" do
-      user = Repo.get_by(Accounts.User, username: @valid_user.username)
-
-      assert {:error, _} =
-               CMS.delete_content(:post, :self, "99999999", %Accounts.User{id: user.id})
-    end
   end
 
   describe "cms_tags" do

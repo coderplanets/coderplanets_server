@@ -33,7 +33,22 @@ defmodule MastaniServer.AssertHelper do
     obj |> Map.get(key) |> is_boolean
   end
 
-  def query_get_result_of(conn, query, variables, key) do
+  def mutation_result(conn, query, variables, key) do
+    conn
+    |> post("/graphiql", query: query, variables: variables)
+    |> json_response(200)
+    |> Map.get("data")
+    |> Map.get(key)
+  end
+
+  def mutation_get_error?(conn, query, variables) do
+    conn
+    |> post("/graphiql", query: query, variables: variables)
+    |> json_response(200)
+    |> Map.has_key?("errors")
+  end
+
+  def query_result(conn, query, variables, key) do
     conn
     |> get("/graphiql", query: query, variables: variables)
     |> json_response(200)
@@ -41,19 +56,19 @@ defmodule MastaniServer.AssertHelper do
     |> Map.get(key)
   end
 
-  def query_get_result_of(conn, query, variables, key, :debug) do
+  def query_result(conn, query, variables, key, :debug) do
     IO.inspect(query, label: "query")
     IO.inspect(variables, label: "variables")
 
     conn
     |> get("/graphiql", query: query, variables: variables)
-    |> IO.inspect(label: "query_get_result_of")
+    |> IO.inspect(label: "query_result")
     |> json_response(200)
     |> Map.get("data")
     |> Map.get(key)
   end
 
-  def query_get_result_of(conn, query, key) do
+  def query_result(conn, query, key) do
     conn
     |> get("/graphiql", query: query, variables: %{})
     |> json_response(200)

@@ -1,18 +1,31 @@
-# ---
-# create content
-#
-#
-# ---
-
 defmodule MastaniServer.Factory do
   alias MastaniServer.Repo
   alias MastaniServer.CMS
   alias MastaniServer.Accounts
 
-  def mock(:post) do
+  def mock_attrs(_, attrs \\ %{})
+  def mock_attrs(:user, attrs), do: mock_meta(:user) |> Map.merge(attrs)
+  def mock_attrs(:post, attrs), do: mock_meta(:post) |> Map.merge(attrs)
+  def mock_attrs(:community, attrs), do: mock_meta(:community) |> Map.merge(attrs)
+
+  @doc """
+  # not use changeset because in test we may insert some attrs which not in schema
+  # like: views, insert/update ... to test filter-sort,when ...
+  """
+  def db_insert(factory_name, attributes \\ []) do
+    Repo.insert(mock(factory_name, attributes))
+  end
+
+  def db_insert_multi!(factory_name, count \\ 5) do
+    for _u <- 1..count do
+      db_insert(factory_name)
+    end
+  end
+
+  defp mock_meta(:post) do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
 
-    %CMS.Post{
+    %{
       title: Faker.Lorem.Shakespeare.king_richard_iii(),
       body: body,
       digest: String.slice(body, 1, 150),
@@ -25,59 +38,18 @@ defmodule MastaniServer.Factory do
     }
   end
 
-  def mock(:author) do
-    %CMS.Author{role: "normal", user: mock(:user)}
-  end
-
-  def mock(:user) do
-    unique_num = System.unique_integer([:positive, :monotonic])
-
-    %Accounts.User{
-      username: "#{Faker.Name.first_name()} #{unique_num}",
-      nickname: Faker.Name.last_name(),
-      bio: Faker.Lorem.Shakespeare.romeo_and_juliet(),
-      company: Faker.Company.name()
-    }
-  end
-
-  def mock(:community) do
-    unique_num = System.unique_integer([:positive, :monotonic])
-
-    %CMS.Community{
-      title: "community #{unique_num}",
-      desc: "community desc",
-      author: mock(:user)
-    }
-  end
-
-  def mock_attrs(_, attrs \\ %{})
-
-  def mock_attrs(:user, attrs) do
-    unique_num = System.unique_integer([:positive, :monotonic])
-
+  defp mock_meta(:comment) do
+    body = Faker.Lorem.sentence(%Range{first: 30, last: 80})
     %{
-      username: "#{Faker.Name.first_name()} #{unique_num}",
-      nickname: Faker.Name.last_name(),
-      bio: Faker.Lorem.Shakespeare.romeo_and_juliet(),
-      company: Faker.Company.name()
+      body: body
     }
-    |> Map.merge(attrs)
   end
 
-  def mock_attrs(:post, attrs) do
-    unique_num = System.unique_integer([:positive, :monotonic])
-
-    %{
-      title: Faker.Lorem.Shakespeare.king_richard_iii(),
-      body: Faker.Lorem.sentence(%Range{first: 80, last: 120}),
-      digest: "fake digest",
-      length: 100,
-      community: "community #{unique_num}"
-    }
-    |> Map.merge(attrs)
+  defp mock_meta(:author) do
+    %{role: "normal", user: mock(:user)}
   end
 
-  def mock_attrs(:community, attrs) do
+  defp mock_meta(:community) do
     unique_num = System.unique_integer([:positive, :monotonic])
 
     %{
@@ -85,28 +57,35 @@ defmodule MastaniServer.Factory do
       desc: "community desc",
       author: mock(:user)
     }
-    |> Map.merge(attrs)
   end
 
-  # ---
-  def mock(factory_name, attributes) do
-    # merge attributes as need
+  defp mock_meta(:user) do
+    unique_num = System.unique_integer([:positive, :monotonic])
+
+    %{
+      username: "#{Faker.Name.first_name()} #{unique_num}",
+      nickname: Faker.Name.last_name(),
+      bio: Faker.Lorem.Shakespeare.romeo_and_juliet(),
+      company: Faker.Company.name()
+    }
+  end
+
+  @doc """
+  NOTICE: avoid Recursive problem
+  bad example:
+               mismatch                                       mismatch
+                  |                                               |
+      defp mock(:user), do: Accounts.User |> struct(mock_meta(:community))
+
+  this line of code will cause SERIOUS Recursive problem
+  """
+  defp mock(:post), do: CMS.Post |> struct(mock_meta(:post))
+  defp mock(:comment), do: CMS.Post |> struct(mock_meta(:comment))
+  defp mock(:author), do: CMS.Author |> struct(mock_meta(:author))
+  defp mock(:user), do: Accounts.User |> struct(mock_meta(:user))
+  defp mock(:community), do: CMS.Community |> struct(mock_meta(:community))
+
+  defp mock(factory_name, attributes) do
     factory_name |> mock() |> struct(attributes)
-  end
-
-  def db_insert(factory_name, attributes \\ []) do
-    # not use changeset because in test we may insert some attrs which not in schema
-    # like: views, insert/update ... to test filter-sort,when ...
-
-    # User.changeset(%User{}, attrs)
-    # |> Repo.insert!()
-    Repo.insert(mock(factory_name, attributes))
-  end
-
-  # TODO:
-  def db_insert_multi!(factory_name, count \\ 5) do
-    for _u <- 1..count do
-      db_insert(factory_name)
-    end
   end
 end

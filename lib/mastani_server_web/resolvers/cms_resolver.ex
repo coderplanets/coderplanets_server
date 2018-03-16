@@ -1,20 +1,12 @@
 # TODO rename to CMSResolvers
 defmodule MastaniServerWeb.Resolvers.CMS do
   alias MastaniServer.CMS
-  # alias MastaniServer.Utils.Helper
+  alias MastaniServer.Utils.ORM
 
   # TODO: delete tag
+  def post(_root, %{id: id}, _info), do: CMS.Post |> ORM.read(id)
 
-  def post(_root, %{id: id}, _info), do: CMS.one_conent(:post, :self, id)
-
-  def posts(_root, %{filter: filter}, _info) do
-    filter =
-      if Map.has_key?(filter, :sort),
-        do: filter,
-        else: filter |> Map.merge(%{sort: :desc_inserted})
-
-    CMS.contents(:post, :self, filter)
-  end
+  def posts(_root, %{filter: filter}, _info), do: CMS.Post |> ORM.read_all(filter)
 
   def create_community(_root, args, %{context: %{current_user: user}}) do
     CMS.create_community(%{title: args.title, desc: args.desc, user_id: user.id})
@@ -22,7 +14,6 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def create_tag(_root, args, %{context: %{current_user: user}}) do
     # args2 = for {k, v} <- args, into: %{}, do: {k, to_string(v)}
-
     CMS.create_tag(args.type, %{
       title: args.title,
       color: to_string(args.color),
@@ -32,7 +23,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     })
   end
 
-  def delete_community(_root, args, %{context: %{current_user: user}}) do
+  def delete_community(_root, args, _info) do
     CMS.delete_community(args.id)
   end
 
@@ -63,23 +54,6 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.reaction_users(type, action, id, filter)
   end
 
-  # def reaction_users(root, %{id: id, type: type, action: action}, _info) do
-  # def reaction_users(_root, %{id: id, type: type}, _info) do
-  # IO.inspect(id, label: "fuck me")
-  # default_filter = %{first: 3}
-  # CMS.reaction_users(type, action, root, default_filter)
-  # CMS.reaction_users(type, :favorite, id, default_filter)
-  # end
-
-  # def inline_reaction_users(root, %{type: type, action: action, filter: filter}, _info) do
-  # CMS.reaction_users(type, action, root, filter)
-  # end
-
-  # def inline_reaction_users(root, %{type: type, action: action}, _info) do
-  # default_filter = %{first: 3}
-  # CMS.reaction_users(type, action, root.id, default_filter)
-  # end
-
   def reaction_count(root, %{type: type, action: action}, _info) do
     CMS.reaction_count(type, action, root.id)
   end
@@ -88,19 +62,12 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.viewer_has_reacted(type, action, root.id, user.id)
   end
 
-  # TODO delete should be root, one should be use invisible_post ..
-  # def delete_post(_root, %{id: id}, %{context: %{current_user: user}}) do
-  # CMS.delete_content(:post, :self, id, user)
-  # end
+  def delete_post(_root, %{content_tobe_operate: content}, _info), do: ORM.delete(content)
+  def delete_comment(_root, %{content_tobe_operate: content}, _info), do: ORM.delete(content)
 
-  def delete_post(_root, args, _info) do
-    CMS.delete_content(args.content_to_delete)
-  end
+  def update_post(_root, args, _info), do: ORM.update(args.content_tobe_operate, args)
 
   def create_comment(_root, %{type: type, id: id, body: body}, %{context: %{current_user: user}}),
     do: CMS.create_comment(type, :comment, id, user.id, body)
 
-  def delete_comment(_root, %{type: type, id: id}, %{context: %{current_user: user}}) do
-    CMS.delete_content(type, :comment, id, user)
-  end
 end

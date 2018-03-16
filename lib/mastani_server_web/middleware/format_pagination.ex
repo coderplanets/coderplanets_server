@@ -9,7 +9,7 @@ defmodule MastaniServerWeb.Middleware.FormatPagination do
     %{resolution | value: [], errors: [errors]}
   end
 
-  def call(%{value: value} = resolution, _) do
+  def call(%{value: _} = resolution, _) do
     format_pagi(resolution)
   end
 

@@ -3,7 +3,7 @@ defmodule MastaniServer.Utils.Helper do
   import Ecto.Query, warn: false
 
   def paginater(queryable, page: page, size: size) do
-    queryable |> Repo.paginate(page: page, page_size: size) |> done()
+    queryable |> Repo.paginate(page: page, page_size: size)
   end
 
   @doc """
@@ -39,7 +39,7 @@ defmodule MastaniServer.Utils.Helper do
   """
 
   def done(nil, :boolean), do: {:ok, false}
-  def done(result, :boolean), do: {:ok, true}
+  def done(_, :boolean), do: {:ok, true}
   def done(nil, err_msg), do: {:error, err_msg}
 
   def done(nil, queryable, id), do: {:error, not_found_formater(queryable, id)}

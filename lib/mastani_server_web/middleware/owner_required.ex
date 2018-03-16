@@ -10,7 +10,7 @@ defmodule MastaniServerWeb.Middleware.OwnerRequired do
   import MastaniServer.Utils.Helper
 
   defp passport_checkin(user, author_id, others) do
-    IO.inspect(others, label: "others")
+    # IO.inspect(others, label: "others")
     # TODO other roles
     user.id == author_id or user.root or user.role in others
   end
@@ -19,7 +19,6 @@ defmodule MastaniServerWeb.Middleware.OwnerRequired do
         %{context: %{current_user: current_user}, arguments: %{id: id}, errors: []} = resolution,
         args
       ) do
-
     with {:ok, part, react, others} <- parse_args(args),
          {:ok, action} <- match_action(part, react),
          {:ok, content} <- find(action.reactor, id, preload: action.preload) do
@@ -30,7 +29,7 @@ defmodule MastaniServerWeb.Middleware.OwnerRequired do
 
       case passport_checkin(current_user, content_author_id, others) do
         true ->
-          arguments = resolution.arguments |> Map.merge(%{content_to_delete: content})
+          arguments = resolution.arguments |> Map.merge(%{content_tobe_operate: content})
           %{resolution | arguments: arguments}
 
         _ ->

@@ -1,6 +1,6 @@
 defmodule MastaniServerWeb.Resolvers.Accounts do
-  alias MastaniServer.{Repo, Accounts}
-  alias MastaniServer.Utils.Helper
+  alias MastaniServer.{Accounts}
+  # alias MastaniServer.Utils.Helper
 
   def all_users(_root, _args, _info) do
     users = Accounts.list_users()

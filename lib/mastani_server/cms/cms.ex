@@ -8,7 +8,7 @@ defmodule MastaniServer.CMS do
   import Ecto.Query, warn: false
   import MastaniServer.Utils.Helper
 
-  alias MastaniServer.CMS.{Post, Author, Tag, Community, PostComment, PostFavorite, PostStar}
+  alias MastaniServer.CMS.{Author, Tag, Community, PostComment, PostFavorite, PostStar}
   alias MastaniServer.{Repo, Accounts}
   alias MastaniServer.Utils.QueryPuzzle
 
@@ -46,7 +46,7 @@ defmodule MastaniServer.CMS do
   end
 
   def create_community(attrs) do
-    with {:ok, user} <- find(Accounts.User, attrs.user_id) do
+    with {:ok, _} <- find(Accounts.User, attrs.user_id) do
       %Community{}
       # |> Community.changeset(attrs |> Map.merge(%{user_id2: user.id}))
       |> Community.changeset(attrs)
@@ -127,7 +127,7 @@ defmodule MastaniServer.CMS do
          {:ok, community} <- find_by(Community, title: attrs.community),
          {:ok, content} <-
            struct(action.target)
-           |> Post.changeset(attrs)
+           |> action.target.changeset(attrs)
            |> Ecto.Changeset.put_change(:author_id, author.id)
            |> Repo.insert() do
       set_community(part, content.id, community.id)
@@ -147,54 +147,6 @@ defmodule MastaniServer.CMS do
     end
   end
 
-  defp inc_views_count(content, target) do
-    {1, [result]} =
-      Repo.update_all(
-        from(p in target, where: p.id == ^content.id),
-        [inc: [views: 1]],
-        returning: [:views]
-      )
-
-    put_in(content.views, result.views)
-  end
-
-  @doc """
-  get one CMS contents (post, tut, video, job ...)
-  """
-  def one_conent(part, react, id) when valid_reaction(part, react) do
-    with {:ok, action} <- match_action(part, react),
-         {:ok, result} <- find(action.target, id) do
-      result |> inc_views_count(action.target) |> done()
-    end
-  end
-
-  def one_conent(part, _, _), do: {:error, "cms do not support [#{part}] type"}
-
-  @doc """
-  get CMS contents (posts, tuts, videos, jobs ...) with or without page info
-  """
-
-  # TODO: change it to invalid guard..
-  def contents(part, react, %{page: page, size: size} = filters)
-      when valid_reaction(part, react) do
-    with {:ok, action} <- match_action(part, react) do
-      filters = filters |> Map.delete(:page) |> Map.delete(:size)
-
-      action.target
-      |> QueryPuzzle.filter_pack(filters)
-      |> paginater(page: page, size: size)
-    end
-  end
-
-  def contents(part, react, filters) when valid_reaction(part, react) do
-    with {:ok, action} <- match_action(part, react) do
-      # query = action.target |> QueryPuzzle.filter_pack(filters)
-      # {:ok, Repo.all(query)}
-      action.target |> QueryPuzzle.filter_pack(filters) |> Repo.all() |> done()
-    end
-  end
-
-  # def contents(part, react, _), do: {:error, "cms do not support [#{react}] on [#{part}]"}
   @doc """
   get CMS contents
   post's favorites/stars/comments ...
@@ -212,6 +164,7 @@ defmodule MastaniServer.CMS do
       |> where(^where)
       |> QueryPuzzle.reaction_members(filters)
       |> paginater(page: page, size: size)
+      |> done()
     end
   end
 
@@ -248,48 +201,6 @@ defmodule MastaniServer.CMS do
       |> where([a], a.user_id == ^user_id)
       |> Repo.one()
       |> done(:boolean)
-    end
-  end
-
-  def update_content(part, react, part_id, %Accounts.User{} = current_user, attrs \\ %{}) do
-    with {:ok, action} <- match_action(part, react),
-         {:ok, content} <- find(action.target, part_id, preload: action.preload) do
-      content_author_id =
-        case react do
-          :comment -> content.author.id
-          _ -> content.author.user_id
-        end
-
-      case current_user.id == content_author_id do
-        true ->
-          content
-          |> action.target.changeset(attrs)
-          |> Repo.update()
-
-        _ ->
-          operation_deny(:owner_required)
-      end
-    end
-  end
-
-  def delete_content(content) do
-    Repo.delete(content)
-  end
-
-  def delete_content(part, react, id, %Accounts.User{} = current_user) do
-    with {:ok, action} <- match_action(part, react),
-         {:ok, content} <- find(action.reactor, id, preload: action.preload) do
-      # TODO: move check logic to Middleware
-      content_author_id =
-        case react do
-          :comment -> content.author.id
-          _ -> content.author.user_id
-        end
-
-      case current_user.id == content_author_id do
-        true -> Repo.delete(content)
-        _ -> operation_deny(:owner_required)
-      end
     end
   end
 

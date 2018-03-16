@@ -35,7 +35,7 @@ defmodule MastaniServer.Query.PostTest do
   """
   test "basic graphql query on post with logined user", %{post: post, conn: conn} do
     variables = %{id: post.id}
-    results = conn |> query_get_result_of(@query, variables, "post")
+    results = conn |> query_result(@query, variables, "post")
 
     assert results["id"] == to_string(post.id)
     assert is_valid_kv?(results, "title", :string)
@@ -45,10 +45,10 @@ defmodule MastaniServer.Query.PostTest do
 
   test "basic graphql query on post with stranger(unloged user)", %{
     post: post,
-    conn_without_token: conn_without_token
+    conn_without_token: conn
   } do
     variables = %{id: post.id}
-    results = conn_without_token |> query_get_result_of(@query, variables, "post")
+    results = conn |> query_result(@query, variables, "post")
 
     assert results["id"] == to_string(post.id)
     assert is_valid_kv?(results, "title", :string)
@@ -64,10 +64,10 @@ defmodule MastaniServer.Query.PostTest do
   """
   test "views should +1 after query the post", %{post: post, conn: conn} do
     variables_1 = %{id: post.id}
-    views_1 = conn |> query_get_result_of(@query, variables_1, "post") |> Map.get("views")
+    views_1 = conn |> query_result(@query, variables_1, "post") |> Map.get("views")
 
     variables_2 = %{id: post.id}
-    views_2 = conn |> query_get_result_of(@query, variables_2, "post") |> Map.get("views")
+    views_2 = conn |> query_result(@query, variables_2, "post") |> Map.get("views")
     assert views_2 == views_1 + 1
   end
 
@@ -88,17 +88,17 @@ defmodule MastaniServer.Query.PostTest do
     variables = %{id: post.id}
 
     assert conn
-           |> query_get_result_of(@query, variables, "post")
+           |> query_result(@query, variables, "post")
            |> has_boolen_value?("viewerHasFavorited")
   end
 
   test "unlogged user can not query viewerHasFavorited field", %{
     post: post,
-    conn_without_token: conn_without_token
+    conn_without_token: conn
   } do
     variables = %{id: post.id}
 
-    assert conn_without_token |> query_get_error?(@query, variables)
+    assert conn |> query_get_error?(@query, variables)
   end
 
   @query """
@@ -118,15 +118,15 @@ defmodule MastaniServer.Query.PostTest do
     variables = %{id: post.id}
 
     assert conn
-           |> query_get_result_of(@query, variables, "post")
+           |> query_result(@query, variables, "post")
            |> has_boolen_value?("viewerHasStarred")
   end
 
   test "unlogged user can not query viewerHasStarred field", %{
     post: post,
-    conn_without_token: conn_without_token
+    conn_without_token: conn
   } do
     variables = %{id: post.id}
-    assert conn_without_token |> query_get_error?(@query, variables)
+    assert conn |> query_get_error?(@query, variables)
   end
 end

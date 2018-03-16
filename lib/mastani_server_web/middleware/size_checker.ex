@@ -18,12 +18,20 @@ defmodule MastaniServerWeb.Middleware.SizeChecker do
         resolution |> handle_absinthe_error(msg)
 
       arguments ->
-        %{resolution | arguments: arguments}
+        %{resolution | arguments: sort_desc_by_default(arguments)}
     end
   end
 
-  defp valid_size(%{filter: %{first: size}} = arg), do: do_size_check(size, arg)
+  defp sort_desc_by_default(%{filter: filter} = arguments) do
+    filter =
+      if Map.has_key?(filter, :sort),
+        do: filter,
+        else: filter |> Map.merge(%{sort: :desc_inserted})
 
+    arguments |> Map.merge(%{filter: filter})
+  end
+
+  defp valid_size(%{filter: %{first: size}} = arg), do: do_size_check(size, arg)
   # Scrivener default size is defined in mastani_server/repo.ex
   # see tuts: https://www.dailydrip.com/topics/elixirsips/drips/phoenix-api-pagination-with-scrivener
   defp valid_size(%{filter: %{size: size}} = arg), do: do_size_check(size, arg)
