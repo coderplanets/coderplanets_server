@@ -6,7 +6,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
   alias MastaniServerWeb.Middleware
 
   object :cms_mutations do
-    @desc "hehehef: create a user"
+    @desc "create a user"
     field :create_post, :post do
       arg(:title, non_null(:string))
       arg(:body, non_null(:string))
@@ -74,9 +74,13 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
 
     @desc "delete a cms/post"
     field :delete_post, :post do
-      arg(:post_id, non_null(:id))
+      arg(:id, non_null(:id))
 
       middleware(Middleware.Authorize, :login)
+      # TODO: use middleware to check if is owner
+      # middleware(Middleware.OwnerRequired, match: [:post, :self], others: ['admin'])
+      middleware(Middleware.OwnerRequired, match: :post, others: ["admin"])
+      # middleware(Middleware.OwnerRequired, match: [:post, :comment], others: ["admin"])
       resolve(&Resolvers.CMS.delete_post/3)
     end
 

@@ -13,4 +13,6 @@ defmodule MastaniServerWeb.Middleware.ConvertToInt do
   def call(%{value: []} = resolution, _) do
     %{resolution | value: 0}
   end
+
+  def call(resolution, _), do: resolution
 end

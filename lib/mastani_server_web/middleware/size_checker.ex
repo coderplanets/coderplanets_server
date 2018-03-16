@@ -6,17 +6,19 @@ defmodule MastaniServerWeb.Middleware.SizeChecker do
   @behaviour Absinthe.Middleware
   @max_page_size 30
   @default_page_size 20
+
+  import MastaniServer.Utils.Helper, only: [handle_absinthe_error: 2]
   # 1. if has filter:first and filter:size -> makesure it not too large
   # 2. if not has filter: marge to default first: 5
   # 3. large size should trigger error
 
-  def call(res, _) do
-    case valid_size(res.arguments) do
+  def call(resolution, _) do
+    case valid_size(resolution.arguments) do
       {:error, msg} ->
-        res |> Absinthe.Resolution.put_result({:error, msg})
+        resolution |> handle_absinthe_error(msg)
 
       arguments ->
-        %{res | arguments: arguments}
+        %{resolution | arguments: arguments}
     end
   end
 

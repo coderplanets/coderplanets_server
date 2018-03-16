@@ -1,63 +1,11 @@
-defmodule MastaniServer.CMSValidator do
-  # TODO: move it to helper
-  @support_part [:post, :video, :job]
-  @support_react [:favorite, :star, :watch, :comment, :tag, :self]
-
-  @page_size_max 30
-
-  def page_size_boundary, do: @page_size_max
-
-  defguard valid_part(part) when part in @support_part
-
-  defguard valid_reaction(part, react)
-           when valid_part(part) and react in @support_react
-end
-
-defmodule MastaniServer.CMSMatcher do
-  import Ecto.Query, warn: false
-  alias MastaniServer.CMS.{Post, PostFavorite, PostStar, PostComment, Tag, Community}
-
-  def match_action(:post, :self), do: {:ok, %{target: Post, reactor: Post, preload: :author}}
-
-  def match_action(:post, :favorite),
-    do: {:ok, %{target: Post, reactor: PostFavorite, preload: :user, preload_right: :post}}
-
-  def match_action(:post, :star), do: {:ok, %{target: Post, reactor: PostStar, preload: :user}}
-
-  # defp match_action(:post, :tag), do: {:ok, %{target: Post, reactor: PostTag}}
-  def match_action(:post, :tag), do: {:ok, %{target: Post, reactor: Tag}}
-  def match_action(:post, :community), do: {:ok, %{target: Post, reactor: Community}}
-
-  def match_action(:post, :comment),
-    do: {:ok, %{target: Post, reactor: PostComment, preload: :author}}
-
-  def dynamic_where(part, id) do
-    case part do
-      :post ->
-        {:ok, dynamic([p], p.post_id == ^id)}
-
-      :job ->
-        {:ok, dynamic([p], p.job_id == ^id)}
-
-      :meetup ->
-        {:ok, dynamic([p], p.meetup_id == ^id)}
-
-      _ ->
-        {:error, 'where is not match'}
-    end
-  end
-end
-
 defmodule MastaniServer.CMS do
-  import MastaniServer.CMSValidator
-  import MastaniServer.CMSMatcher
-  # import Absinthe.Resolution.Helpers
-
   @moduledoc """
-  The CMS context.
+  this module defined basic method to handle [CMS] content [CURD] ..
+  [CMS]: post, job, ...
+  [CURD]: create, update, delete ...
   """
+  import MastaniServer.CMSMisc
   import Ecto.Query, warn: false
-  # import MastaniServer.Utils.Helper, only: [done: 1, done: 2, done: 3]
   import MastaniServer.Utils.Helper
 
   alias MastaniServer.CMS.{Post, Author, Tag, Community, PostComment, PostFavorite, PostStar}
@@ -100,7 +48,8 @@ defmodule MastaniServer.CMS do
   def create_community(attrs) do
     with {:ok, user} <- find(Accounts.User, attrs.user_id) do
       %Community{}
-      |> Community.changeset(attrs |> Map.merge(%{user_id: user.id}))
+      # |> Community.changeset(attrs |> Map.merge(%{user_id2: user.id}))
+      |> Community.changeset(attrs)
       |> Repo.insert()
     end
   end
@@ -225,6 +174,7 @@ defmodule MastaniServer.CMS do
   get CMS contents (posts, tuts, videos, jobs ...) with or without page info
   """
 
+  # TODO: change it to invalid guard..
   def contents(part, react, %{page: page, size: size} = filters)
       when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react) do
@@ -232,8 +182,7 @@ defmodule MastaniServer.CMS do
 
       action.target
       |> QueryPuzzle.filter_pack(filters)
-      |> Repo.paginate(page: page, page_size: size)
-      |> done()
+      |> paginater(page: page, size: size)
     end
   end
 
@@ -246,25 +195,6 @@ defmodule MastaniServer.CMS do
   end
 
   # def contents(part, react, _), do: {:error, "cms do not support [#{react}] on [#{part}]"}
-
-  # @doc """
-  # Updates a post.
-
-  # Examples
-
-  # iex> update_post(post, %{field: new_value})
-  # {:ok, %Post{}}
-
-  # iex> update_post(post, %{field: bad_value})
-  # {:error, %Ecto.Changeset{}}
-
-  # """
-  # def update_post(%Post{} = post, attrs) do
-  # post
-  # |> Post.changeset(attrs)
-  # |> Repo.update()
-  # end
-
   @doc """
   get CMS contents
   post's favorites/stars/comments ...
@@ -342,9 +272,14 @@ defmodule MastaniServer.CMS do
     end
   end
 
+  def delete_content(content) do
+    Repo.delete(content)
+  end
+
   def delete_content(part, react, id, %Accounts.User{} = current_user) do
     with {:ok, action} <- match_action(part, react),
          {:ok, content} <- find(action.reactor, id, preload: action.preload) do
+      # TODO: move check logic to Middleware
       content_author_id =
         case react do
           :comment -> content.author.id
@@ -370,10 +305,6 @@ defmodule MastaniServer.CMS do
       struct(action.reactor)
       |> action.reactor.changeset(params)
       |> Repo.insert()
-      |> case do
-        {:ok, _} -> {:ok, content}
-        {:error, changeset} -> {:error, changeset}
-      end
     end
   end
 

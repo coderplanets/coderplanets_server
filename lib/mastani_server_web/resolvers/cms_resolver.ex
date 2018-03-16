@@ -89,8 +89,12 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   # TODO delete should be root, one should be use invisible_post ..
-  def delete_post(_root, %{post_id: id}, %{context: %{current_user: user}}) do
-    CMS.delete_content(:post, :self, id, user)
+  # def delete_post(_root, %{id: id}, %{context: %{current_user: user}}) do
+  # CMS.delete_content(:post, :self, id, user)
+  # end
+
+  def delete_post(_root, args, _info) do
+    CMS.delete_content(args.content_to_delete)
   end
 
   def create_comment(_root, %{type: type, id: id, body: body}, %{context: %{current_user: user}}),

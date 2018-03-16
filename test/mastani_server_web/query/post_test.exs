@@ -3,7 +3,7 @@ defmodule MastaniServer.Query.PostTest do
   use MastaniServerWeb.ConnCase, async: true
   import MastaniServer.Factory
   import MastaniServer.AssertHelper
-  alias MastaniServer.Accounts
+  # alias MastaniServer.Accounts
 
   # TODO
   @valid_user mock_attrs(:user, %{username: "mydearxym"})

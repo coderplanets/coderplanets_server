@@ -100,6 +100,13 @@ defmodule MastaniServer.CMSTest do
       current_user = %Accounts.User{id: other_user.id}
       assert {:error, _} = CMS.delete_content(:post, :self, post.id, current_user)
     end
+
+    test "delete a non-exsit post fails" do
+      user = Repo.get_by(Accounts.User, username: @valid_user.username)
+
+      assert {:error, _} =
+               CMS.delete_content(:post, :self, "99999999", %Accounts.User{id: user.id})
+    end
   end
 
   describe "cms_tags" do

@@ -13,6 +13,8 @@ defmodule MastaniServerWeb.Middleware.FormatPagination do
     format_pagi(resolution)
   end
 
+  def call(resolution, _), do: resolution
+
   def format_pagi(resolution) do
     formated = %{
       entries: resolution.value.entries,
