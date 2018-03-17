@@ -54,12 +54,6 @@ defmodule MastaniServer.CMS do
     end
   end
 
-  def delete_community(id) do
-    with {:ok, community} <- find(Community, id) do
-      Repo.delete(community)
-    end
-  end
-
   @doc """
   create a Tag base on type: post / tuts / videos ...
   """

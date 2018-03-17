@@ -9,33 +9,26 @@ defmodule MastaniServer.Utils.ORM do
   alias MastaniServer.Utils.QueryPuzzle
 
   @doc """
-  # TODO: 隐式的检查 queryable 是否合法
+  return pageinated Data required by filter
   """
   def read_all(queryable, %{page: page, size: size} = filter) do
-    # filters = filters |> Map.delete(:page) |> Map.delete(:size)
-    # with {:ok, action} <- match_action(part, react) do
     queryable
     |> QueryPuzzle.filter_pack(filter)
     |> paginater(page: page, size: size)
     |> done()
-
-    # end
   end
 
   @doc """
-  # TODO: 隐式的检查 queryable 是否合法
+  return  Data required by filter
   """
   def read_all(queryable, filter) do
-    # with {:ok, action} <- match_action(part, react) do
     queryable |> QueryPuzzle.filter_pack(filter) |> Repo.all() |> done()
-    # end
   end
 
   # def read_quiet(queryable, id), do: not inc_views_count
   @doc """
   Require queryable has a views fields to count the views of the queryable Modal
   if queryable NOT contains views fields consider use read_quiet/2
-  # TODO: 隐式的检查 queryable 是否合法
   """
   def read(queryable, id) do
     with {:ok, result} <- find(queryable, id) do
