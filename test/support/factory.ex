@@ -52,9 +52,10 @@ defmodule MastaniServer.Factory do
 
   defp mock_meta(:community) do
     unique_num = System.unique_integer([:positive, :monotonic])
+    name = Faker.Lorem.sentence(%Range{first: 3, last: 4})
 
     %{
-      title: "community #{unique_num}",
+      title: "community #{name} #{unique_num}",
       desc: "community desc",
       author: mock(:user)
     }

@@ -34,21 +34,21 @@ defmodule MastaniServer.Utils.QueryPuzzle do
     |> filter_pack(filter)
   end
 
+  defp sort_strategy(:most_views), do: [desc: :views, desc: :inserted_at]
+  defp sort_strategy(:least_views), do: [asc: :views, desc: :inserted_at]
+  defp sort_strategy(:desc_inserted), do: [desc: :inserted_at, desc: :views]
+  # defp strategy(:most_stars), do: [desc: :views, desc: :inserted_at]
+
   def filter_pack(queryable, filter) do
     Enum.reduce(filter, queryable, fn
-      # queryable
-      # |> join(:inner, [p], f in assoc(p, :favorite))
-      # |> preload([p, f], [:favorite, :user])
-      # from(a in Author, join: u in assoc(a, :user), select: u)
-
       {:sort, :desc_inserted}, queryable ->
-        queryable |> order_by(desc: :inserted_at)
+        queryable |> order_by(^sort_strategy(:desc_inserted))
 
       {:sort, :most_views}, queryable ->
-        queryable |> order_by(desc: :views)
+        queryable |> order_by(^sort_strategy(:most_views))
 
       {:sort, :least_views}, queryable ->
-        queryable |> order_by(asc: :views)
+        queryable |> order_by(^sort_strategy(:least_views))
 
       {:sort, :most_stars}, queryable ->
         queryable
