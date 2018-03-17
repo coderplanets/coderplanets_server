@@ -69,5 +69,4 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def create_comment(_root, %{type: type, id: id, body: body}, %{context: %{current_user: user}}),
     do: CMS.create_comment(type, :comment, id, user.id, body)
-
 end

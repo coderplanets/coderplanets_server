@@ -57,7 +57,10 @@ defmodule MastaniServer.Mutation.PostTest do
       assert result["body"] == variables1.body
 
       variables2 = %{id: result["id"]}
-      deleted_comment = conn |> mutation_result(@delete_comment_query, variables2, "deleteComment")
+
+      deleted_comment =
+        conn |> mutation_result(@delete_comment_query, variables2, "deleteComment")
+
       assert deleted_comment["id"] == result["id"]
 
       assert nil == Repo.get(CMS.PostComment, deleted_comment["id"])

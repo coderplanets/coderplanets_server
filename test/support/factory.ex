@@ -40,6 +40,7 @@ defmodule MastaniServer.Factory do
 
   defp mock_meta(:comment) do
     body = Faker.Lorem.sentence(%Range{first: 30, last: 80})
+
     %{
       body: body
     }
