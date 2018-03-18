@@ -16,7 +16,7 @@ defmodule MastaniServer.PostReactionsTest do
     :ok
   end
 
-  describe "favorite reaction" do
+  describe "CMS_POST_FAVORITE_REACTION" do
     test "favorite and undo favorite reaction to post" do
       user = Repo.get_by(Accounts.User, username: @valid_user.username)
       {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @valid_post)

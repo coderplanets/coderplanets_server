@@ -26,6 +26,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:community, non_null(:string))
       arg(:type, :cms_part, default_value: :post)
 
+      middleware(Middleware.Authorize, :login)
       resolve(&Resolvers.CMS.create_tag/3)
     end
 
@@ -46,11 +47,10 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
     field :set_tag, :tag do
       arg(:id, non_null(:id))
       arg(:tag_id, non_null(:id))
-      arg(:date, :date)
-      arg(:datetime, :datetime)
       arg(:type, :cms_part, default_value: :post)
 
-      middleware(Middleware.Authorize, :community_admin)
+      middleware(Middleware.Authorize, :login)
+      # middleware(Middleware.Authorize, :community_admin)
       resolve(&Resolvers.CMS.set_tag/3)
     end
 

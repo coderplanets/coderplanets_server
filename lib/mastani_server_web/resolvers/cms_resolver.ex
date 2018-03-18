@@ -12,6 +12,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.create_community(%{title: args.title, desc: args.desc, user_id: user.id})
   end
 
+  # TODO
   def create_tag(_root, args, %{context: %{current_user: user}}) do
     # args2 = for {k, v} <- args, into: %{}, do: {k, to_string(v)}
     CMS.create_tag(args.type, %{

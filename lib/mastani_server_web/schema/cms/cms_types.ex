@@ -152,6 +152,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   end
 
   object :tag do
+    field(:id, :id)
     field(:title, :string)
     field(:color, :string)
     field(:part, :string)

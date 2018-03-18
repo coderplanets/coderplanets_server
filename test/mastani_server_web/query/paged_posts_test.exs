@@ -39,7 +39,7 @@ defmodule MastaniServer.Query.PagedPostsTest do
     {:ok, conn: conn, conn_without_token: conn_without_token}
   end
 
-  describe "filter pagination" do
+  describe "QUERY_PAGED_POSTS_FILTER_PAGINATION" do
     @query """
     query PagedPosts($filter: PagedArticleFilter!) {
       pagedPosts(filter: $filter) {
@@ -84,7 +84,7 @@ defmodule MastaniServer.Query.PagedPostsTest do
     end
   end
 
-  describe "filter sort" do
+  describe "QUERY_PAGED_POSTS_FILTER_SORT" do
     @query """
     query PagedPosts($filter: PagedArticleFilter!) {
       pagedPosts(filter: $filter) {
@@ -95,7 +95,7 @@ defmodule MastaniServer.Query.PagedPostsTest do
        }
     }
     """
-    test "FILTER sort should have default :desc_inserted", %{conn: conn} do
+    test "filter sort should have default :desc_inserted", %{conn: conn} do
       variables = %{filter: %{}}
       results = conn |> query_result(@query, variables, "pagedPosts")
       inserted_timestamps = results["entries"] |> Enum.map(& &1["inserted_at"])
@@ -118,7 +118,7 @@ defmodule MastaniServer.Query.PagedPostsTest do
       }
     }
     """
-    test "FILTER sort MOST_VIEWS should work", %{conn: conn} do
+    test "filter sort MOST_VIEWS should work", %{conn: conn} do
       most_views_post = CMS.Post |> order_by(desc: :views) |> limit(1) |> Repo.one()
       variables = %{filter: %{sort: "MOST_VIEWS"}}
 
@@ -134,7 +134,7 @@ defmodule MastaniServer.Query.PagedPostsTest do
   @doc """
   test: FILTER when [TODAY] [THIS_WEEK] [THIS_MONTH] [THIS_YEAR]
   """
-  describe "filter when" do
+  describe "QUERY_PAGED_POSTS_FILTER_WHEN" do
     @query """
     query PagedPosts($filter: PagedArticleFilter!) {
       pagedPosts(filter: $filter) {

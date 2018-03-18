@@ -28,7 +28,7 @@ defmodule MastaniServer.Mutation.PostTest do
     {:ok, conn: conn, conn_without_token: conn_without_token, post: post, user2: user2}
   end
 
-  describe "post comment" do
+  describe "MUTATION_POST_COMMENT" do
     @create_comment_query """
     mutation($type: CmsPart!, $id: ID!, $body: String!) {
       createComment(type: $type,id: $id, body: $body) {
@@ -67,7 +67,7 @@ defmodule MastaniServer.Mutation.PostTest do
     end
   end
 
-  describe "post curd test" do
+  describe "MUTATION_POST_CURD" do
     @create_post_query """
     mutation ($title: String!, $body: String!, $digest: String!, $length: Int!, $community: String!){
       createPost(title: $title, body: $body, digest: $digest, length: $length, community: $community) {
