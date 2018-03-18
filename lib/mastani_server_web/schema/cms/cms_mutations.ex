@@ -30,6 +30,14 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       resolve(&Resolvers.CMS.create_tag/3)
     end
 
+    field :delete_tag, :tag do
+      arg(:id, non_null(:id))
+
+      middleware(Middleware.Authorize, :login)
+      # middleware(Middleware.OwnerRequired, match: [:post, :tag], others: ["admin"])
+      resolve(&Resolvers.CMS.delete_tag/3)
+    end
+
     field :create_community, :community do
       arg(:title, non_null(:string))
       arg(:desc, non_null(:string))

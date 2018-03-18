@@ -1,6 +1,4 @@
 defmodule MastaniServerWeb.Resolvers.CMS do
-  import MastaniServer.Utils.Helper, only: [find: 2]
-
   alias MastaniServer.CMS
   alias MastaniServer.Utils.ORM
 
@@ -24,11 +22,10 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     })
   end
 
-  def delete_community(_root, %{id: id}, _info) do
-    with {:ok, community} <- find(CMS.Community, id) do
-      ORM.delete(community)
-    end
-  end
+  # find_delete(CMS.Tag, id)
+  def delete_tag(_root, %{id: id}, _info), do: CMS.Tag |> ORM.find_delete(id)
+
+  def delete_community(_root, %{id: id}, _info), do: CMS.Community |> ORM.find_delete(id)
 
   def set_tag(_root, %{type: type, id: id, tag_id: tag_id}, %{context: %{current_user: user}}) do
     IO.inspect(user.id, label: "log this user to post history / system log")

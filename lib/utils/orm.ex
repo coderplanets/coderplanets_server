@@ -53,6 +53,12 @@ defmodule MastaniServer.Utils.ORM do
   """
   def delete(content), do: Repo.delete(content)
 
+  def find_delete(queryable, id) do
+    with {:ok, content} <- find(queryable, id) do
+      delete(content)
+    end
+  end
+
   @doc """
   NOTICE: this should be use together with Authorize/OwnerCheck etc Middleware
   DO NOT use it directly

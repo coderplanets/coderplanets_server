@@ -53,10 +53,28 @@ defmodule MastaniServer.Mutation.CMSTest do
 
       assert conn |> mutation_get_error?(@create_tag_query, variables)
     end
+
+    @delete_tag_query """
+    mutation($id: ID!){
+      deleteTag(id: $id) {
+        id
+      }
+    }
+    """
+    test "TODO(should be manager): delete tag by owner", %{community: community, conn: conn} do
+      variables = mock_attrs(:tag, %{community: community.title})
+      created_tag = conn |> mutation_result(@create_tag_query, variables, "createTag")
+      tag = CMS.Tag |> Repo.get(created_tag["id"])
+      assert created_tag["id"] == to_string(tag.id)
+
+      deleted_tag =
+        conn |> mutation_result(@delete_tag_query, %{id: created_tag["id"]}, "deleteTag")
+
+      assert deleted_tag["id"] == created_tag["id"]
+    end
   end
 
   describe "MUTATION_CMS_COMMUNITY" do
     # TODO
-
   end
 end

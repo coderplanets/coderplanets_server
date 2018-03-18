@@ -41,6 +41,18 @@ defmodule MastaniServer.AssertHelper do
     |> Map.get(key)
   end
 
+  def mutation_result(conn, query, variables, key, :debug) do
+    IO.inspect(query, label: "query")
+    IO.inspect(variables, label: "variables")
+
+    conn
+    |> post("/graphiql", query: query, variables: variables)
+    |> json_response(200)
+    |> IO.inspect(label: "mutation_result")
+    |> Map.get("data")
+    |> Map.get(key)
+  end
+
   def mutation_get_error?(conn, query, variables) do
     conn
     |> post("/graphiql", query: query, variables: variables)
