@@ -6,11 +6,12 @@ defmodule MastaniServer.CMS do
   """
   import MastaniServer.CMSMisc
   import Ecto.Query, warn: false
-  import MastaniServer.Utils.Helper
+  import MastaniServer.Utils.Helper, only: [done: 1, done: 2]
 
   alias MastaniServer.CMS.{Author, Tag, Community, PostComment, PostFavorite, PostStar}
   alias MastaniServer.{Repo, Accounts}
   alias MastaniServer.Utils.QueryBuilder
+  alias MastaniServer.Utils.ORM
 
   def data(), do: Dataloader.Ecto.new(Repo, query: &query/2)
 
@@ -46,7 +47,7 @@ defmodule MastaniServer.CMS do
   end
 
   def create_community(attrs) do
-    with {:ok, _} <- find(Accounts.User, attrs.user_id) do
+    with {:ok, _} <- ORM.find(Accounts.User, attrs.user_id) do
       %Community{}
       # |> Community.changeset(attrs |> Map.merge(%{user_id2: user.id}))
       |> Community.changeset(attrs)
@@ -60,7 +61,7 @@ defmodule MastaniServer.CMS do
   def create_tag(part, attrs) when valid_part(part) do
     # TODO: find user
     with {:ok, action} <- match_action(part, :tag),
-         {:ok, community} <- find_by(Community, title: attrs.community) do
+         {:ok, community} <- ORM.find_by(Community, title: attrs.community) do
       struct(action.reactor)
       |> action.reactor.changeset(attrs |> Map.merge(%{community_id: community.id}))
       |> Repo.insert()
@@ -73,11 +74,22 @@ defmodule MastaniServer.CMS do
   # check community first
   def set_tag(part, part_id, tag_id) when valid_part(part) do
     with {:ok, action} <- match_action(part, :tag),
-         {:ok, content} <- find(action.target, part_id, preload: :tags),
-         {:ok, tag} <- find(action.reactor, tag_id) do
+         {:ok, content} <- ORM.find(action.target, part_id, preload: :tags),
+         {:ok, tag} <- ORM.find(action.reactor, tag_id) do
       content
       |> Ecto.Changeset.change()
       |> Ecto.Changeset.put_assoc(:tags, content.tags ++ [tag])
+      |> Repo.update()
+    end
+  end
+
+  def unset_tag(part, part_id, tag_id) when valid_part(part) do
+    with {:ok, action} <- match_action(part, :tag),
+         {:ok, content} <- ORM.find(action.target, part_id, preload: :tags),
+         {:ok, tag} <- ORM.find(action.reactor, tag_id) do
+      content
+      |> Ecto.Changeset.change()
+      |> Ecto.Changeset.put_assoc(:tags, content.tags -- [tag])
       |> Repo.update()
     end
   end
@@ -94,11 +106,22 @@ defmodule MastaniServer.CMS do
 
   def set_community(part, part_id, community_id) when valid_part(part) do
     with {:ok, action} <- match_action(part, :community),
-         {:ok, content} <- find(action.target, part_id, preload: :communities),
-         {:ok, community} <- find(action.reactor, community_id) do
+         {:ok, content} <- ORM.find(action.target, part_id, preload: :communities),
+         {:ok, community} <- ORM.find(action.reactor, community_id) do
       content
       |> Ecto.Changeset.change()
       |> Ecto.Changeset.put_assoc(:communities, content.communities ++ [community])
+      |> Repo.update()
+    end
+  end
+
+  def unset_community(part, part_id, community_id) when valid_part(part) do
+    with {:ok, action} <- match_action(part, :community),
+         {:ok, content} <- ORM.find(action.target, part_id, preload: :communities),
+         {:ok, community} <- ORM.find(action.reactor, community_id) do
+      content
+      |> Ecto.Changeset.change()
+      |> Ecto.Changeset.put_assoc(:communities, content.communities -- [community])
       |> Repo.update()
     end
   end
@@ -118,7 +141,7 @@ defmodule MastaniServer.CMS do
   def create_content(part, %Author{} = author, attrs \\ %{}) do
     with {:ok, author} <- ensure_author_exists(%Accounts.User{id: author.user_id}),
          {:ok, action} <- match_action(part, :community),
-         {:ok, community} <- find_by(Community, title: attrs.community),
+         {:ok, community} <- ORM.find_by(Community, title: attrs.community),
          {:ok, content} <-
            struct(action.target)
            |> action.target.changeset(attrs)
@@ -133,7 +156,7 @@ defmodule MastaniServer.CMS do
   """
   def create_comment(part, react, part_id, user_id, body) do
     with {:ok, action} <- match_action(part, react),
-         {:ok, content} <- find(action.target, part_id),
+         {:ok, content} <- ORM.find(action.target, part_id),
          {:ok, user} <- Accounts.find_user(user_id) do
       struct(action.reactor)
       |> action.reactor.changeset(%{post_id: content.id, author_id: user.id, body: body})
@@ -157,7 +180,7 @@ defmodule MastaniServer.CMS do
       action.reactor
       |> where(^where)
       |> QueryBuilder.reaction_members(filters)
-      |> paginater(page: page, size: size)
+      |> ORM.paginater(page: page, size: size)
       |> done()
     end
   end
@@ -203,7 +226,7 @@ defmodule MastaniServer.CMS do
   """
   def reaction(part, react, part_id, user_id) when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react),
-         {:ok, content} <- find(action.target, part_id),
+         {:ok, content} <- ORM.find(action.target, part_id),
          {:ok, user} <- Accounts.find_user(user_id) do
       params = Map.put(%{}, "user_id", user.id) |> Map.put("#{part}_id", content.id)
 
@@ -220,7 +243,7 @@ defmodule MastaniServer.CMS do
   """
   def undo_reaction(part, react, part_id, user_id) when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react),
-         {:ok, content} <- find(action.target, part_id) do
+         {:ok, content} <- ORM.find(action.target, part_id) do
       the_user = dynamic([u], u.user_id == ^user_id)
 
       where =
@@ -260,6 +283,6 @@ defmodule MastaniServer.CMS do
   defp handle_existing_author({:ok, author}), do: {:ok, author}
 
   defp handle_existing_author({:error, changeset}) do
-    find_by(Author, user_id: changeset.data.user_id)
+    ORM.find_by(Author, user_id: changeset.data.user_id)
   end
 end

@@ -3,10 +3,17 @@ defmodule MastaniServer.Utils.ORM do
   General update or delete content
   """
   import Ecto.Query, warn: false
-  import MastaniServer.Utils.Helper
+  import MastaniServer.Utils.Helper, only: [done: 1, done: 3]
 
   alias MastaniServer.Repo
   alias MastaniServer.Utils.QueryBuilder
+
+  @doc """
+  a wrap for paginate request
+  """
+  def paginater(queryable, page: page, size: size) do
+    queryable |> Repo.paginate(page: page, page_size: size)
+  end
 
   @doc """
   return pageinated Data required by filter
@@ -67,5 +74,51 @@ defmodule MastaniServer.Utils.ORM do
     content
     |> content.__struct__.changeset(attrs)
     |> Repo.update()
+  end
+
+  @doc """
+  wrap Repo.get with result/errer format handle
+  """
+  def find(queryable, id, preload: preload) do
+    queryable
+    |> preload(^preload)
+    |> Repo.get(id)
+    |> done(queryable, id)
+  end
+
+  def find(queryable, id) do
+    queryable
+    |> Repo.get(id)
+    |> done(queryable, id)
+  end
+
+  def find_by(queryable, clauses) do
+    queryable
+    |> Repo.get_by(clauses)
+    |> case do
+      nil ->
+        {:error, not_found_formater(queryable, clauses)}
+
+      result ->
+        {:ok, result}
+    end
+  end
+
+  defp not_found_formater(queryable, id) when is_integer(id) or is_binary(id) do
+    modal_sortname = queryable |> to_string |> String.split(".") |> List.last()
+    "#{modal_sortname}(#{id}) not found"
+  end
+
+  defp not_found_formater(queryable, clauses) do
+    modal_sortname = queryable |> to_string |> String.split(".") |> List.last()
+
+    detail =
+      clauses
+      |> Enum.into(%{})
+      |> Map.values()
+      |> List.first()
+      |> to_string
+
+    "#{modal_sortname}(#{detail}) not found"
   end
 end

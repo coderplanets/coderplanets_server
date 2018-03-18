@@ -48,7 +48,9 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
 
     field :delete_community, :community do
       arg(:id, non_null(:id))
-      middleware(Middleware.Authorize, :root)
+
+      middleware(Middleware.Authorize, :login)
+      # middleware(Middleware.Authorize, :root)
       resolve(&Resolvers.CMS.delete_community/3)
     end
 
@@ -60,6 +62,36 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       middleware(Middleware.Authorize, :login)
       # middleware(Middleware.Authorize, :community_admin)
       resolve(&Resolvers.CMS.set_tag/3)
+    end
+
+    field :unset_tag, :tag do
+      arg(:id, non_null(:id))
+      arg(:tag_id, non_null(:id))
+      arg(:type, :cms_part, default_value: :post)
+
+      middleware(Middleware.Authorize, :login)
+      # middleware(Middleware.Authorize, :community_admin)
+      resolve(&Resolvers.CMS.unset_tag/3)
+    end
+
+    field :set_community, :community do
+      arg(:id, non_null(:id))
+      arg(:community_id, non_null(:id))
+      arg(:type, :cms_part, default_value: :post)
+
+      middleware(Middleware.Authorize, :login)
+      # middleware(Middleware.Authorize, :community_admin)
+      resolve(&Resolvers.CMS.set_community/3)
+    end
+
+    field :unset_community, :community do
+      arg(:id, non_null(:id))
+      arg(:community_id, non_null(:id))
+      arg(:type, :cms_part, default_value: :post)
+
+      middleware(Middleware.Authorize, :login)
+      # middleware(Middleware.Authorize, :community_admin)
+      resolve(&Resolvers.CMS.unset_community/3)
     end
 
     field :reaction, :article do

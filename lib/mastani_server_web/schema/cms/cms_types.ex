@@ -145,6 +145,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   end
 
   object :community do
+    field(:id, :id)
     field(:title, :string)
     field(:desc, :string)
     field(:inserted_at, :datetime)

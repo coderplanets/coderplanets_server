@@ -23,13 +23,15 @@ defmodule MastaniServer.CMS.Post do
       :tags,
       Tag,
       join_through: "posts_tags",
-      join_keys: [post_id: :id, tag_id: :id]
+      join_keys: [post_id: :id, tag_id: :id],
+      on_replace: :delete
     )
 
     many_to_many(
       :communities,
       Community,
-      join_through: "communities_posts"
+      join_through: "communities_posts",
+      on_replace: :delete
     )
 
     timestamps(type: :utc_datetime)

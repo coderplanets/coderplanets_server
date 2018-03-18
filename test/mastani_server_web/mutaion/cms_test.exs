@@ -34,11 +34,11 @@ defmodule MastaniServer.Mutation.CMSTest do
     """
     test "create tag with valid attrs, has default POST type", %{community: community, conn: conn} do
       variables = mock_attrs(:tag, %{community: community.title})
-      created_tag = conn |> mutation_result(@create_tag_query, variables, "createTag")
-      tag = CMS.Tag |> Repo.get(created_tag["id"])
+      created = conn |> mutation_result(@create_tag_query, variables, "createTag")
+      found = CMS.Tag |> Repo.get(created["id"])
 
-      assert created_tag["id"] == to_string(tag.id)
-      assert tag.part == "post"
+      assert created["id"] == to_string(found.id)
+      assert found.part == "post"
     end
 
     test "create duplicate tag fails", %{community: community, conn: conn} do
@@ -61,20 +61,65 @@ defmodule MastaniServer.Mutation.CMSTest do
       }
     }
     """
-    test "TODO(should be manager): delete tag by owner", %{community: community, conn: conn} do
+    test "TODO(should be manager): delete tag by login user", %{community: community, conn: conn} do
       variables = mock_attrs(:tag, %{community: community.title})
-      created_tag = conn |> mutation_result(@create_tag_query, variables, "createTag")
-      tag = CMS.Tag |> Repo.get(created_tag["id"])
-      assert created_tag["id"] == to_string(tag.id)
+      created = conn |> mutation_result(@create_tag_query, variables, "createTag")
+      found = CMS.Tag |> Repo.get(created["id"])
+      assert created["id"] == to_string(found.id)
 
-      deleted_tag =
-        conn |> mutation_result(@delete_tag_query, %{id: created_tag["id"]}, "deleteTag")
+      deleted = conn |> mutation_result(@delete_tag_query, %{id: created["id"]}, "deleteTag")
 
-      assert deleted_tag["id"] == created_tag["id"]
+      assert deleted["id"] == created["id"]
+    end
+
+    test "TODO(should be manager): delete non-exist tag fails", %{conn: conn} do
+      assert conn |> mutation_get_error?(@delete_tag_query, %{id: 100_849_383})
     end
   end
 
   describe "MUTATION_CMS_COMMUNITY" do
-    # TODO
+    @create_community_query """
+    mutation($title: String!, $desc: String!) {
+      createCommunity(title: $title, desc: $desc) {
+        id
+        title
+        desc
+      }
+    }
+    """
+    test "create community with valid attrs", %{conn: conn} do
+      variables = mock_attrs(:community)
+      created = conn |> mutation_result(@create_community_query, variables, "createCommunity")
+      found = CMS.Community |> Repo.get(created["id"])
+
+      assert created["id"] == to_string(found.id)
+    end
+
+    test "create duplicated community fails", %{community: community, conn: conn} do
+      variables = mock_attrs(:community, %{title: community.title, desc: community.desc})
+      assert conn |> mutation_get_error?(@create_community_query, variables)
+    end
+
+    @delete_community_query """
+    mutation($id: ID!){
+      deleteCommunity(id: $id) {
+        id
+      }
+    }
+    """
+    test "TODO(should be manager): delete community by login user", %{
+      community: community,
+      conn: conn
+    } do
+      deleted =
+        conn |> mutation_result(@delete_community_query, %{id: community.id}, "deleteCommunity")
+
+      assert deleted["id"] == to_string(community.id)
+      assert nil == Repo.get(CMS.Community, community.id)
+    end
+
+    test "TODO(should be manager): delete non-exist community fails", %{conn: conn} do
+      assert conn |> mutation_get_error?(@delete_community_query, %{id: 100_849_383})
+    end
   end
 end

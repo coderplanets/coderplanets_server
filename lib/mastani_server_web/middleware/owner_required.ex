@@ -5,9 +5,10 @@
 defmodule MastaniServerWeb.Middleware.OwnerRequired do
   @behaviour Absinthe.Middleware
 
-  # TODO: only
   import MastaniServer.CMSMisc
   import MastaniServer.Utils.Helper
+
+  alias MastaniServer.Utils.ORM
 
   defp passport_checkin(user, author_id, others) do
     # IO.inspect(others, label: "others")
@@ -21,7 +22,7 @@ defmodule MastaniServerWeb.Middleware.OwnerRequired do
       ) do
     with {:ok, part, react, others} <- parse_args(args),
          {:ok, action} <- match_action(part, react),
-         {:ok, content} <- find(action.reactor, id, preload: action.preload) do
+         {:ok, content} <- ORM.find(action.reactor, id, preload: action.preload) do
       content_author_id =
         if react == :comment,
           do: content.author.id,

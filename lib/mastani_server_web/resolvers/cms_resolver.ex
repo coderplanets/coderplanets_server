@@ -27,9 +27,20 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def delete_community(_root, %{id: id}, _info), do: CMS.Community |> ORM.find_delete(id)
 
-  def set_tag(_root, %{type: type, id: id, tag_id: tag_id}, %{context: %{current_user: user}}) do
-    IO.inspect(user.id, label: "log this user to post history / system log")
+  def set_tag(_root, %{type: type, id: id, tag_id: tag_id}, _info) do
     CMS.set_tag(type, id, tag_id)
+  end
+
+  def unset_tag(_root, %{type: type, id: id, tag_id: tag_id}, _info) do
+    CMS.unset_tag(type, id, tag_id)
+  end
+
+  def set_community(_root, %{type: type, id: id, community_id: community_id}, _info) do
+    CMS.set_community(type, id, community_id)
+  end
+
+  def unset_community(_root, %{type: type, id: id, community_id: community_id}, _info) do
+    CMS.unset_community(type, id, community_id)
   end
 
   def get_tags(_root, %{community: community, type: part}, _info) do

@@ -51,8 +51,10 @@ defmodule MastaniServer.Factory do
       # part mainly for CMS.create_tag usage
       part: "POST",
       color: "RED",
-      community: Faker.Pizza.topping(),
-      user_id: 1
+      # community: Faker.Pizza.topping(),
+      community: mock(:community),
+      user: mock(:user)
+      # user_id: 1
     }
   end
 
