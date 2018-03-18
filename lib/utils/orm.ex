@@ -6,14 +6,14 @@ defmodule MastaniServer.Utils.ORM do
   import MastaniServer.Utils.Helper
 
   alias MastaniServer.Repo
-  alias MastaniServer.Utils.QueryPuzzle
+  alias MastaniServer.Utils.QueryBuilder
 
   @doc """
   return pageinated Data required by filter
   """
   def read_all(queryable, %{page: page, size: size} = filter) do
     queryable
-    |> QueryPuzzle.filter_pack(filter)
+    |> QueryBuilder.filter_pack(filter)
     |> paginater(page: page, size: size)
     |> done()
   end
@@ -22,7 +22,7 @@ defmodule MastaniServer.Utils.ORM do
   return  Data required by filter
   """
   def read_all(queryable, filter) do
-    queryable |> QueryPuzzle.filter_pack(filter) |> Repo.all() |> done()
+    queryable |> QueryBuilder.filter_pack(filter) |> Repo.all() |> done()
   end
 
   # def read_quiet(queryable, id), do: not inc_views_count

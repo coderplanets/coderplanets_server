@@ -10,7 +10,7 @@ defmodule MastaniServer.CMS do
 
   alias MastaniServer.CMS.{Author, Tag, Community, PostComment, PostFavorite, PostStar}
   alias MastaniServer.{Repo, Accounts}
-  alias MastaniServer.Utils.QueryPuzzle
+  alias MastaniServer.Utils.QueryBuilder
 
   def data(), do: Dataloader.Ecto.new(Repo, query: &query/2)
 
@@ -23,7 +23,7 @@ defmodule MastaniServer.CMS do
   end
 
   def query({"posts_comments", PostComment}, %{filter: filter}) do
-    PostComment |> QueryPuzzle.filter_pack(filter)
+    PostComment |> QueryBuilder.filter_pack(filter)
   end
 
   @doc """
@@ -33,11 +33,11 @@ defmodule MastaniServer.CMS do
   3. check is viewer reacted
   """
   def query({"posts_favorites", PostFavorite}, args) do
-    PostFavorite |> QueryPuzzle.reactions_hanlder(args)
+    PostFavorite |> QueryBuilder.reactions_hanlder(args)
   end
 
   def query({"posts_stars", PostStar}, args) do
-    PostStar |> QueryPuzzle.reactions_hanlder(args)
+    PostStar |> QueryBuilder.reactions_hanlder(args)
   end
 
   def query(queryable, _args) do
@@ -156,7 +156,7 @@ defmodule MastaniServer.CMS do
       # common_filter(action.reactor)
       action.reactor
       |> where(^where)
-      |> QueryPuzzle.reaction_members(filters)
+      |> QueryBuilder.reaction_members(filters)
       |> paginater(page: page, size: size)
       |> done()
     end

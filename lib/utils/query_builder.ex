@@ -1,4 +1,4 @@
-defmodule MastaniServer.Utils.QueryPuzzle do
+defmodule MastaniServer.Utils.QueryBuilder do
   # alias MastaniServer.Repo
   import Ecto.Query, warn: false
 
