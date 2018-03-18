@@ -1,6 +1,5 @@
 # ---
 # Absinthe.Middleware behaviour
-# TODO
 # ---
 defmodule MastaniServerWeb.Middleware.Authorize do
   @behaviour Absinthe.Middleware
