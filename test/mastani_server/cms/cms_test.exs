@@ -12,7 +12,6 @@ defmodule MastaniServer.CMSTest do
   @valid_community mock_attrs(:community)
   @valid_post mock_attrs(:post, %{community: @valid_community.title})
 
-  # alias MastaniServer.CMS
   setup do
     db_insert(:user, @valid_user)
     db_insert(:user, @valid_user2)

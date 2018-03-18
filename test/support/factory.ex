@@ -3,26 +3,6 @@ defmodule MastaniServer.Factory do
   alias MastaniServer.CMS
   alias MastaniServer.Accounts
 
-  def mock_attrs(_, attrs \\ %{})
-  def mock_attrs(:user, attrs), do: mock_meta(:user) |> Map.merge(attrs)
-  def mock_attrs(:post, attrs), do: mock_meta(:post) |> Map.merge(attrs)
-  def mock_attrs(:community, attrs), do: mock_meta(:community) |> Map.merge(attrs)
-  def mock_attrs(:tag, attrs), do: mock_meta(:tag) |> Map.merge(attrs)
-
-  @doc """
-  # not use changeset because in test we may insert some attrs which not in schema
-  # like: views, insert/update ... to test filter-sort,when ...
-  """
-  def db_insert(factory_name, attributes \\ []) do
-    Repo.insert(mock(factory_name, attributes))
-  end
-
-  def db_insert_multi!(factory_name, count \\ 5) do
-    for _u <- 1..count do
-      db_insert(factory_name)
-    end
-  end
-
   defp mock_meta(:post) do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
 
@@ -85,6 +65,12 @@ defmodule MastaniServer.Factory do
     }
   end
 
+  def mock_attrs(_, attrs \\ %{})
+  def mock_attrs(:user, attrs), do: mock_meta(:user) |> Map.merge(attrs)
+  def mock_attrs(:post, attrs), do: mock_meta(:post) |> Map.merge(attrs)
+  def mock_attrs(:community, attrs), do: mock_meta(:community) |> Map.merge(attrs)
+  def mock_attrs(:tag, attrs), do: mock_meta(:tag) |> Map.merge(attrs)
+
   @doc """
   NOTICE: avoid Recursive problem
   bad example:
@@ -103,5 +89,19 @@ defmodule MastaniServer.Factory do
 
   defp mock(factory_name, attributes) do
     factory_name |> mock() |> struct(attributes)
+  end
+
+  @doc """
+  # not use changeset because in test we may insert some attrs which not in schema
+  # like: views, insert/update ... to test filter-sort,when ...
+  """
+  def db_insert(factory_name, attributes \\ []) do
+    Repo.insert(mock(factory_name, attributes))
+  end
+
+  def db_insert_multi!(factory_name, count \\ 5) do
+    for _u <- 1..count do
+      db_insert(factory_name)
+    end
   end
 end
