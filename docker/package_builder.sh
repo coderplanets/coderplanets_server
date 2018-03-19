@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PRJ_DIR="./"
+PRJ_DIR="./docker"
 BRANCH_NAME="master"
 ARCHIVE_NAME="mastani_server.tar.gz"
 
