@@ -20,7 +20,8 @@ defmodule MastaniServerWeb.Endpoint do
 
   plug(
     Corsica,
-    log: [rejected: :error],
+    # log: [rejected: :error],
+    log: [rejected: :debug],
     origins: "*",
     allow_headers: [
       # "authorization",
