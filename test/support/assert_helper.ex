@@ -24,9 +24,9 @@ defmodule MastaniServer.AssertHelper do
   end
 
   def is_valid_pagination?(obj) when is_map(obj) do
-    obj |> is_valid_kv?("entries", :list) and obj |> is_valid_kv?("totalPages", :int) and
-      obj |> is_valid_kv?("totalCount", :int) and obj |> is_valid_kv?("pageSize", :int) and
-      obj |> is_valid_kv?("pageNumber", :int)
+    is_valid_kv?(obj, "entries", :list) and is_valid_kv?(obj, "totalPages", :int) and
+      is_valid_kv?(obj, "totalCount", :int) and is_valid_kv?(obj, "pageSize", :int) and
+      is_valid_kv?(obj, "pageNumber", :int)
   end
 
   def has_boolen_value?(obj, key) do
