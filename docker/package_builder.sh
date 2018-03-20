@@ -12,4 +12,4 @@ git reset --hard origin/"${BRANCH_NAME}"
 mix deps.get --only prod
 MIX_ENV=prod mix compile
 
-tar czf "${ARCHIVE_NAME}" _build/ config/ deps/ lib/ mix.exs  mix.lock  priv/
+tar czf "${ARCHIVE_NAME}" _build/ config/ deps/ lib/ mix.exs  mix.lock  priv/ test/

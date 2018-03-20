@@ -18,4 +18,5 @@ config :mastani_server, MastaniServer.Repo,
   password: "postgres",
   database: "mastani_server_mock",
   hostname: "localhost",
+  port: 3433,
   pool_size: 10
