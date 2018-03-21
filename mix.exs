@@ -47,7 +47,7 @@ defmodule MastaniServer.Mixfile do
       # Plug support for Absinthe
       {:absinthe_plug, "~> 1.4.2"},
       # Password hashing lib
-      {:comeonin, "~> 4.0.3"},
+      {:comeonin, "~> 4.1.1"},
       # Argon2 password hashing algorithm
       # {:argon2_elixir, "~> 1.2"},
       # for cors settings
