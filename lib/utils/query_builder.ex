@@ -36,13 +36,15 @@ defmodule MastaniServer.Utils.QueryBuilder do
 
   defp sort_strategy(:most_views), do: [desc: :views, desc: :inserted_at]
   defp sort_strategy(:least_views), do: [asc: :views, desc: :inserted_at]
+  # this is strategy will cause
   defp sort_strategy(:desc_inserted), do: [desc: :inserted_at, desc: :views]
   # defp strategy(:most_stars), do: [desc: :views, desc: :inserted_at]
 
   def filter_pack(queryable, filter) do
     Enum.reduce(filter, queryable, fn
       {:sort, :desc_inserted}, queryable ->
-        queryable |> order_by(^sort_strategy(:desc_inserted))
+        # queryable |> order_by(^sort_strategy(:desc_inserted))
+        queryable |> order_by(desc: :inserted_at)
 
       {:sort, :most_views}, queryable ->
         queryable |> order_by(^sort_strategy(:most_views))

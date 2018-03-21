@@ -6,15 +6,11 @@ defmodule MastaniServerWeb.Router do
     plug(MastaniServerWeb.Context)
   end
 
-  scope "/api", MastaniServerWeb do
-    pipe_through(:api)
-  end
-
-  scope "/" do
+  scope "/graphiql" do
     pipe_through(:api)
 
     forward(
-      "/graphiql",
+      "/",
       Absinthe.Plug.GraphiQL,
       schema: MastaniServerWeb.Schema,
       pipeline: {ApolloTracing.Pipeline, :plug},

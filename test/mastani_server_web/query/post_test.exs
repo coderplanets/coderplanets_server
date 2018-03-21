@@ -58,6 +58,25 @@ defmodule MastaniServer.Query.PostTest do
   @query """
   query Post($id: ID!) {
     post(id: $id) {
+      id
+      favoritedUsers {
+        username
+        id
+      }
+    }
+  }
+  """
+  test "post have favoritedUsers query field", %{post: post, conn: conn} do
+    variables = %{id: post.id}
+    results = conn |> query_result(@query, variables, "post")
+
+    assert results["id"] == to_string(post.id)
+    assert is_valid_kv?(results, "favoritedUsers", :list)
+  end
+
+  @query """
+  query Post($id: ID!) {
+    post(id: $id) {
       views
     }
   }
