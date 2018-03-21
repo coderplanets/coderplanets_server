@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cd /root/
-MIX_ENV=mock mix phx.server
+MIX_ENV=dev mix phx.server
 
 while true
 do
