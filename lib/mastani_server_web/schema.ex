@@ -33,7 +33,7 @@ defmodule MastaniServerWeb.Schema do
   end
 
   def middleware(middleware, _field, _object) do
-    middleware ++ [ApolloTracing.Middleware.Tracing, ApolloTracing.Middleware.Caching]
+    [ApolloTracing.Middleware.Tracing, ApolloTracing.Middleware.Caching] ++ middleware
     # middleware
   end
 
