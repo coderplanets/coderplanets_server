@@ -36,14 +36,10 @@ const launcher = new ApolloEngineLauncher({
     },
     */
   },
-  // Tell the Proxy on what port to listen, and which paths should
-  // be treated as GraphQL instead of transparently proxied as raw HTTP.
-  // You can leave out the frontend section if you want: the default for
-  // 'port' is process.env.PORT, and the default for graphqlPaths is
-  // ['/graphql'].
   frontends: [
     {
-      port: parseInt(process.env.APOLLO_FRONT_PORT),
+      /* parse evn-var issue */
+      port: parseInt(process.env.APOLLO_FRONT_PORT.slice(1, -1)),
       endpoints: ['/graphiql'],
     },
   ],
