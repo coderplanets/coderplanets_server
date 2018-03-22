@@ -3,7 +3,7 @@
 ENV="$1"
 
 if [ "$ENV" == "prod" ];then
-    echo "do prod"
+    echo "running ./docker/production/builder.sh"
     ./docker/production/builder.sh
 elif [ "$ENV" == "dev" ]
 then
