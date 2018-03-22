@@ -11,10 +11,13 @@ cd "${PRJ_DIR}"
 # git fetch --all
 # git reset --hard origin/"${BRANCH_NAME}"
 
-echo "mix deps.get ..."
+echo "[STEP 1/5] mix deps.get ..."
 mix deps.get
-echo "MIX_ENV=${ENV} mix compile ..."
+echo "[STEP 2/5] MIX_ENV=${ENV} mix compile ..."
 MIX_ENV="${ENV}" mix compile
 
-echo "creating ${ARCHIVE_NAME} ..."
+echo "[STEP 3/5] creating ${ARCHIVE_NAME} ..."
 tar czf "${ARCHIVE_NAME}" _build/ config/ deps/ lib/ mix.exs  mix.lock  priv/ test/
+
+echo "[STEP 4/5] tar complete!"
+echo "[STEP 4/6] run git push to push the code to ali-cloud to finish!"
