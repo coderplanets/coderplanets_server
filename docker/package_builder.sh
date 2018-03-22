@@ -11,7 +11,7 @@ git checkout "${BRANCH_NAME}"
 git fetch --all
 git reset --hard origin/"${BRANCH_NAME}"
 
-mix deps.get --only prod
+mix deps.get
 MIX_ENV="${ENV}" mix compile
 
 tar czf "${ARCHIVE_NAME}" _build/ config/ deps/ lib/ mix.exs  mix.lock  priv/ test/
