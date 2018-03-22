@@ -43,7 +43,7 @@ const launcher = new ApolloEngineLauncher({
   // ['/graphql'].
   frontends: [
     {
-      port: process.env.APOLLO_FRONT_PORT,
+      port: parseInt(process.env.APOLLO_FRONT_PORT),
       endpoints: ['/graphiql'],
     },
   ],
