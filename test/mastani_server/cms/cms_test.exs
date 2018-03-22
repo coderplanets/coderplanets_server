@@ -19,7 +19,7 @@ defmodule MastaniServer.CMSTest do
     :ok
   end
 
-  describe "CMS_POST" do
+  describe "[cms post]" do
     test "create post with valid attrs" do
       user = Repo.get_by(Accounts.User, username: @valid_user.username)
       assert nil == Repo.get_by(CMS.Author, user_id: user.id)
@@ -45,7 +45,7 @@ defmodule MastaniServer.CMSTest do
     end
   end
 
-  describe "CMS_TAG" do
+  describe "[cms tag]" do
     test "create tag with valid data" do
       user = Repo.get_by(Accounts.User, username: @valid_user.username)
       valid_attrs = mock_attrs(:tag, %{user_id: user.id, community: @valid_community.title})
@@ -68,7 +68,7 @@ defmodule MastaniServer.CMSTest do
     end
   end
 
-  describe "CMS_COMMUNITY" do
+  describe "[cms community]" do
     test "create a community with a existing user" do
       user = Repo.get_by(Accounts.User, username: @valid_user.username)
 

@@ -39,7 +39,7 @@ defmodule MastaniServer.Query.PagedPostsTest do
     {:ok, conn: conn, conn_without_token: conn_without_token}
   end
 
-  describe "QUERY_PAGED_POSTS_FILTER_PAGINATION" do
+  describe "[query paged_posts filter pagination]" do
     @query """
     query PagedPosts($filter: PagedArticleFilter!) {
       pagedPosts(filter: $filter) {
@@ -84,7 +84,7 @@ defmodule MastaniServer.Query.PagedPostsTest do
     end
   end
 
-  describe "QUERY_PAGED_POSTS_FILTER_SORT" do
+  describe "[query paged_posts filter sort]" do
     @query """
     query PagedPosts($filter: PagedArticleFilter!) {
       pagedPosts(filter: $filter) {
@@ -134,7 +134,7 @@ defmodule MastaniServer.Query.PagedPostsTest do
   @doc """
   test: FILTER when [TODAY] [THIS_WEEK] [THIS_MONTH] [THIS_YEAR]
   """
-  describe "QUERY_PAGED_POSTS_FILTER_WHEN" do
+  describe "[query paged_posts filter when]" do
     @query """
     query PagedPosts($filter: PagedArticleFilter!) {
       pagedPosts(filter: $filter) {

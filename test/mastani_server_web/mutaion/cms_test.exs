@@ -23,7 +23,7 @@ defmodule MastaniServer.Mutation.CMSTest do
     {:ok, conn: conn, conn_without_token: conn_without_token, community: community, user: user}
   end
 
-  describe "MUTATION_CMS_TAG" do
+  describe "[mutation cms tag]" do
     @create_tag_query """
     mutation($type: CmsPart!, $title: String!, $color: String!, $community: String!) {
       createTag(type: $type, title: $title, color: $color, community: $community) {
@@ -77,7 +77,7 @@ defmodule MastaniServer.Mutation.CMSTest do
     end
   end
 
-  describe "MUTATION_CMS_COMMUNITY" do
+  describe "[mutation cms community]" do
     @create_community_query """
     mutation($title: String!, $desc: String!) {
       createCommunity(title: $title, desc: $desc) {
