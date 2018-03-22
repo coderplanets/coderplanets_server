@@ -8,9 +8,9 @@ ARCHIVE_NAME="./docker/mastani_server.tar.gz"
 
 cd "${PRJ_DIR}"
 git checkout "${BRANCH_NAME}"
-git pull origin/master
-# git fetch --all
-# git reset --hard origin/"${BRANCH_NAME}"
+# git pull origin/master
+git fetch --all
+git reset --hard origin/"${BRANCH_NAME}"
 
 mix deps.get
 MIX_ENV="${ENV}" mix compile
