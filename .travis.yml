@@ -6,5 +6,8 @@ otp_release:
   - 20.1
 before_script:
   - MIX_ENV=test mix deps.get
+after_script:
+  - mix deps.get --only docs
+  - MIX_ENV=docs mix inch.report
 script:
   - mix test

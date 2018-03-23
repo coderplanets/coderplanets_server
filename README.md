@@ -2,6 +2,7 @@
 
 [![Deps Status](https://beta.hexfaktor.org/badge/all/github/mydearxym/mastani_server.svg)](https://beta.hexfaktor.org/github/mydearxym/mastani_server)
 [![Build Status](https://travis-ci.org/mydearxym/mastani_server.svg?branch=master)](https://travis-ci.org/mydearxym/mastani_server)
+[![Inline docs](http://inch-ci.org/github/mydearxym/mastani_server.svg)](http://inch-ci.org/github/mydearxym/mastani_server)
 
 ## Todo 
 
