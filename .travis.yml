@@ -4,6 +4,8 @@ elixir:
 otp_release:
   - 19.3
   - 20.1
+before_install:
+  - touch config/dev.secret.exs
 before_script:
   - MIX_ENV=test mix deps.get
 script:
