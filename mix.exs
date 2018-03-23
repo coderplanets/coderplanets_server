@@ -78,7 +78,8 @@ defmodule MastaniServer.Mixfile do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/mock/user_seeds.exs"],
       # "ecto.setup": ["ecto.create", "ecto.migrate"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate", "test"]
+      test: ["ecto.create --quiet", "ecto.migrate", "test"],
+      "doc.report": ["inch.report"]
     ]
   end
 end
