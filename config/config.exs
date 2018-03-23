@@ -30,4 +30,9 @@ config :mastani_server, :mix_test_watch, exclude: [~r/docs\/.*/, ~r/deps\/.*/, ~
 config :pre_commit, commands: ["format"], verbose: false
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
+
 import_config "#{Mix.env()}.exs"
+
+if File.exists? "config/#{Mix.env}.secret.exs" do
+  import_config "#{Mix.env}.secret.exs"
+end
