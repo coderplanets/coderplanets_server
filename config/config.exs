@@ -33,6 +33,6 @@ config :pre_commit, commands: ["format"], verbose: false
 
 import_config "#{Mix.env()}.exs"
 
-if File.exists? "config/#{Mix.env}.secret.exs" do
-  import_config "#{Mix.env}.secret.exs"
+if File.exists?("config/#{Mix.env()}.secret.exs") do
+  import_config "#{Mix.env()}.secret.exs"
 end
