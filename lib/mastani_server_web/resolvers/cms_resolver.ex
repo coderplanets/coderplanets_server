@@ -1,8 +1,8 @@
 defmodule MastaniServerWeb.Resolvers.CMS do
   alias MastaniServer.CMS
-  alias MastaniServer.Utils.ORM
+  alias Helper.ORM
 
-  def post(_root, %{id: id}, _info), do: CMS.Post |> ORM.read(id)
+  def post(_root, %{id: id}, _info), do: CMS.Post |> ORM.read(id, inc: :views)
 
   def posts(_root, %{filter: filter}, _info), do: CMS.Post |> ORM.read_all(filter)
 

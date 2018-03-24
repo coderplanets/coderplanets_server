@@ -6,10 +6,9 @@ defmodule MastaniServer.Mutation.PostTest do
 
   alias MastaniServer.Repo
   alias MastaniServer.CMS
-  alias MastaniServer.Utils.ORM
+  alias Helper.ORM
 
-  @valid_user mock_attrs(:user, %{username: "mydearxym"})
-  @valid_user2 mock_attrs(:user)
+  @valid_user mock_attrs(:user, %{nickname: "mydearxym"})
   @valid_post mock_attrs(:post)
   @valid_community mock_attrs(:community)
   @valid_community2 mock_attrs(:community)
@@ -18,7 +17,6 @@ defmodule MastaniServer.Mutation.PostTest do
 
   setup do
     db_insert(:user, @valid_user)
-    {:ok, user2} = db_insert(:user, @valid_user2)
     {:ok, community} = db_insert(:community, @valid_community)
     {:ok, community2} = db_insert(:community, @valid_community2)
 
@@ -27,9 +25,11 @@ defmodule MastaniServer.Mutation.PostTest do
     {:ok, tag} = db_insert(:tag, @valid_tag)
     {:ok, tag2} = db_insert(:tag, @valid_tag2)
 
+    token = mock_jwt_token(nickname: @valid_user.nickname)
+
     conn =
       build_conn()
-      |> put_req_header("authorization", "Bearer fake-token")
+      |> put_req_header("authorization", token)
       |> put_req_header("content-type", "application/json")
 
     conn_without_token = build_conn()
@@ -38,13 +38,10 @@ defmodule MastaniServer.Mutation.PostTest do
      conn: conn,
      conn_without_token: conn_without_token,
      post: post,
-     user2: user2,
      community: community,
      community2: community2,
      tag: tag,
      tag2: tag2}
-
-    # {:ok, conn: conn, conn_without_token: conn_without_token, post: post, user2: user2, tag: tag}
   end
 
   describe "[mutation post comment]" do
@@ -121,11 +118,6 @@ defmodule MastaniServer.Mutation.PostTest do
     test "delete a post without login user fails", %{conn_without_token: conn, post: post} do
       assert conn |> mutation_get_error?(@query, %{id: post.id})
     end
-
-    # TODO related to token
-    # test "delete a post with other user fails", %{conn: conn, post, post, user2: user2} do
-    # assert conn |> mutation_get_error?(@query, %{id: post.id})
-    # end
 
     @query """
     mutation ($id: ID!, $title: String, $body: String){

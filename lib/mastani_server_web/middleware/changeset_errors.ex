@@ -4,7 +4,7 @@
 # ---
 defmodule MastaniServerWeb.Middleware.ChangesetErrors do
   @behaviour Absinthe.Middleware
-  import MastaniServer.Utils.Helper, only: [handle_absinthe_error: 2]
+  import Helper.Utils, only: [handle_absinthe_error: 2]
 
   def call(%{errors: [%Ecto.Changeset{} = changeset]} = resolution, _) do
     resolution

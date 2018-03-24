@@ -20,7 +20,8 @@ config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
-config :mastani_server, MastaniServer.Utils.Guardian,
+# TODO move this config to secret later
+config :mastani_server, Helper.MastaniServer.Guardian,
   issuer: "mastani_server",
   secret_key: "kSTPDbCUSRhiEmv86eYMUplL7xI5fDa/+6MWKzK2VYGxjwL0XGHHVJiSPNPe9hJe"
 

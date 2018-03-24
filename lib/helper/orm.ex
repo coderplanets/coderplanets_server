@@ -1,12 +1,12 @@
-defmodule MastaniServer.Utils.ORM do
+defmodule Helper.ORM do
   @moduledoc """
   General update or delete content
   """
   import Ecto.Query, warn: false
-  import MastaniServer.Utils.Helper, only: [done: 1, done: 3]
+  import Helper.Utils, only: [done: 1, done: 3]
 
   alias MastaniServer.Repo
-  alias MastaniServer.Utils.QueryBuilder
+  alias Helper.QueryBuilder
 
   @doc """
   a wrap for paginate request
@@ -38,6 +38,12 @@ defmodule MastaniServer.Utils.ORM do
   if queryable NOT contains views fields consider use read_quiet/2
   """
   def read(queryable, id) do
+    with {:ok, result} <- find(queryable, id) do
+      result |> done()
+    end
+  end
+
+  def read(queryable, id, inc: :views) do
     with {:ok, result} <- find(queryable, id) do
       result |> inc_views_count(queryable) |> done()
     end
@@ -86,12 +92,18 @@ defmodule MastaniServer.Utils.ORM do
     |> done(queryable, id)
   end
 
+  @doc """
+  simular to Repo.get/3, with standard result/error handle
+  """
   def find(queryable, id) do
     queryable
     |> Repo.get(id)
     |> done(queryable, id)
   end
 
+  @doc """
+  simular to Repo.get_by/3, with standard result/error handle
+  """
   def find_by(queryable, clauses) do
     queryable
     |> Repo.get_by(clauses)
@@ -102,6 +114,17 @@ defmodule MastaniServer.Utils.ORM do
       result ->
         {:ok, result}
     end
+  end
+
+  @doc """
+  return the total count of a Modal based on id column
+  also support filters
+  """
+  def count(queryable, filter \\ %{}) do
+    queryable
+    |> QueryBuilder.filter_pack(filter)
+    |> select([f], count(f.id))
+    |> Repo.one()
   end
 
   defp not_found_formater(queryable, id) when is_integer(id) or is_binary(id) do

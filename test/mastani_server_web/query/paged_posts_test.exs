@@ -30,13 +30,12 @@ defmodule MastaniServer.Query.PagedPostsTest do
     db_insert(:post, %{title: "last month", inserted_at: @last_month})
     db_insert(:post, %{title: "last year", inserted_at: @last_year})
 
-    conn =
-      build_conn()
-      |> put_req_header("authorization", "Bearer fake-token")
-
+    # conn =
+    # build_conn()
+    # |> put_req_header("authorization", "Bearer fake-token")
     conn_without_token = build_conn()
 
-    {:ok, conn: conn, conn_without_token: conn_without_token}
+    {:ok, conn_without_token: conn_without_token}
   end
 
   describe "[query paged_posts filter pagination]" do
@@ -53,7 +52,7 @@ defmodule MastaniServer.Query.PagedPostsTest do
       }
     }
     """
-    test "should get pagination info", %{conn: conn} do
+    test "should get pagination info", %{conn_without_token: conn} do
       variables = %{filter: %{page: 1, size: 10}}
       results = conn |> query_result(@query, variables, "pagedPosts")
 
@@ -62,12 +61,12 @@ defmodule MastaniServer.Query.PagedPostsTest do
       assert results["totalCount"] == @posts_total_count
     end
 
-    test "request large size fails", %{conn: conn} do
+    test "request large size fails", %{conn_without_token: conn} do
       variables = %{filter: %{page: 1, size: 200}}
       assert conn |> query_get_error?(@query, variables)
     end
 
-    test "request 0 or neg-size fails", %{conn: conn} do
+    test "request 0 or neg-size fails", %{conn_without_token: conn} do
       variables_0 = %{filter: %{page: 1, size: 0}}
       variables_neg_1 = %{filter: %{page: 1, size: -1}}
 
@@ -75,7 +74,7 @@ defmodule MastaniServer.Query.PagedPostsTest do
       assert conn |> query_get_error?(@query, variables_neg_1)
     end
 
-    test "pagination should have default page and size arg", %{conn: conn} do
+    test "pagination should have default page and size arg", %{conn_without_token: conn} do
       variables = %{filter: %{}}
       results = conn |> query_result(@query, variables, "pagedPosts")
       assert results |> is_valid_pagination?
@@ -95,7 +94,7 @@ defmodule MastaniServer.Query.PagedPostsTest do
        }
     }
     """
-    test "filter sort should have default :desc_inserted", %{conn: conn} do
+    test "filter sort should have default :desc_inserted", %{conn_without_token: conn} do
       variables = %{filter: %{}}
       results = conn |> query_result(@query, variables, "pagedPosts")
       inserted_timestamps = results["entries"] |> Enum.map(& &1["inserted_at"])
@@ -118,7 +117,7 @@ defmodule MastaniServer.Query.PagedPostsTest do
       }
     }
     """
-    test "filter sort MOST_VIEWS should work", %{conn: conn} do
+    test "filter sort MOST_VIEWS should work", %{conn_without_token: conn} do
       most_views_post = CMS.Post |> order_by(desc: :views) |> limit(1) |> Repo.one()
       variables = %{filter: %{sort: "MOST_VIEWS"}}
 
@@ -147,7 +146,7 @@ defmodule MastaniServer.Query.PagedPostsTest do
       }
     }
     """
-    test "THIS_YEAR option should work", %{conn: conn} do
+    test "THIS_YEAR option should work", %{conn_without_token: conn} do
       variables = %{filter: %{when: "THIS_YEAR"}}
       results = conn |> query_result(@query, variables, "pagedPosts")
 
@@ -155,7 +154,7 @@ defmodule MastaniServer.Query.PagedPostsTest do
       assert results |> Map.get("totalCount") == expect_count
     end
 
-    test "TODAY option should work", %{conn: conn} do
+    test "TODAY option should work", %{conn_without_token: conn} do
       variables = %{filter: %{when: "TODAY"}}
       results = conn |> query_result(@query, variables, "pagedPosts")
 
@@ -166,13 +165,13 @@ defmodule MastaniServer.Query.PagedPostsTest do
       assert results |> Map.get("totalCount") == expect_count
     end
 
-    test "THIS_WEEK option should work", %{conn: conn} do
+    test "THIS_WEEK option should work", %{conn_without_token: conn} do
       variables = %{filter: %{when: "THIS_WEEK"}}
       results = conn |> query_result(@query, variables, "pagedPosts")
       assert results |> Map.get("totalCount") == @posts_today_count
     end
 
-    test "THIS_MONTH option should work", %{conn: conn} do
+    test "THIS_MONTH option should work", %{conn_without_token: conn} do
       variables = %{filter: %{when: "THIS_MONTH"}}
       results = conn |> query_result(@query, variables, "pagedPosts")
 

@@ -50,8 +50,9 @@ defmodule MastaniServer.Mixfile do
       {:comeonin, "~> 4.0.3"},
       # Argon2 password hashing algorithm
       # {:argon2_elixir, "~> 1.2"},
-      # for cors settings
+      # CORS
       {:corsica, "~> 1.1.1"},
+      {:tesla, "~> 0.10.0"},
       # for fake data in test env
       {:faker, "~> 0.9"},
       {:scrivener_ecto, "~> 1.3.0"},

@@ -3,7 +3,7 @@
 # ---
 defmodule MastaniServerWeb.Middleware.Authorize do
   @behaviour Absinthe.Middleware
-  import MastaniServer.Utils.Helper, only: [handle_absinthe_error: 2]
+  import Helper.Utils, only: [handle_absinthe_error: 2]
 
   def call(%{context: %{current_user: current_user}} = resolution, role) do
     case valid_role?(current_user, role) do

@@ -85,11 +85,3 @@ examise.io ...
 ## keynote 
 
 [ActiveRecord 和 Ecto 的比较](http://tony612.com/activerecord-vs-ecto)
-
-
-
-
-
-
-
-

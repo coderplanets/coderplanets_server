@@ -2,10 +2,9 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   use Absinthe.Schema.Notation
   use Absinthe.Ecto, repo: MastaniServer.Repo
 
-  import Absinthe.Resolution.Helpers
+  import Absinthe.Resolution.Helpers, only: [dataloader: 2]
   alias MastaniServer.CMS
-  alias MastaniServerWeb.{Schema}
-  alias MastaniServerWeb.Middleware
+  alias MastaniServerWeb.{Schema, Middleware}
 
   import_types(Schema.CMS.Misc)
 

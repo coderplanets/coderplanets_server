@@ -2,24 +2,53 @@ defmodule MastaniServerWeb.Schema.Account.Types do
   use Absinthe.Schema.Notation
   use Absinthe.Ecto, repo: MastaniServerWeb.Repo
 
+  import Absinthe.Resolution.Helpers
+
+  alias MastaniServer.Accounts
+  alias MastaniServerWeb.Schema
+
+  import_types(Schema.Account.Misc)
+
   object :page_info do
     field(:total_count, :integer)
     field(:page_size, :integer)
   end
 
+  object :github_profile do
+    field(:id, :id)
+    field(:github_id, :string)
+    field(:user, :user, resolve: dataloader(Accounts, :user))
+    field(:login, :string)
+    field(:avatar_url, :string)
+    field(:url, :string)
+    field(:html_url, :string)
+    field(:name, :string)
+    field(:company, :string)
+    field(:blog, :string)
+    field(:location, :string)
+    field(:email, :string)
+    field(:bio, :string)
+    field(:public_repos, :integer)
+    field(:public_gists, :integer)
+  end
+
   object :user do
-    field(:id, non_null(:id))
-    field(:username, non_null(:string))
-    field(:nickname, non_null(:string))
-    field(:bio, non_null(:string))
-    field(:company, non_null(:string))
-    # field(:page_info, :page_info)
+    field(:id, :id)
+    field(:nickname, :string)
+    field(:bio, :string)
+    field(:company, :string)
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
+    field(:from_github, :boolean)
+    field(:github, :github_profile, resolve: dataloader(Accounts, :github_profile))
+  end
+
+  object :token do
+    field(:token, :string)
   end
 
   object :paged_users do
-    field(:entries, non_null(list_of(non_null(:user))))
+    field(:entries, list_of(:user))
     field(:total_count, :integer)
     field(:page_size, :integer)
     field(:total_pages, :integer)

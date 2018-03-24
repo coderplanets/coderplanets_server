@@ -7,7 +7,7 @@ defmodule MastaniServerWeb.Middleware.SizeChecker do
   @max_page_size 30
   @default_page_size 20
 
-  import MastaniServer.Utils.Helper, only: [handle_absinthe_error: 2]
+  import Helper.Utils, only: [handle_absinthe_error: 2]
   # 1. if has filter:first and filter:size -> makesure it not too large
   # 2. if not has filter: marge to default first: 5
   # 3. large size should trigger error

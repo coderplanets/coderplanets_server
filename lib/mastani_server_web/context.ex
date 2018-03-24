@@ -7,6 +7,7 @@ defmodule MastaniServerWeb.Context do
   # import Ecto.Query, only: [first: 1]
 
   alias MastaniServer.{Repo, Accounts}
+  alias Helper.MastaniServer.Guardian
 
   def init(opts), do: opts
 
@@ -33,14 +34,17 @@ defmodule MastaniServerWeb.Context do
     end
   end
 
-  defp authorize(_token) do
-    # Repo.get_by(Accounts.User, user_id: changeset.data.user_id)
-    case Repo.get_by(Accounts.User, username: "mydearxym") do
-      nil ->
-        {:error, "authorize user is not exsit, have you run the seeds?"}
+  defp authorize(token) do
+    with {:ok, claims, _info} <- Guardian.jwt_decode(token) do
+      case Repo.get(Accounts.User, claims.id) do
+        nil ->
+          {:error, "user is not exsit, have you run the seeds?"}
 
-      user ->
-        {:ok, Map.put(user, :root, true)}
+        user ->
+          # TODO gather role info from CMS or other context
+          {:ok, Map.put(user, :root, true)}
+          # {:ok, user}
+      end
     end
   end
 end

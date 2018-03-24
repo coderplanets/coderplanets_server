@@ -1,7 +1,9 @@
 defmodule MastaniServer.Factory do
+  alias Helper.ORM
   alias MastaniServer.Repo
   alias MastaniServer.CMS
   alias MastaniServer.Accounts
+  alias Helper.MastaniServer.Guardian
 
   defp mock_meta(:post) do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
@@ -62,10 +64,25 @@ defmodule MastaniServer.Factory do
     unique_num = System.unique_integer([:positive, :monotonic])
 
     %{
-      username: "#{Faker.Name.first_name()} #{unique_num}",
-      nickname: Faker.Name.last_name(),
+      # username: "#{Faker.Name.first_name()} #{unique_num}",
+      nickname: "#{Faker.Name.first_name()} #{unique_num}",
       bio: Faker.Lorem.Shakespeare.romeo_and_juliet(),
-      company: Faker.Company.name()
+      avatar: Faker.Avatar.image_url()
+    }
+  end
+
+  defp mock_meta(:github_profile) do
+    unique_num = System.unique_integer([:positive, :monotonic])
+
+    %{
+      id: "#{Faker.Name.first_name()} #{unique_num}",
+      login: "#{Faker.Name.first_name()} #{unique_num}",
+      github_id: "#{unique_num + 1000}",
+      bio: Faker.Lorem.Shakespeare.romeo_and_juliet(),
+      avatar_url: Faker.Avatar.image_url(),
+      html_url: Faker.Avatar.image_url(),
+      followers: unique_num * unique_num,
+      following: unique_num * unique_num * unique_num
     }
   end
 
@@ -74,6 +91,7 @@ defmodule MastaniServer.Factory do
   def mock_attrs(:post, attrs), do: mock_meta(:post) |> Map.merge(attrs)
   def mock_attrs(:community, attrs), do: mock_meta(:community) |> Map.merge(attrs)
   def mock_attrs(:tag, attrs), do: mock_meta(:tag) |> Map.merge(attrs)
+  def mock_attrs(:github_profile, attrs), do: mock_meta(:github_profile) |> Map.merge(attrs)
 
   @doc """
   NOTICE: avoid Recursive problem
@@ -90,6 +108,14 @@ defmodule MastaniServer.Factory do
   defp mock(:tag), do: CMS.Tag |> struct(mock_meta(:tag))
   defp mock(:user), do: Accounts.User |> struct(mock_meta(:user))
   defp mock(:community), do: CMS.Community |> struct(mock_meta(:community))
+
+  def mock_jwt_token(clauses) do
+    with {:ok, user} <- ORM.find_by(Accounts.User, clauses) do
+      {:ok, token, _info} = Guardian.jwt_encode(user)
+
+      "Bearer #{token}"
+    end
+  end
 
   defp mock(factory_name, attributes) do
     factory_name |> mock() |> struct(attributes)

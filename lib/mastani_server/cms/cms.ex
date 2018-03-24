@@ -6,12 +6,12 @@ defmodule MastaniServer.CMS do
   """
   import MastaniServer.CMSMisc
   import Ecto.Query, warn: false
-  import MastaniServer.Utils.Helper, only: [done: 1, done: 2]
+  import Helper.Utils, only: [done: 1, done: 2]
 
   alias MastaniServer.CMS.{Author, Tag, Community, PostComment, PostFavorite, PostStar}
   alias MastaniServer.{Repo, Accounts}
-  alias MastaniServer.Utils.QueryBuilder
-  alias MastaniServer.Utils.ORM
+  alias Helper.QueryBuilder
+  alias Helper.ORM
 
   def data(), do: Dataloader.Ecto.new(Repo, query: &query/2)
 
@@ -157,7 +157,7 @@ defmodule MastaniServer.CMS do
   def create_comment(part, react, part_id, user_id, body) do
     with {:ok, action} <- match_action(part, react),
          {:ok, content} <- ORM.find(action.target, part_id),
-         {:ok, user} <- Accounts.find_user(user_id) do
+         {:ok, user} <- ORM.find(Accounts.User, user_id) do
       struct(action.reactor)
       |> action.reactor.changeset(%{post_id: content.id, author_id: user.id, body: body})
       |> Repo.insert()
@@ -227,7 +227,7 @@ defmodule MastaniServer.CMS do
   def reaction(part, react, part_id, user_id) when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react),
          {:ok, content} <- ORM.find(action.target, part_id),
-         {:ok, user} <- Accounts.find_user(user_id) do
+         {:ok, user} <- ORM.find(Accounts.User, user_id) do
       params = Map.put(%{}, "user_id", user.id) |> Map.put("#{part}_id", content.id)
 
       struct(action.reactor)

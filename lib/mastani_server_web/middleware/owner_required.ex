@@ -6,9 +6,9 @@ defmodule MastaniServerWeb.Middleware.OwnerRequired do
   @behaviour Absinthe.Middleware
 
   import MastaniServer.CMSMisc
-  import MastaniServer.Utils.Helper
+  import Helper.Utils
 
-  alias MastaniServer.Utils.ORM
+  alias Helper.ORM
 
   defp passport_checkin(user, author_id, others) do
     # IO.inspect(others, label: "others")

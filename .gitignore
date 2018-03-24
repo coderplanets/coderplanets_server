@@ -16,3 +16,4 @@ erl_crash.dump
 /config/*.secret.exs
 docker/engine-config.json
 _tuts/
+.agignore

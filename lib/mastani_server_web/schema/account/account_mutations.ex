@@ -2,7 +2,8 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
   use Absinthe.Schema.Notation
   use Absinthe.Ecto, repo: MastaniServerWeb.Repo
 
-  alias MastaniServerWeb.Resolvers.Accounts
+  alias MastaniServerWeb.Resolvers
+  alias MastaniServerWeb.Middleware
 
   object :account_mutations do
     @desc "hehehef: create a user"
@@ -12,7 +13,16 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
       arg(:bio, non_null(:string))
       arg(:company, non_null(:string))
 
-      resolve(&Accounts.create_user/3)
+      # should be super-admin
+      resolve(&Resolvers.Accounts.create_user/3)
+    end
+
+    field :github_login, :token do
+      arg(:access_token, non_null(:string))
+      arg(:profile, non_null(:github_profile_input))
+
+      middleware(Middleware.GithubUser)
+      resolve(&Resolvers.Accounts.github_login/3)
     end
   end
 end

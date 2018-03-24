@@ -1,6 +1,12 @@
 defmodule MastaniServerWeb.Resolvers.Accounts do
-  alias MastaniServer.{Accounts}
-  # alias MastaniServer.Utils.Helper
+  alias MastaniServer.Accounts
+  alias Helper.ORM
+
+  def user(_root, %{id: id}, _info), do: Accounts.User |> ORM.read(id)
+
+  def github_login(_root, %{github_user: github_user, access_token: _}, _info) do
+    Accounts.github_login(github_user)
+  end
 
   def all_users(_root, _args, _info) do
     users = Accounts.list_users()
@@ -25,10 +31,6 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   def create_user(_root, args, %{context: %{current_user: %{root: true}}}) do
     # IO.inspect(user, label: "create_post current_user")
     # IO.inspect(args, label: "create_post args")
-    Accounts.create_user(args)
-  end
-
-  def create_user(_root, _args, _info) do
-    {:error, "Access denied."}
+    Accounts.create_user2(args)
   end
 end

@@ -1,4 +1,4 @@
-defmodule MastaniServer.Utils.Helper do
+defmodule Helper.Utils do
   import Ecto.Query, warn: false
 
   @doc """
@@ -24,6 +24,10 @@ defmodule MastaniServer.Utils.Helper do
   def handle_absinthe_error(resolution, err_msg) when is_binary(err_msg) do
     resolution
     |> Absinthe.Resolution.put_result({:error, err_msg})
+  end
+
+  def map_key_stringify(map) when is_map(map) do
+    map |> Enum.reduce(%{}, fn {key, val}, acc -> Map.put(acc, to_string(key), val) end)
   end
 
   # graphql treat id as string

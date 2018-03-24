@@ -21,7 +21,7 @@ defmodule MastaniServer.CMSTest do
 
   describe "[cms post]" do
     test "create post with valid attrs" do
-      user = Repo.get_by(Accounts.User, username: @valid_user.username)
+      user = Repo.get_by(Accounts.User, nickname: @valid_user.nickname)
       assert nil == Repo.get_by(CMS.Author, user_id: user.id)
 
       {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @valid_post)
@@ -29,7 +29,7 @@ defmodule MastaniServer.CMSTest do
     end
 
     test "add user to cms authors, if the user is not exsit in cms authors" do
-      user = Repo.get_by(Accounts.User, username: @valid_user.username)
+      user = Repo.get_by(Accounts.User, nickname: @valid_user.nickname)
       assert nil == Repo.get_by(CMS.Author, user_id: user.id)
 
       {:ok, _} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @valid_post)
@@ -38,7 +38,7 @@ defmodule MastaniServer.CMSTest do
     end
 
     test "create post with on exsit community fails" do
-      user = Repo.get_by(Accounts.User, username: @valid_user.username)
+      user = Repo.get_by(Accounts.User, nickname: @valid_user.nickname)
       invalid_attrs = mock_attrs(:post, %{community: "non-exsit community"})
 
       assert {:error, _} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, invalid_attrs)
@@ -47,7 +47,7 @@ defmodule MastaniServer.CMSTest do
 
   describe "[cms tag]" do
     test "create tag with valid data" do
-      user = Repo.get_by(Accounts.User, username: @valid_user.username)
+      user = Repo.get_by(Accounts.User, nickname: @valid_user.nickname)
       valid_attrs = mock_attrs(:tag, %{user_id: user.id, community: @valid_community.title})
 
       {:ok, tag} = CMS.create_tag(:post, valid_attrs)
@@ -61,7 +61,7 @@ defmodule MastaniServer.CMSTest do
     end
 
     test "create tag with non-exsit community fails" do
-      user = Repo.get_by(Accounts.User, username: @valid_user.username)
+      user = Repo.get_by(Accounts.User, nickname: @valid_user.nickname)
       invalid_attrs = mock_attrs(:tag, %{user_id: user.id, community: "not exsit"})
 
       assert {:error, _} = CMS.create_tag(:post, invalid_attrs)
@@ -70,7 +70,7 @@ defmodule MastaniServer.CMSTest do
 
   describe "[cms community]" do
     test "create a community with a existing user" do
-      user = Repo.get_by(Accounts.User, username: @valid_user.username)
+      user = Repo.get_by(Accounts.User, nickname: @valid_user.nickname)
 
       community_args = %{
         title: "elixir community",
@@ -84,7 +84,7 @@ defmodule MastaniServer.CMSTest do
     end
 
     test "create a community with a empty title fails" do
-      user = Repo.get_by(Accounts.User, username: @valid_user.username)
+      user = Repo.get_by(Accounts.User, nickname: @valid_user.nickname)
 
       invalid_community_args = %{
         title: "",

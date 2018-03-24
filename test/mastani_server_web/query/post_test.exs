@@ -6,17 +6,17 @@ defmodule MastaniServer.Query.PostTest do
   # alias MastaniServer.Accounts
 
   # TODO
-  @valid_user mock_attrs(:user, %{username: "mydearxym"})
+  @valid_user mock_attrs(:user, %{nickname: "mydearxym"})
 
   setup do
     {:ok, post} = db_insert(:post)
 
-    # TODO: token
     db_insert(:user, @valid_user)
+    token = mock_jwt_token(nickname: @valid_user.nickname)
 
     conn =
       build_conn()
-      |> put_req_header("authorization", "Bearer fake-token")
+      |> put_req_header("authorization", token)
       |> put_req_header("content-type", "application/json")
 
     conn_without_token = build_conn()
@@ -60,7 +60,7 @@ defmodule MastaniServer.Query.PostTest do
     post(id: $id) {
       id
       favoritedUsers {
-        username
+        nickname
         id
       }
     }

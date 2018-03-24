@@ -42,9 +42,10 @@ defmodule MastaniServerWeb.Schema do
   end
 
   def dataloader() do
-    alias MastaniServer.{CMS}
+    alias MastaniServer.{Accounts, CMS}
 
     Dataloader.new()
+    |> Dataloader.add_source(Accounts, Accounts.data())
     |> Dataloader.add_source(CMS, CMS.data())
   end
 

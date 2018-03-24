@@ -1,4 +1,4 @@
-defmodule MastaniServer.Utils.QueryBuilder do
+defmodule Helper.QueryBuilder do
   # alias MastaniServer.Repo
   import Ecto.Query, warn: false
 
@@ -18,6 +18,7 @@ defmodule MastaniServer.Utils.QueryBuilder do
   end
 
   def reactions_hanlder(queryable, %{arg_count: _}) do
+    # TODO post_id should be general
     queryable
     |> group_by([f], f.post_id)
     |> select([f], count(f.id))
