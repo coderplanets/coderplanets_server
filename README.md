@@ -1,9 +1,9 @@
 
 
 [![Build Status](https://travis-ci.org/mydearxym/mastani_server.svg?branch=master)](https://travis-ci.org/mydearxym/mastani_server)
-[![Inline docs](http://inch-ci.org/github/mydearxym/mastani_server.svg)](http://inch-ci.org/github/mydearxym/mastani_server)
+[![Inline docs](http://inch-ci.org/github/mydearxym/mastani_server.svg?branch=master)](http://inch-ci.org/github/mydearxym/mastani_server)
 
-## releated 
+## releatedd 
 
 [apollo engine](https://www.apollographql.com/engine/)
 [offical doc](https://hexdocs.pm/absinthe/our-first-query.html)
