@@ -1,26 +1,68 @@
 defmodule Helper.OAuth2.Github do
-  # use Tesla, only: ~w(get)a
-  use Tesla, only: [:get]
+  use Tesla, only: [:get, :post]
+  import Helper.Utils, only: [get_config: 2]
 
   # see Tesla intro: https://medium.com/@teamon/introducing-tesla-the-flexible-http-client-for-elixir-95b699656d88
-  # API usage: https://hexdocs.pm/tesla/readme.html
-
-  # https://api.github.com/authorizations/3b4281c5e54ffd801f85/fba2f79cedb103aa147f72f15f07a8c238450377
-  # @github_client_id "3b4281c5e54ffd801f85"
-  # @user_token "fba2f79cedb103aa147f72f15f07a8c238450377"
   @timeout_limit 5000
-  # @user_token ""
-  plug(Tesla.Middleware.BaseUrl, "https://api.github.com")
-  plug(Tesla.Middleware.Headers, %{"User-Agent" => "mastani server"})
+  @client_id get_config(:github_oauth, :client_id)
+  @client_secret get_config(:github_oauth, :client_secret)
+  @redirect_uri "http://www.coderplanets.com"
+
+  # wired only this style works
+  plug(Tesla.Middleware.BaseUrl, "https://github.com/login/oauth")
+  # plug(Tesla.Middleware.BaseUrl, "https://www.github.com/login/oauth")
+  # plug(Tesla.Middleware.BaseUrl, "https://api.github.com/login/oauth")
+  plug(Tesla.Middleware.Headers, %{
+    "User-Agent" => "mastani server"
+    # "Accept" => "application/json"
+    # "Accept" => "application/json;application/vnd.github.jean-grey-preview+json"
+  })
+
   plug(Tesla.Middleware.Retry, delay: 200, max_retries: 2)
   plug(Tesla.Middleware.Timeout, timeout: @timeout_limit)
-  # plug Tesla.Middleware.Tuples
   plug(Tesla.Middleware.JSON)
+  plug(Tesla.Middleware.FormUrlencoded)
 
-  def user_info(user_token) do
+  def user_profile(code) do
+    # body = "client_id=#{@client_id}&client_secret=#{@client_secret}&code=#{code}&redirect_uri=#{@redirect_uri}"
+    # post("access_token?#{body}",%{})
+    headers = %{"Accept" => "application/json"}
+
+    query = [
+      code: code,
+      client_id: @client_id,
+      client_secret: @client_secret,
+      redirect_uri: @redirect_uri
+    ]
+
     try do
-      case get("user", query: [access_token: user_token]) do
+      case post("/access_token", %{}, query: query, headers: headers) do
+        %{status: 200, body: %{"error" => error, "error_description" => description}} ->
+          IO.inspect(error, label: "error")
+          {:error, "#{error}: #{description}"}
+
+        %{status: 200, body: %{"access_token" => access_token, "token_type" => "bearer"}} ->
+          IO.inspect(access_token, label: "token")
+          user_info(access_token)
+      end
+    rescue
+      e ->
+        e |> handle_tesla_error
+    end
+  end
+
+  def user_info(access_token) do
+    url = "https://api.github.com/user"
+    # this special header is too get node_id
+    # see: https://developer.github.com/v3/
+
+    headers = %{"Accept" => "application/vnd.github.jean-grey-preview+json"}
+    query = [access_token: access_token]
+
+    try do
+      case get(url, query: query, headers: headers) do
         %{status: 200, body: body} ->
+          IO.inspect(body["node_id"], label: "hello node_id")
           {:ok, body}
 
         %{status: 401, body: body} ->
@@ -44,6 +86,7 @@ defmodule Helper.OAuth2.Github do
     case error do
       %{reason: :timeout} -> {:error, "OAuth2 Github: timeout in #{@timeout_limit} msec"}
       %{reason: reason} -> {:error, "OAuth2 Github: #{reason}"}
+      _ -> {:error, "unhandle error #{inspect(error)}"}
     end
   end
 end

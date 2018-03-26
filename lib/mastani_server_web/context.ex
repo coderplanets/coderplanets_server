@@ -38,7 +38,8 @@ defmodule MastaniServerWeb.Context do
     with {:ok, claims, _info} <- Guardian.jwt_decode(token) do
       case Repo.get(Accounts.User, claims.id) do
         nil ->
-          {:error, "user is not exsit, have you run the seeds?"}
+          {:error,
+           "user is not exsit, try revoke token, or if you in dev env run the seeds first."}
 
         user ->
           # TODO gather role info from CMS or other context

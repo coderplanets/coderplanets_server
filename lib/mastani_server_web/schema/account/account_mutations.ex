@@ -17,7 +17,7 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
       resolve(&Resolvers.Accounts.create_user/3)
     end
 
-    field :github_login, :token do
+    field :github_login, :token_info do
       arg(:access_token, non_null(:string))
       arg(:profile, non_null(:github_profile_input))
 
