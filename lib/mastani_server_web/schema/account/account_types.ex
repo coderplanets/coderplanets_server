@@ -43,8 +43,9 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:github, :github_profile, resolve: dataloader(Accounts, :github_profile))
   end
 
-  object :token do
+  object :token_info do
     field(:token, :string)
+    field(:user, :user)
   end
 
   object :paged_users do

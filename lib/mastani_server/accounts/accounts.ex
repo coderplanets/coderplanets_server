@@ -27,13 +27,11 @@ defmodule MastaniServer.Accounts do
     case ORM.find_by(GithubUser, github_id: to_string(github_user["id"])) do
       {:ok, g_user} ->
         # 直接返回 token
-        # IO.inspect("found user, return token")
-        ORM.find_by(User, id: g_user.user_id)
+        {:ok, user} = ORM.find_by(User, id: g_user.user_id)
+        token_info(user)
 
-      {:error, reason} ->
+      {:error, _} ->
         # 注册 user, github_user 并返回 token
-        # IO.inspect(reason, label: "not found")
-        # IO.inspect("not found user, register and return token")
         register_github_user(github_user)
     end
   end
@@ -50,11 +48,13 @@ defmodule MastaniServer.Accounts do
     |> register_github_result()
   end
 
-  defp register_github_result({:ok, %{create_user: user}}) do
+  defp token_info(%User{} = user) do
     with {:ok, token, _info} <- Guardian.jwt_encode(user) do
-      {:ok, %{token: token}}
+      {:ok, %{token: token, user: user}}
     end
   end
+
+  defp register_github_result({:ok, %{create_user: user}}), do: token_info(user)
 
   defp register_github_result({:error, :create_user, _result, _steps}),
     do: {:error, "Accounts create_user internal error"}

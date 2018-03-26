@@ -19,6 +19,8 @@ defmodule MastaniServer.Accounts.GithubUser do
     field(:public_gists, :integer)
     field(:followers, :integer)
     field(:following, :integer)
+    field(:access_token, :string)
+    field(:node_id, :string)
 
     belongs_to(:user, User)
 
@@ -26,7 +28,7 @@ defmodule MastaniServer.Accounts.GithubUser do
   end
 
   # @required_fields ~w(github_id login name avatar_url)a
-  @required_fields ~w(github_id login avatar_url user_id)a
+  @required_fields ~w(github_id login avatar_url user_id access_token node_id)a
   @optional_fields ~w(blog company email bio followers following location html_url public_repos public_gists)a
 
   @doc false
@@ -38,6 +40,7 @@ defmodule MastaniServer.Accounts.GithubUser do
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
     |> unique_constraint(:github_id)
+    |> unique_constraint(:node_id)
     |> foreign_key_constraint(:user_id)
 
     # |> validate_length(:username, max: 20)
