@@ -24,11 +24,13 @@ defmodule MastaniServer.AccountsTest do
       user = Repo.get_by(Accounts.User, nickname: @valid_github_profile["login"])
       assert nil == user
 
-      {:ok, %{token: token}} = Accounts.github_login(@valid_github_profile)
+      # IO.inspect @valid_github_profile, label: "@valid_github_profile"
+      {:ok, %{token: token, user: user}} = Accounts.github_login(@valid_github_profile)
       {:ok, claims, _info} = Guardian.jwt_decode(token)
 
       created_user = Repo.get(Accounts.User, claims.id)
 
+      assert user.id == created_user.id
       assert created_user.nickname == @valid_github_profile["login"]
       assert created_user.avatar == @valid_github_profile["avatar_url"]
       assert created_user.bio == @valid_github_profile["bio"]
@@ -37,6 +39,8 @@ defmodule MastaniServer.AccountsTest do
       g_user = Repo.get_by(Accounts.GithubUser, github_id: to_string(@valid_github_profile["id"]))
       assert g_user.login == @valid_github_profile["login"]
       assert g_user.avatar_url == @valid_github_profile["avatar_url"]
+      assert g_user.access_token == @valid_github_profile["access_token"]
+      assert g_user.node_id == @valid_github_profile["node_id"]
     end
 
     test "exsit github user should not be created twice" do

@@ -78,6 +78,8 @@ defmodule MastaniServer.Factory do
       id: "#{Faker.Name.first_name()} #{unique_num}",
       login: "#{Faker.Name.first_name()} #{unique_num}",
       github_id: "#{unique_num + 1000}",
+      node_id: "#{unique_num + 2000}",
+      access_token: "#{unique_num + 3000}",
       bio: Faker.Lorem.Shakespeare.romeo_and_juliet(),
       avatar_url: Faker.Avatar.image_url(),
       html_url: Faker.Avatar.image_url(),

@@ -1,6 +1,10 @@
 defmodule Helper.Utils do
   import Ecto.Query, warn: false
 
+  def get_config(section, key, app \\ :mastani_server) do
+    Application.get_env(app, section) |> Keyword.get(key)
+  end
+
   @doc """
   handle General {:ok, ..} or {:error, ..} return
   """
