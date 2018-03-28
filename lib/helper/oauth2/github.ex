@@ -42,7 +42,6 @@ defmodule Helper.OAuth2.Github do
           {:error, "#{error}: #{description}"}
 
         %{status: 200, body: %{"access_token" => access_token, "token_type" => "bearer"}} ->
-          IO.inspect(access_token, label: "token")
           user_info(access_token)
       end
     rescue
@@ -62,7 +61,7 @@ defmodule Helper.OAuth2.Github do
     try do
       case get(url, query: query, headers: headers) do
         %{status: 200, body: body} ->
-          IO.inspect(body["node_id"], label: "hello node_id")
+          body = body |> Map.merge(%{"access_token" => access_token})
           {:ok, body}
 
         %{status: 401, body: body} ->

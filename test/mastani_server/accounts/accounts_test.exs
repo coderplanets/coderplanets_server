@@ -25,7 +25,7 @@ defmodule MastaniServer.Test.AccountsTest do
       assert nil == user
 
       # IO.inspect @valid_github_profile, label: "@valid_github_profile"
-      {:ok, %{token: token, user: user}} = Accounts.github_login(@valid_github_profile)
+      {:ok, %{token: token, user: user}} = Accounts.github_signin(@valid_github_profile)
       {:ok, claims, _info} = Guardian.jwt_decode(token)
 
       created_user = Repo.get(Accounts.User, claims.id)
@@ -45,9 +45,9 @@ defmodule MastaniServer.Test.AccountsTest do
 
     test "exsit github user should not be created twice" do
       assert ORM.count(Accounts.GithubUser) == 0
-      {:ok, _} = Accounts.github_login(@valid_github_profile)
+      {:ok, _} = Accounts.github_signin(@valid_github_profile)
       assert ORM.count(Accounts.GithubUser) == 1
-      {:ok, _} = Accounts.github_login(@valid_github_profile)
+      {:ok, _} = Accounts.github_signin(@valid_github_profile)
       assert ORM.count(Accounts.GithubUser) == 1
     end
   end

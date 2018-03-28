@@ -1,9 +1,7 @@
 defmodule MastaniServerWeb.Schema.Account.Queries do
   use Absinthe.Schema.Notation
   use Absinthe.Ecto, repo: MastaniServerWeb.Repo
-
-  import Absinthe.Resolution.Helpers
-
+  # import Absinthe.Resolution.Helpers
   alias MastaniServerWeb.Resolvers
 
   object :account_queries do
@@ -13,9 +11,9 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
     # end
 
     @desc "get all users"
-    field :all_users, non_null(:paged_users) do
-      resolve(&Resolvers.Accounts.all_users2/3)
-    end
+    # field :all_users, non_null(:paged_users) do
+    # resolve(&Resolvers.Accounts.all_users2/3)
+    # end
 
     @desc "get all users"
     field :user, :user do

@@ -15,7 +15,7 @@ defmodule MastaniServer.Accounts do
   end
 
   @doc """
-  github_login steps:
+  github_signin steps:
   ------------------
   step 0: get access_token is enough, even profile is not need?
   step 1: check is access_token valid or not, think use a Middleware
@@ -23,15 +23,15 @@ defmodule MastaniServer.Accounts do
   step 2.2: if access_token's github_id not exsit, then signup
   step 3: return mastani token
   """
-  def github_login(github_user) do
+  def github_signin(github_user) do
     case ORM.find_by(GithubUser, github_id: to_string(github_user["id"])) do
       {:ok, g_user} ->
-        # 直接返回 token
-        {:ok, user} = ORM.find_by(User, id: g_user.user_id)
+        {:ok, user} = ORM.find(User, g_user.user_id)
+        # IO.inspect label: "send back from db"
         token_info(user)
 
       {:error, _} ->
-        # 注册 user, github_user 并返回 token
+        # IO.inspect label: "register then send"
         register_github_user(github_user)
     end
   end
@@ -89,62 +89,5 @@ defmodule MastaniServer.Accounts do
     %GithubUser{}
     |> GithubUser.changeset(attrs)
     |> Repo.insert()
-  end
-
-  def list_users do
-    Repo.all(User)
-  end
-
-  def create_user2(attrs \\ %{}) do
-    # changeset = User.changeset(%User{}, attrs)
-    %User{}
-    |> User.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  def login(user_id) do
-    case ORM.find(Accounts.User, user_id) do
-      {:ok, user} ->
-        IO.inspect(user, label: "sign token: ")
-        Guardian.jwt_encode(user, %{hello: "world"})
-
-      {:error, reason} ->
-        {:error, reason}
-    end
-  end
-
-  @doc """
-  Updates a user.
-
-  ## Examples
-
-      iex> update_user(user, %{field: new_value})
-      {:ok, %User{}}
-
-      iex> update_user(user, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_user(%User{} = user, attrs) do
-    user
-    |> User.changeset(attrs)
-    |> Repo.update()
-  end
-
-  def delete_user(%User{} = user) do
-    Repo.delete(user)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking user changes.
-
-  ## Examples
-
-      iex> change_user(user)
-      %Ecto.Changeset{source: %User{}}
-
-  """
-  def change_user(%User{} = user) do
-    User.changeset(user, %{})
   end
 end
