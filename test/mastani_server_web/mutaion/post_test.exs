@@ -1,8 +1,8 @@
-defmodule MastaniServer.Mutation.PostTest do
+defmodule MastaniServer.Test.Mutation.PostTest do
   use MastaniServerWeb.ConnCase, async: true
 
   import MastaniServer.Factory
-  import MastaniServer.AssertHelper
+  import MastaniServer.Test.AssertHelper
 
   alias MastaniServer.Repo
   alias MastaniServer.CMS

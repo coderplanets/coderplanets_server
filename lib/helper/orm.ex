@@ -1,6 +1,6 @@
 defmodule Helper.ORM do
   @moduledoc """
-  General update or delete content
+  General CORD functions
   """
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1, done: 3]
@@ -16,9 +16,43 @@ defmodule Helper.ORM do
   end
 
   @doc """
+  wrap Repo.get with preload and result/errer format handle
+  """
+  def find(queryable, id, preload: preload) do
+    queryable
+    |> preload(^preload)
+    |> Repo.get(id)
+    |> done(queryable, id)
+  end
+
+  @doc """
+  simular to Repo.get/3, with standard result/error handle
+  """
+  def find(queryable, id) do
+    queryable
+    |> Repo.get(id)
+    |> done(queryable, id)
+  end
+
+  @doc """
+  simular to Repo.get_by/3, with standard result/error handle
+  """
+  def find_by(queryable, clauses) do
+    queryable
+    |> Repo.get_by(clauses)
+    |> case do
+      nil ->
+        {:error, not_found_formater(queryable, clauses)}
+
+      result ->
+        {:ok, result}
+    end
+  end
+
+  @doc """
   return pageinated Data required by filter
   """
-  def read_all(queryable, %{page: page, size: size} = filter) do
+  def find_all(queryable, %{page: page, size: size} = filter) do
     queryable
     |> QueryBuilder.filter_pack(filter)
     |> paginater(page: page, size: size)
@@ -28,21 +62,13 @@ defmodule Helper.ORM do
   @doc """
   return  Data required by filter
   """
-  def read_all(queryable, filter) do
+  def find_all(queryable, filter) do
     queryable |> QueryBuilder.filter_pack(filter) |> Repo.all() |> done()
   end
 
-  # def read_quiet(queryable, id), do: not inc_views_count
   @doc """
   Require queryable has a views fields to count the views of the queryable Modal
-  if queryable NOT contains views fields consider use read_quiet/2
   """
-  def read(queryable, id) do
-    with {:ok, result} <- find(queryable, id) do
-      result |> done()
-    end
-  end
-
   def read(queryable, id, inc: :views) do
     with {:ok, result} <- find(queryable, id) do
       result |> inc_views_count(queryable) |> done()
@@ -80,40 +106,6 @@ defmodule Helper.ORM do
     content
     |> content.__struct__.changeset(attrs)
     |> Repo.update()
-  end
-
-  @doc """
-  wrap Repo.get with result/errer format handle
-  """
-  def find(queryable, id, preload: preload) do
-    queryable
-    |> preload(^preload)
-    |> Repo.get(id)
-    |> done(queryable, id)
-  end
-
-  @doc """
-  simular to Repo.get/3, with standard result/error handle
-  """
-  def find(queryable, id) do
-    queryable
-    |> Repo.get(id)
-    |> done(queryable, id)
-  end
-
-  @doc """
-  simular to Repo.get_by/3, with standard result/error handle
-  """
-  def find_by(queryable, clauses) do
-    queryable
-    |> Repo.get_by(clauses)
-    |> case do
-      nil ->
-        {:error, not_found_formater(queryable, clauses)}
-
-      result ->
-        {:ok, result}
-    end
   end
 
   @doc """

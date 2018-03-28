@@ -1,4 +1,4 @@
-defmodule MastaniServer.CMSTest do
+defmodule MastaniServer.Test.CMSTest do
   # use MastaniServer.DataCase
   use MastaniServerWeb.ConnCase, async: true
 
