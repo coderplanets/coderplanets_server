@@ -4,7 +4,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def post(_root, %{id: id}, _info), do: CMS.Post |> ORM.read(id, inc: :views)
 
-  def posts(_root, %{filter: filter}, _info), do: CMS.Post |> ORM.read_all(filter)
+  def posts(_root, %{filter: filter}, _info), do: CMS.Post |> ORM.find_all(filter)
 
   def create_community(_root, args, %{context: %{current_user: user}}) do
     CMS.create_community(%{title: args.title, desc: args.desc, user_id: user.id})

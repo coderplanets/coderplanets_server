@@ -2,7 +2,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   alias MastaniServer.Accounts
   alias Helper.ORM
 
-  def user(_root, %{id: id}, _info), do: Accounts.User |> ORM.read(id)
+  def user(_root, %{id: id}, _info), do: Accounts.User |> ORM.find(id)
 
   def github_login(_root, %{github_user: github_user, access_token: _}, _info) do
     Accounts.github_login(github_user)

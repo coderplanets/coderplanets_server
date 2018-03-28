@@ -1,4 +1,4 @@
-defmodule MastaniServer.AccountsTest do
+defmodule MastaniServer.Test.AccountsTest do
   use MastaniServerWeb.ConnCase, async: true
 
   # TODO import Service.Utils move both helper and github

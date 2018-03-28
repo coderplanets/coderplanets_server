@@ -1,4 +1,4 @@
-defmodule MastaniServer.AssertHelper do
+defmodule MastaniServer.Test.AssertHelper do
   import Phoenix.ConnTest
   @endpoint MastaniServerWeb.Endpoint
 

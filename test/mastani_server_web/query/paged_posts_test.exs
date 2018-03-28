@@ -1,9 +1,9 @@
-defmodule MastaniServer.Query.PagedPostsTest do
+defmodule MastaniServer.Test.Query.PagedPostsTest do
   # use MastaniServerWeb.ConnCase, async: true
   use MastaniServerWeb.ConnCase, async: true
 
   import MastaniServer.Factory
-  import MastaniServer.AssertHelper
+  import MastaniServer.Test.AssertHelper
   import Ecto.Query, warn: false
 
   alias MastaniServer.CMS
