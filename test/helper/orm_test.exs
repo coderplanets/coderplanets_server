@@ -16,12 +16,7 @@ defmodule MastaniServer.Test.Helper.ORMTest do
     db_insert_multi!(:post, @posts_count)
     {:ok, post} = db_insert(:post, @post_clauses)
 
-    # conn =
-    # build_conn()
-    # |> put_req_header("authorization", "Bearer fake-token")
-    conn = build_conn()
-
-    {:ok, post: post, conn: conn}
+    {:ok, post: post}
   end
 
   describe "[find/x find_by]" do
@@ -62,7 +57,7 @@ defmodule MastaniServer.Test.Helper.ORMTest do
       assert %User{} = found.author.user
     end
 
-    test "find_by/2 should find a target by given clauses", %{post: post} do
+    test "find_by/2 should find a target by given clauses" do
       {:ok, found} = ORM.find_by(Post, @post_clauses)
 
       assert found.title == @post_clauses.title
