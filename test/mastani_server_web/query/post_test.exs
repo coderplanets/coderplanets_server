@@ -1,8 +1,8 @@
-defmodule MastaniServer.Query.PostTest do
+defmodule MastaniServer.Test.Query.PostTest do
   # use MastaniServer.DataCase
   use MastaniServerWeb.ConnCase, async: true
   import MastaniServer.Factory
-  import MastaniServer.AssertHelper
+  import MastaniServer.Test.AssertHelper
   # alias MastaniServer.Accounts
 
   # TODO

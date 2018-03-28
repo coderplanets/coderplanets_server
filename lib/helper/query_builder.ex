@@ -41,7 +41,7 @@ defmodule Helper.QueryBuilder do
   defp sort_strategy(:desc_inserted), do: [desc: :inserted_at, desc: :views]
   # defp strategy(:most_stars), do: [desc: :views, desc: :inserted_at]
 
-  def filter_pack(queryable, filter) do
+  def filter_pack(queryable, filter) when is_map(filter) do
     Enum.reduce(filter, queryable, fn
       {:sort, :desc_inserted}, queryable ->
         # queryable |> order_by(^sort_strategy(:desc_inserted))

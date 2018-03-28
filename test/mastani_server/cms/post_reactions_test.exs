@@ -1,4 +1,4 @@
-defmodule MastaniServer.PostReactionsTest do
+defmodule MastaniServer.Test.PostReactionsTest do
   use MastaniServerWeb.ConnCase, async: true
   import MastaniServer.Factory
 
