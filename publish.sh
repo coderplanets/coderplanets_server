@@ -7,7 +7,8 @@ if [ "$ENV" == "prod" ];then
     ./docker/production/builder.sh
 elif [ "$ENV" == "dev" ]
 then
-    echo "do dev"
+    echo "[Step 0/5] running ./docker/dev/builder.sh"
+    ./docker/dev/builder.sh
 else
     echo "invalid publish env, support env: dev / prod"
     echo "usage: ./publish.sh dev OR ./publish.sh prod"
