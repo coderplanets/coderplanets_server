@@ -7,7 +7,7 @@ use Mix.Config
 # watchers to your application. For example, we use it
 # with brunch.io to recompile .js and .css sources.
 config :mastani_server, MastaniServerWeb.Endpoint,
-  http: [port: 4005],
+  http: [port: 4101],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
