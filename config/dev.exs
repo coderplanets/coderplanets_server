@@ -38,6 +38,6 @@ config :phoenix, :stacktrace_depth, 20
 
 # import_config "dev.secret.exs"
 
-config :mastani_server, :github_oauth,
-  client_id: "3b4281c5e54ffd801f85",
-  client_secret: "51f04dd8239b27f00a39a647ef3704de4c5ddc26"
+# config :mastani_server, :github_oauth,
+  # client_id: "3b4281c5e54ffd801f85",
+  # client_secret: "51f04dd8239b27f00a39a647ef3704de4c5ddc26"
