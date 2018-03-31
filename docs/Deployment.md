@@ -1,6 +1,6 @@
 
 ## Architecture
 
-![Architechture](https://github.com/mydearxym/mastani_server/blob/dev/docs/snapshots/Architechture.png)
+![Architechture](https://github.com/mydearxym/mastani_server/blob/master/docs/snapshots/Architechture.png)
 
 
