@@ -31,7 +31,6 @@ defmodule MastaniServer.Accounts.User do
     #   |___ ...
     #   |___ timeline / timemachine --> only record CURD, Tag, ..
 
-
     timestamps(type: :utc_datetime)
   end
 

@@ -4,6 +4,9 @@ RUN mkdir /root/mastani_server
 RUN mkdir /root/mastani_web
 RUN mkdir /root/mastani_api_monitor
 
+# change timezone to +8
+RUN /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' >/etc/timezone
+
 RUN npm install -g http-server --registry=https://registry.npm.taobao.org
 ADD mastani_server.tar.gz /root/mastani_server
 ADD mastani_web.tar.gz  /root/mastani_web
