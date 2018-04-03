@@ -6,6 +6,8 @@ defmodule MastaniServerWeb.Middleware.ConvertToInt do
   @behaviour Absinthe.Middleware
   # google: must appear in the GROUP BY clause or be used in an aggregate function
 
+  def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
+
   def call(%{value: [value]} = resolution, _) do
     %{resolution | value: value}
   end

@@ -12,6 +12,8 @@ defmodule MastaniServerWeb.Middleware.SizeChecker do
   # 2. if not has filter: marge to default first: 5
   # 3. large size should trigger error
 
+  def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
+
   def call(resolution, _) do
     case valid_size(resolution.arguments) do
       {:error, msg} ->

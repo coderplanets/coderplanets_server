@@ -11,5 +11,9 @@ defmodule MastaniServerWeb.Middleware.PutCurrentUser do
     %{resolution | arguments: arguments}
   end
 
-  def call(resolution, _), do: resolution
+  def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
+
+  def call(resolution, _) do
+    resolution
+  end
 end

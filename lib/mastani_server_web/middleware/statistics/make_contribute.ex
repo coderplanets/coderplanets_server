@@ -8,14 +8,11 @@ defmodule MastaniServerWeb.Middleware.Statistics.MakeContribute do
   alias MastaniServer.Statistics
   alias MastaniServer.Accounts.User
 
-  def call(%{value: nil} = resolution, _) do
-    IO.inspect("MakeContribute nil")
-    resolution
-  end
+  def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
+
+  def call(%{value: nil, errors: _} = resolution, _), do: resolution
 
   def call(%{value: _, context: %{current_user: current_user}} = resolution, _) do
-    # IO.inspect value, label: "MakeContribute"
-    # IO.inspect current_user.id, label: "current_user"
     Statistics.make_contribute(%User{id: current_user.id})
     resolution
   end

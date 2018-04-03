@@ -5,6 +5,8 @@
 defmodule MastaniServerWeb.Middleware.FormatPagination do
   @behaviour Absinthe.Middleware
 
+  def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
+
   def call(%{errors: [errors], value: nil} = resolution, _) do
     %{resolution | value: [], errors: [errors]}
   end

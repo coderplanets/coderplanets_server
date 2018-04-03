@@ -18,7 +18,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       resolve(&Resolvers.CMS.create_post/3)
     end
 
-    @desc "create a tag by part"
+    @desc "create a tag by part [:login required]"
     field :create_tag, :tag do
       arg(:title, non_null(:string))
       arg(:color, non_null(:rainbow_color_enum))
@@ -29,6 +29,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       resolve(&Resolvers.CMS.create_tag/3)
     end
 
+    @desc "delete a tag by part [:login required]"
     field :delete_tag, :tag do
       arg(:id, non_null(:id))
 
