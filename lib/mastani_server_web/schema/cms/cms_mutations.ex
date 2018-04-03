@@ -2,7 +2,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
   use Absinthe.Schema.Notation
   use Absinthe.Ecto, repo: MastaniServer.Repo
 
-  alias MastaniServerWeb.{Resolvers, Middleware}
+  alias MastaniServerWeb.{Resolvers}
+  alias MastaniServerWeb.Middleware, as: M
 
   object :cms_mutations do
     @desc "create a user"
@@ -14,7 +15,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:link_addr, :string)
       arg(:community, non_null(:string))
 
-      middleware(Middleware.Authorize, :login)
+      middleware(M.Authorize, :login)
       resolve(&Resolvers.CMS.create_post/3)
     end
 
@@ -25,7 +26,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:community, non_null(:string))
       arg(:type, :cms_part, default_value: :post)
 
-      middleware(Middleware.Authorize, :login)
+      middleware(M.Authorize, :login)
       resolve(&Resolvers.CMS.create_tag/3)
     end
 
@@ -33,7 +34,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
     field :delete_tag, :tag do
       arg(:id, non_null(:id))
 
-      middleware(Middleware.Authorize, :login)
+      middleware(M.Authorize, :login)
       # middleware(Middleware.OwnerRequired, match: [:post, :tag], others: ["admin"])
       resolve(&Resolvers.CMS.delete_tag/3)
     end
@@ -42,17 +43,16 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:title, non_null(:string))
       arg(:desc, non_null(:string))
 
-      middleware(Middleware.Authorize, :login)
-      middleware(Middleware.PutCurrentUser)
+      middleware(M.Authorize, :login)
+      middleware(M.PutCurrentUser)
       resolve(&Resolvers.CMS.create_community/3)
-      middleware(Middleware.Statistics.MakeContribute)
+      middleware(M.Statistics.MakeContribute)
     end
 
     field :delete_community, :community do
       arg(:id, non_null(:id))
 
-      middleware(Middleware.Authorize, :login)
-      # middleware(Middleware.Authorize, :root)
+      middleware(M.Authorize, :login)
       resolve(&Resolvers.CMS.delete_community/3)
     end
 
@@ -61,8 +61,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:tag_id, non_null(:id))
       arg(:type, :cms_part, default_value: :post)
 
-      middleware(Middleware.Authorize, :login)
-      # middleware(Middleware.Authorize, :community_admin)
+      middleware(M.Authorize, :login)
       resolve(&Resolvers.CMS.set_tag/3)
     end
 
@@ -71,8 +70,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:tag_id, non_null(:id))
       arg(:type, :cms_part, default_value: :post)
 
-      middleware(Middleware.Authorize, :login)
-      # middleware(Middleware.Authorize, :community_admin)
+      middleware(M.Authorize, :login)
       resolve(&Resolvers.CMS.unset_tag/3)
     end
 
@@ -81,8 +79,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:community_id, non_null(:id))
       arg(:type, :cms_part, default_value: :post)
 
-      middleware(Middleware.Authorize, :login)
-      # middleware(Middleware.Authorize, :community_admin)
+      middleware(M.Authorize, :login)
       resolve(&Resolvers.CMS.set_community/3)
     end
 
@@ -91,7 +88,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:community_id, non_null(:id))
       arg(:type, :cms_part, default_value: :post)
 
-      middleware(Middleware.Authorize, :login)
+      middleware(M.Authorize, :login)
       # middleware(Middleware.Authorize, :community_admin)
       resolve(&Resolvers.CMS.unset_community/3)
     end
@@ -101,7 +98,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:type, non_null(:cms_part))
       arg(:action, non_null(:cms_action))
 
-      middleware(Middleware.Authorize, :login)
+      middleware(M.Authorize, :login)
       resolve(&Resolvers.CMS.reaction/3)
     end
 
@@ -110,7 +107,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:type, non_null(:cms_part))
       arg(:action, non_null(:cms_action))
 
-      middleware(Middleware.Authorize, :login)
+      middleware(M.Authorize, :login)
       resolve(&Resolvers.CMS.undo_reaction/3)
     end
 
@@ -118,8 +115,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
     field :delete_post, :post do
       arg(:id, non_null(:id))
 
-      middleware(Middleware.Authorize, :login)
-      middleware(Middleware.OwnerRequired, match: :post, others: ["admin"])
+      middleware(M.Authorize, :login)
+      middleware(M.OwnerRequired, match: :post, others: ["admin"])
       resolve(&Resolvers.CMS.delete_post/3)
     end
 
@@ -130,8 +127,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:body, :string)
       arg(:digest, :string)
 
-      middlewared(Middleware.Authorize, :login)
-      middleware(Middleware.OwnerRequired, match: :post, others: ["admin"])
+      middlewared(M.Authorize, :login)
+      middleware(M.OwnerRequired, match: :post, others: ["admin"])
 
       resolve(&Resolvers.CMS.update_post/3)
     end
@@ -145,7 +142,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:body, non_null(:string))
 
       # TDOO: use a comment resolver
-      middleware(Middleware.Authorize, :login)
+      middleware(M.Authorize, :login)
       resolve(&Resolvers.CMS.create_comment/3)
     end
 
@@ -156,8 +153,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:type, :cms_part, default_value: :post)
       # arg(:body, non_null(:string))
 
-      middleware(Middleware.Authorize, :login)
-      middleware(Middleware.OwnerRequired, match: [:post, :comment], others: ["admin"])
+      middleware(M.Authorize, :login)
+      middleware(M.OwnerRequired, match: [:post, :comment], others: ["admin"])
       resolve(&Resolvers.CMS.delete_comment/3)
     end
 

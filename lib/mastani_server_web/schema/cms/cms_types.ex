@@ -4,7 +4,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
   import Absinthe.Resolution.Helpers, only: [dataloader: 2]
   alias MastaniServer.CMS
-  alias MastaniServerWeb.{Schema, Middleware}
+  alias MastaniServerWeb.{Schema}
+  alias MastaniServerWeb.Middleware, as: M
 
   import_types(Schema.CMS.Misc)
 
@@ -40,17 +41,17 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       arg(:filter, :article_filter)
       arg(:action, :comment_action, default_value: :comment)
 
-      middleware(Middleware.SizeChecker)
+      middleware(M.SizeChecker)
       resolve(dataloader(CMS, :comments))
     end
 
     field :viewer_has_favorited, :boolean do
       arg(:arg_viewer_reacted, :arg_viewer_reacted, default_value: :arg_viewer_reacted)
 
-      middleware(Middleware.Authorize, :login)
-      middleware(Middleware.PutCurrentUser)
+      middleware(M.Authorize, :login)
+      middleware(M.PutCurrentUser)
       resolve(dataloader(CMS, :favorites))
-      middleware(Middleware.ViewerReactedConvert)
+      middleware(M.ViewerReactedConvert)
       # TODO: Middleware.Logger
     end
 
@@ -65,17 +66,17 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field :viewer_has_starred, :boolean do
       arg(:arg_viewer_reacted, :arg_viewer_reacted, default_value: :arg_viewer_reacted)
 
-      middleware(Middleware.Authorize, :login)
-      middleware(Middleware.PutCurrentUser)
+      middleware(M.Authorize, :login)
+      middleware(M.PutCurrentUser)
       resolve(dataloader(CMS, :stars))
-      middleware(Middleware.ViewerReactedConvert)
+      middleware(M.ViewerReactedConvert)
     end
 
     # field :viewer_has_starred_old, :boolean do
     # arg(:type, :post_type, default_value: :post)
     # arg(:action, :star_action, default_value: :star)
 
-    # middleware(Middleware.Authorize, :login)
+    # middleware(M.Authorize, :login)
     # resolve(&Resolvers.CMS.viewer_has_reacted/3)
     # end
 
@@ -83,7 +84,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       # TODO: tmp
       arg(:filter, :article_filter)
 
-      middleware(Middleware.SizeChecker)
+      middleware(M.SizeChecker)
       resolve(dataloader(CMS, :favorites))
     end
 
@@ -96,9 +97,9 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
     field :favorited_count, :integer do
       arg(:arg_count, :arg_count, default_value: :arg_count)
-      # middleware(Middleware.SeeMe)
+      # middleware(M.SeeMe)
       resolve(dataloader(CMS, :favorites))
-      middleware(Middleware.ConvertToInt)
+      middleware(M.ConvertToInt)
     end
 
     # field :favorited_count_old, :integer do
@@ -110,7 +111,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field :starred_count, :integer do
       arg(:arg_count, :arg_count, default_value: :arg_count)
       resolve(dataloader(CMS, :stars))
-      middleware(Middleware.ConvertToInt)
+      middleware(M.ConvertToInt)
     end
 
     # field :starred_count_old, :integer do
@@ -123,7 +124,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       # TODO: tmp
       arg(:filter, :article_filter)
 
-      middleware(Middleware.SizeChecker)
+      middleware(M.SizeChecker)
       resolve(dataloader(CMS, :stars))
     end
 

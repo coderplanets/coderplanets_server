@@ -2,7 +2,7 @@ defmodule MastaniServerWeb.Schema do
   use Absinthe.Schema
 
   alias MastaniServerWeb.Schema.{Account, CMS, Statistics}
-  alias MastaniServerWeb.Middleware
+  alias MastaniServerWeb.Middleware, as: M
 
   import_types(Absinthe.Type.Custom)
 
@@ -31,16 +31,15 @@ defmodule MastaniServerWeb.Schema do
   end
 
   def middleware(middleware, _field, %{identifier: :query}) do
-    middleware ++ [Middleware.GeneralError]
+    middleware ++ [M.GeneralError]
   end
 
   def middleware(middleware, _field, %{identifier: :mutation}) do
-    middleware ++ [Middleware.ChangesetErrors]
+    middleware ++ [M.ChangesetErrors]
   end
 
   def middleware(middleware, _field, _object) do
     [ApolloTracing.Middleware.Tracing, ApolloTracing.Middleware.Caching] ++ middleware
-    # middleware
   end
 
   def plugins do
