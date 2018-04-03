@@ -42,7 +42,9 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:desc, non_null(:string))
 
       middleware(Middleware.Authorize, :login)
+      middleware(Middleware.PutCurrentUser)
       resolve(&Resolvers.CMS.create_community/3)
+      middleware(Middleware.Statistics.MakeContribute)
     end
 
     field :delete_community, :community do

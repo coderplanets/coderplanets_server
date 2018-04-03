@@ -5,7 +5,9 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
   import MastaniServer.Test.AssertHelper
 
   alias MastaniServer.Repo
+  alias MastaniServer.Statistics
   alias MastaniServer.CMS
+  alias Helper.ORM
 
   @valid_community mock_attrs(:community)
   @valid_user mock_attrs(:user, %{nickname: "mydearxym"})
@@ -92,6 +94,20 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       variables = mock_attrs(:community)
       created = conn |> mutation_result(@create_community_query, variables, "createCommunity")
       found = CMS.Community |> Repo.get(created["id"])
+
+      assert created["id"] == to_string(found.id)
+    end
+
+    test "the user who create community should add contribute", %{conn: conn, user: user} do
+      variables = mock_attrs(:community)
+      created = conn |> mutation_result(@create_community_query, variables, "createCommunity")
+      found = CMS.Community |> Repo.get(created["id"])
+
+      {:ok, contribute} = ORM.find_by(Statistics.UserContributes, user_id: user.id)
+
+      assert contribute.date == Timex.today()
+      assert contribute.user_id == user.id
+      assert contribute.count == 1
 
       assert created["id"] == to_string(found.id)
     end
