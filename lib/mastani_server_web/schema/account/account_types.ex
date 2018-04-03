@@ -36,7 +36,7 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:id, :id)
     field(:nickname, :string)
     field(:bio, :string)
-    field(:company, :string)
+    field(:avatar, :string)
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
     field(:from_github, :boolean)

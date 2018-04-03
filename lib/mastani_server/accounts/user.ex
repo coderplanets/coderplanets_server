@@ -10,6 +10,27 @@ defmodule MastaniServer.Accounts.User do
     field(:bio, :string)
     field(:from_github, :boolean)
     has_one(:github_profile, GithubUser)
+    # [use Middleware] Analysis.Post...
+    # [use Middleware] Logger.userActivity
+    # TODO ? 在 logger/history/timeMachine 中间件中调用 Analysis
+    # [use Middleware] Analysis.UserHeatmap
+    # Logger context
+    #   |___ User
+    #   |___ Post-timeline
+    #   |___ Jobs
+    #   |___ Tuts
+    #
+    # Statistics
+    #   |___ UserHeatMap
+    #   |___ Post
+    #   |___ Jobs
+    #   |___ Tuts
+    #
+    # post schema
+    #   |___ ...
+    #   |___ ...
+    #   |___ timeline / timemachine --> only record CURD, Tag, ..
+
 
     timestamps(type: :utc_datetime)
   end

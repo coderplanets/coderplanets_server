@@ -2,8 +2,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
   use Absinthe.Schema.Notation
   use Absinthe.Ecto, repo: MastaniServer.Repo
 
-  alias MastaniServerWeb.Resolvers
-  alias MastaniServerWeb.Middleware
+  alias MastaniServerWeb.{Resolvers, Middleware}
 
   object :cms_mutations do
     @desc "create a user"
