@@ -6,7 +6,7 @@ defmodule MastaniServerWeb.Middleware.SeeMe do
   @behaviour Absinthe.Middleware
 
   def call(res, _) do
-    IO.inspect "see me"
+    IO.inspect("see me")
     res
   end
 end

@@ -6,7 +6,7 @@ defmodule MastaniServer.CMS do
   """
   import MastaniServer.CMSMisc
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, done: 2]
+  import Helper.Utils, only: [done: 1, done: 2, deep_merge: 2]
 
   alias MastaniServer.CMS.{Author, Tag, Community, PostComment, PostFavorite, PostStar}
   alias MastaniServer.{Repo, Accounts}
@@ -284,5 +284,61 @@ defmodule MastaniServer.CMS do
 
   defp handle_existing_author({:error, changeset}) do
     ORM.find_by(Author, user_id: changeset.data.user_id)
+  end
+
+  alias MastaniServer.CMS.Passport
+
+  # TODO passport should be public utils
+  @doc """
+  insert or update a user's passport in CMS context
+  """
+  def stamp_passport(%Accounts.User{} = user, rules) do
+    case ORM.find_by(Passport, user_id: user.id) do
+      {:ok, passport} ->
+        passport
+        |> Ecto.Changeset.change(rules: deep_merge(passport.rules, rules))
+        |> Repo.update()
+
+      {:error, _} ->
+        %Passport{user_id: user.id, rules: rules}
+        |> Passport.changeset(%{})
+        |> Repo.insert()
+    end
+  end
+
+  def erase_passport(%Accounts.User{} = user, rules) when is_list(rules) do
+    with {:ok, passport} <- ORM.find_by(Passport, user_id: user.id) do
+      case pop_in(passport.rules, rules) do
+        {nil, _} ->
+          {:error, "#{rules} not found"}
+
+        {_, lefts} ->
+          passport
+          |> Ecto.Changeset.change(rules: lefts)
+          |> Repo.update()
+      end
+    end
+  end
+
+  @doc """
+  return a user's passport in CMS context
+  """
+  def get_passport(%Accounts.User{} = user) do
+    Passport |> ORM.find_by(user_id: user.id)
+  end
+
+  # def list_passports do
+
+  # end
+
+  # def list_passports(community) do
+
+  # end
+
+  def list_passports(community, key) do
+    Passport
+    |> where([p], fragment("(?->?->>?)::boolean = ?", p.rules, ^community, ^key, true))
+    |> Repo.all()
+    |> done
   end
 end
