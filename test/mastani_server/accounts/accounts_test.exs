@@ -12,11 +12,6 @@ defmodule MastaniServer.Test.AccountsTest do
   # @valid_user mock_attrs(:user)
   @valid_github_profile mock_attrs(:github_profile) |> map_key_stringify
 
-  # setup do
-
-  # :ok
-  # end
-
   describe "[github login]" do
     test "register a valid github user with non-exist in db" do
       g_user = Repo.get_by(Accounts.GithubUser, github_id: to_string(@valid_github_profile["id"]))

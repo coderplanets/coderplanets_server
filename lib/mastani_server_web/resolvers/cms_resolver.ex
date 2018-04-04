@@ -6,18 +6,18 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def posts(_root, %{filter: filter}, _info), do: CMS.Post |> ORM.find_all(filter)
 
-  def create_community(_root, args, %{context: %{current_user: user}}) do
+  def create_community(_root, args, %{context: %{cur_user: user}}) do
     CMS.create_community(%{title: args.title, desc: args.desc, user_id: user.id})
   end
 
   # TODO
-  def create_tag(_root, args, %{context: %{current_user: user}}) do
+  def create_tag(_root, args, %{context: %{cur_user: user}}) do
     # args2 = for {k, v} <- args, into: %{}, do: {k, to_string(v)}
-    CMS.create_tag(args.type, %{
+    CMS.create_tag(args.part, %{
       title: args.title,
       color: to_string(args.color),
       community: args.community,
-      part: to_string(args.type),
+      part: to_string(args.part),
       user_id: user.id
     })
   end
@@ -47,17 +47,17 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.get_tags(community, to_string(part))
   end
 
-  def create_post(_root, args, %{context: %{current_user: user}}) do
+  def create_post(_root, args, %{context: %{cur_user: user}}) do
     # args.community = "elxiir"
     CMS.create_content(:post, %CMS.Author{user_id: user.id}, args)
   end
 
-  def reaction(_root, %{type: type, action: action, id: id}, %{context: %{current_user: user}}) do
+  def reaction(_root, %{type: type, action: action, id: id}, %{context: %{cur_user: user}}) do
     CMS.reaction(type, action, id, user.id)
   end
 
   def undo_reaction(_root, %{type: type, action: action, id: id}, %{
-        context: %{current_user: user}
+        context: %{cur_user: user}
       }),
       do: CMS.undo_reaction(type, action, id, user.id)
 
@@ -69,15 +69,15 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.reaction_count(type, action, root.id)
   end
 
-  def viewer_has_reacted(root, %{type: type, action: action}, %{context: %{current_user: user}}) do
+  def viewer_has_reacted(root, %{type: type, action: action}, %{context: %{cur_user: user}}) do
     CMS.viewer_has_reacted(type, action, root.id, user.id)
   end
 
-  def delete_post(_root, %{content_tobe_operate: content}, _info), do: ORM.delete(content)
-  def delete_comment(_root, %{content_tobe_operate: content}, _info), do: ORM.delete(content)
+  def delete_post(_root, %{passport_source: content}, _info), do: ORM.delete(content)
+  def delete_comment(_root, %{passport_source: content}, _info), do: ORM.delete(content)
 
-  def update_post(_root, args, _info), do: ORM.update(args.content_tobe_operate, args)
+  def update_post(_root, args, _info), do: ORM.update(args.passport_source, args)
 
-  def create_comment(_root, %{type: type, id: id, body: body}, %{context: %{current_user: user}}),
+  def create_comment(_root, %{type: type, id: id, body: body}, %{context: %{cur_user: user}}),
     do: CMS.create_comment(type, :comment, id, user.id, body)
 end

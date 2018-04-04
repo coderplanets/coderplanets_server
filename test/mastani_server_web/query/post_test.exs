@@ -2,26 +2,17 @@ defmodule MastaniServer.Test.Query.PostTest do
   # use MastaniServer.DataCase
   use MastaniServerWeb.ConnCase, async: true
   import MastaniServer.Factory
+  import MastaniServer.Test.ConnBuilder
   import MastaniServer.Test.AssertHelper
   # alias MastaniServer.Accounts
-
-  # TODO
-  @valid_user mock_attrs(:user, %{nickname: "mydearxym"})
 
   setup do
     {:ok, post} = db_insert(:post)
 
-    db_insert(:user, @valid_user)
-    token = mock_jwt_token(nickname: @valid_user.nickname)
+    guest_conn = mock_conn(:guest)
+    user_conn = mock_conn(:user)
 
-    conn =
-      build_conn()
-      |> put_req_header("authorization", token)
-      |> put_req_header("content-type", "application/json")
-
-    conn_without_token = build_conn()
-    # |> put_req_header("content-type", "application/json")
-    {:ok, post: post, conn: conn, conn_without_token: conn_without_token}
+    {:ok, post: post, guest_conn: guest_conn, user_conn: user_conn}
   end
 
   @query """
@@ -33,7 +24,7 @@ defmodule MastaniServer.Test.Query.PostTest do
     }
   }
   """
-  test "basic graphql query on post with logined user", %{post: post, conn: conn} do
+  test "basic graphql query on post with logined user", %{post: post, user_conn: conn} do
     variables = %{id: post.id}
     results = conn |> query_result(@query, variables, "post")
 
@@ -45,7 +36,7 @@ defmodule MastaniServer.Test.Query.PostTest do
 
   test "basic graphql query on post with stranger(unloged user)", %{
     post: post,
-    conn_without_token: conn
+    guest_conn: conn
   } do
     variables = %{id: post.id}
     results = conn |> query_result(@query, variables, "post")
@@ -66,7 +57,7 @@ defmodule MastaniServer.Test.Query.PostTest do
     }
   }
   """
-  test "post have favoritedUsers query field", %{post: post, conn: conn} do
+  test "post have favoritedUsers query field", %{post: post, user_conn: conn} do
     variables = %{id: post.id}
     results = conn |> query_result(@query, variables, "post")
 
@@ -81,7 +72,7 @@ defmodule MastaniServer.Test.Query.PostTest do
     }
   }
   """
-  test "views should +1 after query the post", %{post: post, conn: conn} do
+  test "views should +1 after query the post", %{post: post, user_conn: conn} do
     variables_1 = %{id: post.id}
     views_1 = conn |> query_result(@query, variables_1, "post") |> Map.get("views")
 
@@ -102,7 +93,7 @@ defmodule MastaniServer.Test.Query.PostTest do
   """
   test "logged user can query viewerHasFavorited field", %{
     post: post,
-    conn: conn
+    user_conn: conn
   } do
     variables = %{id: post.id}
 
@@ -113,7 +104,7 @@ defmodule MastaniServer.Test.Query.PostTest do
 
   test "unlogged user can not query viewerHasFavorited field", %{
     post: post,
-    conn_without_token: conn
+    guest_conn: conn
   } do
     variables = %{id: post.id}
 
@@ -132,7 +123,7 @@ defmodule MastaniServer.Test.Query.PostTest do
   """
   test "logged user can query viewerHasStarred field", %{
     post: post,
-    conn: conn
+    user_conn: conn
   } do
     variables = %{id: post.id}
 
@@ -143,7 +134,7 @@ defmodule MastaniServer.Test.Query.PostTest do
 
   test "unlogged user can not query viewerHasStarred field", %{
     post: post,
-    conn_without_token: conn
+    guest_conn: conn
   } do
     variables = %{id: post.id}
     assert conn |> query_get_error?(@query, variables)

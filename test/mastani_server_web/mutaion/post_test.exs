@@ -2,46 +2,22 @@ defmodule MastaniServer.Test.Mutation.PostTest do
   use MastaniServerWeb.ConnCase, async: true
 
   import MastaniServer.Factory
+  import MastaniServer.Test.ConnBuilder
   import MastaniServer.Test.AssertHelper
 
   alias MastaniServer.Repo
+  alias MastaniServer.Accounts.User
   alias MastaniServer.CMS
   alias Helper.ORM
 
-  @valid_user mock_attrs(:user, %{nickname: "mydearxym"})
-  @valid_post mock_attrs(:post)
-  @valid_community mock_attrs(:community)
-  @valid_community2 mock_attrs(:community)
-  @valid_tag mock_attrs(:tag)
-  @valid_tag2 mock_attrs(:tag)
-
   setup do
-    db_insert(:user, @valid_user)
-    {:ok, community} = db_insert(:community, @valid_community)
-    {:ok, community2} = db_insert(:community, @valid_community2)
+    {:ok, post} = db_insert(:post)
 
-    {:ok, post} = db_insert(:post, %{title: "new post"})
+    guest_conn = mock_conn(:guest)
+    user_conn = mock_conn(:user)
+    owner_conn = mock_conn(:owner, post)
 
-    {:ok, tag} = db_insert(:tag, @valid_tag)
-    {:ok, tag2} = db_insert(:tag, @valid_tag2)
-
-    token = mock_jwt_token(nickname: @valid_user.nickname)
-
-    conn =
-      build_conn()
-      |> put_req_header("authorization", token)
-      |> put_req_header("content-type", "application/json")
-
-    conn_without_token = build_conn()
-    # |> put_req_header("content-type", "application/json")
-    {:ok,
-     conn: conn,
-     conn_without_token: conn_without_token,
-     post: post,
-     community: community,
-     community2: community2,
-     tag: tag,
-     tag2: tag2}
+    {:ok, guest_conn: guest_conn, user_conn: user_conn, owner_conn: owner_conn, post: post}
   end
 
   describe "[mutation post comment]" do
@@ -53,7 +29,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       }
     }
     """
-    test "create comment to a exsit post", %{post: post, conn: conn} do
+    test "create comment to a exsit post", %{post: post, user_conn: conn} do
       variables = %{type: "POST", id: post.id, body: "a test comment"}
       created = conn |> mutation_result(@create_comment_query, variables, "createComment")
 
@@ -67,7 +43,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       }
     }
     """
-    test "delete a comment", %{post: post, conn: conn} do
+    test "delete a comment", %{post: post, user_conn: conn} do
       variables1 = %{type: "POST", id: post.id, body: "a test comment"}
       created = conn |> mutation_result(@create_comment_query, variables1, "createComment")
       assert created["body"] == variables1.body
@@ -93,10 +69,13 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       }
     }
     """
-    test "create post with valid attrs", %{conn: conn} do
-      variables = @valid_post |> Map.merge(%{community: @valid_community.title})
+    test "create post with valid attrs", %{user_conn: conn} do
+      {:ok, community} = db_insert(:community)
+      post_attr = mock_attrs(:post)
+
+      variables = post_attr |> Map.merge(%{community: community.title})
       created = conn |> mutation_result(@create_post_query, variables, "createPost")
-      post = Repo.get_by(CMS.Post, title: @valid_post.title)
+      post = Repo.get_by(CMS.Post, title: post_attr.title)
 
       assert created["id"] == to_string(post.id)
     end
@@ -108,14 +87,41 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       }
     }
     """
-    test "delete a post with valid auth", %{conn: conn, post: post} do
+    test "delete a post by post's owner", %{owner_conn: conn, post: post} do
       deleted = conn |> mutation_result(@query, %{id: post.id}, "deletePost")
 
       assert deleted["id"] == to_string(post.id)
       assert nil == Repo.get(CMS.Post, deleted["id"])
     end
 
-    test "delete a post without login user fails", %{conn_without_token: conn, post: post} do
+    test "delete a post without login user fails", %{guest_conn: conn, post: post} do
+      assert conn |> mutation_get_error?(@query, %{id: post.id})
+    end
+
+    test "login user with auth passport delete a post", %{post: post} do
+      post_communities_0 = post.communities |> List.first() |> Map.get(:title)
+      passport_rules = %{"cms" => %{post_communities_0 => %{"post.article.delete" => true}}}
+      conn = mock_conn(:user, passport_rules)
+
+      # assert conn |> mutation_get_error?(@query, %{id: post.id})
+
+      deleted = conn |> mutation_result(@query, %{id: post.id}, "deletePost")
+
+      assert deleted["id"] == to_string(post.id)
+    end
+
+    test "login user with wrong passport delete a post fails", %{user_conn: conn, post: post} do
+      post_communities_0 = post.communities |> List.first() |> Map.get(:title)
+      # IO.inspect(post_communities_0, label: "hello")
+      # CMS.stamp_passport(%User{id: user.id}, community_rules)
+
+      passport_rules = %{"xxx" => %{"x.y.z": true}}
+      conn = mock_conn(:user, passport_rules)
+
+      assert conn |> mutation_get_error?(@query, %{id: post.id})
+    end
+
+    test "login user without passport delete a post fails", %{user_conn: conn, post: post} do
       assert conn |> mutation_get_error?(@query, %{id: post.id})
     end
 
@@ -128,7 +134,19 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       }
     }
     """
-    test "update a post with valid data", %{conn: conn, post: post} do
+    test "update a post without login user fails", %{guest_conn: conn, post: post} do
+      unique_num = System.unique_integer([:positive, :monotonic])
+
+      variables = %{
+        id: post.id,
+        title: "updated title #{unique_num}",
+        body: "updated body #{unique_num}"
+      }
+
+      assert conn |> mutation_get_error?(@query, variables)
+    end
+
+    test "update a post with by post's owner", %{owner_conn: conn, post: post} do
       unique_num = System.unique_integer([:positive, :monotonic])
 
       variables = %{
@@ -142,6 +160,37 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       assert updated_post["title"] == variables.title
       assert updated_post["body"] == variables.body
     end
+
+    test "login user with auth passport update a post", %{post: post} do
+      post_communities_0 = post.communities |> List.first() |> Map.get(:title)
+      passport_rules = %{"cms" => %{post_communities_0 => %{"post.article.edit" => true}}}
+      conn = mock_conn(:user, passport_rules)
+
+      # assert conn |> mutation_get_error?(@query, %{id: post.id})
+      unique_num = System.unique_integer([:positive, :monotonic])
+
+      variables = %{
+        id: post.id,
+        title: "updated title #{unique_num}",
+        body: "updated body #{unique_num}"
+      }
+
+      updated_post = conn |> mutation_result(@query, variables, "updatePost")
+
+      assert updated_post["id"] == to_string(post.id)
+    end
+
+    test "login user without passport update  post fails", %{user_conn: conn, post: post} do
+      unique_num = System.unique_integer([:positive, :monotonic])
+
+      variables = %{
+        id: post.id,
+        title: "updated title #{unique_num}",
+        body: "updated body #{unique_num}"
+      }
+
+      assert conn |> mutation_get_error?(@query, variables)
+    end
   end
 
   describe "[mutation post tag]" do
@@ -153,7 +202,8 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       }
     }
     """
-    test "can set a tag to post", %{conn: conn, post: post, tag: tag} do
+    test "can set a tag to post", %{user_conn: conn, post: post} do
+      {:ok, tag} = db_insert(:tag)
       variables = %{id: post.id, tagId: tag.id}
       conn |> mutation_result(@set_tag_query, variables, "setTag")
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :tags)
@@ -162,7 +212,10 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       assert tag.id in assoc_tags
     end
 
-    test "can set multi tag to a post", %{conn: conn, post: post, tag: tag, tag2: tag2} do
+    test "can set multi tag to a post", %{user_conn: conn, post: post} do
+      {:ok, tag} = db_insert(:tag)
+      {:ok, tag2} = db_insert(:tag)
+
       variables = %{id: post.id, tagId: tag.id}
       conn |> mutation_result(@set_tag_query, variables, "setTag")
 
@@ -184,7 +237,10 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       }
     }
     """
-    test "can unset tag from a post", %{conn: conn, post: post, tag: tag, tag2: tag2} do
+    test "can unset tag from a post", %{user_conn: conn, post: post} do
+      {:ok, tag} = db_insert(:tag)
+      {:ok, tag2} = db_insert(:tag)
+
       variables = %{id: post.id, tagId: tag.id}
       conn |> mutation_result(@set_tag_query, variables, "setTag")
 
@@ -215,7 +271,8 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       }
     }
     """
-    test "can set a community to post", %{conn: conn, post: post, community: community} do
+    test "can set a community to post", %{user_conn: conn, post: post} do
+      {:ok, community} = db_insert(:community)
       variables = %{id: post.id, communityId: community.id}
       conn |> mutation_result(@set_community_query, variables, "setCommunity")
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :communities)
@@ -225,11 +282,12 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     end
 
     test "can set multi community to a post", %{
-      conn: conn,
-      post: post,
-      community: community,
-      community2: community2
+      user_conn: conn,
+      post: post
     } do
+      {:ok, community} = db_insert(:community)
+      {:ok, community2} = db_insert(:community)
+
       variables = %{id: post.id, communityId: community.id}
       conn |> mutation_result(@set_community_query, variables, "setCommunity")
 
@@ -251,11 +309,12 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     }
     """
     test "can unset community from a post", %{
-      conn: conn,
-      post: post,
-      community: community,
-      community2: community2
+      user_conn: conn,
+      post: post
     } do
+      {:ok, community} = db_insert(:community)
+      {:ok, community2} = db_insert(:community)
+
       variables = %{id: post.id, communityId: community.id}
       conn |> mutation_result(@set_community_query, variables, "setCommunity")
 

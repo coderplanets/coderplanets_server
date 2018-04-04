@@ -1,4 +1,4 @@
-ExUnit.configure(exclude: :later, trace: true, formatters: [ExUnit.CLIFormatter, ExUnitNotifier])
+ExUnit.configure(exclude: :later, trace: false, formatters: [ExUnit.CLIFormatter, ExUnitNotifier])
 ExUnit.start()
 
 Ecto.Adapters.SQL.Sandbox.mode(MastaniServer.Repo, :manual)

@@ -18,6 +18,16 @@ defmodule MastaniServer.CMS.Community do
       join_keys: [community_id: :id, post_id: :id]
     )
 
+    # posts_managers
+    # jobs_managers
+    # tuts_managers
+    # videos_managers
+    #
+    # posts_block_list ...
+    # videos_block_list ...
+    #
+    # settings: map %{"posts.needReview" => true ...}
+
     timestamps(type: :utc_datetime)
   end
 

@@ -1,7 +1,7 @@
 defmodule MastaniServerWeb.Schema do
   use Absinthe.Schema
 
-  alias MastaniServerWeb.Schema.{Account, CMS, Statistics}
+  alias MastaniServerWeb.Schema.{Account, CMS, Statistics, Tmp}
   alias MastaniServerWeb.Middleware, as: M
 
   import_types(Absinthe.Type.Custom)

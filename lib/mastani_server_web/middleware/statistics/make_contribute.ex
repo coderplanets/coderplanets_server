@@ -12,8 +12,8 @@ defmodule MastaniServerWeb.Middleware.Statistics.MakeContribute do
 
   def call(%{value: nil, errors: _} = resolution, _), do: resolution
 
-  def call(%{value: _, context: %{current_user: current_user}} = resolution, _) do
-    Statistics.make_contribute(%User{id: current_user.id})
+  def call(%{value: _, context: %{cur_user: cur_user}} = resolution, _) do
+    Statistics.make_contribute(%User{id: cur_user.id})
     resolution
   end
 end

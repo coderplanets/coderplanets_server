@@ -34,6 +34,7 @@ defmodule MastaniServer.CMS do
   3. check is viewer reacted
   """
   def query({"posts_favorites", PostFavorite}, args) do
+    # TODO rename to reactions_pack/builder
     PostFavorite |> QueryBuilder.reactions_hanlder(args)
   end
 

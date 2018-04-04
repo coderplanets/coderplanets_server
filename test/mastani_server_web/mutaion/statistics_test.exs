@@ -1,29 +1,18 @@
 defmodule MastaniServer.Test.Mutation.StatisticsTest do
   use MastaniServerWeb.ConnCase, async: true
   import MastaniServer.Factory
+  import MastaniServer.Test.ConnBuilder
   import MastaniServer.Test.AssertHelper
 
   alias MastaniServer.Statistics
   # alias MastaniServer.Accounts.User
   alias Helper.ORM
 
-  @valid_user mock_attrs(:user, %{nickname: "mydearxym"})
-
   setup do
-    {:ok, user} = db_insert(:user, @valid_user)
+    guest_conn = mock_conn(:guest)
 
-    # Statistics.make_contribute(%User{id: user.id})
-
-    token = mock_jwt_token(nickname: @valid_user.nickname)
-
-    conn =
-      build_conn()
-      |> put_req_header("authorization", token)
-      |> put_req_header("content-type", "application/json")
-
-    conn_without_token = build_conn()
-
-    {:ok, conn: conn, conn_without_token: conn_without_token, user: user}
+    {:ok, user} = db_insert(:user)
+    {:ok, user: user, guest_conn: guest_conn}
   end
 
   describe "[statistics mutaion user_contributes] " do
@@ -35,9 +24,9 @@ defmodule MastaniServer.Test.Mutation.StatisticsTest do
       }
     }
     """
-    test "makeContribute should add record to user_contributes table", %{
+    test "for guest user makeContribute should add record to user_contributes table", %{
       user: user,
-      conn_without_token: conn
+      guest_conn: conn
     } do
       variables = %{userId: user.id}
       assert {:error, _} = ORM.find_by(Statistics.UserContributes, user_id: user.id)
@@ -51,7 +40,7 @@ defmodule MastaniServer.Test.Mutation.StatisticsTest do
 
     test "makeContribute to same user should update contribute count", %{
       user: user,
-      conn_without_token: conn
+      guest_conn: conn
     } do
       variables = %{userId: user.id}
       conn |> mutation_result(@query, variables, "makeContrubute")

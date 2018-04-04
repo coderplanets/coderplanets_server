@@ -5,8 +5,8 @@
 defmodule MastaniServerWeb.Middleware.PutCurrentUser do
   @behaviour Absinthe.Middleware
 
-  def call(%{context: %{current_user: current_user}} = resolution, _) do
-    arguments = resolution.arguments |> Map.merge(%{current_user: current_user})
+  def call(%{context: %{cur_user: cur_user}} = resolution, _) do
+    arguments = resolution.arguments |> Map.merge(%{cur_user: cur_user})
 
     %{resolution | arguments: arguments}
   end

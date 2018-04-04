@@ -5,11 +5,6 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
   alias MastaniServerWeb.Resolvers
   alias MastaniServerWeb.Middleware, as: M
 
-  input_object :pagi_input do
-    field(:page, :integer, default_value: 1)
-    field(:size, :integer, default_value: 20)
-  end
-
   object :cms_queries do
     @desc "get one post"
     field :post, non_null(:post) do

@@ -49,9 +49,8 @@ defmodule MastaniServer.Factory do
 
     %{
       title: "#{Faker.Pizza.cheese()} #{unique_num}",
-      type: "POST",
-      # part mainly for CMS.create_tag usage
       part: "POST",
+      # part mainly for CMS.create_tag usage
       color: "RED",
       # community: Faker.Pizza.topping(),
       community: mock(:community),
@@ -90,6 +89,7 @@ defmodule MastaniServer.Factory do
 
   def mock_attrs(_, attrs \\ %{})
   def mock_attrs(:user, attrs), do: mock_meta(:user) |> Map.merge(attrs)
+  def mock_attrs(:author, attrs), do: mock_meta(:author) |> Map.merge(attrs)
   def mock_attrs(:post, attrs), do: mock_meta(:post) |> Map.merge(attrs)
   def mock_attrs(:community, attrs), do: mock_meta(:community) |> Map.merge(attrs)
   def mock_attrs(:tag, attrs), do: mock_meta(:tag) |> Map.merge(attrs)
@@ -110,14 +110,6 @@ defmodule MastaniServer.Factory do
   defp mock(:tag), do: CMS.Tag |> struct(mock_meta(:tag))
   defp mock(:user), do: Accounts.User |> struct(mock_meta(:user))
   defp mock(:community), do: CMS.Community |> struct(mock_meta(:community))
-
-  def mock_jwt_token(clauses) do
-    with {:ok, user} <- ORM.find_by(Accounts.User, clauses) do
-      {:ok, token, _info} = Guardian.jwt_encode(user)
-
-      "Bearer #{token}"
-    end
-  end
 
   defp mock(factory_name, attributes) do
     factory_name |> mock() |> struct(attributes)

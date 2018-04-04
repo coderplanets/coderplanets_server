@@ -35,6 +35,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     # end
 
     field(:author, :user, resolve: dataloader(CMS, :author))
+    field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
     field :comments, list_of(:comment) do
       arg(:type, :post_type, default_value: :post)
@@ -49,6 +50,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       arg(:arg_viewer_reacted, :arg_viewer_reacted, default_value: :arg_viewer_reacted)
 
       middleware(M.Authorize, :login)
+      # put current user into dataloader's args
       middleware(M.PutCurrentUser)
       resolve(dataloader(CMS, :favorites))
       middleware(M.ViewerReactedConvert)

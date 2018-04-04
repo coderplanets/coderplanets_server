@@ -24,8 +24,8 @@ defmodule Helper.QueryBuilder do
     |> select([f], count(f.id))
   end
 
-  def reactions_hanlder(queryable, %{arg_viewer_reacted: _, current_user: current_user}) do
-    queryable |> where([f], f.user_id == ^current_user.id)
+  def reactions_hanlder(queryable, %{arg_viewer_reacted: _, cur_user: cur_user}) do
+    queryable |> where([f], f.user_id == ^cur_user.id)
   end
 
   def reaction_members(queryable, filter) do

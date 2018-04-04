@@ -6,8 +6,9 @@ defmodule MastaniServerWeb.Context do
   import Plug.Conn
   # import Ecto.Query, only: [first: 1]
 
-  alias MastaniServer.{Repo, Accounts}
+  alias MastaniServer.{Accounts, CMS}
   alias Helper.MastaniServer.Guardian
+  alias Helper.ORM
 
   def init(opts), do: opts
 
@@ -27,8 +28,8 @@ defmodule MastaniServerWeb.Context do
   """
   def build_context(conn) do
     with ["Bearer " <> token] <- get_req_header(conn, "authorization"),
-         {:ok, current_user} <- authorize(token) do
-      %{current_user: current_user}
+         {:ok, cur_user} <- authorize(token) do
+      %{cur_user: cur_user}
     else
       _ -> %{}
     end
@@ -36,16 +37,24 @@ defmodule MastaniServerWeb.Context do
 
   defp authorize(token) do
     with {:ok, claims, _info} <- Guardian.jwt_decode(token) do
-      case Repo.get(Accounts.User, claims.id) do
-        nil ->
+      case ORM.find(Accounts.User, claims.id) do
+        {:ok, user} ->
+          check_passport(user)
+
+        {:error, _} ->
           {:error,
            "user is not exsit, try revoke token, or if you in dev env run the seeds first."}
-
-        user ->
-          # TODO gather role info from CMS or other context
-          {:ok, Map.put(user, :root, true)}
-          # {:ok, user}
       end
+    end
+  end
+
+  # TODO gather role info from CMS or other context
+  defp check_passport(%Accounts.User{} = user) do
+    with {:ok, cms_passport} <- CMS.get_passport(%Accounts.User{id: user.id}) do
+      # IO.inspect(cms_passport.rules, label: "get cms passport")
+      {:ok, Map.put(user, :cur_passport, cms_passport.rules)}
+    else
+      {:error, _} -> {:ok, user}
     end
   end
 end

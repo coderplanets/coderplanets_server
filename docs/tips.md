@@ -4,11 +4,10 @@
 
 ```sh
   env MIX_ENV=mock iex -S mix
-  alias MastaniServer.CMS
-  import Ecto.Query, warn: false
-  alias MastaniServer.Repo
-  CMS.Post |> order_by(desc: :views) |> Repo.one
-```
+
+  mix test.watch test/mastani_server/cms/cms_passport_test.exs --only wip
+
+  ```
 `recompile()` to recompile your project
 
 [tips#6](https://medium.com/blackode/10-killer-elixir-tips-2-c5f87f8a70c8)

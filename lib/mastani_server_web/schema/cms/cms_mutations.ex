@@ -24,9 +24,12 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:title, non_null(:string))
       arg(:color, non_null(:rainbow_color_enum))
       arg(:community, non_null(:string))
-      arg(:type, :cms_part, default_value: :post)
+      arg(:part, :cms_part, default_value: :post)
 
       middleware(M.Authorize, :login)
+
+      # middleware(M.PassportLoader, source: :post)
+      middleware(M.Passport, claim: "cms->c?->p?.tag.create")
       resolve(&Resolvers.CMS.create_tag/3)
     end
 
@@ -45,6 +48,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
 
       middleware(M.Authorize, :login)
       middleware(M.PutCurrentUser)
+      # middleware(M.Passport, claim: "cms->community.create")
       resolve(&Resolvers.CMS.create_community/3)
       middleware(M.Statistics.MakeContribute)
     end
@@ -116,7 +120,9 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      middleware(M.OwnerRequired, match: :post, others: ["admin"])
+      middleware(M.PassportLoader, source: :post)
+      middleware(M.Passport, claim: "owner;cms->c?->post.article.delete")
+
       resolve(&Resolvers.CMS.delete_post/3)
     end
 
@@ -128,13 +134,13 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:digest, :string)
 
       middlewared(M.Authorize, :login)
-      middleware(M.OwnerRequired, match: :post, others: ["admin"])
+      middleware(M.PassportLoader, source: :post)
+      middleware(M.Passport, claim: "owner;cms->c?->post.article.edit")
 
       resolve(&Resolvers.CMS.update_post/3)
     end
 
     # TODO: set community, tag ...
-
     @desc "create a comment"
     field :create_comment, :comment do
       arg(:type, non_null(:cms_part), default_value: :post)
@@ -154,7 +160,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       # arg(:body, non_null(:string))
 
       middleware(M.Authorize, :login)
-      middleware(M.OwnerRequired, match: [:post, :comment], others: ["admin"])
+      middleware(M.OwnerRequired, match: [:post, :comment])
       resolve(&Resolvers.CMS.delete_comment/3)
     end
 
