@@ -1,25 +1,26 @@
 defmodule MastaniServer.Test.PostReactionsTest do
   use MastaniServerWeb.ConnCase, async: true
   import MastaniServer.Factory
+  import ShortMaps
 
   alias MastaniServer.CMS
-  alias MastaniServer.Accounts
-  alias Helper.ORM
+  # alias MastaniServer.Accounts
+  # alias Helper.ORM
 
-  @valid_user mock_attrs(:user)
-  @valid_community mock_attrs(:community)
-  @valid_post mock_attrs(:post, %{community: @valid_community.title})
+  @valid_community_attr mock_attrs(:community)
+  @valid_post_attr mock_attrs(:post, %{community: @valid_community_attr.title})
 
   setup do
-    db_insert(:user, @valid_user)
-    db_insert(:community, %{title: @valid_community.title})
-    :ok
+    {:ok, user} = db_insert(:user)
+    db_insert(:community, %{title: @valid_community_attr.title})
+
+    {:ok, ~m(user)a}
   end
 
   describe "[cms post favorite reaction]" do
-    test "favorite and undo favorite reaction to post" do
-      {:ok, user} = ORM.find_by(Accounts.User, nickname: @valid_user.nickname)
-      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @valid_post)
+    test "favorite and undo favorite reaction to post", ~m(user)a do
+      # {:ok, user} = ORM.find_by(Accounts.User, nickname: @valid_user.nickname)
+      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @valid_post_attr)
 
       {:ok, _} = CMS.reaction(:post, :favorite, post.id, user.id)
       {:ok, reaction_users} = CMS.reaction_users(:post, :favorite, post.id, %{page: 1, size: 1})

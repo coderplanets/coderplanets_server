@@ -22,16 +22,15 @@ defmodule MastaniServer.Test.Mutation.PostTest do
 
   describe "[mutation post comment]" do
     @create_comment_query """
-    mutation($type: CmsPart!, $id: ID!, $body: String!) {
-      createComment(type: $type,id: $id, body: $body) {
+    mutation($part: CmsPart!, $id: ID!, $body: String!) {
+      createComment(part: $part,id: $id, body: $body) {
         id
         body
       }
     }
     """
-    # test "create comment to a exsit post", %{post: post, user_conn: user_conn} do
     test "create comment to a exsit post", ~m(post user_conn)a do
-      variables = %{type: "POST", id: post.id, body: "a test comment"}
+      variables = %{part: "POST", id: post.id, body: "a test comment"}
       created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
 
       assert created["body"] == variables.body
@@ -45,7 +44,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     }
     """
     test "delete a comment", ~m(post user_conn)a do
-      variables1 = %{type: "POST", id: post.id, body: "a test comment"}
+      variables1 = %{part: "POST", id: post.id, body: "a test comment"}
       created = user_conn |> mutation_result(@create_comment_query, variables1, "createComment")
       assert created["body"] == variables1.body
 

@@ -33,7 +33,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.set_tag(community, part, id, tag_id)
   end
 
-  def unset_tag(_root, %{part: part, id: id, tag_id: tag_id}, _info) do
+  def unset_tag(_root, ~m(id part tag_id)a, _info) do
     CMS.unset_tag(part, id, tag_id)
   end
 
@@ -45,7 +45,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.unset_community(part, id, community)
   end
 
-  def get_tags(_root, %{community: community, type: part}, _info) do
+  def get_tags(_root, ~m(community part)a, _info) do
     CMS.get_tags(community, to_string(part))
   end
 
@@ -53,24 +53,23 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.create_content(:post, %CMS.Author{user_id: user.id}, args)
   end
 
-  def reaction(_root, %{type: type, action: action, id: id}, %{context: %{cur_user: user}}) do
-    CMS.reaction(type, action, id, user.id)
+  def reaction(_root, ~m(id part action)a, %{context: %{cur_user: user}}) do
+    CMS.reaction(part, action, id, user.id)
   end
 
-  def undo_reaction(_root, %{type: type, action: action, id: id}, %{
-        context: %{cur_user: user}
-      }),
-      do: CMS.undo_reaction(type, action, id, user.id)
-
-  def reaction_users(_root, %{id: id, action: action, type: type, filter: filter}, _info) do
-    CMS.reaction_users(type, action, id, filter)
+  def undo_reaction(_root, ~m(id part action)a, %{context: %{cur_user: user}}) do
+    CMS.undo_reaction(part, action, id, user.id)
   end
 
-  def reaction_count(root, %{type: type, action: action}, _info) do
-    CMS.reaction_count(type, action, root.id)
+  def reaction_users(_root, ~m(id action part filter)a, _info) do
+    CMS.reaction_users(part, action, id, filter)
   end
 
-  def viewer_has_reacted(root, %{type: type, action: action}, %{context: %{cur_user: user}}) do
+  def reaction_count(root, ~m(part action)a, _info) do
+    CMS.reaction_count(part, action, root.id)
+  end
+
+  def viewer_has_reacted(root, ~m(type action)a, %{context: %{cur_user: user}}) do
     CMS.viewer_has_reacted(type, action, root.id, user.id)
   end
 
@@ -79,6 +78,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def update_post(_root, args, _info), do: ORM.update(args.passport_source, args)
 
-  def create_comment(_root, %{type: type, id: id, body: body}, %{context: %{cur_user: user}}),
-    do: CMS.create_comment(type, :comment, id, user.id, body)
+  def create_comment(_root, ~m(part id body)a, %{context: %{cur_user: user}}) do
+    CMS.create_comment(part, :comment, id, user.id, body)
+  end
 end

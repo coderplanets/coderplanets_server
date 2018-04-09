@@ -40,7 +40,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
     field :tags, non_null(list_of(non_null(:tag))) do
       arg(:community, non_null(:string))
-      arg(:type, non_null(:community_part_enum))
+      arg(:part, non_null(:community_part_enum))
       resolve(&Resolvers.CMS.get_tags/3)
     end
   end
