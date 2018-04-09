@@ -105,10 +105,11 @@ defmodule MastaniServer.CMS do
     |> done()
   end
 
-  def set_community(part, part_id, community_id) when valid_part(part) do
+  def set_community(part, part_id, community_title) when valid_part(part) do
     with {:ok, action} <- match_action(part, :community),
          {:ok, content} <- ORM.find(action.target, part_id, preload: :communities),
-         {:ok, community} <- ORM.find(action.reactor, community_id) do
+         {:ok, community} <- ORM.find_by(action.reactor, title: community_title) do
+
       content
       |> Ecto.Changeset.change()
       |> Ecto.Changeset.put_assoc(:communities, content.communities ++ [community])
@@ -116,10 +117,10 @@ defmodule MastaniServer.CMS do
     end
   end
 
-  def unset_community(part, part_id, community_id) when valid_part(part) do
+  def unset_community(part, part_id, community_title) when valid_part(part) do
     with {:ok, action} <- match_action(part, :community),
          {:ok, content} <- ORM.find(action.target, part_id, preload: :communities),
-         {:ok, community} <- ORM.find(action.reactor, community_id) do
+         {:ok, community} <- ORM.find_by(action.reactor, title: community_title) do
       content
       |> Ecto.Changeset.change()
       |> Ecto.Changeset.put_assoc(:communities, content.communities -- [community])
@@ -148,7 +149,8 @@ defmodule MastaniServer.CMS do
            |> action.target.changeset(attrs)
            |> Ecto.Changeset.put_change(:author_id, author.id)
            |> Repo.insert() do
-      set_community(part, content.id, community.id)
+
+      set_community(part, content.id, community.title)
     end
   end
 

@@ -17,9 +17,6 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
       resolution
       |> add_owner_info(react, content)
       |> add_source(content)
-      # 可能是 community
-      # 可能是 communities
-      # 还可能是 arguments-> 参数中的 community
       |> add_community_info(content, args)
     else
       {:error, err_msg} ->

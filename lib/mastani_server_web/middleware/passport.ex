@@ -7,6 +7,10 @@
 
 # 本中间件会隐式的加载 community 的 rules 信息，并应用该 rules 信息
 defmodule MastaniServerWeb.Middleware.Passport do
+  @moduledoc """
+  c? -> community / communities
+  p> -> part, could be post / job / tut / video ...
+  """
   @behaviour Absinthe.Middleware
 
   import Helper.Utils
@@ -25,7 +29,16 @@ defmodule MastaniServerWeb.Middleware.Passport do
         } = resolution,
         claim: "cms->c?->p?." <> _rest = claim
       ) do
-    # IO.inspect("catch me cms->c?->p?", label: "[passport]")
+    resolution |> check_passport_stamp(claim)
+  end
+
+  def call(
+    %{
+      context: %{cur_user: %{cur_passport: _}},
+      arguments: %{part: _}
+    } = resolution,
+    claim: "cms->p?." <> _rest = claim
+  ) do
     resolution |> check_passport_stamp(claim)
   end
 
@@ -36,7 +49,6 @@ defmodule MastaniServerWeb.Middleware.Passport do
         } = resolution,
         claim: "cms->c?->" <> _rest = claim
       ) do
-    # IO.inspect("catch me cms->c?->", label: "[passport]")
     resolution |> check_passport_stamp(claim)
   end
 
@@ -57,17 +69,35 @@ defmodule MastaniServerWeb.Middleware.Passport do
   defp check_passport_stamp(resolution, claim) do
     cond do
       claim |> String.starts_with?("cms->c?->p?.") ->
-        resolution |> two_step_check(claim)
+        resolution |> cp_check(claim)
+
+      claim |> String.starts_with?("cms->p?.") ->
+        resolution |> p_check(claim)
 
       claim |> String.starts_with?("cms->c?->") ->
-        resolution |> one_step_check(claim)
+        resolution |> c_check(claim)
 
       true ->
         resolution |> handle_absinthe_error("PassportError: Passport not qualified.")
     end
   end
 
-  defp two_step_check(resolution, claim) do
+  defp p_check(resolution, claim) do
+    cur_passport = resolution.context.cur_user.cur_passport
+    part = resolution.arguments.part |> to_string
+
+    path =
+      claim
+      |> String.replace("p?", part)
+      |> String.split("->")
+
+    case get_in(cur_passport, path) do
+      true -> resolution
+      nil -> resolution |> handle_absinthe_error("PassportError: Passport not qualified.")
+    end
+  end
+
+  defp cp_check(resolution, claim) do
     cur_passport = resolution.context.cur_user.cur_passport
     community = resolution.arguments.community
     part = resolution.arguments.part |> to_string
@@ -84,7 +114,7 @@ defmodule MastaniServerWeb.Middleware.Passport do
     end
   end
 
-  defp one_step_check(resolution, claim) do
+  defp c_check(resolution, claim) do
     cur_passport = resolution.context.cur_user.cur_passport
     communities = resolution.arguments.passport_communities
 

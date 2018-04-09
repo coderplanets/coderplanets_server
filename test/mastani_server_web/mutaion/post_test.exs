@@ -71,13 +71,19 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       }
     }
     """
-    test "create post with valid attrs", ~m(user_conn)a do
+    test "create post with valid attrs and make sure author exsit" do
+
+      {:ok, user} = db_insert(:user)
+      user_conn = mock_conn(:user, user)
+
       {:ok, community} = db_insert(:community)
       post_attr = mock_attrs(:post)
 
       variables = post_attr |> Map.merge(%{community: community.title})
       created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
-      post = Repo.get_by(CMS.Post, title: post_attr.title)
+      {:ok, post} = ORM.find_by(CMS.Post, title: post_attr.title)
+
+      assert {:ok, _} = ORM.find_by(CMS.Author, user_id: user.id)
 
       assert created["id"] == to_string(post.id)
     end
@@ -267,31 +273,49 @@ defmodule MastaniServer.Test.Mutation.PostTest do
   describe "[mutation post community]" do
     # TODO
     @set_community_query """
-    mutation($id: ID!, $communityId: ID!) {
-      setCommunity(id: $id, communityId: $communityId) {
+    mutation($id: ID!, $community: String!) {
+      setCommunity(id: $id, community: $community) {
         id
       }
     }
     """
-    test "can set a community to post", ~m(user_conn post)a do
+    test "auth user can set a community to post", ~m(post)a do
+      passport_rules = %{"cms" => %{"post.community.set" => true}}
+      rule_conn = mock_conn(:user, passport_rules)
+
       {:ok, community} = db_insert(:community)
-      variables = %{id: post.id, communityId: community.id}
-      user_conn |> mutation_result(@set_community_query, variables, "setCommunity")
+      variables = %{id: post.id, community: community.title}
+      rule_conn |> mutation_result(@set_community_query, variables, "setCommunity")
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :communities)
 
       assoc_communities = found.communities |> Enum.map(& &1.id)
       assert community.id in assoc_communities
     end
 
-    test "can set multi community to a post", ~m(user_conn post)a do
+    test "other user set a community to post fails", ~m(user_conn post)a do
+      {:ok, community} = db_insert(:community)
+      variables = %{id: post.id, community: community.title}
+      user_conn |> mutation_get_error?(@set_community_query, variables)
+    end
+
+    test "guest user set a community to post fails", ~m(guest_conn post)a do
+      {:ok, community} = db_insert(:community)
+      variables = %{id: post.id, community: community.title}
+      guest_conn |> mutation_get_error?(@set_community_query, variables)
+    end
+
+    test "auth user can set multi community to a post", ~m(user_conn post)a do
+      passport_rules = %{"cms" => %{"post.community.set" => true}}
+      rule_conn = mock_conn(:user, passport_rules)
+
       {:ok, community} = db_insert(:community)
       {:ok, community2} = db_insert(:community)
 
-      variables = %{id: post.id, communityId: community.id}
-      user_conn |> mutation_result(@set_community_query, variables, "setCommunity")
+      variables = %{id: post.id, community: community.title}
+      rule_conn |> mutation_result(@set_community_query, variables, "setCommunity")
 
-      variables2 = %{id: post.id, communityId: community2.id}
-      user_conn |> mutation_result(@set_community_query, variables2, "setCommunity")
+      variables2 = %{id: post.id, community: community2.title}
+      rule_conn |> mutation_result(@set_community_query, variables2, "setCommunity")
 
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :communities)
 
@@ -301,21 +325,24 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     end
 
     @unset_community_query """
-    mutation($id: ID!, $communityId: ID!) {
-      unsetCommunity(id: $id, communityId: $communityId) {
+    mutation($id: ID!, $community: String!) {
+      unsetCommunity(id: $id, community: $community) {
         id
       }
     }
     """
-    test "can unset community from a post", ~m(user_conn post)a do
+    test "auth user can unset community from a post", ~m(post)a do
+      passport_rules = %{"cms" => %{"post.community.set" => true}}
+      rule_conn = mock_conn(:user, passport_rules)
+
       {:ok, community} = db_insert(:community)
       {:ok, community2} = db_insert(:community)
 
-      variables = %{id: post.id, communityId: community.id}
-      user_conn |> mutation_result(@set_community_query, variables, "setCommunity")
+      variables = %{id: post.id, community: community.title}
+      rule_conn |> mutation_result(@set_community_query, variables, "setCommunity")
 
-      variables2 = %{id: post.id, communityId: community2.id}
-      user_conn |> mutation_result(@set_community_query, variables2, "setCommunity")
+      variables2 = %{id: post.id, community: community2.title}
+      rule_conn |> mutation_result(@set_community_query, variables2, "setCommunity")
 
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :communities)
 
@@ -323,7 +350,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       assert community.id in assoc_communities
       assert community2.id in assoc_communities
 
-      user_conn |> mutation_result(@unset_community_query, variables, "unsetCommunity")
+      rule_conn |> mutation_result(@unset_community_query, variables, "unsetCommunity")
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :communities)
       assoc_communities = found.communities |> Enum.map(& &1.id)
       assert community.id not in assoc_communities

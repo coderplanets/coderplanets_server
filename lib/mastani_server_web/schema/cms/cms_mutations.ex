@@ -60,12 +60,15 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       resolve(&Resolvers.CMS.delete_community/3)
     end
 
+    @desc "set a tag within community"
     field :set_tag, :tag do
       arg(:id, non_null(:id))
       arg(:tag_id, non_null(:id))
-      arg(:type, :cms_part, default_value: :post)
+      arg(:part, :cms_part, default_value: :post)
 
       middleware(M.Authorize, :login)
+
+      # middleware(M.Passport, claim: "cms->c?->p?.tag.create")
       resolve(&Resolvers.CMS.set_tag/3)
     end
 
@@ -80,20 +83,21 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
 
     field :set_community, :community do
       arg(:id, non_null(:id))
-      arg(:community_id, non_null(:id))
-      arg(:type, :cms_part, default_value: :post)
+      arg(:community, non_null(:string))
+      arg(:part, :cms_part, default_value: :post)
 
       middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->p?.community.set")
       resolve(&Resolvers.CMS.set_community/3)
     end
 
     field :unset_community, :community do
       arg(:id, non_null(:id))
-      arg(:community_id, non_null(:id))
-      arg(:type, :cms_part, default_value: :post)
+      arg(:community, non_null(:string))
+      arg(:part, :cms_part, default_value: :post)
 
       middleware(M.Authorize, :login)
-      # middleware(Middleware.Authorize, :community_admin)
+      middleware(M.Passport, claim: "cms->p?.community.set")
       resolve(&Resolvers.CMS.unset_community/3)
     end
 

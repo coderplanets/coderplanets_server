@@ -1,4 +1,6 @@
 defmodule MastaniServerWeb.Resolvers.CMS do
+  import ShortMaps
+
   alias MastaniServer.CMS
   alias Helper.ORM
 
@@ -27,20 +29,20 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def delete_community(_root, %{id: id}, _info), do: CMS.Community |> ORM.find_delete(id)
 
-  def set_tag(_root, %{type: type, id: id, tag_id: tag_id}, _info) do
-    CMS.set_tag(type, id, tag_id)
+  def set_tag(_root, %{part: part, id: id, tag_id: tag_id}, _info) do
+    CMS.set_tag(part, id, tag_id)
   end
 
   def unset_tag(_root, %{type: type, id: id, tag_id: tag_id}, _info) do
     CMS.unset_tag(type, id, tag_id)
   end
 
-  def set_community(_root, %{type: type, id: id, community_id: community_id}, _info) do
-    CMS.set_community(type, id, community_id)
+  def set_community(_root, ~m(part id community)a, _info) do
+    CMS.set_community(part, id, community)
   end
 
-  def unset_community(_root, %{type: type, id: id, community_id: community_id}, _info) do
-    CMS.unset_community(type, id, community_id)
+  def unset_community(_root, ~m(part id community)a, _info) do
+    CMS.unset_community(part, id, community)
   end
 
   def get_tags(_root, %{community: community, type: part}, _info) do
@@ -48,7 +50,6 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   def create_post(_root, args, %{context: %{cur_user: user}}) do
-    # args.community = "elxiir"
     CMS.create_content(:post, %CMS.Author{user_id: user.id}, args)
   end
 
