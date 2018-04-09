@@ -6,7 +6,6 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
   import MastaniServer.Test.AssertHelper
   import ShortMaps
 
-  # TODO remove
   alias MastaniServer.Statistics
   alias MastaniServer.CMS
   alias Helper.ORM
@@ -44,7 +43,6 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       assert found.part == "post"
     end
 
-    # TODO
     test "auth user create duplicate tag fails", ~m(community)a do
       variables = mock_attrs(:tag, %{community: community.title})
       passport_rules = %{"cms" => %{community.title => %{"post.tag.create" => true}}}
@@ -55,10 +53,13 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       assert rule_conn |> mutation_get_error?(@create_tag_query, variables)
     end
 
-    test "unlogged user create tag fails", %{community: community, guest_conn: conn} do
+    test "unauth user create tag fails", ~m(community user_conn guest_conn)a do
       variables = mock_attrs(:tag, %{community: community.title})
+      rule_conn = mock_conn(:user, %{"cms" => %{"what.ever" => true}})
 
-      assert conn |> mutation_get_error?(@create_tag_query, variables)
+      assert user_conn |> mutation_get_error?(@create_tag_query, variables)
+      assert guest_conn |> mutation_get_error?(@create_tag_query, variables)
+      assert rule_conn |> mutation_get_error?(@create_tag_query, variables)
     end
 
     @delete_tag_query """
@@ -68,20 +69,24 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       }
     }
     """
-    @tag :wip
     test "auth user can delete tag", ~m(tag)a do
-      passport_rules = %{"cms" => %{tag.community.title => %{"post.tag.delete" => true}}}
-      rule_conn = mock_conn(:user, passport_rules)
+      variables = %{id: tag.id, community: tag.community.title}
 
-      deleted =
-        rule_conn
-        |> mutation_result(
-          @delete_tag_query,
-          %{id: tag.id, community: tag.community.title},
-          "deleteTag"
-        )
+      rule_conn =
+        mock_conn(:user, %{"cms" => %{tag.community.title => %{"post.tag.delete" => true}}})
+
+      deleted = rule_conn |> mutation_result(@delete_tag_query, variables, "deleteTag")
 
       assert deleted["id"] == to_string(tag.id)
+    end
+
+    test "unauth user delete tag fails", ~m(tag user_conn guest_conn)a do
+      variables = %{id: tag.id, community: tag.community.title}
+      rule_conn = mock_conn(:user, %{"cms" => %{"what.ever" => true}})
+
+      assert user_conn |> mutation_get_error?(@delete_tag_query, variables)
+      assert guest_conn |> mutation_get_error?(@delete_tag_query, variables)
+      assert rule_conn |> mutation_get_error?(@delete_tag_query, variables)
     end
   end
 
@@ -92,26 +97,47 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
         id
         title
         desc
+        author {
+          id
+        }
       }
     }
     """
-    test "create community with valid attrs", %{user_conn: conn} do
+    test "create community with valid attrs" do
+      rule_conn = mock_conn(:user, %{"cms" => %{"community.create" => true}})
       variables = mock_attrs(:community)
-      created = conn |> mutation_result(@create_community_query, variables, "createCommunity")
-      {:ok, found} = CMS.Community |> ORM.find(created["id"])
 
+      created =
+        rule_conn |> mutation_result(@create_community_query, variables, "createCommunity")
+
+      {:ok, found} = CMS.Community |> ORM.find(created["id"])
       assert created["id"] == to_string(found.id)
     end
 
-    test "the user who create community should add contribute", %{user_conn: conn, user: user} do
+    test "unauth user create community fails", ~m(user_conn guest_conn)a do
       variables = mock_attrs(:community)
-      created = conn |> mutation_result(@create_community_query, variables, "createCommunity")
+      rule_conn = mock_conn(:user, %{"cms" => %{"what.ever" => true}})
+
+      assert user_conn |> mutation_get_error?(@create_community_query, variables)
+      assert guest_conn |> mutation_get_error?(@create_community_query, variables)
+      assert rule_conn |> mutation_get_error?(@create_community_query, variables)
+    end
+
+    test "the user who create community should add contribute" do
+      variables = mock_attrs(:community)
+      rule_conn = mock_conn(:user, %{"cms" => %{"community.create" => true}})
+
+      created =
+        rule_conn |> mutation_result(@create_community_query, variables, "createCommunity")
+
+      author = created["author"]
+
       {:ok, found} = CMS.Community |> ORM.find(created["id"])
 
-      {:ok, contribute} = ORM.find_by(Statistics.UserContributes, user_id: user.id)
+      {:ok, contribute} = ORM.find_by(Statistics.UserContributes, user_id: author["id"])
 
       assert contribute.date == Timex.today()
-      assert contribute.user_id == user.id
+      assert to_string(contribute.user_id) == author["id"]
       assert contribute.count == 1
 
       assert created["id"] == to_string(found.id)
@@ -129,19 +155,29 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       }
     }
     """
-    test "TODO(should be manager): delete community by login user", %{
-      community: community,
-      user_conn: conn
-    } do
+    test "auth user can delete community", ~m(community)a do
+      variables = %{id: community.id}
+      rule_conn = mock_conn(:user, %{"cms" => %{"community.delete" => true}})
+
       deleted =
-        conn |> mutation_result(@delete_community_query, %{id: community.id}, "deleteCommunity")
+        rule_conn |> mutation_result(@delete_community_query, variables, "deleteCommunity")
 
       assert deleted["id"] == to_string(community.id)
       assert {:error, _} = ORM.find(CMS.Community, community.id)
     end
 
-    test "TODO(should be manager): delete non-exist community fails", %{user_conn: conn} do
-      assert conn |> mutation_get_error?(@delete_community_query, %{id: 100_849_383})
+    test "unauth user delete community fails", ~m(user_conn guest_conn)a do
+      variables = mock_attrs(:community)
+      rule_conn = mock_conn(:user, %{"cms" => %{"what.ever" => true}})
+
+      assert user_conn |> mutation_get_error?(@create_community_query, variables)
+      assert guest_conn |> mutation_get_error?(@create_community_query, variables)
+      assert rule_conn |> mutation_get_error?(@create_community_query, variables)
+    end
+
+    test "delete non-exist community fails" do
+      rule_conn = mock_conn(:user, %{"cms" => %{"community.delete" => true}})
+      assert rule_conn |> mutation_get_error?(@delete_community_query, %{id: 100_849_383})
     end
   end
 end

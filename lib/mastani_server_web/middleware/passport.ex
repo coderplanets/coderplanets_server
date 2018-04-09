@@ -62,12 +62,22 @@ defmodule MastaniServerWeb.Middleware.Passport do
     resolution |> check_passport_stamp(claim)
   end
 
+  def call(
+        %{context: %{cur_user: %{cur_passport: _}}} = resolution,
+        claim: "cms->community." <> _rest = claim
+      ) do
+    resolution |> check_passport_stamp(claim)
+  end
+
   def call(resolution, _) do
     resolution |> handle_absinthe_error("PassportError: your passport not qualified.")
   end
 
   defp check_passport_stamp(resolution, claim) do
     cond do
+      claim |> String.starts_with?("cms->community.") ->
+        resolution |> do_check(claim)
+
       claim |> String.starts_with?("cms->c?->p?.") ->
         resolution |> cp_check(claim)
 
@@ -79,6 +89,16 @@ defmodule MastaniServerWeb.Middleware.Passport do
 
       true ->
         resolution |> handle_absinthe_error("PassportError: Passport not qualified.")
+    end
+  end
+
+  defp do_check(resolution, claim) do
+    cur_passport = resolution.context.cur_user.cur_passport
+    path = claim |> String.split("->")
+
+    case get_in(cur_passport, path) do
+      true -> resolution
+      nil -> resolution |> handle_absinthe_error("PassportError: Passport not qualified.")
     end
   end
 

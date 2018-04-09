@@ -73,14 +73,32 @@ defmodule MastaniServer.CMS do
   set tag for post / tuts / videos ...
   """
   # check community first
-  def set_tag(part, part_id, tag_id) when valid_part(part) do
+  def set_tag(community_title, part, part_id, tag_id) when valid_part(part) do
     with {:ok, action} <- match_action(part, :tag),
          {:ok, content} <- ORM.find(action.target, part_id, preload: :tags),
          {:ok, tag} <- ORM.find(action.reactor, tag_id) do
-      content
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:tags, content.tags ++ [tag])
-      |> Repo.update()
+      case tag_in_community_part?(community_title, part, tag) do
+        true ->
+          content
+          |> Ecto.Changeset.change()
+          |> Ecto.Changeset.put_assoc(:tags, content.tags ++ [tag])
+          |> Repo.update()
+
+        _ ->
+          {:error, "Tag,Community,Part not match"}
+      end
+    end
+  end
+
+  defp tag_in_community_part?(community_title, part, tag) do
+    with {:ok, community} <- ORM.find_by(Community, title: community_title) do
+      matched_tags =
+        Tag
+        |> where([t], t.community_id == ^community.id)
+        |> where([t], t.part == ^(to_string(part) |> String.upcase()))
+        |> Repo.all()
+
+      tag in matched_tags
     end
   end
 

@@ -152,6 +152,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:desc, :string)
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
+    field(:author, :user, resolve: dataloader(CMS, :author))
   end
 
   object :tag do

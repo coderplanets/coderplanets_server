@@ -29,12 +29,12 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def delete_community(_root, %{id: id}, _info), do: CMS.Community |> ORM.find_delete(id)
 
-  def set_tag(_root, %{part: part, id: id, tag_id: tag_id}, _info) do
-    CMS.set_tag(part, id, tag_id)
+  def set_tag(_root, ~m(community part id tag_id)a, _info) do
+    CMS.set_tag(community, part, id, tag_id)
   end
 
-  def unset_tag(_root, %{type: type, id: id, tag_id: tag_id}, _info) do
-    CMS.unset_tag(type, id, tag_id)
+  def unset_tag(_root, %{part: part, id: id, tag_id: tag_id}, _info) do
+    CMS.unset_tag(part, id, tag_id)
   end
 
   def set_community(_root, ~m(part id community)a, _info) do

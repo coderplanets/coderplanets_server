@@ -27,23 +27,21 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:part, :cms_part, default_value: :post)
 
       middleware(M.Authorize, :login)
-
-      # middleware(M.PassportLoader, source: :post)
       middleware(M.Passport, claim: "cms->c?->p?.tag.create")
+
       resolve(&Resolvers.CMS.create_tag/3)
     end
 
     @desc "delete a tag by part [:login required]"
     field :delete_tag, :tag do
       arg(:id, non_null(:id))
-      # must
       arg(:community, non_null(:string))
       # arg(:tag, non_null(:string))
       arg(:part, :cms_part, default_value: :post)
 
       middleware(M.Authorize, :login)
-
       middleware(M.Passport, claim: "cms->c?->p?.tag.delete")
+
       resolve(&Resolvers.CMS.delete_tag/3)
     end
 
@@ -52,8 +50,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:desc, non_null(:string))
 
       middleware(M.Authorize, :login)
-      middleware(M.PutCurrentUser)
-      # middleware(M.Passport, claim: "cms->community.create")
+      middleware(M.Passport, claim: "cms->community.create")
+
       resolve(&Resolvers.CMS.create_community/3)
       middleware(M.Statistics.MakeContribute)
     end
@@ -62,6 +60,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->community.delete")
+
       resolve(&Resolvers.CMS.delete_community/3)
     end
 
@@ -69,20 +69,24 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
     field :set_tag, :tag do
       arg(:id, non_null(:id))
       arg(:tag_id, non_null(:id))
+      arg(:community, non_null(:string))
       arg(:part, :cms_part, default_value: :post)
 
       middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->c?->p?.tag.set")
 
-      # middleware(M.Passport, claim: "cms->c?->p?.tag.create")
       resolve(&Resolvers.CMS.set_tag/3)
     end
 
     field :unset_tag, :tag do
       arg(:id, non_null(:id))
       arg(:tag_id, non_null(:id))
-      arg(:type, :cms_part, default_value: :post)
+      arg(:community, non_null(:string))
+      arg(:part, :cms_part, default_value: :post)
 
       middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->c?->p?.tag.set")
+
       resolve(&Resolvers.CMS.unset_tag/3)
     end
 
@@ -152,6 +156,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
     # TODO: set community, tag ...
     @desc "create a comment"
     field :create_comment, :comment do
+      # TODO use part and force community pass-in
       arg(:type, non_null(:cms_part), default_value: :post)
       arg(:id, non_null(:id))
       arg(:body, non_null(:string))
