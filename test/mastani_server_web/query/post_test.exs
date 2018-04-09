@@ -4,6 +4,8 @@ defmodule MastaniServer.Test.Query.PostTest do
   import MastaniServer.Factory
   import MastaniServer.Test.ConnBuilder
   import MastaniServer.Test.AssertHelper
+  import ShortMaps
+
   # alias MastaniServer.Accounts
 
   setup do
@@ -12,7 +14,7 @@ defmodule MastaniServer.Test.Query.PostTest do
     guest_conn = mock_conn(:guest)
     user_conn = mock_conn(:user)
 
-    {:ok, post: post, guest_conn: guest_conn, user_conn: user_conn}
+    {:ok, ~m(user_conn guest_conn post)a}
   end
 
   @query """
@@ -24,9 +26,9 @@ defmodule MastaniServer.Test.Query.PostTest do
     }
   }
   """
-  test "basic graphql query on post with logined user", %{post: post, user_conn: conn} do
+  test "basic graphql query on post with logined user", ~m(user_conn post)a do
     variables = %{id: post.id}
-    results = conn |> query_result(@query, variables, "post")
+    results = user_conn |> query_result(@query, variables, "post")
 
     assert results["id"] == to_string(post.id)
     assert is_valid_kv?(results, "title", :string)
@@ -34,12 +36,9 @@ defmodule MastaniServer.Test.Query.PostTest do
     assert length(Map.keys(results)) == 3
   end
 
-  test "basic graphql query on post with stranger(unloged user)", %{
-    post: post,
-    guest_conn: conn
-  } do
+  test "basic graphql query on post with stranger(unloged user)", ~m(guest_conn post)a do
     variables = %{id: post.id}
-    results = conn |> query_result(@query, variables, "post")
+    results = guest_conn |> query_result(@query, variables, "post")
 
     assert results["id"] == to_string(post.id)
     assert is_valid_kv?(results, "title", :string)
@@ -57,9 +56,9 @@ defmodule MastaniServer.Test.Query.PostTest do
     }
   }
   """
-  test "post have favoritedUsers query field", %{post: post, user_conn: conn} do
+  test "post have favoritedUsers query field", ~m(user_conn post)a do
     variables = %{id: post.id}
-    results = conn |> query_result(@query, variables, "post")
+    results = user_conn |> query_result(@query, variables, "post")
 
     assert results["id"] == to_string(post.id)
     assert is_valid_kv?(results, "favoritedUsers", :list)
@@ -72,12 +71,12 @@ defmodule MastaniServer.Test.Query.PostTest do
     }
   }
   """
-  test "views should +1 after query the post", %{post: post, user_conn: conn} do
+  test "views should +1 after query the post", ~m(user_conn post)a do
     variables_1 = %{id: post.id}
-    views_1 = conn |> query_result(@query, variables_1, "post") |> Map.get("views")
+    views_1 = user_conn |> query_result(@query, variables_1, "post") |> Map.get("views")
 
     variables_2 = %{id: post.id}
-    views_2 = conn |> query_result(@query, variables_2, "post") |> Map.get("views")
+    views_2 = user_conn |> query_result(@query, variables_2, "post") |> Map.get("views")
     assert views_2 == views_1 + 1
   end
 
@@ -91,24 +90,18 @@ defmodule MastaniServer.Test.Query.PostTest do
     }
   }
   """
-  test "logged user can query viewerHasFavorited field", %{
-    post: post,
-    user_conn: conn
-  } do
+  test "logged user can query viewerHasFavorited field", ~m(user_conn post)a do
     variables = %{id: post.id}
 
-    assert conn
+    assert user_conn
            |> query_result(@query, variables, "post")
            |> has_boolen_value?("viewerHasFavorited")
   end
 
-  test "unlogged user can not query viewerHasFavorited field", %{
-    post: post,
-    guest_conn: conn
-  } do
+  test "unlogged user can not query viewerHasFavorited field", ~m(guest_conn post)a do
     variables = %{id: post.id}
 
-    assert conn |> query_get_error?(@query, variables)
+    assert guest_conn |> query_get_error?(@query, variables)
   end
 
   @query """
@@ -121,22 +114,16 @@ defmodule MastaniServer.Test.Query.PostTest do
     }
   }
   """
-  test "logged user can query viewerHasStarred field", %{
-    post: post,
-    user_conn: conn
-  } do
+  test "logged user can query viewerHasStarred field", ~m(user_conn post)a do
     variables = %{id: post.id}
 
-    assert conn
+    assert user_conn
            |> query_result(@query, variables, "post")
            |> has_boolen_value?("viewerHasStarred")
   end
 
-  test "unlogged user can not query viewerHasStarred field", %{
-    post: post,
-    guest_conn: conn
-  } do
+  test "unlogged user can not query viewerHasStarred field", ~m(guest_conn post)a do
     variables = %{id: post.id}
-    assert conn |> query_get_error?(@query, variables)
+    assert guest_conn |> query_get_error?(@query, variables)
   end
 end

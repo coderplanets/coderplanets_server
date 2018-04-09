@@ -9,7 +9,7 @@
 defmodule MastaniServerWeb.Middleware.Passport do
   @moduledoc """
   c? -> community / communities
-  p> -> part, could be post / job / tut / video ...
+  p? -> part, could be post / job / tut / video ...
   """
   @behaviour Absinthe.Middleware
 
@@ -33,12 +33,12 @@ defmodule MastaniServerWeb.Middleware.Passport do
   end
 
   def call(
-    %{
-      context: %{cur_user: %{cur_passport: _}},
-      arguments: %{part: _}
-    } = resolution,
-    claim: "cms->p?." <> _rest = claim
-  ) do
+        %{
+          context: %{cur_user: %{cur_passport: _}},
+          arguments: %{part: _}
+        } = resolution,
+        claim: "cms->p?." <> _rest = claim
+      ) do
     resolution |> check_passport_stamp(claim)
   end
 

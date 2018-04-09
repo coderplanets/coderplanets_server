@@ -20,12 +20,6 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
     field :user, :user do
       arg(:id, non_null(:id))
 
-      # TODO shop admin / co-admin situation ?
-
-      # middleware(M.PassportLoader, match: :post, info: :community)
-      # middleware(M.Passport, claim: "owner;cms->?->post.articles.delete")
-      # middleware(M.Passport, claim: "cms->?->post.articles.edit")
-
       resolve(&Resolvers.Accounts.user/3)
     end
   end

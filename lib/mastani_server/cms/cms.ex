@@ -109,7 +109,6 @@ defmodule MastaniServer.CMS do
     with {:ok, action} <- match_action(part, :community),
          {:ok, content} <- ORM.find(action.target, part_id, preload: :communities),
          {:ok, community} <- ORM.find_by(action.reactor, title: community_title) do
-
       content
       |> Ecto.Changeset.change()
       |> Ecto.Changeset.put_assoc(:communities, content.communities ++ [community])
@@ -149,7 +148,6 @@ defmodule MastaniServer.CMS do
            |> action.target.changeset(attrs)
            |> Ecto.Changeset.put_change(:author_id, author.id)
            |> Repo.insert() do
-
       set_community(part, content.id, community.title)
     end
   end

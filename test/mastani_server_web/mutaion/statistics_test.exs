@@ -3,6 +3,7 @@ defmodule MastaniServer.Test.Mutation.StatisticsTest do
   import MastaniServer.Factory
   import MastaniServer.Test.ConnBuilder
   import MastaniServer.Test.AssertHelper
+  import ShortMaps
 
   alias MastaniServer.Statistics
   # alias MastaniServer.Accounts.User
@@ -10,9 +11,9 @@ defmodule MastaniServer.Test.Mutation.StatisticsTest do
 
   setup do
     guest_conn = mock_conn(:guest)
-
     {:ok, user} = db_insert(:user)
-    {:ok, user: user, guest_conn: guest_conn}
+
+    {:ok, ~m(guest_conn user)a}
   end
 
   describe "[statistics mutaion user_contributes] " do
@@ -24,13 +25,11 @@ defmodule MastaniServer.Test.Mutation.StatisticsTest do
       }
     }
     """
-    test "for guest user makeContribute should add record to user_contributes table", %{
-      user: user,
-      guest_conn: conn
-    } do
+    test "for guest user makeContribute should add record to user_contributes table",
+         ~m(guest_conn user)a do
       variables = %{userId: user.id}
       assert {:error, _} = ORM.find_by(Statistics.UserContributes, user_id: user.id)
-      results = conn |> mutation_result(@query, variables, "makeContrubute")
+      results = guest_conn |> mutation_result(@query, variables, "makeContrubute")
       assert {:ok, _} = ORM.find_by(Statistics.UserContributes, user_id: user.id)
 
       assert ["count", "date"] == results |> Map.keys()
@@ -38,13 +37,10 @@ defmodule MastaniServer.Test.Mutation.StatisticsTest do
       assert results["count"] == 1
     end
 
-    test "makeContribute to same user should update contribute count", %{
-      user: user,
-      guest_conn: conn
-    } do
+    test "makeContribute to same user should update contribute count", ~m(guest_conn user)a do
       variables = %{userId: user.id}
-      conn |> mutation_result(@query, variables, "makeContrubute")
-      results = conn |> mutation_result(@query, variables, "makeContrubute")
+      guest_conn |> mutation_result(@query, variables, "makeContrubute")
+      results = guest_conn |> mutation_result(@query, variables, "makeContrubute")
       assert ["count", "date"] == results |> Map.keys()
       assert results["date"] == Timex.today() |> Date.to_iso8601()
       assert results["count"] == 2

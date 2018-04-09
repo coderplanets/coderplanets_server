@@ -36,9 +36,14 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
     @desc "delete a tag by part [:login required]"
     field :delete_tag, :tag do
       arg(:id, non_null(:id))
+      # must
+      arg(:community, non_null(:string))
+      # arg(:tag, non_null(:string))
+      arg(:part, :cms_part, default_value: :post)
 
       middleware(M.Authorize, :login)
-      # middleware(Middleware.OwnerRequired, match: [:post, :tag], others: ["admin"])
+
+      middleware(M.Passport, claim: "cms->c?->p?.tag.delete")
       resolve(&Resolvers.CMS.delete_tag/3)
     end
 

@@ -6,7 +6,6 @@ defmodule MastaniServer.Test.Mutation.PostTest do
   import MastaniServer.Test.AssertHelper
   import ShortMaps
 
-  alias MastaniServer.Repo
   # alias MastaniServer.Accounts.User
   alias MastaniServer.CMS
   alias Helper.ORM
@@ -18,7 +17,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     user_conn = mock_conn(:user)
     owner_conn = mock_conn(:owner, post)
 
-    {:ok, guest_conn: guest_conn, user_conn: user_conn, owner_conn: owner_conn, post: post}
+    {:ok, ~m(user_conn guest_conn owner_conn post)a}
   end
 
   describe "[mutation post comment]" do
@@ -57,7 +56,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
 
       assert deleted_comment["id"] == created["id"]
 
-      assert nil == Repo.get(CMS.PostComment, deleted_comment["id"])
+      assert {:error, _} = ORM.find(CMS.PostComment, deleted_comment["id"])
     end
   end
 
@@ -98,7 +97,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       deleted = owner_conn |> mutation_result(@query, %{id: post.id}, "deletePost")
 
       assert deleted["id"] == to_string(post.id)
-      assert nil == Repo.get(CMS.Post, deleted["id"])
+      assert {:error, _} = ORM.find(CMS.Post, deleted["id"])
     end
 
     test "delete a post without login user fails", ~m(guest_conn post)a do

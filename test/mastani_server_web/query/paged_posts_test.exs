@@ -4,7 +4,9 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
 
   import MastaniServer.Factory
   import MastaniServer.Test.AssertHelper
+  import MastaniServer.Test.ConnBuilder
   import Ecto.Query, warn: false
+  import ShortMaps
 
   alias MastaniServer.CMS
   alias MastaniServer.Repo
@@ -24,7 +26,6 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
                        @posts_last_year_count
 
   setup do
-    # TODO: token
     db_insert_multi!(:post, @posts_today_count)
     db_insert(:post, %{title: "last week", inserted_at: @last_week})
     db_insert(:post, %{title: "last month", inserted_at: @last_month})
@@ -33,9 +34,9 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
     # conn =
     # build_conn()
     # |> put_req_header("authorization", "Bearer fake-token")
-    conn_without_token = build_conn()
+    guest_conn = mock_conn(:guest)
 
-    {:ok, conn_without_token: conn_without_token}
+    {:ok, ~m(guest_conn)a}
   end
 
   describe "[query paged_posts filter pagination]" do
@@ -52,31 +53,31 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
       }
     }
     """
-    test "should get pagination info", %{conn_without_token: conn} do
+    test "should get pagination info", ~m(guest_conn)a do
       variables = %{filter: %{page: 1, size: 10}}
-      results = conn |> query_result(@query, variables, "pagedPosts")
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
       assert results |> is_valid_pagination?
       assert results["pageSize"] == 10
       assert results["totalCount"] == @posts_total_count
     end
 
-    test "request large size fails", %{conn_without_token: conn} do
+    test "request large size fails", ~m(guest_conn)a do
       variables = %{filter: %{page: 1, size: 200}}
-      assert conn |> query_get_error?(@query, variables)
+      assert guest_conn |> query_get_error?(@query, variables)
     end
 
-    test "request 0 or neg-size fails", %{conn_without_token: conn} do
+    test "request 0 or neg-size fails", ~m(guest_conn)a do
       variables_0 = %{filter: %{page: 1, size: 0}}
       variables_neg_1 = %{filter: %{page: 1, size: -1}}
 
-      assert conn |> query_get_error?(@query, variables_0)
-      assert conn |> query_get_error?(@query, variables_neg_1)
+      assert guest_conn |> query_get_error?(@query, variables_0)
+      assert guest_conn |> query_get_error?(@query, variables_neg_1)
     end
 
-    test "pagination should have default page and size arg", %{conn_without_token: conn} do
+    test "pagination should have default page and size arg", ~m(guest_conn)a do
       variables = %{filter: %{}}
-      results = conn |> query_result(@query, variables, "pagedPosts")
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
       assert results |> is_valid_pagination?
       assert results["pageSize"] == 20
       assert results["totalCount"] == @posts_total_count
@@ -94,9 +95,9 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
        }
     }
     """
-    test "filter sort should have default :desc_inserted", %{conn_without_token: conn} do
+    test "filter sort should have default :desc_inserted", ~m(guest_conn)a do
       variables = %{filter: %{}}
-      results = conn |> query_result(@query, variables, "pagedPosts")
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
       inserted_timestamps = results["entries"] |> Enum.map(& &1["inserted_at"])
 
       {:ok, first_inserted_time, 0} =
@@ -117,11 +118,11 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
       }
     }
     """
-    test "filter sort MOST_VIEWS should work", %{conn_without_token: conn} do
+    test "filter sort MOST_VIEWS should work", ~m(guest_conn)a do
       most_views_post = CMS.Post |> order_by(desc: :views) |> limit(1) |> Repo.one()
       variables = %{filter: %{sort: "MOST_VIEWS"}}
 
-      results = conn |> query_result(@query, variables, "pagedPosts")
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
       find_post = results |> Map.get("entries") |> hd
 
       # assert find_post["id"] == most_views_post |> Map.get(:id) |> to_string
@@ -146,17 +147,17 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
       }
     }
     """
-    test "THIS_YEAR option should work", %{conn_without_token: conn} do
+    test "THIS_YEAR option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_YEAR"}}
-      results = conn |> query_result(@query, variables, "pagedPosts")
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
       expect_count = @posts_total_count - @posts_last_year_count
       assert results |> Map.get("totalCount") == expect_count
     end
 
-    test "TODAY option should work", %{conn_without_token: conn} do
+    test "TODAY option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "TODAY"}}
-      results = conn |> query_result(@query, variables, "pagedPosts")
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
       expect_count =
         @posts_total_count - @posts_last_year_count - @posts_last_month_count -
@@ -165,15 +166,15 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
       assert results |> Map.get("totalCount") == expect_count
     end
 
-    test "THIS_WEEK option should work", %{conn_without_token: conn} do
+    test "THIS_WEEK option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_WEEK"}}
-      results = conn |> query_result(@query, variables, "pagedPosts")
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
       assert results |> Map.get("totalCount") == @posts_today_count
     end
 
-    test "THIS_MONTH option should work", %{conn_without_token: conn} do
+    test "THIS_MONTH option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_MONTH"}}
-      results = conn |> query_result(@query, variables, "pagedPosts")
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
       expect_count = @posts_total_count - @posts_last_year_count - @posts_last_month_count
       assert results |> Map.get("totalCount") == expect_count

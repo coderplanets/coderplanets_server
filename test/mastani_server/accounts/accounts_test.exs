@@ -14,7 +14,9 @@ defmodule MastaniServer.Test.AccountsTest do
 
   describe "[github login]" do
     test "register a valid github user with non-exist in db" do
-      assert {:error, _} = ORM.find_by(Accounts.GithubUser, github_id: to_string(@valid_github_profile["id"]))
+      assert {:error, _} =
+               ORM.find_by(Accounts.GithubUser, github_id: to_string(@valid_github_profile["id"]))
+
       assert {:error, _} = ORM.find_by(Accounts.User, nickname: @valid_github_profile["login"])
 
       {:ok, %{token: token, user: user}} = Accounts.github_signin(@valid_github_profile)
@@ -28,7 +30,9 @@ defmodule MastaniServer.Test.AccountsTest do
       assert created_user.bio == @valid_github_profile["bio"]
       assert created_user.from_github == true
 
-      {:ok, g_user} = ORM.find_by(Accounts.GithubUser, github_id: to_string(@valid_github_profile["id"]))
+      {:ok, g_user} =
+        ORM.find_by(Accounts.GithubUser, github_id: to_string(@valid_github_profile["id"]))
+
       assert g_user.login == @valid_github_profile["login"]
       assert g_user.avatar_url == @valid_github_profile["avatar_url"]
       assert g_user.access_token == @valid_github_profile["access_token"]

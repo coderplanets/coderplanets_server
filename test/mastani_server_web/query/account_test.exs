@@ -4,12 +4,13 @@ defmodule MastaniServer.Test.Query.AccountTest do
   import MastaniServer.Factory
   import MastaniServer.Test.ConnBuilder
   import MastaniServer.Test.AssertHelper
+  import ShortMaps
 
   setup do
     {:ok, user} = db_insert(:user)
     guest_conn = mock_conn(:guest)
 
-    {:ok, user: user, guest_conn: guest_conn}
+    {:ok, ~m(guest_conn user)a}
   end
 
   describe "[account test]" do
@@ -22,9 +23,9 @@ defmodule MastaniServer.Test.Query.AccountTest do
       }
     }
     """
-    test "query a account works", %{user: user, guest_conn: conn} do
+    test "query a account works", ~m(guest_conn user)a do
       variables = %{id: user.id}
-      results = conn |> query_result(@query, variables, "user")
+      results = guest_conn |> query_result(@query, variables, "user")
       assert results["id"] == to_string(user.id)
       assert results["nickname"] == user.nickname
     end

@@ -6,15 +6,15 @@ defmodule MastaniServer.Test.Query.StatisticsTest do
 
   alias MastaniServer.Statistics
   alias MastaniServer.Accounts.User
+  import ShortMaps
 
   setup do
     {:ok, user} = db_insert(:user)
-
     guest_conn = mock_conn(:guest)
 
     Statistics.make_contribute(%User{id: user.id})
 
-    {:ok, guest_conn: guest_conn, user: user}
+    {:ok, ~m(guest_conn user)a}
   end
 
   describe "[statistics query user_contributes] " do
@@ -26,12 +26,9 @@ defmodule MastaniServer.Test.Query.StatisticsTest do
       }
     }
     """
-    test "query userContributes get valid count/date list", %{
-      user: user,
-      guest_conn: conn
-    } do
+    test "query userContributes get valid count/date list", ~m(guest_conn user)a do
       variables = %{userId: user.id}
-      results = conn |> query_result(@query, variables, "userContributes")
+      results = guest_conn |> query_result(@query, variables, "userContributes")
 
       assert is_list(results)
       assert ["count", "date"] == results |> List.first() |> Map.keys()
