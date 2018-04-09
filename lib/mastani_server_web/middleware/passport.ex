@@ -19,8 +19,12 @@ defmodule MastaniServerWeb.Middleware.Passport do
 
   def call(%{arguments: %{passport_is_owner: true}} = resolution, claim: "owner"), do: resolution
 
-  def call(%{arguments: %{passport_is_owner: true}} = resolution, claim: "owner;" <> _rest),
-    do: resolution
+  def call(%{arguments: %{passport_is_owner: true}} = resolution, claim: "owner;" <> _rest) do
+    # IO.inspect resolution |> Map.keys, label: "keys"
+    # you can disable create comment by this path-name
+    # IO.inspect resolution |> Map.get(:path) |> List.first |> Map.get(:name), label: "path"
+    resolution
+  end
 
   def call(
         %{
