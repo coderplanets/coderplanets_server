@@ -12,8 +12,8 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
   def call(%{context: %{cur_user: _}, arguments: %{id: id}} = resolution, args) do
     with {:ok, part, react} <- parse_source(args),
          {:ok, action} <- match_action(part, react),
-         {:ok, content} <-
-           ORM.find(action.reactor, id, preload: [action.preload, parse_base(args)]) do
+         {:ok, preload} <- parse_preload(action, args),
+         {:ok, content} <- ORM.find(action.reactor, id, preload: preload) do
       resolution
       |> add_owner_info(react, content)
       |> add_source(content)
@@ -28,6 +28,18 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
   def call(resolution, _) do
     # TODO communiy in args
     resolution
+  end
+
+  defp parse_preload(action, args) do
+    {:ok, _, react} = parse_source(args)
+
+    case react == :comment do
+      true ->
+        {:ok, action.preload}
+
+      false ->
+        {:ok, [action.preload, parse_base(args)]}
+    end
   end
 
   def add_owner_info(%{context: %{cur_user: cur_user}} = resolution, react, content) do
