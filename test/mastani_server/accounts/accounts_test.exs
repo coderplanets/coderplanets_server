@@ -5,7 +5,7 @@ defmodule MastaniServer.Test.AccountsTest do
   import Helper.Utils
   import MastaniServer.Factory
 
-  alias MastaniServer.{Repo, Accounts}
+  alias MastaniServer.{Accounts}
   alias Helper.MastaniServer.Guardian
   alias Helper.ORM
 
@@ -14,16 +14,13 @@ defmodule MastaniServer.Test.AccountsTest do
 
   describe "[github login]" do
     test "register a valid github user with non-exist in db" do
-      g_user = Repo.get_by(Accounts.GithubUser, github_id: to_string(@valid_github_profile["id"]))
-      assert nil == g_user
-      user = Repo.get_by(Accounts.User, nickname: @valid_github_profile["login"])
-      assert nil == user
+      assert {:error, _} = ORM.find_by(Accounts.GithubUser, github_id: to_string(@valid_github_profile["id"]))
+      assert {:error, _} = ORM.find_by(Accounts.User, nickname: @valid_github_profile["login"])
 
-      # IO.inspect @valid_github_profile, label: "@valid_github_profile"
       {:ok, %{token: token, user: user}} = Accounts.github_signin(@valid_github_profile)
       {:ok, claims, _info} = Guardian.jwt_decode(token)
 
-      created_user = Repo.get(Accounts.User, claims.id)
+      {:ok, created_user} = ORM.find(Accounts.User, claims.id)
 
       assert user.id == created_user.id
       assert created_user.nickname == @valid_github_profile["login"]
@@ -31,7 +28,7 @@ defmodule MastaniServer.Test.AccountsTest do
       assert created_user.bio == @valid_github_profile["bio"]
       assert created_user.from_github == true
 
-      g_user = Repo.get_by(Accounts.GithubUser, github_id: to_string(@valid_github_profile["id"]))
+      {:ok, g_user} = ORM.find_by(Accounts.GithubUser, github_id: to_string(@valid_github_profile["id"]))
       assert g_user.login == @valid_github_profile["login"]
       assert g_user.avatar_url == @valid_github_profile["avatar_url"]
       assert g_user.access_token == @valid_github_profile["access_token"]

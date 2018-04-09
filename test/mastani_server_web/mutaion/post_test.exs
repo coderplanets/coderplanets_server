@@ -72,7 +72,6 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     }
     """
     test "create post with valid attrs and make sure author exsit" do
-
       {:ok, user} = db_insert(:user)
       user_conn = mock_conn(:user, user)
 
@@ -304,7 +303,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       guest_conn |> mutation_get_error?(@set_community_query, variables)
     end
 
-    test "auth user can set multi community to a post", ~m(user_conn post)a do
+    test "auth user can set multi community to a post", ~m(post)a do
       passport_rules = %{"cms" => %{"post.community.set" => true}}
       rule_conn = mock_conn(:user, passport_rules)
 
