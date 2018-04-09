@@ -1,9 +1,8 @@
 defmodule MastaniServer.Factory do
-  alias Helper.ORM
+  # alias Helper.ORM
   alias MastaniServer.Repo
   alias MastaniServer.CMS
   alias MastaniServer.Accounts
-  alias Helper.MastaniServer.Guardian
 
   defp mock_meta(:post) do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
@@ -95,15 +94,14 @@ defmodule MastaniServer.Factory do
   def mock_attrs(:tag, attrs), do: mock_meta(:tag) |> Map.merge(attrs)
   def mock_attrs(:github_profile, attrs), do: mock_meta(:github_profile) |> Map.merge(attrs)
 
-  @doc """
-  NOTICE: avoid Recursive problem
-  bad example:
-               mismatch                                       mismatch
-                  |                                               |
-      defp mock(:user), do: Accounts.User |> struct(mock_meta(:community))
+  # NOTICE: avoid Recursive problem
+  # bad example:
+  # mismatch                                       mismatch
+  # |                                               |
+  # defp mock(:user), do: Accounts.User |> struct(mock_meta(:community))
 
-  this line of code will cause SERIOUS Recursive problem
-  """
+  # this line of code will cause SERIOUS Recursive problem
+
   defp mock(:post), do: CMS.Post |> struct(mock_meta(:post))
   defp mock(:comment), do: CMS.Post |> struct(mock_meta(:comment))
   defp mock(:author), do: CMS.Author |> struct(mock_meta(:author))
@@ -115,10 +113,10 @@ defmodule MastaniServer.Factory do
     factory_name |> mock() |> struct(attributes)
   end
 
-  @doc """
+  # """
   # not use changeset because in test we may insert some attrs which not in schema
   # like: views, insert/update ... to test filter-sort,when ...
-  """
+  # """
   def db_insert(factory_name, attributes \\ []) do
     Repo.insert(mock(factory_name, attributes))
   end

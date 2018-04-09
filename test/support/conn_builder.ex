@@ -16,6 +16,14 @@ defmodule MastaniServer.Test.ConnBuilder do
     build_conn()
   end
 
+  def mock_conn(:user) do
+    user_attr = mock_attrs(:user)
+    {:ok, user} = db_insert(:user, user_attr)
+    token = gen_jwt_token(id: user.id)
+
+    build_conn() |> put_req_header("authorization", token)
+  end
+
   def mock_conn(:owner, content) do
     token = gen_jwt_token(id: content.author.user.id)
 
@@ -23,14 +31,6 @@ defmodule MastaniServer.Test.ConnBuilder do
   end
 
   def mock_conn(:user, %Accounts.User{} = user) do
-    token = gen_jwt_token(id: user.id)
-
-    build_conn() |> put_req_header("authorization", token)
-  end
-
-  def mock_conn(:user) do
-    user_attr = mock_attrs(:user)
-    {:ok, user} = db_insert(:user, user_attr)
     token = gen_jwt_token(id: user.id)
 
     build_conn() |> put_req_header("authorization", token)
@@ -44,11 +44,7 @@ defmodule MastaniServer.Test.ConnBuilder do
 
     {:ok, _passport} = CMS.stamp_passport(%Accounts.User{id: user.id}, passport_rules)
 
-    conn =
-      build_conn()
-      |> put_req_header("authorization", token)
-
-    # |> put_req_header.("content-type", "application/json")
+    build_conn() |> put_req_header("authorization", token)
   end
 
   defp gen_jwt_token(clauses) do

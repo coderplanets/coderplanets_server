@@ -11,16 +11,16 @@ defmodule MastaniServerWeb.Middleware.OwnerRequired do
   alias Helper.ORM
 
   def call(
-        %{context: %{cur_user: cur_user}, arguments: %{id: id}, errors: []} = resolution,
+        %{context: %{cur_user: _}, arguments: %{id: id}, errors: []} = resolution,
         args
       ) do
     with {:ok, part, react} <- parse_args(args),
          {:ok, action} <- match_action(part, react),
          {:ok, content} <- ORM.find(action.reactor, id, preload: action.preload) do
-      content_author_id =
-        if react == :comment,
-          do: content.author.id,
-          else: content.author.user_id
+      # content_author_id =
+      # if react == :comment,
+      # do: content.author.id,
+      # else: content.author.user_id
 
       arguments = resolution.arguments |> Map.merge(%{passport_source: content})
       %{resolution | arguments: arguments}

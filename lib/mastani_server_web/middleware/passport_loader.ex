@@ -9,7 +9,7 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
 
   # def call(%{context: %{cur_user: cur_user}, arguments: %{id: id}} = resolution, [source: .., base: ..]) do
   # Loader 应该使用 Map 作为参数，以方便模式匹配
-  def call(%{context: %{cur_user: cur_user}, arguments: %{id: id}} = resolution, args) do
+  def call(%{context: %{cur_user: _}, arguments: %{id: id}} = resolution, args) do
     with {:ok, part, react} <- parse_source(args),
          {:ok, action} <- match_action(part, react),
          {:ok, content} <-

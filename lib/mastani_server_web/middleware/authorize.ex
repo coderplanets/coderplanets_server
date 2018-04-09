@@ -5,7 +5,7 @@ defmodule MastaniServerWeb.Middleware.Authorize do
   @behaviour Absinthe.Middleware
   import Helper.Utils, only: [handle_absinthe_error: 2]
 
-  def call(%{context: %{cur_user: _}} = resolution, role) do
+  def call(%{context: %{cur_user: _}} = resolution, _info) do
     resolution
   end
 

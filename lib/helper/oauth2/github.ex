@@ -70,7 +70,7 @@ defmodule Helper.OAuth2.Github do
         %{status: 403, body: body} ->
           {:error, "OAuth2 Github: " <> body}
 
-        error ->
+        _ ->
           {:error, "OAuth2 Github: unhandle error"}
       end
     rescue
