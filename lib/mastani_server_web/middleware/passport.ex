@@ -25,7 +25,7 @@ defmodule MastaniServerWeb.Middleware.Passport do
         } = resolution,
         claim: "cms->c?->p?." <> _rest = claim
       ) do
-    IO.inspect("catch me cms->c?->p?", label: "[passport]")
+    # IO.inspect("catch me cms->c?->p?", label: "[passport]")
     resolution |> check_passport_stamp(claim)
   end
 

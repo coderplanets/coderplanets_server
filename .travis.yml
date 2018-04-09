@@ -4,6 +4,8 @@ elixir:
 otp_release:
   - 19.3
   - 20.1
+addons:
+  postgresql: "9.4"
 before_script:
   - MIX_ENV=test mix deps.get
 after_script:
