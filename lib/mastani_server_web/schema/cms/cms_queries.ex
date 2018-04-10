@@ -6,6 +6,11 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
   alias MastaniServerWeb.Middleware, as: M
 
   object :cms_queries do
+    field :communities, list_of(:community) do
+      middleware(M.SizeChecker)
+      resolve(&Resolvers.CMS.communities/3)
+    end
+
     @desc "get one post"
     field :post, non_null(:post) do
       arg(:id, non_null(:id))

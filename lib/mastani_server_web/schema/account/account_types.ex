@@ -41,6 +41,10 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:updated_at, :datetime)
     field(:from_github, :boolean)
     field(:github, :github_profile, resolve: dataloader(Accounts, :github_profile))
+    # TODO: default is to load recent 1 month
+    # field :recent_contributes, list_of(:contribute) do
+    # resolve(&Resolvers.Statistics.list_contributes/3)
+    # end
   end
 
   object :token_info do
