@@ -14,8 +14,15 @@ defmodule MastaniServerWeb.Middleware.Statistics.MakeContribute do
   def call(%{value: nil, errors: _} = resolution, _), do: resolution
 
   def call(%{value: value, context: %{cur_user: cur_user}} = resolution, for: parts) do
-    if :user in parts, do: Statistics.make_contribute(%User{id: cur_user.id})
-    if :community in parts, do: Statistics.make_contribute(%Community{id: value.id})
+    case is_list(parts) do
+      true ->
+        if :user in parts, do: Statistics.make_contribute(%User{id: cur_user.id})
+        if :community in parts, do: Statistics.make_contribute(%Community{id: value.id})
+
+      false ->
+        if :user == parts, do: Statistics.make_contribute(%User{id: cur_user.id})
+        if :community == parts, do: Statistics.make_contribute(%Community{id: value.id})
+    end
 
     resolution
   end
