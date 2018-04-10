@@ -13,21 +13,21 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
     end
 
     @desc "get all posts"
-    field :posts, non_null(list_of(non_null(:post))) do
+    field :posts, list_of(:post) do
       # case error when refresh the schema
       # arg(:filter, :article_filter, default_value: %{first: 20})
       middleware(M.SizeChecker)
       resolve(&Resolvers.CMS.posts/3)
     end
 
-    field :paged_posts, non_null(:paged_posts) do
+    field :paged_posts, :paged_posts do
       arg(:filter, non_null(:paged_article_filter))
       middleware(M.SizeChecker)
       resolve(&Resolvers.CMS.posts/3)
       middleware(M.FormatPagination)
     end
 
-    field :favorite_users, non_null(list_of(non_null(:paged_users))) do
+    field :favorite_users, list_of(:paged_users) do
       arg(:id, non_null(:id))
       arg(:type, :cms_part, default_value: :post)
       arg(:action, :favorite_action, default_value: :favorite)
@@ -38,7 +38,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       middleware(M.FormatPagination)
     end
 
-    field :tags, non_null(list_of(non_null(:tag))) do
+    field :tags, list_of(:tag) do
       arg(:community, non_null(:string))
       arg(:part, non_null(:community_part_enum))
       resolve(&Resolvers.CMS.get_tags/3)
