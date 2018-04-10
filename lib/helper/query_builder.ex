@@ -35,6 +35,24 @@ defmodule Helper.QueryBuilder do
     |> filter_pack(filter)
   end
 
+  def recent_inserted(queryable, mounths: count) do
+    end_of_today = Timex.now() |> Timex.end_of_day()
+    x_months_ago = Timex.shift(Timex.today(), months: -count) |> Timex.to_datetime()
+
+    queryable
+    |> where([q], q.inserted_at >= ^x_months_ago)
+    |> where([q], q.inserted_at <= ^end_of_today)
+  end
+
+  def recent_inserted(queryable, days: count) do
+    end_of_today = Timex.now() |> Timex.end_of_day()
+    x_days_ago = Timex.shift(Timex.today(), days: -count) |> Timex.to_datetime()
+
+    queryable
+    |> where([q], q.inserted_at >= ^x_days_ago)
+    |> where([q], q.inserted_at <= ^end_of_today)
+  end
+
   defp sort_strategy(:most_views), do: [desc: :views, desc: :inserted_at]
   defp sort_strategy(:least_views), do: [asc: :views, desc: :inserted_at]
   # this is strategy will cause

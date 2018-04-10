@@ -123,24 +123,31 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       assert rule_conn |> mutation_get_error?(@create_community_query, variables)
     end
 
-    test "the user who create community should add contribute" do
+    test "creator of community should be add to userContributes and communityContributes" do
       variables = mock_attrs(:community)
       rule_conn = mock_conn(:user, %{"cms" => %{"community.create" => true}})
 
-      created =
+      created_community =
         rule_conn |> mutation_result(@create_community_query, variables, "createCommunity")
 
-      author = created["author"]
+      author = created_community["author"]
 
-      {:ok, found} = CMS.Community |> ORM.find(created["id"])
+      {:ok, found_community} = CMS.Community |> ORM.find(created_community["id"])
 
-      {:ok, contribute} = ORM.find_by(Statistics.UserContributes, user_id: author["id"])
+      {:ok, user_contribute} = ORM.find_by(Statistics.UserContributes, user_id: author["id"])
 
-      assert contribute.date == Timex.today()
-      assert to_string(contribute.user_id) == author["id"]
-      assert contribute.count == 1
+      {:ok, community_contribute} =
+        ORM.find_by(Statistics.CommunityContributes, community_id: found_community.id)
 
-      assert created["id"] == to_string(found.id)
+      assert user_contribute.date == Timex.today()
+      assert to_string(user_contribute.user_id) == author["id"]
+      assert user_contribute.count == 1
+
+      assert community_contribute.date == Timex.today()
+      assert community_contribute.community_id == found_community.id
+      assert community_contribute.count == 1
+
+      assert created_community["id"] == to_string(found_community.id)
     end
 
     test "create duplicated community fails", %{community: community, user_conn: conn} do

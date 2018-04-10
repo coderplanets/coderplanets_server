@@ -4,55 +4,65 @@ defmodule MastaniServer.Statistics do
   """
 
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1]
+  import Helper.Utils, only: [done: 1, tobe_integer: 1]
 
   alias MastaniServer.Repo
   alias MastaniServer.Accounts.User
-  alias MastaniServer.Statistics.UserContributes
-  alias Helper.ORM
+  alias MastaniServer.CMS.Community
+  alias MastaniServer.Statistics.{UserContributes, CommunityContributes}
+  alias Helper.{ORM, QueryBuilder}
 
-  @doc """
-  Returns the list of user_contributes.
-  """
-  def make_contribute(%User{} = user) do
+  def make_contribute(%Community{id: id}) do
     today = Timex.today() |> Date.to_iso8601()
 
-    user_id =
-      if is_integer(user.id),
-        do: user.id,
-        else: user.id |> String.to_integer()
-
-    with {:ok, contribute} <- ORM.find_by(UserContributes, user_id: user_id, date: today) do
-      inc_contribute_count(contribute) |> done
+    with {:ok, contribute} <- ORM.find_by(CommunityContributes, community_id: id, date: today) do
+      inc_contribute_count(contribute, :community) |> done
     else
       {:error, _} ->
-        %UserContributes{}
-        |> UserContributes.changeset(%{user_id: user_id, date: today, count: 1})
+        %CommunityContributes{}
+        |> CommunityContributes.changeset(%{community_id: id, date: today, count: 1})
         |> Repo.insert()
     end
   end
 
-  def list_user_contributes(%User{} = user) do
-    end_of_today = Timex.now() |> Timex.end_of_day()
-    six_month_ago = Timex.shift(Timex.today(), months: -6) |> Timex.to_datetime()
+  def make_contribute(%User{id: id}) do
+    today = Timex.today() |> Date.to_iso8601()
 
-    user_id =
-      if is_integer(user.id),
-        do: user.id,
-        else: user.id |> String.to_integer()
+    with {:ok, contribute} <- ORM.find_by(UserContributes, user_id: id, date: today) do
+      inc_contribute_count(contribute, :user) |> done
+    else
+      {:error, _} ->
+        %UserContributes{}
+        |> UserContributes.changeset(%{user_id: id, date: today, count: 1})
+        |> Repo.insert()
+    end
+  end
 
-    query =
-      from(
-        c in "user_contributes",
-        where: c.user_id == ^user_id,
-        where: c.inserted_at >= ^six_month_ago,
-        where: c.inserted_at <= ^end_of_today,
-        # where: c.date >= ^(Timex.shift(today, months: -6) |> Date.to_iso8601),
-        # where: c.date <= ^(Timex.end_of_day(today) |> Date.to_iso8601),
-        select: %{date: c.date, count: c.count}
-      )
+  @doc """
+  Returns the list of user_contributes by latest 6 months.
+  """
+  def list_contributes(%User{id: id}) do
+    user_id = tobe_integer(id)
 
-    Repo.all(query) |> to_contribute_map |> done
+    "user_contributes"
+    |> where([c], c.user_id == ^user_id)
+    |> QueryBuilder.recent_inserted(mounths: 6)
+    |> select([c], %{date: c.date, count: c.count})
+    |> Repo.all()
+    |> to_contribute_map
+    |> done
+  end
+
+  def list_contributes(%Community{id: id}) do
+    community_id = tobe_integer(id)
+
+    "community_contributes"
+    |> where([c], c.community_id == ^community_id)
+    |> QueryBuilder.recent_inserted(days: 7)
+    |> select([c], %{date: c.date, count: c.count})
+    |> Repo.all()
+    |> to_contribute_map
+    |> done
   end
 
   defp to_contribute_map(data) do
@@ -65,14 +75,23 @@ defmodule MastaniServer.Statistics do
     edate
   end
 
-  defp inc_contribute_count(contribute) do
+  defp inc_contribute_count(contribute, :community) do
+    CommunityContributes
+    |> where([c], c.community_id == ^contribute.community_id and c.date == ^contribute.date)
+    |> do_inc_count(contribute)
+  end
+
+  defp inc_contribute_count(contribute, :user) do
+    UserContributes
+    |> where([c], c.user_id == ^contribute.user_id and c.date == ^contribute.date)
+    |> do_inc_count(contribute)
+  end
+
+  defp do_inc_count(query, contribute, count \\ 1) do
     {1, [result]} =
       Repo.update_all(
-        from(
-          c in UserContributes,
-          where: c.user_id == ^contribute.user_id and c.date == ^contribute.date
-        ),
-        [inc: [count: 1]],
+        query,
+        [inc: [count: count]],
         returning: [:count]
       )
 

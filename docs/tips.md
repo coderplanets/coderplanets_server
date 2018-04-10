@@ -7,6 +7,8 @@
 
   mix test.watch test/mastani_server/cms/cms_passport_test.exs --only wip
 
+  mix ecto.gen.migration add_xxx
+
   ```
 `recompile()` to recompile your project
 

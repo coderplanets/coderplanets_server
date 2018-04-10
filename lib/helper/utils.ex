@@ -38,6 +38,12 @@ defmodule Helper.Utils do
     Map.merge(left, right, &deep_resolve/3)
   end
 
+  def tobe_integer(val) do
+    if is_integer(val),
+      do: val,
+      else: val |> String.to_integer()
+  end
+
   # Key exists in both maps, and both values are maps as well.
   # These can be merged recursively.
   defp deep_resolve(_key, left = %{}, right = %{}) do

@@ -53,7 +53,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       middleware(M.Passport, claim: "cms->community.create")
 
       resolve(&Resolvers.CMS.create_community/3)
-      middleware(M.Statistics.MakeContribute)
+      # middleware(M.Statistics.MakeContribute, for: :user)
+      middleware(M.Statistics.MakeContribute, for: [:user, :community])
     end
 
     field :delete_community, :community do
