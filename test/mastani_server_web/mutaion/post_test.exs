@@ -78,11 +78,10 @@ defmodule MastaniServer.Test.Mutation.PostTest do
 
       variables = post_attr |> Map.merge(%{community: community.title})
       created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
-      {:ok, post} = ORM.find_by(CMS.Post, title: post_attr.title)
-
-      assert {:ok, _} = ORM.find_by(CMS.Author, user_id: user.id)
+      {:ok, post} = ORM.find(CMS.Post, created["id"])
 
       assert created["id"] == to_string(post.id)
+      assert {:ok, _} = ORM.find_by(CMS.Author, user_id: user.id)
     end
 
     @query """
