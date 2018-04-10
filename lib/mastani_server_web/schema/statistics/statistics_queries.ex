@@ -7,9 +7,9 @@ defmodule MastaniServerWeb.Schema.Statistics.Queries do
   object :statistics_queries do
     @desc "list of user contribute in last 6 month"
     field :user_contributes, list_of(:user_contribute) do
-      arg(:user_id, non_null(:id))
+      arg(:id, non_null(:id))
 
-      resolve(&Resolvers.Statistics.user_contributes/3)
+      resolve(&Resolvers.Statistics.list_contributes/3)
     end
   end
 end

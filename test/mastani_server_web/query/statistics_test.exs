@@ -19,15 +19,15 @@ defmodule MastaniServer.Test.Query.StatisticsTest do
 
   describe "[statistics query user_contributes] " do
     @query """
-    query userContributes($userId: ID!) {
-      userContributes(userId: $userId) {
+    query userContributes($id: ID!) {
+      userContributes(id: $id) {
         date
         count
       }
     }
     """
     test "query userContributes get valid count/date list", ~m(guest_conn user)a do
-      variables = %{userId: user.id}
+      variables = %{id: user.id}
       results = guest_conn |> query_result(@query, variables, "userContributes")
 
       assert is_list(results)

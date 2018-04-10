@@ -1,14 +1,21 @@
 defmodule MastaniServerWeb.Resolvers.Statistics do
-  alias MastaniServer.Statistics
-  alias MastaniServer.Accounts.User
+  alias MastaniServer.{Accounts, CMS, Statistics}
   # alias Helper.ORM
 
-  def user_contributes(_root, %{user_id: user_id}, _info) do
-    # Statistics.list_contributes(String.to_integer(user_id)) |> IO.inspect
-    Statistics.list_contributes(%User{id: user_id})
+  # tmp for test
+  def list_contributes(_root, %{id: id}, _info) do
+    Statistics.list_contributes(%Accounts.User{id: id})
+  end
+
+  def list_contributes(%Accounts.User{id: id}, _args, _info) do
+    Statistics.list_contributes(%Accounts.User{id: id})
+  end
+
+  def list_contributes(%CMS.Community{id: id}, _args, _info) do
+    Statistics.list_contributes(%CMS.Community{id: id})
   end
 
   def make_contrubute(_root, %{user_id: user_id}, _info) do
-    Statistics.make_contribute(%User{id: user_id})
+    Statistics.make_contribute(%Accounts.User{id: user_id})
   end
 end

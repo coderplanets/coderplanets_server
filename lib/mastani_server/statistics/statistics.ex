@@ -2,7 +2,6 @@ defmodule MastaniServer.Statistics do
   @moduledoc """
   The Statistics context.
   """
-
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1, tobe_integer: 1]
 

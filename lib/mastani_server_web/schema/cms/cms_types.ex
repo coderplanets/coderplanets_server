@@ -3,8 +3,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   use Absinthe.Ecto, repo: MastaniServer.Repo
 
   import Absinthe.Resolution.Helpers, only: [dataloader: 2]
-  alias MastaniServer.CMS
-  alias MastaniServerWeb.{Schema}
+  alias MastaniServer.{CMS, Statistics}
+  alias MastaniServerWeb.{Resolvers, Schema}
   alias MastaniServerWeb.Middleware, as: M
 
   import_types(Schema.CMS.Misc)
@@ -146,6 +146,11 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:page_number, :integer)
   end
 
+  object :contribute do
+    field(:date, :date)
+    field(:count, :integer)
+  end
+
   object :community do
     field(:id, :id)
     field(:title, :string)
@@ -153,6 +158,11 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
     field(:author, :user, resolve: dataloader(CMS, :author))
+
+    field :recent_contributes, list_of(:contribute) do
+      # TODO add complex here
+      resolve(&Resolvers.Statistics.list_contributes/3)
+    end
   end
 
   object :tag do
@@ -163,15 +173,4 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
   end
-
-  # object :author do
-  # field(:id, non_null(:id))
-  # field(:role, :string)
-  # field(:posts, list_of(:post), resolve: assoc(:posts))
-  # end
-
-  # object :comment do
-  # field(:id, non_null(:id))
-  # field(:body, :string)
-  # end
 end
