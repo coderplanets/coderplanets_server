@@ -7,7 +7,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
   object :cms_queries do
     field :communities, list_of(:community) do
-      middleware(M.SizeChecker)
+      middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.communities/3)
     end
 
@@ -21,13 +21,13 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
     field :posts, list_of(:post) do
       # case error when refresh the schema
       # arg(:filter, :article_filter, default_value: %{first: 20})
-      middleware(M.SizeChecker)
+      middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.posts/3)
     end
 
     field :paged_posts, :paged_posts do
       arg(:filter, non_null(:paged_article_filter))
-      middleware(M.SizeChecker)
+      middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.posts/3)
       middleware(M.FormatPagination)
     end
@@ -38,7 +38,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:action, :favorite_action, default_value: :favorite)
       arg(:filter, :paged_article_filter)
 
-      middleware(M.SizeChecker)
+      middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.reaction_users/3)
       middleware(M.FormatPagination)
     end
