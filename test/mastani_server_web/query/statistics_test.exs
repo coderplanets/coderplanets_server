@@ -10,7 +10,7 @@ defmodule MastaniServer.Test.Query.StatisticsTest do
 
   setup do
     {:ok, user} = db_insert(:user)
-    guest_conn = mock_conn(:guest)
+    guest_conn = simu_conn(:guest)
 
     Statistics.make_contribute(%User{id: user.id})
 

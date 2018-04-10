@@ -10,7 +10,7 @@ defmodule MastaniServer.Test.Mutation.StatisticsTest do
   alias Helper.ORM
 
   setup do
-    guest_conn = mock_conn(:guest)
+    guest_conn = simu_conn(:guest)
     {:ok, user} = db_insert(:user)
 
     {:ok, ~m(guest_conn user)a}

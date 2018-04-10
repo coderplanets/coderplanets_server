@@ -8,7 +8,7 @@ defmodule MastaniServer.Test.Query.AccountTest do
 
   setup do
     {:ok, user} = db_insert(:user)
-    guest_conn = mock_conn(:guest)
+    guest_conn = simu_conn(:guest)
 
     {:ok, ~m(guest_conn user)a}
   end

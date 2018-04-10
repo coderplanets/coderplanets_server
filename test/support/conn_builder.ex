@@ -12,11 +12,11 @@ defmodule MastaniServer.Test.ConnBuilder do
 
   import MastaniServer.Factory
 
-  def mock_conn(:guest) do
+  def simu_conn(:guest) do
     build_conn()
   end
 
-  def mock_conn(:user) do
+  def simu_conn(:user) do
     user_attr = mock_attrs(:user)
     {:ok, user} = db_insert(:user, user_attr)
     token = gen_jwt_token(id: user.id)
@@ -24,19 +24,19 @@ defmodule MastaniServer.Test.ConnBuilder do
     build_conn() |> put_req_header("authorization", token)
   end
 
-  def mock_conn(:owner, content) do
+  def simu_conn(:owner, content) do
     token = gen_jwt_token(id: content.author.user.id)
 
     build_conn() |> put_req_header("authorization", token)
   end
 
-  def mock_conn(:user, %Accounts.User{} = user) do
+  def simu_conn(:user, %Accounts.User{} = user) do
     token = gen_jwt_token(id: user.id)
 
     build_conn() |> put_req_header("authorization", token)
   end
 
-  def mock_conn(:user, passport_rules) do
+  def simu_conn(:user, passport_rules) do
     user_attr = mock_attrs(:user)
     {:ok, user} = db_insert(:user, user_attr)
 
