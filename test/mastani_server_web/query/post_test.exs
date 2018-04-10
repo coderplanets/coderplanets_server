@@ -11,8 +11,8 @@ defmodule MastaniServer.Test.Query.PostTest do
   setup do
     {:ok, post} = db_insert(:post)
 
-    guest_conn = mock_conn(:guest)
-    user_conn = mock_conn(:user)
+    guest_conn = simu_conn(:guest)
+    user_conn = simu_conn(:user)
 
     {:ok, ~m(user_conn guest_conn post)a}
   end

@@ -34,7 +34,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
     # conn =
     # build_conn()
     # |> put_req_header("authorization", "Bearer fake-token")
-    guest_conn = mock_conn(:guest)
+    guest_conn = simu_conn(:guest)
 
     {:ok, ~m(guest_conn)a}
   end
