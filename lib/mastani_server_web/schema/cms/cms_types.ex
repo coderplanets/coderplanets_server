@@ -42,7 +42,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       arg(:filter, :article_filter)
       arg(:action, :comment_action, default_value: :comment)
 
-      middleware(M.SizeChecker)
+      middleware(M.PageSizeProof)
       resolve(dataloader(CMS, :comments))
     end
 
@@ -86,7 +86,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       # TODO: tmp
       arg(:filter, :article_filter)
 
-      middleware(M.SizeChecker)
+      middleware(M.PageSizeProof)
       resolve(dataloader(CMS, :favorites))
     end
 
@@ -126,7 +126,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       # TODO: tmp
       arg(:filter, :article_filter)
 
-      middleware(M.SizeChecker)
+      middleware(M.PageSizeProof)
       resolve(dataloader(CMS, :stars))
     end
 
