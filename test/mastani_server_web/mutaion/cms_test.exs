@@ -15,7 +15,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
     {:ok, tag} = db_insert(:tag, %{community: community})
     {:ok, user} = db_insert(:user)
 
-    user_conn = simu_conn(:user, user)
+    user_conn = simu_conn(:user)
     guest_conn = simu_conn(:guest)
 
     {:ok, ~m(user_conn guest_conn community user tag)a}
@@ -184,7 +184,40 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
     test "delete non-exist community fails" do
       rule_conn = simu_conn(:user, %{"cms" => %{"community.delete" => true}})
-      assert rule_conn |> mutation_get_error?(@delete_community_query, %{id: 100_849_383})
+      assert rule_conn |> mutation_get_error?(@delete_community_query, %{id: non_exsit_id()})
+    end
+  end
+
+  describe "[mutation cms subscribes]" do
+    @subscribe_query """
+    mutation($communityId: ID!){
+      subscribeCommunity(communityId: $communityId) {
+        userId
+        communityId
+      }
+    }
+    """
+    test "login user can subscribt community", ~m(user community)a do
+      login_conn = simu_conn(:user, user)
+
+      variables = %{communityId: community.id}
+      created = login_conn |> mutation_result(@subscribe_query, variables, "subscribeCommunity")
+
+      assert created["communityId"] == to_string(community.id)
+      assert created["userId"] == to_string(user.id)
+    end
+
+    test "login user subscribt non-exsit community fails", ~m(user)a do
+      login_conn = simu_conn(:user, user)
+      variables = %{communityId: non_exsit_id()}
+
+      assert login_conn |> mutation_get_error?(@subscribe_query, variables)
+    end
+
+    test "guest user subscribt community fails", ~m(guest_conn community)a do
+      variables = %{communityId: community.id}
+
+      assert guest_conn |> mutation_get_error?(@subscribe_query, variables)
     end
   end
 end

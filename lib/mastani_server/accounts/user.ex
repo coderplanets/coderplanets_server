@@ -11,11 +11,16 @@ defmodule MastaniServer.Accounts.User do
     field(:from_github, :boolean)
     has_one(:github_profile, GithubUser)
 
+    # has_many(::following_communities, {"communities_subscribers", CommunitySubscriber})
+    # has_many(:follow_communities, {"communities_subscribers", CommunitySubscriber})
+
+    # has_one(:hobbies, Hobbies)
+
     timestamps(type: :utc_datetime)
   end
 
-  @required_fields ~w(nickname)a
   @optional_fields ~w(nickname bio avatar sex)a
+  @required_fields ~w(nickname avatar)a
 
   @doc false
   def changeset(%User{} = user, attrs) do

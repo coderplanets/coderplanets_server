@@ -66,6 +66,13 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       resolve(&Resolvers.CMS.delete_community/3)
     end
 
+    field :subscribe_community, :community_subscriber do
+      arg(:community_id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      resolve(&Resolvers.CMS.subscribe_community/3)
+    end
+
     @desc "set a tag within community"
     field :set_tag, :tag do
       arg(:id, non_null(:id))

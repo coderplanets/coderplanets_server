@@ -2,6 +2,8 @@ defmodule MastaniServer.Test.AssertHelper do
   import Phoenix.ConnTest
   @endpoint MastaniServerWeb.Endpoint
 
+  def non_exsit_id(), do: 15_982_398_614
+
   def is_valid_kv?(obj, key, :list) when is_map(obj) do
     case Map.has_key?(obj, key) do
       true -> obj |> Map.get(key) |> is_list
