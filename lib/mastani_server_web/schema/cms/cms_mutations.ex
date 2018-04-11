@@ -66,6 +66,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       resolve(&Resolvers.CMS.delete_community/3)
     end
 
+    @desc "subscribe a community so it can appear in sidebar"
     field :subscribe_community, :community_subscriber do
       arg(:community_id, non_null(:id))
 

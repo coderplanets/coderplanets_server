@@ -1,13 +1,30 @@
 defmodule MastaniServer.Accounts do
   import Ecto.Query, warn: false
+  import Helper.Utils, only: [done: 1]
+
   alias MastaniServer.Repo
   alias Ecto.Multi
 
+  alias MastaniServer.CMS
   alias MastaniServer.Accounts.{User, GithubUser}
   alias Helper.ORM
   alias Helper.MastaniServer.Guardian
+  alias Helper.QueryBuilder
 
   def data(), do: Dataloader.Ecto.new(Repo, query: &query/2)
+
+  def query({"communities_subscribers", CMS.CommunitySubscriber}, %{count: _, cur_user: _}) do
+    CMS.CommunitySubscriber
+    |> group_by([f], f.user_id)
+    |> select([f], count(f.id))
+  end
+
+  def query({"communities_subscribers", CMS.CommunitySubscriber}, %{cur_user: _, filter: filter}) do
+    CMS.CommunitySubscriber
+    |> QueryBuilder.filter_pack(filter)
+    |> join(:inner, [u], c in assoc(u, :community))
+    |> select([u, c], c)
+  end
 
   def query(queryable, _args) do
     IO.inspect(queryable, label: 'account default query')
@@ -34,6 +51,16 @@ defmodule MastaniServer.Accounts do
         # IO.inspect label: "register then send"
         register_github_user(github_user)
     end
+  end
+
+  def subscried_communities(%User{id: id}, %{page: page, size: size} = filter) do
+    CMS.CommunitySubscriber
+    |> where([c], c.user_id == ^id)
+    |> join(:inner, [c], cc in assoc(c, :community))
+    |> select([c, cc], cc)
+    |> QueryBuilder.filter_pack(filter)
+    |> ORM.paginater(page: page, size: size)
+    |> done()
   end
 
   defp register_github_user(github_profile) do

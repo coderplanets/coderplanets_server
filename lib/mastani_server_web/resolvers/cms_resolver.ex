@@ -34,7 +34,11 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def delete_community(_root, %{id: id}, _info), do: CMS.Community |> ORM.find_delete(id)
 
   def subscribe_community(_root, ~m(community_id)a, %{context: %{cur_user: cur_user}}) do
-    CMS.subscribe(%Accounts.User{id: cur_user.id}, %CMS.Community{id: community_id})
+    CMS.subscribe_community(%Accounts.User{id: cur_user.id}, %CMS.Community{id: community_id})
+  end
+
+  def community_subscribers(_root, ~m(id filter)a, _info) do
+    CMS.community_subscribers(%CMS.Community{id: id}, filter)
   end
 
   def set_tag(_root, ~m(community part id tag_id)a, _info) do
@@ -71,14 +75,6 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def reaction_users(_root, ~m(id action part filter)a, _info) do
     CMS.reaction_users(part, action, id, filter)
-  end
-
-  def reaction_count(root, ~m(part action)a, _info) do
-    CMS.reaction_count(part, action, root.id)
-  end
-
-  def viewer_has_reacted(root, ~m(type action)a, %{context: %{cur_user: user}}) do
-    CMS.viewer_has_reacted(type, action, root.id, user.id)
   end
 
   def delete_post(_root, %{passport_source: content}, _info), do: ORM.delete(content)

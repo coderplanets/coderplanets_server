@@ -35,10 +35,6 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
 
-    # field :author_old, :user do
-    # resolve(&Resolvers.CMS.load_author/3)
-    # end
-
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
@@ -52,95 +48,54 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     end
 
     field :viewer_has_favorited, :boolean do
-      arg(:arg_viewer_reacted, :arg_viewer_reacted, default_value: :arg_viewer_reacted)
+      arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
 
       middleware(M.Authorize, :login)
       # put current user into dataloader's args
       middleware(M.PutCurrentUser)
       resolve(dataloader(CMS, :favorites))
-      middleware(M.ViewerReactedConvert)
+      middleware(M.ViewerDidConvert)
       # TODO: Middleware.Logger
     end
 
-    # field :viewer_has_favorited_old, :boolean do
-    # arg(:type, :post_type, default_value: :post)
-    # arg(:action, :favorite_action, default_value: :favorite)
-
-    # middleware(Middleware.Authorize, :login)
-    # resolve(&Resolvers.CMS.viewer_has_reacted/3)
-    # end
-
     field :viewer_has_starred, :boolean do
-      arg(:arg_viewer_reacted, :arg_viewer_reacted, default_value: :arg_viewer_reacted)
+      arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
 
       middleware(M.Authorize, :login)
       middleware(M.PutCurrentUser)
       resolve(dataloader(CMS, :stars))
-      middleware(M.ViewerReactedConvert)
+      middleware(M.ViewerDidConvert)
     end
 
-    # field :viewer_has_starred_old, :boolean do
-    # arg(:type, :post_type, default_value: :post)
-    # arg(:action, :star_action, default_value: :star)
-
-    # middleware(M.Authorize, :login)
-    # resolve(&Resolvers.CMS.viewer_has_reacted/3)
-    # end
-
     field :favorited_users, list_of(:user) do
-      # TODO: tmp
-      arg(:filter, :article_filter)
+      arg(:filter, :members_filter)
 
       middleware(M.PageSizeProof)
       resolve(dataloader(CMS, :favorites))
     end
 
-    # field :favorited_users_old, list_of(:user) do
-    # arg(:filter, :article_filter)
-    # arg(:type, :post_type, default_value: :post)
-    # arg(:action, :favorite_action, default_value: :favorite)
-    # resolve(&Resolvers.CMS.reaction_users/3)
-    # end
-
     field :favorited_count, :integer do
-      arg(:arg_count, :arg_count, default_value: :arg_count)
+      arg(:count, :count_type, default_value: :count)
+      arg(:type, :post_type, default_value: :post)
       # middleware(M.SeeMe)
       resolve(dataloader(CMS, :favorites))
       middleware(M.ConvertToInt)
     end
 
-    # field :favorited_count_old, :integer do
-    # arg(:type, :post_type, default_value: :post)
-    # arg(:action, :favorite_action, default_value: :favorite)
-    # resolve(&Resolvers.CMS.reaction_count/3)
-    # end
-
     field :starred_count, :integer do
-      arg(:arg_count, :arg_count, default_value: :arg_count)
+      arg(:count, :count_type, default_value: :count)
+      arg(:type, :post_type, default_value: :post)
+
       resolve(dataloader(CMS, :stars))
       middleware(M.ConvertToInt)
     end
 
-    # field :starred_count_old, :integer do
-    # arg(:type, :post_type, default_value: :post)
-    # arg(:action, :star_action, default_value: :star)
-    # resolve(&Resolvers.CMS.reaction_count/3)
-    # end
-
     field :starred_users, list_of(:user) do
-      # TODO: tmp
-      arg(:filter, :article_filter)
+      arg(:filter, :members_filter)
 
       middleware(M.PageSizeProof)
       resolve(dataloader(CMS, :stars))
     end
-
-    # field :starred_users_old, list_of(:user) do
-    # arg(:filter, :article_filter)
-    # arg(:type, :post_type, default_value: :post)
-    # arg(:action, :star_action, default_value: :star)
-    # resolve(&Resolvers.CMS.reaction_users/3)
-    # end
   end
 
   object :paged_posts do
@@ -164,10 +119,41 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:updated_at, :datetime)
     field(:author, :user, resolve: dataloader(CMS, :author))
 
+    field :subscribers, list_of(:user) do
+      arg(:filter, :members_filter)
+      middleware(M.PageSizeProof)
+      resolve(dataloader(CMS, :subscribers))
+    end
+
+    field :subscribers_count, :integer do
+      arg(:count, :count_type, default_value: :count)
+      arg(:type, :community_type, default_value: :community)
+      resolve(dataloader(CMS, :subscribers))
+      middleware(M.ConvertToInt)
+    end
+
+    field :viewer_has_subscribed, :boolean do
+      arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
+
+      middleware(M.Authorize, :login)
+      middleware(M.PutCurrentUser)
+      resolve(dataloader(CMS, :subscribers))
+      middleware(M.ViewerDidConvert)
+    end
+
     field :recent_contributes, list_of(:contribute) do
-      # TODO add complex here
+      # TODO add complex here to warning N+1 problem
+      # TODO trye dataloader again
       resolve(&Resolvers.Statistics.list_contributes/3)
     end
+  end
+
+  object :paged_communities do
+    field(:entries, list_of(:community))
+    field(:total_count, :integer)
+    field(:page_size, :integer)
+    field(:total_pages, :integer)
+    field(:page_number, :integer)
   end
 
   object :tag do
