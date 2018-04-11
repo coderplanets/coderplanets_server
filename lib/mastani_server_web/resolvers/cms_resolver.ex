@@ -1,7 +1,7 @@
 defmodule MastaniServerWeb.Resolvers.CMS do
   import ShortMaps
 
-  alias MastaniServer.CMS
+  alias MastaniServer.{CMS, Accounts}
   alias Helper.ORM
 
   def post(_root, %{id: id}, _info), do: CMS.Post |> ORM.read(id, inc: :views)
@@ -15,8 +15,10 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   # TODO
+  # def create_tag(_root, args, %{context: %{cur_user: user}}) do
   def create_tag(_root, args, %{context: %{cur_user: user}}) do
     # args2 = for {k, v} <- args, into: %{}, do: {k, to_string(v)}
+    # CMS.create_tag(args.part, args)
     CMS.create_tag(args.part, %{
       title: args.title,
       color: to_string(args.color),
@@ -31,6 +33,10 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def delete_community(_root, %{id: id}, _info), do: CMS.Community |> ORM.find_delete(id)
 
+  def subscribe_community(_root, ~m(community_id)a, %{context: %{cur_user: cur_user}}) do
+    CMS.subscribe(%Accounts.User{id: cur_user.id}, %CMS.Community{id: community_id})
+  end
+
   def set_tag(_root, ~m(community part id tag_id)a, _info) do
     CMS.set_tag(community, part, id, tag_id)
   end
@@ -40,11 +46,11 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   def set_community(_root, ~m(part id community)a, _info) do
-    CMS.set_community(part, id, community)
+    CMS.set_community(part, id, %CMS.Community{title: community})
   end
 
   def unset_community(_root, ~m(part id community)a, _info) do
-    CMS.unset_community(part, id, community)
+    CMS.unset_community(part, id, %CMS.Community{title: community})
   end
 
   def get_tags(_root, ~m(community part)a, _info) do

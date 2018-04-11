@@ -17,6 +17,11 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:updated_at, :datetime)
   end
 
+  object :community_subscriber do
+    field(:user_id, :id)
+    field(:community_id, :id)
+  end
+
   object :post do
     interface(:article)
     field(:id, :id)

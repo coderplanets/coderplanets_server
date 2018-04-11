@@ -9,6 +9,10 @@
 
   mix ecto.gen.migration add_xxx
 
+
+  env MIX_ENV=test mix ecto.drop
+  env MIX_ENV=test mix ecto.create
+
   ```
 `recompile()` to recompile your project
 

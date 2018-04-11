@@ -3,6 +3,8 @@ defmodule MastaniServer.Test.CMSTest do
   use MastaniServerWeb.ConnCase, async: true
 
   import MastaniServer.Factory
+  import ShortMaps
+
   alias MastaniServer.{CMS, Accounts}
   alias Helper.ORM
 
@@ -12,23 +14,22 @@ defmodule MastaniServer.Test.CMSTest do
   @valid_post mock_attrs(:post, %{community: @valid_community.title})
 
   setup do
-    db_insert(:user, @valid_user)
+    {:ok, user} = db_insert(:user, @valid_user)
     db_insert(:user, @valid_user2)
-    db_insert(:community, @valid_community)
-    :ok
+    {:ok, community} = db_insert(:community, @valid_community)
+
+    {:ok, ~m(user community)a}
   end
 
   describe "[cms post]" do
-    test "create post with valid attrs" do
-      {:ok, user} = ORM.find_by(Accounts.User, nickname: @valid_user.nickname)
+    test "create post with valid attrs", ~m(user)a do
       assert {:error, _} = ORM.find_by(CMS.Author, user_id: user.id)
 
       {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @valid_post)
       assert post.title == @valid_post.title
     end
 
-    test "add user to cms authors, if the user is not exsit in cms authors" do
-      {:ok, user} = ORM.find_by(Accounts.User, nickname: @valid_user.nickname)
+    test "add user to cms authors, if the user is not exsit in cms authors", ~m(user)a do
       assert {:error, _} = ORM.find_by(CMS.Author, user_id: user.id)
 
       {:ok, _} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @valid_post)
@@ -45,16 +46,16 @@ defmodule MastaniServer.Test.CMSTest do
   end
 
   describe "[cms tag]" do
-    test "create tag with valid data" do
+    test "create tag with valid data", ~m(community)a do
       {:ok, user} = ORM.find_by(Accounts.User, nickname: @valid_user.nickname)
-      valid_attrs = mock_attrs(:tag, %{user_id: user.id, community: @valid_community.title})
+      valid_attrs = mock_attrs(:tag, %{user_id: user.id, community: community.title})
 
       {:ok, tag} = CMS.create_tag(:post, valid_attrs)
       assert tag.title == valid_attrs.title
     end
 
-    test "create tag with non-exsit user fails" do
-      invalid_attrs = mock_attrs(:tag, %{user_id: 100_086, community: @valid_community.title})
+    test "create tag with non-exsit user fails", ~m(community)a do
+      invalid_attrs = mock_attrs(:tag, %{user_id: 100_086, community: community.title})
 
       assert {:error, %Ecto.Changeset{}} = CMS.create_tag(:post, invalid_attrs)
     end
@@ -102,6 +103,16 @@ defmodule MastaniServer.Test.CMSTest do
       }
 
       assert {:error, _} = CMS.create_community(community_args)
+    end
+  end
+
+  describe "[cms community subscribe]" do
+    test "user can subscribe a community", ~m(user community)a do
+      {:ok, subscriber} =
+        CMS.subscribe(%Accounts.User{id: user.id}, %CMS.Community{id: community.id})
+
+      assert user.id == subscriber.user_id
+      assert community.id == subscriber.community_id
     end
   end
 end

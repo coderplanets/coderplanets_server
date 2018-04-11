@@ -7,8 +7,18 @@ defmodule MastaniServer.CMS do
   import MastaniServer.CMSMisc
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1, done: 2, deep_merge: 2]
+  import ShortMaps
 
-  alias MastaniServer.CMS.{Author, Tag, Community, PostComment, PostFavorite, PostStar}
+  alias MastaniServer.CMS.{
+    Author,
+    Tag,
+    Community,
+    PostComment,
+    PostFavorite,
+    PostStar,
+    CommunitySubscriber
+  }
+
   alias MastaniServer.{Repo, Accounts}
   alias Helper.QueryBuilder
   alias Helper.ORM
@@ -123,10 +133,10 @@ defmodule MastaniServer.CMS do
     |> done()
   end
 
-  def set_community(part, part_id, community_title) when valid_part(part) do
+  def set_community(part, part_id, %Community{title: title}) when valid_part(part) do
     with {:ok, action} <- match_action(part, :community),
          {:ok, content} <- ORM.find(action.target, part_id, preload: :communities),
-         {:ok, community} <- ORM.find_by(action.reactor, title: community_title) do
+         {:ok, community} <- ORM.find_by(action.reactor, title: title) do
       content
       |> Ecto.Changeset.change()
       |> Ecto.Changeset.put_assoc(:communities, content.communities ++ [community])
@@ -134,10 +144,10 @@ defmodule MastaniServer.CMS do
     end
   end
 
-  def unset_community(part, part_id, community_title) when valid_part(part) do
+  def unset_community(part, part_id, %Community{title: title}) when valid_part(part) do
     with {:ok, action} <- match_action(part, :community),
          {:ok, content} <- ORM.find(action.target, part_id, preload: :communities),
-         {:ok, community} <- ORM.find_by(action.reactor, title: community_title) do
+         {:ok, community} <- ORM.find_by(action.reactor, title: title) do
       content
       |> Ecto.Changeset.change()
       |> Ecto.Changeset.put_assoc(:communities, content.communities -- [community])
@@ -166,7 +176,7 @@ defmodule MastaniServer.CMS do
            |> action.target.changeset(attrs)
            |> Ecto.Changeset.put_change(:author_id, author.id)
            |> Repo.insert() do
-      set_community(part, content.id, community.title)
+      set_community(part, content.id, %Community{title: community.title})
     end
   end
 
@@ -240,6 +250,13 @@ defmodule MastaniServer.CMS do
     end
   end
 
+  # TODO: def viewer_has_subscribed(%Accounts.User{id: user_id}, %Community{id: community_id})
+  def subscribe(%Accounts.User{id: user_id}, %Community{id: community_id}) do
+    %CommunitySubscriber{}
+    |> CommunitySubscriber.changeset(~m(user_id community_id)a)
+    |> Repo.insert()
+  end
+
   @doc """
   favorite / star / watch CMS contents like post / tuts / video ...
   """
@@ -254,8 +271,6 @@ defmodule MastaniServer.CMS do
       |> Repo.insert()
     end
   end
-
-  # def reaction(part, react, _, _), do: {:error, "cms do not support [#{react}] on [#{part}]"}
 
   @doc """
   unfavorite / unstar / unwatch CMS contents like post / tuts / video ...

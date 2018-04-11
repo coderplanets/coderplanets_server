@@ -1,7 +1,7 @@
 defmodule MastaniServer.CMS.Community do
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Post, Community}
+  alias MastaniServer.CMS.{Post, Community, CommunitySubscriber}
   alias MastaniServer.Accounts
 
   @required_fields ~w(title desc user_id)a
@@ -17,6 +17,8 @@ defmodule MastaniServer.CMS.Community do
       join_through: "communities_posts",
       join_keys: [community_id: :id, post_id: :id]
     )
+
+    has_many(:subscribers, {"communities_subscribers", CommunitySubscriber})
 
     # posts_managers
     # jobs_managers
