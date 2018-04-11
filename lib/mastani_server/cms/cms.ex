@@ -44,12 +44,18 @@ defmodule MastaniServer.CMS do
   3. check is viewer reacted
   """
   def query({"posts_favorites", PostFavorite}, args) do
-    # TODO rename to reactions_pack/builder
-    PostFavorite |> QueryBuilder.reactions_hanlder(args)
+    # IO.inspect args, label: "args --> "
+    PostFavorite
+    |> QueryBuilder.members_pack(args)
   end
 
   def query({"posts_stars", PostStar}, args) do
-    PostStar |> QueryBuilder.reactions_hanlder(args)
+    PostStar
+    |> QueryBuilder.members_pack(args)
+  end
+
+  def query({"communities_subscribers", CommunitySubscriber}, args) do
+    CommunitySubscriber |> QueryBuilder.members_pack(args)
   end
 
   def query(queryable, _args) do
@@ -194,6 +200,26 @@ defmodule MastaniServer.CMS do
   end
 
   @doc """
+  subscribe a community. (ONLY community, post etc use watch )
+  """
+  def subscribe_community(%Accounts.User{id: user_id}, %Community{id: community_id}) do
+    %CommunitySubscriber{}
+    |> CommunitySubscriber.changeset(~m(user_id community_id)a)
+    |> Repo.insert()
+  end
+
+  @doc """
+  return paged community subscribers
+  """
+  def community_subscribers(%Community{id: id}, %{page: page, size: size} = filters) do
+    CommunitySubscriber
+    |> where([c], c.community_id == ^id)
+    |> QueryBuilder.load_inner_users(filters)
+    |> ORM.paginater(page: page, size: size)
+    |> done()
+  end
+
+  @doc """
   get CMS contents
   post's favorites/stars/comments ...
   ...
@@ -208,53 +234,10 @@ defmodule MastaniServer.CMS do
       # common_filter(action.reactor)
       action.reactor
       |> where(^where)
-      |> QueryBuilder.reaction_members(filters)
+      |> QueryBuilder.load_inner_users(filters)
       |> ORM.paginater(page: page, size: size)
       |> done()
     end
-  end
-
-  @doc """
-  return part's star/favorite/watch .. count
-  """
-  def reaction_count(part, react, part_id) when valid_reaction(part, react) do
-    with {:ok, action} <- match_action(part, react) do
-      assoc_field = String.to_atom("#{react}s")
-
-      action.target
-      |> join(:left, [p], s in assoc(p, ^assoc_field))
-      |> where([p, s], s.post_id == ^part_id)
-      |> select([s], count(s.id))
-      |> Repo.one()
-      |> done()
-    end
-  end
-
-  @doc """
-  check the if the viewer has reacted to content
-  find post_id and user_id in PostFavorite
-  ...
-  jobs's favorites/stars/comments ...
-
-  with or without page info
-  """
-  def viewer_has_reacted(part, react, part_id, user_id) when valid_reaction(part, react) do
-    # find post_id and user_id in PostFavorite
-    with {:ok, action} <- match_action(part, react),
-         {:ok, where} <- dynamic_where(part, part_id) do
-      action.reactor
-      |> where(^where)
-      |> where([a], a.user_id == ^user_id)
-      |> Repo.one()
-      |> done(:boolean)
-    end
-  end
-
-  # TODO: def viewer_has_subscribed(%Accounts.User{id: user_id}, %Community{id: community_id})
-  def subscribe(%Accounts.User{id: user_id}, %Community{id: community_id}) do
-    %CommunitySubscriber{}
-    |> CommunitySubscriber.changeset(~m(user_id community_id)a)
-    |> Repo.insert()
   end
 
   @doc """

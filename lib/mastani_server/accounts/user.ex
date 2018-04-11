@@ -2,6 +2,7 @@ defmodule MastaniServer.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
   alias MastaniServer.Accounts.{User, GithubUser}
+  alias MastaniServer.CMS
 
   schema "users" do
     field(:nickname, :string)
@@ -10,6 +11,8 @@ defmodule MastaniServer.Accounts.User do
     field(:bio, :string)
     field(:from_github, :boolean)
     has_one(:github_profile, GithubUser)
+
+    has_many(:subscribed_communities, {"communities_subscribers", CMS.CommunitySubscriber})
 
     # has_many(::following_communities, {"communities_subscribers", CommunitySubscriber})
     # has_many(:follow_communities, {"communities_subscribers", CommunitySubscriber})

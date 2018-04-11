@@ -6,6 +6,7 @@ defmodule MastaniServerWeb.Schema.Account.Types do
 
   alias MastaniServer.Accounts
   alias MastaniServerWeb.Schema
+  alias MastaniServerWeb.Middleware, as: M
 
   import_types(Schema.Account.Misc)
 
@@ -41,6 +42,25 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:updated_at, :datetime)
     field(:from_github, :boolean)
     field(:github, :github_profile, resolve: dataloader(Accounts, :github_profile))
+
+    field :subscribed_communities, list_of(:community) do
+      arg(:filter, :members_filter)
+
+      middleware(M.Authorize, :login)
+      middleware(M.PutCurrentUser)
+      middleware(M.PageSizeProof)
+      resolve(dataloader(Accounts, :subscribed_communities))
+    end
+
+    field :subscribed_communities_count, :integer do
+      arg(:count, :count_type, default_value: :count)
+
+      middleware(M.Authorize, :login)
+      middleware(M.PutCurrentUser)
+      resolve(dataloader(Accounts, :subscribed_communities))
+      middleware(M.ConvertToInt)
+    end
+
     # TODO: default is to load recent 1 month
     # field :recent_contributes, list_of(:contribute) do
     # resolve(&Resolvers.Statistics.list_contributes/3)

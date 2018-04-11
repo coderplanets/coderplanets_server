@@ -22,5 +22,16 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
 
       resolve(&Resolvers.Accounts.user/3)
     end
+
+    @desc "get login user's subscried communities"
+    field :subscried_communities, :paged_communities do
+      # TODO
+      arg(:filter, non_null(:paged_article_filter))
+
+      middleware(M.Authorize, :login)
+      middleware(M.PageSizeProof)
+      resolve(&Resolvers.Accounts.subscried_communities/3)
+      middleware(M.FormatPagination)
+    end
   end
 end

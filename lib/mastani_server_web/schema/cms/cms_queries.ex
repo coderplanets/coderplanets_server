@@ -11,6 +11,15 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       resolve(&Resolvers.CMS.communities/3)
     end
 
+    field :community_subscribers, :paged_users do
+      arg(:id, non_null(:id))
+      arg(:filter, :paged_article_filter)
+
+      middleware(M.PageSizeProof)
+      resolve(&Resolvers.CMS.community_subscribers/3)
+      middleware(M.FormatPagination)
+    end
+
     @desc "get one post"
     field :post, non_null(:post) do
       arg(:id, non_null(:id))
@@ -32,7 +41,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       middleware(M.FormatPagination)
     end
 
-    field :favorite_users, list_of(:paged_users) do
+    field :favorite_users, :paged_users do
       arg(:id, non_null(:id))
       arg(:type, :cms_part, default_value: :post)
       arg(:action, :favorite_action, default_value: :favorite)

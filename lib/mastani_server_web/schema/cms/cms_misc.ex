@@ -12,16 +12,20 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:post)
   end
 
+  enum :community_type do
+    value(:community)
+  end
+
   enum :favorite_action do
     value(:favorite)
   end
 
-  enum :arg_count do
-    value(:arg_count)
+  enum :count_type do
+    value(:count)
   end
 
-  enum :arg_viewer_reacted do
-    value(:arg_viewer_reacted)
+  enum :viewer_did_type do
+    value(:viewer_did)
   end
 
   enum :star_action do
@@ -80,6 +84,11 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:cyan)
     value(:blue)
     value(:purple)
+  end
+
+  @desc "inline members-like filter for dataloader usage"
+  input_object :members_filter do
+    field(:first, :integer, default_value: 20)
   end
 
   @desc "article_filter doc"

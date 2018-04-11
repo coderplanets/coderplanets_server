@@ -2,7 +2,8 @@
 # Absinthe.Middleware behaviour
 # see https://hexdocs.pm/absinthe/Absinthe.Middleware.html#content
 # ---
-defmodule MastaniServerWeb.Middleware.ViewerReactedConvert do
+
+defmodule MastaniServerWeb.Middleware.ViewerDidConvert do
   @behaviour Absinthe.Middleware
 
   def call(%{value: nil} = resolution, _) do

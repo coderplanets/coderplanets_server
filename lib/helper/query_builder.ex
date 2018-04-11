@@ -13,28 +13,36 @@ defmodule Helper.QueryBuilder do
   [PART]: cms part, include: Post, Job, Meetup ...
   [REACT]; favorites, stars, watchs ...
   """
-  def reactions_hanlder(queryable, %{filter: filter}) do
-    queryable |> reaction_members(filter)
+  def members_pack(queryable, %{filter: filter}) do
+    queryable |> load_inner_users(filter)
   end
 
-  def reactions_hanlder(queryable, %{arg_count: _}) do
-    # TODO post_id should be general
+  def members_pack(queryable, %{viewer_did: _, cur_user: cur_user}) do
+    queryable |> where([f], f.user_id == ^cur_user.id)
+  end
+
+  def members_pack(queryable, %{count: _, type: :post}) do
     queryable
     |> group_by([f], f.post_id)
     |> select([f], count(f.id))
   end
 
-  def reactions_hanlder(queryable, %{arg_viewer_reacted: _, cur_user: cur_user}) do
-    queryable |> where([f], f.user_id == ^cur_user.id)
+  def members_pack(queryable, %{count: _, type: :community}) do
+    queryable
+    |> group_by([f], f.community_id)
+    |> select([f], count(f.id))
   end
 
-  def reaction_members(queryable, filter) do
+  def load_inner_users(queryable, filter) do
     queryable
     |> join(:inner, [f], u in assoc(f, :user))
     |> select([f, u], u)
     |> filter_pack(filter)
   end
 
+  @doc """
+  inserted in latest x mounth
+  """
   def recent_inserted(queryable, mounths: count) do
     end_of_today = Timex.now() |> Timex.end_of_day()
     x_months_ago = Timex.shift(Timex.today(), months: -count) |> Timex.to_datetime()
@@ -44,6 +52,9 @@ defmodule Helper.QueryBuilder do
     |> where([q], q.inserted_at <= ^end_of_today)
   end
 
+  @doc """
+  inserted in latest x days
+  """
   def recent_inserted(queryable, days: count) do
     end_of_today = Timex.now() |> Timex.end_of_day()
     x_days_ago = Timex.shift(Timex.today(), days: -count) |> Timex.to_datetime()
