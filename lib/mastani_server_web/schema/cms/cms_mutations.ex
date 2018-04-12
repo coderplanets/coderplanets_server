@@ -4,19 +4,46 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
 
   alias MastaniServerWeb.{Resolvers}
   alias MastaniServerWeb.Middleware, as: M
+  # split into postMutaion, jobMutation ...
 
   object :cms_mutations do
-    @desc "create a user"
-    field :create_post, :post do
+    @desc "create a global community"
+    field :create_community, :community do
       arg(:title, non_null(:string))
-      arg(:body, non_null(:string))
-      arg(:digest, non_null(:string))
-      arg(:length, non_null(:integer))
-      arg(:link_addr, :string)
-      arg(:community, non_null(:string))
+      arg(:desc, non_null(:string))
 
       middleware(M.Authorize, :login)
-      resolve(&Resolvers.CMS.create_post/3)
+      middleware(M.Passport, claim: "cms->community.create")
+
+      resolve(&Resolvers.CMS.create_community/3)
+      # middleware(M.Statistics.MakeContribute, for: :user)
+      middleware(M.Statistics.MakeContribute, for: [:user, :community])
+    end
+
+    @desc "delete a global community"
+    field :delete_community, :community do
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->community.delete")
+
+      resolve(&Resolvers.CMS.delete_community/3)
+    end
+
+    @desc "subscribe a community so it can appear in sidebar"
+    field :subscribe_community, :community_subscriber do
+      arg(:community_id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      resolve(&Resolvers.CMS.subscribe_community/3)
+    end
+
+    @desc "unsubscribe a community"
+    field :unsubscribe_community, :community_subscriber do
+      arg(:community_id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      resolve(&Resolvers.CMS.unsubscribe_community/3)
     end
 
     @desc "create a tag by part [:login required]"
@@ -43,43 +70,6 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       middleware(M.Passport, claim: "cms->c?->p?.tag.delete")
 
       resolve(&Resolvers.CMS.delete_tag/3)
-    end
-
-    field :create_community, :community do
-      arg(:title, non_null(:string))
-      arg(:desc, non_null(:string))
-
-      middleware(M.Authorize, :login)
-      middleware(M.Passport, claim: "cms->community.create")
-
-      resolve(&Resolvers.CMS.create_community/3)
-      # middleware(M.Statistics.MakeContribute, for: :user)
-      middleware(M.Statistics.MakeContribute, for: [:user, :community])
-    end
-
-    field :delete_community, :community do
-      arg(:id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.Passport, claim: "cms->community.delete")
-
-      resolve(&Resolvers.CMS.delete_community/3)
-    end
-
-    @desc "subscribe a community so it can appear in sidebar"
-    field :subscribe_community, :community_subscriber do
-      arg(:community_id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      resolve(&Resolvers.CMS.subscribe_community/3)
-    end
-
-    @desc "unsubscribe a community"
-    field :unsubscribe_community, :community_subscriber do
-      arg(:community_id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      resolve(&Resolvers.CMS.unsubscribe_community/3)
     end
 
     @desc "set a tag within community"
@@ -145,6 +135,19 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       resolve(&Resolvers.CMS.undo_reaction/3)
     end
 
+    @desc "create a user"
+    field :create_post, :post do
+      arg(:title, non_null(:string))
+      arg(:body, non_null(:string))
+      arg(:digest, non_null(:string))
+      arg(:length, non_null(:integer))
+      arg(:link_addr, :string)
+      arg(:community, non_null(:string))
+
+      middleware(M.Authorize, :login)
+      resolve(&Resolvers.CMS.create_post/3)
+    end
+
     @desc "delete a cms/post"
     field :delete_post, :post do
       arg(:id, non_null(:id))
@@ -198,13 +201,5 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       # middleware(M.Passport, claim: "owner;parent;cms->c?->post.comment.delete")
       resolve(&Resolvers.CMS.delete_comment/3)
     end
-
-    # @desc "delete a comment"
-    # field :delete_comment, :comment do
-    # arg(:id, non_null(:id))
-
-    # TDOO: use a comment resolver
-    # resolve(&Resolvers.CMS.delete_comment/3)
-    # end
   end
 end

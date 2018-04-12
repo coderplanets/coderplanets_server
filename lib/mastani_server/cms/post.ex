@@ -13,7 +13,6 @@ defmodule MastaniServer.CMS.Post do
     field(:views, :integer, default: 0)
     belongs_to(:author, Author)
 
-    # many_to_many(:comments, Comment, join_through: "posts_comments")
     has_many(:comments, {"posts_comments", PostComment})
     has_many(:favorites, {"posts_favorites", PostFavorite})
     has_many(:stars, {"posts_stars", PostStar})

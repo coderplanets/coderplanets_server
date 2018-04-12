@@ -27,9 +27,6 @@ defmodule MastaniServer.CMS.Community do
     #
     # posts_block_list ...
     # videos_block_list ...
-    #
-    # settings: map %{"posts.needReview" => true ...}
-
     timestamps(type: :utc_datetime)
   end
 
