@@ -6,8 +6,7 @@ defmodule MastaniServer.Test.AccountsTest do
   import MastaniServer.Factory
 
   alias MastaniServer.{Accounts}
-  alias Helper.MastaniServer.Guardian
-  alias Helper.ORM
+  alias Helper.{Guardian, ORM}
 
   # @valid_user mock_attrs(:user)
   @valid_github_profile mock_attrs(:github_profile) |> map_key_stringify

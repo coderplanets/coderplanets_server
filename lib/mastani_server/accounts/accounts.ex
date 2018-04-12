@@ -7,9 +7,7 @@ defmodule MastaniServer.Accounts do
 
   alias MastaniServer.CMS
   alias MastaniServer.Accounts.{User, GithubUser}
-  alias Helper.ORM
-  alias Helper.MastaniServer.Guardian
-  alias Helper.QueryBuilder
+  alias Helper.{ORM, Guardian, QueryBuilder}
 
   def data(), do: Dataloader.Ecto.new(Repo, query: &query/2)
 

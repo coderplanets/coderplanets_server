@@ -21,7 +21,7 @@ config :logger, :console,
   metadata: [:request_id]
 
 # TODO move this config to secret later
-config :mastani_server, Helper.MastaniServer.Guardian,
+config :mastani_server, Helper.Guardian,
   issuer: "mastani_server",
   secret_key: "kSTPDbCUSRhiEmv86eYMUplL7xI5fDa/+6MWKzK2VYGxjwL0XGHHVJiSPNPe9hJe"
 

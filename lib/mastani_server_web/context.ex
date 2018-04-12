@@ -7,8 +7,7 @@ defmodule MastaniServerWeb.Context do
   # import Ecto.Query, only: [first: 1]
 
   alias MastaniServer.{Accounts, CMS}
-  alias Helper.MastaniServer.Guardian
-  alias Helper.ORM
+  alias Helper.{Guardian, ORM}
 
   def init(opts), do: opts
 

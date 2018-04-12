@@ -1,4 +1,4 @@
-defmodule Helper.MastaniServer.Guardian do
+defmodule Helper.Guardian do
   use Guardian, otp_app: :mastani_server
 
   @token_expireation 24 * 14
