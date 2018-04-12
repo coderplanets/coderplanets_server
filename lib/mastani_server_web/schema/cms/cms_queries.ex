@@ -6,6 +6,11 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
   alias MastaniServerWeb.Middleware, as: M
 
   object :cms_queries do
+    field :community, :community do
+      arg(:id, non_null(:id))
+      resolve(&Resolvers.CMS.community/3)
+    end
+
     field :communities, list_of(:community) do
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.communities/3)
@@ -13,7 +18,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
     field :community_subscribers, :paged_users do
       arg(:id, non_null(:id))
-      arg(:filter, :paged_article_filter)
+      arg(:filter, :paged_filter)
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.community_subscribers/3)

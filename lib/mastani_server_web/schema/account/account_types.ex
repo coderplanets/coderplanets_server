@@ -46,8 +46,6 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field :subscribed_communities, list_of(:community) do
       arg(:filter, :members_filter)
 
-      middleware(M.Authorize, :login)
-      middleware(M.PutCurrentUser)
       middleware(M.PageSizeProof)
       resolve(dataloader(Accounts, :subscribed_communities))
     end
@@ -55,8 +53,6 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field :subscribed_communities_count, :integer do
       arg(:count, :count_type, default_value: :count)
 
-      middleware(M.Authorize, :login)
-      middleware(M.PutCurrentUser)
       resolve(dataloader(Accounts, :subscribed_communities))
       middleware(M.ConvertToInt)
     end

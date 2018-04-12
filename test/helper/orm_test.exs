@@ -13,7 +13,7 @@ defmodule MastaniServer.Test.Helper.ORMTest do
 
   setup do
     # TODO: token
-    db_insert_multi!(:post, @posts_count)
+    db_insert_multi(:post, @posts_count)
     {:ok, post} = db_insert(:post, @post_clauses)
 
     {:ok, post: post}

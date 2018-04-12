@@ -91,6 +91,12 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     field(:first, :integer, default_value: 20)
   end
 
+  input_object :paged_filter do
+    @desc "limit of records (default 20), if first > 30, only return 30 at most"
+    field(:page, :integer, default_value: 1)
+    field(:size, :integer, default_value: 20)
+  end
+
   @desc "article_filter doc"
   input_object :article_filter do
     @desc "limit of records (default 20), if first > 30, only return 30 at most"

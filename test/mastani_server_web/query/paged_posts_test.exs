@@ -26,7 +26,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
                        @posts_last_year_count
 
   setup do
-    db_insert_multi!(:post, @posts_today_count)
+    db_insert_multi(:post, @posts_today_count)
     db_insert(:post, %{title: "last week", inserted_at: @last_week})
     db_insert(:post, %{title: "last month", inserted_at: @last_month})
     db_insert(:post, %{title: "last year", inserted_at: @last_year})
