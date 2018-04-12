@@ -8,8 +8,8 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.github_signin(github_user)
   end
 
-  def subscried_communities(_root, %{filter: filter}, %{context: %{cur_user: cur_user}}) do
-    Accounts.subscried_communities(%Accounts.User{id: cur_user.id}, filter)
+  def subscried_communities(_root, %{id: id, filter: filter}, _info) do
+    Accounts.subscried_communities(%Accounts.User{id: id}, filter)
   end
 
   # def create_user(_root, args, %{context: %{cur_user: %{root: true}}}) do

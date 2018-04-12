@@ -30,6 +30,11 @@ defmodule Helper.Utils do
     |> Absinthe.Resolution.put_result({:error, err_msg})
   end
 
+  def map_key_stringify(%{__struct__: _} = map) when is_map(map) do
+    map = Map.from_struct(map)
+    map |> Enum.reduce(%{}, fn {key, val}, acc -> Map.put(acc, to_string(key), val) end)
+  end
+
   def map_key_stringify(map) when is_map(map) do
     map |> Enum.reduce(%{}, fn {key, val}, acc -> Map.put(acc, to_string(key), val) end)
   end

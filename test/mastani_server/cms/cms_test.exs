@@ -2,6 +2,7 @@ defmodule MastaniServer.Test.CMSTest do
   # use MastaniServer.DataCase
   use MastaniServerWeb.ConnCase, async: true
 
+  import MastaniServer.Test.AssertHelper
   import MastaniServer.Factory
   import ShortMaps
 
@@ -15,10 +16,11 @@ defmodule MastaniServer.Test.CMSTest do
 
   setup do
     {:ok, user} = db_insert(:user, @valid_user)
+    {:ok, user2} = db_insert(:user)
     db_insert(:user, @valid_user2)
     {:ok, community} = db_insert(:community, @valid_community)
 
-    {:ok, ~m(user community)a}
+    {:ok, ~m(user user2 community)a}
   end
 
   describe "[cms post]" do
@@ -113,6 +115,21 @@ defmodule MastaniServer.Test.CMSTest do
 
       assert user.id == subscriber.user_id
       assert community.id == subscriber.community_id
+    end
+
+    test "user can get paged-subscribers of a community", ~m(user user2 community)a do
+      {:ok, _} =
+        CMS.subscribe_community(%Accounts.User{id: user.id}, %CMS.Community{id: community.id})
+
+      {:ok, _} =
+        CMS.subscribe_community(%Accounts.User{id: user2.id}, %CMS.Community{id: community.id})
+
+      {:ok, results} =
+        CMS.community_subscribers(%CMS.Community{id: community.id}, %{page: 1, size: 10})
+
+      assert results |> is_valid_pagination?(:raw)
+      assert results.entries |> Enum.any?(&(&1.id == user.id))
+      assert results.entries |> Enum.any?(&(&1.id == user2.id))
     end
   end
 end

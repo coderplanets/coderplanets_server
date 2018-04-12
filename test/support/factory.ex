@@ -1,5 +1,8 @@
 defmodule MastaniServer.Factory do
   # alias Helper.ORM
+
+  import Helper.Utils, only: [done: 1]
+
   alias MastaniServer.Repo
   alias MastaniServer.CMS
   alias MastaniServer.Accounts
@@ -121,9 +124,11 @@ defmodule MastaniServer.Factory do
     Repo.insert(mock(factory_name, attributes))
   end
 
-  def db_insert_multi!(factory_name, count \\ 5) do
-    for _u <- 1..count do
-      db_insert(factory_name)
-    end
+  def db_insert_multi(factory_name, count \\ 2) do
+    Enum.reduce(1..count, [], fn _, acc ->
+      {:ok, value} = db_insert(factory_name)
+      acc ++ [value]
+    end)
+    |> done
   end
 end

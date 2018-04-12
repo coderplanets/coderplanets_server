@@ -143,7 +143,6 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
     field :recent_contributes, list_of(:contribute) do
       # TODO add complex here to warning N+1 problem
-      # TODO trye dataloader again
       resolve(&Resolvers.Statistics.list_contributes/3)
     end
   end

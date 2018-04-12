@@ -8,6 +8,8 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def posts(_root, ~m(filter)a, _info), do: CMS.Post |> ORM.find_all(filter)
 
+  def community(_root, %{id: id}, _info), do: CMS.Community |> ORM.find(id)
+
   def communities(_root, ~m(filter)a, _info), do: CMS.Community |> ORM.find_all(filter)
 
   def create_community(_root, args, %{context: %{cur_user: user}}) do

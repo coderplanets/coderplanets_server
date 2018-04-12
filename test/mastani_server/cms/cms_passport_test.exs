@@ -1,18 +1,14 @@
 defmodule MastaniServer.Test.CMSPassportTest do
   use MastaniServerWeb.ConnCase, async: true
   import MastaniServer.Factory
+  import MastaniServer.Test.AssertHelper
   import ShortMaps
 
   alias MastaniServer.CMS
   alias MastaniServer.Accounts.User
 
-  @valid_user mock_attrs(:user)
-  @invalid_userid 15_982_398_614
-
   setup do
-    {:ok, user} = db_insert(:user, @valid_user)
-    {:ok, user2} = db_insert(:user, @valid_user)
-
+    {:ok, [user, user2]} = db_insert_multi(:user, 2)
     {:ok, ~m(user user2)a}
   end
 
@@ -70,7 +66,7 @@ defmodule MastaniServer.Test.CMSPassportTest do
     end
 
     test "get a non-exsit user's passport fails" do
-      assert {:error, _} = CMS.get_passport(%User{id: @invalid_userid})
+      assert {:error, _} = CMS.get_passport(%User{id: non_exsit_id()})
     end
 
     test "list passport by key", ~m(user user2)a do

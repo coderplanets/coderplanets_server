@@ -10,4 +10,3 @@ default_user = %{
 }
 
 db_insert(:user, default_user)
-# db_insert_multi!(:user)
