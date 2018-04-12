@@ -1,11 +1,15 @@
 defmodule MastaniServer.Test.AssertHelper do
   import Phoenix.ConnTest
-  import Helper.Utils, only: [map_key_stringify: 1]
+  import Helper.Utils, only: [map_key_stringify: 1, get_config: 2]
 
   @endpoint MastaniServerWeb.Endpoint
 
+  @page_size get_config(:pagi, :page_size)
+  @inner_page_size get_config(:pagi, :inner_page_size)
+
   def non_exsit_id(), do: 15_982_398_614
-  def max_inner_size(), do: 20
+  def inner_page_size(), do: @inner_page_size
+  def page_size, do: @page_size
 
   def is_valid_kv?(obj, key, :list) when is_map(obj) do
     obj = map_key_stringify(obj)

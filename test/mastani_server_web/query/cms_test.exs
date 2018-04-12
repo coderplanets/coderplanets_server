@@ -48,7 +48,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
     }
     """
     test "guest can get subscribers list and count of a community", ~m(guest_conn community)a do
-      {:ok, users} = db_insert_multi(:user, max_inner_size())
+      {:ok, users} = db_insert_multi(:user, inner_page_size())
 
       Enum.each(
         users,
@@ -67,11 +67,11 @@ defmodule MastaniServer.Test.Query.CMSTest do
       assert subscribers |> Enum.any?(&(&1["id"] == to_string(user_2.id)))
       assert subscribers |> Enum.any?(&(&1["id"] == to_string(user_3.id)))
       assert subscribers |> Enum.any?(&(&1["id"] == to_string(user_x.id)))
-      assert subscribersCount == max_inner_size()
+      assert subscribersCount == inner_page_size()
     end
 
     test "guest user can get subscribers count of 20 at most", ~m(guest_conn community)a do
-      {:ok, users} = db_insert_multi(:user, max_inner_size() + 1)
+      {:ok, users} = db_insert_multi(:user, inner_page_size() + 1)
 
       Enum.each(
         users,
@@ -82,7 +82,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
       results = guest_conn |> query_result(@query, variables, "community")
       subscribers = results["subscribers"]
 
-      assert length(subscribers) == max_inner_size()
+      assert length(subscribers) == inner_page_size()
     end
 
     @query """

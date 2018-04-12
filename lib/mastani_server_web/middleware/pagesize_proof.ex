@@ -4,14 +4,15 @@
 # ---
 defmodule MastaniServerWeb.Middleware.PageSizeProof do
   @behaviour Absinthe.Middleware
-  @max_page_size 30
-  @default_page_size 20
 
-  import Helper.Utils, only: [handle_absinthe_error: 2]
+  import Helper.Utils, only: [handle_absinthe_error: 2, get_config: 2]
+
+  @max_page_size get_config(:pagi, :page_size)
+  @inner_page_size get_config(:pagi, :inner_page_size)
+
   # 1. if has filter:first and filter:size -> makesure it not too large
   # 2. if not has filter: marge to default first: 5
   # 3. large size should trigger error
-
   def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
 
   def call(resolution, _) do
@@ -38,7 +39,7 @@ defmodule MastaniServerWeb.Middleware.PageSizeProof do
   # see tuts: https://www.dailydrip.com/topics/elixirsips/drips/phoenix-api-pagination-with-scrivener
   defp valid_size(%{filter: %{size: size}} = arg), do: do_size_check(size, arg)
 
-  defp valid_size(arg), do: arg |> Map.merge(%{filter: %{first: @default_page_size}})
+  defp valid_size(arg), do: arg |> Map.merge(%{filter: %{first: @inner_page_size}})
 
   defp do_size_check(size, arg) do
     case size in 1..@max_page_size do
