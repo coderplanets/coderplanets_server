@@ -257,6 +257,12 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       assert false == cur_subscribers.entries |> Enum.any?(&(&1.id == user.id))
     end
 
+    test "other login user unsubscribe community fails", ~m(user_conn community)a do
+      variables = %{communityId: community.id}
+
+      assert user_conn |> mutation_get_error?(@unsubscribe_query, variables)
+    end
+
     test "guest user unsubscribe community fails", ~m(guest_conn community)a do
       variables = %{communityId: community.id}
 
