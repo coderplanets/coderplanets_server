@@ -74,8 +74,13 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       resolve(&Resolvers.CMS.subscribe_community/3)
     end
 
-    # TODO
-    # field: unsubscribe_community
+    @desc "unsubscribe a community"
+    field :unsubscribe_community, :community_subscriber do
+      arg(:community_id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      resolve(&Resolvers.CMS.unsubscribe_community/3)
+    end
 
     @desc "set a tag within community"
     field :set_tag, :tag do

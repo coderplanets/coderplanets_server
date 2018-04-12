@@ -3,7 +3,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   use Absinthe.Ecto, repo: MastaniServer.Repo
 
   import Absinthe.Resolution.Helpers, only: [dataloader: 2]
-  alias MastaniServer.{CMS, Statistics}
+  alias MastaniServer.{CMS}
   alias MastaniServerWeb.{Resolvers, Schema}
   alias MastaniServerWeb.Middleware, as: M
 
@@ -18,6 +18,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   end
 
   object :community_subscriber do
+    field(:id, :id)
     field(:user_id, :id)
     field(:community_id, :id)
   end

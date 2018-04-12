@@ -39,6 +39,10 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.subscribe_community(%Accounts.User{id: cur_user.id}, %CMS.Community{id: community_id})
   end
 
+  def unsubscribe_community(_root, ~m(community_id)a, %{context: %{cur_user: cur_user}}) do
+    CMS.unsubscribe_community(%Accounts.User{id: cur_user.id}, %CMS.Community{id: community_id})
+  end
+
   def community_subscribers(_root, ~m(id filter)a, _info) do
     CMS.community_subscribers(%CMS.Community{id: id}, filter)
   end
