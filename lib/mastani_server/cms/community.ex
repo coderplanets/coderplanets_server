@@ -19,6 +19,7 @@ defmodule MastaniServer.CMS.Community do
     )
 
     has_many(:subscribers, {"communities_subscribers", CommunitySubscriber})
+    has_many(:editors, {"communities_editors", CommunityEditor})
 
     # posts_managers
     # jobs_managers
