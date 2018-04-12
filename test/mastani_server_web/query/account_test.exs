@@ -49,7 +49,7 @@ defmodule MastaniServer.Test.Query.AccountTest do
     """
     test "gest user can get subscrubed community list and count", ~m(guest_conn user)a do
       variables = %{id: user.id}
-      {:ok, communities} = db_insert_multi(:community, max_inner_size())
+      {:ok, communities} = db_insert_multi(:community, inner_page_size())
 
       Enum.each(
         communities,
@@ -65,12 +65,12 @@ defmodule MastaniServer.Test.Query.AccountTest do
       assert subscribedCommunities |> Enum.any?(&(&1["id"] == to_string(community_2.id)))
       assert subscribedCommunities |> Enum.any?(&(&1["id"] == to_string(community_3.id)))
       assert subscribedCommunities |> Enum.any?(&(&1["id"] == to_string(community_x.id)))
-      assert subscribedCommunitiesCount == max_inner_size()
+      assert subscribedCommunitiesCount == inner_page_size()
     end
 
     test "gest user can get subscrubed communities count of 20 at most", ~m(guest_conn user)a do
       variables = %{id: user.id}
-      {:ok, communities} = db_insert_multi(:community, max_inner_size() + 1)
+      {:ok, communities} = db_insert_multi(:community, inner_page_size() + 1)
 
       Enum.each(
         communities,
@@ -80,7 +80,7 @@ defmodule MastaniServer.Test.Query.AccountTest do
       results = guest_conn |> query_result(@query, variables, "user")
       subscribedCommunities = results["subscribedCommunities"]
 
-      assert length(subscribedCommunities) == max_inner_size()
+      assert length(subscribedCommunities) == inner_page_size()
     end
 
     @query """
