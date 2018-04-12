@@ -7,7 +7,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
   import ShortMaps
 
   alias MastaniServer.Statistics
-  alias MastaniServer.CMS
+  alias MastaniServer.{Accounts, CMS}
   alias Helper.ORM
 
   setup do
@@ -197,7 +197,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       }
     }
     """
-    test "login user can subscribt community", ~m(user community)a do
+    test "login user can subscribe community", ~m(user community)a do
       login_conn = simu_conn(:user, user)
 
       variables = %{communityId: community.id}
@@ -207,17 +207,60 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       assert created["userId"] == to_string(user.id)
     end
 
-    test "login user subscribt non-exsit community fails", ~m(user)a do
+    test "login user subscribe non-exsit community fails", ~m(user)a do
       login_conn = simu_conn(:user, user)
       variables = %{communityId: non_exsit_id()}
 
       assert login_conn |> mutation_get_error?(@subscribe_query, variables)
     end
 
-    test "guest user subscribt community fails", ~m(guest_conn community)a do
+    test "guest user subscribe community fails", ~m(guest_conn community)a do
       variables = %{communityId: community.id}
 
       assert guest_conn |> mutation_get_error?(@subscribe_query, variables)
+    end
+
+    @unsubscribe_query """
+    mutation($communityId: ID!){
+      unsubscribeCommunity(communityId: $communityId) {
+        id
+        userId
+        communityId
+      }
+    }
+    """
+    test "login user can unsubscribe community", ~m(user community)a do
+      {:ok, cur_subscribers} =
+        CMS.community_subscribers(%CMS.Community{id: community.id}, %{page: 1, size: 10})
+
+      assert false == cur_subscribers.entries |> Enum.any?(&(&1.id == user.id))
+
+      {:ok, subscriber} =
+        CMS.subscribe_community(%Accounts.User{id: user.id}, %CMS.Community{id: community.id})
+
+      {:ok, cur_subscribers} =
+        CMS.community_subscribers(%CMS.Community{id: community.id}, %{page: 1, size: 10})
+
+      assert true == cur_subscribers.entries |> Enum.any?(&(&1.id == user.id))
+
+      login_conn = simu_conn(:user, user)
+
+      variables = %{communityId: community.id}
+
+      result =
+        login_conn |> mutation_result(@unsubscribe_query, variables, "unsubscribeCommunity")
+
+      {:ok, cur_subscribers} =
+        CMS.community_subscribers(%CMS.Community{id: community.id}, %{page: 1, size: 10})
+
+      assert result["id"] == to_string(subscriber.id)
+      assert false == cur_subscribers.entries |> Enum.any?(&(&1.id == user.id))
+    end
+
+    test "guest user unsubscribe community fails", ~m(guest_conn community)a do
+      variables = %{communityId: community.id}
+
+      assert guest_conn |> mutation_get_error?(@unsubscribe_query, variables)
     end
   end
 end

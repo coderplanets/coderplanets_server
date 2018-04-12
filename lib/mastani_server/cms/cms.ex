@@ -6,7 +6,7 @@ defmodule MastaniServer.CMS do
   """
   import MastaniServer.CMSMisc
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, done: 2, deep_merge: 2]
+  import Helper.Utils, only: [done: 1, deep_merge: 2]
   import ShortMaps
 
   alias MastaniServer.CMS.{
@@ -206,6 +206,13 @@ defmodule MastaniServer.CMS do
     %CommunitySubscriber{}
     |> CommunitySubscriber.changeset(~m(user_id community_id)a)
     |> Repo.insert()
+  end
+
+  def unsubscribe_community(%Accounts.User{id: user_id}, %Community{id: community_id}) do
+    with {:ok, subscriber} <-
+           ORM.find_by(CommunitySubscriber, community_id: community_id, user_id: user_id) do
+      ORM.delete(subscriber)
+    end
   end
 
   @doc """
