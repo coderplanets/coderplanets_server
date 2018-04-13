@@ -7,7 +7,7 @@ defmodule MastaniServer.Test.CMSTest do
   import ShortMaps
 
   alias MastaniServer.{CMS, Accounts}
-  alias Helper.ORM
+  alias Helper.{ORM, Certification}
 
   @valid_user mock_attrs(:user)
   @valid_user2 mock_attrs(:user)
@@ -108,6 +108,40 @@ defmodule MastaniServer.Test.CMSTest do
     end
   end
 
+  describe "[cms community editors]" do
+    test "can add editor to a community, editor has default passport", ~m(user community)a do
+      title = "chief editor"
+
+      {:ok, _} =
+        CMS.add_editor(%Accounts.User{id: user.id}, %CMS.Community{id: community.id}, title)
+
+      related_rules = Certification.passport_rules(cms: title)
+
+      {:ok, editor} = CMS.CommunityEditor |> ORM.find_by(user_id: user.id)
+      {:ok, user_passport} = CMS.get_passport(%Accounts.User{id: user.id})
+
+      assert editor.user_id == user.id
+      assert editor.community_id == community.id
+      assert Map.equal?(related_rules, user_passport)
+    end
+
+    test "user can get paged-editors of a community", ~m(community)a do
+      {:ok, users} = db_insert_multi(:user, 25)
+      title = "chief editor"
+
+      Enum.each(
+        users,
+        &CMS.add_editor(%Accounts.User{id: &1.id}, %CMS.Community{id: community.id}, title)
+      )
+
+      {:ok, results} =
+        CMS.community_members(:editors, %CMS.Community{id: community.id}, %{page: 1, size: 10})
+
+      assert results |> is_valid_pagination?(:raw)
+      assert results.total_entries == 25
+    end
+  end
+
   describe "[cms community subscribe]" do
     test "user can subscribe a community", ~m(user community)a do
       {:ok, subscriber} =
@@ -117,19 +151,18 @@ defmodule MastaniServer.Test.CMSTest do
       assert community.id == subscriber.community_id
     end
 
-    test "user can get paged-subscribers of a community", ~m(user user2 community)a do
-      {:ok, _} =
-        CMS.subscribe_community(%Accounts.User{id: user.id}, %CMS.Community{id: community.id})
+    test "user can get paged-subscribers of a community", ~m(community)a do
+      {:ok, users} = db_insert_multi(:user, 25)
 
-      {:ok, _} =
-        CMS.subscribe_community(%Accounts.User{id: user2.id}, %CMS.Community{id: community.id})
+      Enum.each(
+        users,
+        &CMS.subscribe_community(%Accounts.User{id: &1.id}, %CMS.Community{id: community.id})
+      )
 
       {:ok, results} =
-        CMS.community_subscribers(%CMS.Community{id: community.id}, %{page: 1, size: 10})
+        CMS.community_members(:subscribers, %CMS.Community{id: community.id}, %{page: 1, size: 10})
 
       assert results |> is_valid_pagination?(:raw)
-      assert results.entries |> Enum.any?(&(&1.id == user.id))
-      assert results.entries |> Enum.any?(&(&1.id == user2.id))
     end
   end
 end

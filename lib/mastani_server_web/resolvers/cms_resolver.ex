@@ -20,6 +20,14 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.add_editor(%Accounts.User{id: user_id}, %CMS.Community{id: community_id}, title)
   end
 
+  def delete_editor(_root, ~m(community_id user_id)a, _) do
+    CMS.delete_editor(%Accounts.User{id: user_id}, %CMS.Community{id: community_id})
+  end
+
+  def update_editor(_root, ~m(community_id user_id title)a, _) do
+    CMS.update_editor(%Accounts.User{id: user_id}, %CMS.Community{id: community_id}, title)
+  end
+
   # TODO
   # def create_tag(_root, args, %{context: %{cur_user: user}}) do
   def create_tag(_root, args, %{context: %{cur_user: user}}) do
@@ -48,7 +56,11 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   def community_subscribers(_root, ~m(id filter)a, _info) do
-    CMS.community_subscribers(%CMS.Community{id: id}, filter)
+    CMS.community_members(:subscribers, %CMS.Community{id: id}, filter)
+  end
+
+  def community_editors(_root, ~m(id filter)a, _info) do
+    CMS.community_members(:editors, %CMS.Community{id: id}, filter)
   end
 
   def set_tag(_root, ~m(community part id tag_id)a, _info) do

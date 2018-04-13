@@ -16,12 +16,23 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       resolve(&Resolvers.CMS.communities/3)
     end
 
+    @desc "paged subscribers of a community"
     field :community_subscribers, :paged_users do
       arg(:id, non_null(:id))
       arg(:filter, :paged_filter)
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.community_subscribers/3)
+      middleware(M.FormatPagination)
+    end
+
+    @desc "paged subscribers of a community"
+    field :community_editors, :paged_users do
+      arg(:id, non_null(:id))
+      arg(:filter, :paged_filter)
+
+      middleware(M.PageSizeProof)
+      resolve(&Resolvers.CMS.community_editors/3)
       middleware(M.FormatPagination)
     end
 

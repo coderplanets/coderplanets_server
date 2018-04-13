@@ -4,7 +4,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
 
   import MastaniServer.Factory
   import MastaniServer.Test.AssertHelper
-  import MastaniServer.Test.ConnBuilder
+  import MastaniServer.Test.ConnSimulator
   import Ecto.Query, warn: false
   import ShortMaps
 

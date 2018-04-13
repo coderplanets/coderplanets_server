@@ -13,8 +13,6 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
         %{context: %{cur_user: _}, arguments: ~m(community_id)a} = resolution,
         source: :community
       ) do
-    IO.inspect(community_id, label: "community loader")
-
     case ORM.find(CMS.Community, community_id) do
       {:ok, community} ->
         arguments = resolution.arguments |> Map.merge(%{passport_communities: [community]})

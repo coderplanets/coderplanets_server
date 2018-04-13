@@ -2,7 +2,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
   use MastaniServerWeb.ConnCase, async: true
 
   import MastaniServer.Factory
-  import MastaniServer.Test.ConnBuilder
+  import MastaniServer.Test.ConnSimulator
   import MastaniServer.Test.AssertHelper
   import ShortMaps
 
@@ -187,6 +187,94 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
     end
   end
 
+  describe "[mutation cms editors]" do
+    @add_editor_query """
+    mutation($communityId: ID!, $userId: ID!, $title: String!){
+      addCmsEditor(communityId: $communityId, userId: $userId, title: $title) {
+        id
+      }
+    }
+    """
+    test "auth user can add editor to community", ~m(user community)a do
+      title = "chief editor"
+      variables = %{userId: user.id, communityId: community.id, title: title}
+
+      passport_rules = %{community.title => %{"editor.add" => true}}
+      rule_conn = simu_conn(:user, user, cms: passport_rules)
+
+      result = rule_conn |> mutation_result(@add_editor_query, variables, "addCmsEditor")
+
+      assert result["id"] == to_string(user.id)
+    end
+
+    @delete_editor_query """
+    mutation($communityId: ID!, $userId: ID!){
+      deleteCmsEditor(communityId: $communityId, userId: $userId) {
+        id
+      }
+    }
+    """
+    test "auth user can delete editor AND passport from community", ~m(user community)a do
+      title = "chief editor"
+
+      {:ok, _} =
+        CMS.add_editor(%Accounts.User{id: user.id}, %CMS.Community{id: community.id}, title)
+
+      assert {:ok, _} =
+               CMS.CommunityEditor |> ORM.find_by(user_id: user.id, community_id: community.id)
+
+      assert {:ok, _} = CMS.Passport |> ORM.find_by(user_id: user.id)
+
+      variables = %{userId: user.id, communityId: community.id}
+
+      passport_rules = %{community.title => %{"editor.delete" => true}}
+      rule_conn = simu_conn(:user, user, cms: passport_rules)
+
+      rule_conn |> mutation_result(@delete_editor_query, variables, "deleteCmsEditor")
+
+      assert {:error, _} =
+               CMS.CommunityEditor |> ORM.find_by(user_id: user.id, community_id: community.id)
+
+      assert {:error, _} = CMS.Passport |> ORM.find_by(user_id: user.id)
+    end
+
+    @update_editor_query """
+    mutation($communityId: ID!, $userId: ID!, $title: String!){
+      updateCmsEditor(communityId: $communityId, userId: $userId, title: $title) {
+        id
+      }
+    }
+    """
+    test "auth user can update editor to community", ~m(user community)a do
+      title = "chief editor"
+
+      {:ok, _} =
+        CMS.add_editor(%Accounts.User{id: user.id}, %CMS.Community{id: community.id}, title)
+
+      title2 = "post editor"
+      variables = %{userId: user.id, communityId: community.id, title: title2}
+
+      passport_rules = %{community.title => %{"editor.update" => true}}
+      rule_conn = simu_conn(:user, user, cms: passport_rules)
+
+      rule_conn |> mutation_result(@update_editor_query, variables, "updateCmsEditor")
+
+      {:ok, update_community} = ORM.find(CMS.Community, community.id, preload: :editors)
+      assert title2 == update_community.editors |> List.first() |> Map.get(:title)
+    end
+
+    test "unauth user add editor fails", ~m(user_conn guest_conn user community)a do
+      title = "chief editor"
+
+      variables = %{userId: user.id, communityId: community.id, title: title}
+      rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
+
+      assert user_conn |> mutation_get_error?(@add_editor_query, variables)
+      assert guest_conn |> mutation_get_error?(@add_editor_query, variables)
+      assert rule_conn |> mutation_get_error?(@add_editor_query, variables)
+    end
+  end
+
   describe "[mutation cms subscribes]" do
     @subscribe_query """
     mutation($communityId: ID!){
@@ -230,7 +318,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
     """
     test "login user can unsubscribe community", ~m(user community)a do
       {:ok, cur_subscribers} =
-        CMS.community_subscribers(%CMS.Community{id: community.id}, %{page: 1, size: 10})
+        CMS.community_members(:subscribers, %CMS.Community{id: community.id}, %{page: 1, size: 10})
 
       assert false == cur_subscribers.entries |> Enum.any?(&(&1.id == user.id))
 
@@ -238,7 +326,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
         CMS.subscribe_community(%Accounts.User{id: user.id}, %CMS.Community{id: community.id})
 
       {:ok, cur_subscribers} =
-        CMS.community_subscribers(%CMS.Community{id: community.id}, %{page: 1, size: 10})
+        CMS.community_members(:subscribers, %CMS.Community{id: community.id}, %{page: 1, size: 10})
 
       assert true == cur_subscribers.entries |> Enum.any?(&(&1.id == user.id))
 
@@ -250,7 +338,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
         login_conn |> mutation_result(@unsubscribe_query, variables, "unsubscribeCommunity")
 
       {:ok, cur_subscribers} =
-        CMS.community_subscribers(%CMS.Community{id: community.id}, %{page: 1, size: 10})
+        CMS.community_members(:subscribers, %CMS.Community{id: community.id}, %{page: 1, size: 10})
 
       assert result["id"] == to_string(subscriber.id)
       assert false == cur_subscribers.entries |> Enum.any?(&(&1.id == user.id))

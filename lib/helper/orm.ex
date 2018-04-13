@@ -52,6 +52,7 @@ defmodule Helper.ORM do
   @doc """
   return pageinated Data required by filter
   """
+  # TODO: find content not in trash by default
   def find_all(queryable, %{page: page, size: size} = filter) do
     queryable
     |> QueryBuilder.filter_pack(filter)
@@ -62,6 +63,7 @@ defmodule Helper.ORM do
   @doc """
   return  Data required by filter
   """
+  # TODO: find content not in trash by default
   def find_all(queryable, filter) do
     queryable |> QueryBuilder.filter_pack(filter) |> Repo.all() |> done()
   end
@@ -99,13 +101,24 @@ defmodule Helper.ORM do
   end
 
   @doc """
-  NOTICE: this should be use together with Authorize/OwnerCheck etc Middleware
+  NOTICE: this should be use together with passport_loader etc Middleware
   DO NOT use it directly
   """
   def update(content, attrs) do
     content
     |> content.__struct__.changeset(attrs)
     |> Repo.update()
+  end
+
+  @doc """
+  find then update
+  """
+  def update_by(source, clauses, attrs) do
+    with {:ok, content} <- find_by(source, clauses) do
+      content
+      |> Ecto.Changeset.change(attrs)
+      |> Repo.update()
+    end
   end
 
   @doc """

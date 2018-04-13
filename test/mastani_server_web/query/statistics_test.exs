@@ -1,7 +1,7 @@
 defmodule MastaniServer.Test.Query.StatisticsTest do
   use MastaniServerWeb.ConnCase, async: true
   import MastaniServer.Factory
-  import MastaniServer.Test.ConnBuilder
+  import MastaniServer.Test.ConnSimulator
   import MastaniServer.Test.AssertHelper
 
   alias MastaniServer.Statistics

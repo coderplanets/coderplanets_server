@@ -142,6 +142,19 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       middleware(M.ViewerDidConvert)
     end
 
+    field :editors, list_of(:user) do
+      arg(:filter, :members_filter)
+      middleware(M.PageSizeProof)
+      resolve(dataloader(CMS, :editors))
+    end
+
+    field :editors_count, :integer do
+      arg(:count, :count_type, default_value: :count)
+      arg(:type, :community_type, default_value: :community)
+      resolve(dataloader(CMS, :editors))
+      middleware(M.ConvertToInt)
+    end
+
     field :recent_contributes, list_of(:contribute) do
       # TODO add complex here to warning N+1 problem
       resolve(&Resolvers.Statistics.list_contributes/3)

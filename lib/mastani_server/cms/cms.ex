@@ -18,6 +18,7 @@ defmodule MastaniServer.CMS do
     PostComment,
     PostFavorite,
     PostStar,
+    Passport,
     CommunitySubscriber,
     CommunityEditor
   }
@@ -47,30 +48,26 @@ defmodule MastaniServer.CMS do
   3. check is viewer reacted
   """
   def query({"posts_favorites", PostFavorite}, args) do
-    # IO.inspect args, label: "args --> "
-    PostFavorite
-    |> QueryBuilder.members_pack(args)
+    PostFavorite |> QueryBuilder.members_pack(args)
   end
 
   def query({"posts_stars", PostStar}, args) do
-    PostStar
-    |> QueryBuilder.members_pack(args)
+    PostStar |> QueryBuilder.members_pack(args)
   end
 
   def query({"communities_subscribers", CommunitySubscriber}, args) do
     CommunitySubscriber |> QueryBuilder.members_pack(args)
   end
 
-  def query(queryable, _args) do
-    # IO.inspect(queryable, label: 'default queryable')
-    queryable
+  def query({"communities_editors", CommunityEditor}, args) do
+    CommunityEditor |> QueryBuilder.members_pack(args)
   end
+
+  def query(queryable, _args), do: queryable
 
   @doc """
   set a community editor
   """
-  # def update_editor(%Accounts.User{id: user_id}, %Community{id: community_id}, title) do
-  # TODO: upsert_editor
   def add_editor(%Accounts.User{id: user_id}, %Community{id: community_id}, title) do
     Multi.new()
     |> Multi.insert(
@@ -82,26 +79,36 @@ defmodule MastaniServer.CMS do
       stamp_passport(%Accounts.User{id: user_id}, rules)
     end)
     |> Repo.transaction()
-    |> upsert_editor_result()
+    |> add_editor_result()
   end
 
-  defp upsert_editor_result({:ok, %{insert_editor: editor}}) do
+  def update_editor(%Accounts.User{id: user_id}, %Community{id: community_id}, title) do
+    clauses = ~m(user_id community_id)a
+
+    with {:ok, _} <- CommunityEditor |> ORM.update_by(clauses, ~m(title)a) do
+      Accounts.User |> ORM.find(user_id)
+    end
+  end
+
+  def delete_editor(%Accounts.User{id: user_id}, %Community{id: community_id}) do
+    with {:ok, editor} <- ORM.find_by(CommunityEditor, ~m(user_id community_id)a),
+         {:ok, passport} <- ORM.find_by(Passport, ~m(user_id)a) do
+      editor |> ORM.delete()
+      passport |> ORM.delete()
+
+      Accounts.User |> ORM.find(user_id)
+    end
+  end
+
+  defp add_editor_result({:ok, %{insert_editor: editor}}) do
     Accounts.User |> ORM.find(editor.user_id)
   end
 
-  defp upsert_editor_result({:error, :stamp_passport, _result, _steps}),
+  defp add_editor_result({:error, :stamp_passport, _result, _steps}),
     do: {:error, "stamp passport error"}
 
-  defp upsert_editor_result({:error, :insert_editor, _result, _steps}),
+  defp add_editor_result({:error, :insert_editor, _result, _steps}),
     do: {:error, "insert editor error"}
-
-  defp insert_editor(%Accounts.User{id: user_id}, %Community{id: community_id}, title) do
-    attrs = ~m(user_id community_id title)a
-
-    %CommunityEditor{}
-    |> CommunityEditor.changeset(attrs)
-    |> Repo.insert()
-  end
 
   def create_community(attrs) do
     with {:ok, _} <- ORM.find(Accounts.User, attrs.user_id) do
@@ -116,7 +123,6 @@ defmodule MastaniServer.CMS do
   create a Tag base on type: post / tuts / videos ...
   """
   def create_tag(part, attrs) when valid_part(part) do
-    # TODO: find user
     with {:ok, action} <- match_action(part, :tag),
          {:ok, community} <- ORM.find_by(Community, title: attrs.community) do
       struct(action.reactor)
@@ -169,7 +175,7 @@ defmodule MastaniServer.CMS do
     end
   end
 
-  # TODO: check community exsit
+  # TODO: use comunityId
   def get_tags(community, part) do
     Tag
     |> join(:inner, [t], c in assoc(t, :community))
@@ -258,8 +264,16 @@ defmodule MastaniServer.CMS do
   @doc """
   return paged community subscribers
   """
-  def community_subscribers(%Community{id: id}, %{page: page, size: size} = filters) do
-    CommunitySubscriber
+  def community_members(:editors, %Community{id: id}, filters) do
+    load_community_members(id, CommunityEditor, filters)
+  end
+
+  def community_members(:subscribers, %Community{id: id}, filters) do
+    load_community_members(id, CommunitySubscriber, filters)
+  end
+
+  defp load_community_members(id, modal, %{page: page, size: size} = filters) do
+    modal
     |> where([c], c.community_id == ^id)
     |> QueryBuilder.load_inner_users(filters)
     |> ORM.paginater(page: page, size: size)
@@ -346,8 +360,6 @@ defmodule MastaniServer.CMS do
   defp handle_existing_author({:error, changeset}) do
     ORM.find_by(Author, user_id: changeset.data.user_id)
   end
-
-  alias MastaniServer.CMS.Passport
 
   # TODO passport should be public utils
   @doc """

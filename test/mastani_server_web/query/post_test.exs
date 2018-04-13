@@ -2,7 +2,7 @@ defmodule MastaniServer.Test.Query.PostTest do
   # use MastaniServer.DataCase
   use MastaniServerWeb.ConnCase, async: true
   import MastaniServer.Factory
-  import MastaniServer.Test.ConnBuilder
+  import MastaniServer.Test.ConnSimulator
   import MastaniServer.Test.AssertHelper
   import ShortMaps
 

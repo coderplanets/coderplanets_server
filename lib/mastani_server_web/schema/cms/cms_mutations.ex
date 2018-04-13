@@ -30,7 +30,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       resolve(&Resolvers.CMS.delete_community/3)
     end
 
-    @desc "set a editor for a community TODO: remove & update"
+    @desc "set a editor for a community"
     field :add_cms_editor, :user do
       arg(:community_id, non_null(:id))
       arg(:user_id, non_null(:id))
@@ -41,6 +41,33 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       middleware(M.Passport, claim: "cms->c?->editor.add")
 
       resolve(&Resolvers.CMS.add_editor/3)
+    end
+
+    @desc "delete a editor from a community, the user's passport also deleted"
+    field :delete_cms_editor, :user do
+      arg(:community_id, non_null(:id))
+      arg(:user_id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.PassportLoader, source: :community)
+      middleware(M.Passport, claim: "cms->c?->editor.delete")
+
+      resolve(&Resolvers.CMS.delete_editor/3)
+    end
+
+    # TODO: remove, should remove both editor and cms->passport
+
+    @desc "update cms editor's title, passport is not effected"
+    field :update_cms_editor, :user do
+      arg(:community_id, non_null(:id))
+      arg(:user_id, non_null(:id))
+      arg(:title, non_null(:string))
+
+      middleware(M.Authorize, :login)
+      middleware(M.PassportLoader, source: :community)
+      middleware(M.Passport, claim: "cms->c?->editor.update")
+
+      resolve(&Resolvers.CMS.update_editor/3)
     end
 
     # @desc "set passport details for a user TODO: unset"
