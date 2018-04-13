@@ -33,7 +33,8 @@ defmodule MastaniServer.Test.ConnBuilder do
     build_conn() |> put_req_header("authorization", token)
   end
 
-  def simu_conn(:user, passport_rules) do
+  # default for cms rules
+  def simu_conn(:user, cms: passport_rules) do
     user_attr = mock_attrs(:user)
     {:ok, user} = db_insert(:user, user_attr)
 

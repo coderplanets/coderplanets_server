@@ -9,6 +9,8 @@ defmodule MastaniServer.CMS do
   import Helper.Utils, only: [done: 1, deep_merge: 2]
   import ShortMaps
 
+  alias Ecto.Multi
+
   alias MastaniServer.CMS.{
     Author,
     Tag,
@@ -16,12 +18,13 @@ defmodule MastaniServer.CMS do
     PostComment,
     PostFavorite,
     PostStar,
-    CommunitySubscriber
+    CommunitySubscriber,
+    CommunityEditor
   }
 
   alias MastaniServer.{Repo, Accounts}
   alias Helper.QueryBuilder
-  alias Helper.ORM
+  alias Helper.{ORM, Certification}
 
   def data(), do: Dataloader.Ecto.new(Repo, query: &query/2)
 
@@ -61,6 +64,43 @@ defmodule MastaniServer.CMS do
   def query(queryable, _args) do
     # IO.inspect(queryable, label: 'default queryable')
     queryable
+  end
+
+  @doc """
+  set a community editor
+  """
+  # def update_editor(%Accounts.User{id: user_id}, %Community{id: community_id}, title) do
+  # TODO: upsert_editor
+  def add_editor(%Accounts.User{id: user_id}, %Community{id: community_id}, title) do
+    Multi.new()
+    |> Multi.insert(
+      :insert_editor,
+      CommunityEditor.changeset(%CommunityEditor{}, ~m(user_id community_id title)a)
+    )
+    |> Multi.run(:stamp_passport, fn _ ->
+      rules = Certification.passport_rules(cms: title)
+      stamp_passport(%Accounts.User{id: user_id}, rules)
+    end)
+    |> Repo.transaction()
+    |> upsert_editor_result()
+  end
+
+  defp upsert_editor_result({:ok, %{insert_editor: editor}}) do
+    Accounts.User |> ORM.find(editor.user_id)
+  end
+
+  defp upsert_editor_result({:error, :stamp_passport, _result, _steps}),
+    do: {:error, "stamp passport error"}
+
+  defp upsert_editor_result({:error, :insert_editor, _result, _steps}),
+    do: {:error, "insert editor error"}
+
+  defp insert_editor(%Accounts.User{id: user_id}, %Community{id: community_id}, title) do
+    attrs = ~m(user_id community_id title)a
+
+    %CommunityEditor{}
+    |> CommunityEditor.changeset(attrs)
+    |> Repo.insert()
   end
 
   def create_community(attrs) do
@@ -289,9 +329,6 @@ defmodule MastaniServer.CMS do
     end
   end
 
-  # def undo_reaction(part, react, _, _),
-  # do: {:error, "cms do not support [un#{react}] on [#{part}]"}
-
   defp ensure_author_exists(%Accounts.User{} = user) do
     # unique_constraint: avoid race conditions, make sure user_id unique
     # foreign_key_constraint: check foreign key: user_id exsit or not
@@ -316,15 +353,15 @@ defmodule MastaniServer.CMS do
   @doc """
   insert or update a user's passport in CMS context
   """
-  def stamp_passport(%Accounts.User{} = user, rules) do
-    case ORM.find_by(Passport, user_id: user.id) do
+  def stamp_passport(%Accounts.User{id: user_id}, rules) do
+    case ORM.find_by(Passport, user_id: user_id) do
       {:ok, passport} ->
         passport
         |> Ecto.Changeset.change(rules: deep_merge(passport.rules, rules))
         |> Repo.update()
 
       {:error, _} ->
-        %Passport{user_id: user.id, rules: rules}
+        %Passport{user_id: user_id, rules: rules}
         |> Passport.changeset(%{})
         |> Repo.insert()
     end
@@ -348,16 +385,10 @@ defmodule MastaniServer.CMS do
   return a user's passport in CMS context
   """
   def get_passport(%Accounts.User{} = user) do
-    Passport |> ORM.find_by(user_id: user.id)
+    with {:ok, passport} <- ORM.find_by(Passport, user_id: user.id) do
+      {:ok, passport.rules}
+    end
   end
-
-  # def list_passports do
-
-  # end
-
-  # def list_passports(community) do
-
-  # end
 
   def list_passports(community, key) do
     Passport

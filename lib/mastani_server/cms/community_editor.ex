@@ -3,10 +3,11 @@ defmodule MastaniServer.CMS.CommunityEditor do
   import Ecto.Changeset
   alias MastaniServer.CMS.{Community, CommunityEditor}
   alias MastaniServer.Accounts
+  alias Helper.Certification
 
   @required_fields ~w(user_id community_id title)a
 
-  schema "communities_subscribers" do
+  schema "communities_editors" do
     field(:title, :string)
     belongs_to(:user, Accounts.User, foreign_key: :user_id)
     belongs_to(:community, Community, foreign_key: :community_id)
@@ -19,6 +20,7 @@ defmodule MastaniServer.CMS.CommunityEditor do
     community_editor
     |> cast(attrs, @required_fields)
     |> validate_required(@required_fields)
+    |> validate_inclusion(:title, Certification.editor_titles(:cms))
     |> foreign_key_constraint(:community_id)
     |> foreign_key_constraint(:user_id)
     |> unique_constraint(:user_id, name: :communities_editors_user_id_community_id_index)

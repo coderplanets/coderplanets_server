@@ -104,8 +104,8 @@ defmodule MastaniServer.Test.Mutation.PostTest do
 
     test "login user with auth passport delete a post", ~m(post)a do
       post_communities_0 = post.communities |> List.first() |> Map.get(:title)
-      passport_rules = %{"cms" => %{post_communities_0 => %{"post.article.delete" => true}}}
-      rule_conn = simu_conn(:user, passport_rules)
+      passport_rules = %{post_communities_0 => %{"post.article.delete" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
 
       # assert conn |> mutation_get_error?(@query, %{id: post.id})
 
@@ -116,7 +116,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
 
     test "unauth user delete post fails", ~m(user_conn guest_conn post)a do
       variables = %{id: post.id}
-      rule_conn = simu_conn(:user, %{"cms" => %{"what.ever" => true}})
+      rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@query, variables)
       assert guest_conn |> mutation_get_error?(@query, variables)
@@ -161,8 +161,8 @@ defmodule MastaniServer.Test.Mutation.PostTest do
 
     test "login user with auth passport update a post", ~m(post)a do
       post_communities_0 = post.communities |> List.first() |> Map.get(:title)
-      passport_rules = %{"cms" => %{post_communities_0 => %{"post.article.edit" => true}}}
-      rule_conn = simu_conn(:user, passport_rules)
+      passport_rules = %{post_communities_0 => %{"post.article.edit" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
 
       # assert conn |> mutation_get_error?(@query, %{id: post.id})
       unique_num = System.unique_integer([:positive, :monotonic])
@@ -187,7 +187,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
         body: "updated body #{unique_num}"
       }
 
-      rule_conn = simu_conn(:user, %{"cms" => %{"what.ever" => true}})
+      rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@query, variables)
       assert guest_conn |> mutation_get_error?(@query, variables)
@@ -209,8 +209,8 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       {:ok, tag} = db_insert(:tag, %{community: community})
       # {:ok, tag} = db_insert(:tag)
 
-      passport_rules = %{"cms" => %{community.title => %{"post.tag.set" => true}}}
-      rule_conn = simu_conn(:user, passport_rules)
+      passport_rules = %{community.title => %{"post.tag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
 
       variables = %{id: post.id, tagId: tag.id, community: community.title}
       rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
@@ -224,8 +224,8 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag)
 
-      passport_rules = %{"cms" => %{community.title => %{"post.tag.set" => true}}}
-      rule_conn = simu_conn(:user, passport_rules)
+      passport_rules = %{community.title => %{"post.tag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
 
       variables = %{id: post.id, tagId: tag.id, community: community.title}
       assert rule_conn |> mutation_get_error?(@set_tag_query, variables)
@@ -236,8 +236,8 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       {:ok, tag} = db_insert(:tag, %{community: community})
       {:ok, tag2} = db_insert(:tag, %{community: community})
 
-      passport_rules = %{"cms" => %{community.title => %{"post.tag.set" => true}}}
-      rule_conn = simu_conn(:user, passport_rules)
+      passport_rules = %{community.title => %{"post.tag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
 
       variables = %{id: post.id, tagId: tag.id, community: community.title}
       rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
@@ -263,8 +263,8 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     test "can unset tag from a post", ~m(post)a do
       {:ok, community} = db_insert(:community)
 
-      passport_rules = %{"cms" => %{community.title => %{"post.tag.set" => true}}}
-      rule_conn = simu_conn(:user, passport_rules)
+      passport_rules = %{community.title => %{"post.tag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
 
       {:ok, tag} = db_insert(:tag, %{community: community})
       {:ok, tag2} = db_insert(:tag, %{community: community})
@@ -300,8 +300,8 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     }
     """
     test "auth user can set a community to post", ~m(post)a do
-      passport_rules = %{"cms" => %{"post.community.set" => true}}
-      rule_conn = simu_conn(:user, passport_rules)
+      passport_rules = %{"post.community.set" => true}
+      rule_conn = simu_conn(:user, cms: passport_rules)
 
       {:ok, community} = db_insert(:community)
       variables = %{id: post.id, community: community.title}
@@ -315,7 +315,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     test "unauth user set a community to post fails", ~m(user_conn guest_conn post)a do
       {:ok, community} = db_insert(:community)
       variables = %{id: post.id, community: community.title}
-      rule_conn = simu_conn(:user, %{"cms" => %{"what.ever" => true}})
+      rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@set_community_query, variables)
       assert guest_conn |> mutation_get_error?(@set_community_query, variables)
@@ -323,8 +323,8 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     end
 
     test "auth user can set multi community to a post", ~m(post)a do
-      passport_rules = %{"cms" => %{"post.community.set" => true}}
-      rule_conn = simu_conn(:user, passport_rules)
+      passport_rules = %{"post.community.set" => true}
+      rule_conn = simu_conn(:user, cms: passport_rules)
 
       {:ok, community} = db_insert(:community)
       {:ok, community2} = db_insert(:community)
@@ -350,8 +350,8 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     }
     """
     test "auth user can unset community from a post", ~m(post)a do
-      passport_rules = %{"cms" => %{"post.community.set" => true}}
-      rule_conn = simu_conn(:user, passport_rules)
+      passport_rules = %{"post.community.set" => true}
+      rule_conn = simu_conn(:user, cms: passport_rules)
 
       {:ok, community} = db_insert(:community)
       {:ok, community2} = db_insert(:community)

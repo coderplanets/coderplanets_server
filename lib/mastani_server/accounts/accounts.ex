@@ -73,12 +73,6 @@ defmodule MastaniServer.Accounts do
     |> register_github_result()
   end
 
-  defp token_info(%User{} = user) do
-    with {:ok, token, _info} <- Guardian.jwt_encode(user) do
-      {:ok, %{token: token, user: user}}
-    end
-  end
-
   defp register_github_result({:ok, %{create_user: user}}), do: token_info(user)
 
   defp register_github_result({:error, :create_user, _result, _steps}),
@@ -87,12 +81,13 @@ defmodule MastaniServer.Accounts do
   defp register_github_result({:error, :create_profile, _result, _steps}),
     do: {:error, "Accounts create_profile internal error"}
 
-  defp create_user(user, :github) do
-    # attr = %{nickname: user["login"], avatar: user["avatar_url"], bio: user["bio"]}
-    # %User{}
-    # |> User.changeset(attr)
-    # |> Repo.insert()
+  defp token_info(%User{} = user) do
+    with {:ok, token, _info} <- Guardian.jwt_encode(user) do
+      {:ok, %{token: token, user: user}}
+    end
+  end
 
+  defp create_user(user, :github) do
     user = %User{
       nickname: user["login"],
       avatar: user["avatar_url"],

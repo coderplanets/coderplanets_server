@@ -16,6 +16,10 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.create_community(%{title: args.title, desc: args.desc, user_id: user.id})
   end
 
+  def add_editor(_root, ~m(community_id user_id title)a, _) do
+    CMS.add_editor(%Accounts.User{id: user_id}, %CMS.Community{id: community_id}, title)
+  end
+
   # TODO
   # def create_tag(_root, args, %{context: %{cur_user: user}}) do
   def create_tag(_root, args, %{context: %{cur_user: user}}) do

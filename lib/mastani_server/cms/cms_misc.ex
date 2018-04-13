@@ -3,7 +3,7 @@ defmodule MastaniServer.CMSMisc do
   this module defined the matches and handy guard ...
   """
   import Ecto.Query, warn: false
-  alias MastaniServer.CMS.{Post, PostFavorite, PostStar, PostComment, Tag, Community}
+  alias MastaniServer.CMS.{Community, Post, PostFavorite, PostStar, PostComment, Tag, Community}
 
   @support_part [:post, :video, :job]
   @support_react [:favorite, :star, :watch, :comment, :tag, :self]

@@ -1,7 +1,7 @@
 defmodule MastaniServer.CMS.Community do
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Post, Community, CommunitySubscriber}
+  alias MastaniServer.CMS.{Post, Community, CommunitySubscriber, CommunityEditor}
   alias MastaniServer.Accounts
 
   @required_fields ~w(title desc user_id)a

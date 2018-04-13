@@ -20,15 +20,39 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       middleware(M.Statistics.MakeContribute, for: [:user, :community])
     end
 
+    # TODO: update community
     @desc "delete a global community"
     field :delete_community, :community do
       arg(:id, non_null(:id))
-
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->community.delete")
 
       resolve(&Resolvers.CMS.delete_community/3)
     end
+
+    @desc "set a editor for a community TODO: remove & update"
+    field :add_cms_editor, :user do
+      arg(:community_id, non_null(:id))
+      arg(:user_id, non_null(:id))
+      arg(:title, non_null(:string))
+
+      middleware(M.Authorize, :login)
+      middleware(M.PassportLoader, source: :community)
+      middleware(M.Passport, claim: "cms->c?->editor.add")
+
+      resolve(&Resolvers.CMS.add_editor/3)
+    end
+
+    # @desc "set passport details for a user TODO: unset"
+    # field :set_cms_passport, :user do
+    # args(:userId, non_null(:id))
+    # args(:detail, non_null(:string))
+
+    # middleware(M.Authorize, :login)
+    # middleware(M.Passport, claim: "cms->community.set_editor")
+
+    # resolve(&Resolvers.CMS.stamp_passport/3)
+    # end
 
     @desc "subscribe a community so it can appear in sidebar"
     field :subscribe_community, :community_subscriber do

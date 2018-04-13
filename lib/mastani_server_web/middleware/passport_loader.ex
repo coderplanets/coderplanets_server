@@ -2,10 +2,29 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
   @behaviour Absinthe.Middleware
   import MastaniServer.CMSMisc
   import Helper.Utils
+  import ShortMaps
 
+  alias MastaniServer.CMS
   alias Helper.ORM
 
   def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
+
+  def call(
+        %{context: %{cur_user: _}, arguments: ~m(community_id)a} = resolution,
+        source: :community
+      ) do
+    IO.inspect(community_id, label: "community loader")
+
+    case ORM.find(CMS.Community, community_id) do
+      {:ok, community} ->
+        arguments = resolution.arguments |> Map.merge(%{passport_communities: [community]})
+        %{resolution | arguments: arguments}
+
+      {:error, err_msg} ->
+        resolution
+        |> handle_absinthe_error(err_msg)
+    end
+  end
 
   # def call(%{context: %{cur_user: cur_user}, arguments: %{id: id}} = resolution, [source: .., base: ..]) do
   # Loader 应该使用 Map 作为参数，以方便模式匹配
@@ -15,6 +34,7 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
          {:ok, preload} <- parse_preload(action, args),
          {:ok, content} <- ORM.find(action.reactor, id, preload: preload) do
       resolution
+      # TODO: rename to load_owner_info
       |> add_owner_info(react, content)
       |> add_source(content)
       |> add_community_info(content, args)

@@ -57,7 +57,7 @@ defmodule MastaniServer.Test.CMSPassportTest do
       {:ok, passport} = CMS.get_passport(%User{id: user.id})
       # IO.inspect(passport, label: "what passport")
 
-      assert passport |> Map.get(:rules) |> Map.equal?(@valid_passport_rules)
+      assert passport |> Map.equal?(@valid_passport_rules)
     end
 
     test "get a normal user's passport fails", ~m(user)a do
