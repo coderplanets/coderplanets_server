@@ -4,7 +4,7 @@ defmodule MastaniServer.CMS do
   [CMS]: post, job, ...
   [CURD]: create, update, delete ...
   """
-  import MastaniServer.CMSMisc
+  import MastaniServer.CMS.Misc
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1, deep_merge: 2]
   import ShortMaps
@@ -15,9 +15,6 @@ defmodule MastaniServer.CMS do
     Author,
     Tag,
     Community,
-    PostComment,
-    PostFavorite,
-    PostStar,
     Passport,
     CommunitySubscriber,
     CommunityEditor
@@ -26,44 +23,6 @@ defmodule MastaniServer.CMS do
   alias MastaniServer.{Repo, Accounts}
   alias Helper.QueryBuilder
   alias Helper.{ORM, Certification}
-
-  def data(), do: Dataloader.Ecto.new(Repo, query: &query/2)
-
-  def query(Author, _args) do
-    # you cannot use preload with select together
-    # https://stackoverflow.com/questions/43010352/ecto-select-relations-from-preload
-    # see also
-    # https://github.com/elixir-ecto/ecto/issues/1145
-    from(a in Author, join: u in assoc(a, :user), select: u)
-  end
-
-  def query({"posts_comments", PostComment}, %{filter: filter}) do
-    PostComment |> QueryBuilder.filter_pack(filter)
-  end
-
-  @doc """
-  handle query:
-  1. bacic filter of pagi,when,sort ...
-  2. count of the reactions
-  3. check is viewer reacted
-  """
-  def query({"posts_favorites", PostFavorite}, args) do
-    PostFavorite |> QueryBuilder.members_pack(args)
-  end
-
-  def query({"posts_stars", PostStar}, args) do
-    PostStar |> QueryBuilder.members_pack(args)
-  end
-
-  def query({"communities_subscribers", CommunitySubscriber}, args) do
-    CommunitySubscriber |> QueryBuilder.members_pack(args)
-  end
-
-  def query({"communities_editors", CommunityEditor}, args) do
-    CommunityEditor |> QueryBuilder.members_pack(args)
-  end
-
-  def query(queryable, _args), do: queryable
 
   @doc """
   set a community editor

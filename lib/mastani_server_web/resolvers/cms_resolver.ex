@@ -1,7 +1,9 @@
 defmodule MastaniServerWeb.Resolvers.CMS do
   import ShortMaps
+  import Ecto.Query, warn: false
+  import Helper.Utils, only: [done: 1]
 
-  alias MastaniServer.{CMS, Accounts}
+  alias MastaniServer.{CMS, Accounts, Repo}
   alias Helper.ORM
 
   def post(_root, %{id: id}, _info), do: CMS.Post |> ORM.read(id, inc: :views)
@@ -11,6 +13,14 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def community(_root, %{id: id}, _info), do: CMS.Community |> ORM.find(id)
 
   def communities(_root, ~m(filter)a, _info), do: CMS.Community |> ORM.find_all(filter)
+
+  def community_posts_count(root, _args, _info) do
+    "communities_posts"
+    |> where([cp], cp.community_id == ^root.id)
+    |> select([cp], count(cp.post_id))
+    |> Repo.one()
+    |> done
+  end
 
   def create_community(_root, args, %{context: %{cur_user: user}}) do
     CMS.create_community(%{title: args.title, desc: args.desc, user_id: user.id})

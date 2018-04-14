@@ -1,4 +1,4 @@
-defmodule MastaniServer.CMSMisc do
+defmodule MastaniServer.CMS.Misc do
   @moduledoc """
   this module defined the matches and handy guard ...
   """

@@ -11,7 +11,9 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       resolve(&Resolvers.CMS.community/3)
     end
 
-    field :communities, list_of(:community) do
+    field :communities, :paged_communities do
+      arg(:filter, :paged_filter)
+
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.communities/3)
     end

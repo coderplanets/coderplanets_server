@@ -2,7 +2,9 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   use Absinthe.Schema.Notation
   use Absinthe.Ecto, repo: MastaniServer.Repo
 
-  import Absinthe.Resolution.Helpers, only: [dataloader: 2]
+  import Ecto.Query, warn: false
+  import Absinthe.Resolution.Helpers, only: [dataloader: 2, on_load: 2]
+
   alias MastaniServer.{CMS}
   alias MastaniServerWeb.{Resolvers, Schema}
   alias MastaniServerWeb.Middleware, as: M
@@ -113,12 +115,30 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   end
 
   object :community do
+    meta(:cache, max_age: 30)
+
     field(:id, :id)
     field(:title, :string)
     field(:desc, :string)
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
     field(:author, :user, resolve: dataloader(CMS, :author))
+
+    # field :posts_count, :integer do
+    # resolve(&Resolvers.CMS.community_posts_count/3)
+    # end
+
+    # Big thanks: https://elixirforum.com/t/grouping-error-in-absinthe-dadaloader/13671/2
+    # see also: https://github.com/absinthe-graphql/dataloader/issues/25
+    field :posts_count, :integer do
+      resolve(fn community, _args, %{context: %{loader: loader}} ->
+        loader
+        |> Dataloader.load(CMS, {:one, CMS.Post}, posts_count: community.id)
+        |> on_load(fn loader ->
+          {:ok, Dataloader.get(loader, CMS, {:one, CMS.Post}, posts_count: community.id)}
+        end)
+      end)
+    end
 
     field :subscribers, list_of(:user) do
       arg(:filter, :members_filter)
