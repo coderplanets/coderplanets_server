@@ -100,6 +100,12 @@ defmodule Helper.ORM do
     end
   end
 
+  def findby_delete(queryable, clauses) do
+    with {:ok, content} <- find_by(queryable, clauses) do
+      delete(content)
+    end
+  end
+
   @doc """
   NOTICE: this should be use together with passport_loader etc Middleware
   DO NOT use it directly
@@ -119,6 +125,12 @@ defmodule Helper.ORM do
       |> Ecto.Changeset.change(attrs)
       |> Repo.update()
     end
+  end
+
+  def create(modal, attrs) do
+    struct(modal)
+    |> modal.changeset(attrs)
+    |> Repo.insert()
   end
 
   @doc """

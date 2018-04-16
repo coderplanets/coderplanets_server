@@ -11,14 +11,15 @@ defmodule MastaniServer.CMS.Loader do
     PostFavorite,
     PostStar,
     CommunitySubscriber,
-    CommunityEditor
+    CommunityEditor,
+    CommunityThread
   }
 
   def data(), do: Dataloader.Ecto.new(Repo, query: &query/2, run_batch: &run_batch/5)
 
+  # Big thanks: https://elixirforum.com/t/grouping-error-in-absinthe-dadaloader/13671/2
+  # see also: https://github.com/absinthe-graphql/dataloader/issues/25
   def run_batch(Post, post_query, :posts_count, community_ids, repo_opts) do
-    # IO.inspect repo_opts, label: "repo_opts"
-    # IO.inspect community_ids, label: "community_ids"
     query =
       from(
         p in post_query,
@@ -44,20 +45,9 @@ defmodule MastaniServer.CMS.Loader do
     from(a in Author, join: u in assoc(a, :user), select: u)
   end
 
-  # def query(Post, args) do
-  # IO.inspect Post, label: "see me?"
-  # IO.inspect args, label: "hello"
-  # Post
-  # |> select([p], count(p.id))
-  # |> join(:full, [p], c in assoc(p, :communities))
-  # |> group_by([p], p.id)
-  # |> select([p], p)
-  # |> select([p], count("*"))
-
-  # |> select([p], count(p.id))
-  # |> order_by([p], asc: fragment("count(?)", p.id))
-  # |> select([p], p.id)
-  # end
+  def query({"communities_threads", CommunityThread}, _info) do
+    from(ct in CommunityThread, join: t in assoc(ct, :thread), select: t)
+  end
 
   def query({"posts_comments", PostComment}, %{filter: filter}) do
     PostComment |> QueryBuilder.filter_pack(filter)
@@ -85,5 +75,7 @@ defmodule MastaniServer.CMS.Loader do
     CommunityEditor |> QueryBuilder.members_pack(args)
   end
 
-  def query(queryable, _args), do: queryable
+  def query(queryable, _args) do
+    queryable
+  end
 end

@@ -26,6 +26,14 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.create_community(%{title: args.title, desc: args.desc, user_id: user.id})
   end
 
+  def create_thread(_root, ~m(title)a, _info) do
+    CMS.create_thread(~m(title)a)
+  end
+
+  def add_thread_to_community(_root, ~m(community_id thread_id)a, _info) do
+    CMS.add_thread_to_community(~m(community_id thread_id)a)
+  end
+
   def add_editor(_root, ~m(community_id user_id title)a, _) do
     CMS.add_editor(%Accounts.User{id: user_id}, %CMS.Community{id: community_id}, title)
   end

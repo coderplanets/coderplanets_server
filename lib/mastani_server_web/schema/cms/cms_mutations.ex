@@ -11,6 +11,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
     field :create_community, :community do
       arg(:title, non_null(:string))
       arg(:desc, non_null(:string))
+      # TODO
+      # arg(:category, non_null(:string))
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->community.create")
@@ -20,7 +22,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       middleware(M.Statistics.MakeContribute, for: [:user, :community])
     end
 
-    # TODO: update community
+    # TODO: update community: category
     @desc "delete a global community"
     field :delete_community, :community do
       arg(:id, non_null(:id))
@@ -29,6 +31,39 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
 
       resolve(&Resolvers.CMS.delete_community/3)
     end
+
+    @desc "create independent thread"
+    field :create_thread, :thread do
+      arg(:title, non_null(:string))
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->thread.create")
+
+      resolve(&Resolvers.CMS.create_thread/3)
+    end
+
+    @desc "link a exist thread to a exist community"
+    field :add_thread_to_community, :community do
+      arg(:community_id, non_null(:id))
+      arg(:thread_id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.PassportLoader, source: :community)
+      middleware(M.Passport, claim: "cms->c?->thread.add")
+
+      resolve(&Resolvers.CMS.add_thread_to_community/3)
+    end
+
+    # field :delete_thread_from_community, :community do
+    # arg(:community_id, non_null(:id))
+    # arg(:thread_id, non_null(:id))
+
+    # middleware(M.Authorize, :login)
+    # middleware(M.PassportLoader, source: :community)
+    # middleware(M.Passport, claim: "cms->c?->thread.delete")
+
+    # resolve(&Resolvers.CMS.add_thread_to_community/3)
+    # end
 
     @desc "set a editor for a community"
     field :add_cms_editor, :user do

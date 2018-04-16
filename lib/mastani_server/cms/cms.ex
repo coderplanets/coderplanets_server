@@ -13,6 +13,8 @@ defmodule MastaniServer.CMS do
 
   alias MastaniServer.CMS.{
     Author,
+    Thread,
+    CommunityThread,
     Tag,
     Community,
     Passport,
@@ -50,11 +52,8 @@ defmodule MastaniServer.CMS do
   end
 
   def delete_editor(%Accounts.User{id: user_id}, %Community{id: community_id}) do
-    with {:ok, editor} <- ORM.find_by(CommunityEditor, ~m(user_id community_id)a),
-         {:ok, passport} <- ORM.find_by(Passport, ~m(user_id)a) do
-      editor |> ORM.delete()
-      passport |> ORM.delete()
-
+    with {:ok, _} <- ORM.findby_delete(CommunityEditor, ~m(user_id community_id)a),
+         {:ok, _} <- ORM.findby_delete(Passport, ~m(user_id)a) do
       Accounts.User |> ORM.find(user_id)
     end
   end
@@ -69,12 +68,13 @@ defmodule MastaniServer.CMS do
   defp add_editor_result({:error, :insert_editor, _result, _steps}),
     do: {:error, "insert editor error"}
 
-  def create_community(attrs) do
-    with {:ok, _} <- ORM.find(Accounts.User, attrs.user_id) do
-      %Community{}
-      # |> Community.changeset(attrs |> Map.merge(%{user_id2: user.id}))
-      |> Community.changeset(attrs)
-      |> Repo.insert()
+  def create_community(attrs), do: Community |> ORM.create(attrs)
+
+  def create_thread(attrs), do: Thread |> ORM.create(attrs)
+
+  def add_thread_to_community(attrs) do
+    with {:ok, community_thread} <- CommunityThread |> ORM.create(attrs) do
+      Community |> ORM.find(community_thread.community_id)
     end
   end
 
@@ -84,9 +84,8 @@ defmodule MastaniServer.CMS do
   def create_tag(part, attrs) when valid_part(part) do
     with {:ok, action} <- match_action(part, :tag),
          {:ok, community} <- ORM.find_by(Community, title: attrs.community) do
-      struct(action.reactor)
-      |> action.reactor.changeset(attrs |> Map.merge(%{community_id: community.id}))
-      |> Repo.insert()
+      attrs = attrs |> Map.merge(%{community_id: community.id})
+      action.reactor |> ORM.create(attrs)
     end
   end
 
@@ -185,6 +184,7 @@ defmodule MastaniServer.CMS do
          {:ok, content} <-
            struct(action.target)
            |> action.target.changeset(attrs)
+           # |> action.target.changeset(attrs |> Map.merge(%{author_id: author.id}))
            |> Ecto.Changeset.put_change(:author_id, author.id)
            |> Repo.insert() do
       set_community(part, content.id, %Community{title: community.title})
@@ -198,9 +198,8 @@ defmodule MastaniServer.CMS do
     with {:ok, action} <- match_action(part, react),
          {:ok, content} <- ORM.find(action.target, part_id),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
-      struct(action.reactor)
-      |> action.reactor.changeset(%{post_id: content.id, author_id: user.id, body: body})
-      |> Repo.insert()
+      attrs = %{post_id: content.id, author_id: user.id, body: body}
+      action.reactor |> ORM.create(attrs)
     end
   end
 
@@ -208,16 +207,11 @@ defmodule MastaniServer.CMS do
   subscribe a community. (ONLY community, post etc use watch )
   """
   def subscribe_community(%Accounts.User{id: user_id}, %Community{id: community_id}) do
-    %CommunitySubscriber{}
-    |> CommunitySubscriber.changeset(~m(user_id community_id)a)
-    |> Repo.insert()
+    CommunitySubscriber |> ORM.create(~m(user_id community_id)a)
   end
 
   def unsubscribe_community(%Accounts.User{id: user_id}, %Community{id: community_id}) do
-    with {:ok, subscriber} <-
-           ORM.find_by(CommunitySubscriber, community_id: community_id, user_id: user_id) do
-      ORM.delete(subscriber)
-    end
+    CommunitySubscriber |> ORM.findby_delete(community_id: community_id, user_id: user_id)
   end
 
   @doc """
@@ -267,11 +261,8 @@ defmodule MastaniServer.CMS do
     with {:ok, action} <- match_action(part, react),
          {:ok, content} <- ORM.find(action.target, part_id),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
-      params = Map.put(%{}, "user_id", user.id) |> Map.put("#{part}_id", content.id)
-
-      struct(action.reactor)
-      |> action.reactor.changeset(params)
-      |> Repo.insert()
+      attrs = Map.put(%{}, "user_id", user.id) |> Map.put("#{part}_id", content.id)
+      action.reactor |> ORM.create(attrs)
     end
   end
 
@@ -327,14 +318,10 @@ defmodule MastaniServer.CMS do
   def stamp_passport(%Accounts.User{id: user_id}, rules) do
     case ORM.find_by(Passport, user_id: user_id) do
       {:ok, passport} ->
-        passport
-        |> Ecto.Changeset.change(rules: deep_merge(passport.rules, rules))
-        |> Repo.update()
+        passport |> ORM.update(%{rules: deep_merge(passport.rules, rules)})
 
       {:error, _} ->
-        %Passport{user_id: user_id, rules: rules}
-        |> Passport.changeset(%{})
-        |> Repo.insert()
+        Passport |> ORM.create(~m(user_id rules)a)
     end
   end
 
@@ -345,9 +332,7 @@ defmodule MastaniServer.CMS do
           {:error, "#{rules} not found"}
 
         {_, lefts} ->
-          passport
-          |> Ecto.Changeset.change(rules: lefts)
-          |> Repo.update()
+          passport |> ORM.update(%{rules: lefts})
       end
     end
   end

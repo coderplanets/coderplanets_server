@@ -108,6 +108,29 @@ defmodule MastaniServer.Test.CMSTest do
     end
   end
 
+  describe "[cms community thread]" do
+    test "can create thread" do
+      title = "post"
+      {:ok, thread} = CMS.create_thread(~m(title)a)
+      assert thread.title == title
+    end
+
+    test "create thread with exsit title fails" do
+      title = "post"
+      {:ok, _} = CMS.create_thread(~m(title)a)
+      assert {:error, _error} = CMS.create_thread(~m(title)a)
+    end
+
+    test "can add a thread to community", ~m(community)a do
+      title = "post"
+      {:ok, thread} = CMS.create_thread(~m(title)a)
+      thread_id = thread.id
+      community_id = community.id
+      {:ok, ret_community} = CMS.add_thread_to_community(~m(thread_id community_id)a)
+      assert ret_community.id == community.id
+    end
+  end
+
   describe "[cms community editors]" do
     test "can add editor to a community, editor has default passport", ~m(user community)a do
       title = "chief editor"

@@ -25,6 +25,11 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:community_id, :id)
   end
 
+  object :thread do
+    field(:id, :id)
+    field(:title, :string)
+  end
+
   object :post do
     interface(:article)
     field(:id, :id)
@@ -123,6 +128,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
     field(:author, :user, resolve: dataloader(CMS, :author))
+    field(:threads, list_of(:thread), resolve: dataloader(CMS, :threads))
 
     # field :posts_count, :integer do
     # resolve(&Resolvers.CMS.community_posts_count/3)

@@ -1,15 +1,22 @@
 defmodule MastaniServer.CMS.Community do
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Post, Community, CommunitySubscriber, CommunityEditor}
+  alias MastaniServer.CMS.{Post, Community, CommunityThread, CommunitySubscriber, CommunityEditor}
   alias MastaniServer.Accounts
 
   @required_fields ~w(title desc user_id)a
+  @optional_fields ~w(category)a
 
   schema "communities" do
     field(:title, :string)
     field(:desc, :string)
+    field(:category, :string)
+
     belongs_to(:author, Accounts.User, foreign_key: :user_id)
+
+    has_many(:threads, {"communities_threads", CommunityThread})
+    has_many(:subscribers, {"communities_subscribers", CommunitySubscriber})
+    has_many(:editors, {"communities_editors", CommunityEditor})
 
     many_to_many(
       :posts,
@@ -17,9 +24,6 @@ defmodule MastaniServer.CMS.Community do
       join_through: "communities_posts",
       join_keys: [community_id: :id, post_id: :id]
     )
-
-    has_many(:subscribers, {"communities_subscribers", CommunitySubscriber})
-    has_many(:editors, {"communities_editors", CommunityEditor})
 
     # posts_managers
     # jobs_managers
@@ -35,7 +39,7 @@ defmodule MastaniServer.CMS.Community do
     # |> cast_assoc(:author)
     # |> unique_constraint(:title, name: :communities_title_index)
     community
-    |> cast(attrs, @required_fields)
+    |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
     |> foreign_key_constraint(:user_id)
     |> unique_constraint(:title, name: :communities_title_index)
