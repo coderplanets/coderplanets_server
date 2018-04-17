@@ -42,6 +42,9 @@ defmodule MastaniServer.Factory do
     %{
       title: "community #{name} #{unique_num}",
       desc: "community desc",
+      raw: "community #{name} #{unique_num}",
+      logo: "http://fake.jpg",
+      category: "category #{unique_num}",
       author: mock(:user)
     }
   end

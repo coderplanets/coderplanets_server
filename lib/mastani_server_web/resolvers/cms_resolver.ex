@@ -14,20 +14,12 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def communities(_root, ~m(filter)a, _info), do: CMS.Community |> ORM.find_all(filter)
 
-  def community_posts_count(root, _args, _info) do
-    "communities_posts"
-    |> where([cp], cp.community_id == ^root.id)
-    |> select([cp], count(cp.post_id))
-    |> Repo.one()
-    |> done
-  end
-
   def create_community(_root, args, %{context: %{cur_user: user}}) do
-    CMS.create_community(%{title: args.title, desc: args.desc, user_id: user.id})
+    args |> Map.merge(%{user_id: user.id}) |> CMS.create_community()
   end
 
-  def create_thread(_root, ~m(title)a, _info) do
-    CMS.create_thread(~m(title)a)
+  def create_thread(_root, ~m(title raw)a, _info) do
+    CMS.create_thread(~m(title raw)a)
   end
 
   def add_thread_to_community(_root, ~m(community_id thread_id)a, _info) do

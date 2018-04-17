@@ -4,13 +4,17 @@ defmodule MastaniServer.CMS.Community do
   alias MastaniServer.CMS.{Post, Community, CommunityThread, CommunitySubscriber, CommunityEditor}
   alias MastaniServer.Accounts
 
-  @required_fields ~w(title desc user_id)a
-  @optional_fields ~w(category)a
+  @required_fields ~w(title desc user_id logo raw category)a
+  # @required_fields ~w(title desc user_id)a
+  @optional_fields ~w(label)a
 
   schema "communities" do
     field(:title, :string)
     field(:desc, :string)
+    field(:logo, :string)
     field(:category, :string)
+    field(:label, :string)
+    field(:raw, :string)
 
     belongs_to(:author, Accounts.User, foreign_key: :user_id)
 

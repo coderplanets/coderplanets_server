@@ -5,12 +5,15 @@ defmodule MastaniServer.CMS.Thread do
 
   schema "community_threads" do
     field(:title, :string)
+    field(:raw, :string)
+    field(:logo, :string)
 
     timestamps(type: :utc_datetime)
   end
 
-  @required_fields ~w(title)a
-  @optional_fields ~w(title)a
+  # TODO: @required_fields ~w(title raw)a
+  @required_fields ~w(title raw)a
+  @optional_fields ~w(logo)a
 
   @doc false
   def changeset(%Thread{} = thread, attrs) do

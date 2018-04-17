@@ -91,8 +91,8 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
   describe "[mutation cms community]" do
     @create_community_query """
-    mutation($title: String!, $desc: String!) {
-      createCommunity(title: $title, desc: $desc) {
+    mutation($title: String!, $desc: String!, $logo: String!, $raw: String!, $category: String!) {
+      createCommunity(title: $title, desc: $desc, logo: $logo, raw: $raw, category: $category) {
         id
         title
         desc
@@ -122,13 +122,17 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       assert rule_conn |> mutation_get_error?(@create_community_query, variables)
     end
 
+    @tag :wip
     test "creator of community should be add to userContributes and communityContributes" do
       variables = mock_attrs(:community)
       rule_conn = simu_conn(:user, cms: %{"community.create" => true})
 
+      IO.inspect(variables, label: "hello variables")
+
       created_community =
         rule_conn |> mutation_result(@create_community_query, variables, "createCommunity")
 
+      IO.inspect(created_community, label: "hello")
       author = created_community["author"]
 
       {:ok, found_community} = CMS.Community |> ORM.find(created_community["id"])
@@ -189,15 +193,16 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
   describe "[mutation cms thread]" do
     @query """
-    mutation($title: String!){
-      createThread(title: $title) {
+    mutation($title: String!, $raw: String!){
+      createThread(title: $title, raw: $raw) {
         title
       }
     }
     """
     test "auth user can create thread", ~m(user)a do
       title = "psot"
-      variables = ~m(title)a
+      raw = title
+      variables = ~m(title raw)a
 
       passport_rules = %{"thread.create" => true}
       rule_conn = simu_conn(:user, user, cms: passport_rules)
@@ -209,7 +214,8 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
     test "unauth user create thread fails", ~m(user_conn guest_conn)a do
       title = "psot"
-      variables = ~m(title)a
+      raw = title
+      variables = ~m(title raw)a
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@query, variables)
@@ -229,7 +235,8 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
     """
     test "auth user can add thread to community", ~m(user community)a do
       title = "psot"
-      {:ok, thread} = CMS.create_thread(~m(title)a)
+      raw = title
+      {:ok, thread} = CMS.create_thread(~m(title raw)a)
       variables = %{threadId: thread.id, communityId: community.id}
 
       passport_rules = %{community.title => %{"thread.add" => true}}

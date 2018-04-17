@@ -11,8 +11,9 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
     field :create_community, :community do
       arg(:title, non_null(:string))
       arg(:desc, non_null(:string))
-      # TODO
-      # arg(:category, non_null(:string))
+      arg(:raw, non_null(:string))
+      arg(:logo, non_null(:string))
+      arg(:category, non_null(:string))
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->community.create")
@@ -35,6 +36,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
     @desc "create independent thread"
     field :create_thread, :thread do
       arg(:title, non_null(:string))
+      arg(:raw, non_null(:string))
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->thread.create")
