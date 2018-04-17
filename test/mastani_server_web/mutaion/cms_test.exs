@@ -122,17 +122,13 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       assert rule_conn |> mutation_get_error?(@create_community_query, variables)
     end
 
-    @tag :wip
     test "creator of community should be add to userContributes and communityContributes" do
       variables = mock_attrs(:community)
       rule_conn = simu_conn(:user, cms: %{"community.create" => true})
 
-      IO.inspect(variables, label: "hello variables")
-
       created_community =
         rule_conn |> mutation_result(@create_community_query, variables, "createCommunity")
 
-      IO.inspect(created_community, label: "hello")
       author = created_community["author"]
 
       {:ok, found_community} = CMS.Community |> ORM.find(created_community["id"])
