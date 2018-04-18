@@ -64,7 +64,7 @@ defmodule MastaniServer.Statistics do
   def list_contributes_digest(%Community{id: id}) do
     %Community{id: id}
     |> get_contributes()
-    |> to_counts_list(days: @community_contribute_days)
+    |> to_counts_digest(days: @community_contribute_days)
     |> done
   end
 
@@ -89,18 +89,24 @@ defmodule MastaniServer.Statistics do
     end)
   end
 
-  defp to_counts_list(data, days: count) do
-    # 如果 7 天都有 count, 不用计算直接 filter 返回
-    today = Timex.today() |> Date.to_erl()
-    result = repeat(abs(count) + 1, 0) |> List.to_tuple()
+  defp to_counts_digest(data, days: count) do
+    # 如果 7 天都有 count, 不用计算直接 map 返回
+    case length(data) == @community_contribute_days + 1 do
+      true ->
+        Enum.map(data, & &1.count)
 
-    Enum.reduce(data, result, fn record, acc ->
-      diff = Timex.diff(Timex.to_date(record.date), today, :days)
-      index = diff + abs(count)
+      false ->
+        today = Timex.today() |> Date.to_erl()
+        result = repeat(abs(count) + 1, 0) |> List.to_tuple()
 
-      put_elem(acc, index, record.count)
-    end)
-    |> Tuple.to_list()
+        Enum.reduce(data, result, fn record, acc ->
+          diff = Timex.diff(Timex.to_date(record.date), today, :days)
+          index = diff + abs(count)
+
+          put_elem(acc, index, record.count)
+        end)
+        |> Tuple.to_list()
+    end
   end
 
   defp convert_date(date) do
