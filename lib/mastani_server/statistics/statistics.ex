@@ -51,27 +51,32 @@ defmodule MastaniServer.Statistics do
     |> QueryBuilder.recent_inserted(mounths: @user_contribute_months)
     |> select([c], %{date: c.date, count: c.count})
     |> Repo.all()
-    |> to_contribute_map(:user)
+    |> to_contribute_map()
     |> done
   end
 
   def list_contributes(%Community{id: id}) do
+    %Community{id: id}
+    |> get_contributes()
+    |> done
+  end
+
+  def list_contributes_digest(%Community{id: id}) do
+    %Community{id: id}
+    |> get_contributes()
+    |> to_counts_list(days: @community_contribute_days)
+    |> done
+  end
+
+  defp get_contributes(%Community{id: id}) do
     community_id = tobe_integer(id)
-    # TODO: recent_inserted should be configable
+
     "community_contributes"
     |> where([c], c.community_id == ^community_id)
     |> QueryBuilder.recent_inserted(days: @community_contribute_days)
     |> select([c], %{date: c.date, count: c.count})
     |> Repo.all()
-    |> to_contribute_map
-    |> done
-  end
-
-  defp to_contribute_map(data, :user) do
-    data
-    |> Enum.map(fn %{count: count, date: date} ->
-      %{date: convert_date(date), count: count}
-    end)
+    |> to_contribute_map()
   end
 
   defp to_contribute_map(data) do
@@ -79,8 +84,7 @@ defmodule MastaniServer.Statistics do
     |> Enum.map(fn %{count: count, date: date} ->
       %{
         date: convert_date(date),
-        count: count,
-        couts_array: to_counts_list(data, days: @community_contribute_days)
+        count: count
       }
     end)
   end

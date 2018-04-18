@@ -118,7 +118,6 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   object :contribute do
     field(:date, :date)
     field(:count, :integer)
-    field(:couts_array, list_of(:integer))
   end
 
   object :community do
@@ -184,6 +183,11 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field :recent_contributes, list_of(:contribute) do
       # TODO add complex here to warning N+1 problem
       resolve(&Resolvers.Statistics.list_contributes/3)
+    end
+
+    field :recent_contributes_digest, list_of(:integer) do
+      # TODO add complex here to warning N+1 problem
+      resolve(&Resolvers.Statistics.list_contributes_digest/3)
     end
   end
 
