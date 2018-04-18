@@ -89,17 +89,17 @@ defmodule MastaniServer.Statistics do
     end)
   end
 
-  defp to_counts_digest(data, days: count) do
+  defp to_counts_digest(record, days: count) do
     # 如果 7 天都有 count, 不用计算直接 map 返回
-    case length(data) == @community_contribute_days + 1 do
+    case length(record) == @community_contribute_days + 1 do
       true ->
-        Enum.map(data, & &1.count)
+        Enum.map(record, & &1.count)
 
       false ->
         today = Timex.today() |> Date.to_erl()
         result = repeat(abs(count) + 1, 0) |> List.to_tuple()
 
-        Enum.reduce(data, result, fn record, acc ->
+        Enum.reduce(record, result, fn record, acc ->
           diff = Timex.diff(Timex.to_date(record.date), today, :days)
           index = diff + abs(count)
 
