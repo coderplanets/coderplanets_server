@@ -113,7 +113,8 @@ defmodule MastaniServer.Test.StatisticsTest do
       assert second.count == 2
     end
 
-    test "should return recent #{@community_contribute_days} days community contributes by default", ~m(community)a do
+    test "should return recent #{@community_contribute_days} days community contributes by default",
+         ~m(community)a do
       seven_days_ago = Timex.shift(Timex.today(), days: -@community_contribute_days)
       seven_more_days_ago = Timex.shift(seven_days_ago, days: -1)
 
