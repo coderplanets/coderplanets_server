@@ -7,8 +7,8 @@ defmodule MastaniServerWeb.Middleware.PageSizeProof do
 
   import Helper.Utils, only: [handle_absinthe_error: 2, get_config: 2]
 
-  @max_page_size get_config(:pagi, :page_size)
-  @inner_page_size get_config(:pagi, :inner_page_size)
+  @max_page_size get_config(:general, :page_size)
+  @inner_page_size get_config(:general, :inner_page_size)
 
   # 1. if has filter:first and filter:size -> makesure it not too large
   # 2. if not has filter: marge to default first: 5
@@ -16,6 +16,9 @@ defmodule MastaniServerWeb.Middleware.PageSizeProof do
   def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
 
   def call(resolution, _) do
+    # IO.inspect resolution.arguments, label: "resolution arguments"
+    # IO.inspect valid_size(resolution.arguments), label: "valid_size"
+
     case valid_size(resolution.arguments) do
       {:error, msg} ->
         resolution |> handle_absinthe_error(msg)
@@ -35,8 +38,6 @@ defmodule MastaniServerWeb.Middleware.PageSizeProof do
   end
 
   defp valid_size(%{filter: %{first: size}} = arg), do: do_size_check(size, arg)
-  # Scrivener default size is defined in mastani_server/repo.ex
-  # see tuts: https://www.dailydrip.com/topics/elixirsips/drips/phoenix-api-pagination-with-scrivener
   defp valid_size(%{filter: %{size: size}} = arg), do: do_size_check(size, arg)
 
   defp valid_size(arg), do: arg |> Map.merge(%{filter: %{first: @inner_page_size}})

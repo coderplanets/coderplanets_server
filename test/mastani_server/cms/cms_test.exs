@@ -77,7 +77,10 @@ defmodule MastaniServer.Test.CMSTest do
       community_args = %{
         title: "elixir community",
         desc: "function pragraming for everyone",
-        user_id: user.id
+        user_id: user.id,
+        raw: "elixir",
+        category: "编程语言",
+        logo: "http: ..."
       }
 
       assert {:error, _} = ORM.find_by(CMS.Community, title: "elixir community")

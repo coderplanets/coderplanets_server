@@ -4,8 +4,8 @@ defmodule MastaniServer.Test.AssertHelper do
 
   @endpoint MastaniServerWeb.Endpoint
 
-  @page_size get_config(:pagi, :page_size)
-  @inner_page_size get_config(:pagi, :inner_page_size)
+  @page_size get_config(:general, :page_size)
+  @inner_page_size get_config(:general, :inner_page_size)
 
   def non_exsit_id(), do: 15_982_398_614
   def inner_page_size(), do: @inner_page_size

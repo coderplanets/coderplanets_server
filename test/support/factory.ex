@@ -35,6 +35,15 @@ defmodule MastaniServer.Factory do
     %{role: "normal", user: mock(:user)}
   end
 
+  defp mock_meta(:communities_threads) do
+    %{community_id: 1, thread_id: 1}
+  end
+
+  defp mock_meta(:thread) do
+    unique_num = System.unique_integer([:positive, :monotonic])
+    %{title: "thread #{unique_num}", raw: "thread #{unique_num}"}
+  end
+
   defp mock_meta(:community) do
     unique_num = System.unique_integer([:positive, :monotonic])
     name = Faker.Lorem.sentence(%Range{first: 3, last: 4})
@@ -43,7 +52,7 @@ defmodule MastaniServer.Factory do
       title: "community #{name} #{unique_num}",
       desc: "community desc",
       raw: "community #{name} #{unique_num}",
-      logo: "http://fake.jpg",
+      logo: "https://coderplanets.oss-cn-beijing.aliyuncs.com/icons/pl/elixir.svg",
       category: "category #{unique_num}",
       author: mock(:user)
     }
@@ -97,6 +106,11 @@ defmodule MastaniServer.Factory do
   def mock_attrs(:author, attrs), do: mock_meta(:author) |> Map.merge(attrs)
   def mock_attrs(:post, attrs), do: mock_meta(:post) |> Map.merge(attrs)
   def mock_attrs(:community, attrs), do: mock_meta(:community) |> Map.merge(attrs)
+  def mock_attrs(:thread, attrs), do: mock_meta(:thread) |> Map.merge(attrs)
+
+  def mock_attrs(:communities_threads, attrs),
+    do: mock_meta(:communities_threads) |> Map.merge(attrs)
+
   def mock_attrs(:tag, attrs), do: mock_meta(:tag) |> Map.merge(attrs)
   def mock_attrs(:github_profile, attrs), do: mock_meta(:github_profile) |> Map.merge(attrs)
 
@@ -114,6 +128,10 @@ defmodule MastaniServer.Factory do
   defp mock(:tag), do: CMS.Tag |> struct(mock_meta(:tag))
   defp mock(:user), do: Accounts.User |> struct(mock_meta(:user))
   defp mock(:community), do: CMS.Community |> struct(mock_meta(:community))
+  defp mock(:thread), do: CMS.Thread |> struct(mock_meta(:thread))
+
+  defp mock(:communities_threads),
+    do: CMS.CommunityThread |> struct(mock_meta(:communities_threads))
 
   defp mock(factory_name, attributes) do
     factory_name |> mock() |> struct(attributes)

@@ -118,6 +118,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   object :contribute do
     field(:date, :date)
     field(:count, :integer)
+    field(:couts_array, list_of(:integer))
   end
 
   object :community do
@@ -126,6 +127,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:id, :id)
     field(:title, :string)
     field(:desc, :string)
+    field(:raw, :string)
+    field(:logo, :string)
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
     field(:author, :user, resolve: dataloader(CMS, :author))

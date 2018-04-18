@@ -1,6 +1,10 @@
 defmodule MastaniServerWeb.Schema.CMS.Misc do
   use Absinthe.Schema.Notation
+  import Helper.Utils, only: [get_config: 2]
+
   alias MastaniServer.CMS
+
+  @max_page_size get_config(:general, :page_size)
 
   enum :community_part_enum do
     value(:post)
@@ -88,19 +92,19 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
 
   @desc "inline members-like filter for dataloader usage"
   input_object :members_filter do
-    field(:first, :integer, default_value: 20)
+    field(:first, :integer, default_value: @max_page_size)
   end
 
   input_object :paged_filter do
     @desc "limit of records (default 20), if first > 30, only return 30 at most"
     field(:page, :integer, default_value: 1)
-    field(:size, :integer, default_value: 20)
+    field(:size, :integer, default_value: @max_page_size)
   end
 
   @desc "article_filter doc"
   input_object :article_filter do
     @desc "limit of records (default 20), if first > 30, only return 30 at most"
-    field(:first, :integer, default_value: 20)
+    field(:first, :integer, default_value: @max_page_size)
 
     @desc "Matching a tag"
     field(:tag, :string, default_value: :all)

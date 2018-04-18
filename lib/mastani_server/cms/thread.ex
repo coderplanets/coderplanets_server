@@ -3,7 +3,7 @@ defmodule MastaniServer.CMS.Thread do
   import Ecto.Changeset
   alias MastaniServer.CMS.{Thread}
 
-  schema "community_threads" do
+  schema "threads" do
     field(:title, :string)
     field(:raw, :string)
     field(:logo, :string)
@@ -20,8 +20,10 @@ defmodule MastaniServer.CMS.Thread do
     thread
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
-    # TODO
-    # |> validate_inclusion(:title, Certification.editor_titles(:cms))
+    |> validate_length(:title, min: 2, max: 20)
+    |> validate_length(:raw, min: 2, max: 20)
     |> unique_constraint(:title)
+
+    # |> unique_constraint(:raw)
   end
 end

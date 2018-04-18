@@ -1,9 +1,8 @@
 defmodule MastaniServerWeb.Resolvers.CMS do
   import ShortMaps
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1]
 
-  alias MastaniServer.{CMS, Accounts, Repo}
+  alias MastaniServer.{CMS, Accounts}
   alias Helper.ORM
 
   def post(_root, %{id: id}, _info), do: CMS.Post |> ORM.read(id, inc: :views)

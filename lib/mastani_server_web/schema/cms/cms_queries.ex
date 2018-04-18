@@ -12,10 +12,11 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
     end
 
     field :communities, :paged_communities do
-      arg(:filter, :paged_filter)
+      arg(:filter, non_null(:paged_filter))
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.communities/3)
+      middleware(M.FormatPagination)
     end
 
     @desc "paged subscribers of a community"

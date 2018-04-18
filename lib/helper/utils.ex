@@ -8,7 +8,6 @@ defmodule Helper.Utils do
   @doc """
   handle General {:ok, ..} or {:error, ..} return
   """
-
   def done(nil, :boolean), do: {:ok, false}
   def done(_, :boolean), do: {:ok, true}
   def done(nil, err_msg), do: {:error, err_msg}
@@ -48,6 +47,9 @@ defmodule Helper.Utils do
       do: val,
       else: val |> String.to_integer()
   end
+
+  def repeat(times, [x]) when is_integer(x), do: to_string(for _ <- 1..times, do: x)
+  def repeat(times, x), do: for(_ <- 1..times, do: x)
 
   # Key exists in both maps, and both values are maps as well.
   # These can be merged recursively.

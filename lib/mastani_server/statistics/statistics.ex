@@ -3,13 +3,16 @@ defmodule MastaniServer.Statistics do
   The Statistics context.
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, tobe_integer: 1]
+  import Helper.Utils
 
   alias MastaniServer.Repo
   alias MastaniServer.Accounts.User
   alias MastaniServer.CMS.Community
   alias MastaniServer.Statistics.{UserContributes, CommunityContributes}
   alias Helper.{ORM, QueryBuilder}
+
+  @community_contribute_days get_config(:general, :community_contribute_days)
+  @user_contribute_months get_config(:general, :user_contribute_months)
 
   def make_contribute(%Community{id: id}) do
     today = Timex.today() |> Date.to_iso8601()
@@ -45,28 +48,55 @@ defmodule MastaniServer.Statistics do
 
     "user_contributes"
     |> where([c], c.user_id == ^user_id)
-    |> QueryBuilder.recent_inserted(mounths: 6)
+    |> QueryBuilder.recent_inserted(mounths: @user_contribute_months)
     |> select([c], %{date: c.date, count: c.count})
     |> Repo.all()
-    |> to_contribute_map
+    |> to_contribute_map(:user)
     |> done
   end
 
   def list_contributes(%Community{id: id}) do
     community_id = tobe_integer(id)
-
+    # TODO: recent_inserted should be configable
     "community_contributes"
     |> where([c], c.community_id == ^community_id)
-    |> QueryBuilder.recent_inserted(days: 7)
+    |> QueryBuilder.recent_inserted(days: @community_contribute_days)
     |> select([c], %{date: c.date, count: c.count})
     |> Repo.all()
     |> to_contribute_map
     |> done
   end
 
+  defp to_contribute_map(data, :user) do
+    data
+    |> Enum.map(fn %{count: count, date: date} ->
+      %{date: convert_date(date), count: count}
+    end)
+  end
+
   defp to_contribute_map(data) do
     data
-    |> Enum.map(fn %{count: count, date: date} -> %{date: convert_date(date), count: count} end)
+    |> Enum.map(fn %{count: count, date: date} ->
+      %{
+        date: convert_date(date),
+        count: count,
+        couts_array: to_counts_list(data, days: @community_contribute_days)
+      }
+    end)
+  end
+
+  defp to_counts_list(data, days: count) do
+    # 如果 7 天都有 count, 不用计算直接 filter 返回
+    today = Timex.today() |> Date.to_erl()
+    result = repeat(abs(count) + 1, 0) |> List.to_tuple()
+
+    Enum.reduce(data, result, fn record, acc ->
+      diff = Timex.diff(Timex.to_date(record.date), today, :days)
+      index = diff + abs(count)
+
+      put_elem(acc, index, record.count)
+    end)
+    |> Tuple.to_list()
   end
 
   defp convert_date(date) do

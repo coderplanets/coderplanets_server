@@ -3,9 +3,12 @@ defmodule MastaniServer.Test.StatisticsTest do
 
   import MastaniServer.Factory
   import ShortMaps
+  import Helper.Utils, only: [get_config: 2]
 
   alias MastaniServer.{Repo, Accounts, CMS, Statistics}
   alias Helper.ORM
+
+  @community_contribute_days get_config(:general, :community_contribute_days)
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -110,8 +113,8 @@ defmodule MastaniServer.Test.StatisticsTest do
       assert second.count == 2
     end
 
-    test "should return recent 7 days community contributes by default", ~m(community)a do
-      seven_days_ago = Timex.shift(Timex.today(), days: -7)
+    test "should return recent #{@community_contribute_days} days community contributes by default", ~m(community)a do
+      seven_days_ago = Timex.shift(Timex.today(), days: -@community_contribute_days)
       seven_more_days_ago = Timex.shift(seven_days_ago, days: -1)
 
       Repo.insert_all(Statistics.CommunityContributes, [
