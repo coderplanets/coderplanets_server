@@ -119,7 +119,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
     # end
 
     @desc "subscribe a community so it can appear in sidebar"
-    field :subscribe_community, :community_subscriber do
+    field :subscribe_community, :community do
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
@@ -127,7 +127,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
     end
 
     @desc "unsubscribe a community"
-    field :unsubscribe_community, :community_subscriber do
+    field :unsubscribe_community, :community do
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)

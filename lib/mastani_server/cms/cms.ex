@@ -207,11 +207,16 @@ defmodule MastaniServer.CMS do
   subscribe a community. (ONLY community, post etc use watch )
   """
   def subscribe_community(%Accounts.User{id: user_id}, %Community{id: community_id}) do
-    CommunitySubscriber |> ORM.create(~m(user_id community_id)a)
+    with {:ok, record} <- CommunitySubscriber |> ORM.create(~m(user_id community_id)a) do
+      Community |> ORM.find(record.community_id)
+    end
   end
 
   def unsubscribe_community(%Accounts.User{id: user_id}, %Community{id: community_id}) do
-    CommunitySubscriber |> ORM.findby_delete(community_id: community_id, user_id: user_id)
+    with {:ok, record} <-
+           CommunitySubscriber |> ORM.findby_delete(community_id: community_id, user_id: user_id) do
+      Community |> ORM.find(record.community_id)
+    end
   end
 
   @doc """

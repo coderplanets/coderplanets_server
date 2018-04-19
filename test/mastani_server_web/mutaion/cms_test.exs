@@ -337,8 +337,10 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
     @subscribe_query """
     mutation($communityId: ID!){
       subscribeCommunity(communityId: $communityId) {
-        userId
-        communityId
+        id
+        subscribers {
+          id
+        }
       }
     }
     """
@@ -348,8 +350,8 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       variables = %{communityId: community.id}
       created = login_conn |> mutation_result(@subscribe_query, variables, "subscribeCommunity")
 
-      assert created["communityId"] == to_string(community.id)
-      assert created["userId"] == to_string(user.id)
+      assert created["id"] == to_string(community.id)
+      assert created["subscribers"] |> Enum.any?(&(&1["id"] == to_string(user.id)))
     end
 
     test "login user subscribe non-exsit community fails", ~m(user)a do
@@ -369,8 +371,9 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
     mutation($communityId: ID!){
       unsubscribeCommunity(communityId: $communityId) {
         id
-        userId
-        communityId
+        subscribers {
+          id
+        }
       }
     }
     """
@@ -380,7 +383,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
       assert false == cur_subscribers.entries |> Enum.any?(&(&1.id == user.id))
 
-      {:ok, subscriber} =
+      {:ok, record} =
         CMS.subscribe_community(%Accounts.User{id: user.id}, %CMS.Community{id: community.id})
 
       {:ok, cur_subscribers} =
@@ -398,7 +401,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       {:ok, cur_subscribers} =
         CMS.community_members(:subscribers, %CMS.Community{id: community.id}, %{page: 1, size: 10})
 
-      assert result["id"] == to_string(subscriber.id)
+      assert result["id"] == to_string(record.id)
       assert false == cur_subscribers.entries |> Enum.any?(&(&1.id == user.id))
     end
 
