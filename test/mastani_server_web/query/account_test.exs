@@ -84,8 +84,8 @@ defmodule MastaniServer.Test.Query.AccountTest do
     end
 
     @query """
-    query subscriedCommunities($id: ID!, $filter: PagedFilter!) {
-      subscriedCommunities(id: $id, filter: $filter) {
+    query subscribedCommunities($userId: ID!, $filter: PagedFilter!) {
+      subscribedCommunities(userId: $userId, filter: $filter) {
         entries {
           title
         }
@@ -104,8 +104,8 @@ defmodule MastaniServer.Test.Query.AccountTest do
         &CMS.subscribe_community(%Accounts.User{id: user.id}, %CMS.Community{id: &1.id})
       )
 
-      variables = %{id: user.id, filter: %{page: 1, size: 10}}
-      results = guest_conn |> query_result(@query, variables, "subscriedCommunities")
+      variables = %{userId: user.id, filter: %{page: 1, size: 10}}
+      results = guest_conn |> query_result(@query, variables, "subscribedCommunities")
 
       assert results |> is_valid_pagination?
     end

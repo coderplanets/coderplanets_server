@@ -173,11 +173,10 @@ defmodule MastaniServer.Test.CMSTest do
 
   describe "[cms community subscribe]" do
     test "user can subscribe a community", ~m(user community)a do
-      {:ok, subscriber} =
+      {:ok, record} =
         CMS.subscribe_community(%Accounts.User{id: user.id}, %CMS.Community{id: community.id})
 
-      assert user.id == subscriber.user_id
-      assert community.id == subscriber.community_id
+      assert community.id == record.id
     end
 
     test "user can get paged-subscribers of a community", ~m(community)a do

@@ -31,7 +31,7 @@ defmodule MastaniServer.Accounts do
     end
   end
 
-  def subscried_communities(%User{id: id}, %{page: page, size: size} = filter) do
+  def subscribed_communities(%User{id: id}, %{page: page, size: size} = filter) do
     CMS.CommunitySubscriber
     |> where([c], c.user_id == ^id)
     |> join(:inner, [c], cc in assoc(c, :community))
