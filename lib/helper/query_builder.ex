@@ -43,7 +43,7 @@ defmodule Helper.QueryBuilder do
   @doc """
   inserted in latest x mounth
   """
-  def recent_inserted(queryable, mounths: count) do
+  def recent_inserted(queryable, months: count) do
     end_of_today = Timex.now() |> Timex.end_of_day()
     x_months_ago = Timex.shift(Timex.today(), months: -count) |> Timex.to_datetime()
 

@@ -1,21 +1,29 @@
 import MastaniServer.Factory
 
-communities = ["js", "java", "nodejs", "elixir", "c", "python", "ruby", "lisp"]
-threads = ["posts", "tuts", "users", "map", "videos", "news", "cheatsheet", "jobs"]
+alias Helper.ORM
+alias MastaniServer.CMS
 
-thread_ids =
-  Enum.reduce(1..length(threads), [], fn cnt, acc ->
-    IO.inspect(cnt, label: "cnt")
+# communities = ["js", "java", "nodejs", "elixir", "c", "python", "ruby", "lisp"]
+# communities = ["php", "julia", "rust", "cpp", "csharp", "clojure", "dart", "go", "kotlin"]
+communities = ["scala", "haskell", "swift", "typescript", "lua", "racket"]
+# threads = ["posts", "tuts", "users", "map", "videos", "news", "cheatsheet", "jobs"]
 
-    {:ok, thread} =
-      db_insert(:thread, %{
-        title: threads |> Enum.at(cnt - 1),
-        raw: threads |> Enum.at(cnt - 1)
-      })
+{:ok, threads} = ORM.find_all(CMS.Thread, %{page: 1, size: 30})
+thread_ids = threads.entries |> Enum.map(& &1.id)
 
-    acc ++ [thread]
-  end)
-  |> Enum.map(& &1.id)
+# thread_ids =
+# Enum.reduce(1..length(threads), [], fn cnt, acc ->
+# IO.inspect(cnt, label: "cnt")
+
+# {:ok, thread} =
+# db_insert(:thread, %{
+# title: threads |> Enum.at(cnt - 1),
+# raw: threads |> Enum.at(cnt - 1)
+# })
+
+# acc ++ [thread]
+# end)
+# |> Enum.map(& &1.id)
 
 Enum.each(communities, fn c ->
   {:ok, community} =

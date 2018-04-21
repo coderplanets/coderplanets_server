@@ -19,14 +19,19 @@ defmodule MastaniServer.Test.StatisticsTest do
 
   describe "[statistics user_contributes] " do
     test "list_contributes return empty list when theres no records", ~m(user)a do
-      assert {:ok, []} == Statistics.list_contributes(%Accounts.User{id: user.id})
+      {:ok, contributes} = Statistics.list_contributes(%Accounts.User{id: user.id})
+      assert contributes.records == []
+      assert contributes.total_count == 0
     end
 
     test "list_contributes return proper format ", ~m(user)a do
       Statistics.make_contribute(%Accounts.User{id: user.id})
       {:ok, contributes} = Statistics.list_contributes(%Accounts.User{id: user.id})
       # contributes[0]
-      assert [:count, :date] == contributes |> List.first() |> Map.keys()
+      assert contributes |> Map.has_key?(:start_date)
+      assert contributes |> Map.has_key?(:end_date)
+      assert contributes |> Map.has_key?(:total_count)
+      assert [:count, :date] == contributes.records |> List.first() |> Map.keys()
     end
 
     test "should return recent 6 month contributes of a user by default", ~m(user)a do
@@ -51,7 +56,7 @@ defmodule MastaniServer.Test.StatisticsTest do
       ])
 
       {:ok, contributes} = Statistics.list_contributes(%Accounts.User{id: user.id})
-      assert length(contributes) == 1
+      assert length(contributes.records) == 1
     end
 
     test "should inserted a contribute when the user not contribute before", ~m(user)a do

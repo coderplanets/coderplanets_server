@@ -4,6 +4,7 @@ defmodule MastaniServer.Statistics do
   """
   import Ecto.Query, warn: false
   import Helper.Utils
+  import ShortMaps
 
   alias MastaniServer.Repo
   alias MastaniServer.Accounts.User
@@ -48,10 +49,10 @@ defmodule MastaniServer.Statistics do
 
     "user_contributes"
     |> where([c], c.user_id == ^user_id)
-    |> QueryBuilder.recent_inserted(mounths: @user_contribute_months)
+    |> QueryBuilder.recent_inserted(months: @user_contribute_months)
     |> select([c], %{date: c.date, count: c.count})
     |> Repo.all()
-    |> to_contribute_map()
+    |> to_contrubutes_map()
     |> done
   end
 
@@ -76,10 +77,20 @@ defmodule MastaniServer.Statistics do
     |> QueryBuilder.recent_inserted(days: @community_contribute_days)
     |> select([c], %{date: c.date, count: c.count})
     |> Repo.all()
-    |> to_contribute_map()
+    |> to_contribute_records()
   end
 
-  defp to_contribute_map(data) do
+  defp to_contrubutes_map(data) do
+    end_date = Timex.today()
+    start_date = Timex.shift(Timex.today(), months: -6)
+    total_count = Enum.reduce(data, 0, &(&1.count + &2))
+
+    records = to_contribute_records(data)
+
+    ~m(start_date end_date total_count records)a
+  end
+
+  defp to_contribute_records(data) do
     data
     |> Enum.map(fn %{count: count, date: date} ->
       %{

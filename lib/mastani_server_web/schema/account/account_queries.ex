@@ -23,6 +23,13 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
       resolve(&Resolvers.Accounts.user/3)
     end
 
+    @desc "get login-user's info"
+    field :account, :user do
+      middleware(M.Authorize, :login)
+
+      resolve(&Resolvers.Accounts.account/3)
+    end
+
     @desc "anyone can get anyone's subscribed communities"
     field :subscribed_communities, :paged_communities do
       arg(:user_id, non_null(:id))

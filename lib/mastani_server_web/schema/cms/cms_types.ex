@@ -114,6 +114,13 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:count, :integer)
   end
 
+  object :contribute_map do
+    field(:start_date, :date)
+    field(:end_date, :date)
+    field(:total_count, :integer)
+    field(:records, list_of(:contribute))
+  end
+
   object :community do
     meta(:cache, max_age: 30)
 
@@ -174,12 +181,12 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       middleware(M.ConvertToInt)
     end
 
-    field :recent_contributes, list_of(:contribute) do
+    field :contributes, list_of(:contribute) do
       # TODO add complex here to warning N+1 problem
       resolve(&Resolvers.Statistics.list_contributes/3)
     end
 
-    field :recent_contributes_digest, list_of(:integer) do
+    field :contributes_digest, list_of(:integer) do
       # TODO add complex here to warning N+1 problem
       resolve(&Resolvers.Statistics.list_contributes_digest/3)
     end
