@@ -1,12 +1,16 @@
 defmodule MastaniServer.Test.Query.AccountTest do
   # use MastaniServer.DataCase
   use MastaniServerWeb.ConnCase, async: true
+
+  import Helper.Utils, only: [get_config: 2]
   import MastaniServer.Factory
   import MastaniServer.Test.ConnSimulator
   import MastaniServer.Test.AssertHelper
   import ShortMaps
 
   alias MastaniServer.{Accounts, CMS}
+
+  @default_subscribed_communities get_config(:general, :default_subscribed_communities)
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -84,7 +88,30 @@ defmodule MastaniServer.Test.Query.AccountTest do
     end
 
     @query """
-    query subscribedCommunities($userId: ID!, $filter: PagedFilter!) {
+    query subscribedCommunities($filter: PagedFilter!) {
+      subscribedCommunities(filter: $filter) {
+        entries {
+          title
+        }
+        totalCount
+        totalPages
+        pageSize
+        pageNumber
+      }
+    }
+    """
+    test "gest user can get paged default subscrubed communities", ~m(guest_conn)a do
+      {:ok, _} = db_insert_multi(:community, 25)
+
+      variables = %{filter: %{page: 1, size: 10}}
+      results = guest_conn |> query_result(@query, variables, "subscribedCommunities")
+
+      assert results |> is_valid_pagination?
+      assert @default_subscribed_communities == results["pageSize"]
+    end
+
+    @query """
+    query subscribedCommunities($userId: String, $filter: PagedFilter!) {
       subscribedCommunities(userId: $userId, filter: $filter) {
         entries {
           title
@@ -96,18 +123,14 @@ defmodule MastaniServer.Test.Query.AccountTest do
       }
     }
     """
-    test "gest user can get paged subscrubed communities", ~m(guest_conn user)a do
-      {:ok, communities} = db_insert_multi(:community, 25)
+    test "gest user can get paged default subscrubed communities with empty args", ~m(guest_conn)a do
+      {:ok, _} = db_insert_multi(:community, 25)
 
-      Enum.each(
-        communities,
-        &CMS.subscribe_community(%Accounts.User{id: user.id}, %CMS.Community{id: &1.id})
-      )
-
-      variables = %{userId: user.id, filter: %{page: 1, size: 10}}
+      variables = %{userId: "", filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "subscribedCommunities")
 
       assert results |> is_valid_pagination?
+      assert @default_subscribed_communities == results["pageSize"]
     end
   end
 end

@@ -37,7 +37,9 @@ config :mastani_server, :general,
   inner_page_size: 20,
   # today is not include
   community_contribute_days: 7,
-  user_contribute_months: 6
+  user_contribute_months: 6,
+  default_subscribed_communities: 12
+
 
 import_config "#{Mix.env()}.exs"
 

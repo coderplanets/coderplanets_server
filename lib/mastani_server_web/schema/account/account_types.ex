@@ -41,7 +41,7 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
     field(:from_github, :boolean)
-    field(:github, :github_profile, resolve: dataloader(Accounts, :github_profile))
+    field(:github_profile, :github_profile, resolve: dataloader(Accounts, :github_profile))
 
     field :subscribed_communities, list_of(:community) do
       arg(:filter, :members_filter)

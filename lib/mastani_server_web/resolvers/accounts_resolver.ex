@@ -1,5 +1,5 @@
 defmodule MastaniServerWeb.Resolvers.Accounts do
-  import ShortMaps
+  # import ShortMaps
 
   alias MastaniServer.Accounts
   alias Helper.ORM
@@ -13,8 +13,16 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.github_signin(github_user)
   end
 
-  def subscribed_communities(_root, ~m(user_id filter)a, _info) do
+  def subscribed_communities(_root, %{user_id: "", filter: filter}, _info) do
+    Accounts.default_subscribed_communities(filter)
+  end
+
+  def subscribed_communities(_root, %{user_id: user_id, filter: filter}, _info) do
     Accounts.subscribed_communities(%Accounts.User{id: user_id}, filter)
+  end
+
+  def subscribed_communities(_root, %{filter: filter}, _info) do
+    Accounts.default_subscribed_communities(filter)
   end
 
   # def create_user(_root, args, %{context: %{cur_user: %{root: true}}}) do

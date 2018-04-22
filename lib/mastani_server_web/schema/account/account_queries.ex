@@ -32,7 +32,8 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
 
     @desc "anyone can get anyone's subscribed communities"
     field :subscribed_communities, :paged_communities do
-      arg(:user_id, non_null(:id))
+      # arg(:user_id, non_null(:id))
+      arg(:user_id, :id)
       arg(:filter, non_null(:paged_filter))
 
       middleware(M.PageSizeProof)

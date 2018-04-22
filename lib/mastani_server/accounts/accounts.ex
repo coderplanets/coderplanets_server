@@ -1,6 +1,6 @@
 defmodule MastaniServer.Accounts do
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1]
+  import Helper.Utils, only: [done: 1, get_config: 2]
 
   alias MastaniServer.Repo
   alias Ecto.Multi
@@ -8,6 +8,8 @@ defmodule MastaniServer.Accounts do
   alias MastaniServer.CMS
   alias MastaniServer.Accounts.{User, GithubUser}
   alias Helper.{ORM, Guardian, QueryBuilder}
+
+  @default_subscribed_communities get_config(:general, :default_subscribed_communities)
 
   @doc """
   github_signin steps:
@@ -31,7 +33,13 @@ defmodule MastaniServer.Accounts do
     end
   end
 
+  def default_subscribed_communities(%{page: _, size: _} = filter) do
+    filter = Map.merge(filter, %{size: @default_subscribed_communities})
+    CMS.Community |> ORM.find_all(filter)
+  end
+
   def subscribed_communities(%User{id: id}, %{page: page, size: size} = filter) do
+    IO.inspect "the fuck ..."
     CMS.CommunitySubscriber
     |> where([c], c.user_id == ^id)
     |> join(:inner, [c], cc in assoc(c, :community))
