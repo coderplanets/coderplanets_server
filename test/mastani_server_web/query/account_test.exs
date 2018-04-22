@@ -123,7 +123,8 @@ defmodule MastaniServer.Test.Query.AccountTest do
       }
     }
     """
-    test "gest user can get paged default subscrubed communities with empty args", ~m(guest_conn)a do
+    test "gest user can get paged default subscrubed communities with empty args",
+         ~m(guest_conn)a do
       {:ok, _} = db_insert_multi(:community, 25)
 
       variables = %{userId: "", filter: %{page: 1, size: 10}}

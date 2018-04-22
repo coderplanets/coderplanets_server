@@ -40,7 +40,6 @@ config :mastani_server, :general,
   user_contribute_months: 6,
   default_subscribed_communities: 12
 
-
 import_config "#{Mix.env()}.exs"
 
 if File.exists?("config/#{Mix.env()}.secret.exs") do
