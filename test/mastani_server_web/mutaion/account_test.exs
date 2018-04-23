@@ -29,11 +29,13 @@ defmodule MastaniServer.Test.Mutation.AccountTest do
     """
     test "user can update it's own profile", ~m(user)a do
       ownd_conn = simu_conn(:user, user)
+
       variables = %{
         profile: %{
           nickname: "new nickname"
         }
       }
+
       updated = ownd_conn |> mutation_result(@update_query, variables, "updateProfile")
 
       assert updated["nickname"] == "new nickname"
@@ -45,6 +47,7 @@ defmodule MastaniServer.Test.Mutation.AccountTest do
           nickname: "new nickname"
         }
       }
+
       assert guest_conn |> mutation_get_error?(@update_query, variables)
     end
   end

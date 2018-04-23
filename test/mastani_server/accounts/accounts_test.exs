@@ -23,8 +23,9 @@ defmodule MastaniServer.Test.AccountsTest do
         company: "at home",
         qq: "8384384483",
         weibo: "8384",
-        weichat: "8384",
+        weichat: "8384"
       }
+
       {:ok, updated} = Accounts.update_profile(%Accounts.User{id: user.id}, attrs)
 
       assert updated.bio == attrs.bio
