@@ -19,7 +19,6 @@ defmodule MastaniServer.Accounts do
       end
     end
   end
-
   @doc """
   github_signin steps:
   ------------------
@@ -90,6 +89,9 @@ defmodule MastaniServer.Accounts do
       nickname: user["login"],
       avatar: user["avatar_url"],
       bio: user["bio"],
+      location: user["location"],
+      email: user["email"],
+      company: user["company"],
       from_github: true
     }
 

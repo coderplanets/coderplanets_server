@@ -59,6 +59,10 @@ defmodule MastaniServer.Test.AccountsTest do
       assert created_user.nickname == @valid_github_profile["login"]
       assert created_user.avatar == @valid_github_profile["avatar_url"]
       assert created_user.bio == @valid_github_profile["bio"]
+
+      assert created_user.email == @valid_github_profile["email"]
+      assert created_user.company == @valid_github_profile["company"]
+      assert created_user.location == @valid_github_profile["location"]
       assert created_user.from_github == true
 
       {:ok, g_user} =
