@@ -9,6 +9,11 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   def account(_root, _args, %{context: %{cur_user: cur_user}}),
     do: Accounts.User |> ORM.find(cur_user.id)
 
+  def update_profile(_root, %{profile: profile}, %{context: %{cur_user: cur_user}}) do
+    IO.inspect(profile, label: "update_profile")
+    Accounts.update_profile(%Accounts.User{id: cur_user.id}, profile)
+  end
+
   def github_signin(_root, %{github_user: github_user}, _info) do
     Accounts.github_signin(github_user)
   end

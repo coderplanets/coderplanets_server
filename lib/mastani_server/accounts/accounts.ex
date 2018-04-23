@@ -11,6 +11,14 @@ defmodule MastaniServer.Accounts do
 
   @default_subscribed_communities get_config(:general, :default_subscribed_communities)
 
+  def update_profile(%User{id: id}, attrs \\ %{}) do
+    with {:ok, user} <- ORM.find(User, id) do
+      case user.id === id do
+        true -> user |> ORM.update(attrs)
+        false -> {:error, "Error: not qualified"}
+      end
+    end
+  end
   @doc """
   github_signin steps:
   ------------------

@@ -11,6 +11,37 @@ defmodule MastaniServer.Test.AccountsTest do
   # @valid_user mock_attrs(:user)
   @valid_github_profile mock_attrs(:github_profile) |> map_key_stringify
 
+  describe "[update user]" do
+    test "update user with valid attrs" do
+      {:ok, user} = db_insert(:user)
+      # IO.inspect user, label: "update user"
+      attrs = %{
+        nickname: "new nickname",
+        sex: "dude",
+        bio: "new bio",
+        email: "new@qq.com",
+        company: "at home",
+        qq: "8384384483",
+        weibo: "8384",
+        weichat: "8384",
+      }
+      {:ok, updated} = Accounts.update_profile(%Accounts.User{id: user.id}, attrs)
+
+      assert updated.bio == attrs.bio
+      assert updated.nickname == attrs.nickname
+      assert updated.sex == attrs.sex
+    end
+
+    test "update user with invalid attrs fails" do
+      {:ok, user} = db_insert(:user)
+
+      assert {:error, _} = Accounts.update_profile(%Accounts.User{id: user.id}, %{qq: "123"})
+      assert {:error, _} = Accounts.update_profile(%Accounts.User{id: user.id}, %{sex: "other"})
+      assert {:error, _} = Accounts.update_profile(%Accounts.User{id: user.id}, %{email: "other"})
+      # ...TODO
+    end
+  end
+
   describe "[github login]" do
     test "register a valid github user with non-exist in db" do
       assert {:error, _} =

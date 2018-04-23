@@ -3,7 +3,7 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
   use Absinthe.Ecto, repo: MastaniServerWeb.Repo
 
   alias MastaniServerWeb.Resolvers
-  alias MastaniServerWeb.Middleware
+  alias MastaniServerWeb.Middleware, as: M
 
   object :account_mutations do
     # @desc "hehehef: create a user"
@@ -16,11 +16,19 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
     # resolve(&Resolvers.Accounts.create_user/3)
     # end
 
+    @desc "update user's profile"
+    field :update_profile, :user do
+      arg(:profile, non_null(:user_profile_input))
+      middleware(M.Authorize, :login)
+
+      resolve(&Resolvers.Accounts.update_profile/3)
+    end
+
     field :github_signin, :token_info do
       arg(:code, non_null(:string))
       # arg(:profile, non_null(:github_profile_input))
 
-      middleware(Middleware.GithubUser)
+      middleware(M.GithubUser)
       resolve(&Resolvers.Accounts.github_signin/3)
     end
   end

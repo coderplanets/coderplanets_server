@@ -18,4 +18,17 @@ defmodule MastaniServerWeb.Schema.Account.Misc do
     field(:public_repos, :integer)
     field(:public_gists, :integer)
   end
+
+  input_object :user_profile_input do
+    field(:nickname, :string)
+    field(:bio, :string)
+    field(:sex, :string)
+    field(:education, :string)
+    field(:location, :string)
+    field(:company, :string)
+    field(:email, :string)
+    field(:qq, :string)
+    field(:weibo, :string)
+    field(:weichat, :string)
+  end
 end
