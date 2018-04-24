@@ -40,6 +40,8 @@ config :mastani_server, :general,
   user_contribute_months: 6,
   default_subscribed_communities: 12
 
+config :mastani_server, MastaniServerWeb.Gettext, default_locale: "zh_CN", locales: ~w(en zh_CN)
+
 import_config "#{Mix.env()}.exs"
 
 if File.exists?("config/#{Mix.env()}.secret.exs") do

@@ -4,6 +4,7 @@ defmodule Helper.ORM do
   """
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1, done: 3]
+  import Helper.ErrorHandler
 
   alias MastaniServer.Repo
   alias Helper.QueryBuilder
@@ -142,23 +143,5 @@ defmodule Helper.ORM do
     |> QueryBuilder.filter_pack(filter)
     |> select([f], count(f.id))
     |> Repo.one()
-  end
-
-  defp not_found_formater(queryable, id) when is_integer(id) or is_binary(id) do
-    modal_sortname = queryable |> to_string |> String.split(".") |> List.last()
-    "#{modal_sortname}(#{id}) not found"
-  end
-
-  defp not_found_formater(queryable, clauses) do
-    modal_sortname = queryable |> to_string |> String.split(".") |> List.last()
-
-    detail =
-      clauses
-      |> Enum.into(%{})
-      |> Map.values()
-      |> List.first()
-      |> to_string
-
-    "#{modal_sortname}(#{detail}) not found"
   end
 end

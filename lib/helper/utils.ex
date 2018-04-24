@@ -1,5 +1,6 @@
 defmodule Helper.Utils do
   import Ecto.Query, warn: false
+  import Helper.ErrorHandler
 
   def get_config(section, key, app \\ :mastani_server) do
     Application.get_env(app, section) |> Keyword.get(key)
@@ -62,24 +63,5 @@ defmodule Helper.Utils do
   # the value on the right.
   defp deep_resolve(_key, _left, right) do
     right
-  end
-
-  # graphql treat id as string
-  defp not_found_formater(queryable, id) when is_integer(id) or is_binary(id) do
-    modal_sortname = queryable |> to_string |> String.split(".") |> List.last()
-    "#{modal_sortname}(#{id}) not found"
-  end
-
-  defp not_found_formater(queryable, clauses) do
-    modal_sortname = queryable |> to_string |> String.split(".") |> List.last()
-
-    detail =
-      clauses
-      |> Enum.into(%{})
-      |> Map.values()
-      |> List.first()
-      |> to_string
-
-    "#{modal_sortname}(#{detail}) not found"
   end
 end

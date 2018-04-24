@@ -1,0 +1,14 @@
+msgid "Community(%{name}) not found"
+msgstr "社区(%{name})未找到"
+
+msgid "Community(%{id}) not found"
+msgstr "社区(id: %{id})未找到"
+
+msgid "User(%{name}) not found"
+msgstr "用户(%{name})未找到"
+
+msgid "Post(%{name}) not found"
+msgstr "帖子(%{name})未找到"
+
+msgid "Post(%{id}) not found"
+msgstr "帖子(id: %{id})未找到"
