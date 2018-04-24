@@ -13,6 +13,10 @@ defmodule MastaniServer.CMS.Post do
     field(:views, :integer, default: 0)
     belongs_to(:author, Author)
 
+    # TODO
+    # 相关文章
+    # has_may(:related_post, ...)
+
     has_many(:comments, {"posts_comments", PostComment})
     has_many(:favorites, {"posts_favorites", PostFavorite})
     has_many(:stars, {"posts_stars", PostStar})
@@ -35,21 +39,6 @@ defmodule MastaniServer.CMS.Post do
 
     timestamps(type: :utc_datetime)
   end
-
-  # create table(:cms_posts_comments) do
-  # add(:comment_id, references(:cms_comments))
-  # add(:post_id, references(:cms_posts))
-  # end
-  # end
-
-  # create(index(:cms_posts_comments, [:post_id]))
-
-  # create(unique_index(:cms_posts_comments, [:user_id]))
-
-  # alter table(:cms_posts) do
-  #   add(:author_id, references(:cms_authors, on_delete: :delete_all), null: false)
-  # end
-  # create(index(:cms_posts, [:author_id]))
 
   @required_fields ~w(title body digest length)a
   @optional_fields ~w(link_addr)a

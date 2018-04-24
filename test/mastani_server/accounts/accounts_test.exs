@@ -14,7 +14,7 @@ defmodule MastaniServer.Test.AccountsTest do
   describe "[update user]" do
     test "update user with valid attrs" do
       {:ok, user} = db_insert(:user)
-      # IO.inspect user, label: "update user"
+
       attrs = %{
         nickname: "new nickname",
         sex: "dude",

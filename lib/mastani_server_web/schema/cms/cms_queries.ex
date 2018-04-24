@@ -7,7 +7,9 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
   object :cms_queries do
     field :community, :community do
-      arg(:id, non_null(:id))
+      # arg(:id, non_null(:id))
+      arg(:id, :id)
+      arg(:title, :string)
       resolve(&Resolvers.CMS.community/3)
     end
 

@@ -16,22 +16,38 @@ defmodule MastaniServer.Test.Query.CMSTest do
     {:ok, ~m(guest_conn community)a}
   end
 
-  @query """
-  query community($id: ID!) {
-    community(id: $id) {
-      id
-      title
-      desc
+  describe "[cms query community]" do
+    @query """
+    query community($id: ID, $title: String) {
+      community(id: $id, title: $title) {
+        id
+        title
+        desc
+      }
     }
-  }
-  """
-  test "guest user can get badic info a community", ~m(guest_conn community)a do
-    variables = %{id: community.id}
-    results = guest_conn |> query_result(@query, variables, "community")
+    """
+    test "guest user can get badic info of a community by id", ~m(guest_conn community)a do
+      variables = %{id: community.id}
+      results = guest_conn |> query_result(@query, variables, "community")
 
-    assert results["id"] == to_string(community.id)
-    assert results["title"] == community.title
-    assert results["desc"] == community.desc
+      assert results["id"] == to_string(community.id)
+      assert results["title"] == community.title
+      assert results["desc"] == community.desc
+    end
+
+    test "guest user can get badic info of a community by title", ~m(guest_conn community)a do
+      variables = %{title: community.title}
+      results = guest_conn |> query_result(@query, variables, "community")
+
+      assert results["id"] == to_string(community.id)
+      assert results["title"] == community.title
+      assert results["desc"] == community.desc
+    end
+
+    test "guest user can get community info without args fails", ~m(guest_conn)a do
+      variables = %{}
+      assert guest_conn |> query_get_error?(@query, variables)
+    end
   end
 
   describe "[cms community editors]" do
