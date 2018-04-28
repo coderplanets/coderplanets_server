@@ -3,3 +3,6 @@ msgstr "昵称"
 
 msgid "email"
 msgstr "邮箱"
+
+msgid "user_id"
+msgstr "用户"

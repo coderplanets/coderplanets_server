@@ -20,6 +20,7 @@ defmodule MastaniServer.Accounts.User do
     has_one(:github_profile, GithubUser)
 
     has_many(:subscribed_communities, {"communities_subscribers", CMS.CommunitySubscriber})
+    # has_many(:favorite_posts, {"posts_favorites", PostFavorite}) ...
 
     # has_many(::following_communities, {"communities_subscribers", CommunitySubscriber})
     # has_many(:follow_communities, {"communities_subscribers", CommunitySubscriber})

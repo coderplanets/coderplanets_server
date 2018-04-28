@@ -2,14 +2,20 @@ defmodule MastaniServer.CMS.PostComment do
   use Ecto.Schema
   import Ecto.Changeset
   alias MastaniServer.Accounts
-  alias MastaniServer.CMS.{Post, PostComment}
+  alias MastaniServer.CMS.{Post, PostComment, PostCommentReply, PostCommentLike}
 
   @required_fields ~w(body author_id post_id)a
+  @optional_fields ~w(reply_id)a
 
   schema "posts_comments" do
     field(:body, :string)
     belongs_to(:author, Accounts.User, foreign_key: :author_id)
     belongs_to(:post, Post)
+    belongs_to(:reply_to, PostComment, foreign_key: :reply_id)
+
+    has_many(:replies, {"posts_comments_replies", PostCommentReply})
+    has_many(:likes, {"posts_comments_likes", PostCommentLike})
+    # has_many(:dislikes, {"posts_comments_dislikes", PostCommentDislike})
 
     timestamps(type: :utc_datetime)
   end
@@ -17,7 +23,7 @@ defmodule MastaniServer.CMS.PostComment do
   @doc false
   def changeset(%PostComment{} = post_comment, attrs) do
     post_comment
-    |> cast(attrs, @required_fields)
+    |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
     |> foreign_key_constraint(:post_id)
     |> foreign_key_constraint(:author_id)

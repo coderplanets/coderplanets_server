@@ -3,7 +3,17 @@ defmodule MastaniServer.CMS.Misc do
   this module defined the matches and handy guard ...
   """
   import Ecto.Query, warn: false
-  alias MastaniServer.CMS.{Community, Post, PostFavorite, PostStar, PostComment, Tag, Community}
+
+  alias MastaniServer.CMS.{
+    Community,
+    Post,
+    PostFavorite,
+    PostStar,
+    PostComment,
+    Tag,
+    Community,
+    PostCommentLike
+  }
 
   @support_part [:post, :video, :job]
   @support_react [:favorite, :star, :watch, :comment, :tag, :self]
@@ -29,12 +39,18 @@ defmodule MastaniServer.CMS.Misc do
   def match_action(:post, :community), do: {:ok, %{target: Post, reactor: Community}}
 
   def match_action(:post, :comment),
-    do: {:ok, %{target: Post, reactor: PostComment, preload: :author}}
+    do: {:ok, %{target: Post, reactor: PostComment, preload: :author, like: PostCommentLike}}
+
+  def match_action(:post_comment, :like),
+    do: {:ok, %{target: PostComment, reactor: PostCommentLike, preload: :author}}
 
   def dynamic_where(part, id) do
     case part do
       :post ->
         {:ok, dynamic([p], p.post_id == ^id)}
+
+      :post_comment ->
+        {:ok, dynamic([p], p.post_comment_id == ^id)}
 
       :job ->
         {:ok, dynamic([p], p.job_id == ^id)}

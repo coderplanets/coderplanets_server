@@ -99,7 +99,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   def reaction(_root, ~m(id part action)a, %{context: %{cur_user: user}}) do
-    CMS.reaction(part, action, id, user.id)
+    CMS.reaction(part, action, id, %Accounts.User{id: user.id})
   end
 
   def undo_reaction(_root, ~m(id part action)a, %{context: %{cur_user: user}}) do
@@ -116,6 +116,6 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def update_post(_root, args, _info), do: ORM.update(args.passport_source, args)
 
   def create_comment(_root, ~m(part id body)a, %{context: %{cur_user: user}}) do
-    CMS.create_comment(part, :comment, id, user.id, body)
+    CMS.create_comment(part, :comment, id, %Accounts.User{id: user.id}, body)
   end
 end

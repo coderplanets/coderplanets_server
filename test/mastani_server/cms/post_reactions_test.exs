@@ -4,7 +4,7 @@ defmodule MastaniServer.Test.PostReactionsTest do
   import ShortMaps
 
   alias MastaniServer.CMS
-  # alias MastaniServer.Accounts
+  alias MastaniServer.Accounts
   # alias Helper.ORM
 
   @valid_community_attr mock_attrs(:community)
@@ -22,7 +22,7 @@ defmodule MastaniServer.Test.PostReactionsTest do
       # {:ok, user} = ORM.find_by(Accounts.User, nickname: @valid_user.nickname)
       {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @valid_post_attr)
 
-      {:ok, _} = CMS.reaction(:post, :favorite, post.id, user.id)
+      {:ok, _} = CMS.reaction(:post, :favorite, post.id, %Accounts.User{id: user.id})
       {:ok, reaction_users} = CMS.reaction_users(:post, :favorite, post.id, %{page: 1, size: 1})
       reaction_users = reaction_users |> Map.get(:entries)
       assert 1 == reaction_users |> Enum.filter(fn ruser -> user.id == ruser.id end) |> length

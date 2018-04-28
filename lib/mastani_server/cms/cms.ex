@@ -19,7 +19,8 @@ defmodule MastaniServer.CMS do
     Community,
     Passport,
     CommunitySubscriber,
-    CommunityEditor
+    CommunityEditor,
+    PostCommentReply
   }
 
   alias MastaniServer.{Repo, Accounts}
@@ -194,12 +195,74 @@ defmodule MastaniServer.CMS do
   @doc """
   Creates a comment for psot, job ...
   """
-  def create_comment(part, react, part_id, user_id, body) do
+  def create_comment(part, react, part_id, %Accounts.User{id: user_id}, body) do
     with {:ok, action} <- match_action(part, react),
          {:ok, content} <- ORM.find(action.target, part_id),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
+      # TODO
       attrs = %{post_id: content.id, author_id: user.id, body: body}
       action.reactor |> ORM.create(attrs)
+    end
+  end
+
+  def list_comments(part, part_id, %{page: page, size: size} = filters) do
+    with {:ok, action} <- match_action(part, :comment) do
+      action.reactor
+      |> where([c], c.post_id == ^part_id)
+      |> QueryBuilder.filter_pack(filters)
+      |> ORM.paginater(page: page, size: size)
+      |> done()
+    end
+  end
+
+  def list_replies(part, comment_id, %Accounts.User{id: user_id}) do
+    with {:ok, action} <- match_action(part, :comment) do
+      action.reactor
+      |> where([c], c.author_id == ^user_id)
+      |> join(:inner, [c], r in assoc(c, :reply_to))
+      |> where([c, r], r.id == ^comment_id)
+      |> Repo.all()
+      |> done()
+    end
+  end
+
+  def reply_comment(part, comment_id, %Accounts.User{id: user_id}, body) do
+    with {:ok, action} <- match_action(part, :comment),
+         {:ok, comment} <- ORM.find(action.reactor, comment_id) do
+      attrs = %{post_id: comment.post_id, author_id: user_id, body: body, reply_to: comment}
+      # TODO: use Multi task to refactor
+      case action.reactor |> ORM.create(attrs) do
+        {:ok, reply} ->
+          ORM.update(reply, %{reply_id: comment.id})
+
+          {:ok, _} =
+            PostCommentReply |> ORM.create(%{post_comment_id: comment.id, reply_id: reply.id})
+
+          {:ok, reply}
+
+        {:error, error} ->
+          {:error, error}
+      end
+    end
+  end
+
+  # can not use spectial: post_comment_id
+  def like_comment(part, comment_id, %Accounts.User{id: user_id}) do
+    with {:ok, action} <- match_action(part, :comment) do
+      case ORM.find_by(action.like, post_comment_id: comment_id, user_id: user_id) do
+        {:ok, _} ->
+          {:error, "user has liked this comment"}
+
+        {:error, _} ->
+          attrs = %{post_comment_id: comment_id, user_id: user_id}
+          action.like |> ORM.create(attrs)
+      end
+    end
+  end
+
+  def undo_like_comment(part, comment_id, %Accounts.User{id: user_id}) do
+    with {:ok, action} <- match_action(part, :comment) do
+      ORM.findby_delete(action.like, post_comment_id: comment_id, user_id: user_id)
     end
   end
 
@@ -246,8 +309,8 @@ defmodule MastaniServer.CMS do
 
   with or without page info
   """
-  def reaction_users(part, react, id, %{page: page, size: size} = filters)
-      when valid_reaction(part, react) do
+  def reaction_users(part, react, id, %{page: page, size: size} = filters) do
+    # when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react),
          {:ok, where} <- dynamic_where(part, id) do
       # common_filter(action.reactor)
@@ -262,7 +325,9 @@ defmodule MastaniServer.CMS do
   @doc """
   favorite / star / watch CMS contents like post / tuts / video ...
   """
-  def reaction(part, react, part_id, user_id) when valid_reaction(part, react) do
+  # TODO: def reaction(part, react, part_id, %Accounts.User{id: user_id}) when valid_reaction(part, react) do
+  def reaction(part, react, part_id, %Accounts.User{id: user_id})
+      when valid_reaction(part, react) do
     with {:ok, action} <- match_action(part, react),
          {:ok, content} <- ORM.find(action.target, part_id),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
