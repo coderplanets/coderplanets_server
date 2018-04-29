@@ -2,7 +2,14 @@ defmodule MastaniServer.CMS.PostComment do
   use Ecto.Schema
   import Ecto.Changeset
   alias MastaniServer.Accounts
-  alias MastaniServer.CMS.{Post, PostComment, PostCommentReply, PostCommentLike}
+
+  alias MastaniServer.CMS.{
+    Post,
+    PostComment,
+    PostCommentReply,
+    PostCommentLike,
+    PostCommentDislike
+  }
 
   @required_fields ~w(body author_id post_id)a
   @optional_fields ~w(reply_id)a
@@ -15,6 +22,7 @@ defmodule MastaniServer.CMS.PostComment do
 
     has_many(:replies, {"posts_comments_replies", PostCommentReply})
     has_many(:likes, {"posts_comments_likes", PostCommentLike})
+    has_many(:dislikes, {"posts_comments_dislikes", PostCommentDislike})
     # has_many(:dislikes, {"posts_comments_dislikes", PostCommentDislike})
 
     timestamps(type: :utc_datetime)

@@ -125,25 +125,41 @@ defmodule MastaniServer.Test.CommentTest do
   describe "[comment Reactions]" do
     test "user can like a comment", ~m(comment user)a do
       # {:ok, like} = CMS.reaction(:post_comment, :like, comment.id, user.id)
-      {:ok, like} = CMS.like_comment(:post, comment.id, %Accounts.User{id: user.id})
+      {:ok, like} = CMS.like_comment(:post_comment, comment.id, %Accounts.User{id: user.id})
       {:ok, comment_preload} = ORM.find(CMS.PostComment, comment.id, preload: :likes)
 
       assert comment_preload.likes |> Enum.any?(&(&1.id == like.id))
     end
 
     test "user like comment twice fails", ~m(comment user)a do
-      {:ok, _} = CMS.like_comment(:post, comment.id, %Accounts.User{id: user.id})
-      {:error, _error} = CMS.like_comment(:post, comment.id, %Accounts.User{id: user.id})
+      {:ok, _} = CMS.like_comment(:post_comment, comment.id, %Accounts.User{id: user.id})
+      {:error, _error} = CMS.like_comment(:post_comment, comment.id, %Accounts.User{id: user.id})
       # TODO: fix err_msg later
       # IO.inspect error, label: "hello"
     end
 
     test "user can undo a like action", ~m(comment user)a do
-      {:ok, like} = CMS.like_comment(:post, comment.id, %Accounts.User{id: user.id})
-      {:ok, _} = CMS.undo_like_comment(:post, comment.id, %Accounts.User{id: user.id})
+      {:ok, like} = CMS.like_comment(:post_comment, comment.id, %Accounts.User{id: user.id})
+      {:ok, _} = CMS.undo_like_comment(:post_comment, comment.id, %Accounts.User{id: user.id})
 
       {:ok, comment_preload} = ORM.find(CMS.PostComment, comment.id, preload: :likes)
       assert false == comment_preload.likes |> Enum.any?(&(&1.id == like.id))
+    end
+
+    test "user can dislike a comment", ~m(comment user)a do
+      # {:ok, like} = CMS.reaction(:post_comment, :like, comment.id, user.id)
+      {:ok, dislike} = CMS.dislike_comment(:post_comment, comment.id, %Accounts.User{id: user.id})
+      {:ok, comment_preload} = ORM.find(CMS.PostComment, comment.id, preload: :dislikes)
+
+      assert comment_preload.dislikes |> Enum.any?(&(&1.id == dislike.id))
+    end
+
+    test "user can undo a dislike action", ~m(comment user)a do
+      {:ok, dislike} = CMS.dislike_comment(:post_comment, comment.id, %Accounts.User{id: user.id})
+      {:ok, _} = CMS.undo_dislike_comment(:post_comment, comment.id, %Accounts.User{id: user.id})
+
+      {:ok, comment_preload} = ORM.find(CMS.PostComment, comment.id, preload: :dislikes)
+      assert false == comment_preload.dislikes |> Enum.any?(&(&1.id == dislike.id))
     end
 
     test "user can get paged likes of a post comment", ~m(comment)a do
@@ -151,9 +167,9 @@ defmodule MastaniServer.Test.CommentTest do
       {:ok, user2} = db_insert(:user)
       {:ok, user3} = db_insert(:user)
 
-      {:ok, _like1} = CMS.like_comment(:post, comment.id, %Accounts.User{id: user1.id})
-      {:ok, _like2} = CMS.like_comment(:post, comment.id, %Accounts.User{id: user2.id})
-      {:ok, _like3} = CMS.like_comment(:post, comment.id, %Accounts.User{id: user3.id})
+      {:ok, _like1} = CMS.like_comment(:post_comment, comment.id, %Accounts.User{id: user1.id})
+      {:ok, _like2} = CMS.like_comment(:post_comment, comment.id, %Accounts.User{id: user2.id})
+      {:ok, _like3} = CMS.like_comment(:post_comment, comment.id, %Accounts.User{id: user3.id})
 
       {:ok, results} = CMS.reaction_users(:post_comment, :like, comment.id, %{page: 1, size: 10})
 

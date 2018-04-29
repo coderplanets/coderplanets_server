@@ -12,7 +12,8 @@ defmodule MastaniServer.CMS.Misc do
     PostComment,
     Tag,
     Community,
-    PostCommentLike
+    PostCommentLike,
+    PostCommentDislike
   }
 
   @support_part [:post, :video, :job]
@@ -27,6 +28,8 @@ defmodule MastaniServer.CMS.Misc do
   defguard invalid_reaction(part, react)
            when invalid_part(part) and react not in @support_react
 
+  defguard valid_feeling(feel) when feel in [:like, :dislike]
+
   def match_action(:post, :self), do: {:ok, %{target: Post, reactor: Post, preload: :author}}
 
   def match_action(:post, :favorite),
@@ -39,10 +42,13 @@ defmodule MastaniServer.CMS.Misc do
   def match_action(:post, :community), do: {:ok, %{target: Post, reactor: Community}}
 
   def match_action(:post, :comment),
-    do: {:ok, %{target: Post, reactor: PostComment, preload: :author, like: PostCommentLike}}
+    do: {:ok, %{target: Post, reactor: PostComment, preload: :author}}
 
   def match_action(:post_comment, :like),
-    do: {:ok, %{target: PostComment, reactor: PostCommentLike, preload: :author}}
+    do: {:ok, %{target: PostCommentLike, reactor: PostCommentLike}}
+
+  def match_action(:post_comment, :dislike),
+    do: {:ok, %{target: PostCommentDislike, reactor: PostCommentDislike}}
 
   def dynamic_where(part, id) do
     case part do

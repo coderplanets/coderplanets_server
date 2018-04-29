@@ -12,6 +12,10 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:video)
   end
 
+  enum :comment_replies_type do
+    value(:comment_replies_type)
+  end
+
   enum :post_type do
     value(:post)
   end
@@ -50,6 +54,10 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:post)
     value(:job)
     value(:meetup)
+  end
+
+  enum :cms_comment do
+    value(:post_comment)
   end
 
   enum :order_enum do

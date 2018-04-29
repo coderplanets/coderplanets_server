@@ -78,5 +78,16 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:part, non_null(:community_part_enum))
       resolve(&Resolvers.CMS.get_tags/3)
     end
+
+    # comments
+    field :comments, :paged_comments do
+      arg(:id, non_null(:id))
+      arg(:part, :cms_part, default_value: :post)
+      # TODO
+      arg(:filter, :paged_filter)
+
+      resolve(&Resolvers.CMS.comments/3)
+      middleware(M.FormatPagination)
+    end
   end
 end

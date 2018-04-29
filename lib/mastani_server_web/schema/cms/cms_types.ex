@@ -11,10 +11,58 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
   import_types(Schema.CMS.Misc)
 
+  object :idlike do
+    field(:id, :id)
+  end
+
   object :comment do
     field(:id, :id)
     field(:body, :string)
     field(:author, :user, resolve: dataloader(CMS, :author))
+    # field(:reply_to, :comment)
+
+    field :reply_to, :comment do
+      resolve(dataloader(CMS, :reply_to))
+    end
+
+    field :likes, list_of(:user) do
+      arg(:filter, :members_filter)
+
+      middleware(M.PageSizeProof)
+      resolve(dataloader(CMS, :likes))
+    end
+
+    field :likes_count, :integer do
+      arg(:count, :count_type, default_value: :count)
+
+      resolve(dataloader(CMS, :likes))
+      middleware(M.ConvertToInt)
+    end
+
+    field :viewer_has_liked, :boolean do
+      arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
+
+      middleware(M.Authorize, :login)
+      # put current user into dataloader's args
+      middleware(M.PutCurrentUser)
+      resolve(dataloader(CMS, :likes))
+      middleware(M.ViewerDidConvert)
+    end
+
+    field :replies, list_of(:comment) do
+      arg(:filter, :members_filter)
+
+      middleware(M.PageSizeProof)
+      resolve(dataloader(CMS, :replies))
+    end
+
+    field :replies_count, :integer do
+      arg(:count, :count_type, default_value: :count)
+
+      resolve(dataloader(CMS, :replies))
+      middleware(M.ConvertToInt)
+    end
+
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
   end
@@ -190,6 +238,14 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       # TODO add complex here to warning N+1 problem
       resolve(&Resolvers.Statistics.list_contributes_digest/3)
     end
+  end
+
+  object :paged_comments do
+    field(:entries, list_of(:comment))
+    field(:total_count, :integer)
+    field(:page_size, :integer)
+    field(:total_pages, :integer)
+    field(:page_number, :integer)
   end
 
   object :paged_communities do

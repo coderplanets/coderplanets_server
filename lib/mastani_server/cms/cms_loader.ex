@@ -12,7 +12,9 @@ defmodule MastaniServer.CMS.Loader do
     PostStar,
     CommunitySubscriber,
     CommunityEditor,
-    CommunityThread
+    CommunityThread,
+    PostCommentReply,
+    PostCommentLike
   }
 
   def data(), do: Dataloader.Ecto.new(Repo, query: &query/2, run_batch: &run_batch/5)
@@ -75,7 +77,47 @@ defmodule MastaniServer.CMS.Loader do
     CommunityEditor |> QueryBuilder.members_pack(args)
   end
 
+  # for comments replies, likes, repliesCount, likesCount...
+  def query({"posts_comments_replies", PostCommentReply}, %{count: _}) do
+    PostCommentReply
+    |> group_by([c], c.post_comment_id)
+    |> select([c], count(c.id))
+  end
+
+  def query({"posts_comments_replies", PostCommentReply}, %{filter: filter}) do
+    PostCommentReply
+    |> QueryBuilder.filter_pack(filter)
+    |> join(:inner, [c], r in assoc(c, :reply))
+    |> select([c, r], r)
+  end
+
+  def query({"posts_comments_replies", PostCommentReply}, %{reply_to: _}) do
+    IO.inspect(PostCommentReply, label: 'hello fuc')
+
+    PostCommentReply
+    # |> QueryBuilder.filter_pack(filter)
+    |> join(:inner, [c], r in assoc(c, :post_comment))
+    |> select([c, r], r)
+  end
+
+  def query({"posts_comments_likes", PostCommentLike}, %{count: _}) do
+    PostCommentLike
+    |> group_by([f], f.post_comment_id)
+    |> select([f], count(f.id))
+  end
+
+  def query({"posts_comments_likes", PostCommentLike}, %{viewer_did: _, cur_user: cur_user}) do
+    PostCommentLike |> where([f], f.user_id == ^cur_user.id)
+  end
+
+  def query({"posts_comments_likes", PostCommentLike}, %{filter: _filter} = args) do
+    PostCommentLike
+    |> QueryBuilder.members_pack(args)
+  end
+
+  # default loader
   def query(queryable, _args) do
+    # IO.inspect(queryable, label: "default loader")
     queryable
   end
 end

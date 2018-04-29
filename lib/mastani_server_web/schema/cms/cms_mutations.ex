@@ -275,6 +275,51 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       resolve(&Resolvers.CMS.create_comment/3)
     end
 
+    @desc "reply a exsiting comment"
+    field :reply_comment, :comment do
+      arg(:part, non_null(:cms_part), default_value: :post)
+      arg(:id, non_null(:id))
+      arg(:body, non_null(:string))
+
+      middleware(M.Authorize, :login)
+
+      resolve(&Resolvers.CMS.reply_comment/3)
+    end
+
+    @desc "like a comment"
+    field :like_comment, :idlike do
+      arg(:part, non_null(:cms_comment), default_value: :post_comment)
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      resolve(&Resolvers.CMS.like_comment/3)
+    end
+
+    @desc "undo like comment"
+    field :undo_like_comment, :idlike do
+      arg(:part, non_null(:cms_comment), default_value: :post_comment)
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      resolve(&Resolvers.CMS.undo_like_comment/3)
+    end
+
+    field :dislike_comment, :idlike do
+      arg(:part, non_null(:cms_comment), default_value: :post_comment)
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      resolve(&Resolvers.CMS.dislike_comment/3)
+    end
+
+    field :undo_dislike_comment, :idlike do
+      arg(:part, non_null(:cms_comment), default_value: :post_comment)
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      resolve(&Resolvers.CMS.undo_dislike_comment/3)
+    end
+
     @desc "create a comment"
     field :delete_comment, :comment do
       # arg(:type, non_null(:cms_part), default_value: :post)

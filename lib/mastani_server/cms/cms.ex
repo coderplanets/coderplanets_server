@@ -208,6 +208,7 @@ defmodule MastaniServer.CMS do
   def list_comments(part, part_id, %{page: page, size: size} = filters) do
     with {:ok, action} <- match_action(part, :comment) do
       action.reactor
+      # TODO: make post_id common
       |> where([c], c.post_id == ^part_id)
       |> QueryBuilder.filter_pack(filters)
       |> ORM.paginater(page: page, size: size)
@@ -238,7 +239,7 @@ defmodule MastaniServer.CMS do
           {:ok, _} =
             PostCommentReply |> ORM.create(%{post_comment_id: comment.id, reply_id: reply.id})
 
-          {:ok, reply}
+          action.reactor |> ORM.find(reply.id)
 
         {:error, error} ->
           {:error, error}
@@ -248,21 +249,40 @@ defmodule MastaniServer.CMS do
 
   # can not use spectial: post_comment_id
   def like_comment(part, comment_id, %Accounts.User{id: user_id}) do
-    with {:ok, action} <- match_action(part, :comment) do
-      case ORM.find_by(action.like, post_comment_id: comment_id, user_id: user_id) do
+    feel_comment(part, comment_id, user_id, :like)
+  end
+
+  def undo_like_comment(part, comment_id, %Accounts.User{id: user_id}) do
+    undo_feel_comment(part, comment_id, user_id, :like)
+  end
+
+  def dislike_comment(part, comment_id, %Accounts.User{id: user_id}) do
+    feel_comment(part, comment_id, user_id, :dislike)
+  end
+
+  def undo_dislike_comment(part, comment_id, %Accounts.User{id: user_id}) do
+    undo_feel_comment(part, comment_id, user_id, :dislike)
+  end
+
+  defp feel_comment(part, comment_id, user_id, feeling)
+       when valid_feeling(feeling) do
+    with {:ok, action} <- match_action(part, feeling) do
+      clause = %{post_comment_id: comment_id, user_id: user_id}
+
+      case ORM.find_by(action.target, clause) do
         {:ok, _} ->
-          {:error, "user has liked this comment"}
+          {:error, "user has #{to_string(feeling)}d this comment"}
 
         {:error, _} ->
-          attrs = %{post_comment_id: comment_id, user_id: user_id}
-          action.like |> ORM.create(attrs)
+          action.target |> ORM.create(clause)
       end
     end
   end
 
-  def undo_like_comment(part, comment_id, %Accounts.User{id: user_id}) do
-    with {:ok, action} <- match_action(part, :comment) do
-      ORM.findby_delete(action.like, post_comment_id: comment_id, user_id: user_id)
+  defp undo_feel_comment(part, comment_id, user_id, feeling) do
+    with {:ok, action} <- match_action(part, feeling) do
+      clause = %{post_comment_id: comment_id, user_id: user_id}
+      ORM.findby_delete(action.target, clause)
     end
   end
 

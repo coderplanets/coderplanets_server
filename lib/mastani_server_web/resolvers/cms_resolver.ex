@@ -6,8 +6,12 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   alias Helper.ORM
 
   def post(_root, %{id: id}, _info), do: CMS.Post |> ORM.read(id, inc: :views)
-
   def posts(_root, ~m(filter)a, _info), do: CMS.Post |> ORM.find_all(filter)
+
+  def comments(_root, %{id: id, part: part, filter: filter}, _info) do
+    # |> IO.inspect(label: "spy")
+    CMS.list_comments(part, id, filter)
+  end
 
   def community(_root, %{id: id}, _info), do: CMS.Community |> ORM.find(id)
   def community(_root, %{title: title}, _info), do: CMS.Community |> ORM.find_by(title: title)
@@ -117,5 +121,25 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def create_comment(_root, ~m(part id body)a, %{context: %{cur_user: user}}) do
     CMS.create_comment(part, :comment, id, %Accounts.User{id: user.id}, body)
+  end
+
+  def reply_comment(_root, ~m(part id body)a, %{context: %{cur_user: user}}) do
+    CMS.reply_comment(part, id, %Accounts.User{id: user.id}, body)
+  end
+
+  def like_comment(_root, ~m(part id)a, %{context: %{cur_user: user}}) do
+    CMS.like_comment(part, id, %Accounts.User{id: user.id})
+  end
+
+  def undo_like_comment(_root, ~m(part id)a, %{context: %{cur_user: user}}) do
+    CMS.undo_like_comment(part, id, %Accounts.User{id: user.id})
+  end
+
+  def dislike_comment(_root, ~m(part id)a, %{context: %{cur_user: user}}) do
+    CMS.dislike_comment(part, id, %Accounts.User{id: user.id})
+  end
+
+  def undo_dislike_comment(_root, ~m(part id)a, %{context: %{cur_user: user}}) do
+    CMS.undo_dislike_comment(part, id, %Accounts.User{id: user.id})
   end
 end
