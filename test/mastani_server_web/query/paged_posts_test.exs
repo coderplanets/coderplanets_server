@@ -13,7 +13,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
 
   @cur_date Timex.now()
   @last_week Timex.shift(Timex.beginning_of_week(@cur_date), days: -1)
-  @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -1)
+  @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -2)
   @last_year Timex.shift(Timex.beginning_of_year(@cur_date), days: -1)
 
   @posts_today_count 35
@@ -166,9 +166,11 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
       assert results |> Map.get("totalCount") == expect_count
     end
 
+    @tag :wip
     test "THIS_WEEK option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_WEEK"}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
+
       assert results |> Map.get("totalCount") == @posts_today_count
     end
 
@@ -176,7 +178,19 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
       variables = %{filter: %{when: "THIS_MONTH"}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
-      expect_count = @posts_total_count - @posts_last_year_count - @posts_last_month_count
+      {_, cur_week_month, _} = @cur_date |> Date.to_erl()
+      {_, last_week_month, _} = @last_week |> Date.to_erl()
+
+      expect_count =
+        case cur_week_month == last_week_month do
+          true ->
+            @posts_total_count - @posts_last_year_count - @posts_last_month_count
+
+          false ->
+            @posts_total_count - @posts_last_year_count - @posts_last_month_count -
+              @posts_last_week_count
+        end
+
       assert results |> Map.get("totalCount") == expect_count
     end
   end
