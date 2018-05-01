@@ -49,6 +49,20 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       middleware(M.ViewerDidConvert)
     end
 
+    field :dislikes, list_of(:user) do
+      arg(:filter, :members_filter)
+
+      middleware(M.PageSizeProof)
+      resolve(dataloader(CMS, :dislikes))
+    end
+
+    field :dislikes_count, :integer do
+      arg(:count, :count_type, default_value: :count)
+
+      resolve(dataloader(CMS, :dislikes))
+      middleware(M.ConvertToInt)
+    end
+
     field :replies, list_of(:comment) do
       arg(:filter, :members_filter)
 

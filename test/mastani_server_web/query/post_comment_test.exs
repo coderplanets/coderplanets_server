@@ -127,6 +127,47 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
       assert found["likes"] |> Enum.any?(&(&1["id"] == to_string(user.id)))
     end
 
+   @query """
+    query comments($id: ID!, $filter: PagedFilter!) {
+      comments(id: $id, filter: $filter) {
+        entries {
+          id
+          body
+          author {
+            id
+            nickname
+          }
+          dislikesCount
+          dislikes {
+            id
+            nickname
+          }
+        }
+      }
+    }
+    """
+    test "guest user can get dislikes info", ~m(guest_conn post user)a do
+      body = "test comment"
+
+      {:ok, comment} =
+        CMS.create_comment(:post, :comment, post.id, %Accounts.User{id: user.id}, body)
+
+      {:ok, _like} = CMS.dislike_comment(:post_comment, comment.id, %Accounts.User{id: user.id})
+
+      variables = %{id: post.id, filter: %{page: 1, size: 10}}
+      results = guest_conn |> query_result(@query, variables, "comments")
+
+      found =
+        results["entries"] |> Enum.filter(&(&1["id"] == to_string(comment.id))) |> List.first()
+
+      author = found |> Map.get("author")
+
+      assert author["id"] == to_string(user.id)
+      assert found["dislikesCount"] == 1
+
+      assert found["dislikes"] |> Enum.any?(&(&1["id"] == to_string(user.id)))
+    end
+
     @query """
     query comments($id: ID!, $filter: PagedFilter!) {
       comments(id: $id, filter: $filter) {
