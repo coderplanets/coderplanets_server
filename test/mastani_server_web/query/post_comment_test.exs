@@ -127,7 +127,7 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
       assert found["likes"] |> Enum.any?(&(&1["id"] == to_string(user.id)))
     end
 
-   @query """
+    @query """
     query comments($id: ID!, $filter: PagedFilter!) {
       comments(id: $id, filter: $filter) {
         entries {
