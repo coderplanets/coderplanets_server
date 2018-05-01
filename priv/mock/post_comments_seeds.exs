@@ -5,7 +5,7 @@ alias MastaniServer.{CMS, Accounts}
 {:ok, user} = db_insert(:user)
 {:ok, post} = db_insert(:post)
 
-Enum.reduce(1..5, [], fn _, acc ->
+Enum.reduce(1..50, [], fn _, acc ->
   {:ok, value} =
     CMS.create_comment(
       :post,
