@@ -117,7 +117,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
     field :comments_participators_count2, :integer do
       resolve(fn post, _args, %{context: %{loader: loader}} ->
-        IO.inspect post.id, label: "luck"
+        IO.inspect(post.id, label: "luck")
+
         loader
         |> Dataloader.load(CMS, {:one, CMS.PostComment}, cp_count: post.id)
         |> on_load(fn loader ->
@@ -227,7 +228,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     # see also: https://github.com/absinthe-graphql/dataloader/issues/25
     field :posts_count, :integer do
       resolve(fn community, _args, %{context: %{loader: loader}} ->
-        IO.inspect community.id, label: "luck"
+        IO.inspect(community.id, label: "luck")
+
         loader
         |> Dataloader.load(CMS, {:one, CMS.Post}, posts_count: community.id)
         |> on_load(fn loader ->

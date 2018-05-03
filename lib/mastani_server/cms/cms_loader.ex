@@ -39,12 +39,11 @@ defmodule MastaniServer.CMS.Loader do
       |> Map.new()
       |> IO.inspect(label: "after")
 
-
     for id <- community_ids, do: Map.get(results, id, [0])
   end
 
   def run_batch(PostComment, comment_query, :cp_count, post_ids, repo_opts) do
-    IO.inspect comment_query, label: "comment query ..."
+    IO.inspect(comment_query, label: "comment query ...")
 
     results =
       comment_query
@@ -56,7 +55,7 @@ defmodule MastaniServer.CMS.Loader do
       |> Repo.all(repo_opts)
       |> Enum.group_by(fn {x, _} -> x end)
       |> Enum.map(fn {x, y} -> {x, [length(y)]} end)
-      |> Map.new
+      |> Map.new()
 
     for id <- post_ids, do: Map.get(results, id, [0])
   end
@@ -109,7 +108,8 @@ defmodule MastaniServer.CMS.Loader do
 
   # def query({"posts_comments", PostComment}, %{filter: %{first: first}} = filter) do
   def query({"posts_comments", PostComment}, %{filter: %{first: first}} = args) do
-    IO.inspect args, label: "very wired .."
+    IO.inspect(args, label: "very wired ..")
+
     PostComment
     |> order_by(desc: :inserted_at)
     # |> limit(^first)
