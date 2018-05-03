@@ -35,9 +35,30 @@ defmodule MastaniServer.CMS.Loader do
     results =
       query
       |> Repo.all(repo_opts)
+      |> IO.inspect(label: "rith")
       |> Map.new()
+      |> IO.inspect(label: "after")
+
 
     for id <- community_ids, do: Map.get(results, id, [0])
+  end
+
+  def run_batch(PostComment, comment_query, :cp_count, post_ids, repo_opts) do
+    IO.inspect comment_query, label: "comment query ..."
+
+    results =
+      comment_query
+      |> join(:inner, [c], a in assoc(c, :author))
+      # |> distinct([c, a], a.id)
+      |> group_by([c, a], a.id)
+      |> group_by([c, a], c.post_id)
+      |> select([c, a], {c.post_id, count(a.id)})
+      |> Repo.all(repo_opts)
+      |> Enum.group_by(fn {x, _} -> x end)
+      |> Enum.map(fn {x, y} -> {x, [length(y)]} end)
+      |> Map.new
+
+    for id <- post_ids, do: Map.get(results, id, [0])
   end
 
   # TODO: use meta-programing to extract all query below
@@ -87,11 +108,14 @@ defmodule MastaniServer.CMS.Loader do
   end
 
   # def query({"posts_comments", PostComment}, %{filter: %{first: first}} = filter) do
-  def query({"posts_comments", PostComment}, %{filter: filter}) do
-    # IO.inspect args, label: "very wired .."
+  def query({"posts_comments", PostComment}, %{filter: %{first: first}} = args) do
+    IO.inspect args, label: "very wired .."
     PostComment
+    |> order_by(desc: :inserted_at)
+    # |> limit(^first)
     # |> where([c], c.post_id == ^args.root_source_id)
-    |> QueryBuilder.filter_pack(filter)
+    # |> QueryBuilder.filter_pack(filter)
+    |> IO.inspect(label: "query")
   end
 
   @doc """

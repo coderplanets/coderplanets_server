@@ -97,25 +97,6 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
-    field :comments, list_of(:comment) do
-      # arg(:type, :post_type, default_value: :post)
-      arg(:filter, :article_filter)
-      arg(:action, :comment_action, default_value: :comment)
-
-      # middleware(M.PutRootSource)
-      middleware(M.PageSizeProof)
-      resolve(dataloader(CMS, :comments))
-      # resolve(dataloader(CMS, :favorites))
-    end
-
-    field :comments_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-      # arg(:type, :post_type, default_value: :post)
-
-      resolve(dataloader(CMS, :comments))
-      middleware(M.ConvertToInt)
-    end
-
     field :comments_participators, list_of(:user) do
       arg(:filter, :members_filter)
       arg(:unique, :unique_type, default_value: true)
@@ -131,7 +112,18 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
       # middleware(M.PutRootSource)
       resolve(dataloader(CMS, :comments))
-      middleware(M.CountLength)
+      # middleware(M.CountLength)
+    end
+
+    field :comments_participators_count2, :integer do
+      resolve(fn post, _args, %{context: %{loader: loader}} ->
+        IO.inspect post.id, label: "luck"
+        loader
+        |> Dataloader.load(CMS, {:one, CMS.PostComment}, cp_count: post.id)
+        |> on_load(fn loader ->
+          {:ok, Dataloader.get(loader, CMS, {:one, CMS.PostComment}, cp_count: post.id)}
+        end)
+      end)
     end
 
     field :viewer_has_favorited, :boolean do
@@ -152,6 +144,21 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       middleware(M.PutCurrentUser)
       resolve(dataloader(CMS, :stars))
       middleware(M.ViewerDidConvert)
+    end
+
+    field :comments, list_of(:comment) do
+      arg(:filter, :members_filter)
+
+      # middleware(M.PutRootSource)
+      middleware(M.PageSizeProof)
+      resolve(dataloader(CMS, :comments))
+    end
+
+    field :comments_count, :integer do
+      arg(:count, :count_type, default_value: :count)
+
+      resolve(dataloader(CMS, :comments))
+      middleware(M.ConvertToInt)
     end
 
     field :favorited_users, list_of(:user) do
@@ -220,6 +227,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     # see also: https://github.com/absinthe-graphql/dataloader/issues/25
     field :posts_count, :integer do
       resolve(fn community, _args, %{context: %{loader: loader}} ->
+        IO.inspect community.id, label: "luck"
         loader
         |> Dataloader.load(CMS, {:one, CMS.Post}, posts_count: community.id)
         |> on_load(fn loader ->
