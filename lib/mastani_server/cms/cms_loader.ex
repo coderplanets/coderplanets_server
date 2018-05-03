@@ -107,14 +107,14 @@ defmodule MastaniServer.CMS.Loader do
   end
 
   # def query({"posts_comments", PostComment}, %{filter: %{first: first}} = filter) do
-  def query({"posts_comments", PostComment}, %{filter: %{first: first}} = args) do
+  def query({"posts_comments", PostComment}, %{filter: filter} = args) do
     IO.inspect(args, label: "very wired ..")
 
     PostComment
-    |> order_by(desc: :inserted_at)
+    # |> order_by(desc: :inserted_at)
     # |> limit(^first)
     # |> where([c], c.post_id == ^args.root_source_id)
-    # |> QueryBuilder.filter_pack(filter)
+    |> QueryBuilder.filter_pack(filter)
     |> IO.inspect(label: "query")
   end
 
