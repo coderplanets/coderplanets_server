@@ -81,12 +81,6 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:updated_at, :datetime)
   end
 
-  object :thread do
-    field(:id, :id)
-    field(:title, :string)
-    field(:raw, :string)
-  end
-
   object :post do
     interface(:article)
     field(:id, :id)
@@ -104,12 +98,40 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
     field :comments, list_of(:comment) do
-      arg(:type, :post_type, default_value: :post)
+      # arg(:type, :post_type, default_value: :post)
       arg(:filter, :article_filter)
       arg(:action, :comment_action, default_value: :comment)
 
+      # middleware(M.PutRootSource)
       middleware(M.PageSizeProof)
       resolve(dataloader(CMS, :comments))
+      # resolve(dataloader(CMS, :favorites))
+    end
+
+    field :comments_count, :integer do
+      arg(:count, :count_type, default_value: :count)
+      # arg(:type, :post_type, default_value: :post)
+
+      resolve(dataloader(CMS, :comments))
+      middleware(M.ConvertToInt)
+    end
+
+    field :comments_participators, list_of(:user) do
+      arg(:filter, :members_filter)
+      arg(:unique, :unique_type, default_value: true)
+
+      # middleware(M.PutRootSource)
+      middleware(M.PageSizeProof)
+      resolve(dataloader(CMS, :comments))
+    end
+
+    field :comments_participators_count, :integer do
+      arg(:unique, :unique_type, default_value: true)
+      arg(:count, :count_type, default_value: :count)
+
+      # middleware(M.PutRootSource)
+      resolve(dataloader(CMS, :comments))
+      middleware(M.CountLength)
     end
 
     field :viewer_has_favorited, :boolean do
@@ -163,12 +185,10 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     end
   end
 
-  object :paged_posts do
-    field(:entries, list_of(:post))
-    field(:total_count, :integer)
-    field(:page_size, :integer)
-    field(:total_pages, :integer)
-    field(:page_number, :integer)
+  object :thread do
+    field(:id, :id)
+    field(:title, :string)
+    field(:raw, :string)
   end
 
   object :contribute do
@@ -184,7 +204,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   end
 
   object :community do
-    meta(:cache, max_age: 30)
+    # meta(:cache, max_age: 30)
 
     field(:id, :id)
     field(:title, :string)
@@ -252,6 +272,14 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       # TODO add complex here to warning N+1 problem
       resolve(&Resolvers.Statistics.list_contributes_digest/3)
     end
+  end
+
+  object :paged_posts do
+    field(:entries, list_of(:post))
+    field(:total_count, :integer)
+    field(:page_size, :integer)
+    field(:total_pages, :integer)
+    field(:page_number, :integer)
   end
 
   object :paged_comments do

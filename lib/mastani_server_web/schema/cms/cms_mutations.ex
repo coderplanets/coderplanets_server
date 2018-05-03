@@ -265,7 +265,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
     @desc "create a comment"
     field :create_comment, :comment do
       # TODO use part and force community pass-in
-      arg(:part, non_null(:cms_part), default_value: :post)
+      arg(:part, :cms_part, default_value: :post)
       arg(:id, non_null(:id))
       arg(:body, non_null(:string))
 

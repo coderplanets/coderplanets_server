@@ -17,7 +17,7 @@ defmodule MastaniServer.CMS.PostComment do
   schema "posts_comments" do
     field(:body, :string)
     belongs_to(:author, Accounts.User, foreign_key: :author_id)
-    belongs_to(:post, Post)
+    belongs_to(:post, Post, foreign_key: :post_id)
     belongs_to(:reply_to, PostComment, foreign_key: :reply_id)
 
     has_many(:replies, {"posts_comments_replies", PostCommentReply})

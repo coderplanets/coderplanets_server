@@ -42,10 +42,10 @@ defmodule MastaniServer.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       # GraphQl tool
-      {:absinthe, "~> 1.4.10"},
+      {:absinthe, "~> 1.4.12"},
       {:absinthe_ecto, "~> 0.1.3"},
       # Plug support for Absinthe
-      {:absinthe_plug, "~> 1.4.2"},
+      {:absinthe_plug, "~> 1.4.4"},
       # Password hashing lib
       {:comeonin, "~> 4.0.3"},
       # Argon2 password hashing algorithm

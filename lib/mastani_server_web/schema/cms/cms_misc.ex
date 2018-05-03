@@ -5,6 +5,7 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
   alias MastaniServer.CMS
 
   @max_page_size get_config(:general, :page_size)
+  @default_inner_page_size 5
 
   enum :community_part_enum do
     value(:post)
@@ -42,6 +43,11 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
 
   enum :comment_action do
     value(:comment)
+  end
+
+  enum :unique_type do
+    value(true)
+    value(false)
   end
 
   enum :cms_action do
@@ -100,7 +106,7 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
 
   @desc "inline members-like filter for dataloader usage"
   input_object :members_filter do
-    field(:first, :integer, default_value: @max_page_size)
+    field(:first, :integer, default_value: @default_inner_page_size)
   end
 
   input_object :paged_filter do
@@ -112,7 +118,8 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
   @desc "article_filter doc"
   input_object :article_filter do
     @desc "limit of records (default 20), if first > 30, only return 30 at most"
-    field(:first, :integer, default_value: @max_page_size)
+    # field(:first, :integer, default_value: @max_page_size)
+    field(:first, :integer)
 
     @desc "Matching a tag"
     field(:tag, :string, default_value: :all)

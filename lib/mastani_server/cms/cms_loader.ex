@@ -40,6 +40,9 @@ defmodule MastaniServer.CMS.Loader do
     for id <- community_ids, do: Map.get(results, id, [0])
   end
 
+  # TODO: use meta-programing to extract all query below
+  # --------------------
+
   def query(Author, _args) do
     # you cannot use preload with select together
     # https://stackoverflow.com/questions/43010352/ecto-select-relations-from-preload
@@ -52,8 +55,43 @@ defmodule MastaniServer.CMS.Loader do
     from(ct in CommunityThread, join: t in assoc(ct, :thread), select: t)
   end
 
+  @doc """
+  get unique participators join in comments
+  """
+  def query({"posts_comments", PostComment}, %{filter: filter, unique: true}) do
+    PostComment
+    |> QueryBuilder.filter_pack(filter)
+    |> join(:inner, [c], a in assoc(c, :author))
+    |> distinct([c, a], a.id)
+    |> select([c, a], a)
+  end
+
+  def query({"posts_comments", PostComment}, %{count: _, unique: true}) do
+    # TODO: not very familar with SQL, but it has to be 2 group_by to work, check later
+    # and the expect count should be the length of reault
+    PostComment
+    |> join(:inner, [c], a in assoc(c, :author))
+    |> distinct([c, a], a.id)
+    |> group_by([c, a], a.id)
+    |> group_by([c, a], c.post_id)
+    |> select([c, a], count(c.id))
+
+    # query = from c in PostComment, join: a in Accounts.User
+    # from [c, a] in query, select: count(a.id, :distinct)
+  end
+
+  def query({"posts_comments", PostComment}, %{count: _}) do
+    PostComment
+    |> group_by([c], c.post_id)
+    |> select([c], count(c.id))
+  end
+
+  # def query({"posts_comments", PostComment}, %{filter: %{first: first}} = filter) do
   def query({"posts_comments", PostComment}, %{filter: filter}) do
-    PostComment |> QueryBuilder.filter_pack(filter)
+    # IO.inspect args, label: "very wired .."
+    PostComment
+    # |> where([c], c.post_id == ^args.root_source_id)
+    |> QueryBuilder.filter_pack(filter)
   end
 
   @doc """
@@ -96,7 +134,6 @@ defmodule MastaniServer.CMS.Loader do
     IO.inspect(PostCommentReply, label: 'hello fuc')
 
     PostCommentReply
-    # |> QueryBuilder.filter_pack(filter)
     |> join(:inner, [c], r in assoc(c, :post_comment))
     |> select([c, r], r)
   end
@@ -135,6 +172,7 @@ defmodule MastaniServer.CMS.Loader do
   # default loader
   def query(queryable, _args) do
     # IO.inspect(queryable, label: "default loader")
+    # IO.inspect(args, label: "default args")
     queryable
   end
 end

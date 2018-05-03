@@ -86,6 +86,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       # TODO
       arg(:filter, :paged_filter)
 
+      middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.comments/3)
       middleware(M.FormatPagination)
     end
