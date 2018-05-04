@@ -113,11 +113,11 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     end
 
     field :comments_participators, list_of(:user) do
-      arg(:filter, non_null(:members_filter))
+      arg(:filter, :members_filter)
       arg(:unique, :unique_type, default_value: true)
 
       middleware(M.ForceLoader)
-      # middleware(M.PageSizeProof)
+      middleware(M.PageSizeProof)
       resolve(dataloader(CMS, :comments))
     end
 

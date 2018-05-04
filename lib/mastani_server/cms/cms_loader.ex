@@ -3,9 +3,7 @@ defmodule MastaniServer.CMS.Loader do
 
   alias MastaniServer.Repo
   alias Helper.QueryBuilder
-
-  alias MastaniServer.Accounts
-
+  # alias MastaniServer.Accounts
   alias MastaniServer.CMS.{
     Author,
     Post,

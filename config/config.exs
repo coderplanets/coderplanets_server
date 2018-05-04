@@ -34,7 +34,7 @@ config :pre_commit, commands: ["format"], verbose: false
 
 config :mastani_server, :general,
   page_size: 30,
-  inner_page_size: 20,
+  inner_page_size: 5,
   # today is not include
   community_contribute_days: 7,
   user_contribute_months: 6,
