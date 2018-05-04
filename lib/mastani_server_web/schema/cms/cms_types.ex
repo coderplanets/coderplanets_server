@@ -97,34 +97,63 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
-    field :comments_participators, list_of(:user) do
+    field :comments, list_of(:comment) do
       arg(:filter, :members_filter)
-      arg(:unique, :unique_type, default_value: true)
 
-      # middleware(M.PutRootSource)
+      # middleware(M.ForceLoader)
       middleware(M.PageSizeProof)
       resolve(dataloader(CMS, :comments))
     end
 
-    field :comments_participators_count, :integer do
-      arg(:unique, :unique_type, default_value: true)
+    field :comments_count, :integer do
       arg(:count, :count_type, default_value: :count)
 
-      # middleware(M.PutRootSource)
       resolve(dataloader(CMS, :comments))
-      # middleware(M.CountLength)
+      middleware(M.ConvertToInt)
     end
 
-    field :comments_participators_count2, :integer do
-      resolve(fn post, _args, %{context: %{loader: loader}} ->
-        IO.inspect(post.id, label: "luck")
+    field :comments_participators, list_of(:user) do
+      arg(:filter, non_null(:members_filter))
+      arg(:unique, :unique_type, default_value: true)
 
+      middleware(M.ForceLoader)
+      # middleware(M.PageSizeProof)
+      resolve(dataloader(CMS, :comments))
+    end
+
+    field :comments_participators2, list_of(:user) do
+      arg(:filter, :members_filter)
+      arg(:unique, :unique_type, default_value: true)
+
+      middleware(M.PageSizeProof)
+
+      resolve(fn post, args, %{context: %{loader: loader}} ->
+        # IO.inspect args, label: "the args"
+        loader
+        |> Dataloader.load(CMS, {:many, CMS.PostComment}, cp_users: post.id)
+        |> on_load(fn loader ->
+          {:ok, Dataloader.get(loader, CMS, {:many, CMS.PostComment}, cp_users: post.id)}
+        end)
+      end)
+    end
+
+    field :comments_participators_count, :integer do
+      resolve(fn post, _args, %{context: %{loader: loader}} ->
         loader
         |> Dataloader.load(CMS, {:one, CMS.PostComment}, cp_count: post.id)
         |> on_load(fn loader ->
           {:ok, Dataloader.get(loader, CMS, {:one, CMS.PostComment}, cp_count: post.id)}
         end)
       end)
+    end
+
+    field :comments_participators_count_wired, :integer do
+      arg(:unique, :unique_type, default_value: true)
+      arg(:count, :count_type, default_value: :count)
+
+      # middleware(M.ForceLoader)
+      resolve(dataloader(CMS, :comments))
+      # middleware(M.CountLength)
     end
 
     field :viewer_has_favorited, :boolean do
@@ -145,21 +174,6 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       middleware(M.PutCurrentUser)
       resolve(dataloader(CMS, :stars))
       middleware(M.ViewerDidConvert)
-    end
-
-    field :comments, list_of(:comment) do
-      arg(:filter, :members_filter)
-
-      # middleware(M.PutRootSource)
-      middleware(M.PageSizeProof)
-      resolve(dataloader(CMS, :comments))
-    end
-
-    field :comments_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-
-      resolve(dataloader(CMS, :comments))
-      middleware(M.ConvertToInt)
     end
 
     field :favorited_users, list_of(:user) do

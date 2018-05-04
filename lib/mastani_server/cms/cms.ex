@@ -436,6 +436,10 @@ defmodule MastaniServer.CMS do
     end
   end
 
+  # https://medium.com/front-end-hacking/use-github-oauth-as-your-sso-seamlessly-with-react-3e2e3b358fa1
+  # http://www.ubazu.com/using-postgres-jsonb-columns-in-ecto
+  # http://www.ubazu.com/using-postgres-jsonb-columns-in-ecto
+
   def list_passports(community, key) do
     Passport
     |> where([p], fragment("(?->?->>?)::boolean = ?", p.rules, ^community, ^key, true))

@@ -8,6 +8,11 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def post(_root, %{id: id}, _info), do: CMS.Post |> ORM.read(id, inc: :views)
   def posts(_root, ~m(filter)a, _info), do: CMS.Post |> ORM.find_all(filter)
 
+  # def posts(_root, _args, _info) do
+  #   IO.inspect("see fuck")
+  #   CMS.Post |> ORM.find_all_tmp()
+  # end
+
   def comments(_root, %{id: id, part: part, filter: filter}, _info) do
     # |> IO.inspect(label: "spy")
     CMS.list_comments(part, id, filter)
