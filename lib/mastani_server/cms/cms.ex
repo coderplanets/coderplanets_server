@@ -7,14 +7,15 @@ defmodule MastaniServer.CMS do
   import MastaniServer.CMS.Utils.Matcher
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1]
-  import ShortMaps
 
   # import MastaniServer.CMS.Logic.CommentReaction
   alias MastaniServer.CMS.Delegate.{
     CommentReaction,
     CommentCURD,
     CommunityCURD,
-    Passport
+    Passport,
+    CommunityOperation,
+    ArticleOperation
   }
 
   alias MastaniServer.CMS.{
@@ -22,10 +23,7 @@ defmodule MastaniServer.CMS do
     Thread,
     CommunityThread,
     Tag,
-    Community,
-    # Passport,
-    CommunitySubscriber,
-    CommunityEditor
+    Community
   }
 
   alias MastaniServer.{Repo, Accounts}
@@ -64,45 +62,8 @@ defmodule MastaniServer.CMS do
   set tag for post / tuts / videos ...
   """
   # check community first
-  def set_tag(community_title, part, part_id, tag_id) when valid_part(part) do
-    with {:ok, action} <- match_action(part, :tag),
-         {:ok, content} <- ORM.find(action.target, part_id, preload: :tags),
-         {:ok, tag} <- ORM.find(action.reactor, tag_id) do
-      case tag_in_community_part?(community_title, part, tag) do
-        true ->
-          content
-          |> Ecto.Changeset.change()
-          |> Ecto.Changeset.put_assoc(:tags, content.tags ++ [tag])
-          |> Repo.update()
-
-        _ ->
-          {:error, "Tag,Community,Part not match"}
-      end
-    end
-  end
-
-  defp tag_in_community_part?(community_title, part, tag) do
-    with {:ok, community} <- ORM.find_by(Community, title: community_title) do
-      matched_tags =
-        Tag
-        |> where([t], t.community_id == ^community.id)
-        |> where([t], t.part == ^(to_string(part) |> String.upcase()))
-        |> Repo.all()
-
-      tag in matched_tags
-    end
-  end
-
-  def unset_tag(part, part_id, tag_id) when valid_part(part) do
-    with {:ok, action} <- match_action(part, :tag),
-         {:ok, content} <- ORM.find(action.target, part_id, preload: :tags),
-         {:ok, tag} <- ORM.find(action.reactor, tag_id) do
-      content
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:tags, content.tags -- [tag])
-      |> Repo.update()
-    end
-  end
+  defdelegate set_tag(community_title, part, part_id, tag_id), to: ArticleOperation
+  defdelegate unset_tag(part, part_id, tag_id), to: ArticleOperation
 
   # TODO: use comunityId
   def get_tags(community, part) do
@@ -114,27 +75,8 @@ defmodule MastaniServer.CMS do
     |> done()
   end
 
-  def set_community(part, part_id, %Community{title: title}) when valid_part(part) do
-    with {:ok, action} <- match_action(part, :community),
-         {:ok, content} <- ORM.find(action.target, part_id, preload: :communities),
-         {:ok, community} <- ORM.find_by(action.reactor, title: title) do
-      content
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:communities, content.communities ++ [community])
-      |> Repo.update()
-    end
-  end
-
-  def unset_community(part, part_id, %Community{title: title}) when valid_part(part) do
-    with {:ok, action} <- match_action(part, :community),
-         {:ok, content} <- ORM.find(action.target, part_id, preload: :communities),
-         {:ok, community} <- ORM.find_by(action.reactor, title: title) do
-      content
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:communities, content.communities -- [community])
-      |> Repo.update()
-    end
-  end
+  defdelegate set_community(part, part_id, community_title), to: ArticleOperation
+  defdelegate unset_community(part, part_id, community_title), to: ArticleOperation
 
   @doc """
   Creates a content(post/job ...), and set community.
@@ -189,37 +131,11 @@ defmodule MastaniServer.CMS do
   @doc """
   subscribe a community. (ONLY community, post etc use watch )
   """
-  def subscribe_community(%Accounts.User{id: user_id}, %Community{id: community_id}) do
-    with {:ok, record} <- CommunitySubscriber |> ORM.create(~m(user_id community_id)a) do
-      Community |> ORM.find(record.community_id)
-    end
-  end
+  defdelegate subscribe_community(user_id, community_id), to: CommunityOperation
+  defdelegate unsubscribe_community(user_id, community_id), to: CommunityOperation
 
-  def unsubscribe_community(%Accounts.User{id: user_id}, %Community{id: community_id}) do
-    with {:ok, record} <-
-           CommunitySubscriber |> ORM.findby_delete(community_id: community_id, user_id: user_id) do
-      Community |> ORM.find(record.community_id)
-    end
-  end
-
-  @doc """
-  return paged community subscribers
-  """
-  def community_members(:editors, %Community{id: id}, filters) do
-    load_community_members(id, CommunityEditor, filters)
-  end
-
-  def community_members(:subscribers, %Community{id: id}, filters) do
-    load_community_members(id, CommunitySubscriber, filters)
-  end
-
-  defp load_community_members(id, modal, %{page: page, size: size} = filters) do
-    modal
-    |> where([c], c.community_id == ^id)
-    |> QueryBuilder.load_inner_users(filters)
-    |> ORM.paginater(page: page, size: size)
-    |> done()
-  end
+  # include :editors and :subscribers
+  defdelegate community_members(type, community_id, filters), to: CommunityCURD
 
   @doc """
   get CMS contents
@@ -301,6 +217,7 @@ defmodule MastaniServer.CMS do
     ORM.find_by(Author, user_id: changeset.data.user_id)
   end
 
+  # pasport staff
   defdelegate stamp_passport(user_id, rules), to: Passport
   defdelegate erase_passport(user, rules), to: Passport
   defdelegate get_passport(user), to: Passport

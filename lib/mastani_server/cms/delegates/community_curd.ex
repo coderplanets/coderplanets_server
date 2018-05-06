@@ -1,22 +1,43 @@
 defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   # TODO docs:  include community / editors / curd
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [deep_merge: 2]
+  import Helper.Utils, only: [done: 1, deep_merge: 2]
   import ShortMaps
 
   alias MastaniServer.{Repo, Accounts}
 
   alias MastaniServer.CMS.{
     Community,
-    CommunityEditor
+    CommunityEditor,
+    CommunitySubscriber
   }
 
   alias MastaniServer.CMS.Delegate.Passport
+  alias Helper.QueryBuilder
 
   alias Helper.{ORM, Certification}
   alias Ecto.Multi
 
   def create_community(attrs), do: Community |> ORM.create(attrs)
+
+  @doc """
+  return paged community subscribers
+  """
+  def community_members(:editors, %Community{id: id}, filters) do
+    load_community_members(id, CommunityEditor, filters)
+  end
+
+  def community_members(:subscribers, %Community{id: id}, filters) do
+    load_community_members(id, CommunitySubscriber, filters)
+  end
+
+  defp load_community_members(id, modal, %{page: page, size: size} = filters) do
+    modal
+    |> where([c], c.community_id == ^id)
+    |> QueryBuilder.load_inner_users(filters)
+    |> ORM.paginater(page: page, size: size)
+    |> done()
+  end
 
   @doc """
   set a community editor
