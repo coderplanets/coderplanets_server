@@ -3,7 +3,7 @@ defmodule Helper.ORM do
   General CORD functions
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, done: 3]
+  import Helper.Utils, only: [done: 1, done: 3, add: 1]
   import Helper.ErrorHandler
 
   alias MastaniServer.Repo
@@ -143,5 +143,9 @@ defmodule Helper.ORM do
     |> QueryBuilder.filter_pack(filter)
     |> select([f], count(f.id))
     |> Repo.one()
+  end
+
+  def next_count(queryable, filter \\ %{}) do
+    count(queryable) |> add()
   end
 end

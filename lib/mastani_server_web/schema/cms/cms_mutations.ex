@@ -275,6 +275,19 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       resolve(&Resolvers.CMS.create_comment/3)
     end
 
+    field :delete_comment, :comment do
+      arg(:part, :cms_part, default_value: :post)
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.PassportLoader, source: [:post, :comment])
+      # TODO: 文章可以设置禁止评论
+      # middleware(M.Passport, claim: "owner;cms->c?->post.comment.delete")
+      middleware(M.Passport, claim: "owner")
+      # middleware(M.Authorize, :login)
+      resolve(&Resolvers.CMS.delete_comment/3)
+    end
+
     @desc "reply a exsiting comment"
     field :reply_comment, :comment do
       arg(:part, non_null(:cms_part), default_value: :post)
@@ -318,20 +331,6 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
 
       middleware(M.Authorize, :login)
       resolve(&Resolvers.CMS.undo_dislike_comment/3)
-    end
-
-    @desc "create a comment"
-    field :delete_comment, :comment do
-      # arg(:type, non_null(:cms_part), default_value: :post)
-      arg(:id, non_null(:id))
-      arg(:part, :cms_part, default_value: :post)
-      # arg(:body, non_null(:string))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: [:post, :comment])
-      # TODO: 文章作者可以删除评论，文章可以设置禁止评论
-      # middleware(M.Passport, claim: "owner;parent;cms->c?->post.comment.delete")
-      resolve(&Resolvers.CMS.delete_comment/3)
     end
   end
 end

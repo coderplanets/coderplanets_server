@@ -52,6 +52,8 @@ defmodule Helper.Utils do
   def repeat(times, [x]) when is_integer(x), do: to_string(for _ <- 1..times, do: x)
   def repeat(times, x), do: for(_ <- 1..times, do: x)
 
+  def add(num, offset \\ 1) when is_integer(num) and is_integer(offset), do: num + offset
+
   # Key exists in both maps, and both values are maps as well.
   # These can be merged recursively.
   defp deep_resolve(_key, left = %{}, right = %{}) do

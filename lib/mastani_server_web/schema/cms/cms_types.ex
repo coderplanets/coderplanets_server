@@ -127,7 +127,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
       middleware(M.PageSizeProof)
 
-      resolve(fn post, args, %{context: %{loader: loader}} ->
+      resolve(fn post, _args, %{context: %{loader: loader}} ->
         # IO.inspect args, label: "the args"
         loader
         |> Dataloader.load(CMS, {:many, CMS.PostComment}, cp_users: post.id)

@@ -144,7 +144,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       assert guest_conn |> mutation_get_error?(@query, variables)
     end
 
-    test "update a post with by post's owner", ~m(owner_conn post)a do
+    test "post can be update by owner", ~m(owner_conn post)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
       variables = %{

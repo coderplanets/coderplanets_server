@@ -12,10 +12,11 @@ defmodule MastaniServer.CMS.PostComment do
   }
 
   @required_fields ~w(body author_id post_id)a
-  @optional_fields ~w(reply_id)a
+  @optional_fields ~w(reply_id floor)a
 
   schema "posts_comments" do
     field(:body, :string)
+    field(:floor, :integer)
     belongs_to(:author, Accounts.User, foreign_key: :author_id)
     belongs_to(:post, Post, foreign_key: :post_id)
     belongs_to(:reply_to, PostComment, foreign_key: :reply_id)

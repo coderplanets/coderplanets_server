@@ -62,9 +62,48 @@ defmodule MastaniServer.Test.CommentTest do
       assert comment_preload.replies |> Enum.any?(&(&1.reply_id == reply.id))
     end
 
-    test "comment can be deleted", ~m(comment)a do
-      CMS.PostComment |> ORM.find_delete(comment.id)
-      {:error, _} = ORM.find(CMS.PostComment, comment.id)
+    test "comment can be deleted", ~m(post user)a do
+      content = "this is a test comment"
+
+      assert {:ok, comment} =
+               CMS.create_comment(:post, :comment, post.id, %Accounts.User{id: user.id}, content)
+
+      {:ok, deleted} = CMS.delete_comment(:post, comment.id)
+      assert deleted.id == comment.id
+      # IO.inspect hello, label: "hello"
+    end
+
+    @tag :wip
+    test "after delete, the coments of id > deleted.id should decrease the floor number",
+         ~m(post user)a do
+      content = "this is a test comment"
+      # in setup we have a comment
+      total = 30 + 1
+
+      comments =
+        Enum.reduce(1..total, [], fn _, acc ->
+          {:ok, value} =
+            CMS.create_comment(:post, :comment, post.id, %Accounts.User{id: user.id}, content)
+
+          acc ++ [value]
+        end)
+
+      [comment_1, comment_2, comment_3, comment_last] = comments |> firstn_and_last(3)
+
+      assert comment_1.floor == 2
+      assert comment_2.floor == 3
+      assert comment_3.floor == 4
+      assert comment_last.floor == total + 1
+
+      {:ok, _} = CMS.delete_comment(:post, comment_1.id)
+
+      {:ok, new_comment_2} = ORM.find(CMS.PostComment, comment_2.id)
+      {:ok, new_comment_3} = ORM.find(CMS.PostComment, comment_3.id)
+      {:ok, new_comment_last} = ORM.find(CMS.PostComment, comment_last.id)
+
+      assert new_comment_2.floor == 2
+      assert new_comment_3.floor == 3
+      assert new_comment_last.floor == total
     end
 
     test "comment with replies should be deleted together", ~m(comment user)a do

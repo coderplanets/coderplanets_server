@@ -27,7 +27,7 @@ defmodule MastaniServer.Test.Mutation.PostCommentTest do
 
   describe "[post comment CURD]" do
     @create_comment_query """
-    mutation($part: CmsPart!, $id: ID!, $body: String!) {
+    mutation($part: CmsPart, $id: ID!, $body: String!) {
       createComment(part: $part, id: $id, body: $body) {
         id
         body
@@ -47,6 +47,43 @@ defmodule MastaniServer.Test.Mutation.PostCommentTest do
       variables = %{part: "POST", id: post.id, body: "this a comment"}
 
       assert guest_conn |> mutation_get_error?(@create_comment_query, variables)
+    end
+
+    @delete_comment_query """
+    mutation($part: CmsPart, $id: ID!) {
+    deleteComment(part: $part, id: $id) {
+      id
+      body
+      }
+    }
+    """
+    test "comment owner can delete comment", ~m(user post)a do
+      variables = %{id: post.id, body: "this a comment"}
+
+      user_conn = simu_conn(:user, user)
+      created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
+      # IO.inspect created["id"], label: "created"
+
+      deleted =
+        user_conn |> mutation_result(@delete_comment_query, %{id: created["id"]}, "deleteComment")
+
+      # IO.inspect deleted, label: "deleted"
+      assert deleted["id"] == created["id"]
+    end
+
+    @tag :wip
+    test "unauth user delete comment fails", ~m(user_conn guest_conn post)a do
+      variables = %{id: post.id, body: "this a comment"}
+      {:ok, owner} = db_insert(:user)
+      owner_conn = simu_conn(:user, owner)
+      created = owner_conn |> mutation_result(@create_comment_query, variables, "createComment")
+
+      variables = %{id: created["id"]}
+      rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
+
+      assert user_conn |> mutation_get_error?(@delete_comment_query, variables)
+      assert guest_conn |> mutation_get_error?(@delete_comment_query, variables)
+      assert rule_conn |> mutation_get_error?(@delete_comment_query, variables)
     end
 
     @reply_comment_query """

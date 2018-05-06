@@ -48,6 +48,22 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
     resolution
   end
 
+  def add_source(resolution, content) do
+    arguments = resolution.arguments |> Map.merge(%{passport_source: content})
+    %{resolution | arguments: arguments}
+  end
+
+  # 取得 content 里面的 conmunities 字段
+  def add_community_info(resolution, content, args) do
+    communities = content |> Map.get(parse_base(args))
+
+    # check if communities is a List
+    communities = if is_list(communities), do: communities, else: [communities]
+
+    arguments = resolution.arguments |> Map.merge(%{passport_communities: communities})
+    %{resolution | arguments: arguments}
+  end
+
   defp parse_preload(action, args) do
     {:ok, _, react} = parse_source(args)
 
@@ -78,21 +94,6 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
       _ ->
         resolution
     end
-  end
-
-  def add_source(resolution, content) do
-    arguments = resolution.arguments |> Map.merge(%{passport_source: content})
-    %{resolution | arguments: arguments}
-  end
-
-  def add_community_info(resolution, content, args) do
-    communities = content |> Map.get(parse_base(args))
-
-    # check if communities is a List
-    communities = if is_list(communities), do: communities, else: [communities]
-
-    arguments = resolution.arguments |> Map.merge(%{passport_communities: communities})
-    %{resolution | arguments: arguments}
   end
 
   # defp parse_args(args, :owner) do
