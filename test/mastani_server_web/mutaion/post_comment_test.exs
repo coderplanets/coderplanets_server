@@ -20,7 +20,7 @@ defmodule MastaniServer.Test.Mutation.PostCommentTest do
     user_conn = simu_conn(:user)
 
     {:ok, comment} =
-      CMS.create_comment(:post, :comment, post.id, %Accounts.User{id: user.id}, "test comment")
+      CMS.create_comment(:post, post.id, %Accounts.User{id: user.id}, "test comment")
 
     {:ok, ~m(user_conn guest_conn post user comment)a}
   end
@@ -71,7 +71,6 @@ defmodule MastaniServer.Test.Mutation.PostCommentTest do
       assert deleted["id"] == created["id"]
     end
 
-    @tag :wip
     test "unauth user delete comment fails", ~m(user_conn guest_conn post)a do
       variables = %{id: post.id, body: "this a comment"}
       {:ok, owner} = db_insert(:user)

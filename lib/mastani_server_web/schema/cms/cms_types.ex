@@ -18,6 +18,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   object :comment do
     field(:id, :id)
     field(:body, :string)
+    field(:floor, :integer)
     field(:author, :user, resolve: dataloader(CMS, :author))
     # field(:reply_to, :comment)
 

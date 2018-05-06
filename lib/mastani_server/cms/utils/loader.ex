@@ -1,4 +1,4 @@
-defmodule MastaniServer.CMS.Loader do
+defmodule MastaniServer.CMS.Utils.Loader do
   import Ecto.Query, warn: false
 
   alias MastaniServer.Repo

@@ -15,8 +15,7 @@ defmodule MastaniServer.Test.CommentTest do
 
     content = "this is a test comment"
 
-    {:ok, comment} =
-      CMS.create_comment(:post, :comment, post.id, %Accounts.User{id: user.id}, content)
+    {:ok, comment} = CMS.create_comment(:post, post.id, %Accounts.User{id: user.id}, content)
 
     {:ok, ~m(post user comment)a}
   end
@@ -26,7 +25,7 @@ defmodule MastaniServer.Test.CommentTest do
       content = "this is a test comment"
 
       assert {:ok, comment} =
-               CMS.create_comment(:post, :comment, post.id, %Accounts.User{id: user.id}, content)
+               CMS.create_comment(:post, post.id, %Accounts.User{id: user.id}, content)
 
       assert comment.post_id == post.id
       assert comment.body == content
@@ -39,7 +38,6 @@ defmodule MastaniServer.Test.CommentTest do
       assert {:error, _} =
                CMS.create_comment(
                  :post,
-                 :comment,
                  non_exsit_id(),
                  %Accounts.User{id: user.id},
                  content
@@ -66,14 +64,13 @@ defmodule MastaniServer.Test.CommentTest do
       content = "this is a test comment"
 
       assert {:ok, comment} =
-               CMS.create_comment(:post, :comment, post.id, %Accounts.User{id: user.id}, content)
+               CMS.create_comment(:post, post.id, %Accounts.User{id: user.id}, content)
 
       {:ok, deleted} = CMS.delete_comment(:post, comment.id)
       assert deleted.id == comment.id
       # IO.inspect hello, label: "hello"
     end
 
-    @tag :wip
     test "after delete, the coments of id > deleted.id should decrease the floor number",
          ~m(post user)a do
       content = "this is a test comment"
@@ -82,8 +79,7 @@ defmodule MastaniServer.Test.CommentTest do
 
       comments =
         Enum.reduce(1..total, [], fn _, acc ->
-          {:ok, value} =
-            CMS.create_comment(:post, :comment, post.id, %Accounts.User{id: user.id}, content)
+          {:ok, value} = CMS.create_comment(:post, post.id, %Accounts.User{id: user.id}, content)
 
           acc ++ [value]
         end)
@@ -125,8 +121,7 @@ defmodule MastaniServer.Test.CommentTest do
       content = "fake comment"
 
       Enum.reduce(1..30, [], fn _, acc ->
-        {:ok, value} =
-          CMS.create_comment(:post, :comment, post.id, %Accounts.User{id: user.id}, content)
+        {:ok, value} = CMS.create_comment(:post, post.id, %Accounts.User{id: user.id}, content)
 
         acc ++ [value]
       end)

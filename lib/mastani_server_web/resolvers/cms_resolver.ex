@@ -125,7 +125,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def update_post(_root, args, _info), do: ORM.update(args.passport_source, args)
 
   def create_comment(_root, ~m(part id body)a, %{context: %{cur_user: user}}) do
-    CMS.create_comment(part, :comment, id, %Accounts.User{id: user.id}, body)
+    CMS.create_comment(part, id, %Accounts.User{id: user.id}, body)
   end
 
   def delete_comment(_root, ~m(part id)a, _info) do

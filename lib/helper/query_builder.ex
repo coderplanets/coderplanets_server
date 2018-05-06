@@ -76,6 +76,9 @@ defmodule Helper.QueryBuilder do
         # queryable |> order_by(^sort_strategy(:desc_inserted))
         queryable |> order_by(desc: :inserted_at)
 
+      {:sort, :asc_inserted}, queryable ->
+        queryable |> order_by(asc: :inserted_at)
+
       {:sort, :most_views}, queryable ->
         queryable |> order_by(^sort_strategy(:most_views))
 

@@ -83,8 +83,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
     field :comments, :paged_comments do
       arg(:id, non_null(:id))
       arg(:part, :cms_part, default_value: :post)
-      # TODO
-      arg(:filter, :paged_filter)
+      arg(:filter, :comments_filter)
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.comments/3)

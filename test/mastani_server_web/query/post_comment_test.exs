@@ -38,8 +38,7 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
       content = "test comment"
 
       Enum.reduce(1..30, [], fn _, acc ->
-        {:ok, value} =
-          CMS.create_comment(:post, :comment, post.id, %Accounts.User{id: user.id}, content)
+        {:ok, value} = CMS.create_comment(:post, post.id, %Accounts.User{id: user.id}, content)
 
         acc ++ [value]
       end)
@@ -64,8 +63,7 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
     test "login user can get hasLiked feedBack", ~m(user_conn post user)a do
       body = "test comment"
 
-      {:ok, comment} =
-        CMS.create_comment(:post, :comment, post.id, %Accounts.User{id: user.id}, body)
+      {:ok, comment} = CMS.create_comment(:post, post.id, %Accounts.User{id: user.id}, body)
 
       {:ok, _like} = CMS.like_comment(:post_comment, comment.id, %Accounts.User{id: user.id})
 
@@ -108,8 +106,7 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
     test "guest user can get likes info", ~m(guest_conn post user)a do
       body = "test comment"
 
-      {:ok, comment} =
-        CMS.create_comment(:post, :comment, post.id, %Accounts.User{id: user.id}, body)
+      {:ok, comment} = CMS.create_comment(:post, post.id, %Accounts.User{id: user.id}, body)
 
       {:ok, _like} = CMS.like_comment(:post_comment, comment.id, %Accounts.User{id: user.id})
 
@@ -149,8 +146,7 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
     test "guest user can get dislikes info", ~m(guest_conn post user)a do
       body = "test comment"
 
-      {:ok, comment} =
-        CMS.create_comment(:post, :comment, post.id, %Accounts.User{id: user.id}, body)
+      {:ok, comment} = CMS.create_comment(:post, post.id, %Accounts.User{id: user.id}, body)
 
       {:ok, _like} = CMS.dislike_comment(:post_comment, comment.id, %Accounts.User{id: user.id})
 
@@ -190,8 +186,7 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
     test "guest user can get replies info", ~m(guest_conn post user)a do
       body = "test comment"
 
-      {:ok, comment} =
-        CMS.create_comment(:post, :comment, post.id, %Accounts.User{id: user.id}, body)
+      {:ok, comment} = CMS.create_comment(:post, post.id, %Accounts.User{id: user.id}, body)
 
       {:ok, reply} =
         CMS.reply_comment(:post, comment.id, %Accounts.User{id: user.id}, "reply body")

@@ -78,6 +78,11 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:this_year)
   end
 
+  enum :comment_sort_enum do
+    value(:asc_inserted)
+    value(:desc_inserted)
+  end
+
   enum :sort_enum do
     value(:most_views)
     value(:most_updated)
@@ -109,10 +114,17 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     field(:first, :integer, default_value: @default_inner_page_size)
   end
 
+  input_object :comments_filter do
+    field(:page, :integer, default_value: 1)
+    field(:size, :integer, default_value: @max_page_size)
+    field(:sort, :comment_sort_enum, default_value: :asc_inserted)
+  end
+
   input_object :paged_filter do
     @desc "limit of records (default 20), if first > 30, only return 30 at most"
     field(:page, :integer, default_value: 1)
     field(:size, :integer, default_value: @max_page_size)
+    field(:sort, :sort_enum)
   end
 
   @desc "article_filter doc"

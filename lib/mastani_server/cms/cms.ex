@@ -4,12 +4,18 @@ defmodule MastaniServer.CMS do
   [CMS]: post, job, ...
   [CURD]: create, update, delete ...
   """
-  import MastaniServer.CMS.Misc
+  import MastaniServer.CMS.Utils.Matcher
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, deep_merge: 2]
+  import Helper.Utils, only: [done: 1]
   import ShortMaps
 
-  alias Ecto.Multi
+  # import MastaniServer.CMS.Logic.CommentReaction
+  alias MastaniServer.CMS.Delegate.{
+    CommentReaction,
+    CommentCURD,
+    CommunityCURD,
+    Passport
+  }
 
   alias MastaniServer.CMS.{
     Author,
@@ -17,59 +23,23 @@ defmodule MastaniServer.CMS do
     CommunityThread,
     Tag,
     Community,
-    Passport,
+    # Passport,
     CommunitySubscriber,
-    CommunityEditor,
-    PostCommentReply
+    CommunityEditor
   }
 
   alias MastaniServer.{Repo, Accounts}
   alias Helper.QueryBuilder
-  alias Helper.{ORM, Certification}
+  alias Helper.ORM
+
+  defdelegate create_community(attrs), to: CommunityCURD
 
   @doc """
   set a community editor
   """
-  def add_editor(%Accounts.User{id: user_id}, %Community{id: community_id}, title) do
-    Multi.new()
-    |> Multi.insert(
-      :insert_editor,
-      CommunityEditor.changeset(%CommunityEditor{}, ~m(user_id community_id title)a)
-    )
-    |> Multi.run(:stamp_passport, fn _ ->
-      rules = Certification.passport_rules(cms: title)
-      stamp_passport(%Accounts.User{id: user_id}, rules)
-    end)
-    |> Repo.transaction()
-    |> add_editor_result()
-  end
-
-  def update_editor(%Accounts.User{id: user_id}, %Community{id: community_id}, title) do
-    clauses = ~m(user_id community_id)a
-
-    with {:ok, _} <- CommunityEditor |> ORM.update_by(clauses, ~m(title)a) do
-      Accounts.User |> ORM.find(user_id)
-    end
-  end
-
-  def delete_editor(%Accounts.User{id: user_id}, %Community{id: community_id}) do
-    with {:ok, _} <- ORM.findby_delete(CommunityEditor, ~m(user_id community_id)a),
-         {:ok, _} <- ORM.findby_delete(Passport, ~m(user_id)a) do
-      Accounts.User |> ORM.find(user_id)
-    end
-  end
-
-  defp add_editor_result({:ok, %{insert_editor: editor}}) do
-    Accounts.User |> ORM.find(editor.user_id)
-  end
-
-  defp add_editor_result({:error, :stamp_passport, _result, _steps}),
-    do: {:error, "stamp passport error"}
-
-  defp add_editor_result({:error, :insert_editor, _result, _steps}),
-    do: {:error, "insert editor error"}
-
-  def create_community(attrs), do: Community |> ORM.create(attrs)
+  defdelegate add_editor(user_id, community_id, title), to: CommunityCURD
+  defdelegate update_editor(user_id, community_id, title), to: CommunityCURD
+  defdelegate delete_editor(user_id, community_id), to: CommunityCURD
 
   def create_thread(attrs), do: Thread |> ORM.create(attrs)
 
@@ -196,123 +166,25 @@ defmodule MastaniServer.CMS do
   Creates a comment for psot, job ...
   """
   # TODO: remove react
-  def create_comment(part, react, part_id, %Accounts.User{id: user_id}, body) do
-    with {:ok, action} <- match_action(part, react),
-         {:ok, content} <- ORM.find(action.target, part_id),
-         {:ok, user} <- ORM.find(Accounts.User, user_id) do
-      # TODO post_id
-      nextFloor =
-        action.reactor
-        |> where([c], c.post_id == ^content.id and c.author_id == ^user.id)
-        |> ORM.next_count()
-
-      # IO.inspect(nextFloor, label: "count -> ")
-      attrs = %{post_id: content.id, author_id: user.id, body: body, floor: nextFloor}
-      action.reactor |> ORM.create(attrs)
-    end
-  end
+  defdelegate create_comment(part, part_id, user_id, body), to: CommentCURD
 
   @doc """
   Delete the comment and increase all the floor after this comment
   """
-  def delete_comment(part, part_id) do
-    with {:ok, action} <- match_action(part, :comment),
-         {:ok, comment} <- ORM.find(action.reactor, part_id) do
-      case ORM.delete(comment) do
-        {:ok, comment} ->
-          Repo.update_all(
-            from(p in action.reactor, where: p.id > ^comment.id),
-            inc: [floor: -1]
-          )
+  defdelegate delete_comment(part, part_id), to: CommentCURD
 
-          {:ok, comment}
-
-        {:error, error} ->
-          {:error, error}
-      end
-    end
-  end
-
-  def list_comments(part, part_id, %{page: page, size: size} = filters) do
-    with {:ok, action} <- match_action(part, :comment) do
-      action.reactor
-      # TODO: make post_id common
-      |> where([c], c.post_id == ^part_id)
-      |> QueryBuilder.filter_pack(filters)
-      |> ORM.paginater(page: page, size: size)
-      |> done()
-    end
-  end
-
-  def list_replies(part, comment_id, %Accounts.User{id: user_id}) do
-    with {:ok, action} <- match_action(part, :comment) do
-      action.reactor
-      |> where([c], c.author_id == ^user_id)
-      |> join(:inner, [c], r in assoc(c, :reply_to))
-      |> where([c, r], r.id == ^comment_id)
-      |> Repo.all()
-      |> done()
-    end
-  end
-
-  def reply_comment(part, comment_id, %Accounts.User{id: user_id}, body) do
-    with {:ok, action} <- match_action(part, :comment),
-         {:ok, comment} <- ORM.find(action.reactor, comment_id) do
-      attrs = %{post_id: comment.post_id, author_id: user_id, body: body, reply_to: comment}
-      # TODO: use Multi task to refactor
-      case action.reactor |> ORM.create(attrs) do
-        {:ok, reply} ->
-          ORM.update(reply, %{reply_id: comment.id})
-
-          {:ok, _} =
-            PostCommentReply |> ORM.create(%{post_comment_id: comment.id, reply_id: reply.id})
-
-          action.reactor |> ORM.find(reply.id)
-
-        {:error, error} ->
-          {:error, error}
-      end
-    end
-  end
+  defdelegate list_comments(part, part_id, filters), to: CommentCURD
+  defdelegate list_replies(part, comment_id, user_id), to: CommentCURD
+  defdelegate reply_comment(part, comment_id, user_id, body), to: CommentCURD
 
   # can not use spectial: post_comment_id
-  def like_comment(part, comment_id, %Accounts.User{id: user_id}) do
-    feel_comment(part, comment_id, user_id, :like)
-  end
+  # do not pattern match in delegating func, do it on one delegating inside
+  # see https://github.com/elixir-lang/elixir/issues/5306
+  defdelegate like_comment(part, comment_id, user_id), to: CommentReaction
+  defdelegate undo_like_comment(part, comment_id, user_id), to: CommentReaction
 
-  def undo_like_comment(part, comment_id, %Accounts.User{id: user_id}) do
-    undo_feel_comment(part, comment_id, user_id, :like)
-  end
-
-  def dislike_comment(part, comment_id, %Accounts.User{id: user_id}) do
-    feel_comment(part, comment_id, user_id, :dislike)
-  end
-
-  def undo_dislike_comment(part, comment_id, %Accounts.User{id: user_id}) do
-    undo_feel_comment(part, comment_id, user_id, :dislike)
-  end
-
-  defp feel_comment(part, comment_id, user_id, feeling)
-       when valid_feeling(feeling) do
-    with {:ok, action} <- match_action(part, feeling) do
-      clause = %{post_comment_id: comment_id, user_id: user_id}
-
-      case ORM.find_by(action.target, clause) do
-        {:ok, _} ->
-          {:error, "user has #{to_string(feeling)}d this comment"}
-
-        {:error, _} ->
-          action.target |> ORM.create(clause)
-      end
-    end
-  end
-
-  defp undo_feel_comment(part, comment_id, user_id, feeling) do
-    with {:ok, action} <- match_action(part, feeling) do
-      clause = %{post_comment_id: comment_id, user_id: user_id}
-      ORM.findby_delete(action.target, clause)
-    end
-  end
+  defdelegate dislike_comment(part, comment_id, user_id), to: CommentReaction
+  defdelegate undo_dislike_comment(part, comment_id, user_id), to: CommentReaction
 
   @doc """
   subscribe a community. (ONLY community, post etc use watch )
@@ -429,49 +301,8 @@ defmodule MastaniServer.CMS do
     ORM.find_by(Author, user_id: changeset.data.user_id)
   end
 
-  # TODO passport should be public utils
-  @doc """
-  insert or update a user's passport in CMS context
-  """
-  def stamp_passport(%Accounts.User{id: user_id}, rules) do
-    case ORM.find_by(Passport, user_id: user_id) do
-      {:ok, passport} ->
-        passport |> ORM.update(%{rules: deep_merge(passport.rules, rules)})
-
-      {:error, _} ->
-        Passport |> ORM.create(~m(user_id rules)a)
-    end
-  end
-
-  def erase_passport(%Accounts.User{} = user, rules) when is_list(rules) do
-    with {:ok, passport} <- ORM.find_by(Passport, user_id: user.id) do
-      case pop_in(passport.rules, rules) do
-        {nil, _} ->
-          {:error, "#{rules} not found"}
-
-        {_, lefts} ->
-          passport |> ORM.update(%{rules: lefts})
-      end
-    end
-  end
-
-  @doc """
-  return a user's passport in CMS context
-  """
-  def get_passport(%Accounts.User{} = user) do
-    with {:ok, passport} <- ORM.find_by(Passport, user_id: user.id) do
-      {:ok, passport.rules}
-    end
-  end
-
-  # https://medium.com/front-end-hacking/use-github-oauth-as-your-sso-seamlessly-with-react-3e2e3b358fa1
-  # http://www.ubazu.com/using-postgres-jsonb-columns-in-ecto
-  # http://www.ubazu.com/using-postgres-jsonb-columns-in-ecto
-
-  def list_passports(community, key) do
-    Passport
-    |> where([p], fragment("(?->?->>?)::boolean = ?", p.rules, ^community, ^key, true))
-    |> Repo.all()
-    |> done
-  end
+  defdelegate stamp_passport(user_id, rules), to: Passport
+  defdelegate erase_passport(user, rules), to: Passport
+  defdelegate get_passport(user), to: Passport
+  defdelegate list_passports(community, key), to: Passport
 end

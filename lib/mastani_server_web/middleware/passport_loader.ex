@@ -1,6 +1,6 @@
 defmodule MastaniServerWeb.Middleware.PassportLoader do
   @behaviour Absinthe.Middleware
-  import MastaniServer.CMS.Misc
+  import MastaniServer.CMS.Utils.Matcher
   import Helper.Utils
   import ShortMaps
 
