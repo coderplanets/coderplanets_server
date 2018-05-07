@@ -37,7 +37,11 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   def add_editor(_root, ~m(community_id user_id title)a, _) do
-    CMS.add_editor(%Accounts.User{id: user_id}, %CMS.Community{id: community_id}, title)
+    CMS.add_editor_to_community(
+      %Accounts.User{id: user_id},
+      %CMS.Community{id: community_id},
+      title
+    )
   end
 
   def delete_editor(_root, ~m(community_id user_id)a, _) do

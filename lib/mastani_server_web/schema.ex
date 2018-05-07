@@ -50,7 +50,7 @@ defmodule MastaniServerWeb.Schema do
     alias MastaniServer.{Accounts, CMS}
 
     Dataloader.new()
-    |> Dataloader.add_source(Accounts, Accounts.Loader.data())
+    |> Dataloader.add_source(Accounts, Accounts.Utils.Loader.data())
     |> Dataloader.add_source(CMS, CMS.Utils.Loader.data())
   end
 

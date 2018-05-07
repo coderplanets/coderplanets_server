@@ -1,4 +1,4 @@
-defmodule MastaniServer.CMS.Delegate.Passport do
+defmodule MastaniServer.CMS.Delegate.PassportCURD do
   import Helper.Utils, only: [done: 1, deep_merge: 2]
   import Ecto.Query, warn: false
   import ShortMaps
@@ -41,8 +41,8 @@ defmodule MastaniServer.CMS.Delegate.Passport do
     end
   end
 
-  def erase_passport(%Accounts.User{} = user, rules) when is_list(rules) do
-    with {:ok, passport} <- ORM.find_by(UserPasport, user_id: user.id) do
+  def erase_passport(%Accounts.User{id: user_id}, rules) when is_list(rules) do
+    with {:ok, passport} <- ORM.find_by(UserPasport, user_id: user_id) do
       case pop_in(passport.rules, rules) do
         {nil, _} ->
           {:error, "#{rules} not found"}

@@ -28,7 +28,7 @@ defmodule MastaniServer.Test.PostReactionsTest do
       assert 1 == reaction_users |> Enum.filter(fn ruser -> user.id == ruser.id end) |> length
 
       # undo test
-      {:ok, _} = CMS.undo_reaction(:post, :favorite, post.id, user.id)
+      {:ok, _} = CMS.undo_reaction(:post, :favorite, post.id, %Accounts.User{id: user.id})
       {:ok, reaction_users2} = CMS.reaction_users(:post, :favorite, post.id, %{page: 1, size: 1})
       reaction_users2 = reaction_users2 |> Map.get(:entries)
 

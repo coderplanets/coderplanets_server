@@ -142,7 +142,11 @@ defmodule MastaniServer.Test.CMSTest do
       title = "chief editor"
 
       {:ok, _} =
-        CMS.add_editor(%Accounts.User{id: user.id}, %CMS.Community{id: community.id}, title)
+        CMS.add_editor_to_community(
+          %Accounts.User{id: user.id},
+          %CMS.Community{id: community.id},
+          title
+        )
 
       related_rules = Certification.passport_rules(cms: title)
 
@@ -160,7 +164,11 @@ defmodule MastaniServer.Test.CMSTest do
 
       Enum.each(
         users,
-        &CMS.add_editor(%Accounts.User{id: &1.id}, %CMS.Community{id: community.id}, title)
+        &CMS.add_editor_to_community(
+          %Accounts.User{id: &1.id},
+          %CMS.Community{id: community.id},
+          title
+        )
       )
 
       {:ok, results} =

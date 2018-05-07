@@ -69,7 +69,11 @@ defmodule MastaniServer.Test.Query.CMSTest do
 
       Enum.each(
         users,
-        &CMS.add_editor(%Accounts.User{id: &1.id}, %CMS.Community{id: community.id}, title)
+        &CMS.add_editor_to_community(
+          %Accounts.User{id: &1.id},
+          %CMS.Community{id: community.id},
+          title
+        )
       )
 
       variables = %{id: community.id}
@@ -106,7 +110,11 @@ defmodule MastaniServer.Test.Query.CMSTest do
 
       Enum.each(
         users,
-        &CMS.add_editor(%Accounts.User{id: &1.id}, %CMS.Community{id: community.id}, title)
+        &CMS.add_editor_to_community(
+          %Accounts.User{id: &1.id},
+          %CMS.Community{id: community.id},
+          title
+        )
       )
 
       variables = %{id: community.id, filter: %{page: 1, size: 10}}

@@ -1,6 +1,7 @@
 defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   # TODO docs:  include community / editors / curd
   import Ecto.Query, warn: false
+  import MastaniServer.CMS.Utils.Matcher
   import Helper.Utils, only: [done: 1, deep_merge: 2]
   import ShortMaps
 
@@ -9,10 +10,11 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   alias MastaniServer.CMS.{
     Community,
     CommunityEditor,
-    CommunitySubscriber
+    CommunitySubscriber,
+    Thread
   }
 
-  alias MastaniServer.CMS.Delegate.Passport
+  alias MastaniServer.CMS.Delegate.PassportCURD
   alias Helper.QueryBuilder
 
   alias Helper.{ORM, Certification}
@@ -39,33 +41,6 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     |> done()
   end
 
-  @doc """
-  set a community editor
-  """
-  def add_editor(%Accounts.User{id: user_id}, %Community{id: community_id}, title) do
-    Multi.new()
-    |> Multi.insert(
-      :insert_editor,
-      CommunityEditor.changeset(%CommunityEditor{}, ~m(user_id community_id title)a)
-    )
-    |> Multi.run(:stamp_passport, fn _ ->
-      rules = Certification.passport_rules(cms: title)
-      Passport.stamp_passport(%Accounts.User{id: user_id}, rules)
-    end)
-    |> Repo.transaction()
-    |> add_editor_result()
-  end
-
-  defp add_editor_result({:ok, %{insert_editor: editor}}) do
-    Accounts.User |> ORM.find(editor.user_id)
-  end
-
-  defp add_editor_result({:error, :stamp_passport, _result, _steps}),
-    do: {:error, "stamp passport error"}
-
-  defp add_editor_result({:error, :insert_editor, _result, _steps}),
-    do: {:error, "insert editor error"}
-
   def update_editor(%Accounts.User{id: user_id}, %Community{id: community_id}, title) do
     clauses = ~m(user_id community_id)a
 
@@ -76,8 +51,34 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
 
   def delete_editor(%Accounts.User{id: user_id}, %Community{id: community_id}) do
     with {:ok, _} <- ORM.findby_delete(CommunityEditor, ~m(user_id community_id)a),
-         {:ok, _} <- Passport.delete_passport(%Accounts.User{id: user_id}) do
+         {:ok, _} <- PassportCURD.delete_passport(%Accounts.User{id: user_id}) do
       Accounts.User |> ORM.find(user_id)
     end
   end
+
+  @doc """
+  create a Tag base on type: post / tuts / videos ...
+  """
+  def create_tag(part, attrs) when valid_part(part) do
+    with {:ok, action} <- match_action(part, :tag),
+         {:ok, community} <- ORM.find_by(Community, title: attrs.community) do
+      attrs = attrs |> Map.merge(%{community_id: community.id})
+      action.reactor |> ORM.create(attrs)
+    end
+  end
+
+  # TODO: use comunityId
+  def get_tags(community, part) do
+    Tag
+    |> join(:inner, [t], c in assoc(t, :community))
+    |> where([t, c], c.title == ^community and t.part == ^part)
+    |> distinct([t], t.title)
+    |> Repo.all()
+    |> done()
+  end
+
+  @doc """
+  TODO: create_thread
+  """
+  def create_thread(attrs), do: Thread |> ORM.create(attrs)
 end

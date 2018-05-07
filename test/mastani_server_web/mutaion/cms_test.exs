@@ -276,7 +276,11 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       title = "chief editor"
 
       {:ok, _} =
-        CMS.add_editor(%Accounts.User{id: user.id}, %CMS.Community{id: community.id}, title)
+        CMS.add_editor_to_community(
+          %Accounts.User{id: user.id},
+          %CMS.Community{id: community.id},
+          title
+        )
 
       assert {:ok, _} =
                CMS.CommunityEditor |> ORM.find_by(user_id: user.id, community_id: community.id)
@@ -307,7 +311,11 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       title = "chief editor"
 
       {:ok, _} =
-        CMS.add_editor(%Accounts.User{id: user.id}, %CMS.Community{id: community.id}, title)
+        CMS.add_editor_to_community(
+          %Accounts.User{id: user.id},
+          %CMS.Community{id: community.id},
+          title
+        )
 
       title2 = "post editor"
       variables = %{userId: user.id, communityId: community.id, title: title2}
