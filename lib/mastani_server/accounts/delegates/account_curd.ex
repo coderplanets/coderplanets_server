@@ -1,9 +1,15 @@
 defmodule MastaniServer.Accounts.Delegate.AccountCURD do
+  import Ecto.Query, warn: false
+  import Helper.Utils, only: [done: 1, get_config: 2]
+
   alias MastaniServer.Repo
   alias MastaniServer.Accounts.{User, GithubUser}
   alias Helper.{ORM, Guardian, QueryBuilder}
+  alias MastaniServer.CMS
 
   alias Ecto.Multi
+
+  @default_subscribed_communities get_config(:general, :default_subscribed_communities)
 
   def update_profile(%User{id: id}, attrs \\ %{}) do
     with {:ok, user} <- ORM.find(User, id) do
@@ -34,6 +40,27 @@ defmodule MastaniServer.Accounts.Delegate.AccountCURD do
         # IO.inspect label: "register then send"
         register_github_user(github_user)
     end
+  end
+
+  @doc """
+  get default subscribed communities for unlogin user
+  """
+  def default_subscribed_communities(%{page: _, size: _} = filter) do
+    filter = Map.merge(filter, %{size: @default_subscribed_communities})
+    CMS.Community |> ORM.find_all(filter)
+  end
+
+  @doc """
+  get users subscribed communities
+  """
+  def subscribed_communities(%User{id: id}, %{page: page, size: size} = filter) do
+    CMS.CommunitySubscriber
+    |> where([c], c.user_id == ^id)
+    |> join(:inner, [c], cc in assoc(c, :community))
+    |> select([c, cc], cc)
+    |> QueryBuilder.filter_pack(filter)
+    |> ORM.paginater(page: page, size: size)
+    |> done()
   end
 
   defp register_github_user(github_profile) do
