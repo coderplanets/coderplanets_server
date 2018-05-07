@@ -204,7 +204,6 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       }
     }
     """
-    @tag :wip
     test "auth user can set a valid tag to post", ~m(post)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{community: community})

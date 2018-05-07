@@ -32,6 +32,21 @@ defmodule MastaniServer.Test.CommentTest do
       assert comment.author_id == user.id
     end
 
+    test "created comment should have a increased floor number", ~m(post user)a do
+      content = "this is a test comment"
+
+      assert {:ok, comment1} =
+               CMS.create_comment(:post, post.id, %Accounts.User{id: user.id}, content)
+
+      {:ok, user2} = db_insert(:user)
+
+      assert {:ok, comment2} =
+               CMS.create_comment(:post, post.id, %Accounts.User{id: user2.id}, content)
+
+      assert comment1.floor == 2
+      assert comment2.floor == 3
+    end
+
     test "create comment to non-exsit post fails", ~m(user)a do
       content = "this is a test comment"
 
