@@ -1,6 +1,6 @@
 defmodule MastaniServer.CMS.Delegate.CommunityOperation do
   import ShortMaps
-  import MastaniServer.CMS.Utils.Matcher
+  # import MastaniServer.CMS.Utils.Matcher
 
   alias MastaniServer.CMS.Delegate.PassportCURD
   alias MastaniServer.{Repo, Accounts}
@@ -9,7 +9,6 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
 
   alias MastaniServer.CMS.{
     # Author,
-    Thread,
     CommunityThread,
     CommunityEditor,
     Community,

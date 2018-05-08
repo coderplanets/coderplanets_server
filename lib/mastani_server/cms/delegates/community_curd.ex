@@ -2,7 +2,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   # TODO docs:  include community / editors / curd
   import Ecto.Query, warn: false
   import MastaniServer.CMS.Utils.Matcher
-  import Helper.Utils, only: [done: 1, deep_merge: 2]
+  import Helper.Utils, only: [done: 1]
   import ShortMaps
 
   alias MastaniServer.{Repo, Accounts}
@@ -17,7 +17,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   alias MastaniServer.CMS.Delegate.PassportCURD
   alias Helper.QueryBuilder
 
-  alias Helper.{ORM, Certification}
+  alias Helper.ORM
   alias Ecto.Multi
 
   def create_community(attrs), do: Community |> ORM.create(attrs)
