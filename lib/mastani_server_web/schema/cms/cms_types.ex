@@ -57,6 +57,16 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       resolve(dataloader(CMS, :dislikes))
     end
 
+    field :viewer_has_disliked, :boolean do
+      arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
+
+      middleware(M.Authorize, :login)
+      # put current user into dataloader's args
+      middleware(M.PutCurrentUser)
+      resolve(dataloader(CMS, :dislikes))
+      middleware(M.ViewerDidConvert)
+    end
+
     field :dislikes_count, :integer do
       arg(:count, :count_type, default_value: :count)
 
