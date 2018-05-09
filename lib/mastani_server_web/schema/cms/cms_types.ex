@@ -67,6 +67,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field :replies, list_of(:comment) do
       arg(:filter, :members_filter)
 
+      middleware(M.ForceLoader)
       middleware(M.PageSizeProof)
       resolve(dataloader(CMS, :replies))
     end

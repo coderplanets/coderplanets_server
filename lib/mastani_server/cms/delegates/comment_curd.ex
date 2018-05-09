@@ -74,7 +74,19 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   def reply_comment(part, comment_id, %Accounts.User{id: user_id}, body) do
     with {:ok, action} <- match_action(part, :comment),
          {:ok, comment} <- ORM.find(action.reactor, comment_id) do
-      attrs = %{post_id: comment.post_id, author_id: user_id, body: body, reply_to: comment}
+      nextFloor =
+        action.reactor
+        |> where([c], c.post_id == ^comment.post_id)
+        |> ORM.next_count()
+
+      attrs = %{
+        post_id: comment.post_id,
+        author_id: user_id,
+        body: body,
+        reply_to: comment,
+        floor: nextFloor
+      }
+
       # TODO: use Multi task to refactor
       case action.reactor |> ORM.create(attrs) do
         {:ok, reply} ->

@@ -13,7 +13,7 @@ defmodule MastaniServer.Mock.CMS.Comment do
 
   def random(count \\ 1) do
     for _u <- 1..count do
-     # CMS.create_comment(:post, :comment, 21, 39, "fake comment")
+      # CMS.create_comment(:post, :comment, 21, 39, "fake comment")
     end
   end
 
