@@ -18,7 +18,6 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   alias Helper.QueryBuilder
 
   alias Helper.ORM
-  alias Ecto.Multi
 
   def create_community(attrs), do: Community |> ORM.create(attrs)
 
