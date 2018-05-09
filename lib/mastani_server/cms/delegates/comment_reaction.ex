@@ -25,12 +25,14 @@ defmodule MastaniServer.CMS.Delegate.CommentReaction do
     with {:ok, action} <- match_action(part, feeling) do
       clause = %{post_comment_id: comment_id, user_id: user_id}
 
-      case ORM.find_by(action.target, clause) do
+      case ORM.find_by(action.reactor, clause) do
         {:ok, _} ->
           {:error, "user has #{to_string(feeling)}d this comment"}
 
         {:error, _} ->
-          action.target |> ORM.create(clause)
+          action.reactor |> ORM.create(clause)
+
+          ORM.find(action.target, comment_id)
       end
     end
   end
@@ -38,7 +40,8 @@ defmodule MastaniServer.CMS.Delegate.CommentReaction do
   defp undo_feel_comment(part, comment_id, user_id, feeling) do
     with {:ok, action} <- match_action(part, feeling) do
       clause = %{post_comment_id: comment_id, user_id: user_id}
-      ORM.findby_delete(action.target, clause)
+      ORM.findby_delete(action.reactor, clause)
+      ORM.find(action.target, comment_id)
     end
   end
 end

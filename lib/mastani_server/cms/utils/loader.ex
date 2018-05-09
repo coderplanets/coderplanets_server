@@ -71,7 +71,7 @@ defmodule MastaniServer.CMS.Utils.Loader do
   end
 
   def run_batch(PostComment, comment_query, :cp_users, post_ids, repo_opts) do
-    IO.inspect(comment_query, label: "comment_query")
+    IO.inspect(comment_query, label: "# run_batch # comment_query")
 
     sq =
       from(

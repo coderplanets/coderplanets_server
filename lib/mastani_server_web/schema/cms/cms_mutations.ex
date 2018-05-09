@@ -300,7 +300,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
     end
 
     @desc "like a comment"
-    field :like_comment, :idlike do
+    field :like_comment, :comment do
       arg(:part, non_null(:cms_comment), default_value: :post_comment)
       arg(:id, non_null(:id))
 
@@ -309,7 +309,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
     end
 
     @desc "undo like comment"
-    field :undo_like_comment, :idlike do
+    # field :undo_like_comment, :idlike do
+    field :undo_like_comment, :comment do
       arg(:part, non_null(:cms_comment), default_value: :post_comment)
       arg(:id, non_null(:id))
 
@@ -317,7 +318,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       resolve(&Resolvers.CMS.undo_like_comment/3)
     end
 
-    field :dislike_comment, :idlike do
+    field :dislike_comment, :comment do
       arg(:part, non_null(:cms_comment), default_value: :post_comment)
       arg(:id, non_null(:id))
 
@@ -325,7 +326,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       resolve(&Resolvers.CMS.dislike_comment/3)
     end
 
-    field :undo_dislike_comment, :idlike do
+    field :undo_dislike_comment, :comment do
       arg(:part, non_null(:cms_comment), default_value: :post_comment)
       arg(:id, non_null(:id))
 

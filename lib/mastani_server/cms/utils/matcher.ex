@@ -45,10 +45,10 @@ defmodule MastaniServer.CMS.Utils.Matcher do
     do: {:ok, %{target: Post, reactor: PostComment, preload: :author}}
 
   def match_action(:post_comment, :like),
-    do: {:ok, %{target: PostCommentLike, reactor: PostCommentLike}}
+    do: {:ok, %{target: PostComment, reactor: PostCommentLike}}
 
   def match_action(:post_comment, :dislike),
-    do: {:ok, %{target: PostCommentDislike, reactor: PostCommentDislike}}
+    do: {:ok, %{target: PostComment, reactor: PostCommentDislike}}
 
   def dynamic_where(part, id) do
     case part do
