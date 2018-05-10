@@ -81,6 +81,8 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
   enum :comment_sort_enum do
     value(:asc_inserted)
     value(:desc_inserted)
+    value(:most_likes)
+    value(:most_dislikes)
   end
 
   enum :sort_enum do

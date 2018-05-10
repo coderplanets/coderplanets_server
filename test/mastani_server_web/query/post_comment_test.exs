@@ -22,10 +22,12 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
   # TODO: filter comment by time / like / reply
   describe "[post comment]" do
     @query """
-    query comments($id: ID!, $filter: PagedFilter!) {
+    query comments($id: ID!, $filter: CommentsFilter!) {
       comments(id: $id, filter: $filter) {
         entries {
           id
+          likesCount
+          dislikesCount
         }
         totalPages
         totalCount
@@ -50,8 +52,81 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
       assert results["totalCount"] == 30
     end
 
+    test "MOST_LIKES filter should work", ~m(guest_conn post user)a do
+      content = "test comment"
+
+      comments =
+        Enum.reduce(1..10, [], fn _, acc ->
+          {:ok, value} = CMS.create_comment(:post, post.id, %Accounts.User{id: user.id}, content)
+
+          acc ++ [value]
+        end)
+
+      [comment_1, _comment_2, comment_3, _comment_last] = comments |> firstn_and_last(3)
+      {:ok, [user_1, user_2, user_3, user_4, user_5]} = db_insert_multi(:user, 5)
+
+      # comment_3 is most likes
+      {:ok, _} = CMS.like_comment(:post_comment, comment_3.id, %Accounts.User{id: user_1.id})
+      {:ok, _} = CMS.like_comment(:post_comment, comment_3.id, %Accounts.User{id: user_2.id})
+      {:ok, _} = CMS.like_comment(:post_comment, comment_3.id, %Accounts.User{id: user_3.id})
+      {:ok, _} = CMS.like_comment(:post_comment, comment_3.id, %Accounts.User{id: user_4.id})
+      {:ok, _} = CMS.like_comment(:post_comment, comment_3.id, %Accounts.User{id: user_5.id})
+
+      {:ok, _} = CMS.like_comment(:post_comment, comment_1.id, %Accounts.User{id: user_1.id})
+      {:ok, _} = CMS.like_comment(:post_comment, comment_1.id, %Accounts.User{id: user_2.id})
+      {:ok, _} = CMS.like_comment(:post_comment, comment_1.id, %Accounts.User{id: user_3.id})
+      {:ok, _} = CMS.like_comment(:post_comment, comment_1.id, %Accounts.User{id: user_4.id})
+
+      variables = %{id: post.id, filter: %{page: 1, size: 10, sort: "MOST_LIKES"}}
+      results = guest_conn |> query_result(@query, variables, "comments")
+      entries = results["entries"]
+
+      assert entries |> Enum.at(0) |> Map.get("id") == to_string(comment_3.id)
+      assert entries |> Enum.at(0) |> Map.get("likesCount") == 5
+
+      assert entries |> Enum.at(1) |> Map.get("id") == to_string(comment_1.id)
+      assert entries |> Enum.at(1) |> Map.get("likesCount") == 4
+    end
+
+    @tag :wip
+    test "MOST_DISLIKES filter should work", ~m(guest_conn post user)a do
+      content = "test comment"
+
+      comments =
+        Enum.reduce(1..10, [], fn _, acc ->
+          {:ok, value} = CMS.create_comment(:post, post.id, %Accounts.User{id: user.id}, content)
+
+          acc ++ [value]
+        end)
+
+      [comment_1, _comment_2, comment_3, _comment_last] = comments |> firstn_and_last(3)
+      {:ok, [user_1, user_2, user_3, user_4, user_5]} = db_insert_multi(:user, 5)
+
+      # comment_3 is most likes
+      {:ok, _} = CMS.dislike_comment(:post_comment, comment_3.id, %Accounts.User{id: user_1.id})
+      {:ok, _} = CMS.dislike_comment(:post_comment, comment_3.id, %Accounts.User{id: user_2.id})
+      {:ok, _} = CMS.dislike_comment(:post_comment, comment_3.id, %Accounts.User{id: user_3.id})
+      {:ok, _} = CMS.dislike_comment(:post_comment, comment_3.id, %Accounts.User{id: user_4.id})
+      {:ok, _} = CMS.dislike_comment(:post_comment, comment_3.id, %Accounts.User{id: user_5.id})
+
+      {:ok, _} = CMS.dislike_comment(:post_comment, comment_1.id, %Accounts.User{id: user_1.id})
+      {:ok, _} = CMS.dislike_comment(:post_comment, comment_1.id, %Accounts.User{id: user_2.id})
+      {:ok, _} = CMS.dislike_comment(:post_comment, comment_1.id, %Accounts.User{id: user_3.id})
+      {:ok, _} = CMS.dislike_comment(:post_comment, comment_1.id, %Accounts.User{id: user_4.id})
+
+      variables = %{id: post.id, filter: %{page: 1, size: 10, sort: "MOST_DISLIKES"}}
+      results = guest_conn |> query_result(@query, variables, "comments")
+      entries = results["entries"]
+
+      assert entries |> Enum.at(0) |> Map.get("id") == to_string(comment_3.id)
+      assert entries |> Enum.at(0) |> Map.get("dislikesCount") == 5
+
+      assert entries |> Enum.at(1) |> Map.get("id") == to_string(comment_1.id)
+      assert entries |> Enum.at(1) |> Map.get("dislikesCount") == 4
+    end
+
     @query """
-    query comments($id: ID!, $filter: PagedFilter!) {
+    query comments($id: ID!, $filter: CommentsFilter!) {
       comments(id: $id, filter: $filter) {
         entries {
           id

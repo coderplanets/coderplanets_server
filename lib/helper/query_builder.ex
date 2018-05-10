@@ -70,6 +70,14 @@ defmodule Helper.QueryBuilder do
   defp sort_strategy(:desc_inserted), do: [desc: :inserted_at, desc: :views]
   # defp strategy(:most_stars), do: [desc: :views, desc: :inserted_at]
 
+  defp sort_by_count(queryable, field, direction) do
+    queryable
+    |> join(:left, [p], s in assoc(p, ^field))
+    |> group_by([p], p.id)
+    |> select([p], p)
+    |> order_by([_, s], {^direction, fragment("count(?)", s.id)})
+  end
+
   def filter_pack(queryable, filter) when is_map(filter) do
     Enum.reduce(filter, queryable, fn
       {:sort, :desc_inserted}, queryable ->
@@ -86,18 +94,16 @@ defmodule Helper.QueryBuilder do
         queryable |> order_by(^sort_strategy(:least_views))
 
       {:sort, :most_stars}, queryable ->
-        queryable
-        |> join(:left, [p], s in assoc(p, :stars))
-        |> group_by([p], p.id)
-        |> select([p], p)
-        |> order_by([p, s], desc: fragment("count(?)", s.id))
+        queryable |> sort_by_count(:stars, :desc)
 
       {:sort, :least_stars}, queryable ->
-        queryable
-        |> join(:left, [p], s in assoc(p, :stars))
-        |> group_by([p], p.id)
-        |> select([p], p)
-        |> order_by([p, s], asc: fragment("count(?)", s.id))
+        queryable |> sort_by_count(:stars, :asc)
+
+      {:sort, :most_likes}, queryable ->
+        queryable |> sort_by_count(:likes, :desc)
+
+      {:sort, :most_dislikes}, queryable ->
+        queryable |> sort_by_count(:dislikes, :desc)
 
       {:when, :today}, queryable ->
         # date = DateTime.utc_now() |> Timex.to_datetime()
