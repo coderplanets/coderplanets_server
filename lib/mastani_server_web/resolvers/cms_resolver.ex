@@ -60,7 +60,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.create_tag(args.part, %{
       title: args.title,
       color: to_string(args.color),
-      community: args.community,
+      community_id: args.community_id,
       part: to_string(args.part),
       user_id: user.id
     })
@@ -87,12 +87,12 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.community_members(:editors, %CMS.Community{id: id}, filter)
   end
 
-  def set_tag(_root, ~m(community part id tag_id)a, _info) do
-    CMS.set_tag(community, part, id, tag_id)
+  def set_tag(_root, ~m(community_id part id tag_id)a, _info) do
+    CMS.set_tag(%CMS.Community{id: community_id}, part, id, %CMS.Tag{id: tag_id})
   end
 
   def unset_tag(_root, ~m(id part tag_id)a, _info) do
-    CMS.unset_tag(part, id, tag_id)
+    CMS.unset_tag(part, id, %CMS.Tag{id: tag_id})
   end
 
   def set_community(_root, ~m(part id community)a, _info) do
@@ -103,8 +103,12 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.unset_community(part, id, %CMS.Community{title: community})
   end
 
-  def get_tags(_root, ~m(community part)a, _info) do
-    CMS.get_tags(community, to_string(part))
+  def get_tags(_root, ~m(community_id part)a, _info) do
+    CMS.get_tags(%CMS.Community{id: community_id}, to_string(part))
+  end
+
+  def get_tags(_root, ~m(filter)a, _info) do
+    CMS.get_tags(filter)
   end
 
   def create_post(_root, args, %{context: %{cur_user: user}}) do

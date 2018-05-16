@@ -62,7 +62,6 @@ defmodule MastaniServer.Test.Mutation.PostCommentTest do
 
       user_conn = simu_conn(:user, user)
       created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
-      # IO.inspect created["id"], label: "created"
 
       deleted =
         user_conn |> mutation_result(@delete_comment_query, %{id: created["id"]}, "deleteComment")

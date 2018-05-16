@@ -91,6 +91,11 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
         entries {
           id
           inserted_at
+          author {
+            id
+            nickname
+            avatar
+          }
         }
        }
     }

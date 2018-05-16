@@ -197,8 +197,8 @@ defmodule MastaniServer.Test.Mutation.PostTest do
 
   describe "[mutation post tag]" do
     @set_tag_query """
-    mutation($id: ID!, $tagId: ID! $community: String!) {
-      setTag(id: $id, tagId: $tagId, community: $community) {
+    mutation($id: ID!, $tagId: ID! $communityId: ID!) {
+      setTag(id: $id, tagId: $tagId, communityId: $communityId) {
         id
         title
       }
@@ -212,7 +212,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       passport_rules = %{community.title => %{"post.tag.set" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      variables = %{id: post.id, tagId: tag.id, community: community.title}
+      variables = %{id: post.id, tagId: tag.id, communityId: community.id}
       rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :tags)
 
@@ -227,7 +227,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       passport_rules = %{community.title => %{"post.tag.set" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      variables = %{id: post.id, tagId: tag.id, community: community.title}
+      variables = %{id: post.id, tagId: tag.id, communityId: community.id}
       assert rule_conn |> mutation_get_error?(@set_tag_query, variables)
     end
 
@@ -239,10 +239,10 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       passport_rules = %{community.title => %{"post.tag.set" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      variables = %{id: post.id, tagId: tag.id, community: community.title}
+      variables = %{id: post.id, tagId: tag.id, communityId: community.id}
       rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
 
-      variables2 = %{id: post.id, tagId: tag2.id, community: community.title}
+      variables2 = %{id: post.id, tagId: tag2.id, communityId: community.id}
       rule_conn |> mutation_result(@set_tag_query, variables2, "setTag")
 
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :tags)
@@ -253,8 +253,8 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     end
 
     @unset_tag_query """
-    mutation($id: ID!, $tagId: ID!, $community: String!) {
-      unsetTag(id: $id, tagId: $tagId, community: $community) {
+    mutation($id: ID!, $tagId: ID!, $communityId: ID!) {
+      unsetTag(id: $id, tagId: $tagId, communityId: $communityId) {
         id
         title
       }
@@ -269,10 +269,10 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       {:ok, tag} = db_insert(:tag, %{community: community})
       {:ok, tag2} = db_insert(:tag, %{community: community})
 
-      variables = %{id: post.id, tagId: tag.id, community: community.title}
+      variables = %{id: post.id, tagId: tag.id, communityId: community.id}
       rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
 
-      variables2 = %{id: post.id, tagId: tag2.id, community: community.title}
+      variables2 = %{id: post.id, tagId: tag2.id, communityId: community.id}
       rule_conn |> mutation_result(@set_tag_query, variables2, "setTag")
 
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :tags)

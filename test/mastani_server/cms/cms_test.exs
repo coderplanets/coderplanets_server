@@ -50,21 +50,21 @@ defmodule MastaniServer.Test.CMSTest do
   describe "[cms tag]" do
     test "create tag with valid data", ~m(community)a do
       {:ok, user} = ORM.find_by(Accounts.User, nickname: @valid_user.nickname)
-      valid_attrs = mock_attrs(:tag, %{user_id: user.id, community: community.title})
+      valid_attrs = mock_attrs(:tag, %{user_id: user.id, community_id: community.id})
 
       {:ok, tag} = CMS.create_tag(:post, valid_attrs)
       assert tag.title == valid_attrs.title
     end
 
     test "create tag with non-exsit user fails", ~m(community)a do
-      invalid_attrs = mock_attrs(:tag, %{user_id: 100_086, community: community.title})
+      invalid_attrs = mock_attrs(:tag, %{user_id: non_exsit_id(), community_id: community.id})
 
       assert {:error, %Ecto.Changeset{}} = CMS.create_tag(:post, invalid_attrs)
     end
 
     test "create tag with non-exsit community fails" do
       {:ok, user} = ORM.find_by(Accounts.User, nickname: @valid_user.nickname)
-      invalid_attrs = mock_attrs(:tag, %{user_id: user.id, community: "not exsit"})
+      invalid_attrs = mock_attrs(:tag, %{user_id: user.id, community_id: non_exsit_id()})
 
       assert {:error, _} = CMS.create_tag(:post, invalid_attrs)
     end

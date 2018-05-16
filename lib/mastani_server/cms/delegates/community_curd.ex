@@ -11,7 +11,8 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     Community,
     CommunityEditor,
     CommunitySubscriber,
-    Thread
+    Thread,
+    Tag
   }
 
   alias MastaniServer.CMS.Delegate.PassportCURD
@@ -60,19 +61,28 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   """
   def create_tag(part, attrs) when valid_part(part) do
     with {:ok, action} <- match_action(part, :tag),
-         {:ok, community} <- ORM.find_by(Community, title: attrs.community) do
-      attrs = attrs |> Map.merge(%{community_id: community.id})
+         # {:ok, community} <- ORM.find_by(Community, title: attrs.community) do
+         {:ok, community} <- ORM.find(Community, attrs.community_id) do
+      # attrs = attrs |> Map.merge(%{community_id: community_id})
       action.reactor |> ORM.create(attrs)
     end
   end
 
   # TODO: use comunityId
-  def get_tags(community, part) do
+  # TODO: use struct
+  def get_tags(%Community{id: communitId}, part) do
     Tag
     |> join(:inner, [t], c in assoc(t, :community))
-    |> where([t, c], c.title == ^community and t.part == ^part)
+    |> where([t, c], c.id == ^communitId and t.part == ^part)
     |> distinct([t], t.title)
     |> Repo.all()
+    |> done()
+  end
+
+  def get_tags(%{page: page, size: size} = filter) do
+    Tag
+    |> QueryBuilder.filter_pack(filter)
+    |> ORM.paginater(page: page, size: size)
     |> done()
   end
 

@@ -129,12 +129,12 @@ defmodule MastaniServerWeb.Middleware.Passport do
 
   defp cp_check(resolution, claim) do
     cur_passport = resolution.context.cur_user.cur_passport
-    community = resolution.arguments.community
+    community_title = resolution.arguments.passport_communities |> List.first() |> Map.get(:title)
     part = resolution.arguments.part |> to_string
 
     path =
       claim
-      |> String.replace("c?", community)
+      |> String.replace("c?", community_title)
       |> String.replace("p?", part)
       |> String.split("->")
 

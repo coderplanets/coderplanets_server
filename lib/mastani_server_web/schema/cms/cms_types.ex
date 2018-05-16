@@ -310,6 +310,15 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     end
   end
 
+  object :tag do
+    field(:id, :id)
+    field(:title, :string)
+    field(:color, :string)
+    field(:part, :string)
+    field(:inserted_at, :datetime)
+    field(:updated_at, :datetime)
+  end
+
   object :paged_posts do
     field(:entries, list_of(:post))
     field(:total_count, :integer)
@@ -334,12 +343,11 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:page_number, :integer)
   end
 
-  object :tag do
-    field(:id, :id)
-    field(:title, :string)
-    field(:color, :string)
-    field(:part, :string)
-    field(:inserted_at, :datetime)
-    field(:updated_at, :datetime)
+  object :paged_tags do
+    field(:entries, list_of(:tag))
+    field(:total_count, :integer)
+    field(:page_size, :integer)
+    field(:total_pages, :integer)
+    field(:page_number, :integer)
   end
 end

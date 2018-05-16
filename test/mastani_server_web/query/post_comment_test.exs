@@ -88,7 +88,6 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
       assert entries |> Enum.at(1) |> Map.get("likesCount") == 4
     end
 
-    @tag :wip
     test "MOST_DISLIKES filter should work", ~m(guest_conn post user)a do
       content = "test comment"
 

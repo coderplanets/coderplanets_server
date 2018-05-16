@@ -32,11 +32,12 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   set tag for post / tuts / videos ...
   """
   # check community first
-  def set_tag(community_title, part, part_id, tag_id) when valid_part(part) do
+  def set_tag(%Community{id: communitId}, part, part_id, %Tag{id: tag_id})
+      when valid_part(part) do
     with {:ok, action} <- match_action(part, :tag),
          {:ok, content} <- ORM.find(action.target, part_id, preload: :tags),
          {:ok, tag} <- ORM.find(action.reactor, tag_id) do
-      case tag_in_community_part?(community_title, part, tag) do
+      case tag_in_community_part?(%Community{id: communitId}, part, tag) do
         true ->
           content
           |> Ecto.Changeset.change()
@@ -49,7 +50,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
     end
   end
 
-  def unset_tag(part, part_id, tag_id) when valid_part(part) do
+  def unset_tag(part, part_id, %Tag{id: tag_id}) when valid_part(part) do
     with {:ok, action} <- match_action(part, :tag),
          {:ok, content} <- ORM.find(action.target, part_id, preload: :tags),
          {:ok, tag} <- ORM.find(action.reactor, tag_id) do
@@ -60,8 +61,8 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
     end
   end
 
-  defp tag_in_community_part?(community_title, part, tag) do
-    with {:ok, community} <- ORM.find_by(Community, title: community_title) do
+  defp tag_in_community_part?(%Community{id: communityId}, part, tag) do
+    with {:ok, community} <- ORM.find(Community, communityId) do
       matched_tags =
         Tag
         |> where([t], t.community_id == ^community.id)

@@ -31,6 +31,7 @@ defmodule MastaniServer.CMS do
   # >> tag
   defdelegate create_tag(part, attrs), to: CommunityCURD
   defdelegate get_tags(community_title, part), to: CommunityCURD
+  defdelegate get_tags(filter), to: CommunityCURD
 
   # CommunityOperation
   # >> editor

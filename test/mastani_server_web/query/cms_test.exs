@@ -11,9 +11,37 @@ defmodule MastaniServer.Test.Query.CMSTest do
   setup do
     guest_conn = simu_conn(:guest)
     {:ok, community} = db_insert(:community)
+    {:ok, user} = db_insert(:user)
     # user_conn = simu_conn(:user)
 
-    {:ok, ~m(guest_conn community)a}
+    {:ok, ~m(guest_conn community user)a}
+  end
+
+  describe "[cms query tags]" do
+    @query """
+    query tags($filter: PagedFilter!) {
+      tags(filter: $filter) {
+        entries {
+          id
+          title
+        }
+        totalCount
+        totalPages
+        pageSize
+        pageNumber
+      }
+    }
+    """
+    test "authed user can get pagd tags", ~m(guest_conn community user)a do
+      variables = %{filter: %{page: 1, size: 10}}
+
+      valid_attrs = mock_attrs(:tag, %{user_id: user.id, community_id: community.id})
+      {:ok, _} = CMS.create_tag(:post, valid_attrs)
+
+      results = guest_conn |> query_result(@query, variables, "tags")
+
+      assert results |> is_valid_pagination?
+    end
   end
 
   describe "[cms query community]" do

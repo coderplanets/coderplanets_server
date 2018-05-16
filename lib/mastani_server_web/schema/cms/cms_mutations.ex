@@ -134,14 +134,14 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       resolve(&Resolvers.CMS.unsubscribe_community/3)
     end
 
-    @desc "create a tag by part [:login required]"
     field :create_tag, :tag do
       arg(:title, non_null(:string))
       arg(:color, non_null(:rainbow_color_enum))
-      arg(:community, non_null(:string))
+      arg(:community_id, non_null(:id))
       arg(:part, :cms_part, default_value: :post)
 
       middleware(M.Authorize, :login)
+      middleware(M.PassportLoader, source: :community)
       middleware(M.Passport, claim: "cms->c?->p?.tag.create")
 
       resolve(&Resolvers.CMS.create_tag/3)
@@ -150,11 +150,11 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
     @desc "delete a tag by part [:login required]"
     field :delete_tag, :tag do
       arg(:id, non_null(:id))
-      arg(:community, non_null(:string))
-      # arg(:tag, non_null(:string))
+      arg(:community_id, non_null(:id))
       arg(:part, :cms_part, default_value: :post)
 
       middleware(M.Authorize, :login)
+      middleware(M.PassportLoader, source: :community)
       middleware(M.Passport, claim: "cms->c?->p?.tag.delete")
 
       resolve(&Resolvers.CMS.delete_tag/3)
@@ -162,29 +162,34 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
 
     @desc "set a tag within community"
     field :set_tag, :tag do
+      # part id
       arg(:id, non_null(:id))
       arg(:tag_id, non_null(:id))
-      arg(:community, non_null(:string))
+      arg(:community_id, non_null(:id))
       arg(:part, :cms_part, default_value: :post)
 
       middleware(M.Authorize, :login)
+      middleware(M.PassportLoader, source: :community)
       middleware(M.Passport, claim: "cms->c?->p?.tag.set")
 
       resolve(&Resolvers.CMS.set_tag/3)
     end
 
     field :unset_tag, :tag do
+      # part id
       arg(:id, non_null(:id))
       arg(:tag_id, non_null(:id))
-      arg(:community, non_null(:string))
+      arg(:community_id, non_null(:id))
       arg(:part, :cms_part, default_value: :post)
 
       middleware(M.Authorize, :login)
+      middleware(M.PassportLoader, source: :community)
       middleware(M.Passport, claim: "cms->c?->p?.tag.set")
 
       resolve(&Resolvers.CMS.unset_tag/3)
     end
 
+    # TODO: use community loader
     field :set_community, :community do
       arg(:id, non_null(:id))
       arg(:community, non_null(:string))

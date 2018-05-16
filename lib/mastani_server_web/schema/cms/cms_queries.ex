@@ -73,7 +73,17 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       middleware(M.FormatPagination)
     end
 
-    field :tags, list_of(:tag) do
+    field :tags, :paged_tags do
+      arg(:filter, non_null(:paged_filter))
+
+      middleware(M.PageSizeProof)
+      # TODO: should be passport
+      resolve(&Resolvers.CMS.get_tags/3)
+      middleware(M.FormatPagination)
+    end
+
+    # partial
+    field :partial_tags, list_of(:tag) do
       arg(:community, non_null(:string))
       arg(:part, non_null(:community_part_enum))
       resolve(&Resolvers.CMS.get_tags/3)

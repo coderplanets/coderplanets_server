@@ -23,28 +23,28 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
   describe "[mutation cms tag]" do
     @create_tag_query """
-    mutation($part: CmsPart!, $title: String!, $color: String!, $community: String!) {
-      createTag(part: $part, title: $title, color: $color, community: $community) {
+    mutation($part: CmsPart!, $title: String!, $color: String!, $communityId: ID!) {
+      createTag(part: $part, title: $title, color: $color, communityId: $communityId) {
         id
         title
       }
     }
     """
     test "create tag with valid attrs, has default POST part", ~m(community)a do
-      variables = mock_attrs(:tag, %{community: community.title})
+      variables = mock_attrs(:tag, %{communityId: community.id})
 
       passport_rules = %{community.title => %{"post.tag.create" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       created = rule_conn |> mutation_result(@create_tag_query, variables, "createTag")
-      {:ok, found} = CMS.Tag |> ORM.find(created["id"])
 
+      {:ok, found} = CMS.Tag |> ORM.find(created["id"])
       assert created["id"] == to_string(found.id)
       assert found.part == "post"
     end
 
     test "auth user create duplicate tag fails", ~m(community)a do
-      variables = mock_attrs(:tag, %{community: community.title})
+      variables = mock_attrs(:tag, %{communityId: community.id})
       passport_rules = %{community.title => %{"post.tag.create" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
@@ -54,7 +54,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
     end
 
     test "unauth user create tag fails", ~m(community user_conn guest_conn)a do
-      variables = mock_attrs(:tag, %{community: community.title})
+      variables = mock_attrs(:tag, %{communityId: community.id})
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@create_tag_query, variables)
@@ -63,14 +63,14 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
     end
 
     @delete_tag_query """
-    mutation($id: ID!, $community: String!){
-      deleteTag(id: $id, community: $community) {
+    mutation($id: ID!, $communityId: ID!){
+      deleteTag(id: $id, communityId: $communityId) {
         id
       }
     }
     """
-    test "auth user can delete tag", ~m(tag)a do
-      variables = %{id: tag.id, community: tag.community.title}
+    test "auth user can delete tag", ~m(tag community)a do
+      variables = mock_attrs(:tag, %{id: tag.id, communityId: community.id})
 
       rule_conn = simu_conn(:user, cms: %{tag.community.title => %{"post.tag.delete" => true}})
 
@@ -80,7 +80,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
     end
 
     test "unauth user delete tag fails", ~m(tag user_conn guest_conn)a do
-      variables = %{id: tag.id, community: tag.community.title}
+      variables = %{id: tag.id, communityId: tag.community_id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@delete_tag_query, variables)
