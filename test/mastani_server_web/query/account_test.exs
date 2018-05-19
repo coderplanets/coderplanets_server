@@ -29,11 +29,33 @@ defmodule MastaniServer.Test.Query.AccountTest do
       }
     }
     """
-    test "query a account works", ~m(guest_conn user)a do
+    test "guest user can get specific user by user's id", ~m(guest_conn user)a do
       variables = %{id: user.id}
       results = guest_conn |> query_result(@query, variables, "user")
       assert results["id"] == to_string(user.id)
       assert results["nickname"] == user.nickname
+    end
+
+    @query """
+    query pagedUsers($filter: PagedUsersFilter!) {
+      pagedUsers(filter: $filter) {
+        entries {
+          id
+          nickname
+          bio
+        }
+        totalPages
+        totalCount
+        pageSize
+        pageNumber
+      }
+    }
+    """
+    test "guest user can get paged users", ~m(guest_conn)a do
+      variables = %{filter: %{page: 1, size: 10}}
+
+      results = guest_conn |> query_result(@query, variables, "pagedUsers")
+      assert results |> is_valid_pagination?()
     end
   end
 

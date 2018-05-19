@@ -1,6 +1,19 @@
 defmodule MastaniServerWeb.Schema.Account.Misc do
   use Absinthe.Schema.Notation
-  # alias MastaniServer.Accounts
+
+  import Helper.Utils, only: [get_config: 2]
+  @page_size get_config(:general, :page_size)
+
+  @desc "article_filter doc"
+  input_object :paged_users_filter do
+    field(:page, :integer, default_value: 1)
+    field(:size, :integer, default_value: @page_size)
+
+    # field(:when, :when_enum)
+    # field(:sort, :sort_enum)
+    # field(:tag, :string, default_value: :all)
+    # field(:community, :string)
+  end
 
   input_object :github_profile_input do
     # is github_id in db table

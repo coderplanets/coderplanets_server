@@ -1,10 +1,11 @@
 defmodule MastaniServerWeb.Resolvers.Accounts do
-  # import ShortMaps
-
   alias MastaniServer.Accounts
   alias Helper.ORM
 
+  import ShortMaps
+
   def user(_root, %{id: id}, _info), do: Accounts.User |> ORM.find(id)
+  def users(_root, ~m(filter)a, _info), do: Accounts.User |> ORM.find_all(filter)
 
   def account(_root, _args, %{context: %{cur_user: cur_user}}),
     do: Accounts.User |> ORM.find(cur_user.id)

@@ -6,15 +6,14 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
   alias MastaniServerWeb.Middleware, as: M
 
   object :account_queries do
-    # @desc "hehehef: Get all links"
-    # field :all_users, non_null(list_of(non_null(:user))) do
-    # resolve(&Accounts.all_users/3)
-    # end
-
     @desc "get all users"
-    # field :all_users, non_null(:paged_users) do
-    # resolve(&Resolvers.Accounts.all_users2/3)
-    # end
+    field :paged_users, non_null(:paged_users) do
+      arg(:filter, non_null(:paged_users_filter))
+
+      middleware(M.PageSizeProof)
+      resolve(&Resolvers.Accounts.users/3)
+      middleware(M.FormatPagination)
+    end
 
     @desc "get user by id"
     field :user, :user do
