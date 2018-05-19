@@ -4,7 +4,7 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
 
   alias MastaniServer.CMS
 
-  @max_page_size get_config(:general, :page_size)
+  @page_size get_config(:general, :page_size)
   @default_inner_page_size 5
 
   enum :community_part_enum do
@@ -118,21 +118,20 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
 
   input_object :comments_filter do
     field(:page, :integer, default_value: 1)
-    field(:size, :integer, default_value: @max_page_size)
+    field(:size, :integer, default_value: @page_size)
     field(:sort, :comment_sort_enum, default_value: :asc_inserted)
   end
 
   input_object :paged_filter do
     @desc "limit of records (default 20), if first > 30, only return 30 at most"
     field(:page, :integer, default_value: 1)
-    field(:size, :integer, default_value: @max_page_size)
+    field(:size, :integer, default_value: @page_size)
     field(:sort, :sort_enum)
   end
 
   @desc "article_filter doc"
   input_object :article_filter do
     @desc "limit of records (default 20), if first > 30, only return 30 at most"
-    # field(:first, :integer, default_value: @max_page_size)
     field(:first, :integer)
 
     @desc "Matching a tag"
@@ -149,7 +148,7 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
   input_object :paged_article_filter do
     @desc "limit of records (default 20), if first > 30, only return 30 at most"
     field(:page, :integer, default_value: 1)
-    field(:size, :integer, default_value: 20)
+    field(:size, :integer, default_value: @page_size)
 
     field(:when, :when_enum)
     field(:sort, :sort_enum)

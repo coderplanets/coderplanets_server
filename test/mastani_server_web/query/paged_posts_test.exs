@@ -2,6 +2,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
   # use MastaniServerWeb.ConnCase, async: true
   use MastaniServerWeb.ConnCase, async: true
 
+  import Helper.Utils, only: [get_config: 2]
   import MastaniServer.Factory
   import MastaniServer.Test.AssertHelper
   import MastaniServer.Test.ConnSimulator
@@ -10,6 +11,8 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
 
   alias MastaniServer.CMS
   alias MastaniServer.Repo
+
+  @page_size get_config(:general, :page_size)
 
   @cur_date Timex.now()
   @last_week Timex.shift(Timex.beginning_of_week(@cur_date), days: -1)
@@ -79,7 +82,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
       variables = %{filter: %{}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
       assert results |> is_valid_pagination?
-      assert results["pageSize"] == 20
+      assert results["pageSize"] == @page_size
       assert results["totalCount"] == @posts_total_count
     end
   end
