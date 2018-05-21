@@ -22,6 +22,12 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
 
   def create_community(attrs), do: Community |> ORM.create(attrs)
 
+  def update_community(attrs) do
+    with {:ok, community} <- ORM.find(Community, attrs.id) do
+      community |> ORM.update(attrs)
+    end
+  end
+
   @doc """
   return paged community subscribers
   """

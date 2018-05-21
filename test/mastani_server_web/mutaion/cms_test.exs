@@ -113,6 +113,39 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       assert created["id"] == to_string(found.id)
     end
 
+    @update_community_query """
+    mutation($id: ID!, $title: String, $desc: String, $logo: String, $raw: String, $category: String) {
+      updateCommunity(id: $id, title: $title, desc: $desc, logo: $logo, raw: $raw, category: $category) {
+        id
+        title
+        desc
+      }
+    }
+    """
+    test "update community with valid attrs", ~m(community)a do
+      rule_conn = simu_conn(:user, cms: %{"community.update" => true})
+      variables = %{id: community.id, title: "new title"}
+
+      updated =
+        rule_conn |> mutation_result(@update_community_query, variables, "updateCommunity")
+
+      {:ok, found} = CMS.Community |> ORM.find(updated["id"])
+      assert updated["id"] == to_string(found.id)
+      assert updated["title"] == variables.title
+    end
+
+    test "update community with empty attrs return the same", ~m(community)a do
+      rule_conn = simu_conn(:user, cms: %{"community.update" => true})
+      variables = %{id: community.id}
+
+      updated =
+        rule_conn |> mutation_result(@update_community_query, variables, "updateCommunity")
+
+      {:ok, found} = CMS.Community |> ORM.find(updated["id"])
+      assert updated["id"] == to_string(found.id)
+      assert updated["title"] == community.title
+    end
+
     test "unauth user create community fails", ~m(user_conn guest_conn)a do
       variables = mock_attrs(:community)
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})

@@ -45,6 +45,7 @@ defmodule MastaniServer.CMS.Community do
     community
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
+    |> validate_length(:title, min: 3, max: 30)
     |> foreign_key_constraint(:user_id)
     |> unique_constraint(:title, name: :communities_title_index)
 

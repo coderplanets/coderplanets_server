@@ -3,10 +3,11 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   import Ecto.Query, warn: false
 
   alias MastaniServer.{CMS, Accounts}
+  alias MastaniServer.CMS.{Post, Community, Tag, Author}
   alias Helper.ORM
 
-  def post(_root, %{id: id}, _info), do: CMS.Post |> ORM.read(id, inc: :views)
-  def posts(_root, ~m(filter)a, _info), do: CMS.Post |> ORM.find_all(filter)
+  def post(_root, %{id: id}, _info), do: Post |> ORM.read(id, inc: :views)
+  def posts(_root, ~m(filter)a, _info), do: Post |> ORM.find_all(filter)
 
   # def posts(_root, _args, _info) do
   #   IO.inspect("see fuck")
@@ -18,14 +19,18 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.list_comments(part, id, filter)
   end
 
-  def community(_root, %{id: id}, _info), do: CMS.Community |> ORM.find(id)
-  def community(_root, %{title: title}, _info), do: CMS.Community |> ORM.find_by(title: title)
+  def community(_root, %{id: id}, _info), do: Community |> ORM.find(id)
+  def community(_root, %{title: title}, _info), do: Community |> ORM.find_by(title: title)
   def community(_root, _args, _info), do: {:error, "please provide community id or title"}
 
-  def communities(_root, ~m(filter)a, _info), do: CMS.Community |> ORM.find_all(filter)
+  def communities(_root, ~m(filter)a, _info), do: Community |> ORM.find_all(filter)
 
   def create_community(_root, args, %{context: %{cur_user: user}}) do
     args |> Map.merge(%{user_id: user.id}) |> CMS.create_community()
+  end
+
+  def update_community(_root, args, %{context: %{cur_user: user}}) do
+    CMS.update_community(args)
   end
 
   def create_thread(_root, ~m(title raw)a, _info) do
@@ -39,17 +44,17 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def add_editor(_root, ~m(community_id user_id title)a, _) do
     CMS.add_editor_to_community(
       %Accounts.User{id: user_id},
-      %CMS.Community{id: community_id},
+      %Community{id: community_id},
       title
     )
   end
 
   def delete_editor(_root, ~m(community_id user_id)a, _) do
-    CMS.delete_editor(%Accounts.User{id: user_id}, %CMS.Community{id: community_id})
+    CMS.delete_editor(%Accounts.User{id: user_id}, %Community{id: community_id})
   end
 
   def update_editor(_root, ~m(community_id user_id title)a, _) do
-    CMS.update_editor(%Accounts.User{id: user_id}, %CMS.Community{id: community_id}, title)
+    CMS.update_editor(%Accounts.User{id: user_id}, %Community{id: community_id}, title)
   end
 
   # TODO
@@ -67,44 +72,44 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   # find_delete(CMS.Tag, id)
-  def delete_tag(_root, %{id: id}, _info), do: CMS.Tag |> ORM.find_delete(id)
+  def delete_tag(_root, %{id: id}, _info), do: Tag |> ORM.find_delete(id)
 
-  def delete_community(_root, %{id: id}, _info), do: CMS.Community |> ORM.find_delete(id)
+  def delete_community(_root, %{id: id}, _info), do: Community |> ORM.find_delete(id)
 
   def subscribe_community(_root, ~m(community_id)a, %{context: %{cur_user: cur_user}}) do
-    CMS.subscribe_community(%Accounts.User{id: cur_user.id}, %CMS.Community{id: community_id})
+    CMS.subscribe_community(%Accounts.User{id: cur_user.id}, %Community{id: community_id})
   end
 
   def unsubscribe_community(_root, ~m(community_id)a, %{context: %{cur_user: cur_user}}) do
-    CMS.unsubscribe_community(%Accounts.User{id: cur_user.id}, %CMS.Community{id: community_id})
+    CMS.unsubscribe_community(%Accounts.User{id: cur_user.id}, %Community{id: community_id})
   end
 
   def community_subscribers(_root, ~m(id filter)a, _info) do
-    CMS.community_members(:subscribers, %CMS.Community{id: id}, filter)
+    CMS.community_members(:subscribers, %Community{id: id}, filter)
   end
 
   def community_editors(_root, ~m(id filter)a, _info) do
-    CMS.community_members(:editors, %CMS.Community{id: id}, filter)
+    CMS.community_members(:editors, %Community{id: id}, filter)
   end
 
   def set_tag(_root, ~m(community_id part id tag_id)a, _info) do
-    CMS.set_tag(%CMS.Community{id: community_id}, part, id, %CMS.Tag{id: tag_id})
+    CMS.set_tag(%Community{id: community_id}, part, id, %Tag{id: tag_id})
   end
 
   def unset_tag(_root, ~m(id part tag_id)a, _info) do
-    CMS.unset_tag(part, id, %CMS.Tag{id: tag_id})
+    CMS.unset_tag(part, id, %Tag{id: tag_id})
   end
 
   def set_community(_root, ~m(part id community)a, _info) do
-    CMS.set_community(part, id, %CMS.Community{title: community})
+    CMS.set_community(part, id, %Community{title: community})
   end
 
   def unset_community(_root, ~m(part id community)a, _info) do
-    CMS.unset_community(part, id, %CMS.Community{title: community})
+    CMS.unset_community(part, id, %Community{title: community})
   end
 
   def get_tags(_root, ~m(community_id part)a, _info) do
-    CMS.get_tags(%CMS.Community{id: community_id}, to_string(part))
+    CMS.get_tags(%Community{id: community_id}, to_string(part))
   end
 
   def get_tags(_root, ~m(filter)a, _info) do
@@ -112,7 +117,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   def create_post(_root, args, %{context: %{cur_user: user}}) do
-    CMS.create_content(:post, %CMS.Author{user_id: user.id}, args)
+    CMS.create_content(:post, %Author{user_id: user.id}, args)
   end
 
   def reaction(_root, ~m(id part action)a, %{context: %{cur_user: user}}) do

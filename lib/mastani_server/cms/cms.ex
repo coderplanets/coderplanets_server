@@ -21,6 +21,7 @@ defmodule MastaniServer.CMS do
   # Community CURD: editors, thread, tag
   # >> community
   defdelegate create_community(attrs), to: CommunityCURD
+  defdelegate update_community(attrs), to: CommunityCURD
   # >> editor ..
   defdelegate update_editor(user_id, community_id, title), to: CommunityCURD
   defdelegate delete_editor(user_id, community_id), to: CommunityCURD

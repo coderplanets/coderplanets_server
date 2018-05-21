@@ -24,6 +24,22 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
     end
 
     # TODO: update community: category
+    @desc "update a community"
+    field :update_community, :community do
+      arg(:id, non_null(:id))
+      arg(:title, :string)
+      arg(:desc, :string)
+      arg(:raw, :string)
+      arg(:logo, :string)
+      arg(:category, :string)
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->community.update")
+
+      resolve(&Resolvers.CMS.update_community/3)
+      middleware(M.Statistics.MakeContribute, for: [:user, :community])
+    end
+
     @desc "delete a global community"
     field :delete_community, :community do
       arg(:id, non_null(:id))
