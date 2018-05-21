@@ -20,5 +20,7 @@ defmodule MastaniServer.Statistics.CommunityContributes do
     |> cast(attrs, [:date, :count, :community_id])
     |> validate_required([:date, :count, :community_id])
     |> foreign_key_constraint(:community_id)
+
+    # |> unique_constraint(:community_id, name: :communities_threads_community_id_thread_id_index)
   end
 end
