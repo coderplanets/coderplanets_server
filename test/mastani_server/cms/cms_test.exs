@@ -17,8 +17,9 @@ defmodule MastaniServer.Test.CMSTest do
     {:ok, post} = db_insert(:post)
     {:ok, user2} = db_insert(:user)
     {:ok, community} = db_insert(:community, @valid_community)
+    {:ok, category} = db_insert(:category)
 
-    {:ok, ~m(user user2 post community)a}
+    {:ok, ~m(user user2 post community category)a}
   end
 
   describe "[cms post]" do
@@ -110,6 +111,20 @@ defmodule MastaniServer.Test.CMSTest do
         CMS.create_category(%CMS.Category{title: "category2 title"}, %Accounts.User{id: user.id})
 
       {:error, _} = CMS.update_category(%CMS.Category{id: category.id, title: category2.title})
+    end
+
+    test "can set a category to a community", ~m(community category)a do
+      {:ok, _} =
+        CMS.set_category(%CMS.Community{id: community.id}, %CMS.Category{id: category.id})
+
+      {:ok, found_community} = ORM.find(CMS.Community, community.id, preload: :categories)
+      {:ok, found_category} = ORM.find(CMS.Category, category.id, preload: :communities)
+
+      assoc_categroies = found_community.categories |> Enum.map(& &1.id)
+      assoc_communities = found_category.communities |> Enum.map(& &1.id)
+
+      assert category.id in assoc_categroies
+      assert community.id in assoc_communities
     end
   end
 

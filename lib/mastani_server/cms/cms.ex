@@ -38,6 +38,8 @@ defmodule MastaniServer.CMS do
   defdelegate get_tags(filter), to: CommunityCURD
 
   # CommunityOperation
+  # >> category
+  defdelegate set_category(community_id, category_id), to: CommunityOperation
   # >> editor
   defdelegate add_editor_to_community(user_id, community_id, title), to: CommunityOperation
   # >> thread

@@ -69,6 +69,17 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       resolve(&Resolvers.CMS.update_category/3)
     end
 
+    @desc "set category to a community"
+    field :set_category, :community do
+      arg(:community_id, non_null(:id))
+      arg(:category_id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->category.set")
+
+      resolve(&Resolvers.CMS.set_category/3)
+    end
+
     @desc "create independent thread"
     field :create_thread, :thread do
       arg(:title, non_null(:string))
@@ -170,6 +181,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       resolve(&Resolvers.CMS.unsubscribe_community/3)
     end
 
+    @desc "create a tag"
     field :create_tag, :tag do
       arg(:title, non_null(:string))
       arg(:color, non_null(:rainbow_color_enum))
@@ -198,7 +210,6 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
 
     @desc "set a tag within community"
     field :set_tag, :tag do
-      # part id
       arg(:id, non_null(:id))
       arg(:tag_id, non_null(:id))
       arg(:community_id, non_null(:id))
@@ -211,6 +222,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       resolve(&Resolvers.CMS.set_tag/3)
     end
 
+    @desc "unset a tag within community"
     field :unset_tag, :tag do
       # part id
       arg(:id, non_null(:id))

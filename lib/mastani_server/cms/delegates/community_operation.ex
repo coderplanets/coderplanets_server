@@ -12,9 +12,21 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
     CommunityThread,
     CommunityEditor,
     Community,
+    Category,
+    CommunityCategory,
     CommunitySubscriber
     # CommunityEditor
   }
+
+  @doc """
+  set a category to community
+  """
+  def set_category(%Community{id: community_id}, %Category{id: category_id}) do
+    with {:ok, community_category} <-
+           CommunityCategory |> ORM.create(~m(community_id category_id)a) do
+      Community |> ORM.find(community_category.community_id)
+    end
+  end
 
   @doc """
   add_thread_to_community

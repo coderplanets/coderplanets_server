@@ -1,7 +1,7 @@
 defmodule MastaniServer.CMS.Category do
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Category, Author}
+  alias MastaniServer.CMS.{Category, Author, Community}
   # alias MastaniServer.Accounts
   # alias Helper.Certification
 
@@ -9,8 +9,14 @@ defmodule MastaniServer.CMS.Category do
 
   schema "categories" do
     field(:title, :string)
-    # belongs_to(:user, Accounts.User, foreign_key: :user_id)
     belongs_to(:author, Author)
+
+    many_to_many(
+      :communities,
+      Community,
+      join_through: "communities_categories",
+      join_keys: [category_id: :id, community_id: :id]
+    )
 
     timestamps(type: :utc_datetime)
   end
