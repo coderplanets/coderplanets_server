@@ -40,6 +40,7 @@ defmodule MastaniServer.CMS do
   # CommunityOperation
   # >> category
   defdelegate set_category(community_id, category_id), to: CommunityOperation
+  defdelegate unset_category(community_id, category_id), to: CommunityOperation
   # >> editor
   defdelegate add_editor_to_community(user_id, community_id, title), to: CommunityOperation
   # >> thread

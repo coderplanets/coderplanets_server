@@ -126,6 +126,22 @@ defmodule MastaniServer.Test.CMSTest do
       assert category.id in assoc_categroies
       assert community.id in assoc_communities
     end
+
+    test "can unset a category to a community", ~m(community category)a do
+      {:ok, _} =
+        CMS.set_category(%CMS.Community{id: community.id}, %CMS.Category{id: category.id})
+
+      CMS.unset_category(%CMS.Community{id: community.id}, %CMS.Category{id: category.id})
+
+      {:ok, found_community} = ORM.find(CMS.Community, community.id, preload: :categories)
+      {:ok, found_category} = ORM.find(CMS.Category, category.id, preload: :communities)
+
+      assoc_categroies = found_community.categories |> Enum.map(& &1.id)
+      assoc_communities = found_category.communities |> Enum.map(& &1.id)
+
+      assert category.id not in assoc_categroies
+      assert community.id not in assoc_communities
+    end
   end
 
   describe "[cms community]" do

@@ -69,6 +69,10 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.set_category(%Community{id: community_id}, %Category{id: category_id})
   end
 
+  def unset_category(_root, ~m(community_id category_id)a, %{context: %{cur_user: _}}) do
+    CMS.unset_category(%Community{id: community_id}, %Category{id: category_id})
+  end
+
   def create_tag(_root, args, %{context: %{cur_user: user}}) do
     CMS.create_tag(args.part, args, %Accounts.User{id: user.id})
   end

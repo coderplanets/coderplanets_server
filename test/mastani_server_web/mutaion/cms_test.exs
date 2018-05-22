@@ -106,7 +106,37 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       assert community.id in assoc_communities
     end
 
-    test "unauth user set category fails", ~m(user_conn guest_conn)a do
+    @unset_category_query """
+    mutation($categoryId: ID! $communityId: ID!) {
+      unsetCategory(categoryId: $categoryId, communityId: $communityId) {
+        id
+        title
+      }
+    }
+    """
+    test "auth user can unset a category to a community" do
+      {:ok, community} = db_insert(:community)
+      {:ok, category} = db_insert(:category)
+
+      {:ok, _} =
+        CMS.set_category(%CMS.Community{id: community.id}, %CMS.Category{id: category.id})
+
+      rule_conn = simu_conn(:user, cms: %{"category.unset" => true})
+      variables = %{communityId: community.id, categoryId: category.id}
+
+      rule_conn |> mutation_result(@unset_category_query, variables, "setCategory")
+
+      {:ok, found_community} = ORM.find(CMS.Community, community.id, preload: :categories)
+      {:ok, found_category} = ORM.find(CMS.Category, category.id, preload: :communities)
+
+      assoc_categroies = found_community.categories |> Enum.map(& &1.id)
+      assoc_communities = found_category.communities |> Enum.map(& &1.id)
+
+      assert category.id not in assoc_categroies
+      assert community.id not in assoc_communities
+    end
+
+    test "unauth user set/unset category fails", ~m(user_conn guest_conn)a do
       {:ok, community} = db_insert(:community)
       {:ok, category} = db_insert(:category)
 
@@ -116,6 +146,10 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       assert user_conn |> mutation_get_error?(@set_category_query, variables)
       assert guest_conn |> mutation_get_error?(@set_category_query, variables)
       assert rule_conn |> mutation_get_error?(@set_category_query, variables)
+
+      assert user_conn |> mutation_get_error?(@unset_category_query, variables)
+      assert guest_conn |> mutation_get_error?(@unset_category_query, variables)
+      assert rule_conn |> mutation_get_error?(@unset_category_query, variables)
     end
   end
 

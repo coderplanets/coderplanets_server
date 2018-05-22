@@ -80,6 +80,17 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       resolve(&Resolvers.CMS.set_category/3)
     end
 
+    @desc "unset category to a community"
+    field :unset_category, :community do
+      arg(:community_id, non_null(:id))
+      arg(:category_id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->category.unset")
+
+      resolve(&Resolvers.CMS.unset_category/3)
+    end
+
     @desc "create independent thread"
     field :create_thread, :thread do
       arg(:title, non_null(:string))
