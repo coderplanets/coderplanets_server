@@ -55,7 +55,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  defp ensure_author_exists(%Accounts.User{} = user) do
+  def ensure_author_exists(%Accounts.User{} = user) do
     # unique_constraint: avoid race conditions, make sure user_id unique
     # foreign_key_constraint: check foreign key: user_id exsit or not
     # see alos no_assoc_constraint in https://hexdocs.pm/ecto/Ecto.Changeset.html

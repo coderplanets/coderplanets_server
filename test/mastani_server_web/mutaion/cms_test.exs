@@ -11,6 +11,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
   alias Helper.ORM
 
   setup do
+    {:ok, category} = db_insert(:category)
     {:ok, community} = db_insert(:community)
     {:ok, tag} = db_insert(:tag, %{community: community})
     {:ok, user} = db_insert(:user)
@@ -18,7 +19,65 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
     user_conn = simu_conn(:user)
     guest_conn = simu_conn(:guest)
 
-    {:ok, ~m(user_conn guest_conn community user tag)a}
+    {:ok, ~m(user_conn guest_conn community category user tag)a}
+  end
+
+  describe "mutation cms category" do
+    @create_category_query """
+    mutation($title: String!) {
+      createCategory(title: $title) {
+        id
+        title
+        author {
+          id
+          nickname
+          avatar
+        }
+      }
+    }
+    """
+    test "auth user can create category", ~m(user)a do
+      variables = mock_attrs(:category, %{user_id: user.id})
+      rule_conn = simu_conn(:user, cms: %{"category.create" => true})
+
+      created = rule_conn |> mutation_result(@create_category_query, variables, "createCategory")
+      # author = created["author"]
+      assert created["title"] == variables.title
+    end
+
+    @update_category_query """
+    mutation($id: ID!, $title: String!) {
+      updateCategory(id: $id, title: $title) {
+        id
+        title
+      }
+    }
+    """
+    test "auth user can update  category", ~m(category)a do
+      rule_conn = simu_conn(:user, cms: %{"category.update" => true})
+      variables = %{id: category.id, title: "new title"}
+
+      updated = rule_conn |> mutation_result(@update_category_query, variables, "updateCategory")
+      assert updated["title"] == "new title"
+    end
+
+    test "unauth user create category fails", ~m(user user_conn guest_conn)a do
+      variables = mock_attrs(:category, %{user_id: user.id})
+      rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
+
+      assert user_conn |> mutation_get_error?(@create_category_query, variables)
+      assert guest_conn |> mutation_get_error?(@create_category_query, variables)
+      assert rule_conn |> mutation_get_error?(@create_category_query, variables)
+    end
+
+    test "unauth user update category fails", ~m(category user_conn guest_conn)a do
+      variables = %{id: category.id, title: "new title"}
+      rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
+
+      assert user_conn |> mutation_get_error?(@update_category_query, variables)
+      assert guest_conn |> mutation_get_error?(@update_category_query, variables)
+      assert rule_conn |> mutation_get_error?(@update_category_query, variables)
+    end
   end
 
   describe "[mutation cms tag]" do

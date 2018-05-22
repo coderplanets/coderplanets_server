@@ -62,7 +62,7 @@ defmodule MastaniServer.Factory do
 
     %{
       title: "category#{unique_num}",
-      user: mock(:user)
+      author: mock(:author)
     }
   end
 
@@ -137,7 +137,7 @@ defmodule MastaniServer.Factory do
   defp mock(:post), do: CMS.Post |> struct(mock_meta(:post))
   defp mock(:comment), do: CMS.Post |> struct(mock_meta(:comment))
   defp mock(:author), do: CMS.Author |> struct(mock_meta(:author))
-  defp mock(:category), do: CMS.Tag |> struct(mock_meta(:category))
+  defp mock(:category), do: CMS.Category |> struct(mock_meta(:category))
   defp mock(:tag), do: CMS.Tag |> struct(mock_meta(:tag))
   defp mock(:user), do: Accounts.User |> struct(mock_meta(:user))
   defp mock(:community), do: CMS.Community |> struct(mock_meta(:community))

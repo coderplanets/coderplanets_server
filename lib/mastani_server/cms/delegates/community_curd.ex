@@ -3,6 +3,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   import Ecto.Query, warn: false
   import MastaniServer.CMS.Utils.Matcher
   import Helper.Utils, only: [done: 1]
+  import MastaniServer.CMS.Delegate.ArticleCURD, only: [ensure_author_exists: 1]
   import ShortMaps
 
   alias MastaniServer.{Repo, Accounts}
@@ -69,7 +70,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   def create_tag(part, attrs) when valid_part(part) do
     with {:ok, action} <- match_action(part, :tag),
          # {:ok, community} <- ORM.find_by(Community, title: attrs.community) do
-         {:ok, community} <- ORM.find(Community, attrs.community_id) do
+         {:ok, _community} <- ORM.find(Community, attrs.community_id) do
       # attrs = attrs |> Map.merge(%{community_id: community_id})
       action.reactor |> ORM.create(attrs)
     end
@@ -94,7 +95,9 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   end
 
   def create_category(%Category{title: title}, %Accounts.User{id: user_id}) do
-    Category |> ORM.create(~m(title user_id)a)
+    with {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}) do
+      Category |> ORM.create(%{title: title, author_id: author.id})
+    end
   end
 
   def update_category(~m(%Category id title)a) do

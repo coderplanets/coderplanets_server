@@ -73,7 +73,7 @@ defmodule MastaniServer.Test.CMSTest do
         CMS.create_category(%CMS.Category{title: valid_attrs.title}, %Accounts.User{id: user.id})
 
       assert category.title == valid_attrs.title
-      assert category.user_id == user.id
+      # assert category.author_id == user.id
     end
 
     test "create category with same title fails", ~m(user)a do
