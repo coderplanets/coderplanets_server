@@ -9,18 +9,16 @@ defmodule MastaniServer.Test.CMSTest do
   alias MastaniServer.{CMS, Accounts}
   alias Helper.{ORM, Certification}
 
-  @valid_user mock_attrs(:user)
-  @valid_user2 mock_attrs(:user)
   @valid_community mock_attrs(:community)
   @valid_post mock_attrs(:post, %{community: @valid_community.title})
 
   setup do
-    {:ok, user} = db_insert(:user, @valid_user)
+    {:ok, user} = db_insert(:user)
+    {:ok, post} = db_insert(:post)
     {:ok, user2} = db_insert(:user)
-    db_insert(:user, @valid_user2)
     {:ok, community} = db_insert(:community, @valid_community)
 
-    {:ok, ~m(user user2 community)a}
+    {:ok, ~m(user user2 post community)a}
   end
 
   describe "[cms post]" do
@@ -39,8 +37,7 @@ defmodule MastaniServer.Test.CMSTest do
       assert author.user_id == user.id
     end
 
-    test "create post with on exsit community fails" do
-      {:ok, user} = ORM.find_by(Accounts.User, nickname: @valid_user.nickname)
+    test "create post with on exsit community fails", ~m(user)a do
       invalid_attrs = mock_attrs(:post, %{community: "non-exsit community"})
 
       assert {:error, _} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, invalid_attrs)
@@ -48,8 +45,7 @@ defmodule MastaniServer.Test.CMSTest do
   end
 
   describe "[cms tag]" do
-    test "create tag with valid data", ~m(community)a do
-      {:ok, user} = ORM.find_by(Accounts.User, nickname: @valid_user.nickname)
+    test "create tag with valid data", ~m(community user)a do
       valid_attrs = mock_attrs(:tag, %{user_id: user.id, community_id: community.id})
 
       {:ok, tag} = CMS.create_tag(:post, valid_attrs)
@@ -62,24 +58,68 @@ defmodule MastaniServer.Test.CMSTest do
       assert {:error, %Ecto.Changeset{}} = CMS.create_tag(:post, invalid_attrs)
     end
 
-    test "create tag with non-exsit community fails" do
-      {:ok, user} = ORM.find_by(Accounts.User, nickname: @valid_user.nickname)
+    test "create tag with non-exsit community fails", ~m(user)a do
       invalid_attrs = mock_attrs(:tag, %{user_id: user.id, community_id: non_exsit_id()})
 
       assert {:error, _} = CMS.create_tag(:post, invalid_attrs)
     end
   end
 
-  describe "[cms community]" do
-    test "create a community with a existing user" do
-      {:ok, user} = ORM.find_by(Accounts.User, nickname: @valid_user.nickname)
+  describe "[cms category]" do
+    test "create category with valid attrs", ~m(user)a do
+      valid_attrs = mock_attrs(:category, %{user_id: user.id})
 
+      {:ok, category} =
+        CMS.create_category(%CMS.Category{title: valid_attrs.title}, %Accounts.User{id: user.id})
+
+      assert category.title == valid_attrs.title
+      assert category.user_id == user.id
+    end
+
+    test "create category with same title fails", ~m(user)a do
+      valid_attrs = mock_attrs(:category, %{user_id: user.id})
+
+      {:ok, _} =
+        CMS.create_category(%CMS.Category{title: valid_attrs.title}, %Accounts.User{id: user.id})
+
+      assert {:error, _} =
+               CMS.create_category(%CMS.Category{title: valid_attrs.title}, %Accounts.User{
+                 id: user.id
+               })
+    end
+
+    test "update category with valid attrs", ~m(user)a do
+      valid_attrs = mock_attrs(:category, %{user_id: user.id})
+
+      {:ok, category} =
+        CMS.create_category(%CMS.Category{title: valid_attrs.title}, %Accounts.User{id: user.id})
+
+      assert category.title == valid_attrs.title
+      {:ok, updated} = CMS.update_category(%CMS.Category{id: category.id, title: "new title"})
+
+      assert updated.title == "new title"
+    end
+
+    test "update title to existing title fails", ~m(user)a do
+      valid_attrs = mock_attrs(:category, %{user_id: user.id})
+
+      {:ok, category} =
+        CMS.create_category(%CMS.Category{title: valid_attrs.title}, %Accounts.User{id: user.id})
+
+      {:ok, category2} =
+        CMS.create_category(%CMS.Category{title: "category2 title"}, %Accounts.User{id: user.id})
+
+      {:error, _} = CMS.update_category(%CMS.Category{id: category.id, title: category2.title})
+    end
+  end
+
+  describe "[cms community]" do
+    test "create a community with a existing user", ~m(user)a do
       community_args = %{
         title: "elixir community",
         desc: "function pragraming for everyone",
         user_id: user.id,
         raw: "elixir",
-        category: "编程语言",
         logo: "http: ..."
       }
 
@@ -88,9 +128,7 @@ defmodule MastaniServer.Test.CMSTest do
       assert community.title == community_args.title
     end
 
-    test "create a community with a empty title fails" do
-      {:ok, user} = ORM.find_by(Accounts.User, nickname: @valid_user.nickname)
-
+    test "create a community with a empty title fails", ~m(user)a do
       invalid_community_args = %{
         title: "",
         desc: "function pragraming for everyone",

@@ -1,10 +1,19 @@
 defmodule MastaniServer.CMS.Community do
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Post, Community, CommunityThread, CommunitySubscriber, CommunityEditor}
+
+  alias MastaniServer.CMS.{
+    Community,
+    Category,
+    Post,
+    CommunityThread,
+    CommunitySubscriber,
+    CommunityEditor
+  }
+
   alias MastaniServer.Accounts
 
-  @required_fields ~w(title desc user_id logo raw category)a
+  @required_fields ~w(title desc user_id logo raw)a
   # @required_fields ~w(title desc user_id)a
   @optional_fields ~w(label)a
 
@@ -12,7 +21,7 @@ defmodule MastaniServer.CMS.Community do
     field(:title, :string)
     field(:desc, :string)
     field(:logo, :string)
-    field(:category, :string)
+    # field(:category, :string)
     field(:label, :string)
     field(:raw, :string)
 
@@ -21,6 +30,13 @@ defmodule MastaniServer.CMS.Community do
     has_many(:threads, {"communities_threads", CommunityThread})
     has_many(:subscribers, {"communities_subscribers", CommunitySubscriber})
     has_many(:editors, {"communities_editors", CommunityEditor})
+
+    many_to_many(
+      :categories,
+      Category,
+      join_through: "communities_categories",
+      join_keys: [community_id: :id, category_id: :id]
+    )
 
     many_to_many(
       :posts,

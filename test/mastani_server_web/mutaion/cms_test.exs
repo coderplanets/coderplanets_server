@@ -27,6 +27,13 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       createTag(part: $part, title: $title, color: $color, communityId: $communityId) {
         id
         title
+        color
+        part
+        community {
+          id
+          logo
+          title
+        }
       }
     }
     """
@@ -37,10 +44,13 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       created = rule_conn |> mutation_result(@create_tag_query, variables, "createTag")
+      belong_community = created["community"]
 
       {:ok, found} = CMS.Tag |> ORM.find(created["id"])
+
       assert created["id"] == to_string(found.id)
       assert found.part == "post"
+      assert belong_community["id"] == to_string(community.id)
     end
 
     test "auth user create duplicate tag fails", ~m(community)a do
@@ -52,6 +62,21 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
       assert rule_conn |> mutation_get_error?(@create_tag_query, variables)
     end
+
+    # TODO: server return 400 wrong status code
+    # see https://github.com/absinthe-graphql/absinthe/issues/554
+    # test "create with invalid color fails", ~m(community)a do
+    # variables = %{
+    # title: "title",
+    # color: "NON_EXSIT",
+    # communityId: community.id,
+    # part: "POST",
+    # }
+    # passport_rules = %{community.title => %{"post.tag.create" => true}}
+    # rule_conn = simu_conn(:user, cms: passport_rules)
+
+    # assert rule_conn |> mutation_get_error?(@create_tag_query, variables)
+    # end
 
     test "unauth user create tag fails", ~m(community user_conn guest_conn)a do
       variables = mock_attrs(:tag, %{communityId: community.id})
@@ -91,8 +116,8 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
   describe "[mutation cms community]" do
     @create_community_query """
-    mutation($title: String!, $desc: String!, $logo: String!, $raw: String!, $category: String!) {
-      createCommunity(title: $title, desc: $desc, logo: $logo, raw: $raw, category: $category) {
+    mutation($title: String!, $desc: String!, $logo: String!, $raw: String!) {
+      createCommunity(title: $title, desc: $desc, logo: $logo, raw: $raw) {
         id
         title
         desc
@@ -114,8 +139,8 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
     end
 
     @update_community_query """
-    mutation($id: ID!, $title: String, $desc: String, $logo: String, $raw: String, $category: String) {
-      updateCommunity(id: $id, title: $title, desc: $desc, logo: $logo, raw: $raw, category: $category) {
+    mutation($id: ID!, $title: String, $desc: String, $logo: String, $raw: String) {
+      updateCommunity(id: $id, title: $title, desc: $desc, logo: $logo, raw: $raw) {
         id
         title
         desc

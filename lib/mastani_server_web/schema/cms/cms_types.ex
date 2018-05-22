@@ -311,11 +311,21 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     end
   end
 
+  object :category do
+    field(:id, :id)
+    field(:title, :string)
+    # TODO: field(:user, :string)
+    # field(:community, :community, resolve: dataloader(CMS, :community))
+    field(:inserted_at, :datetime)
+    field(:updated_at, :datetime)
+  end
+
   object :tag do
     field(:id, :id)
     field(:title, :string)
     field(:color, :string)
     field(:part, :string)
+    field(:community, :community, resolve: dataloader(CMS, :community))
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
   end

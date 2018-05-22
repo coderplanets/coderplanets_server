@@ -9,6 +9,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
 
   alias MastaniServer.CMS.{
     Community,
+    Category,
     CommunityEditor,
     CommunitySubscriber,
     Thread,
@@ -90,6 +91,16 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     |> QueryBuilder.filter_pack(filter)
     |> ORM.paginater(page: page, size: size)
     |> done()
+  end
+
+  def create_category(%Category{title: title}, %Accounts.User{id: user_id}) do
+    Category |> ORM.create(~m(title user_id)a)
+  end
+
+  def update_category(~m(%Category id title)a) do
+    with {:ok, category} <- ORM.find(Category, id) do
+      category |> ORM.update(~m(title)a)
+    end
   end
 
   @doc """

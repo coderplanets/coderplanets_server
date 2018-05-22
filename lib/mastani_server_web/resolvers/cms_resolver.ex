@@ -3,7 +3,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   import Ecto.Query, warn: false
 
   alias MastaniServer.{CMS, Accounts}
-  alias MastaniServer.CMS.{Post, Community, Tag, Author}
+  alias MastaniServer.CMS.{Post, Community, Category, Tag, Author}
   alias Helper.ORM
 
   def post(_root, %{id: id}, _info), do: Post |> ORM.read(id, inc: :views)
@@ -55,6 +55,14 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def update_editor(_root, ~m(community_id user_id title)a, _) do
     CMS.update_editor(%Accounts.User{id: user_id}, %Community{id: community_id}, title)
+  end
+
+  def create_category(_root, ~m(title)a, %{context: %{cur_user: user}}) do
+    CMS.create_category(%Category{title: title}, %Accounts.User{id: user.id})
+  end
+
+  def update_category(_root, ~m(id title)a, %{context: %{cur_user: _}}) do
+    CMS.update_category(~m(%Category id title)a)
   end
 
   # TODO

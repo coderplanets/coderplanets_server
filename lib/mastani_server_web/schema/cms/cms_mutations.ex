@@ -13,7 +13,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:desc, non_null(:string))
       arg(:raw, non_null(:string))
       arg(:logo, non_null(:string))
-      arg(:category, non_null(:string))
+      # arg(:category, non_null(:string))
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->community.create")
@@ -31,7 +31,6 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       arg(:desc, :string)
       arg(:raw, :string)
       arg(:logo, :string)
-      arg(:category, :string)
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->community.update")
@@ -47,6 +46,27 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations do
       middleware(M.Passport, claim: "cms->community.delete")
 
       resolve(&Resolvers.CMS.delete_community/3)
+    end
+
+    @desc "create category"
+    field :create_category, :category do
+      arg(:title, non_null(:string))
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->category.create")
+
+      resolve(&Resolvers.CMS.create_category/3)
+    end
+
+    @desc "update category"
+    field :update_category, :category do
+      arg(:id, non_null(:id))
+      arg(:title, non_null(:string))
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->category.update")
+
+      resolve(&Resolvers.CMS.update_category/3)
     end
 
     @desc "create independent thread"

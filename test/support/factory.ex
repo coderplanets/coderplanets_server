@@ -53,8 +53,16 @@ defmodule MastaniServer.Factory do
       desc: "community desc",
       raw: "community_#{unique_num}",
       logo: "https://coderplanets.oss-cn-beijing.aliyuncs.com/icons/pl/elixir.svg",
-      category: "category #{unique_num}",
       author: mock(:user)
+    }
+  end
+
+  defp mock_meta(:category) do
+    unique_num = System.unique_integer([:positive, :monotonic])
+
+    %{
+      title: "category#{unique_num}",
+      user: mock(:user)
     }
   end
 
@@ -65,7 +73,7 @@ defmodule MastaniServer.Factory do
       title: "#{Faker.Pizza.cheese()} #{unique_num}",
       part: "POST",
       # part mainly for CMS.create_tag usage
-      color: "RED",
+      color: "YELLOW",
       # community: Faker.Pizza.topping(),
       community: mock(:community),
       user: mock(:user)
@@ -115,6 +123,7 @@ defmodule MastaniServer.Factory do
     do: mock_meta(:communities_threads) |> Map.merge(attrs)
 
   def mock_attrs(:tag, attrs), do: mock_meta(:tag) |> Map.merge(attrs)
+  def mock_attrs(:category, attrs), do: mock_meta(:category) |> Map.merge(attrs)
   def mock_attrs(:github_profile, attrs), do: mock_meta(:github_profile) |> Map.merge(attrs)
 
   # NOTICE: avoid Recursive problem
@@ -128,6 +137,7 @@ defmodule MastaniServer.Factory do
   defp mock(:post), do: CMS.Post |> struct(mock_meta(:post))
   defp mock(:comment), do: CMS.Post |> struct(mock_meta(:comment))
   defp mock(:author), do: CMS.Author |> struct(mock_meta(:author))
+  defp mock(:category), do: CMS.Tag |> struct(mock_meta(:category))
   defp mock(:tag), do: CMS.Tag |> struct(mock_meta(:tag))
   defp mock(:user), do: Accounts.User |> struct(mock_meta(:user))
   defp mock(:community), do: CMS.Community |> struct(mock_meta(:community))

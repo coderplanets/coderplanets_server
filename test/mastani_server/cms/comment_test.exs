@@ -83,7 +83,6 @@ defmodule MastaniServer.Test.CommentTest do
 
       {:ok, deleted} = CMS.delete_comment(:post, comment.id)
       assert deleted.id == comment.id
-      # IO.inspect hello, label: "hello"
     end
 
     test "after delete, the coments of id > deleted.id should decrease the floor number",
@@ -185,7 +184,6 @@ defmodule MastaniServer.Test.CommentTest do
       {:ok, _} = CMS.like_comment(:post_comment, comment.id, %Accounts.User{id: user.id})
       {:error, _error} = CMS.like_comment(:post_comment, comment.id, %Accounts.User{id: user.id})
       # TODO: fix err_msg later
-      # IO.inspect error, label: "hello"
     end
 
     test "user can undo a like action", ~m(comment user)a do
