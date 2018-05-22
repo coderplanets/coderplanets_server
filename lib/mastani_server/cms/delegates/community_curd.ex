@@ -2,7 +2,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   # TODO docs:  include community / editors / curd
   import Ecto.Query, warn: false
   import MastaniServer.CMS.Utils.Matcher
-  import Helper.Utils, only: [done: 1]
+  import Helper.Utils, only: [done: 1, map_atom_value: 2]
   import MastaniServer.CMS.Delegate.ArticleCURD, only: [ensure_author_exists: 1]
   import ShortMaps
 
@@ -67,17 +67,18 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   @doc """
   create a Tag base on type: post / tuts / videos ...
   """
-  def create_tag(part, attrs) when valid_part(part) do
+  def create_tag(part, attrs, %Accounts.User{id: user_id}) when valid_part(part) do
     with {:ok, action} <- match_action(part, :tag),
-         # {:ok, community} <- ORM.find_by(Community, title: attrs.community) do
+         {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}),
          {:ok, _community} <- ORM.find(Community, attrs.community_id) do
-      # attrs = attrs |> Map.merge(%{community_id: community_id})
+
+      attrs = attrs |> Map.merge(%{author_id: author.id})
+      attrs = attrs |> map_atom_value(:string)
+
       action.reactor |> ORM.create(attrs)
     end
   end
 
-  # TODO: use comunityId
-  # TODO: use struct
   def get_tags(%Community{id: communitId}, part) do
     Tag
     |> join(:inner, [t], c in assoc(t, :community))

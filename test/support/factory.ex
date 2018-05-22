@@ -76,7 +76,7 @@ defmodule MastaniServer.Factory do
       color: "YELLOW",
       # community: Faker.Pizza.topping(),
       community: mock(:community),
-      user: mock(:user)
+      author: mock(:author)
       # user_id: 1
     }
   end

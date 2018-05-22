@@ -65,18 +65,8 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.update_category(~m(%Category id title)a)
   end
 
-  # TODO
-  # def create_tag(_root, args, %{context: %{cur_user: user}}) do
   def create_tag(_root, args, %{context: %{cur_user: user}}) do
-    # args2 = for {k, v} <- args, into: %{}, do: {k, to_string(v)}
-    # CMS.create_tag(args.part, args)
-    CMS.create_tag(args.part, %{
-      title: args.title,
-      color: to_string(args.color),
-      community_id: args.community_id,
-      part: to_string(args.part),
-      user_id: user.id
-    })
+    CMS.create_tag(args.part, args, %Accounts.User{id: user.id})
   end
 
   # find_delete(CMS.Tag, id)

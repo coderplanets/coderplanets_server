@@ -1,18 +1,18 @@
 defmodule MastaniServer.CMS.Tag do
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Post, Tag, Community}
+  alias MastaniServer.CMS.{Author, Post, Tag, Community}
   alias MastaniServer.Accounts
 
-  @required_fields ~w(part title color user_id community_id)a
+  @required_fields ~w(part title color author_id community_id)a
 
   schema "tags" do
     field(:title, :string)
     field(:color, :string)
-    # field(:community, :string)
     field(:part, :string)
     belongs_to(:community, Community)
-    belongs_to(:user, Accounts.User)
+    # belongs_to(:user, Accounts.User)
+    belongs_to(:author, Author)
 
     many_to_many(
       :posts,

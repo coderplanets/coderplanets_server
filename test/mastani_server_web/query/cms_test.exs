@@ -24,6 +24,11 @@ defmodule MastaniServer.Test.Query.CMSTest do
         entries {
           id
           title
+          author {
+            id
+            nickname
+            avatar
+          }
         }
         totalCount
         totalPages
@@ -36,7 +41,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
       variables = %{filter: %{page: 1, size: 10}}
 
       valid_attrs = mock_attrs(:tag, %{user_id: user.id, community_id: community.id})
-      {:ok, _} = CMS.create_tag(:post, valid_attrs)
+      {:ok, _} = CMS.create_tag(:post, valid_attrs, %Accounts.User{id: user.id})
 
       results = guest_conn |> query_result(@query, variables, "tags")
 

@@ -88,6 +88,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
         title
         color
         part
+
         community {
           id
           logo
@@ -96,6 +97,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       }
     }
     """
+    @tag :wip
     test "create tag with valid attrs, has default POST part", ~m(community)a do
       variables = mock_attrs(:tag, %{communityId: community.id})
 
