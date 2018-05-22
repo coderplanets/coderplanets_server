@@ -71,7 +71,6 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     with {:ok, action} <- match_action(part, :tag),
          {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}),
          {:ok, _community} <- ORM.find(Community, attrs.community_id) do
-
       attrs = attrs |> Map.merge(%{author_id: author.id})
       attrs = attrs |> map_atom_value(:string)
 

@@ -55,14 +55,15 @@ defmodule Helper.Utils do
   def add(num, offset \\ 1) when is_integer(num) and is_integer(offset), do: num + offset
 
   def map_atom_value(attrs, :string) do
-    attrs = Enum.map(attrs, fn({k, v}) ->
-      if is_atom(v) do
-        {k, to_string(v)}
-      else
-        {k, v}
-      end
-    end)
-    |> Enum.into(%{})
+    attrs =
+      Enum.map(attrs, fn {k, v} ->
+        if is_atom(v) do
+          {k, to_string(v)}
+        else
+          {k, v}
+        end
+      end)
+      |> Enum.into(%{})
   end
 
   # Key exists in both maps, and both values are maps as well.
