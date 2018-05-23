@@ -20,17 +20,19 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   {:error, %Ecto.Changeset{}}
 
   """
-  def create_content(part, %Author{user_id: author_id}, attrs \\ %{}) do
-    with {:ok, author} <- ensure_author_exists(%Accounts.User{id: author_id}),
+
+  def create_content(part, %Accounts.User{id: user_id}, %{community_id: community_id} = attrs) do
+    with {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}),
          {:ok, action} <- match_action(part, :community),
-         {:ok, community} <- ORM.find_by(Community, title: attrs.community),
+         # {:ok, community} <- ORM.find_by(Community, title: attrs.community),
+         {:ok, community} <- ORM.find(Community, community_id),
          {:ok, content} <-
            struct(action.target)
            |> action.target.changeset(attrs)
            # |> action.target.changeset(attrs |> Map.merge(%{author_id: author.id}))
            |> Ecto.Changeset.put_change(:author_id, author.id)
            |> Repo.insert() do
-      ArticleOperation.set_community(part, content.id, %Community{title: community.title})
+      ArticleOperation.set_community(part, content.id, %Community{id: community.id})
     end
   end
 

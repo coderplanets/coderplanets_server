@@ -20,10 +20,10 @@ defmodule Helper.Certification do
       # "cms->c?->editor.add"
       "editor.add",
       # 编辑 post 文章
-      "post.article.edit",
+      "post.edit",
       # 删除 post 文章
-      "post.article.trash",
-      "post.article.delete",
+      "post.trash",
+      "post.delete",
       # 帖子 版块 [添加] 标签
       "post.tag.add",
       "post.tag.edit",

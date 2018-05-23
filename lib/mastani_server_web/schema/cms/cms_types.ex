@@ -93,6 +93,19 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:updated_at, :datetime)
   end
 
+  object :job do
+    interface(:article)
+    field(:id, :id)
+    field(:title, :string)
+    field(:digest, :string)
+    field(:length, :integer)
+    field(:link_addr, :string)
+    field(:body, :string)
+    field(:views, :integer)
+
+    field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
+  end
+
   object :post do
     interface(:article)
     field(:id, :id)

@@ -6,10 +6,10 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   alias MastaniServer.Repo
   alias Helper.ORM
 
-  def set_community(part, part_id, %Community{title: title}) when valid_part(part) do
+  def set_community(part, part_id, %Community{id: community_id}) when valid_part(part) do
     with {:ok, action} <- match_action(part, :community),
          {:ok, content} <- ORM.find(action.target, part_id, preload: :communities),
-         {:ok, community} <- ORM.find_by(action.reactor, title: title) do
+         {:ok, community} <- ORM.find(action.reactor, community_id) do
       content
       |> Ecto.Changeset.change()
       |> Ecto.Changeset.put_assoc(:communities, content.communities ++ [community])
@@ -17,10 +17,11 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
     end
   end
 
-  def unset_community(part, part_id, %Community{title: title}) when valid_part(part) do
+  # TODO: use community_id instead of title
+  def unset_community(part, part_id, %Community{id: community_id}) when valid_part(part) do
     with {:ok, action} <- match_action(part, :community),
          {:ok, content} <- ORM.find(action.target, part_id, preload: :communities),
-         {:ok, community} <- ORM.find_by(action.reactor, title: title) do
+         {:ok, community} <- ORM.find(action.reactor, community_id) do
       content
       |> Ecto.Changeset.change()
       |> Ecto.Changeset.put_assoc(:communities, content.communities -- [community])

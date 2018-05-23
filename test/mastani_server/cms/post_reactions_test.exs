@@ -7,20 +7,19 @@ defmodule MastaniServer.Test.PostReactionsTest do
   alias MastaniServer.Accounts
   # alias Helper.ORM
 
-  @valid_community_attr mock_attrs(:community)
-  @valid_post_attr mock_attrs(:post, %{community: @valid_community_attr.title})
-
   setup do
     {:ok, user} = db_insert(:user)
-    db_insert(:community, %{title: @valid_community_attr.title})
+    {:ok, community} = db_insert(:community)
 
-    {:ok, ~m(user)a}
+    post_attrs = mock_attrs(:post, %{community_id: community.id})
+
+    {:ok, ~m(user post_attrs)a}
   end
 
   describe "[cms post favorite reaction]" do
-    test "favorite and undo favorite reaction to post", ~m(user)a do
+    test "favorite and undo favorite reaction to post", ~m(user post_attrs)a do
       # {:ok, user} = ORM.find_by(Accounts.User, nickname: @valid_user.nickname)
-      {:ok, post} = CMS.create_content(:post, %CMS.Author{user_id: user.id}, @valid_post_attr)
+      {:ok, post} = CMS.create_content(:post, %Accounts.User{id: user.id}, post_attrs)
 
       {:ok, _} = CMS.reaction(:post, :favorite, post.id, %Accounts.User{id: user.id})
       {:ok, reaction_users} = CMS.reaction_users(:post, :favorite, post.id, %{page: 1, size: 1})

@@ -110,7 +110,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
     # TODO: use community loader
     field :set_community, :community do
       arg(:id, non_null(:id))
-      arg(:community, non_null(:string))
+      arg(:community_id, non_null(:id))
       arg(:part, :cms_part, default_value: :post)
 
       middleware(M.Authorize, :login)
@@ -120,7 +120,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
 
     field :unset_community, :community do
       arg(:id, non_null(:id))
-      arg(:community, non_null(:string))
+      arg(:community_id, non_null(:id))
       arg(:part, :cms_part, default_value: :post)
 
       middleware(M.Authorize, :login)

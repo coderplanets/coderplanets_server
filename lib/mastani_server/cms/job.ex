@@ -6,7 +6,7 @@ defmodule MastaniServer.CMS.Job do
   # alias MastaniServer.Accounts
 
   @required_fields ~w(title company company_logo location body digest length)a
-  @optional_fields ~w(link_addr link_source)a
+  @optional_fields ~w(link_addr link_source min_education)a
 
   schema "cms_jobs" do
     field(:title, :string)
@@ -28,7 +28,7 @@ defmodule MastaniServer.CMS.Job do
     field(:max_experience, :integer, default: 3)
 
     # college - bachelor - master - doctor
-    field(:min_education, :string, default: 'college')
+    field(:min_education, :string)
 
     field(:digest, :string)
     field(:length, :integer)

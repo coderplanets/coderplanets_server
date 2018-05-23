@@ -7,6 +7,7 @@ defmodule MastaniServer.CMS.Utils.Matcher do
   alias MastaniServer.CMS.{
     Community,
     Post,
+    Job,
     PostFavorite,
     PostStar,
     PostComment,
@@ -30,14 +31,13 @@ defmodule MastaniServer.CMS.Utils.Matcher do
 
   defguard valid_feeling(feel) when feel in [:like, :dislike]
 
+  # posts ...
   def match_action(:post, :self), do: {:ok, %{target: Post, reactor: Post, preload: :author}}
 
   def match_action(:post, :favorite),
     do: {:ok, %{target: Post, reactor: PostFavorite, preload: :user, preload_right: :post}}
 
   def match_action(:post, :star), do: {:ok, %{target: Post, reactor: PostStar, preload: :user}}
-
-  # defp match_action(:post, :tag), do: {:ok, %{target: Post, reactor: PostTag}}
   def match_action(:post, :tag), do: {:ok, %{target: Post, reactor: Tag}}
   def match_action(:post, :community), do: {:ok, %{target: Post, reactor: Community}}
 
@@ -49,6 +49,10 @@ defmodule MastaniServer.CMS.Utils.Matcher do
 
   def match_action(:post_comment, :dislike),
     do: {:ok, %{target: PostComment, reactor: PostCommentDislike}}
+
+  # jobs ...
+  def match_action(:job, :self), do: {:ok, %{target: Job, reactor: Job, preload: :author}}
+  def match_action(:job, :community), do: {:ok, %{target: Job, reactor: Community}}
 
   def dynamic_where(part, id) do
     case part do

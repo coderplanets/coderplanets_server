@@ -20,49 +20,10 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     {:ok, ~m(user_conn guest_conn owner_conn post)a}
   end
 
-  describe "[mutation post comment]" do
-    @create_comment_query """
-    mutation($part: CmsPart!, $id: ID!, $body: String!) {
-      createComment(part: $part,id: $id, body: $body) {
-        id
-        body
-      }
-    }
-    """
-    test "create comment to a exsit post", ~m(post user_conn)a do
-      variables = %{part: "POST", id: post.id, body: "a test comment"}
-      created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
-
-      assert created["body"] == variables.body
-    end
-
-    @delete_comment_query """
-    mutation($id: ID!) {
-      deleteComment(id: $id) {
-        id
-      }
-    }
-    """
-    test "delete a comment", ~m(post user_conn)a do
-      variables1 = %{part: "POST", id: post.id, body: "a test comment"}
-      created = user_conn |> mutation_result(@create_comment_query, variables1, "createComment")
-      assert created["body"] == variables1.body
-
-      variables2 = %{id: created["id"]}
-
-      deleted_comment =
-        user_conn |> mutation_result(@delete_comment_query, variables2, "deleteComment")
-
-      assert deleted_comment["id"] == created["id"]
-
-      assert {:error, _} = ORM.find(CMS.PostComment, deleted_comment["id"])
-    end
-  end
-
   describe "[mutation post curd]" do
     @create_post_query """
-    mutation ($title: String!, $body: String!, $digest: String!, $length: Int!, $community: String!){
-      createPost(title: $title, body: $body, digest: $digest, length: $length, community: $community) {
+    mutation ($title: String!, $body: String!, $digest: String!, $length: Int!, $communityId: ID!){
+      createPost(title: $title, body: $body, digest: $digest, length: $length, communityId: $communityId) {
         title
         body
         id
@@ -76,7 +37,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       {:ok, community} = db_insert(:community)
       post_attr = mock_attrs(:post)
 
-      variables = post_attr |> Map.merge(%{community: community.title})
+      variables = post_attr |> Map.merge(%{communityId: community.id})
       created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
       {:ok, post} = ORM.find(CMS.Post, created["id"])
 
@@ -98,13 +59,23 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       assert {:error, _} = ORM.find(CMS.Post, deleted["id"])
     end
 
+    test "can delete a post by auth user", ~m(post)a do
+      belongs_community_title = post.communities |> List.first() |> Map.get(:title)
+      rule_conn = simu_conn(:user, cms: %{belongs_community_title => %{"post.delete" => true}})
+
+      deleted = rule_conn |> mutation_result(@query, %{id: post.id}, "deletePost")
+
+      assert deleted["id"] == to_string(post.id)
+      assert {:error, _} = ORM.find(CMS.Post, deleted["id"])
+    end
+
     test "delete a post without login user fails", ~m(guest_conn post)a do
       assert guest_conn |> mutation_get_error?(@query, %{id: post.id})
     end
 
     test "login user with auth passport delete a post", ~m(post)a do
       post_communities_0 = post.communities |> List.first() |> Map.get(:title)
-      passport_rules = %{post_communities_0 => %{"post.article.delete" => true}}
+      passport_rules = %{post_communities_0 => %{"post.delete" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       # assert conn |> mutation_get_error?(@query, %{id: post.id})
@@ -161,7 +132,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
 
     test "login user with auth passport update a post", ~m(post)a do
       post_communities_0 = post.communities |> List.first() |> Map.get(:title)
-      passport_rules = %{post_communities_0 => %{"post.article.edit" => true}}
+      passport_rules = %{post_communities_0 => %{"post.edit" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       # assert conn |> mutation_get_error?(@query, %{id: post.id})
@@ -293,8 +264,8 @@ defmodule MastaniServer.Test.Mutation.PostTest do
   describe "[mutation post community]" do
     # TODO
     @set_community_query """
-    mutation($id: ID!, $community: String!) {
-      setCommunity(id: $id, community: $community) {
+    mutation($id: ID!, $communityId: ID!) {
+      setCommunity(id: $id, communityId: $communityId) {
         id
       }
     }
@@ -304,7 +275,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       {:ok, community} = db_insert(:community)
-      variables = %{id: post.id, community: community.title}
+      variables = %{id: post.id, communityId: community.id}
       rule_conn |> mutation_result(@set_community_query, variables, "setCommunity")
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :communities)
 
@@ -314,7 +285,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
 
     test "unauth user set a community to post fails", ~m(user_conn guest_conn post)a do
       {:ok, community} = db_insert(:community)
-      variables = %{id: post.id, community: community.title}
+      variables = %{id: post.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@set_community_query, variables)
@@ -329,10 +300,10 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       {:ok, community} = db_insert(:community)
       {:ok, community2} = db_insert(:community)
 
-      variables = %{id: post.id, community: community.title}
+      variables = %{id: post.id, communityId: community.id}
       rule_conn |> mutation_result(@set_community_query, variables, "setCommunity")
 
-      variables2 = %{id: post.id, community: community2.title}
+      variables2 = %{id: post.id, communityId: community2.id}
       rule_conn |> mutation_result(@set_community_query, variables2, "setCommunity")
 
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :communities)
@@ -343,8 +314,8 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     end
 
     @unset_community_query """
-    mutation($id: ID!, $community: String!) {
-      unsetCommunity(id: $id, community: $community) {
+    mutation($id: ID!, $communityId: ID!) {
+      unsetCommunity(id: $id, communityId: $communityId) {
         id
       }
     }
@@ -356,10 +327,10 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       {:ok, community} = db_insert(:community)
       {:ok, community2} = db_insert(:community)
 
-      variables = %{id: post.id, community: community.title}
+      variables = %{id: post.id, communityId: community.id}
       rule_conn |> mutation_result(@set_community_query, variables, "setCommunity")
 
-      variables2 = %{id: post.id, community: community2.title}
+      variables2 = %{id: post.id, communityId: community2.id}
       rule_conn |> mutation_result(@set_community_query, variables2, "setCommunity")
 
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :communities)
@@ -373,6 +344,45 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       assoc_communities = found.communities |> Enum.map(& &1.id)
       assert community.id not in assoc_communities
       assert community2.id in assoc_communities
+    end
+  end
+
+  describe "[mutation post comment]" do
+    @create_comment_query """
+    mutation($part: CmsPart!, $id: ID!, $body: String!) {
+      createComment(part: $part,id: $id, body: $body) {
+        id
+        body
+      }
+    }
+    """
+    test "create comment to a exsit post", ~m(post user_conn)a do
+      variables = %{part: "POST", id: post.id, body: "a test comment"}
+      created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
+
+      assert created["body"] == variables.body
+    end
+
+    @delete_comment_query """
+    mutation($id: ID!) {
+      deleteComment(id: $id) {
+        id
+      }
+    }
+    """
+    test "delete a comment", ~m(post user_conn)a do
+      variables1 = %{part: "POST", id: post.id, body: "a test comment"}
+      created = user_conn |> mutation_result(@create_comment_query, variables1, "createComment")
+      assert created["body"] == variables1.body
+
+      variables2 = %{id: created["id"]}
+
+      deleted_comment =
+        user_conn |> mutation_result(@delete_comment_query, variables2, "deleteComment")
+
+      assert deleted_comment["id"] == created["id"]
+
+      assert {:error, _} = ORM.find(CMS.PostComment, deleted_comment["id"])
     end
   end
 end

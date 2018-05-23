@@ -32,10 +32,9 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
          {:ok, preload} <- parse_preload(action, args),
          {:ok, content} <- ORM.find(action.reactor, id, preload: preload) do
       resolution
-      # TODO: rename to load_owner_info
-      |> add_owner_info(react, content)
-      |> add_source(content)
-      |> add_community_info(content, args)
+      |> load_owner_info(react, content)
+      |> load_source(content)
+      |> load_community_info(content, args)
     else
       {:error, err_msg} ->
         resolution
@@ -48,13 +47,13 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
     resolution
   end
 
-  def add_source(resolution, content) do
+  def load_source(resolution, content) do
     arguments = resolution.arguments |> Map.merge(%{passport_source: content})
     %{resolution | arguments: arguments}
   end
 
   # 取得 content 里面的 conmunities 字段
-  def add_community_info(resolution, content, args) do
+  def load_community_info(resolution, content, args) do
     communities = content |> Map.get(parse_base(args))
 
     # check if communities is a List
@@ -76,7 +75,7 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
     end
   end
 
-  def add_owner_info(%{context: %{cur_user: cur_user}} = resolution, react, content) do
+  def load_owner_info(%{context: %{cur_user: cur_user}} = resolution, react, content) do
     content_author_id =
       cond do
         react == :comment ->

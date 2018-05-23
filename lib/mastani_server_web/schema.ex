@@ -6,20 +6,24 @@ defmodule MastaniServerWeb.Schema do
 
   import_types(Absinthe.Type.Custom)
 
+  # account
   import_types(Account.Types)
   import_types(Account.Queries)
   import_types(Account.Mutations)
 
+  # statistics
+  import_types(Statistics.Types)
+  import_types(Statistics.Queries)
+  import_types(Statistics.Mutations)
+
+  # cms
   import_types(CMS.Types)
   import_types(CMS.Queries)
   import_types(CMS.Mutation.Community)
   import_types(CMS.Mutation.Operation)
   import_types(CMS.Mutation.Post)
+  import_types(CMS.Mutation.Job)
   import_types(CMS.Mutation.Comment)
-
-  import_types(Statistics.Types)
-  import_types(Statistics.Queries)
-  import_types(Statistics.Mutations)
 
   query do
     import_fields(:account_queries)
@@ -28,12 +32,16 @@ defmodule MastaniServerWeb.Schema do
   end
 
   mutation do
+    # account
     import_fields(:account_mutations)
+    # statistics
+    import_fields(:statistics_mutations)
+    # cms
     import_fields(:cms_mutation_community)
     import_fields(:cms_mutation_operation)
     import_fields(:cms_mutation_post)
+    import_fields(:cms_mutation_job)
     import_fields(:cms_mutation_comment)
-    import_fields(:statistics_mutations)
   end
 
   def middleware(middleware, _field, %{identifier: :query}) do
