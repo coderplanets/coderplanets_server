@@ -125,9 +125,6 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   def update_content(_root, args, _info), do: ORM.update(args.passport_source, args)
-
-  # def update_job(_root, args, _info), do: ORM.update(args.passport_source, args)
-
   def delete_content(_root, %{passport_source: content}, _info), do: ORM.delete(content)
   # --------- --------
 

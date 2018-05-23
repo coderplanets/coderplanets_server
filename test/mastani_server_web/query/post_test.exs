@@ -6,8 +6,6 @@ defmodule MastaniServer.Test.Query.PostTest do
   import MastaniServer.Test.AssertHelper
   import ShortMaps
 
-  # alias MastaniServer.Accounts
-
   setup do
     {:ok, post} = db_insert(:post)
 
@@ -72,11 +70,11 @@ defmodule MastaniServer.Test.Query.PostTest do
   }
   """
   test "views should +1 after query the post", ~m(user_conn post)a do
-    variables_1 = %{id: post.id}
-    views_1 = user_conn |> query_result(@query, variables_1, "post") |> Map.get("views")
+    variables = %{id: post.id}
+    views_1 = user_conn |> query_result(@query, variables, "post") |> Map.get("views")
 
-    variables_2 = %{id: post.id}
-    views_2 = user_conn |> query_result(@query, variables_2, "post") |> Map.get("views")
+    variables = %{id: post.id}
+    views_2 = user_conn |> query_result(@query, variables, "post") |> Map.get("views")
     assert views_2 == views_1 + 1
   end
 

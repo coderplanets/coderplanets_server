@@ -131,8 +131,9 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     end
 
     test "login user with auth passport update a post", ~m(post)a do
-      post_communities_0 = post.communities |> List.first() |> Map.get(:title)
-      passport_rules = %{post_communities_0 => %{"post.edit" => true}}
+      belongs_community_title = post.communities |> List.first() |> Map.get(:title)
+
+      passport_rules = %{belongs_community_title => %{"post.edit" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       # assert conn |> mutation_get_error?(@query, %{id: post.id})
@@ -178,7 +179,6 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     test "auth user can set a valid tag to post", ~m(post)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{community: community})
-      # {:ok, tag} = db_insert(:tag)
 
       passport_rules = %{community.title => %{"post.tag.set" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
@@ -303,8 +303,8 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       variables = %{id: post.id, communityId: community.id}
       rule_conn |> mutation_result(@set_community_query, variables, "setCommunity")
 
-      variables2 = %{id: post.id, communityId: community2.id}
-      rule_conn |> mutation_result(@set_community_query, variables2, "setCommunity")
+      variables = %{id: post.id, communityId: community2.id}
+      rule_conn |> mutation_result(@set_community_query, variables, "setCommunity")
 
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :communities)
 
@@ -377,12 +377,11 @@ defmodule MastaniServer.Test.Mutation.PostTest do
 
       variables2 = %{id: created["id"]}
 
-      deleted_comment =
-        user_conn |> mutation_result(@delete_comment_query, variables2, "deleteComment")
+      deleted = user_conn |> mutation_result(@delete_comment_query, variables2, "deleteComment")
 
-      assert deleted_comment["id"] == created["id"]
+      assert deleted["id"] == created["id"]
 
-      assert {:error, _} = ORM.find(CMS.PostComment, deleted_comment["id"])
+      assert {:error, _} = ORM.find(CMS.PostComment, deleted["id"])
     end
   end
 end
