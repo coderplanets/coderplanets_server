@@ -6,6 +6,7 @@ defmodule MastaniServer.CMS.Community do
     Community,
     Category,
     Post,
+    Job,
     CommunityThread,
     CommunitySubscriber,
     CommunityEditor
@@ -43,6 +44,13 @@ defmodule MastaniServer.CMS.Community do
       Post,
       join_through: "communities_posts",
       join_keys: [community_id: :id, post_id: :id]
+    )
+
+    many_to_many(
+      :jobs,
+      Job,
+      join_through: "communities_jobs",
+      join_keys: [community_id: :id, job_id: :id]
     )
 
     # posts_managers
