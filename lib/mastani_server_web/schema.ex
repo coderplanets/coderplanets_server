@@ -12,7 +12,10 @@ defmodule MastaniServerWeb.Schema do
 
   import_types(CMS.Types)
   import_types(CMS.Queries)
-  import_types(CMS.Mutations)
+  import_types(CMS.Mutation.Community)
+  import_types(CMS.Mutation.Operation)
+  import_types(CMS.Mutation.Post)
+  import_types(CMS.Mutation.Comment)
 
   import_types(Statistics.Types)
   import_types(Statistics.Queries)
@@ -26,7 +29,10 @@ defmodule MastaniServerWeb.Schema do
 
   mutation do
     import_fields(:account_mutations)
-    import_fields(:cms_mutations)
+    import_fields(:cms_mutation_community)
+    import_fields(:cms_mutation_operation)
+    import_fields(:cms_mutation_post)
+    import_fields(:cms_mutation_comment)
     import_fields(:statistics_mutations)
   end
 

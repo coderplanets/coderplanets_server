@@ -15,7 +15,7 @@ defmodule MastaniServer.Repo.Migrations.CreateCmsJobs do
       add(:link_addr, :string)
       add(:link_source, :string)
       add(:min_salary, :integer, default: 0)
-      add(:max_salary, :integer, default: 10000000)
+      add(:max_salary, :integer, default: 10_000_000)
       add(:min_experience, :integer, default: 1)
       add(:max_experience, :integer, default: 3)
       add(:min_education, :string)

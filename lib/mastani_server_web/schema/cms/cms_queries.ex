@@ -47,14 +47,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       resolve(&Resolvers.CMS.post/3)
     end
 
-    @desc "get all posts"
-    field :posts, list_of(:post) do
-      # case error when refresh the schema
-      # arg(:filter, :article_filter, default_value: %{first: 20})
-      middleware(M.PageSizeProof)
-      resolve(&Resolvers.CMS.posts/3)
-    end
-
+    @desc "get paged posts"
     field :paged_posts, :paged_posts do
       arg(:filter, non_null(:paged_article_filter))
       middleware(M.PageSizeProof)

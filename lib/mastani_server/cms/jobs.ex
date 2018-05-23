@@ -22,7 +22,7 @@ defmodule MastaniServer.CMS.Job do
     field(:link_source, :string)
 
     field(:min_salary, :integer, default: 0)
-    field(:max_salary, :integer, default: 10000000)
+    field(:max_salary, :integer, default: 10_000_000)
 
     field(:min_experience, :integer, default: 1)
     field(:max_experience, :integer, default: 3)
@@ -38,11 +38,11 @@ defmodule MastaniServer.CMS.Job do
     # has_many(:stars, {"posts_stars", PostStar})
 
     # many_to_many(
-      # :tags,
-      # Tag,
-      # join_through: "posts_tags",
-      # join_keys: [post_id: :id, tag_id: :id],
-      # on_replace: :delete
+    # :tags,
+    # Tag,
+    # join_through: "posts_tags",
+    # join_keys: [post_id: :id, tag_id: :id],
+    # on_replace: :delete
     # )
 
     many_to_many(
