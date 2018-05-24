@@ -17,7 +17,7 @@ defmodule MastaniServer.CMS.Utils.Loader do
     PostCommentLike,
     PostCommentDislike,
     # job comment
-    JobComment,
+    # JobComment,
     JobCommentReply
   }
 
@@ -233,9 +233,7 @@ defmodule MastaniServer.CMS.Utils.Loader do
 
   def query({"posts_comments_replies", PostCommentReply}, %{filter: filter}) do
     PostCommentReply
-    |> QueryBuilder.filter_pack(filter)
-    |> join(:inner, [c], r in assoc(c, :reply))
-    |> select([c, r], r)
+    |> QueryBuilder.load_inner_replies(filter)
   end
 
   def query({"posts_comments_replies", PostCommentReply}, %{reply_to: _}) do
@@ -274,6 +272,26 @@ defmodule MastaniServer.CMS.Utils.Loader do
     PostCommentDislike
     |> QueryBuilder.members_pack(args)
   end
+
+  # ---- job comments ------
+  def query({"jobs_comments_replies", JobCommentReply}, %{count: _}) do
+    JobCommentReply
+    |> group_by([c], c.job_comment_id)
+    |> select([c], count(c.id))
+  end
+
+  def query({"jobs_comments_replies", JobCommentReply}, %{filter: filter}) do
+    JobCommentReply
+    |> QueryBuilder.load_inner_replies(filter)
+  end
+
+  def query({"jobs_comments_replies", JobCommentReply}, %{reply_to: _}) do
+    JobCommentReply
+    |> join(:inner, [c], r in assoc(c, :job_comment))
+    |> select([c, r], r)
+  end
+
+  # ---- job ------
 
   # default loader
   def query(queryable, _args) do

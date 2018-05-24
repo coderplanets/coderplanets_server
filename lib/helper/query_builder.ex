@@ -41,6 +41,16 @@ defmodule Helper.QueryBuilder do
   end
 
   @doc """
+  load replies of the given comment
+  """
+  def load_inner_replies(queryable, filter) do
+    queryable
+    |> filter_pack(filter)
+    |> join(:inner, [c], r in assoc(c, :reply))
+    |> select([c, r], r)
+  end
+
+  @doc """
   inserted in latest x mounth
   """
   def recent_inserted(queryable, months: count) do
