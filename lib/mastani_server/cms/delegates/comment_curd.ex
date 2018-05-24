@@ -10,32 +10,25 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   @doc """
   Creates a comment for psot, job ...
   """
-  # TODO: remove react
   def create_comment(part, part_id, %Accounts.User{id: user_id}, body) do
     with {:ok, action} <- match_action(part, :comment),
          {:ok, content} <- ORM.find(action.target, part_id),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
-      # TODO: refactor
-      nextFloor =
-        case part do
-          :post ->
-            action.reactor
-            |> where([c], c.post_id == ^content.id)
-            |> ORM.next_count()
+      nextFloor = get_next_floor(part, action.reactor, content.id)
 
-          :job ->
-            action.reactor
-            |> where([c], c.job_id == ^content.id)
-            |> ORM.next_count()
-        end
+      attrs = %{
+        author_id: user.id,
+        body: body,
+        floor: nextFloor
+      }
 
       attrs =
         case part do
           :post ->
-            %{post_id: content.id, author_id: user.id, body: body, floor: nextFloor}
+            attrs |> Map.merge(%{post_id: content.id})
 
           :job ->
-            %{job_id: content.id, author_id: user.id, body: body, floor: nextFloor}
+            attrs |> Map.merge(%{job_id: content.id})
         end
 
       action.reactor |> ORM.create(attrs)
@@ -65,9 +58,17 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
 
   def list_comments(part, part_id, %{page: page, size: size} = filters) do
     with {:ok, action} <- match_action(part, :comment) do
+      dynamic =
+        case part do
+          :post ->
+            dynamic([c], c.post_id == ^part_id)
+
+          :job ->
+            dynamic([c], c.job_id == ^part_id)
+        end
+
       action.reactor
-      # TODO: make post_id common
-      |> where([c], c.post_id == ^part_id)
+      |> where(^dynamic)
       |> QueryBuilder.filter_pack(filters)
       |> ORM.paginater(page: page, size: size)
       |> done()
@@ -131,6 +132,21 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
 
       queryable |> ORM.find(reply.id)
     end
+  end
+
+  defp get_next_floor(part, queryable, id) when is_integer(id) do
+    dynamic =
+      case part do
+        :post ->
+          dynamic([c], c.post_id == ^id)
+
+        :job ->
+          dynamic([c], c.job_id == ^id)
+      end
+
+    queryable
+    |> where(^dynamic)
+    |> ORM.next_count()
   end
 
   defp get_next_floor(part, queryable, comment) do

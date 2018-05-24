@@ -27,7 +27,7 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
   # def call(%{context: %{cur_user: cur_user}, arguments: %{id: id}} = resolution, [source: .., base: ..]) do
   # Loader 应该使用 Map 作为参数，以方便模式匹配
   def call(%{context: %{cur_user: _}, arguments: %{id: id}} = resolution, args) do
-    with {:ok, part, react} <- parse_source(args),
+    with {:ok, part, react} <- parse_source(args, resolution),
          {:ok, action} <- match_action(part, react),
          {:ok, preload} <- parse_preload(action, args),
          {:ok, content} <- ORM.find(action.reactor, id, preload: preload) do
@@ -95,7 +95,15 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
     end
   end
 
-  # defp parse_args(args, :owner) do
+  # typical usage is delete_comment, should load conent by part
+  defp parse_source([source: [:arg_part, react]], %{arguments: %{part: part}}) do
+    parse_source(source: [part, react])
+  end
+
+  defp parse_source(args, _resolution) do
+    parse_source(args)
+  end
+
   defp parse_source(args) do
     case Keyword.has_key?(args, :source) do
       nil -> {:error, "Invalid.option: #{args}"}

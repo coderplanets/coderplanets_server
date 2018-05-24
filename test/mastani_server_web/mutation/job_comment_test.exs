@@ -48,42 +48,44 @@ defmodule MastaniServer.Test.Mutation.JobCommentTest do
       assert guest_conn |> mutation_get_error?(@create_comment_query, variables)
     end
 
-    # @delete_comment_query """
-    # mutation($part: CmsPart, $id: ID!) {
-    # deleteComment(part: $part, id: $id) {
-    # id
-    # body
-    # }
-    # }
-    # """
-    # @tag :
-    # test "comment owner can delete comment", ~m(user job)a do
-    # variables = %{part: "JOB", id: job.id, body: "this a comment"}
+    @delete_comment_query """
+    mutation($part: CmsPart, $id: ID!) {
+      deleteComment(part: $part, id: $id) {
+        id
+        body
+      }
+    }
+    """
+    test "comment owner can delete comment", ~m(user job)a do
+      variables = %{part: "JOB", id: job.id, body: "this a comment"}
 
-    # user_conn = simu_conn(:user, user)
-    # created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
+      user_conn = simu_conn(:user, user)
+      created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
 
-    # IO.inspect created, label: "hello"
+      deleted =
+        user_conn
+        |> mutation_result(
+          @delete_comment_query,
+          %{part: "JOB", id: created["id"]},
+          "deleteComment"
+        )
 
-    # deleted =
-    # user_conn |> mutation_result(@delete_comment_query, %{part: "JOB", id: created["id"]}, "deleteComment")
+      assert deleted["id"] == created["id"]
+    end
 
-    # assert deleted["id"] == created["id"]
-    # end
+    test "unauth user delete comment fails", ~m(user_conn guest_conn job)a do
+      variables = %{part: "JOB", id: job.id, body: "this a comment"}
+      {:ok, owner} = db_insert(:user)
+      owner_conn = simu_conn(:user, owner)
+      created = owner_conn |> mutation_result(@create_comment_query, variables, "createComment")
 
-    # test "unauth user delete comment fails", ~m(user_conn guest_conn post)a do
-    # variables = %{id: post.id, body: "this a comment"}
-    # {:ok, owner} = db_insert(:user)
-    # owner_conn = simu_conn(:user, owner)
-    # created = owner_conn |> mutation_result(@create_comment_query, variables, "createComment")
+      variables = %{id: created["id"]}
+      rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
-    # variables = %{id: created["id"]}
-    # rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
-
-    # assert user_conn |> mutation_get_error?(@delete_comment_query, variables)
-    # assert guest_conn |> mutation_get_error?(@delete_comment_query, variables)
-    # assert rule_conn |> mutation_get_error?(@delete_comment_query, variables)
-    # end
+      assert user_conn |> mutation_get_error?(@delete_comment_query, variables)
+      assert guest_conn |> mutation_get_error?(@delete_comment_query, variables)
+      assert rule_conn |> mutation_get_error?(@delete_comment_query, variables)
+    end
 
     @reply_comment_query """
     mutation($part: CmsPart!, $id: ID!, $body: String!) {

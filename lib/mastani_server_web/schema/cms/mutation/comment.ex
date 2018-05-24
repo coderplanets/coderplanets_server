@@ -24,7 +24,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Comment do
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: [:post, :comment])
+      # middleware(M.PassportLoader, source: [:post, :comment])
+      middleware(M.PassportLoader, source: [:arg_part, :comment])
       # TODO: 文章可以设置禁止评论
       # middleware(M.Passport, claim: "owner;cms->c?->post.comment.delete")
       middleware(M.Passport, claim: "owner")
