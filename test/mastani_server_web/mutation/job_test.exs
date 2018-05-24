@@ -165,4 +165,62 @@ defmodule MastaniServer.Test.Mutation.JobTest do
       assert {:error, _} = ORM.find(CMS.Job, deleted["id"])
     end
   end
+
+  describe "[mutation job tag]" do
+    @set_tag_query """
+    mutation($part: String!, $id: ID!, $tagId: ID! $communityId: ID!) {
+      setTag(part: $part, id: $id, tagId: $tagId, communityId: $communityId) {
+        id
+        title
+      }
+    }
+    """
+    @tag :wip
+    test "auth user can set a valid tag to job", ~m(job)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, tag} = db_insert(:tag, %{community: community})
+
+      passport_rules = %{community.title => %{"job.tag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      variables = %{part: "JOB", id: job.id, tagId: tag.id, communityId: community.id}
+      rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
+      # {:ok, found} = ORM.find(CMS.Job, job.id, preload: :tags)
+
+      # assoc_tags = found.tags |> Enum.map(& &1.id)
+      # assert tag.id in assoc_tags
+    end
+
+    test "auth user set a invalid tag to post fails", ~m(post)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, tag} = db_insert(:tag)
+
+      passport_rules = %{community.title => %{"post.tag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      variables = %{id: post.id, tagId: tag.id, communityId: community.id}
+      assert rule_conn |> mutation_get_error?(@set_tag_query, variables)
+    end
+
+    test "can set multi tag to a post", ~m(post)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, tag} = db_insert(:tag, %{community: community})
+      {:ok, tag2} = db_insert(:tag, %{community: community})
+
+      passport_rules = %{community.title => %{"post.tag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      variables = %{id: post.id, tagId: tag.id, communityId: community.id}
+      rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
+
+      variables2 = %{id: post.id, tagId: tag2.id, communityId: community.id}
+      rule_conn |> mutation_result(@set_tag_query, variables2, "setTag")
+
+      {:ok, found} = ORM.find(CMS.Post, post.id, preload: :tags)
+
+      assoc_tags = found.tags |> Enum.map(& &1.id)
+      assert tag.id in assoc_tags
+      assert tag2.id in assoc_tags
+    end
+  end
 end

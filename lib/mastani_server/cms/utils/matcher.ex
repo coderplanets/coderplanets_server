@@ -56,6 +56,7 @@ defmodule MastaniServer.CMS.Utils.Matcher do
   def match_action(:job, :self), do: {:ok, %{target: Job, reactor: Job, preload: :author}}
   def match_action(:job, :community), do: {:ok, %{target: Job, reactor: Community}}
   def match_action(:job, :star), do: {:ok, %{target: Job, reactor: JobStar, preload: :user}}
+  def match_action(:job, :tag), do: {:ok, %{target: Job, reactor: Tag}}
 
   def match_action(:job, :favorite),
     do: {:ok, %{target: Job, reactor: JobFavorite, preload: :user}}

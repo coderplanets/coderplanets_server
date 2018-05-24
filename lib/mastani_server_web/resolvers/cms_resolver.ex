@@ -99,7 +99,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   def set_tag(_root, ~m(community_id part id tag_id)a, _info) do
-    CMS.set_tag(%Community{id: community_id}, part, id, %Tag{id: tag_id})
+    CMS.set_tag(part, id, %Community{id: community_id}, %Tag{id: tag_id})
   end
 
   def unset_tag(_root, ~m(id part tag_id)a, _info) do

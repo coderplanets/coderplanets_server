@@ -2,7 +2,7 @@ defmodule MastaniServer.CMS.Job do
   use Ecto.Schema
   import Ecto.Changeset
   # alias MastaniServer.CMS.{Job, Author, PostComment, PostFavorite, PostStar, Tag, Community}
-  alias MastaniServer.CMS.{Job, Author, Community}
+  alias MastaniServer.CMS.{Job, Author, Community, Tag}
   # alias MastaniServer.Accounts
 
   @required_fields ~w(title company company_logo location body digest length)a
@@ -37,13 +37,13 @@ defmodule MastaniServer.CMS.Job do
     # has_many(:favorites, {"posts_favorites", PostFavorite})
     # has_many(:stars, {"posts_stars", PostStar})
 
-    # many_to_many(
-    # :tags,
-    # Tag,
-    # join_through: "posts_tags",
-    # join_keys: [post_id: :id, tag_id: :id],
-    # on_replace: :delete
-    # )
+    many_to_many(
+      :tags,
+      Tag,
+      join_through: "jobs_tags",
+      join_keys: [job_id: :id, tag_id: :id],
+      on_replace: :delete
+    )
 
     many_to_many(
       :communities,

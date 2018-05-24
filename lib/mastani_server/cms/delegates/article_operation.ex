@@ -33,7 +33,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   set tag for post / tuts / videos ...
   """
   # check community first
-  def set_tag(%Community{id: communitId}, part, part_id, %Tag{id: tag_id})
+  def set_tag(part, part_id, %Community{id: communitId}, %Tag{id: tag_id})
       when valid_part(part) do
     with {:ok, action} <- match_action(part, :tag),
          {:ok, content} <- ORM.find(action.target, part_id, preload: :tags),
