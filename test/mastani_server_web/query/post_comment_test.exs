@@ -22,7 +22,7 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
   # TODO: filter comment by time / like / reply
   describe "[post comment]" do
     @query """
-    query comments($id: ID!, $filter: CommentsFilter!) {
+    query($id: ID!, $filter: CommentsFilter!) {
       comments(id: $id, filter: $filter) {
         entries {
           id
@@ -125,7 +125,7 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
     end
 
     @query """
-    query comments($id: ID!, $filter: CommentsFilter!) {
+    query($id: ID!, $filter: CommentsFilter!) {
       comments(id: $id, filter: $filter) {
         entries {
           id
@@ -159,7 +159,7 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
     end
 
     @query """
-    query comments($id: ID!, $filter: PagedFilter!) {
+    query($id: ID!, $filter: PagedFilter!) {
       comments(id: $id, filter: $filter) {
         entries {
           id
@@ -199,7 +199,7 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
     end
 
     @query """
-    query comments($id: ID!, $filter: PagedFilter!) {
+    query($id: ID!, $filter: PagedFilter!) {
       comments(id: $id, filter: $filter) {
         entries {
           id
@@ -239,7 +239,7 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
     end
 
     @query """
-    query comments($id: ID!, $filter: PagedFilter!) {
+    query($id: ID!, $filter: PagedFilter!) {
       comments(id: $id, filter: $filter) {
         entries {
           id

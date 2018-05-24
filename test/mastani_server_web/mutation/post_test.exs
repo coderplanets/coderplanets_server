@@ -22,7 +22,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
 
   describe "[mutation post curd]" do
     @create_post_query """
-    mutation ($title: String!, $body: String!, $digest: String!, $length: Int!, $communityId: ID!){
+    mutation($title: String!, $body: String!, $digest: String!, $length: Int!, $communityId: ID!){
       createPost(title: $title, body: $body, digest: $digest, length: $length, communityId: $communityId) {
         title
         body
@@ -46,7 +46,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     end
 
     @query """
-    mutation ($id: ID!){
+    mutation($id: ID!){
       deletePost(id: $id) {
         id
       }
@@ -95,7 +95,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     end
 
     @query """
-    mutation ($id: ID!, $title: String, $body: String){
+    mutation($id: ID!, $title: String, $body: String){
       updatePost(id: $id, title: $title, body: $body) {
         id
         title

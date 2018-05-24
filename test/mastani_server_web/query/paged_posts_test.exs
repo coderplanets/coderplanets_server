@@ -44,7 +44,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
 
   describe "[query paged_posts filter pagination]" do
     @query """
-    query PagedPosts($filter: PagedArticleFilter!) {
+    query($filter: PagedArticleFilter!) {
       pagedPosts(filter: $filter) {
         entries {
           id
@@ -89,7 +89,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
 
   describe "[query paged_posts filter sort]" do
     @query """
-    query PagedPosts($filter: PagedArticleFilter!) {
+    query($filter: PagedArticleFilter!) {
       pagedPosts(filter: $filter) {
         entries {
           id
@@ -117,7 +117,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
     end
 
     @query """
-    query PagedPosts($filter: PagedArticleFilter!) {
+    query($filter: PagedArticleFilter!) {
       pagedPosts(filter: $filter) {
         entries {
           id
@@ -144,7 +144,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
   """
   describe "[query paged_posts filter when]" do
     @query """
-    query PagedPosts($filter: PagedArticleFilter!) {
+    query($filter: PagedArticleFilter!) {
       pagedPosts(filter: $filter) {
         entries {
           id

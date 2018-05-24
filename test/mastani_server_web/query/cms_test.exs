@@ -19,7 +19,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
 
   describe "[cms query tags]" do
     @query """
-    query tags($filter: PagedFilter!) {
+    query($filter: PagedFilter!) {
       tags(filter: $filter) {
         entries {
           id
@@ -51,7 +51,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
 
   describe "[cms query community]" do
     @query """
-    query community($id: ID, $title: String) {
+    query($id: ID, $title: String) {
       community(id: $id, title: $title) {
         id
         title
@@ -85,7 +85,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
 
   describe "[cms community editors]" do
     @query """
-    query community($id: ID!) {
+    query($id: ID!) {
       community(id: $id) {
         id
         editorsCount
@@ -125,7 +125,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
     end
 
     @query """
-    query communityEditors($id: ID!, $filter: PagedFilter!) {
+    query($id: ID!, $filter: PagedFilter!) {
       communityEditors(id: $id, filter: $filter) {
         entries {
           nickname
@@ -159,7 +159,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
 
   describe "[cms community subscribe]" do
     @query """
-    query community($id: ID!) {
+    query($id: ID!) {
       community(id: $id) {
         id
         subscribersCount
@@ -209,7 +209,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
     end
 
     @query """
-    query communitySubscribers($id: ID!, $filter: PagedFilter!) {
+    query($id: ID!, $filter: PagedFilter!) {
       communitySubscribers(id: $id, filter: $filter) {
         entries {
           nickname

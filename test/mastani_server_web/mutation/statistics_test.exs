@@ -18,7 +18,7 @@ defmodule MastaniServer.Test.Mutation.StatisticsTest do
 
   describe "[statistics mutaion user_contributes] " do
     @query """
-    mutation makeContrubute($userId: ID!) {
+    mutation($userId: ID!) {
       makeContrubute(userId: $userId) {
         date
         count

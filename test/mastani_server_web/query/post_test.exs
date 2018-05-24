@@ -16,7 +16,7 @@ defmodule MastaniServer.Test.Query.PostTest do
   end
 
   @query """
-  query Post($id: ID!) {
+  query($id: ID!) {
     post(id: $id) {
       id
       title
@@ -44,7 +44,7 @@ defmodule MastaniServer.Test.Query.PostTest do
   end
 
   @query """
-  query Post($id: ID!) {
+  query($id: ID!) {
     post(id: $id) {
       id
       favoritedUsers {
@@ -63,7 +63,7 @@ defmodule MastaniServer.Test.Query.PostTest do
   end
 
   @query """
-  query Post($id: ID!) {
+  query($id: ID!) {
     post(id: $id) {
       views
     }
@@ -79,7 +79,7 @@ defmodule MastaniServer.Test.Query.PostTest do
   end
 
   @query """
-  query Post($id: ID!) {
+  query($id: ID!) {
     post(id: $id) {
       id
       title
@@ -103,7 +103,7 @@ defmodule MastaniServer.Test.Query.PostTest do
   end
 
   @query """
-  query Post($id: ID!) {
+  query($id: ID!) {
     post(id: $id) {
       id
       title

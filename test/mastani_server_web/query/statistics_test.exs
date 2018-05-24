@@ -19,7 +19,7 @@ defmodule MastaniServer.Test.Query.StatisticsTest do
 
   describe "[statistics query user_contributes] " do
     @query """
-    query userContributes($id: ID!) {
+    query($id: ID!) {
       userContributes(id: $id) {
         date
         count

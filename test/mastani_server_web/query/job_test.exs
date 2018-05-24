@@ -45,83 +45,83 @@ defmodule MastaniServer.Test.Query.JobTest do
 
   # @query """
   # query($id: ID!) {
-    # job(id: $id) {
-      # id
-      # favoritedUsers {
-        # nickname
-        # id
-      # }
-    # }
+  # job(id: $id) {
+  # id
+  # favoritedUsers {
+  # nickname
+  # id
+  # }
+  # }
   # }
   # """
   # test "post have favoritedUsers query field", ~m(user_conn job)a do
-    # variables = %{id: job.id}
-    # results = user_conn |> query_result(@query, variables, "job")
+  # variables = %{id: job.id}
+  # results = user_conn |> query_result(@query, variables, "job")
 
-    # assert results["id"] == to_string(job.id)
-    # assert is_valid_kv?(results, "favoritedUsers", :list)
+  # assert results["id"] == to_string(job.id)
+  # assert is_valid_kv?(results, "favoritedUsers", :list)
   # end
 
   # @query """
   # query Post($id: ID!) {
-    # post(id: $id) {
-      # views
-    # }
+  # post(id: $id) {
+  # views
+  # }
   # }
   # """
   # test "views should +1 after query the post", ~m(user_conn post)a do
-    # variables = %{id: post.id}
-    # views_1 = user_conn |> query_result(@query, variables, "post") |> Map.get("views")
+  # variables = %{id: post.id}
+  # views_1 = user_conn |> query_result(@query, variables, "post") |> Map.get("views")
 
-    # variables = %{id: post.id}
-    # views_2 = user_conn |> query_result(@query, variables, "post") |> Map.get("views")
-    # assert views_2 == views_1 + 1
+  # variables = %{id: post.id}
+  # views_2 = user_conn |> query_result(@query, variables, "post") |> Map.get("views")
+  # assert views_2 == views_1 + 1
   # end
 
   # @query """
   # query Post($id: ID!) {
-    # post(id: $id) {
-      # id
-      # title
-      # body
-      # viewerHasFavorited
-    # }
+  # post(id: $id) {
+  # id
+  # title
+  # body
+  # viewerHasFavorited
+  # }
   # }
   # """
   # test "logged user can query viewerHasFavorited field", ~m(user_conn post)a do
-    # variables = %{id: post.id}
+  # variables = %{id: post.id}
 
-    # assert user_conn
-           # |> query_result(@query, variables, "post")
-           # |> has_boolen_value?("viewerHasFavorited")
+  # assert user_conn
+  # |> query_result(@query, variables, "post")
+  # |> has_boolen_value?("viewerHasFavorited")
   # end
 
   # test "unlogged user can not query viewerHasFavorited field", ~m(guest_conn post)a do
-    # variables = %{id: post.id}
+  # variables = %{id: post.id}
 
-    # assert guest_conn |> query_get_error?(@query, variables)
+  # assert guest_conn |> query_get_error?(@query, variables)
   # end
 
   # @query """
   # query Post($id: ID!) {
-    # post(id: $id) {
-      # id
-      # title
-      # body
-      # viewerHasStarred
-    # }
+  # post(id: $id) {
+  # id
+  # title
+  # body
+  # viewerHasStarred
+  # }
   # }
   # """
   # test "logged user can query viewerHasStarred field", ~m(user_conn post)a do
-    # variables = %{id: post.id}
+  # variables = %{id: post.id}
 
-    # assert user_conn
-           # |> query_result(@query, variables, "post")
-           # |> has_boolen_value?("viewerHasStarred")
+  # assert user_conn
+  # |> query_result(@query, variables, "post")
+  # |> has_boolen_value?("viewerHasStarred")
   # end
 
   # test "unlogged user can not query viewerHasStarred field", ~m(guest_conn post)a do
-    # variables = %{id: post.id}
-    # assert guest_conn |> query_get_error?(@query, variables)
+  # variables = %{id: post.id}
+  # assert guest_conn |> query_get_error?(@query, variables)
   # end
 end

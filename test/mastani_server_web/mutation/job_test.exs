@@ -71,7 +71,7 @@ defmodule MastaniServer.Test.Mutation.JobTest do
     end
 
     @query """
-    mutation ($id: ID!, $title: String, $body: String){
+    mutation($id: ID!, $title: String, $body: String){
       updateJob(id: $id, title: $title, body: $body) {
         id
         title
@@ -142,7 +142,7 @@ defmodule MastaniServer.Test.Mutation.JobTest do
     end
 
     @query """
-    mutation ($id: ID!){
+    mutation($id: ID!){
       deleteJob(id: $id) {
         id
       }

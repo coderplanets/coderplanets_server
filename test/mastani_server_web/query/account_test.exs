@@ -21,7 +21,7 @@ defmodule MastaniServer.Test.Query.AccountTest do
 
   describe "[account test]" do
     @query """
-    query user($id: ID!) {
+    query($id: ID!) {
       user(id: $id) {
         id
         nickname
@@ -37,7 +37,7 @@ defmodule MastaniServer.Test.Query.AccountTest do
     end
 
     @query """
-    query pagedUsers($filter: PagedUsersFilter!) {
+    query($filter: PagedUsersFilter!) {
       pagedUsers(filter: $filter) {
         entries {
           id
@@ -61,7 +61,7 @@ defmodule MastaniServer.Test.Query.AccountTest do
 
   describe "[account subscrube]" do
     @query """
-    query user($id: ID!) {
+    query($id: ID!) {
       user(id: $id) {
         id
         nickname
@@ -110,7 +110,7 @@ defmodule MastaniServer.Test.Query.AccountTest do
     end
 
     @query """
-    query subscribedCommunities($filter: PagedFilter!) {
+    query($filter: PagedFilter!) {
       subscribedCommunities(filter: $filter) {
         entries {
           title
@@ -133,7 +133,7 @@ defmodule MastaniServer.Test.Query.AccountTest do
     end
 
     @query """
-    query subscribedCommunities($userId: String, $filter: PagedFilter!) {
+    query($userId: String, $filter: PagedFilter!) {
       subscribedCommunities(userId: $userId, filter: $filter) {
         entries {
           title
