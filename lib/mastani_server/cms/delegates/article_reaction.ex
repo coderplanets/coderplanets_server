@@ -31,9 +31,12 @@ defmodule MastaniServer.CMS.Delegate.ArticleReaction do
 
       where =
         case part do
-          :post -> dynamic([p], p.post_id == ^content.id and ^the_user)
-          :job -> dynamic([p], p.job_id == ^content.id and ^the_user)
-          # :star -> dynamic([p], p.star_id == ^content.id and ^the_user)
+          :post ->
+            dynamic([p], p.post_id == ^content.id and ^the_user)
+
+          :job ->
+            dynamic([p], p.job_id == ^content.id and ^the_user)
+            # :star -> dynamic([p], p.star_id == ^content.id and ^the_user)
         end
 
       query = from(f in action.reactor, where: ^where)
