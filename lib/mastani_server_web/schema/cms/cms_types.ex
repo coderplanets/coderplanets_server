@@ -102,8 +102,11 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:link_addr, :string)
     field(:body, :string)
     field(:views, :integer)
+    field(:author, :user, resolve: dataloader(CMS, :author))
 
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
+    field(:inserted_at, :datetime)
+    field(:updated_at, :datetime)
   end
 
   object :post do
@@ -347,6 +350,14 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
   object :paged_posts do
     field(:entries, list_of(:post))
+    field(:total_count, :integer)
+    field(:page_size, :integer)
+    field(:total_pages, :integer)
+    field(:page_number, :integer)
+  end
+
+  object :paged_jobs do
+    field(:entries, list_of(:job))
     field(:total_count, :integer)
     field(:page_size, :integer)
     field(:total_pages, :integer)

@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Query.PagedPostsTest do
+defmodule MastaniServer.Test.Query.PagedJobsTest do
   # use MastaniServerWeb.ConnCase, async: true
   use MastaniServerWeb.ConnCase, async: true
 
@@ -28,10 +28,10 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
   @total_count @today_count + @last_week_count + @last_month_count + @last_year_count
 
   setup do
-    db_insert_multi(:post, @today_count)
-    db_insert(:post, %{title: "last week", inserted_at: @last_week})
-    db_insert(:post, %{title: "last month", inserted_at: @last_month})
-    db_insert(:post, %{title: "last year", inserted_at: @last_year})
+    db_insert_multi(:job, @today_count)
+    db_insert(:job, %{title: "last week", inserted_at: @last_week})
+    db_insert(:job, %{title: "last month", inserted_at: @last_month})
+    db_insert(:job, %{title: "last year", inserted_at: @last_year})
 
     # conn =
     # build_conn()
@@ -44,7 +44,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
   describe "[query paged_posts filter pagination]" do
     @query """
     query($filter: PagedArticleFilter!) {
-      pagedPosts(filter: $filter) {
+      pagedJobs(filter: $filter) {
         entries {
           id
         }
@@ -57,7 +57,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
     """
     test "should get pagination info", ~m(guest_conn)a do
       variables = %{filter: %{page: 1, size: 10}}
-      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
 
       assert results |> is_valid_pagination?
       assert results["pageSize"] == 10
@@ -79,7 +79,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
 
     test "pagination should have default page and size arg", ~m(guest_conn)a do
       variables = %{filter: %{}}
-      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
       assert results |> is_valid_pagination?
       assert results["pageSize"] == @page_size
       assert results["totalCount"] == @total_count
@@ -89,7 +89,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
   describe "[query paged_posts filter sort]" do
     @query """
     query($filter: PagedArticleFilter!) {
-      pagedPosts(filter: $filter) {
+      pagedJobs(filter: $filter) {
         entries {
           id
           inserted_at
@@ -104,7 +104,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
     """
     test "filter sort should have default :desc_inserted", ~m(guest_conn)a do
       variables = %{filter: %{}}
-      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
       inserted_timestamps = results["entries"] |> Enum.map(& &1["inserted_at"])
 
       {:ok, first_inserted_time, 0} =
@@ -117,7 +117,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
 
     @query """
     query($filter: PagedArticleFilter!) {
-      pagedPosts(filter: $filter) {
+      pagedJobs(filter: $filter) {
         entries {
           id
           views
@@ -126,13 +126,12 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
     }
     """
     test "filter sort MOST_VIEWS should work", ~m(guest_conn)a do
-      most_views_post = CMS.Post |> order_by(desc: :views) |> limit(1) |> Repo.one()
+      most_views_post = CMS.Job |> order_by(desc: :views) |> limit(1) |> Repo.one()
       variables = %{filter: %{sort: "MOST_VIEWS"}}
 
-      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
       find_post = results |> Map.get("entries") |> hd
 
-      # assert find_post["id"] == most_views_post |> Map.get(:id) |> to_string
       assert find_post["views"] == most_views_post |> Map.get(:views)
     end
   end
@@ -144,7 +143,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
   describe "[query paged_posts filter when]" do
     @query """
     query($filter: PagedArticleFilter!) {
-      pagedPosts(filter: $filter) {
+      pagedJobs(filter: $filter) {
         entries {
           id
           views
@@ -156,7 +155,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
     """
     test "THIS_YEAR option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_YEAR"}}
-      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
 
       expect_count = @total_count - @last_year_count
       assert results |> Map.get("totalCount") == expect_count
@@ -164,7 +163,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
 
     test "TODAY option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "TODAY"}}
-      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
 
       expect_count = @total_count - @last_year_count - @last_month_count - @last_week_count
 
@@ -173,14 +172,14 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
 
     test "THIS_WEEK option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_WEEK"}}
-      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
 
       assert results |> Map.get("totalCount") == @today_count
     end
 
     test "THIS_MONTH option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_MONTH"}}
-      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
 
       {_, cur_week_month, _} = @cur_date |> Date.to_erl()
       {_, last_week_month, _} = @last_week |> Date.to_erl()

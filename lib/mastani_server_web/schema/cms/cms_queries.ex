@@ -61,6 +61,15 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       resolve(&Resolvers.CMS.job/3)
     end
 
+    @desc "get paged jobs"
+    field :paged_jobs, :paged_jobs do
+      arg(:filter, non_null(:paged_article_filter))
+
+      middleware(M.PageSizeProof)
+      resolve(&Resolvers.CMS.paged_jobs/3)
+      middleware(M.FormatPagination)
+    end
+
     field :favorite_users, :paged_users do
       arg(:id, non_null(:id))
       arg(:type, :cms_part, default_value: :post)

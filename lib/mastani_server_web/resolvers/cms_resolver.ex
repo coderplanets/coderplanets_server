@@ -12,6 +12,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def paged_posts(_root, ~m(filter)a, _info), do: Post |> ORM.find_all(filter)
 
   def job(_root, %{id: id}, _info), do: Job |> ORM.read(id, inc: :views)
+  def paged_jobs(_root, ~m(filter)a, _info), do: Job |> ORM.find_all(filter)
 
   def comments(_root, %{id: id, part: part, filter: filter}, _info) do
     # |> IO.inspect(label: "spy")
