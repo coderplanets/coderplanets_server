@@ -16,7 +16,22 @@ defmodule MastaniServer.Test.PostReactionsTest do
     {:ok, ~m(user post_attrs)a}
   end
 
-  describe "[cms post favorite reaction]" do
+  describe "[cms post star/favorite reaction]" do
+    test "star and undo star reaction to post", ~m(user post_attrs)a do
+      {:ok, post} = CMS.create_content(:post, %Accounts.User{id: user.id}, post_attrs)
+
+      {:ok, _} = CMS.reaction(:post, :star, post.id, %Accounts.User{id: user.id})
+      {:ok, reaction_users} = CMS.reaction_users(:post, :star, post.id, %{page: 1, size: 1})
+      reaction_users = reaction_users |> Map.get(:entries)
+      assert 1 == reaction_users |> Enum.filter(fn ruser -> user.id == ruser.id end) |> length
+
+      {:ok, _} = CMS.undo_reaction(:post, :star, post.id, %Accounts.User{id: user.id})
+      {:ok, reaction_users2} = CMS.reaction_users(:post, :star, post.id, %{page: 1, size: 1})
+      reaction_users2 = reaction_users2 |> Map.get(:entries)
+
+      assert 0 == reaction_users2 |> Enum.filter(fn ruser -> user.id == ruser.id end) |> length
+    end
+
     test "favorite and undo favorite reaction to post", ~m(user post_attrs)a do
       # {:ok, user} = ORM.find_by(Accounts.User, nickname: @valid_user.nickname)
       {:ok, post} = CMS.create_content(:post, %Accounts.User{id: user.id}, post_attrs)

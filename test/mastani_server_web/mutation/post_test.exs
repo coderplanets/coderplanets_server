@@ -262,7 +262,6 @@ defmodule MastaniServer.Test.Mutation.PostTest do
   end
 
   describe "[mutation post community]" do
-    # TODO
     @set_community_query """
     mutation($id: ID!, $communityId: ID!) {
       setCommunity(id: $id, communityId: $communityId) {
