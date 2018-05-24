@@ -11,8 +11,8 @@ defmodule MastaniServer.CMS.PostComment do
     PostCommentDislike
   }
 
-  @required_fields ~w(body author_id post_id)a
-  @optional_fields ~w(reply_id floor)a
+  @required_fields ~w(body author_id post_id floor)a
+  @optional_fields ~w(reply_id)a
 
   schema "posts_comments" do
     field(:body, :string)

@@ -1,7 +1,7 @@
 defmodule MastaniServer.CMS.Tag do
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Author, Post, Tag, Community}
+  alias MastaniServer.CMS.{Author, Post, Job, Tag, Community}
   alias MastaniServer.Accounts
 
   @required_fields ~w(part title color author_id community_id)a
@@ -17,8 +17,15 @@ defmodule MastaniServer.CMS.Tag do
     many_to_many(
       :posts,
       Post,
-      join_through: "posts_join_tags",
+      join_through: "posts_tags",
       join_keys: [post_id: :id, tag_id: :id]
+    )
+
+    many_to_many(
+      :jobs,
+      Job,
+      join_through: "jobs_tags",
+      join_keys: [job_id: :id, tag_id: :id]
     )
 
     timestamps(type: :utc_datetime)

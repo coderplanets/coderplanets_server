@@ -13,6 +13,7 @@ defmodule MastaniServer.CMS.Utils.Matcher do
     PostStar,
     JobStar,
     PostComment,
+    JobComment,
     Tag,
     Community,
     PostCommentLike,
@@ -58,6 +59,9 @@ defmodule MastaniServer.CMS.Utils.Matcher do
   def match_action(:job, :star), do: {:ok, %{target: Job, reactor: JobStar, preload: :user}}
   def match_action(:job, :tag), do: {:ok, %{target: Job, reactor: Tag}}
 
+  def match_action(:job, :comment),
+    do: {:ok, %{target: Job, reactor: JobComment, preload: :author}}
+
   def match_action(:job, :favorite),
     do: {:ok, %{target: Job, reactor: JobFavorite, preload: :user}}
 
@@ -71,6 +75,9 @@ defmodule MastaniServer.CMS.Utils.Matcher do
 
       :job ->
         {:ok, dynamic([p], p.job_id == ^id)}
+
+      :job_comment ->
+        {:ok, dynamic([p], p.job_comment_id == ^id)}
 
       :meetup ->
         {:ok, dynamic([p], p.meetup_id == ^id)}

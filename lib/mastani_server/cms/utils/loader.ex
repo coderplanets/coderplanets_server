@@ -15,7 +15,10 @@ defmodule MastaniServer.CMS.Utils.Loader do
     CommunityThread,
     PostCommentReply,
     PostCommentLike,
-    PostCommentDislike
+    PostCommentDislike,
+    # job comment
+    JobComment,
+    JobCommentReply
   }
 
   def data(), do: Dataloader.Ecto.new(Repo, query: &query/2, run_batch: &run_batch/5)
@@ -181,9 +184,6 @@ defmodule MastaniServer.CMS.Utils.Loader do
     |> group_by([c, a], a.id)
     |> group_by([c, a], c.post_id)
     |> select([c, a], count(c.id))
-
-    # query = from c in PostComment, join: a in Accounts.User
-    # from [c, a] in query, select: count(a.id, :distinct)
   end
 
   def query({"posts_comments", PostComment}, %{count: _}) do
@@ -239,8 +239,6 @@ defmodule MastaniServer.CMS.Utils.Loader do
   end
 
   def query({"posts_comments_replies", PostCommentReply}, %{reply_to: _}) do
-    IO.inspect(PostCommentReply, label: 'hello fuc')
-
     PostCommentReply
     |> join(:inner, [c], r in assoc(c, :post_comment))
     |> select([c, r], r)

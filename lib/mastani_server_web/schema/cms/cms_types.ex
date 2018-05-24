@@ -20,7 +20,6 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:body, :string)
     field(:floor, :integer)
     field(:author, :user, resolve: dataloader(CMS, :author))
-    # field(:reply_to, :comment)
 
     field :reply_to, :comment do
       resolve(dataloader(CMS, :reply_to))

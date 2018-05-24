@@ -5,7 +5,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
 
   alias MastaniServer.{Repo, Accounts}
   alias Helper.{ORM, QueryBuilder}
-  alias MastaniServer.CMS.{PostCommentReply}
+  alias MastaniServer.CMS.{PostCommentReply, JobCommentReply}
 
   @doc """
   Creates a comment for psot, job ...
@@ -15,14 +15,29 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     with {:ok, action} <- match_action(part, :comment),
          {:ok, content} <- ORM.find(action.target, part_id),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
-      # TODO post_id
+      # TODO: refactor
       nextFloor =
-        action.reactor
-        |> where([c], c.post_id == ^content.id)
-        |> ORM.next_count()
+        case part do
+          :post ->
+            action.reactor
+            |> where([c], c.post_id == ^content.id)
+            |> ORM.next_count()
 
-      # IO.inspect(nextFloor, label: "count -> ")
-      attrs = %{post_id: content.id, author_id: user.id, body: body, floor: nextFloor}
+          :job ->
+            action.reactor
+            |> where([c], c.job_id == ^content.id)
+            |> ORM.next_count()
+        end
+
+      attrs =
+        case part do
+          :post ->
+            %{post_id: content.id, author_id: user.id, body: body, floor: nextFloor}
+
+          :job ->
+            %{job_id: content.id, author_id: user.id, body: body, floor: nextFloor}
+        end
+
       action.reactor |> ORM.create(attrs)
     end
   end
@@ -70,36 +85,66 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     end
   end
 
-  # TODO: refactor PostCommentReply
   def reply_comment(part, comment_id, %Accounts.User{id: user_id}, body) do
     with {:ok, action} <- match_action(part, :comment),
          {:ok, comment} <- ORM.find(action.reactor, comment_id) do
-      nextFloor =
-        action.reactor
-        |> where([c], c.post_id == ^comment.post_id)
-        |> ORM.next_count()
+      nextFloor = get_next_floor(part, action.reactor, comment)
 
       attrs = %{
-        post_id: comment.post_id,
         author_id: user_id,
         body: body,
         reply_to: comment,
         floor: nextFloor
       }
 
-      # TODO: use Multi task to refactor
-      case action.reactor |> ORM.create(attrs) do
-        {:ok, reply} ->
-          ORM.update(reply, %{reply_id: comment.id})
+      attrs =
+        case part do
+          :post ->
+            attrs |> Map.merge(%{post_id: comment.post_id})
 
-          {:ok, _} =
-            PostCommentReply |> ORM.create(%{post_comment_id: comment.id, reply_id: reply.id})
+          :job ->
+            attrs |> Map.merge(%{job_id: comment.job_id})
+        end
 
-          action.reactor |> ORM.find(reply.id)
-
-        {:error, error} ->
-          {:error, error}
-      end
+      brige_reply(part, action.reactor, comment, attrs)
     end
+  end
+
+  defp brige_reply(:post, queryable, comment, attrs) do
+    # TODO: use Multi task to refactor
+    with {:ok, reply} <- ORM.create(queryable, attrs) do
+      ORM.update(reply, %{reply_id: comment.id})
+
+      {:ok, _} =
+        PostCommentReply |> ORM.create(%{post_comment_id: comment.id, reply_id: reply.id})
+
+      queryable |> ORM.find(reply.id)
+    end
+  end
+
+  defp brige_reply(:job, queryable, comment, attrs) do
+    # TODO: use Multi task to refactor
+    with {:ok, reply} <- ORM.create(queryable, attrs) do
+      ORM.update(reply, %{reply_id: comment.id})
+
+      {:ok, _} = JobCommentReply |> ORM.create(%{job_comment_id: comment.id, reply_id: reply.id})
+
+      queryable |> ORM.find(reply.id)
+    end
+  end
+
+  defp get_next_floor(part, queryable, comment) do
+    dynamic =
+      case part do
+        :post ->
+          dynamic([c], c.post_id == ^comment.post_id)
+
+        :job ->
+          dynamic([c], c.job_id == ^comment.job_id)
+      end
+
+    queryable
+    |> where(^dynamic)
+    |> ORM.next_count()
   end
 end
