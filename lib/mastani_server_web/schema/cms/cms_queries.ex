@@ -55,6 +55,12 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       middleware(M.FormatPagination)
     end
 
+    @desc "get one job"
+    field :job, non_null(:job) do
+      arg(:id, non_null(:id))
+      resolve(&Resolvers.CMS.job/3)
+    end
+
     field :favorite_users, :paged_users do
       arg(:id, non_null(:id))
       arg(:type, :cms_part, default_value: :post)

@@ -5,11 +5,13 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   import Ecto.Query, warn: false
 
   alias MastaniServer.{CMS, Accounts}
-  alias MastaniServer.CMS.{Post, Community, Category, Tag}
+  alias MastaniServer.CMS.{Post, Job, Community, Category, Tag}
   alias Helper.ORM
 
   def post(_root, %{id: id}, _info), do: Post |> ORM.read(id, inc: :views)
   def paged_posts(_root, ~m(filter)a, _info), do: Post |> ORM.find_all(filter)
+
+  def job(_root, %{id: id}, _info), do: Job |> ORM.read(id, inc: :views)
 
   def comments(_root, %{id: id, part: part, filter: filter}, _info) do
     # |> IO.inspect(label: "spy")
