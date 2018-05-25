@@ -74,6 +74,8 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   get tags belongs to a community / part
   """
   def get_tags(%Community{id: communitId}, part) do
+    part = to_string(part)
+
     Tag
     |> join(:inner, [t], c in assoc(t, :community))
     |> where([t, c], c.id == ^communitId and t.part == ^part)

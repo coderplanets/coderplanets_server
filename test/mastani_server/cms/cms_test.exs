@@ -161,41 +161,42 @@ defmodule MastaniServer.Test.CMSTest do
     end
   end
 
-  describe "[cms community]" do
-    test "create a community with a existing user", ~m(user)a do
-      community_args = %{
-        title: "elixir community",
-        desc: "function pragraming for everyone",
-        user_id: user.id,
-        raw: "elixir",
-        logo: "http: ..."
-      }
+  # this logic is move to resolver
+  # describe "[cms community]" do
+  # test "create a community with a existing user", ~m(user)a do
+  # community_args = %{
+  # title: "elixir community",
+  # desc: "function pragraming for everyone",
+  # user_id: user.id,
+  # raw: "elixir",
+  # logo: "http: ..."
+  # }
 
-      assert {:error, _} = ORM.find_by(CMS.Community, title: "elixir community")
-      {:ok, community} = CMS.create_community(community_args)
-      assert community.title == community_args.title
-    end
+  # assert {:error, _} = ORM.find_by(CMS.Community, title: "elixir community")
+  # {:ok, community} = CMS.create_community(community_args)
+  # assert community.title == community_args.title
+  # end
 
-    test "create a community with a empty title fails", ~m(user)a do
-      invalid_community_args = %{
-        title: "",
-        desc: "function pragraming for everyone",
-        user_id: user.id
-      }
+  # test "create a community with a empty title fails", ~m(user)a do
+  # invalid_community_args = %{
+  # title: "",
+  # desc: "function pragraming for everyone",
+  # user_id: user.id
+  # }
 
-      assert {:error, %Ecto.Changeset{}} = CMS.create_community(invalid_community_args)
-    end
+  # assert {:error, %Ecto.Changeset{}} = CMS.create_community(invalid_community_args)
+  # end
 
-    test "create a community with a non-exist user fails" do
-      community_args = %{
-        title: "elixir community",
-        desc: "function pragraming for everyone",
-        user_id: 10000
-      }
+  # test "create a community with a non-exist user fails" do
+  # community_args = %{
+  # title: "elixir community",
+  # desc: "function pragraming for everyone",
+  # user_id: 10000
+  # }
 
-      assert {:error, _} = CMS.create_community(community_args)
-    end
-  end
+  # assert {:error, _} = CMS.create_community(community_args)
+  # end
+  # end
 
   describe "[cms community thread]" do
     test "can create thread" do

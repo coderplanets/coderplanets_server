@@ -124,17 +124,13 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.set_tag(part, id, %Community{id: community_id}, %Tag{id: tag_id})
   end
 
-  def unset_tag(_root, ~m(id part tag_id)a, _info) do
-    CMS.unset_tag(part, id, %Tag{id: tag_id})
-  end
+  def unset_tag(_root, ~m(id part tag_id)a, _info), do: CMS.unset_tag(part, id, %Tag{id: tag_id})
 
   def get_tags(_root, ~m(community_id part)a, _info) do
-    CMS.get_tags(%Community{id: community_id}, to_string(part))
+    CMS.get_tags(%Community{id: community_id}, part)
   end
 
-  def get_tags(_root, ~m(filter)a, _info) do
-    CMS.get_tags(filter)
-  end
+  def get_tags(_root, ~m(filter)a, _info), do: CMS.get_tags(filter)
 
   # #######################
   # community subscribe ..
