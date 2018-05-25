@@ -22,14 +22,6 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
 
   alias Helper.ORM
 
-  def create_community(attrs), do: Community |> ORM.create(attrs)
-
-  def update_community(attrs) do
-    with {:ok, community} <- ORM.find(Community, attrs.id) do
-      community |> ORM.update(attrs)
-    end
-  end
-
   @doc """
   return paged community subscribers
   """
@@ -78,6 +70,9 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     end
   end
 
+  @doc """
+  get tags belongs to a community / part
+  """
   def get_tags(%Community{id: communitId}, part) do
     Tag
     |> join(:inner, [t], c in assoc(t, :community))
@@ -87,6 +82,9 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     |> done()
   end
 
+  @doc """
+  get all paged tags
+  """
   def get_tags(%{page: page, size: size} = filter) do
     Tag
     |> QueryBuilder.filter_pack(filter)

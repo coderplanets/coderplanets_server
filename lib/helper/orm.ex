@@ -108,13 +108,24 @@ defmodule Helper.ORM do
   end
 
   @doc """
-  NOTICE: this should be use together with passport_loader etc Middleware
+  NOTE: this should be use together with passport_loader etc Middleware
   DO NOT use it directly
   """
   def update(content, attrs) do
     content
     |> content.__struct__.changeset(attrs)
     |> Repo.update()
+  end
+
+  @doc """
+  find and update sourc
+  """
+  def find_update(queryable, %{id: id} = attrs) do
+    with {:ok, content} <- find(queryable, id) do
+      content
+      |> content.__struct__.changeset(attrs)
+      |> Repo.update()
+    end
   end
 
   @doc """

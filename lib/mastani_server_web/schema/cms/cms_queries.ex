@@ -13,11 +13,20 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       resolve(&Resolvers.CMS.community/3)
     end
 
+    field :paged_communities, :paged_communities do
+      arg(:filter, non_null(:paged_filter))
+
+      middleware(M.PageSizeProof)
+      resolve(&Resolvers.CMS.paged_communities/3)
+      middleware(M.FormatPagination)
+    end
+
+    # TODO: remove
     field :communities, :paged_communities do
       arg(:filter, non_null(:paged_filter))
 
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.CMS.communities/3)
+      resolve(&Resolvers.CMS.paged_communities/3)
       middleware(M.FormatPagination)
     end
 
@@ -90,6 +99,16 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       middleware(M.FormatPagination)
     end
 
+    # get all tags
+    field :paged_tags, :paged_tags do
+      arg(:filter, non_null(:paged_filter))
+
+      middleware(M.PageSizeProof)
+      resolve(&Resolvers.CMS.get_tags/3)
+      middleware(M.FormatPagination)
+    end
+
+    # TODO: remove
     field :tags, :paged_tags do
       arg(:filter, non_null(:paged_filter))
 
@@ -106,6 +125,17 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       resolve(&Resolvers.CMS.get_tags/3)
     end
 
+    @desc "get paged comments"
+    field :paged_comments, :paged_comments do
+      arg(:id, non_null(:id))
+      arg(:part, :cms_part, default_value: :post)
+      arg(:filter, :comments_filter)
+
+      middleware(M.PageSizeProof)
+      resolve(&Resolvers.CMS.paged_comments/3)
+      middleware(M.FormatPagination)
+    end
+
     # comments
     field :comments, :paged_comments do
       arg(:id, non_null(:id))
@@ -113,7 +143,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:filter, :comments_filter)
 
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.CMS.comments/3)
+      resolve(&Resolvers.CMS.paged_comments/3)
       middleware(M.FormatPagination)
     end
   end
