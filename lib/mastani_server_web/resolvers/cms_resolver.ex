@@ -14,6 +14,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def job(_root, %{id: id}, _info), do: Job |> ORM.read(id, inc: :views)
   def paged_jobs(_root, ~m(filter)a, _info), do: Job |> ORM.find_all(filter)
 
+  # TODO: rename to paged_xxx
   def comments(_root, ~m(id part filter)a, _info) do
     CMS.list_comments(part, id, filter)
   end
@@ -22,7 +23,10 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def community(_root, %{title: title}, _info), do: Community |> ORM.find_by(title: title)
   def community(_root, _args, _info), do: {:error, "please provide community id or title"}
 
+  # TODO: rename to paged_xxx
   def communities(_root, ~m(filter)a, _info), do: Community |> ORM.find_all(filter)
+
+  def paged_categories(_root, ~m(filter)a, _info), do: Category |> ORM.find_all(filter)
 
   def create_community(_root, args, %{context: %{cur_user: user}}) do
     args |> Map.merge(%{user_id: user.id}) |> CMS.create_community()

@@ -41,6 +41,15 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       middleware(M.FormatPagination)
     end
 
+    @desc "get all categories"
+    field :paged_categories, :paged_categories do
+      arg(:filter, :paged_filter)
+
+      middleware(M.PageSizeProof)
+      resolve(&Resolvers.CMS.paged_categories/3)
+      middleware(M.FormatPagination)
+    end
+
     @desc "get one post"
     field :post, non_null(:post) do
       arg(:id, non_null(:id))

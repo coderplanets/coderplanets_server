@@ -84,9 +84,15 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       setCategory(categoryId: $categoryId, communityId: $communityId) {
         id
         title
+
+        categories {
+          id
+          title
+        }
       }
     }
     """
+    @tag :wip
     test "auth user can set a category to a community" do
       {:ok, community} = db_insert(:community)
       {:ok, category} = db_insert(:category)

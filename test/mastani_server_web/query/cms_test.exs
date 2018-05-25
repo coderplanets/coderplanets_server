@@ -17,6 +17,61 @@ defmodule MastaniServer.Test.Query.CMSTest do
     {:ok, ~m(guest_conn community user)a}
   end
 
+  describe "[cms query categories]" do
+    @query """
+    query($filter: PagedFilter!) {
+      pagedCategories(filter: $filter) {
+        entries {
+          id
+          title
+          author {
+            id
+            nickname
+          }
+          communities {
+            id
+            title
+          }
+        }
+        totalCount
+        totalPages
+        pageSize
+        pageNumber
+      }
+    }
+    """
+    test "guest user can get paged categories", ~m(guest_conn user)a do
+      variables = %{filter: %{page: 1, size: 10}}
+
+      valid_attrs = mock_attrs(:category)
+
+      {:ok, _} =
+        CMS.create_category(%CMS.Category{title: valid_attrs.title}, %Accounts.User{id: user.id})
+
+      results = guest_conn |> query_result(@query, variables, "pagedCategories")
+      author = results["entries"] |> List.first() |> Map.get("author")
+
+      assert results |> is_valid_pagination?
+      assert author["id"] == to_string(user.id)
+    end
+
+    test "paged categories containes communities info", ~m(guest_conn user community)a do
+      variables = %{filter: %{page: 1, size: 10}}
+      valid_attrs = mock_attrs(:category)
+
+      {:ok, category} =
+        CMS.create_category(%CMS.Category{title: valid_attrs.title}, %Accounts.User{id: user.id})
+
+      {:ok, _} =
+        CMS.set_category(%CMS.Community{id: community.id}, %CMS.Category{id: category.id})
+
+      results = guest_conn |> query_result(@query, variables, "pagedCategories")
+      contain_communities = results["entries"] |> List.first() |> Map.get("communities")
+
+      assert contain_communities |> List.first() |> Map.get("id") == to_string(community.id)
+    end
+  end
+
   describe "[cms query tags]" do
     @query """
     query($filter: PagedFilter!) {
@@ -37,7 +92,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
       }
     }
     """
-    test "authed user can get pagd tags", ~m(guest_conn community user)a do
+    test "guest user can get paged tags", ~m(guest_conn community user)a do
       variables = %{filter: %{page: 1, size: 10}}
 
       valid_attrs = mock_attrs(:tag, %{user_id: user.id, community_id: community.id})

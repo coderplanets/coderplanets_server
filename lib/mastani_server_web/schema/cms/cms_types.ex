@@ -260,11 +260,11 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:desc, :string)
     field(:raw, :string)
     field(:logo, :string)
-    field(:category, :string)
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:threads, list_of(:thread), resolve: dataloader(CMS, :threads))
+    field(:categories, list_of(:category), resolve: dataloader(CMS, :categories))
 
     # Big thanks: https://elixirforum.com/t/grouping-error-in-absinthe-dadaloader/13671/2
     # see also: https://github.com/absinthe-graphql/dataloader/issues/25
@@ -330,8 +330,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:id, :id)
     field(:title, :string)
     field(:author, :user, resolve: dataloader(CMS, :author))
-    # TODO: field(:user, :string)
-    # field(:community, :community, resolve: dataloader(CMS, :community))
+    field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
   end
@@ -345,6 +344,14 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:community, :community, resolve: dataloader(CMS, :community))
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
+  end
+
+  object :paged_categories do
+    field(:entries, list_of(:category))
+    field(:total_count, :integer)
+    field(:page_size, :integer)
+    field(:total_pages, :integer)
+    field(:page_number, :integer)
   end
 
   object :paged_posts do
