@@ -64,7 +64,8 @@ defmodule MastaniServer.Mixfile do
       {:apollo_tracing, "~> 0.4.1"},
       {:pre_commit, "~> 0.2.4"},
       {:inch_ex, "~> 0.5", only: [:dev, :test]},
-      {:short_maps, "~> 0.1.1"}
+      {:short_maps, "~> 0.1.1"},
+      {:jason, "~> 1.0"}
     ]
   end
 
