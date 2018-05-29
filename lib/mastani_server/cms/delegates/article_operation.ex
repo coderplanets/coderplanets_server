@@ -69,7 +69,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
         Tag
         |> where([t], t.community_id == ^community.id)
         # |> where([t], t.part == ^(to_string(part) |> String.upcase()))
-        |> where([t], t.part == ^(to_string(part)))
+        |> where([t], t.part == ^to_string(part))
         |> Repo.all()
 
       tag in matched_tags
