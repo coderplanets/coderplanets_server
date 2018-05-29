@@ -1,8 +1,9 @@
 defmodule MastaniServerWeb.Resolvers.Accounts do
-  alias MastaniServer.Accounts
-  alias Helper.ORM
-
   import ShortMaps
+
+  alias MastaniServer.Accounts
+  alias MastaniServer.CMS
+  alias Helper.ORM
 
   def user(_root, %{id: id}, _info), do: Accounts.User |> ORM.find(id)
   def users(_root, ~m(filter)a, _info), do: Accounts.User |> ORM.find_all(filter)
@@ -28,6 +29,10 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
 
   def subscribed_communities(_root, %{filter: filter}, _info) do
     Accounts.default_subscribed_communities(filter)
+  end
+
+  def get_passport(_root, _args, %{context: %{cur_user: cur_user}}) do
+    CMS.get_passport(%Accounts.User{id: cur_user.id})
   end
 
   # def create_user(_root, args, %{context: %{cur_user: %{root: true}}}) do

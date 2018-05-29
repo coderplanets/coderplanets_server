@@ -18,6 +18,7 @@ defmodule MastaniServer.Accounts.User do
     field(:weichat, :string)
     field(:from_github, :boolean)
     has_one(:github_profile, GithubUser)
+    has_one(:cms_passport, CMS.Passport)
 
     has_many(:subscribed_communities, {"communities_subscribers", CMS.CommunitySubscriber})
     # has_many(:favorite_posts, {"posts_favorites", PostFavorite}) ...

@@ -2,9 +2,11 @@ defmodule MastaniServer.CMS.Passport do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias MastaniServer.Accounts
+
   schema "cms_passports" do
     field(:rules, :map)
-    field(:user_id, :id)
+    belongs_to(:user, Accounts.User)
 
     timestamps(type: :utc_datetime)
   end
