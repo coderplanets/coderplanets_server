@@ -177,7 +177,7 @@ defmodule MastaniServer.Test.Mutation.JobTest do
     """
     test "auth user can set a valid tag to job", ~m(job)a do
       {:ok, community} = db_insert(:community)
-      {:ok, tag} = db_insert(:tag, %{community: community})
+      {:ok, tag} = db_insert(:tag, %{part: "job", community: community})
 
       passport_rules = %{community.title => %{"job.tag.set" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
@@ -192,7 +192,7 @@ defmodule MastaniServer.Test.Mutation.JobTest do
 
     test "auth user set a invalid tag to job fails", ~m(job)a do
       {:ok, community} = db_insert(:community)
-      {:ok, tag} = db_insert(:tag)
+      {:ok, tag} = db_insert(:tag, %{part: "job"})
 
       passport_rules = %{community.title => %{"job.tag.set" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
@@ -203,8 +203,8 @@ defmodule MastaniServer.Test.Mutation.JobTest do
 
     test "can set multi tag to a job", ~m(job)a do
       {:ok, community} = db_insert(:community)
-      {:ok, tag} = db_insert(:tag, %{community: community, part: "JOB"})
-      {:ok, tag2} = db_insert(:tag, %{community: community, part: "JOB"})
+      {:ok, tag} = db_insert(:tag, %{community: community, part: "job"})
+      {:ok, tag2} = db_insert(:tag, %{community: community, part: "job"})
 
       passport_rules = %{community.title => %{"job.tag.set" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)

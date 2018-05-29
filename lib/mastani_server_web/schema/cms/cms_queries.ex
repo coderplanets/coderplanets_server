@@ -122,6 +122,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
     field :partial_tags, list_of(:tag) do
       arg(:community, non_null(:string))
       arg(:part, non_null(:community_part_enum))
+
       resolve(&Resolvers.CMS.get_tags/3)
     end
 

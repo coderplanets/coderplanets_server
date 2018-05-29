@@ -124,7 +124,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
       arg(:part, :cms_part, default_value: :post)
 
       middleware(M.Authorize, :login)
-      middleware(M.Passport, claim: "cms->p?.community.set")
+      middleware(M.Passport, claim: "cms->p?.community.unset")
       resolve(&Resolvers.CMS.unset_community/3)
     end
 
