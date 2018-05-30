@@ -54,7 +54,7 @@ defmodule MastaniServer.Test.Query.AccountTest do
       results = user_conn |> query_result(@query, variables, "user")
 
       assert Map.equal?(results["cmsPassport"], @valid_rules)
-      assert Map.equal?(Jason.decode!(results["cmsPassportString"]) , @valid_rules)
+      assert Map.equal?(Jason.decode!(results["cmsPassportString"]), @valid_rules)
     end
 
     test "loain user can get nil if cms_passport not exsit", ~m(user)a do
