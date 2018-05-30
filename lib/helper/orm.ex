@@ -156,7 +156,7 @@ defmodule Helper.ORM do
     |> Repo.one()
   end
 
-  def next_count(queryable, filter \\ %{}) do
+  def next_count(queryable) do
     count(queryable) |> add()
   end
 end

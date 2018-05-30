@@ -1,6 +1,6 @@
 defmodule MastaniServer.Mock.CMS.Comment do
   # alias MastaniServer.Repo
-  alias MastaniServer.CMS
+  # alias MastaniServer.CMS
 
   # CMS.comment_post(post_id, body)
 
