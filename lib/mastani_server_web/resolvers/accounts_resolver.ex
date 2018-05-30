@@ -35,6 +35,16 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     CMS.get_passport(%Accounts.User{id: cur_user.id})
   end
 
+  def get_passport_string(_root, _args, %{context: %{cur_user: cur_user}}) do
+    case CMS.get_passport(%Accounts.User{id: cur_user.id}) do
+      {:ok, passport} ->
+        {:ok, Jason.encode!(passport)}
+
+      {:error, _} ->
+        {:ok, nil}
+    end
+  end
+
   # def create_user(_root, args, %{context: %{cur_user: %{root: true}}}) do
   # Accounts.create_user2(args)
   # end

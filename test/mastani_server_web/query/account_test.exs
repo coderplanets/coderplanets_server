@@ -27,6 +27,7 @@ defmodule MastaniServer.Test.Query.AccountTest do
         nickname
         bio
         cmsPassport
+        cmsPassportString
       }
     }
     """
@@ -43,7 +44,8 @@ defmodule MastaniServer.Test.Query.AccountTest do
         "post.tag.edit" => true
       }
     }
-    test "loain user can get own cms_passport", ~m(user)a do
+
+    test "loain user can get own cms_passport and cms_passport_string", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
       {:ok, _} = CMS.stamp_passport(%Accounts.User{id: user.id}, @valid_rules)
@@ -52,16 +54,17 @@ defmodule MastaniServer.Test.Query.AccountTest do
       results = user_conn |> query_result(@query, variables, "user")
 
       assert Map.equal?(results["cmsPassport"], @valid_rules)
+      assert Map.equal?(Jason.decode!(results["cmsPassportString"]) , @valid_rules)
     end
 
-    @tag :wip
-    test "loain user can get empty string if cms_passport not exsit", ~m(user)a do
+    test "loain user can get nil if cms_passport not exsit", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
       variables = %{id: user.id}
       results = user_conn |> query_result(@query, variables, "user")
 
       assert nil == results["cmsPassport"]
+      assert nil == results["cmsPassportString"]
     end
 
     @query """
