@@ -53,6 +53,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
        cms: cms_rules
      }}
   end
+
   # def create_user(_root, args, %{context: %{cur_user: %{root: true}}}) do
   # Accounts.create_user2(args)
   # end
