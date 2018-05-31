@@ -70,39 +70,13 @@ defmodule Helper.Certification do
   end
 
   def all_rules(:cms, :stringify) do
-    rules = all_rules
+    rules = all_rules(:cms)
 
     %{
-      general: rules |> Enum.map(fn x -> {x, false} end) |> Map.new() |> Jason.encode!(),
-      community: rules |> Enum.map(fn x -> {x, false} end) |> Map.new() |> Jason.encode!()
+      general: rules.general |> Enum.map(fn x -> {x, false} end) |> Map.new() |> Jason.encode!(),
+      community:
+        rules.community |> Enum.map(fn x -> {x, false} end) |> Map.new() |> Jason.encode!()
     }
-  end
-
-  def all_rules do
-    [
-      # 添加 editor
-      # "cms->c?->editor.add"
-      "editor.add",
-      # 编辑 post 文章
-      "post.edit",
-      # 删除 post 文章
-      "post.trash",
-      "post.delete",
-      # 帖子 版块 [添加] 标签
-      "post.tag.add",
-      "post.tag.edit",
-      "post.tag.delete",
-      "post.tag.trash",
-      # 具体的 post/tag 惭怍
-      "post.tag.set",
-      "post.tag.unset",
-      # 具体的 post/community 惭怍
-      "post.community.set",
-      "post.community.unset",
-      # post 置顶操作
-      "post.top.set",
-      "post.top.unset"
-    ]
   end
 end
 

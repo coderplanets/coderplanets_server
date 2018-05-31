@@ -98,12 +98,12 @@ defmodule MastaniServer.Test.Query.AccountTest do
       }
     }
     """
-    @tag :wip
     test "can get all cms rules with valid structure", ~m(user)a do
       user_conn = simu_conn(:user, user)
       variables = %{}
       results = user_conn |> query_result(@query, variables, "allPassportRulesString")
 
+      # IO.inspect results, label: "results"
       assert results |> Map.has_key?("cms")
       cms_rules = results["cms"]
       assert cms_rules |> Map.has_key?("general")
