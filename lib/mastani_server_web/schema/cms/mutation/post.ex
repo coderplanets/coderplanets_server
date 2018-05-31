@@ -21,6 +21,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Post do
     end
 
     @desc "delete a cms/post"
+    # TODO: if post belongs to multi communities, unset instead delete
     field :delete_post, :post do
       arg(:id, non_null(:id))
 

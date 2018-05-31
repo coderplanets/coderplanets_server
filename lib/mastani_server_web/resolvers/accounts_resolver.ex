@@ -3,7 +3,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
 
   alias MastaniServer.Accounts
   alias MastaniServer.CMS
-  alias Helper.ORM
+  alias Helper.{ORM, Certification}
 
   def user(_root, %{id: id}, _info), do: Accounts.User |> ORM.find(id)
   def users(_root, ~m(filter)a, _info), do: Accounts.User |> ORM.find_all(filter)
@@ -31,12 +31,12 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.default_subscribed_communities(filter)
   end
 
-  def get_passport(_root, _args, %{context: %{cur_user: cur_user}}) do
-    CMS.get_passport(%Accounts.User{id: cur_user.id})
+  def get_passport(root, _args, %{context: %{cur_user: _}}) do
+    CMS.get_passport(%Accounts.User{id: root.id})
   end
 
-  def get_passport_string(_root, _args, %{context: %{cur_user: cur_user}}) do
-    case CMS.get_passport(%Accounts.User{id: cur_user.id}) do
+  def get_passport_string(root, _args, %{context: %{cur_user: _}}) do
+    case CMS.get_passport(%Accounts.User{id: root.id}) do
       {:ok, passport} ->
         {:ok, Jason.encode!(passport)}
 
@@ -45,6 +45,14 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     end
   end
 
+  def get_all_rules(_root, _args, %{context: %{cur_user: _}}) do
+    cms_rules = Certification.all_rules(:cms, :stringify)
+
+    {:ok,
+     %{
+       cms: cms_rules
+     }}
+  end
   # def create_user(_root, args, %{context: %{cur_user: %{root: true}}}) do
   # Accounts.create_user2(args)
   # end

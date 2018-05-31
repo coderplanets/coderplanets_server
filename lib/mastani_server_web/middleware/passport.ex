@@ -78,6 +78,13 @@ defmodule MastaniServerWeb.Middleware.Passport do
 
   def call(
         %{context: %{cur_user: %{cur_passport: _}}} = resolution,
+        claim: "cms->editor." <> _rest = claim
+      ) do
+    resolution |> check_passport_stamp(claim)
+  end
+
+  def call(
+        %{context: %{cur_user: %{cur_passport: _}}} = resolution,
         claim: "cms->category." <> _rest = claim
       ) do
     resolution |> check_passport_stamp(claim)
@@ -90,6 +97,9 @@ defmodule MastaniServerWeb.Middleware.Passport do
   defp check_passport_stamp(resolution, claim) do
     cond do
       claim |> String.starts_with?("cms->community.") ->
+        resolution |> do_check(claim)
+
+      claim |> String.starts_with?("cms->editor.") ->
         resolution |> do_check(claim)
 
       claim |> String.starts_with?("cms->thread.") ->

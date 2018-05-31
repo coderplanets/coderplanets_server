@@ -14,6 +14,70 @@ defmodule Helper.Certification do
     }
   end
 
+  # a |> Enum.map(fn(x) -> {x, false} end) |> Map.new
+  # %{
+  # cms: %{
+  # system: ..,
+  # community: ...,
+  # },
+  # statistics: %{
+  # ....
+  # },
+  # otherMoudle: %{
+
+  # }
+  # }
+
+  @doc """
+  基础权限，社区权限
+  """
+  def all_rules(:cms) do
+    %{
+      general: [
+        # community
+        "editor.add",
+        "editor.update",
+        "editor.delete",
+        "community.create",
+        "community.update",
+        "community.delete",
+        "category.create",
+        "category.update",
+        "category.set",
+        "category.unset",
+        "thread.create",
+        "post.community.set",
+        "post.community.unset",
+        "job.community.set",
+        "job.community.unset"
+      ],
+      community: [
+        "post.edit",
+        "post.trash",
+        "post.delete",
+        "job.edit",
+        "job.trash",
+        "job.delete",
+        # tag curd
+        "post.tag.create",
+        "post.tag.delete",
+        "post.tag.set",
+        "job.tag.create",
+        "job.tag.delete",
+        "job.tag.set"
+      ]
+    }
+  end
+
+  def all_rules(:cms, :stringify) do
+    rules = all_rules
+
+    %{
+      general: rules |> Enum.map(fn x -> {x, false} end) |> Map.new() |> Jason.encode!(),
+      community: rules |> Enum.map(fn x -> {x, false} end) |> Map.new() |> Jason.encode!()
+    }
+  end
+
   def all_rules do
     [
       # 添加 editor

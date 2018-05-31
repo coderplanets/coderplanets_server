@@ -86,7 +86,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->editor.add")
+      middleware(M.Passport, claim: "cms->editor.add")
 
       resolve(&Resolvers.CMS.add_editor/3)
     end
@@ -98,7 +98,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->editor.delete")
+      middleware(M.Passport, claim: "cms->editor.delete")
 
       resolve(&Resolvers.CMS.delete_editor/3)
     end
@@ -112,7 +112,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->editor.update")
+      middleware(M.Passport, claim: "cms->editor.update")
 
       resolve(&Resolvers.CMS.update_editor/3)
     end

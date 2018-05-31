@@ -453,7 +453,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       title = "chief editor"
       variables = %{userId: user.id, communityId: community.id, title: title}
 
-      passport_rules = %{community.title => %{"editor.add" => true}}
+      passport_rules = %{"editor.add" => true}
       rule_conn = simu_conn(:user, user, cms: passport_rules)
 
       result = rule_conn |> mutation_result(@add_editor_query, variables, "addCmsEditor")
@@ -485,7 +485,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
       variables = %{userId: user.id, communityId: community.id}
 
-      passport_rules = %{community.title => %{"editor.delete" => true}}
+      passport_rules = %{"editor.delete" => true}
       rule_conn = simu_conn(:user, user, cms: passport_rules)
 
       rule_conn |> mutation_result(@delete_editor_query, variables, "deleteCmsEditor")
@@ -516,7 +516,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       title2 = "post editor"
       variables = %{userId: user.id, communityId: community.id, title: title2}
 
-      passport_rules = %{community.title => %{"editor.update" => true}}
+      passport_rules = %{"editor.update" => true}
       rule_conn = simu_conn(:user, user, cms: passport_rules)
 
       rule_conn |> mutation_result(@update_editor_query, variables, "updateCmsEditor")

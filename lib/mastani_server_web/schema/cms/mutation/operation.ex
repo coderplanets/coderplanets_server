@@ -118,6 +118,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
       resolve(&Resolvers.CMS.set_community/3)
     end
 
+    # TODO: can't not unset the oldest community
     field :unset_community, :community do
       arg(:id, non_null(:id))
       arg(:community_id, non_null(:id))
