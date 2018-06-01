@@ -632,13 +632,13 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
     """
     @valid_passport_rules %{
       "javascript" => %{
-        "post.article.delete" => false,
+        "post.article.delete" => true,
         "post.tag.edit" => true
       }
     }
     @valid_passport_rules2 %{
       "elixir" => %{
-        "post.article.delete" => false,
+        "post.article.delete" => true,
         "post.tag.edit" => true
       }
     }
@@ -668,6 +668,23 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       assert found.user_id == user.id
       assert Map.equal?(f1, t1)
       assert Map.equal?(f2, t2)
+    end
+
+    @false_passport_rules %{
+      "python" => %{
+        "post.article.delete" => false,
+        "post.tag.edit" => true
+      }
+    }
+    test "false rules will be delete from user's passport", ~m(user)a do
+      variables = %{userId: user.id, rules: Jason.encode!(@false_passport_rules)}
+      rule_conn = simu_conn(:user, cms: %{"community.stamp_passport" => true})
+      created = rule_conn |> mutation_result(@query, variables, "stampCmsPassport")
+
+      {:ok, found} = ORM.find(CMS.Passport, created["id"])
+      rules = found.rules |> Map.get("python")
+
+      assert Map.equal?(rules, %{"post.tag.edit" => true})
     end
   end
 end

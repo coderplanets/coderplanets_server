@@ -21,7 +21,7 @@ defmodule MastaniServer.Test.CMSPassportTest do
     }
     @valid_passport_rules2 %{
       "javascript" => %{
-        "post.article.delete" => false,
+        "post.article.update" => true,
         "post.tag.edit" => true
       }
     }
@@ -33,7 +33,7 @@ defmodule MastaniServer.Test.CMSPassportTest do
       assert passport.rules |> get_in(["javascript", "post.tag.edit"]) == true
     end
 
-    test "can update valid nested passport stucture", ~m(user)a do
+    test "false rules will be delete from current passport", ~m(user)a do
       {:ok, passport} = CMS.stamp_passport(%User{id: user.id}, @valid_passport_rules)
 
       assert passport.rules |> get_in(["javascript", "post.article.delete"]) == true
@@ -49,7 +49,7 @@ defmodule MastaniServer.Test.CMSPassportTest do
 
       assert updated_passport.user_id == user.id
       assert updated_passport.rules |> get_in(["javascript", "post.article.delete"]) == true
-      assert updated_passport.rules |> get_in(["javascript", "post.tag.edit"]) == false
+      assert updated_passport.rules |> get_in(["javascript", "post.tag.edit"]) == nil
     end
 
     test "get a user's passport", ~m(user)a do

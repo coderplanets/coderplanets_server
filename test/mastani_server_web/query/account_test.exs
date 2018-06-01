@@ -40,12 +40,12 @@ defmodule MastaniServer.Test.Query.AccountTest do
 
     @valid_rules %{
       "javascript" => %{
-        "post.article.delete" => false,
+        "post.article.delete" => true,
         "post.tag.edit" => true
       }
     }
 
-    test "loain user can get own cms_passport and cms_passport_string", ~m(user)a do
+    test "login user can get own cms_passport and cms_passport_string", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
       {:ok, _} = CMS.stamp_passport(%Accounts.User{id: user.id}, @valid_rules)
@@ -57,7 +57,7 @@ defmodule MastaniServer.Test.Query.AccountTest do
       assert Map.equal?(Jason.decode!(results["cmsPassportString"]), @valid_rules)
     end
 
-    test "loain user can get nil if cms_passport not exsit", ~m(user)a do
+    test "login user can get nil if cms_passport not exsit", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
       variables = %{id: user.id}

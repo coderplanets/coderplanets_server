@@ -5,7 +5,7 @@ defmodule MastaniServer.CMS.Delegate.PassportCURD do
 
   alias MastaniServer.CMS.Passport, as: UserPasport
   alias MastaniServer.{Repo, Accounts}
-  alias Helper.ORM
+  alias Helper.{ORM, NestedFilter}
 
   # https://medium.com/front-end-hacking/use-github-oauth-as-your-sso-seamlessly-with-react-3e2e3b358fa1
   # http://www.ubazu.com/using-postgres-jsonb-columns-in-ecto
@@ -34,9 +34,12 @@ defmodule MastaniServer.CMS.Delegate.PassportCURD do
   def stamp_passport(%Accounts.User{id: user_id}, rules) do
     case ORM.find_by(UserPasport, user_id: user_id) do
       {:ok, passport} ->
-        passport |> ORM.update(%{rules: deep_merge(passport.rules, rules)})
+        # passport |> NestedFilter.drop_by_value(passport, [false])
+        rules = deep_merge(passport.rules, rules) |> NestedFilter.drop_by_value([false])
+        passport |> ORM.update(~m(rules)a)
 
       {:error, _} ->
+        rules = rules |> NestedFilter.drop_by_value([false])
         UserPasport |> ORM.create(~m(user_id rules)a)
     end
   end
