@@ -16,7 +16,7 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
 
   @cur_date Timex.now()
   @last_week Timex.shift(Timex.beginning_of_week(@cur_date), days: -1)
-  @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -2)
+  @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -7)
   @last_year Timex.shift(Timex.beginning_of_year(@cur_date), days: -1)
 
   @today_count 35
@@ -41,7 +41,7 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
     {:ok, ~m(guest_conn)a}
   end
 
-  describe "[query paged_posts filter pagination]" do
+  describe "[query paged_jobs filter pagination]" do
     @query """
     query($filter: PagedArticleFilter!) {
       pagedJobs(filter: $filter) {
@@ -86,7 +86,7 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
     end
   end
 
-  describe "[query paged_posts filter sort]" do
+  describe "[query paged_jobss filter sort]" do
     @query """
     query($filter: PagedArticleFilter!) {
       pagedJobs(filter: $filter) {
@@ -126,13 +126,13 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
     }
     """
     test "filter sort MOST_VIEWS should work", ~m(guest_conn)a do
-      most_views_post = CMS.Job |> order_by(desc: :views) |> limit(1) |> Repo.one()
+      most_views_job = CMS.Job |> order_by(desc: :views) |> limit(1) |> Repo.one()
       variables = %{filter: %{sort: "MOST_VIEWS"}}
 
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
-      find_post = results |> Map.get("entries") |> hd
+      find_job = results |> Map.get("entries") |> hd
 
-      assert find_post["views"] == most_views_post |> Map.get(:views)
+      assert find_job["views"] == most_views_job |> Map.get(:views)
     end
   end
 
@@ -140,7 +140,7 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
   @doc """
   test: FILTER when [TODAY] [THIS_WEEK] [THIS_MONTH] [THIS_YEAR]
   """
-  describe "[query paged_posts filter when]" do
+  describe "[query paged_jobs filter when]" do
     @query """
     query($filter: PagedArticleFilter!) {
       pagedJobs(filter: $filter) {

@@ -16,7 +16,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
 
   @cur_date Timex.now()
   @last_week Timex.shift(Timex.beginning_of_week(@cur_date), days: -1)
-  @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -2)
+  @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -7)
   @last_year Timex.shift(Timex.beginning_of_year(@cur_date), days: -1)
 
   @today_count 35
@@ -171,6 +171,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
       assert results |> Map.get("totalCount") == expect_count
     end
 
+    @tag :wip
     test "THIS_WEEK option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_WEEK"}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
