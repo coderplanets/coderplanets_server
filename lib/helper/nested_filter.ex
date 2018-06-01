@@ -55,7 +55,7 @@ defmodule Helper.NestedFilter do
   @spec take_by(map, keys_to_select) :: map
   def take_by(map, keys_to_select) when is_map(map) do
     map
-    |> Enum.reduce(%{}, fn {key, val}, acc ->
+    |> Enum.reduce(%{}, fn {_key, val}, acc ->
       Map.merge(acc, take_by(val, keys_to_select))
     end)
     |> Map.merge(Map.take(map, keys_to_select))
