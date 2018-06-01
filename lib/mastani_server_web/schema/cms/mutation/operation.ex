@@ -51,16 +51,16 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
     # resolve(&Resolvers.CMS.add_thread_to_community/3)
     # end
 
-    # @desc "set passport details for a user TODO: unset"
-    # field :set_cms_passport, :user do
-    # args(:userId, non_null(:id))
-    # args(:detail, non_null(:string))
+    @desc "stamp rules on user's passport"
+    field :stamp_cms_passport, :idlike do
+      arg(:user_id, non_null(:id))
+      arg(:rules, non_null(:json))
 
-    # middleware(M.Authorize, :login)
-    # middleware(M.Passport, claim: "cms->community.set_editor")
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->community.stamp_passport")
 
-    # resolve(&Resolvers.CMS.stamp_passport/3)
-    # end
+      resolve(&Resolvers.CMS.stamp_passport/3)
+    end
 
     @desc "subscribe a community so it can appear in sidebar"
     field :subscribe_community, :community do

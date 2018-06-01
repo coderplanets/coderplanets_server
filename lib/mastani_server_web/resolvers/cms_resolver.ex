@@ -187,4 +187,10 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def undo_dislike_comment(_root, ~m(part id)a, %{context: %{cur_user: user}}) do
     CMS.undo_dislike_comment(part, id, %Accounts.User{id: user.id})
   end
+
+  def stamp_passport(_root, ~m(user_id rules)a, %{context: %{cur_user: _user}}) do
+    # IO.inspect rules, label: "in resolver"
+    # IO.inspect Jason.decode!(rules), label: "in resolver decode"
+    CMS.stamp_passport(%Accounts.User{id: user_id}, rules)
+  end
 end

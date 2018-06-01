@@ -621,4 +621,53 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       assert guest_conn |> mutation_get_error?(@unsubscribe_query, variables)
     end
   end
+
+  describe "[passport]" do
+    @query """
+    mutation($userId: ID!, $rules: String!) {
+      stampCmsPassport(userId: $userId, rules: $rules) {
+        id
+      }
+    }
+    """
+    @valid_passport_rules %{
+      "javascript" => %{
+        "post.article.delete" => false,
+        "post.tag.edit" => true
+      }
+    }
+    @valid_passport_rules2 %{
+      "elixir" => %{
+        "post.article.delete" => false,
+        "post.tag.edit" => true
+      }
+    }
+    test "can create/update passport with rules", ~m(user)a do
+      variables = %{userId: user.id, rules: Jason.encode!(@valid_passport_rules)}
+      rule_conn = simu_conn(:user, cms: %{"community.stamp_passport" => true})
+      created = rule_conn |> mutation_result(@query, variables, "stampCmsPassport")
+
+      {:ok, found} = ORM.find(CMS.Passport, created["id"])
+
+      assert found.user_id == user.id
+      assert Map.equal?(found.rules, @valid_passport_rules)
+
+      # updated
+      variables = %{userId: user.id, rules: Jason.encode!(@valid_passport_rules2)}
+      rule_conn = simu_conn(:user, cms: %{"community.stamp_passport" => true})
+      updated = rule_conn |> mutation_result(@query, variables, "stampCmsPassport")
+
+      {:ok, found} = ORM.find(CMS.Passport, updated["id"])
+
+      f1 = found.rules |> Map.get("javascript")
+      t1 = @valid_passport_rules |> Map.get("javascript")
+
+      f2 = found.rules |> Map.get("elixir")
+      t2 = @valid_passport_rules2 |> Map.get("elixir")
+
+      assert found.user_id == user.id
+      assert Map.equal?(f1, t1)
+      assert Map.equal?(f2, t2)
+    end
+  end
 end
