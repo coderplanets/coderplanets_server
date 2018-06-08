@@ -42,6 +42,8 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
 
     @desc "get all passport rules include system and community etc ..."
     field :all_passport_rules_string, :rules do
+      middleware(M.Authorize, :login)
+
       resolve(&Resolvers.Accounts.get_all_rules/3)
     end
   end

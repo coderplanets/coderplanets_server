@@ -34,12 +34,11 @@ defmodule MastaniServer.CMS.Delegate.PassportCURD do
   def stamp_passport(%Accounts.User{id: user_id}, rules) do
     case ORM.find_by(UserPasport, user_id: user_id) do
       {:ok, passport} ->
-        # passport |> NestedFilter.drop_by_value(passport, [false])
-        rules = deep_merge(passport.rules, rules) |> NestedFilter.drop_by_value([false])
+        rules = deep_merge(passport.rules, rules) |> reject_invalid_rules
         passport |> ORM.update(~m(rules)a)
 
       {:error, _} ->
-        rules = rules |> NestedFilter.drop_by_value([false])
+        rules = rules |> reject_invalid_rules
         UserPasport |> ORM.create(~m(user_id rules)a)
     end
   end
@@ -58,5 +57,13 @@ defmodule MastaniServer.CMS.Delegate.PassportCURD do
 
   def delete_passport(%Accounts.User{id: user_id}) do
     ORM.findby_delete(UserPasport, ~m(user_id)a)
+  end
+
+  defp reject_invalid_rules(rules) when is_map(rules) do
+    rules |> NestedFilter.drop_by_value([false]) |> reject_empty_values
+  end
+
+  defp reject_empty_values(map) when is_map(map) do
+    for {k, v} <- map, v != %{}, into: %{}, do: {k, v}
   end
 end
