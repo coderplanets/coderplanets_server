@@ -8,8 +8,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Comment do
   object :cms_mutation_comment do
     @desc "create a comment"
     field :create_comment, :comment do
-      # TODO use part and force community pass-in
-      arg(:part, :cms_part, default_value: :post)
+      # TODO use thread and force community pass-in
+      arg(:thread, :cms_thread, default_value: :post)
       arg(:id, non_null(:id))
       arg(:body, non_null(:string))
 
@@ -20,12 +20,12 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Comment do
     end
 
     field :delete_comment, :comment do
-      arg(:part, :cms_part, default_value: :post)
+      arg(:thread, :cms_thread, default_value: :post)
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
       # middleware(M.PassportLoader, source: [:post, :comment])
-      middleware(M.PassportLoader, source: [:arg_part, :comment])
+      middleware(M.PassportLoader, source: [:arg_thread, :comment])
       # TODO: 文章可以设置禁止评论
       # middleware(M.Passport, claim: "owner;cms->c?->post.comment.delete")
       middleware(M.Passport, claim: "owner")
@@ -35,7 +35,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Comment do
 
     @desc "reply a exsiting comment"
     field :reply_comment, :comment do
-      arg(:part, non_null(:cms_part), default_value: :post)
+      arg(:thread, non_null(:cms_thread), default_value: :post)
       arg(:id, non_null(:id))
       arg(:body, non_null(:string))
 
@@ -46,7 +46,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Comment do
 
     @desc "like a comment"
     field :like_comment, :comment do
-      arg(:part, non_null(:cms_comment), default_value: :post_comment)
+      arg(:thread, non_null(:cms_comment), default_value: :post_comment)
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
@@ -56,7 +56,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Comment do
     @desc "undo like comment"
     # field :undo_like_comment, :idlike do
     field :undo_like_comment, :comment do
-      arg(:part, non_null(:cms_comment), default_value: :post_comment)
+      arg(:thread, non_null(:cms_comment), default_value: :post_comment)
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
@@ -64,7 +64,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Comment do
     end
 
     field :dislike_comment, :comment do
-      arg(:part, non_null(:cms_comment), default_value: :post_comment)
+      arg(:thread, non_null(:cms_comment), default_value: :post_comment)
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
@@ -72,7 +72,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Comment do
     end
 
     field :undo_dislike_comment, :comment do
-      arg(:part, non_null(:cms_comment), default_value: :post_comment)
+      arg(:thread, non_null(:cms_comment), default_value: :post_comment)
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)

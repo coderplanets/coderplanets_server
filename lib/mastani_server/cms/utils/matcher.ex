@@ -20,17 +20,17 @@ defmodule MastaniServer.CMS.Utils.Matcher do
     PostCommentDislike
   }
 
-  @support_part [:post, :video, :job]
+  @support_thread [:post, :video, :job]
   @support_react [:favorite, :star, :watch, :comment, :tag, :self]
 
-  defguard valid_part(part) when part in @support_part
-  defguard invalid_part(part) when part not in @support_part
+  defguard valid_thread(thread) when thread in @support_thread
+  defguard invalid_thread(thread) when thread not in @support_thread
 
-  defguard valid_reaction(part, react)
-           when valid_part(part) and react in @support_react
+  defguard valid_reaction(thread, react)
+           when valid_thread(thread) and react in @support_react
 
-  defguard invalid_reaction(part, react)
-           when invalid_part(part) and react not in @support_react
+  defguard invalid_reaction(thread, react)
+           when invalid_thread(thread) and react not in @support_react
 
   defguard valid_feeling(feel) when feel in [:like, :dislike]
 
@@ -65,8 +65,8 @@ defmodule MastaniServer.CMS.Utils.Matcher do
   def match_action(:job, :favorite),
     do: {:ok, %{target: Job, reactor: JobFavorite, preload: :user}}
 
-  def dynamic_where(part, id) do
-    case part do
+  def dynamic_where(thread, id) do
+    case thread do
       :post ->
         {:ok, dynamic([p], p.post_id == ^id)}
 

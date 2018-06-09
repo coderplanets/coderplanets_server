@@ -83,7 +83,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
       arg(:id, non_null(:id))
       arg(:tag_id, non_null(:id))
       arg(:community_id, non_null(:id))
-      arg(:part, :cms_part, default_value: :post)
+      arg(:thread, :cms_thread, default_value: :post)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
@@ -94,11 +94,11 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
 
     @desc "unset a tag within community"
     field :unset_tag, :tag do
-      # part id
+      # thread id
       arg(:id, non_null(:id))
       arg(:tag_id, non_null(:id))
       arg(:community_id, non_null(:id))
-      arg(:part, :cms_part, default_value: :post)
+      arg(:thread, :cms_thread, default_value: :post)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
@@ -111,7 +111,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
     field :set_community, :community do
       arg(:id, non_null(:id))
       arg(:community_id, non_null(:id))
-      arg(:part, :cms_part, default_value: :post)
+      arg(:thread, :cms_thread, default_value: :post)
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->p?.community.set")
@@ -122,7 +122,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
     field :unset_community, :community do
       arg(:id, non_null(:id))
       arg(:community_id, non_null(:id))
-      arg(:part, :cms_part, default_value: :post)
+      arg(:thread, :cms_thread, default_value: :post)
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->p?.community.unset")
@@ -131,7 +131,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
 
     field :reaction, :article do
       arg(:id, non_null(:id))
-      arg(:part, non_null(:cms_part))
+      arg(:thread, non_null(:cms_thread))
       arg(:action, non_null(:cms_action))
 
       middleware(M.Authorize, :login)
@@ -140,7 +140,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
 
     field :undo_reaction, :article do
       arg(:id, non_null(:id))
-      arg(:part, non_null(:cms_part))
+      arg(:thread, non_null(:cms_thread))
       arg(:action, non_null(:cms_action))
 
       middleware(M.Authorize, :login)

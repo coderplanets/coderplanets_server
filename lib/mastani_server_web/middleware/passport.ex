@@ -9,7 +9,7 @@
 defmodule MastaniServerWeb.Middleware.Passport do
   @moduledoc """
   c? -> community / communities
-  p? -> part, could be post / job / tut / video ...
+  p? -> thread, could be post / job / tut / video ...
   """
   @behaviour Absinthe.Middleware
 
@@ -25,7 +25,7 @@ defmodule MastaniServerWeb.Middleware.Passport do
   def call(
         %{
           context: %{cur_user: %{cur_passport: _}},
-          arguments: %{community: _, part: _}
+          arguments: %{community: _, thread: _}
         } = resolution,
         claim: "cms->c?->p?." <> _rest = claim
       ) do
@@ -35,7 +35,7 @@ defmodule MastaniServerWeb.Middleware.Passport do
   def call(
         %{
           context: %{cur_user: %{cur_passport: _}},
-          arguments: %{part: _}
+          arguments: %{thread: _}
         } = resolution,
         claim: "cms->p?." <> _rest = claim
       ) do
@@ -134,11 +134,11 @@ defmodule MastaniServerWeb.Middleware.Passport do
 
   defp p_check(resolution, claim) do
     cur_passport = resolution.context.cur_user.cur_passport
-    part = resolution.arguments.part |> to_string
+    thread = resolution.arguments.thread |> to_string
 
     path =
       claim
-      |> String.replace("p?", part)
+      |> String.replace("p?", thread)
       |> String.split("->")
 
     case get_in(cur_passport, path) do
@@ -150,12 +150,12 @@ defmodule MastaniServerWeb.Middleware.Passport do
   defp cp_check(resolution, claim) do
     cur_passport = resolution.context.cur_user.cur_passport
     community_title = resolution.arguments.passport_communities |> List.first() |> Map.get(:title)
-    part = resolution.arguments.part |> to_string
+    thread = resolution.arguments.thread |> to_string
 
     path =
       claim
       |> String.replace("c?", community_title)
-      |> String.replace("p?", part)
+      |> String.replace("p?", thread)
       |> String.split("->")
 
     case get_in(cur_passport, path) do

@@ -19,7 +19,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Job do
       arg(:link_addr, :string)
       arg(:link_source, :string)
 
-      arg(:part, :cms_part, default_value: :job)
+      arg(:thread, :cms_thread, default_value: :job)
 
       middleware(M.Authorize, :login)
       resolve(&Resolvers.CMS.create_content/3)

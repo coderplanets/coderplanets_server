@@ -9,13 +9,13 @@ defmodule MastaniServer.CMS.Delegate.ArticleReaction do
   @doc """
   favorite / star / watch CMS contents like post / tuts / video ...
   """
-  # TODO: def reaction(part, react, part_id, %Accounts.User{id: user_id}) when valid_reaction(part, react) do
-  def reaction(part, react, part_id, %Accounts.User{id: user_id})
-      when valid_reaction(part, react) do
-    with {:ok, action} <- match_action(part, react),
-         {:ok, content} <- ORM.find(action.target, part_id),
+  # TODO: def reaction(thread, react, thread_id, %Accounts.User{id: user_id}) when valid_reaction(thread, react) do
+  def reaction(thread, react, thread_id, %Accounts.User{id: user_id})
+      when valid_reaction(thread, react) do
+    with {:ok, action} <- match_action(thread, react),
+         {:ok, content} <- ORM.find(action.target, thread_id),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
-      attrs = Map.put(%{}, "user_id", user.id) |> Map.put("#{part}_id", content.id)
+      attrs = Map.put(%{}, "user_id", user.id) |> Map.put("#{thread}_id", content.id)
       action.reactor |> ORM.create(attrs)
     end
   end
@@ -23,14 +23,14 @@ defmodule MastaniServer.CMS.Delegate.ArticleReaction do
   @doc """
   unfavorite / unstar / unwatch CMS contents like post / tuts / video ...
   """
-  def undo_reaction(part, react, part_id, %Accounts.User{id: user_id})
-      when valid_reaction(part, react) do
-    with {:ok, action} <- match_action(part, react),
-         {:ok, content} <- ORM.find(action.target, part_id) do
+  def undo_reaction(thread, react, thread_id, %Accounts.User{id: user_id})
+      when valid_reaction(thread, react) do
+    with {:ok, action} <- match_action(thread, react),
+         {:ok, content} <- ORM.find(action.target, thread_id) do
       the_user = dynamic([u], u.user_id == ^user_id)
 
       where =
-        case part do
+        case thread do
           :post ->
             dynamic([p], p.post_id == ^content.id and ^the_user)
 

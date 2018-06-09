@@ -10,11 +10,11 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   @doc """
   Creates a comment for psot, job ...
   """
-  def create_comment(part, part_id, %Accounts.User{id: user_id}, body) do
-    with {:ok, action} <- match_action(part, :comment),
-         {:ok, content} <- ORM.find(action.target, part_id),
+  def create_comment(thread, thread_id, %Accounts.User{id: user_id}, body) do
+    with {:ok, action} <- match_action(thread, :comment),
+         {:ok, content} <- ORM.find(action.target, thread_id),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
-      nextFloor = get_next_floor(part, action.reactor, content.id)
+      nextFloor = get_next_floor(thread, action.reactor, content.id)
 
       attrs = %{
         author_id: user.id,
@@ -23,7 +23,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
       }
 
       attrs =
-        case part do
+        case thread do
           :post ->
             attrs |> Map.merge(%{post_id: content.id})
 
@@ -38,9 +38,9 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   @doc """
   Delete the comment and increase all the floor after this comment
   """
-  def delete_comment(part, part_id) do
-    with {:ok, action} <- match_action(part, :comment),
-         {:ok, comment} <- ORM.find(action.reactor, part_id) do
+  def delete_comment(thread, thread_id) do
+    with {:ok, action} <- match_action(thread, :comment),
+         {:ok, comment} <- ORM.find(action.reactor, thread_id) do
       case ORM.delete(comment) do
         {:ok, comment} ->
           Repo.update_all(
@@ -56,15 +56,15 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     end
   end
 
-  def list_comments(part, part_id, %{page: page, size: size} = filters) do
-    with {:ok, action} <- match_action(part, :comment) do
+  def list_comments(thread, thread_id, %{page: page, size: size} = filters) do
+    with {:ok, action} <- match_action(thread, :comment) do
       dynamic =
-        case part do
+        case thread do
           :post ->
-            dynamic([c], c.post_id == ^part_id)
+            dynamic([c], c.post_id == ^thread_id)
 
           :job ->
-            dynamic([c], c.job_id == ^part_id)
+            dynamic([c], c.job_id == ^thread_id)
         end
 
       action.reactor
@@ -75,8 +75,8 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     end
   end
 
-  def list_replies(part, comment_id, %Accounts.User{id: user_id}) do
-    with {:ok, action} <- match_action(part, :comment) do
+  def list_replies(thread, comment_id, %Accounts.User{id: user_id}) do
+    with {:ok, action} <- match_action(thread, :comment) do
       action.reactor
       |> where([c], c.author_id == ^user_id)
       |> join(:inner, [c], r in assoc(c, :reply_to))
@@ -86,10 +86,10 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     end
   end
 
-  def reply_comment(part, comment_id, %Accounts.User{id: user_id}, body) do
-    with {:ok, action} <- match_action(part, :comment),
+  def reply_comment(thread, comment_id, %Accounts.User{id: user_id}, body) do
+    with {:ok, action} <- match_action(thread, :comment),
          {:ok, comment} <- ORM.find(action.reactor, comment_id) do
-      nextFloor = get_next_floor(part, action.reactor, comment)
+      nextFloor = get_next_floor(thread, action.reactor, comment)
 
       attrs = %{
         author_id: user_id,
@@ -99,7 +99,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
       }
 
       attrs =
-        case part do
+        case thread do
           :post ->
             attrs |> Map.merge(%{post_id: comment.post_id})
 
@@ -107,7 +107,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
             attrs |> Map.merge(%{job_id: comment.job_id})
         end
 
-      brige_reply(part, action.reactor, comment, attrs)
+      brige_reply(thread, action.reactor, comment, attrs)
     end
   end
 
@@ -134,9 +134,9 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     end
   end
 
-  defp get_next_floor(part, queryable, id) when is_integer(id) do
+  defp get_next_floor(thread, queryable, id) when is_integer(id) do
     dynamic =
-      case part do
+      case thread do
         :post ->
           dynamic([c], c.post_id == ^id)
 
@@ -149,9 +149,9 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     |> ORM.next_count()
   end
 
-  defp get_next_floor(part, queryable, comment) do
+  defp get_next_floor(thread, queryable, comment) do
     dynamic =
-      case part do
+      case thread do
         :post ->
           dynamic([c], c.post_id == ^comment.post_id)
 

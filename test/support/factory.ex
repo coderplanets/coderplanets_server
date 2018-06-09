@@ -91,8 +91,7 @@ defmodule MastaniServer.Factory do
 
     %{
       title: "#{Faker.Pizza.cheese()} #{unique_num}",
-      part: "POST",
-      # part mainly for CMS.create_tag usage
+      thread: "POST",
       color: "YELLOW",
       # community: Faker.Pizza.topping(),
       community: mock(:community),

@@ -9,8 +9,8 @@ defmodule Helper.QueryBuilder do
   2. reaction_user's count
   3. is viewer reacted?
 
-  bewteen [PART] and [REACT]
-  [PART]: cms part, include: Post, Job, Meetup ...
+  bewteen [THREAD] and [REACT]
+  [THREAD]: cms thread, include: Post, Job, Meetup ...
   [REACT]; favorites, stars, watchs ...
   """
   def members_pack(queryable, %{filter: filter}) do

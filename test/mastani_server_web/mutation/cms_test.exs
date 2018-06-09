@@ -160,12 +160,12 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
   describe "[mutation cms tag]" do
     @create_tag_query """
-    mutation($part: CmsPart!, $title: String!, $color: String!, $communityId: ID!) {
-      createTag(part: $part, title: $title, color: $color, communityId: $communityId) {
+    mutation($thread: CmsThread!, $title: String!, $color: String!, $communityId: ID!) {
+      createTag(thread: $thread, title: $title, color: $color, communityId: $communityId) {
         id
         title
         color
-        part
+        thread
 
         community {
           id
@@ -175,7 +175,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       }
     }
     """
-    test "create tag with valid attrs, has default POST part", ~m(community)a do
+    test "create tag with valid attrs, has default POST thread", ~m(community)a do
       variables = mock_attrs(:tag, %{communityId: community.id})
 
       passport_rules = %{community.title => %{"post.tag.create" => true}}
@@ -187,7 +187,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       {:ok, found} = CMS.Tag |> ORM.find(created["id"])
 
       assert created["id"] == to_string(found.id)
-      assert found.part == "post"
+      assert found.thread == "post"
       assert belong_community["id"] == to_string(community.id)
     end
 
@@ -208,7 +208,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
     # title: "title",
     # color: "NON_EXSIT",
     # communityId: community.id,
-    # part: "POST",
+    # thread: "POST",
     # }
     # passport_rules = %{community.title => %{"post.tag.create" => true}}
     # rule_conn = simu_conn(:user, cms: passport_rules)

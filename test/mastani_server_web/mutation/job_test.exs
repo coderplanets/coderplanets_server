@@ -168,8 +168,8 @@ defmodule MastaniServer.Test.Mutation.JobTest do
 
   describe "[mutation job tag]" do
     @set_tag_query """
-    mutation($part: String!, $id: ID!, $tagId: ID! $communityId: ID!) {
-      setTag(part: $part, id: $id, tagId: $tagId, communityId: $communityId) {
+    mutation($thread: String!, $id: ID!, $tagId: ID! $communityId: ID!) {
+      setTag(thread: $thread, id: $id, tagId: $tagId, communityId: $communityId) {
         id
         title
       }
@@ -177,12 +177,12 @@ defmodule MastaniServer.Test.Mutation.JobTest do
     """
     test "auth user can set a valid tag to job", ~m(job)a do
       {:ok, community} = db_insert(:community)
-      {:ok, tag} = db_insert(:tag, %{part: "job", community: community})
+      {:ok, tag} = db_insert(:tag, %{thread: "job", community: community})
 
       passport_rules = %{community.title => %{"job.tag.set" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      variables = %{part: "JOB", id: job.id, tagId: tag.id, communityId: community.id}
+      variables = %{thread: "JOB", id: job.id, tagId: tag.id, communityId: community.id}
       rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
       # {:ok, found} = ORM.find(CMS.Job, job.id, preload: :tags)
 
@@ -192,27 +192,27 @@ defmodule MastaniServer.Test.Mutation.JobTest do
 
     test "auth user set a invalid tag to job fails", ~m(job)a do
       {:ok, community} = db_insert(:community)
-      {:ok, tag} = db_insert(:tag, %{part: "job"})
+      {:ok, tag} = db_insert(:tag, %{thread: "job"})
 
       passport_rules = %{community.title => %{"job.tag.set" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      variables = %{part: "JOB", id: job.id, tagId: tag.id, communityId: community.id}
+      variables = %{thread: "JOB", id: job.id, tagId: tag.id, communityId: community.id}
       assert rule_conn |> mutation_get_error?(@set_tag_query, variables)
     end
 
     test "can set multi tag to a job", ~m(job)a do
       {:ok, community} = db_insert(:community)
-      {:ok, tag} = db_insert(:tag, %{community: community, part: "job"})
-      {:ok, tag2} = db_insert(:tag, %{community: community, part: "job"})
+      {:ok, tag} = db_insert(:tag, %{community: community, thread: "job"})
+      {:ok, tag2} = db_insert(:tag, %{community: community, thread: "job"})
 
       passport_rules = %{community.title => %{"job.tag.set" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      variables = %{part: "JOB", id: job.id, tagId: tag.id, communityId: community.id}
+      variables = %{thread: "JOB", id: job.id, tagId: tag.id, communityId: community.id}
       rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
 
-      variables2 = %{part: "JOB", id: job.id, tagId: tag2.id, communityId: community.id}
+      variables2 = %{thread: "JOB", id: job.id, tagId: tag2.id, communityId: community.id}
       rule_conn |> mutation_result(@set_tag_query, variables2, "setTag")
 
       {:ok, found} = ORM.find(CMS.Job, job.id, preload: :tags)

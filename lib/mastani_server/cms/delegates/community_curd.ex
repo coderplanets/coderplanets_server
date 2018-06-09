@@ -59,8 +59,8 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   @doc """
   create a Tag base on type: post / tuts / videos ...
   """
-  def create_tag(part, attrs, %Accounts.User{id: user_id}) when valid_part(part) do
-    with {:ok, action} <- match_action(part, :tag),
+  def create_tag(thread, attrs, %Accounts.User{id: user_id}) when valid_thread(thread) do
+    with {:ok, action} <- match_action(thread, :tag),
          {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}),
          {:ok, _community} <- ORM.find(Community, attrs.community_id) do
       attrs = attrs |> Map.merge(%{author_id: author.id})
@@ -71,14 +71,14 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   end
 
   @doc """
-  get tags belongs to a community / part
+  get tags belongs to a community / thread
   """
-  def get_tags(%Community{id: communitId}, part) do
-    part = to_string(part)
+  def get_tags(%Community{id: communitId}, thread) do
+    thread = to_string(thread)
 
     Tag
     |> join(:inner, [t], c in assoc(t, :community))
-    |> where([t, c], c.id == ^communitId and t.part == ^part)
+    |> where([t, c], c.id == ^communitId and t.thread == ^thread)
     |> distinct([t], t.title)
     |> Repo.all()
     |> done()

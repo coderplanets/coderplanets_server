@@ -122,7 +122,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
       arg(:title, non_null(:string))
       arg(:color, non_null(:rainbow_color_enum))
       arg(:community_id, non_null(:id))
-      arg(:part, :cms_part, default_value: :post)
+      arg(:thread, :cms_thread, default_value: :post)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
@@ -131,11 +131,11 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
       resolve(&Resolvers.CMS.create_tag/3)
     end
 
-    @desc "delete a tag by part [:login required]"
+    @desc "delete a tag by thread [:login required]"
     field :delete_tag, :tag do
       arg(:id, non_null(:id))
       arg(:community_id, non_null(:id))
-      arg(:part, :cms_part, default_value: :post)
+      arg(:thread, :cms_thread, default_value: :post)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)

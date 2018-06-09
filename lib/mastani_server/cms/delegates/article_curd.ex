@@ -21,9 +21,9 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
 
   """
 
-  def create_content(part, %Accounts.User{id: user_id}, %{community_id: community_id} = attrs) do
+  def create_content(thread, %Accounts.User{id: user_id}, %{community_id: community_id} = attrs) do
     with {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}),
-         {:ok, action} <- match_action(part, :community),
+         {:ok, action} <- match_action(thread, :community),
          # {:ok, community} <- ORM.find_by(Community, title: attrs.community),
          {:ok, community} <- ORM.find(Community, community_id),
          {:ok, content} <-
@@ -32,7 +32,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
            # |> action.target.changeset(attrs |> Map.merge(%{author_id: author.id}))
            |> Ecto.Changeset.put_change(:author_id, author.id)
            |> Repo.insert() do
-      ArticleOperation.set_community(part, content.id, %Community{id: community.id})
+      ArticleOperation.set_community(thread, content.id, %Community{id: community.id})
     end
   end
 
@@ -44,10 +44,10 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
 
   with or without page info
   """
-  def reaction_users(part, react, id, %{page: page, size: size} = filters) do
-    # when valid_reaction(part, react) do
-    with {:ok, action} <- match_action(part, react),
-         {:ok, where} <- dynamic_where(part, id) do
+  def reaction_users(thread, react, id, %{page: page, size: size} = filters) do
+    # when valid_reaction(thread, react) do
+    with {:ok, action} <- match_action(thread, react),
+         {:ok, where} <- dynamic_where(thread, id) do
       # common_filter(action.reactor)
       action.reactor
       |> where(^where)

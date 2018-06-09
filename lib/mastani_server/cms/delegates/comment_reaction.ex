@@ -4,25 +4,25 @@ defmodule MastaniServer.CMS.Delegate.CommentReaction do
   alias MastaniServer.Accounts
   alias Helper.ORM
 
-  def like_comment(part, comment_id, %Accounts.User{id: user_id}) do
-    feel_comment(part, comment_id, user_id, :like)
+  def like_comment(thread, comment_id, %Accounts.User{id: user_id}) do
+    feel_comment(thread, comment_id, user_id, :like)
   end
 
-  def undo_like_comment(part, comment_id, %Accounts.User{id: user_id}) do
-    undo_feel_comment(part, comment_id, user_id, :like)
+  def undo_like_comment(thread, comment_id, %Accounts.User{id: user_id}) do
+    undo_feel_comment(thread, comment_id, user_id, :like)
   end
 
-  def dislike_comment(part, comment_id, %Accounts.User{id: user_id}) do
-    feel_comment(part, comment_id, user_id, :dislike)
+  def dislike_comment(thread, comment_id, %Accounts.User{id: user_id}) do
+    feel_comment(thread, comment_id, user_id, :dislike)
   end
 
-  def undo_dislike_comment(part, comment_id, %Accounts.User{id: user_id}) do
-    undo_feel_comment(part, comment_id, user_id, :dislike)
+  def undo_dislike_comment(thread, comment_id, %Accounts.User{id: user_id}) do
+    undo_feel_comment(thread, comment_id, user_id, :dislike)
   end
 
-  defp feel_comment(part, comment_id, user_id, feeling)
+  defp feel_comment(thread, comment_id, user_id, feeling)
        when valid_feeling(feeling) do
-    with {:ok, action} <- match_action(part, feeling) do
+    with {:ok, action} <- match_action(thread, feeling) do
       clause = %{post_comment_id: comment_id, user_id: user_id}
 
       case ORM.find_by(action.reactor, clause) do
@@ -37,8 +37,8 @@ defmodule MastaniServer.CMS.Delegate.CommentReaction do
     end
   end
 
-  defp undo_feel_comment(part, comment_id, user_id, feeling) do
-    with {:ok, action} <- match_action(part, feeling) do
+  defp undo_feel_comment(thread, comment_id, user_id, feeling) do
+    with {:ok, action} <- match_action(thread, feeling) do
       clause = %{post_comment_id: comment_id, user_id: user_id}
       ORM.findby_delete(action.reactor, clause)
       ORM.find(action.target, comment_id)

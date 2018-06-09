@@ -14,7 +14,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Post do
       arg(:length, non_null(:integer))
       arg(:link_addr, :string)
       arg(:community_id, non_null(:id))
-      arg(:part, :cms_part, default_value: :post)
+      arg(:thread, :cms_thread, default_value: :post)
 
       middleware(M.Authorize, :login)
       resolve(&Resolvers.CMS.create_content/3)

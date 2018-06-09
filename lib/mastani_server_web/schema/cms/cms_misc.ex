@@ -7,7 +7,7 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
   @page_size get_config(:general, :page_size)
   @default_inner_page_size 5
 
-  enum :community_part_enum do
+  enum :community_thread_enum do
     value(:post)
     value(:job)
     value(:video)
@@ -56,7 +56,7 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:watch)
   end
 
-  enum :cms_part do
+  enum :cms_thread do
     value(:post)
     value(:job)
     value(:meetup)

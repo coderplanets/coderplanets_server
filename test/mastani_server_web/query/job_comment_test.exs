@@ -21,8 +21,8 @@ defmodule MastaniServer.Test.Query.JobCommentTest do
   # TODO: user can get specific user's replies :list_replies
   describe "[job comment]" do
     @query """
-    query($part: CmsPart, $id: ID!, $filter: CommentsFilter!) {
-      comments(part: $part, id: $id, filter: $filter) {
+    query($thread: CmsThread, $id: ID!, $filter: CommentsFilter!) {
+      comments(thread: $thread, id: $id, filter: $filter) {
         entries {
           id
           body
@@ -43,7 +43,7 @@ defmodule MastaniServer.Test.Query.JobCommentTest do
         acc ++ [value]
       end)
 
-      variables = %{part: "JOB", id: job.id, filter: %{page: 1, size: 10}}
+      variables = %{thread: "JOB", id: job.id, filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "comments")
 
       assert results |> is_valid_pagination?
@@ -51,8 +51,8 @@ defmodule MastaniServer.Test.Query.JobCommentTest do
     end
 
     @query """
-    query($part: CmsPart, $id: ID!, $filter: PagedFilter!) {
-      comments(part: $part, id: $id, filter: $filter) {
+    query($thread: CmsThread, $id: ID!, $filter: PagedFilter!) {
+      comments(thread: $thread, id: $id, filter: $filter) {
         entries {
           id
           body
@@ -77,7 +77,7 @@ defmodule MastaniServer.Test.Query.JobCommentTest do
       {:ok, reply} =
         CMS.reply_comment(:job, comment.id, %Accounts.User{id: user.id}, "reply body")
 
-      variables = %{part: "JOB", id: job.id, filter: %{page: 1, size: 10}}
+      variables = %{thread: "JOB", id: job.id, filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "comments")
 
       found =

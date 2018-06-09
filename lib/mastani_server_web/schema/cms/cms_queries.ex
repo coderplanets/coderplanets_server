@@ -90,7 +90,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
     field :favorite_users, :paged_users do
       arg(:id, non_null(:id))
-      arg(:type, :cms_part, default_value: :post)
+      arg(:type, :cms_thread, default_value: :post)
       arg(:action, :favorite_action, default_value: :favorite)
       arg(:filter, :paged_article_filter)
 
@@ -121,7 +121,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
     # partial
     field :partial_tags, list_of(:tag) do
       arg(:community, non_null(:string))
-      arg(:part, non_null(:community_part_enum))
+      arg(:thread, non_null(:community_thread_enum))
 
       resolve(&Resolvers.CMS.get_tags/3)
     end
@@ -129,7 +129,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
     @desc "get paged comments"
     field :paged_comments, :paged_comments do
       arg(:id, non_null(:id))
-      arg(:part, :cms_part, default_value: :post)
+      arg(:thread, :cms_thread, default_value: :post)
       arg(:filter, :comments_filter)
 
       middleware(M.PageSizeProof)
@@ -140,7 +140,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
     # comments
     field :comments, :paged_comments do
       arg(:id, non_null(:id))
-      arg(:part, :cms_part, default_value: :post)
+      arg(:thread, :cms_thread, default_value: :post)
       arg(:filter, :comments_filter)
 
       middleware(M.PageSizeProof)

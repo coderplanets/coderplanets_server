@@ -26,15 +26,15 @@ defmodule MastaniServer.Test.Mutation.JobCommentTest do
 
   describe "[job comment CURD]" do
     @create_comment_query """
-    mutation($part: CmsPart, $id: ID!, $body: String!) {
-      createComment(part: $part, id: $id, body: $body) {
+    mutation($thread: CmsThread, $id: ID!, $body: String!) {
+      createComment(thread: $thread, id: $id, body: $body) {
         id
         body
       }
     }
     """
     test "login user can create comment to a job", ~m(user_conn job)a do
-      variables = %{part: "JOB", id: job.id, body: "this a comment"}
+      variables = %{thread: "JOB", id: job.id, body: "this a comment"}
       created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
 
       {:ok, found} = ORM.find(CMS.JobComment, created["id"])
@@ -43,21 +43,21 @@ defmodule MastaniServer.Test.Mutation.JobCommentTest do
     end
 
     test "guest user create comment fails", ~m(guest_conn job)a do
-      variables = %{part: "JOB", id: job.id, body: "this a comment"}
+      variables = %{thread: "JOB", id: job.id, body: "this a comment"}
 
       assert guest_conn |> mutation_get_error?(@create_comment_query, variables)
     end
 
     @delete_comment_query """
-    mutation($part: CmsPart, $id: ID!) {
-      deleteComment(part: $part, id: $id) {
+    mutation($thread: CmsThread, $id: ID!) {
+      deleteComment(thread: $thread, id: $id) {
         id
         body
       }
     }
     """
     test "comment owner can delete comment", ~m(user job)a do
-      variables = %{part: "JOB", id: job.id, body: "this a comment"}
+      variables = %{thread: "JOB", id: job.id, body: "this a comment"}
 
       user_conn = simu_conn(:user, user)
       created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
@@ -66,7 +66,7 @@ defmodule MastaniServer.Test.Mutation.JobCommentTest do
         user_conn
         |> mutation_result(
           @delete_comment_query,
-          %{part: "JOB", id: created["id"]},
+          %{thread: "JOB", id: created["id"]},
           "deleteComment"
         )
 
@@ -74,7 +74,7 @@ defmodule MastaniServer.Test.Mutation.JobCommentTest do
     end
 
     test "unauth user delete comment fails", ~m(user_conn guest_conn job)a do
-      variables = %{part: "JOB", id: job.id, body: "this a comment"}
+      variables = %{thread: "JOB", id: job.id, body: "this a comment"}
       {:ok, owner} = db_insert(:user)
       owner_conn = simu_conn(:user, owner)
       created = owner_conn |> mutation_result(@create_comment_query, variables, "createComment")
@@ -88,8 +88,8 @@ defmodule MastaniServer.Test.Mutation.JobCommentTest do
     end
 
     @reply_comment_query """
-    mutation($part: CmsPart!, $id: ID!, $body: String!) {
-      replyComment(part: $part, id: $id, body: $body) {
+    mutation($thread: CmsThread!, $id: ID!, $body: String!) {
+      replyComment(thread: $thread, id: $id, body: $body) {
         id
         body
         replyTo {
@@ -100,14 +100,14 @@ defmodule MastaniServer.Test.Mutation.JobCommentTest do
     }
     """
     test "login user can reply to a exsit comment", ~m(user_conn comment)a do
-      variables = %{part: "JOB", id: comment.id, body: "this a reply"}
+      variables = %{thread: "JOB", id: comment.id, body: "this a reply"}
       replied = user_conn |> mutation_result(@reply_comment_query, variables, "replyComment")
 
       assert replied["replyTo"] |> Map.get("id") == to_string(comment.id)
     end
 
     test "guest user reply comment fails", ~m(guest_conn comment)a do
-      variables = %{part: "JOB", id: comment.id, body: "this a reply"}
+      variables = %{thread: "JOB", id: comment.id, body: "this a reply"}
 
       assert guest_conn |> mutation_get_error?(@reply_comment_query, variables)
     end

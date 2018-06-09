@@ -139,7 +139,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       middleware(M.ConvertToInt)
     end
 
-    field :comments_participators, list_of(:user) do
+    field :comments_threadicipators, list_of(:user) do
       arg(:filter, :members_filter)
       arg(:unique, :unique_type, default_value: true)
 
@@ -148,7 +148,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       resolve(dataloader(CMS, :comments))
     end
 
-    field :comments_participators2, list_of(:user) do
+    field :comments_threadicipators2, list_of(:user) do
       arg(:filter, :members_filter)
       arg(:unique, :unique_type, default_value: true)
 
@@ -164,7 +164,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       end)
     end
 
-    field :comments_participators_count, :integer do
+    field :comments_threadicipators_count, :integer do
       resolve(fn post, _args, %{context: %{loader: loader}} ->
         loader
         |> Dataloader.load(CMS, {:one, CMS.PostComment}, cp_count: post.id)
@@ -174,7 +174,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       end)
     end
 
-    field :comments_participators_count_wired, :integer do
+    field :comments_threadicipators_count_wired, :integer do
       arg(:unique, :unique_type, default_value: true)
       arg(:count, :count_type, default_value: :count)
 
@@ -339,7 +339,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:id, :id)
     field(:title, :string)
     field(:color, :string)
-    field(:part, :string)
+    field(:thread, :string)
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:community, :community, resolve: dataloader(CMS, :community))
     field(:inserted_at, :datetime)

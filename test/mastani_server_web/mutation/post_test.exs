@@ -178,7 +178,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     """
     test "auth user can set a valid tag to post", ~m(post)a do
       {:ok, community} = db_insert(:community)
-      {:ok, tag} = db_insert(:tag, %{part: "post", community: community})
+      {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
 
       passport_rules = %{community.title => %{"post.tag.set" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
@@ -193,7 +193,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
 
     test "auth user set a invalid tag to post fails", ~m(post)a do
       {:ok, community} = db_insert(:community)
-      {:ok, tag} = db_insert(:tag, %{part: "post"})
+      {:ok, tag} = db_insert(:tag, %{thread: "post"})
 
       passport_rules = %{community.title => %{"post.tag.set" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
@@ -204,8 +204,8 @@ defmodule MastaniServer.Test.Mutation.PostTest do
 
     test "can set multi tag to a post", ~m(post)a do
       {:ok, community} = db_insert(:community)
-      {:ok, tag} = db_insert(:tag, %{part: "post", community: community})
-      {:ok, tag2} = db_insert(:tag, %{part: "post", community: community})
+      {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
+      {:ok, tag2} = db_insert(:tag, %{thread: "post", community: community})
 
       passport_rules = %{community.title => %{"post.tag.set" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
@@ -237,8 +237,8 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       passport_rules = %{community.title => %{"post.tag.set" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      {:ok, tag} = db_insert(:tag, %{part: "post", community: community})
-      {:ok, tag2} = db_insert(:tag, %{part: "post", community: community})
+      {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
+      {:ok, tag2} = db_insert(:tag, %{thread: "post", community: community})
 
       variables = %{id: post.id, tagId: tag.id, communityId: community.id}
       rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
@@ -351,15 +351,15 @@ defmodule MastaniServer.Test.Mutation.PostTest do
 
   describe "[mutation post comment]" do
     @create_comment_query """
-    mutation($part: CmsPart!, $id: ID!, $body: String!) {
-      createComment(part: $part,id: $id, body: $body) {
+    mutation($thread: CmsThread!, $id: ID!, $body: String!) {
+      createComment(thread: $thread,id: $id, body: $body) {
         id
         body
       }
     }
     """
     test "create comment to a exsit post", ~m(post user_conn)a do
-      variables = %{part: "POST", id: post.id, body: "a test comment"}
+      variables = %{thread: "POST", id: post.id, body: "a test comment"}
       created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
 
       assert created["body"] == variables.body
@@ -373,7 +373,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     }
     """
     test "delete a comment", ~m(post user_conn)a do
-      variables1 = %{part: "POST", id: post.id, body: "a test comment"}
+      variables1 = %{thread: "POST", id: post.id, body: "a test comment"}
       created = user_conn |> mutation_result(@create_comment_query, variables1, "createComment")
       assert created["body"] == variables1.body
 

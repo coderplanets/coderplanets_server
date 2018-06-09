@@ -27,8 +27,8 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
   # def call(%{context: %{cur_user: cur_user}, arguments: %{id: id}} = resolution, [source: .., base: ..]) do
   # Loader 应该使用 Map 作为参数，以方便模式匹配
   def call(%{context: %{cur_user: _}, arguments: %{id: id}} = resolution, args) do
-    with {:ok, part, react} <- parse_source(args, resolution),
-         {:ok, action} <- match_action(part, react),
+    with {:ok, thread, react} <- parse_source(args, resolution),
+         {:ok, action} <- match_action(thread, react),
          {:ok, preload} <- parse_preload(action, args),
          {:ok, content} <- ORM.find(action.reactor, id, preload: preload) do
       resolution
@@ -95,9 +95,9 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
     end
   end
 
-  # typical usage is delete_comment, should load conent by part
-  defp parse_source([source: [:arg_part, react]], %{arguments: %{part: part}}) do
-    parse_source(source: [part, react])
+  # typical usage is delete_comment, should load conent by thread
+  defp parse_source([source: [:arg_thread, react]], %{arguments: %{thread: thread}}) do
+    parse_source(source: [thread, react])
   end
 
   defp parse_source(args, _resolution) do
@@ -111,8 +111,8 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
     end
   end
 
-  defp match_source([part, react]), do: {:ok, part, react}
-  defp match_source(part), do: {:ok, part, :self}
+  defp match_source([thread, react]), do: {:ok, thread, react}
+  defp match_source(thread), do: {:ok, thread, :self}
 
   defp parse_base(args) do
     Keyword.get(args, :base) || :communities
