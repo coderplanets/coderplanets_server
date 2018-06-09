@@ -7,12 +7,6 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
   @page_size get_config(:general, :page_size)
   @default_inner_page_size 5
 
-  enum :community_thread_enum do
-    value(:post)
-    value(:job)
-    value(:video)
-  end
-
   enum :comment_replies_type do
     value(:comment_replies_type)
   end

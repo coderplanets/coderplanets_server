@@ -102,6 +102,33 @@ defmodule MastaniServer.Test.Query.CMSTest do
 
       assert results |> is_valid_pagination?
     end
+
+    @query """
+    query($communityId: ID!, $thread: CmsThread!) {
+      partialTags(communityId: $communityId, thread: $thread) {
+        id
+        title
+        color
+        thread
+        community {
+          id
+          title
+          logo
+        }
+      }
+    }
+    """
+    test "guest user can get partial tags", ~m(guest_conn community)a do
+      {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
+      {:ok, tag2} = db_insert(:tag, %{thread: "job", community: community})
+
+      variables = %{thread: "POST", communityId: community.id}
+
+      results = guest_conn |> query_result(@query, variables, "partialTags")
+
+      assert results |> Enum.any?(&(&1["id"] == to_string(tag.id)))
+      assert results |> Enum.any?(&(&1["id"] != to_string(tag2.id)))
+    end
   end
 
   describe "[cms query community]" do

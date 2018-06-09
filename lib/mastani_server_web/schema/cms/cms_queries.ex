@@ -120,8 +120,8 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
     # partial
     field :partial_tags, list_of(:tag) do
-      arg(:community, non_null(:string))
-      arg(:thread, non_null(:community_thread_enum))
+      arg(:community_id, non_null(:id))
+      arg(:thread, :cms_thread, default_value: :post)
 
       resolve(&Resolvers.CMS.get_tags/3)
     end
