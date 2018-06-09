@@ -18,7 +18,8 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   end
 
   # TODO: use community_id instead of title
-  def unset_community(thread, thread_id, %Community{id: community_id}) when valid_thread(thread) do
+  def unset_community(thread, thread_id, %Community{id: community_id})
+      when valid_thread(thread) do
     with {:ok, action} <- match_action(thread, :community),
          {:ok, content} <- ORM.find(action.target, thread_id, preload: :communities),
          {:ok, community} <- ORM.find(action.reactor, community_id) do

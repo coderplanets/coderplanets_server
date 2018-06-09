@@ -1,7 +1,7 @@
 defmodule MastaniServer.Repo.Migrations.RenameTagPartToThread do
   use Ecto.Migration
 
- def change do
+  def change do
     rename(table(:tags), :part, to: :thread)
 
     # drop(unique_index(:tags, [:community, :part, :title]))

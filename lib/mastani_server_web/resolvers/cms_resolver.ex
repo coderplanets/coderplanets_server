@@ -124,7 +124,8 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.set_tag(thread, id, %Community{id: community_id}, %Tag{id: tag_id})
   end
 
-  def unset_tag(_root, ~m(id thread tag_id)a, _info), do: CMS.unset_tag(thread, id, %Tag{id: tag_id})
+  def unset_tag(_root, ~m(id thread tag_id)a, _info),
+    do: CMS.unset_tag(thread, id, %Tag{id: tag_id})
 
   def get_tags(_root, ~m(community_id thread)a, _info) do
     CMS.get_tags(%Community{id: community_id}, thread)
@@ -158,7 +159,8 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # #######################
   # comemnts ..
   # #######################
-  def paged_comments(_root, ~m(id thread filter)a, _info), do: CMS.list_comments(thread, id, filter)
+  def paged_comments(_root, ~m(id thread filter)a, _info),
+    do: CMS.list_comments(thread, id, filter)
 
   def create_comment(_root, ~m(thread id body)a, %{context: %{cur_user: user}}) do
     CMS.create_comment(thread, id, %Accounts.User{id: user.id}, body)
