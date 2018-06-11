@@ -87,7 +87,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->p?.tag.set")
+      middleware(M.Passport, claim: "cms->c?->t?.tag.set")
 
       resolve(&Resolvers.CMS.set_tag/3)
     end
@@ -102,7 +102,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->p?.tag.unset")
+      middleware(M.Passport, claim: "cms->c?->t?.tag.unset")
 
       resolve(&Resolvers.CMS.unset_tag/3)
     end
@@ -114,7 +114,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
       arg(:thread, :cms_thread, default_value: :post)
 
       middleware(M.Authorize, :login)
-      middleware(M.Passport, claim: "cms->p?.community.set")
+      middleware(M.Passport, claim: "cms->t?.community.set")
       resolve(&Resolvers.CMS.set_community/3)
     end
 
@@ -125,7 +125,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
       arg(:thread, :cms_thread, default_value: :post)
 
       middleware(M.Authorize, :login)
-      middleware(M.Passport, claim: "cms->p?.community.unset")
+      middleware(M.Passport, claim: "cms->t?.community.unset")
       resolve(&Resolvers.CMS.unset_community/3)
     end
 

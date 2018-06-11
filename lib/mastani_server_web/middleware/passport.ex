@@ -9,7 +9,7 @@
 defmodule MastaniServerWeb.Middleware.Passport do
   @moduledoc """
   c? -> community / communities
-  p? -> thread, could be post / job / tut / video ...
+  t? -> thread, could be post / job / tut / video ...
   """
   @behaviour Absinthe.Middleware
 
@@ -27,7 +27,7 @@ defmodule MastaniServerWeb.Middleware.Passport do
           context: %{cur_user: %{cur_passport: _}},
           arguments: %{community: _, thread: _}
         } = resolution,
-        claim: "cms->c?->p?." <> _rest = claim
+        claim: "cms->c?->t?." <> _rest = claim
       ) do
     resolution |> check_passport_stamp(claim)
   end
@@ -37,7 +37,7 @@ defmodule MastaniServerWeb.Middleware.Passport do
           context: %{cur_user: %{cur_passport: _}},
           arguments: %{thread: _}
         } = resolution,
-        claim: "cms->p?." <> _rest = claim
+        claim: "cms->t?." <> _rest = claim
       ) do
     resolution |> check_passport_stamp(claim)
   end
@@ -108,10 +108,10 @@ defmodule MastaniServerWeb.Middleware.Passport do
       claim |> String.starts_with?("cms->category.") ->
         resolution |> do_check(claim)
 
-      claim |> String.starts_with?("cms->c?->p?.") ->
+      claim |> String.starts_with?("cms->c?->t?.") ->
         resolution |> cp_check(claim)
 
-      claim |> String.starts_with?("cms->p?.") ->
+      claim |> String.starts_with?("cms->t?.") ->
         resolution |> p_check(claim)
 
       claim |> String.starts_with?("cms->c?->") ->
@@ -138,7 +138,7 @@ defmodule MastaniServerWeb.Middleware.Passport do
 
     path =
       claim
-      |> String.replace("p?", thread)
+      |> String.replace("t?", thread)
       |> String.split("->")
 
     case get_in(cur_passport, path) do
@@ -156,7 +156,7 @@ defmodule MastaniServerWeb.Middleware.Passport do
     path =
       claim
       |> String.replace("c?", community_title)
-      |> String.replace("p?", thread)
+      |> String.replace("t?", thread)
       |> String.split("->")
 
     case get_in(cur_passport, path) do

@@ -126,7 +126,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->p?.tag.create")
+      middleware(M.Passport, claim: "cms->c?->t?.tag.create")
 
       resolve(&Resolvers.CMS.create_tag/3)
     end
@@ -142,7 +142,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->p?.tag.update")
+      middleware(M.Passport, claim: "cms->c?->t?.tag.update")
 
       resolve(&Resolvers.CMS.update_tag/3)
     end
@@ -155,7 +155,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->p?.tag.delete")
+      middleware(M.Passport, claim: "cms->c?->t?.tag.delete")
 
       resolve(&Resolvers.CMS.delete_tag/3)
     end
