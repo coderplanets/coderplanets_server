@@ -160,7 +160,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
   describe "[mutation cms tag]" do
     @create_tag_query """
-    mutation($thread: CmsThread!, $title: String!, $color: String!, $communityId: ID!) {
+    mutation($thread: CmsThread!, $title: String!, $color: RainbowColorEnum!, $communityId: ID!) {
       createTag(thread: $thread, title: $title, color: $color, communityId: $communityId) {
         id
         title
@@ -223,6 +223,26 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       assert user_conn |> mutation_get_error?(@create_tag_query, variables)
       assert guest_conn |> mutation_get_error?(@create_tag_query, variables)
       assert rule_conn |> mutation_get_error?(@create_tag_query, variables)
+    end
+
+    @update_tag_query """
+    mutation($id: ID!, $color: RainbowColorEnum!, $title: String!, $communityId: ID!) {
+      updateTag(id: $id, color: $color, title: $title, communityId: $communityId) {
+        id
+        title
+        color
+      }
+    }
+    """
+    test "auth user can update a tag", ~m(tag community)a do
+      variables = %{id: tag.id, color: "GREEN", title: "new title", communityId: community.id}
+
+      passport_rules = %{community.title => %{"post.tag.update" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      updated = rule_conn |> mutation_result(@update_tag_query, variables, "updateTag")
+      assert updated["color"] == "green"
+      assert updated["title"] == "new title"
     end
 
     @delete_tag_query """

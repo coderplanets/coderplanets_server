@@ -120,6 +120,8 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def delete_tag(_root, %{id: id}, _info), do: Tag |> ORM.find_delete(id)
 
+  def update_tag(_root, args, _info), do: CMS.update_tag(args)
+
   def set_tag(_root, ~m(community_id thread id tag_id)a, _info) do
     CMS.set_tag(thread, id, %Community{id: community_id}, %Tag{id: tag_id})
   end

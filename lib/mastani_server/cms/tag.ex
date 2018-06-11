@@ -16,7 +16,10 @@ defmodule MastaniServer.CMS.Tag do
       :posts,
       Post,
       join_through: "posts_tags",
-      join_keys: [post_id: :id, tag_id: :id]
+      join_keys: [post_id: :id, tag_id: :id],
+      # :delete_all will only remove data from the join source
+      on_delete: :delete_all,
+      # on_replace: :delete
     )
 
     many_to_many(
@@ -36,5 +39,6 @@ defmodule MastaniServer.CMS.Tag do
     |> foreign_key_constraint(:user_id)
     |> foreign_key_constraint(:community_id)
     |> unique_constraint(:tag_duplicate, name: :tags_community_id_thread_title_index)
+    # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)
   end
 end

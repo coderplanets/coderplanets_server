@@ -70,6 +70,11 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     end
   end
 
+  def update_tag(%{id: _id} = attrs) do
+    attrs = attrs |> map_atom_value(:string)
+    Tag |> ORM.find_update(%{id: attrs.id, title: attrs.title, color: attrs.color})
+  end
+
   @doc """
   get tags belongs to a community / thread
   """

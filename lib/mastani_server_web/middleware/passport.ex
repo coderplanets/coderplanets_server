@@ -150,6 +150,7 @@ defmodule MastaniServerWeb.Middleware.Passport do
   defp cp_check(resolution, claim) do
     cur_passport = resolution.context.cur_user.cur_passport
     community_title = resolution.arguments.passport_communities |> List.first() |> Map.get(:title)
+
     thread = resolution.arguments.thread |> to_string
 
     path =

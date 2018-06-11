@@ -59,13 +59,18 @@ defmodule Helper.Certification do
         "job.edit",
         "job.trash",
         "job.delete",
-        # tag curd
+        # post tag
         "post.tag.create",
+        "post.tag.update",
         "post.tag.delete",
         "post.tag.set",
+        "post.tag.unset",
+        # job tag
         "job.tag.create",
+        "job.tag.update",
         "job.tag.delete",
-        "job.tag.set"
+        "job.tag.set",
+        "job.tag.unset"
       ]
     }
   end

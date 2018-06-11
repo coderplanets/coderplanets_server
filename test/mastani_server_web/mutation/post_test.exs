@@ -252,7 +252,11 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       assert tag.id in assoc_tags
       assert tag2.id in assoc_tags
 
-      rule_conn |> mutation_result(@unset_tag_query, variables, "unsetTag")
+      passport_rules2 = %{community.title => %{"post.tag.unset" => true}}
+      rule_conn2 = simu_conn(:user, cms: passport_rules2)
+
+      rule_conn2 |> mutation_result(@unset_tag_query, variables, "unsetTag")
+
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :tags)
       assoc_tags = found.tags |> Enum.map(& &1.id)
 

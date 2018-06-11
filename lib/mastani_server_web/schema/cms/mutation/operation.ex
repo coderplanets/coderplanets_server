@@ -102,7 +102,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->p?.tag.set")
+      middleware(M.Passport, claim: "cms->c?->p?.tag.unset")
 
       resolve(&Resolvers.CMS.unset_tag/3)
     end
