@@ -159,6 +159,5 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
 
       resolve(&Resolvers.CMS.delete_tag/3)
     end
-
   end
 end
