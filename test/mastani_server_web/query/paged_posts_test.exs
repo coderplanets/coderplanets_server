@@ -110,7 +110,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
       {:ok, post} = db_insert(:post, %{title: "post 1"})
       {:ok, _} = db_insert_multi(:post, 30)
 
-      post_community_raw = post.communities |> List.first |> Map.get(:raw)
+      post_community_raw = post.communities |> List.first() |> Map.get(:raw)
 
       variables = %{filter: %{community: post_community_raw}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
