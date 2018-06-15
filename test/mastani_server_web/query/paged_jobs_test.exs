@@ -102,6 +102,19 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
        }
     }
     """
+    test "filter community should get jobs which belongs to that community", ~m(guest_conn)a do
+      {:ok, job} = db_insert(:job, %{title: "post 1"})
+      {:ok, _} = db_insert_multi(:job, 30)
+
+      job_community_raw = job.communities |> List.first() |> Map.get(:raw)
+
+      variables = %{filter: %{community: job_community_raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+
+      assert length(results["entries"]) == 1
+      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job.id)))
+    end
+
     test "filter sort should have default :desc_inserted", ~m(guest_conn)a do
       variables = %{filter: %{}}
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
