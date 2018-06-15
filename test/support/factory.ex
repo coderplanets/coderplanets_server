@@ -18,6 +18,7 @@ defmodule MastaniServer.Factory do
       author: mock(:author),
       views: Enum.random(0..2000),
       communities: [
+        mock(:community),
         mock(:community)
       ]
     }

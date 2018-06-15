@@ -98,10 +98,27 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
             nickname
             avatar
           }
+          communities {
+            id
+            raw
+          }
         }
        }
     }
     """
+    test "filter community should get posts which belongs to that community", ~m(guest_conn)a do
+      {:ok, post} = db_insert(:post, %{title: "post 1"})
+      {:ok, _} = db_insert_multi(:post, 30)
+
+      post_community_raw = post.communities |> List.first |> Map.get(:raw)
+
+      variables = %{filter: %{community: post_community_raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+
+      assert length(results["entries"]) == 1
+      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(post.id)))
+    end
+
     test "filter sort should have default :desc_inserted", ~m(guest_conn)a do
       variables = %{filter: %{}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")

@@ -157,11 +157,11 @@ defmodule Helper.QueryBuilder do
           where: t.title == ^tag_name
         )
 
-      {:community, community_name}, queryable ->
+      {:community, community_raw}, queryable ->
         from(
           q in queryable,
           join: t in assoc(q, :communities),
-          where: t.title == ^community_name
+          where: t.raw == ^community_raw
         )
 
       {:first, first}, queryable ->
