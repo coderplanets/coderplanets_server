@@ -119,8 +119,10 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
     end
 
     # partial
+    @desc "get paged tags belongs to community_id or community"
     field :partial_tags, list_of(:tag) do
-      arg(:community_id, non_null(:id))
+      arg(:community_id, :id)
+      arg(:community, :string)
       arg(:thread, :cms_thread, default_value: :post)
 
       resolve(&Resolvers.CMS.get_tags/3)

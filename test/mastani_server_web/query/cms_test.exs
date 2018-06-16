@@ -104,7 +104,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
     end
 
     @query """
-    query($communityId: ID!, $thread: CmsThread!) {
+    query($communityId: ID, $thread: CmsThread!) {
       partialTags(communityId: $communityId, thread: $thread) {
         id
         title
@@ -118,7 +118,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
       }
     }
     """
-    test "guest user can get partial tags", ~m(guest_conn community)a do
+    test "guest user can get partial tags by communityId", ~m(guest_conn community)a do
       {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
       {:ok, tag2} = db_insert(:tag, %{thread: "job", community: community})
 
@@ -128,6 +128,42 @@ defmodule MastaniServer.Test.Query.CMSTest do
 
       assert results |> Enum.any?(&(&1["id"] == to_string(tag.id)))
       assert results |> Enum.any?(&(&1["id"] != to_string(tag2.id)))
+    end
+
+    @query """
+    query($community: String, $thread: CmsThread!) {
+      partialTags(community: $community, thread: $thread) {
+        id
+        title
+        color
+        thread
+        community {
+          id
+          title
+          logo
+        }
+      }
+    }
+    """
+    test "guest user can get partial tags by communityRaw", ~m(guest_conn community)a do
+      {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
+      {:ok, tag2} = db_insert(:tag, %{thread: "job", community: community})
+
+      variables = %{thread: "POST", community: community.raw}
+
+      results = guest_conn |> query_result(@query, variables, "partialTags")
+
+      assert results |> Enum.any?(&(&1["id"] == to_string(tag.id)))
+      assert results |> Enum.any?(&(&1["id"] != to_string(tag2.id)))
+    end
+
+    test "get partial tags with no community info fails", ~m(guest_conn community)a do
+      {:ok, _tag} = db_insert(:tag, %{thread: "post", community: community})
+      {:ok, _tag2} = db_insert(:tag, %{thread: "job", community: community})
+
+      variables = %{thread: "POST"}
+
+      assert guest_conn |> mutation_get_error?(@query, variables)
     end
   end
 

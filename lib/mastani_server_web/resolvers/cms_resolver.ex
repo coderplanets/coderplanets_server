@@ -133,6 +133,14 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.get_tags(%Community{id: community_id}, thread)
   end
 
+  def get_tags(_root, ~m(community thread)a, _info) do
+    CMS.get_tags(%Community{raw: community}, thread)
+  end
+
+  def get_tags(_root, %{thread: _thread}, _info) do
+    {:error, "community_id or community is needed"}
+  end
+
   def get_tags(_root, ~m(filter)a, _info), do: CMS.get_tags(filter)
 
   # #######################
