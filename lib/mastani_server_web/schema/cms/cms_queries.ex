@@ -10,6 +10,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       # arg(:id, non_null(:id))
       arg(:id, :id)
       arg(:title, :string)
+      arg(:raw, :string)
       resolve(&Resolvers.CMS.community/3)
     end
 
@@ -68,6 +69,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
     @desc "get paged posts"
     field :paged_posts, :paged_posts do
       arg(:filter, non_null(:paged_article_filter))
+
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.paged_posts/3)
       middleware(M.FormatPagination)

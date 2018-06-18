@@ -13,7 +13,9 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # #######################
   def community(_root, %{id: id}, _info), do: Community |> ORM.find(id)
   def community(_root, %{title: title}, _info), do: Community |> ORM.find_by(title: title)
-  def community(_root, _args, _info), do: {:error, "please provide community id or title"}
+  def community(_root, %{raw: raw}, _info), do: Community |> ORM.find_by(raw: raw)
+
+  def community(_root, _args, _info), do: {:error, "please provide community id or title or raw"}
   def paged_communities(_root, ~m(filter)a, _info), do: Community |> ORM.find_all(filter)
 
   def create_community(_root, args, %{context: %{cur_user: user}}) do
