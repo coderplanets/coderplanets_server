@@ -42,6 +42,8 @@ defmodule MastaniServer.CMS.Job do
       Tag,
       join_through: "jobs_tags",
       join_keys: [job_id: :id, tag_id: :id],
+      # :delete_all will only remove data from the join source
+      on_delete: :delete_all,
       on_replace: :delete
     )
 

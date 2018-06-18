@@ -159,6 +159,8 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
       pagedJobs(filter: $filter) {
         entries {
           id
+          body
+          company
           views
           inserted_at
         }
