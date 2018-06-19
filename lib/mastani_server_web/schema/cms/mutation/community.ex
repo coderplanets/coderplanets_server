@@ -70,7 +70,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
     @desc "create independent thread"
     field :create_thread, :thread do
       arg(:title, non_null(:string))
-      arg(:raw, non_null(:string))
+      arg(:raw, non_null(:cms_thread))
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->thread.create")

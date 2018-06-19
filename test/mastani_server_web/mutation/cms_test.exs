@@ -412,8 +412,8 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
     }
     """
     test "auth user can create thread", ~m(user)a do
-      title = "psot"
-      raw = title
+      title = "post"
+      raw = "POST"
       variables = ~m(title raw)a
 
       passport_rules = %{"thread.create" => true}
@@ -426,7 +426,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
     test "unauth user create thread fails", ~m(user_conn guest_conn)a do
       title = "psot"
-      raw = title
+      raw = "POST"
       variables = ~m(title raw)a
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 

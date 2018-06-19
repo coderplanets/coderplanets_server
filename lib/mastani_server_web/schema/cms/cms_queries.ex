@@ -22,7 +22,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       middleware(M.FormatPagination)
     end
 
-    # TODO: remove
+    # TODO: remove, use paged_xxx version
     field :communities, :paged_communities do
       arg(:filter, non_null(:paged_filter))
 
@@ -57,6 +57,15 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.paged_categories/3)
+      middleware(M.FormatPagination)
+    end
+
+    @desc "get all the threads across all communities"
+    field :paged_threads, :paged_threads do
+      arg(:filter, :paged_filter)
+
+      middleware(M.PageSizeProof)
+      resolve(&Resolvers.CMS.paged_threads/3)
       middleware(M.FormatPagination)
     end
 

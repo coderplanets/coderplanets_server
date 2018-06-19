@@ -5,7 +5,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   import Ecto.Query, warn: false
 
   alias MastaniServer.{CMS, Accounts}
-  alias MastaniServer.CMS.{Post, Job, Community, Category, Tag}
+  alias MastaniServer.CMS.{Post, Job, Community, Category, Tag, Thread}
   alias Helper.ORM
 
   # #######################
@@ -82,9 +82,9 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # #######################
   # thread ..
   # #######################
-  def create_thread(_root, ~m(title raw)a, _info) do
-    CMS.create_thread(~m(title raw)a)
-  end
+  def paged_threads(_root, ~m(filter)a, _info), do: Thread |> ORM.find_all(filter)
+
+  def create_thread(_root, ~m(title raw)a, _info), do: CMS.create_thread(~m(title raw)a)
 
   def add_thread_to_community(_root, ~m(community_id thread_id)a, _info) do
     CMS.add_thread_to_community(~m(community_id thread_id)a)

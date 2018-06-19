@@ -17,6 +17,33 @@ defmodule MastaniServer.Test.Query.CMSTest do
     {:ok, ~m(guest_conn community user)a}
   end
 
+  describe "[cms threads]" do
+    @query """
+    query($filter: PagedFilter!) {
+      pagedThreads(filter: $filter) {
+        entries {
+          id
+          title
+          raw
+        }
+        totalCount
+        totalPages
+        pageSize
+        pageNumber
+      }
+    }
+    """
+    @tag :wip
+    test "can get whole threads", ~m(guest_conn)a do
+      {:ok, _threads} = db_insert_multi(:thread, 5)
+
+      variables = %{filter: %{page: 1, size: 20}}
+      results = guest_conn |> query_result(@query, variables, "pagedThreads")
+      assert results |> is_valid_pagination?
+      assert results["totalCount"] == 5
+    end
+  end
+
   describe "[cms query categories]" do
     @query """
     query($filter: PagedFilter!) {

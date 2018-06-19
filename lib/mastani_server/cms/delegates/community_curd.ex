@@ -125,5 +125,10 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   @doc """
   TODO: create_thread
   """
-  def create_thread(attrs), do: Thread |> ORM.create(attrs)
+  def create_thread(attrs) do
+    raw = to_string(attrs.raw)
+    title = attrs.title
+
+    Thread |> ORM.create(~m(title raw)a)
+  end
 end

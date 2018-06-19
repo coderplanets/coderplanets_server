@@ -398,4 +398,12 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:total_pages, :integer)
     field(:page_number, :integer)
   end
+
+  object :paged_threads do
+    field(:entries, list_of(:thread))
+    field(:total_count, :integer)
+    field(:page_size, :integer)
+    field(:total_pages, :integer)
+    field(:page_number, :integer)
+  end
 end
