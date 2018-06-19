@@ -103,7 +103,6 @@ defmodule MastaniServer.Test.Query.AccountTest do
       variables = %{}
       results = user_conn |> query_result(@query, variables, "allPassportRulesString")
 
-      # IO.inspect results, label: "results"
       assert results |> Map.has_key?("cms")
       cms_rules = results["cms"]
       assert cms_rules |> Map.has_key?("general")

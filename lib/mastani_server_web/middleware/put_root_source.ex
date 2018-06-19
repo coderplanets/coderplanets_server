@@ -20,11 +20,5 @@ defmodule MastaniServerWeb.Middleware.PutRootSource do
 
   def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
 
-  def call(resolution, _) do
-    # IO.inspect Map.keys(resolution), label: "resolution.arguments"
-    # IO.inspect resolution.source.id, label: "resolution.source"
-    # IO.inspect "-------"
-
-    resolution
-  end
+  def call(resolution, _), do: resolution
 end

@@ -41,6 +41,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
   @doc """
   add_thread_to_community
   """
+  # TODO: rename to set_community
   def add_thread_to_community(attrs) do
     with {:ok, community_thread} <- CommunityThread |> ORM.create(attrs) do
       Community |> ORM.find(community_thread.community_id)

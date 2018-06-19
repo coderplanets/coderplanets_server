@@ -201,20 +201,20 @@ defmodule MastaniServer.Test.CMSTest do
   describe "[cms community thread]" do
     test "can create thread" do
       title = "post"
-      raw = title
+      raw = "POST"
       {:ok, thread} = CMS.create_thread(~m(title raw)a)
       assert thread.title == title
     end
 
     test "create thread with exsit title fails" do
-      title = "post"
+      title = "POST"
       raw = title
       {:ok, _} = CMS.create_thread(~m(title raw)a)
       assert {:error, _error} = CMS.create_thread(~m(title raw)a)
     end
 
     test "can add a thread to community", ~m(community)a do
-      title = "post"
+      title = "POST"
       raw = title
       {:ok, thread} = CMS.create_thread(~m(title raw)a)
       thread_id = thread.id
