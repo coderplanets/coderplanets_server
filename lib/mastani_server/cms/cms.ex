@@ -21,7 +21,6 @@ defmodule MastaniServer.CMS do
   # Community CURD: editors, thread, tag
   # >> editor ..
   defdelegate update_editor(user_id, community_id, title), to: CommunityCURD
-  defdelegate delete_editor(user_id, community_id), to: CommunityCURD
   # >> subscribers / editors
   defdelegate community_members(type, community_id, filters), to: CommunityCURD
   # >> category
@@ -40,7 +39,8 @@ defmodule MastaniServer.CMS do
   defdelegate set_category(community_id, category_id), to: CommunityOperation
   defdelegate unset_category(community_id, category_id), to: CommunityOperation
   # >> editor
-  defdelegate add_editor_to_community(user_id, community_id, title), to: CommunityOperation
+  defdelegate set_editor(user, community, title), to: CommunityOperation
+  defdelegate unset_editor(user_id, community_id), to: CommunityOperation
   # >> thread
   defdelegate set_thread(community, thread), to: CommunityOperation
   # >> subscribe / unsubscribe

@@ -49,13 +49,6 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     end
   end
 
-  def delete_editor(%Accounts.User{id: user_id}, %Community{id: community_id}) do
-    with {:ok, _} <- ORM.findby_delete(CommunityEditor, ~m(user_id community_id)a),
-         {:ok, _} <- PassportCURD.delete_passport(%Accounts.User{id: user_id}) do
-      Accounts.User |> ORM.find(user_id)
-    end
-  end
-
   @doc """
   create a Tag base on type: post / tuts / videos ...
   """

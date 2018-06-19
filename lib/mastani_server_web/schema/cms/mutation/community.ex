@@ -79,28 +79,28 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
     end
 
     @desc "add a editor for a community"
-    field :add_cms_editor, :user do
+    field :set_editor, :user do
       arg(:community_id, non_null(:id))
       arg(:user_id, non_null(:id))
       arg(:title, non_null(:string))
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->editor.add")
+      middleware(M.Passport, claim: "cms->editor.set")
 
-      resolve(&Resolvers.CMS.add_editor/3)
+      resolve(&Resolvers.CMS.set_editor/3)
     end
 
-    @desc "delete a editor from a community, the user's passport also deleted"
-    field :delete_cms_editor, :user do
+    @desc "unset a editor from a community, the user's passport also deleted"
+    field :unset_editor, :user do
       arg(:community_id, non_null(:id))
       arg(:user_id, non_null(:id))
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->editor.delete")
+      middleware(M.Passport, claim: "cms->editor.unset")
 
-      resolve(&Resolvers.CMS.delete_editor/3)
+      resolve(&Resolvers.CMS.unset_editor/3)
     end
 
     # TODO: remove, should remove both editor and cms->passport

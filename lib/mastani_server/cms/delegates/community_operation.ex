@@ -51,7 +51,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
   @doc """
   set a community editor
   """
-  def add_editor_to_community(%Accounts.User{id: user_id}, %Community{id: community_id}, title) do
+  def set_editor(%Accounts.User{id: user_id}, %Community{id: community_id}, title) do
     Multi.new()
     |> Multi.insert(
       :insert_editor,
@@ -62,17 +62,27 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
       PassportCURD.stamp_passport(%Accounts.User{id: user_id}, rules)
     end)
     |> Repo.transaction()
-    |> add_editor_result()
+    |> set_editor_result()
   end
 
-  defp add_editor_result({:ok, %{insert_editor: editor}}) do
+  @doc """
+  unset a community editor
+  """
+  def unset_editor(%Accounts.User{id: user_id}, %Community{id: community_id}) do
+    with {:ok, _} <- ORM.findby_delete(CommunityEditor, ~m(user_id community_id)a),
+         {:ok, _} <- PassportCURD.delete_passport(%Accounts.User{id: user_id}) do
+      Accounts.User |> ORM.find(user_id)
+    end
+  end
+
+  defp set_editor_result({:ok, %{insert_editor: editor}}) do
     Accounts.User |> ORM.find(editor.user_id)
   end
 
-  defp add_editor_result({:error, :stamp_passport, _result, _steps}),
+  defp set_editor_result({:error, :stamp_passport, _result, _steps}),
     do: {:error, "stamp passport error"}
 
-  defp add_editor_result({:error, :insert_editor, _result, _steps}),
+  defp set_editor_result({:error, :insert_editor, _result, _steps}),
     do: {:error, "insert editor error"}
 
   @doc """

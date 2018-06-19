@@ -36,9 +36,9 @@ defmodule Helper.Certification do
       general: [
         "stamp_passport",
         # community
-        "editor.add",
+        "editor.set",
+        "editor.unset",
         "editor.update",
-        "editor.delete",
         "community.create",
         "community.update",
         "community.delete",

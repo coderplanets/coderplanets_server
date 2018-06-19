@@ -93,16 +93,16 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # #######################
   # editors ..
   # #######################
-  def add_editor(_root, ~m(community_id user_id title)a, _) do
-    CMS.add_editor_to_community(
+  def set_editor(_root, ~m(community_id user_id title)a, _) do
+    CMS.set_editor(
       %Accounts.User{id: user_id},
       %Community{id: community_id},
       title
     )
   end
 
-  def delete_editor(_root, ~m(community_id user_id)a, _) do
-    CMS.delete_editor(%Accounts.User{id: user_id}, %Community{id: community_id})
+  def unset_editor(_root, ~m(community_id user_id)a, _) do
+    CMS.unset_editor(%Accounts.User{id: user_id}, %Community{id: community_id})
   end
 
   def update_editor(_root, ~m(community_id user_id title)a, _) do

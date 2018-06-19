@@ -232,7 +232,7 @@ defmodule MastaniServer.Test.CMSTest do
       title = "chief editor"
 
       {:ok, _} =
-        CMS.add_editor_to_community(
+        CMS.set_editor(
           %Accounts.User{id: user.id},
           %CMS.Community{id: community.id},
           title
@@ -254,7 +254,7 @@ defmodule MastaniServer.Test.CMSTest do
 
       Enum.each(
         users,
-        &CMS.add_editor_to_community(
+        &CMS.set_editor(
           %Accounts.User{id: &1.id},
           %CMS.Community{id: community.id},
           title

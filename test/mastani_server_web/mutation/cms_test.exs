@@ -462,37 +462,37 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
   end
 
   describe "[mutation cms editors]" do
-    @add_editor_query """
+    @set_editor_query """
     mutation($communityId: ID!, $userId: ID!, $title: String!){
-      addCmsEditor(communityId: $communityId, userId: $userId, title: $title) {
+      setEditor(communityId: $communityId, userId: $userId, title: $title) {
         id
       }
     }
     """
-    test "auth user can add editor to community", ~m(user community)a do
+    test "auth user can set editor to community", ~m(user community)a do
       title = "chief editor"
       variables = %{userId: user.id, communityId: community.id, title: title}
 
-      passport_rules = %{"editor.add" => true}
+      passport_rules = %{"editor.set" => true}
       rule_conn = simu_conn(:user, user, cms: passport_rules)
 
-      result = rule_conn |> mutation_result(@add_editor_query, variables, "addCmsEditor")
+      result = rule_conn |> mutation_result(@set_editor_query, variables, "setEditor")
 
       assert result["id"] == to_string(user.id)
     end
 
-    @delete_editor_query """
+    @unset_editor_query """
     mutation($communityId: ID!, $userId: ID!){
-      deleteCmsEditor(communityId: $communityId, userId: $userId) {
+      unsetEditor(communityId: $communityId, userId: $userId) {
         id
       }
     }
     """
-    test "auth user can delete editor AND passport from community", ~m(user community)a do
+    test "auth user can unset editor AND passport from community", ~m(user community)a do
       title = "chief editor"
 
       {:ok, _} =
-        CMS.add_editor_to_community(
+        CMS.set_editor(
           %Accounts.User{id: user.id},
           %CMS.Community{id: community.id},
           title
@@ -505,10 +505,10 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
       variables = %{userId: user.id, communityId: community.id}
 
-      passport_rules = %{"editor.delete" => true}
+      passport_rules = %{"editor.unset" => true}
       rule_conn = simu_conn(:user, user, cms: passport_rules)
 
-      rule_conn |> mutation_result(@delete_editor_query, variables, "deleteCmsEditor")
+      rule_conn |> mutation_result(@unset_editor_query, variables, "unsetEditor")
 
       assert {:error, _} =
                CMS.CommunityEditor |> ORM.find_by(user_id: user.id, community_id: community.id)
@@ -527,7 +527,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       title = "chief editor"
 
       {:ok, _} =
-        CMS.add_editor_to_community(
+        CMS.set_editor(
           %Accounts.User{id: user.id},
           %CMS.Community{id: community.id},
           title
@@ -551,9 +551,9 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       variables = %{userId: user.id, communityId: community.id, title: title}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
-      assert user_conn |> mutation_get_error?(@add_editor_query, variables)
-      assert guest_conn |> mutation_get_error?(@add_editor_query, variables)
-      assert rule_conn |> mutation_get_error?(@add_editor_query, variables)
+      assert user_conn |> mutation_get_error?(@set_editor_query, variables)
+      assert guest_conn |> mutation_get_error?(@set_editor_query, variables)
+      assert rule_conn |> mutation_get_error?(@set_editor_query, variables)
     end
   end
 
