@@ -33,7 +33,6 @@ defmodule MastaniServer.Test.Query.CMSTest do
       }
     }
     """
-    @tag :wip
     test "can get whole threads", ~m(guest_conn)a do
       {:ok, _threads} = db_insert_multi(:thread, 5)
 

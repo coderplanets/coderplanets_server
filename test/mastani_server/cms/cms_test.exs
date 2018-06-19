@@ -219,7 +219,10 @@ defmodule MastaniServer.Test.CMSTest do
       {:ok, thread} = CMS.create_thread(~m(title raw)a)
       thread_id = thread.id
       community_id = community.id
-      {:ok, ret_community} = CMS.add_thread_to_community(~m(thread_id community_id)a)
+
+      {:ok, ret_community} =
+        CMS.set_thread(%CMS.Community{id: community_id}, %CMS.Thread{id: thread_id})
+
       assert ret_community.id == community.id
     end
   end

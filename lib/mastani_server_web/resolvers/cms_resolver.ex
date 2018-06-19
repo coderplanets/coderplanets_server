@@ -86,8 +86,8 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def create_thread(_root, ~m(title raw)a, _info), do: CMS.create_thread(~m(title raw)a)
 
-  def add_thread_to_community(_root, ~m(community_id thread_id)a, _info) do
-    CMS.add_thread_to_community(~m(community_id thread_id)a)
+  def set_thread(_root, ~m(community_id thread_id)a, _info) do
+    CMS.set_thread(%Community{id: community_id}, %Thread{id: thread_id})
   end
 
   # #######################

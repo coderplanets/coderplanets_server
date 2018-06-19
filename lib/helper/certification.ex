@@ -53,6 +53,9 @@ defmodule Helper.Certification do
         "job.community.unset"
       ],
       community: [
+        # thread
+        "thread.set",
+        "thread.unset",
         "post.edit",
         "post.trash",
         "post.delete",

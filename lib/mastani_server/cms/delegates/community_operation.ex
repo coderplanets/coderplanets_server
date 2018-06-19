@@ -13,6 +13,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
     CommunityEditor,
     Community,
     Category,
+    Thread,
     CommunityCategory,
     CommunitySubscriber
     # CommunityEditor
@@ -39,11 +40,10 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
   end
 
   @doc """
-  add_thread_to_community
+  set to community to a community
   """
-  # TODO: rename to set_community
-  def add_thread_to_community(attrs) do
-    with {:ok, community_thread} <- CommunityThread |> ORM.create(attrs) do
+  def set_thread(%Community{id: community_id}, %Thread{id: thread_id}) do
+    with {:ok, community_thread} <- CommunityThread |> ORM.create(~m(community_id thread_id)a) do
       Community |> ORM.find(community_thread.community_id)
     end
   end

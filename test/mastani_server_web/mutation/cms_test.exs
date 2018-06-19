@@ -437,7 +437,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
     @query """
     mutation($communityId: ID!, $threadId: ID!){
-      addThreadToCommunity(communityId: $communityId, threadId: $threadId) {
+      setThread(communityId: $communityId, threadId: $threadId) {
         id
         threads {
           title
@@ -451,10 +451,10 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       {:ok, thread} = CMS.create_thread(~m(title raw)a)
       variables = %{threadId: thread.id, communityId: community.id}
 
-      passport_rules = %{community.title => %{"thread.add" => true}}
+      passport_rules = %{community.title => %{"thread.set" => true}}
       rule_conn = simu_conn(:user, user, cms: passport_rules)
 
-      result = rule_conn |> mutation_result(@query, variables, "addThreadToCommunity")
+      result = rule_conn |> mutation_result(@query, variables, "setThread")
 
       assert result["threads"] |> List.first() |> Map.get("title") == title
       assert result["id"] == to_string(community.id)

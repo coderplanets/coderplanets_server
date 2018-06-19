@@ -42,7 +42,7 @@ defmodule MastaniServer.CMS do
   # >> editor
   defdelegate add_editor_to_community(user_id, community_id, title), to: CommunityOperation
   # >> thread
-  defdelegate add_thread_to_community(attrs), to: CommunityOperation
+  defdelegate set_thread(community, thread), to: CommunityOperation
   # >> subscribe / unsubscribe
   defdelegate subscribe_community(user_id, community_id), to: CommunityOperation
   defdelegate unsubscribe_community(user_id, community_id), to: CommunityOperation

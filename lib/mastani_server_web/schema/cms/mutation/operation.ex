@@ -28,28 +28,19 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
       resolve(&Resolvers.CMS.unset_category/3)
     end
 
-    @desc "link a exist thread to a exist community"
-    field :add_thread_to_community, :community do
+    @desc "bind a thread to a exist community"
+    field :set_thread, :community do
       arg(:community_id, non_null(:id))
       arg(:thread_id, non_null(:id))
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->thread.add")
+      middleware(M.Passport, claim: "cms->c?->thread.set")
 
-      resolve(&Resolvers.CMS.add_thread_to_community/3)
+      resolve(&Resolvers.CMS.set_thread/3)
     end
 
-    # field :delete_thread_from_community, :community do
-    # arg(:community_id, non_null(:id))
-    # arg(:thread_id, non_null(:id))
-
-    # middleware(M.Authorize, :login)
-    # middleware(M.PassportLoader, source: :community)
-    # middleware(M.Passport, claim: "cms->c?->thread.delete")
-
-    # resolve(&Resolvers.CMS.add_thread_to_community/3)
-    # end
+    # TODO: unset_thread
 
     @desc "stamp rules on user's passport"
     field :stamp_cms_passport, :idlike do
