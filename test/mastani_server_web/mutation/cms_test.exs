@@ -13,13 +13,14 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
   setup do
     {:ok, category} = db_insert(:category)
     {:ok, community} = db_insert(:community)
+    {:ok, thread} = db_insert(:thread)
     {:ok, tag} = db_insert(:tag, %{community: community})
     {:ok, user} = db_insert(:user)
 
     user_conn = simu_conn(:user)
     guest_conn = simu_conn(:guest)
 
-    {:ok, ~m(user_conn guest_conn community category user tag)a}
+    {:ok, ~m(user_conn guest_conn community thread category user tag)a}
   end
 
   describe "mutation cms category" do
@@ -458,6 +459,30 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
       assert result["threads"] |> List.first() |> Map.get("title") == title
       assert result["id"] == to_string(community.id)
+    end
+
+    @query """
+    mutation($communityId: ID!, $threadId: ID!){
+      unsetThread(communityId: $communityId, threadId: $threadId) {
+        id
+        threads {
+          title
+        }
+      }
+    }
+    """
+    test "auth user can remove thread from community", ~m(user community thread)a do
+      CMS.set_thread(%CMS.Community{id: community.id}, %CMS.Thread{id: thread.id})
+      {:ok, found_community} = CMS.Community |> ORM.find(community.id, preload: :threads)
+
+      assert found_community.threads |> Enum.any?(&(&1.thread_id == thread.id))
+      variables = %{threadId: thread.id, communityId: community.id}
+
+      passport_rules = %{community.title => %{"thread.unset" => true}}
+      rule_conn = simu_conn(:user, user, cms: passport_rules)
+
+      result = rule_conn |> mutation_result(@query, variables, "unsetThread")
+      assert Enum.empty?(result["threads"])
     end
   end
 

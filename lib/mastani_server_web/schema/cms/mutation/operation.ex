@@ -40,7 +40,17 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
       resolve(&Resolvers.CMS.set_thread/3)
     end
 
-    # TODO: unset_thread
+    @desc "remove a thread from a exist community, thread content is not delete"
+    field :unset_thread, :community do
+      arg(:community_id, non_null(:id))
+      arg(:thread_id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.PassportLoader, source: :community)
+      middleware(M.Passport, claim: "cms->c?->thread.unset")
+
+      resolve(&Resolvers.CMS.unset_thread/3)
+    end
 
     @desc "stamp rules on user's passport"
     field :stamp_cms_passport, :idlike do

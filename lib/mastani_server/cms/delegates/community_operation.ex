@@ -40,10 +40,20 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
   end
 
   @doc """
-  set to community to a community
+  set to thread to a community
   """
   def set_thread(%Community{id: community_id}, %Thread{id: thread_id}) do
     with {:ok, community_thread} <- CommunityThread |> ORM.create(~m(community_id thread_id)a) do
+      Community |> ORM.find(community_thread.community_id)
+    end
+  end
+
+  @doc """
+  unset to thread to a community
+  """
+  def unset_thread(%Community{id: community_id}, %Thread{id: thread_id}) do
+    with {:ok, community_thread} <-
+           CommunityThread |> ORM.findby_delete(~m(community_id thread_id)a) do
       Community |> ORM.find(community_thread.community_id)
     end
   end

@@ -43,6 +43,7 @@ defmodule MastaniServer.CMS do
   defdelegate unset_editor(user_id, community_id), to: CommunityOperation
   # >> thread
   defdelegate set_thread(community, thread), to: CommunityOperation
+  defdelegate unset_thread(community, thread), to: CommunityOperation
   # >> subscribe / unsubscribe
   defdelegate subscribe_community(user_id, community_id), to: CommunityOperation
   defdelegate unsubscribe_community(user_id, community_id), to: CommunityOperation

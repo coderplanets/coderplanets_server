@@ -90,6 +90,10 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.set_thread(%Community{id: community_id}, %Thread{id: thread_id})
   end
 
+  def unset_thread(_root, ~m(community_id thread_id)a, _info) do
+    CMS.unset_thread(%Community{id: community_id}, %Thread{id: thread_id})
+  end
+
   # #######################
   # editors ..
   # #######################
