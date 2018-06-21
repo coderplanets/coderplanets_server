@@ -38,7 +38,7 @@ defmodule MastaniServer.CMS.Community do
       join_through: "communities_categories",
       join_keys: [community_id: :id, category_id: :id],
       # :delete_all will only remove data from the join source
-      on_delete: :delete_all,
+      on_delete: :delete_all
       # on_replace: :delete
     )
 
