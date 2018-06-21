@@ -88,7 +88,10 @@ defmodule MastaniServer.Test.CMSTest do
       valid_attrs = mock_attrs(:category, %{user_id: user.id})
 
       {:ok, category} =
-        CMS.create_category(%CMS.Category{title: valid_attrs.title}, %Accounts.User{id: user.id})
+        CMS.create_category(
+          %CMS.Category{title: valid_attrs.title, raw: valid_attrs.raw},
+          %Accounts.User{id: user.id}
+        )
 
       assert category.title == valid_attrs.title
       # assert category.author_id == user.id
@@ -98,7 +101,10 @@ defmodule MastaniServer.Test.CMSTest do
       valid_attrs = mock_attrs(:category, %{user_id: user.id})
 
       {:ok, _} =
-        CMS.create_category(%CMS.Category{title: valid_attrs.title}, %Accounts.User{id: user.id})
+        CMS.create_category(
+          %CMS.Category{title: valid_attrs.title, raw: valid_attrs.raw},
+          %Accounts.User{id: user.id}
+        )
 
       assert {:error, _} =
                CMS.create_category(%CMS.Category{title: valid_attrs.title}, %Accounts.User{
@@ -110,7 +116,10 @@ defmodule MastaniServer.Test.CMSTest do
       valid_attrs = mock_attrs(:category, %{user_id: user.id})
 
       {:ok, category} =
-        CMS.create_category(%CMS.Category{title: valid_attrs.title}, %Accounts.User{id: user.id})
+        CMS.create_category(
+          %CMS.Category{title: valid_attrs.title, raw: valid_attrs.raw},
+          %Accounts.User{id: user.id}
+        )
 
       assert category.title == valid_attrs.title
       {:ok, updated} = CMS.update_category(%CMS.Category{id: category.id, title: "new title"})
@@ -122,10 +131,16 @@ defmodule MastaniServer.Test.CMSTest do
       valid_attrs = mock_attrs(:category, %{user_id: user.id})
 
       {:ok, category} =
-        CMS.create_category(%CMS.Category{title: valid_attrs.title}, %Accounts.User{id: user.id})
+        CMS.create_category(
+          %CMS.Category{title: valid_attrs.title, raw: valid_attrs.raw},
+          %Accounts.User{id: user.id}
+        )
 
       {:ok, category2} =
-        CMS.create_category(%CMS.Category{title: "category2 title"}, %Accounts.User{id: user.id})
+        CMS.create_category(
+          %CMS.Category{title: "category2 title", raw: "category2 title"},
+          %Accounts.User{id: user.id}
+        )
 
       {:error, _} = CMS.update_category(%CMS.Category{id: category.id, title: category2.title})
     end

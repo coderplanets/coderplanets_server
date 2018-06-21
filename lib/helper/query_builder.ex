@@ -146,15 +146,23 @@ defmodule Helper.QueryBuilder do
         |> where([p], p.inserted_at >= ^Timex.beginning_of_year(date))
         |> where([p], p.inserted_at <= ^Timex.end_of_year(date))
 
-      # TODO :all
+      # TODO: remove
       {_, :all}, queryable ->
         queryable
 
+      # TODO: use raw instead title
       {:tag, tag_name}, queryable ->
         from(
           q in queryable,
           join: t in assoc(q, :tags),
           where: t.title == ^tag_name
+        )
+
+      {:category, catetory_raw}, queryable ->
+        from(
+          q in queryable,
+          join: t in assoc(q, :categories),
+          where: t.raw == ^catetory_raw
         )
 
       {:community, community_raw}, queryable ->

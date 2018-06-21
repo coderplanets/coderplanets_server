@@ -334,6 +334,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   object :category do
     field(:id, :id)
     field(:title, :string)
+    field(:raw, :string)
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
     field(:inserted_at, :datetime)

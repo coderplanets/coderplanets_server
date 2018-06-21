@@ -43,6 +43,7 @@ defmodule Helper.Certification do
         "community.update",
         "community.delete",
         "category.create",
+        "category.delete",
         "category.update",
         "category.set",
         "category.unset",

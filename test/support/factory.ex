@@ -83,6 +83,7 @@ defmodule MastaniServer.Factory do
 
     %{
       title: "category#{unique_num}",
+      raw: "category#{unique_num}",
       author: mock(:author)
     }
   end

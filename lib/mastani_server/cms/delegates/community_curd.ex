@@ -103,9 +103,9 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     |> done()
   end
 
-  def create_category(%Category{title: title}, %Accounts.User{id: user_id}) do
+  def create_category(%Category{title: title, raw: raw}, %Accounts.User{id: user_id}) do
     with {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}) do
-      Category |> ORM.create(%{title: title, author_id: author.id})
+      Category |> ORM.create(%{title: title, raw: raw, author_id: author.id})
     end
   end
 

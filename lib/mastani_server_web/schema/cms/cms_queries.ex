@@ -14,17 +14,9 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       resolve(&Resolvers.CMS.community/3)
     end
 
+    @desc "communities with pagination info"
     field :paged_communities, :paged_communities do
-      arg(:filter, non_null(:paged_filter))
-
-      middleware(M.PageSizeProof)
-      resolve(&Resolvers.CMS.paged_communities/3)
-      middleware(M.FormatPagination)
-    end
-
-    # TODO: remove, use paged_xxx version
-    field :communities, :paged_communities do
-      arg(:filter, non_null(:paged_filter))
+      arg(:filter, non_null(:communities_filter))
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.paged_communities/3)

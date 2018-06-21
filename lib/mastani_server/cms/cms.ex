@@ -24,7 +24,7 @@ defmodule MastaniServer.CMS do
   # >> subscribers / editors
   defdelegate community_members(type, community_id, filters), to: CommunityCURD
   # >> category
-  defdelegate create_category(category_title, user_id), to: CommunityCURD
+  defdelegate create_category(category_attrs, user_id), to: CommunityCURD
   defdelegate update_category(category_attrs), to: CommunityCURD
   # >> thread
   defdelegate create_thread(attrs), to: CommunityCURD

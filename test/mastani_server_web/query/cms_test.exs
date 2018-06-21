@@ -17,6 +17,79 @@ defmodule MastaniServer.Test.Query.CMSTest do
     {:ok, ~m(guest_conn community user)a}
   end
 
+  describe "[cms communities]" do
+    @query """
+    query($filter: CommunitiesFilter!) {
+      pagedCommunities(filter: $filter) {
+        entries {
+          id
+          title
+          categories {
+            id
+            title
+            raw
+          }
+        }
+        totalCount
+        totalPages
+        pageSize
+        pageNumber
+      }
+    }
+    """
+    test "guest user can get paged communities", ~m(guest_conn)a do
+      {:ok, _communities} = db_insert_multi(:community, 5)
+
+      variables = %{filter: %{page: 1, size: 20}}
+      results = guest_conn |> query_result(@query, variables, "pagedCommunities")
+
+      assert results |> is_valid_pagination?
+      # 1 is for setup community
+      assert results["totalCount"] == 5 + 1
+    end
+
+    test "guest user can get paged communities based on ", ~m(guest_conn)a do
+      {:ok, category1} = db_insert(:category)
+      {:ok, category2} = db_insert(:category)
+
+      {:ok, communities} = db_insert_multi(:community, 10)
+
+      community1 = communities |> Enum.at(0)
+      community2 = communities |> Enum.at(1)
+      communityn = communities |> List.last()
+      # [community1, community2, _] = communities
+
+      CMS.set_category(%CMS.Community{id: community1.id}, %CMS.Category{id: category1.id})
+      CMS.set_category(%CMS.Community{id: community2.id}, %CMS.Category{id: category2.id})
+      CMS.set_category(%CMS.Community{id: communityn.id}, %CMS.Category{id: category2.id})
+
+      variables = %{filter: %{page: 1, size: 20, category: category1.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedCommunities")
+
+      assert results["entries"]
+             |> List.first()
+             |> Map.get("categories")
+             |> Enum.any?(&(&1["id"] == to_string(category1.id)))
+
+      assert results["totalCount"] == 1
+
+      variables = %{filter: %{page: 1, size: 20, category: category2.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedCommunities")
+
+      assert results["totalCount"] == 2
+
+      assert results["entries"]
+             |> List.first()
+             |> Map.get("categories")
+             |> Enum.any?(&(&1["id"] == to_string(category2.id)))
+
+      variables = %{filter: %{page: 1, size: 20}}
+      results = guest_conn |> query_result(@query, variables, "pagedCommunities")
+
+      assert results["totalCount"] == 10 + 1
+    end
+  end
+
   describe "[cms threads]" do
     @query """
     query($filter: PagedFilter!) {
@@ -72,7 +145,10 @@ defmodule MastaniServer.Test.Query.CMSTest do
       valid_attrs = mock_attrs(:category)
 
       {:ok, _} =
-        CMS.create_category(%CMS.Category{title: valid_attrs.title}, %Accounts.User{id: user.id})
+        CMS.create_category(
+          %CMS.Category{title: valid_attrs.title, raw: valid_attrs.raw},
+          %Accounts.User{id: user.id}
+        )
 
       results = guest_conn |> query_result(@query, variables, "pagedCategories")
       author = results["entries"] |> List.first() |> Map.get("author")
@@ -86,7 +162,10 @@ defmodule MastaniServer.Test.Query.CMSTest do
       valid_attrs = mock_attrs(:category)
 
       {:ok, category} =
-        CMS.create_category(%CMS.Category{title: valid_attrs.title}, %Accounts.User{id: user.id})
+        CMS.create_category(
+          %CMS.Category{title: valid_attrs.title, raw: valid_attrs.raw},
+          %Accounts.User{id: user.id}
+        )
 
       {:ok, _} =
         CMS.set_category(%CMS.Community{id: community.id}, %CMS.Category{id: category.id})

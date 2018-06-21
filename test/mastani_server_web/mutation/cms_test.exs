@@ -25,8 +25,8 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
   describe "mutation cms category" do
     @create_category_query """
-    mutation($title: String!) {
-      createCategory(title: $title) {
+    mutation($title: String!, $raw: String!) {
+      createCategory(title: $title, raw: $raw) {
         id
         title
         author {
@@ -44,6 +44,23 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       created = rule_conn |> mutation_result(@create_category_query, variables, "createCategory")
       # author = created["author"]
       assert created["title"] == variables.title
+    end
+
+    @delete_category_query """
+    mutation($id: ID!) {
+      deleteCategory(id: $id) {
+        id
+      }
+    }
+    """
+    test "auth user can delete category", ~m(user)a do
+      {:ok, category} = db_insert(:category)
+      rule_conn = simu_conn(:user, cms: %{"category.delete" => true})
+
+      variables = %{id: category.id}
+      deleted = rule_conn |> mutation_result(@delete_category_query, variables, "deleteCategory")
+
+      assert deleted["id"] == to_string(category.id)
     end
 
     @update_category_query """

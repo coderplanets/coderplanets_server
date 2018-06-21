@@ -49,11 +49,22 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
     @desc "create category"
     field :create_category, :category do
       arg(:title, non_null(:string))
+      arg(:raw, non_null(:string))
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->category.create")
 
       resolve(&Resolvers.CMS.create_category/3)
+    end
+
+    @desc "delete category"
+    field :delete_category, :category do
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->category.delete")
+
+      resolve(&Resolvers.CMS.delete_category/3)
     end
 
     @desc "update category"
