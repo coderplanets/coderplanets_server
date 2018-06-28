@@ -1,5 +1,6 @@
 defmodule MastaniServer.CMS.Delegate.CommunityOperation do
   import ShortMaps
+  import Helper.ErrorCode
   # import MastaniServer.CMS.Utils.Matcher
 
   alias MastaniServer.CMS.Delegate.PassportCURD
@@ -102,6 +103,10 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
     with {:ok, record} <- CommunitySubscriber |> ORM.create(~m(user_id community_id)a) do
       Community |> ORM.find(record.community_id)
     end
+  end
+
+  def code2err({:error, error}, code) do
+    {:error, message: error, code: ecode(code)}
   end
 
   def unsubscribe_community(%Accounts.User{id: user_id}, %Community{id: community_id}) do

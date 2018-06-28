@@ -1,10 +1,5 @@
 defmodule MastaniServer.Test.Mutation.CMSTest do
-  use MastaniServerWeb.ConnCase, async: true
-
-  import MastaniServer.Factory
-  import MastaniServer.Test.ConnSimulator
-  import MastaniServer.Test.AssertHelper
-  import ShortMaps
+  use MastaniServer.TestTools
 
   alias MastaniServer.Statistics
   alias MastaniServer.{Accounts, CMS}
@@ -83,18 +78,24 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       variables = mock_attrs(:category, %{user_id: user.id})
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
-      assert user_conn |> mutation_get_error?(@create_category_query, variables)
-      assert guest_conn |> mutation_get_error?(@create_category_query, variables)
-      assert rule_conn |> mutation_get_error?(@create_category_query, variables)
+      assert user_conn |> mutation_get_error?(@create_category_query, variables, ecode(:passport))
+
+      assert guest_conn
+             |> mutation_get_error?(@create_category_query, variables, ecode(:account_login))
+
+      assert rule_conn |> mutation_get_error?(@create_category_query, variables, ecode(:passport))
     end
 
     test "unauth user update category fails", ~m(category user_conn guest_conn)a do
       variables = %{id: category.id, title: "new title"}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
-      assert user_conn |> mutation_get_error?(@update_category_query, variables)
-      assert guest_conn |> mutation_get_error?(@update_category_query, variables)
-      assert rule_conn |> mutation_get_error?(@update_category_query, variables)
+      assert user_conn |> mutation_get_error?(@update_category_query, variables, ecode(:passport))
+
+      assert guest_conn
+             |> mutation_get_error?(@update_category_query, variables, ecode(:account_login))
+
+      assert rule_conn |> mutation_get_error?(@update_category_query, variables, ecode(:passport))
     end
 
     @set_category_query """
@@ -166,13 +167,19 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
       variables = %{communityId: community.id, categoryId: category.id}
 
-      assert user_conn |> mutation_get_error?(@set_category_query, variables)
-      assert guest_conn |> mutation_get_error?(@set_category_query, variables)
-      assert rule_conn |> mutation_get_error?(@set_category_query, variables)
+      assert user_conn |> mutation_get_error?(@set_category_query, variables, ecode(:passport))
 
-      assert user_conn |> mutation_get_error?(@unset_category_query, variables)
-      assert guest_conn |> mutation_get_error?(@unset_category_query, variables)
-      assert rule_conn |> mutation_get_error?(@unset_category_query, variables)
+      assert guest_conn
+             |> mutation_get_error?(@set_category_query, variables, ecode(:account_login))
+
+      assert rule_conn |> mutation_get_error?(@set_category_query, variables, ecode(:passport))
+
+      assert user_conn |> mutation_get_error?(@unset_category_query, variables, ecode(:passport))
+
+      assert guest_conn
+             |> mutation_get_error?(@unset_category_query, variables, ecode(:account_login))
+
+      assert rule_conn |> mutation_get_error?(@unset_category_query, variables, ecode(:passport))
     end
   end
 
@@ -216,7 +223,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
       assert nil !== rule_conn |> mutation_result(@create_tag_query, variables, "createTag")
 
-      assert rule_conn |> mutation_get_error?(@create_tag_query, variables)
+      assert rule_conn |> mutation_get_error?(@create_tag_query, variables, ecode(:changeset))
     end
 
     # TODO: server return 400 wrong status code
@@ -238,9 +245,12 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       variables = mock_attrs(:tag, %{communityId: community.id})
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
-      assert user_conn |> mutation_get_error?(@create_tag_query, variables)
-      assert guest_conn |> mutation_get_error?(@create_tag_query, variables)
-      assert rule_conn |> mutation_get_error?(@create_tag_query, variables)
+      assert user_conn |> mutation_get_error?(@create_tag_query, variables, ecode(:passport))
+
+      assert guest_conn
+             |> mutation_get_error?(@create_tag_query, variables, ecode(:account_login))
+
+      assert rule_conn |> mutation_get_error?(@create_tag_query, variables, ecode(:passport))
     end
 
     @update_tag_query """
@@ -284,9 +294,12 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       variables = %{id: tag.id, communityId: tag.community_id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
-      assert user_conn |> mutation_get_error?(@delete_tag_query, variables)
-      assert guest_conn |> mutation_get_error?(@delete_tag_query, variables)
-      assert rule_conn |> mutation_get_error?(@delete_tag_query, variables)
+      assert user_conn |> mutation_get_error?(@delete_tag_query, variables, ecode(:passport))
+
+      assert guest_conn
+             |> mutation_get_error?(@delete_tag_query, variables, ecode(:account_login))
+
+      assert rule_conn |> mutation_get_error?(@delete_tag_query, variables, ecode(:passport))
     end
   end
 
@@ -351,9 +364,14 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       variables = mock_attrs(:community)
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
-      assert user_conn |> mutation_get_error?(@create_community_query, variables)
-      assert guest_conn |> mutation_get_error?(@create_community_query, variables)
-      assert rule_conn |> mutation_get_error?(@create_community_query, variables)
+      assert user_conn
+             |> mutation_get_error?(@create_community_query, variables, ecode(:passport))
+
+      assert guest_conn
+             |> mutation_get_error?(@create_community_query, variables, ecode(:account_login))
+
+      assert rule_conn
+             |> mutation_get_error?(@create_community_query, variables, ecode(:passport))
     end
 
     test "creator of community should be add to userContributes and communityContributes" do
@@ -383,9 +401,12 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       assert created_community["id"] == to_string(found_community.id)
     end
 
-    test "create duplicated community fails", %{community: community, user_conn: conn} do
+    test "create duplicated community fails", %{community: community} do
       variables = mock_attrs(:community, %{title: community.title, desc: community.desc})
-      assert conn |> mutation_get_error?(@create_community_query, variables)
+      rule_conn = simu_conn(:user, cms: %{"community.create" => true})
+
+      assert rule_conn
+             |> mutation_get_error?(@create_community_query, variables, ecode(:changeset))
     end
 
     @delete_community_query """
@@ -410,9 +431,14 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       variables = mock_attrs(:community)
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
-      assert user_conn |> mutation_get_error?(@create_community_query, variables)
-      assert guest_conn |> mutation_get_error?(@create_community_query, variables)
-      assert rule_conn |> mutation_get_error?(@create_community_query, variables)
+      assert user_conn
+             |> mutation_get_error?(@create_community_query, variables, ecode(:passport))
+
+      assert guest_conn
+             |> mutation_get_error?(@create_community_query, variables, ecode(:account_login))
+
+      assert rule_conn
+             |> mutation_get_error?(@create_community_query, variables, ecode(:passport))
     end
 
     test "delete non-exist community fails" do
@@ -448,9 +474,9 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       variables = ~m(title raw)a
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
-      assert user_conn |> mutation_get_error?(@query, variables)
-      assert guest_conn |> mutation_get_error?(@query, variables)
-      assert rule_conn |> mutation_get_error?(@query, variables)
+      assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
+      assert rule_conn |> mutation_get_error?(@query, variables, ecode(:passport))
     end
 
     @query """
@@ -593,9 +619,12 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       variables = %{userId: user.id, communityId: community.id, title: title}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
-      assert user_conn |> mutation_get_error?(@set_editor_query, variables)
-      assert guest_conn |> mutation_get_error?(@set_editor_query, variables)
-      assert rule_conn |> mutation_get_error?(@set_editor_query, variables)
+      assert user_conn |> mutation_get_error?(@set_editor_query, variables, ecode(:passport))
+
+      assert guest_conn
+             |> mutation_get_error?(@set_editor_query, variables, ecode(:account_login))
+
+      assert rule_conn |> mutation_get_error?(@set_editor_query, variables, ecode(:passport))
     end
   end
 
@@ -624,13 +653,13 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       login_conn = simu_conn(:user, user)
       variables = %{communityId: non_exsit_id()}
 
-      assert login_conn |> mutation_get_error?(@subscribe_query, variables)
+      assert login_conn |> mutation_get_error?(@subscribe_query, variables, ecode(:changeset))
     end
 
     test "guest user subscribe community fails", ~m(guest_conn community)a do
       variables = %{communityId: community.id}
 
-      assert guest_conn |> mutation_get_error?(@subscribe_query, variables)
+      assert guest_conn |> mutation_get_error?(@subscribe_query, variables, ecode(:account_login))
     end
 
     @unsubscribe_query """
@@ -680,7 +709,8 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
     test "guest user unsubscribe community fails", ~m(guest_conn community)a do
       variables = %{communityId: community.id}
 
-      assert guest_conn |> mutation_get_error?(@unsubscribe_query, variables)
+      assert guest_conn
+             |> mutation_get_error?(@unsubscribe_query, variables, ecode(:account_login))
     end
   end
 

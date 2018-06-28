@@ -36,7 +36,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Job do
       resolve(&Resolvers.CMS.delete_content/3)
     end
 
-    @desc "update a cms/post"
+    @desc "update a cms/job"
     field :update_job, :job do
       arg(:id, non_null(:id))
       arg(:title, :string)
@@ -44,7 +44,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Job do
       arg(:digest, :string)
       # ...
 
-      middlewared(M.Authorize, :login)
+      middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :job)
       middleware(M.Passport, claim: "owner;cms->c?->job.edit")
 

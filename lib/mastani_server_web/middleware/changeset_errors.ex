@@ -4,14 +4,16 @@
 # ---
 defmodule MastaniServerWeb.Middleware.ChangesetErrors do
   @behaviour Absinthe.Middleware
-  import Helper.Utils, only: [handle_absinthe_error: 2]
+  import Helper.Utils, only: [handle_absinthe_error: 3]
+  import Helper.ErrorCode
+
   alias MastaniServerWeb.Gettext, as: Translator
 
   def call(%{errors: [%Ecto.Changeset{} = changeset]} = resolution, _) do
     # IO.inspect changeset, label: "Changeset error"
     # IO.inspect transform_errors(changeset), label: "transform_errors"
     resolution
-    |> handle_absinthe_error(transform_errors(changeset))
+    |> handle_absinthe_error(transform_errors(changeset), ecode(:changeset))
   end
 
   def call(resolution, _), do: resolution

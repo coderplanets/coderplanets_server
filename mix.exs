@@ -45,7 +45,9 @@ defmodule MastaniServer.Mixfile do
       {:absinthe, "~> 1.4.12"},
       {:absinthe_ecto, "~> 0.1.3"},
       # Plug support for Absinthe
-      {:absinthe_plug, "~> 1.4.4"},
+      # {:absinthe_plug, "~> 1.4.4"},
+      # treat parse error as status "200"
+      {:absinthe_plug, git: "https://github.com/mastani-stack/absinthe_plug", override: true},
       # Password hashing lib
       {:comeonin, "~> 4.0.3"},
       # Argon2 password hashing algorithm

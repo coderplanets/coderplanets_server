@@ -1,13 +1,7 @@
 defmodule MastaniServer.Test.Query.PagedPostsTest do
-  # use MastaniServerWeb.ConnCase, async: true
-  use MastaniServerWeb.ConnCase, async: true
+  use MastaniServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
-  import MastaniServer.Factory
-  import MastaniServer.Test.AssertHelper
-  import MastaniServer.Test.ConnSimulator
-  import Ecto.Query, warn: false
-  import ShortMaps
 
   alias MastaniServer.CMS
   alias MastaniServer.Repo
@@ -66,15 +60,15 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
 
     test "request large size fails", ~m(guest_conn)a do
       variables = %{filter: %{page: 1, size: 200}}
-      assert guest_conn |> query_get_error?(@query, variables)
+      assert guest_conn |> query_get_error?(@query, variables, ecode(:pagination))
     end
 
     test "request 0 or neg-size fails", ~m(guest_conn)a do
       variables_0 = %{filter: %{page: 1, size: 0}}
       variables_neg_1 = %{filter: %{page: 1, size: -1}}
 
-      assert guest_conn |> query_get_error?(@query, variables_0)
-      assert guest_conn |> query_get_error?(@query, variables_neg_1)
+      assert guest_conn |> query_get_error?(@query, variables_0, ecode(:pagination))
+      assert guest_conn |> query_get_error?(@query, variables_neg_1, ecode(:pagination))
     end
 
     test "pagination should have default page and size arg", ~m(guest_conn)a do

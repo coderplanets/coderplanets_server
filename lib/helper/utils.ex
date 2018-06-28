@@ -1,6 +1,7 @@
 defmodule Helper.Utils do
   import Ecto.Query, warn: false
   import Helper.ErrorHandler
+  import Helper.ErrorCode
 
   def get_config(section, key, app \\ :mastani_server) do
     Application.get_env(app, section) |> Keyword.get(key)
@@ -19,15 +20,25 @@ defmodule Helper.Utils do
   def done(nil), do: {:error, "record not found."}
   def done(result), do: {:ok, result}
 
+  @doc """
+  see: https://hexdocs.pm/absinthe/errors.html#content for error format
+  """
+  def handle_absinthe_error(resolution, err_msg, code) when is_integer(code) do
+    resolution
+    |> Absinthe.Resolution.put_result({:error, message: err_msg, code: code})
+  end
+
   def handle_absinthe_error(resolution, err_msg) when is_list(err_msg) do
     # %{resolution | value: [], errors: transform_errors(changeset)}
     resolution
-    |> Absinthe.Resolution.put_result({:error, err_msg})
+    # |> Absinthe.Resolution.put_result({:error, err_msg})
+    |> Absinthe.Resolution.put_result({:error, message: err_msg, code: ecode()})
   end
 
   def handle_absinthe_error(resolution, err_msg) when is_binary(err_msg) do
     resolution
-    |> Absinthe.Resolution.put_result({:error, err_msg})
+    # |> Absinthe.Resolution.put_result({:error, err_msg})
+    |> Absinthe.Resolution.put_result({:error, message: err_msg, code: ecode()})
   end
 
   def map_key_stringify(%{__struct__: _} = map) when is_map(map) do

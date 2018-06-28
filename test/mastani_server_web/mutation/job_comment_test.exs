@@ -1,10 +1,5 @@
 defmodule MastaniServer.Test.Mutation.JobCommentTest do
-  use MastaniServerWeb.ConnCase, async: true
-
-  import MastaniServer.Factory
-  import MastaniServer.Test.ConnSimulator
-  import MastaniServer.Test.AssertHelper
-  import ShortMaps
+  use MastaniServer.TestTools
 
   alias MastaniServer.{CMS, Accounts}
   alias Helper.ORM
@@ -45,7 +40,8 @@ defmodule MastaniServer.Test.Mutation.JobCommentTest do
     test "guest user create comment fails", ~m(guest_conn job)a do
       variables = %{thread: "JOB", id: job.id, body: "this a comment"}
 
-      assert guest_conn |> mutation_get_error?(@create_comment_query, variables)
+      assert guest_conn
+             |> mutation_get_error?(@create_comment_query, variables, ecode(:account_login))
     end
 
     @delete_comment_query """
@@ -82,9 +78,12 @@ defmodule MastaniServer.Test.Mutation.JobCommentTest do
       variables = %{id: created["id"]}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
-      assert user_conn |> mutation_get_error?(@delete_comment_query, variables)
-      assert guest_conn |> mutation_get_error?(@delete_comment_query, variables)
-      assert rule_conn |> mutation_get_error?(@delete_comment_query, variables)
+      assert user_conn |> mutation_get_error?(@delete_comment_query, variables, ecode(:passport))
+
+      assert guest_conn
+             |> mutation_get_error?(@delete_comment_query, variables, ecode(:account_login))
+
+      assert rule_conn |> mutation_get_error?(@delete_comment_query, variables, ecode(:passport))
     end
 
     @reply_comment_query """
@@ -109,7 +108,8 @@ defmodule MastaniServer.Test.Mutation.JobCommentTest do
     test "guest user reply comment fails", ~m(guest_conn comment)a do
       variables = %{thread: "JOB", id: comment.id, body: "this a reply"}
 
-      assert guest_conn |> mutation_get_error?(@reply_comment_query, variables)
+      assert guest_conn
+             |> mutation_get_error?(@reply_comment_query, variables, ecode(:account_login))
     end
 
     test "TODO owner can NOT delete comment when comment has replies" do

@@ -1,10 +1,5 @@
 defmodule MastaniServer.Test.Mutation.PostCommentTest do
-  use MastaniServerWeb.ConnCase, async: true
-
-  import MastaniServer.Factory
-  import MastaniServer.Test.ConnSimulator
-  import MastaniServer.Test.AssertHelper
-  import ShortMaps
+  use MastaniServer.TestTools
 
   alias MastaniServer.{CMS, Accounts}
   alias Helper.ORM
@@ -46,7 +41,8 @@ defmodule MastaniServer.Test.Mutation.PostCommentTest do
     test "guest user create comment fails", ~m(guest_conn post)a do
       variables = %{thread: "POST", id: post.id, body: "this a comment"}
 
-      assert guest_conn |> mutation_get_error?(@create_comment_query, variables)
+      assert guest_conn
+             |> mutation_get_error?(@create_comment_query, variables, ecode(:account_login))
     end
 
     @delete_comment_query """
@@ -79,9 +75,12 @@ defmodule MastaniServer.Test.Mutation.PostCommentTest do
       variables = %{id: created["id"]}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
-      assert user_conn |> mutation_get_error?(@delete_comment_query, variables)
-      assert guest_conn |> mutation_get_error?(@delete_comment_query, variables)
-      assert rule_conn |> mutation_get_error?(@delete_comment_query, variables)
+      assert user_conn |> mutation_get_error?(@delete_comment_query, variables, ecode(:passport))
+
+      assert guest_conn
+             |> mutation_get_error?(@delete_comment_query, variables, ecode(:account_login))
+
+      assert rule_conn |> mutation_get_error?(@delete_comment_query, variables, ecode(:passport))
     end
 
     @reply_comment_query """

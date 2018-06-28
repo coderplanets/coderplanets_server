@@ -39,9 +39,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Post do
       arg(:body, :string)
       arg(:digest, :string)
 
-      middlewared(M.Authorize, :login)
+      middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :post)
-      # TODO: remove article
       middleware(M.Passport, claim: "owner;cms->c?->post.edit")
 
       resolve(&Resolvers.CMS.update_content/3)

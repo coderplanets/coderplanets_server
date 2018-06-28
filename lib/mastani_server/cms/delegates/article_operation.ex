@@ -1,6 +1,7 @@
 defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   import MastaniServer.CMS.Utils.Matcher
   import Ecto.Query, warn: false
+  import Helper.ErrorCode
 
   alias MastaniServer.CMS.{Tag, Community}
   alias MastaniServer.Repo
@@ -46,7 +47,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
           |> Repo.update()
 
         _ ->
-          {:error, "Tag,Community,Thread not match"}
+          {:error, message: "Tag,Community,Thread not match", code: ecode(:custom)}
       end
     end
   end

@@ -1,10 +1,5 @@
 defmodule MastaniServer.Test.Query.PostTest do
-  # use MastaniServer.DataCase
-  use MastaniServerWeb.ConnCase, async: true
-  import MastaniServer.Factory
-  import MastaniServer.Test.ConnSimulator
-  import MastaniServer.Test.AssertHelper
-  import ShortMaps
+  use MastaniServer.TestTools
 
   setup do
     {:ok, post} = db_insert(:post)
@@ -99,7 +94,7 @@ defmodule MastaniServer.Test.Query.PostTest do
   test "unlogged user can not query viewerHasFavorited field", ~m(guest_conn post)a do
     variables = %{id: post.id}
 
-    assert guest_conn |> query_get_error?(@query, variables)
+    assert guest_conn |> query_get_error?(@query, variables, ecode(:account_login))
   end
 
   @query """
@@ -122,6 +117,6 @@ defmodule MastaniServer.Test.Query.PostTest do
 
   test "unlogged user can not query viewerHasStarred field", ~m(guest_conn post)a do
     variables = %{id: post.id}
-    assert guest_conn |> query_get_error?(@query, variables)
+    assert guest_conn |> query_get_error?(@query, variables, ecode(:account_login))
   end
 end

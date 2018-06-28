@@ -1,10 +1,5 @@
 defmodule MastaniServer.Test.Mutation.AccountTest do
-  use MastaniServerWeb.ConnCase, async: true
-
-  import MastaniServer.Factory
-  import MastaniServer.Test.ConnSimulator
-  import MastaniServer.Test.AssertHelper
-  import ShortMaps
+  use MastaniServer.TestTools
 
   # alias MastaniServer.{Accounts}
   # alias Helper.ORM
@@ -48,7 +43,7 @@ defmodule MastaniServer.Test.Mutation.AccountTest do
         }
       }
 
-      assert guest_conn |> mutation_get_error?(@update_query, variables)
+      assert guest_conn |> mutation_get_error?(@update_query, variables, ecode(:account_login))
     end
   end
 end

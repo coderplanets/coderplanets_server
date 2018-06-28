@@ -2,6 +2,8 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
   @behaviour Absinthe.Middleware
   import MastaniServer.CMS.Utils.Matcher
   import Helper.Utils
+  import Helper.ErrorCode
+
   import ShortMaps
 
   alias MastaniServer.CMS
@@ -20,7 +22,7 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
 
       {:error, err_msg} ->
         resolution
-        |> handle_absinthe_error(err_msg)
+        |> handle_absinthe_error(err_msg, ecode(:passport))
     end
   end
 
@@ -38,7 +40,7 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
     else
       {:error, err_msg} ->
         resolution
-        |> handle_absinthe_error(err_msg)
+        |> handle_absinthe_error(err_msg, ecode(:passport))
     end
   end
 

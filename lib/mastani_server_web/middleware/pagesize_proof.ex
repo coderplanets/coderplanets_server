@@ -5,7 +5,8 @@
 defmodule MastaniServerWeb.Middleware.PageSizeProof do
   @behaviour Absinthe.Middleware
 
-  import Helper.Utils, only: [handle_absinthe_error: 2, get_config: 2]
+  import Helper.Utils, only: [handle_absinthe_error: 3, get_config: 2]
+  import Helper.ErrorCode
 
   @max_page_size get_config(:general, :page_size)
   @inner_page_size get_config(:general, :inner_page_size)
@@ -21,7 +22,7 @@ defmodule MastaniServerWeb.Middleware.PageSizeProof do
 
     case valid_size(resolution.arguments) do
       {:error, msg} ->
-        resolution |> handle_absinthe_error(msg)
+        resolution |> handle_absinthe_error(msg, ecode(:pagination))
 
       arguments ->
         %{resolution | arguments: sort_desc_by_default(arguments)}

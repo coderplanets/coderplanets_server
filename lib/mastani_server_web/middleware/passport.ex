@@ -14,6 +14,7 @@ defmodule MastaniServerWeb.Middleware.Passport do
   @behaviour Absinthe.Middleware
 
   import Helper.Utils
+  import Helper.ErrorCode
 
   def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
 
@@ -91,7 +92,8 @@ defmodule MastaniServerWeb.Middleware.Passport do
   end
 
   def call(resolution, _) do
-    resolution |> handle_absinthe_error("PassportError: your passport not qualified.")
+    resolution
+    |> handle_absinthe_error("PassportError: your passport not qualified.", ecode(:passport))
   end
 
   defp check_passport_stamp(resolution, claim) do
@@ -118,7 +120,8 @@ defmodule MastaniServerWeb.Middleware.Passport do
         resolution |> c_check(claim)
 
       true ->
-        resolution |> handle_absinthe_error("PassportError: Passport not qualified.")
+        resolution
+        |> handle_absinthe_error("PassportError: Passport not qualified.", ecode(:passport))
     end
   end
 
@@ -127,8 +130,12 @@ defmodule MastaniServerWeb.Middleware.Passport do
     path = claim |> String.split("->")
 
     case get_in(cur_passport, path) do
-      true -> resolution
-      nil -> resolution |> handle_absinthe_error("PassportError: Passport not qualified.")
+      true ->
+        resolution
+
+      nil ->
+        resolution
+        |> handle_absinthe_error("PassportError: Passport not qualified.", ecode(:passport))
     end
   end
 
@@ -142,8 +149,12 @@ defmodule MastaniServerWeb.Middleware.Passport do
       |> String.split("->")
 
     case get_in(cur_passport, path) do
-      true -> resolution
-      nil -> resolution |> handle_absinthe_error("PassportError: Passport not qualified.")
+      true ->
+        resolution
+
+      nil ->
+        resolution
+        |> handle_absinthe_error("PassportError: Passport not qualified.", ecode(:passport))
     end
   end
 
@@ -160,8 +171,12 @@ defmodule MastaniServerWeb.Middleware.Passport do
       |> String.split("->")
 
     case get_in(cur_passport, path) do
-      true -> resolution
-      nil -> resolution |> handle_absinthe_error("PassportError: Passport not qualified.")
+      true ->
+        resolution
+
+      nil ->
+        resolution
+        |> handle_absinthe_error("PassportError: Passport not qualified.", ecode(:passport))
     end
   end
 
@@ -178,8 +193,12 @@ defmodule MastaniServerWeb.Middleware.Passport do
       |> length
 
     case result > 0 do
-      true -> resolution
-      false -> resolution |> handle_absinthe_error("PassportError: Passport not qualified.")
+      true ->
+        resolution
+
+      false ->
+        resolution
+        |> handle_absinthe_error("PassportError: Passport not qualified.", ecode(:passport))
     end
   end
 end

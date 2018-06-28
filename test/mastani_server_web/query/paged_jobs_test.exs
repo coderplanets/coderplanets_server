@@ -3,6 +3,7 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
   use MastaniServerWeb.ConnCase, async: true
 
   import Helper.Utils, only: [get_config: 2]
+  import Helper.ErrorCode
   import MastaniServer.Factory
   import MastaniServer.Test.AssertHelper
   import MastaniServer.Test.ConnSimulator
@@ -66,7 +67,7 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
 
     test "request large size fails", ~m(guest_conn)a do
       variables = %{filter: %{page: 1, size: 200}}
-      assert guest_conn |> query_get_error?(@query, variables)
+      assert guest_conn |> query_get_error?(@query, variables, ecode(:pagination))
     end
 
     test "request 0 or neg-size fails", ~m(guest_conn)a do

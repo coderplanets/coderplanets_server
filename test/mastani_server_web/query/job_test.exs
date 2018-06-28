@@ -1,10 +1,5 @@
 defmodule MastaniServer.Test.Query.JobTest do
-  # use MastaniServer.DataCase
-  use MastaniServerWeb.ConnCase, async: true
-  import MastaniServer.Factory
-  import MastaniServer.Test.ConnSimulator
-  import MastaniServer.Test.AssertHelper
-  import ShortMaps
+  use MastaniServer.TestTools
 
   setup do
     {:ok, job} = db_insert(:job)

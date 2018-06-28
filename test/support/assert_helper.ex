@@ -7,6 +7,9 @@ defmodule MastaniServer.Test.AssertHelper do
   @page_size get_config(:general, :page_size)
   @inner_page_size get_config(:general, :inner_page_size)
 
+  @doc """
+  used for non exsit id
+  """
   def non_exsit_id(), do: 15_982_398_614
   def inner_page_size(), do: @inner_page_size
   def page_size, do: @page_size
@@ -54,6 +57,9 @@ defmodule MastaniServer.Test.AssertHelper do
     obj |> Map.get(key) |> is_boolean
   end
 
+  @doc """
+  simulate the Graphiql murate operation
+  """
   def mutation_result(conn, query, variables, key) do
     conn
     |> post("/graphiql", query: query, variables: variables)
@@ -62,40 +68,40 @@ defmodule MastaniServer.Test.AssertHelper do
     |> Map.get(key)
   end
 
-  def mutation_result(conn, query, variables, key, :debug) do
-    IO.inspect(query, label: "query")
-    IO.inspect(variables, label: "variables")
-
-    conn
-    |> post("/graphiql", query: query, variables: variables)
-    |> json_response(200)
-    |> IO.inspect(label: "mutation_result")
-    |> Map.get("data")
-    |> Map.get(key)
-  end
-
+  @doc """
+  check if Graphiql murate get error
+  """
   def mutation_get_error?(conn, query, variables) do
     conn
     |> post("/graphiql", query: query, variables: variables)
     |> json_response(200)
+    # |> IO.inspect(label: "debug")
     |> Map.has_key?("errors")
+  end
+
+  @doc """
+  Graphiql murate error with code equal check
+  """
+  def mutation_get_error?(conn, query, variables, code) when is_integer(code) do
+    resp =
+      conn
+      |> post("/graphiql", query: query, variables: variables)
+      |> json_response(200)
+
+    # |> IO.inspect(label: "debug")
+
+    case resp |> Map.has_key?("errors") do
+      true ->
+        code == resp["errors"] |> List.first() |> Map.get("code")
+
+      false ->
+        false
+    end
   end
 
   def query_result(conn, query, variables, key) do
     conn
     |> get("/graphiql", query: query, variables: variables)
-    |> json_response(200)
-    |> Map.get("data")
-    |> Map.get(key)
-  end
-
-  def query_result(conn, query, variables, key, :debug) do
-    IO.inspect(query, label: "query")
-    IO.inspect(variables, label: "variables")
-
-    conn
-    |> get("/graphiql", query: query, variables: variables)
-    |> IO.inspect(label: "query_result")
     |> json_response(200)
     |> Map.get("data")
     |> Map.get(key)
@@ -116,15 +122,22 @@ defmodule MastaniServer.Test.AssertHelper do
     |> Map.has_key?("errors")
   end
 
-  def query_get_error?(conn, query, variables, :debug) do
-    IO.inspect(query, label: "query_get_error? query")
-    IO.inspect(variables, label: "query_get_error? variables")
+  @doc """
+  check if Graphiql murate get error
+  """
+  def query_get_error?(conn, query, variables, code) when is_integer(code) do
+    resp =
+      conn
+      |> get("/graphiql", query: query, variables: variables)
+      |> json_response(200)
 
-    conn
-    |> get("/graphiql", query: query, variables: variables)
-    |> IO.inspect(label: "query_get_error?")
-    |> json_response(200)
-    |> Map.has_key?("errors")
+    case resp |> Map.has_key?("errors") do
+      true ->
+        code == resp["errors"] |> List.first() |> Map.get("code")
+
+      false ->
+        false
+    end
   end
 
   def firstn_and_last(values, 3) do

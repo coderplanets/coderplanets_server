@@ -1,12 +1,6 @@
 defmodule MastaniServer.Test.Mutation.PostTest do
-  use MastaniServerWeb.ConnCase, async: true
+  use MastaniServer.TestTools
 
-  import MastaniServer.Factory
-  import MastaniServer.Test.ConnSimulator
-  import MastaniServer.Test.AssertHelper
-  import ShortMaps
-
-  # alias MastaniServer.Accounts.User
   alias MastaniServer.CMS
   alias Helper.ORM
 
@@ -70,7 +64,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
     end
 
     test "delete a post without login user fails", ~m(guest_conn post)a do
-      assert guest_conn |> mutation_get_error?(@query, %{id: post.id})
+      assert guest_conn |> mutation_get_error?(@query, %{id: post.id}, ecode(:account_login))
     end
 
     test "login user with auth passport delete a post", ~m(post)a do
@@ -89,9 +83,9 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       variables = %{id: post.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
-      assert user_conn |> mutation_get_error?(@query, variables)
-      assert guest_conn |> mutation_get_error?(@query, variables)
-      assert rule_conn |> mutation_get_error?(@query, variables)
+      assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
+      assert rule_conn |> mutation_get_error?(@query, variables, ecode(:passport))
     end
 
     @query """
@@ -112,7 +106,7 @@ defmodule MastaniServer.Test.Mutation.PostTest do
         body: "updated body #{unique_num}"
       }
 
-      assert guest_conn |> mutation_get_error?(@query, variables)
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
     end
 
     test "post can be update by owner", ~m(owner_conn post)a do
@@ -161,9 +155,9 @@ defmodule MastaniServer.Test.Mutation.PostTest do
 
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
-      assert user_conn |> mutation_get_error?(@query, variables)
-      assert guest_conn |> mutation_get_error?(@query, variables)
-      assert rule_conn |> mutation_get_error?(@query, variables)
+      assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
+      assert rule_conn |> mutation_get_error?(@query, variables, ecode(:passport))
     end
   end
 
@@ -291,9 +285,12 @@ defmodule MastaniServer.Test.Mutation.PostTest do
       variables = %{id: post.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
-      assert user_conn |> mutation_get_error?(@set_community_query, variables)
-      assert guest_conn |> mutation_get_error?(@set_community_query, variables)
-      assert rule_conn |> mutation_get_error?(@set_community_query, variables)
+      assert user_conn |> mutation_get_error?(@set_community_query, variables, ecode(:passport))
+
+      assert guest_conn
+             |> mutation_get_error?(@set_community_query, variables, ecode(:account_login))
+
+      assert rule_conn |> mutation_get_error?(@set_community_query, variables, ecode(:passport))
     end
 
     test "auth user can set multi community to a post", ~m(post)a do

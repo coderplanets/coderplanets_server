@@ -1,12 +1,6 @@
 defmodule MastaniServer.Test.Mutation.JobTest do
-  use MastaniServerWeb.ConnCase, async: true
+  use MastaniServer.TestTools
 
-  import MastaniServer.Factory
-  import MastaniServer.Test.ConnSimulator
-  import MastaniServer.Test.AssertHelper
-  import ShortMaps
-
-  # alias MastaniServer.Accounts.User
   alias MastaniServer.CMS
   alias Helper.ORM
 
@@ -88,7 +82,7 @@ defmodule MastaniServer.Test.Mutation.JobTest do
         body: "updated body #{unique_num}"
       }
 
-      assert guest_conn |> mutation_get_error?(@query, variables)
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
     end
 
     test "job can be update by owner", ~m(owner_conn job)a do
@@ -111,7 +105,6 @@ defmodule MastaniServer.Test.Mutation.JobTest do
       passport_rules = %{job_communities_0 => %{"job.edit" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      # assert conn |> mutation_get_error?(@query, %{id: post.id})
       unique_num = System.unique_integer([:positive, :monotonic])
 
       variables = %{
@@ -136,9 +129,9 @@ defmodule MastaniServer.Test.Mutation.JobTest do
 
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
-      assert user_conn |> mutation_get_error?(@query, variables)
-      assert guest_conn |> mutation_get_error?(@query, variables)
-      assert rule_conn |> mutation_get_error?(@query, variables)
+      assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
+      assert rule_conn |> mutation_get_error?(@query, variables, ecode(:passport))
     end
 
     @query """
@@ -198,7 +191,7 @@ defmodule MastaniServer.Test.Mutation.JobTest do
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       variables = %{thread: "JOB", id: job.id, tagId: tag.id, communityId: community.id}
-      assert rule_conn |> mutation_get_error?(@set_tag_query, variables)
+      assert rule_conn |> mutation_get_error?(@set_tag_query, variables, ecode(:custom))
     end
 
     test "can set multi tag to a job", ~m(job)a do
