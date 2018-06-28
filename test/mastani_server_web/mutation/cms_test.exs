@@ -53,7 +53,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       }
     }
     """
-    test "auth user can delete category", ~m(user)a do
+    test "auth user can delete category" do
       {:ok, category} = db_insert(:category)
       rule_conn = simu_conn(:user, cms: %{"category.delete" => true})
 

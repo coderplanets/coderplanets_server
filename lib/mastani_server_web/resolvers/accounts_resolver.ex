@@ -19,10 +19,17 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.github_signin(github_user)
   end
 
+  # for user self's
+  def subscribed_communities(_root, %{filter: filter}, %{cur_user: cur_user}) do
+    Accounts.subscribed_communities(%Accounts.User{id: cur_user.id}, filter)
+  end
+
+  #
   def subscribed_communities(_root, %{user_id: "", filter: filter}, _info) do
     Accounts.default_subscribed_communities(filter)
   end
 
+  # for check other users subscribed_communities
   def subscribed_communities(_root, %{user_id: user_id, filter: filter}, _info) do
     Accounts.subscribed_communities(%Accounts.User{id: user_id}, filter)
   end
