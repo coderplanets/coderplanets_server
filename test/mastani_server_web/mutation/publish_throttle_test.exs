@@ -26,7 +26,6 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
     }
   }
   """
-  @tag :wip
   test "user first create content should success", ~m(community)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
