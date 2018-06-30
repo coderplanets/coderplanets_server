@@ -17,7 +17,7 @@ defmodule MastaniServer.Test.StatisticsTest do
     {:ok, ~m(user community)a}
   end
 
-  describe "[statistics user_contributes] " do
+  describe "[statistics user_contribute] " do
     test "list_contributes return empty list when theres no records", ~m(user)a do
       {:ok, contributes} = Statistics.list_contributes(%Accounts.User{id: user.id})
       assert contributes.records == []
@@ -38,7 +38,7 @@ defmodule MastaniServer.Test.StatisticsTest do
       six_month_ago = Timex.shift(Timex.today(), months: -6)
       six_more_month_ago = Timex.shift(six_month_ago, days: -10)
 
-      Repo.insert_all(Statistics.UserContributes, [
+      Repo.insert_all(Statistics.UserContribute, [
         %{
           user_id: user.id,
           date: six_month_ago,
@@ -60,10 +60,10 @@ defmodule MastaniServer.Test.StatisticsTest do
     end
 
     test "should inserted a contribute when the user not contribute before", ~m(user)a do
-      assert {:error, _} = ORM.find_by(Statistics.UserContributes, user_id: user.id)
+      assert {:error, _} = ORM.find_by(Statistics.UserContribute, user_id: user.id)
 
       Statistics.make_contribute(%Accounts.User{id: user.id})
-      assert {:ok, contribute} = ORM.find_by(Statistics.UserContributes, user_id: user.id)
+      assert {:ok, contribute} = ORM.find_by(Statistics.UserContribute, user_id: user.id)
 
       assert contribute.user_id == user.id
       assert contribute.count == 1
@@ -72,28 +72,28 @@ defmodule MastaniServer.Test.StatisticsTest do
 
     test "should update a contribute when the user has contribute before", ~m(user)a do
       Statistics.make_contribute(%Accounts.User{id: user.id})
-      assert {:ok, first} = ORM.find_by(Statistics.UserContributes, user_id: user.id)
+      assert {:ok, first} = ORM.find_by(Statistics.UserContribute, user_id: user.id)
 
       assert first.user_id == user.id
       assert first.count == 1
 
       Statistics.make_contribute(%Accounts.User{id: user.id})
-      assert {:ok, second} = ORM.find_by(Statistics.UserContributes, user_id: user.id)
+      assert {:ok, second} = ORM.find_by(Statistics.UserContribute, user_id: user.id)
 
       assert second.user_id == user.id
       assert second.count == 2
     end
   end
 
-  describe "[statistics community_contributes] " do
+  describe "[statistics community_contribute] " do
     test "should inserted a community contribute when create community", ~m(community)a do
       assert {:error, _} =
-               ORM.find_by(Statistics.CommunityContributes, community_id: community.id)
+               ORM.find_by(Statistics.CommunityContribute, community_id: community.id)
 
       Statistics.make_contribute(%CMS.Community{id: community.id})
 
       assert {:ok, contribute} =
-               ORM.find_by(Statistics.CommunityContributes, community_id: community.id)
+               ORM.find_by(Statistics.CommunityContribute, community_id: community.id)
 
       assert contribute.community_id == community.id
       assert contribute.count == 1
@@ -104,7 +104,7 @@ defmodule MastaniServer.Test.StatisticsTest do
       Statistics.make_contribute(%CMS.Community{id: community.id})
 
       assert {:ok, first} =
-               ORM.find_by(Statistics.CommunityContributes, community_id: community.id)
+               ORM.find_by(Statistics.CommunityContribute, community_id: community.id)
 
       assert first.community_id == community.id
       assert first.count == 1
@@ -112,7 +112,7 @@ defmodule MastaniServer.Test.StatisticsTest do
       Statistics.make_contribute(%CMS.Community{id: community.id})
 
       assert {:ok, second} =
-               ORM.find_by(Statistics.CommunityContributes, community_id: community.id)
+               ORM.find_by(Statistics.CommunityContribute, community_id: community.id)
 
       assert second.community_id == community.id
       assert second.count == 2
@@ -123,7 +123,7 @@ defmodule MastaniServer.Test.StatisticsTest do
       seven_days_ago = Timex.shift(Timex.today(), days: -@community_contribute_days)
       seven_more_days_ago = Timex.shift(seven_days_ago, days: -1)
 
-      Repo.insert_all(Statistics.CommunityContributes, [
+      Repo.insert_all(Statistics.CommunityContribute, [
         %{
           community_id: community.id,
           date: seven_days_ago,

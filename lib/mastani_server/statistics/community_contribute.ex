@@ -1,9 +1,9 @@
-defmodule MastaniServer.Statistics.CommunityContributes do
+defmodule MastaniServer.Statistics.CommunityContribute do
   use Ecto.Schema
   import Ecto.Changeset
 
   alias MastaniServer.CMS
-  alias MastaniServer.Statistics.CommunityContributes
+  alias MastaniServer.Statistics.CommunityContribute
 
   schema "community_contributes" do
     field(:count, :integer)
@@ -15,8 +15,8 @@ defmodule MastaniServer.Statistics.CommunityContributes do
   end
 
   @doc false
-  def changeset(%CommunityContributes{} = community_contributes, attrs) do
-    community_contributes
+  def changeset(%CommunityContribute{} = community_contribute, attrs) do
+    community_contribute
     |> cast(attrs, [:date, :count, :community_id])
     |> validate_required([:date, :count, :community_id])
     |> foreign_key_constraint(:community_id)

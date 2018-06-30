@@ -17,7 +17,7 @@ defmodule MastaniServer.Test.Query.StatisticsTest do
     {:ok, ~m(guest_conn user)a}
   end
 
-  describe "[statistics query user_contributes] " do
+  describe "[statistics query user_contribute] " do
     @query """
     query($id: ID!) {
       userContributes(id: $id) {

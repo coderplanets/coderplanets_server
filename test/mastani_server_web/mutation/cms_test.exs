@@ -385,10 +385,10 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
       {:ok, found_community} = CMS.Community |> ORM.find(created_community["id"])
 
-      {:ok, user_contribute} = ORM.find_by(Statistics.UserContributes, user_id: author["id"])
+      {:ok, user_contribute} = ORM.find_by(Statistics.UserContribute, user_id: author["id"])
 
       {:ok, community_contribute} =
-        ORM.find_by(Statistics.CommunityContributes, community_id: found_community.id)
+        ORM.find_by(Statistics.CommunityContribute, community_id: found_community.id)
 
       assert user_contribute.date == Timex.today()
       assert to_string(user_contribute.user_id) == author["id"]

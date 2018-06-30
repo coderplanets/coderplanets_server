@@ -16,7 +16,7 @@ defmodule MastaniServer.Test.Mutation.StatisticsTest do
     {:ok, ~m(guest_conn user)a}
   end
 
-  describe "[statistics mutaion user_contributes] " do
+  describe "[statistics mutaion user_contribute] " do
     @query """
     mutation($userId: ID!) {
       makeContrubute(userId: $userId) {
@@ -25,12 +25,12 @@ defmodule MastaniServer.Test.Mutation.StatisticsTest do
       }
     }
     """
-    test "for guest user makeContribute should add record to user_contributes table",
+    test "for guest user makeContribute should add record to user_contribute table",
          ~m(guest_conn user)a do
       variables = %{userId: user.id}
-      assert {:error, _} = ORM.find_by(Statistics.UserContributes, user_id: user.id)
+      assert {:error, _} = ORM.find_by(Statistics.UserContribute, user_id: user.id)
       results = guest_conn |> mutation_result(@query, variables, "makeContrubute")
-      assert {:ok, _} = ORM.find_by(Statistics.UserContributes, user_id: user.id)
+      assert {:ok, _} = ORM.find_by(Statistics.UserContribute, user_id: user.id)
 
       assert ["count", "date"] == results |> Map.keys()
       assert results["date"] == Timex.today() |> Date.to_iso8601()

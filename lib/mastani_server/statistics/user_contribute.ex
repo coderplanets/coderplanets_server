@@ -1,9 +1,9 @@
-defmodule MastaniServer.Statistics.UserContributes do
+defmodule MastaniServer.Statistics.UserContribute do
   use Ecto.Schema
   import Ecto.Changeset
 
   alias MastaniServer.Accounts
-  alias MastaniServer.Statistics.UserContributes
+  alias MastaniServer.Statistics.UserContribute
 
   schema "user_contributes" do
     field(:count, :integer)
@@ -14,8 +14,8 @@ defmodule MastaniServer.Statistics.UserContributes do
   end
 
   @doc false
-  def changeset(%UserContributes{} = user_contributes, attrs) do
-    user_contributes
+  def changeset(%UserContribute{} = user_contribute, attrs) do
+    user_contribute
     |> cast(attrs, [:date, :count, :user_id])
     |> validate_required([:date, :count, :user_id])
     |> foreign_key_constraint(:user_id)

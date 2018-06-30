@@ -9,7 +9,7 @@ defmodule MastaniServer.Statistics do
   alias MastaniServer.Repo
   alias MastaniServer.Accounts.User
   alias MastaniServer.CMS.Community
-  alias MastaniServer.Statistics.{UserContributes, CommunityContributes}
+  alias MastaniServer.Statistics.{UserContribute, CommunityContribute}
   alias Helper.{ORM, QueryBuilder}
 
   @community_contribute_days get_config(:general, :community_contribute_days)
@@ -18,12 +18,12 @@ defmodule MastaniServer.Statistics do
   def make_contribute(%Community{id: id}) do
     today = Timex.today() |> Date.to_iso8601()
 
-    with {:ok, contribute} <- ORM.find_by(CommunityContributes, community_id: id, date: today) do
+    with {:ok, contribute} <- ORM.find_by(CommunityContribute, community_id: id, date: today) do
       inc_contribute_count(contribute, :community) |> done
     else
       {:error, _} ->
-        %CommunityContributes{}
-        |> CommunityContributes.changeset(%{community_id: id, date: today, count: 1})
+        %CommunityContribute{}
+        |> CommunityContribute.changeset(%{community_id: id, date: today, count: 1})
         |> Repo.insert()
     end
   end
@@ -31,18 +31,18 @@ defmodule MastaniServer.Statistics do
   def make_contribute(%User{id: id}) do
     today = Timex.today() |> Date.to_iso8601()
 
-    with {:ok, contribute} <- ORM.find_by(UserContributes, user_id: id, date: today) do
+    with {:ok, contribute} <- ORM.find_by(UserContribute, user_id: id, date: today) do
       inc_contribute_count(contribute, :user) |> done
     else
       {:error, _} ->
-        %UserContributes{}
-        |> UserContributes.changeset(%{user_id: id, date: today, count: 1})
+        %UserContribute{}
+        |> UserContribute.changeset(%{user_id: id, date: today, count: 1})
         |> Repo.insert()
     end
   end
 
   @doc """
-  Returns the list of user_contributes by latest 6 months.
+  Returns the list of user_contribute by latest 6 months.
   """
   def list_contributes(%User{id: id}) do
     user_id = tobe_integer(id)
@@ -130,13 +130,13 @@ defmodule MastaniServer.Statistics do
   end
 
   defp inc_contribute_count(contribute, :community) do
-    CommunityContributes
+    CommunityContribute
     |> where([c], c.community_id == ^contribute.community_id and c.date == ^contribute.date)
     |> do_inc_count(contribute)
   end
 
   defp inc_contribute_count(contribute, :user) do
-    UserContributes
+    UserContribute
     |> where([c], c.user_id == ^contribute.user_id and c.date == ^contribute.date)
     |> do_inc_count(contribute)
   end
