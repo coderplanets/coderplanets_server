@@ -18,6 +18,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Post do
 
       middleware(M.Authorize, :login)
       middleware(M.PublishThrottle)
+      # middleware(M.PublishThrottle, interval: 3, hour_limit: 15, day_limit: 30)
       resolve(&Resolvers.CMS.create_content/3)
     end
 

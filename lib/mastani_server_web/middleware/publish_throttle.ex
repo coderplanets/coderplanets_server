@@ -4,17 +4,16 @@ defmodule MastaniServerWeb.Middleware.PublishThrottle do
   import Helper.ErrorCode
 
   alias MastaniServer.{Statistics, Accounts}
-  alias Helper.ORM
 
   @interval_minutes get_config(:general, :publish_throttle_interval_minutes)
-  @hour_total get_config(:general, :publish_throttle_hour_total)
-  @day_total get_config(:general, :publish_throttle_day_total)
+  @hour_limit get_config(:general, :publish_throttle_hour_limit)
+  @day_total get_config(:general, :publish_throttle_day_limit)
 
-  def call(%{context: %{cur_user: cur_user}} = resolution, _info) do
+  def call(%{context: %{cur_user: cur_user}} = resolution, opt) do
     with {:ok, record} <- Statistics.load_throttle_record(%Accounts.User{id: cur_user.id}),
-         {:ok, _} <- interval_check(record),
-         {:ok, _} <- hour_limit_check(record),
-         {:ok, _} <- day_limit_check(record) do
+         {:ok, _} <- interval_check(record, opt),
+         {:ok, _} <- hour_limit_check(record, opt),
+         {:ok, _} <- day_limit_check(record, opt) do
       resolution
     else
       {:error, :interval_check} ->
@@ -29,7 +28,8 @@ defmodule MastaniServerWeb.Middleware.PublishThrottle do
         resolution
         |> handle_absinthe_error("throttle_day", ecode(:throttle_day))
 
-      {:error, error} ->
+      {:error, _error} ->
+        # publish first time ignore
         resolution
     end
   end
@@ -39,9 +39,10 @@ defmodule MastaniServerWeb.Middleware.PublishThrottle do
     |> handle_absinthe_error("Authorize: need login", ecode(:account_login))
   end
 
-  # TODO: option: :no_limit :passport ..
-  defp interval_check(%Statistics.PublishThrottle{last_publish_time: last_publish_time}) do
-    latest_valid_time = Timex.shift(last_publish_time, minutes: @interval_minutes)
+  # TODO: option: passport ..
+  defp interval_check(%Statistics.PublishThrottle{last_publish_time: last_publish_time}, opt) do
+    interval_opt = Keyword.get(opt, :interval) || @interval_minutes
+    latest_valid_time = Timex.shift(last_publish_time, minutes: interval_opt)
 
     case Timex.before?(latest_valid_time, Timex.now()) do
       true -> {:ok, :interval_check}
@@ -49,15 +50,19 @@ defmodule MastaniServerWeb.Middleware.PublishThrottle do
     end
   end
 
-  defp hour_limit_check(%Statistics.PublishThrottle{hour_count: hour_count}) do
-    case hour_count < @hour_total do
+  defp hour_limit_check(%Statistics.PublishThrottle{hour_count: hour_count}, opt) do
+    hour_count_opt = Keyword.get(opt, :hour_limit) || @hour_limit
+
+    case hour_count < hour_count_opt do
       true -> {:ok, :hour_limit_check}
       false -> {:error, :hour_limit_check}
     end
   end
 
-  defp day_limit_check(%Statistics.PublishThrottle{date_count: day_count}) do
-    case day_count < @day_total do
+  defp day_limit_check(%Statistics.PublishThrottle{date_count: day_count}, opt) do
+    day_limit_opt = Keyword.get(opt, :day_limit) || @day_total
+
+    case day_count < day_limit_opt do
       true -> {:ok, :day_limit_check}
       false -> {:error, :day_limit_check}
     end

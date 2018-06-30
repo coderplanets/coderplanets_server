@@ -5,8 +5,8 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
   alias MastaniServer.{Statistics, Accounts}
 
   @throttle_interval get_config(:general, :publish_throttle_interval_minutes)
-  @hour_total get_config(:general, :publish_throttle_hour_total)
-  @day_total get_config(:general, :publish_throttle_day_total)
+  @hour_limit get_config(:general, :publish_throttle_hour_limit)
+  @day_total get_config(:general, :publish_throttle_day_limit)
   # alias Helper.ORM
 
   setup do
@@ -26,6 +26,7 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
     }
   }
   """
+  @tag :wip
   test "user first create content should success", ~m(community)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
@@ -96,7 +97,7 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
     Statistics.mock_throttle_attr(
       :hour_count,
       %Accounts.User{id: user.id},
-      count: @hour_total
+      count: @hour_limit
     )
 
     variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
@@ -122,7 +123,7 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
     Statistics.mock_throttle_attr(
       :hour_count,
       %Accounts.User{id: user.id},
-      count: @hour_total
+      count: @hour_limit
     )
 
     variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
