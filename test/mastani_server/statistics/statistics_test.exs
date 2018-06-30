@@ -87,8 +87,7 @@ defmodule MastaniServer.Test.StatisticsTest do
 
   describe "[statistics community_contribute] " do
     test "should inserted a community contribute when create community", ~m(community)a do
-      assert {:error, _} =
-               ORM.find_by(Statistics.CommunityContribute, community_id: community.id)
+      assert {:error, _} = ORM.find_by(Statistics.CommunityContribute, community_id: community.id)
 
       Statistics.make_contribute(%CMS.Community{id: community.id})
 
