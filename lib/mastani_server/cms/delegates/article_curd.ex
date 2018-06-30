@@ -4,7 +4,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   import Helper.Utils, only: [done: 1]
 
   alias MastaniServer.CMS.{Author, Community}
-  alias MastaniServer.{Repo, Accounts}
+  alias MastaniServer.{Repo, Accounts, Statistics}
   alias MastaniServer.CMS.Delegate.ArticleOperation
   alias Helper.{ORM, QueryBuilder}
 
@@ -32,6 +32,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
            # |> action.target.changeset(attrs |> Map.merge(%{author_id: author.id}))
            |> Ecto.Changeset.put_change(:author_id, author.id)
            |> Repo.insert() do
+      Statistics.log_publish_action(%Accounts.User{id: user_id})
       ArticleOperation.set_community(thread, content.id, %Community{id: community.id})
     end
   end

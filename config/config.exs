@@ -40,7 +40,10 @@ config :mastani_server, :general,
   # today is not include
   community_contribute_days: 7,
   user_contribute_months: 6,
-  default_subscribed_communities: 20
+  default_subscribed_communities: 20,
+  publish_throttle_interval_minutes: 3,
+  publish_throttle_hour_total: 20,
+  publish_throttle_day_total: 30
 
 config :mastani_server, MastaniServerWeb.Gettext, default_locale: "zh_CN", locales: ~w(en zh_CN)
 

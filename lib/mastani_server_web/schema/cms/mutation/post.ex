@@ -17,6 +17,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Post do
       arg(:thread, :cms_thread, default_value: :post)
 
       middleware(M.Authorize, :login)
+      middleware(M.PublishThrottle)
       resolve(&Resolvers.CMS.create_content/3)
     end
 

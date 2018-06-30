@@ -1,0 +1,205 @@
+defmodule MastaniServer.Test.Mutation.PublishThrottle do
+  use MastaniServer.TestTools
+
+  import Helper.Utils, only: [get_config: 2]
+  alias MastaniServer.{Statistics, Accounts}
+
+  @throttle_interval get_config(:general, :publish_throttle_interval_minutes)
+  @hour_total get_config(:general, :publish_throttle_hour_total)
+  @day_total get_config(:general, :publish_throttle_day_total)
+  # alias Helper.ORM
+
+  setup do
+    guest_conn = simu_conn(:guest)
+    user_conn = simu_conn(:user)
+    {:ok, community} = db_insert(:community)
+
+    {:ok, ~m(user_conn guest_conn community)a}
+  end
+
+  @create_post_query """
+  mutation($title: String!, $body: String!, $digest: String!, $length: Int!, $communityId: ID!){
+    createPost(title: $title, body: $body, digest: $digest, length: $length, communityId: $communityId) {
+      title
+      body
+      id
+    }
+  }
+  """
+  test "user first create content should success", ~m(community)a do
+    {:ok, user} = db_insert(:user)
+    user_conn = simu_conn(:user, user)
+
+    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
+    created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+    assert created |> Map.has_key?("id")
+  end
+
+  test "user create 2 content with valid inverval time", ~m(community)a do
+    {:ok, user} = db_insert(:user)
+    user_conn = simu_conn(:user, user)
+
+    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
+    created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+    assert created |> Map.has_key?("id")
+
+    Statistics.mock_throttle_attr(
+      :last_publish_time,
+      %Accounts.User{id: user.id},
+      minutes: -@throttle_interval
+    )
+
+    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
+    created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+    assert created |> Map.has_key?("id")
+  end
+
+  test "user create multi content with invalid inverval time", ~m(community)a do
+    {:ok, user} = db_insert(:user)
+    user_conn = simu_conn(:user, user)
+
+    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
+    created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+    assert created |> Map.has_key?("id")
+
+    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
+
+    assert user_conn
+           |> mutation_get_error?(@create_post_query, variables, ecode(:throttle_inverval))
+
+    Statistics.mock_throttle_attr(
+      :last_publish_time,
+      %Accounts.User{id: user.id},
+      minutes: -(@throttle_interval - 1)
+    )
+
+    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
+
+    assert user_conn
+           |> mutation_get_error?(@create_post_query, variables, ecode(:throttle_inverval))
+  end
+
+  test "user create multi content with invalid hour_count fails", ~m(community)a do
+    {:ok, user} = db_insert(:user)
+    user_conn = simu_conn(:user, user)
+
+    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
+    created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+    assert created |> Map.has_key?("id")
+
+    Statistics.mock_throttle_attr(
+      :last_publish_time,
+      %Accounts.User{id: user.id},
+      minutes: -@throttle_interval
+    )
+
+    Statistics.mock_throttle_attr(
+      :hour_count,
+      %Accounts.User{id: user.id},
+      count: @hour_total
+    )
+
+    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
+
+    assert user_conn
+           |> mutation_get_error?(@create_post_query, variables, ecode(:throttle_hour))
+  end
+
+  test "user create multi content with valid hour count success in next hour", ~m(community)a do
+    {:ok, user} = db_insert(:user)
+    user_conn = simu_conn(:user, user)
+
+    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
+    created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+    assert created |> Map.has_key?("id")
+
+    Statistics.mock_throttle_attr(
+      :last_publish_time,
+      %Accounts.User{id: user.id},
+      minutes: -@throttle_interval
+    )
+
+    Statistics.mock_throttle_attr(
+      :hour_count,
+      %Accounts.User{id: user.id},
+      count: @hour_total
+    )
+
+    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
+
+    assert user_conn
+           |> mutation_get_error?(@create_post_query, variables, ecode(:throttle_hour))
+
+    Statistics.mock_throttle_attr(
+      :publish_hour,
+      %Accounts.User{id: user.id},
+      hours: -1
+    )
+
+    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
+    created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+    assert created |> Map.has_key?("id")
+  end
+
+  test "user create multi content with invalid day_count fails", ~m(community)a do
+    {:ok, user} = db_insert(:user)
+    user_conn = simu_conn(:user, user)
+
+    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
+    created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+    assert created |> Map.has_key?("id")
+
+    Statistics.mock_throttle_attr(
+      :last_publish_time,
+      %Accounts.User{id: user.id},
+      minutes: -@throttle_interval
+    )
+
+    Statistics.mock_throttle_attr(
+      :date_count,
+      %Accounts.User{id: user.id},
+      count: @day_total
+    )
+
+    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
+
+    assert user_conn
+           |> mutation_get_error?(@create_post_query, variables, ecode(:throttle_day))
+  end
+
+  test "user create multi content with valid day count success in next day", ~m(community)a do
+    {:ok, user} = db_insert(:user)
+    user_conn = simu_conn(:user, user)
+
+    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
+    created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+    assert created |> Map.has_key?("id")
+
+    Statistics.mock_throttle_attr(
+      :last_publish_time,
+      %Accounts.User{id: user.id},
+      minutes: -@throttle_interval
+    )
+
+    Statistics.mock_throttle_attr(
+      :date_count,
+      %Accounts.User{id: user.id},
+      count: @day_total
+    )
+
+    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
+
+    assert user_conn
+           |> mutation_get_error?(@create_post_query, variables, ecode(:throttle_day))
+
+    Statistics.mock_throttle_attr(
+      :publish_date,
+      %Accounts.User{id: user.id},
+      days: -1
+    )
+
+    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
+    created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+    assert created |> Map.has_key?("id")
+  end
+end
