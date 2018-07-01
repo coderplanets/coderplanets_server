@@ -1,5 +1,5 @@
 defmodule MastaniServer.Accounts do
-  alias MastaniServer.Accounts.Delegate.AccountCURD
+  alias MastaniServer.Accounts.Delegate.{AccountCURD, AccountMails}
 
   # update user profile
   defdelegate update_profile(user_id, attrs), to: AccountCURD
@@ -8,4 +8,8 @@ defmodule MastaniServer.Accounts do
   defdelegate default_subscribed_communities(filter), to: AccountCURD
   # get user subscribed community
   defdelegate subscribed_communities(user_id, filter), to: AccountCURD
+
+  defdelegate fetch_mentions(user, filter), to: AccountMails
+  defdelegate mark_mail_read(mail, user), to: AccountMails
+  defdelegate mark_mail_read_all(user, opt), to: AccountMails
 end

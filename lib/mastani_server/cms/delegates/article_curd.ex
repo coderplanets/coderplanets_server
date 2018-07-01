@@ -2,6 +2,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   import Ecto.Query, warn: false
   import MastaniServer.CMS.Utils.Matcher
   import Helper.Utils, only: [done: 1]
+  import ShortMaps
 
   alias MastaniServer.CMS.{Author, Community}
   alias MastaniServer.{Repo, Accounts, Statistics}
@@ -53,7 +54,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
       action.reactor
       |> where(^where)
       |> QueryBuilder.load_inner_users(filters)
-      |> ORM.paginater(page: page, size: size)
+      |> ORM.paginater(~m(page size)a)
       |> done()
     end
   end

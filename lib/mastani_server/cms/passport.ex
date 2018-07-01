@@ -3,6 +3,7 @@ defmodule MastaniServer.CMS.Passport do
   import Ecto.Changeset
 
   alias MastaniServer.Accounts
+  alias MastaniServer.CMS.Passport
 
   schema "cms_passports" do
     field(:rules, :map)
@@ -12,7 +13,7 @@ defmodule MastaniServer.CMS.Passport do
   end
 
   @doc false
-  def changeset(passport, attrs) do
+  def changeset(%Passport{} = passport, attrs) do
     passport
     |> cast(attrs, [:rules, :user_id])
     |> validate_required([:rules, :user_id])

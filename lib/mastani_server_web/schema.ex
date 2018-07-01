@@ -1,7 +1,7 @@
 defmodule MastaniServerWeb.Schema do
   use Absinthe.Schema
 
-  alias MastaniServerWeb.Schema.{Account, CMS, Statistics}
+  alias MastaniServerWeb.Schema.{Account, CMS, Statistics, Delivery}
   alias MastaniServerWeb.Middleware, as: M
 
   import_types(Absinthe.Type.Custom)
@@ -16,6 +16,11 @@ defmodule MastaniServerWeb.Schema do
   import_types(Statistics.Queries)
   import_types(Statistics.Mutations)
 
+  # delivery
+  import_types(Delivery.Types)
+  import_types(Delivery.Queries)
+  import_types(Delivery.Mutations)
+
   # cms
   import_types(CMS.Types)
   import_types(CMS.Queries)
@@ -27,8 +32,9 @@ defmodule MastaniServerWeb.Schema do
 
   query do
     import_fields(:account_queries)
-    import_fields(:cms_queries)
     import_fields(:statistics_queries)
+    import_fields(:delivery_queries)
+    import_fields(:cms_queries)
   end
 
   mutation do
@@ -36,6 +42,8 @@ defmodule MastaniServerWeb.Schema do
     import_fields(:account_mutations)
     # statistics
     import_fields(:statistics_mutations)
+    # delivery
+    import_fields(:delivery_mutations)
     # cms
     import_fields(:cms_mutation_community)
     import_fields(:cms_mutation_operation)

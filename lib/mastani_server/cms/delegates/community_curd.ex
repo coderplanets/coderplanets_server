@@ -35,7 +35,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     modal
     |> where([c], c.community_id == ^id)
     |> QueryBuilder.load_inner_users(filters)
-    |> ORM.paginater(page: page, size: size)
+    |> ORM.paginater(~m(page size)a)
     |> done()
   end
 
@@ -97,7 +97,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   def get_tags(%{page: page, size: size} = filter) do
     Tag
     |> QueryBuilder.filter_pack(filter)
-    |> ORM.paginater(page: page, size: size)
+    |> ORM.paginater(~m(page size)a)
     |> done()
   end
 

@@ -19,6 +19,23 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.github_signin(github_user)
   end
 
+  # mentions
+  def fetch_mentions(_root, %{filter: filter}, %{context: %{cur_user: cur_user}}) do
+    Accounts.fetch_mentions(%Accounts.User{id: cur_user.id}, filter)
+  end
+
+  def mark_mention_read(_root, %{id: id}, %{context: %{cur_user: cur_user}}) do
+    Accounts.mark_mail_read(%Accounts.MentionMail{id: id}, cur_user)
+  end
+
+  def mark_mention_read(_root, %{id: id}, %{context: %{cur_user: cur_user}}) do
+    Accounts.mark_mail_read(%Accounts.MentionMail{id: id}, cur_user)
+  end
+
+  def mark_mention_read_all(_root, _args, %{context: %{cur_user: cur_user}}) do
+    Accounts.mark_mail_read_all(cur_user, :mention)
+  end
+
   # for user self's
   def subscribed_communities(_root, %{filter: filter}, %{cur_user: cur_user}) do
     Accounts.subscribed_communities(%Accounts.User{id: cur_user.id}, filter)

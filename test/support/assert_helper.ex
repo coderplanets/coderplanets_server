@@ -64,6 +64,7 @@ defmodule MastaniServer.Test.AssertHelper do
     conn
     |> post("/graphiql", query: query, variables: variables)
     |> json_response(200)
+    # |> IO.inspect(label: "debug")
     |> Map.get("data")
     |> Map.get(key)
   end
@@ -103,6 +104,7 @@ defmodule MastaniServer.Test.AssertHelper do
     conn
     |> get("/graphiql", query: query, variables: variables)
     |> json_response(200)
+    # |> IO.inspect(label: "debug")
     |> Map.get("data")
     |> Map.get(key)
   end

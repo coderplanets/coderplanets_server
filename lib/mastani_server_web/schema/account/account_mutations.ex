@@ -31,5 +31,19 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
       middleware(M.GithubUser)
       resolve(&Resolvers.Accounts.github_signin/3)
     end
+
+    @desc "mark a mention as read"
+    field :mark_mention_read, :mention do
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      resolve(&Resolvers.Accounts.mark_mention_read/3)
+    end
+
+    @desc "mark a all unread mention as read"
+    field :mark_mention_read_all, :status do
+      middleware(M.Authorize, :login)
+      resolve(&Resolvers.Accounts.mark_mention_read_all/3)
+    end
   end
 end

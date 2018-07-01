@@ -1,6 +1,7 @@
 defmodule MastaniServer.Accounts.Delegate.AccountCURD do
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1, get_config: 2]
+  import ShortMaps
 
   alias MastaniServer.Repo
   alias MastaniServer.Accounts.{User, GithubUser}
@@ -59,7 +60,7 @@ defmodule MastaniServer.Accounts.Delegate.AccountCURD do
     |> join(:inner, [c], cc in assoc(c, :community))
     |> select([c, cc], cc)
     |> QueryBuilder.filter_pack(filter)
-    |> ORM.paginater(page: page, size: size)
+    |> ORM.paginater(~m(page size)a)
     |> done()
   end
 

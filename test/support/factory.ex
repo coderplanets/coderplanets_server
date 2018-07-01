@@ -4,8 +4,7 @@ defmodule MastaniServer.Factory do
   import Helper.Utils, only: [done: 1]
 
   alias MastaniServer.Repo
-  alias MastaniServer.CMS
-  alias MastaniServer.Accounts
+  alias MastaniServer.{CMS, Accounts, Delivery}
 
   defp mock_meta(:post) do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
@@ -47,8 +46,18 @@ defmodule MastaniServer.Factory do
   defp mock_meta(:comment) do
     body = Faker.Lorem.sentence(%Range{first: 30, last: 80})
 
+    %{body: body}
+  end
+
+  defp mock_meta(:mention) do
+    unique_num = System.unique_integer([:positive, :monotonic])
+
     %{
-      body: body
+      from_user: mock(:user),
+      to_user: mock(:user),
+      source_id: "1",
+      source_type: "post",
+      source_preview: "source_preview #{unique_num}."
     }
   end
 
@@ -140,6 +149,7 @@ defmodule MastaniServer.Factory do
   def mock_attrs(:job, attrs), do: mock_meta(:job) |> Map.merge(attrs)
   def mock_attrs(:community, attrs), do: mock_meta(:community) |> Map.merge(attrs)
   def mock_attrs(:thread, attrs), do: mock_meta(:thread) |> Map.merge(attrs)
+  def mock_attrs(:mention, attrs), do: mock_meta(:mention) |> Map.merge(attrs)
 
   def mock_attrs(:communities_threads, attrs),
     do: mock_meta(:communities_threads) |> Map.merge(attrs)
@@ -159,6 +169,7 @@ defmodule MastaniServer.Factory do
   defp mock(:post), do: CMS.Post |> struct(mock_meta(:post))
   defp mock(:job), do: CMS.Job |> struct(mock_meta(:job))
   defp mock(:comment), do: CMS.Comment |> struct(mock_meta(:comment))
+  defp mock(:mention), do: Delivery.Mention |> struct(mock_meta(:mention))
   defp mock(:author), do: CMS.Author |> struct(mock_meta(:author))
   defp mock(:category), do: CMS.Category |> struct(mock_meta(:category))
   defp mock(:tag), do: CMS.Tag |> struct(mock_meta(:tag))
@@ -187,5 +198,25 @@ defmodule MastaniServer.Factory do
       acc ++ [value]
     end)
     |> done
+  end
+
+  alias MastaniServer.Delivery
+  alias MastaniServer.Accounts.User
+
+  def mock_mentions_for(%User{id: _to_user_id} = user, count \\ 3) do
+    {:ok, users} = db_insert_multi(:user, count)
+
+    Enum.map(users, fn u ->
+      unique_num = System.unique_integer([:positive, :monotonic])
+
+      info = %{
+        source_id: "1",
+        source_title: "Title #{unique_num}",
+        source_type: "post",
+        source_preview: "preview #{unique_num}"
+      }
+
+      {:ok, _} = Delivery.mention_someone(u, user, info)
+    end)
   end
 end

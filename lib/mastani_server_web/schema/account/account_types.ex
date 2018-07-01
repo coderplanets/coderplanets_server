@@ -51,13 +51,11 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:from_github, :boolean)
     field(:github_profile, :github_profile, resolve: dataloader(Accounts, :github_profile))
 
-    # TODO: Access-Control
     field(:cms_passport_string, :string) do
       middleware(M.Authorize, :login)
       resolve(&Resolvers.Accounts.get_passport_string/3)
     end
 
-    # TODO: Access-Control
     field(:cms_passport, :json) do
       middleware(M.Authorize, :login)
       resolve(&Resolvers.Accounts.get_passport/3)
@@ -79,6 +77,15 @@ defmodule MastaniServerWeb.Schema.Account.Types do
 
     field :contributes, :contribute_map do
       resolve(&Resolvers.Statistics.list_contributes/3)
+    end
+
+    field :mentions, :paged_mentions do
+      arg(:filter, :mentions_filter)
+
+      middleware(M.Authorize, :login)
+      middleware(M.PageSizeProof)
+      resolve(&Resolvers.Accounts.fetch_mentions/3)
+      middleware(M.FormatPagination)
     end
   end
 

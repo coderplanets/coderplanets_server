@@ -2,6 +2,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1]
   import MastaniServer.CMS.Utils.Matcher
+  import ShortMaps
 
   alias MastaniServer.{Repo, Accounts}
   alias Helper.{ORM, QueryBuilder}
@@ -70,7 +71,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
       action.reactor
       |> where(^dynamic)
       |> QueryBuilder.filter_pack(filters)
-      |> ORM.paginater(page: page, size: size)
+      |> ORM.paginater(~m(page size)a)
       |> done()
     end
   end

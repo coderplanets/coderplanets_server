@@ -5,6 +5,7 @@ defmodule Helper.ORM do
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1, done: 3, add: 1]
   import Helper.ErrorHandler
+  import ShortMaps
 
   alias MastaniServer.Repo
   alias Helper.QueryBuilder
@@ -13,6 +14,10 @@ defmodule Helper.ORM do
   a wrap for paginate request
   """
   def paginater(queryable, page: page, size: size) do
+    queryable |> Repo.paginate(page: page, page_size: size)
+  end
+
+  def paginater(queryable, ~m(page size)a) do
     queryable |> Repo.paginate(page: page, page_size: size)
   end
 
@@ -136,6 +141,18 @@ defmodule Helper.ORM do
       content
       |> Ecto.Changeset.change(attrs)
       |> Repo.update()
+    end
+  end
+
+  def upsert_by(queryable, clauses, attrs) do
+    case queryable |> find_by(clauses) do
+      {:ok, content} ->
+        content
+        |> content.__struct__.changeset(attrs)
+        |> Repo.update()
+
+      {:error, _} ->
+        queryable |> create(attrs)
     end
   end
 
