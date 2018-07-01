@@ -1,13 +1,10 @@
 defmodule MastaniServer.Statistics.Delegate.Throttle do
   import Ecto.Query, warn: false
-  import Helper.Utils
   import ShortMaps
 
-  alias MastaniServer.Repo
   alias MastaniServer.Accounts.User
-  alias MastaniServer.CMS.Community
-  alias MastaniServer.Statistics.{UserContribute, CommunityContribute, PublishThrottle}
-  alias Helper.{ORM, QueryBuilder}
+  alias MastaniServer.Statistics.PublishThrottle
+  alias Helper.{ORM}
 
   def log_publish_action(%User{id: user_id}) do
     cur_date = Timex.today() |> Date.to_iso8601()

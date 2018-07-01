@@ -6,7 +6,7 @@ defmodule MastaniServer.Statistics.Delegate.Contribute do
   alias MastaniServer.Repo
   alias MastaniServer.Accounts.User
   alias MastaniServer.CMS.Community
-  alias MastaniServer.Statistics.{UserContribute, CommunityContribute, PublishThrottle}
+  alias MastaniServer.Statistics.{UserContribute, CommunityContribute}
   alias Helper.{ORM, QueryBuilder}
 
   @community_contribute_days get_config(:general, :community_contribute_days)
