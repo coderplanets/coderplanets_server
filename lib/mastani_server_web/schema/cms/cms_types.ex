@@ -243,6 +243,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:id, :id)
     field(:title, :string)
     field(:raw, :string)
+    field(:index, :integer)
   end
 
   object :contribute do

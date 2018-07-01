@@ -79,6 +79,13 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:most_dislikes)
   end
 
+  enum :thread_sort_enum do
+    value(:asc_index)
+    value(:desc_index)
+    value(:asc_inserted)
+    value(:desc_inserted)
+  end
+
   enum :sort_enum do
     value(:most_views)
     value(:most_updated)
@@ -122,6 +129,13 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     field(:size, :integer, default_value: @page_size)
     field(:sort, :sort_enum)
     field(:category, :string)
+  end
+
+  input_object :threads_filter do
+    field(:page, :integer, default_value: 1)
+    field(:size, :integer, default_value: @page_size)
+
+    field(:sort, :thread_sort_enum)
   end
 
   input_object :paged_filter do

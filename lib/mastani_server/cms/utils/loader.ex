@@ -159,7 +159,12 @@ defmodule MastaniServer.CMS.Utils.Loader do
   end
 
   def query({"communities_threads", CommunityThread}, _info) do
-    from(ct in CommunityThread, join: t in assoc(ct, :thread), select: t)
+    from(
+      ct in CommunityThread,
+      join: t in assoc(ct, :thread),
+      order_by: [asc: t.index],
+      select: t
+    )
   end
 
   @doc """

@@ -54,7 +54,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
     @desc "get all the threads across all communities"
     field :paged_threads, :paged_threads do
-      arg(:filter, :paged_filter)
+      arg(:filter, :threads_filter)
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.paged_threads/3)

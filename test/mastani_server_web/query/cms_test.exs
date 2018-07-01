@@ -1,10 +1,5 @@
 defmodule MastaniServer.Test.Query.CMSTest do
-  # use MastaniServer.DataCase
-  use MastaniServerWeb.ConnCase, async: true
-  import MastaniServer.Factory
-  import MastaniServer.Test.ConnSimulator
-  import MastaniServer.Test.AssertHelper
-  import ShortMaps
+  use MastaniServer.TestTools
 
   alias MastaniServer.{Accounts, CMS}
 
@@ -18,6 +13,36 @@ defmodule MastaniServer.Test.Query.CMSTest do
   end
 
   describe "[cms communities]" do
+    @query """
+    query($id: ID) {
+      community(id: $id) {
+        id
+        title
+        threads {
+          id
+          raw
+          index
+        }
+      }
+    }
+    """
+    test "guest use get community threads with default asc sort index",
+         ~m(guest_conn community)a do
+      {:ok, threads} = db_insert_multi(:thread, 5)
+
+      Enum.map(threads, fn t ->
+        CMS.set_thread(%CMS.Community{id: community.id}, %CMS.Thread{id: t.id})
+      end)
+
+      variables = %{id: community.id}
+      results = guest_conn |> query_result(@query, variables, "community")
+
+      first_idx = results["threads"] |> List.first() |> Map.get("index")
+      last_idx = results["threads"] |> List.last() |> Map.get("index")
+
+      assert first_idx < last_idx
+    end
+
     @query """
     query($filter: CommunitiesFilter!) {
       pagedCommunities(filter: $filter) {
@@ -48,7 +73,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
       assert results["totalCount"] == 5 + 1
     end
 
-    test "guest user can get paged communities based on ", ~m(guest_conn)a do
+    test "guest user can get paged communities based on category", ~m(guest_conn)a do
       {:ok, category1} = db_insert(:category)
       {:ok, category2} = db_insert(:category)
 
@@ -92,12 +117,13 @@ defmodule MastaniServer.Test.Query.CMSTest do
 
   describe "[cms threads]" do
     @query """
-    query($filter: PagedFilter!) {
+    query($filter: ThreadsFilter!) {
       pagedThreads(filter: $filter) {
         entries {
           id
           title
           raw
+          index
         }
         totalCount
         totalPages
@@ -113,6 +139,24 @@ defmodule MastaniServer.Test.Query.CMSTest do
       results = guest_conn |> query_result(@query, variables, "pagedThreads")
       assert results |> is_valid_pagination?
       assert results["totalCount"] == 5
+    end
+
+    test "can get sorted thread based on index", ~m(guest_conn)a do
+      {:ok, _threads} = db_insert_multi(:thread, 10)
+
+      variables = %{filter: %{page: 1, size: 20, sort: "DESC_INDEX"}}
+      results = guest_conn |> query_result(@query, variables, "pagedThreads")
+      first_idx = results["entries"] |> List.first() |> Map.get("index")
+      last_idx = results["entries"] |> List.last() |> Map.get("index")
+
+      assert first_idx > last_idx
+
+      variables = %{filter: %{page: 1, size: 20, sort: "ASC_INDEX"}}
+      results = guest_conn |> query_result(@query, variables, "pagedThreads")
+      first_idx = results["entries"] |> List.first() |> Map.get("index")
+      last_idx = results["entries"] |> List.last() |> Map.get("index")
+
+      assert first_idx < last_idx
     end
   end
 

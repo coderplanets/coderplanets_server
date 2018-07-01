@@ -17,9 +17,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     Tag
   }
 
-  alias MastaniServer.CMS.Delegate.PassportCURD
   alias Helper.QueryBuilder
-
   alias Helper.ORM
 
   @doc """
@@ -121,7 +119,8 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   def create_thread(attrs) do
     raw = to_string(attrs.raw)
     title = attrs.title
+    index = attrs |> Map.get(:index, 0)
 
-    Thread |> ORM.create(~m(title raw)a)
+    Thread |> ORM.create(~m(title raw index)a)
   end
 end

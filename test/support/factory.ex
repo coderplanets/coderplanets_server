@@ -62,7 +62,7 @@ defmodule MastaniServer.Factory do
 
   defp mock_meta(:thread) do
     unique_num = System.unique_integer([:positive, :monotonic])
-    %{title: "thread #{unique_num}", raw: "thread #{unique_num}"}
+    %{title: "thread #{unique_num}", raw: "thread #{unique_num}", index: :rand.uniform(20)}
   end
 
   defp mock_meta(:community) do

@@ -82,6 +82,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
     field :create_thread, :thread do
       arg(:title, non_null(:string))
       arg(:raw, non_null(:cms_thread))
+      arg(:index, :integer, default_value: 0)
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->thread.create")

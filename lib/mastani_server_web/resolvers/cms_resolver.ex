@@ -86,7 +86,8 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # #######################
   def paged_threads(_root, ~m(filter)a, _info), do: Thread |> ORM.find_all(filter)
 
-  def create_thread(_root, ~m(title raw)a, _info), do: CMS.create_thread(~m(title raw)a)
+  def create_thread(_root, ~m(title raw index)a, _info),
+    do: CMS.create_thread(~m(title raw index)a)
 
   def set_thread(_root, ~m(community_id thread_id)a, _info) do
     CMS.set_thread(%Community{id: community_id}, %Thread{id: thread_id})
