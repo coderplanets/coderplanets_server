@@ -1,8 +1,7 @@
 defmodule MastaniServer.Test.Query.AccountsMessagesTest do
   use MastaniServer.TestTools
 
-  alias MastaniServer.{Accounts}
-
+  # alias MastaniServer.{Accounts}
   setup do
     {:ok, user} = db_insert(:user)
 

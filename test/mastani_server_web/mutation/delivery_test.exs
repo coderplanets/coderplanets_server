@@ -180,8 +180,7 @@ defmodule MastaniServer.Test.Mutation.DeliveryTest do
       first_notification_id = notifications["entries"] |> List.first() |> Map.get("id")
       variables = %{id: first_notification_id}
 
-      hello = user_conn |> mutation_result(@query, variables, "markNotificationRead")
-      IO.inspect(hello, label: "hello")
+      user_conn |> mutation_result(@query, variables, "markNotificationRead")
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
       result = user_conn |> query_result(@account_query, variables, "account")
