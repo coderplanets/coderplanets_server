@@ -219,4 +219,22 @@ defmodule MastaniServer.Factory do
       {:ok, _} = Delivery.mention_someone(u, user, info)
     end)
   end
+
+  def mock_notifications_for(%User{id: _to_user_id} = user, count \\ 3) do
+    {:ok, users} = db_insert_multi(:user, count)
+
+    Enum.map(users, fn u ->
+      unique_num = System.unique_integer([:positive, :monotonic])
+
+      info = %{
+        source_id: "1",
+        source_title: "Title #{unique_num}",
+        source_type: "post",
+        source_preview: "preview #{unique_num}",
+        action: "like"
+      }
+
+      {:ok, _} = Delivery.notify_someone(u, user, info)
+    end)
+  end
 end

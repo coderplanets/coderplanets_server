@@ -19,13 +19,10 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.github_signin(github_user)
   end
 
+  # TODO: refactor
   # mentions
   def fetch_mentions(_root, %{filter: filter}, %{context: %{cur_user: cur_user}}) do
-    Accounts.fetch_mentions(%Accounts.User{id: cur_user.id}, filter)
-  end
-
-  def mark_mention_read(_root, %{id: id}, %{context: %{cur_user: cur_user}}) do
-    Accounts.mark_mail_read(%Accounts.MentionMail{id: id}, cur_user)
+    Accounts.fetch_mentions(cur_user, filter)
   end
 
   def mark_mention_read(_root, %{id: id}, %{context: %{cur_user: cur_user}}) do
@@ -34,6 +31,19 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
 
   def mark_mention_read_all(_root, _args, %{context: %{cur_user: cur_user}}) do
     Accounts.mark_mail_read_all(cur_user, :mention)
+  end
+
+  # notification
+  def fetch_notifications(_root, %{filter: filter}, %{context: %{cur_user: cur_user}}) do
+    Accounts.fetch_notifications(cur_user, filter)
+  end
+
+  def mark_notification_read(_root, %{id: id}, %{context: %{cur_user: cur_user}}) do
+    Accounts.mark_mail_read(%Accounts.NotificationMail{id: id}, cur_user)
+  end
+
+  def mark_notification_read_all(_root, _args, %{context: %{cur_user: cur_user}}) do
+    Accounts.mark_mail_read_all(cur_user, :notification)
   end
 
   # for user self's

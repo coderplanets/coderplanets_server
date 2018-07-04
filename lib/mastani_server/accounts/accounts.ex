@@ -9,7 +9,13 @@ defmodule MastaniServer.Accounts do
   # get user subscribed community
   defdelegate subscribed_communities(user_id, filter), to: AccountCURD
 
+  # mentions
   defdelegate fetch_mentions(user, filter), to: AccountMails
-  defdelegate mark_mail_read(mail, user), to: AccountMails
+
+  # notifications
+  defdelegate fetch_notifications(user, filter), to: AccountMails
+
+  # common message
   defdelegate mark_mail_read_all(user, opt), to: AccountMails
+  defdelegate mark_mail_read(mail, user), to: AccountMails
 end

@@ -70,7 +70,6 @@ defmodule MastaniServer.Delivery.MentionTest do
       assert Enum.empty?(mentions.entries)
     end
 
-    @tag :wip
     test "store user fetch info in delivery records, with last_fetch_unread_time info" do
       {:ok, user} = db_insert(:user)
 
@@ -79,7 +78,6 @@ defmodule MastaniServer.Delivery.MentionTest do
       filter = %{page: 1, size: 20, read: false}
       {:ok, mentions} = Accounts.fetch_mentions(user, filter)
       {:ok, record} = Delivery.fetch_record(user)
-      mentions.entries |> List.last() |> Map.get(:inserted_at)
 
       latest_insert_time = mentions.entries |> List.first() |> Map.get(:inserted_at) |> to_string
 

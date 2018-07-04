@@ -58,8 +58,18 @@ defmodule MastaniServer.Test.Mutation.DeliveryTest do
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
     end
 
-    @user_mentions_query """
-    query($filter: MentionsFilter!) {
+    # mentions(filter: $filter) {
+    # entries {
+    # id
+    # fromUserId
+    # toUserId
+    # read
+    # }
+    # totalCount
+    # }
+
+    @account_query """
+    query($filter: MessagesFilter!) {
       account {
         id
         mentions(filter: $filter) {
@@ -71,25 +81,20 @@ defmodule MastaniServer.Test.Mutation.DeliveryTest do
           }
           totalCount
         }
+        notifications(filter: $filter) {
+          entries {
+            id
+            fromUserId
+            toUserId
+            read
+          }
+        totalCount
+        }
       }
     }
     """
-    test "user can get mentions send by others" do
-      {:ok, user} = db_insert(:user)
-      user_conn = simu_conn(:user, user)
 
-      mock_mentions_for(user, 3)
-
-      variables = %{filter: %{page: 1, size: 20, read: false}}
-
-      result = user_conn |> query_result(@user_mentions_query, variables, "account")
-      mentions = result["mentions"]
-
-      assert mentions["totalCount"] == 3
-      assert mentions["entries"] |> List.first() |> Map.get("toUserId") == to_string(user.id)
-    end
-
-    @mark_read_query """
+    @query """
     mutation($id: ID!) {
       markMentionRead(id: $id) {
         id
@@ -103,24 +108,24 @@ defmodule MastaniServer.Test.Mutation.DeliveryTest do
       mock_mentions_for(user, 3)
       variables = %{filter: %{page: 1, size: 20, read: false}}
 
-      result = user_conn |> query_result(@user_mentions_query, variables, "account")
+      result = user_conn |> query_result(@account_query, variables, "account")
       mentions = result["mentions"]
       assert mentions["totalCount"] == 3
 
       first_mention_id = mentions["entries"] |> List.first() |> Map.get("id")
       variables = %{id: first_mention_id}
 
-      user_conn |> mutation_result(@mark_read_query, variables, "markMentionRead")
+      user_conn |> mutation_result(@query, variables, "markMentionRead")
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
 
-      result = user_conn |> query_result(@user_mentions_query, variables, "account")
+      result = user_conn |> query_result(@account_query, variables, "account")
       mentions = result["mentions"]
       assert mentions["totalCount"] == 2
 
       variables = %{filter: %{page: 1, size: 20, read: true}}
 
-      result = user_conn |> query_result(@user_mentions_query, variables, "account")
+      result = user_conn |> query_result(@account_query, variables, "account")
       mentions = result["mentions"]
       assert mentions["totalCount"] == 1
     end
@@ -139,7 +144,7 @@ defmodule MastaniServer.Test.Mutation.DeliveryTest do
       mock_mentions_for(user, 3)
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
-      result = user_conn |> query_result(@user_mentions_query, variables, "account")
+      result = user_conn |> query_result(@account_query, variables, "account")
       mentions = result["mentions"]
       # IO.inspect mentions, label: "mentions"
       assert mentions["totalCount"] == 3
@@ -147,10 +152,75 @@ defmodule MastaniServer.Test.Mutation.DeliveryTest do
       user_conn |> mutation_result(@query, %{}, "markMentionReadAll")
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
-      result = user_conn |> query_result(@user_mentions_query, variables, "account")
+      result = user_conn |> query_result(@account_query, variables, "account")
       mentions = result["mentions"]
-      # IO.inspect mentions, label: "mentions after"
+
       assert mentions["totalCount"] == 0
+    end
+
+    @query """
+    mutation($id: ID!) {
+      markNotificationRead(id: $id) {
+        id
+      }
+    }
+    """
+    test "user can mark a notification as read" do
+      {:ok, user} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      mock_notifications_for(user, 3)
+      variables = %{filter: %{page: 1, size: 20, read: false}}
+
+      result = user_conn |> query_result(@account_query, variables, "account")
+
+      notifications = result["notifications"]
+      assert notifications["totalCount"] == 3
+
+      first_notification_id = notifications["entries"] |> List.first() |> Map.get("id")
+      variables = %{id: first_notification_id}
+
+      hello = user_conn |> mutation_result(@query, variables, "markNotificationRead")
+      IO.inspect(hello, label: "hello")
+
+      variables = %{filter: %{page: 1, size: 20, read: false}}
+      result = user_conn |> query_result(@account_query, variables, "account")
+
+      notifications = result["notifications"]
+      assert notifications["totalCount"] == 2
+
+      variables = %{filter: %{page: 1, size: 20, read: true}}
+
+      result = user_conn |> query_result(@account_query, variables, "account")
+      notifications = result["notifications"]
+      assert notifications["totalCount"] == 1
+    end
+
+    @query """
+    mutation {
+      markNotificationReadAll {
+        done
+      }
+    }
+    """
+    test "user can mark all unread notifications as read" do
+      {:ok, user} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      mock_notifications_for(user, 3)
+
+      variables = %{filter: %{page: 1, size: 20, read: false}}
+      result = user_conn |> query_result(@account_query, variables, "account")
+      notifications = result["notifications"]
+      assert notifications["totalCount"] == 3
+
+      user_conn |> mutation_result(@query, %{}, "markNotificationReadAll")
+
+      variables = %{filter: %{page: 1, size: 20, read: false}}
+      result = user_conn |> query_result(@account_query, variables, "account")
+      notifications = result["notifications"]
+
+      assert notifications["totalCount"] == 0
     end
   end
 end

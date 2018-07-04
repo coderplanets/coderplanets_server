@@ -10,6 +10,17 @@ defmodule MastaniServerWeb.Schema.Delivery.Types do
     field(:id, :id)
     field(:from_user_id, :id)
     field(:to_user_id, :id)
+
+    field(:source_title, :string)
+    field(:read, :boolean)
+  end
+
+  object :notification do
+    field(:id, :id)
+    field(:from_user_id, :id)
+    field(:to_user_id, :id)
+    field(:action, :string)
+
     field(:source_title, :string)
     field(:read, :boolean)
   end
@@ -22,11 +33,19 @@ defmodule MastaniServerWeb.Schema.Delivery.Types do
     field(:page_number, :integer)
   end
 
+  object :paged_notifications do
+    field(:entries, list_of(:notification))
+    field(:total_count, :integer)
+    field(:page_size, :integer)
+    field(:total_pages, :integer)
+    field(:page_number, :integer)
+  end
+
   object :status do
     field(:done, :boolean)
   end
 
-  input_object :mentions_filter do
+  input_object :messages_filter do
     field(:read, :boolean, default_value: false)
 
     field(:page, :integer, default_value: 1)

@@ -79,12 +79,28 @@ defmodule MastaniServerWeb.Schema.Account.Types do
       resolve(&Resolvers.Statistics.list_contributes/3)
     end
 
+    # TODO, for msg-bell UI
+    # field :has_messges,
+    # 1. has_mentions ?
+    # 2. has_system_messages ?
+    # 3. has_notifications ?
+    # 4. has_watches ?
+
     field :mentions, :paged_mentions do
-      arg(:filter, :mentions_filter)
+      arg(:filter, :messages_filter)
 
       middleware(M.Authorize, :login)
       middleware(M.PageSizeProof)
       resolve(&Resolvers.Accounts.fetch_mentions/3)
+      middleware(M.FormatPagination)
+    end
+
+    field :notifications, :paged_notifications do
+      arg(:filter, :messages_filter)
+
+      middleware(M.Authorize, :login)
+      middleware(M.PageSizeProof)
+      resolve(&Resolvers.Accounts.fetch_notifications/3)
       middleware(M.FormatPagination)
     end
   end
