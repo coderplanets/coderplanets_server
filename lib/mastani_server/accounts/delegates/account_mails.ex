@@ -1,16 +1,12 @@
 defmodule MastaniServer.Accounts.Delegate.AccountMails do
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, get_config: 2]
+  import Helper.Utils, only: [done: 1]
   import ShortMaps
 
   alias MastaniServer.Repo
   alias MastaniServer.Accounts.{User, MentionMail}
   alias MastaniServer.Delivery
-  alias Helper.{ORM, Guardian, QueryBuilder}
-  alias MastaniServer.CMS
   alias Helper.ORM
-
-  alias Ecto.Multi
 
   def fetch_mentions(
         %User{id: user_id} = user,

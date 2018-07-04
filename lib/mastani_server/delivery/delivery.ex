@@ -61,7 +61,7 @@ defmodule MastaniServer.Delivery do
 
       {:ok, %{status: true}}
     rescue
-      e -> {:error, %{status: false}}
+      _ -> {:error, %{status: false}}
     end
   end
 
