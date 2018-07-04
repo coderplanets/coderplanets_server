@@ -4,6 +4,8 @@ defmodule MastaniServer.Delivery do
   """
   alias MastaniServer.Delivery.Delegate.{Mentions, Notifications, Utils}
 
+  defdelegate mailbox_status(user), to: Utils
+
   # mentions
   defdelegate mention_someone(from_user, to_user, info), to: Mentions
   defdelegate fetch_mentions(user, filter), to: Mentions

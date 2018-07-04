@@ -13,6 +13,47 @@ defmodule MastaniServer.Test.Query.AccountsMessagesTest do
 
   describe "[account messages queries]" do
     @query """
+    query {
+      account {
+        id
+        mailBox {
+          hasMail
+          totalCount
+          mentionCount
+          notificationCount
+        }
+      }
+    }
+    """
+    test "login user can get mail box status" do
+      {:ok, user} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      result = user_conn |> query_result(@query, %{}, "account")
+      mailBox = result["mailBox"]
+      assert mailBox["hasMail"] == false
+      assert mailBox["totalCount"] == 0
+      assert mailBox["mentionCount"] == 0
+      assert mailBox["notificationCount"] == 0
+
+      mock_mentions_for(user, 2)
+      mock_notifications_for(user, 18)
+
+      result = user_conn |> query_result(@query, %{}, "account")
+      mailBox = result["mailBox"]
+      assert mailBox["hasMail"] == true
+      assert mailBox["totalCount"] == 20
+      assert mailBox["mentionCount"] == 2
+      assert mailBox["notificationCount"] == 18
+    end
+
+    test "unauth user get mailBox status fails", ~m(guest_conn)a do
+      variables = %{}
+
+      assert guest_conn |> query_get_error?(@query, variables, ecode(:account_login))
+    end
+
+    @query """
     query($filter: MessagesFilter!) {
       account {
         id

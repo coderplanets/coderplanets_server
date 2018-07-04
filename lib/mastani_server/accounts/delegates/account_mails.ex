@@ -8,6 +8,8 @@ defmodule MastaniServer.Accounts.Delegate.AccountMails do
   alias MastaniServer.Delivery
   alias Helper.ORM
 
+  def mailbox_status(%User{} = user), do: Delivery.mailbox_status(user)
+
   def fetch_mentions(%User{} = user, filter) do
     with {:ok, mentions} <- Delivery.fetch_mentions(user, filter),
          {:ok, washed_mentions} <- wash_data(MentionMail, mentions.entries) do

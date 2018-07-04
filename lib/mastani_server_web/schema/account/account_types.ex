@@ -86,6 +86,11 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     # 3. has_notifications ?
     # 4. has_watches ?
 
+    field :mail_box, :mail_box_status do
+      middleware(M.Authorize, :login)
+      resolve(&Resolvers.Accounts.get_mail_box_status/3)
+    end
+
     field :mentions, :paged_mentions do
       arg(:filter, :messages_filter)
 

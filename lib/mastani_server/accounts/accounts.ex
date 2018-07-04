@@ -16,6 +16,7 @@ defmodule MastaniServer.Accounts do
   defdelegate fetch_notifications(user, filter), to: AccountMails
 
   # common message
+  defdelegate mailbox_status(user), to: AccountMails
   defdelegate mark_mail_read_all(user, opt), to: AccountMails
   defdelegate mark_mail_read(mail, user), to: AccountMails
 end

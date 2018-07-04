@@ -20,6 +20,11 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   end
 
   # TODO: refactor
+
+  def get_mail_box_status(_root, _args, %{context: %{cur_user: cur_user}}) do
+    Accounts.mailbox_status(cur_user)
+  end
+
   # mentions
   def fetch_mentions(_root, %{filter: filter}, %{context: %{cur_user: cur_user}}) do
     Accounts.fetch_mentions(cur_user, filter)

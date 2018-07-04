@@ -13,6 +13,21 @@ defmodule MastaniServer.Delivery.Delegate.Utils do
   alias MastaniServer.Accounts.User
   alias Helper.ORM
 
+  def mailbox_status(%User{} = user) do
+    filter = %{page: 1, size: 1, read: false}
+    {:ok, mention_mail} = fetch_mails(user, Mention, filter)
+    {:ok, notification_mail} = fetch_mails(user, Notification, filter)
+
+    mention_count = mention_mail.total_entries
+    notification_count = notification_mail.total_entries
+    total_count = mention_count + notification_count
+
+    has_mail = total_count > 0
+
+    result = ~m(has_mail total_count mention_count notification_count)a
+    {:ok, result}
+  end
+
   def fetch_record(%User{id: user_id}), do: Record |> ORM.find_by(user_id: user_id)
 
   def mark_read_all(%User{} = user, :mention), do: Mention |> do_mark_read_all(user)
@@ -21,7 +36,25 @@ defmodule MastaniServer.Delivery.Delegate.Utils do
   @doc """
   fetch mentions / notifications
   """
-  def fetch_messages(%User{} = user, queryable, %{page: page, size: size, read: read}) do
+  def fetch_messages(%User{} = user, queryable, %{page: page, size: size, read: read} = filter) do
+    mails = fetch_mails_and_delete(user, queryable, filter)
+    record_operation(queryable, read, mails)
+
+    mails
+  end
+
+  defp fetch_mails(user, queryable, %{page: page, size: size, read: read}) do
+    {:ok, last_fetch_time} = get_last_fetch_time(queryable, read, user)
+
+    queryable
+    |> where([m], m.to_user_id == ^user.id)
+    |> where([m], m.inserted_at > ^last_fetch_time)
+    |> where([m], m.read == ^read)
+    |> ORM.paginater(~m(page size)a)
+    |> done()
+  end
+
+  defp fetch_mails_and_delete(user, queryable, %{page: page, size: size, read: read}) do
     {:ok, last_fetch_time} = get_last_fetch_time(queryable, read, user)
 
     query =
@@ -30,16 +63,14 @@ defmodule MastaniServer.Delivery.Delegate.Utils do
       |> where([m], m.inserted_at > ^last_fetch_time)
       |> where([m], m.read == ^read)
 
-    # |> order_by(asc: :inserted_at)
-    messages =
+    mails =
       query
       |> ORM.paginater(~m(page size)a)
       |> done()
 
-    delete_items(query, messages)
-    record_operation(queryable, read, messages)
+    delete_items(query, mails)
 
-    messages
+    mails
   end
 
   defp record_operation(Mention, _read, {:ok, %{entries: []}}), do: {:ok, ""}

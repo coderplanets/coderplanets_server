@@ -6,6 +6,13 @@ defmodule MastaniServerWeb.Schema.Delivery.Types do
 
   @page_size get_config(:general, :page_size)
 
+  object :mail_box_status do
+    field(:has_mail, :boolean)
+    field(:total_count, :integer)
+    field(:mention_count, :integer)
+    field(:notification_count, :integer)
+  end
+
   object :mention do
     field(:id, :id)
     field(:from_user_id, :id)
