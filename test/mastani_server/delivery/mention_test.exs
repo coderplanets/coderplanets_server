@@ -1,4 +1,4 @@
-defmodule MastaniServer.DeliveryTest do
+defmodule MastaniServer.Delivery.MentionTest do
   use MastaniServer.TestTools
 
   import Ecto.Query, warn: false
@@ -9,8 +9,6 @@ defmodule MastaniServer.DeliveryTest do
   alias Helper.ORM
 
   describe "mentions" do
-    alias MastaniServer.Accounts.User
-
     test "user can mention other user" do
       {:ok, [user, user2]} = db_insert_multi(:user, 2)
 
@@ -58,7 +56,7 @@ defmodule MastaniServer.DeliveryTest do
     test "delete related delivery mentions after user fetch" do
       {:ok, user} = db_insert(:user)
 
-      mock_mentions_for(user, 3)
+      mock_mentions_for(user, 1)
 
       filter = %{page: 1, size: 20, read: false}
       {:ok, _mentions} = Accounts.fetch_mentions(user, filter)
@@ -72,6 +70,7 @@ defmodule MastaniServer.DeliveryTest do
       assert Enum.empty?(mentions.entries)
     end
 
+    @tag :wip
     test "store user fetch info in delivery records, with last_fetch_unread_time info" do
       {:ok, user} = db_insert(:user)
 
