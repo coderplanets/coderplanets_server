@@ -1,7 +1,7 @@
 defmodule MastaniServer.Accounts.MentionMail do
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.Accounts.User
+  alias MastaniServer.Accounts.{User, MentionMail}
 
   @required_fields ~w(from_user_id to_user_id source_id source_type source_preview)a
   @optional_fields ~w(parent_id parent_type read)a
@@ -21,7 +21,7 @@ defmodule MastaniServer.Accounts.MentionMail do
   end
 
   @doc false
-  def changeset(mention, attrs) do
+  def changeset(%MentionMail{} = mention, attrs) do
     mention
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
