@@ -8,6 +8,22 @@ defmodule MastaniServer.Accounts.Delegate.Billing do
   alias Helper.ORM
 
   # ...
+  def purchase_service(%User{} = user, map) when map_size(map) == 0 do
+    {:error, "AccountPurchase: invalid option or not purchased"}
+  end
+
+  def purchase_service(%User{} = user, map) when is_map(map) do
+    valid? = map |> Map.keys() |> Enum.all?(&can_purchase?(user, &1, :boolean))
+
+    case valid? do
+      true ->
+        attrs = Map.merge(%{user_id: user.id}, map)
+        Purchase |> ORM.upsert_by([user_id: user.id], attrs)
+
+      false ->
+        {:error, "AccountCustomization: invalid option or not purchased"}
+    end
+  end
 
   def purchase_service(%User{} = user, key, value \\ true) do
     with {:ok, key} <- can_purchase?(user, key) do
@@ -26,6 +42,13 @@ defmodule MastaniServer.Accounts.Delegate.Billing do
     else
       nil -> {:error, "AccountPurchase: not purchase"}
       _ -> {:error, "AccountPurchase: not purchase"}
+    end
+  end
+
+  defp can_purchase?(%User{} = user, key, :boolean) do
+    case can_purchase?(%User{} = user, key) do
+      {:ok, _} -> true
+      {:error, _} -> false
     end
   end
 

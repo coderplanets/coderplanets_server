@@ -33,5 +33,29 @@ defmodule MastaniServer.Test.Accounts.CustomizationTest do
 
       {:ok, _result} = Accounts.add_custom_setting(user, :brainwash_free, true)
     end
+
+    test "user can set multiable customization at once", ~m(user)a do
+      {:ok, result} =
+        Accounts.add_custom_setting(user, %{theme: true, sidebar_layout: %{hello: :world}})
+
+      assert result.theme == true
+      assert result.sidebar_layout == %{hello: :world}
+
+      assert {:error, _result} = Accounts.add_custom_setting(user, %{theme: true, no_exsit: true})
+      assert {:error, _result} = Accounts.add_custom_setting(user, %{})
+    end
+
+    test "user can purchase multiable items at once", ~m(user)a do
+      {:ok, result} =
+        Accounts.purchase_service(user, %{brainwash_free: true, community_chart: true})
+
+      assert result.brainwash_free == true
+      assert result.community_chart == true
+
+      assert {:error, _result} =
+               Accounts.purchase_service(user, %{brainwash_free: true, no_exsit: true})
+
+      assert {:error, _result} = Accounts.purchase_service(user, %{})
+    end
   end
 end
