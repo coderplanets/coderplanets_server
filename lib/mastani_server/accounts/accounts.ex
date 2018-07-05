@@ -14,6 +14,7 @@ defmodule MastaniServer.Accounts do
 
   # notifications
   defdelegate fetch_notifications(user, filter), to: Mails
+  defdelegate fetch_sys_notifications(user, filter), to: Mails
 
   # common message
   defdelegate mailbox_status(user), to: Mails

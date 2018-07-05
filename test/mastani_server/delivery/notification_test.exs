@@ -50,7 +50,7 @@ defmodule MastaniServer.Delivery.NotificationTest do
           acc |> Enum.concat([Map.from_struct(m) |> Map.get(:id)])
         end)
 
-      assert notification_ids == notification_mail_ids
+      assert Enum.sort(notification_ids) == Enum.sort(notification_mail_ids)
     end
 
     test "delete related delivery notifications after user fetch" do

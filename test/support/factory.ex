@@ -111,6 +111,17 @@ defmodule MastaniServer.Factory do
     }
   end
 
+  defp mock_meta(:sys_notification) do
+    unique_num = System.unique_integer([:positive, :monotonic])
+
+    %{
+      source_id: "#{unique_num}",
+      source_title: "#{Faker.Pizza.cheese()}",
+      source_type: "post",
+      source_preview: "#{Faker.Pizza.cheese()}"
+    }
+  end
+
   defp mock_meta(:user) do
     unique_num = System.unique_integer([:positive, :monotonic])
 
@@ -155,6 +166,7 @@ defmodule MastaniServer.Factory do
     do: mock_meta(:communities_threads) |> Map.merge(attrs)
 
   def mock_attrs(:tag, attrs), do: mock_meta(:tag) |> Map.merge(attrs)
+  def mock_attrs(:sys_notification, attrs), do: mock_meta(:sys_notification) |> Map.merge(attrs)
   def mock_attrs(:category, attrs), do: mock_meta(:category) |> Map.merge(attrs)
   def mock_attrs(:github_profile, attrs), do: mock_meta(:github_profile) |> Map.merge(attrs)
 
@@ -173,6 +185,10 @@ defmodule MastaniServer.Factory do
   defp mock(:author), do: CMS.Author |> struct(mock_meta(:author))
   defp mock(:category), do: CMS.Category |> struct(mock_meta(:category))
   defp mock(:tag), do: CMS.Tag |> struct(mock_meta(:tag))
+
+  defp mock(:sys_notification),
+    do: Delivery.SysNotification |> struct(mock_meta(:sys_notification))
+
   defp mock(:user), do: Accounts.User |> struct(mock_meta(:user))
   defp mock(:community), do: CMS.Community |> struct(mock_meta(:community))
   defp mock(:thread), do: CMS.Thread |> struct(mock_meta(:thread))
@@ -200,8 +216,12 @@ defmodule MastaniServer.Factory do
     |> done
   end
 
-  alias MastaniServer.Delivery
   alias MastaniServer.Accounts.User
+
+  def mock_sys_notification(count \\ 3) do
+    # {:ok, sys_notifications} = db_insert_multi(:sys_notification, count)
+    db_insert_multi(:sys_notification, count)
+  end
 
   def mock_mentions_for(%User{id: _to_user_id} = user, count \\ 3) do
     {:ok, users} = db_insert_multi(:user, count)

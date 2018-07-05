@@ -3,10 +3,22 @@ defmodule MastaniServer.Delivery.Delegate.Notifications do
   The Delivery context.
   """
   alias MastaniServer.Accounts.User
-  alias MastaniServer.Delivery.Notification
+  alias MastaniServer.Delivery.{Notification, SysNotification}
   alias Helper.ORM
 
   alias MastaniServer.Delivery.Delegate.Utils
+
+  # TODO: audience
+  def publish_system_notification(info) do
+    attrs = %{
+      source_id: info.source_id,
+      source_title: info.source_title,
+      source_type: info |> Map.get(:source_type, ""),
+      source_preview: info |> Map.get(:source_preview, "")
+    }
+
+    SysNotification |> ORM.create(attrs)
+  end
 
   def notify_someone(%User{id: from_user_id}, %User{id: to_user_id}, info) do
     attrs = %{
@@ -27,5 +39,9 @@ defmodule MastaniServer.Delivery.Delegate.Notifications do
   """
   def fetch_notifications(%User{} = user, %{page: _, size: _, read: _} = filter) do
     Utils.fetch_messages(user, Notification, filter)
+  end
+
+  def fetch_sys_notifications(%User{} = user, %{page: _, size: _} = filter) do
+    Utils.fetch_messages(:sys_notification, user, filter)
   end
 end

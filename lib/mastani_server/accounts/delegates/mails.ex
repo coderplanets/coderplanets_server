@@ -4,7 +4,7 @@ defmodule MastaniServer.Accounts.Delegate.Mails do
   import ShortMaps
 
   alias MastaniServer.Repo
-  alias MastaniServer.Accounts.{User, MentionMail, NotificationMail}
+  alias MastaniServer.Accounts.{User, MentionMail, NotificationMail, SysNotificationMail}
   alias MastaniServer.Delivery
   alias Helper.ORM
 
@@ -24,6 +24,23 @@ defmodule MastaniServer.Accounts.Delegate.Mails do
     end
   end
 
+  def fetch_sys_notifications(%User{} = user, %{page: page, size: size, read: read} = filter) do
+    with {:ok, sys_notifications} <-
+           Delivery.fetch_sys_notifications(user, %{page: page, size: size}),
+         {:ok, washed_notifications} <-
+           wash_data(SysNotificationMail, user, sys_notifications.entries) do
+      SysNotificationMail
+      |> Repo.insert_all(washed_notifications)
+
+      SysNotificationMail
+      |> order_by(desc: :inserted_at)
+      |> where([m], m.user_id == ^user.id)
+      |> where([m], m.read == ^read)
+      |> ORM.paginater(~m(page size)a)
+      |> done()
+    end
+  end
+
   defp messages_handler(
          queryable,
          washed_data,
@@ -34,6 +51,7 @@ defmodule MastaniServer.Accounts.Delegate.Mails do
     |> Repo.insert_all(washed_data)
 
     queryable
+    |> order_by(desc: :inserted_at)
     |> where([m], m.to_user_id == ^user_id)
     |> where([m], m.read == ^read)
     |> ORM.paginater(~m(page size)a)
@@ -46,6 +64,12 @@ defmodule MastaniServer.Accounts.Delegate.Mails do
 
   def mark_mail_read(%NotificationMail{id: id}, %User{} = user) do
     do_mark_mail_read(NotificationMail, id, user)
+  end
+
+  def mark_mail_read(%SysNotificationMail{id: id}, %User{} = user) do
+    with {:ok, mail} <- SysNotificationMail |> ORM.find_by(id: id, user_id: user.id) do
+      mail |> ORM.update(%{read: true})
+    end
   end
 
   def mark_mail_read_all(%User{} = user, :mention) do
@@ -77,6 +101,18 @@ defmodule MastaniServer.Accounts.Delegate.Mails do
 
   defp wash_data(MentionMail, list), do: do_wash_data(list)
   defp wash_data(NotificationMail, list), do: do_wash_data(list)
+
+  defp wash_data(SysNotificationMail, user, list) do
+    convert =
+      list
+      |> Enum.map(
+        &(Map.from_struct(&1)
+          |> Map.delete(:__meta__)
+          |> Map.put(:user_id, user.id))
+      )
+
+    {:ok, convert}
+  end
 
   defp do_wash_data(list) do
     convert =

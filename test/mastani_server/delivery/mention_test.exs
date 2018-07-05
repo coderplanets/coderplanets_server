@@ -50,7 +50,7 @@ defmodule MastaniServer.Delivery.MentionTest do
           acc |> Enum.concat([Map.from_struct(m) |> Map.get(:id)])
         end)
 
-      assert mention_ids == mention_mail_ids
+      assert Enum.sort(mention_ids) == Enum.sort(mention_mail_ids)
     end
 
     test "delete related delivery mentions after user fetch" do

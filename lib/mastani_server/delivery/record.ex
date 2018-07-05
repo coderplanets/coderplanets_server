@@ -5,11 +5,12 @@ defmodule MastaniServer.Delivery.Record do
   alias MastaniServer.Delivery.Record
 
   @required_fields ~w(user_id)a
-  @optional_fields ~w(mentions_record notifications_record)a
+  @optional_fields ~w(mentions_record notifications_record sys_notifications_record)a
 
   schema "delivery_records" do
     field(:mentions_record, :map)
     field(:notifications_record, :map)
+    field(:sys_notifications_record, :map)
     belongs_to(:user, User)
 
     timestamps(type: :utc_datetime)
