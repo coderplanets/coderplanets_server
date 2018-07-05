@@ -91,19 +91,15 @@ defmodule MastaniServer.Delivery.Delegate.Utils do
     recent_insert = Enum.min([first_insert, last_insert])
     # early_insert = Enum.max([first_insert, last_insert])
 
-    last_fetch_time = recent_insert |> to_string
+    last_fetch_time = recent_insert |> Timex.to_datetime() |> to_string
     user_id = entries |> List.first() |> Map.get(:to_user_id)
-
-    # %{user_id: user_id, mentions_record: %{last_fetch_time: last_fetch_time}}
 
     attrs =
       case read do
         true ->
-          # %{user_id: user_id, mentions_record: %{last_fetch_read_time: last_fetch_time}}
           %{user_id: user_id} |> Map.put(record_name, %{last_fetch_read_time: last_fetch_time})
 
         false ->
-          # %{user_id: user_id, mentions_record: %{last_fetch_unread_time: last_fetch_time}}
           %{user_id: user_id} |> Map.put(record_name, %{last_fetch_unread_time: last_fetch_time})
       end
 

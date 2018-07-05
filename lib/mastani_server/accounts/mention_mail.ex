@@ -17,7 +17,7 @@ defmodule MastaniServer.Accounts.MentionMail do
     field(:parent_type, :string)
     field(:read, :boolean)
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   @doc false

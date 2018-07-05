@@ -19,7 +19,7 @@ defmodule MastaniServer.Delivery.Mention do
     field(:parent_type, :string)
     field(:read, :boolean)
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   @doc false
