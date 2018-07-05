@@ -1,4 +1,4 @@
-defmodule MastaniServer.Accounts.Delegate.AccountMails do
+defmodule MastaniServer.Accounts.Delegate.Mails do
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1]
   import ShortMaps

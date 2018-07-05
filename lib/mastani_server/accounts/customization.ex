@@ -4,12 +4,13 @@ defmodule MastaniServer.Accounts.Customization do
   alias MastaniServer.Accounts.{User, Customization}
 
   @required_fields ~w(user_id)a
-  @optional_fields ~w(theme community_chart brainwash_free)a
+  @optional_fields ~w(theme sidebar_layout community_chart brainwash_free)a
 
   schema "customizations" do
     belongs_to(:user, User)
 
     field(:theme, :boolean)
+    field(:sidebar_layout, :map)
     field(:community_chart, :boolean)
     field(:brainwash_free, :boolean)
 

@@ -1,4 +1,4 @@
-defmodule MastaniServer.Accounts.Delegate.AccountCURD do
+defmodule MastaniServer.Accounts.Delegate.Profile do
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1, get_config: 2]
   import ShortMaps
