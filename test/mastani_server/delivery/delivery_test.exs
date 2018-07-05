@@ -2,10 +2,9 @@ defmodule MastaniServer.Delivery.DeliveryTest do
   use MastaniServer.TestTools
 
   import Ecto.Query, warn: false
-  # import Helper.Utils
   alias MastaniServer.Delivery
 
-  test "user can check if have new mails" do
+  test "user can check mailbox status" do
     {:ok, user} = db_insert(:user)
     {:ok, mail_box} = Delivery.mailbox_status(user)
     assert mail_box.has_mail == false
