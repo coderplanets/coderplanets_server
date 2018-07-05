@@ -1,7 +1,7 @@
 defmodule MastaniServer.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.Accounts.{User, GithubUser, Bill, Purchase, Customization}
+  alias MastaniServer.Accounts.{User, GithubUser, UserBill, Purchase, Customization}
   alias MastaniServer.CMS
 
   schema "users" do
@@ -26,9 +26,11 @@ defmodule MastaniServer.Accounts.User do
     # has_many(::following_communities, {"communities_subscribers", CommunitySubscriber})
     # has_many(:follow_communities, {"communities_subscribers", CommunitySubscriber})
 
-    # field(:paid_menber, :boolean)
-    # field(:platinum_menber, :boolean)
-    # has_many(:bills, Bill)
+    field(:sponsor_member, :boolean)
+    field(:paid_member, :boolean)
+    field(:platinum_member, :boolean)
+
+    has_many(:bills, {"users_bills", UserBill})
     has_one(:customization, Customization)
     has_one(:purchase, Purchase)
 
