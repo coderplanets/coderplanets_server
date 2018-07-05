@@ -1,14 +1,11 @@
 defmodule MastaniServer.Accounts.Delegate.Billing do
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, get_config: 2]
-  import ShortMaps
 
-  alias MastaniServer.Repo
   alias MastaniServer.Accounts.{User, Purchase}
   alias Helper.ORM
 
   # ...
-  def purchase_service(%User{} = user, map) when map_size(map) == 0 do
+  def purchase_service(%User{} = _user, map) when map_size(map) == 0 do
     {:error, "AccountPurchase: invalid option or not purchased"}
   end
 
@@ -52,7 +49,7 @@ defmodule MastaniServer.Accounts.Delegate.Billing do
     end
   end
 
-  defp can_purchase?(%User{} = user, key) do
+  defp can_purchase?(%User{} = _user, key) do
     case key in valid_service do
       true -> {:ok, key}
       false -> {:error, "AccountPurchase: purchase invalid service"}

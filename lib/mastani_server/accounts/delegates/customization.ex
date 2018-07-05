@@ -1,11 +1,8 @@
 defmodule MastaniServer.Accounts.Delegate.Customization do
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, get_config: 2]
-  import ShortMaps
 
-  alias MastaniServer.Repo
   alias MastaniServer.Accounts
-  alias MastaniServer.Accounts.{User, Bill, Customization}
+  alias MastaniServer.Accounts.{User, Customization}
   alias Helper.ORM
   # ...
   # TODO: Constants
@@ -15,7 +12,7 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
   """
   # for map_size
   # see https://stackoverflow.com/questions/33248816/pattern-match-function-against-empty-map
-  def add_custom_setting(%User{} = user, map) when map_size(map) == 0 do
+  def add_custom_setting(%User{} = _user, map) when map_size(map) == 0 do
     {:error, "AccountCustomization: invalid option or not purchased"}
   end
 
