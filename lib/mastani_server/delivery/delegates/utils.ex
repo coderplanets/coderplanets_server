@@ -36,7 +36,7 @@ defmodule MastaniServer.Delivery.Delegate.Utils do
   @doc """
   fetch mentions / notifications
   """
-  def fetch_messages(%User{} = user, queryable, %{page: page, size: size, read: read} = filter) do
+  def fetch_messages(%User{} = user, queryable, %{page: _page, size: _size, read: read} = filter) do
     mails = fetch_mails_and_delete(user, queryable, filter)
     record_operation(queryable, read, mails)
 
