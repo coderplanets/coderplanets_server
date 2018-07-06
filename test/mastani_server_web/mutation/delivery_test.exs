@@ -85,6 +85,7 @@ defmodule MastaniServer.Test.Mutation.DeliveryTest do
         sourceTitle: "fake post title",
         sourceType: "post"
       }
+
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
