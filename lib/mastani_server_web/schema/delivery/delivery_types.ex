@@ -22,13 +22,38 @@ defmodule MastaniServerWeb.Schema.Delivery.Types do
     field(:read, :boolean)
   end
 
+  object :sys_notification do
+    field(:id, :id)
+
+    field(:source_id, :string)
+    field(:source_title, :string)
+    field(:source_preview, :string)
+    field(:source_type, :string)
+
+    field(:read, :boolean)
+  end
+
   object :notification do
     field(:id, :id)
     field(:from_user_id, :id)
     field(:to_user_id, :id)
     field(:action, :string)
 
+    field(:source_id, :string)
     field(:source_title, :string)
+    field(:source_preview, :string)
+    field(:source_type, :string)
+    field(:read, :boolean)
+  end
+
+  object :sys_notification do
+    field(:id, :id)
+    field(:user_id, :id)
+
+    field(:source_id, :string)
+    field(:source_title, :string)
+    field(:source_preview, :string)
+    field(:source_type, :string)
     field(:read, :boolean)
   end
 
@@ -48,8 +73,18 @@ defmodule MastaniServerWeb.Schema.Delivery.Types do
     field(:page_number, :integer)
   end
 
+  object :paged_sys_notifications do
+    field(:entries, list_of(:sys_notification))
+    field(:total_count, :integer)
+    field(:page_size, :integer)
+    field(:total_pages, :integer)
+    field(:page_number, :integer)
+  end
+
+  # TODO: move to common types
   object :status do
     field(:done, :boolean)
+    field(:id, :id)
   end
 
   input_object :messages_filter do

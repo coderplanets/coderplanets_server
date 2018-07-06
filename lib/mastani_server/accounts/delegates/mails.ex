@@ -1,6 +1,6 @@
 defmodule MastaniServer.Accounts.Delegate.Mails do
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1]
+  import Helper.Utils, only: [done: 1, done: 2]
   import ShortMaps
 
   alias MastaniServer.Repo
@@ -68,7 +68,7 @@ defmodule MastaniServer.Accounts.Delegate.Mails do
 
   def mark_mail_read(%SysNotificationMail{id: id}, %User{} = user) do
     with {:ok, mail} <- SysNotificationMail |> ORM.find_by(id: id, user_id: user.id) do
-      mail |> ORM.update(%{read: true})
+      mail |> ORM.update(%{read: true}) |> done(:status)
     end
   end
 
@@ -82,7 +82,7 @@ defmodule MastaniServer.Accounts.Delegate.Mails do
 
   defp do_mark_mail_read(queryable, id, %User{} = user) do
     with {:ok, mail} <- queryable |> ORM.find_by(id: id, to_user_id: user.id) do
-      mail |> ORM.update(%{read: true})
+      mail |> ORM.update(%{read: true}) |> done(:status)
     end
   end
 

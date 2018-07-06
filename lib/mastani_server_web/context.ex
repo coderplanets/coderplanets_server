@@ -49,6 +49,7 @@ defmodule MastaniServerWeb.Context do
 
   # TODO gather role info from CMS or other context
   defp check_passport(%Accounts.User{} = user) do
+
     with {:ok, cms_passport} <- CMS.get_passport(%Accounts.User{id: user.id}) do
       {:ok, Map.put(user, :cur_passport, %{"cms" => cms_passport})}
     else

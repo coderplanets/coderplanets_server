@@ -43,12 +43,20 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.fetch_notifications(cur_user, filter)
   end
 
+  def fetch_sys_notifications(_root, %{filter: filter}, %{context: %{cur_user: cur_user}}) do
+    Accounts.fetch_sys_notifications(cur_user, filter)
+  end
+
   def mark_notification_read(_root, %{id: id}, %{context: %{cur_user: cur_user}}) do
     Accounts.mark_mail_read(%Accounts.NotificationMail{id: id}, cur_user)
   end
 
   def mark_notification_read_all(_root, _args, %{context: %{cur_user: cur_user}}) do
     Accounts.mark_mail_read_all(cur_user, :notification)
+  end
+
+  def mark_sys_notification_read(_root, %{id: id}, %{context: %{cur_user: cur_user}}) do
+    Accounts.mark_mail_read(%Accounts.SysNotificationMail{id: id}, cur_user)
   end
 
   # for user self's

@@ -113,7 +113,7 @@ defmodule MastaniServer.Delivery.MentionTest do
       mock_mentions_for(user, 3)
 
       filter = %{page: 1, size: 20, read: false}
-      {:ok, mentions} = Accounts.fetch_mentions(user, filter)
+      {:ok, _mentions} = Accounts.fetch_mentions(user, filter)
       Accounts.mark_mail_read_all(user, :mention)
 
       filter = %{page: 1, size: 20, read: false}

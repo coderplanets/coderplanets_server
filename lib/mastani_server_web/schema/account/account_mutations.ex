@@ -33,7 +33,7 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
     end
 
     @desc "mark a mention as read"
-    field :mark_mention_read, :mention do
+    field :mark_mention_read, :status do
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
@@ -47,7 +47,7 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
     end
 
     @desc "mark a notification as read"
-    field :mark_notification_read, :notification do
+    field :mark_notification_read, :status do
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
@@ -58,6 +58,14 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
     field :mark_notification_read_all, :status do
       middleware(M.Authorize, :login)
       resolve(&Resolvers.Accounts.mark_notification_read_all/3)
+    end
+
+    @desc "mark a system notification as read"
+    field :mark_sys_notification_read, :status do
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      resolve(&Resolvers.Accounts.mark_sys_notification_read/3)
     end
   end
 end

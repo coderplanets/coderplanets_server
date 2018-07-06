@@ -211,7 +211,6 @@ defmodule MastaniServer.Delivery.Delegate.Utils do
     |> Repo.delete_all()
   end
 
-  # TODO: update unread_fetch_time
   defp do_mark_read_all(queryable, %User{} = user) do
     query =
       queryable

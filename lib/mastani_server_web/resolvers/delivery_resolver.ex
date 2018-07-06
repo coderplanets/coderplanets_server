@@ -11,4 +11,8 @@ defmodule MastaniServerWeb.Resolvers.Delivery do
 
     Delivery.mention_someone(%User{id: from_user_id}, %User{id: to_user_id}, args)
   end
+
+  def publish_system_notification(_root, args, %{context: %{cur_user: _}}) do
+    Delivery.publish_system_notification(args)
+  end
 end

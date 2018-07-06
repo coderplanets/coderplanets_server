@@ -20,6 +20,9 @@ defmodule Helper.Utils do
   def done(nil), do: {:error, "record not found."}
   def done(result), do: {:ok, result}
 
+  def done({:ok, %{id: id}}, :status), do: {:ok, %{done: true, id: id}}
+  def done({:error, _}, :status), do: {:ok, %{done: false}}
+
   @doc """
   see: https://hexdocs.pm/absinthe/errors.html#content for error format
   """

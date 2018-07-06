@@ -2,6 +2,8 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
   @moduledoc """
   The Delivery context.
   """
+  import Helper.Utils, only: [done: 2]
+
   alias MastaniServer.Accounts.User
   alias MastaniServer.Delivery.Mention
   alias Helper.ORM
@@ -18,7 +20,9 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
       source_preview: info.source_preview
     }
 
-    Mention |> ORM.create(attrs)
+    Mention
+    |> ORM.create(attrs)
+    |> done(:status)
   end
 
   @doc """

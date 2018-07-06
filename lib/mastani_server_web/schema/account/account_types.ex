@@ -108,6 +108,15 @@ defmodule MastaniServerWeb.Schema.Account.Types do
       resolve(&Resolvers.Accounts.fetch_notifications/3)
       middleware(M.FormatPagination)
     end
+
+    field :sys_notifications, :paged_sys_notifications do
+      arg(:filter, :messages_filter)
+
+      middleware(M.Authorize, :login)
+      middleware(M.PageSizeProof)
+      resolve(&Resolvers.Accounts.fetch_sys_notifications/3)
+      middleware(M.FormatPagination)
+    end
   end
 
   object :token_info do

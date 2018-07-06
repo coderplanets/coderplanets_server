@@ -75,6 +75,13 @@ defmodule MastaniServer.Test.Query.AccountsMessagesTest do
           }
           totalCount
         }
+        sysNotifications(filter: $filter) {
+          entries {
+            id
+            read
+          }
+          totalCount
+        }
       }
     }
     """
@@ -115,5 +122,25 @@ defmodule MastaniServer.Test.Query.AccountsMessagesTest do
       assert notifications["totalCount"] == 3
       assert notifications["entries"] |> List.first() |> Map.get("toUserId") == to_string(user.id)
     end
+
+    test "user can get system notifications" do
+      {:ok, user} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      variables = %{filter: %{page: 1, size: 20, read: false}}
+      result = user_conn |> query_result(@query, variables, "account")
+      notifications = result["sysNotifications"]
+      assert notifications["totalCount"] == 0
+
+      mock_sys_notification(5)
+
+      variables = %{filter: %{page: 1, size: 20, read: false}}
+      result = user_conn |> query_result(@query, variables, "account")
+      notifications = result["sysNotifications"]
+
+      assert notifications["totalCount"] == 5
+    end
+
+
   end
 end

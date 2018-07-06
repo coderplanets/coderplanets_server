@@ -63,31 +63,45 @@ defmodule MastaniServerWeb.Middleware.Passport do
     resolution |> check_passport_stamp(claim)
   end
 
-  def call(
-        %{context: %{cur_user: %{cur_passport: _}}} = resolution,
-        claim: "cms->community." <> _rest = claim
-      ) do
-    resolution |> check_passport_stamp(claim)
-  end
+  # def call(
+        # %{context: %{cur_user: %{cur_passport: _}}} = resolution,
+        # claim: "cms->community." <> _rest = claim
+      # ) do
+    # resolution |> check_passport_stamp(claim)
+  # end
+
+  # def call(
+        # %{context: %{cur_user: %{cur_passport: _}}} = resolution,
+        # claim: "cms->thread." <> _rest = claim
+      # ) do
+    # resolution |> check_passport_stamp(claim)
+  # end
+
+  # def call(
+        # %{context: %{cur_user: %{cur_passport: _}}} = resolution,
+        # claim: "cms->editor." <> _rest = claim
+      # ) do
+    # resolution |> check_passport_stamp(claim)
+  # end
+
+  # def call(
+        # %{context: %{cur_user: %{cur_passport: _}}} = resolution,
+        # claim: "cms->category." <> _rest = claim
+      # ) do
+    # resolution |> check_passport_stamp(claim)
+  # end
+
+  # def call(
+    # %{context: %{cur_user: %{cur_passport: _}}} = resolution,
+    # claim: "cms->system_notification" <> _rest = claim
+  # ) do
+    # resolution |> check_passport_stamp(claim)
+  # end
 
   def call(
-        %{context: %{cur_user: %{cur_passport: _}}} = resolution,
-        claim: "cms->thread." <> _rest = claim
-      ) do
-    resolution |> check_passport_stamp(claim)
-  end
-
-  def call(
-        %{context: %{cur_user: %{cur_passport: _}}} = resolution,
-        claim: "cms->editor." <> _rest = claim
-      ) do
-    resolution |> check_passport_stamp(claim)
-  end
-
-  def call(
-        %{context: %{cur_user: %{cur_passport: _}}} = resolution,
-        claim: "cms->category." <> _rest = claim
-      ) do
+    %{context: %{cur_user: %{cur_passport: _}}} = resolution,
+    claim: "cms->" <> _rest = claim
+    ) do
     resolution |> check_passport_stamp(claim)
   end
 
@@ -97,18 +111,22 @@ defmodule MastaniServerWeb.Middleware.Passport do
   end
 
   defp check_passport_stamp(resolution, claim) do
+    # TODO: refactor
     cond do
-      claim |> String.starts_with?("cms->community.") ->
-        resolution |> do_check(claim)
+      # claim |> String.starts_with?("cms->community.") ->
+        # resolution |> do_check(claim)
 
-      claim |> String.starts_with?("cms->editor.") ->
-        resolution |> do_check(claim)
+      # claim |> String.starts_with?("cms->editor.") ->
+        # resolution |> do_check(claim)
 
-      claim |> String.starts_with?("cms->thread.") ->
-        resolution |> do_check(claim)
+      # claim |> String.starts_with?("cms->thread.") ->
+        # resolution |> do_check(claim)
 
-      claim |> String.starts_with?("cms->category.") ->
-        resolution |> do_check(claim)
+      # claim |> String.starts_with?("cms->category.") ->
+        # resolution |> do_check(claim)
+
+      # claim |> String.starts_with?("cms->system_notification") ->
+        # resolution |> do_check(claim)
 
       claim |> String.starts_with?("cms->c?->t?.") ->
         resolution |> cp_check(claim)
@@ -119,6 +137,9 @@ defmodule MastaniServerWeb.Middleware.Passport do
       claim |> String.starts_with?("cms->c?->") ->
         resolution |> c_check(claim)
 
+      claim |> String.starts_with?("cms->") ->
+        resolution |> do_check(claim)
+
       true ->
         resolution
         |> handle_absinthe_error("PassportError: Passport not qualified.", ecode(:passport))
@@ -128,6 +149,9 @@ defmodule MastaniServerWeb.Middleware.Passport do
   defp do_check(resolution, claim) do
     cur_passport = resolution.context.cur_user.cur_passport
     path = claim |> String.split("->")
+
+    IO.inspect path, label: "path"
+    IO.inspect cur_passport, label: "cur_passport"
 
     case get_in(cur_passport, path) do
       true ->
