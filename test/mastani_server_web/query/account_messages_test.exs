@@ -140,7 +140,5 @@ defmodule MastaniServer.Test.Query.AccountsMessagesTest do
 
       assert notifications["totalCount"] == 5
     end
-
-
   end
 end

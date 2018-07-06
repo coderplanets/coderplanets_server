@@ -19,7 +19,7 @@ defmodule MastaniServer.Delivery.Delegate.Notifications do
       source_preview: info |> Map.get(:source_preview, "")
     }
 
-    SysNotification |> ORM.create(attrs)  |> done(:status)
+    SysNotification |> ORM.create(attrs) |> done(:status)
   end
 
   def notify_someone(%User{id: from_user_id}, %User{id: to_user_id}, info) do

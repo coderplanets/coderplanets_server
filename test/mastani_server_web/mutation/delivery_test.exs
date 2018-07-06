@@ -12,7 +12,6 @@ defmodule MastaniServer.Test.Mutation.DeliveryTest do
     {:ok, ~m(user_conn guest_conn user)a}
   end
 
-
   @account_query """
   query($filter: MessagesFilter!) {
     account {
@@ -67,14 +66,16 @@ defmodule MastaniServer.Test.Mutation.DeliveryTest do
       variables = %{
         sourceId: "1",
         sourceTitle: "fake post title",
-        sourceType: "post",
+        sourceType: "post"
       }
+
       # IO.inspect variables, label: "variables"
-      %{"done" => true} = rule_conn |> mutation_result(@query, variables, "publishSystemNotification")
+      %{"done" => true} =
+        rule_conn |> mutation_result(@query, variables, "publishSystemNotification")
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
       result = user_conn |> query_result(@account_query, variables, "account")
-      sysNotifications =result["sysNotifications"]
+      sysNotifications = result["sysNotifications"]
 
       assert sysNotifications["totalCount"] == 1
     end
