@@ -24,7 +24,7 @@ defmodule MastaniServer.Accounts.Delegate.Mails do
     end
   end
 
-  def fetch_sys_notifications(%User{} = user, %{page: page, size: size, read: read} = filter) do
+  def fetch_sys_notifications(%User{} = user, %{page: page, size: size, read: read}) do
     with {:ok, sys_notifications} <-
            Delivery.fetch_sys_notifications(user, %{page: page, size: size}),
          {:ok, washed_notifications} <-
@@ -41,12 +41,11 @@ defmodule MastaniServer.Accounts.Delegate.Mails do
     end
   end
 
-  defp messages_handler(
-         queryable,
-         washed_data,
-         %User{id: user_id},
-         %{page: page, size: size, read: read} = filter
-       ) do
+  defp messages_handler(queryable, washed_data, %User{id: user_id}, %{
+         page: page,
+         size: size,
+         read: read
+       }) do
     queryable
     |> Repo.insert_all(washed_data)
 

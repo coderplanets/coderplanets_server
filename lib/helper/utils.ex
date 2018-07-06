@@ -14,14 +14,14 @@ defmodule Helper.Utils do
   def done(_, :boolean), do: {:ok, true}
   def done(nil, err_msg), do: {:error, err_msg}
 
+  def done({:ok, %{id: id}}, :status), do: {:ok, %{done: true, id: id}}
+  def done({:error, _}, :status), do: {:ok, %{done: false}}
+
   def done(nil, queryable, id), do: {:error, not_found_formater(queryable, id)}
   def done(result, _, _), do: {:ok, result}
 
   def done(nil), do: {:error, "record not found."}
   def done(result), do: {:ok, result}
-
-  def done({:ok, %{id: id}}, :status), do: {:ok, %{done: true, id: id}}
-  def done({:error, _}, :status), do: {:ok, %{done: false}}
 
   @doc """
   see: https://hexdocs.pm/absinthe/errors.html#content for error format
