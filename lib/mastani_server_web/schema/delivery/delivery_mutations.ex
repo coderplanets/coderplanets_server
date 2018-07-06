@@ -29,7 +29,7 @@ defmodule MastaniServerWeb.Schema.Delivery.Mutations do
       arg(:source_preview, :string)
 
       middleware(M.Authorize, :login)
-      # TODO: use delivery passport system
+      # TODO: use delivery passport system instead of cms's
       middleware(M.Passport, claim: "cms->system_notification.publish")
 
       resolve(&Resolvers.Delivery.publish_system_notification/3)

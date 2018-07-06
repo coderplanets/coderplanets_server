@@ -53,7 +53,6 @@ defmodule MastaniServer.Test.Mutation.DeliveryTest do
       }
     }
     """
-    @tag :wip
     test "auth user can publish system notifications" do
       {:ok, user} = db_insert(:user)
 
@@ -78,6 +77,19 @@ defmodule MastaniServer.Test.Mutation.DeliveryTest do
       sysNotifications = result["sysNotifications"]
 
       assert sysNotifications["totalCount"] == 1
+    end
+
+    test "unauth user publish system notification fails", ~m(user_conn guest_conn)a do
+      variables = %{
+        sourceId: "1",
+        sourceTitle: "fake post title",
+        sourceType: "post"
+      }
+      rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
+
+      assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
+      assert rule_conn |> mutation_get_error?(@query, variables, ecode(:passport))
     end
 
     @query """
