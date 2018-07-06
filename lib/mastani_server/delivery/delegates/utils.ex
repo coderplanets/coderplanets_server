@@ -122,6 +122,10 @@ defmodule MastaniServer.Delivery.Delegate.Utils do
     Record |> ORM.upsert_by([user_id: user_id], attrs)
   end
 
+  # last_fetch_read_time
+  # > the last fetch time of mails that is read
+  # last_fetch_unread_time
+  # > the last fetch time of mails that is read
   defp do_record_operation(record_name, read, {:ok, %{entries: entries}}) do
     record_last_fetch_time = get_record_lasttime(entries)
     user_id = entries |> List.first() |> Map.get(:to_user_id)
