@@ -2,6 +2,7 @@ defmodule MastaniServerWeb.Schema.Delivery.Types do
   use Absinthe.Schema.Notation
   use Absinthe.Ecto, repo: MastaniServerWeb.Repo
 
+  import MastaniServerWeb.Schema.Utils.Helper
   import Helper.Utils, only: [get_config: 2]
 
   @page_size get_config(:general, :page_size)
@@ -59,32 +60,17 @@ defmodule MastaniServerWeb.Schema.Delivery.Types do
 
   object :paged_mentions do
     field(:entries, list_of(:mention))
-    field(:total_count, :integer)
-    field(:page_size, :integer)
-    field(:total_pages, :integer)
-    field(:page_number, :integer)
+    pagination_fields()
   end
 
   object :paged_notifications do
     field(:entries, list_of(:notification))
-    field(:total_count, :integer)
-    field(:page_size, :integer)
-    field(:total_pages, :integer)
-    field(:page_number, :integer)
+    pagination_fields()
   end
 
   object :paged_sys_notifications do
     field(:entries, list_of(:sys_notification))
-    field(:total_count, :integer)
-    field(:page_size, :integer)
-    field(:total_pages, :integer)
-    field(:page_number, :integer)
-  end
-
-  # TODO: move to common types
-  object :status do
-    field(:done, :boolean)
-    field(:id, :id)
+    pagination_fields()
   end
 
   input_object :messages_filter do

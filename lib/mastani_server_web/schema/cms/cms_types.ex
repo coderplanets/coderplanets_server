@@ -2,6 +2,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   use Absinthe.Schema.Notation
   use Absinthe.Ecto, repo: MastaniServer.Repo
 
+  import MastaniServerWeb.Schema.Utils.Helper
   import Ecto.Query, warn: false
   import Absinthe.Resolution.Helpers, only: [dataloader: 2, on_load: 2]
 
@@ -355,57 +356,36 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
   object :paged_categories do
     field(:entries, list_of(:category))
-    field(:total_count, :integer)
-    field(:page_size, :integer)
-    field(:total_pages, :integer)
-    field(:page_number, :integer)
+    pagination_fields()
   end
 
   object :paged_posts do
     field(:entries, list_of(:post))
-    field(:total_count, :integer)
-    field(:page_size, :integer)
-    field(:total_pages, :integer)
-    field(:page_number, :integer)
+    pagination_fields()
   end
 
   object :paged_jobs do
     field(:entries, list_of(:job))
-    field(:total_count, :integer)
-    field(:page_size, :integer)
-    field(:total_pages, :integer)
-    field(:page_number, :integer)
+    pagination_fields()
   end
 
   object :paged_comments do
     field(:entries, list_of(:comment))
-    field(:total_count, :integer)
-    field(:page_size, :integer)
-    field(:total_pages, :integer)
-    field(:page_number, :integer)
+    pagination_fields()
   end
 
   object :paged_communities do
     field(:entries, list_of(:community))
-    field(:total_count, :integer)
-    field(:page_size, :integer)
-    field(:total_pages, :integer)
-    field(:page_number, :integer)
+    pagination_fields()
   end
 
   object :paged_tags do
     field(:entries, list_of(:tag))
-    field(:total_count, :integer)
-    field(:page_size, :integer)
-    field(:total_pages, :integer)
-    field(:page_number, :integer)
+    pagination_fields()
   end
 
   object :paged_threads do
     field(:entries, list_of(:thread))
-    field(:total_count, :integer)
-    field(:page_size, :integer)
-    field(:total_pages, :integer)
-    field(:page_number, :integer)
+    pagination_fields()
   end
 end

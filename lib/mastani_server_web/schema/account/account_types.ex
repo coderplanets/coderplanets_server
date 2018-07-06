@@ -2,6 +2,7 @@ defmodule MastaniServerWeb.Schema.Account.Types do
   use Absinthe.Schema.Notation
   use Absinthe.Ecto, repo: MastaniServerWeb.Repo
 
+  import MastaniServerWeb.Schema.Utils.Helper
   import Absinthe.Resolution.Helpers
 
   alias MastaniServer.Accounts
@@ -130,9 +131,6 @@ defmodule MastaniServerWeb.Schema.Account.Types do
 
   object :paged_users do
     field(:entries, list_of(:user))
-    field(:total_count, :integer)
-    field(:page_size, :integer)
-    field(:total_pages, :integer)
-    field(:page_number, :integer)
+    pagination_fields()
   end
 end
