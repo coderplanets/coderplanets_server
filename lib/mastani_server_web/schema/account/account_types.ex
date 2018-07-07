@@ -11,11 +11,6 @@ defmodule MastaniServerWeb.Schema.Account.Types do
 
   import_types(Schema.Account.Misc)
 
-  object :page_info do
-    field(:total_count, :integer)
-    field(:page_size, :integer)
-  end
-
   object :github_profile do
     field(:id, :id)
     field(:github_id, :string)
