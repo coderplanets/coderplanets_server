@@ -16,7 +16,13 @@ defmodule MastaniServer.CMS.Delegate.ArticleReaction do
          {:ok, content} <- ORM.find(action.target, thread_id),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
       attrs = Map.put(%{}, "user_id", user.id) |> Map.put("#{thread}_id", content.id)
-      action.reactor |> ORM.create(attrs)
+
+      action.reactor
+      |> ORM.create(attrs)
+      |> case do
+        {:ok, _} -> {:ok, content}
+        {:error, error} -> {:error, error}
+      end
     end
   end
 
