@@ -64,7 +64,7 @@ defmodule MastaniServer.Mixfile do
       {:mix_test_watch, "~> 0.5", only: :dev, runtime: false},
       {:ex_unit_notifier, "~> 0.1", only: :test},
       {:apollo_tracing, "~> 0.4.1"},
-      {:pre_commit, "~> 0.2.4"},
+      {:pre_commit, "~> 0.3.4"},
       {:inch_ex, "~> 0.5", only: [:dev, :test]},
       {:short_maps, "~> 0.1.1"},
       {:jason, "~> 1.0"},
