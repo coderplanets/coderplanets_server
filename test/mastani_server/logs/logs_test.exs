@@ -4,7 +4,7 @@ defmodule MastaniServer.LogsTest do
   alias MastaniServer.Logs
 
   describe "user_activity_logs" do
-    alias MastaniServer.Logs.UserActivity
+    # alias MastaniServer.Logs.UserActivity
 
     test "TODO " do
       true

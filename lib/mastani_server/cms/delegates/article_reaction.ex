@@ -9,11 +9,10 @@ defmodule MastaniServer.CMS.Delegate.ArticleReaction do
   @doc """
   favorite / star / watch CMS contents like post / tuts / video ...
   """
-  # TODO: def reaction(thread, react, thread_id, %Accounts.User{id: user_id}) when valid_reaction(thread, react) do
-  def reaction(thread, react, thread_id, %Accounts.User{id: user_id})
+  def reaction(thread, react, content_id, %Accounts.User{id: user_id})
       when valid_reaction(thread, react) do
     with {:ok, action} <- match_action(thread, react),
-         {:ok, content} <- ORM.find(action.target, thread_id),
+         {:ok, content} <- ORM.find(action.target, content_id),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
       attrs = Map.put(%{}, "user_id", user.id) |> Map.put("#{thread}_id", content.id)
 
@@ -29,23 +28,14 @@ defmodule MastaniServer.CMS.Delegate.ArticleReaction do
   @doc """
   unfavorite / unstar / unwatch CMS contents like post / tuts / video ...
   """
-  def undo_reaction(thread, react, thread_id, %Accounts.User{id: user_id})
+  def undo_reaction(thread, react, content_id, %Accounts.User{id: user_id})
       when valid_reaction(thread, react) do
     with {:ok, action} <- match_action(thread, react),
-         {:ok, content} <- ORM.find(action.target, thread_id) do
-      the_user = dynamic([u], u.user_id == ^user_id)
+         {:ok, content} <- ORM.find(action.target, content_id) do
+      user_where = dynamic([u], u.user_id == ^user_id)
+      reaction_where = dynamic_reaction_where(thread, content.id, user_where)
 
-      where =
-        case thread do
-          :post ->
-            dynamic([p], p.post_id == ^content.id and ^the_user)
-
-          :job ->
-            dynamic([p], p.job_id == ^content.id and ^the_user)
-            # :star -> dynamic([p], p.star_id == ^content.id and ^the_user)
-        end
-
-      query = from(f in action.reactor, where: ^where)
+      query = from(f in action.reactor, where: ^reaction_where)
 
       case Repo.one(query) do
         nil ->
@@ -56,5 +46,13 @@ defmodule MastaniServer.CMS.Delegate.ArticleReaction do
           {:ok, content}
       end
     end
+  end
+
+  defp dynamic_reaction_where(:post, id, user_where) do
+    dynamic([p], p.post_id == ^id and ^user_where)
+  end
+
+  defp dynamic_reaction_where(:job, id, user_where) do
+    dynamic([p], p.job_id == ^id and ^user_where)
   end
 end

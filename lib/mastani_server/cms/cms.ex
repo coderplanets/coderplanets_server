@@ -53,22 +53,22 @@ defmodule MastaniServer.CMS do
   defdelegate reaction_users(thread, react, id, filters), to: ArticleCURD
 
   # ArticleReaction
-  defdelegate reaction(thread, react, thread_id, user_id), to: ArticleReaction
-  defdelegate undo_reaction(thread, react, thread_id, user_id), to: ArticleReaction
+  defdelegate reaction(thread, react, content_id, user_id), to: ArticleReaction
+  defdelegate undo_reaction(thread, react, content_id, user_id), to: ArticleReaction
 
   # ArticleOperation
   # >> tag: set / unset
-  defdelegate set_tag(thread, thread_id, community_title, tag_id), to: ArticleOperation
-  defdelegate unset_tag(thread, thread_id, tag_id), to: ArticleOperation
+  defdelegate set_tag(thread, content_id, community_title, tag_id), to: ArticleOperation
+  defdelegate unset_tag(thread, content_id, tag_id), to: ArticleOperation
   # >> community: set / unset
-  defdelegate set_community(thread, thread_id, community_id), to: ArticleOperation
-  defdelegate unset_community(thread, thread_id, community_id), to: ArticleOperation
+  defdelegate set_community(thread, content_id, community_id), to: ArticleOperation
+  defdelegate unset_community(thread, content_id, community_id), to: ArticleOperation
   # >> reaction
 
   # Comment CURD
-  defdelegate create_comment(thread, thread_id, user_id, body), to: CommentCURD
-  defdelegate delete_comment(thread, thread_id), to: CommentCURD
-  defdelegate list_comments(thread, thread_id, filters), to: CommentCURD
+  defdelegate create_comment(thread, content_id, user_id, body), to: CommentCURD
+  defdelegate delete_comment(thread, content_id), to: CommentCURD
+  defdelegate list_comments(thread, content_id, filters), to: CommentCURD
   defdelegate list_replies(thread, comment_id, user_id), to: CommentCURD
   defdelegate reply_comment(thread, comment_id, user_id, body), to: CommentCURD
 

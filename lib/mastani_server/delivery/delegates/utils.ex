@@ -173,23 +173,22 @@ defmodule MastaniServer.Delivery.Delegate.Utils do
   defp do_get_last_fetch_time(record_key, %User{id: user_id}, timekey) do
     long_long_ago = Timex.shift(Timex.now(), years: -10)
 
-    case Record |> ORM.find_by(user_id: user_id) do
+    with {:ok, record} <- Record |> ORM.find_by(user_id: user_id) do
+      record
+      |> has_valid_value(record_key)
+      |> case do
+        false ->
+          {:ok, long_long_ago}
+
+        true ->
+          record
+          |> Map.get(record_key)
+          |> Map.get(timekey, to_string(long_long_ago))
+          |> NaiveDateTime.from_iso8601()
+      end
+    else
       {:error, _} ->
         {:ok, long_long_ago}
-
-      {:ok, record} ->
-        record
-        |> has_valid_value(record_key)
-        |> case do
-          false ->
-            {:ok, long_long_ago}
-
-          true ->
-            record
-            |> Map.get(record_key)
-            |> Map.get(timekey, to_string(long_long_ago))
-            |> NaiveDateTime.from_iso8601()
-        end
     end
   end
 

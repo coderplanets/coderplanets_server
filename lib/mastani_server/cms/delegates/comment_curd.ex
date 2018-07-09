@@ -11,9 +11,9 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   @doc """
   Creates a comment for psot, job ...
   """
-  def create_comment(thread, thread_id, %Accounts.User{id: user_id}, body) do
+  def create_comment(thread, content_id, %Accounts.User{id: user_id}, body) do
     with {:ok, action} <- match_action(thread, :comment),
-         {:ok, content} <- ORM.find(action.target, thread_id),
+         {:ok, content} <- ORM.find(action.target, content_id),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
       nextFloor = get_next_floor(thread, action.reactor, content.id)
 
@@ -23,25 +23,21 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
         floor: nextFloor
       }
 
-      attrs =
-        case thread do
-          :post ->
-            attrs |> Map.merge(%{post_id: content.id})
-
-          :job ->
-            attrs |> Map.merge(%{job_id: content.id})
-        end
+      attrs = merge_comment_attrs(thread, attrs, content.id)
 
       action.reactor |> ORM.create(attrs)
     end
   end
 
+  defp merge_comment_attrs(:post, attrs, id), do: attrs |> Map.merge(%{post_id: id})
+  defp merge_comment_attrs(:job, attrs, id), do: attrs |> Map.merge(%{job_id: id})
+
   @doc """
   Delete the comment and increase all the floor after this comment
   """
-  def delete_comment(thread, thread_id) do
+  def delete_comment(thread, content_id) do
     with {:ok, action} <- match_action(thread, :comment),
-         {:ok, comment} <- ORM.find(action.reactor, thread_id) do
+         {:ok, comment} <- ORM.find(action.reactor, content_id) do
       case ORM.delete(comment) do
         {:ok, comment} ->
           Repo.update_all(
@@ -57,16 +53,9 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     end
   end
 
-  def list_comments(thread, thread_id, %{page: page, size: size} = filters) do
+  def list_comments(thread, content_id, %{page: page, size: size} = filters) do
     with {:ok, action} <- match_action(thread, :comment) do
-      dynamic =
-        case thread do
-          :post ->
-            dynamic([c], c.post_id == ^thread_id)
-
-          :job ->
-            dynamic([c], c.job_id == ^thread_id)
-        end
+      dynamic = dynamic_comment_where(thread, content_id)
 
       action.reactor
       |> where(^dynamic)
@@ -99,18 +88,15 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
         floor: nextFloor
       }
 
-      attrs =
-        case thread do
-          :post ->
-            attrs |> Map.merge(%{post_id: comment.post_id})
-
-          :job ->
-            attrs |> Map.merge(%{job_id: comment.job_id})
-        end
-
+      attrs = merge_reply_attrs(thread, attrs, comment)
       brige_reply(thread, action.reactor, comment, attrs)
     end
   end
+
+  defp merge_reply_attrs(:post, attrs, comment),
+    do: attrs |> Map.merge(%{post_id: comment.post_id})
+
+  defp merge_reply_attrs(:job, attrs, comment), do: attrs |> Map.merge(%{job_id: comment.job_id})
 
   defp brige_reply(:post, queryable, comment, attrs) do
     # TODO: use Multi task to refactor
@@ -135,33 +121,27 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     end
   end
 
+  # for create comment
   defp get_next_floor(thread, queryable, id) when is_integer(id) do
-    dynamic =
-      case thread do
-        :post ->
-          dynamic([c], c.post_id == ^id)
-
-        :job ->
-          dynamic([c], c.job_id == ^id)
-      end
+    dynamic = dynamic_comment_where(thread, id)
 
     queryable
     |> where(^dynamic)
     |> ORM.next_count()
   end
 
+  defp dynamic_comment_where(:post, id), do: dynamic([c], c.post_id == ^id)
+  defp dynamic_comment_where(:job, id), do: dynamic([c], c.job_id == ^id)
+
+  # for reply comment
   defp get_next_floor(thread, queryable, comment) do
-    dynamic =
-      case thread do
-        :post ->
-          dynamic([c], c.post_id == ^comment.post_id)
-
-        :job ->
-          dynamic([c], c.job_id == ^comment.job_id)
-      end
+    dynamic = dynamic_reply_where(thread, comment)
 
     queryable
     |> where(^dynamic)
     |> ORM.next_count()
   end
+
+  defp dynamic_reply_where(:post, comment), do: dynamic([c], c.post_id == ^comment.post_id)
+  defp dynamic_reply_where(:job, comment), do: dynamic([c], c.job_id == ^comment.job_id)
 end

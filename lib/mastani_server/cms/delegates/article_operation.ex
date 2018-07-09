@@ -7,9 +7,9 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   alias MastaniServer.Repo
   alias Helper.ORM
 
-  def set_community(thread, thread_id, %Community{id: community_id}) when valid_thread(thread) do
+  def set_community(thread, content_id, %Community{id: community_id}) when valid_thread(thread) do
     with {:ok, action} <- match_action(thread, :community),
-         {:ok, content} <- ORM.find(action.target, thread_id, preload: :communities),
+         {:ok, content} <- ORM.find(action.target, content_id, preload: :communities),
          {:ok, community} <- ORM.find(action.reactor, community_id) do
       content
       |> Ecto.Changeset.change()
@@ -19,10 +19,10 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   end
 
   # TODO: use community_id instead of title
-  def unset_community(thread, thread_id, %Community{id: community_id})
+  def unset_community(thread, content_id, %Community{id: community_id})
       when valid_thread(thread) do
     with {:ok, action} <- match_action(thread, :community),
-         {:ok, content} <- ORM.find(action.target, thread_id, preload: :communities),
+         {:ok, content} <- ORM.find(action.target, content_id, preload: :communities),
          {:ok, community} <- ORM.find(action.reactor, community_id) do
       content
       |> Ecto.Changeset.change()
@@ -35,9 +35,9 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   set tag for post / tuts / videos ...
   """
   # check community first
-  def set_tag(thread, thread_id, %Community{id: communitId}, %Tag{id: tag_id}) do
+  def set_tag(thread, content_id, %Community{id: communitId}, %Tag{id: tag_id}) do
     with {:ok, action} <- match_action(thread, :tag),
-         {:ok, content} <- ORM.find(action.target, thread_id, preload: :tags),
+         {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
          {:ok, tag} <- ORM.find(action.reactor, tag_id) do
       case tag_in_community_thread?(%Community{id: communitId}, thread, tag) do
         true ->
@@ -52,9 +52,9 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
     end
   end
 
-  def unset_tag(thread, thread_id, %Tag{id: tag_id}) when valid_thread(thread) do
+  def unset_tag(thread, content_id, %Tag{id: tag_id}) when valid_thread(thread) do
     with {:ok, action} <- match_action(thread, :tag),
-         {:ok, content} <- ORM.find(action.target, thread_id, preload: :tags),
+         {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
          {:ok, tag} <- ORM.find(action.reactor, tag_id) do
       content
       |> Ecto.Changeset.change()
