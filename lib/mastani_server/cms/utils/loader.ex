@@ -74,7 +74,7 @@ defmodule MastaniServer.CMS.Utils.Loader do
   end
 
   def run_batch(PostComment, comment_query, :cp_users, post_ids, repo_opts) do
-    IO.inspect(comment_query, label: "# run_batch # comment_query")
+    # IO.inspect(comment_query, label: "# run_batch # comment_query")
 
     sq =
       from(
@@ -101,9 +101,9 @@ defmodule MastaniServer.CMS.Utils.Loader do
 
     results =
       query
-      |> IO.inspect(label: "before")
+      # |> IO.inspect(label: "before")
       |> Repo.all(repo_opts)
-      |> IO.inspect(label: "geting fuck")
+      # |> IO.inspect(label: "geting fuck")
       |> bat_man()
 
     # results =
@@ -199,12 +199,11 @@ defmodule MastaniServer.CMS.Utils.Loader do
 
   # def query({"posts_comments", PostComment}, %{filter: %{first: first}} = filter) do
   def query({"posts_comments", PostComment}, %{filter: filter} = args) do
-    IO.inspect(args, label: "very wired ..")
+    # IO.inspect(args, label: "very wired ..")
 
     PostComment
     # |> limit(3)
     |> QueryBuilder.filter_pack(filter)
-    |> IO.inspect(label: "query")
   end
 
   @doc """

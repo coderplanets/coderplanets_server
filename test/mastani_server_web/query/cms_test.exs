@@ -379,7 +379,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
       variables = %{id: community.id}
       results = guest_conn |> query_result(@query, variables, "community")
       editors = results["editors"]
-      editorsCount = results["editorsCount"]
+      editors_count = results["editorsCount"]
 
       [user_1, user_2, user_3, user_x] = users |> firstn_and_last(3)
 
@@ -388,7 +388,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
       assert editors |> Enum.any?(&(&1["id"] == to_string(user_2.id)))
       assert editors |> Enum.any?(&(&1["id"] == to_string(user_3.id)))
       assert editors |> Enum.any?(&(&1["id"] == to_string(user_x.id)))
-      assert editorsCount == inner_page_size()
+      assert editors_count == inner_page_size()
     end
 
     @query """
@@ -448,7 +448,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
       variables = %{id: community.id}
       results = guest_conn |> query_result(@query, variables, "community")
       subscribers = results["subscribers"]
-      subscribersCount = results["subscribersCount"]
+      subscribers_count = results["subscribersCount"]
 
       [user_1, user_2, user_3, user_x] = users |> firstn_and_last(3)
 
@@ -457,7 +457,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
       assert subscribers |> Enum.any?(&(&1["id"] == to_string(user_2.id)))
       assert subscribers |> Enum.any?(&(&1["id"] == to_string(user_3.id)))
       assert subscribers |> Enum.any?(&(&1["id"] == to_string(user_x.id)))
-      assert subscribersCount == inner_page_size()
+      assert subscribers_count == inner_page_size()
     end
 
     test "guest user can get subscribers count of 20 at most", ~m(guest_conn community)a do

@@ -21,8 +21,5 @@ defmodule MastaniServer.Accounts.Utils.Loader do
     |> select([u, c], c)
   end
 
-  def query(queryable, _args) do
-    IO.inspect(queryable, label: 'account default query')
-    queryable
-  end
+  def query(queryable, _args), do: queryable
 end

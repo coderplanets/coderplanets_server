@@ -55,7 +55,7 @@ defmodule Helper.QueryBuilder do
   """
   def recent_inserted(queryable, months: count) do
     end_of_today = Timex.now() |> Timex.end_of_day()
-    x_months_ago = Timex.shift(Timex.today(), months: -count) |> Timex.to_datetime()
+    x_months_ago = Timex.today() |> Timex.shift(months: -count) |> Timex.to_datetime()
 
     queryable
     |> where([q], q.inserted_at >= ^x_months_ago)
@@ -67,7 +67,7 @@ defmodule Helper.QueryBuilder do
   """
   def recent_inserted(queryable, days: count) do
     end_of_today = Timex.now() |> Timex.end_of_day()
-    x_days_ago = Timex.shift(Timex.today(), days: -count) |> Timex.to_datetime()
+    x_days_ago = Timex.today() |> Timex.shift(days: -count) |> Timex.to_datetime()
 
     queryable
     |> where([q], q.inserted_at >= ^x_days_ago)

@@ -54,7 +54,7 @@ defmodule MastaniServer.Statistics.Delegate.Throttle do
   end
 
   defp is_same_day?(datetime) do
-    Timex.to_date(datetime) |> Timex.equal?(Timex.to_date(Timex.now()))
+    datetime |> Timex.to_date() |> Timex.equal?(Timex.to_date(Timex.now()))
   end
 
   defp is_same_hour?(datetime) do

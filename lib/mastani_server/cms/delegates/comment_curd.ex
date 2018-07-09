@@ -15,12 +15,12 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, content} <- ORM.find(action.target, content_id),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
-      nextFloor = get_next_floor(thread, action.reactor, content.id)
+      next_floor = get_next_floor(thread, action.reactor, content.id)
 
       attrs = %{
         author_id: user.id,
         body: body,
-        floor: nextFloor
+        floor: next_floor
       }
 
       attrs = merge_comment_attrs(thread, attrs, content.id)
@@ -79,13 +79,13 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   def reply_comment(thread, comment_id, %Accounts.User{id: user_id}, body) do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, comment} <- ORM.find(action.reactor, comment_id) do
-      nextFloor = get_next_floor(thread, action.reactor, comment)
+      next_floor = get_next_floor(thread, action.reactor, comment)
 
       attrs = %{
         author_id: user_id,
         body: body,
         reply_to: comment,
-        floor: nextFloor
+        floor: next_floor
       }
 
       attrs = merge_reply_attrs(thread, attrs, comment)

@@ -38,7 +38,6 @@ defmodule Helper.OAuth2.Github do
     try do
       case post("/access_token", %{}, query: query, headers: headers) do
         %{status: 200, body: %{"error" => error, "error_description" => description}} ->
-          IO.inspect(error, label: "error")
           {:error, "#{error}: #{description}"}
 
         %{status: 200, body: %{"access_token" => access_token, "token_type" => "bearer"}} ->
@@ -80,8 +79,6 @@ defmodule Helper.OAuth2.Github do
   end
 
   defp handle_tesla_error(error) do
-    IO.inspect(error, label: "error")
-
     case error do
       %{reason: :timeout} -> {:error, "OAuth2 Github: timeout in #{@timeout_limit} msec"}
       %{reason: reason} -> {:error, "OAuth2 Github: #{reason}"}

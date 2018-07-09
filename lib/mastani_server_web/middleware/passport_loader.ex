@@ -109,7 +109,7 @@ defmodule MastaniServerWeb.Middleware.PassportLoader do
   defp parse_source(args) do
     case Keyword.has_key?(args, :source) do
       nil -> {:error, "Invalid.option: #{args}"}
-      true -> Keyword.get(args, :source) |> match_source
+      true -> args |> Keyword.get(:source) |> match_source
     end
   end
 

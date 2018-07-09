@@ -1,6 +1,10 @@
 defmodule MastaniServer.Factory do
-  # alias Helper.ORM
+  @moduledoc """
+  This module defines the mock data/func to be used by
+  tests that require insert some mock data to db.
 
+  for example you can db_insert(:user) to insert user into db
+  """
   import Helper.Utils, only: [done: 1]
 
   alias MastaniServer.Repo
@@ -209,11 +213,13 @@ defmodule MastaniServer.Factory do
   end
 
   def db_insert_multi(factory_name, count \\ 2) do
-    Enum.reduce(1..count, [], fn _, acc ->
-      {:ok, value} = db_insert(factory_name)
-      acc ++ [value]
-    end)
-    |> done
+    results =
+      Enum.reduce(1..count, [], fn _, acc ->
+        {:ok, value} = db_insert(factory_name)
+        acc ++ [value]
+      end)
+
+    results |> done
   end
 
   alias MastaniServer.Accounts.User

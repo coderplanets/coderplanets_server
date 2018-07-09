@@ -16,7 +16,7 @@ defmodule MastaniServer.Statistics.Delegate.Contribute do
     today = Timex.today() |> Date.to_iso8601()
 
     with {:ok, contribute} <- ORM.find_by(CommunityContribute, community_id: id, date: today) do
-      inc_contribute_count(contribute, :community) |> done
+      contribute |> inc_contribute_count(:community) |> done
     else
       {:error, _} ->
         CommunityContribute |> ORM.create(%{community_id: id, date: today, count: 1})
@@ -27,7 +27,7 @@ defmodule MastaniServer.Statistics.Delegate.Contribute do
     today = Timex.today() |> Date.to_iso8601()
 
     with {:ok, contribute} <- ORM.find_by(UserContribute, user_id: id, date: today) do
-      inc_contribute_count(contribute, :user) |> done
+      contribute |> inc_contribute_count(:user) |> done
     else
       {:error, _} ->
         UserContribute |> ORM.create(%{user_id: id, date: today, count: 1})
@@ -105,15 +105,18 @@ defmodule MastaniServer.Statistics.Delegate.Contribute do
 
       false ->
         today = Timex.today() |> Date.to_erl()
-        enmpty_tuple = repeat(abs(count) + 1, 0) |> List.to_tuple()
+        return_count = abs(count) + 1
+        enmpty_tuple = return_count |> repeat(0) |> List.to_tuple()
 
-        Enum.reduce(record, enmpty_tuple, fn record, acc ->
-          diff = Timex.diff(Timex.to_date(record.date), today, :days)
-          index = diff + abs(count)
+        results =
+          Enum.reduce(record, enmpty_tuple, fn record, acc ->
+            diff = Timex.diff(Timex.to_date(record.date), today, :days)
+            index = diff + abs(count)
 
-          put_elem(acc, index, record.count)
-        end)
-        |> Tuple.to_list()
+            put_elem(acc, index, record.count)
+          end)
+
+        results |> Tuple.to_list()
     end
   end
 

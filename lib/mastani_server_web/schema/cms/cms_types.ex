@@ -161,7 +161,6 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       middleware(M.PageSizeProof)
 
       resolve(fn post, _args, %{context: %{loader: loader}} ->
-        # IO.inspect args, label: "the args"
         loader
         |> Dataloader.load(CMS, {:many, CMS.PostComment}, cp_users: post.id)
         |> on_load(fn loader ->
@@ -277,8 +276,6 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     # see also: https://github.com/absinthe-graphql/dataloader/issues/25
     field :posts_count, :integer do
       resolve(fn community, _args, %{context: %{loader: loader}} ->
-        IO.inspect(community.id, label: "luck")
-
         loader
         |> Dataloader.load(CMS, {:one, CMS.Post}, posts_count: community.id)
         |> on_load(fn loader ->

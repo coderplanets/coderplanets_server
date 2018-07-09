@@ -30,21 +30,21 @@ defmodule MastaniServer.Test.Query.AccountsMessagesTest do
       user_conn = simu_conn(:user, user)
 
       result = user_conn |> query_result(@query, %{}, "account")
-      mailBox = result["mailBox"]
-      assert mailBox["hasMail"] == false
-      assert mailBox["totalCount"] == 0
-      assert mailBox["mentionCount"] == 0
-      assert mailBox["notificationCount"] == 0
+      mail_box = result["mailBox"]
+      assert mail_box["hasMail"] == false
+      assert mail_box["totalCount"] == 0
+      assert mail_box["mentionCount"] == 0
+      assert mail_box["notificationCount"] == 0
 
       mock_mentions_for(user, 2)
       mock_notifications_for(user, 18)
 
       result = user_conn |> query_result(@query, %{}, "account")
-      mailBox = result["mailBox"]
-      assert mailBox["hasMail"] == true
-      assert mailBox["totalCount"] == 20
-      assert mailBox["mentionCount"] == 2
-      assert mailBox["notificationCount"] == 18
+      mail_box = result["mailBox"]
+      assert mail_box["hasMail"] == true
+      assert mail_box["totalCount"] == 20
+      assert mail_box["mentionCount"] == 2
+      assert mail_box["notificationCount"] == 18
     end
 
     test "unauth user get mailBox status fails", ~m(guest_conn)a do

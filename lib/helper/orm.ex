@@ -157,7 +157,8 @@ defmodule Helper.ORM do
   end
 
   def create(modal, attrs) do
-    struct(modal)
+    modal
+    |> struct
     |> modal.changeset(attrs)
     |> Repo.insert()
   end
@@ -174,6 +175,6 @@ defmodule Helper.ORM do
   end
 
   def next_count(queryable) do
-    count(queryable) |> add()
+    queryable |> count() |> add()
   end
 end

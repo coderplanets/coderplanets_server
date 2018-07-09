@@ -134,15 +134,15 @@ defmodule MastaniServer.Test.Query.AccountTest do
       )
 
       results = guest_conn |> query_result(@query, variables, "user")
-      subscribedCommunities = results["subscribedCommunities"]
-      subscribedCommunitiesCount = results["subscribedCommunitiesCount"]
+      subscribed_communities = results["subscribedCommunities"]
+      subscribed_communities_count = results["subscribedCommunitiesCount"]
       [community_1, community_2, community_3, community_x] = communities |> firstn_and_last(3)
 
-      assert subscribedCommunities |> Enum.any?(&(&1["id"] == to_string(community_1.id)))
-      assert subscribedCommunities |> Enum.any?(&(&1["id"] == to_string(community_2.id)))
-      assert subscribedCommunities |> Enum.any?(&(&1["id"] == to_string(community_3.id)))
-      assert subscribedCommunities |> Enum.any?(&(&1["id"] == to_string(community_x.id)))
-      assert subscribedCommunitiesCount == inner_page_size()
+      assert subscribed_communities |> Enum.any?(&(&1["id"] == to_string(community_1.id)))
+      assert subscribed_communities |> Enum.any?(&(&1["id"] == to_string(community_2.id)))
+      assert subscribed_communities |> Enum.any?(&(&1["id"] == to_string(community_3.id)))
+      assert subscribed_communities |> Enum.any?(&(&1["id"] == to_string(community_x.id)))
+      assert subscribed_communities_count == inner_page_size()
     end
 
     test "gest user can get subscrubed communities count of 20 at most", ~m(guest_conn user)a do
@@ -155,9 +155,9 @@ defmodule MastaniServer.Test.Query.AccountTest do
       )
 
       results = guest_conn |> query_result(@query, variables, "user")
-      subscribedCommunities = results["subscribedCommunities"]
+      subscribed_communities = results["subscribedCommunities"]
 
-      assert length(subscribedCommunities) == inner_page_size()
+      assert length(subscribed_communities) == inner_page_size()
     end
 
     @query """

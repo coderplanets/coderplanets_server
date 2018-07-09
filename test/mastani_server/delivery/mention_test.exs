@@ -41,13 +41,13 @@ defmodule MastaniServer.Delivery.MentionTest do
       mention_ids =
         mentions.entries
         |> Enum.reduce([], fn m, acc ->
-          acc |> Enum.concat([Map.from_struct(m) |> Map.get(:id)])
+          acc |> Enum.concat([m |> Map.from_struct() |> Map.get(:id)])
         end)
 
       mention_mail_ids =
         mention_mails.entries
         |> Enum.reduce([], fn m, acc ->
-          acc |> Enum.concat([Map.from_struct(m) |> Map.get(:id)])
+          acc |> Enum.concat([m |> Map.from_struct() |> Map.get(:id)])
         end)
 
       assert Enum.sort(mention_ids) == Enum.sort(mention_mail_ids)

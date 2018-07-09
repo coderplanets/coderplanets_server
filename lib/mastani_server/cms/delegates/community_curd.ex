@@ -69,23 +69,23 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   @doc """
   get tags belongs to a community / thread
   """
-  def get_tags(%Community{id: communityId}, thread) when not is_nil(communityId) do
+  def get_tags(%Community{id: community_id}, thread) when not is_nil(community_id) do
     thread = to_string(thread)
 
     Tag
     |> join(:inner, [t], c in assoc(t, :community))
-    |> where([t, c], c.id == ^communityId and t.thread == ^thread)
+    |> where([t, c], c.id == ^community_id and t.thread == ^thread)
     |> distinct([t], t.title)
     |> Repo.all()
     |> done()
   end
 
-  def get_tags(%Community{raw: communityRaw}, thread) when not is_nil(communityRaw) do
+  def get_tags(%Community{raw: community_raw}, thread) when not is_nil(community_raw) do
     thread = to_string(thread)
 
     Tag
     |> join(:inner, [t], c in assoc(t, :community))
-    |> where([t, c], c.raw == ^communityRaw and t.thread == ^thread)
+    |> where([t, c], c.raw == ^community_raw and t.thread == ^thread)
     |> distinct([t], t.title)
     |> Repo.all()
     |> done()

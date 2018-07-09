@@ -41,13 +41,13 @@ defmodule MastaniServer.Delivery.NotificationTest do
       notification_ids =
         notifications.entries
         |> Enum.reduce([], fn m, acc ->
-          acc |> Enum.concat([Map.from_struct(m) |> Map.get(:id)])
+          acc |> Enum.concat([m |> Map.from_struct() |> Map.get(:id)])
         end)
 
       notification_mail_ids =
         notification_mails.entries
         |> Enum.reduce([], fn m, acc ->
-          acc |> Enum.concat([Map.from_struct(m) |> Map.get(:id)])
+          acc |> Enum.concat([m |> Map.from_struct() |> Map.get(:id)])
         end)
 
       assert Enum.sort(notification_ids) == Enum.sort(notification_mail_ids)

@@ -1,4 +1,6 @@
 defmodule MastaniServer.Accounts.Customization do
+  @moduledoc false
+
   use Ecto.Schema
   import Ecto.Changeset
   alias MastaniServer.Accounts.{User, Customization}

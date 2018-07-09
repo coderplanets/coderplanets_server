@@ -4,7 +4,7 @@ defmodule Helper.Utils do
   import Helper.ErrorCode
 
   def get_config(section, key, app \\ :mastani_server) do
-    Application.get_env(app, section) |> Keyword.get(key)
+    app |> Application.get_env(section) |> Keyword.get(key)
   end
 
   @doc """
@@ -69,26 +69,25 @@ defmodule Helper.Utils do
   def add(num, offset \\ 1) when is_integer(num) and is_integer(offset), do: num + offset
 
   def map_atom_value(attrs, :string) do
-    Enum.map(attrs, fn {k, v} ->
-      if is_atom(v) do
-        {k, to_string(v)}
-      else
-        {k, v}
-      end
-    end)
-    |> Enum.into(%{})
+    results =
+      Enum.map(attrs, fn {k, v} ->
+        if is_atom(v) do
+          {k, to_string(v)}
+        else
+          {k, v}
+        end
+      end)
+
+    results |> Enum.into(%{})
   end
 
   # Key exists in both maps, and both values are maps as well.
   # These can be merged recursively.
-  defp deep_resolve(_key, left = %{}, right = %{}) do
-    deep_merge(left, right)
-  end
+  # defp deep_resolve(_key, left = %{},right = %{}) do
+  defp deep_resolve(_key, %{} = left, %{} = right), do: deep_merge(left, right)
 
   # Key exists in both maps, but at least one of the values is
   # NOT a map. We fall back to standard merge behavior, preferring
   # the value on the right.
-  defp deep_resolve(_key, _left, right) do
-    right
-  end
+  defp deep_resolve(_key, _left, right), do: right
 end

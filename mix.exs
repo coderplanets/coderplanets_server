@@ -67,7 +67,8 @@ defmodule MastaniServer.Mixfile do
       {:pre_commit, "~> 0.2.4"},
       {:inch_ex, "~> 0.5", only: [:dev, :test]},
       {:short_maps, "~> 0.1.1"},
-      {:jason, "~> 1.0"}
+      {:jason, "~> 1.0"},
+      {:credo, "~> 0.9.1", only: [:dev, :test], runtime: false}
     ]
   end
 

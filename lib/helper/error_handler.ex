@@ -1,4 +1,8 @@
 defmodule Helper.ErrorHandler do
+  @moduledoc """
+  This module defines some helper function used by
+  handle/format changset errors
+  """
   alias MastaniServerWeb.Gettext, as: Translator
 
   def not_found_formater(queryable, id) when is_integer(id) or is_binary(id) do

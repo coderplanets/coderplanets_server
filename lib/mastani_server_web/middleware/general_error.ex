@@ -8,7 +8,6 @@ defmodule MastaniServerWeb.Middleware.GeneralError do
   def call(%{errors: [List = errors]} = resolution, _) do
     message = [%{message: errors}]
 
-    IO.inspect(errors, label: "TODO: ----> GeneralError ...")
     %{resolution | value: [], errors: message}
   end
 

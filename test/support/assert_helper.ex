@@ -1,4 +1,9 @@
 defmodule MastaniServer.Test.AssertHelper do
+  @moduledoc """
+  This module defines some helper function used by
+  tests that require check from graphql response
+  """
+
   import Phoenix.ConnTest
   import Helper.Utils, only: [map_key_stringify: 1, get_config: 2]
 

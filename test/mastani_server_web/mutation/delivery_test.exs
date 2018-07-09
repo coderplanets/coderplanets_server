@@ -74,9 +74,9 @@ defmodule MastaniServer.Test.Mutation.DeliveryTest do
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
       result = user_conn |> query_result(@account_query, variables, "account")
-      sysNotifications = result["sysNotifications"]
+      sys_notifications = result["sysNotifications"]
 
-      assert sysNotifications["totalCount"] == 1
+      assert sys_notifications["totalCount"] == 1
     end
 
     test "unauth user publish system notification fails", ~m(user_conn guest_conn)a do

@@ -34,7 +34,7 @@ defmodule MastaniServer.CMS.Delegate.PassportCURD do
   def stamp_passport(%Accounts.User{id: user_id}, rules) do
     case ORM.find_by(UserPasport, user_id: user_id) do
       {:ok, passport} ->
-        rules = deep_merge(passport.rules, rules) |> reject_invalid_rules
+        rules = passport.rules |> deep_merge(rules) |> reject_invalid_rules
         passport |> ORM.update(~m(rules)a)
 
       {:error, _} ->

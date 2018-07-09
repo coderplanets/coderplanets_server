@@ -28,9 +28,9 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
          # {:ok, community} <- ORM.find_by(Community, title: attrs.community),
          {:ok, community} <- ORM.find(Community, community_id),
          {:ok, content} <-
-           struct(action.target)
+           action.target
+           |> struct()
            |> action.target.changeset(attrs)
-           # |> action.target.changeset(attrs |> Map.merge(%{author_id: author.id}))
            |> Ecto.Changeset.put_change(:author_id, author.id)
            |> Repo.insert() do
       Statistics.log_publish_action(%Accounts.User{id: user_id})

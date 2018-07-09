@@ -1,4 +1,6 @@
 defmodule MastaniServer.Accounts do
+  @moduledoc false
+
   alias MastaniServer.Accounts.Delegate.{Profile, Mails, Billing, Customization}
 
   # update user profile
