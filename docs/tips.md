@@ -13,6 +13,9 @@
   env MIX_ENV=test mix ecto.drop
   env MIX_ENV=test mix ecto.create
 
+  support history in iex: 
+  bash: export ERL_AFLAGS="-kernel shell_history enabled"
+  fish: set -g -x ERL_AFLAGS "-kernel shell_history enabled"
   ```
 `recompile()` to recompile your project
 
