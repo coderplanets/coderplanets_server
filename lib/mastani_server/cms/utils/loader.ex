@@ -198,9 +198,7 @@ defmodule MastaniServer.CMS.Utils.Loader do
   end
 
   # def query({"posts_comments", PostComment}, %{filter: %{first: first}} = filter) do
-  def query({"posts_comments", PostComment}, %{filter: filter} = args) do
-    # IO.inspect(args, label: "very wired ..")
-
+  def query({"posts_comments", PostComment}, %{filter: filter}) do
     PostComment
     # |> limit(3)
     |> QueryBuilder.filter_pack(filter)

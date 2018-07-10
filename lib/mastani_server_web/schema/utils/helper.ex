@@ -1,7 +1,7 @@
 defmodule MastaniServerWeb.Schema.Utils.Helper do
   import Helper.Utils, only: [get_config: 2]
   @page_size get_config(:general, :page_size)
-  @default_inner_page_size 5
+  # @default_inner_page_size 5
 
   # see: https://github.com/absinthe-graphql/absinthe/issues/363
   defmacro pagination_args() do

@@ -15,7 +15,6 @@ defmodule MastaniServer.Delivery do
   defdelegate fetch_mentions(user, filter), to: Mentions
 
   # notifications
-  defdelegate system_notify(info), to: Notifications
   defdelegate notify_someone(from_user, to_user, info), to: Notifications
   defdelegate fetch_notifications(user, filter), to: Notifications
 

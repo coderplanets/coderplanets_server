@@ -193,7 +193,6 @@ defmodule MastaniServer.Delivery.Delegate.Utils do
   end
 
   defp delete_items(_queryable, {:ok, %{entries: []}}), do: {:ok, ""}
-  defp delete_items(_queryable, {:ok, %{entries: []}}), do: {:ok, ""}
 
   defp delete_items(queryable, {:ok, %{entries: entries}}) do
     # delete_all only support queryable and where syntax

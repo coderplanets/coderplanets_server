@@ -3,8 +3,8 @@ defmodule MastaniServer.Logs do
   The Logs context.
   """
 
-  import Ecto.Query, warn: false
-  alias MastaniServer.Repo
+  # import Ecto.Query, warn: false
+  # alias MastaniServer.Repo
 
-  alias MastaniServer.Logs.UserActivity
+  # alias MastaniServer.Logs.UserActivity
 end
