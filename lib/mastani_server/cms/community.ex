@@ -6,6 +6,7 @@ defmodule MastaniServer.CMS.Community do
     Community,
     Category,
     Post,
+    Video,
     Job,
     CommunityThread,
     CommunitySubscriber,
@@ -47,6 +48,13 @@ defmodule MastaniServer.CMS.Community do
       Post,
       join_through: "communities_posts",
       join_keys: [community_id: :id, post_id: :id]
+    )
+
+    many_to_many(
+      :videos,
+      Video,
+      join_through: "communities_videos",
+      join_keys: [community_id: :id, video_id: :id]
     )
 
     many_to_many(

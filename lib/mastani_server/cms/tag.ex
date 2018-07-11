@@ -1,7 +1,7 @@
 defmodule MastaniServer.CMS.Tag do
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Author, Post, Job, Tag, Community}
+  alias MastaniServer.CMS.{Author, Post, Video, Job, Tag, Community}
 
   @required_fields ~w(thread title color author_id community_id)a
 
@@ -20,6 +20,13 @@ defmodule MastaniServer.CMS.Tag do
       # :delete_all will only remove data from the join source
       on_delete: :delete_all
       # on_replace: :delete
+    )
+
+    many_to_many(
+      :videos,
+      Video,
+      join_through: "videos_tags",
+      join_keys: [video_id: :id, tag_id: :id]
     )
 
     many_to_many(
