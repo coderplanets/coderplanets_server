@@ -12,15 +12,16 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->post.pin")
-
       resolve(&Resolvers.CMS.pin_post/3)
     end
 
-    # field :undo_pin_post, :post do
-    #   arg(:id, non_null(:id))
+    field :undo_pin_post, :post do
+      arg(:id, non_null(:id))
 
-    #   resolve(&Resolvers.CMS.undo_pin_post/3)
-    # end
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->post.undo_pin")
+      resolve(&Resolvers.CMS.undo_pin_post/3)
+    end
 
     @desc "set category to a community"
     field :set_category, :community do

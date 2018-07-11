@@ -44,10 +44,12 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def update_content(_root, args, _info), do: ORM.update(args.passport_source, args)
   def delete_content(_root, %{passport_source: content}, _info), do: ORM.delete(content)
 
-  # TODO: rename
-  # def pin_post(_root, %{id: id, pin: true}, %{context: %{cur_user: user}}) do
   def pin_post(_root, %{id: id}, %{context: %{cur_user: user}}) do
     CMS.set_flag(Post, id, %{pin: true}, user)
+  end
+
+  def undo_pin_post(_root, %{id: id}, %{context: %{cur_user: user}}) do
+    CMS.set_flag(Post, id, %{pin: false}, user)
   end
 
   # #######################

@@ -95,6 +95,10 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
 
       assert random_post_id == results["entries"] |> List.first() |> Map.get("id")
       assert results["totalCount"] == @total_count
+
+      {:ok, _} = CMS.set_flag(CMS.Post, random_post_id, %{pin: false}, user)
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      assert results["entries"] |> Enum.any?(&(&1["id"] !== random_post_id))
     end
 
     test "pind posts should not appear when page > 1", ~m(guest_conn user)a do
