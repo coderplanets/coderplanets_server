@@ -50,9 +50,9 @@ defmodule MastaniServerWeb.Schema do
     # cms
     import_fields(:cms_mutation_community)
     import_fields(:cms_opertion_mutations)
-    import_fields(:cms_mutation_post)
-    import_fields(:cms_mutation_job)
-    import_fields(:cms_mutation_comment)
+    import_fields(:cms_post_mutations)
+    import_fields(:cms_job_mutations)
+    import_fields(:cms_comment_mutations)
   end
 
   def middleware(middleware, _field, %{identifier: :query}) do

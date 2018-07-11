@@ -5,7 +5,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Job do
   alias MastaniServerWeb.{Resolvers}
   alias MastaniServerWeb.Middleware, as: M
 
-  object :cms_mutation_job do
+  object :cms_job_mutations do
     @desc "create a user"
     field :create_job, :job do
       arg(:title, non_null(:string))

@@ -5,7 +5,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Post do
   alias MastaniServerWeb.{Resolvers}
   alias MastaniServerWeb.Middleware, as: M
 
-  object :cms_mutation_post do
+  object :cms_post_mutations do
     @desc "create a user"
     field :create_post, :post do
       arg(:title, non_null(:string))
@@ -20,6 +20,44 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Post do
       middleware(M.PublishThrottle)
       # middleware(M.PublishThrottle, interval: 3, hour_limit: 15, day_limit: 30)
       resolve(&Resolvers.CMS.create_content/3)
+    end
+
+    @desc "pin a post"
+    field :pin_post, :post do
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->post.pin")
+      resolve(&Resolvers.CMS.pin_post/3)
+    end
+
+    @desc "unpin a post"
+    field :undo_pin_post, :post do
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->post.undo_pin")
+      resolve(&Resolvers.CMS.undo_pin_post/3)
+    end
+
+    @desc "trash a post, not delete"
+    field :trash_post, :post do
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->post.trash")
+
+      resolve(&Resolvers.CMS.trash_post/3)
+    end
+
+    @desc "trash a post, not delete"
+    field :undo_trash_post, :post do
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->post.undo_trash")
+
+      resolve(&Resolvers.CMS.undo_trash_post/3)
     end
 
     @desc "delete a cms/post"

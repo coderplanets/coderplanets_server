@@ -5,7 +5,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Comment do
   alias MastaniServerWeb.{Resolvers}
   alias MastaniServerWeb.Middleware, as: M
 
-  object :cms_mutation_comment do
+  object :cms_comment_mutations do
     @desc "create a comment"
     field :create_comment, :comment do
       # TODO use thread and force community pass-in
