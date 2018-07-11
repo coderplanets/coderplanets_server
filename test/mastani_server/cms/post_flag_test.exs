@@ -17,4 +17,12 @@ defmodule MastaniServer.Test.PostFlagsTest do
     {:ok, updated} = CMS.set_flag(CMS.Post, post.id, %{pin: false}, user)
     assert updated.pin == false
   end
+
+  test "user can set trash flag on a post", ~m(user post)a do
+    {:ok, updated} = CMS.set_flag(CMS.Post, post.id, %{trash: true}, user)
+    assert updated.trash == true
+
+    {:ok, updated} = CMS.set_flag(CMS.Post, post.id, %{trash: false}, user)
+    assert updated.trash == false
+  end
 end

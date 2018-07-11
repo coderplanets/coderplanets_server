@@ -12,9 +12,8 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   @doc """
   get paged post / job ...
   """
-  # TODO: trash
-  def paged_content(queryable, filter) do
-    normal_content_fr = filter |> Map.merge(%{pin: false})
+  def paged_contents(queryable, filter) do
+    normal_content_fr = filter |> Map.merge(QueryBuilder.default_article_filters())
 
     queryable
     |> ORM.find_all(normal_content_fr)

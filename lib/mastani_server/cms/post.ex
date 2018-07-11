@@ -5,7 +5,7 @@ defmodule MastaniServer.CMS.Post do
   # alias MastaniServer.Accounts
 
   @required_fields ~w(title body digest length)a
-  @optional_fields ~w(link_addr pin)
+  @optional_fields ~w(link_addr pin trash)
 
   schema "cms_posts" do
     field(:body, :string)
@@ -16,6 +16,7 @@ defmodule MastaniServer.CMS.Post do
     field(:views, :integer, default: 0)
 
     field(:pin, :boolean, default_value: false)
+    field(:trash, :boolean, default_value: false)
     belongs_to(:author, Author)
 
     # TODO

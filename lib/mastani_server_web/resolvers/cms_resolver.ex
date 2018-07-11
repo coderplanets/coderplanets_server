@@ -32,7 +32,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # #######################
   def post(_root, %{id: id}, _info), do: Post |> ORM.read(id, inc: :views)
 
-  def paged_posts(_root, ~m(filter)a, _info), do: CMS.paged_content(Post, filter)
+  def paged_posts(_root, ~m(filter)a, _info), do: CMS.paged_contents(Post, filter)
 
   def job(_root, %{id: id}, _info), do: Job |> ORM.read(id, inc: :views)
   def paged_jobs(_root, ~m(filter)a, _info), do: Job |> ORM.find_all(filter)
@@ -50,6 +50,14 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def undo_pin_post(_root, %{id: id}, %{context: %{cur_user: user}}) do
     CMS.set_flag(Post, id, %{pin: false}, user)
+  end
+
+  def trash_post(_root, %{id: id}, %{context: %{cur_user: user}}) do
+    CMS.set_flag(Post, id, %{trash: true}, user)
+  end
+
+  def undo_trash_post(_root, %{id: id}, %{context: %{cur_user: user}}) do
+    CMS.set_flag(Post, id, %{trash: false}, user)
   end
 
   # #######################

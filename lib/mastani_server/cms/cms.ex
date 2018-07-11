@@ -49,7 +49,7 @@ defmodule MastaniServer.CMS do
   defdelegate unsubscribe_community(user_id, community_id), to: CommunityOperation
 
   # ArticleCURD
-  defdelegate paged_content(queryable, filter), to: ArticleCURD
+  defdelegate paged_contents(queryable, filter), to: ArticleCURD
   defdelegate create_content(thread, author_id, attrs), to: ArticleCURD
   defdelegate reaction_users(thread, react, id, filters), to: ArticleCURD
 

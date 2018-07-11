@@ -113,6 +113,22 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
 
       assert results["entries"] |> Enum.any?(&(&1["id"] !== random_post_id))
     end
+
+    test "if have trashed posts, the trashed posts should not appears in result",
+         ~m(guest_conn user)a do
+      variables = %{filter: %{}}
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      assert results |> is_valid_pagination?
+      assert results["pageSize"] == @page_size
+      assert results["totalCount"] == @total_count
+
+      random_post_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
+      {:ok, _} = CMS.set_flag(CMS.Post, random_post_id, %{trash: true}, user)
+
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+
+      assert results["entries"] |> Enum.any?(&(&1["id"] !== random_post_id))
+    end
   end
 
   describe "[query paged_posts filter sort]" do

@@ -124,6 +124,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:body, :string)
     field(:views, :integer)
     field(:pin, :boolean)
+    field(:trash, :boolean)
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)

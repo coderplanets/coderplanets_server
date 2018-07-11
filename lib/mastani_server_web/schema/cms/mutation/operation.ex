@@ -6,7 +6,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
   alias MastaniServerWeb.Middleware, as: M
 
   object :cms_opertion_mutations do
-    # field :undo_pin_post, :post do
+    @desc "pin a post"
     field :pin_post, :post do
       arg(:id, non_null(:id))
 
@@ -15,12 +15,33 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
       resolve(&Resolvers.CMS.pin_post/3)
     end
 
+    @desc "unpin a post"
     field :undo_pin_post, :post do
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->post.undo_pin")
       resolve(&Resolvers.CMS.undo_pin_post/3)
+    end
+
+    @desc "trash a post, not delete"
+    field :trash_post, :post do
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->post.trash")
+
+      resolve(&Resolvers.CMS.trash_post/3)
+    end
+
+    @desc "trash a post, not delete"
+    field :undo_trash_post, :post do
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->post.undo_trash")
+
+      resolve(&Resolvers.CMS.undo_trash_post/3)
     end
 
     @desc "set category to a community"
