@@ -45,7 +45,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
           |> done
       end
     else
-      error ->
+      _error ->
         contents
     end
   end
