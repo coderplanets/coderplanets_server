@@ -93,7 +93,8 @@ defmodule MastaniServer.Test.AssertHelper do
       conn
       |> post("/graphiql", query: query, variables: variables)
       |> json_response(200)
-      # |> IO.inspect(label: "debug")
+
+    # |> IO.inspect(label: "debug")
 
     case resp |> Map.has_key?("errors") do
       true ->

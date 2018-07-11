@@ -80,19 +80,20 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
       assert results["totalCount"] == @total_count
     end
 
-    test "if have pined posts, the pined posts should at the top of entries", ~m(guest_conn user)a do
+    test "if have pined posts, the pined posts should at the top of entries",
+         ~m(guest_conn user)a do
       variables = %{filter: %{}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
       assert results |> is_valid_pagination?
       assert results["pageSize"] == @page_size
       assert results["totalCount"] == @total_count
 
-      random_post_id = results["entries"] |> Enum.shuffle |> List.first |> Map.get("id")
+      random_post_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
       {:ok, _} = CMS.set_flag(CMS.Post, random_post_id, %{pin: true}, user)
 
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
-      assert random_post_id == results["entries"] |> List.first |> Map.get("id")
+      assert random_post_id == results["entries"] |> List.first() |> Map.get("id")
       assert results["totalCount"] == @total_count
     end
 
@@ -101,7 +102,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
       assert results |> is_valid_pagination?
 
-      random_post_id = results["entries"] |> Enum.shuffle |> List.first |> Map.get("id")
+      random_post_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
       {:ok, _} = CMS.set_flag(CMS.Post, random_post_id, %{pin: true}, user)
 
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
