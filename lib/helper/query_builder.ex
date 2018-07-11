@@ -88,6 +88,13 @@ defmodule Helper.QueryBuilder do
     |> order_by([_, s], {^direction, fragment("count(?)", s.id)})
   end
 
+  def default_articles_filter() do
+    %{
+      pin: false,
+      trash: false
+    }
+  end
+
   def filter_pack(queryable, filter) when is_map(filter) do
     Enum.reduce(filter, queryable, fn
       {:sort, :desc_inserted}, queryable ->
@@ -180,6 +187,10 @@ defmodule Helper.QueryBuilder do
 
       {:first, first}, queryable ->
         queryable |> limit(^first)
+
+      {:pin, bool}, queryable ->
+        queryable
+        |> where([p], p.pin == ^bool)
 
       {_, _}, queryable ->
         queryable

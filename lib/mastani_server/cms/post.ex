@@ -4,6 +4,9 @@ defmodule MastaniServer.CMS.Post do
   alias MastaniServer.CMS.{Post, Author, PostComment, PostFavorite, PostStar, Tag, Community}
   # alias MastaniServer.Accounts
 
+  @required_fields ~w(title body digest length)a
+  @optional_fields ~w(link_addr pin)
+
   schema "cms_posts" do
     field(:body, :string)
     field(:title, :string)
@@ -11,6 +14,8 @@ defmodule MastaniServer.CMS.Post do
     field(:link_addr, :string)
     field(:length, :integer)
     field(:views, :integer, default: 0)
+
+    field(:pin, :boolean, default_value: false)
     belongs_to(:author, Author)
 
     # TODO
@@ -41,9 +46,6 @@ defmodule MastaniServer.CMS.Post do
 
     timestamps(type: :utc_datetime)
   end
-
-  @required_fields ~w(title body digest length)a
-  @optional_fields ~w(link_addr)a
 
   @doc false
   def changeset(%Post{} = post, attrs) do

@@ -3,9 +3,17 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   import Ecto.Query, warn: false
   import Helper.ErrorCode
 
+  alias MastaniServer.Accounts.User
   alias MastaniServer.CMS.{Tag, Community}
   alias MastaniServer.Repo
   alias Helper.ORM
+
+  @doc """
+  pin / unpin, trash / untrash articles
+  """
+  def set_flag(queryable, id, %{pin: _} = attrs, %User{} = _user) do
+    queryable |> ORM.find_update(id, attrs)
+  end
 
   def set_community(thread, content_id, %Community{id: community_id}) when valid_thread(thread) do
     with {:ok, action} <- match_action(thread, :community),

@@ -22,6 +22,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
   @total_count @today_count + @last_week_count + @last_month_count + @last_year_count
 
   setup do
+    {:ok, user} = db_insert(:user)
     db_insert_multi(:post, @today_count)
     db_insert(:post, %{title: "last week", inserted_at: @last_week})
     db_insert(:post, %{title: "last month", inserted_at: @last_month})
@@ -32,7 +33,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
     # |> put_req_header("authorization", "Bearer fake-token")
     guest_conn = simu_conn(:guest)
 
-    {:ok, ~m(guest_conn)a}
+    {:ok, ~m(guest_conn user)a}
   end
 
   describe "[query paged_posts filter pagination]" do
@@ -77,6 +78,35 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
       assert results |> is_valid_pagination?
       assert results["pageSize"] == @page_size
       assert results["totalCount"] == @total_count
+    end
+
+    test "if have pined posts, the pined posts should at the top of entries", ~m(guest_conn user)a do
+      variables = %{filter: %{}}
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      assert results |> is_valid_pagination?
+      assert results["pageSize"] == @page_size
+      assert results["totalCount"] == @total_count
+
+      random_post_id = results["entries"] |> Enum.shuffle |> List.first |> Map.get("id")
+      {:ok, _} = CMS.set_flag(CMS.Post, random_post_id, %{pin: true}, user)
+
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+
+      assert random_post_id == results["entries"] |> List.first |> Map.get("id")
+      assert results["totalCount"] == @total_count
+    end
+
+    test "pind posts should not appear when page > 1", ~m(guest_conn user)a do
+      variables = %{filter: %{page: 2, size: 20}}
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      assert results |> is_valid_pagination?
+
+      random_post_id = results["entries"] |> Enum.shuffle |> List.first |> Map.get("id")
+      {:ok, _} = CMS.set_flag(CMS.Post, random_post_id, %{pin: true}, user)
+
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+
+      assert results["entries"] |> Enum.any?(&(&1["id"] !== random_post_id))
     end
   end
 

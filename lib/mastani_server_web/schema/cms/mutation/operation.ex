@@ -5,7 +5,23 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
   alias MastaniServerWeb.{Resolvers}
   alias MastaniServerWeb.Middleware, as: M
 
-  object :cms_mutation_operation do
+  object :cms_opertion_mutations do
+    # field :undo_pin_post, :post do
+    field :pin_post, :post do
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->post.pin")
+
+      resolve(&Resolvers.CMS.pin_post/3)
+    end
+
+    # field :undo_pin_post, :post do
+    #   arg(:id, non_null(:id))
+
+    #   resolve(&Resolvers.CMS.undo_pin_post/3)
+    # end
+
     @desc "set category to a community"
     field :set_category, :community do
       arg(:community_id, non_null(:id))

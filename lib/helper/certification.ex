@@ -52,7 +52,9 @@ defmodule Helper.Certification do
         "post.community.set",
         "post.community.unset",
         "job.community.set",
-        "job.community.unset"
+        "job.community.unset",
+        "post.pin",
+        "post.unpin"
       ],
       community: [
         # thread

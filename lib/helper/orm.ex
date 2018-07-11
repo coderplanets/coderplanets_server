@@ -125,7 +125,10 @@ defmodule Helper.ORM do
   @doc """
   find and update sourc
   """
-  def find_update(queryable, %{id: id} = attrs) do
+  def find_update(queryable, id, attrs), do: do_find_update(queryable, id, attrs)
+  def find_update(queryable, %{id: id} = attrs), do: do_find_update(queryable, id, attrs)
+
+  defp do_find_update(queryable, id, attrs) do
     with {:ok, content} <- find(queryable, id) do
       content
       |> content.__struct__.changeset(attrs)

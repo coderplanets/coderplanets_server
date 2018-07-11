@@ -49,6 +49,7 @@ defmodule MastaniServer.CMS do
   defdelegate unsubscribe_community(user_id, community_id), to: CommunityOperation
 
   # ArticleCURD
+  defdelegate paged_content(queryable, filter), to: ArticleCURD
   defdelegate create_content(thread, author_id, attrs), to: ArticleCURD
   defdelegate reaction_users(thread, react, id, filters), to: ArticleCURD
 
@@ -57,13 +58,14 @@ defmodule MastaniServer.CMS do
   defdelegate undo_reaction(thread, react, content_id, user_id), to: ArticleReaction
 
   # ArticleOperation
+  # >> set flag on article, like: pin / unpin article
+  defdelegate set_flag(queryable, id, attrs, user), to: ArticleOperation
   # >> tag: set / unset
   defdelegate set_tag(thread, content_id, community_title, tag_id), to: ArticleOperation
   defdelegate unset_tag(thread, content_id, tag_id), to: ArticleOperation
   # >> community: set / unset
   defdelegate set_community(thread, content_id, community_id), to: ArticleOperation
   defdelegate unset_community(thread, content_id, community_id), to: ArticleOperation
-  # >> reaction
 
   # Comment CURD
   defdelegate create_comment(thread, content_id, user_id, body), to: CommentCURD

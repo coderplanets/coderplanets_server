@@ -49,7 +49,7 @@ defmodule MastaniServerWeb.Schema do
     import_fields(:delivery_mutations)
     # cms
     import_fields(:cms_mutation_community)
-    import_fields(:cms_mutation_operation)
+    import_fields(:cms_opertion_mutations)
     import_fields(:cms_mutation_post)
     import_fields(:cms_mutation_job)
     import_fields(:cms_mutation_comment)

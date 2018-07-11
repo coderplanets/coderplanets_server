@@ -10,6 +10,47 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   alias Helper.{ORM, QueryBuilder}
 
   @doc """
+  get paged post / job ...
+  """
+  # TODO: trash
+  def paged_content(queryable, filter) do
+    normal_content_fr = filter |> Map.merge(%{pin: false})
+
+    queryable
+    |> ORM.find_all(normal_content_fr)
+    |> add_pin_contents_ifneed(queryable, filter)
+  end
+
+  # only first page need pin contents
+  defp add_pin_contents_ifneed(contents, queryable, filter) do
+    with {:ok, normal_contents} <- contents,
+         true <- 1 == Map.get(normal_contents, :page_number) do
+      pin_content_fr = filter |> Map.merge(%{pin: true})
+      {:ok, pined_content} = queryable |> ORM.find_all(pin_content_fr)
+
+      case pined_content |> Map.get(:total_entries) do
+        0 ->
+          contents
+
+        _ ->
+          pind_entries = pined_content |> Map.get(:entries)
+          normal_entries = normal_contents |> Map.get(:entries)
+
+          normal_count = normal_contents |> Map.get(:total_entries)
+          pind_count = pined_content |> Map.get(:total_entries)
+
+          normal_contents
+          |> Map.put(:entries, pind_entries ++ normal_entries)
+          |> Map.put(:total_entries, pind_count + normal_count)
+          |> done
+      end
+    else
+      error ->
+        contents
+    end
+  end
+
+  @doc """
   Creates a content(post/job ...), and set community.
 
   ## Examples
@@ -21,7 +62,6 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   {:error, %Ecto.Changeset{}}
 
   """
-
   def create_content(thread, %Accounts.User{id: user_id}, %{community_id: community_id} = attrs) do
     with {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}),
          {:ok, action} <- match_action(thread, :community),
