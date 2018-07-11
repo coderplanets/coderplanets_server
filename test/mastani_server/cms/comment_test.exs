@@ -1,10 +1,6 @@
 defmodule MastaniServer.Test.CommentTest do
   # currently only test comments for post type, rename and seprherate later
-  use MastaniServerWeb.ConnCase, async: true
-
-  import MastaniServer.Test.AssertHelper
-  import MastaniServer.Factory
-  import ShortMaps
+  use MastaniServer.TestTools
 
   alias MastaniServer.{CMS, Accounts}
   alias Helper.ORM

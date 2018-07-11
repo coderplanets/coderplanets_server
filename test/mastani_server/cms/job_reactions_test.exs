@@ -1,7 +1,5 @@
 defmodule MastaniServer.Test.JobReactionsTest do
-  use MastaniServerWeb.ConnCase, async: true
-  import MastaniServer.Factory
-  import ShortMaps
+  use MastaniServer.TestTools
 
   alias MastaniServer.CMS
   alias MastaniServer.Accounts

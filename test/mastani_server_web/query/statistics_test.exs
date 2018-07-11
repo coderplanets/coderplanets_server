@@ -1,12 +1,8 @@
 defmodule MastaniServer.Test.Query.StatisticsTest do
-  use MastaniServerWeb.ConnCase, async: true
-  import MastaniServer.Factory
-  import MastaniServer.Test.ConnSimulator
-  import MastaniServer.Test.AssertHelper
+  use MastaniServer.TestTools
 
   alias MastaniServer.Statistics
   alias MastaniServer.Accounts.User
-  import ShortMaps
 
   setup do
     {:ok, user} = db_insert(:user)

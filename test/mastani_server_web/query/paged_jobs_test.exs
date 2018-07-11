@@ -1,14 +1,8 @@
 defmodule MastaniServer.Test.Query.PagedJobsTest do
-  # use MastaniServerWeb.ConnCase, async: true
-  use MastaniServerWeb.ConnCase, async: true
+  use MastaniServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
-  import Helper.ErrorCode
-  import MastaniServer.Factory
-  import MastaniServer.Test.AssertHelper
-  import MastaniServer.Test.ConnSimulator
   import Ecto.Query, warn: false
-  import ShortMaps
 
   alias MastaniServer.CMS
   alias MastaniServer.Repo

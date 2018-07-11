@@ -1,8 +1,5 @@
 defmodule MastaniServer.Test.CMSPassportTest do
-  use MastaniServerWeb.ConnCase, async: true
-  import MastaniServer.Factory
-  import MastaniServer.Test.AssertHelper
-  import ShortMaps
+  use MastaniServer.TestTools
 
   alias MastaniServer.CMS
   alias MastaniServer.Accounts.User

@@ -1,9 +1,8 @@
 defmodule MastaniServer.Test.AccountsTest do
-  use MastaniServerWeb.ConnCase, async: true
+  use MastaniServer.TestTools
 
   # TODO import Service.Utils move both helper and github
   import Helper.Utils
-  import MastaniServer.Factory
 
   alias MastaniServer.{Accounts}
   alias Helper.{Guardian, ORM}

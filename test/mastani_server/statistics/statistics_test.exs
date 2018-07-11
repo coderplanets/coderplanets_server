@@ -1,8 +1,6 @@
 defmodule MastaniServer.Test.StatisticsTest do
-  use MastaniServerWeb.ConnCase, async: true
+  use MastaniServer.TestTools
 
-  import MastaniServer.Factory
-  import ShortMaps
   import Helper.Utils, only: [get_config: 2]
 
   alias MastaniServer.{Repo, Accounts, CMS, Statistics}

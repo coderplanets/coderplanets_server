@@ -1,10 +1,6 @@
 defmodule MastaniServer.Test.CMSTest do
   # use MastaniServer.DataCase
-  use MastaniServerWeb.ConnCase, async: true
-
-  import MastaniServer.Test.AssertHelper
-  import MastaniServer.Factory
-  import ShortMaps
+  use MastaniServer.TestTools
 
   alias MastaniServer.{CMS, Accounts}
   alias Helper.{ORM, Certification}

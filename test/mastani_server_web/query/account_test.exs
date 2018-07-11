@@ -1,13 +1,7 @@
 defmodule MastaniServer.Test.Query.AccountTest do
-  # use MastaniServer.DataCase
-  use MastaniServerWeb.ConnCase, async: true
+  use MastaniServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
-  import MastaniServer.Factory
-  import MastaniServer.Test.ConnSimulator
-  import MastaniServer.Test.AssertHelper
-  import ShortMaps
-
   alias MastaniServer.{Accounts, CMS}
 
   @default_subscribed_communities get_config(:general, :default_subscribed_communities)

@@ -1,10 +1,5 @@
 defmodule MastaniServer.Test.Query.PostCommentTest do
-  use MastaniServerWeb.ConnCase, async: true
-
-  import MastaniServer.Factory
-  import MastaniServer.Test.ConnSimulator
-  import MastaniServer.Test.AssertHelper
-  import ShortMaps
+  use MastaniServer.TestTools
 
   alias MastaniServer.{CMS, Accounts}
 

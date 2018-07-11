@@ -1,9 +1,5 @@
 defmodule MastaniServer.Test.Mutation.StatisticsTest do
-  use MastaniServerWeb.ConnCase, async: true
-  import MastaniServer.Factory
-  import MastaniServer.Test.ConnSimulator
-  import MastaniServer.Test.AssertHelper
-  import ShortMaps
+  use MastaniServer.TestTools
 
   alias MastaniServer.Statistics
   # alias MastaniServer.Accounts.User
