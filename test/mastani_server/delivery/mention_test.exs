@@ -9,6 +9,9 @@ defmodule MastaniServer.Delivery.MentionTest do
   alias Helper.ORM
 
   describe "mentions" do
+    alias Accounts.MentionMail
+    alias Delivery.Mention
+
     test "user can mention other user" do
       {:ok, [user, user2]} = db_insert_multi(:user, 2)
 
@@ -32,7 +35,7 @@ defmodule MastaniServer.Delivery.MentionTest do
       {:ok, mentions} = Accounts.fetch_mentions(user, filter)
 
       {:ok, mention_mails} =
-        Accounts.MentionMail
+        MentionMail
         |> where([m], m.to_user_id == ^user.id)
         |> where([m], m.read == false)
         |> ORM.paginater(page: 1, size: 10)
@@ -62,7 +65,7 @@ defmodule MastaniServer.Delivery.MentionTest do
       {:ok, _mentions} = Accounts.fetch_mentions(user, filter)
 
       {:ok, mentions} =
-        Delivery.Mention
+        Mention
         |> where([m], m.to_user_id == ^user.id)
         |> ORM.paginater(page: 1, size: 10)
         |> done()

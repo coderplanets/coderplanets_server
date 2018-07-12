@@ -1,7 +1,7 @@
 defmodule MastaniServer.Test.Mutation.DeliveryTest do
   use MastaniServer.TestTools
 
-  alias MastaniServer.{Accounts}
+  alias MastaniServer.Accounts
 
   setup do
     {:ok, user} = db_insert(:user)

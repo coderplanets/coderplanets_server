@@ -2,7 +2,10 @@ defmodule MastaniServer.Test.Query.AccountTest do
   use MastaniServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
-  alias MastaniServer.{Accounts, CMS}
+
+  alias MastaniServer.Accounts.User
+  alias MastaniServer.CMS
+  alias CMS.Community
 
   @default_subscribed_communities get_config(:general, :default_subscribed_communities)
 
@@ -42,7 +45,7 @@ defmodule MastaniServer.Test.Query.AccountTest do
     test "login user can get own cms_passport and cms_passport_string", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
-      {:ok, _} = CMS.stamp_passport(%Accounts.User{id: user.id}, @valid_rules)
+      {:ok, _} = CMS.stamp_passport(%User{id: user.id}, @valid_rules)
 
       variables = %{id: user.id}
       results = user_conn |> query_result(@query, variables, "user")
@@ -124,7 +127,7 @@ defmodule MastaniServer.Test.Query.AccountTest do
 
       Enum.each(
         communities,
-        &CMS.subscribe_community(%Accounts.User{id: user.id}, %CMS.Community{id: &1.id})
+        &CMS.subscribe_community(%User{id: user.id}, %Community{id: &1.id})
       )
 
       results = guest_conn |> query_result(@query, variables, "user")
@@ -145,7 +148,7 @@ defmodule MastaniServer.Test.Query.AccountTest do
 
       Enum.each(
         communities,
-        &CMS.subscribe_community(%Accounts.User{id: user.id}, %CMS.Community{id: &1.id})
+        &CMS.subscribe_community(%User{id: user.id}, %Community{id: &1.id})
       )
 
       results = guest_conn |> query_result(@query, variables, "user")

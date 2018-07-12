@@ -9,6 +9,9 @@ defmodule MastaniServer.Delivery.NotificationTest do
   alias Helper.ORM
 
   describe "[delivery notification]" do
+    alias Accounts.NotificationMail
+    alias Delivery.Notification
+
     test "user can notify other user" do
       {:ok, [user, user2]} = db_insert_multi(:user, 2)
 
@@ -32,7 +35,7 @@ defmodule MastaniServer.Delivery.NotificationTest do
       {:ok, notifications} = Accounts.fetch_notifications(user, filter)
 
       {:ok, notification_mails} =
-        Accounts.NotificationMail
+        NotificationMail
         |> where([m], m.to_user_id == ^user.id)
         |> where([m], m.read == false)
         |> ORM.paginater(page: 1, size: 10)
@@ -62,7 +65,7 @@ defmodule MastaniServer.Delivery.NotificationTest do
       {:ok, _mentions} = Accounts.fetch_notifications(user, filter)
 
       {:ok, notifications} =
-        Delivery.Notification
+        Notification
         |> where([m], m.to_user_id == ^user.id)
         |> ORM.paginater(page: 1, size: 10)
         |> done()

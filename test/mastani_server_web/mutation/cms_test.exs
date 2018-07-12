@@ -2,7 +2,10 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
   use MastaniServer.TestTools
 
   alias MastaniServer.Statistics
-  alias MastaniServer.{Accounts, CMS}
+  alias MastaniServer.Accounts.User
+  alias MastaniServer.CMS
+  alias CMS.{Community, Tag, Category, Thread, Passport, CommunityEditor}
+
   alias Helper.ORM
 
   setup do
@@ -120,8 +123,8 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
       rule_conn |> mutation_result(@set_category_query, variables, "setCategory")
 
-      {:ok, found_community} = ORM.find(CMS.Community, community.id, preload: :categories)
-      {:ok, found_category} = ORM.find(CMS.Category, category.id, preload: :communities)
+      {:ok, found_community} = ORM.find(Community, community.id, preload: :categories)
+      {:ok, found_category} = ORM.find(Category, category.id, preload: :communities)
 
       assoc_categroies = found_community.categories |> Enum.map(& &1.id)
       assoc_communities = found_category.communities |> Enum.map(& &1.id)
@@ -142,16 +145,15 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       {:ok, community} = db_insert(:community)
       {:ok, category} = db_insert(:category)
 
-      {:ok, _} =
-        CMS.set_category(%CMS.Community{id: community.id}, %CMS.Category{id: category.id})
+      {:ok, _} = CMS.set_category(%Community{id: community.id}, %Category{id: category.id})
 
       rule_conn = simu_conn(:user, cms: %{"category.unset" => true})
       variables = %{communityId: community.id, categoryId: category.id}
 
       rule_conn |> mutation_result(@unset_category_query, variables, "setCategory")
 
-      {:ok, found_community} = ORM.find(CMS.Community, community.id, preload: :categories)
-      {:ok, found_category} = ORM.find(CMS.Category, category.id, preload: :communities)
+      {:ok, found_community} = ORM.find(Community, community.id, preload: :categories)
+      {:ok, found_category} = ORM.find(Category, category.id, preload: :communities)
 
       assoc_categroies = found_community.categories |> Enum.map(& &1.id)
       assoc_communities = found_category.communities |> Enum.map(& &1.id)
@@ -209,7 +211,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       created = rule_conn |> mutation_result(@create_tag_query, variables, "createTag")
       belong_community = created["community"]
 
-      {:ok, found} = CMS.Tag |> ORM.find(created["id"])
+      {:ok, found} = Tag |> ORM.find(created["id"])
 
       assert created["id"] == to_string(found.id)
       assert found.thread == "post"
@@ -323,7 +325,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       created =
         rule_conn |> mutation_result(@create_community_query, variables, "createCommunity")
 
-      {:ok, found} = CMS.Community |> ORM.find(created["id"])
+      {:ok, found} = Community |> ORM.find(created["id"])
       assert created["id"] == to_string(found.id)
     end
 
@@ -343,7 +345,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       updated =
         rule_conn |> mutation_result(@update_community_query, variables, "updateCommunity")
 
-      {:ok, found} = CMS.Community |> ORM.find(updated["id"])
+      {:ok, found} = Community |> ORM.find(updated["id"])
       assert updated["id"] == to_string(found.id)
       assert updated["title"] == variables.title
     end
@@ -355,7 +357,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       updated =
         rule_conn |> mutation_result(@update_community_query, variables, "updateCommunity")
 
-      {:ok, found} = CMS.Community |> ORM.find(updated["id"])
+      {:ok, found} = Community |> ORM.find(updated["id"])
       assert updated["id"] == to_string(found.id)
       assert updated["title"] == community.title
     end
@@ -383,7 +385,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
       author = created_community["author"]
 
-      {:ok, found_community} = CMS.Community |> ORM.find(created_community["id"])
+      {:ok, found_community} = Community |> ORM.find(created_community["id"])
 
       {:ok, user_contribute} = ORM.find_by(Statistics.UserContribute, user_id: author["id"])
 
@@ -424,7 +426,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
         rule_conn |> mutation_result(@delete_community_query, variables, "deleteCommunity")
 
       assert deleted["id"] == to_string(community.id)
-      assert {:error, _} = ORM.find(CMS.Community, community.id)
+      assert {:error, _} = ORM.find(Community, community.id)
     end
 
     test "unauth user delete community fails", ~m(user_conn guest_conn)a do
@@ -515,8 +517,8 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
     }
     """
     test "auth user can remove thread from community", ~m(user community thread)a do
-      CMS.set_thread(%CMS.Community{id: community.id}, %CMS.Thread{id: thread.id})
-      {:ok, found_community} = CMS.Community |> ORM.find(community.id, preload: :threads)
+      CMS.set_thread(%Community{id: community.id}, %Thread{id: thread.id})
+      {:ok, found_community} = Community |> ORM.find(community.id, preload: :threads)
 
       assert found_community.threads |> Enum.any?(&(&1.thread_id == thread.id))
       variables = %{threadId: thread.id, communityId: community.id}
@@ -561,15 +563,15 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
       {:ok, _} =
         CMS.set_editor(
-          %Accounts.User{id: user.id},
-          %CMS.Community{id: community.id},
+          %User{id: user.id},
+          %Community{id: community.id},
           title
         )
 
       assert {:ok, _} =
-               CMS.CommunityEditor |> ORM.find_by(user_id: user.id, community_id: community.id)
+               CommunityEditor |> ORM.find_by(user_id: user.id, community_id: community.id)
 
-      assert {:ok, _} = CMS.Passport |> ORM.find_by(user_id: user.id)
+      assert {:ok, _} = Passport |> ORM.find_by(user_id: user.id)
 
       variables = %{userId: user.id, communityId: community.id}
 
@@ -579,9 +581,9 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       rule_conn |> mutation_result(@unset_editor_query, variables, "unsetEditor")
 
       assert {:error, _} =
-               CMS.CommunityEditor |> ORM.find_by(user_id: user.id, community_id: community.id)
+               CommunityEditor |> ORM.find_by(user_id: user.id, community_id: community.id)
 
-      assert {:error, _} = CMS.Passport |> ORM.find_by(user_id: user.id)
+      assert {:error, _} = Passport |> ORM.find_by(user_id: user.id)
     end
 
     @update_editor_query """
@@ -596,8 +598,8 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
       {:ok, _} =
         CMS.set_editor(
-          %Accounts.User{id: user.id},
-          %CMS.Community{id: community.id},
+          %User{id: user.id},
+          %Community{id: community.id},
           title
         )
 
@@ -609,7 +611,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
       rule_conn |> mutation_result(@update_editor_query, variables, "updateCmsEditor")
 
-      {:ok, update_community} = ORM.find(CMS.Community, community.id, preload: :editors)
+      {:ok, update_community} = ORM.find(Community, community.id, preload: :editors)
       assert title2 == update_community.editors |> List.first() |> Map.get(:title)
     end
 
@@ -674,15 +676,14 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
     """
     test "login user can unsubscribe community", ~m(user community)a do
       {:ok, cur_subscribers} =
-        CMS.community_members(:subscribers, %CMS.Community{id: community.id}, %{page: 1, size: 10})
+        CMS.community_members(:subscribers, %Community{id: community.id}, %{page: 1, size: 10})
 
       assert false == cur_subscribers.entries |> Enum.any?(&(&1.id == user.id))
 
-      {:ok, record} =
-        CMS.subscribe_community(%Accounts.User{id: user.id}, %CMS.Community{id: community.id})
+      {:ok, record} = CMS.subscribe_community(%User{id: user.id}, %Community{id: community.id})
 
       {:ok, cur_subscribers} =
-        CMS.community_members(:subscribers, %CMS.Community{id: community.id}, %{page: 1, size: 10})
+        CMS.community_members(:subscribers, %Community{id: community.id}, %{page: 1, size: 10})
 
       assert true == cur_subscribers.entries |> Enum.any?(&(&1.id == user.id))
 
@@ -694,7 +695,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
         login_conn |> mutation_result(@unsubscribe_query, variables, "unsubscribeCommunity")
 
       {:ok, cur_subscribers} =
-        CMS.community_members(:subscribers, %CMS.Community{id: community.id}, %{page: 1, size: 10})
+        CMS.community_members(:subscribers, %Community{id: community.id}, %{page: 1, size: 10})
 
       assert result["id"] == to_string(record.id)
       assert false == cur_subscribers.entries |> Enum.any?(&(&1.id == user.id))
@@ -739,7 +740,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       rule_conn = simu_conn(:user, cms: %{"community.stamp_passport" => true})
       created = rule_conn |> mutation_result(@query, variables, "stampCmsPassport")
 
-      {:ok, found} = ORM.find(CMS.Passport, created["id"])
+      {:ok, found} = ORM.find(Passport, created["id"])
 
       assert found.user_id == user.id
       assert Map.equal?(found.rules, @valid_passport_rules)
@@ -749,7 +750,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       rule_conn = simu_conn(:user, cms: %{"community.stamp_passport" => true})
       updated = rule_conn |> mutation_result(@query, variables, "stampCmsPassport")
 
-      {:ok, found} = ORM.find(CMS.Passport, updated["id"])
+      {:ok, found} = ORM.find(Passport, updated["id"])
 
       f1 = found.rules |> Map.get("javascript")
       t1 = @valid_passport_rules |> Map.get("javascript")
@@ -773,7 +774,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
       rule_conn = simu_conn(:user, cms: %{"community.stamp_passport" => true})
       created = rule_conn |> mutation_result(@query, variables, "stampCmsPassport")
 
-      {:ok, found} = ORM.find(CMS.Passport, created["id"])
+      {:ok, found} = ORM.find(Passport, created["id"])
       rules = found.rules |> Map.get("python")
 
       assert Map.equal?(rules, %{"post.tag.edit" => true})

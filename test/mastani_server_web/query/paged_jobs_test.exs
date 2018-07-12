@@ -4,8 +4,9 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
   import Helper.Utils, only: [get_config: 2]
   import Ecto.Query, warn: false
 
-  alias MastaniServer.CMS
   alias MastaniServer.Repo
+  alias MastaniServer.CMS
+  alias CMS.Job
 
   @page_size get_config(:general, :page_size)
 
@@ -134,7 +135,7 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
     }
     """
     test "filter sort MOST_VIEWS should work", ~m(guest_conn)a do
-      most_views_job = CMS.Job |> order_by(desc: :views) |> limit(1) |> Repo.one()
+      most_views_job = Job |> order_by(desc: :views) |> limit(1) |> Repo.one()
       variables = %{filter: %{sort: "MOST_VIEWS"}}
 
       results = guest_conn |> query_result(@query, variables, "pagedJobs")

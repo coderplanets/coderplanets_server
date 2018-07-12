@@ -1,7 +1,8 @@
 defmodule MastaniServer.Test.Query.JobCommentTest do
   use MastaniServer.TestTools
 
-  alias MastaniServer.{CMS, Accounts}
+  alias MastaniServer.Accounts.User
+  alias MastaniServer.CMS
 
   setup do
     {:ok, job} = db_insert(:job)
@@ -33,7 +34,7 @@ defmodule MastaniServer.Test.Query.JobCommentTest do
       content = "test comment"
 
       Enum.reduce(1..30, [], fn _, acc ->
-        {:ok, value} = CMS.create_comment(:job, job.id, %Accounts.User{id: user.id}, content)
+        {:ok, value} = CMS.create_comment(:job, job.id, %User{id: user.id}, content)
 
         acc ++ [value]
       end)
@@ -67,10 +68,9 @@ defmodule MastaniServer.Test.Query.JobCommentTest do
     test "guest user can get replies info", ~m(guest_conn job user)a do
       body = "test comment"
 
-      {:ok, comment} = CMS.create_comment(:job, job.id, %Accounts.User{id: user.id}, body)
+      {:ok, comment} = CMS.create_comment(:job, job.id, %User{id: user.id}, body)
 
-      {:ok, reply} =
-        CMS.reply_comment(:job, comment.id, %Accounts.User{id: user.id}, "reply body")
+      {:ok, reply} = CMS.reply_comment(:job, comment.id, %User{id: user.id}, "reply body")
 
       variables = %{thread: "JOB", id: job.id, filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "comments")

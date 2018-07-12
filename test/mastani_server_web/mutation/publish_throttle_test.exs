@@ -2,7 +2,9 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
   use MastaniServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
-  alias MastaniServer.{Statistics, Accounts}
+
+  alias MastaniServer.Accounts.User
+  alias MastaniServer.Statistics
 
   @throttle_interval get_config(:general, :publish_throttle_interval_minutes)
   @hour_limit get_config(:general, :publish_throttle_hour_limit)
@@ -45,7 +47,7 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
 
     Statistics.mock_throttle_attr(
       :last_publish_time,
-      %Accounts.User{id: user.id},
+      %User{id: user.id},
       minutes: -@throttle_interval
     )
 
@@ -69,7 +71,7 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
 
     Statistics.mock_throttle_attr(
       :last_publish_time,
-      %Accounts.User{id: user.id},
+      %User{id: user.id},
       minutes: -(@throttle_interval - 1)
     )
 
@@ -89,13 +91,13 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
 
     Statistics.mock_throttle_attr(
       :last_publish_time,
-      %Accounts.User{id: user.id},
+      %User{id: user.id},
       minutes: -@throttle_interval
     )
 
     Statistics.mock_throttle_attr(
       :hour_count,
-      %Accounts.User{id: user.id},
+      %User{id: user.id},
       count: @hour_limit
     )
 
@@ -115,13 +117,13 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
 
     Statistics.mock_throttle_attr(
       :last_publish_time,
-      %Accounts.User{id: user.id},
+      %User{id: user.id},
       minutes: -@throttle_interval
     )
 
     Statistics.mock_throttle_attr(
       :hour_count,
-      %Accounts.User{id: user.id},
+      %User{id: user.id},
       count: @hour_limit
     )
 
@@ -132,7 +134,7 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
 
     Statistics.mock_throttle_attr(
       :publish_hour,
-      %Accounts.User{id: user.id},
+      %User{id: user.id},
       hours: -1
     )
 
@@ -151,13 +153,13 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
 
     Statistics.mock_throttle_attr(
       :last_publish_time,
-      %Accounts.User{id: user.id},
+      %User{id: user.id},
       minutes: -@throttle_interval
     )
 
     Statistics.mock_throttle_attr(
       :date_count,
-      %Accounts.User{id: user.id},
+      %User{id: user.id},
       count: @day_total
     )
 
@@ -177,13 +179,13 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
 
     Statistics.mock_throttle_attr(
       :last_publish_time,
-      %Accounts.User{id: user.id},
+      %User{id: user.id},
       minutes: -@throttle_interval
     )
 
     Statistics.mock_throttle_attr(
       :date_count,
-      %Accounts.User{id: user.id},
+      %User{id: user.id},
       count: @day_total
     )
 
@@ -194,7 +196,7 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
 
     Statistics.mock_throttle_attr(
       :publish_date,
-      %Accounts.User{id: user.id},
+      %User{id: user.id},
       days: -1
     )
 

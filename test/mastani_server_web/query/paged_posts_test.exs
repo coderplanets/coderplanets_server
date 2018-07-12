@@ -3,8 +3,9 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
 
   import Helper.Utils, only: [get_config: 2]
 
-  alias MastaniServer.CMS
   alias MastaniServer.Repo
+  alias MastaniServer.CMS
+  alias CMS.Post
 
   @page_size get_config(:general, :page_size)
 
@@ -89,14 +90,14 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
       assert results["totalCount"] == @total_count
 
       random_post_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _} = CMS.set_flag(CMS.Post, random_post_id, %{pin: true}, user)
+      {:ok, _} = CMS.set_flag(Post, random_post_id, %{pin: true}, user)
 
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
       assert random_post_id == results["entries"] |> List.first() |> Map.get("id")
       assert results["totalCount"] == @total_count
 
-      {:ok, _} = CMS.set_flag(CMS.Post, random_post_id, %{pin: false}, user)
+      {:ok, _} = CMS.set_flag(Post, random_post_id, %{pin: false}, user)
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
       assert results["entries"] |> Enum.any?(&(&1["id"] !== random_post_id))
     end
@@ -107,7 +108,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
       assert results |> is_valid_pagination?
 
       random_post_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _} = CMS.set_flag(CMS.Post, random_post_id, %{pin: true}, user)
+      {:ok, _} = CMS.set_flag(Post, random_post_id, %{pin: true}, user)
 
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
@@ -123,7 +124,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
       assert results["totalCount"] == @total_count
 
       random_post_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _} = CMS.set_flag(CMS.Post, random_post_id, %{trash: true}, user)
+      {:ok, _} = CMS.set_flag(Post, random_post_id, %{trash: true}, user)
 
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
@@ -188,7 +189,7 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
     }
     """
     test "filter sort MOST_VIEWS should work", ~m(guest_conn)a do
-      most_views_post = CMS.Post |> order_by(desc: :views) |> limit(1) |> Repo.one()
+      most_views_post = Post |> order_by(desc: :views) |> limit(1) |> Repo.one()
       variables = %{filter: %{sort: "MOST_VIEWS"}}
 
       results = guest_conn |> query_result(@query, variables, "pagedPosts")

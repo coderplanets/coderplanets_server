@@ -4,13 +4,15 @@ defmodule MastaniServer.Test.AccountsTest do
   # TODO import Service.Utils move both helper and github
   import Helper.Utils
 
-  alias MastaniServer.{Accounts}
+  alias MastaniServer.Accounts
   alias Helper.{Guardian, ORM}
 
   # @valid_user mock_attrs(:user)
   @valid_github_profile mock_attrs(:github_profile) |> map_key_stringify
 
   describe "[update user]" do
+    alias Accounts.User
+
     test "update user with valid attrs" do
       {:ok, user} = db_insert(:user)
 
@@ -25,7 +27,7 @@ defmodule MastaniServer.Test.AccountsTest do
         weichat: "8384"
       }
 
-      {:ok, updated} = Accounts.update_profile(%Accounts.User{id: user.id}, attrs)
+      {:ok, updated} = Accounts.update_profile(%User{id: user.id}, attrs)
 
       assert updated.bio == attrs.bio
       assert updated.nickname == attrs.nickname
@@ -35,24 +37,25 @@ defmodule MastaniServer.Test.AccountsTest do
     test "update user with invalid attrs fails" do
       {:ok, user} = db_insert(:user)
 
-      assert {:error, _} = Accounts.update_profile(%Accounts.User{id: user.id}, %{qq: "123"})
-      assert {:error, _} = Accounts.update_profile(%Accounts.User{id: user.id}, %{sex: "other"})
-      assert {:error, _} = Accounts.update_profile(%Accounts.User{id: user.id}, %{email: "other"})
-      # ...TODO
+      assert {:error, _} = Accounts.update_profile(%User{id: user.id}, %{qq: "123"})
+      assert {:error, _} = Accounts.update_profile(%User{id: user.id}, %{sex: "other"})
+      assert {:error, _} = Accounts.update_profile(%User{id: user.id}, %{email: "other"})
     end
   end
 
   describe "[github login]" do
+    alias Accounts.{User, GithubUser}
+
     test "register a valid github user with non-exist in db" do
       assert {:error, _} =
-               ORM.find_by(Accounts.GithubUser, github_id: to_string(@valid_github_profile["id"]))
+               ORM.find_by(GithubUser, github_id: to_string(@valid_github_profile["id"]))
 
-      assert {:error, _} = ORM.find_by(Accounts.User, nickname: @valid_github_profile["login"])
+      assert {:error, _} = ORM.find_by(User, nickname: @valid_github_profile["login"])
 
       {:ok, %{token: token, user: user}} = Accounts.github_signin(@valid_github_profile)
       {:ok, claims, _info} = Guardian.jwt_decode(token)
 
-      {:ok, created_user} = ORM.find(Accounts.User, claims.id)
+      {:ok, created_user} = ORM.find(User, claims.id)
 
       assert user.id == created_user.id
       assert created_user.nickname == @valid_github_profile["login"]
@@ -64,8 +67,7 @@ defmodule MastaniServer.Test.AccountsTest do
       assert created_user.location == @valid_github_profile["location"]
       assert created_user.from_github == true
 
-      {:ok, g_user} =
-        ORM.find_by(Accounts.GithubUser, github_id: to_string(@valid_github_profile["id"]))
+      {:ok, g_user} = ORM.find_by(GithubUser, github_id: to_string(@valid_github_profile["id"]))
 
       assert g_user.login == @valid_github_profile["login"]
       assert g_user.avatar_url == @valid_github_profile["avatar_url"]
@@ -74,11 +76,11 @@ defmodule MastaniServer.Test.AccountsTest do
     end
 
     test "exsit github user should not be created twice" do
-      assert ORM.count(Accounts.GithubUser) == 0
+      assert ORM.count(GithubUser) == 0
       {:ok, _} = Accounts.github_signin(@valid_github_profile)
-      assert ORM.count(Accounts.GithubUser) == 1
+      assert ORM.count(GithubUser) == 1
       {:ok, _} = Accounts.github_signin(@valid_github_profile)
-      assert ORM.count(Accounts.GithubUser) == 1
+      assert ORM.count(GithubUser) == 1
     end
   end
 end

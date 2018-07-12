@@ -9,11 +9,14 @@ defmodule MastaniServer.Delivery.SysNotificationTest do
   alias Helper.ORM
 
   describe "[delivery sys notification]" do
+    alias Accounts.SysNotificationMail
+    alias Delivery.SysNotification
+
     test "user can publish system notification" do
       attrs = mock_attrs(:sys_notification)
 
       {:ok, sys_notification} = Delivery.publish_system_notification(attrs)
-      {:ok, found} = Delivery.SysNotification |> ORM.find(sys_notification.id)
+      {:ok, found} = SysNotification |> ORM.find(sys_notification.id)
 
       assert found.id == sys_notification.id
     end
@@ -38,7 +41,7 @@ defmodule MastaniServer.Delivery.SysNotificationTest do
       {:ok, sys_notifications} = Accounts.fetch_sys_notifications(user, filter)
 
       {:ok, sys_notification_mails} =
-        Accounts.SysNotificationMail
+        SysNotificationMail
         |> where([m], m.user_id == ^user.id)
         |> where([m], m.read == false)
         |> ORM.paginater(page: 1, size: 10)

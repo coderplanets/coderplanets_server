@@ -1,13 +1,14 @@
 defmodule MastaniServer.Test.Query.CMSTest do
   use MastaniServer.TestTools
 
-  alias MastaniServer.{Accounts, CMS}
+  alias MastaniServer.Accounts.User
+  alias MastaniServer.CMS
+  alias CMS.{Community, Thread, Category}
 
   setup do
     guest_conn = simu_conn(:guest)
     {:ok, community} = db_insert(:community)
     {:ok, user} = db_insert(:user)
-    # user_conn = simu_conn(:user)
 
     {:ok, ~m(guest_conn community user)a}
   end
@@ -31,7 +32,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
       {:ok, threads} = db_insert_multi(:thread, 5)
 
       Enum.map(threads, fn t ->
-        CMS.set_thread(%CMS.Community{id: community.id}, %CMS.Thread{id: t.id})
+        CMS.set_thread(%Community{id: community.id}, %Thread{id: t.id})
       end)
 
       variables = %{id: community.id}
@@ -84,9 +85,9 @@ defmodule MastaniServer.Test.Query.CMSTest do
       communityn = communities |> List.last()
       # [community1, community2, _] = communities
 
-      CMS.set_category(%CMS.Community{id: community1.id}, %CMS.Category{id: category1.id})
-      CMS.set_category(%CMS.Community{id: community2.id}, %CMS.Category{id: category2.id})
-      CMS.set_category(%CMS.Community{id: communityn.id}, %CMS.Category{id: category2.id})
+      CMS.set_category(%Community{id: community1.id}, %Category{id: category1.id})
+      CMS.set_category(%Community{id: community2.id}, %Category{id: category2.id})
+      CMS.set_category(%Community{id: communityn.id}, %Category{id: category2.id})
 
       variables = %{filter: %{page: 1, size: 20, category: category1.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedCommunities")
@@ -185,14 +186,10 @@ defmodule MastaniServer.Test.Query.CMSTest do
     """
     test "guest user can get paged categories", ~m(guest_conn user)a do
       variables = %{filter: %{page: 1, size: 10}}
-
       valid_attrs = mock_attrs(:category)
+      ~m(title raw)a = valid_attrs
 
-      {:ok, _} =
-        CMS.create_category(
-          %CMS.Category{title: valid_attrs.title, raw: valid_attrs.raw},
-          %Accounts.User{id: user.id}
-        )
+      {:ok, _} = CMS.create_category(~m(%Category title raw)a, %User{id: user.id})
 
       results = guest_conn |> query_result(@query, variables, "pagedCategories")
       author = results["entries"] |> List.first() |> Map.get("author")
@@ -204,15 +201,11 @@ defmodule MastaniServer.Test.Query.CMSTest do
     test "paged categories containes communities info", ~m(guest_conn user community)a do
       variables = %{filter: %{page: 1, size: 10}}
       valid_attrs = mock_attrs(:category)
+      ~m(title raw)a = valid_attrs
 
-      {:ok, category} =
-        CMS.create_category(
-          %CMS.Category{title: valid_attrs.title, raw: valid_attrs.raw},
-          %Accounts.User{id: user.id}
-        )
+      {:ok, category} = CMS.create_category(~m(%Category title raw)a, %User{id: user.id})
 
-      {:ok, _} =
-        CMS.set_category(%CMS.Community{id: community.id}, %CMS.Category{id: category.id})
+      {:ok, _} = CMS.set_category(%Community{id: community.id}, %Category{id: category.id})
 
       results = guest_conn |> query_result(@query, variables, "pagedCategories")
       contain_communities = results["entries"] |> List.first() |> Map.get("communities")
@@ -245,7 +238,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
       variables = %{filter: %{page: 1, size: 10}}
 
       valid_attrs = mock_attrs(:tag, %{user_id: user.id, community_id: community.id})
-      {:ok, _} = CMS.create_tag(:post, valid_attrs, %Accounts.User{id: user.id})
+      {:ok, _} = CMS.create_tag(:post, valid_attrs, %User{id: user.id})
 
       results = guest_conn |> query_result(@query, variables, "tags")
 
@@ -370,8 +363,8 @@ defmodule MastaniServer.Test.Query.CMSTest do
       Enum.each(
         users,
         &CMS.set_editor(
-          %Accounts.User{id: &1.id},
-          %CMS.Community{id: community.id},
+          %User{id: &1.id},
+          %Community{id: community.id},
           title
         )
       )
@@ -411,8 +404,8 @@ defmodule MastaniServer.Test.Query.CMSTest do
       Enum.each(
         users,
         &CMS.set_editor(
-          %Accounts.User{id: &1.id},
-          %CMS.Community{id: community.id},
+          %User{id: &1.id},
+          %Community{id: community.id},
           title
         )
       )
@@ -442,7 +435,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
 
       Enum.each(
         users,
-        &CMS.subscribe_community(%Accounts.User{id: &1.id}, %CMS.Community{id: community.id})
+        &CMS.subscribe_community(%User{id: &1.id}, %Community{id: community.id})
       )
 
       variables = %{id: community.id}
@@ -465,7 +458,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
 
       Enum.each(
         users,
-        &CMS.subscribe_community(%Accounts.User{id: &1.id}, %CMS.Community{id: community.id})
+        &CMS.subscribe_community(%User{id: &1.id}, %Community{id: community.id})
       )
 
       variables = %{id: community.id}
@@ -493,7 +486,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
 
       Enum.each(
         users,
-        &CMS.subscribe_community(%Accounts.User{id: &1.id}, %CMS.Community{id: community.id})
+        &CMS.subscribe_community(%User{id: &1.id}, %Community{id: community.id})
       )
 
       variables = %{id: community.id, filter: %{page: 1, size: 10}}
