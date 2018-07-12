@@ -1,152 +1,88 @@
 defmodule MastaniServer.Test.CMSTest do
-  # use MastaniServer.DataCase
   use MastaniServer.TestTools
 
-  alias MastaniServer.{CMS, Accounts}
+  alias MastaniServer.CMS
+  alias MastaniServer.Accounts.User
   alias Helper.{ORM, Certification}
 
   setup do
     {:ok, user} = db_insert(:user)
-    {:ok, post} = db_insert(:post)
-    {:ok, user2} = db_insert(:user)
     {:ok, community} = db_insert(:community)
     {:ok, category} = db_insert(:category)
 
-    post_attrs = mock_attrs(:post, %{community_id: community.id})
-    job_attrs = mock_attrs(:job, %{community_id: community.id})
-
-    {:ok, ~m(user user2 post community category post_attrs job_attrs)a}
-  end
-
-  describe "[cms post]" do
-    test "can create post with valid attrs", ~m(user post_attrs)a do
-      assert {:error, _} = ORM.find_by(CMS.Author, user_id: user.id)
-
-      {:ok, post} = CMS.create_content(:post, %Accounts.User{id: user.id}, post_attrs)
-      assert post.title == post_attrs.title
-    end
-
-    test "add user to cms authors, if the user is not exsit in cms authors",
-         ~m(user post_attrs)a do
-      assert {:error, _} = ORM.find_by(CMS.Author, user_id: user.id)
-
-      {:ok, _} = CMS.create_content(:post, %Accounts.User{id: user.id}, post_attrs)
-      {:ok, author} = ORM.find_by(CMS.Author, user_id: user.id)
-      assert author.user_id == user.id
-    end
-
-    test "create post with on exsit community fails", ~m(user)a do
-      invalid_attrs = mock_attrs(:post, %{community_id: non_exsit_id()})
-
-      assert {:error, _} = CMS.create_content(:post, %Accounts.User{id: user.id}, invalid_attrs)
-    end
-  end
-
-  describe "[cms jobs]" do
-    test "can create a job with valid attrs", ~m(user job_attrs)a do
-      {:ok, job} = CMS.create_content(:job, %Accounts.User{id: user.id}, job_attrs)
-
-      {:ok, found} = ORM.find(CMS.Job, job.id)
-      assert found.id == job.id
-      assert found.title == job.title
-    end
-
-    test "create job with on exsit community fails", ~m(user)a do
-      invalid_attrs = mock_attrs(:job, %{community_id: non_exsit_id()})
-
-      assert {:error, _} = CMS.create_content(:job, %Accounts.User{id: user.id}, invalid_attrs)
-    end
+    {:ok, ~m(user community category)a}
   end
 
   describe "[cms tag]" do
     test "create tag with valid data", ~m(community user)a do
       valid_attrs = mock_attrs(:tag, %{community_id: community.id})
 
-      {:ok, tag} = CMS.create_tag(:post, valid_attrs, %Accounts.User{id: user.id})
+      {:ok, tag} = CMS.create_tag(:post, valid_attrs, %User{id: user.id})
       assert tag.title == valid_attrs.title
     end
 
     test "create tag with non-exsit user fails", ~m(user)a do
       invalid_attrs = mock_attrs(:tag, %{community_id: non_exsit_id()})
 
-      assert {:error, _} = CMS.create_tag(:post, invalid_attrs, %Accounts.User{id: user.id})
+      assert {:error, _} = CMS.create_tag(:post, invalid_attrs, %User{id: user.id})
     end
 
     test "create tag with non-exsit community fails", ~m(user)a do
       invalid_attrs = mock_attrs(:tag, %{community_id: non_exsit_id()})
 
-      assert {:error, _} = CMS.create_tag(:post, invalid_attrs, %Accounts.User{id: user.id})
+      assert {:error, _} = CMS.create_tag(:post, invalid_attrs, %User{id: user.id})
     end
   end
 
   describe "[cms category]" do
+    alias CMS.{Community, Category}
+
     test "create category with valid attrs", ~m(user)a do
       valid_attrs = mock_attrs(:category, %{user_id: user.id})
+      ~m(title raw)a = valid_attrs
 
-      {:ok, category} =
-        CMS.create_category(
-          %CMS.Category{title: valid_attrs.title, raw: valid_attrs.raw},
-          %Accounts.User{id: user.id}
-        )
+      {:ok, category} = CMS.create_category(~m(%Category title raw)a, %User{id: user.id})
 
       assert category.title == valid_attrs.title
-      # assert category.author_id == user.id
     end
 
     test "create category with same title fails", ~m(user)a do
       valid_attrs = mock_attrs(:category, %{user_id: user.id})
+      ~m(title raw)a = valid_attrs
 
-      {:ok, _} =
-        CMS.create_category(
-          %CMS.Category{title: valid_attrs.title, raw: valid_attrs.raw},
-          %Accounts.User{id: user.id}
-        )
-
-      assert {:error, _} =
-               CMS.create_category(%CMS.Category{title: valid_attrs.title}, %Accounts.User{
-                 id: user.id
-               })
+      assert {:ok, _} = CMS.create_category(~m(%Category title raw)a, %User{id: user.id})
+      assert {:error, _} = CMS.create_category(~m(%Category title)a, %User{id: user.id})
     end
 
     test "update category with valid attrs", ~m(user)a do
       valid_attrs = mock_attrs(:category, %{user_id: user.id})
+      ~m(title raw)a = valid_attrs
 
-      {:ok, category} =
-        CMS.create_category(
-          %CMS.Category{title: valid_attrs.title, raw: valid_attrs.raw},
-          %Accounts.User{id: user.id}
-        )
+      {:ok, category} = CMS.create_category(~m(%Category title raw)a, %User{id: user.id})
 
       assert category.title == valid_attrs.title
-      {:ok, updated} = CMS.update_category(%CMS.Category{id: category.id, title: "new title"})
+      {:ok, updated} = CMS.update_category(%Category{id: category.id, title: "new title"})
 
       assert updated.title == "new title"
     end
 
     test "update title to existing title fails", ~m(user)a do
       valid_attrs = mock_attrs(:category, %{user_id: user.id})
+      ~m(title raw)a = valid_attrs
 
-      {:ok, category} =
-        CMS.create_category(
-          %CMS.Category{title: valid_attrs.title, raw: valid_attrs.raw},
-          %Accounts.User{id: user.id}
-        )
+      {:ok, category} = CMS.create_category(~m(%Category title raw)a, %User{id: user.id})
 
-      {:ok, category2} =
-        CMS.create_category(
-          %CMS.Category{title: "category2 title", raw: "category2 title"},
-          %Accounts.User{id: user.id}
-        )
+      new_category_attrs = %Category{title: "category2 title", raw: "category2 title"}
+      {:ok, category2} = CMS.create_category(new_category_attrs, %User{id: user.id})
 
-      {:error, _} = CMS.update_category(%CMS.Category{id: category.id, title: category2.title})
+      {:error, _} = CMS.update_category(%Category{id: category.id, title: category2.title})
     end
 
     test "can set a category to a community", ~m(community category)a do
-      {:ok, _} =
-        CMS.set_category(%CMS.Community{id: community.id}, %CMS.Category{id: category.id})
+      {:ok, _} = CMS.set_category(%Community{id: community.id}, %Category{id: category.id})
 
-      {:ok, found_community} = ORM.find(CMS.Community, community.id, preload: :categories)
-      {:ok, found_category} = ORM.find(CMS.Category, category.id, preload: :communities)
+      {:ok, found_community} = ORM.find(Community, community.id, preload: :categories)
+      {:ok, found_category} = ORM.find(Category, category.id, preload: :communities)
 
       assoc_categroies = found_community.categories |> Enum.map(& &1.id)
       assoc_communities = found_category.communities |> Enum.map(& &1.id)
@@ -156,13 +92,12 @@ defmodule MastaniServer.Test.CMSTest do
     end
 
     test "can unset a category to a community", ~m(community category)a do
-      {:ok, _} =
-        CMS.set_category(%CMS.Community{id: community.id}, %CMS.Category{id: category.id})
+      {:ok, _} = CMS.set_category(%Community{id: community.id}, %Category{id: category.id})
 
-      CMS.unset_category(%CMS.Community{id: community.id}, %CMS.Category{id: category.id})
+      CMS.unset_category(%Community{id: community.id}, %Category{id: category.id})
 
-      {:ok, found_community} = ORM.find(CMS.Community, community.id, preload: :categories)
-      {:ok, found_category} = ORM.find(CMS.Category, category.id, preload: :communities)
+      {:ok, found_community} = ORM.find(Community, community.id, preload: :categories)
+      {:ok, found_category} = ORM.find(Category, category.id, preload: :communities)
 
       assoc_categroies = found_community.categories |> Enum.map(& &1.id)
       assoc_communities = found_category.communities |> Enum.map(& &1.id)
@@ -210,6 +145,8 @@ defmodule MastaniServer.Test.CMSTest do
   # end
 
   describe "[cms community thread]" do
+    alias CMS.{Community, Thread}
+
     test "can create thread to a community" do
       title = "post"
       raw = "POST"
@@ -231,28 +168,24 @@ defmodule MastaniServer.Test.CMSTest do
       thread_id = thread.id
       community_id = community.id
 
-      {:ok, ret_community} =
-        CMS.set_thread(%CMS.Community{id: community_id}, %CMS.Thread{id: thread_id})
+      {:ok, ret_community} = CMS.set_thread(%Community{id: community_id}, %Thread{id: thread_id})
 
       assert ret_community.id == community.id
     end
   end
 
   describe "[cms community editors]" do
+    alias CMS.{Community, CommunityEditor}
+
     test "can add editor to a community, editor has default passport", ~m(user community)a do
       title = "chief editor"
 
-      {:ok, _} =
-        CMS.set_editor(
-          %Accounts.User{id: user.id},
-          %CMS.Community{id: community.id},
-          title
-        )
+      {:ok, _} = CMS.set_editor(%User{id: user.id}, %Community{id: community.id}, title)
 
       related_rules = Certification.passport_rules(cms: title)
 
-      {:ok, editor} = CMS.CommunityEditor |> ORM.find_by(user_id: user.id)
-      {:ok, user_passport} = CMS.get_passport(%Accounts.User{id: user.id})
+      {:ok, editor} = CommunityEditor |> ORM.find_by(user_id: user.id)
+      {:ok, user_passport} = CMS.get_passport(%User{id: user.id})
 
       assert editor.user_id == user.id
       assert editor.community_id == community.id
@@ -266,14 +199,14 @@ defmodule MastaniServer.Test.CMSTest do
       Enum.each(
         users,
         &CMS.set_editor(
-          %Accounts.User{id: &1.id},
-          %CMS.Community{id: community.id},
+          %User{id: &1.id},
+          %Community{id: community.id},
           title
         )
       )
 
-      {:ok, results} =
-        CMS.community_members(:editors, %CMS.Community{id: community.id}, %{page: 1, size: 10})
+      filter = %{page: 1, size: 10}
+      {:ok, results} = CMS.community_members(:editors, %Community{id: community.id}, filter)
 
       assert results |> is_valid_pagination?(:raw)
       assert results.total_entries == 25
@@ -281,9 +214,10 @@ defmodule MastaniServer.Test.CMSTest do
   end
 
   describe "[cms community subscribe]" do
+    alias CMS.Community
+
     test "user can subscribe a community", ~m(user community)a do
-      {:ok, record} =
-        CMS.subscribe_community(%Accounts.User{id: user.id}, %CMS.Community{id: community.id})
+      {:ok, record} = CMS.subscribe_community(%User{id: user.id}, %Community{id: community.id})
 
       assert community.id == record.id
     end
@@ -293,11 +227,11 @@ defmodule MastaniServer.Test.CMSTest do
 
       Enum.each(
         users,
-        &CMS.subscribe_community(%Accounts.User{id: &1.id}, %CMS.Community{id: community.id})
+        &CMS.subscribe_community(%User{id: &1.id}, %Community{id: community.id})
       )
 
       {:ok, results} =
-        CMS.community_members(:subscribers, %CMS.Community{id: community.id}, %{page: 1, size: 10})
+        CMS.community_members(:subscribers, %Community{id: community.id}, %{page: 1, size: 10})
 
       assert results |> is_valid_pagination?(:raw)
     end
