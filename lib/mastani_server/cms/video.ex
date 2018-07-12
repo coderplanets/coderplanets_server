@@ -34,7 +34,7 @@ defmodule MastaniServer.CMS.Video do
       :tags,
       Tag,
       join_through: "videos_tags",
-      join_keys: [post_id: :id, video_id: :id],
+      join_keys: [video_id: :id, tag_id: :id],
       on_delete: :delete_all,
       on_replace: :delete
     )
