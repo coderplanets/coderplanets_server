@@ -120,19 +120,15 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # editors ..
   # #######################
   def set_editor(_root, ~m(community_id user_id title)a, _) do
-    CMS.set_editor(
-      %User{id: user_id},
-      %Community{id: community_id},
-      title
-    )
+    CMS.set_editor(%Community{id: community_id}, title, %User{id: user_id})
   end
 
   def unset_editor(_root, ~m(community_id user_id)a, _) do
-    CMS.unset_editor(%User{id: user_id}, %Community{id: community_id})
+    CMS.unset_editor(%Community{id: community_id}, %User{id: user_id})
   end
 
   def update_editor(_root, ~m(community_id user_id title)a, _) do
-    CMS.update_editor(%User{id: user_id}, %Community{id: community_id}, title)
+    CMS.update_editor(%Community{id: community_id}, title, %User{id: user_id})
   end
 
   def community_editors(_root, ~m(id filter)a, _info) do
@@ -151,11 +147,11 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def update_tag(_root, args, _info), do: CMS.update_tag(args)
 
   def set_tag(_root, ~m(community_id thread id tag_id)a, _info) do
-    CMS.set_tag(thread, id, %Community{id: community_id}, %Tag{id: tag_id})
+    CMS.set_tag(%Community{id: community_id}, thread, %Tag{id: tag_id}, id)
   end
 
   def unset_tag(_root, ~m(id thread tag_id)a, _info),
-    do: CMS.unset_tag(thread, id, %Tag{id: tag_id})
+    do: CMS.unset_tag(thread, %Tag{id: tag_id}, id)
 
   def get_tags(_root, ~m(community_id thread)a, _info) do
     CMS.get_tags(%Community{id: community_id}, thread)
@@ -175,11 +171,11 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # community subscribe ..
   # #######################
   def subscribe_community(_root, ~m(community_id)a, %{context: %{cur_user: cur_user}}) do
-    CMS.subscribe_community(cur_user, %Community{id: community_id})
+    CMS.subscribe_community(%Community{id: community_id}, cur_user)
   end
 
   def unsubscribe_community(_root, ~m(community_id)a, %{context: %{cur_user: cur_user}}) do
-    CMS.unsubscribe_community(cur_user, %Community{id: community_id})
+    CMS.unsubscribe_community(%Community{id: community_id}, cur_user)
   end
 
   def community_subscribers(_root, ~m(id filter)a, _info) do
@@ -201,7 +197,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     do: CMS.list_comments(thread, id, filter)
 
   def create_comment(_root, ~m(thread id body)a, %{context: %{cur_user: user}}) do
-    CMS.create_comment(thread, id, user, body)
+    CMS.create_comment(thread, id, body, user)
   end
 
   def delete_comment(_root, ~m(thread id)a, _info) do
@@ -209,7 +205,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   def reply_comment(_root, ~m(thread id body)a, %{context: %{cur_user: user}}) do
-    CMS.reply_comment(thread, id, user, body)
+    CMS.reply_comment(thread, id, body, user)
   end
 
   def like_comment(_root, ~m(thread id)a, %{context: %{cur_user: user}}) do
@@ -229,8 +225,6 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   def stamp_passport(_root, ~m(user_id rules)a, %{context: %{cur_user: _user}}) do
-    # IO.inspect rules, label: "in resolver"
-    # IO.inspect Jason.decode!(rules), label: "in resolver decode"
-    CMS.stamp_passport(%User{id: user_id}, rules)
+    CMS.stamp_passport(rules, %User{id: user_id})
   end
 end

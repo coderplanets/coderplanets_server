@@ -31,7 +31,7 @@ defmodule MastaniServer.CMS.Delegate.PassportCURD do
   @doc """
   insert or update a user's passport in CMS context
   """
-  def stamp_passport(%Accounts.User{id: user_id}, rules) do
+  def stamp_passport(rules, %Accounts.User{id: user_id}) do
     case ORM.find_by(UserPasport, user_id: user_id) do
       {:ok, passport} ->
         rules = passport.rules |> deep_merge(rules) |> reject_invalid_rules
@@ -43,7 +43,7 @@ defmodule MastaniServer.CMS.Delegate.PassportCURD do
     end
   end
 
-  def erase_passport(%Accounts.User{id: user_id}, rules) when is_list(rules) do
+  def erase_passport(rules, %Accounts.User{id: user_id}) when is_list(rules) do
     with {:ok, passport} <- ORM.find_by(UserPasport, user_id: user_id) do
       case pop_in(passport.rules, rules) do
         {nil, _} ->

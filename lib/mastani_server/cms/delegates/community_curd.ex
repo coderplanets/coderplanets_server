@@ -39,7 +39,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     |> done()
   end
 
-  def update_editor(%Accounts.User{id: user_id}, %Community{id: community_id}, title) do
+  def update_editor(%Community{id: community_id}, title, %Accounts.User{id: user_id}) do
     clauses = ~m(user_id community_id)a
 
     with {:ok, _} <- CommunityEditor |> ORM.update_by(clauses, ~m(title)a) do

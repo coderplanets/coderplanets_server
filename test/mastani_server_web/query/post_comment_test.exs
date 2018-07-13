@@ -1,7 +1,6 @@
 defmodule MastaniServer.Test.Query.PostCommentTest do
   use MastaniServer.TestTools
 
-  alias MastaniServer.Accounts.User
   alias MastaniServer.CMS
 
   setup do
@@ -33,10 +32,10 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
     }
     """
     test "guest user can get a paged comment", ~m(guest_conn post user)a do
-      content = "test comment"
+      body = "test comment"
 
       Enum.reduce(1..30, [], fn _, acc ->
-        {:ok, value} = CMS.create_comment(:post, post.id, %User{id: user.id}, content)
+        {:ok, value} = CMS.create_comment(:post, post.id, body, user)
 
         acc ++ [value]
       end)
@@ -49,11 +48,11 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
     end
 
     test "MOST_LIKES filter should work", ~m(guest_conn post user)a do
-      content = "test comment"
+      body = "test comment"
 
       comments =
         Enum.reduce(1..10, [], fn _, acc ->
-          {:ok, value} = CMS.create_comment(:post, post.id, %User{id: user.id}, content)
+          {:ok, value} = CMS.create_comment(:post, post.id, body, user)
 
           acc ++ [value]
         end)
@@ -62,16 +61,16 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
       {:ok, [user_1, user_2, user_3, user_4, user_5]} = db_insert_multi(:user, 5)
 
       # comment_3 is most likes
-      {:ok, _} = CMS.like_comment(:post_comment, comment_3.id, %User{id: user_1.id})
-      {:ok, _} = CMS.like_comment(:post_comment, comment_3.id, %User{id: user_2.id})
-      {:ok, _} = CMS.like_comment(:post_comment, comment_3.id, %User{id: user_3.id})
-      {:ok, _} = CMS.like_comment(:post_comment, comment_3.id, %User{id: user_4.id})
-      {:ok, _} = CMS.like_comment(:post_comment, comment_3.id, %User{id: user_5.id})
+      {:ok, _} = CMS.like_comment(:post_comment, comment_3.id, user_1)
+      {:ok, _} = CMS.like_comment(:post_comment, comment_3.id, user_2)
+      {:ok, _} = CMS.like_comment(:post_comment, comment_3.id, user_3)
+      {:ok, _} = CMS.like_comment(:post_comment, comment_3.id, user_4)
+      {:ok, _} = CMS.like_comment(:post_comment, comment_3.id, user_5)
 
-      {:ok, _} = CMS.like_comment(:post_comment, comment_1.id, %User{id: user_1.id})
-      {:ok, _} = CMS.like_comment(:post_comment, comment_1.id, %User{id: user_2.id})
-      {:ok, _} = CMS.like_comment(:post_comment, comment_1.id, %User{id: user_3.id})
-      {:ok, _} = CMS.like_comment(:post_comment, comment_1.id, %User{id: user_4.id})
+      {:ok, _} = CMS.like_comment(:post_comment, comment_1.id, user_1)
+      {:ok, _} = CMS.like_comment(:post_comment, comment_1.id, user_2)
+      {:ok, _} = CMS.like_comment(:post_comment, comment_1.id, user_3)
+      {:ok, _} = CMS.like_comment(:post_comment, comment_1.id, user_4)
 
       variables = %{id: post.id, filter: %{page: 1, size: 10, sort: "MOST_LIKES"}}
       results = guest_conn |> query_result(@query, variables, "comments")
@@ -85,11 +84,11 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
     end
 
     test "MOST_DISLIKES filter should work", ~m(guest_conn post user)a do
-      content = "test comment"
+      body = "test comment"
 
       comments =
         Enum.reduce(1..10, [], fn _, acc ->
-          {:ok, value} = CMS.create_comment(:post, post.id, %User{id: user.id}, content)
+          {:ok, value} = CMS.create_comment(:post, post.id, body, user)
 
           acc ++ [value]
         end)
@@ -98,16 +97,16 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
       {:ok, [user_1, user_2, user_3, user_4, user_5]} = db_insert_multi(:user, 5)
 
       # comment_3 is most likes
-      {:ok, _} = CMS.dislike_comment(:post_comment, comment_3.id, %User{id: user_1.id})
-      {:ok, _} = CMS.dislike_comment(:post_comment, comment_3.id, %User{id: user_2.id})
-      {:ok, _} = CMS.dislike_comment(:post_comment, comment_3.id, %User{id: user_3.id})
-      {:ok, _} = CMS.dislike_comment(:post_comment, comment_3.id, %User{id: user_4.id})
-      {:ok, _} = CMS.dislike_comment(:post_comment, comment_3.id, %User{id: user_5.id})
+      {:ok, _} = CMS.dislike_comment(:post_comment, comment_3.id, user_1)
+      {:ok, _} = CMS.dislike_comment(:post_comment, comment_3.id, user_2)
+      {:ok, _} = CMS.dislike_comment(:post_comment, comment_3.id, user_3)
+      {:ok, _} = CMS.dislike_comment(:post_comment, comment_3.id, user_4)
+      {:ok, _} = CMS.dislike_comment(:post_comment, comment_3.id, user_5)
 
-      {:ok, _} = CMS.dislike_comment(:post_comment, comment_1.id, %User{id: user_1.id})
-      {:ok, _} = CMS.dislike_comment(:post_comment, comment_1.id, %User{id: user_2.id})
-      {:ok, _} = CMS.dislike_comment(:post_comment, comment_1.id, %User{id: user_3.id})
-      {:ok, _} = CMS.dislike_comment(:post_comment, comment_1.id, %User{id: user_4.id})
+      {:ok, _} = CMS.dislike_comment(:post_comment, comment_1.id, user_1)
+      {:ok, _} = CMS.dislike_comment(:post_comment, comment_1.id, user_2)
+      {:ok, _} = CMS.dislike_comment(:post_comment, comment_1.id, user_3)
+      {:ok, _} = CMS.dislike_comment(:post_comment, comment_1.id, user_4)
 
       variables = %{id: post.id, filter: %{page: 1, size: 10, sort: "MOST_DISLIKES"}}
       results = guest_conn |> query_result(@query, variables, "comments")
@@ -130,12 +129,13 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
       }
     }
     """
+    @tag :wip
     test "login user can get hasLiked feedBack", ~m(user_conn post user)a do
       body = "test comment"
 
-      {:ok, comment} = CMS.create_comment(:post, post.id, %User{id: user.id}, body)
+      {:ok, comment} = CMS.create_comment(:post, post.id, body, user)
 
-      {:ok, _like} = CMS.like_comment(:post_comment, comment.id, %User{id: user.id})
+      {:ok, _like} = CMS.like_comment(:post_comment, comment.id, user)
 
       variables = %{id: post.id, filter: %{page: 1, size: 10}}
       results = user_conn |> query_result(@query, variables, "comments")
@@ -176,9 +176,9 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
     test "guest user can get likes info", ~m(guest_conn post user)a do
       body = "test comment"
 
-      {:ok, comment} = CMS.create_comment(:post, post.id, %User{id: user.id}, body)
+      {:ok, comment} = CMS.create_comment(:post, post.id, body, user)
 
-      {:ok, _like} = CMS.like_comment(:post_comment, comment.id, %User{id: user.id})
+      {:ok, _like} = CMS.like_comment(:post_comment, comment.id, user)
 
       variables = %{id: post.id, filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "comments")
@@ -216,9 +216,9 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
     test "guest user can get dislikes info", ~m(guest_conn post user)a do
       body = "test comment"
 
-      {:ok, comment} = CMS.create_comment(:post, post.id, %User{id: user.id}, body)
+      {:ok, comment} = CMS.create_comment(:post, post.id, body, user)
 
-      {:ok, _like} = CMS.dislike_comment(:post_comment, comment.id, %User{id: user.id})
+      {:ok, _like} = CMS.dislike_comment(:post_comment, comment.id, user)
 
       variables = %{id: post.id, filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "comments")
@@ -256,9 +256,9 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
     test "guest user can get replies info", ~m(guest_conn post user)a do
       body = "test comment"
 
-      {:ok, comment} = CMS.create_comment(:post, post.id, %User{id: user.id}, body)
+      {:ok, comment} = CMS.create_comment(:post, post.id, body, user)
 
-      {:ok, reply} = CMS.reply_comment(:post, comment.id, %User{id: user.id}, "reply body")
+      {:ok, reply} = CMS.reply_comment(:post, comment.id, "reply body", user)
 
       variables = %{id: post.id, filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "comments")

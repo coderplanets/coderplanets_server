@@ -362,11 +362,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
 
       Enum.each(
         users,
-        &CMS.set_editor(
-          %User{id: &1.id},
-          %Community{id: community.id},
-          title
-        )
+        &CMS.set_editor(community, title, %User{id: &1.id})
       )
 
       variables = %{id: community.id}
@@ -403,11 +399,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
 
       Enum.each(
         users,
-        &CMS.set_editor(
-          %User{id: &1.id},
-          %Community{id: community.id},
-          title
-        )
+        &CMS.set_editor(community, title, %User{id: &1.id})
       )
 
       variables = %{id: community.id, filter: %{page: 1, size: 10}}
@@ -435,7 +427,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
 
       Enum.each(
         users,
-        &CMS.subscribe_community(%User{id: &1.id}, %Community{id: community.id})
+        &CMS.subscribe_community(community, %User{id: &1.id})
       )
 
       variables = %{id: community.id}
@@ -458,7 +450,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
 
       Enum.each(
         users,
-        &CMS.subscribe_community(%User{id: &1.id}, %Community{id: community.id})
+        &CMS.subscribe_community(community, %User{id: &1.id})
       )
 
       variables = %{id: community.id}
@@ -486,7 +478,7 @@ defmodule MastaniServer.Test.Query.CMSTest do
 
       Enum.each(
         users,
-        &CMS.subscribe_community(%User{id: &1.id}, %Community{id: community.id})
+        &CMS.subscribe_community(community, %User{id: &1.id})
       )
 
       variables = %{id: community.id, filter: %{page: 1, size: 10}}

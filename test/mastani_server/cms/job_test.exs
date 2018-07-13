@@ -1,7 +1,6 @@
 defmodule MastaniServer.Test.JobTest do
   use MastaniServer.TestTools
 
-  alias MastaniServer.Accounts.User
   alias MastaniServer.CMS
   alias Helper.ORM
 
@@ -15,7 +14,7 @@ defmodule MastaniServer.Test.JobTest do
   end
 
   describe "[cms jobs curd]" do
-    alias CMS.{Author, Community}
+    alias CMS.Community
 
     test "can create a job with valid attrs", ~m(user community job_attrs)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)

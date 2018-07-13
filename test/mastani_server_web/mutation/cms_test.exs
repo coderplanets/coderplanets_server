@@ -2,7 +2,6 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
   use MastaniServer.TestTools
 
   alias MastaniServer.Statistics
-  alias MastaniServer.Accounts.User
   alias MastaniServer.CMS
   alias CMS.{Community, Tag, Category, Thread, Passport, CommunityEditor}
 
@@ -561,12 +560,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
     test "auth user can unset editor AND passport from community", ~m(user community)a do
       title = "chief editor"
 
-      {:ok, _} =
-        CMS.set_editor(
-          %User{id: user.id},
-          %Community{id: community.id},
-          title
-        )
+      {:ok, _} = CMS.set_editor(community, title, user)
 
       assert {:ok, _} =
                CommunityEditor |> ORM.find_by(user_id: user.id, community_id: community.id)
@@ -598,9 +592,9 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
       {:ok, _} =
         CMS.set_editor(
-          %User{id: user.id},
-          %Community{id: community.id},
-          title
+          community,
+          title,
+          user
         )
 
       title2 = "post editor"
@@ -680,7 +674,7 @@ defmodule MastaniServer.Test.Mutation.CMSTest do
 
       assert false == cur_subscribers.entries |> Enum.any?(&(&1.id == user.id))
 
-      {:ok, record} = CMS.subscribe_community(%User{id: user.id}, %Community{id: community.id})
+      {:ok, record} = CMS.subscribe_community(community, user)
 
       {:ok, cur_subscribers} =
         CMS.community_members(:subscribers, %Community{id: community.id}, %{page: 1, size: 10})

@@ -4,7 +4,8 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
   # import MastaniServer.CMS.Utils.Matcher
 
   alias MastaniServer.CMS.Delegate.PassportCURD
-  alias MastaniServer.{Repo, Accounts}
+  alias MastaniServer.Accounts.User
+  alias MastaniServer.Repo
   alias Helper.{ORM, Certification}
   alias Ecto.Multi
 
@@ -62,7 +63,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
   @doc """
   set a community editor
   """
-  def set_editor(%Accounts.User{id: user_id}, %Community{id: community_id}, title) do
+  def set_editor(%Community{id: community_id}, title, %User{id: user_id}) do
     Multi.new()
     |> Multi.insert(
       :insert_editor,
@@ -70,7 +71,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
     )
     |> Multi.run(:stamp_passport, fn _ ->
       rules = Certification.passport_rules(cms: title)
-      PassportCURD.stamp_passport(%Accounts.User{id: user_id}, rules)
+      PassportCURD.stamp_passport(rules, %User{id: user_id})
     end)
     |> Repo.transaction()
     |> set_editor_result()
@@ -79,15 +80,15 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
   @doc """
   unset a community editor
   """
-  def unset_editor(%Accounts.User{id: user_id}, %Community{id: community_id}) do
+  def unset_editor(%Community{id: community_id}, %User{id: user_id}) do
     with {:ok, _} <- ORM.findby_delete(CommunityEditor, ~m(user_id community_id)a),
-         {:ok, _} <- PassportCURD.delete_passport(%Accounts.User{id: user_id}) do
-      Accounts.User |> ORM.find(user_id)
+         {:ok, _} <- PassportCURD.delete_passport(%User{id: user_id}) do
+      User |> ORM.find(user_id)
     end
   end
 
   defp set_editor_result({:ok, %{insert_editor: editor}}) do
-    Accounts.User |> ORM.find(editor.user_id)
+    User |> ORM.find(editor.user_id)
   end
 
   defp set_editor_result({:error, :stamp_passport, _result, _steps}),
@@ -99,7 +100,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
   @doc """
   subscribe a community. (ONLY community, post etc use watch )
   """
-  def subscribe_community(%Accounts.User{id: user_id}, %Community{id: community_id}) do
+  def subscribe_community(%Community{id: community_id}, %User{id: user_id}) do
     with {:ok, record} <- CommunitySubscriber |> ORM.create(~m(user_id community_id)a) do
       Community |> ORM.find(record.community_id)
     end
@@ -109,7 +110,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
     {:error, message: error, code: ecode(code)}
   end
 
-  def unsubscribe_community(%Accounts.User{id: user_id}, %Community{id: community_id}) do
+  def unsubscribe_community(%Community{id: community_id}, %User{id: user_id}) do
     with {:ok, record} <-
            CommunitySubscriber |> ORM.findby_delete(community_id: community_id, user_id: user_id) do
       Community |> ORM.find(record.community_id)

@@ -39,27 +39,15 @@ defmodule MastaniServer.Test.ConnSimulator do
 
     token = gen_jwt_token(id: user.id)
 
-    {:ok, _passport} = CMS.stamp_passport(%Accounts.User{id: user.id}, passport_rules)
+    {:ok, _passport} = CMS.stamp_passport(passport_rules, %Accounts.User{id: user.id})
 
     build_conn() |> put_req_header("authorization", token)
   end
 
-  # TODO: refactor
-  # def simu_conn(:user, delivery: passport_rules) do
-  # user_attr = mock_attrs(:user)
-  # {:ok, user} = db_insert(:user, user_attr)
-
-  # token = gen_jwt_token(id: user.id)
-
-  # {:ok, _passport} = CMS.stamp_passport(%Accounts.User{id: user.id}, passport_rules)
-
-  # build_conn() |> put_req_header("authorization", token)
-  # end
-
   def simu_conn(:user, %Accounts.User{} = user, cms: passport_rules) do
     token = gen_jwt_token(id: user.id)
 
-    {:ok, _passport} = CMS.stamp_passport(%Accounts.User{id: user.id}, passport_rules)
+    {:ok, _passport} = CMS.stamp_passport(passport_rules, %Accounts.User{id: user.id})
 
     build_conn() |> put_req_header("authorization", token)
   end

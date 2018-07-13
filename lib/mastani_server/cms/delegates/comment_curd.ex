@@ -11,7 +11,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   @doc """
   Creates a comment for psot, job ...
   """
-  def create_comment(thread, content_id, %Accounts.User{id: user_id}, body) do
+  def create_comment(thread, content_id, body, %Accounts.User{id: user_id}) do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, content} <- ORM.find(action.target, content_id),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
@@ -76,7 +76,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     end
   end
 
-  def reply_comment(thread, comment_id, %Accounts.User{id: user_id}, body) do
+  def reply_comment(thread, comment_id, body, %Accounts.User{id: user_id}) do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, comment} <- ORM.find(action.reactor, comment_id) do
       next_floor = get_next_floor(thread, action.reactor, comment)

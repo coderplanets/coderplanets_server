@@ -46,7 +46,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   set tag for post / tuts / videos ...
   """
   # check community first
-  def set_tag(thread, content_id, %Community{id: communitId}, %Tag{id: tag_id}) do
+  def set_tag(%Community{id: communitId}, thread, %Tag{id: tag_id}, content_id) do
     with {:ok, action} <- match_action(thread, :tag),
          {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
          {:ok, tag} <- ORM.find(action.reactor, tag_id) do
@@ -63,7 +63,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
     end
   end
 
-  def unset_tag(thread, content_id, %Tag{id: tag_id}) when valid_thread(thread) do
+  def unset_tag(thread, %Tag{id: tag_id}, content_id) when valid_thread(thread) do
     with {:ok, action} <- match_action(thread, :tag),
          {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
          {:ok, tag} <- ORM.find(action.reactor, tag_id) do

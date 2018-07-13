@@ -180,7 +180,7 @@ defmodule MastaniServer.Test.CMSTest do
     test "can add editor to a community, editor has default passport", ~m(user community)a do
       title = "chief editor"
 
-      {:ok, _} = CMS.set_editor(%User{id: user.id}, %Community{id: community.id}, title)
+      {:ok, _} = CMS.set_editor(community, title, user)
 
       related_rules = Certification.passport_rules(cms: title)
 
@@ -192,17 +192,14 @@ defmodule MastaniServer.Test.CMSTest do
       assert Map.equal?(related_rules, user_passport)
     end
 
+    @tag :wip
     test "user can get paged-editors of a community", ~m(community)a do
       {:ok, users} = db_insert_multi(:user, 25)
       title = "chief editor"
 
       Enum.each(
         users,
-        &CMS.set_editor(
-          %User{id: &1.id},
-          %Community{id: community.id},
-          title
-        )
+        &CMS.set_editor(community, title, %User{id: &1.id})
       )
 
       filter = %{page: 1, size: 10}
@@ -217,7 +214,7 @@ defmodule MastaniServer.Test.CMSTest do
     alias CMS.Community
 
     test "user can subscribe a community", ~m(user community)a do
-      {:ok, record} = CMS.subscribe_community(%User{id: user.id}, %Community{id: community.id})
+      {:ok, record} = CMS.subscribe_community(community, user)
 
       assert community.id == record.id
     end
@@ -227,7 +224,7 @@ defmodule MastaniServer.Test.CMSTest do
 
       Enum.each(
         users,
-        &CMS.subscribe_community(%User{id: &1.id}, %Community{id: community.id})
+        &CMS.subscribe_community(community, %User{id: &1.id})
       )
 
       {:ok, results} =

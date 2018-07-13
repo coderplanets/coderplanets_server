@@ -1,7 +1,7 @@
 defmodule MastaniServer.Test.Mutation.JobCommentTest do
   use MastaniServer.TestTools
 
-  alias MastaniServer.{CMS, Accounts}
+  alias MastaniServer.CMS
   alias Helper.ORM
 
   setup do
@@ -14,7 +14,7 @@ defmodule MastaniServer.Test.Mutation.JobCommentTest do
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
 
-    {:ok, comment} = CMS.create_comment(:job, job.id, %Accounts.User{id: user.id}, "test comment")
+    {:ok, comment} = CMS.create_comment(:job, job.id, "test comment", user)
 
     {:ok, ~m(user_conn guest_conn job user comment)a}
   end
