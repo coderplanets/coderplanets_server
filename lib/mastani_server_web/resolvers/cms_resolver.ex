@@ -31,18 +31,18 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # community thread (post, job)
   # #######################
   def post(_root, %{id: id}, _info), do: Post |> ORM.read(id, inc: :views)
-
   def paged_posts(_root, ~m(filter)a, _info), do: CMS.paged_contents(Post, filter)
 
   def job(_root, %{id: id}, _info), do: Job |> ORM.read(id, inc: :views)
   def paged_jobs(_root, ~m(filter)a, _info), do: Job |> ORM.find_all(filter)
 
   def create_content(_root, ~m(community_id thread)a = args, %{context: %{cur_user: user}}) do
-    # CMS.create_content(args.thread, user, args)
     CMS.create_content(%Community{id: community_id}, thread, args, user)
   end
 
-  def update_content(_root, args, _info), do: ORM.update(args.passport_source, args)
+  def update_content(_root, %{passport_source: content} = args, _info),
+    do: ORM.update(content, args)
+
   def delete_content(_root, %{passport_source: content}, _info), do: ORM.delete(content)
 
   def pin_post(_root, %{id: id}, %{context: %{cur_user: user}}) do
