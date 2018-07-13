@@ -7,6 +7,7 @@ defmodule MastaniServer.CMS.Utils.Matcher do
   alias MastaniServer.CMS.{
     Community,
     Post,
+    Video,
     Job,
     PostFavorite,
     JobFavorite,
@@ -52,6 +53,9 @@ defmodule MastaniServer.CMS.Utils.Matcher do
 
   def match_action(:post_comment, :dislike),
     do: {:ok, %{target: PostComment, reactor: PostCommentDislike}}
+
+  # videos ...
+  def match_action(:video, :community), do: {:ok, %{target: Video, reactor: Community}}
 
   # jobs ...
   def match_action(:job, :self), do: {:ok, %{target: Job, reactor: Job, preload: :author}}

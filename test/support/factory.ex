@@ -27,6 +27,28 @@ defmodule MastaniServer.Factory do
     }
   end
 
+  defp mock_meta(:video) do
+    desc = Faker.Lorem.sentence(%Range{first: 15, last: 40})
+
+    %{
+      title: Faker.Lorem.Shakespeare.king_richard_iii(),
+      poster: Faker.Avatar.image_url(),
+      desc: desc,
+      duration: "03:30",
+      duration_sec: Enum.random(300..1200),
+      source: "youtube",
+      link: "http://www.youtube.com/video/1",
+      original_author: "simon",
+      original_author_link: "http://www.youtube.com/user/1",
+      author: mock(:author),
+      views: Enum.random(0..2000),
+      communities: [
+        mock(:community),
+        mock(:community)
+      ]
+    }
+  end
+
   defp mock_meta(:job) do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
     unique_num = System.unique_integer([:positive, :monotonic])
@@ -161,6 +183,7 @@ defmodule MastaniServer.Factory do
   def mock_attrs(:user, attrs), do: mock_meta(:user) |> Map.merge(attrs)
   def mock_attrs(:author, attrs), do: mock_meta(:author) |> Map.merge(attrs)
   def mock_attrs(:post, attrs), do: mock_meta(:post) |> Map.merge(attrs)
+  def mock_attrs(:video, attrs), do: mock_meta(:video) |> Map.merge(attrs)
   def mock_attrs(:job, attrs), do: mock_meta(:job) |> Map.merge(attrs)
   def mock_attrs(:community, attrs), do: mock_meta(:community) |> Map.merge(attrs)
   def mock_attrs(:thread, attrs), do: mock_meta(:thread) |> Map.merge(attrs)
@@ -183,6 +206,7 @@ defmodule MastaniServer.Factory do
   # this line of code will cause SERIOUS Recursive problem
 
   defp mock(:post), do: CMS.Post |> struct(mock_meta(:post))
+  defp mock(:video), do: CMS.Video |> struct(mock_meta(:video))
   defp mock(:job), do: CMS.Job |> struct(mock_meta(:job))
   defp mock(:comment), do: CMS.Comment |> struct(mock_meta(:comment))
   defp mock(:mention), do: Delivery.Mention |> struct(mock_meta(:mention))
