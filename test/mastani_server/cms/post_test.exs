@@ -21,6 +21,7 @@ defmodule MastaniServer.Test.PostTest do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
 
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+
       assert post.title == post_attrs.title
     end
 

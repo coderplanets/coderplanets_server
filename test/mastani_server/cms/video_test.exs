@@ -1,7 +1,6 @@
 defmodule MastaniServer.Test.VideoTest do
   use MastaniServer.TestTools
 
-  alias MastaniServer.Accounts.User
   alias MastaniServer.CMS
   alias Helper.ORM
 
@@ -15,7 +14,7 @@ defmodule MastaniServer.Test.VideoTest do
   end
 
   describe "[cms video curd]" do
-    alias CMS.{Video, Author, Community}
+    alias CMS.{Author, Community}
 
     test "can create video with valid attrs", ~m(user community video_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
