@@ -192,7 +192,6 @@ defmodule MastaniServer.Test.CMSTest do
       assert Map.equal?(related_rules, user_passport)
     end
 
-    @tag :wip
     test "user can get paged-editors of a community", ~m(community)a do
       {:ok, users} = db_insert_multi(:user, 25)
       title = "chief editor"

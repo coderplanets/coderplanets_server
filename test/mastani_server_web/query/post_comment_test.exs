@@ -129,7 +129,6 @@ defmodule MastaniServer.Test.Query.PostCommentTest do
       }
     }
     """
-    @tag :wip
     test "login user can get hasLiked feedBack", ~m(user_conn post user)a do
       body = "test comment"
 
