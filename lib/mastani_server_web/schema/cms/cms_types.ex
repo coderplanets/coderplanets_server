@@ -93,27 +93,6 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:updated_at, :datetime)
   end
 
-  object :job do
-    interface(:article)
-    field(:id, :id)
-    field(:title, :string)
-    field(:desc, :string)
-    field(:company, :string)
-    field(:company_logo, :string)
-    field(:digest, :string)
-    field(:location, :string)
-    field(:length, :integer)
-    field(:link_addr, :string)
-    field(:body, :string)
-    field(:views, :integer)
-
-    field(:author, :user, resolve: dataloader(CMS, :author))
-    field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
-    field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
-    field(:inserted_at, :datetime)
-    field(:updated_at, :datetime)
-  end
-
   object :post do
     interface(:article)
     field(:id, :id)
@@ -241,6 +220,51 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     end
   end
 
+  object :video do
+    interface(:article)
+    field(:id, :id)
+    field(:title, :string)
+    field(:desc, :string)
+    field(:duration, :string)
+    field(:author, :user, resolve: dataloader(CMS, :author))
+
+    field(:source, :string)
+    field(:link, :string)
+    field(:length, :integer)
+    field(:original_author, :string)
+    field(:original_author_link, :string)
+    field(:views, :integer)
+
+    field(:pin, :boolean)
+    field(:trash, :boolean)
+
+    # field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
+    field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
+    field(:inserted_at, :datetime)
+    field(:updated_at, :datetime)
+  end
+
+  object :job do
+    interface(:article)
+    field(:id, :id)
+    field(:title, :string)
+    field(:desc, :string)
+    field(:company, :string)
+    field(:company_logo, :string)
+    field(:digest, :string)
+    field(:location, :string)
+    field(:length, :integer)
+    field(:link_addr, :string)
+    field(:body, :string)
+    field(:views, :integer)
+
+    field(:author, :user, resolve: dataloader(CMS, :author))
+    field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
+    field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
+    field(:inserted_at, :datetime)
+    field(:updated_at, :datetime)
+  end
+
   object :thread do
     field(:id, :id)
     field(:title, :string)
@@ -360,6 +384,11 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
   object :paged_posts do
     field(:entries, list_of(:post))
+    pagination_fields()
+  end
+
+  object :paged_videos do
+    field(:entries, list_of(:video))
     pagination_fields()
   end
 

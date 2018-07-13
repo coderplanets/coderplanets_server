@@ -1,12 +1,11 @@
-defmodule MastaniServer.Test.Query.PagedJobsTest do
+defmodule MastaniServer.Test.Query.PagedVideosTest do
   use MastaniServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
-  import Ecto.Query, warn: false
 
   alias MastaniServer.Repo
   alias MastaniServer.CMS
-  alias CMS.Job
+  alias CMS.Video
 
   @page_size get_config(:general, :page_size)
 
@@ -24,20 +23,21 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
   @total_count @today_count + @last_week_count + @last_month_count + @last_year_count
 
   setup do
-    db_insert_multi(:job, @today_count)
-    db_insert(:job, %{title: "last week", inserted_at: @last_week})
-    db_insert(:job, %{title: "last month", inserted_at: @last_month})
-    db_insert(:job, %{title: "last year", inserted_at: @last_year})
+    {:ok, user} = db_insert(:user)
+    db_insert_multi(:video, @today_count)
+    db_insert(:video, %{title: "last week", inserted_at: @last_week})
+    db_insert(:video, %{title: "last month", inserted_at: @last_month})
+    db_insert(:video, %{title: "last year", inserted_at: @last_year})
 
     guest_conn = simu_conn(:guest)
 
-    {:ok, ~m(guest_conn)a}
+    {:ok, ~m(guest_conn user)a}
   end
 
-  describe "[query paged_jobs filter pagination]" do
+  describe "[query paged_videos filter pagination]" do
     @query """
     query($filter: PagedArticleFilter!) {
-      pagedJobs(filter: $filter) {
+      pagedVideos(filter: $filter) {
         entries {
           id
         }
@@ -50,7 +50,7 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
     """
     test "should get pagination info", ~m(guest_conn)a do
       variables = %{filter: %{page: 1, size: 10}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
 
       assert results |> is_valid_pagination?
       assert results["pageSize"] == 10
@@ -66,23 +66,57 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
       variables_0 = %{filter: %{page: 1, size: 0}}
       variables_neg_1 = %{filter: %{page: 1, size: -1}}
 
-      assert guest_conn |> query_get_error?(@query, variables_0)
-      assert guest_conn |> query_get_error?(@query, variables_neg_1)
+      assert guest_conn |> query_get_error?(@query, variables_0, ecode(:pagination))
+      assert guest_conn |> query_get_error?(@query, variables_neg_1, ecode(:pagination))
     end
 
     test "pagination should have default page and size arg", ~m(guest_conn)a do
       variables = %{filter: %{}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
       assert results |> is_valid_pagination?
       assert results["pageSize"] == @page_size
       assert results["totalCount"] == @total_count
     end
+
+    test "if have pined videos, the pined videos should at the top of entries",
+         ~m(guest_conn user)a do
+      variables = %{filter: %{}}
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
+      assert results |> is_valid_pagination?
+      assert results["pageSize"] == @page_size
+      assert results["totalCount"] == @total_count
+
+      random_video_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
+      {:ok, _} = CMS.set_flag(Video, random_video_id, %{pin: true}, user)
+
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
+
+      assert random_video_id == results["entries"] |> List.first() |> Map.get("id")
+      assert results["totalCount"] == @total_count
+
+      {:ok, _} = CMS.set_flag(Video, random_video_id, %{pin: false}, user)
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
+      assert results["entries"] |> Enum.any?(&(&1["id"] !== random_video_id))
+    end
+
+    test "pind videos should not appear when page > 1", ~m(guest_conn user)a do
+      variables = %{filter: %{page: 2, size: 20}}
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
+      assert results |> is_valid_pagination?
+
+      random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
+      {:ok, _} = CMS.set_flag(Video, random_id, %{pin: true}, user)
+
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
+
+      assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))
+    end
   end
 
-  describe "[query paged_jobss filter sort]" do
+  describe "[query paged_videos filter sort]" do
     @query """
     query($filter: PagedArticleFilter!) {
-      pagedJobs(filter: $filter) {
+      pagedVideos(filter: $filter) {
         entries {
           id
           inserted_at
@@ -91,26 +125,30 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
             nickname
             avatar
           }
+          communities {
+            id
+            raw
+          }
         }
-       }
+      }
     }
     """
-    test "filter community should get jobs which belongs to that community", ~m(guest_conn)a do
-      {:ok, job} = db_insert(:job, %{title: "post 1"})
-      {:ok, _} = db_insert_multi(:job, 30)
+    test "filter community should get videos which belongs to that community", ~m(guest_conn)a do
+      {:ok, video} = db_insert(:video, %{title: "video 1"})
+      {:ok, _} = db_insert_multi(:video, 30)
 
-      job_community_raw = job.communities |> List.first() |> Map.get(:raw)
+      video_community_raw = video.communities |> List.first() |> Map.get(:raw)
 
-      variables = %{filter: %{community: job_community_raw}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+      variables = %{filter: %{community: video_community_raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
 
       assert length(results["entries"]) == 1
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job.id)))
+      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(video.id)))
     end
 
     test "filter sort should have default :desc_inserted", ~m(guest_conn)a do
       variables = %{filter: %{}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
       inserted_timestamps = results["entries"] |> Enum.map(& &1["inserted_at"])
 
       {:ok, first_inserted_time, 0} =
@@ -123,7 +161,7 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
 
     @query """
     query($filter: PagedArticleFilter!) {
-      pagedJobs(filter: $filter) {
+      pagedVideos(filter: $filter) {
         entries {
           id
           views
@@ -132,28 +170,22 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
     }
     """
     test "filter sort MOST_VIEWS should work", ~m(guest_conn)a do
-      most_views_job = Job |> order_by(desc: :views) |> limit(1) |> Repo.one()
+      most_views_video = Video |> order_by(desc: :views) |> limit(1) |> Repo.one()
       variables = %{filter: %{sort: "MOST_VIEWS"}}
 
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
-      find_job = results |> Map.get("entries") |> hd
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
+      find_video = results |> Map.get("entries") |> hd
 
-      assert find_job["views"] == most_views_job |> Map.get(:views)
+      assert find_video["views"] == most_views_video |> Map.get(:views)
     end
   end
 
-  # TODO test  sort, tag, community, when ...
-  @doc """
-  test: FILTER when [TODAY] [THIS_WEEK] [THIS_MONTH] [THIS_YEAR]
-  """
-  describe "[query paged_jobs filter when]" do
+  describe "[query paged_videos filter when]" do
     @query """
     query($filter: PagedArticleFilter!) {
-      pagedJobs(filter: $filter) {
+      pagedVideos(filter: $filter) {
         entries {
           id
-          body
-          company
           views
           inserted_at
         }
@@ -163,7 +195,7 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
     """
     test "THIS_YEAR option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_YEAR"}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
 
       expect_count = @total_count - @last_year_count
       assert results |> Map.get("totalCount") == expect_count
@@ -171,7 +203,7 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
 
     test "TODAY option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "TODAY"}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
 
       expect_count = @total_count - @last_year_count - @last_month_count - @last_week_count
 
@@ -180,14 +212,14 @@ defmodule MastaniServer.Test.Query.PagedJobsTest do
 
     test "THIS_WEEK option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_WEEK"}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
 
       assert results |> Map.get("totalCount") == @today_count
     end
 
     test "THIS_MONTH option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_MONTH"}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
 
       {_, cur_week_month, _} = @cur_date |> Date.to_erl()
       {_, last_week_month, _} = @last_week |> Date.to_erl()

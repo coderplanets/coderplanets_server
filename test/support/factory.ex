@@ -28,14 +28,14 @@ defmodule MastaniServer.Factory do
   end
 
   defp mock_meta(:video) do
-    desc = Faker.Lorem.sentence(%Range{first: 15, last: 40})
+    desc = Faker.Lorem.sentence(%Range{first: 15, last: 60})
 
     %{
       title: Faker.Lorem.Shakespeare.king_richard_iii(),
       poster: Faker.Avatar.image_url(),
       desc: desc,
       duration: "03:30",
-      duration_sec: Enum.random(300..1200),
+      duration_sec: Enum.random(300..12000),
       source: "youtube",
       link: "http://www.youtube.com/video/1",
       original_author: "simon",

@@ -18,7 +18,6 @@ defmodule MastaniServer.Test.VideoTest do
     alias CMS.{Video, Author, Community}
 
     test "can create video with valid attrs", ~m(user community video_attrs)a do
-      video_attrs = mock_attrs(:video)
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
 
       {:ok, video} = CMS.create_content(community, :video, video_attrs, user)

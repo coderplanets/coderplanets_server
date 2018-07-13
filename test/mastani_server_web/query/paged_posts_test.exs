@@ -29,9 +29,6 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
     db_insert(:post, %{title: "last month", inserted_at: @last_month})
     db_insert(:post, %{title: "last year", inserted_at: @last_year})
 
-    # conn =
-    # build_conn()
-    # |> put_req_header("authorization", "Bearer fake-token")
     guest_conn = simu_conn(:guest)
 
     {:ok, ~m(guest_conn user)a}
@@ -89,17 +86,17 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
       assert results["pageSize"] == @page_size
       assert results["totalCount"] == @total_count
 
-      random_post_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _} = CMS.set_flag(Post, random_post_id, %{pin: true}, user)
+      random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
+      {:ok, _} = CMS.set_flag(Post, random_id, %{pin: true}, user)
 
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
-      assert random_post_id == results["entries"] |> List.first() |> Map.get("id")
+      assert random_id == results["entries"] |> List.first() |> Map.get("id")
       assert results["totalCount"] == @total_count
 
-      {:ok, _} = CMS.set_flag(Post, random_post_id, %{pin: false}, user)
+      {:ok, _} = CMS.set_flag(Post, random_id, %{pin: false}, user)
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
-      assert results["entries"] |> Enum.any?(&(&1["id"] !== random_post_id))
+      assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))
     end
 
     test "pind posts should not appear when page > 1", ~m(guest_conn user)a do
@@ -107,12 +104,12 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
       assert results |> is_valid_pagination?
 
-      random_post_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _} = CMS.set_flag(Post, random_post_id, %{pin: true}, user)
+      random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
+      {:ok, _} = CMS.set_flag(Post, random_id, %{pin: true}, user)
 
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
-      assert results["entries"] |> Enum.any?(&(&1["id"] !== random_post_id))
+      assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))
     end
 
     test "if have trashed posts, the trashed posts should not appears in result",
@@ -123,12 +120,12 @@ defmodule MastaniServer.Test.Query.PagedPostsTest do
       assert results["pageSize"] == @page_size
       assert results["totalCount"] == @total_count
 
-      random_post_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _} = CMS.set_flag(Post, random_post_id, %{trash: true}, user)
+      random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
+      {:ok, _} = CMS.set_flag(Post, random_id, %{trash: true}, user)
 
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
-      assert results["entries"] |> Enum.any?(&(&1["id"] !== random_post_id))
+      assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))
     end
   end
 
