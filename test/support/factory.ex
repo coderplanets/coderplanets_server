@@ -49,6 +49,29 @@ defmodule MastaniServer.Factory do
     }
   end
 
+  defp mock_meta(:repo) do
+    desc = Faker.Lorem.sentence(%Range{first: 15, last: 60})
+
+    %{
+      repo_name: Faker.Lorem.Shakespeare.king_richard_iii(),
+      desc: desc,
+      readme: desc,
+      language: "javascript",
+      author: mock(:author),
+      repo_link: "http://www.github.com/mydearxym",
+      producer: "mydearxym",
+      producer_link: "http://www.github.com/mydearxym",
+      repo_star_count: Enum.random(0..2000),
+      repo_fork_count: Enum.random(0..2000),
+      repo_watch_count: Enum.random(0..2000),
+      views: Enum.random(0..2000),
+      communities: [
+        mock(:community),
+        mock(:community)
+      ]
+    }
+  end
+
   defp mock_meta(:job) do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
     unique_num = System.unique_integer([:positive, :monotonic])
@@ -184,6 +207,7 @@ defmodule MastaniServer.Factory do
   def mock_attrs(:author, attrs), do: mock_meta(:author) |> Map.merge(attrs)
   def mock_attrs(:post, attrs), do: mock_meta(:post) |> Map.merge(attrs)
   def mock_attrs(:video, attrs), do: mock_meta(:video) |> Map.merge(attrs)
+  def mock_attrs(:repo, attrs), do: mock_meta(:repo) |> Map.merge(attrs)
   def mock_attrs(:job, attrs), do: mock_meta(:job) |> Map.merge(attrs)
   def mock_attrs(:community, attrs), do: mock_meta(:community) |> Map.merge(attrs)
   def mock_attrs(:thread, attrs), do: mock_meta(:thread) |> Map.merge(attrs)
@@ -207,6 +231,7 @@ defmodule MastaniServer.Factory do
 
   defp mock(:post), do: CMS.Post |> struct(mock_meta(:post))
   defp mock(:video), do: CMS.Video |> struct(mock_meta(:video))
+  defp mock(:repo), do: CMS.Repo |> struct(mock_meta(:repo))
   defp mock(:job), do: CMS.Job |> struct(mock_meta(:job))
   defp mock(:comment), do: CMS.Comment |> struct(mock_meta(:comment))
   defp mock(:mention), do: Delivery.Mention |> struct(mock_meta(:mention))

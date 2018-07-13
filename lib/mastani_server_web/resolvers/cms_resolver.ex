@@ -6,7 +6,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   alias MastaniServer.Accounts.User
   alias MastaniServer.CMS
-  alias MastaniServer.CMS.{Post, Video, Job, Community, Category, Tag, Thread}
+  alias MastaniServer.CMS.{Post, Video, Repo, Job, Community, Category, Tag, Thread}
   alias Helper.ORM
 
   # #######################
@@ -33,10 +33,12 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # #######################
   def post(_root, %{id: id}, _info), do: Post |> ORM.read(id, inc: :views)
   def video(_root, %{id: id}, _info), do: Video |> ORM.read(id, inc: :views)
+  def repo(_root, %{id: id}, _info), do: Repo |> ORM.read(id, inc: :views)
   def job(_root, %{id: id}, _info), do: Job |> ORM.read(id, inc: :views)
 
   def paged_posts(_root, ~m(filter)a, _info), do: Post |> CMS.paged_contents(filter)
   def paged_videos(_root, ~m(filter)a, _info), do: Video |> CMS.paged_contents(filter)
+  def paged_repos(_root, ~m(filter)a, _info), do: Repo |> CMS.paged_contents(filter)
   def paged_jobs(_root, ~m(filter)a, _info), do: Job |> ORM.find_all(filter)
 
   def create_content(_root, ~m(community_id thread)a = args, %{context: %{cur_user: user}}) do

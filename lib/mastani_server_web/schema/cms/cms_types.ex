@@ -244,6 +244,33 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:updated_at, :datetime)
   end
 
+  object :repo do
+    # interface(:article)
+    field(:id, :id)
+    field(:repo_name, :string)
+    field(:desc, :string)
+    field(:readme, :string)
+    field(:language, :string)
+    field(:author, :user, resolve: dataloader(CMS, :author))
+
+    field(:repo_link, :string)
+    field(:producer, :string)
+    field(:producer_link, :integer)
+
+    field(:repo_star_count, :integer)
+    field(:repo_fork_count, :integer)
+    field(:repo_watch_count, :integer)
+    field(:views, :integer)
+
+    field(:pin, :boolean)
+    field(:trash, :boolean)
+
+    # field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
+    field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
+    field(:inserted_at, :datetime)
+    field(:updated_at, :datetime)
+  end
+
   object :job do
     interface(:article)
     field(:id, :id)
@@ -389,6 +416,11 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
   object :paged_videos do
     field(:entries, list_of(:video))
+    pagination_fields()
+  end
+
+  object :paged_repos do
+    field(:entries, list_of(:repo))
     pagination_fields()
   end
 

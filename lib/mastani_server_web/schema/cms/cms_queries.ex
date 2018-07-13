@@ -91,6 +91,21 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       middleware(M.FormatPagination)
     end
 
+    @desc "get repo by id"
+    field :repo, non_null(:repo) do
+      arg(:id, non_null(:id))
+      resolve(&Resolvers.CMS.repo/3)
+    end
+
+    @desc "get paged videos"
+    field :paged_repos, :paged_repos do
+      arg(:filter, non_null(:paged_article_filter))
+
+      middleware(M.PageSizeProof)
+      resolve(&Resolvers.CMS.paged_repos/3)
+      middleware(M.FormatPagination)
+    end
+
     @desc "get job by id"
     field :job, non_null(:job) do
       arg(:id, non_null(:id))

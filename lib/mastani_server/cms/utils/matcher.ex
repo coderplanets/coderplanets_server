@@ -8,6 +8,7 @@ defmodule MastaniServer.CMS.Utils.Matcher do
     Community,
     Post,
     Video,
+    Repo,
     Job,
     PostFavorite,
     JobFavorite,
@@ -21,7 +22,7 @@ defmodule MastaniServer.CMS.Utils.Matcher do
     PostCommentDislike
   }
 
-  @support_thread [:post, :video, :job]
+  @support_thread [:post, :video, :repo, :job]
   @support_react [:favorite, :star, :watch, :comment, :tag, :self]
 
   defguard valid_thread(thread) when thread in @support_thread
@@ -56,6 +57,9 @@ defmodule MastaniServer.CMS.Utils.Matcher do
 
   # videos ...
   def match_action(:video, :community), do: {:ok, %{target: Video, reactor: Community}}
+
+  # repos ...
+  def match_action(:repo, :community), do: {:ok, %{target: Repo, reactor: Community}}
 
   # jobs ...
   def match_action(:job, :self), do: {:ok, %{target: Job, reactor: Job, preload: :author}}
