@@ -66,7 +66,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   def create_content(%Community{id: community_id}, thread, attrs, %User{id: user_id}) do
     with {:ok, author} <- ensure_author_exists(%User{id: user_id}),
          {:ok, action} <- match_action(thread, :community),
-         {:ok, _} <- ORM.find(Community, community_id),
+         {:ok, community} <- ORM.find(Community, community_id),
          {:ok, content} <-
            action.target
            |> struct()
@@ -74,7 +74,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
            |> Ecto.Changeset.put_change(:author_id, author.id)
            |> Repo.insert() do
       Statistics.log_publish_action(%User{id: user_id})
-      ArticleOperation.set_community(thread, content.id, %Community{id: community_id})
+      ArticleOperation.set_community(community, thread, content.id)
     end
   end
 

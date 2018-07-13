@@ -64,8 +64,8 @@ defmodule MastaniServer.CMS do
   defdelegate set_tag(thread, content_id, community_title, tag_id), to: ArticleOperation
   defdelegate unset_tag(thread, content_id, tag_id), to: ArticleOperation
   # >> community: set / unset
-  defdelegate set_community(thread, content_id, community_id), to: ArticleOperation
-  defdelegate unset_community(thread, content_id, community_id), to: ArticleOperation
+  defdelegate set_community(community, thread, content_id), to: ArticleOperation
+  defdelegate unset_community(community, thread, content_id), to: ArticleOperation
 
   # Comment CURD
   defdelegate create_comment(thread, content_id, user_id, body), to: CommentCURD

@@ -186,11 +186,11 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   def set_community(_root, ~m(thread id community_id)a, _info) do
-    CMS.set_community(thread, id, %Community{id: community_id})
+    CMS.set_community(%Community{id: community_id}, thread, id)
   end
 
   def unset_community(_root, ~m(thread id community_id)a, _info) do
-    CMS.unset_community(thread, id, %Community{id: community_id})
+    CMS.unset_community(%Community{id: community_id}, thread, id)
   end
 
   # #######################
