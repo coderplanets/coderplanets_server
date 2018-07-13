@@ -4,10 +4,12 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   import Helper.Utils, only: [done: 1]
   import ShortMaps
 
-  alias MastaniServer.CMS.{Author, Community}
-  alias MastaniServer.{Repo, Accounts, Statistics}
+  alias MastaniServer.Accounts.User
+  alias MastaniServer.{Repo, CMS, Statistics}
   alias MastaniServer.CMS.Delegate.ArticleOperation
   alias Helper.{ORM, QueryBuilder}
+
+  alias CMS.{Author, Community}
 
   @doc """
   get paged post / job ...
@@ -61,19 +63,18 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   {:error, %Ecto.Changeset{}}
 
   """
-  def create_content(thread, %Accounts.User{id: user_id}, %{community_id: community_id} = attrs) do
-    with {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}),
+  def create_content(%Community{id: community_id}, thread, attrs, %User{id: user_id}) do
+    with {:ok, author} <- ensure_author_exists(%User{id: user_id}),
          {:ok, action} <- match_action(thread, :community),
-         # {:ok, community} <- ORM.find_by(Community, title: attrs.community),
-         {:ok, community} <- ORM.find(Community, community_id),
+         {:ok, _} <- ORM.find(Community, community_id),
          {:ok, content} <-
            action.target
            |> struct()
            |> action.target.changeset(attrs)
            |> Ecto.Changeset.put_change(:author_id, author.id)
            |> Repo.insert() do
-      Statistics.log_publish_action(%Accounts.User{id: user_id})
-      ArticleOperation.set_community(thread, content.id, %Community{id: community.id})
+      Statistics.log_publish_action(%User{id: user_id})
+      ArticleOperation.set_community(thread, content.id, %Community{id: community_id})
     end
   end
 
@@ -98,7 +99,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  def ensure_author_exists(%Accounts.User{} = user) do
+  def ensure_author_exists(%User{} = user) do
     # unique_constraint: avoid race conditions, make sure user_id unique
     # foreign_key_constraint: check foreign key: user_id exsit or not
     # see alos no_assoc_constraint in https://hexdocs.pm/ecto/Ecto.Changeset.html

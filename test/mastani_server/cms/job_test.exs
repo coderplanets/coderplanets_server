@@ -1,7 +1,8 @@
 defmodule MastaniServer.Test.JobTest do
   use MastaniServer.TestTools
 
-  alias MastaniServer.{CMS, Accounts}
+  alias MastaniServer.Accounts.User
+  alias MastaniServer.CMS
   alias Helper.ORM
 
   setup do
@@ -10,22 +11,25 @@ defmodule MastaniServer.Test.JobTest do
 
     job_attrs = mock_attrs(:job, %{community_id: community.id})
 
-    {:ok, ~m(user job_attrs)a}
+    {:ok, ~m(user community job_attrs)a}
   end
 
   describe "[cms jobs curd]" do
-    test "can create a job with valid attrs", ~m(user job_attrs)a do
-      {:ok, job} = CMS.create_content(:job, %Accounts.User{id: user.id}, job_attrs)
+    alias CMS.{Author, Community}
+
+    test "can create a job with valid attrs", ~m(user community job_attrs)a do
+      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
 
       {:ok, found} = ORM.find(CMS.Job, job.id)
       assert found.id == job.id
       assert found.title == job.title
     end
 
-    test "create job with on exsit community fails", ~m(user)a do
+    test "create job with an exsit community fails", ~m(user)a do
       invalid_attrs = mock_attrs(:job, %{community_id: non_exsit_id()})
+      ivalid_community = %Community{id: non_exsit_id()}
 
-      assert {:error, _} = CMS.create_content(:job, %Accounts.User{id: user.id}, invalid_attrs)
+      assert {:error, _} = CMS.create_content(ivalid_community, :job, invalid_attrs, user)
     end
   end
 end
