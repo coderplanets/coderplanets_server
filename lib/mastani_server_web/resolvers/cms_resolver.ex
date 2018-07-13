@@ -4,7 +4,8 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   import ShortMaps
   import Ecto.Query, warn: false
 
-  alias MastaniServer.{CMS, Accounts}
+  alias MastaniServer.Accounts.User
+  alias MastaniServer.CMS
   alias MastaniServer.CMS.{Post, Job, Community, Category, Tag, Thread}
   alias Helper.ORM
 
@@ -82,7 +83,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def paged_categories(_root, ~m(filter)a, _info), do: Category |> ORM.find_all(filter)
 
   def create_category(_root, ~m(title raw)a, %{context: %{cur_user: user}}) do
-    CMS.create_category(%Category{title: title, raw: raw}, %Accounts.User{id: user.id})
+    CMS.create_category(%Category{title: title, raw: raw}, user)
   end
 
   def delete_category(_root, %{id: id}, _info), do: Category |> ORM.find_delete(id)
@@ -120,18 +121,18 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # #######################
   def set_editor(_root, ~m(community_id user_id title)a, _) do
     CMS.set_editor(
-      %Accounts.User{id: user_id},
+      %User{id: user_id},
       %Community{id: community_id},
       title
     )
   end
 
   def unset_editor(_root, ~m(community_id user_id)a, _) do
-    CMS.unset_editor(%Accounts.User{id: user_id}, %Community{id: community_id})
+    CMS.unset_editor(%User{id: user_id}, %Community{id: community_id})
   end
 
   def update_editor(_root, ~m(community_id user_id title)a, _) do
-    CMS.update_editor(%Accounts.User{id: user_id}, %Community{id: community_id}, title)
+    CMS.update_editor(%User{id: user_id}, %Community{id: community_id}, title)
   end
 
   def community_editors(_root, ~m(id filter)a, _info) do
@@ -142,7 +143,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # tags ..
   # #######################
   def create_tag(_root, args, %{context: %{cur_user: user}}) do
-    CMS.create_tag(args.thread, args, %Accounts.User{id: user.id})
+    CMS.create_tag(args.thread, args, user)
   end
 
   def delete_tag(_root, %{id: id}, _info), do: Tag |> ORM.find_delete(id)
@@ -174,11 +175,11 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # community subscribe ..
   # #######################
   def subscribe_community(_root, ~m(community_id)a, %{context: %{cur_user: cur_user}}) do
-    CMS.subscribe_community(%Accounts.User{id: cur_user.id}, %Community{id: community_id})
+    CMS.subscribe_community(cur_user, %Community{id: community_id})
   end
 
   def unsubscribe_community(_root, ~m(community_id)a, %{context: %{cur_user: cur_user}}) do
-    CMS.unsubscribe_community(%Accounts.User{id: cur_user.id}, %Community{id: community_id})
+    CMS.unsubscribe_community(cur_user, %Community{id: community_id})
   end
 
   def community_subscribers(_root, ~m(id filter)a, _info) do
@@ -200,7 +201,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     do: CMS.list_comments(thread, id, filter)
 
   def create_comment(_root, ~m(thread id body)a, %{context: %{cur_user: user}}) do
-    CMS.create_comment(thread, id, %Accounts.User{id: user.id}, body)
+    CMS.create_comment(thread, id, user, body)
   end
 
   def delete_comment(_root, ~m(thread id)a, _info) do
@@ -208,28 +209,28 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   def reply_comment(_root, ~m(thread id body)a, %{context: %{cur_user: user}}) do
-    CMS.reply_comment(thread, id, %Accounts.User{id: user.id}, body)
+    CMS.reply_comment(thread, id, user, body)
   end
 
   def like_comment(_root, ~m(thread id)a, %{context: %{cur_user: user}}) do
-    CMS.like_comment(thread, id, %Accounts.User{id: user.id})
+    CMS.like_comment(thread, id, user)
   end
 
   def undo_like_comment(_root, ~m(thread id)a, %{context: %{cur_user: user}}) do
-    CMS.undo_like_comment(thread, id, %Accounts.User{id: user.id})
+    CMS.undo_like_comment(thread, id, user)
   end
 
   def dislike_comment(_root, ~m(thread id)a, %{context: %{cur_user: user}}) do
-    CMS.dislike_comment(thread, id, %Accounts.User{id: user.id})
+    CMS.dislike_comment(thread, id, user)
   end
 
   def undo_dislike_comment(_root, ~m(thread id)a, %{context: %{cur_user: user}}) do
-    CMS.undo_dislike_comment(thread, id, %Accounts.User{id: user.id})
+    CMS.undo_dislike_comment(thread, id, user)
   end
 
   def stamp_passport(_root, ~m(user_id rules)a, %{context: %{cur_user: _user}}) do
     # IO.inspect rules, label: "in resolver"
     # IO.inspect Jason.decode!(rules), label: "in resolver decode"
-    CMS.stamp_passport(%Accounts.User{id: user_id}, rules)
+    CMS.stamp_passport(%User{id: user_id}, rules)
   end
 end
