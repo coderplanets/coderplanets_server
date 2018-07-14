@@ -18,8 +18,8 @@ defmodule MastaniServer.Delivery.Delegate.Utils do
     {:ok, mention_mail} = fetch_mails(user, Mention, filter)
     {:ok, notification_mail} = fetch_mails(user, Notification, filter)
 
-    mention_count = mention_mail.total_entries
-    notification_count = notification_mail.total_entries
+    mention_count = mention_mail.total_count
+    notification_count = notification_mail.total_count
     total_count = mention_count + notification_count
 
     has_mail = total_count > 0

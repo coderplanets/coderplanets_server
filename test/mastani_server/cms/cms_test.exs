@@ -205,7 +205,7 @@ defmodule MastaniServer.Test.CMSTest do
       {:ok, results} = CMS.community_members(:editors, %Community{id: community.id}, filter)
 
       assert results |> is_valid_pagination?(:raw)
-      assert results.total_entries == 25
+      assert results.total_count == 25
     end
   end
 

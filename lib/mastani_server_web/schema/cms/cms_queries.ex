@@ -20,7 +20,6 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.paged_communities/3)
-      middleware(M.FormatPagination)
     end
 
     @desc "paged subscribers of a community"
@@ -30,7 +29,6 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.community_subscribers/3)
-      middleware(M.FormatPagination)
     end
 
     @desc "paged subscribers of a community"
@@ -40,7 +38,6 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.community_editors/3)
-      middleware(M.FormatPagination)
     end
 
     @desc "get all categories"
@@ -49,7 +46,6 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.paged_categories/3)
-      middleware(M.FormatPagination)
     end
 
     @desc "get all the threads across all communities"
@@ -58,7 +54,6 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.paged_threads/3)
-      middleware(M.FormatPagination)
     end
 
     @desc "get post by id"
@@ -73,7 +68,6 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.paged_posts/3)
-      middleware(M.FormatPagination)
     end
 
     @desc "get video by id"
@@ -88,7 +82,6 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.paged_videos/3)
-      middleware(M.FormatPagination)
     end
 
     @desc "get repo by id"
@@ -103,7 +96,6 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.paged_repos/3)
-      middleware(M.FormatPagination)
     end
 
     @desc "get job by id"
@@ -118,7 +110,6 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.paged_jobs/3)
-      middleware(M.FormatPagination)
     end
 
     field :favorite_users, :paged_users do
@@ -129,7 +120,6 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.reaction_users/3)
-      middleware(M.FormatPagination)
     end
 
     # get all tags
@@ -138,7 +128,6 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.get_tags/3)
-      middleware(M.FormatPagination)
     end
 
     # TODO: remove
@@ -148,7 +137,6 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       middleware(M.PageSizeProof)
       # TODO: should be passport
       resolve(&Resolvers.CMS.get_tags/3)
-      middleware(M.FormatPagination)
     end
 
     # partial
@@ -169,7 +157,6 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.paged_comments/3)
-      middleware(M.FormatPagination)
     end
 
     # comments
@@ -180,7 +167,6 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.CMS.paged_comments/3)
-      middleware(M.FormatPagination)
     end
   end
 end

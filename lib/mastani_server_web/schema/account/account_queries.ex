@@ -12,7 +12,6 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.Accounts.users/3)
-      middleware(M.FormatPagination)
     end
 
     @desc "get user by id"
@@ -37,7 +36,6 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.Accounts.subscribed_communities/3)
-      middleware(M.FormatPagination)
     end
 
     @desc "get all passport rules include system and community etc ..."

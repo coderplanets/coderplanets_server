@@ -93,7 +93,6 @@ defmodule MastaniServerWeb.Schema.Account.Types do
       middleware(M.Authorize, :login)
       middleware(M.PageSizeProof)
       resolve(&Resolvers.Accounts.fetch_mentions/3)
-      middleware(M.FormatPagination)
     end
 
     field :notifications, :paged_notifications do
@@ -102,7 +101,6 @@ defmodule MastaniServerWeb.Schema.Account.Types do
       middleware(M.Authorize, :login)
       middleware(M.PageSizeProof)
       resolve(&Resolvers.Accounts.fetch_notifications/3)
-      middleware(M.FormatPagination)
     end
 
     field :sys_notifications, :paged_sys_notifications do
@@ -111,7 +109,6 @@ defmodule MastaniServerWeb.Schema.Account.Types do
       middleware(M.Authorize, :login)
       middleware(M.PageSizeProof)
       resolve(&Resolvers.Accounts.fetch_sys_notifications/3)
-      middleware(M.FormatPagination)
     end
   end
 

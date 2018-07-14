@@ -57,7 +57,7 @@ defmodule MastaniServer.Mixfile do
       {:tesla, "~> 0.10.0"},
       # for fake data in test env
       {:faker, "~> 0.9"},
-      {:scrivener_ecto, "~> 1.3.0"},
+      {:scrivener_ecto, git: "https://github.com/mastani-stack/scrivener_ecto", override: true},
       {:guardian, "~> 1.0"},
       {:timex, "~> 3.2.1"},
       {:dataloader, "~> 1.0.2"},

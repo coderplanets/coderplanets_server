@@ -22,7 +22,7 @@ defmodule MastaniServer.Delivery.MentionTest do
       {:ok, mentions} = Delivery.fetch_mentions(user, filter)
 
       assert mentions |> is_valid_pagination?(:raw)
-      assert mentions |> Map.get(:total_entries) == 1
+      assert mentions |> Map.get(:total_count) == 1
       assert user.id == mentions.entries |> List.first() |> Map.get(:to_user_id)
     end
 
@@ -98,16 +98,16 @@ defmodule MastaniServer.Delivery.MentionTest do
       filter = %{page: 1, size: 20, read: false}
       {:ok, mentions} = Accounts.fetch_mentions(user, filter)
       first_mention = mentions.entries |> List.first()
-      assert mentions.total_entries == 3
+      assert mentions.total_count == 3
       Accounts.mark_mail_read(first_mention, user)
 
       filter = %{page: 1, size: 20, read: false}
       {:ok, mentions} = Accounts.fetch_mentions(user, filter)
-      assert mentions.total_entries == 2
+      assert mentions.total_count == 2
 
       filter = %{page: 1, size: 20, read: true}
       {:ok, mentions} = Accounts.fetch_mentions(user, filter)
-      assert mentions.total_entries == 1
+      assert mentions.total_count == 1
     end
 
     test "user can mark all unread mentions as read" do
@@ -127,7 +127,7 @@ defmodule MastaniServer.Delivery.MentionTest do
       filter = %{page: 1, size: 20, read: true}
       {:ok, mentions} = Accounts.fetch_mentions(user, filter)
       # IO.inspect mentions, label: "hello mentions"
-      assert mentions.total_entries == 3
+      assert mentions.total_count == 3
     end
   end
 end

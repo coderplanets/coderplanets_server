@@ -54,7 +54,7 @@ defmodule MastaniServer.Test.AssertHelper do
 
   def is_valid_pagination?(obj, :raw) when is_map(obj) do
     is_valid_kv?(obj, "entries", :list) and is_valid_kv?(obj, "total_pages", :int) and
-      is_valid_kv?(obj, "total_entries", :int) and is_valid_kv?(obj, "page_size", :int) and
+      is_valid_kv?(obj, "total_count", :int) and is_valid_kv?(obj, "page_size", :int) and
       is_valid_kv?(obj, "page_number", :int)
   end
 

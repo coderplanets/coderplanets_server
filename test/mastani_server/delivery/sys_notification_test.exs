@@ -29,7 +29,7 @@ defmodule MastaniServer.Delivery.SysNotificationTest do
       {:ok, sys_notification} = Delivery.fetch_sys_notifications(user, filter)
 
       assert sys_notification |> is_valid_pagination?(:raw)
-      assert sys_notification |> Map.get(:total_entries) == 10
+      assert sys_notification |> Map.get(:total_count) == 10
     end
 
     test "user can fetch sys notifications and store in own mail-box" do
@@ -88,18 +88,18 @@ defmodule MastaniServer.Delivery.SysNotificationTest do
 
       filter = %{page: 1, size: 20, read: false}
       {:ok, sys_notifications} = Accounts.fetch_sys_notifications(user, filter)
-      assert sys_notifications.total_entries == 3
+      assert sys_notifications.total_count == 3
 
       first_sys_notification = sys_notifications.entries |> List.first()
       Accounts.mark_mail_read(first_sys_notification, user)
 
       filter = %{page: 1, size: 20, read: false}
       {:ok, sys_notifications} = Accounts.fetch_sys_notifications(user, filter)
-      assert sys_notifications.total_entries == 2
+      assert sys_notifications.total_count == 2
 
       filter = %{page: 1, size: 20, read: true}
       {:ok, sys_notifications} = Accounts.fetch_sys_notifications(user, filter)
-      assert sys_notifications.total_entries == 1
+      assert sys_notifications.total_count == 1
     end
   end
 end

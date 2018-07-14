@@ -22,7 +22,7 @@ defmodule MastaniServer.Delivery.NotificationTest do
       {:ok, notifications} = Delivery.fetch_notifications(user, filter)
 
       assert notifications |> is_valid_pagination?(:raw)
-      assert notifications |> Map.get(:total_entries) == 1
+      assert notifications |> Map.get(:total_count) == 1
       assert user.id == notifications.entries |> List.first() |> Map.get(:to_user_id)
     end
 
@@ -99,16 +99,16 @@ defmodule MastaniServer.Delivery.NotificationTest do
       filter = %{page: 1, size: 20, read: false}
       {:ok, notifications} = Accounts.fetch_notifications(user, filter)
       first_notification = notifications.entries |> List.first()
-      assert notifications.total_entries == 3
+      assert notifications.total_count == 3
       Accounts.mark_mail_read(first_notification, user)
 
       filter = %{page: 1, size: 20, read: false}
       {:ok, notifications} = Accounts.fetch_notifications(user, filter)
-      assert notifications.total_entries == 2
+      assert notifications.total_count == 2
 
       filter = %{page: 1, size: 20, read: true}
       {:ok, notifications} = Accounts.fetch_notifications(user, filter)
-      assert notifications.total_entries == 1
+      assert notifications.total_count == 1
     end
 
     test "user can mark all unread notifications as read" do
@@ -125,7 +125,7 @@ defmodule MastaniServer.Delivery.NotificationTest do
 
       filter = %{page: 1, size: 20, read: true}
       {:ok, notifications} = Accounts.fetch_notifications(user, filter)
-      assert notifications.total_entries == 3
+      assert notifications.total_count == 3
     end
   end
 end
