@@ -4,12 +4,12 @@ defmodule MastaniServer.Accounts do
   alias MastaniServer.Accounts.Delegate.{Profile, ReactedContents, Mails, Billing, Customization}
 
   # update user profile
-  defdelegate update_profile(user_id, attrs), to: Profile
+  defdelegate update_profile(user, attrs), to: Profile
   defdelegate github_signin(github_user), to: Profile
   # default communities for unlog user
   defdelegate default_subscribed_communities(filter), to: Profile
   # get user subscribed community
-  defdelegate subscribed_communities(user_id, filter), to: Profile
+  defdelegate subscribed_communities(user, filter), to: Profile
 
   # reacted contents
   defdelegate reacted_contents(thread, react, filter, user), to: ReactedContents
