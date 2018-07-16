@@ -1,9 +1,10 @@
 defmodule MastaniServer.Delivery.Mention do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
 
   alias MastaniServer.Accounts.User
-  alias MastaniServer.Delivery.Mention
 
   @required_fields ~w(from_user_id to_user_id source_title source_id source_type source_preview)a
   @optional_fields ~w(parent_id parent_type read)a

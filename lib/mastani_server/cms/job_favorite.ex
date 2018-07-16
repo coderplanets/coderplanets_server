@@ -1,7 +1,9 @@
 defmodule MastaniServer.CMS.JobFavorite do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Job, JobFavorite}
+  alias MastaniServer.CMS.Job
   alias MastaniServer.Accounts
 
   @required_fields ~w(user_id job_id)a

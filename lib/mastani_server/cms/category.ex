@@ -1,7 +1,9 @@
 defmodule MastaniServer.CMS.Category do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Category, Author, Community}
+  alias MastaniServer.CMS.{Author, Community}
   # alias MastaniServer.Accounts
   # alias Helper.Certification
 

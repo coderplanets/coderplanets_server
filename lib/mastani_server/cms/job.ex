@@ -1,8 +1,10 @@
 defmodule MastaniServer.CMS.Job do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
   # alias MastaniServer.CMS.{Job, Author, Community, JobComment, Tag}
-  alias MastaniServer.CMS.{Job, Author, Community, Tag}
+  alias MastaniServer.CMS.{Author, Community, Tag}
   # alias MastaniServer.Accounts
 
   @required_fields ~w(title company company_logo location body digest length)a

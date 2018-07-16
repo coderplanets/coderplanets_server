@@ -1,7 +1,9 @@
 defmodule MastaniServer.Accounts.NotificationMail do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.Accounts.{User, NotificationMail}
+  alias MastaniServer.Accounts.User
 
   @required_fields ~w(from_user_id to_user_id action source_id source_type source_preview)a
   @optional_fields ~w(parent_id parent_type read)a

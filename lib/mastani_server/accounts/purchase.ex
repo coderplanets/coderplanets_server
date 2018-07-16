@@ -1,7 +1,9 @@
 defmodule MastaniServer.Accounts.Purchase do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.Accounts.{User, Purchase}
+  alias MastaniServer.Accounts.User
 
   @required_fields ~w(user_id)a
   @optional_fields ~w(theme community_chart brainwash_free)a

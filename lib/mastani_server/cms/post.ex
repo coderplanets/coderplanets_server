@@ -1,7 +1,9 @@
 defmodule MastaniServer.CMS.Post do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Post, Author, PostComment, PostFavorite, PostStar, Tag, Community}
+  alias MastaniServer.CMS.{Author, PostComment, PostFavorite, PostStar, Tag, Community}
   # alias MastaniServer.Accounts
 
   @required_fields ~w(title body digest length)a

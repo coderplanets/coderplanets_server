@@ -1,7 +1,9 @@
 defmodule MastaniServer.CMS.PostFavorite do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Post, PostFavorite}
+  alias MastaniServer.CMS.Post
   alias MastaniServer.Accounts
 
   @required_fields ~w(user_id post_id)a

@@ -1,7 +1,9 @@
 defmodule MastaniServer.Accounts.User do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.Accounts.{User, GithubUser, UserBill, Purchase, Customization}
+  alias MastaniServer.Accounts.{GithubUser, UserBill, Purchase, Customization}
   alias MastaniServer.CMS
 
   schema "users" do

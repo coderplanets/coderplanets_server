@@ -1,11 +1,12 @@
 defmodule MastaniServer.CMS.PostComment do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
   alias MastaniServer.Accounts
 
   alias MastaniServer.CMS.{
     Post,
-    PostComment,
     PostCommentReply,
     PostCommentLike,
     PostCommentDislike

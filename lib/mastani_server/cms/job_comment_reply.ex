@@ -1,8 +1,10 @@
 defmodule MastaniServer.CMS.JobCommentReply do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias MastaniServer.CMS.{JobComment, JobCommentReply}
+  alias MastaniServer.CMS.JobComment
 
   @required_fields ~w(job_comment_id reply_id)a
 

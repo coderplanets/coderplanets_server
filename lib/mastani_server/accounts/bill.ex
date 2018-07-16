@@ -1,7 +1,9 @@
 defmodule MastaniServer.Accounts.Bill do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.Accounts.{User, Bill}
+  alias MastaniServer.Accounts.User
 
   @required_fields ~w(from_user_id to_user_id source_type source_title price)a
   @optional_fields ~w(source_id)a

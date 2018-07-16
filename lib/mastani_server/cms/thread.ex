@@ -1,7 +1,8 @@
 defmodule MastaniServer.CMS.Thread do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.Thread
 
   @optional_fields ~w(logo index)a
   @required_fields ~w(title raw)a

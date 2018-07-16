@@ -1,9 +1,10 @@
 defmodule MastaniServer.CMS.Passport do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
 
   alias MastaniServer.Accounts
-  alias MastaniServer.CMS.Passport
 
   schema "cms_passports" do
     field(:rules, :map)

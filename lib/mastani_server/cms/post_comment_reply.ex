@@ -1,8 +1,10 @@
 defmodule MastaniServer.CMS.PostCommentReply do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias MastaniServer.CMS.{PostComment, PostCommentReply}
+  alias MastaniServer.CMS.PostComment
 
   @required_fields ~w(post_comment_id reply_id)a
 

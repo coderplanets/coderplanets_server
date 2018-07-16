@@ -1,7 +1,9 @@
 defmodule MastaniServer.CMS.Author do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Author, Post}
+  alias MastaniServer.CMS.Post
   alias MastaniServer.Accounts
 
   schema "cms_authors" do

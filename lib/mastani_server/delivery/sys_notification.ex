@@ -1,9 +1,8 @@
 defmodule MastaniServer.Delivery.SysNotification do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
-
-  # alias MastaniServer.Accounts.User
-  alias MastaniServer.Delivery.SysNotification
 
   @required_fields ~w(source_title source_id source_type)a
   @optional_fields ~w(source_preview)a

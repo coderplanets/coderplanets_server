@@ -1,7 +1,9 @@
 defmodule MastaniServer.CMS.Repo do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Repo, Author, Community, Tag, RepoBuilder}
+  alias MastaniServer.CMS.{Author, Community, Tag, RepoBuilder}
 
   @required_fields ~w(repo_name desc readme language repo_link producer producer_link repo_star_count repo_fork_count repo_watch_count)a
   @optional_fields ~w(views pin trash last_fetch_time)

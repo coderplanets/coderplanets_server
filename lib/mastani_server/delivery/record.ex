@@ -1,8 +1,9 @@
 defmodule MastaniServer.Delivery.Record do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
   alias MastaniServer.Accounts.User
-  alias MastaniServer.Delivery.Record
 
   @required_fields ~w(user_id)a
   @optional_fields ~w(mentions_record notifications_record sys_notifications_record)a

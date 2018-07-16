@@ -1,7 +1,9 @@
 defmodule MastaniServer.CMS.Tag do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Author, Post, Video, Job, Tag, Community}
+  alias MastaniServer.CMS.{Author, Post, Video, Job, Community}
 
   @required_fields ~w(thread title color author_id community_id)a
 

@@ -1,9 +1,10 @@
 defmodule MastaniServer.CMS.Community do
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
 
   alias MastaniServer.CMS.{
-    Community,
     Category,
     Post,
     Video,
