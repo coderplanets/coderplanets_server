@@ -1,0 +1,30 @@
+defmodule MastaniServer.Accounts.Delegate.ReactedContents do
+  import MastaniServer.CMS.Utils.Matcher
+  import Ecto.Query, warn: false
+  import Helper.Utils, only: [done: 1]
+  import ShortMaps
+
+  alias MastaniServer.Accounts.User
+  alias Helper.{ORM, QueryBuilder}
+
+  def reacted_contents(thread, react, ~m(page size)a = filter, %User{id: user_id}) do
+    with {:ok, action} <- match_action(thread, react) do
+      action.reactor
+      |> where([f], f.user_id == ^user_id)
+      |> join(:inner, [f], p in assoc(f, ^thread))
+      |> select([f, p], p)
+      |> QueryBuilder.filter_pack(filter)
+      |> ORM.paginater(~m(page size)a)
+      |> done()
+    end
+  end
+
+  # def reacted_count(thread, react, %User{id: user_id}) do
+  # with {:ok, action} <- match_action(thread, react) do
+  # action.reactor
+  # |> where([f], f.user_id == ^user_id)
+  # |> group_by([f], f.post_id)
+  # |> select([f], count(f.id))
+  # end
+  # end
+end

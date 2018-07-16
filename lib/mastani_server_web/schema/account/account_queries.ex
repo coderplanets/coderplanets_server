@@ -30,12 +30,29 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
 
     @desc "anyone can get anyone's subscribed communities"
     field :subscribed_communities, :paged_communities do
-      # arg(:user_id, non_null(:id))
       arg(:user_id, :id)
       arg(:filter, non_null(:paged_filter))
 
       middleware(M.PageSizeProof)
       resolve(&Resolvers.Accounts.subscribed_communities/3)
+    end
+
+    @desc "get favorited posts"
+    field :favorited_posts, :paged_posts do
+      arg(:user_id, :id)
+      arg(:filter, non_null(:paged_filter))
+
+      middleware(M.PageSizeProof)
+      resolve(&Resolvers.Accounts.favorited_posts/3)
+    end
+
+    @desc "get favorited jobs"
+    field :favorited_jobs, :paged_jobs do
+      arg(:user_id, :id)
+      arg(:filter, non_null(:paged_filter))
+
+      middleware(M.PageSizeProof)
+      resolve(&Resolvers.Accounts.favorited_jobs/3)
     end
 
     @desc "get all passport rules include system and community etc ..."

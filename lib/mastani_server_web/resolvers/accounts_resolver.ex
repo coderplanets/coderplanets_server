@@ -1,26 +1,42 @@
 defmodule MastaniServerWeb.Resolvers.Accounts do
   import ShortMaps
 
-  alias MastaniServer.Accounts
-  alias MastaniServer.CMS
+  alias MastaniServer.{CMS, Accounts}
   alias Helper.{ORM, Certification}
+  alias Accounts.{User, MentionMail, SysNotificationMail, NotificationMail}
 
-  def user(_root, %{id: id}, _info), do: Accounts.User |> ORM.find(id)
-  def users(_root, ~m(filter)a, _info), do: Accounts.User |> ORM.find_all(filter)
+  def user(_root, %{id: id}, _info), do: User |> ORM.find(id)
+  def users(_root, ~m(filter)a, _info), do: User |> ORM.find_all(filter)
 
   def account(_root, _args, %{context: %{cur_user: cur_user}}),
-    do: Accounts.User |> ORM.find(cur_user.id)
+    do: User |> ORM.find(cur_user.id)
 
   def update_profile(_root, %{profile: profile}, %{context: %{cur_user: cur_user}}) do
-    Accounts.update_profile(%Accounts.User{id: cur_user.id}, profile)
+    Accounts.update_profile(%User{id: cur_user.id}, profile)
   end
 
   def github_signin(_root, %{github_user: github_user}, _info) do
     Accounts.github_signin(github_user)
   end
 
-  # TODO: refactor
+  # for check other users subscribed_communities
+  def favorited_posts(_root, %{user_id: user_id, filter: filter}, _info) do
+    Accounts.reacted_contents(:post, :favorite, filter, %User{id: user_id})
+  end
 
+  def favorited_posts(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.reacted_contents(:post, :favorite, filter, cur_user)
+  end
+
+  def favorited_jobs(_root, %{user_id: user_id, filter: filter}, _info) do
+    Accounts.reacted_contents(:job, :favorite, filter, %User{id: user_id})
+  end
+
+  def favorited_jobs(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.reacted_contents(:job, :favorite, filter, cur_user)
+  end
+
+  # TODO: refactor
   def get_mail_box_status(_root, _args, %{context: %{cur_user: cur_user}}) do
     Accounts.mailbox_status(cur_user)
   end
@@ -31,7 +47,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   end
 
   def mark_mention_read(_root, %{id: id}, %{context: %{cur_user: cur_user}}) do
-    Accounts.mark_mail_read(%Accounts.MentionMail{id: id}, cur_user)
+    Accounts.mark_mail_read(%MentionMail{id: id}, cur_user)
   end
 
   def mark_mention_read_all(_root, _args, %{context: %{cur_user: cur_user}}) do
@@ -48,7 +64,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   end
 
   def mark_notification_read(_root, %{id: id}, %{context: %{cur_user: cur_user}}) do
-    Accounts.mark_mail_read(%Accounts.NotificationMail{id: id}, cur_user)
+    Accounts.mark_mail_read(%NotificationMail{id: id}, cur_user)
   end
 
   def mark_notification_read_all(_root, _args, %{context: %{cur_user: cur_user}}) do
@@ -56,12 +72,12 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   end
 
   def mark_sys_notification_read(_root, %{id: id}, %{context: %{cur_user: cur_user}}) do
-    Accounts.mark_mail_read(%Accounts.SysNotificationMail{id: id}, cur_user)
+    Accounts.mark_mail_read(%SysNotificationMail{id: id}, cur_user)
   end
 
   # for user self's
   def subscribed_communities(_root, %{filter: filter}, %{cur_user: cur_user}) do
-    Accounts.subscribed_communities(%Accounts.User{id: cur_user.id}, filter)
+    Accounts.subscribed_communities(%User{id: cur_user.id}, filter)
   end
 
   #
@@ -71,7 +87,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
 
   # for check other users subscribed_communities
   def subscribed_communities(_root, %{user_id: user_id, filter: filter}, _info) do
-    Accounts.subscribed_communities(%Accounts.User{id: user_id}, filter)
+    Accounts.subscribed_communities(%User{id: user_id}, filter)
   end
 
   def subscribed_communities(_root, %{filter: filter}, _info) do
@@ -79,11 +95,11 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   end
 
   def get_passport(root, _args, %{context: %{cur_user: _}}) do
-    CMS.get_passport(%Accounts.User{id: root.id})
+    CMS.get_passport(%User{id: root.id})
   end
 
   def get_passport_string(root, _args, %{context: %{cur_user: _}}) do
-    case CMS.get_passport(%Accounts.User{id: root.id}) do
+    case CMS.get_passport(%User{id: root.id}) do
       {:ok, passport} ->
         {:ok, Jason.encode!(passport)}
 

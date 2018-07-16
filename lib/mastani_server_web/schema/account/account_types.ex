@@ -71,6 +71,34 @@ defmodule MastaniServerWeb.Schema.Account.Types do
       middleware(M.ConvertToInt)
     end
 
+    field :favorited_posts, :paged_posts do
+      arg(:filter, non_null(:paged_filter))
+
+      middleware(M.PageSizeProof)
+      resolve(&Resolvers.Accounts.favorited_posts/3)
+    end
+
+    field :favorited_jobs, :paged_jobs do
+      arg(:filter, non_null(:paged_filter))
+
+      middleware(M.PageSizeProof)
+      resolve(&Resolvers.Accounts.favorited_jobs/3)
+    end
+
+    field :favorited_posts_count, :integer do
+      arg(:count, :count_type, default_value: :count)
+
+      resolve(dataloader(Accounts, :favorited_posts))
+      middleware(M.ConvertToInt)
+    end
+
+    field :favorited_jobs_count, :integer do
+      arg(:count, :count_type, default_value: :count)
+
+      resolve(dataloader(Accounts, :favorited_jobs))
+      middleware(M.ConvertToInt)
+    end
+
     field :contributes, :contribute_map do
       resolve(&Resolvers.Statistics.list_contributes/3)
     end

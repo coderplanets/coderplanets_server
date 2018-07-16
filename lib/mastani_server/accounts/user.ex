@@ -23,7 +23,8 @@ defmodule MastaniServer.Accounts.User do
     has_one(:cms_passport, CMS.Passport)
 
     has_many(:subscribed_communities, {"communities_subscribers", CMS.CommunitySubscriber})
-    # has_many(:favorite_posts, {"posts_favorites", PostFavorite}) ...
+    has_many(:favorited_posts, {"posts_favorites", CMS.PostFavorite})
+    has_many(:favorited_jobs, {"jobs_favorites", CMS.JobFavorite})
 
     # has_many(::following_communities, {"communities_subscribers", CommunitySubscriber})
     # has_many(:follow_communities, {"communities_subscribers", CommunitySubscriber})
