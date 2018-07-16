@@ -5,14 +5,14 @@ defmodule MastaniServer.CMS do
   [CURD]: create, update, delete ...
   """
   alias MastaniServer.CMS.Delegate.{
-    ArticleOperation,
     ArticleCURD,
+    ArticleOperation,
     ArticleReaction,
-    CommentReaction,
     CommentCURD,
+    CommentReaction,
     CommunityCURD,
-    PassportCURD,
-    CommunityOperation
+    CommunityOperation,
+    PassportCURD
   }
 
   # do not pattern match in delegating func, do it on one delegating inside
