@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Query.AccountTest do
+defmodule MastaniServer.Test.Query.Account.Test do
   use MastaniServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]

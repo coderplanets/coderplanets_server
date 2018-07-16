@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Query.AccountsMessagesTest do
+defmodule MastaniServer.Test.Query.Accounts.MessagesTest do
   use MastaniServer.TestTools
 
   # alias MastaniServer.{Accounts}
