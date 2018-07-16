@@ -53,7 +53,9 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
   enum :cms_thread do
     value(:post)
     value(:job)
-    value(:meetup)
+    value(:video)
+    value(:repo)
+    value(:wiki)
   end
 
   enum :cms_comment do

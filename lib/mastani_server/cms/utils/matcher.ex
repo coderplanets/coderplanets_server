@@ -87,9 +87,6 @@ defmodule MastaniServer.CMS.Utils.Matcher do
       :job_comment ->
         {:ok, dynamic([p], p.job_comment_id == ^id)}
 
-      :meetup ->
-        {:ok, dynamic([p], p.meetup_id == ^id)}
-
       _ ->
         {:error, 'where is not match'}
     end

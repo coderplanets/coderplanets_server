@@ -125,10 +125,10 @@ defmodule MastaniServer.Factory do
 
   defp mock_meta(:community) do
     unique_num = System.unique_integer([:positive, :monotonic])
-    # name = Faker.Lorem.sentence(%Range{first: 3, last: 4})
+    random_num = Enum.random(0..2000)
 
     %{
-      title: "community_#{unique_num}",
+      title: "community_#{random_num}_#{unique_num}",
       desc: "community desc",
       raw: "community_#{unique_num}",
       logo: "https://coderplanets.oss-cn-beijing.aliyuncs.com/icons/pl/elixir.svg",

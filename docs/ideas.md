@@ -15,7 +15,7 @@
   [ ] *delivery* model
 
 ## roadmap
-  [ ] communities: post, tuts, video, meetup, job
+  [ ] communities: post, tuts, video, job
   [x] basic favorite, star, watch
   [ ] delivery / trigger
   [ ] user map

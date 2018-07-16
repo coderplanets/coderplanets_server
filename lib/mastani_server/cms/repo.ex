@@ -26,6 +26,7 @@ defmodule MastaniServer.CMS.Repo do
     field(:trash, :boolean, default_value: false)
 
     field(:last_fetch_time, :utc_datetime)
+    # TODO: replace RepoBuilder with paged user map
     has_many(:builders, {"repos_builders", RepoBuilder})
 
     many_to_many(
