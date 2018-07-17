@@ -1,24 +1,24 @@
 defmodule MastaniServer.CMS.Delegate.CommunityOperation do
-  import ShortMaps
+  @moduledoc """
+  community operations, like: set/unset category/thread/editor...
+  """
   import Helper.ErrorCode
-  # import MastaniServer.CMS.Utils.Matcher
+  import ShortMaps
 
-  alias MastaniServer.CMS.Delegate.PassportCURD
-  alias MastaniServer.Accounts.User
-  alias MastaniServer.Repo
-  alias Helper.{ORM, Certification}
   alias Ecto.Multi
+  alias Helper.{Certification, ORM}
+  alias MastaniServer.Accounts.User
+  alias MastaniServer.CMS.Delegate.PassportCURD
+  alias MastaniServer.Repo
 
   alias MastaniServer.CMS.{
-    # Author,
-    CommunityThread,
-    CommunityEditor,
-    Community,
     Category,
-    Thread,
+    Community,
     CommunityCategory,
-    CommunitySubscriber
-    # CommunityEditor
+    CommunityEditor,
+    CommunitySubscriber,
+    CommunityThread,
+    Thread
   }
 
   @doc """
@@ -104,10 +104,6 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
     with {:ok, record} <- CommunitySubscriber |> ORM.create(~m(user_id community_id)a) do
       Community |> ORM.find(record.community_id)
     end
-  end
-
-  def code2err({:error, error}, code) do
-    {:error, message: error, code: ecode(code)}
   end
 
   def unsubscribe_community(%Community{id: community_id}, %User{id: user_id}) do

@@ -1,9 +1,8 @@
-defmodule MastaniServerWeb.Schema.CMS.Mutation.Post do
-  use Absinthe.Schema.Notation
-  use Absinthe.Ecto, repo: MastaniServer.Repo
-
-  alias MastaniServerWeb.{Resolvers}
-  alias MastaniServerWeb.Middleware, as: M
+defmodule MastaniServerWeb.Schema.CMS.Mutations.Post do
+  @moduledoc """
+  CMS mutations for post
+  """
+  use Helper.GqlSchemaSuite
 
   object :cms_post_mutations do
     @desc "create a user"
@@ -19,7 +18,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Post do
       middleware(M.Authorize, :login)
       middleware(M.PublishThrottle)
       # middleware(M.PublishThrottle, interval: 3, hour_limit: 15, day_limit: 30)
-      resolve(&Resolvers.CMS.create_content/3)
+      resolve(&R.CMS.create_content/3)
     end
 
     @desc "pin a post"
@@ -28,7 +27,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Post do
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->post.pin")
-      resolve(&Resolvers.CMS.pin_post/3)
+      resolve(&R.CMS.pin_post/3)
     end
 
     @desc "unpin a post"
@@ -37,7 +36,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Post do
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->post.undo_pin")
-      resolve(&Resolvers.CMS.undo_pin_post/3)
+      resolve(&R.CMS.undo_pin_post/3)
     end
 
     @desc "trash a post, not delete"
@@ -47,7 +46,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Post do
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->post.trash")
 
-      resolve(&Resolvers.CMS.trash_post/3)
+      resolve(&R.CMS.trash_post/3)
     end
 
     @desc "trash a post, not delete"
@@ -57,7 +56,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Post do
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->post.undo_trash")
 
-      resolve(&Resolvers.CMS.undo_trash_post/3)
+      resolve(&R.CMS.undo_trash_post/3)
     end
 
     @desc "delete a cms/post"
@@ -69,7 +68,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Post do
       middleware(M.PassportLoader, source: :post)
       middleware(M.Passport, claim: "owner;cms->c?->post.delete")
 
-      resolve(&Resolvers.CMS.delete_content/3)
+      resolve(&R.CMS.delete_content/3)
     end
 
     @desc "update a cms/post"
@@ -83,7 +82,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Post do
       middleware(M.PassportLoader, source: :post)
       middleware(M.Passport, claim: "owner;cms->c?->post.edit")
 
-      resolve(&Resolvers.CMS.update_content/3)
+      resolve(&R.CMS.update_content/3)
     end
   end
 end

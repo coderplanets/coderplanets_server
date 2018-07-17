@@ -1,9 +1,8 @@
-defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
-  use Absinthe.Schema.Notation
-  use Absinthe.Ecto, repo: MastaniServer.Repo
-
-  alias MastaniServerWeb.{Resolvers}
-  alias MastaniServerWeb.Middleware, as: M
+defmodule MastaniServerWeb.Schema.CMS.Mutations.Community do
+  @moduledoc """
+  CMS mations for community
+  """
+  use Helper.GqlSchemaSuite
 
   object :cms_mutation_community do
     @desc "create a global community"
@@ -17,7 +16,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->community.create")
 
-      resolve(&Resolvers.CMS.create_community/3)
+      resolve(&R.CMS.create_community/3)
       # middleware(M.Statistics.MakeContribute, for: :user)
       middleware(M.Statistics.MakeContribute, for: [:user, :community])
     end
@@ -33,7 +32,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->community.update")
 
-      resolve(&Resolvers.CMS.update_community/3)
+      resolve(&R.CMS.update_community/3)
       middleware(M.Statistics.MakeContribute, for: [:user, :community])
     end
 
@@ -43,7 +42,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->community.delete")
 
-      resolve(&Resolvers.CMS.delete_community/3)
+      resolve(&R.CMS.delete_community/3)
     end
 
     @desc "create category"
@@ -54,7 +53,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->category.create")
 
-      resolve(&Resolvers.CMS.create_category/3)
+      resolve(&R.CMS.create_category/3)
     end
 
     @desc "delete category"
@@ -64,7 +63,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->category.delete")
 
-      resolve(&Resolvers.CMS.delete_category/3)
+      resolve(&R.CMS.delete_category/3)
     end
 
     @desc "update category"
@@ -75,7 +74,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->category.update")
 
-      resolve(&Resolvers.CMS.update_category/3)
+      resolve(&R.CMS.update_category/3)
     end
 
     @desc "create independent thread"
@@ -87,7 +86,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->thread.create")
 
-      resolve(&Resolvers.CMS.create_thread/3)
+      resolve(&R.CMS.create_thread/3)
     end
 
     @desc "add a editor for a community"
@@ -100,7 +99,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
       middleware(M.PassportLoader, source: :community)
       middleware(M.Passport, claim: "cms->editor.set")
 
-      resolve(&Resolvers.CMS.set_editor/3)
+      resolve(&R.CMS.set_editor/3)
     end
 
     @desc "unset a editor from a community, the user's passport also deleted"
@@ -112,7 +111,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
       middleware(M.PassportLoader, source: :community)
       middleware(M.Passport, claim: "cms->editor.unset")
 
-      resolve(&Resolvers.CMS.unset_editor/3)
+      resolve(&R.CMS.unset_editor/3)
     end
 
     # TODO: remove, should remove both editor and cms->passport
@@ -126,7 +125,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
       middleware(M.PassportLoader, source: :community)
       middleware(M.Passport, claim: "cms->editor.update")
 
-      resolve(&Resolvers.CMS.update_editor/3)
+      resolve(&R.CMS.update_editor/3)
     end
 
     @desc "create a tag"
@@ -140,7 +139,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
       middleware(M.PassportLoader, source: :community)
       middleware(M.Passport, claim: "cms->c?->t?.tag.create")
 
-      resolve(&Resolvers.CMS.create_tag/3)
+      resolve(&R.CMS.create_tag/3)
     end
 
     @desc "update a tag"
@@ -156,7 +155,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
       middleware(M.PassportLoader, source: :community)
       middleware(M.Passport, claim: "cms->c?->t?.tag.update")
 
-      resolve(&Resolvers.CMS.update_tag/3)
+      resolve(&R.CMS.update_tag/3)
     end
 
     @desc "delete a tag by thread"
@@ -169,7 +168,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Community do
       middleware(M.PassportLoader, source: :community)
       middleware(M.Passport, claim: "cms->c?->t?.tag.delete")
 
-      resolve(&Resolvers.CMS.delete_tag/3)
+      resolve(&R.CMS.delete_tag/3)
     end
   end
 end

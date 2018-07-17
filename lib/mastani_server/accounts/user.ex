@@ -1,9 +1,19 @@
 defmodule MastaniServer.Accounts.User do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.Accounts.{GithubUser, UserBill, Purchase, Customization}
+
+  alias MastaniServer.Accounts.{
+    Customization,
+    GithubUser,
+    Purchase,
+    UserBill,
+    UserFollower,
+    UserFollowing
+  }
+
   alias MastaniServer.CMS
 
   schema "users" do
@@ -22,12 +32,12 @@ defmodule MastaniServer.Accounts.User do
     has_one(:github_profile, GithubUser)
     has_one(:cms_passport, CMS.Passport)
 
+    has_many(:followers, {"users_followers", UserFollower})
+    has_many(:followings, {"users_followings", UserFollowing})
+
     has_many(:subscribed_communities, {"communities_subscribers", CMS.CommunitySubscriber})
     has_many(:favorited_posts, {"posts_favorites", CMS.PostFavorite})
     has_many(:favorited_jobs, {"jobs_favorites", CMS.JobFavorite})
-
-    # has_many(::following_communities, {"communities_subscribers", CommunitySubscriber})
-    # has_many(:follow_communities, {"communities_subscribers", CommunitySubscriber})
 
     field(:sponsor_member, :boolean)
     field(:paid_member, :boolean)

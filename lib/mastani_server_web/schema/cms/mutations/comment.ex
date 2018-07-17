@@ -1,9 +1,8 @@
-defmodule MastaniServerWeb.Schema.CMS.Mutation.Comment do
-  use Absinthe.Schema.Notation
-  use Absinthe.Ecto, repo: MastaniServer.Repo
-
-  alias MastaniServerWeb.{Resolvers}
-  alias MastaniServerWeb.Middleware, as: M
+defmodule MastaniServerWeb.Schema.CMS.Mutations.Comment do
+  @moduledoc """
+  CMS mutations for comments
+  """
+  use Helper.GqlSchemaSuite
 
   object :cms_comment_mutations do
     @desc "create a comment"
@@ -16,7 +15,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Comment do
       # TDOO: use a comment resolver
       middleware(M.Authorize, :login)
       # TODO: 文章作者可以删除评论，文章可以设置禁止评论
-      resolve(&Resolvers.CMS.create_comment/3)
+      resolve(&R.CMS.create_comment/3)
     end
 
     field :delete_comment, :comment do
@@ -30,7 +29,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Comment do
       # middleware(M.Passport, claim: "owner;cms->c?->post.comment.delete")
       middleware(M.Passport, claim: "owner")
       # middleware(M.Authorize, :login)
-      resolve(&Resolvers.CMS.delete_comment/3)
+      resolve(&R.CMS.delete_comment/3)
     end
 
     @desc "reply a exsiting comment"
@@ -41,7 +40,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Comment do
 
       middleware(M.Authorize, :login)
 
-      resolve(&Resolvers.CMS.reply_comment/3)
+      resolve(&R.CMS.reply_comment/3)
     end
 
     @desc "like a comment"
@@ -50,7 +49,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Comment do
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      resolve(&Resolvers.CMS.like_comment/3)
+      resolve(&R.CMS.like_comment/3)
     end
 
     @desc "undo like comment"
@@ -60,7 +59,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Comment do
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      resolve(&Resolvers.CMS.undo_like_comment/3)
+      resolve(&R.CMS.undo_like_comment/3)
     end
 
     field :dislike_comment, :comment do
@@ -68,7 +67,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Comment do
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      resolve(&Resolvers.CMS.dislike_comment/3)
+      resolve(&R.CMS.dislike_comment/3)
     end
 
     field :undo_dislike_comment, :comment do
@@ -76,7 +75,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Comment do
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      resolve(&Resolvers.CMS.undo_dislike_comment/3)
+      resolve(&R.CMS.undo_dislike_comment/3)
     end
   end
 end

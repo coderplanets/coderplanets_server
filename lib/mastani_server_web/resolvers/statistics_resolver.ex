@@ -1,4 +1,7 @@
 defmodule MastaniServerWeb.Resolvers.Statistics do
+  @moduledoc """
+  resolvers for Statistics
+  """
   alias MastaniServer.{Accounts, CMS, Statistics}
   # alias Helper.ORM
 

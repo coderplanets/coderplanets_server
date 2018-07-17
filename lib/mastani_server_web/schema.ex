@@ -1,7 +1,10 @@
 defmodule MastaniServerWeb.Schema do
+  @moduledoc """
+  scham index
+  """
   use Absinthe.Schema
 
-  alias MastaniServerWeb.Schema.{Utils, Account, CMS, Statistics, Delivery}
+  alias MastaniServerWeb.Schema.{Account, CMS, Delivery, Statistics, Utils}
   alias MastaniServerWeb.Middleware, as: M
 
   import_types(Absinthe.Type.Custom)
@@ -27,11 +30,11 @@ defmodule MastaniServerWeb.Schema do
   # cms
   import_types(CMS.Types)
   import_types(CMS.Queries)
-  import_types(CMS.Mutation.Community)
-  import_types(CMS.Mutation.Operation)
-  import_types(CMS.Mutation.Post)
-  import_types(CMS.Mutation.Job)
-  import_types(CMS.Mutation.Comment)
+  import_types(CMS.Mutations.Community)
+  import_types(CMS.Mutations.Operation)
+  import_types(CMS.Mutations.Post)
+  import_types(CMS.Mutations.Job)
+  import_types(CMS.Mutations.Comment)
 
   query do
     import_fields(:account_queries)
@@ -71,7 +74,7 @@ defmodule MastaniServerWeb.Schema do
     [Absinthe.Middleware.Dataloader | Absinthe.Plugin.defaults()]
   end
 
-  def dataloader() do
+  def dataloader do
     alias MastaniServer.{Accounts, CMS}
 
     Dataloader.new()

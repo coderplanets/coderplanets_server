@@ -1,9 +1,8 @@
-defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
-  use Absinthe.Schema.Notation
-  use Absinthe.Ecto, repo: MastaniServer.Repo
-
-  alias MastaniServerWeb.{Resolvers}
-  alias MastaniServerWeb.Middleware, as: M
+defmodule MastaniServerWeb.Schema.CMS.Mutations.Operation do
+  @moduledoc """
+  CMS mutations for cms operations
+  """
+  use Helper.GqlSchemaSuite
 
   object :cms_opertion_mutations do
     @desc "set category to a community"
@@ -14,7 +13,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->category.set")
 
-      resolve(&Resolvers.CMS.set_category/3)
+      resolve(&R.CMS.set_category/3)
     end
 
     @desc "unset category to a community"
@@ -25,7 +24,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->category.unset")
 
-      resolve(&Resolvers.CMS.unset_category/3)
+      resolve(&R.CMS.unset_category/3)
     end
 
     @desc "bind a thread to a exist community"
@@ -37,7 +36,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
       middleware(M.PassportLoader, source: :community)
       middleware(M.Passport, claim: "cms->c?->thread.set")
 
-      resolve(&Resolvers.CMS.set_thread/3)
+      resolve(&R.CMS.set_thread/3)
     end
 
     @desc "remove a thread from a exist community, thread content is not delete"
@@ -49,7 +48,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
       middleware(M.PassportLoader, source: :community)
       middleware(M.Passport, claim: "cms->c?->thread.unset")
 
-      resolve(&Resolvers.CMS.unset_thread/3)
+      resolve(&R.CMS.unset_thread/3)
     end
 
     @desc "stamp rules on user's passport"
@@ -60,7 +59,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->community.stamp_passport")
 
-      resolve(&Resolvers.CMS.stamp_passport/3)
+      resolve(&R.CMS.stamp_passport/3)
     end
 
     @desc "subscribe a community so it can appear in sidebar"
@@ -68,7 +67,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      resolve(&Resolvers.CMS.subscribe_community/3)
+      resolve(&R.CMS.subscribe_community/3)
     end
 
     @desc "unsubscribe a community"
@@ -76,7 +75,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      resolve(&Resolvers.CMS.unsubscribe_community/3)
+      resolve(&R.CMS.unsubscribe_community/3)
     end
 
     @desc "set a tag within community"
@@ -90,7 +89,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
       middleware(M.PassportLoader, source: :community)
       middleware(M.Passport, claim: "cms->c?->t?.tag.set")
 
-      resolve(&Resolvers.CMS.set_tag/3)
+      resolve(&R.CMS.set_tag/3)
     end
 
     @desc "unset a tag within community"
@@ -105,7 +104,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
       middleware(M.PassportLoader, source: :community)
       middleware(M.Passport, claim: "cms->c?->t?.tag.unset")
 
-      resolve(&Resolvers.CMS.unset_tag/3)
+      resolve(&R.CMS.unset_tag/3)
     end
 
     # TODO: use community loader
@@ -116,7 +115,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->t?.community.set")
-      resolve(&Resolvers.CMS.set_community/3)
+      resolve(&R.CMS.set_community/3)
     end
 
     # TODO: can't not unset the oldest community
@@ -127,7 +126,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->t?.community.unset")
-      resolve(&Resolvers.CMS.unset_community/3)
+      resolve(&R.CMS.unset_community/3)
     end
 
     field :reaction, :article do
@@ -136,7 +135,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
       arg(:action, non_null(:cms_action))
 
       middleware(M.Authorize, :login)
-      resolve(&Resolvers.CMS.reaction/3)
+      resolve(&R.CMS.reaction/3)
     end
 
     field :undo_reaction, :article do
@@ -145,7 +144,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Operation do
       arg(:action, non_null(:cms_action))
 
       middleware(M.Authorize, :login)
-      resolve(&Resolvers.CMS.undo_reaction/3)
+      resolve(&R.CMS.undo_reaction/3)
     end
   end
 end

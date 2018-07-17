@@ -1,4 +1,7 @@
 defmodule MastaniServer.TestTools do
+  @moduledoc """
+  helper for reduce import mudules in test files
+  """
   use ExUnit.CaseTemplate
 
   using do

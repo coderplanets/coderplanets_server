@@ -1,8 +1,11 @@
 defmodule MastaniServer.Accounts.Delegate.Billing do
+  @moduledoc """
+  user billings related
+  """
   import Ecto.Query, warn: false
 
-  alias MastaniServer.Accounts.{User, Purchase}
   alias Helper.ORM
+  alias MastaniServer.Accounts.{Purchase, User}
 
   # ...
   def purchase_service(%User{} = _user, map) when map_size(map) == 0 do

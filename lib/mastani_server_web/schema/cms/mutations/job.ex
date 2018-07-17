@@ -1,9 +1,8 @@
-defmodule MastaniServerWeb.Schema.CMS.Mutation.Job do
-  use Absinthe.Schema.Notation
-  use Absinthe.Ecto, repo: MastaniServer.Repo
-
-  alias MastaniServerWeb.{Resolvers}
-  alias MastaniServerWeb.Middleware, as: M
+defmodule MastaniServerWeb.Schema.CMS.Mutations.Job do
+  @moduledoc """
+  CMS mutations for job
+  """
+  use Helper.GqlSchemaSuite
 
   object :cms_job_mutations do
     @desc "create a user"
@@ -22,7 +21,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Job do
       arg(:thread, :cms_thread, default_value: :job)
 
       middleware(M.Authorize, :login)
-      resolve(&Resolvers.CMS.create_content/3)
+      resolve(&R.CMS.create_content/3)
     end
 
     @desc "delete a job"
@@ -33,7 +32,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Job do
       middleware(M.PassportLoader, source: :job)
       middleware(M.Passport, claim: "owner;cms->c?->job.delete")
 
-      resolve(&Resolvers.CMS.delete_content/3)
+      resolve(&R.CMS.delete_content/3)
     end
 
     @desc "update a cms/job"
@@ -48,7 +47,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutation.Job do
       middleware(M.PassportLoader, source: :job)
       middleware(M.Passport, claim: "owner;cms->c?->job.edit")
 
-      resolve(&Resolvers.CMS.update_content/3)
+      resolve(&R.CMS.update_content/3)
     end
   end
 end

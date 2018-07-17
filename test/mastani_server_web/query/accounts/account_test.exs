@@ -2,9 +2,7 @@ defmodule MastaniServer.Test.Query.Account.Test do
   use MastaniServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
-
   alias MastaniServer.CMS
-  alias CMS.Community
 
   @default_subscribed_communities get_config(:general, :default_subscribed_communities)
 
@@ -107,6 +105,8 @@ defmodule MastaniServer.Test.Query.Account.Test do
   end
 
   describe "[account subscrube]" do
+    alias CMS.Community
+
     @query """
     query($id: ID!) {
       user(id: $id) {

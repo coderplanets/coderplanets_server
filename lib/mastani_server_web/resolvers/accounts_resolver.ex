@@ -1,15 +1,20 @@
 defmodule MastaniServerWeb.Resolvers.Accounts do
+  @moduledoc """
+  accounts resolvers
+  """
   import ShortMaps
 
-  alias MastaniServer.{CMS, Accounts}
-  alias Helper.{ORM, Certification}
-  alias Accounts.{User, MentionMail, SysNotificationMail, NotificationMail}
+  alias Helper.{Certification, ORM}
+  alias MastaniServer.{Accounts, CMS}
+
+  alias Accounts.{MentionMail, NotificationMail, SysNotificationMail, User}
 
   def user(_root, %{id: id}, _info), do: User |> ORM.find(id)
   def users(_root, ~m(filter)a, _info), do: User |> ORM.find_all(filter)
 
-  def account(_root, _args, %{context: %{cur_user: cur_user}}),
-    do: User |> ORM.find(cur_user.id)
+  def account(_root, _args, %{context: %{cur_user: cur_user}}) do
+    User |> ORM.find(cur_user.id)
+  end
 
   def update_profile(_root, %{profile: profile}, %{context: %{cur_user: cur_user}}) do
     Accounts.update_profile(%User{id: cur_user.id}, profile)
@@ -19,8 +24,32 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.github_signin(github_user)
   end
 
-  # for check other users subscribed_communities
-  def favorited_posts(_root, %{user_id: user_id, filter: filter}, _info) do
+  def follow(_root, ~m(user_id)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.follow(cur_user, %User{id: user_id})
+  end
+
+  def undo_follow(_root, ~m(user_id)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.undo_follow(cur_user, %User{id: user_id})
+  end
+
+  def paged_followers(_root, ~m(user_id filter)a, _info) do
+    Accounts.fetch_followers(%User{id: user_id}, filter)
+  end
+
+  def paged_followers(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.fetch_followers(cur_user, filter)
+  end
+
+  def paged_followings(_root, ~m(user_id filter)a, _info) do
+    Accounts.fetch_followings(%User{id: user_id}, filter)
+  end
+
+  def paged_followings(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.fetch_followings(cur_user, filter)
+  end
+
+  # for check other users query
+  def favorited_posts(_root, ~m(user_id filter)a, _info) do
     Accounts.reacted_contents(:post, :favorite, filter, %User{id: user_id})
   end
 
@@ -28,7 +57,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.reacted_contents(:post, :favorite, filter, cur_user)
   end
 
-  def favorited_jobs(_root, %{user_id: user_id, filter: filter}, _info) do
+  def favorited_jobs(_root, ~m(user_id filter)a, _info) do
     Accounts.reacted_contents(:job, :favorite, filter, %User{id: user_id})
   end
 

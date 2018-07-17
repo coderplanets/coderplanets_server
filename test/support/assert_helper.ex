@@ -15,8 +15,8 @@ defmodule MastaniServer.Test.AssertHelper do
   @doc """
   used for non exsit id
   """
-  def non_exsit_id(), do: 15_982_398_614
-  def inner_page_size(), do: @inner_page_size
+  def non_exsit_id, do: 15_982_398_614
+  def inner_page_size, do: @inner_page_size
   def page_size, do: @page_size
 
   def is_valid_kv?(obj, key, :list) when is_map(obj) do

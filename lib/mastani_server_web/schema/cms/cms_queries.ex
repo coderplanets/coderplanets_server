@@ -1,9 +1,8 @@
 defmodule MastaniServerWeb.Schema.CMS.Queries do
-  use Absinthe.Schema.Notation
-  use Absinthe.Ecto, repo: MastaniServer.Repo
-
-  alias MastaniServerWeb.Resolvers
-  alias MastaniServerWeb.Middleware, as: M
+  @moduledoc """
+  CMS queries
+  """
+  use Helper.GqlSchemaSuite
 
   object :cms_queries do
     field :community, :community do
@@ -11,7 +10,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:id, :id)
       arg(:title, :string)
       arg(:raw, :string)
-      resolve(&Resolvers.CMS.community/3)
+      resolve(&R.CMS.community/3)
     end
 
     @desc "communities with pagination info"
@@ -19,7 +18,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:filter, non_null(:communities_filter))
 
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.CMS.paged_communities/3)
+      resolve(&R.CMS.paged_communities/3)
     end
 
     @desc "paged subscribers of a community"
@@ -28,7 +27,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:filter, :paged_filter)
 
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.CMS.community_subscribers/3)
+      resolve(&R.CMS.community_subscribers/3)
     end
 
     @desc "paged subscribers of a community"
@@ -37,7 +36,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:filter, :paged_filter)
 
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.CMS.community_editors/3)
+      resolve(&R.CMS.community_editors/3)
     end
 
     @desc "get all categories"
@@ -45,7 +44,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:filter, :paged_filter)
 
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.CMS.paged_categories/3)
+      resolve(&R.CMS.paged_categories/3)
     end
 
     @desc "get all the threads across all communities"
@@ -53,13 +52,13 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:filter, :threads_filter)
 
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.CMS.paged_threads/3)
+      resolve(&R.CMS.paged_threads/3)
     end
 
     @desc "get post by id"
     field :post, non_null(:post) do
       arg(:id, non_null(:id))
-      resolve(&Resolvers.CMS.post/3)
+      resolve(&R.CMS.post/3)
     end
 
     @desc "get paged posts"
@@ -67,13 +66,13 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:filter, non_null(:paged_article_filter))
 
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.CMS.paged_posts/3)
+      resolve(&R.CMS.paged_posts/3)
     end
 
     @desc "get video by id"
     field :video, non_null(:video) do
       arg(:id, non_null(:id))
-      resolve(&Resolvers.CMS.video/3)
+      resolve(&R.CMS.video/3)
     end
 
     @desc "get paged videos"
@@ -81,13 +80,13 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:filter, non_null(:paged_article_filter))
 
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.CMS.paged_videos/3)
+      resolve(&R.CMS.paged_videos/3)
     end
 
     @desc "get repo by id"
     field :repo, non_null(:repo) do
       arg(:id, non_null(:id))
-      resolve(&Resolvers.CMS.repo/3)
+      resolve(&R.CMS.repo/3)
     end
 
     @desc "get paged videos"
@@ -95,13 +94,13 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:filter, non_null(:paged_article_filter))
 
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.CMS.paged_repos/3)
+      resolve(&R.CMS.paged_repos/3)
     end
 
     @desc "get job by id"
     field :job, non_null(:job) do
       arg(:id, non_null(:id))
-      resolve(&Resolvers.CMS.job/3)
+      resolve(&R.CMS.job/3)
     end
 
     @desc "get paged jobs"
@@ -109,7 +108,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:filter, non_null(:paged_article_filter))
 
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.CMS.paged_jobs/3)
+      resolve(&R.CMS.paged_jobs/3)
     end
 
     field :favorite_users, :paged_users do
@@ -119,7 +118,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:filter, :paged_article_filter)
 
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.CMS.reaction_users/3)
+      resolve(&R.CMS.reaction_users/3)
     end
 
     # get all tags
@@ -127,7 +126,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:filter, non_null(:paged_filter))
 
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.CMS.get_tags/3)
+      resolve(&R.CMS.get_tags/3)
     end
 
     # TODO: remove
@@ -136,7 +135,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
       middleware(M.PageSizeProof)
       # TODO: should be passport
-      resolve(&Resolvers.CMS.get_tags/3)
+      resolve(&R.CMS.get_tags/3)
     end
 
     # partial
@@ -146,7 +145,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:community, :string)
       arg(:thread, :cms_thread, default_value: :post)
 
-      resolve(&Resolvers.CMS.get_tags/3)
+      resolve(&R.CMS.get_tags/3)
     end
 
     @desc "get paged comments"
@@ -156,7 +155,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:filter, :comments_filter)
 
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.CMS.paged_comments/3)
+      resolve(&R.CMS.paged_comments/3)
     end
 
     # comments
@@ -166,7 +165,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:filter, :comments_filter)
 
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.CMS.paged_comments/3)
+      resolve(&R.CMS.paged_comments/3)
     end
   end
 end

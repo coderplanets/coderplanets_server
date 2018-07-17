@@ -1,9 +1,8 @@
 defmodule MastaniServerWeb.Schema.Account.Mutations do
-  use Absinthe.Schema.Notation
-  use Absinthe.Ecto, repo: MastaniServerWeb.Repo
-
-  alias MastaniServerWeb.Resolvers
-  alias MastaniServerWeb.Middleware, as: M
+  @moduledoc """
+  accounts mutations
+  """
+  use Helper.GqlSchemaSuite
 
   object :account_mutations do
     # @desc "hehehef: create a user"
@@ -13,15 +12,15 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
     # arg(:bio, non_null(:string))
     # arg(:company, non_null(:string))
 
-    # resolve(&Resolvers.Accounts.create_user/3)
+    # resolve(&R.Accounts.create_user/3)
     # end
 
     @desc "update user's profile"
     field :update_profile, :user do
       arg(:profile, non_null(:user_profile_input))
-      middleware(M.Authorize, :login)
 
-      resolve(&Resolvers.Accounts.update_profile/3)
+      middleware(M.Authorize, :login)
+      resolve(&R.Accounts.update_profile/3)
     end
 
     field :github_signin, :token_info do
@@ -29,7 +28,23 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
       # arg(:profile, non_null(:github_profile_input))
 
       middleware(M.GithubUser)
-      resolve(&Resolvers.Accounts.github_signin/3)
+      resolve(&R.Accounts.github_signin/3)
+    end
+
+    @doc "follow a user"
+    field :follow, :user do
+      arg(:user_id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      resolve(&R.Accounts.follow/3)
+    end
+
+    @doc "undo follow to a user"
+    field :undo_follow, :user do
+      arg(:user_id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      resolve(&R.Accounts.undo_follow/3)
     end
 
     @desc "mark a mention as read"
@@ -37,13 +52,13 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      resolve(&Resolvers.Accounts.mark_mention_read/3)
+      resolve(&R.Accounts.mark_mention_read/3)
     end
 
     @desc "mark a all unread mention as read"
     field :mark_mention_read_all, :status do
       middleware(M.Authorize, :login)
-      resolve(&Resolvers.Accounts.mark_mention_read_all/3)
+      resolve(&R.Accounts.mark_mention_read_all/3)
     end
 
     @desc "mark a notification as read"
@@ -51,13 +66,13 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      resolve(&Resolvers.Accounts.mark_notification_read/3)
+      resolve(&R.Accounts.mark_notification_read/3)
     end
 
     @desc "mark a all unread notifications as read"
     field :mark_notification_read_all, :status do
       middleware(M.Authorize, :login)
-      resolve(&Resolvers.Accounts.mark_notification_read_all/3)
+      resolve(&R.Accounts.mark_notification_read_all/3)
     end
 
     @desc "mark a system notification as read"
@@ -65,7 +80,7 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      resolve(&Resolvers.Accounts.mark_sys_notification_read/3)
+      resolve(&R.Accounts.mark_sys_notification_read/3)
     end
   end
 end

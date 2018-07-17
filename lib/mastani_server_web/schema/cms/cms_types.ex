@@ -1,14 +1,15 @@
 defmodule MastaniServerWeb.Schema.CMS.Types do
-  use Absinthe.Schema.Notation
-  use Absinthe.Ecto, repo: MastaniServer.Repo
+  @moduledoc """
+  cms types used in queries & mutations
+  """
+  use Helper.GqlSchemaSuite
 
   import MastaniServerWeb.Schema.Utils.Helper
   import Ecto.Query, warn: false
   import Absinthe.Resolution.Helpers, only: [dataloader: 2, on_load: 2]
 
-  alias MastaniServer.{CMS}
-  alias MastaniServerWeb.{Resolvers, Schema}
-  alias MastaniServerWeb.Middleware, as: M
+  alias MastaniServer.CMS
+  alias MastaniServerWeb.Schema
 
   import_types(Schema.CMS.Misc)
 
@@ -177,7 +178,6 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       middleware(M.PutCurrentUser)
       resolve(dataloader(CMS, :favorites))
       middleware(M.ViewerDidConvert)
-      # TODO: Middleware.Logger
     end
 
     field :viewer_has_starred, :boolean do
@@ -373,12 +373,12 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
     field :contributes, list_of(:contribute) do
       # TODO add complex here to warning N+1 problem
-      resolve(&Resolvers.Statistics.list_contributes/3)
+      resolve(&R.Statistics.list_contributes/3)
     end
 
     field :contributes_digest, list_of(:integer) do
       # TODO add complex here to warning N+1 problem
-      resolve(&Resolvers.Statistics.list_contributes_digest/3)
+      resolve(&R.Statistics.list_contributes_digest/3)
     end
   end
 

@@ -1,7 +1,14 @@
 defmodule MastaniServer.Accounts do
   @moduledoc false
 
-  alias MastaniServer.Accounts.Delegate.{Profile, ReactedContents, Mails, Billing, Customization}
+  alias MastaniServer.Accounts.Delegate.{
+    Billing,
+    Customization,
+    Fans,
+    Mails,
+    Profile,
+    ReactedContents
+  }
 
   # update user profile
   defdelegate update_profile(user, attrs), to: Profile
@@ -10,6 +17,11 @@ defmodule MastaniServer.Accounts do
   defdelegate default_subscribed_communities(filter), to: Profile
   # get user subscribed community
   defdelegate subscribed_communities(user, filter), to: Profile
+  # fans
+  defdelegate follow(user, follower), to: Fans
+  defdelegate undo_follow(user, follower), to: Fans
+  defdelegate fetch_followers(user, filter), to: Fans
+  defdelegate fetch_followings(user, filter), to: Fans
 
   # reacted contents
   defdelegate reacted_contents(thread, react, filter, user), to: ReactedContents

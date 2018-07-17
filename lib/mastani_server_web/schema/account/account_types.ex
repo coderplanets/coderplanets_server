@@ -1,13 +1,11 @@
 defmodule MastaniServerWeb.Schema.Account.Types do
-  use Absinthe.Schema.Notation
-  use Absinthe.Ecto, repo: MastaniServerWeb.Repo
+  use Helper.GqlSchemaSuite
 
   import MastaniServerWeb.Schema.Utils.Helper
   import Absinthe.Resolution.Helpers
 
   alias MastaniServer.Accounts
-  alias MastaniServerWeb.{Resolvers, Schema}
-  alias MastaniServerWeb.Middleware, as: M
+  alias MastaniServerWeb.Schema
 
   import_types(Schema.Account.Misc)
 
@@ -49,12 +47,12 @@ defmodule MastaniServerWeb.Schema.Account.Types do
 
     field(:cms_passport_string, :string) do
       middleware(M.Authorize, :login)
-      resolve(&Resolvers.Accounts.get_passport_string/3)
+      resolve(&R.Accounts.get_passport_string/3)
     end
 
     field(:cms_passport, :json) do
       middleware(M.Authorize, :login)
-      resolve(&Resolvers.Accounts.get_passport/3)
+      resolve(&R.Accounts.get_passport/3)
     end
 
     field :subscribed_communities, list_of(:community) do
@@ -71,18 +69,41 @@ defmodule MastaniServerWeb.Schema.Account.Types do
       middleware(M.ConvertToInt)
     end
 
+    field :followers_count, :integer do
+      arg(:count, :count_type, default_value: :count)
+
+      resolve(dataloader(Accounts, :followers))
+      middleware(M.ConvertToInt)
+    end
+
+    field :followings_count, :integer do
+      arg(:count, :count_type, default_value: :count)
+
+      resolve(dataloader(Accounts, :followings))
+      middleware(M.ConvertToInt)
+    end
+
+    field :viewer_has_followed, :boolean do
+      arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
+
+      middleware(M.Authorize, :login)
+      middleware(M.PutCurrentUser)
+      resolve(dataloader(Accounts, :followers))
+      middleware(M.ViewerDidConvert)
+    end
+
     field :favorited_posts, :paged_posts do
       arg(:filter, non_null(:paged_filter))
 
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.Accounts.favorited_posts/3)
+      resolve(&R.Accounts.favorited_posts/3)
     end
 
     field :favorited_jobs, :paged_jobs do
       arg(:filter, non_null(:paged_filter))
 
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.Accounts.favorited_jobs/3)
+      resolve(&R.Accounts.favorited_jobs/3)
     end
 
     field :favorited_posts_count, :integer do
@@ -100,7 +121,7 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     end
 
     field :contributes, :contribute_map do
-      resolve(&Resolvers.Statistics.list_contributes/3)
+      resolve(&R.Statistics.list_contributes/3)
     end
 
     # TODO, for msg-bell UI
@@ -112,7 +133,7 @@ defmodule MastaniServerWeb.Schema.Account.Types do
 
     field :mail_box, :mail_box_status do
       middleware(M.Authorize, :login)
-      resolve(&Resolvers.Accounts.get_mail_box_status/3)
+      resolve(&R.Accounts.get_mail_box_status/3)
     end
 
     field :mentions, :paged_mentions do
@@ -120,7 +141,7 @@ defmodule MastaniServerWeb.Schema.Account.Types do
 
       middleware(M.Authorize, :login)
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.Accounts.fetch_mentions/3)
+      resolve(&R.Accounts.fetch_mentions/3)
     end
 
     field :notifications, :paged_notifications do
@@ -128,7 +149,7 @@ defmodule MastaniServerWeb.Schema.Account.Types do
 
       middleware(M.Authorize, :login)
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.Accounts.fetch_notifications/3)
+      resolve(&R.Accounts.fetch_notifications/3)
     end
 
     field :sys_notifications, :paged_sys_notifications do
@@ -136,7 +157,7 @@ defmodule MastaniServerWeb.Schema.Account.Types do
 
       middleware(M.Authorize, :login)
       middleware(M.PageSizeProof)
-      resolve(&Resolvers.Accounts.fetch_sys_notifications/3)
+      resolve(&R.Accounts.fetch_sys_notifications/3)
     end
   end
 
