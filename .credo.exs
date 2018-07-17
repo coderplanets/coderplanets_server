@@ -2,6 +2,8 @@
   configs: [
     %{
       name: "default",
+      color: true,
+      struct: true,
       files: %{
         included: ["lib/", "test/"],
         excluded: []
