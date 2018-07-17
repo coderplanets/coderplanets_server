@@ -1,11 +1,12 @@
 defmodule MastaniServer.Statistics.UserContribute do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
   import Ecto.Changeset
-
   alias MastaniServer.Accounts
 
+  @type t :: %UserContribute{}
   schema "user_contributes" do
     field(:count, :integer)
     field(:date, :date)

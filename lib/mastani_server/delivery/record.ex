@@ -1,4 +1,5 @@
 defmodule MastaniServer.Delivery.Record do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
@@ -8,6 +9,7 @@ defmodule MastaniServer.Delivery.Record do
   @required_fields ~w(user_id)a
   @optional_fields ~w(mentions_record notifications_record sys_notifications_record)a
 
+  @type t :: %Record{}
   schema "delivery_records" do
     field(:mentions_record, :map)
     field(:notifications_record, :map)

@@ -1,4 +1,5 @@
 defmodule MastaniServer.CMS.Thread do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
@@ -7,6 +8,7 @@ defmodule MastaniServer.CMS.Thread do
   @optional_fields ~w(logo index)a
   @required_fields ~w(title raw)a
 
+  @type t :: %Thread{}
   schema "threads" do
     field(:title, :string)
     field(:raw, :string)

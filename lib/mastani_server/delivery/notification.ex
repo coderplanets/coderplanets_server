@@ -1,4 +1,5 @@
 defmodule MastaniServer.Delivery.Notification do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
@@ -6,9 +7,10 @@ defmodule MastaniServer.Delivery.Notification do
 
   alias MastaniServer.Accounts.User
 
-  @required_fields ~w(from_user_id to_user_id action source_title source_id source_type source_preview)a
+  @required_fields ~w(from_user_id to_user_id action source_title source_id source_preview source_type)a
   @optional_fields ~w(parent_id parent_type read)a
 
+  @type t :: %Notification{}
   schema "notifications" do
     belongs_to(:from_user, User)
     belongs_to(:to_user, User)

@@ -1,11 +1,14 @@
 defmodule MastaniServer.Accounts.UserBill do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.Accounts.{User, Bill}
+  alias MastaniServer.Accounts.{Bill, User}
 
   @required_fields ~w(user_id bill_id)a
+
+  @type t :: %UserBill{}
 
   schema "users_bills" do
     belongs_to(:user, User, foreign_key: :user_id)

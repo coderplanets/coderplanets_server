@@ -1,4 +1,5 @@
 defmodule MastaniServer.CMS.CommunityThread do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
@@ -6,14 +7,15 @@ defmodule MastaniServer.CMS.CommunityThread do
 
   alias MastaniServer.CMS.{Community, Thread}
 
+  @required_fields ~w(community_id thread_id)a
+
+  @type t :: %CommunityThread{}
   schema "communities_threads" do
     belongs_to(:community, Community, foreign_key: :community_id)
     belongs_to(:thread, Thread, foreign_key: :thread_id)
 
     timestamps(type: :utc_datetime)
   end
-
-  @required_fields ~w(community_id thread_id)a
 
   @doc false
   def changeset(%CommunityThread{} = community_thread, attrs) do

@@ -83,7 +83,6 @@ defmodule MastaniServerWeb.Schema do
   end
 
   def context(ctx) do
-    ctx
-    |> Map.put(:loader, dataloader())
+    ctx |> Map.put(:loader, dataloader())
   end
 end

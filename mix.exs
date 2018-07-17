@@ -8,6 +8,7 @@ defmodule MastaniServer.Mixfile do
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      dialyzer: [plt_add_deps: :transitive],
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps()
@@ -68,7 +69,8 @@ defmodule MastaniServer.Mixfile do
       {:inch_ex, "~> 0.5", only: [:dev, :test]},
       {:short_maps, "~> 0.1.1"},
       {:jason, "~> 1.0"},
-      {:credo, "~> 0.9.1", only: [:dev, :test], runtime: false}
+      {:credo, "~> 0.9.1", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.2", only: [:dev, :mock], runtime: false}
     ]
   end
 
@@ -86,7 +88,8 @@ defmodule MastaniServer.Mixfile do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"],
       "doc.report": ["inch.report"],
-      lint: ["credo"]
+      lint: ["credo"],
+      "lint:static": ["dialyzer --format dialyxir"]
     ]
   end
 end

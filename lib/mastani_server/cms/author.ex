@@ -1,10 +1,13 @@
 defmodule MastaniServer.CMS.Author do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.Post
   alias MastaniServer.Accounts
+  alias MastaniServer.CMS.Post
+
+  @type t :: %Author{}
 
   schema "cms_authors" do
     field(:role, :string)

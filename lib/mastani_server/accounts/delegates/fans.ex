@@ -4,14 +4,15 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
   """
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1]
-
   import Helper.ErrorCode
   import ShortMaps
 
   alias Helper.{ORM, QueryBuilder}
+  alias Helper.SpecType
   alias MastaniServer.Accounts.{User, UserFollower, UserFollowing}
 
   # TODO: use Multi
+  @spec follow(User.t(), User.t()) :: User.t() | SpecType.gq_error()
   def follow(%User{id: user_id}, %User{id: follower_id}) do
     with true <- to_string(user_id) !== to_string(follower_id),
          {:ok, _follow_user} <- ORM.find(User, follower_id),
@@ -30,6 +31,7 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
     end
   end
 
+  @spec undo_follow(User.t(), User.t()) :: User.t() | {:error, Keyword.t()}
   def undo_follow(%User{id: user_id}, %User{id: follower_id}) do
     with true <- to_string(user_id) !== to_string(follower_id),
          {:ok, _follow_user} <- ORM.find(User, follower_id),
@@ -49,6 +51,7 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
     end
   end
 
+  @spec fetch_followers(User.t(), map()) :: {:ok, map()} | {:error, String.t()}
   def fetch_followers(%User{id: user_id}, filter) do
     UserFollower
     |> where([uf], uf.follower_id == ^user_id)
@@ -56,6 +59,7 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
     |> load_fans(filter)
   end
 
+  @spec fetch_followings(User.t(), map()) :: {:ok, map()} | {:error, String.t()}
   def fetch_followings(%User{id: user_id}, filter) do
     UserFollowing
     |> where([uf], uf.user_id == ^user_id)
@@ -63,6 +67,7 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
     |> load_fans(filter)
   end
 
+  @spec load_fans(Ecto.Queryable.t(), map()) :: {:ok, map()} | {:error, String.t()}
   defp load_fans(queryable, ~m(page size)a = filter) do
     queryable
     |> select([uf, u], u)

@@ -1,13 +1,14 @@
 defmodule MastaniServer.CMS.PostCommentReply do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
   import Ecto.Changeset
-
   alias MastaniServer.CMS.PostComment
 
   @required_fields ~w(post_comment_id reply_id)a
 
+  @type t :: %PostCommentReply{}
   schema "posts_comments_replies" do
     belongs_to(:post_comment, PostComment, foreign_key: :post_comment_id)
     belongs_to(:reply, PostComment, foreign_key: :reply_id)

@@ -1,4 +1,5 @@
 defmodule MastaniServer.Delivery.Mention do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
@@ -9,6 +10,7 @@ defmodule MastaniServer.Delivery.Mention do
   @required_fields ~w(from_user_id to_user_id source_title source_id source_type source_preview)a
   @optional_fields ~w(parent_id parent_type read)a
 
+  @type t :: %Mention{}
   schema "mentions" do
     belongs_to(:from_user, User)
     belongs_to(:to_user, User)

@@ -1,13 +1,16 @@
 defmodule MastaniServer.CMS.CommunityEditor do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.Community
-  alias MastaniServer.Accounts
   alias Helper.Certification
+  alias MastaniServer.Accounts
+  alias MastaniServer.CMS.Community
 
   @required_fields ~w(user_id community_id title)a
+
+  @type t :: %CommunityEditor{}
 
   schema "communities_editors" do
     field(:title, :string)

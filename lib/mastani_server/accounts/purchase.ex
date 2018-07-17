@@ -1,4 +1,5 @@
 defmodule MastaniServer.Accounts.Purchase do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
@@ -7,6 +8,8 @@ defmodule MastaniServer.Accounts.Purchase do
 
   @required_fields ~w(user_id)a
   @optional_fields ~w(theme community_chart brainwash_free)a
+
+  @type t :: %Purchase{}
 
   schema "purchases" do
     belongs_to(:user, User)

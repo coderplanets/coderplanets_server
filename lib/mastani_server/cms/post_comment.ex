@@ -1,4 +1,5 @@
 defmodule MastaniServer.CMS.PostComment do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
@@ -7,14 +8,15 @@ defmodule MastaniServer.CMS.PostComment do
 
   alias MastaniServer.CMS.{
     Post,
-    PostCommentReply,
+    PostCommentDislike,
     PostCommentLike,
-    PostCommentDislike
+    PostCommentReply
   }
 
   @required_fields ~w(body author_id post_id floor)a
   @optional_fields ~w(reply_id)a
 
+  @type t :: %PostComment{}
   schema "posts_comments" do
     field(:body, :string)
     field(:floor, :integer)

@@ -1,11 +1,12 @@
 defmodule MastaniServer.Statistics.CommunityContribute do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
   import Ecto.Changeset
-
   alias MastaniServer.CMS
 
+  @type t :: %CommunityContribute{}
   schema "community_contributes" do
     field(:count, :integer)
     field(:date, :date)

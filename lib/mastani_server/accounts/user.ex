@@ -16,6 +16,8 @@ defmodule MastaniServer.Accounts.User do
 
   alias MastaniServer.CMS
 
+  @type t :: %User{}
+
   schema "users" do
     field(:nickname, :string)
     field(:avatar, :string)

@@ -1,14 +1,15 @@
 defmodule MastaniServer.CMS.Post do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Author, PostComment, PostFavorite, PostStar, Tag, Community}
-  # alias MastaniServer.Accounts
+  alias MastaniServer.CMS.{Author, Community, PostComment, PostFavorite, PostStar, Tag}
 
   @required_fields ~w(title body digest length)a
   @optional_fields ~w(link_addr pin trash)
 
+  @type t :: %Post{}
   schema "cms_posts" do
     field(:body, :string)
     field(:title, :string)

@@ -1,14 +1,15 @@
 defmodule MastaniServer.CMS.PostCommentDislike do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
   import Ecto.Changeset
-
   alias MastaniServer.Accounts
   alias MastaniServer.CMS.PostComment
 
   @required_fields ~w(post_comment_id user_id)a
 
+  @type t :: %PostCommentDislike{}
   schema "posts_comments_dislikes" do
     belongs_to(:user, Accounts.User, foreign_key: :user_id)
     belongs_to(:post_comment, PostComment, foreign_key: :post_comment_id)

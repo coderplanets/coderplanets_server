@@ -1,27 +1,30 @@
 defmodule MastaniServer.CMS.Utils.Loader do
+  @moduledoc """
+  dataloader for cms context
+  """
   import Ecto.Query, warn: false
 
-  alias MastaniServer.Repo
   alias Helper.QueryBuilder
+  alias MastaniServer.Repo
   # alias MastaniServer.Accounts
   alias MastaniServer.CMS.{
     Author,
+    CommunityEditor,
+    CommunitySubscriber,
+    CommunityThread,
+    JobCommentReply,
     Post,
     PostComment,
-    PostFavorite,
-    PostStar,
-    CommunitySubscriber,
-    CommunityEditor,
-    CommunityThread,
-    PostCommentReply,
-    PostCommentLike,
     PostCommentDislike,
+    PostCommentLike,
+    PostCommentReply,
+    PostFavorite,
+    PostStar
     # job comment
     # JobComment,
-    JobCommentReply
   }
 
-  def data(), do: Dataloader.Ecto.new(Repo, query: &query/2, run_batch: &run_batch/5)
+  def data, do: Dataloader.Ecto.new(Repo, query: &query/2, run_batch: &run_batch/5)
 
   # Big thanks: https://elixirforum.com/t/grouping-error-in-absinthe-dadaloader/13671/2
   # see also: https://github.com/absinthe-graphql/dataloader/issues/25

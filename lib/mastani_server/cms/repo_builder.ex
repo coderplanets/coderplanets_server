@@ -1,11 +1,14 @@
 defmodule MastaniServer.CMS.RepoBuilder do
+  @moduledoc false
+  alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{RepoBuilder}
 
   @required_fields ~w(nickname avatar link)a
   @optional_fields ~w(bio)
 
+  @type t :: %RepoBuilder{}
   schema "cms_repo_users" do
     field(:nickname, :string)
     field(:avatar, :string)

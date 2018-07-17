@@ -74,10 +74,10 @@ defmodule Helper.QueryBuilder do
     |> where([q], q.inserted_at <= ^end_of_today)
   end
 
-  defp sort_strategy(:most_views), do: [desc: :views, desc: :inserted_at]
-  defp sort_strategy(:least_views), do: [asc: :views, desc: :inserted_at]
   # this is strategy will cause
   defp sort_strategy(:desc_inserted), do: [desc: :inserted_at, desc: :views]
+  # defp sort_strategy(:most_views), do: [desc: :views, desc: :inserted_at]
+  # defp sort_strategy(:least_views), do: [asc: :views, desc: :inserted_at]
   # defp strategy(:most_stars), do: [desc: :views, desc: :inserted_at]
 
   defp sort_by_count(queryable, field, direction) do
@@ -88,7 +88,7 @@ defmodule Helper.QueryBuilder do
     |> order_by([_, s], {^direction, fragment("count(?)", s.id)})
   end
 
-  def default_article_filters(), do: %{pin: false, trash: false}
+  def default_article_filters, do: %{pin: false, trash: false}
 
   def filter_pack(queryable, filter) when is_map(filter) do
     Enum.reduce(filter, queryable, fn
@@ -106,10 +106,13 @@ defmodule Helper.QueryBuilder do
         queryable |> order_by(asc: :index)
 
       {:sort, :most_views}, queryable ->
-        queryable |> order_by(^sort_strategy(:most_views))
+        # this will cause error in Dialyzer
+        # queryable |> order_by(^sort_strategy(:most_views))
+        queryable |> order_by(desc: :views, desc: :inserted_at)
 
       {:sort, :least_views}, queryable ->
-        queryable |> order_by(^sort_strategy(:least_views))
+        # queryable |> order_by(^sort_strategy(:least_views))
+        queryable |> order_by(asc: :views, desc: :inserted_at)
 
       {:sort, :most_stars}, queryable ->
         queryable |> sort_by_count(:stars, :desc)

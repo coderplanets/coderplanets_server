@@ -1,15 +1,15 @@
 defmodule MastaniServer.CMS.Job do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
   import Ecto.Changeset
-  # alias MastaniServer.CMS.{Job, Author, Community, JobComment, Tag}
-  alias MastaniServer.CMS.{Author, Community, Tag, JobFavorite}
-  # alias MastaniServer.Accounts
+  alias MastaniServer.CMS.{Author, Community, JobFavorite, Tag}
 
   @required_fields ~w(title company company_logo location body digest length)a
   @optional_fields ~w(link_addr link_source min_education)a
 
+  @type t :: %Job{}
   schema "cms_jobs" do
     field(:title, :string)
     field(:company, :string)

@@ -1,10 +1,12 @@
 defmodule MastaniServer.CMS.CommunityCategory do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
   import Ecto.Changeset
+  alias MastaniServer.CMS.{Category, Community}
 
-  alias MastaniServer.CMS.{Community, Category}
+  @type t :: %CommunityCategory{}
 
   schema "communities_categories" do
     belongs_to(:community, Community, foreign_key: :community_id)

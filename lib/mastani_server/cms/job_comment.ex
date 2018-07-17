@@ -1,4 +1,5 @@
 defmodule MastaniServer.CMS.JobComment do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
@@ -10,6 +11,7 @@ defmodule MastaniServer.CMS.JobComment do
   @required_fields ~w(body author_id job_id floor)a
   @optional_fields ~w(reply_id)a
 
+  @type t :: %JobComment{}
   schema "jobs_comments" do
     field(:body, :string)
     field(:floor, :integer)

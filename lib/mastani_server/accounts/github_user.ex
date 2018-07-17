@@ -1,9 +1,12 @@
 defmodule MastaniServer.Accounts.GithubUser do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
   import Ecto.Changeset
   alias MastaniServer.Accounts.User
+
+  @type t :: %GithubUser{}
 
   schema "github_users" do
     field(:github_id, :string)

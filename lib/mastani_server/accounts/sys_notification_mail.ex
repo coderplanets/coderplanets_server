@@ -1,4 +1,5 @@
 defmodule MastaniServer.Accounts.SysNotificationMail do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
@@ -7,6 +8,8 @@ defmodule MastaniServer.Accounts.SysNotificationMail do
 
   @required_fields ~w(user_id source_id source_type)a
   @optional_fields ~w(source_preview read)a
+
+  @type t :: %SysNotificationMail{}
 
   schema "sys_notification_mails" do
     belongs_to(:user, User)

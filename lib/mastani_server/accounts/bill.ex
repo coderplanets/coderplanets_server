@@ -8,6 +8,8 @@ defmodule MastaniServer.Accounts.Bill do
   @required_fields ~w(from_user_id to_user_id source_type source_title price)a
   @optional_fields ~w(source_id)a
 
+  @type t :: %Bill{}
+
   schema "bills" do
     belongs_to(:from_user, User)
     belongs_to(:to_user, User)

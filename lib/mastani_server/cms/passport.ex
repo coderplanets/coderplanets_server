@@ -1,11 +1,12 @@
 defmodule MastaniServer.CMS.Passport do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
   import Ecto.Changeset
-
   alias MastaniServer.Accounts
 
+  @type t :: %Passport{}
   schema "cms_passports" do
     field(:rules, :map)
     belongs_to(:user, Accounts.User)

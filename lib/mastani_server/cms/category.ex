@@ -1,4 +1,5 @@
 defmodule MastaniServer.CMS.Category do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
@@ -8,6 +9,8 @@ defmodule MastaniServer.CMS.Category do
   # alias Helper.Certification
 
   @required_fields ~w(title raw author_id)a
+
+  @type t :: %Category{}
 
   schema "categories" do
     field(:title, :string)

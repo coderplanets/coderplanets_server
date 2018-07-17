@@ -1,4 +1,5 @@
 defmodule MastaniServer.Delivery.SysNotification do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
@@ -7,6 +8,7 @@ defmodule MastaniServer.Delivery.SysNotification do
   @required_fields ~w(source_title source_id source_type)a
   @optional_fields ~w(source_preview)a
 
+  @type t :: %SysNotification{}
   schema "sys_notifications" do
     field(:source_id, :string)
     field(:source_title, :string)

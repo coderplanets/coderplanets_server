@@ -1,12 +1,14 @@
 defmodule MastaniServer.CMS.Tag do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Author, Post, Video, Job, Community}
+  alias MastaniServer.CMS.{Author, Community, Job, Post, Video}
 
   @required_fields ~w(thread title color author_id community_id)a
 
+  @type t :: %Tag{}
   schema "tags" do
     field(:title, :string)
     field(:color, :string)

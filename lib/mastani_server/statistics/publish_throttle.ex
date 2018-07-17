@@ -1,16 +1,15 @@
 defmodule MastaniServer.Statistics.PublishThrottle do
   @moduledoc false
-
   alias __MODULE__
+
   use Ecto.Schema
   import Ecto.Changeset
-
   alias MastaniServer.Accounts
 
   @optional_fields ~w(user_id publish_hour publish_date hour_count date_count last_publish_time)a
-  # @required_fields ~w(title desc user_id)a
   @required_fields ~w(user_id)a
 
+  @type t :: %PublishThrottle{}
   schema "publish_throttles" do
     field(:publish_hour, :utc_datetime)
     field(:publish_date, :date)
