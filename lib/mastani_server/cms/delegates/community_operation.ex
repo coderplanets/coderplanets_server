@@ -2,7 +2,6 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
   @moduledoc """
   community operations, like: set/unset category/thread/editor...
   """
-  import Helper.ErrorCode
   import ShortMaps
 
   alias Ecto.Multi

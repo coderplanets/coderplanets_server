@@ -22,7 +22,7 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
       false ->
         {:error, [message: "can't follow yourself", code: ecode(:self_conflict)]}
 
-      {:error, %Ecto.Changeset{} = changeset} ->
+      {:error, %Ecto.Changeset{} = _changeset} ->
         {:error, [message: "already followed", code: ecode(:already_did)]}
 
       {:error, error} ->
@@ -41,7 +41,7 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
       false ->
         {:error, [message: "can't undo follow yourself", code: ecode(:self_conflict)]}
 
-      {:error, %Ecto.Changeset{} = changeset} ->
+      {:error, %Ecto.Changeset{} = _changeset} ->
         {:error, [message: "already unfollowed", code: ecode(:already_did)]}
 
       {:error, error} ->
