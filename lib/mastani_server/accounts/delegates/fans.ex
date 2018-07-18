@@ -7,14 +7,16 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
   import Helper.ErrorCode
   import ShortMaps
 
+  alias Helper.{ORM, QueryBuilder, SpecType}
   alias MastaniServer.{Accounts, Repo}
 
-  alias Helper.{ORM, QueryBuilder}
-  alias Helper.SpecType
   alias MastaniServer.Accounts.{User, UserFollower, UserFollowing}
 
   alias Ecto.Multi
 
+  @doc """
+  follow a user
+  """
   @spec follow(User.t(), User.t()) :: {:ok, User.t()} | SpecType.gq_error()
   def follow(%User{id: user_id}, %User{id: follower_id}) do
     with true <- to_string(user_id) !== to_string(follower_id),
@@ -28,7 +30,7 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
         :create_following,
         UserFollowing.changeset(%UserFollowing{}, %{user_id: user_id, following_id: follower_id})
       )
-      |> Multi.run(:add_achieve, fn _ ->
+      |> Multi.run(:add_achievement, fn _ ->
         Accounts.achieve(%User{id: follower_id}, :add, :follow)
       end)
       |> Repo.transaction()
@@ -55,10 +57,13 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
     {:error, [message: "follow fails", code: ecode(:react_fails)]}
   end
 
-  defp follow_result({:error, :add_achieve, _result, _steps}) do
+  defp follow_result({:error, :add_achievement, _result, _steps}) do
     {:error, [message: "follow acieve fails", code: ecode(:react_fails)]}
   end
 
+  @doc """
+  undo a follow action to a user
+  """
   @spec undo_follow(User.t(), User.t()) :: {:ok, User.t()} | SpecType.gq_error()
   def undo_follow(%User{id: user_id}, %User{id: follower_id}) do
     with true <- to_string(user_id) !== to_string(follower_id),
@@ -70,7 +75,7 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
       |> Multi.run(:delete_following, fn _ ->
         ORM.findby_delete(UserFollowing, %{user_id: user_id, following_id: follower_id})
       end)
-      |> Multi.run(:minus_achieve, fn _ ->
+      |> Multi.run(:minus_achievement, fn _ ->
         Accounts.achieve(%User{id: follower_id}, :minus, :follow)
       end)
       |> Repo.transaction()
@@ -96,10 +101,13 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
     {:error, [message: "unfollow fails", code: ecode(:react_fails)]}
   end
 
-  defp undo_follow_result({:error, :minus_achieve, _result, _steps}) do
+  defp undo_follow_result({:error, :minus_achievement, _result, _steps}) do
     {:error, [message: "follow acieve fails", code: ecode(:react_fails)]}
   end
 
+  @doc """
+  get paged followers of a user
+  """
   @spec fetch_followers(User.t(), map()) :: {:ok, map()} | {:error, String.t()}
   def fetch_followers(%User{id: user_id}, filter) do
     UserFollower
@@ -108,6 +116,9 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
     |> load_fans(filter)
   end
 
+  @doc """
+  get paged followings of a user
+  """
   @spec fetch_followings(User.t(), map()) :: {:ok, map()} | {:error, String.t()}
   def fetch_followings(%User{id: user_id}, filter) do
     UserFollowing

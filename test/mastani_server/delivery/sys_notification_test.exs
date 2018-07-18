@@ -4,9 +4,9 @@ defmodule MastaniServer.Delivery.SysNotificationTest do
   import Ecto.Query, warn: false
   import Helper.Utils
 
+  alias Helper.ORM
   alias MastaniServer.Accounts
   alias MastaniServer.Delivery
-  alias Helper.ORM
 
   describe "[delivery sys notification]" do
     alias Accounts.SysNotificationMail

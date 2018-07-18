@@ -1,4 +1,7 @@
 defmodule Helper.Utils do
+  @moduledoc """
+  unitil functions
+  """
   import Ecto.Query, warn: false
   import Helper.ErrorHandler
   import Helper.ErrorCode
@@ -13,6 +16,7 @@ defmodule Helper.Utils do
   def done(nil, :boolean), do: {:ok, false}
   def done(_, :boolean), do: {:ok, true}
   def done(nil, err_msg), do: {:error, err_msg}
+  def done({:ok, _}, with: result), do: {:ok, result}
 
   def done({:ok, %{id: id}}, :status), do: {:ok, %{done: true, id: id}}
   def done({:error, _}, :status), do: {:ok, %{done: false}}
@@ -21,6 +25,8 @@ defmodule Helper.Utils do
   def done(result, _, _), do: {:ok, result}
 
   def done(nil), do: {:error, "record not found."}
+
+  # def done({:error, error}), do: {:error, error}
   def done(result), do: {:ok, result}
 
   @doc """
