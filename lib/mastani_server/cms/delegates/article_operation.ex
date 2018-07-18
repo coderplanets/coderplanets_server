@@ -1,12 +1,15 @@
 defmodule MastaniServer.CMS.Delegate.ArticleOperation do
+  @moduledoc """
+  set / unset operations for Article-like resource
+  """
   import MastaniServer.CMS.Utils.Matcher
   import Ecto.Query, warn: false
   import Helper.ErrorCode
 
-  alias MastaniServer.Accounts.User
-  alias MastaniServer.CMS.{Tag, Community}
-  alias MastaniServer.Repo
   alias Helper.ORM
+  alias MastaniServer.Accounts.User
+  alias MastaniServer.CMS.{Community, Tag}
+  alias MastaniServer.Repo
 
   @doc """
   pin / unpin, trash / untrash articles

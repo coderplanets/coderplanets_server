@@ -1,8 +1,11 @@
 defmodule MastaniServer.CMS.Delegate.ArticleReaction do
+  @moduledoc """
+  post / job / video ... favorite / star ..
+  """
   import MastaniServer.CMS.Utils.Matcher
   import Ecto.Query, warn: false
 
-  alias MastaniServer.{Repo, Accounts}
+  alias MastaniServer.{Accounts, Repo}
   # alias Helper.QueryBuilder
   alias Helper.ORM
 

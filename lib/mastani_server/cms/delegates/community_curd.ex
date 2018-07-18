@@ -1,24 +1,25 @@
 defmodule MastaniServer.CMS.Delegate.CommunityCURD do
-  # TODO docs:  include community / editors / curd
+  @moduledoc """
+  community curd
+  """
   import Ecto.Query, warn: false
   import MastaniServer.CMS.Utils.Matcher
   import Helper.Utils, only: [done: 1, map_atom_value: 2]
   import MastaniServer.CMS.Delegate.ArticleCURD, only: [ensure_author_exists: 1]
   import ShortMaps
 
-  alias MastaniServer.{Repo, Accounts}
+  alias Helper.ORM
+  alias Helper.QueryBuilder
+  alias MastaniServer.{Accounts, Repo}
 
   alias MastaniServer.CMS.{
-    Community,
     Category,
+    Community,
     CommunityEditor,
     CommunitySubscriber,
-    Thread,
-    Tag
+    Tag,
+    Thread
   }
-
-  alias Helper.QueryBuilder
-  alias Helper.ORM
 
   @doc """
   return paged community subscribers

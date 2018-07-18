@@ -1,11 +1,14 @@
 defmodule MastaniServer.CMS.Delegate.PassportCURD do
+  @moduledoc """
+  passport curd
+  """
   import Helper.Utils, only: [done: 1, deep_merge: 2]
   import Ecto.Query, warn: false
   import ShortMaps
 
+  alias Helper.{NestedFilter, ORM}
   alias MastaniServer.CMS.Passport, as: UserPasport
-  alias MastaniServer.{Repo, Accounts}
-  alias Helper.{ORM, NestedFilter}
+  alias MastaniServer.{Accounts, Repo}
 
   # https://medium.com/front-end-hacking/use-github-oauth-as-your-sso-seamlessly-with-react-3e2e3b358fa1
   # http://www.ubazu.com/using-postgres-jsonb-columns-in-ecto
