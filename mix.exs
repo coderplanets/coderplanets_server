@@ -21,7 +21,15 @@ defmodule MastaniServer.Mixfile do
   def application do
     [
       mod: {MastaniServer.Application, []},
-      extra_applications: [:corsica, :logger, :runtime_tools, :faker, :scrivener_ecto, :timex]
+      extra_applications: [
+        :corsica,
+        :ex_unit,
+        :logger,
+        :runtime_tools,
+        :faker,
+        :scrivener_ecto,
+        :timex
+      ]
     ]
   end
 
