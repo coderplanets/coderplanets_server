@@ -96,8 +96,8 @@ defmodule MastaniServer.Mixfile do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"],
       "doc.report": ["inch.report"],
-      lint: ["credo"],
-      "lint:static": ["dialyzer --format dialyxir"]
+      lint: ["credo --strict"],
+      "lint.static": ["dialyzer --format dialyxir"]
     ]
   end
 end
