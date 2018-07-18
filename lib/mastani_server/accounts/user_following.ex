@@ -9,7 +9,6 @@ defmodule MastaniServer.Accounts.UserFollowing do
   @required_fields ~w(user_id following_id)a
 
   @type t :: %UserFollowing{}
-
   schema "users_followings" do
     belongs_to(:user, User, foreign_key: :user_id)
     belongs_to(:following, User, foreign_key: :following_id)

@@ -10,7 +10,6 @@ defmodule MastaniServer.Accounts.MentionMail do
   @optional_fields ~w(parent_id parent_type read)a
 
   @type t :: %MentionMail{}
-
   schema "mention_mails" do
     belongs_to(:from_user, User)
     belongs_to(:to_user, User)

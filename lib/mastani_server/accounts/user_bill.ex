@@ -9,7 +9,6 @@ defmodule MastaniServer.Accounts.UserBill do
   @required_fields ~w(user_id bill_id)a
 
   @type t :: %UserBill{}
-
   schema "users_bills" do
     belongs_to(:user, User, foreign_key: :user_id)
     belongs_to(:bill, Bill, foreign_key: :bill_id)

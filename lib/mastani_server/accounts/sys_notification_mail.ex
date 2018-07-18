@@ -10,7 +10,6 @@ defmodule MastaniServer.Accounts.SysNotificationMail do
   @optional_fields ~w(source_preview read)a
 
   @type t :: %SysNotificationMail{}
-
   schema "sys_notification_mails" do
     belongs_to(:user, User)
 

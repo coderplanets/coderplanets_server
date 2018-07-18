@@ -6,6 +6,7 @@ defmodule MastaniServer.Accounts.User do
   import Ecto.Changeset
 
   alias MastaniServer.Accounts.{
+    Achievement,
     Customization,
     GithubUser,
     Purchase,
@@ -17,7 +18,6 @@ defmodule MastaniServer.Accounts.User do
   alias MastaniServer.CMS
 
   @type t :: %User{}
-
   schema "users" do
     field(:nickname, :string)
     field(:avatar, :string)
@@ -31,6 +31,7 @@ defmodule MastaniServer.Accounts.User do
     field(:weibo, :string)
     field(:weichat, :string)
     field(:from_github, :boolean)
+    has_one(:achievement, Achievement)
     has_one(:github_profile, GithubUser)
     has_one(:cms_passport, CMS.Passport)
 

@@ -11,7 +11,6 @@ defmodule MastaniServer.Accounts.Customization do
   @optional_fields ~w(theme sidebar_layout community_chart brainwash_free)a
 
   @type t :: %Customization{}
-
   schema "customizations" do
     belongs_to(:user, User)
 

@@ -7,7 +7,6 @@ defmodule MastaniServer.Accounts.GithubUser do
   alias MastaniServer.Accounts.User
 
   @type t :: %GithubUser{}
-
   schema "github_users" do
     field(:github_id, :string)
     field(:login, :string)

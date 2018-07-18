@@ -10,7 +10,6 @@ defmodule MastaniServer.Accounts.NotificationMail do
   @optional_fields ~w(parent_id parent_type read)a
 
   @type t :: %NotificationMail{}
-
   schema "notification_mails" do
     belongs_to(:from_user, User)
     belongs_to(:to_user, User)

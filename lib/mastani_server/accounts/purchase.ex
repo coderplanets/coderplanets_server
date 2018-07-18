@@ -10,7 +10,6 @@ defmodule MastaniServer.Accounts.Purchase do
   @optional_fields ~w(theme community_chart brainwash_free)a
 
   @type t :: %Purchase{}
-
   schema "purchases" do
     belongs_to(:user, User)
 

@@ -1,4 +1,5 @@
 defmodule MastaniServer.Accounts.Bill do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
@@ -9,7 +10,6 @@ defmodule MastaniServer.Accounts.Bill do
   @optional_fields ~w(source_id)a
 
   @type t :: %Bill{}
-
   schema "bills" do
     belongs_to(:from_user, User)
     belongs_to(:to_user, User)
