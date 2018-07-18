@@ -4,8 +4,8 @@ defmodule MastaniServer.Test.Query.Account.AchieveMentTest do
   alias MastaniServer.Accounts
 
   @follow_weight get_config(:general, :user_achieve_follow_weight)
-  @favorite_weight get_config(:general, :user_achieve_favorite_weight)
-  @star_weight get_config(:general, :user_achieve_star_weight)
+  # @favorite_weight get_config(:general, :user_achieve_favorite_weight)
+  # @star_weight get_config(:general, :user_achieve_star_weight)
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -27,7 +27,6 @@ defmodule MastaniServer.Test.Query.Account.AchieveMentTest do
       }
     }
     """
-    @tag :wip
     test "new you has no acheiveements", ~m(guest_conn user)a do
       variables = %{id: user.id}
       results = guest_conn |> query_result(@query, variables, "user")
@@ -35,7 +34,6 @@ defmodule MastaniServer.Test.Query.Account.AchieveMentTest do
       assert is_nil(results["achievement"])
     end
 
-    @tag :wip
     test "can query other user's achievement after user has one", ~m(guest_conn user)a do
       {:ok, user2} = db_insert(:user)
       user2 |> Accounts.follow(user)
