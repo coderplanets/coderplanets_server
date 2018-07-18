@@ -12,7 +12,7 @@ defmodule Helper.Utils do
     # |> IO.inspect(label: "debug ci")
     |> case do
       nil -> ""
-      _ -> Keyword.get(key)
+      config -> Keyword.get(config, key)
     end
   end
 
