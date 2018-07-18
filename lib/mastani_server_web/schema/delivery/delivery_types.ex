@@ -1,6 +1,6 @@
 defmodule MastaniServerWeb.Schema.Delivery.Types do
   use Absinthe.Schema.Notation
-  use Absinthe.Ecto, repo: MastaniServerWeb.Repo
+  use Absinthe.Ecto, repo: MastaniServer.Repo
 
   import MastaniServerWeb.Schema.Utils.Helper
   import Helper.Utils, only: [get_config: 2]
