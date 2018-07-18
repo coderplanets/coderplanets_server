@@ -9,24 +9,6 @@ defmodule MastaniServerWeb.Schema.Account.Types do
 
   import_types(Schema.Account.Misc)
 
-  object :github_profile do
-    field(:id, :id)
-    field(:github_id, :string)
-    field(:user, :user, resolve: dataloader(Accounts, :user))
-    field(:login, :string)
-    field(:avatar_url, :string)
-    field(:url, :string)
-    field(:html_url, :string)
-    field(:name, :string)
-    field(:company, :string)
-    field(:blog, :string)
-    field(:location, :string)
-    field(:email, :string)
-    field(:bio, :string)
-    field(:public_repos, :integer)
-    field(:public_gists, :integer)
-  end
-
   object :user do
     field(:id, :id)
     field(:nickname, :string)
@@ -44,6 +26,7 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:updated_at, :datetime)
     field(:from_github, :boolean)
     field(:github_profile, :github_profile, resolve: dataloader(Accounts, :github_profile))
+    field(:achievement, :achievement, resolve: dataloader(Accounts, :achievement))
 
     field(:cms_passport_string, :string) do
       middleware(M.Authorize, :login)
@@ -159,6 +142,32 @@ defmodule MastaniServerWeb.Schema.Account.Types do
       middleware(M.PageSizeProof)
       resolve(&R.Accounts.fetch_sys_notifications/3)
     end
+  end
+
+  object :github_profile do
+    field(:id, :id)
+    field(:github_id, :string)
+    # field(:user, :user, resolve: dataloader(Accounts, :user))
+    field(:login, :string)
+    field(:avatar_url, :string)
+    field(:url, :string)
+    field(:html_url, :string)
+    field(:name, :string)
+    field(:company, :string)
+    field(:blog, :string)
+    field(:location, :string)
+    field(:email, :string)
+    field(:bio, :string)
+    field(:public_repos, :integer)
+    field(:public_gists, :integer)
+  end
+
+  object :achievement do
+    field(:reputation, :integer)
+    field(:followers_count, :integer)
+    field(:contents_stared_count, :integer)
+    field(:contents_favorited_count, :integer)
+    field(:contents_watched_count, :integer)
   end
 
   object :token_info do

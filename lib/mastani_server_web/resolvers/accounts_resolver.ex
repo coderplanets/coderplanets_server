@@ -7,7 +7,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   alias Helper.{Certification, ORM}
   alias MastaniServer.{Accounts, CMS}
 
-  alias Accounts.{MentionMail, NotificationMail, SysNotificationMail, User}
+  alias Accounts.{Achievement, MentionMail, NotificationMail, SysNotificationMail, User}
 
   def user(_root, %{id: id}, _info), do: User |> ORM.find(id)
   def users(_root, ~m(filter)a, _info), do: User |> ORM.find_all(filter)

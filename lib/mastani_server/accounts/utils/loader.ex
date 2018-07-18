@@ -7,7 +7,7 @@ defmodule MastaniServer.Accounts.Utils.Loader do
   alias Helper.QueryBuilder
   alias MastaniServer.{Accounts, CMS, Repo}
 
-  alias Accounts.{UserFollower, UserFollowing}
+  alias Accounts.{Achievement, UserFollower, UserFollowing}
 
   def data, do: Dataloader.Ecto.new(Repo, query: &query/2)
 
