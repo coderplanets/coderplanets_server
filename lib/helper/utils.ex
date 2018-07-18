@@ -10,10 +10,10 @@ defmodule Helper.Utils do
     app
     |> Application.get_env(section)
     # |> IO.inspect(label: "debug ci")
-    |> case  do
-         nil -> ""
-         _ -> Keyword.get(key)
-       end
+    |> case do
+      nil -> ""
+      _ -> Keyword.get(key)
+    end
   end
 
   @doc """
