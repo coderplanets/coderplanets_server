@@ -8,6 +8,8 @@ defmodule MastaniServer.Accounts.GithubUser do
 
   @type t :: %GithubUser{}
   schema "github_users" do
+    belongs_to(:user, User)
+
     field(:github_id, :string)
     field(:login, :string)
     field(:avatar_url, :string)
@@ -25,8 +27,6 @@ defmodule MastaniServer.Accounts.GithubUser do
     field(:following, :integer)
     field(:access_token, :string)
     field(:node_id, :string)
-
-    belongs_to(:user, User)
 
     timestamps(type: :utc_datetime)
   end
