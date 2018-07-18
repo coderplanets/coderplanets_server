@@ -1,12 +1,14 @@
 defmodule MastaniServer.Accounts.Delegate.Profile do
+  @moduledoc """
+  accounts profile
+  """
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1, get_config: 2]
   import ShortMaps
 
-  alias MastaniServer.Repo
-  alias MastaniServer.Accounts.{User, GithubUser}
-  alias Helper.{ORM, Guardian, QueryBuilder}
-  alias MastaniServer.CMS
+  alias Helper.{Guardian, ORM, QueryBuilder}
+  alias MastaniServer.Accounts.{GithubUser, User}
+  alias MastaniServer.{CMS, Repo}
 
   alias Ecto.Multi
 

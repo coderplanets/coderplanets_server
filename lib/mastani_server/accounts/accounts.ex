@@ -18,7 +18,6 @@ defmodule MastaniServer.Accounts do
   defdelegate subscribed_communities(user, filter), to: Profile
 
   # achievement
-  defdelegate fetch_achievements(filter), to: Achievements
   defdelegate achieve(user, operation, key), to: Achievements
 
   # fans

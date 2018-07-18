@@ -12,4 +12,6 @@ defmodule Helper.SpecType do
   general response conventions
   """
   @type done :: {:ok, map} | {:error, map}
+
+  @type id :: non_neg_integer() | String.t()
 end

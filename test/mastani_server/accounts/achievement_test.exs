@@ -58,7 +58,6 @@ defmodule MastaniServer.Test.Accounts.AchievementTest do
   end
 
   describe "[follow achievement]" do
-    @tag :wip
     test "user get achievement inc after other user follows", ~m(user)a do
       total_count = 20
       {:ok, users} = db_insert_multi(:user, 20)
@@ -73,7 +72,6 @@ defmodule MastaniServer.Test.Accounts.AchievementTest do
       assert user.achievement.reputation == @follow_weight * total_count
     end
 
-    @tag :wip
     test "user get achievement down after other user undo follows", ~m(user)a do
       total_count = 20
       {:ok, users} = db_insert_multi(:user, 20)

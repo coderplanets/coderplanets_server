@@ -15,8 +15,8 @@ defmodule MastaniServer.Test.Accounts.FansTest do
 
     test "user can follow other user", ~m(user)a do
       {:ok, user2} = db_insert(:user)
-      {:ok, _followeer} = user |> Accounts.follow(user2)
 
+      {:ok, _followeer} = user |> Accounts.follow(user2)
       {:ok, found} = User |> ORM.find(user.id, preload: :followers)
 
       assert found |> Map.get(:followers) |> Enum.any?(&(&1.user_id == user.id))

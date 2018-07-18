@@ -32,7 +32,7 @@ defmodule MastaniServer.Test.Mutation.Accounts.FansTest do
       assert followed["id"] == to_string(user2.id)
     end
 
-    test "login user can follow other user twice fails", ~m(user_conn)a do
+    test "login user follow other user twice fails", ~m(user_conn)a do
       {:ok, user2} = db_insert(:user)
 
       variables = %{userId: user2.id}
@@ -42,7 +42,7 @@ defmodule MastaniServer.Test.Mutation.Accounts.FansTest do
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:already_did))
     end
 
-    test "login user can follow self fails", ~m(user_conn user)a do
+    test "login user follow self fails", ~m(user_conn user)a do
       variables = %{userId: user.id}
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:self_conflict))
     end

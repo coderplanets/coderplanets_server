@@ -7,7 +7,7 @@ defmodule Helper.ORM do
   import Helper.ErrorHandler
   import ShortMaps
 
-  alias Helper.QueryBuilder
+  alias Helper.{QueryBuilder, SpecType}
   alias MastaniServer.Repo
 
   @doc """
@@ -34,6 +34,7 @@ defmodule Helper.ORM do
   @doc """
   simular to Repo.get/3, with standard result/error handle
   """
+  @spec find(Ecto.Queryable.t(), SpecType.id()) :: {:ok, any()} | {:error, String.t()}
   def find(queryable, id) do
     queryable
     |> Repo.get(id)
