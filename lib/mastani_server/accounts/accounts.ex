@@ -2,6 +2,7 @@ defmodule MastaniServer.Accounts do
   @moduledoc false
 
   alias MastaniServer.Accounts.Delegate.{
+    Achievements,
     Billing,
     Customization,
     Fans,
@@ -10,13 +11,16 @@ defmodule MastaniServer.Accounts do
     ReactedContents
   }
 
-  # update user profile
+  # profile
   defdelegate update_profile(user, attrs), to: Profile
   defdelegate github_signin(github_user), to: Profile
-  # default communities for unlog user
   defdelegate default_subscribed_communities(filter), to: Profile
-  # get user subscribed community
   defdelegate subscribed_communities(user, filter), to: Profile
+
+  # achievement
+  defdelegate fetch_achievements(filter), to: Achievements
+  defdelegate achieve(user, operation, key), to: Achievements
+
   # fans
   defdelegate follow(user, follower), to: Fans
   defdelegate undo_follow(user, follower), to: Fans

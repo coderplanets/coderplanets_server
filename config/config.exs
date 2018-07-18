@@ -43,7 +43,12 @@ config :mastani_server, :general,
   default_subscribed_communities: 20,
   publish_throttle_interval_minutes: 3,
   publish_throttle_hour_limit: 20,
-  publish_throttle_day_limit: 30
+  publish_throttle_day_limit: 30,
+  # user achievements
+  user_achieve_star_weight: 1,
+  user_achieve_watch_weight: 1,
+  user_achieve_favorite_weight: 2,
+  user_achieve_follow_weight: 3
 
 config :mastani_server, MastaniServerWeb.Gettext, default_locale: "zh_CN", locales: ~w(en zh_CN)
 

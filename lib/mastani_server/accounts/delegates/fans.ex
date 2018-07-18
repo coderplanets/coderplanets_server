@@ -7,6 +7,8 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
   import Helper.ErrorCode
   import ShortMaps
 
+  alias MastaniServer.Accounts
+
   alias Helper.{ORM, QueryBuilder}
   alias Helper.SpecType
   alias MastaniServer.Accounts.{User, UserFollower, UserFollowing}
@@ -17,7 +19,8 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
     with true <- to_string(user_id) !== to_string(follower_id),
          {:ok, _follow_user} <- ORM.find(User, follower_id),
          {:ok, _} <- ORM.create(UserFollower, ~m(user_id follower_id)a),
-         {:ok, _} <- ORM.create(UserFollowing, %{user_id: user_id, following_id: follower_id}) do
+         {:ok, _} <- ORM.create(UserFollowing, %{user_id: user_id, following_id: follower_id}),
+         {:ok, _} <- Accounts.achieve(%User{id: follower_id}, :add, :follow) do
       User |> ORM.find(follower_id)
     else
       false ->
@@ -37,7 +40,8 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
          {:ok, _follow_user} <- ORM.find(User, follower_id),
          {:ok, _} <- ORM.findby_delete(UserFollower, ~m(user_id follower_id)a),
          {:ok, _} <-
-           ORM.findby_delete(UserFollowing, %{user_id: user_id, following_id: follower_id}) do
+           ORM.findby_delete(UserFollowing, %{user_id: user_id, following_id: follower_id}),
+         {:ok, _} <- Accounts.achieve(%User{id: follower_id}, :minus, :follow) do
       User |> ORM.find(follower_id)
     else
       false ->

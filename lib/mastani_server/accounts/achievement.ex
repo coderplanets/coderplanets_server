@@ -13,11 +13,11 @@ defmodule MastaniServer.Accounts.Achievement do
   schema "user_achievements" do
     belongs_to(:user, User)
 
-    field(:contents_stared_count, :integer)
-    field(:contents_favorited_count, :integer)
-    field(:contents_watched_count, :integer)
-    field(:followers_count, :integer)
-    field(:reputation, :integer)
+    field(:contents_stared_count, :integer, default: 0)
+    field(:contents_favorited_count, :integer, default: 0)
+    field(:contents_watched_count, :integer, default: 0)
+    field(:followers_count, :integer, default: 0)
+    field(:reputation, :integer, default: 0)
 
     timestamps(type: :utc_datetime)
   end

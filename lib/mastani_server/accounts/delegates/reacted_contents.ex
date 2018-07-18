@@ -1,11 +1,14 @@
 defmodule MastaniServer.Accounts.Delegate.ReactedContents do
+  @moduledoc """
+  get contents(posts, jobs, videos ...) that user reacted (star, favorite ..)
+  """
   import MastaniServer.CMS.Utils.Matcher
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1]
   import ShortMaps
 
-  alias MastaniServer.Accounts.User
   alias Helper.{ORM, QueryBuilder}
+  alias MastaniServer.Accounts.User
 
   def reacted_contents(thread, react, ~m(page size)a = filter, %User{id: user_id}) do
     with {:ok, action} <- match_action(thread, react) do

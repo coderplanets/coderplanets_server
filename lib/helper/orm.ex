@@ -7,8 +7,8 @@ defmodule Helper.ORM do
   import Helper.ErrorHandler
   import ShortMaps
 
-  alias MastaniServer.Repo
   alias Helper.QueryBuilder
+  alias MastaniServer.Repo
 
   @doc """
   a wrap for paginate request
@@ -112,6 +112,16 @@ defmodule Helper.ORM do
     end
   end
 
+  def findby_or_insert(queryable, clauses, attrs) do
+    case queryable |> find_by(clauses) do
+      {:ok, content} ->
+        {:ok, content}
+
+      {:error, _} ->
+        queryable |> create(attrs)
+    end
+  end
+
   @doc """
   NOTE: this should be use together with passport_loader etc Middleware
   DO NOT use it directly
@@ -158,6 +168,17 @@ defmodule Helper.ORM do
         queryable |> create(attrs)
     end
   end
+
+  @doc """
+  see https://elixirforum.com/t/ecto-inc-dec-update-one-helpers/5564
+  """
+  # def update_one(queryable, where, changes) do
+  # query |> Ecto.Query.where(^where) |> Repo.update_all(set: changes)
+  # end
+
+  # def inc(queryable, where, changes) do
+  #   query |> Ecto.Query.where(^where) |> Repo.update_all(inc: changes)
+  # end
 
   def create(modal, attrs) do
     modal
