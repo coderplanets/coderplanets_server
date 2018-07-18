@@ -75,7 +75,7 @@ defmodule Helper.QueryBuilder do
   end
 
   # this is strategy will cause
-  defp sort_strategy(:desc_inserted), do: [desc: :inserted_at, desc: :views]
+  # defp sort_strategy(:desc_inserted), do: [desc: :inserted_at, desc: :views]
   # defp sort_strategy(:most_views), do: [desc: :views, desc: :inserted_at]
   # defp sort_strategy(:least_views), do: [asc: :views, desc: :inserted_at]
   # defp strategy(:most_stars), do: [desc: :views, desc: :inserted_at]
