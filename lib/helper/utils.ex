@@ -7,7 +7,13 @@ defmodule Helper.Utils do
   import Helper.ErrorCode
 
   def get_config(section, key, app \\ :mastani_server) do
-    app |> Application.get_env(section) |> IO.inspect(label: "debug ci") |> Keyword.get(key)
+    app
+    |> Application.get_env(section)
+    # |> IO.inspect(label: "debug ci")
+    |> case  do
+         nil -> ""
+         _ -> Keyword.get(key)
+       end
   end
 
   @doc """
