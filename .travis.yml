@@ -11,4 +11,4 @@ before_script:
 after_script:
   - MIX_ENV=test mix inch.report
 script:
-  - "MIX_ENT=test mix test && mix coveralls.travis"
+  - mix test &&  mix coveralls.travis
