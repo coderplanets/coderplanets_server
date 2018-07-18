@@ -18,3 +18,4 @@ docker/engine-config.json
 _tuts/
 .agignore
 docs/draft.ex
+cover/
