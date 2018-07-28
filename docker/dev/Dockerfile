@@ -6,9 +6,9 @@ RUN mkdir /root/mastani_api_monitor
 # change timezone to +8
 
 # 备份原始文件
-cp /etc/apk/repositories /etc/apk/repositories.bak
+RUN cp /etc/apk/repositories /etc/apk/repositories.bak
 # 修改为国内镜像源
-echo "http://mirrors.aliyun.com/alpine/v3.8/main/" > /etc/apk/repositories
+RUN echo "http://mirrors.aliyun.com/alpine/v3.8/main/" > /etc/apk/repositories
 RUN apk add tzdata
 # RUN /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' >/etc/timezone
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo "Asia/Shanghai" > /etc/timezone
