@@ -4,7 +4,10 @@ RUN mkdir /root/api_server
 RUN mkdir /root/mastani_api_monitor
 
 # change timezone to +8
-RUN /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' >/etc/timezone
+
+RUN apk update && apk add tzdata
+# RUN /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' >/etc/timezone
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo "Asia/Shanghai" > /etc/timezone
 
 ADD api_server.tar.gz /root/api_server
 RUN mix hex.config mirror_url https://hexpm.upyun.com
