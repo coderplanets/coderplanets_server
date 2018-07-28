@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ENV="dev"
+ENV="production"
 
 PRJ_DIR="./"
 BRANCH_NAME="dev"
