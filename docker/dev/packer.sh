@@ -28,7 +28,7 @@ mkdir -p "${PACKER_TMP_DIR}/priv"
 
 echo "[Step 3/${TOTAL_STEPS}] creating ${ARCHIVE_NAME} ..."
 
-cp mix.exs mix.lock "${PACKER_TMP_DIR}/"
+cp mix.exs "${PACKER_TMP_DIR}/"
 cp config/dev.exs "${PACKER_TMP_DIR}/config"
 cp config/config.exs "${PACKER_TMP_DIR}/config"
 cp -rf lib/* "${PACKER_TMP_DIR}/lib"
