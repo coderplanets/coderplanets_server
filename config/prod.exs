@@ -63,3 +63,22 @@ config :logger, level: :info
 # Finally import the config/prod.secret.exs
 # which should be versioned separately.
 # import_config "prod.secret.exs"
+
+config :mastani_server, MastaniServerWeb.Endpoint,
+  secret_key_base: System.get_env("SECRET_KEY_BASE")
+
+# You can generate a new secret by running:
+# mix phx.gen.secret
+# should use RDS 内网地址
+config :mastani_server, MastaniServer.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  username: System.get_env("DB_USERNAME"),
+  password: System.get_env("DB_PASSWORD"),
+  database: System.get_env("DB_NAME" || "cps_server_prod"),
+  hostname: System.get_env("DB_HOST"),
+  port: String.to_integer(System.get_env("DB_PORT") || "3433"),
+  pool_size: String.to_integer(System.get_env("DB_POOL_SIZE") || "20")
+
+config :mastani_server, :github_oauth,
+  client_id: System.get_env("OAUTH_GITHUB_CLIENT_ID"),
+  client_secret: System.get_env("OAUTH_GITHUB_CLIENT_SECRET")

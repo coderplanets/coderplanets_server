@@ -1,13 +1,8 @@
 #!/bin/bash
 
-cd /root/mastani_server/
-MIX_ENV=prod PORT=5101 mix phx.server &
+cd /root/api_server/
 
-cd /root/mastani_web/
-http-server -p 5000 -s &
-
-cd /root/mastani_api_monitor/
-node index &
+MIX_ENV=prod mix phx.server &
 
 while true
 do
