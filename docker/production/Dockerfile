@@ -15,7 +15,7 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo "Asia/Shangh
 
 ADD api_server.tar.gz /root/api_server
 RUN mix hex.config mirror_url https://hexpm.upyun.com
-RUN cd /root/api_server && mix deps.get && MIX_ENV=dev mix compile
+RUN cd /root/api_server && mix deps.get --only prod && MIX_ENV=prod mix compile
 
 # ADD monitor/index.js /root/mastani_api_monitor
 # ADD monitor/package.json /root/mastani_api_monitor
