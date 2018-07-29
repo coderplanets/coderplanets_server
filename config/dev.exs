@@ -36,8 +36,21 @@ config :logger, :console, format: "[$level] $message\n"
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
 
-# import_config "dev.secret.exs"
+# You can generate a new secret by running:
+# mix phx.gen.secret
+config :mastani_server, MastaniServerWeb.Endpoint,
+  secret_key_base: System.get_env("SECRET_KEY_BASE")
 
-# config :mastani_server, :github_oauth,
-# client_id: "3b4281c5e54ffd801f85",
-# client_secret: "51f04dd8239b27f00a39a647ef3704de4c5ddc26"
+# should use RDS 内网地址
+config :mastani_server, MastaniServer.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  username: System.get_env("DB_USERNAME"),
+  password: System.get_env("DB_PASSWORD"),
+  database: System.get_env("DB_NAME" || "cps_server_dev"),
+  hostname: System.get_env("DB_HOST"),
+  port: String.to_integer(System.get_env("DB_PORT") || "3433"),
+  pool_size: String.to_integer(System.get_env("DB_POOL_SIZE") || "20")
+
+config :mastani_server, :github_oauth,
+  client_id: System.get_env("OAUTH_GITHUB_CLIENT_ID"),
+  client_secret: System.get_env("OAUTH_GITHUB_CLIENT_SECRET")
