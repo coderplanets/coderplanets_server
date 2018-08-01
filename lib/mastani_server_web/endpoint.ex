@@ -25,12 +25,12 @@ defmodule MastaniServerWeb.Endpoint do
     origins: "*",
     allow_headers: :all,
     # allow_headers: [
-      # "authorization",
-      # "content-type",
-      # "special",
-      # "accept",
-      # "origin",
-      # "x-requested-with"
+    # "authorization",
+    # "content-type",
+    # "special",
+    # "accept",
+    # "origin",
+    # "x-requested-with"
     # ],
     allow_credentials: true
   )
