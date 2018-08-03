@@ -12,7 +12,7 @@ before_script:
   - npm install -g apollo
 after_script:
   - MIX_ENV=test mix inch.report
-  - apollo schema:publish
+  - apollo schema:publish --endpoint="http://devapiraw.coderplanets.com/graphiql"
 script:
   - MIX_ENV=test mix compile --warnings-as-errors
   - mix test &&  MIX_ENV=test mix coveralls.travis
