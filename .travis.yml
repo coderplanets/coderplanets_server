@@ -1,23 +1,26 @@
 language: elixir
 elixir:
-  - 1.6
+- 1.6
 otp_release:
-  - 19.3
-  - 20.1
+- 19.3
+- 20.1
 addons:
-  postgresql: "9.4"
+  postgresql: '9.4'
 before_script:
-  - MIX_ENV=test mix deps.get
-  - nvm install 8.10 && nvm use 8.10
-  - npm install -g apollo
+- MIX_ENV=test mix deps.get
+- nvm install 8.10 && nvm use 8.10
+- npm install -g apollo
 after_script:
-  - MIX_ENV=test mix inch.report
-  - apollo schema:publish --endpoint="http://devapiraw.coderplanets.com/graphiql"
+- MIX_ENV=test mix inch.report
+- apollo schema:publish --endpoint="http://devapiraw.coderplanets.com/graphiql"
 script:
-  - MIX_ENV=test mix compile --warnings-as-errors
-  - mix test &&  MIX_ENV=test mix coveralls.travis
+- MIX_ENV=test mix compile --warnings-as-errors
+- mix test &&  MIX_ENV=test mix coveralls.travis
 cache:
   directories:
-    - $HOME/.cargo
-    - deps
-    - _build
+  - "$HOME/.cargo"
+  - deps
+  - _build
+env:
+  matrix:
+    secure: RCgxOPPV2YzZCWFW4f0hrtGnPtzuXvkINXi30SrzBwI5T8bQB12d3hj22fMN8rkgRno6nuf6PLvQthbXjHQpNsGl4AtJgmDcuB088VPKjgmd4rWn6H+TUbJh8knnSj/cx3faGRp70O11NZaFSzMmAGbZWHDgyzbMUpMkfV3vT7g3bNFICBODyl+FSMLJ7WCmo/L8yUTyuc2QpuIvC5ckXY9+ql4r/HLILHizIU/g2nRKBv1TJUPQZkyq7OiIrptL2fhAzImcORmrTlh0lL9IAMBCQ0rnYbeR7T/AdJsrCBWdrxelC6DhEPm0v2WUZNQAFnaQIcZTRYeg9PyJGJQLyYMJRwWGR5ZAKjFRyKYs9VJvJWqYD5dDk09r/VA1ya0ALixXAhOem1BsoiSV3500P30kvKo0W4Qoou7qMebSencIQGRXJfNhBEz7YpMYeSPBM/NjLFcjDTirDV4jOaY+0kDj80VV9K0M2NWuWRL4F7LDx7VIiuukLzfyCnUW5NfqbNHzdzv2V2b7aweto6y9NvcyM0LjMPbfyy67bw1zwjpKGD2Ll0gTX1aPnMgljKYsRjidlULNTFJVhZ22eCGlRNj3WgIV9pNfzj1/5+Cle9zgtemxqrrk1+LLyHdigEVpT/PpPS6b2keHR1/IweO6oENnsvJJPVaKyJ0oUN0Qpvk=
