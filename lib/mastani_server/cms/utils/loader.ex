@@ -62,20 +62,6 @@ defmodule MastaniServer.CMS.Utils.Loader do
     for id <- post_ids, do: Map.get(results, id, [0])
   end
 
-  def bat_man(data) do
-    # TODO refactor later
-    data
-    |> Enum.group_by(fn {x, _} -> x end)
-    |> Enum.map(fn {x, y} ->
-      {x,
-       Enum.reduce(y, [], fn kv, acc ->
-         {_, v} = kv
-         acc ++ [v]
-       end)}
-    end)
-    |> Map.new()
-  end
-
   def run_batch(PostComment, comment_query, :cp_users, post_ids, repo_opts) do
     # IO.inspect(comment_query, label: "# run_batch # comment_query")
 
@@ -152,6 +138,19 @@ defmodule MastaniServer.CMS.Utils.Loader do
 
   # TODO: use meta-programing to extract all query below
   # --------------------
+  def bat_man(data) do
+    # TODO refactor later
+    data
+    |> Enum.group_by(fn {x, _} -> x end)
+    |> Enum.map(fn {x, y} ->
+      {x,
+       Enum.reduce(y, [], fn kv, acc ->
+         {_, v} = kv
+         acc ++ [v]
+       end)}
+    end)
+    |> Map.new()
+  end
 
   def query(Author, _args) do
     # you cannot use preload with select together

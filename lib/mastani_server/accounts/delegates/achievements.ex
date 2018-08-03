@@ -15,7 +15,7 @@ defmodule MastaniServer.Accounts.Delegate.Achievements do
 
   @favorite_weight get_config(:general, :user_achieve_favorite_weight)
   @star_weight get_config(:general, :user_achieve_star_weight)
-  @watch_weight get_config(:general, :user_achieve_watch_weight)
+  # @watch_weight get_config(:general, :user_achieve_watch_weight)
   @follow_weight get_config(:general, :user_achieve_follow_weight)
 
   @doc """
@@ -112,7 +112,7 @@ defmodule MastaniServer.Accounts.Delegate.Achievements do
   # end
 
   @spec safe_minus(non_neg_integer(), non_neg_integer()) :: non_neg_integer()
-  defp safe_minus(count, unit \\ 1) when is_integer(count) and is_integer(unit) and unit > 0 do
+  defp safe_minus(count, unit) when is_integer(count) and is_integer(unit) and unit > 0 do
     case count <= 0 do
       true ->
         0
