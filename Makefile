@@ -1,66 +1,91 @@
+include Makefile.mk
 
-BELONG = "coderplanets"
-REPO = "coderplanets_server"
+help:
+	$(call publish.help)
+	$(call console.help)
+	$(call dashboard.help)
+	$(call ci.help)
+	$(call github.help)
 
-CI_BUILD_LINK = "https://travis-ci.org/$(BELONG)/$(REPO)"
-CI_COVER_LINK = "https://coveralls.io/github/$(BELONG)/$(REPO)"
-CI_DOC_LINK = "https://inch-ci.org/github/$(BELONG)/$(REPO)"
+init:
+	mix ecto.setup
 
-GITHUB_CODE_LINK = "https://github.com/$(BELONG)/$(REPO)"
-GITHUB_DOC_LINK = "https://github.com/$(BELONG)/$(REPO)/tree/dev/docs"
-GITHUB_PR_LINK = "https://github.com/$(BELONG)/$(REPO)/pulls"
-GITHUB_ISSUE_LINK = "https://github.com/$(BELONG)/$(REPO)/issues"
+dep:
+	mix deps.get
 
-ci:
-	@echo "\n"
-	@echo "  [valid ci commands]"
-	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo "  ci.build : browse travis status"
-	@echo "           | $(CI_BUILD_LINK)"
-	@echo "  ........................................"
-	@echo "  ci.cover : browse test coveralls status"
-	@echo "           | $(CI_COVER_LINK)"
-	@echo "  ........................................"
-	@echo "  ci.doc   : browse doc coverage status"
-	@echo "           | $(CI_DOC_LINK)"
-	@echo "\n"
+build:
+	mix compile
 
-github:
-	@echo "\n"
-	@echo "  [valid github commands]"
-	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo "  github.code      : browse source code in github"
-	@echo "                   | $(GITHUB_CODE_LINK)"
-	@echo "  ........................................"
-	@echo "  github.doc       : browse repo docs in github"
-	@echo "                   | $(GITHUB_DOC_LINK)"
-	@echo "  ........................................"
-	@echo "  github.pr        : browse PRs in github"
-	@echo "                   | $(GITHUB_PR_LINK)"
-	@echo "  ........................................"
-	@echo "  github.issue     : browse issues in github"
-	@echo "                   | $(GITHUB_ISSUE_LINK)"
-	@echo "  ........................................"
-	@echo "  github.issue.new : create issue in github"
-	@echo "                   | $(GITHUB_ISSUE_LINK)/new"
-	@echo "\n"
+publish:
+	$(call publish.help)
+publish.help:
+	$(call publish.help)
+publish.dev:
+	./publish/dev/packer.sh
+publish.prod:
+	./publish/production/packer.sh
+
+# test
+test:
+	mix test
+test.watch:
+	mix test.watch
+test.report:
+	MIX_ENV=mix test.coverage
+	$(call browse,"./cover/excoveralls.html")
+test.report.text:
+	MIX_ENV=mix test.coverage.short
+
+# lint code
+lint:
+	mix lint # credo --strict
+lint.static:
+	mix lint.static # use dialyzer
+
+# open iex with history support
+console.help:
+	$(call console.help)
+console:
+	iex --erl "-kernel shell_history enabled" -S mix
+console.dev:
+	MIX_ENV=dev iex --erl "-kernel shell_history enabled" -S mix
+console.mock:
+	MIX_ENV=mock iex --erl "-kernel shell_history enabled" -S mix
+
+# todo: monitor.apollo monitor.alicloud
+dashboard:
+	$(call dashboard.help)
+dashboard.help:
+	$(call dashboard.help)
+dashboard.apollo:
+	$(call browse,"$(DASHBOARD_APOLLO_LINK)")
+dashboard.aliyun:
+	$(call browse,"$(DASHBOARD_ALIYUN_LINK)")
 
 # ci helpers
+ci:
+	$(call ci.help)
+ci.help:
+	$(call ci.help)
 ci.build:
-	open "$(CI_BUILD_LINK)"
+	$(call browse,"$(CI_BUILD_LINK)")
 ci.cover:
-	open "$(CI_COVER_LINK)"
+	$(call browse,"$(CI_COVER_LINK)")
 ci.doc:
-	open "$(CI_DOC_LINK)"
+	$(call browse,"$(CI_DOC_LINK)")
 
 # github helpers
+github:
+	$(call github.help)
+github.help:
+	$(call github.help)
 github.code:
-	open "$(GITHUB_CODE_LINK)"
+	$(call browse,"$(GITHUB_CODE_LINK)")
 github.doc:
-	open "$(GITHUB_DOC_LINK)"
+	$(call browse,"$(GITHUB_DOC_LINK)")
 github.pr:
-	open "$(GITHUB_PR_LINK)"
+	$(call browse,"$(GITHUB_PR_LINK)")
 github.issue:
-	open "$(GITHUB_ISSUE_LINK)"
+	$(call browse,"$(GITHUB_ISSUE_LINK)")
 github.issue.new:
-	open "$(GITHUB_ISSUE_LINK)/new"
+	$(call browse,"$(GITHUB_ISSUE_LINK)/new")

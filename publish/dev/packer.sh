@@ -6,7 +6,7 @@ PRJ_DIR="./"
 PACKER_TMP_DIR="./packer_tmp"
 BRANCH_NAME="dev"
 ARCHIVE_NAME="./docker/${ENV}/api_server.tar.gz"
-TOTAL_STEPS=5
+TOTAL_STEPS=4
 
 cd "${PRJ_DIR}"
 
@@ -26,7 +26,7 @@ mkdir -p "${PACKER_TMP_DIR}/config"
 mkdir -p "${PACKER_TMP_DIR}/lib"
 mkdir -p "${PACKER_TMP_DIR}/priv"
 
-echo "[Step 3/${TOTAL_STEPS}] creating ${ARCHIVE_NAME} ..."
+echo "[Step 2/${TOTAL_STEPS}] creating ${ARCHIVE_NAME} ..."
 
 cp mix.exs "${PACKER_TMP_DIR}/"
 cp config/dev.exs "${PACKER_TMP_DIR}/config"
@@ -40,6 +40,6 @@ cd ..
 mv "${PACKER_TMP_DIR}/api_server.tar.gz" "${ARCHIVE_NAME}"
 rm -rf packer_tmp
 
-echo "[Step 4/${TOTAL_STEPS}] ${ARCHIVE_NAME} created!"
+echo "[Step 3/${TOTAL_STEPS}] ${ARCHIVE_NAME} created!"
 echo "------------------------------------------------"
 echo "[Step 4/${TOTAL_STEPS}] run git push to push the code to ali-cloud to finish!"
