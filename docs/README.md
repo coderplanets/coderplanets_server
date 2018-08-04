@@ -1,1 +1,7 @@
 # TODO
+
+# Architechture
+  ...
+  
+# Development
+  ...
