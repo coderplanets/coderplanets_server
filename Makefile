@@ -69,8 +69,10 @@ ci.help:
 	$(call ci.help)
 ci.build:
 	$(call browse,"$(CI_BUILD_LINK)")
-ci.cover:
-	$(call browse,"$(CI_COVER_LINK)")
+ci.coverage:
+	$(call browse,"$(CI_COVERAGE_LINK)")
+ci.codecov:
+	$(call browse,"$(CI_CODECOV_LINK)")
 ci.doc:
 	$(call browse,"$(CI_DOC_LINK)")
 
@@ -89,3 +91,5 @@ github.issue:
 	$(call browse,"$(GITHUB_ISSUE_LINK)")
 github.issue.new:
 	$(call browse,"$(GITHUB_ISSUE_LINK)/new")
+github.app:
+	$(call browse,"$(GITHUB_APP_LINK)")

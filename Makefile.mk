@@ -9,13 +9,15 @@ DASHBOARD_APOLLO_LINK = "https://engine.apollographql.com/account/gh.mydearxym/s
 DASHBOARD_ALIYUN_LINK = "https://home.console.aliyun.com/new"
 
 CI_BUILD_LINK = "https://travis-ci.org/$(BELONG)/$(REPO)"
-CI_COVER_LINK = "https://coveralls.io/github/$(BELONG)/$(REPO)"
+CI_COVERAGE_LINK = "https://coveralls.io/github/$(BELONG)/$(REPO)"
+CI_CODECOV_LINK = "https://codecov.io/gh/$(BELONG)/$(REPO)"
 CI_DOC_LINK = "https://inch-ci.org/github/$(BELONG)/$(REPO)"
 
 GITHUB_CODE_LINK = "https://github.com/$(BELONG)/$(REPO)"
 GITHUB_DOC_LINK = "https://github.com/$(BELONG)/$(REPO)/tree/dev/docs"
 GITHUB_PR_LINK = "https://github.com/$(BELONG)/$(REPO)/pulls"
 GITHUB_ISSUE_LINK = "https://github.com/$(BELONG)/$(REPO)/issues"
+GITHUB_APP_LINK = "https://github.com/settings/applications/689577"
 
 ifeq ($(OS),Darwin)  # Mac OS X
 		BROWSER_TOOL = open
@@ -70,16 +72,19 @@ endef
 define ci.help
 	@echo "\n"
 	@echo "  [valid ci commands]"
-	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo "  ci.build : browse travis status"
-	@echo "           | $(CI_BUILD_LINK)"
-	@echo "  ......................................................................."
-	@echo "  ci.cover : browse test coveralls status"
-	@echo "           | $(CI_COVER_LINK)"
-	@echo "  ......................................................................."
-	@echo "  ci.doc   : browse doc coverage status"
-	@echo "           | $(CI_DOC_LINK)"
-	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo "  ci.build    : browse travis status"
+	@echo "              | $(CI_BUILD_LINK)"
+	@echo "  .........................................................................."
+	@echo "  ci.coverage : browse test coveralls status"
+	@echo "              | $(CI_COVERAGE_LINK)"
+	@echo "  .........................................................................."
+	@echo "  ci.codecov  : browse test codecov status"
+	@echo "              | $(CI_CODECOV_LINK)"
+	@echo "  .........................................................................."
+	@echo "  ci.doc      : browse doc coverage status"
+	@echo "              | $(CI_DOC_LINK)"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 endef
 
 define github.help
@@ -100,5 +105,8 @@ define github.help
 	@echo "  ...................................................................................."
 	@echo "  github.issue.new : create issue in github"
 	@echo "                   | $(GITHUB_ISSUE_LINK)/new"
+	@echo "  ...................................................................................."
+	@echo "  github.app       : github oauth status (need login)"
+	@echo "                   | $(GITHUB_APP_LINK)"
 	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 endef
