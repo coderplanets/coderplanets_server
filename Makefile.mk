@@ -1,6 +1,6 @@
 OS := ${shell uname}
 
-.PHONY: test publish
+.PHONY: test deploy
 
 BELONG = "coderplanets"
 REPO = "coderplanets_server"
@@ -33,14 +33,14 @@ define browse
 	$(BROWSER_TOOL) "$(1)"
 endef
 
-define publish.help
+define deploy.help
 	@echo "\n"
-	@echo "  [valid publish commands]"
+	@echo "  [valid deploy commands]"
 	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo "  publish.dev  : pack & push code to aliyun for dev"
+	@echo "  deploy.dev  : pack & push code to aliyun for dev"
 	@echo "               | need manually restart docker container on aliyun"
 	@echo "  ..............................................................."
-	@echo "  publish.prod : pack & push  code to for produnction"
+	@echo "  deploy.prod : pack & push  code to for produnction"
 	@echo "               | need manually restart docker container on aliyun"
 	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 endef
@@ -57,6 +57,18 @@ define commit.help
 	@echo "         | require: npm -v > 5.2 to use npx"
 	@echo "             | link: https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b"
 	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+endef
+
+define release.help
+	@echo "\n"
+	@echo "  [valid release commands]"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo "  release : release version by automatic CHANGELOG generation"
+	@echo "          | link: https://github.com/conventional-changelog/standard-version"
+	@echo "          | more:"
+	@echo "             | npm run release -- --prerelease"
+	@echo "             | npm run release -- --prerelease alpha"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 endef
 
 define console.help

@@ -1,11 +1,14 @@
 include Makefile.mk
 
 help:
-	$(call publish.help)
+	$(call commit.help)
+	$(call release.help)
+	$(call deploy.help)
 	$(call console.help)
 	$(call dashboard.help)
 	$(call ci.help)
 	$(call github.help)
+	@echo "\n"
 
 init:
 	mix ecto.setup
@@ -17,24 +20,32 @@ dep:
 build:
 	mix compile
 
+format:
+	mix format
+
 commit.help:
 	$(call commit.help)
 	@echo "\n"
 commit:
 	@npx git-cz
+
+# release
+release.help:
+	$(call release.help)
+	@echo "\n"
 release:
 	npm run release
 
-publish:
-	$(call publish.help)
+deploy:
+	$(call deploy.help)
 	@echo "\n"
-publish.help:
-	$(call publish.help)
+deploy.help:
+	$(call deploy.help)
 	@echo "\n"
-publish.dev:
-	./publish/dev/packer.sh
-publish.prod:
-	./publish/production/packer.sh
+deploy.dev:
+	./deploy/dev/packer.sh
+deploy.prod:
+	./deploy/production/packer.sh
 
 # test
 test:
