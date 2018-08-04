@@ -81,7 +81,7 @@ console.dev:
 console.mock:
 	MIX_ENV=mock iex --erl "-kernel shell_history enabled" -S mix
 
-# todo: monitor.apollo monitor.alicloud
+# dashboard
 dashboard:
 	$(call dashboard.help)
 	@echo "\n"
