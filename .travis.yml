@@ -10,9 +10,11 @@ before_script:
 - MIX_ENV=test mix deps.get
 - nvm install 8.10 && nvm use 8.10
 - npm install -g apollo
+- npm install --save-dev @commitlint/travis-cli
 script:
 - MIX_ENV=test mix compile --warnings-as-errors, coveralls.json
 - mix test &&  MIX_ENV=test mix coveralls.travis
+- commitlint-travis
 after_script:
 - MIX_ENV=test mix inch.report
 - apollo schema:publish --endpoint="http://devapiraw.coderplanets.com/graphiql"
