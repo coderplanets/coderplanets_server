@@ -45,6 +45,20 @@ define publish.help
 	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 endef
 
+define commit.help
+	@echo "\n"
+	@echo "  [valid commit commands]"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo "  commit : commit changes follow convention"
+	@echo "         | convention: AngularJS's commit message convention"
+	@echo "             | link: https://github.com/commitizen/cz-cli"
+	@echo "             | link: https://github.com/angular/angular.js/blob/master/DEVELOPERS.md#-git-commit-guidelines"
+	@echo "         | require: npm install"
+	@echo "         | require: npm -v > 5.2 to use npx"
+	@echo "             | link: https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+endef
+
 define console.help
 	@echo "\n"
 	@echo "  [valid console commands]"

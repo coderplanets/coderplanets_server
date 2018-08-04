@@ -12,14 +12,23 @@ init:
 
 dep:
 	mix deps.get
+	npm install # for commitizen
 
 build:
 	mix compile
 
+commit.help:
+	$(call commit.help)
+	@echo "\n"
+commit:
+	@npx git-cz
+
 publish:
 	$(call publish.help)
+	@echo "\n"
 publish.help:
 	$(call publish.help)
+	@echo "\n"
 publish.dev:
 	./publish/dev/packer.sh
 publish.prod:
@@ -45,6 +54,7 @@ lint.static:
 # open iex with history support
 console.help:
 	$(call console.help)
+	@echo "\n"
 console:
 	iex --erl "-kernel shell_history enabled" -S mix
 console.dev:
@@ -55,8 +65,10 @@ console.mock:
 # todo: monitor.apollo monitor.alicloud
 dashboard:
 	$(call dashboard.help)
+	@echo "\n"
 dashboard.help:
 	$(call dashboard.help)
+	@echo "\n"
 dashboard.apollo:
 	$(call browse,"$(DASHBOARD_APOLLO_LINK)")
 dashboard.aliyun:
@@ -65,8 +77,10 @@ dashboard.aliyun:
 # ci helpers
 ci:
 	$(call ci.help)
+	@echo "\n"
 ci.help:
 	$(call ci.help)
+	@echo "\n"
 ci.build:
 	$(call browse,"$(CI_BUILD_LINK)")
 ci.coverage:
@@ -79,8 +93,10 @@ ci.doc:
 # github helpers
 github:
 	$(call github.help)
+	@echo "\n"
 github.help:
 	$(call github.help)
+	@echo "\n"
 github.code:
 	$(call browse,"$(GITHUB_CODE_LINK)")
 github.doc:
