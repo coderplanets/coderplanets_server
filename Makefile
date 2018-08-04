@@ -22,6 +22,8 @@ commit.help:
 	@echo "\n"
 commit:
 	@npx git-cz
+release:
+	npm run release
 
 publish:
 	$(call publish.help)
