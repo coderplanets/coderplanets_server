@@ -8,18 +8,27 @@
     "test": "test"
   },
   "scripts": {
-    "release": "standard-version"
+    "release": "standard-version",
+    "commitmsg": "commitlint -E HUSKY_GIT_PARAMS"
   },
   "dependencies": {
     "commitizen": "^2.10.1",
     "standard-version": "^4.4.0"
   },
   "devDependencies": {
-    "cz-conventional-changelog": "^2.1.0"
+    "@commitlint/cli": "^7.0.0",
+    "@commitlint/config-conventional": "^7.0.1",
+    "cz-conventional-changelog": "^2.1.0",
+    "husky": "^1.0.0-rc.13"
   },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "npm run commitmsg"
     }
   }
 }
