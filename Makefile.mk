@@ -62,13 +62,17 @@ endef
 define release.help
 	@echo "\n"
 	@echo "  [valid release commands]"
-	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo "  release : release version by automatic CHANGELOG generation"
-	@echo "          | link: https://github.com/conventional-changelog/standard-version"
-	@echo "          | more:"
-	@echo "             | npm run release -- --prerelease"
-	@echo "             | npm run release -- --prerelease alpha"
-	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo "  release        : release version by automatic CHANGELOG generation"
+	@echo "                 | link: https://github.com/conventional-changelog/standard-version"
+	@echo "                 | more:"
+	@echo "                    | npm run release -- --prerelease"
+	@echo "                    | npm run release -- --prerelease alpha"
+	@echo "  ................................................................................."
+	@echo "  release.master : release master branch"
+	@echo "  ................................................................................."
+	@echo "  release.dev    : release dev branch"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 endef
 
 define console.help

@@ -35,6 +35,12 @@ release.help:
 	@echo "\n"
 release:
 	npm run release
+release.master:
+	npm run release
+	git push --follow-tags origin master
+release.dev:
+	npm run release
+	git push --follow-tags origin dev
 
 deploy:
 	$(call deploy.help)
