@@ -1,4 +1,5 @@
 
+![Brand](https://github.com/mydearxym/mastani_server/blob/dev/docs/snapshots/cps_logo_md.png)
 
 [![Build Status](https://travis-ci.org/coderplanets/coderplanets_server.svg?branch=dev)](https://travis-ci.org/coderplanets/coderplanets_server)
 [![codecov](https://codecov.io/gh/coderplanets/coderplanets_server/branch/dev/graph/badge.svg)](https://codecov.io/gh/coderplanets/coderplanets_server)
