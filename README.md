@@ -8,3 +8,10 @@
 
 ## Basic Architechture
 ![Architechture](https://github.com/mydearxym/mastani_server/blob/master/docs/snapshots/Architechture.png)
+
+
+## credit 
+
+[keyboard logo](https://www.flaticon.com/free-icon/keyboard_211884#term=keyboard&page=8&position=88) is made by
+[freepik](https://www.flaticon.com/authors/freepik) from
+[flaticon](https://www.flaticon.com), licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0)
