@@ -1,12 +1,31 @@
-# TODO
+## Table of Contents
 
-# Architechture
-  ...
-  
-# Development
-  ...
-  
-  
-# more
+- [Architecture](architecture)
+  - [Intro](architecture/intro.md)
+  - [GraphQL](architecture/grqphQL.md)
+- [Development](development)
+  - [Intro](development/intro.md)
+  - [Setup](development/setup.md)
+  - [Console](development/console.md)
+  - [Linter](development/linter.md)
+  - [Generator](development/generator.md)
+- [Deployment](deployment)
+  - [Intro](deployment/intro.md)
+  - [Release](deployment/release.md)
+- [Testing](testing)
+  - [Unit Testing](testing/unit-testing.md)
+  - [GraphQL Testing](testing/graphql-testing.md)
+- [Analysis](analysis)
+  - [Apollo Engine](analysis/apollo-engine.md)
+  - [Error Tracking](analysis/error-tracking.md)
+- [CI](ci)
+  - [Intro](ci/intro.md)
+  - [Test Coverage](ci/test-coverage.md)
+  - [Doc Coverage](ci/doc-coverage.md)
+  - [Commit Msg Lint](ci/commit-msg-lint.md)
+  - [schema check](ci/schema-check.md)
+- [Roadmap](Roadmap.md)
+- [FAQ](FAQ.md)
+- [Contributing](Contributing.md)
+- [Troubleshooting](Troubleshooting.md)
 
-..
