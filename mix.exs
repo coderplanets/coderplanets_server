@@ -84,7 +84,7 @@ defmodule MastaniServer.Mixfile do
       {:inch_ex, "~> 0.5", only: [:dev, :test]},
       {:short_maps, "~> 0.1.1"},
       {:jason, "~> 1.0"},
-      {:credo, "~> 0.9.1", only: [:dev, :test], runtime: false},
+      {:credo, "~> 0.10.0", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.2", only: [:dev, :mock], runtime: false},
       {:excoveralls, "~> 0.8", only: :test}
     ]
