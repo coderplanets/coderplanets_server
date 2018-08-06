@@ -6,8 +6,10 @@
 [![Inline docs](http://inch-ci.org/github/coderplanets/coderplanets_server.svg)](http://inch-ci.org/github/coderplanets/coderplanets_server)
 [![Dev updates](https://badgen.net/badge/Dependabot/enabled/cyan)](https://dependabot.com/elixir.html)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](https://conventionalcommits.org/)
+[![Powerd by](https://badgen.now.sh/badge/mastani/powered/a871c1)](https://github.com/mastani-stack)
 [![cps badge](https://badgen.net/badge/join%20community/on%20coderplanets/9cb77b)](https://github.com/coderplanets/coderplanets_server)
 
+## As advertising: the author is looking for a job :)
 
 ## Documentation
 
