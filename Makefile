@@ -155,6 +155,8 @@ ci.codecov:
 	$(call browse,"$(CI_CODECOV_LINK)")
 ci.doc:
 	$(call browse,"$(CI_DOC_LINK)")
+ci.depsbot:
+	$(call browse,"$(CI_DEPSBOT_LINK)")
 
 # github helpers
 github:
