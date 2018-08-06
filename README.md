@@ -34,10 +34,10 @@
   - [Doc Coverage](docs/ci/doc-coverage.md)
   - [Commit Msg Lint](docs/ci/commit-msg-lint.md)
   - [schema check](docs/ci/schema-check.md)
-- [Roadmap](docs/Roadmap.md)
+- [Roadmap](docs/roadmap.md)
 - [FAQ](docs/FAQ.md)
-- [Contributing](docs/Contributing.md)
-- [Troubleshooting](docs/Troubleshooting.md)
+- [Contributing](docs/contributing.md)
+- [Troubleshooting](docs/troubleshooting.md)
 
 
 ## credit 
