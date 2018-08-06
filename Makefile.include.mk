@@ -33,6 +33,21 @@ define browse
 	$(BROWSER_TOOL) "$(1)"
 endef
 
+define launch.help
+	@echo "\n"
+	@echo "  [valid launch commands]"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo "  launch      : start phoenix server in produnction env"
+	@echo "              | config locate in \"config/prod.exs\""
+	@echo "  ....................................................."
+	@echo "  launch.dev  : start phoenix server in development env"
+	@echo "              | config locate in \"config/dev.exs\""
+	@echo "  ....................................................."
+	@echo "  launch.mock : start phoenix server in mock env"
+	@echo "              | config locate in \"config/mock.exs\""
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+endef
+
 define deploy.help
 	@echo "\n"
 	@echo "  [valid deploy commands]"
@@ -43,6 +58,20 @@ define deploy.help
 	@echo "  deploy.prod : pack & push  code to for produnction"
 	@echo "               | need manually restart docker container on aliyun"
 	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+endef
+
+define gen.help
+	@echo "\n"
+	@echo "  [valid generators]"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo "  gen.migration : generate migration fils"
+	@echo "                | e.p  : gen.migration arg=\"add_name_to_users\""
+	@echo "                | note : need to run \"make migrate\" later"
+	@echo "  .................................................................................."
+	@echo "  gen.context   : generate a new context"
+	@echo "                | e.p: make gen.context Accounts Credential credentials"
+	@echo "                                        email:string:unique user_id:references:users"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 endef
 
 define commit.help
@@ -85,6 +114,37 @@ define console.help
 	@echo "  ..................................."
 	@echo "  console.mock : run iex in mock env"
 	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+endef
+
+define test.help
+	@echo "\n"
+	@echo "  [valid test commands]"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo "  test             : run all the test then quit"
+	@echo "  ....................................................."
+	@echo "  test.watch       : run all the test in watch mode"
+	@echo "  ....................................................."
+	@echo "  test.watch.wip   : run @wip test in watch mode"
+	@echo "  ....................................................."
+	@echo "  test.db_reset    : reset test database"
+	@echo "                   | needed when add new migration"
+	@echo "  ....................................................."
+	@echo "  test.report      : show test coverage status web page"
+	@echo "  ....................................................."
+	@echo "  test.report.text : show test coverage in terminal"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+endef
+
+define lint.help
+	@echo "\n"
+	@echo "  [valid test commands]"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo "  lint        : analysis by credo in strict mode"
+	@echo "              | doc: https://github.com/rrrene/credo/"
+	@echo "  ......................................................."
+	@echo "  lint.static : analysis by dialyzer"
+	@echo "              | doc: https://github.com/jeremyjh/dialyxir"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 endef
 
 define dashboard.help
