@@ -8,8 +8,36 @@
 [![cps badge](https://badgen.net/badge/join%20community/on%20coderplanets/9cb77b)](https://github.com/coderplanets/coderplanets_server)
 
 
-## Basic Architechture
-![Architechture](https://github.com/mydearxym/mastani_server/blob/master/docs/snapshots/Architechture.png)
+## docs 
+
+- [Architecture](architecture)
+  - [Intro](docs/architecture/intro.md)
+  - [GraphQL](docs/architecture/grqphQL.md)
+- [Development](development)
+  - [Intro](docs/development/intro.md)
+  - [Setup](docs/development/setup.md)
+  - [Console](docs/development/console.md)
+  - [Linter](docs/development/linter.md)
+  - [Generator](development/generator.md)
+- [Deployment](deployment)
+  - [Intro](docs/deployment/intro.md)
+  - [Release](docs/deployment/release.md)
+- [Testing](testing)
+  - [Unit Testing](docs/testing/unit-testing.md)
+  - [GraphQL Testing](docs/testing/graphql-testing.md)
+- [Analysis](analysis)
+  - [Apollo Engine](docs/analysis/apollo-engine.md)
+  - [Error Tracking](docs/analysis/error-tracking.md)
+- [CI](ci)
+  - [Intro](docs/ci/intro.md)
+  - [Test Coverage](docs/ci/test-coverage.md)
+  - [Doc Coverage](docs/ci/doc-coverage.md)
+  - [Commit Msg Lint](docs/ci/commit-msg-lint.md)
+  - [schema check](docs/ci/schema-check.md)
+- [Roadmap](docs/Roadmap.md)
+- [FAQ](docs/FAQ.md)
+- [Contributing](docs/Contributing.md)
+- [Troubleshooting](docs/Troubleshooting.md)
 
 
 ## credit 
