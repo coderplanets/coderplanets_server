@@ -8,7 +8,7 @@
 [![cps badge](https://badgen.net/badge/join%20community/on%20coderplanets/9cb77b)](https://github.com/coderplanets/coderplanets_server)
 
 
-## docs 
+## Documentation
 
 - [Architecture](architecture)
   - [Intro](docs/architecture/intro.md)
@@ -20,7 +20,7 @@
   - [Linter](docs/development/linter.md)
   - [Generator](development/generator.md)
 - [Deployment](deployment)
-  - [Intro](docs/deployment/intro.md)
+  - [Intro](docs/deployment/intro.md)(currently only Aliyun specific)
   - [Release](docs/deployment/release.md)
 - [Testing](testing)
   - [Unit Testing](docs/testing/unit-testing.md)
@@ -45,3 +45,7 @@
 [keyboard logo](https://www.flaticon.com/free-icon/keyboard_211884#term=keyboard&page=8&position=88) is made by
 [freepik](https://www.flaticon.com/authors/freepik) from
 [flaticon](https://www.flaticon.com), licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0)
+
+## License
+
+This project is licensed under the Apache License v2. For more information see LICENSE.md.

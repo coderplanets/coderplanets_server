@@ -10,7 +10,7 @@
   - [Linter](development/linter.md)
   - [Generator](development/generator.md)
 - [Deployment](deployment)
-  - [Intro](deployment/intro.md)
+  - [Intro](deployment/intro.md)(currently only Aliyun specific)
   - [Release](deployment/release.md)
 - [Testing](testing)
   - [Unit Testing](testing/unit-testing.md)

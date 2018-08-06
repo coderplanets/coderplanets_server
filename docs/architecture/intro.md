@@ -42,7 +42,8 @@ In any case, here's the TL;DR:
 
 ### `lib/`
 
-- `mastani_server/`  we split our logic code into contexts. a context will group related functionality, By using contexts, we decouple and isolate our systems into *5* manageable, independent parts:
+- `mastani_server/`  we split our logic code into contexts. a context will group
+  related functionality which located in context's `delegates` dir,  By using contexts, we decouple and isolate our systems into *5* manageable, independent parts:
   - `accounts/` handle account-related logic like: register, profile, mailbox, achievement, billing, customization ...
   - `cms/` handle content-releated logic like: community curd/operation/reactions, contents(posts, jobs, videos, ..) CURD/operation/reactions ...
   - `delivery/` handle msg-related logic like: user mentions, system notifications ...
@@ -56,3 +57,22 @@ In any case, here's the TL;DR:
   - `channels/` hanlde realtime communitications like graphql subscription ...
   - `helper/` As the name suggests this folder reusable modules like query_builder, orms ...
 
+### `test/`
+
+- `master_server/` test all the "domain logic"
+- `master_server_web/` test all the web logic, most are graphql interface
+- `helper/` test all helper functions
+
+### `config/`
+
+config files based on dierent env
+
+### `deploy/`
+
+- `dev/` dev server packer, Docker setttings ..
+- `production/` production server packer, Docker setttings ..
+
+### `priv/`
+
+- `mock/` seeds script for init
+- `repo/` migrations files
