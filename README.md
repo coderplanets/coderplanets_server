@@ -4,6 +4,7 @@
 [![Build Status](https://travis-ci.org/coderplanets/coderplanets_server.svg?branch=dev)](https://travis-ci.org/coderplanets/coderplanets_server)
 [![codecov](https://codecov.io/gh/coderplanets/coderplanets_server/branch/dev/graph/badge.svg)](https://codecov.io/gh/coderplanets/coderplanets_server)
 [![Inline docs](http://inch-ci.org/github/coderplanets/coderplanets_server.svg)](http://inch-ci.org/github/coderplanets/coderplanets_server)
+[![Dev updates](https://badgen.net/badge/Dependabot/enabled/cyan)](https://dependabot.com/elixir.html)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](https://conventionalcommits.org/)
 [![cps badge](https://badgen.net/badge/join%20community/on%20coderplanets/9cb77b)](https://github.com/coderplanets/coderplanets_server)
 
