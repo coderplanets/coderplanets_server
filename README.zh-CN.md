@@ -9,48 +9,13 @@
 [![Powerd by](https://badgen.now.sh/badge/mastani/powered/a871c1)](https://github.com/mastani-stack)
 [![cps badge](https://badgen.net/badge/join%20community/on%20coderplanets/9cb77b)](https://github.com/coderplanets/coderplanets_server)
 
-## As advertising: the author is looking for a job :)
+#### 插播广告: 项目作者正在找工作，如果您有合适的工作机会，欢迎与我联系 :)
 
-English | [中文](https://github.com/coderplanets/coderplanets_server/blob/dev/README.zh-CN.md) 
-
-## Introduction
-
-backend server of coderplanets.com
-
-## Documentation
-
-- [Architecture](architecture)
-  - [Intro](docs/architecture/intro.md)
-  - [GraphQL](docs/architecture/grqphQL.md)
-- [Development](development)
-  - [Intro](docs/development/intro.md)
-  - [Setup](docs/development/setup.md)
-  - [Console](docs/development/console.md)
-  - [Linter](docs/development/linter.md)
-  - [Generator](development/generator.md)
-- [Deployment](deployment)
-  - [Intro](docs/deployment/intro.md)(currently only Aliyun specific)
-  - [Release](docs/deployment/release.md)
-- [Testing](testing)
-  - [Unit Testing](docs/testing/unit-testing.md)
-  - [GraphQL Testing](docs/testing/graphql-testing.md)
-- [Analysis](analysis)
-  - [Apollo Engine](docs/analysis/apollo-engine.md)
-  - [Error Tracking](docs/analysis/error-tracking.md)
-- [CI](ci)
-  - [Intro](docs/ci/intro.md)
-  - [Test Coverage](docs/ci/test-coverage.md)
-  - [Doc Coverage](docs/ci/doc-coverage.md)
-  - [Commit Msg Lint](docs/ci/commit-msg-lint.md)
-  - [schema check](docs/ci/schema-check.md)
-- [Roadmap](docs/roadmap.md)
-- [FAQ](docs/FAQ.md)
-- [Contributing](docs/contributing.md)
-- [Troubleshooting](docs/troubleshooting.md)
+[English](https://github.com/coderplanets/coderplanets_server) | 中文
 
 
-## support cps
-wip ...
+#### 中文文档出于时间关系尚未完善，欢迎 PR
+
 
 ## credit 
 
