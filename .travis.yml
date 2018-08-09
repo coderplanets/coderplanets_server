@@ -6,6 +6,8 @@ otp_release:
 - 19.3
 - 20.1
 - 21.0
+node_js:
+  - 8
 sudo: false
 addons:
   postgresql: '9.4'

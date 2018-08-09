@@ -22,9 +22,7 @@ dep:
 
 dep.travis:
 	MIX_ENV=test mix deps.get
-	curl -L https://git.io/n-install | bash
-# curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
-	n stable
+	nvm install 8.10 && nvm use 8.10
 	npm install
 	npm install -g @commitlint/travis-cli
 	npm install -g apollo
