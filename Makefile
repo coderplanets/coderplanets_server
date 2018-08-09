@@ -22,6 +22,7 @@ dep:
 
 dep.travis:
 	MIX_ENV=test mix deps.get
+	~/.nvm/nvm.sh
 	nvm install 8.10 && nvm use 8.10
 	npm install
 	npm install -g @commitlint/travis-cli
