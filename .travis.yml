@@ -1,9 +1,12 @@
 language: elixir
 elixir:
+- 1.5
 - 1.6
 otp_release:
 - 19.3
 - 20.1
+- 21.0
+sudo: false
 addons:
   postgresql: '9.4'
 before_script:
