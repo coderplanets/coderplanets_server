@@ -22,7 +22,7 @@ dep:
 
 dep.travis:
 	MIX_ENV=test mix deps.get
-	~/.nvm/nvm.sh
+	curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
 	nvm install 8.10 && nvm use 8.10
 	npm install
 	npm install -g @commitlint/travis-cli
