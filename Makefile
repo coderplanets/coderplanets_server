@@ -20,13 +20,6 @@ dep:
 	mix deps.get
 	npm install # for commitizen
 
-dep.travis:
-	MIX_ENV=test mix deps.get
-	nvm install 8.10 && nvm use 8.10
-	npm install
-	npm install -g @commitlint/travis-cli
-	npm install -g apollo
-
 build:
 	mix compile
 
