@@ -20,21 +20,32 @@ dep:
 	mix deps.get
 	npm install # for commitizen
 
+dep.travis:
+	MIX_ENV=test mix deps.get
+	nvm install 8.10 && nvm use 8.10
+	npm install
+	npm install -g @commitlint/travis-cli
+	npm install -g apollo
+
 build:
 	mix compile
 
 format:
 	mix format
 
+dev:
+	MIX_ENV=mock mix phx.server
+
 launch.help:
 	$(call launch.help)
 	@echo "\n"
 launch:
-	mix phx.server
+	$(call launch.help)
+	@echo "\n"
 launch.dev:
 	MIX_ENV=dev mix phx.server
-launch.mock:
-	MIX_ENV=mock mix phx.server
+launch.prod:
+	mix phx.server
 
 migrate:
 	mix ecto.migrate
@@ -137,6 +148,8 @@ dashboard:
 	@echo "\n"
 dashboard.apollo:
 	$(call browse,"$(DASHBOARD_APOLLO_LINK)")
+dashboard.pm2:
+	$(call browse,"$(DASHBOARD_PM2_LINK)")
 dashboard.aliyun:
 	$(call browse,"$(DASHBOARD_ALIYUN_LINK)")
 
