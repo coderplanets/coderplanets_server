@@ -37,6 +37,8 @@ launch:
 	@echo "\n"
 launch.dev:
 	MIX_ENV=dev mix phx.server
+launch.mock:
+	MIX_ENV=mock mix phx.server
 launch.prod:
 	mix phx.server
 
