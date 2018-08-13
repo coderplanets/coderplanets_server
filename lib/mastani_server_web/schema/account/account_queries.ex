@@ -21,8 +21,8 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
     end
 
     @desc "check the cur token is valid or not"
-    field :login_state, :login_state do
-      resolve(&R.Accounts.login_state/3)
+    field :session_state, :session_state do
+      resolve(&R.Accounts.session_state/3)
     end
 
     @desc "get login-user's info"
