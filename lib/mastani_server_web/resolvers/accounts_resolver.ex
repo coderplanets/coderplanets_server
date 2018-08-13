@@ -12,6 +12,11 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   def user(_root, %{id: id}, _info), do: User |> ORM.find(id)
   def users(_root, ~m(filter)a, _info), do: User |> ORM.find_all(filter)
 
+  def login_state(_root, _args, %{context: %{cur_user: cur_user}}),
+    do: {:ok, %{is_login: true, user: cur_user}}
+
+  def login_state(_root, _args, _info), do: {:ok, %{is_login: false}}
+
   def account(_root, _args, %{context: %{cur_user: cur_user}}) do
     User |> ORM.find(cur_user.id)
   end

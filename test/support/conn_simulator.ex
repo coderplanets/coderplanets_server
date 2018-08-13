@@ -6,8 +6,8 @@ defmodule MastaniServer.Test.ConnSimulator do
   import Phoenix.ConnTest, only: [build_conn: 0]
   import Plug.Conn, only: [put_req_header: 3]
 
-  alias MastaniServer.{Accounts, CMS}
   alias Helper.{Guardian, ORM}
+  alias MastaniServer.{Accounts, CMS}
 
   def simu_conn(:guest) do
     build_conn()
@@ -17,6 +17,12 @@ defmodule MastaniServer.Test.ConnSimulator do
     user_attr = mock_attrs(:user)
     {:ok, user} = db_insert(:user, user_attr)
     token = gen_jwt_token(id: user.id)
+
+    build_conn() |> put_req_header("authorization", token)
+  end
+
+  def simu_conn(:invalid_token) do
+    token = "invalid_token"
 
     build_conn() |> put_req_header("authorization", token)
   end

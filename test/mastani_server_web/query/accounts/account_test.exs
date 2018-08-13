@@ -9,11 +9,43 @@ defmodule MastaniServer.Test.Query.Account.Test do
   setup do
     {:ok, user} = db_insert(:user)
     guest_conn = simu_conn(:guest)
-
+    # user_conn = simu_conn(:user, user)
     {:ok, ~m(guest_conn user)a}
   end
 
   describe "[account test]" do
+    @query """
+    query {
+      loginState {
+        isLogin
+        user {
+          id
+        }
+      }
+    }
+    """
+    test "guest user should get false loginState", ~m(guest_conn)a do
+      results = guest_conn |> query_result(@query, %{}, "loginState")
+      assert results["isLogin"] == false
+      assert results["user"] == nil
+    end
+
+    test "login user should get true loginState", ~m(user)a do
+      user_conn = simu_conn(:user, user)
+      results = user_conn |> query_result(@query, %{}, "loginState")
+
+      assert results["isLogin"] == true
+      assert results["user"] |> Map.get("id") == to_string(user.id)
+    end
+
+    test "user with invalid token get false loginState" do
+      user_conn = simu_conn(:invalid_token)
+      results = user_conn |> query_result(@query, %{}, "loginState")
+
+      assert results["isLogin"] == false
+      assert results["user"] == nil
+    end
+
     @query """
     query($id: ID!) {
       user(id: $id) {
