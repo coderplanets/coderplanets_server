@@ -35,7 +35,8 @@ defmodule MastaniServer.Mixfile do
         :runtime_tools,
         :faker,
         :scrivener_ecto,
-        :timex
+        :timex,
+        :sentry
       ]
     ]
   end
@@ -86,7 +87,8 @@ defmodule MastaniServer.Mixfile do
       {:jason, "~> 1.0"},
       {:credo, "~> 0.10.0", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.2", only: [:dev, :mock], runtime: false},
-      {:excoveralls, "~> 0.8", only: :test}
+      {:excoveralls, "~> 0.8", only: :test},
+      {:sentry, "~> 6.4"}
     ]
   end
 

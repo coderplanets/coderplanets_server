@@ -82,3 +82,13 @@ config :mastani_server, MastaniServer.Repo,
 config :mastani_server, :github_oauth,
   client_id: System.get_env("OAUTH_GITHUB_CLIENT_ID"),
   client_secret: System.get_env("OAUTH_GITHUB_CLIENT_SECRET")
+
+config :sentry,
+  dsn: System.get_env("SENTRY_DSN"),
+  environment_name: :prod,
+  enable_source_code_context: true,
+  root_source_code_path: File.cwd!(),
+  tags: %{
+    env: "production"
+  },
+  included_environments: [:prod]
