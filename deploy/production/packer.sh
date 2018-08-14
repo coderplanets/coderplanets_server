@@ -4,8 +4,7 @@ ENV="production"
 
 PRJ_DIR="./"
 PACKER_TMP_DIR="./packer_tmp"
-BRANCH_NAME="dev"
-ARCHIVE_NAME="./docker/${ENV}/api_server.tar.gz"
+ARCHIVE_NAME="./deploy/${ENV}/api_server.tar.gz"
 TOTAL_STEPS=5
 
 cd "${PRJ_DIR}"
