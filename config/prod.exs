@@ -16,7 +16,8 @@ use Mix.Config
 config :mastani_server, MastaniServerWeb.Endpoint,
   http: [port: String.to_integer(System.get_env("SERVE_PORT") || "8001")],
   load_from_system_env: true
- # url: [host: "coderplanets.com", port: String.to_integer(System.get_env("SERVE_PORT") || "8001")]
+
+# url: [host: "coderplanets.com", port: String.to_integer(System.get_env("SERVE_PORT") || "8001")]
 
 # cache_static_manifest: "priv/static/cache_manifest.json"
 
