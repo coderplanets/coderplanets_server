@@ -16,6 +16,6 @@ ADD api_server.tar.gz /root/api_server
 RUN mix hex.config mirror_url https://hexpm.upyun.com
 RUN cd /root/api_server && mix deps.get --only prod && MIX_ENV=prod mix compile
 
-ADD loader.sh /user/local/bin/loader.sh
-RUN chmod +x /user/local/bin/loader.sh
-CMD ["/user/local/bin/loader.sh"]
+ADD loader.sh /usr/local/bin/loader.sh
+RUN chmod +x /usr/local/bin/loader.sh
+CMD ["/usr/local/bin/loader.sh"]
