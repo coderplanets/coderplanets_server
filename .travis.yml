@@ -6,24 +6,24 @@ otp_release:
 - 20.1
 - 21.0
 node_js:
-  - 8
+- 8
 sudo: false
 addons:
   postgresql: '9.4'
 before_script:
- - MIX_ENV=test mix deps.get
- - nvm install 8.10 && nvm use 8.10
- - npm install
- - npm install -g @commitlint/travis-cli
- - npm install -g apollo
+- MIX_ENV=test mix deps.get
+- nvm install 8.10 && nvm use 8.10
+- npm install
+- npm install -g @commitlint/travis-cli
+- npm install -g apollo
 script:
 - MIX_ENV=test mix compile --warnings-as-errors, coveralls.json
 - mix test
 - commitlint-travis
 after_script:
 - MIX_ENV=test mix inch.report
-- apollo schema:check  --endpoint="http://devapiraw.coderplanets.com/graphiql"
-- apollo schema:publish --endpoint="http://devapiraw.coderplanets.com/graphiql"
+- apollo schema:check  --endpoint="http://apiraw.coderplanets.com/graphiql"
+- apollo schema:publish --endpoint="http://apiraw.coderplanets.com/graphiql"
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 cache:
@@ -31,4 +31,4 @@ cache:
   - "$HOME/.cargo"
 env:
   matrix:
-    secure: RCgxOPPV2YzZCWFW4f0hrtGnPtzuXvkINXi30SrzBwI5T8bQB12d3hj22fMN8rkgRno6nuf6PLvQthbXjHQpNsGl4AtJgmDcuB088VPKjgmd4rWn6H+TUbJh8knnSj/cx3faGRp70O11NZaFSzMmAGbZWHDgyzbMUpMkfV3vT7g3bNFICBODyl+FSMLJ7WCmo/L8yUTyuc2QpuIvC5ckXY9+ql4r/HLILHizIU/g2nRKBv1TJUPQZkyq7OiIrptL2fhAzImcORmrTlh0lL9IAMBCQ0rnYbeR7T/AdJsrCBWdrxelC6DhEPm0v2WUZNQAFnaQIcZTRYeg9PyJGJQLyYMJRwWGR5ZAKjFRyKYs9VJvJWqYD5dDk09r/VA1ya0ALixXAhOem1BsoiSV3500P30kvKo0W4Qoou7qMebSencIQGRXJfNhBEz7YpMYeSPBM/NjLFcjDTirDV4jOaY+0kDj80VV9K0M2NWuWRL4F7LDx7VIiuukLzfyCnUW5NfqbNHzdzv2V2b7aweto6y9NvcyM0LjMPbfyy67bw1zwjpKGD2Ll0gTX1aPnMgljKYsRjidlULNTFJVhZ22eCGlRNj3WgIV9pNfzj1/5+Cle9zgtemxqrrk1+LLyHdigEVpT/PpPS6b2keHR1/IweO6oENnsvJJPVaKyJ0oUN0Qpvk=
+  - secure: kJH8PYZMMsxYSkytp/B0jnR9uzI2anWng8g501STWY7atF7OR44bU1bh4qNjZdPunau99u9b/tbxBL7/bkuYlgkuazsjHVSsitjD8306y8GIv85nSeXiwe/RF5pzdu0WKljn59al8+GWqG7sjpNiY160MYYvxnbx+rbT9Y1LGNsDAzx5HLt0t06SRYZkwmeDPr6qWq7PKC4qy09E3XqHYTHBjHH1ydmRxczWlY0c4iheIKaWsCIsOJGcPnbwav42bJ6GEj5Anbd7/lAXo3rYTMTHXfNTkCGKVkvyZKicPnJ/X7kkQJZYKZMzbFUyAUIuf7YoUxlXQoi7A3htm3n9VfJcqrohA/MnFIhIW56nlYUUnSZpczTESytqDE/SIR8S0Pi3ki0HVRuDS0TVfw/USsxAAymZACkpA8UDda4pB8GqiAS/E/v/BiYvnZz9Cm9dXxd6mhX5SwWGvD2cDWgo2q+GQJESdY+gK+NiCtr0ucpnk0v8A1kIW5H+D63FXEle2uknrEaHkTafgpP4wc0l8HeSVXOj7HHAHgzTIG1j7ekdOsPGYCAVn4MCEgeGelZKBlGfy9C4fwlrEYAaYaM3H7qllMQTFNCpuQvvJp+NGqidWec7VNs0UIdqgbTm4PEL3deI/Mef4qn0y/qK7XLvN9/UOD9OPdv3fj0DU+7ub0c=
