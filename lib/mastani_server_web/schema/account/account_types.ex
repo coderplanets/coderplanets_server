@@ -9,6 +9,11 @@ defmodule MastaniServerWeb.Schema.Account.Types do
 
   import_types(Schema.Account.Misc)
 
+  object :session_state do
+    field(:user, :user)
+    field(:is_valid, :boolean)
+  end
+
   object :user do
     field(:id, :id)
     field(:nickname, :string)

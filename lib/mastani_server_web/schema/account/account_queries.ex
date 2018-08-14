@@ -20,6 +20,11 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.user/3)
     end
 
+    @desc "check the cur token is valid or not"
+    field :session_state, :session_state do
+      resolve(&R.Accounts.session_state/3)
+    end
+
     @desc "get login-user's info"
     field :account, :user do
       middleware(M.Authorize, :login)

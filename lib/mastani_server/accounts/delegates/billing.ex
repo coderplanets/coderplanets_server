@@ -53,7 +53,9 @@ defmodule MastaniServer.Accounts.Delegate.Billing do
   end
 
   defp can_purchase?(%User{} = _user, key) do
-    case key in valid_service do
+    valid_service_options = valid_service()
+
+    case key in valid_service_options do
       true -> {:ok, key}
       false -> {:error, "AccountPurchase: purchase invalid service"}
     end

@@ -24,13 +24,12 @@ defmodule MastaniServerWeb.Endpoint do
     log: [rejected: :debug],
     origins: "*",
     allow_headers: [
-      # "authorization",
+      "authorization",
       "content-type",
       "special",
-      "authorization"
-      # "accept",
-      # "origin",
-      # "x-requested-with"
+      "accept",
+      "origin",
+      "x-requested-with"
     ],
     allow_credentials: true
   )

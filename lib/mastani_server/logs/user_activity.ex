@@ -1,5 +1,6 @@
 defmodule MastaniServer.Logs.UserActivity do
-  alias __MODULE__
+  @moduledoc false
+  # alias __MODULE__
 
   use Ecto.Schema
   import Ecto.Changeset

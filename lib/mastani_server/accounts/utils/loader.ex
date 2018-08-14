@@ -7,7 +7,7 @@ defmodule MastaniServer.Accounts.Utils.Loader do
   alias Helper.QueryBuilder
   alias MastaniServer.{Accounts, CMS, Repo}
 
-  alias Accounts.{Achievement, UserFollower, UserFollowing}
+  alias Accounts.{UserFollower, UserFollowing}
 
   def data, do: Dataloader.Ecto.new(Repo, query: &query/2)
 
@@ -48,11 +48,11 @@ defmodule MastaniServer.Accounts.Utils.Loader do
     CMS.JobFavorite |> count_cotents
   end
 
+  def query(queryable, _args), do: queryable
+
   defp count_cotents(queryable) do
     queryable
     |> group_by([f], f.user_id)
     |> select([f], count(f.id))
   end
-
-  def query(queryable, _args), do: queryable
 end

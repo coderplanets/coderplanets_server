@@ -130,9 +130,6 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     |> ORM.next_count()
   end
 
-  defp dynamic_comment_where(:post, id), do: dynamic([c], c.post_id == ^id)
-  defp dynamic_comment_where(:job, id), do: dynamic([c], c.job_id == ^id)
-
   # for reply comment
   defp get_next_floor(thread, queryable, comment) do
     dynamic = dynamic_reply_where(thread, comment)
@@ -141,6 +138,9 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     |> where(^dynamic)
     |> ORM.next_count()
   end
+
+  defp dynamic_comment_where(:post, id), do: dynamic([c], c.post_id == ^id)
+  defp dynamic_comment_where(:job, id), do: dynamic([c], c.job_id == ^id)
 
   defp dynamic_reply_where(:post, comment), do: dynamic([c], c.post_id == ^comment.post_id)
   defp dynamic_reply_where(:job, comment), do: dynamic([c], c.job_id == ^comment.job_id)

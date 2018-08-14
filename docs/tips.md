@@ -62,34 +62,3 @@ env MIX_ENV=mock mix run priv/mock/user_seeds.exs
 ```sh
 env MIX_ENV=mock iex -S mix phx.server
 ```
-
-## Guardian
-
-[胖子 comeonin 那集视频](https://www.youtube.com/watch?v=UK8KBnoidr4)
-[Permissions pm doc](https://hexdocs.pm/guardian/Guardian.Permissions.Bitwise.html#content)
-[Permissions blog doc](http://blog.overstuffedgorilla.com/simple-guardian-permissions/)
-[api authentication blog](http://blog.overstuffedgorilla.com/simple-guardian-api-authentication/)
-
-## packages
-
-[翻页](https://snippets.aktagon.com/snippets/776-pagination-with-elixir-and-ecto)
-[翻页](https://github.com/drewolson/scrivener_ecto)
-[邮件](https://github.com/thoughtbot/bamboo)
-
-[CI: circleci](https://blog.lelonek.me/elixir-continuous-integration-with-circleci-ceae93dbe011)
-[错误报告](https://sentry.io/welcome/)
-[sentry-elixir](https://github.com/getsentry/sentry-elixir)
-[run phoenix in docker](https://blog.lelonek.me/how-to-run-phoenix-framework-application-inside-a-docker-container-b02817d860b4)
-
-
-## snippets
-
-examise.io ... 
-[Elixir fishy coding lines and snippets](https://medium.com/blackode/elixir-fishy-coding-lines-and-snippets-7cdd995e5ad4)
-[Elixir killer tips](https://medium.com/blackode/10-killer-elixir-tips-2a9be1bec9be)
-[Elixir 专题](https://medium.com/blackode/tagged/elixir) 很棒
-
-
-## keynote 
-
-[ActiveRecord 和 Ecto 的比较](http://tony612.com/activerecord-vs-ecto)

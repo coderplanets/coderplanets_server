@@ -20,12 +20,10 @@ defmodule Helper.ErrorCode do
   def ecode(:already_did), do: @default_base + 4
   def ecode(:self_conflict), do: @default_base + 5
   def ecode(:react_fails), do: @default_base + 6
-
   # throttle
   def ecode(:throttle_inverval), do: @throttle_base + 1
   def ecode(:throttle_hour), do: @throttle_base + 2
   def ecode(:throttle_day), do: @throttle_base + 3
-
   def ecode, do: @default_base
-  def ecode(_), do: @default_base
+  # def ecode(_), do: @default_base
 end
