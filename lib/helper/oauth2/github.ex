@@ -35,11 +35,6 @@ defmodule Helper.OAuth2.Github do
       redirect_uri: @redirect_uri
     ]
 
-    IO.inspect(query, label: "query")
-
-    IO.inspect(get_config(:github_oauth, :client_id), label: "2 version")
-    IO.inspect(get_config(:general, :inner_page_size), label: "inner_page_size")
-
     try do
       case post("/access_token", %{}, query: query, headers: headers) do
         %{status: 200, body: %{"error" => error, "error_description" => description}} ->
