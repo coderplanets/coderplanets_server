@@ -19,7 +19,3 @@ config :mastani_server, MastaniServer.Repo,
   database: "mastani_server_mock",
   hostname: "localhost",
   pool_size: 10
-
-config :mastani_server, :github_oauth,
-  client_id: "3b4281c5e54ffd801f85",
-  client_secret: "68462fdbab195251bb71662eb2bc9dd2cb083305"

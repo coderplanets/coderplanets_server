@@ -35,6 +35,7 @@ defmodule Helper.OAuth2.Github do
       redirect_uri: @redirect_uri
     ]
 
+    IO.inspect query, label: "query"
     try do
       case post("/access_token", %{}, query: query, headers: headers) do
         %{status: 200, body: %{"error" => error, "error_description" => description}} ->
