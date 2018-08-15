@@ -4,8 +4,8 @@ defmodule Helper.OAuth2.Github do
 
   # see Tesla intro: https://medium.com/@teamon/introducing-tesla-the-flexible-http-client-for-elixir-95b699656d88
   @timeout_limit 5000
-  @client_id get_config(:github_oauth, :client_id)
-  @client_secret get_config(:github_oauth, :client_secret)
+  # @client_id get_config(:github_oauth, :client_id)
+  # @client_secret get_config(:github_oauth, :client_secret)
   @redirect_uri "http://www.coderplanets.com"
 
   # wired only this style works
@@ -30,15 +30,15 @@ defmodule Helper.OAuth2.Github do
 
     query = [
       code: code,
-      client_id: @client_id,
-      client_secret: @client_secret,
+      client_id: get_config(:github_oauth, :client_id),
+      client_secret: get_config(:github_oauth, :client_secret),
       redirect_uri: @redirect_uri
     ]
 
     IO.inspect(query, label: "query")
 
-    IO.inspect get_config(:github_oauth, :client_id), label: "2 version"
-    IO.inspect get_config(:general, :inner_page_size), label: "inner_page_size"
+    IO.inspect(get_config(:github_oauth, :client_id), label: "2 version")
+    IO.inspect(get_config(:general, :inner_page_size), label: "inner_page_size")
 
     try do
       case post("/access_token", %{}, query: query, headers: headers) do
