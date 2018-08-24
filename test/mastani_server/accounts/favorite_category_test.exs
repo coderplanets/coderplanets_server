@@ -15,7 +15,6 @@ defmodule MastaniServer.Test.Accounts.FavoriteCategoryTest do
   end
 
   describe "[favorite category curd]" do
-    @tag :wip
     test "user can create favorite category", ~m(user)a do
       test_category = "test category"
 
@@ -34,7 +33,6 @@ defmodule MastaniServer.Test.Accounts.FavoriteCategoryTest do
       assert error |> Keyword.get(:code) == ecode(:already_exsit)
     end
 
-    @tag :wip
     test "user can get public categories list", ~m(user)a do
       {:ok, _category} = Accounts.create_favorite_category(user, %{title: "test category"})
       {:ok, _category} = Accounts.create_favorite_category(user, %{title: "test category2"})
@@ -46,7 +44,6 @@ defmodule MastaniServer.Test.Accounts.FavoriteCategoryTest do
       assert result.total_count == 2
     end
 
-    @tag :wip
     test "user can update a favorite category", ~m(user)a do
       {:ok, category} = Accounts.create_favorite_category(user, %{title: "test category"})
 
@@ -59,7 +56,6 @@ defmodule MastaniServer.Test.Accounts.FavoriteCategoryTest do
       assert updated.private == true
     end
 
-    @tag :wip
     test "user can delete a favorite category", ~m(user post post2)a do
       test_category = "test category"
       {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
@@ -78,7 +74,6 @@ defmodule MastaniServer.Test.Accounts.FavoriteCategoryTest do
   end
 
   describe "[favorite category set/unset]" do
-    @tag :wip
     test "user can set category to a favorited post", ~m(user post)a do
       test_category = "test category"
       {:ok, _category} = Accounts.create_favorite_category(user, %{title: test_category})
@@ -91,7 +86,6 @@ defmodule MastaniServer.Test.Accounts.FavoriteCategoryTest do
       assert post_favorite.category_title == test_category
     end
 
-    @tag :wip
     test "user can change category to a categoried favorited post", ~m(user post)a do
       test_category = "test category"
       {:ok, _category} = Accounts.create_favorite_category(user, %{title: test_category})
@@ -114,14 +108,12 @@ defmodule MastaniServer.Test.Accounts.FavoriteCategoryTest do
       assert post_favorite.category_title == test_category2
     end
 
-    @tag :wip
     test "user set a un-created user's category fails", ~m(user post)a do
       test_category = "test category"
 
       assert {:error, _} = Accounts.set_favorites(user, :post, post.id, test_category)
     end
 
-    @tag :wip
     test "user set to a already categoried post fails", ~m(user post)a do
       test_category = "test category"
       {:ok, _category} = Accounts.create_favorite_category(user, %{title: test_category})
@@ -135,7 +127,6 @@ defmodule MastaniServer.Test.Accounts.FavoriteCategoryTest do
       {:error, _} = Accounts.set_favorites(user, :post, post.id, "test category")
     end
 
-    @tag :wip
     test "user can unset category to a favorited post", ~m(user post)a do
       test_category = "test category"
       {:ok, _category} = Accounts.create_favorite_category(user, %{title: test_category})
@@ -149,7 +140,6 @@ defmodule MastaniServer.Test.Accounts.FavoriteCategoryTest do
   end
 
   describe "[favorite category total_count]" do
-    @tag :wip
     test "total_count + 1 after set category to a favorited post", ~m(user post post2)a do
       test_category = "test category"
       {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
@@ -166,7 +156,6 @@ defmodule MastaniServer.Test.Accounts.FavoriteCategoryTest do
       assert category.total_count == 2
     end
 
-    @tag :wip
     test "total_count - 1 after unset category to a favorited post", ~m(user post)a do
       test_category = "test category"
       {:ok, _category} = Accounts.create_favorite_category(user, %{title: test_category})

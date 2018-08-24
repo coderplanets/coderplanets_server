@@ -25,7 +25,6 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
       }
     }
     """
-    @tag :wip
     test "login user can create favorite category", ~m(user_conn)a do
       test_category = "test category"
       variables = %{title: test_category}
@@ -35,7 +34,6 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
       assert created |> Map.get("id") == to_string(found.id)
     end
 
-    @tag :wip
     test "unauth user create category fails", ~m(guest_conn)a do
       test_category = "test category"
       variables = %{title: test_category}
@@ -53,7 +51,6 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
       }
     }
     """
-    @tag :wip
     test "login user can update own favorite category", ~m(user_conn user)a do
       test_category = "test category"
 
@@ -79,7 +76,6 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
       }
     }
     """
-    @tag :wip
     test "login user can delete own favorite category", ~m(user_conn user)a do
       test_category = "test category"
       {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
@@ -102,7 +98,6 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
       }
     }
     """
-    @tag :wip
     test "user can put a post to favorites category", ~m(user user_conn post)a do
       test_category = "test category"
       {:ok, _category} = Accounts.create_favorite_category(user, %{title: test_category})
@@ -126,7 +121,6 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
       }
     }
     """
-    @tag :wip
     test "user can unset favorites category", ~m(user user_conn post)a do
       test_category = "test category"
       {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})

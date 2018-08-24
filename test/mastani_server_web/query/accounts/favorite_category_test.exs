@@ -30,7 +30,6 @@ defmodule MastaniServer.Test.Query.Accounts.FavoriteCategory do
       }
     }
     """
-    @tag :wip
     test "user can get list of favorite categories", ~m(user user_conn)a do
       test_category = "test category"
       {:ok, _} = Accounts.create_favorite_category(user, %{title: test_category, private: false})
@@ -41,7 +40,6 @@ defmodule MastaniServer.Test.Query.Accounts.FavoriteCategory do
       assert results["totalCount"] == 1
     end
 
-    @tag :wip
     test "author can get it's own private categories", ~m(user user_conn)a do
       test_category = "test category"
       test_category2 = "test category2"
@@ -54,7 +52,6 @@ defmodule MastaniServer.Test.Query.Accounts.FavoriteCategory do
       assert results["totalCount"] == 2
     end
 
-    @tag :wip
     test "guest user can't get others private favorite categories", ~m(guest_conn)a do
       {:ok, user} = db_insert(:user)
 
