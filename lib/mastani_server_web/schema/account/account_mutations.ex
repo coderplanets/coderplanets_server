@@ -47,6 +47,55 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
       resolve(&R.Accounts.undo_follow/3)
     end
 
+    @desc "create a favorites category"
+    field :create_favorite_category, :favorites_category do
+      arg(:title, non_null(:string))
+      arg(:private, :boolean)
+      arg(:desc, :string)
+
+      middleware(M.Authorize, :login)
+      resolve(&R.Accounts.create_favorite_category/3)
+    end
+
+    @desc "update a favorites category"
+    field :update_favorite_category, :favorites_category do
+      arg(:id, non_null(:id))
+      arg(:title, :string)
+      arg(:private, :boolean)
+      arg(:desc, :string)
+
+      middleware(M.Authorize, :login)
+      resolve(&R.Accounts.update_favorite_category/3)
+    end
+
+    @desc "delete a favorites category"
+    field :delete_favorite_category, :done do
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      resolve(&R.Accounts.delete_favorite_category/3)
+    end
+
+    @desc "put content to favorites with category"
+    field :set_favorites, :favorites_category do
+      arg(:id, non_null(:id))
+      arg(:category_title, non_null(:string))
+      arg(:thread, :cms_thread, default_value: :post)
+
+      middleware(M.Authorize, :login)
+      resolve(&R.Accounts.set_favorites/3)
+    end
+
+    @desc "take out content from favorites category"
+    field :unset_favorites, :favorites_category do
+      arg(:id, non_null(:id))
+      arg(:category_title, non_null(:string))
+      arg(:thread, :cms_thread, default_value: :post)
+
+      middleware(M.Authorize, :login)
+      resolve(&R.Accounts.unset_favorites/3)
+    end
+
     @desc "mark a mention as read"
     field :mark_mention_read, :status do
       arg(:id, non_null(:id))

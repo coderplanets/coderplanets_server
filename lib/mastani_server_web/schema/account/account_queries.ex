@@ -59,6 +59,15 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.paged_followings/3)
     end
 
+    @desc "get favorites categoories"
+    field :list_favorite_categories, :paged_favorites_categories do
+      arg(:user_id, :id)
+      arg(:filter, non_null(:common_paged_filter))
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.list_favorite_categories/3)
+    end
+
     @desc "get favorited posts"
     field :favorited_posts, :paged_posts do
       arg(:user_id, :id)

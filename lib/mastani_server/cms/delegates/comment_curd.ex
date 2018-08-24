@@ -38,6 +38,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   def delete_comment(thread, content_id) do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, comment} <- ORM.find(action.reactor, content_id) do
+      # TODO: should use Nulti
       case ORM.delete(comment) do
         {:ok, comment} ->
           Repo.update_all(

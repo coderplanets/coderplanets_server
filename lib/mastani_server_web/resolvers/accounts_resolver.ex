@@ -29,6 +29,34 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.github_signin(github_user)
   end
 
+  def list_favorite_categories(_root, %{filter: filter}, %{context: %{cur_user: cur_user}}) do
+    Accounts.list_favorite_categories(cur_user, %{private: true}, filter)
+  end
+
+  def list_favorite_categories(_root, %{user_id: user_id, filter: filter}, _info) do
+    Accounts.list_favorite_categories(%User{id: user_id}, %{private: false}, filter)
+  end
+
+  def create_favorite_category(_root, attrs, %{context: %{cur_user: cur_user}}) do
+    Accounts.create_favorite_category(cur_user, attrs)
+  end
+
+  def update_favorite_category(_root, %{id: _id} = args, %{context: %{cur_user: cur_user}}) do
+    Accounts.update_favorite_category(cur_user, args)
+  end
+
+  def delete_favorite_category(_root, %{id: id}, %{context: %{cur_user: cur_user}}) do
+    Accounts.delete_favorite_category(cur_user, id)
+  end
+
+  def set_favorites(_root, ~m(id thread category_title)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.set_favorites(cur_user, thread, id, category_title)
+  end
+
+  def unset_favorites(_root, ~m(id thread category_title)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.unset_favorites(cur_user, thread, id, category_title)
+  end
+
   def follow(_root, ~m(user_id)a, %{context: %{cur_user: cur_user}}) do
     Accounts.follow(cur_user, %User{id: user_id})
   end

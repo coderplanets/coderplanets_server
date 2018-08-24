@@ -113,7 +113,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
     field :favorite_users, :paged_users do
       arg(:id, non_null(:id))
-      arg(:type, :cms_thread, default_value: :post)
+      arg(:thread, :cms_thread, default_value: :post)
       arg(:action, :favorite_action, default_value: :favorite)
       arg(:filter, :paged_article_filter)
 

@@ -1,0 +1,146 @@
+defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
+  use MastaniServer.TestTools
+
+  alias Helper.ORM
+  alias MastaniServer.{Accounts, CMS}
+
+  alias Accounts.FavoriteCategory
+
+  setup do
+    {:ok, user} = db_insert(:user)
+    {:ok, post} = db_insert(:post)
+
+    user_conn = simu_conn(:user, user)
+    guest_conn = simu_conn(:guest)
+
+    {:ok, ~m(user_conn guest_conn user post)a}
+  end
+
+  describe "[Accounts FavoriteCategory CURD]" do
+    @query """
+    mutation($title: String!, $private: Boolean) {
+      createFavoriteCategory(title: $title, private: $private) {
+        id
+        title
+      }
+    }
+    """
+    @tag :wip
+    test "login user can create favorite category", ~m(user_conn)a do
+      test_category = "test category"
+      variables = %{title: test_category}
+      created = user_conn |> mutation_result(@query, variables, "createFavoriteCategory")
+      {:ok, found} = FavoriteCategory |> ORM.find(created |> Map.get("id"))
+
+      assert created |> Map.get("id") == to_string(found.id)
+    end
+
+    @tag :wip
+    test "unauth user create category fails", ~m(guest_conn)a do
+      test_category = "test category"
+      variables = %{title: test_category}
+
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
+    end
+
+    @query """
+    mutation($id: ID!, $title: String, $desc: String, $private: Boolean) {
+      updateFavoriteCategory(id: $id, title: $title, desc: $desc, private: $private) {
+        id
+        title
+        desc
+        private
+      }
+    }
+    """
+    @tag :wip
+    test "login user can update own favorite category", ~m(user_conn user)a do
+      test_category = "test category"
+
+      {:ok, category} =
+        Accounts.create_favorite_category(user, %{
+          title: test_category,
+          desc: "old desc",
+          private: false
+        })
+
+      variables = %{id: category.id, title: "new title", desc: "new desc", private: true}
+      updated = user_conn |> mutation_result(@query, variables, "updateFavoriteCategory")
+
+      assert updated["desc"] == "new desc"
+      assert updated["private"] == true
+      assert updated["title"] == "new title"
+    end
+
+    @query """
+    mutation($id: ID!) {
+      deleteFavoriteCategory(id: $id) {
+        done
+      }
+    }
+    """
+    @tag :wip
+    test "login user can delete own favorite category", ~m(user_conn user)a do
+      test_category = "test category"
+      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
+
+      variables = %{id: category.id}
+      deleted = user_conn |> mutation_result(@query, variables, "deleteFavoriteCategory")
+
+      assert deleted["done"] == true
+      assert {:error, _} = FavoriteCategory |> ORM.find(category.id)
+    end
+  end
+
+  describe "[Accounts FavoriteCategory set/unset]" do
+    @query """
+    mutation($id: ID!, $thread: CmsThread, $categoryTitle: String!) {
+      setFavorites(id: $id, thread: $thread, categoryTitle: $categoryTitle){
+        id
+        title
+        totalCount
+      }
+    }
+    """
+    @tag :wip
+    test "user can put a post to favorites category", ~m(user user_conn post)a do
+      test_category = "test category"
+      {:ok, _category} = Accounts.create_favorite_category(user, %{title: test_category})
+
+      variables = %{id: post.id, categoryTitle: test_category}
+      created = user_conn |> mutation_result(@query, variables, "setFavorites")
+      {:ok, found} = CMS.PostFavorite |> ORM.find_by(%{post_id: post.id, user_id: user.id})
+
+      assert created["totalCount"] == 1
+      assert found.category_title == test_category
+      assert found.user_id == user.id
+      assert found.post_id == post.id
+    end
+
+    @query """
+    mutation($id: ID!, $thread: CmsThread, $categoryTitle: String!) {
+      unsetFavorites(id: $id, thread: $thread, categoryTitle: $categoryTitle){
+        id
+        title
+        totalCount
+      }
+    }
+    """
+    @tag :wip
+    test "user can unset favorites category", ~m(user user_conn post)a do
+      test_category = "test category"
+      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
+      {:ok, _favorite_category} = Accounts.set_favorites(user, :post, post.id, test_category)
+
+      {:ok, category} = Accounts.FavoriteCategory |> ORM.find(category.id)
+      assert category.total_count == 1
+
+      variables = %{id: post.id, categoryTitle: test_category}
+      user_conn |> mutation_result(@query, variables, "unsetFavorites")
+
+      {:ok, category} = Accounts.FavoriteCategory |> ORM.find(category.id)
+      assert category.total_count == 0
+      assert {:error, _} = CMS.PostFavorite |> ORM.find_by(%{post_id: post.id, user_id: user.id})
+    end
+  end
+end

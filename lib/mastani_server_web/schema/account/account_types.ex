@@ -33,6 +33,14 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:github_profile, :github_profile, resolve: dataloader(Accounts, :github_profile))
     field(:achievement, :achievement, resolve: dataloader(Accounts, :achievement))
 
+    # field(:favorites_categories, :paged_favorites_category) do
+    # arg(:filter, non_null(:common_paged_filter))
+
+    # middleware(M.Authorize, :login)
+    # middleware(M.PageSizeProof)
+    # resolve(&R.Accounts.list_favorite_categories/3)
+    # end
+
     field(:cms_passport_string, :string) do
       middleware(M.Authorize, :login)
       resolve(&R.Accounts.get_passport_string/3)
@@ -165,6 +173,20 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:bio, :string)
     field(:public_repos, :integer)
     field(:public_gists, :integer)
+  end
+
+  object :favorites_category do
+    field(:id, :id)
+    field(:title, :string)
+    field(:desc, :string)
+    field(:index, :integer)
+    field(:total_count, :integer)
+    field(:private, :boolean)
+  end
+
+  object :paged_favorites_categories do
+    field(:entries, list_of(:favorites_category))
+    pagination_fields()
   end
 
   object :achievement do

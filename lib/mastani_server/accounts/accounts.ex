@@ -6,6 +6,7 @@ defmodule MastaniServer.Accounts do
     Billing,
     Customization,
     Fans,
+    FavoriteCategory,
     Mails,
     Profile,
     ReactedContents
@@ -16,6 +17,14 @@ defmodule MastaniServer.Accounts do
   defdelegate github_signin(github_user), to: Profile
   defdelegate default_subscribed_communities(filter), to: Profile
   defdelegate subscribed_communities(user, filter), to: Profile
+
+  # favorite category
+  defdelegate list_favorite_categories(user, opt, filter), to: FavoriteCategory
+  defdelegate create_favorite_category(user, attrs), to: FavoriteCategory
+  defdelegate update_favorite_category(user, attrs), to: FavoriteCategory
+  defdelegate delete_favorite_category(user, id), to: FavoriteCategory
+  defdelegate set_favorites(user, thread, content_id, category_title), to: FavoriteCategory
+  defdelegate unset_favorites(user, thread, content_id, category_title), to: FavoriteCategory
 
   # achievement
   defdelegate achieve(user, operation, key), to: Achievements
