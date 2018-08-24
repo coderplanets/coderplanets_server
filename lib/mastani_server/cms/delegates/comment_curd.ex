@@ -1,12 +1,19 @@
 defmodule MastaniServer.CMS.Delegate.CommentCURD do
+  @moduledoc """
+  CURD for comments
+  """
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1]
+  import Helper.ErrorCode
+
   import MastaniServer.CMS.Utils.Matcher
   import ShortMaps
 
   alias MastaniServer.{Repo, Accounts}
   alias Helper.{ORM, QueryBuilder}
   alias MastaniServer.CMS.{PostCommentReply, JobCommentReply}
+
+  alias Ecto.Multi
 
   @doc """
   Creates a comment for psot, job ...
@@ -38,20 +45,36 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   def delete_comment(thread, content_id) do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, comment} <- ORM.find(action.reactor, content_id) do
-      # TODO: should use Nulti
-      case ORM.delete(comment) do
-        {:ok, comment} ->
+      Multi.new()
+      |> Multi.run(:delete_comment, fn _ ->
+        ORM.delete(comment)
+      end)
+      |> Multi.run(:update_floor, fn _ ->
+        ret =
           Repo.update_all(
             from(p in action.reactor, where: p.id > ^comment.id),
             inc: [floor: -1]
           )
+          |> done()
 
-          {:ok, comment}
-
-        {:error, error} ->
-          {:error, error}
-      end
+        case ret do
+          {:ok, _} -> {:ok, comment}
+          _ -> {:error, ""}
+        end
+      end)
+      |> Repo.transaction()
+      |> delete_comment_result()
     end
+  end
+
+  defp delete_comment_result({:ok, %{delete_comment: result}}), do: {:ok, result}
+
+  defp delete_comment_result({:error, :delete_comment, result, _steps}) do
+    {:error, [message: "delete comment fails", code: ecode(:delete_fails)]}
+  end
+
+  defp delete_comment_result({:error, :update_floor, _result, _steps}) do
+    {:error, [message: "update follor fails", code: ecode(:delete_fails)]}
   end
 
   def list_comments(thread, content_id, %{page: page, size: size} = filters) do

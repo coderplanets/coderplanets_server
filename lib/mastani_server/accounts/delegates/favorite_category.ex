@@ -31,7 +31,6 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
   end
 
   def delete_favorite_category(%User{id: user_id}, id) do
-    # TODO: refactor delete_comment by use Multi
     with {:ok, category} <- FavoriteCategory |> ORM.find_by(~m(id user_id)a) do
       Multi.new()
       |> Multi.run(:delete_category, fn _ ->
