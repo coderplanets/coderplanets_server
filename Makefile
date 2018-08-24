@@ -175,6 +175,8 @@ ci.coverage:
 	$(call browse,"$(CI_COVERAGE_LINK)")
 ci.codecov:
 	$(call browse,"$(CI_CODECOV_LINK)")
+ci.codebeat:
+	$(call browse,"$(CI_CODEBEAT_LINK)")
 ci.doc:
 	$(call browse,"$(CI_DOC_LINK)")
 ci.depsbot:

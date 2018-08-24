@@ -5,6 +5,7 @@
 [![codecov](https://codecov.io/gh/coderplanets/coderplanets_server/branch/dev/graph/badge.svg)](https://codecov.io/gh/coderplanets/coderplanets_server)
 [![Inline docs](http://inch-ci.org/github/coderplanets/coderplanets_server.svg)](http://inch-ci.org/github/coderplanets/coderplanets_server)
 [![Dev updates](https://badgen.net/badge/Dependabot/enabled/cyan)](https://dependabot.com/elixir.html)
+[![codebeat badge](https://codebeat.co/badges/865d4bcd-7e9e-4678-8770-b763de155235)](https://codebeat.co/projects/github-com-coderplanets-coderplanets_server-dev)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](https://conventionalcommits.org/)
 [![Powerd by](https://badgen.now.sh/badge/mastani/powered/a871c1)](https://github.com/mastani-stack)
 [![cps badge](https://badgen.net/badge/join%20community/on%20coderplanets/9cb77b)](https://github.com/coderplanets/coderplanets_server)

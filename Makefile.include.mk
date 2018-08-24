@@ -13,6 +13,7 @@ DASHBOARD_SENTRY_LINK = "https://sentry.io/mastani-stack/cps_server_prod"
 CI_BUILD_LINK = "https://travis-ci.org/$(BELONG)/$(REPO)"
 CI_COVERAGE_LINK = "https://coveralls.io/github/$(BELONG)/$(REPO)"
 CI_CODECOV_LINK = "https://codecov.io/gh/$(BELONG)/$(REPO)"
+CI_CODEBEAT_LINK = "https://codebeat.co/projects/github-com-coderplanets-coderplanets_server-dev"
 CI_DOC_LINK = "https://inch-ci.org/github/$(BELONG)/$(REPO)"
 CI_DEPSBOT_LINK = "https://github.com/dependabot/feedback/issues/6"
 
