@@ -1,4 +1,4 @@
-defmodule MastaniServer.Delivery.DeliveryTest do
+defmodule MastaniServer.Test.Delivery.Basic do
   use MastaniServer.TestTools
 
   import Ecto.Query, warn: false

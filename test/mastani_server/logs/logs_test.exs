@@ -1,4 +1,4 @@
-defmodule MastaniServer.LogsTest do
+defmodule MastaniServer.Test.Logs do
   use MastaniServer.TestTools
 
   # alias MastaniServer.Logs

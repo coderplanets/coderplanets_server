@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.CMSPassportTest do
+defmodule MastaniServer.Test.CMSPassport do
   use MastaniServer.TestTools
 
-  alias MastaniServer.CMS
   alias MastaniServer.Accounts.User
+  alias MastaniServer.CMS
 
   setup do
     {:ok, [user, user2]} = db_insert_multi(:user, 2)

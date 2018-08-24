@@ -1,10 +1,11 @@
-defmodule MastaniServer.Test.AccountsTest do
+defmodule MastaniServer.Test.Accounts do
   use MastaniServer.TestTools
 
   # TODO import Service.Utils move both helper and github
   import Helper.Utils
 
   alias MastaniServer.Accounts
+
   alias Helper.{Guardian, ORM}
 
   # @valid_user mock_attrs(:user)

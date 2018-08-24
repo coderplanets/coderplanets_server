@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.Query.StatisticsTest do
+defmodule MastaniServer.Test.Query.Statistics do
   use MastaniServer.TestTools
 
-  alias MastaniServer.Statistics
   alias MastaniServer.Accounts.User
+  alias MastaniServer.Statistics
 
   setup do
     {:ok, user} = db_insert(:user)

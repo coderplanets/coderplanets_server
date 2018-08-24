@@ -1,11 +1,11 @@
-defmodule MastaniServer.Test.StatisticsTest do
+defmodule MastaniServer.Test.Statistics do
   use MastaniServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
 
-  alias MastaniServer.Accounts.User
-  alias MastaniServer.{Repo, CMS, Statistics}
   alias Helper.ORM
+  alias MastaniServer.Accounts.User
+  alias MastaniServer.{CMS, Repo, Statistics}
 
   @community_contribute_days get_config(:general, :community_contribute_days)
 

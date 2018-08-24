@@ -1,7 +1,8 @@
-defmodule MastaniServer.Test.Query.Account.AchieveMentTest do
+defmodule MastaniServer.Test.Query.Account.Achievement do
   use MastaniServer.TestTools
   import Helper.Utils, only: [get_config: 2]
   alias MastaniServer.Accounts
+
   alias Helper.ORM
 
   @follow_weight get_config(:general, :user_achieve_follow_weight)

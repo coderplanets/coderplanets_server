@@ -1,9 +1,10 @@
-defmodule MastaniServer.Test.Mutation.CMSTest do
+defmodule MastaniServer.Test.Mutation.CMS.Basic do
   use MastaniServer.TestTools
 
-  alias MastaniServer.Statistics
   alias MastaniServer.CMS
-  alias CMS.{Community, Tag, Category, Thread, Passport, CommunityEditor}
+  alias MastaniServer.Statistics
+
+  alias CMS.{Category, Community, CommunityEditor, Passport, Tag, Thread}
 
   alias Helper.ORM
 

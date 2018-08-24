@@ -1,9 +1,10 @@
-defmodule MastaniServer.Test.CommentTest do
+defmodule MastaniServer.Test.Comment do
   # currently only test comments for post type, rename and seprherate later
   use MastaniServer.TestTools
 
-  alias MastaniServer.CMS
   alias Helper.ORM
+  alias MastaniServer.CMS
+
   alias CMS.{PostComment, PostCommentReply}
 
   setup do

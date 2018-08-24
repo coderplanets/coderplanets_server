@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Accounts.AchievementTest do
+defmodule MastaniServer.Test.Accounts.Achievement do
   use MastaniServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]

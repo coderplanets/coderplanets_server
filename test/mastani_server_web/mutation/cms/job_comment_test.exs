@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.Mutation.JobCommentTest do
+defmodule MastaniServer.Test.Mutation.JobComment do
   use MastaniServer.TestTools
 
-  alias MastaniServer.CMS
   alias Helper.ORM
+  alias MastaniServer.CMS
 
   setup do
     {:ok, job} = db_insert(:job)

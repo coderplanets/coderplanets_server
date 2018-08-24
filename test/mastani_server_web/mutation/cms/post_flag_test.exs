@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Mutation.PostFlagTest do
+defmodule MastaniServer.Test.Mutation.PostFlag do
   use MastaniServer.TestTools
 
   alias MastaniServer.CMS

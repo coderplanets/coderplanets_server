@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Accounts.ReactedContentsTest do
+defmodule MastaniServer.Test.Accounts.ReactedContents do
   use MastaniServer.TestTools
 
   alias MastaniServer.{Accounts, CMS}

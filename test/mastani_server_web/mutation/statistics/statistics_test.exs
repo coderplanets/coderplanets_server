@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Mutation.StatisticsTest do
+defmodule MastaniServer.Test.Mutation.Statistics do
   use MastaniServer.TestTools
 
   alias MastaniServer.Statistics

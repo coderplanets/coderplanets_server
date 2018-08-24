@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Mutation.Accounts.FansTest do
+defmodule MastaniServer.Test.Mutation.Accounts.Fans do
   use MastaniServer.TestTools
 
   alias Helper.ORM

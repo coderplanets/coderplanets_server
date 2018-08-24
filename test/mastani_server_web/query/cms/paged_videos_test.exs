@@ -1,10 +1,11 @@
-defmodule MastaniServer.Test.Query.PagedVideosTest do
+defmodule MastaniServer.Test.Query.PagedVideos do
   use MastaniServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
 
-  alias MastaniServer.Repo
   alias MastaniServer.CMS
+  alias MastaniServer.Repo
+
   alias CMS.Video
 
   @page_size get_config(:general, :page_size)

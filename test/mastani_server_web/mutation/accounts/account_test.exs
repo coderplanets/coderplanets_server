@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Mutation.AccountTest do
+defmodule MastaniServer.Test.Mutation.Account.Basic do
   use MastaniServer.TestTools
 
   # alias MastaniServer.{Accounts}

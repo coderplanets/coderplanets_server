@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Accounts.FavoriteCategoryTest do
+defmodule MastaniServer.Test.Accounts.FavoriteCategory do
   use MastaniServer.TestTools
 
   alias Helper.ORM

@@ -1,8 +1,9 @@
-defmodule MastaniServer.Test.ContentFlagsTest do
+defmodule MastaniServer.Test.ContentFlags do
   use MastaniServer.TestTools
 
   alias MastaniServer.CMS
-  alias CMS.{Post, Video, Repo}
+
+  alias CMS.{Post, Repo, Video}
 
   setup do
     {:ok, user} = db_insert(:user)

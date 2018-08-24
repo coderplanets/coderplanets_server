@@ -1,11 +1,12 @@
-defmodule MastaniServer.Test.Query.PagedJobsTest do
+defmodule MastaniServer.Test.Query.PagedJobs do
   use MastaniServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
   import Ecto.Query, warn: false
 
-  alias MastaniServer.Repo
   alias MastaniServer.CMS
+  alias MastaniServer.Repo
+
   alias CMS.Job
 
   @page_size get_config(:general, :page_size)

@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.Statistics.PublishThrottleTest do
+defmodule MastaniServer.Test.Statistics.PublishThrottle do
   use MastaniServer.TestTools
 
-  alias MastaniServer.{CMS, Statistics}
   alias Helper.ORM
+  alias MastaniServer.{CMS, Statistics}
 
   setup do
     guest_conn = simu_conn(:guest)

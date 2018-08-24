@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Query.Account.FansTest do
+defmodule MastaniServer.Test.Query.Account.Fans do
   use MastaniServer.TestTools
 
   alias MastaniServer.Accounts

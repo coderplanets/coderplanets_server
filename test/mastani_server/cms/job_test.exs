@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.JobTest do
+defmodule MastaniServer.Test.Job do
   use MastaniServer.TestTools
 
   alias MastaniServer.CMS

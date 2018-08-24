@@ -1,12 +1,12 @@
-defmodule MastaniServer.Delivery.NotificationTest do
+defmodule MastaniServer.Test.Delivery.Notification do
   use MastaniServer.TestTools
 
   import Ecto.Query, warn: false
   import Helper.Utils
 
+  alias Helper.ORM
   alias MastaniServer.Accounts
   alias MastaniServer.Delivery
-  alias Helper.ORM
 
   describe "[delivery notification]" do
     alias Accounts.NotificationMail

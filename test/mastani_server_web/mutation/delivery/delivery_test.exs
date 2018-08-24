@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Mutation.DeliveryTest do
+defmodule MastaniServer.Test.Mutation.Delivery do
   use MastaniServer.TestTools
 
   alias MastaniServer.Accounts

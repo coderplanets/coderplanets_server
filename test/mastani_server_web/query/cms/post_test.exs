@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Query.PostTest do
+defmodule MastaniServer.Test.Query.Post do
   use MastaniServer.TestTools
 
   setup do

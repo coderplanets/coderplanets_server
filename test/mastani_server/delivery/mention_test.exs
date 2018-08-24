@@ -1,12 +1,12 @@
-defmodule MastaniServer.Delivery.MentionTest do
+defmodule MastaniServer.Test.Delivery.Mention do
   use MastaniServer.TestTools
 
   import Ecto.Query, warn: false
   import Helper.Utils
 
+  alias Helper.ORM
   alias MastaniServer.Accounts
   alias MastaniServer.Delivery
-  alias Helper.ORM
 
   describe "mentions" do
     alias Accounts.MentionMail

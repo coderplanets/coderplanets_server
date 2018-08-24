@@ -1,4 +1,4 @@
-defmodule MastaniServer.Delivery.SysNotificationTest do
+defmodule MastaniServer.Test.Delivery.SysNotification do
   use MastaniServer.TestTools
 
   import Ecto.Query, warn: false

@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.RepoTest do
+defmodule MastaniServer.Test.Repo do
   use MastaniServer.TestTools
 
-  alias MastaniServer.CMS
   alias Helper.ORM
+  alias MastaniServer.CMS
 
   setup do
     {:ok, user} = db_insert(:user)

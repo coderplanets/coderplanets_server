@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Query.VideoTest do
+defmodule MastaniServer.Test.Query.Video do
   use MastaniServer.TestTools
 
   setup do

@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Query.Accounts.FavritedJobsTest do
+defmodule MastaniServer.Test.Query.Accounts.FavritedJobs do
   use MastaniServer.TestTools
 
   alias MastaniServer.CMS

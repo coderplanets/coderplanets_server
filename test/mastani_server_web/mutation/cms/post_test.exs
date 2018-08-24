@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.Mutation.PostTest do
+defmodule MastaniServer.Test.Mutation.Post do
   use MastaniServer.TestTools
 
-  alias MastaniServer.CMS
   alias Helper.ORM
+  alias MastaniServer.CMS
 
   setup do
     {:ok, post} = db_insert(:post)

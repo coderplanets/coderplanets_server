@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Accounts.CustomizationTest do
+defmodule MastaniServer.Test.Accounts.Customization do
   use MastaniServer.TestTools
 
   alias MastaniServer.Accounts

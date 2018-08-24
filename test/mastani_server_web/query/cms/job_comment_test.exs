@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Query.JobCommentTest do
+defmodule MastaniServer.Test.Query.JobComment do
   use MastaniServer.TestTools
 
   alias MastaniServer.CMS

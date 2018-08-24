@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Query.CMSTest do
+defmodule MastaniServer.Test.Query.CMS.Basic do
   use MastaniServer.TestTools
 
   alias MastaniServer.Accounts.User
