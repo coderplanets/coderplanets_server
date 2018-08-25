@@ -3,6 +3,10 @@
 # see https://hexdocs.pm/absinthe/Absinthe.Middleware.html#content
 # ---
 defmodule MastaniServerWeb.Middleware.ChangesetErrors do
+  @moduledoc """
+  translate changeset into Graphql-spec with i18n support
+  """
+
   @behaviour Absinthe.Middleware
   import Helper.Utils, only: [handle_absinthe_error: 3]
   import Helper.ErrorCode
@@ -10,13 +14,24 @@ defmodule MastaniServerWeb.Middleware.ChangesetErrors do
   alias MastaniServerWeb.Gettext, as: Translator
 
   def call(%{errors: [%Ecto.Changeset{} = changeset]} = resolution, _) do
-    # IO.inspect changeset, label: "Changeset error"
-    # IO.inspect transform_errors(changeset), label: "transform_errors"
     resolution
     |> handle_absinthe_error(transform_errors(changeset), ecode(:changeset))
   end
 
   def call(resolution, _), do: resolution
+
+  # handle special embed schema errors
+  defp transform_errors(%Ecto.Changeset{errors: [], valid?: false} = changeset) do
+    first_errored_embed_changeset =
+      changeset.changes
+      |> Map.values()
+      |> List.flatten()
+      |> Enum.filter(&is_map/1)
+      |> Enum.filter(fn x -> x.valid? == false end)
+      |> List.first()
+
+    transform_errors(first_errored_embed_changeset)
+  end
 
   defp transform_errors(changeset) do
     changeset

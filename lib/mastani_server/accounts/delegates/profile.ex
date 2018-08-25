@@ -14,13 +14,33 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
 
   @default_subscribed_communities get_config(:general, :default_subscribed_communities)
 
-  def update_profile(%User{id: id}, attrs \\ %{}) do
-    with {:ok, user} <- ORM.find(User, id) do
-      case user.id === id do
-        true -> user |> ORM.update(attrs)
-        false -> {:error, "Error: not qualified"}
+  @doc """
+  update user's profile
+  """
+  def update_profile(%User{} = user, attrs \\ %{}) do
+    changeset =
+      user
+      |> Ecto.Changeset.change(attrs)
+
+    changeset =
+      cond do
+        Map.has_key?(attrs, :education_backgrounds) ->
+          changeset
+          |> Ecto.Changeset.put_embed(:education_backgrounds, attrs.education_backgrounds)
+
+        Map.has_key?(attrs, :work_backgrounds) ->
+          changeset
+          |> Ecto.Changeset.put_embed(:work_backgrounds, attrs.work_backgrounds)
+
+        Map.has_key?(attrs, :other_embeds) ->
+          changeset
+          |> Ecto.Changeset.put_embed(:other_embeds, attrs.other_embeds)
+
+        true ->
+          changeset
       end
-    end
+
+    changeset |> User.update_changeset(attrs) |> Repo.update()
   end
 
   @doc """

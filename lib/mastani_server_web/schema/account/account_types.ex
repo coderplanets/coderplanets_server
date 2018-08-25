@@ -14,6 +14,16 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:is_valid, :boolean)
   end
 
+  object :education_background do
+    field(:school, :string)
+    field(:major, :string)
+  end
+
+  object :work_background do
+    field(:company, :string)
+    field(:title, :string)
+  end
+
   object :user do
     field(:id, :id)
     field(:nickname, :string)
@@ -32,6 +42,9 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:from_github, :boolean)
     field(:github_profile, :github_profile, resolve: dataloader(Accounts, :github_profile))
     field(:achievement, :achievement, resolve: dataloader(Accounts, :achievement))
+
+    field(:education_backgrounds, list_of(:education_background))
+    field(:work_backgrounds, list_of(:work_background))
 
     # field(:favorites_categories, :paged_favorites_category) do
     # arg(:filter, non_null(:common_paged_filter))

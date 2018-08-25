@@ -13,7 +13,7 @@ defmodule MastaniServer.Test.Query.Account.Basic do
     {:ok, ~m(guest_conn user)a}
   end
 
-  describe "[account test]" do
+  describe "[account session state]" do
     @query """
     query {
       sessionState {
@@ -45,7 +45,9 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert results["isValid"] == false
       assert results["user"] == nil
     end
+  end
 
+  describe "[account basic]" do
     @query """
     query($id: ID!) {
       user(id: $id) {
@@ -54,14 +56,26 @@ defmodule MastaniServer.Test.Query.Account.Basic do
         bio
         cmsPassport
         cmsPassportString
+        educationBackgrounds {
+          school
+          major
+        }
+        workBackgrounds {
+          company
+          title
+        }
       }
     }
     """
-    test "guest user can get specific user by user's id", ~m(guest_conn user)a do
+    @tag :wip
+    test "guest user can get specific user's info by user's id", ~m(guest_conn user)a do
       variables = %{id: user.id}
       results = guest_conn |> query_result(@query, variables, "user")
+
       assert results["id"] == to_string(user.id)
       assert results["nickname"] == user.nickname
+      assert results["educationBackgrounds"] == []
+      assert results["workBackgrounds"] == []
     end
 
     @valid_rules %{
