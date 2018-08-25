@@ -112,18 +112,28 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
     end
   end
 
-  defp create_user(user, :github) do
-    user = %User{
-      nickname: user["login"],
-      avatar: user["avatar_url"],
-      bio: user["bio"],
-      location: user["location"],
-      email: user["email"],
-      company: user["company"],
+  defp create_user(profile, :github) do
+    attrs = %{
+      nickname: profile["login"],
+      avatar: profile["avatar_url"],
+      bio: profile["bio"],
+      location: profile["location"],
+      email: profile["email"],
       from_github: true
     }
 
-    Repo.insert(user)
+    changeset =
+      case profile |> Map.has_key?("company") do
+        true ->
+          %User{}
+          |> Ecto.Changeset.change(attrs)
+          |> Ecto.Changeset.put_embed(:work_backgrounds, [%{company: profile["company"]}])
+
+        false ->
+          %User{} |> Ecto.Changeset.change(attrs)
+      end
+
+    Repo.insert(changeset)
   end
 
   defp create_profile(user, github_profile, :github) do
