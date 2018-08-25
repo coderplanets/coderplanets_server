@@ -8,15 +8,20 @@ defmodule MastaniServer.Accounts.User do
   alias MastaniServer.Accounts.{
     Achievement,
     Customization,
+    EducationBackground,
     FavoriteCategory,
     GithubUser,
     Purchase,
     UserBill,
     UserFollower,
-    UserFollowing
+    UserFollowing,
+    WorkBackground
   }
 
   alias MastaniServer.CMS
+
+  @required_fields ~w(nickname avatar)a
+  @optional_fields ~w(nickname bio sex location email company education qq weichat weibo)a
 
   @type t :: %User{}
   schema "users" do
@@ -26,8 +31,16 @@ defmodule MastaniServer.Accounts.User do
     field(:bio, :string)
     field(:email, :string)
     field(:location, :string)
+
     field(:education, :string)
     field(:company, :string)
+
+    # TODO
+    # field(:twitter, :string)
+    # field(:facebook, :string)
+    embeds_many(:education_backgrounds, EducationBackground)
+    embeds_many(:work_backgrounds, WorkBackground)
+
     field(:qq, :string)
     field(:weibo, :string)
     field(:weichat, :string)
@@ -56,17 +69,21 @@ defmodule MastaniServer.Accounts.User do
     timestamps(type: :utc_datetime)
   end
 
-  @required_fields ~w(nickname avatar)a
-  @optional_fields ~w(nickname bio avatar sex location email company education qq weichat weibo)a
-
   @doc false
   def changeset(%User{} = user, attrs) do
-    # |> cast(attrs, [:username, :nickname, :bio, :company])
-    # |> validate_required([:username])
-    # |> cast(attrs, @required_fields, @optional_fields)
     user
     |> cast(attrs, @optional_fields ++ @required_fields)
+    |> update_changeset(attrs)
     |> validate_required(@required_fields)
+
+    # |> unique_constraint(:username)
+  end
+
+  def update_changeset(user, attrs) do
+    user
+    |> cast(attrs, @optional_fields ++ @required_fields)
+    |> cast_embed(:education_backgrounds, with: &EducationBackground.changeset/2)
+    |> cast_embed(:work_backgrounds, with: &WorkBackground.changeset/2)
     |> validate_length(:nickname, min: 3, max: 30)
     |> validate_length(:bio, min: 3, max: 100)
     |> validate_inclusion(:sex, ["dude", "girl"])
@@ -76,7 +93,5 @@ defmodule MastaniServer.Accounts.User do
     |> validate_length(:qq, min: 8, max: 15)
     |> validate_length(:weichat, min: 3, max: 30)
     |> validate_length(:weibo, min: 3, max: 30)
-
-    # |> unique_constraint(:username)
   end
 end

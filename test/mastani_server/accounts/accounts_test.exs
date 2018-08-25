@@ -35,7 +35,52 @@ defmodule MastaniServer.Test.Accounts do
       assert updated.sex == attrs.sex
     end
 
-    test "update user with invalid attrs fails" do
+    @tag :wip
+    test "update user education backgorunds with valid attrs" do
+      {:ok, user} = db_insert(:user)
+
+      attrs = %{
+        nickname: "new name",
+        education_backgrounds: [
+          # %{major: "bad ass"},
+          %{school: "school", major: "bad ass"},
+          %{school: "school2", major: "still bad ass"}
+        ]
+      }
+
+      {:ok, updated} = Accounts.update_profile(%User{id: user.id}, attrs)
+
+      assert updated.nickname == "new name"
+      assert updated.education_backgrounds |> is_list
+      assert updated.education_backgrounds |> length == 2
+      assert updated.education_backgrounds |> Enum.any?(&(&1.school == "school"))
+      assert updated.education_backgrounds |> Enum.any?(&(&1.major == "bad ass"))
+    end
+
+    @tag :wip
+    test "update user work backgorunds with valid attrs" do
+      {:ok, user} = db_insert(:user)
+
+      attrs = %{
+        nickname: "new name",
+        work_backgrounds: [
+          # %{major: "bad ass"},
+          %{company: "company", title: "bad ass"},
+          %{company: "company 2", title: "still bad ass"}
+        ]
+      }
+
+      {:ok, updated} = Accounts.update_profile(%User{id: user.id}, attrs)
+
+      assert updated.nickname == "new name"
+      assert updated.work_backgrounds |> is_list
+      assert updated.work_backgrounds |> length == 2
+      assert updated.work_backgrounds |> Enum.any?(&(&1.company == "company"))
+      assert updated.work_backgrounds |> Enum.any?(&(&1.title == "bad ass"))
+    end
+
+    @tag :wip
+    test "update user with invalid attrs fails ?" do
       {:ok, user} = db_insert(:user)
 
       assert {:error, _} = Accounts.update_profile(%User{id: user.id}, %{qq: "123"})
