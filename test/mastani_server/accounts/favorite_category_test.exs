@@ -60,8 +60,8 @@ defmodule MastaniServer.Test.Accounts.FavoriteCategory do
       test_category = "test category"
       {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
 
-      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post.id, category.title)
-      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post2.id, category.title)
+      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post.id, category.id)
+      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post2.id, category.id)
 
       assert {:ok, _} = Accounts.delete_favorite_category(user, category.id)
 
@@ -74,66 +74,66 @@ defmodule MastaniServer.Test.Accounts.FavoriteCategory do
   end
 
   describe "[favorite category set/unset]" do
+    @tag :wip
     test "user can set category to a favorited post", ~m(user post)a do
       test_category = "test category"
-      {:ok, _category} = Accounts.create_favorite_category(user, %{title: test_category})
-
-      {:ok, _favorites_category} = Accounts.set_favorites(user, :post, post.id, test_category)
+      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
+      {:ok, _favorites_category} = Accounts.set_favorites(user, :post, post.id, category.id)
 
       {:ok, post_favorite} =
         CMS.PostFavorite |> ORM.find_by(%{post_id: post.id, user_id: user.id})
 
-      assert post_favorite.category_title == test_category
+      assert post_favorite.category_id == category.id
     end
 
+    @tag :wip
     test "user can change category to a categoried favorited post", ~m(user post)a do
       test_category = "test category"
-      {:ok, _category} = Accounts.create_favorite_category(user, %{title: test_category})
+      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
 
       {:ok, _} = CMS.reaction(:post, :favorite, post.id, user)
-      {:ok, _favorite_category} = Accounts.set_favorites(user, :post, post.id, test_category)
+      {:ok, _favorite_category} = Accounts.set_favorites(user, :post, post.id, category.id)
 
       {:ok, post_favorite} =
         CMS.PostFavorite |> ORM.find_by(%{post_id: post.id, user_id: user.id})
 
-      assert post_favorite.category_title == test_category
+      assert post_favorite.category_id == category.id
 
       test_category2 = "test category2"
-      {:ok, _category} = Accounts.create_favorite_category(user, %{title: test_category2})
-      {:ok, _favorite_category} = Accounts.set_favorites(user, :post, post.id, test_category2)
+      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category2})
+      {:ok, _favorite_category} = Accounts.set_favorites(user, :post, post.id, category.id)
 
       {:ok, post_favorite} =
         CMS.PostFavorite |> ORM.find_by(%{post_id: post.id, user_id: user.id})
 
-      assert post_favorite.category_title == test_category2
+      assert post_favorite.category_id == category.id
     end
 
     test "user set a un-created user's category fails", ~m(user post)a do
+      {:ok, user2} = db_insert(:user)
       test_category = "test category"
+      {:ok, category} = Accounts.create_favorite_category(user2, %{title: test_category})
 
-      assert {:error, _} = Accounts.set_favorites(user, :post, post.id, test_category)
+      assert {:error, _} = Accounts.set_favorites(user, :post, post.id, category.id)
     end
 
+    @tag :wip
     test "user set to a already categoried post fails", ~m(user post)a do
       test_category = "test category"
-      {:ok, _category} = Accounts.create_favorite_category(user, %{title: test_category})
-      {:ok, _} = Accounts.set_favorites(user, :post, post.id, test_category)
+      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
+      {:ok, _} = Accounts.set_favorites(user, :post, post.id, category.id)
 
-      {:error, error} = Accounts.set_favorites(user, :post, post.id, test_category)
+      {:error, error} = Accounts.set_favorites(user, :post, post.id, category.id)
       assert error |> Keyword.get(:code) == ecode(:already_did)
-    end
-
-    test "user can set category to a unfavorited post fails", ~m(user post)a do
-      {:error, _} = Accounts.set_favorites(user, :post, post.id, "test category")
     end
 
     test "user can unset category to a favorited post", ~m(user post)a do
       test_category = "test category"
-      {:ok, _category} = Accounts.create_favorite_category(user, %{title: test_category})
-      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post.id, test_category)
+      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
+      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post.id, category.id)
       assert {:ok, _} = CMS.PostFavorite |> ORM.find_by(%{post_id: post.id, user_id: user.id})
 
-      {:ok, _category} = Accounts.unset_favorites(user, :post, post.id, test_category)
+      {:ok, _category} = Accounts.unset_favorites(user, :post, post.id, category.id)
 
       assert {:error, _} = CMS.PostFavorite |> ORM.find_by(%{post_id: post.id, user_id: user.id})
     end
@@ -145,12 +145,12 @@ defmodule MastaniServer.Test.Accounts.FavoriteCategory do
       {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
       assert category.total_count == 0
 
-      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post.id, test_category)
+      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post.id, category.id)
 
       {:ok, category} = FavoriteCategory |> ORM.find(category.id)
       assert category.total_count == 1
 
-      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post2.id, test_category)
+      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post2.id, category.id)
       {:ok, category} = FavoriteCategory |> ORM.find(category.id)
 
       assert category.total_count == 2
@@ -158,10 +158,10 @@ defmodule MastaniServer.Test.Accounts.FavoriteCategory do
 
     test "total_count - 1 after unset category to a favorited post", ~m(user post)a do
       test_category = "test category"
-      {:ok, _category} = Accounts.create_favorite_category(user, %{title: test_category})
-      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post.id, test_category)
+      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
+      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post.id, category.id)
 
-      {:ok, category} = Accounts.unset_favorites(user, :post, post.id, test_category)
+      {:ok, category} = Accounts.unset_favorites(user, :post, post.id, category.id)
 
       assert category.total_count == 0
     end

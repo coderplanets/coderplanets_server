@@ -90,8 +90,8 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
 
   describe "[Accounts FavoriteCategory set/unset]" do
     @query """
-    mutation($id: ID!, $thread: CmsThread, $categoryTitle: String!) {
-      setFavorites(id: $id, thread: $thread, categoryTitle: $categoryTitle){
+    mutation($id: ID!, $thread: CmsThread, $categoryId: ID!) {
+      setFavorites(id: $id, thread: $thread, categoryId: $categoryId){
         id
         title
         totalCount
@@ -100,21 +100,21 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
     """
     test "user can put a post to favorites category", ~m(user user_conn post)a do
       test_category = "test category"
-      {:ok, _category} = Accounts.create_favorite_category(user, %{title: test_category})
+      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
 
-      variables = %{id: post.id, categoryTitle: test_category}
+      variables = %{id: post.id, categoryId: category.id}
       created = user_conn |> mutation_result(@query, variables, "setFavorites")
       {:ok, found} = CMS.PostFavorite |> ORM.find_by(%{post_id: post.id, user_id: user.id})
 
       assert created["totalCount"] == 1
-      assert found.category_title == test_category
+      assert found.category_id == category.id
       assert found.user_id == user.id
       assert found.post_id == post.id
     end
 
     @query """
-    mutation($id: ID!, $thread: CmsThread, $categoryTitle: String!) {
-      unsetFavorites(id: $id, thread: $thread, categoryTitle: $categoryTitle){
+    mutation($id: ID!, $thread: CmsThread, $categoryId: ID!) {
+      unsetFavorites(id: $id, thread: $thread, categoryId: $categoryId){
         id
         title
         totalCount
@@ -124,12 +124,12 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
     test "user can unset favorites category", ~m(user user_conn post)a do
       test_category = "test category"
       {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
-      {:ok, _favorite_category} = Accounts.set_favorites(user, :post, post.id, test_category)
+      {:ok, _favorite_category} = Accounts.set_favorites(user, :post, post.id, category.id)
 
       {:ok, category} = Accounts.FavoriteCategory |> ORM.find(category.id)
       assert category.total_count == 1
 
-      variables = %{id: post.id, categoryTitle: test_category}
+      variables = %{id: post.id, categoryId: category.id}
       user_conn |> mutation_result(@query, variables, "unsetFavorites")
 
       {:ok, category} = Accounts.FavoriteCategory |> ORM.find(category.id)

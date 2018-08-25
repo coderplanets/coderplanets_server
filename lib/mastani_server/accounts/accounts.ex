@@ -23,8 +23,8 @@ defmodule MastaniServer.Accounts do
   defdelegate create_favorite_category(user, attrs), to: FavoriteCategory
   defdelegate update_favorite_category(user, attrs), to: FavoriteCategory
   defdelegate delete_favorite_category(user, id), to: FavoriteCategory
-  defdelegate set_favorites(user, thread, content_id, category_title), to: FavoriteCategory
-  defdelegate unset_favorites(user, thread, content_id, category_title), to: FavoriteCategory
+  defdelegate set_favorites(user, thread, content_id, category_id), to: FavoriteCategory
+  defdelegate unset_favorites(user, thread, content_id, category_id), to: FavoriteCategory
 
   # achievement
   defdelegate achieve(user, operation, key), to: Achievements

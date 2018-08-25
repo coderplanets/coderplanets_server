@@ -49,12 +49,12 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.delete_favorite_category(cur_user, id)
   end
 
-  def set_favorites(_root, ~m(id thread category_title)a, %{context: %{cur_user: cur_user}}) do
-    Accounts.set_favorites(cur_user, thread, id, category_title)
+  def set_favorites(_root, ~m(id thread category_id)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.set_favorites(cur_user, thread, id, category_id)
   end
 
-  def unset_favorites(_root, ~m(id thread category_title)a, %{context: %{cur_user: cur_user}}) do
-    Accounts.unset_favorites(cur_user, thread, id, category_title)
+  def unset_favorites(_root, ~m(id thread category_id)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.unset_favorites(cur_user, thread, id, category_id)
   end
 
   def follow(_root, ~m(user_id)a, %{context: %{cur_user: cur_user}}) do

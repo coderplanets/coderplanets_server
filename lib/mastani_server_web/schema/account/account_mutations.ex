@@ -79,7 +79,7 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
     @desc "put content to favorites with category"
     field :set_favorites, :favorites_category do
       arg(:id, non_null(:id))
-      arg(:category_title, non_null(:string))
+      arg(:category_id, non_null(:id))
       arg(:thread, :cms_thread, default_value: :post)
 
       middleware(M.Authorize, :login)
@@ -89,7 +89,7 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
     @desc "take out content from favorites category"
     field :unset_favorites, :favorites_category do
       arg(:id, non_null(:id))
-      arg(:category_title, non_null(:string))
+      arg(:category_id, non_null(:id))
       arg(:thread, :cms_thread, default_value: :post)
 
       middleware(M.Authorize, :login)
