@@ -67,14 +67,13 @@ defmodule MastaniServer.Test.Accounts.FavoriteCategory do
 
       assert {:error, _} =
                CMS.PostFavorite
-               |> ORM.find_by(%{category_title: category.title, user_id: user.id})
+               |> ORM.find_by(%{category_id: category.id, user_id: user.id})
 
       assert {:error, _} = FavoriteCategory |> ORM.find(category.id)
     end
   end
 
   describe "[favorite category set/unset]" do
-    @tag :wip
     test "user can set category to a favorited post", ~m(user post)a do
       test_category = "test category"
       {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
@@ -86,7 +85,6 @@ defmodule MastaniServer.Test.Accounts.FavoriteCategory do
       assert post_favorite.category_id == category.id
     end
 
-    @tag :wip
     test "user can change category to a categoried favorited post", ~m(user post)a do
       test_category = "test category"
       {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
@@ -117,7 +115,6 @@ defmodule MastaniServer.Test.Accounts.FavoriteCategory do
       assert {:error, _} = Accounts.set_favorites(user, :post, post.id, category.id)
     end
 
-    @tag :wip
     test "user set to a already categoried post fails", ~m(user post)a do
       test_category = "test category"
       {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})

@@ -8,7 +8,7 @@ defmodule MastaniServer.CMS.PostFavorite do
   alias MastaniServer.CMS.Post
 
   @required_fields ~w(user_id post_id)a
-  @optional_fields ~w(category_title category_id)a
+  @optional_fields ~w(category_id)a
 
   @type t :: %PostFavorite{}
   schema "posts_favorites" do
@@ -16,7 +16,6 @@ defmodule MastaniServer.CMS.PostFavorite do
     belongs_to(:post, Post, foreign_key: :post_id)
     # has_many(:category, UserFavoriteCategory)
     belongs_to(:category, Accounts.FavoriteCategory)
-    field(:category_title, :string, default: "all")
 
     timestamps(type: :utc_datetime)
   end
