@@ -25,7 +25,7 @@ after_script:
 - apollo schema:check  --endpoint="http://apiraw.coderplanets.com/graphiql"
 - apollo schema:publish --endpoint="http://apiraw.coderplanets.com/graphiql"
 after_success:
-- bash <(curl -s https://codecov.io/bash)
+- bash <(curl -s -k https://codecov.io/bash)
 cache:
   directories:
   - "$HOME/.cargo"
