@@ -41,7 +41,7 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
           from(
             pf in CMS.PostFavorite,
             where: pf.user_id == ^user_id,
-            where: pf.category_title == ^category.title
+            where: pf.category_id == ^category.id
           )
 
         query |> Repo.delete_all() |> done()
@@ -89,8 +89,8 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
 
   alias CMS.PostFavorite
 
-  defp check_dup_category(content, category_title) do
-    case content.category_title !== category_title do
+  defp check_dup_category(content, category) do
+    case content.category_id !== category.id do
       true -> {:ok, ""}
       false -> {:error, [message: "viewer has already categoried", code: ecode(:already_did)]}
     end
@@ -100,20 +100,20 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
     PostFavorite |> ORM.find_by(%{post_id: content_id, user_id: user_id})
   end
 
-  def set_favorites(%User{} = user, thread, content_id, title) do
+  def set_favorites(%User{} = user, thread, content_id, category_id) do
     with {:ok, favorite_category} <-
-           FavoriteCategory |> ORM.find_by(%{user_id: user.id, title: title}) do
+           FavoriteCategory |> ORM.find_by(%{user_id: user.id, id: category_id}) do
       Multi.new()
       |> Multi.run(:favorite_content, fn _ ->
         case content_favorite_result(thread, content_id, user.id) do
-          {:ok, content_favorite} -> check_dup_category(content_favorite, title)
+          {:ok, content_favorite} -> check_dup_category(content_favorite, favorite_category)
           {:error, _} -> CMS.reaction(thread, :favorite, content_id, user)
         end
       end)
-      |> Multi.run(:update_title, fn _ ->
+      |> Multi.run(:update_category_id, fn _ ->
         {:ok, content_favorite} = content_favorite_result(thread, content_id, user.id)
 
-        content_favorite |> ORM.update(%{category_title: title})
+        content_favorite |> ORM.update(%{category_id: favorite_category.id})
       end)
       |> Multi.run(:inc_count, fn _ ->
         favorite_category |> ORM.update(%{total_count: favorite_category.total_count + 1})
@@ -130,17 +130,17 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
     {:error, result}
   end
 
-  defp set_favorites_result({:error, :update_title, _result, _steps}) do
-    {:error, [message: "update category title fails", code: ecode(:update_fails)]}
+  defp set_favorites_result({:error, :update_category_id, _result, _steps}) do
+    {:error, [message: "update category content fails", code: ecode(:update_fails)]}
   end
 
   defp set_favorites_result({:error, :update_count, _result, _steps}) do
     {:error, [message: "inc total count fails", code: ecode(:update_fails)]}
   end
 
-  def unset_favorites(%User{} = user, thread, content_id, title) do
+  def unset_favorites(%User{} = user, thread, content_id, category_id) do
     with {:ok, favorite_category} <-
-           FavoriteCategory |> ORM.find_by(%{user_id: user.id, title: title}) do
+           FavoriteCategory |> ORM.find_by(%{user_id: user.id, id: category_id}) do
       Multi.new()
       |> Multi.run(:remove_favorite_record, fn _ ->
         {:ok, content_favorite} = content_favorite_result(thread, content_id, user.id)
