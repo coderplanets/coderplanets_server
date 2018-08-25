@@ -35,7 +35,6 @@ defmodule MastaniServer.Test.Accounts do
       assert updated.sex == attrs.sex
     end
 
-    @tag :wip
     test "update user education backgorunds with valid attrs" do
       {:ok, user} = db_insert(:user)
 
@@ -57,7 +56,6 @@ defmodule MastaniServer.Test.Accounts do
       assert updated.education_backgrounds |> Enum.any?(&(&1.major == "bad ass"))
     end
 
-    @tag :wip
     test "update user work backgorunds with valid attrs" do
       {:ok, user} = db_insert(:user)
 
@@ -79,7 +77,6 @@ defmodule MastaniServer.Test.Accounts do
       assert updated.work_backgrounds |> Enum.any?(&(&1.title == "bad ass"))
     end
 
-    @tag :wip
     test "update user with invalid attrs fails ?" do
       {:ok, user} = db_insert(:user)
 
@@ -90,7 +87,7 @@ defmodule MastaniServer.Test.Accounts do
   end
 
   describe "[github login]" do
-    alias Accounts.{User, GithubUser}
+    alias Accounts.{GithubUser, User}
 
     test "register a valid github user with non-exist in db" do
       assert {:error, _} =
@@ -109,7 +106,10 @@ defmodule MastaniServer.Test.Accounts do
       assert created_user.bio == @valid_github_profile["bio"]
 
       assert created_user.email == @valid_github_profile["email"]
-      assert created_user.company == @valid_github_profile["company"]
+
+      company_title = created_user.work_backgrounds |> List.first() |> Map.get(:company)
+      assert company_title == @valid_github_profile["company"]
+
       assert created_user.location == @valid_github_profile["location"]
       assert created_user.from_github == true
 
