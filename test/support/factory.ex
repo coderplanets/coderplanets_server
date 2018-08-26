@@ -187,7 +187,7 @@ defmodule MastaniServer.Factory do
 
     %{
       id: "#{Faker.Name.first_name()} #{unique_num}",
-      login: "#{Faker.Name.first_name()} #{unique_num}",
+      login: "#{Faker.Name.first_name()}#{unique_num}",
       github_id: "#{unique_num + 1000}",
       node_id: "#{unique_num + 2000}",
       access_token: "#{unique_num + 3000}",
