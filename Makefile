@@ -44,6 +44,8 @@ launch.prod:
 
 migrate:
 	mix ecto.migrate
+migrate.mock:
+	MIX_ENV=mock mix ecto.migrate
 rollback:
 	mix ecto.rollback
 migrate.mock:
@@ -63,6 +65,8 @@ gen:
 	@echo "\n"
 gen.migration:
 	mix ecto.gen.migration $(arg)
+gen.migration.mock:
+	MIX_ENV=mock mix ecto.gen.migration $(arg)
 gen.context:
 	mix phx.gen.context $(arg)
 
@@ -117,6 +121,8 @@ test.watch:
 	mix test.watch
 test.watch.wip:
 	mix test.watch --only wip
+test.watch.wip2:
+	mix test.watch --only wip2
 test.db_reset:
 	env MIX_ENV=test mix ecto.drop
 	env MIX_ENV=test mix ecto.create

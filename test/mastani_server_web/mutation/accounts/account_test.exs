@@ -44,7 +44,6 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
       assert updated["nickname"] == "new nickname"
     end
 
-    @tag :wip
     test "user can update it's own education_backgrounds", ~m(user)a do
       ownd_conn = simu_conn(:user, user)
 
@@ -75,7 +74,6 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
       assert updated["education_backgrounds"] |> Enum.any?(&(&1["major"] == "bad ass"))
     end
 
-    @tag :wip
     test "user update education_backgrounds with invalid data fails", ~m(user)a do
       ownd_conn = simu_conn(:user, user)
 
@@ -97,7 +95,6 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
       assert ownd_conn |> mutation_get_error?(@update_query, variables)
     end
 
-    @tag :wip
     test "user can update it's own work backgrounds", ~m(user)a do
       ownd_conn = simu_conn(:user, user)
 
@@ -128,7 +125,6 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
       assert updated["work_backgrounds"] |> Enum.any?(&(&1["title"] == "bad ass"))
     end
 
-    @tag :wip
     test "user update work backgrounds with invalid data fails", ~m(user)a do
       ownd_conn = simu_conn(:user, user)
 

@@ -21,7 +21,7 @@ defmodule MastaniServer.Accounts.User do
   alias MastaniServer.CMS
 
   @required_fields ~w(nickname avatar)a
-  @optional_fields ~w(nickname bio sex location email company education qq weichat weibo)a
+  @optional_fields ~w(nickname bio sex location email qq weichat weibo)a
 
   @type t :: %User{}
   schema "users" do
@@ -31,9 +31,6 @@ defmodule MastaniServer.Accounts.User do
     field(:bio, :string)
     field(:email, :string)
     field(:location, :string)
-
-    field(:education, :string)
-    field(:company, :string)
 
     # TODO
     # field(:twitter, :string)
@@ -72,7 +69,6 @@ defmodule MastaniServer.Accounts.User do
   @doc false
   def changeset(%User{} = user, attrs) do
     user
-    |> cast(attrs, @optional_fields ++ @required_fields)
     |> update_changeset(attrs)
     |> validate_required(@required_fields)
 
@@ -89,7 +85,6 @@ defmodule MastaniServer.Accounts.User do
     |> validate_inclusion(:sex, ["dude", "girl"])
     |> validate_format(:email, ~r/@/)
     |> validate_length(:location, min: 2, max: 30)
-    |> validate_length(:company, min: 3, max: 30)
     |> validate_length(:qq, min: 8, max: 15)
     |> validate_length(:weichat, min: 3, max: 30)
     |> validate_length(:weibo, min: 3, max: 30)

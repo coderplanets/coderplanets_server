@@ -67,7 +67,6 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       }
     }
     """
-    @tag :wip
     test "guest user can get specific user's info by user's id", ~m(guest_conn user)a do
       variables = %{id: user.id}
       results = guest_conn |> query_result(@query, variables, "user")
