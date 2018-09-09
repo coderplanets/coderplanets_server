@@ -53,16 +53,22 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
     with {:ok, action} <- match_action(thread, :tag),
          {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
          {:ok, tag} <- ORM.find(action.reactor, tag_id) do
-      case tag_in_community_thread?(%Community{id: communitId}, thread, tag) do
-        true ->
-          content
-          |> Ecto.Changeset.change()
-          |> Ecto.Changeset.put_assoc(:tags, content.tags ++ [tag])
-          |> Repo.update()
+      content
+      |> Ecto.Changeset.change()
+      |> Ecto.Changeset.put_assoc(:tags, content.tags ++ [tag])
+      |> Repo.update()
 
-        _ ->
-          {:error, message: "Tag,Community,Thread not match", code: ecode(:custom)}
-      end
+      # NOTE: this should be control by Middleware
+      # case tag_in_community_thread?(%Community{id: communitId}, thread, tag) do
+      # true ->
+      # content
+      # |> Ecto.Changeset.change()
+      # |> Ecto.Changeset.put_assoc(:tags, content.tags ++ [tag])
+      # |> Repo.update()
+
+      # _ ->
+      # {:error, message: "Tag,Community,Thread not match", code: ecode(:custom)}
+      # end
     end
   end
 

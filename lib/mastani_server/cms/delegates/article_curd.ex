@@ -1,15 +1,21 @@
 defmodule MastaniServer.CMS.Delegate.ArticleCURD do
+  @moduledoc """
+  CURD operation on post/job/video ...
+  """
   import Ecto.Query, warn: false
   import MastaniServer.CMS.Utils.Matcher
   import Helper.Utils, only: [done: 1]
+  import Helper.ErrorCode
   import ShortMaps
 
   alias MastaniServer.Accounts.User
-  alias MastaniServer.{Repo, CMS, Statistics}
-  alias MastaniServer.CMS.Delegate.ArticleOperation
+  alias MastaniServer.{CMS, Repo, Statistics}
+
+  alias CMS.Delegate.ArticleOperation
   alias Helper.{ORM, QueryBuilder}
 
-  alias CMS.{Author, Community}
+  alias CMS.{Author, Community, Tag}
+  alias Ecto.Multi
 
   @doc """
   get paged post / job ...
@@ -66,15 +72,62 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   def create_content(%Community{id: community_id}, thread, attrs, %User{id: user_id}) do
     with {:ok, author} <- ensure_author_exists(%User{id: user_id}),
          {:ok, action} <- match_action(thread, :community),
-         {:ok, community} <- ORM.find(Community, community_id),
-         {:ok, content} <-
-           action.target
-           |> struct()
-           |> action.target.changeset(attrs)
-           |> Ecto.Changeset.put_change(:author_id, author.id)
-           |> Repo.insert() do
-      Statistics.log_publish_action(%User{id: user_id})
-      ArticleOperation.set_community(community, thread, content.id)
+         {:ok, community} <- ORM.find(Community, community_id) do
+      Multi.new()
+      |> Multi.run(:add_content_author, fn _ ->
+        action.target
+        |> struct()
+        |> action.target.changeset(attrs)
+        |> Ecto.Changeset.put_change(:author_id, author.id)
+        |> Repo.insert()
+      end)
+      |> Multi.run(:set_community, fn %{add_content_author: content} ->
+        ArticleOperation.set_community(community, thread, content.id)
+      end)
+      |> Multi.run(:set_tag, fn %{add_content_author: content} ->
+        case attrs |> Map.has_key?(:tags) do
+          true -> set_tags(community, thread, content.id, attrs.tags)
+          false -> {:ok, "pass"}
+        end
+      end)
+      |> Multi.run(:log_action, fn _ ->
+        Statistics.log_publish_action(%User{id: user_id})
+      end)
+      |> Repo.transaction()
+      |> create_content_result()
+    end
+  end
+
+  defp create_content_result({:ok, %{add_content_author: result}}), do: {:ok, result}
+
+  defp create_content_result({:error, :add_content_author, _result, _steps}) do
+    {:error, [message: "assign author", code: ecode(:create_fails)]}
+  end
+
+  defp create_content_result({:error, :set_community, _result, _steps}) do
+    {:error, [message: "set community", code: ecode(:create_fails)]}
+  end
+
+  defp create_content_result({:error, :set_tag, result, _steps}) do
+    {:error, result}
+  end
+
+  defp create_content_result({:error, :log_action, result, _steps}) do
+    {:error, [message: "log action", code: ecode(:create_fails)]}
+  end
+
+  # if empty just pass
+  defp set_tags(community, thread, content_id, []), do: {:ok, "pass"}
+
+  defp set_tags(community, thread, content_id, tags) do
+    try do
+      Enum.each(tags, fn tag ->
+        {:ok, _} = ArticleOperation.set_tag(community, thread, %Tag{id: tag.id}, content_id)
+      end)
+
+      {:ok, "psss"}
+    rescue
+      _ -> {:error, [message: "set tag", code: ecode(:create_fails)]}
     end
   end
 

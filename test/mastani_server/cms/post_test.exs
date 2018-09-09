@@ -25,6 +25,30 @@ defmodule MastaniServer.Test.Post do
       assert post.title == post_attrs.title
     end
 
+    test "can create post with exsited tags", ~m(user community post_attrs)a do
+      {:ok, tag1} = db_insert(:tag)
+      {:ok, tag2} = db_insert(:tag)
+
+      post_with_tags = Map.merge(post_attrs, %{tags: [%{id: tag1.id}, %{id: tag2.id}]})
+
+      {:ok, created} = CMS.create_content(community, :post, post_with_tags, user)
+      {:ok, found} = ORM.find(CMS.Post, created.id, preload: :tags)
+
+      assert found.tags |> Enum.any?(&(&1.id == tag1.id))
+      assert found.tags |> Enum.any?(&(&1.id == tag2.id))
+    end
+
+    test "create post with invalid tags fails", ~m(user community post_attrs)a do
+      {:ok, tag1} = db_insert(:tag)
+      {:ok, tag2} = db_insert(:tag)
+
+      post_with_tags =
+        Map.merge(post_attrs, %{tags: [%{id: tag1.id}, %{id: tag2.id}, %{id: non_exsit_id()}]})
+
+      {:error, _} = CMS.create_content(community, :post, post_with_tags, user)
+      {:error, _} = ORM.find_by(CMS.Post, %{title: post_attrs.title})
+    end
+
     test "add user to cms authors, if the user is not exsit in cms authors",
          ~m(user community post_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
