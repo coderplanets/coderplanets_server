@@ -3,6 +3,8 @@ defmodule MastaniServer.Accounts.User do
   alias __MODULE__
 
   use Ecto.Schema
+
+  import MastaniServerWeb.Schema.Utils.Helper
   import Ecto.Changeset
 
   alias MastaniServer.Accounts.{
@@ -21,7 +23,7 @@ defmodule MastaniServer.Accounts.User do
   alias MastaniServer.CMS
 
   @required_fields ~w(nickname avatar)a
-  @optional_fields ~w(nickname bio sex location douban dribble email facebook github huaban qq  weibo weichat twitter zhihu)a
+  @optional_fields ~w(nickname bio sex location douban dribble email facebook pinterest pinterest github huaban qq  weibo weichat twitter zhihu)a
 
   @type t :: %User{}
   schema "users" do
@@ -31,25 +33,13 @@ defmodule MastaniServer.Accounts.User do
     field(:bio, :string)
     field(:email, :string)
     field(:location, :string)
+    field(:from_github, :boolean)
 
-    # TODO
+    sscial_fields()
+
     embeds_many(:education_backgrounds, EducationBackground)
     embeds_many(:work_backgrounds, WorkBackground)
 
-    # social info
-    field(:github, :string)
-    field(:twitter, :string)
-    field(:facebook, :string)
-    field(:zhihu, :string)
-    field(:dribble, :string)
-    field(:huaban, :string)
-    field(:douban, :string)
-
-    field(:qq, :string)
-    field(:weibo, :string)
-    field(:weichat, :string)
-
-    field(:from_github, :boolean)
     has_one(:achievement, Achievement)
     has_one(:github_profile, GithubUser)
     has_one(:cms_passport, CMS.Passport)

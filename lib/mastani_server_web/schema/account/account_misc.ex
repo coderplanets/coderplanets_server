@@ -1,6 +1,7 @@
 defmodule MastaniServerWeb.Schema.Account.Misc do
-  use Absinthe.Schema.Notation
+  @moduledoc false
 
+  use Absinthe.Schema.Notation
   import MastaniServerWeb.Schema.Utils.Helper
   # import Helper.Utils, only: [get_config: 2]
   # @page_size get_config(:general, :page_size)
@@ -47,9 +48,9 @@ defmodule MastaniServerWeb.Schema.Account.Misc do
     field(:sex, :string)
     field(:location, :string)
     field(:email, :string)
-    field(:qq, :string)
-    field(:weibo, :string)
-    field(:weichat, :string)
+    # social
+    sscial_fields()
+    # backgrounds
     field(:education_backgrounds, list_of(:education_background))
     field(:work_backgrounds, list_of(:work_background))
   end

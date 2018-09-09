@@ -32,11 +32,9 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:sex, :string)
     field(:email, :string)
     field(:location, :string)
-    field(:education, :string)
-    field(:company, :string)
-    field(:qq, :string)
-    field(:weibo, :string)
-    field(:weichat, :string)
+
+    sscial_fields()
+
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
     field(:from_github, :boolean)
