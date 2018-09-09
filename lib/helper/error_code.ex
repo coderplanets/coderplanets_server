@@ -23,6 +23,7 @@ defmodule Helper.ErrorCode do
   def ecode(:already_exsit), do: @default_base + 7
   def ecode(:update_fails), do: @default_base + 8
   def ecode(:delete_fails), do: @default_base + 9
+  def ecode(:create_fails), do: @default_base + 10
   # throttle
   def ecode(:throttle_inverval), do: @throttle_base + 1
   def ecode(:throttle_hour), do: @throttle_base + 2

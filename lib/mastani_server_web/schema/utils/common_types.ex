@@ -1,4 +1,7 @@
 defmodule MastaniServerWeb.Schema.Utils.CommonTypes do
+  @moduledoc """
+  common types might be used in all context
+  """
   import MastaniServerWeb.Schema.Utils.Helper
 
   use Absinthe.Schema.Notation
@@ -11,6 +14,10 @@ defmodule MastaniServerWeb.Schema.Utils.CommonTypes do
 
   object :done do
     field(:done, :boolean)
+  end
+
+  input_object :ids do
+    field(:id, :id)
   end
 
   input_object :common_paged_filter do
