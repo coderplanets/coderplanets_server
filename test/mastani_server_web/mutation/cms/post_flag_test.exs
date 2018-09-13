@@ -1,7 +1,7 @@
 defmodule MastaniServer.Test.Mutation.PostFlag do
   use MastaniServer.TestTools
 
-  # alias MastaniServer.CMS
+  alias MastaniServer.CMS
   # alias Helper.ORM
 
   setup do
@@ -16,63 +16,68 @@ defmodule MastaniServer.Test.Mutation.PostFlag do
 
   describe "[mutation post flag curd]" do
     @query """
-    mutation($id: ID!){
-      trashPost(id: $id) {
+    mutation($id: ID!, $communityId: ID!){
+      trashPost(id: $id, communityId: $communityId) {
         id
         trash
       }
     }
     """
-    @tag :later
+    @tag :wip2
     test "auth user can trash post", ~m(post)a do
-      # variables = %{id: post.id}
+      community_id = post.communities |> List.first() |> Map.get(:id) |> to_string
+      variables = %{id: post.id, communityId: community_id}
 
-      # passport_rules = %{"post.trash" => true}
-      # rule_conn = simu_conn(:user, cms: passport_rules)
+      passport_rules = %{"post.trash" => true}
+      rule_conn = simu_conn(:user, cms: passport_rules)
 
-      # updated = rule_conn |> mutation_result(@query, variables, "trashPost")
+      updated = rule_conn |> mutation_result(@query, variables, "trashPost")
 
-      # assert updated["id"] == to_string(post.id)
-      # assert updated["trash"] == true
+      assert updated["id"] == to_string(post.id)
+      assert updated["trash"] == true
     end
 
-    @tag :later
+    @tag :wip2
     test "unauth user trash post fails", ~m(post user_conn guest_conn)a do
-      # variables = %{id: post.id}
-      # rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
+      community_id = post.communities |> List.first() |> Map.get(:id) |> to_string
+      variables = %{id: post.id, communityId: community_id}
+      rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
-      # assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
-      # assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
-      # assert rule_conn |> mutation_get_error?(@query, variables, ecode(:passport))
+      assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
+      assert rule_conn |> mutation_get_error?(@query, variables, ecode(:passport))
     end
 
     @query """
-    mutation($id: ID!){
-      undoTrashPost(id: $id) {
+    mutation($id: ID!, $communityId: ID!){
+      undoTrashPost(id: $id, communityId: $communityId) {
         id
         trash
       }
     }
     """
-    # test "auth user can undo trash post", ~m(post)a do
-    # {:ok, _} = CMS.set_community_flags(queryable, community_id, attrs)
+    @tag :wip2
+    test "auth user can undo trash post", ~m(post)a do
+      community_id = post.communities |> List.first() |> Map.get(:id) |> to_string
+      variables = %{id: post.id, communityId: community_id}
 
-    # variables = %{id: post.id}
+      {:ok, _} = CMS.set_community_flags(post, community_id, %{trash: true})
 
-    # {:ok, user} = db_insert(:user)
+      {:ok, user} = db_insert(:user)
 
-    # passport_rules = %{"post.undo_trash" => true}
-    # rule_conn = simu_conn(:user, cms: passport_rules)
+      passport_rules = %{"post.undo_trash" => true}
+      rule_conn = simu_conn(:user, cms: passport_rules)
 
-    # updated = rule_conn |> mutation_result(@query, variables, "undoTrashPost")
+      updated = rule_conn |> mutation_result(@query, variables, "undoTrashPost")
 
-    # assert updated["id"] == to_string(post.id)
-    # assert updated["trash"] == false
-    # end
+      assert updated["id"] == to_string(post.id)
+      assert updated["trash"] == false
+    end
 
-    @tag :later
+    @tag :wip2
     test "unauth user undo trash post fails", ~m(post user_conn guest_conn)a do
-      variables = %{id: post.id}
+      community_id = post.communities |> List.first() |> Map.get(:id) |> to_string
+      variables = %{id: post.id, communityId: community_id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))

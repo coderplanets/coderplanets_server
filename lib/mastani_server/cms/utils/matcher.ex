@@ -20,7 +20,10 @@ defmodule MastaniServer.CMS.Utils.Matcher do
     Community,
     PostCommentLike,
     PostCommentDislike,
-    PostCommunityFlags
+    PostCommunityFlag,
+    JobCommunityFlag,
+    RepoCommunityFlag,
+    VideoCommunityFlag
   }
 
   @support_thread [:post, :video, :repo, :job]
@@ -47,7 +50,7 @@ defmodule MastaniServer.CMS.Utils.Matcher do
   def match_action(:post, :tag), do: {:ok, %{target: Post, reactor: Tag}}
 
   def match_action(:post, :community),
-    do: {:ok, %{target: Post, reactor: Community, flag: PostCommunityFlags}}
+    do: {:ok, %{target: Post, reactor: Community, flag: PostCommunityFlag}}
 
   def match_action(:post, :comment),
     do: {:ok, %{target: Post, reactor: PostComment, preload: :author}}
@@ -59,14 +62,19 @@ defmodule MastaniServer.CMS.Utils.Matcher do
     do: {:ok, %{target: PostComment, reactor: PostCommentDislike}}
 
   # videos ...
-  def match_action(:video, :community), do: {:ok, %{target: Video, reactor: Community}}
+  def match_action(:video, :community),
+    do: {:ok, %{target: Video, reactor: Community, flag: VideoCommunityFlag}}
 
   # repos ...
-  def match_action(:repo, :community), do: {:ok, %{target: Repo, reactor: Community}}
+  def match_action(:repo, :community),
+    do: {:ok, %{target: Repo, reactor: Community, flag: RepoCommunityFlag}}
 
   # jobs ...
   def match_action(:job, :self), do: {:ok, %{target: Job, reactor: Job, preload: :author}}
-  def match_action(:job, :community), do: {:ok, %{target: Job, reactor: Community}}
+
+  def match_action(:job, :community),
+    do: {:ok, %{target: Job, reactor: Community, flag: JobCommunityFlags}}
+
   def match_action(:job, :star), do: {:ok, %{target: Job, reactor: JobStar, preload: :user}}
   def match_action(:job, :tag), do: {:ok, %{target: Job, reactor: Tag}}
 

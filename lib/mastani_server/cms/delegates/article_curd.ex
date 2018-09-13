@@ -30,7 +30,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   defp flag_query(queryable, filter, flag \\ %{}) do
     flag = %{pin: false, trash: false} |> Map.merge(flag)
 
-    # TODO: remove case judge ?
+    # NOTE: this case judge is used for test case
     case filter |> Map.has_key?(:community) do
       true ->
         queryable
@@ -40,7 +40,6 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
         |> where([q, f, c], c.raw == ^filter.community)
 
       false ->
-        # for runing tests usage, no flag when db_insert
         queryable
     end
   end
@@ -128,7 +127,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
             {:ok, "pass"}
         end
 
-        # Repo.insert(%CMS.PostCommunityFlags{post_id: content.id, community_id: community.id, })
+        # Repo.insert(%CMS.PostCommunityFlag{post_id: content.id, community_id: community.id, })
       end)
       |> Multi.run(:set_tag, fn %{add_content_author: content} ->
         case attrs |> Map.has_key?(:tags) do

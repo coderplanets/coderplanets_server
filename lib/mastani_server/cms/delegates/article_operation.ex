@@ -5,35 +5,73 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   import MastaniServer.CMS.Utils.Matcher
   import Ecto.Query, warn: false
   import Helper.ErrorCode
-  # import ShortMaps
+  import ShortMaps
 
   alias Helper.ORM
   alias MastaniServer.Accounts.User
-  alias MastaniServer.CMS.{Community, PinState, Post, PostCommunityFlags, Tag}
+
+  alias MastaniServer.CMS.{
+    Community,
+    PinState,
+    Post,
+    PostCommunityFlag,
+    Job,
+    JobCommunityFlag,
+    RepoCommunityFlag,
+    Video,
+    VideoCommunityFlag,
+    Tag
+  }
+
+  alias MastaniServer.CMS.Repo, as: CMSRepo
   alias MastaniServer.Repo
 
   @doc """
   pin / unpin, trash / untrash articles
   """
-  def set_community_flags(%Post{id: post_id}, community_id, attrs) do
-    with {:ok, post} <- ORM.find(Post, post_id),
+  def set_community_flags(%Post{id: _} = content, community_id, attrs),
+    do: do_set_flag(content, community_id, attrs)
+
+  def set_community_flags(%Job{id: _} = content, community_id, attrs),
+    do: do_set_flag(content, community_id, attrs)
+
+  def set_community_flags(%CMSRepo{id: _} = content, community_id, attrs),
+    do: do_set_flag(content, community_id, attrs)
+
+  def set_community_flags(%Video{id: _} = content, community_id, attrs),
+    do: do_set_flag(content, community_id, attrs)
+
+  defp do_set_flag(content, community_id, attrs) do
+    with {:ok, content} <- ORM.find(content.__struct__, content.id),
          {:ok, community} <- ORM.find(Community, community_id),
-         {:ok, _} <- insert_flag_record(post, community_id, attrs) do
-      ORM.find(Post, post.id)
+         {:ok, record} <- insert_flag_record(content, community_id, attrs) do
+      {:ok, struct(content, %{pin: record.pin, trash: record.trash})}
     end
   end
 
-  defp insert_flag_record(%Post{id: id}, community_id, attrs) do
-    clauses = %{
-      post_id: id,
-      community_id: community_id
-    }
-
-    attrs = attrs |> Map.merge(clauses)
-
-    PostCommunityFlags |> ORM.upsert_by(clauses, attrs)
+  defp insert_flag_record(%Post{id: post_id}, community_id, attrs) do
+    clauses = ~m(post_id community_id)a
+    PostCommunityFlag |> ORM.upsert_by(clauses, Map.merge(attrs, clauses))
   end
 
+  defp insert_flag_record(%Job{id: job_id}, community_id, attrs) do
+    clauses = ~m(job_id community_id)a
+    JobCommunityFlag |> ORM.upsert_by(clauses, Map.merge(attrs, clauses))
+  end
+
+  defp insert_flag_record(%CMSRepo{id: repo_id}, community_id, attrs) do
+    clauses = ~m(repo_id community_id)a
+    RepoCommunityFlag |> ORM.upsert_by(clauses, Map.merge(attrs, clauses))
+  end
+
+  defp insert_flag_record(%Video{id: video_id}, community_id, attrs) do
+    clauses = ~m(video_id community_id)a
+    VideoCommunityFlag |> ORM.upsert_by(clauses, Map.merge(attrs, clauses))
+  end
+
+  @doc """
+  set content to diffent community
+  """
   def set_community(%Community{id: community_id}, thread, content_id) when valid_thread(thread) do
     with {:ok, action} <- match_action(thread, :community),
          {:ok, content} <- ORM.find(action.target, content_id, preload: :communities),

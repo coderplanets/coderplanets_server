@@ -9,7 +9,7 @@ defmodule MastaniServer.CMS.Post do
     Author,
     Community,
     PostComment,
-    PostCommunityFlags,
+    PostCommunityFlag,
     PostFavorite,
     PostStar,
     Tag
@@ -27,8 +27,7 @@ defmodule MastaniServer.CMS.Post do
     field(:length, :integer)
     field(:views, :integer, default: 0)
 
-    # has_many(:pins, {"posts_pins", PostPin})
-    has_many(:community_flags, {"posts_communities_flags", PostCommunityFlags})
+    has_many(:community_flags, {"posts_communities_flags", PostCommunityFlag})
 
     # NOTE: this one is tricky, pin is dynamic changed when return by func: add_pin_contents_ifneed
     field(:pin, :boolean, default_value: false, virtual: true)

@@ -40,7 +40,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def paged_posts(_root, ~m(filter)a, _info), do: Post |> CMS.paged_contents(filter)
   def paged_videos(_root, ~m(filter)a, _info), do: Video |> CMS.paged_contents(filter)
   def paged_repos(_root, ~m(filter)a, _info), do: Repo |> CMS.paged_contents(filter)
-  def paged_jobs(_root, ~m(filter)a, _info), do: Job |> ORM.find_all(filter)
+  def paged_jobs(_root, ~m(filter)a, _info), do: Job |> CMS.paged_contents(filter)
 
   def create_content(_root, ~m(community_id thread)a = args, %{context: %{cur_user: user}}) do
     CMS.create_content(%Community{id: community_id}, thread, args, user)

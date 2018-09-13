@@ -1,4 +1,4 @@
-defmodule MastaniServer.CMS.PostCommunityFlags do
+defmodule MastaniServer.CMS.PostCommunityFlag do
   @moduledoc false
   alias __MODULE__
 
@@ -11,7 +11,7 @@ defmodule MastaniServer.CMS.PostCommunityFlags do
   @required_fields ~w(post_id community_id)a
   @optional_fields ~w(pin trash refined)a
 
-  @type t :: %PostCommunityFlags{}
+  @type t :: %PostCommunityFlag{}
 
   schema "posts_communities_flags" do
     belongs_to(:post, Post, foreign_key: :post_id)
@@ -25,8 +25,8 @@ defmodule MastaniServer.CMS.PostCommunityFlags do
   end
 
   @doc false
-  def changeset(%PostCommunityFlags{} = post_community_flags, attrs) do
-    post_community_flags
+  def changeset(%PostCommunityFlag{} = post_community_flag, attrs) do
+    post_community_flag
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
     |> foreign_key_constraint(:post_id)

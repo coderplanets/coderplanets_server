@@ -4,7 +4,7 @@ defmodule MastaniServer.CMS.Video do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Author, Community, Tag}
+  alias MastaniServer.CMS.{Author, Community, VideoCommunityFlag, Tag}
 
   @required_fields ~w(title poster desc duration duration_sec source)a
   @optional_fields ~w(link original_author original_author_link publish_at pin trash)
@@ -24,6 +24,10 @@ defmodule MastaniServer.CMS.Video do
     field(:original_author_link, :string)
 
     field(:views, :integer, default: 0)
+
+    has_many(:community_flags, {"videos_communities_flags", VideoCommunityFlag})
+
+    # NOTE: this one is tricky, pin is dynamic changed when return by func: add_pin_contents_ifneed
     field(:pin, :boolean, default_value: false)
     field(:trash, :boolean, default_value: false)
 

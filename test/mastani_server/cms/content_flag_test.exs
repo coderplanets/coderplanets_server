@@ -3,8 +3,8 @@ defmodule MastaniServer.Test.ContentFlags do
 
   alias MastaniServer.CMS
 
-  # alias CMS.{Post, PostCommunityFlags, Repo, Video}
-  alias CMS.{Post, PostCommunityFlags}
+  # alias CMS.{Post, PostCommunityFlag, Repo, Video}
+  alias CMS.{Post, PostCommunityFlag}
   alias Helper.ORM
 
   setup do
@@ -22,7 +22,7 @@ defmodule MastaniServer.Test.ContentFlags do
       CMS.set_community_flags(%Post{id: post.id}, community1_id, %{pin: true})
 
       {:ok, found} =
-        ORM.find_by(PostCommunityFlags, %{post_id: post.id, community_id: community1_id})
+        ORM.find_by(PostCommunityFlag, %{post_id: post.id, community_id: community1_id})
 
       assert found.pin == true
       assert found.post_id == post.id

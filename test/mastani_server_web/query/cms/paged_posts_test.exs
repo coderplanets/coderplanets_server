@@ -109,20 +109,13 @@ defmodule MastaniServer.Test.Query.PagedPosts do
        }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "filter community should get posts which belongs to that community",
          ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
       {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
 
-      post_community_raw = community.raw
-
-      # {:ok, post} = db_insert(:post, %{title: "post 1"})
-      # {:ok, _} = db_insert_multi(:post, 30)
-
-      # post_community_raw = post.communities |> List.first() |> Map.get(:raw)
-
-      variables = %{filter: %{community: post_community_raw}}
+      variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
       assert length(results["entries"]) == 1

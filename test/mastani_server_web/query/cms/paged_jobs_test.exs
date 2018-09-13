@@ -25,6 +25,8 @@ defmodule MastaniServer.Test.Query.PagedJobs do
   @total_count @today_count + @last_week_count + @last_month_count + @last_year_count
 
   setup do
+    {:ok, user} = db_insert(:user)
+
     db_insert_multi(:job, @today_count)
     db_insert(:job, %{title: "last week", inserted_at: @last_week})
     db_insert(:job, %{title: "last month", inserted_at: @last_month})
@@ -32,7 +34,7 @@ defmodule MastaniServer.Test.Query.PagedJobs do
 
     guest_conn = simu_conn(:guest)
 
-    {:ok, ~m(guest_conn)a}
+    {:ok, ~m(guest_conn user)a}
   end
 
   describe "[query paged_jobs filter pagination]" do
@@ -96,13 +98,13 @@ defmodule MastaniServer.Test.Query.PagedJobs do
        }
     }
     """
-    test "filter community should get jobs which belongs to that community", ~m(guest_conn)a do
-      {:ok, job} = db_insert(:job, %{title: "post 1"})
-      {:ok, _} = db_insert_multi(:job, 30)
+    @tag :wip3
+    test "filter community should get jobs which belongs to that community",
+         ~m(guest_conn user)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, job} = CMS.create_content(community, :job, mock_attrs(:job), user)
 
-      job_community_raw = job.communities |> List.first() |> Map.get(:raw)
-
-      variables = %{filter: %{community: job_community_raw}}
+      variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
 
       assert length(results["entries"]) == 1

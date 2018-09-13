@@ -23,6 +23,7 @@ defmodule MastaniServer.Test.Query.PagedRepos do
 
   setup do
     {:ok, user} = db_insert(:user)
+
     db_insert_multi(:repo, @today_count)
     db_insert(:repo, %{repo_name: "last week", inserted_at: @last_week})
     db_insert(:repo, %{repo_name: "last month", inserted_at: @last_month})
@@ -98,18 +99,17 @@ defmodule MastaniServer.Test.Query.PagedRepos do
       }
     }
     """
-    @tag :later
-    test "filter community should get repos which belongs to that community", ~m(guest_conn)a do
-      # {:ok, repo} = db_insert(:repo, %{repo_name: "repo 1"})
-      # {:ok, _} = db_insert_multi(:repo, 30)
+    @tag :wip3
+    test "filter community should get repos which belongs to that community",
+         ~m(guest_conn user)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, repo} = CMS.create_content(community, :repo, mock_attrs(:repo), user)
 
-      # repo_community_raw = repo.communities |> List.first() |> Map.get(:raw)
+      variables = %{filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedRepos")
 
-      # variables = %{filter: %{community: repo_community_raw}}
-      # results = guest_conn |> query_result(@query, variables, "pagedRepos")
-
-      # assert length(results["entries"]) == 1
-      # assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(repo.id)))
+      assert length(results["entries"]) == 1
+      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(repo.id)))
     end
 
     test "filter sort should have default :desc_inserted", ~m(guest_conn)a do
