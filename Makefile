@@ -40,7 +40,7 @@ launch.dev:
 launch.mock:
 	MIX_ENV=mock mix phx.server
 launch.prod:
-	mix phx.server
+	MIX_ENV=prod mix phx.server
 
 migrate:
 	mix ecto.migrate
@@ -48,14 +48,16 @@ migrate.mock:
 	MIX_ENV=mock mix ecto.migrate
 rollback:
 	mix ecto.rollback
-migrate.mock:
-  MIX_ENV=mock mix ecto.migrate
 rollback.mock:
-  MIX_ENV=mock mix ecto.rollback
+	MIX_ENV=mock mix ecto.rollback
+rollback.test:
+	MIX_ENV=test mix ecto.rollback
 migrate.dev:
 	MIX_ENV=dev mix ecto.migrate
+migrate.test:
+	MIX_ENV=test mix ecto.migrate
 rollback.dev:
-  MIX_ENV=dev mix ecto.rollback
+	MIX_ENV=dev mix ecto.rollback
 
 gen.help:
 	$(call gen.help)

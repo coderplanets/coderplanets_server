@@ -4,10 +4,10 @@ defmodule MastaniServer.CMS.Repo do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Author, Community, RepoBuilder, Tag}
+  alias MastaniServer.CMS.{Author, Community, RepoBuilder, RepoCommunityFlag, Tag}
 
   @required_fields ~w(repo_name desc readme language producer producer_link repo_link repo_star_count repo_fork_count repo_watch_count)a
-  @optional_fields ~w(views pin trash last_fetch_time)
+  @optional_fields ~w(views last_fetch_time)
 
   @type t :: %Repo{}
   schema "cms_repos" do
@@ -26,6 +26,10 @@ defmodule MastaniServer.CMS.Repo do
     field(:repo_watch_count, :integer)
 
     field(:views, :integer, default: 0)
+
+    has_many(:community_flags, {"repos_communities_flags", RepoCommunityFlag})
+
+    # NOTE: this one is tricky, pin is dynamic changed when return by func: add_pin_contents_ifneed
     field(:pin, :boolean, default_value: false)
     field(:trash, :boolean, default_value: false)
 

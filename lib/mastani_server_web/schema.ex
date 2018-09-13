@@ -4,8 +4,8 @@ defmodule MastaniServerWeb.Schema do
   """
   use Absinthe.Schema
 
-  alias MastaniServerWeb.Schema.{Account, CMS, Delivery, Statistics, Utils}
   alias MastaniServerWeb.Middleware, as: M
+  alias MastaniServerWeb.Schema.{Account, CMS, Delivery, Statistics, Utils}
 
   import_types(Absinthe.Type.Custom)
 
@@ -34,6 +34,7 @@ defmodule MastaniServerWeb.Schema do
   import_types(CMS.Mutations.Operation)
   import_types(CMS.Mutations.Post)
   import_types(CMS.Mutations.Job)
+  import_types(CMS.Mutations.Video)
   import_types(CMS.Mutations.Comment)
 
   query do
@@ -55,6 +56,7 @@ defmodule MastaniServerWeb.Schema do
     import_fields(:cms_opertion_mutations)
     import_fields(:cms_post_mutations)
     import_fields(:cms_job_mutations)
+    import_fields(:cms_video_mutations)
     import_fields(:cms_comment_mutations)
   end
 

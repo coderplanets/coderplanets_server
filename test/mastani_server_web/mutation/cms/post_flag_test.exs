@@ -2,31 +2,33 @@ defmodule MastaniServer.Test.Mutation.PostFlag do
   use MastaniServer.TestTools
 
   alias MastaniServer.CMS
-  # alias Helper.ORM
 
   setup do
-    {:ok, post} = db_insert(:post)
+    {:ok, user} = db_insert(:user)
+    {:ok, community} = db_insert(:community)
+
+    {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
-    owner_conn = simu_conn(:owner, post)
+    owner_conn = simu_conn(:user, user)
 
-    {:ok, ~m(user_conn guest_conn owner_conn post)a}
+    {:ok, ~m(user_conn guest_conn owner_conn community post)a}
   end
 
   describe "[mutation post flag curd]" do
     @query """
-    mutation($id: ID!){
-      trashPost(id: $id) {
+    mutation($id: ID!, $communityId: ID!){
+      trashPost(id: $id, communityId: $communityId) {
         id
         trash
       }
     }
     """
-    test "auth user can trash post", ~m(post)a do
-      variables = %{id: post.id}
+    test "auth user can trash post", ~m(community post)a do
+      variables = %{id: post.id, communityId: community.id}
 
-      passport_rules = %{"post.trash" => true}
+      passport_rules = %{community.raw => %{"post.trash" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       updated = rule_conn |> mutation_result(@query, variables, "trashPost")
@@ -35,8 +37,8 @@ defmodule MastaniServer.Test.Mutation.PostFlag do
       assert updated["trash"] == true
     end
 
-    test "unauth user trash post fails", ~m(post user_conn guest_conn)a do
-      variables = %{id: post.id}
+    test "unauth user trash post fails", ~m(user_conn guest_conn post community)a do
+      variables = %{id: post.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
@@ -45,20 +47,19 @@ defmodule MastaniServer.Test.Mutation.PostFlag do
     end
 
     @query """
-    mutation($id: ID!){
-      undoTrashPost(id: $id) {
+    mutation($id: ID!, $communityId: ID!){
+      undoTrashPost(id: $id, communityId: $communityId) {
         id
         trash
       }
     }
     """
-    test "auth user can undo trash post", ~m(post)a do
-      variables = %{id: post.id}
+    test "auth user can undo trash post", ~m(community post)a do
+      variables = %{id: post.id, communityId: community.id}
 
-      {:ok, user} = db_insert(:user)
-      {:ok, _} = CMS.set_flag(CMS.Post, post.id, %{trash: true}, user)
+      {:ok, _} = CMS.set_community_flags(post, community.id, %{trash: true})
 
-      passport_rules = %{"post.undo_trash" => true}
+      passport_rules = %{community.raw => %{"post.undo_trash" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       updated = rule_conn |> mutation_result(@query, variables, "undoTrashPost")
@@ -67,8 +68,8 @@ defmodule MastaniServer.Test.Mutation.PostFlag do
       assert updated["trash"] == false
     end
 
-    test "unauth user undo trash post fails", ~m(post user_conn guest_conn)a do
-      variables = %{id: post.id}
+    test "unauth user undo trash post fails", ~m(user_conn guest_conn community post)a do
+      variables = %{id: post.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
@@ -77,27 +78,25 @@ defmodule MastaniServer.Test.Mutation.PostFlag do
     end
 
     @query """
-    mutation($id: ID!){
-      pinPost(id: $id) {
+    mutation($id: ID!, $communityId: ID!){
+      pinPost(id: $id, communityId: $communityId) {
         id
-        pin
       }
     }
     """
-    test "auth user can pin post", ~m(post)a do
-      variables = %{id: post.id}
+    test "auth user can pin post", ~m(community post)a do
+      variables = %{id: post.id, communityId: community.id}
 
-      passport_rules = %{"post.pin" => true}
+      passport_rules = %{community.raw => %{"post.pin" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       updated = rule_conn |> mutation_result(@query, variables, "pinPost")
 
       assert updated["id"] == to_string(post.id)
-      assert updated["pin"] == true
     end
 
-    test "unauth user pin post fails", ~m(post user_conn guest_conn)a do
-      variables = %{id: post.id}
+    test "unauth user pin post fails", ~m(user_conn guest_conn community post)a do
+      variables = %{id: post.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
@@ -106,20 +105,17 @@ defmodule MastaniServer.Test.Mutation.PostFlag do
     end
 
     @query """
-    mutation($id: ID!){
-      undoPinPost(id: $id) {
+    mutation($id: ID!, $communityId: ID!){
+      undoPinPost(id: $id, communityId: $communityId) {
         id
         pin
       }
     }
     """
-    test "auth user can undo pin post", ~m(post)a do
-      variables = %{id: post.id}
+    test "auth user can undo pin post", ~m(community post)a do
+      variables = %{id: post.id, communityId: community.id}
 
-      {:ok, user} = db_insert(:user)
-      {:ok, _} = CMS.set_flag(CMS.Post, post.id, %{pin: true}, user)
-
-      passport_rules = %{"post.undo_pin" => true}
+      passport_rules = %{community.raw => %{"post.undo_pin" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       updated = rule_conn |> mutation_result(@query, variables, "undoPinPost")
@@ -128,8 +124,8 @@ defmodule MastaniServer.Test.Mutation.PostFlag do
       assert updated["pin"] == false
     end
 
-    test "unauth user undo pin post fails", ~m(post user_conn guest_conn)a do
-      variables = %{id: post.id}
+    test "unauth user undo pin post fails", ~m(user_conn guest_conn community post)a do
+      variables = %{id: post.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))

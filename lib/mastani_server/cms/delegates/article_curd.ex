@@ -21,39 +21,69 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   get paged post / job ...
   """
   def paged_contents(queryable, filter) do
-    normal_content_fr = filter |> Map.merge(QueryBuilder.default_article_filters())
-
     queryable
-    |> ORM.find_all(normal_content_fr)
+    |> flag_query(filter)
+    |> ORM.find_all(filter)
     |> add_pin_contents_ifneed(queryable, filter)
+  end
+
+  defp flag_query(queryable, filter, flag \\ %{}) do
+    flag = %{pin: false, trash: false} |> Map.merge(flag)
+
+    # NOTE: this case judge is used for test case
+    case filter |> Map.has_key?(:community) do
+      true ->
+        queryable
+        |> join(:inner, [q], f in assoc(q, :community_flags))
+        |> where([q, f], f.pin == ^flag.pin and f.trash == ^flag.trash)
+        |> join(:inner, [q, f], c in assoc(f, :community))
+        |> where([q, f, c], c.raw == ^filter.community)
+
+      false ->
+        queryable
+    end
   end
 
   # only first page need pin contents
   defp add_pin_contents_ifneed(contents, queryable, filter) do
     with {:ok, normal_contents} <- contents,
+         true <- Map.has_key?(filter, :community),
          true <- 1 == Map.get(normal_contents, :page_number) do
-      pin_content_fr = filter |> Map.merge(%{pin: true})
-      {:ok, pined_content} = queryable |> ORM.find_all(pin_content_fr)
+      {:ok, pined_content} =
+        queryable
+        |> flag_query(filter, %{pin: true})
+        |> ORM.find_all(filter)
 
-      case pined_content |> Map.get(:total_count) do
-        0 ->
-          contents
-
-        _ ->
-          pind_entries = pined_content |> Map.get(:entries)
-          normal_entries = normal_contents |> Map.get(:entries)
-
-          normal_count = normal_contents |> Map.get(:total_count)
-          pind_count = pined_content |> Map.get(:total_count)
-
-          normal_contents
-          |> Map.put(:entries, pind_entries ++ normal_entries)
-          |> Map.put(:total_count, pind_count + normal_count)
-          |> done
-      end
+      # TODO: add hot post pin/trash state ?
+      # don't by flag_changeset, dataloader make things complex
+      concat_contents(pined_content, normal_contents)
     else
       _error ->
         contents
+    end
+  end
+
+  defp concat_contents(pined_content, normal_contents) do
+    case pined_content |> Map.get(:total_count) do
+      0 ->
+        {:ok, normal_contents}
+
+      _ ->
+        # NOTE: this is tricy, should use dataloader refactor
+        pind_entries =
+          pined_content
+          |> Map.get(:entries)
+          |> Enum.map(&struct(&1, %{pin: true}))
+
+        normal_entries = normal_contents |> Map.get(:entries)
+
+        normal_count = normal_contents |> Map.get(:total_count)
+        pind_count = pined_content |> Map.get(:total_count)
+
+        normal_contents
+        |> Map.put(:entries, pind_entries ++ normal_entries)
+        |> Map.put(:total_count, pind_count + normal_count)
+        |> done
     end
   end
 
@@ -84,6 +114,21 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
       |> Multi.run(:set_community, fn %{add_content_author: content} ->
         ArticleOperation.set_community(community, thread, content.id)
       end)
+      |> Multi.run(:set_community_flag, fn %{add_content_author: content} ->
+        # TODO: remove this judge, as content should have a flag
+        case action |> Map.has_key?(:flag) do
+          true ->
+            ArticleOperation.set_community_flags(content, community.id, %{
+              pin: false,
+              trash: false
+            })
+
+          false ->
+            {:ok, "pass"}
+        end
+
+        # Repo.insert(%CMS.PostCommunityFlag{post_id: content.id, community_id: community.id, })
+      end)
       |> Multi.run(:set_tag, fn %{add_content_author: content} ->
         case attrs |> Map.has_key?(:tags) do
           true -> set_tags(community, thread, content.id, attrs.tags)
@@ -106,6 +151,10 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
 
   defp create_content_result({:error, :set_community, _result, _steps}) do
     {:error, [message: "set community", code: ecode(:create_fails)]}
+  end
+
+  defp create_content_result({:error, :set_community_flag, _result, _steps}) do
+    {:error, [message: "set community flag", code: ecode(:create_fails)]}
   end
 
   defp create_content_result({:error, :set_tag, result, _steps}) do

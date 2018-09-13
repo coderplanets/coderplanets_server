@@ -37,7 +37,6 @@ defmodule MastaniServer.Test.Query.Video do
   test "views should +1 after query the video", ~m(user_conn video)a do
     variables = %{id: video.id}
     views_1 = user_conn |> query_result(@query, variables, "video") |> Map.get("views")
-
     variables = %{id: video.id}
     views_2 = user_conn |> query_result(@query, variables, "video") |> Map.get("views")
     assert views_2 == views_1 + 1

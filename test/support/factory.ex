@@ -8,7 +8,7 @@ defmodule MastaniServer.Factory do
   import Helper.Utils, only: [done: 1]
 
   alias MastaniServer.Repo
-  alias MastaniServer.{CMS, Accounts, Delivery}
+  alias MastaniServer.{Accounts, CMS, Delivery}
 
   defp mock_meta(:post) do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
@@ -127,10 +127,12 @@ defmodule MastaniServer.Factory do
     unique_num = System.unique_integer([:positive, :monotonic])
     random_num = Enum.random(0..2000)
 
+    title = "community_#{random_num}_#{unique_num}"
+
     %{
-      title: "community_#{random_num}_#{unique_num}",
+      title: title,
       desc: "community desc",
-      raw: "community_#{unique_num}",
+      raw: title,
       logo: "https://coderplanets.oss-cn-beijing.aliyuncs.com/icons/pl/elixir.svg",
       author: mock(:user)
     }
