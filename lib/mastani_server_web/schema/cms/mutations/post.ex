@@ -29,7 +29,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Post do
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      middleware(M.Passport, claim: "cms->post.pin")
+      middleware(M.PassportLoader, source: :community)
+      middleware(M.Passport, claim: "cms->c?->post.pin")
       resolve(&R.CMS.pin_content/3)
     end
 
@@ -40,7 +41,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Post do
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      middleware(M.Passport, claim: "cms->post.undo_pin")
+      middleware(M.PassportLoader, source: :community)
+      middleware(M.Passport, claim: "cms->c?->post.undo_pin")
       resolve(&R.CMS.undo_pin_content/3)
     end
 
@@ -51,7 +53,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Post do
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      middleware(M.Passport, claim: "cms->post.trash")
+      middleware(M.PassportLoader, source: :community)
+      middleware(M.Passport, claim: "cms->c?->post.trash")
 
       resolve(&R.CMS.trash_content/3)
     end
@@ -63,7 +66,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Post do
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      middleware(M.Passport, claim: "cms->post.undo_trash")
+      middleware(M.PassportLoader, source: :community)
+      middleware(M.Passport, claim: "cms->c?->post.undo_trash")
 
       resolve(&R.CMS.undo_trash_content/3)
     end

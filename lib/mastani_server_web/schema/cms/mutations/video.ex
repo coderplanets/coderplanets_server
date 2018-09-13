@@ -26,9 +26,11 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Video do
     field :pin_video, :video do
       arg(:id, non_null(:id))
       arg(:type, :video_type, default_value: :video)
+      arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      middleware(M.Passport, claim: "cms->video.pin")
+      middleware(M.PassportLoader, source: :community)
+      middleware(M.Passport, claim: "cms->c?->video.pin")
       resolve(&R.CMS.pin_content/3)
     end
 
@@ -36,9 +38,11 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Video do
     field :undo_pin_video, :video do
       arg(:id, non_null(:id))
       arg(:type, :video_type, default_value: :video)
+      arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      middleware(M.Passport, claim: "cms->video.undo_pin")
+      middleware(M.PassportLoader, source: :community)
+      middleware(M.Passport, claim: "cms->c?->video.undo_pin")
       resolve(&R.CMS.undo_pin_content/3)
     end
 
@@ -46,9 +50,11 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Video do
     field :trash_video, :video do
       arg(:id, non_null(:id))
       arg(:type, :video_type, default_value: :video)
+      arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      middleware(M.Passport, claim: "cms->video.trash")
+      middleware(M.PassportLoader, source: :community)
+      middleware(M.Passport, claim: "cms->c?->video.trash")
 
       resolve(&R.CMS.trash_content/3)
     end
@@ -57,9 +63,11 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Video do
     field :undo_trash_video, :video do
       arg(:id, non_null(:id))
       arg(:type, :video_type, default_value: :video)
+      arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      middleware(M.Passport, claim: "cms->video.undo_trash")
+      middleware(M.PassportLoader, source: :community)
+      middleware(M.Passport, claim: "cms->c?->video.undo_trash")
 
       resolve(&R.CMS.undo_trash_content/3)
     end

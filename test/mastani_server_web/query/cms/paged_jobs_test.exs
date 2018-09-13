@@ -98,7 +98,6 @@ defmodule MastaniServer.Test.Query.PagedJobs do
        }
     }
     """
-    @tag :wip3
     test "filter community should get jobs which belongs to that community",
          ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)

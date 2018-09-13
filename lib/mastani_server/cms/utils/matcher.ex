@@ -62,10 +62,14 @@ defmodule MastaniServer.CMS.Utils.Matcher do
     do: {:ok, %{target: PostComment, reactor: PostCommentDislike}}
 
   # videos ...
+  def match_action(:video, :self), do: {:ok, %{target: Video, reactor: Video, preload: :author}}
+
   def match_action(:video, :community),
     do: {:ok, %{target: Video, reactor: Community, flag: VideoCommunityFlag}}
 
   # repos ...
+  def match_action(:repo, :self), do: {:ok, %{target: Repo, reactor: Repo, preload: :author}}
+
   def match_action(:repo, :community),
     do: {:ok, %{target: Repo, reactor: Community, flag: RepoCommunityFlag}}
 

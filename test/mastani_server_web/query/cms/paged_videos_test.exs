@@ -49,7 +49,6 @@ defmodule MastaniServer.Test.Query.PagedVideos do
       }
     }
     """
-    @tag :wip2
     test "should get pagination info", ~m(guest_conn)a do
       variables = %{filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedVideos")
@@ -101,7 +100,6 @@ defmodule MastaniServer.Test.Query.PagedVideos do
       }
     }
     """
-    @tag :wip3
     test "filter community should get videos which belongs to that community",
          ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)

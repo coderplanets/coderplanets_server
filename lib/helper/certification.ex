@@ -87,12 +87,27 @@ defmodule Helper.Certification do
         "post.tag.delete",
         "post.tag.set",
         "post.tag.unset",
+        # post flag
+        "post.pin",
+        "post.undo_pin",
+        "post.trash",
+        "post.undo_trash",
         # job tag
         "job.tag.create",
         "job.tag.update",
         "job.tag.delete",
         "job.tag.set",
-        "job.tag.unset"
+        "job.tag.unset",
+        # job flag
+        "job.pin",
+        "job.undo_pin",
+        "job.trash",
+        "job.undo_trash",
+        # video flag
+        "video.pin",
+        "video.undo_pin",
+        "video.trash",
+        "video.undo_trash"
       ]
     }
   end

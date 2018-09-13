@@ -7,7 +7,7 @@ defmodule MastaniServer.CMS.Repo do
   alias MastaniServer.CMS.{Author, Community, RepoBuilder, RepoCommunityFlag, Tag}
 
   @required_fields ~w(repo_name desc readme language producer producer_link repo_link repo_star_count repo_fork_count repo_watch_count)a
-  @optional_fields ~w(views pin trash last_fetch_time)
+  @optional_fields ~w(views last_fetch_time)
 
   @type t :: %Repo{}
   schema "cms_repos" do

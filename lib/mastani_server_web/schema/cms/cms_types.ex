@@ -235,6 +235,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:original_author_link, :string)
     field(:views, :integer)
 
+    field(:pin, :boolean)
+    field(:trash, :boolean)
     # TODO: remove
     # field(:pin, :boolean)
     # field(:trash, :boolean)
@@ -263,6 +265,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:repo_watch_count, :integer)
     field(:views, :integer)
 
+    field(:pin, :boolean)
+    field(:trash, :boolean)
     # TODO: remove
     # field(:pin, :boolean)
     # field(:trash, :boolean)
@@ -286,6 +290,9 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:link_addr, :string)
     field(:body, :string)
     field(:views, :integer)
+
+    field(:pin, :boolean)
+    field(:trash, :boolean)
 
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))

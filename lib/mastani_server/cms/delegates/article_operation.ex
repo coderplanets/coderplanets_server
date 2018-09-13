@@ -12,7 +12,6 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
 
   alias MastaniServer.CMS.{
     Community,
-    PinState,
     Post,
     PostCommunityFlag,
     Job,
@@ -99,7 +98,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   set tag for post / tuts / videos ...
   """
   # check community first
-  def set_tag(%Community{id: communitId}, thread, %Tag{id: tag_id}, content_id) do
+  def set_tag(%Community{id: _communitId}, thread, %Tag{id: tag_id}, content_id) do
     with {:ok, action} <- match_action(thread, :tag),
          {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
          {:ok, tag} <- ORM.find(action.reactor, tag_id) do

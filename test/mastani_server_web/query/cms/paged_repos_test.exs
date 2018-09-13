@@ -99,7 +99,6 @@ defmodule MastaniServer.Test.Query.PagedRepos do
       }
     }
     """
-    @tag :wip3
     test "filter community should get repos which belongs to that community",
          ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
