@@ -7,37 +7,21 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
 
   @default_inner_page_size 5
 
-  enum :comment_replies_type do
-    value(:comment_replies_type)
-  end
+  enum(:post_type, do: value(:post))
+  enum(:job_type, do: value(:job))
+  enum(:video_type, do: value(:video))
+  enum(:repo_type, do: value(:repo))
 
-  enum :post_type do
-    value(:post)
-  end
+  enum(:community_type, do: value(:community))
+  enum(:comment_replies_type, do: value(:comment_replies_type))
 
-  enum :community_type do
-    value(:community)
-  end
+  enum(:count_type, do: value(:count))
+  enum(:viewer_did_type, do: value(:viewer_did))
+  enum(:favorite_action, do: value(:favorite))
 
-  enum :favorite_action do
-    value(:favorite)
-  end
-
-  enum :count_type do
-    value(:count)
-  end
-
-  enum :viewer_did_type do
-    value(:viewer_did)
-  end
-
-  enum :star_action do
-    value(:star)
-  end
-
-  enum :comment_action do
-    value(:comment)
-  end
+  enum(:cms_comment, do: value(:post_comment))
+  enum(:star_action, do: value(:star))
+  enum(:comment_action, do: value(:comment))
 
   enum :unique_type do
     value(true)
@@ -56,10 +40,6 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:video)
     value(:repo)
     value(:wiki)
-  end
-
-  enum :cms_comment do
-    value(:post_comment)
   end
 
   enum :order_enum do

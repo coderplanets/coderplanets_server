@@ -19,7 +19,8 @@ defmodule MastaniServer.CMS.Utils.Matcher do
     Tag,
     Community,
     PostCommentLike,
-    PostCommentDislike
+    PostCommentDislike,
+    PostCommunityFlags
   }
 
   @support_thread [:post, :video, :repo, :job]
@@ -44,7 +45,9 @@ defmodule MastaniServer.CMS.Utils.Matcher do
 
   def match_action(:post, :star), do: {:ok, %{target: Post, reactor: PostStar, preload: :user}}
   def match_action(:post, :tag), do: {:ok, %{target: Post, reactor: Tag}}
-  def match_action(:post, :community), do: {:ok, %{target: Post, reactor: Community}}
+
+  def match_action(:post, :community),
+    do: {:ok, %{target: Post, reactor: Community, flag: PostCommunityFlags}}
 
   def match_action(:post, :comment),
     do: {:ok, %{target: Post, reactor: PostComment, preload: :author}}

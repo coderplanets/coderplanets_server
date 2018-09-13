@@ -5,21 +5,33 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   import MastaniServer.CMS.Utils.Matcher
   import Ecto.Query, warn: false
   import Helper.ErrorCode
+  # import ShortMaps
 
   alias Helper.ORM
   alias MastaniServer.Accounts.User
-  alias MastaniServer.CMS.{Community, Tag}
+  alias MastaniServer.CMS.{Community, PinState, Post, PostCommunityFlags, Tag}
   alias MastaniServer.Repo
 
   @doc """
   pin / unpin, trash / untrash articles
   """
-  def set_flag(queryable, id, %{pin: _} = attrs, %User{} = _user) do
-    queryable |> ORM.find_update(id, attrs)
+  def set_community_flags(%Post{id: post_id}, community_id, attrs) do
+    with {:ok, post} <- ORM.find(Post, post_id),
+         {:ok, community} <- ORM.find(Community, community_id),
+         {:ok, _} <- insert_flag_record(post, community_id, attrs) do
+      ORM.find(Post, post.id)
+    end
   end
 
-  def set_flag(queryable, id, %{trash: _} = attrs, %User{} = _user) do
-    queryable |> ORM.find_update(id, attrs)
+  defp insert_flag_record(%Post{id: id}, community_id, attrs) do
+    clauses = %{
+      post_id: id,
+      community_id: community_id
+    }
+
+    attrs = attrs |> Map.merge(clauses)
+
+    PostCommunityFlags |> ORM.upsert_by(clauses, attrs)
   end
 
   def set_community(%Community{id: community_id}, thread, content_id) when valid_thread(thread) do

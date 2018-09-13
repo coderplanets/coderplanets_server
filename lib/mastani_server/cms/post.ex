@@ -4,10 +4,19 @@ defmodule MastaniServer.CMS.Post do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Author, Community, PostComment, PostFavorite, PostStar, Tag}
+
+  alias MastaniServer.CMS.{
+    Author,
+    Community,
+    PostComment,
+    PostCommunityFlags,
+    PostFavorite,
+    PostStar,
+    Tag
+  }
 
   @required_fields ~w(title body digest length)a
-  @optional_fields ~w(link_addr pin trash)
+  @optional_fields ~w(link_addr)a
 
   @type t :: %Post{}
   schema "cms_posts" do
@@ -18,14 +27,18 @@ defmodule MastaniServer.CMS.Post do
     field(:length, :integer)
     field(:views, :integer, default: 0)
 
-    field(:pin, :boolean, default_value: false)
-    field(:trash, :boolean, default_value: false)
+    # has_many(:pins, {"posts_pins", PostPin})
+    has_many(:community_flags, {"posts_communities_flags", PostCommunityFlags})
+
+    # NOTE: this one is tricky, pin is dynamic changed when return by func: add_pin_contents_ifneed
+    field(:pin, :boolean, default_value: false, virtual: true)
+    field(:trash, :boolean, default_value: false, virtual: true)
+
     belongs_to(:author, Author)
 
     # TODO
     # 相关文章
     # has_may(:related_post, ...)
-
     has_many(:comments, {"posts_comments", PostComment})
     has_many(:favorites, {"posts_favorites", PostFavorite})
     has_many(:stars, {"posts_stars", PostStar})
@@ -60,4 +73,12 @@ defmodule MastaniServer.CMS.Post do
     # |> foreign_key_constraint(:posts_tags, name: :posts_tags_tag_id_fkey)
     # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)
   end
+
+  @doc """
+  for update flag
+  """
+  # def flag_changeset(%Post{} = post, attrs) do
+  # post
+  # |> cast(attrs, ~w(pin trash)a)
+  # end
 end

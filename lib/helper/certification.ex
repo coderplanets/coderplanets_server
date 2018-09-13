@@ -53,10 +53,23 @@ defmodule Helper.Certification do
         "post.community.unset",
         "job.community.set",
         "job.community.unset",
+        # flag on content
         "post.pin",
         "post.undo_pin",
         "post.trash",
-        "post.undo_trash"
+        "post.undo_trash",
+        "job.pin",
+        "job.undo_pin",
+        "job.trash",
+        "job.undo_trash",
+        "video.pin",
+        "video.undo_pin",
+        "video.trash",
+        "video.undo_trash",
+        "repo.pin",
+        "repo.undo_pin",
+        "repo.trash",
+        "repo.undo_trash"
       ],
       community: [
         # thread

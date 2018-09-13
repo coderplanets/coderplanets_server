@@ -25,39 +25,47 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Post do
     @desc "pin a post"
     field :pin_post, :post do
       arg(:id, non_null(:id))
+      arg(:type, :post_type, default_value: :post)
+      arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->post.pin")
-      resolve(&R.CMS.pin_post/3)
+      resolve(&R.CMS.pin_content/3)
     end
 
     @desc "unpin a post"
     field :undo_pin_post, :post do
       arg(:id, non_null(:id))
+      arg(:type, :post_type, default_value: :post)
+      arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->post.undo_pin")
-      resolve(&R.CMS.undo_pin_post/3)
+      resolve(&R.CMS.undo_pin_content/3)
     end
 
     @desc "trash a post, not delete"
     field :trash_post, :post do
       arg(:id, non_null(:id))
+      arg(:type, :post_type, default_value: :post)
+      arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->post.trash")
 
-      resolve(&R.CMS.trash_post/3)
+      resolve(&R.CMS.trash_content/3)
     end
 
     @desc "trash a post, not delete"
     field :undo_trash_post, :post do
       arg(:id, non_null(:id))
+      arg(:type, :post_type, default_value: :post)
+      arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->post.undo_trash")
 
-      resolve(&R.CMS.undo_trash_post/3)
+      resolve(&R.CMS.undo_trash_content/3)
     end
 
     @desc "delete a cms/post"

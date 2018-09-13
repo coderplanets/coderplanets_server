@@ -59,7 +59,8 @@ defmodule MastaniServer.CMS do
 
   # ArticleOperation
   # >> set flag on article, like: pin / unpin article
-  defdelegate set_flag(queryable, id, attrs, user), to: ArticleOperation
+  defdelegate set_community_flags(queryable, community_id, attrs), to: ArticleOperation
+
   # >> tag: set / unset
   defdelegate set_tag(community, thread, tag, content_id), to: ArticleOperation
   defdelegate unset_tag(thread, tag, content_id), to: ArticleOperation

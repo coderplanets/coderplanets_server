@@ -25,14 +25,16 @@ defmodule MastaniServer.Test.Query.PagedPosts do
 
   setup do
     {:ok, user} = db_insert(:user)
+
+    {:ok, post2} = db_insert(:post, %{title: "last month", inserted_at: @last_month})
+    {:ok, post1} = db_insert(:post, %{title: "last week", inserted_at: @last_week})
+    {:ok, post3} = db_insert(:post, %{title: "last year", inserted_at: @last_year})
+
     db_insert_multi(:post, @today_count)
-    db_insert(:post, %{title: "last week", inserted_at: @last_week})
-    db_insert(:post, %{title: "last month", inserted_at: @last_month})
-    db_insert(:post, %{title: "last year", inserted_at: @last_year})
 
     guest_conn = simu_conn(:guest)
 
-    {:ok, ~m(guest_conn user)a}
+    {:ok, ~m(guest_conn user post1 post2 post3)a}
   end
 
   describe "[query paged_posts filter pagination]" do
@@ -41,6 +43,9 @@ defmodule MastaniServer.Test.Query.PagedPosts do
       pagedPosts(filter: $filter) {
         entries {
           id
+          communities {
+            raw
+          }
         }
         totalPages
         totalCount
@@ -49,6 +54,7 @@ defmodule MastaniServer.Test.Query.PagedPosts do
       }
     }
     """
+    @tag :wip2
     test "should get pagination info", ~m(guest_conn)a do
       variables = %{filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
@@ -58,11 +64,13 @@ defmodule MastaniServer.Test.Query.PagedPosts do
       assert results["totalCount"] == @total_count
     end
 
+    @tag :wip2
     test "request large size fails", ~m(guest_conn)a do
       variables = %{filter: %{page: 1, size: 200}}
       assert guest_conn |> query_get_error?(@query, variables, ecode(:pagination))
     end
 
+    @tag :wip2
     test "request 0 or neg-size fails", ~m(guest_conn)a do
       variables_0 = %{filter: %{page: 1, size: 0}}
       variables_neg_1 = %{filter: %{page: 1, size: -1}}
@@ -71,62 +79,13 @@ defmodule MastaniServer.Test.Query.PagedPosts do
       assert guest_conn |> query_get_error?(@query, variables_neg_1, ecode(:pagination))
     end
 
+    @tag :wip2
     test "pagination should have default page and size arg", ~m(guest_conn)a do
       variables = %{filter: %{}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
       assert results |> is_valid_pagination?
       assert results["pageSize"] == @page_size
       assert results["totalCount"] == @total_count
-    end
-
-    test "if have pined posts, the pined posts should at the top of entries",
-         ~m(guest_conn user)a do
-      variables = %{filter: %{}}
-      results = guest_conn |> query_result(@query, variables, "pagedPosts")
-      assert results |> is_valid_pagination?
-      assert results["pageSize"] == @page_size
-      assert results["totalCount"] == @total_count
-
-      random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _} = CMS.set_flag(Post, random_id, %{pin: true}, user)
-
-      results = guest_conn |> query_result(@query, variables, "pagedPosts")
-
-      assert random_id == results["entries"] |> List.first() |> Map.get("id")
-      assert results["totalCount"] == @total_count
-
-      {:ok, _} = CMS.set_flag(Post, random_id, %{pin: false}, user)
-      results = guest_conn |> query_result(@query, variables, "pagedPosts")
-      assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))
-    end
-
-    test "pind posts should not appear when page > 1", ~m(guest_conn user)a do
-      variables = %{filter: %{page: 2, size: 20}}
-      results = guest_conn |> query_result(@query, variables, "pagedPosts")
-      assert results |> is_valid_pagination?
-
-      random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _} = CMS.set_flag(Post, random_id, %{pin: true}, user)
-
-      results = guest_conn |> query_result(@query, variables, "pagedPosts")
-
-      assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))
-    end
-
-    test "if have trashed posts, the trashed posts should not appears in result",
-         ~m(guest_conn user)a do
-      variables = %{filter: %{}}
-      results = guest_conn |> query_result(@query, variables, "pagedPosts")
-      assert results |> is_valid_pagination?
-      assert results["pageSize"] == @page_size
-      assert results["totalCount"] == @total_count
-
-      random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _} = CMS.set_flag(Post, random_id, %{trash: true}, user)
-
-      results = guest_conn |> query_result(@query, variables, "pagedPosts")
-
-      assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))
     end
   end
 
@@ -150,11 +109,18 @@ defmodule MastaniServer.Test.Query.PagedPosts do
        }
     }
     """
-    test "filter community should get posts which belongs to that community", ~m(guest_conn)a do
-      {:ok, post} = db_insert(:post, %{title: "post 1"})
-      {:ok, _} = db_insert_multi(:post, 30)
+    @tag :wip2
+    test "filter community should get posts which belongs to that community",
+         ~m(guest_conn user)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
 
-      post_community_raw = post.communities |> List.first() |> Map.get(:raw)
+      post_community_raw = community.raw
+
+      # {:ok, post} = db_insert(:post, %{title: "post 1"})
+      # {:ok, _} = db_insert_multi(:post, 30)
+
+      # post_community_raw = post.communities |> List.first() |> Map.get(:raw)
 
       variables = %{filter: %{community: post_community_raw}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
@@ -163,6 +129,7 @@ defmodule MastaniServer.Test.Query.PagedPosts do
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(post.id)))
     end
 
+    @tag :wip2
     test "filter sort should have default :desc_inserted", ~m(guest_conn)a do
       variables = %{filter: %{}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
@@ -186,6 +153,7 @@ defmodule MastaniServer.Test.Query.PagedPosts do
       }
     }
     """
+    @tag :wip2
     test "filter sort MOST_VIEWS should work", ~m(guest_conn)a do
       most_views_post = Post |> order_by(desc: :views) |> limit(1) |> Repo.one()
       variables = %{filter: %{sort: "MOST_VIEWS"}}
@@ -215,6 +183,7 @@ defmodule MastaniServer.Test.Query.PagedPosts do
       }
     }
     """
+    @tag :wip2
     test "THIS_YEAR option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_YEAR"}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
@@ -223,6 +192,7 @@ defmodule MastaniServer.Test.Query.PagedPosts do
       assert results |> Map.get("totalCount") == expect_count
     end
 
+    @tag :wip2
     test "TODAY option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "TODAY"}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
@@ -232,6 +202,7 @@ defmodule MastaniServer.Test.Query.PagedPosts do
       assert results |> Map.get("totalCount") == expect_count
     end
 
+    @tag :wip2
     test "THIS_WEEK option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_WEEK"}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
@@ -239,6 +210,7 @@ defmodule MastaniServer.Test.Query.PagedPosts do
       assert results |> Map.get("totalCount") == @today_count
     end
 
+    @tag :wip2
     test "THIS_MONTH option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_MONTH"}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")

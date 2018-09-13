@@ -8,7 +8,7 @@ defmodule MastaniServer.Factory do
   import Helper.Utils, only: [done: 1]
 
   alias MastaniServer.Repo
-  alias MastaniServer.{CMS, Accounts, Delivery}
+  alias MastaniServer.{Accounts, CMS, Delivery}
 
   defp mock_meta(:post) do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})

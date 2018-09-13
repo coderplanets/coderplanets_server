@@ -1,6 +1,7 @@
 defmodule MastaniServerWeb.Resolvers.CMS do
   @moduledoc false
 
+  import MastaniServer.CMS.Utils.Matcher
   import ShortMaps
   import Ecto.Query, warn: false
 
@@ -50,20 +51,39 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def delete_content(_root, %{passport_source: content}, _info), do: ORM.delete(content)
 
-  def pin_post(_root, %{id: id}, %{context: %{cur_user: user}}) do
-    CMS.set_flag(Post, id, %{pin: true}, user)
+  # #######################
+  # content flag ..
+  # #######################
+  def pin_content(_root, ~m(id type community_id)a, %{context: %{cur_user: _user}}) do
+    with {:ok, content} <- match_action(type, :self) do
+      content.target
+      |> struct(%{id: id})
+      |> CMS.set_community_flags(community_id, %{pin: true})
+    end
   end
 
-  def undo_pin_post(_root, %{id: id}, %{context: %{cur_user: user}}) do
-    CMS.set_flag(Post, id, %{pin: false}, user)
+  def undo_pin_content(_root, ~m(id type community_id)a, %{context: %{cur_user: _user}}) do
+    with {:ok, content} <- match_action(type, :self) do
+      content.target
+      |> struct(%{id: id})
+      |> CMS.set_community_flags(community_id, %{pin: false})
+    end
   end
 
-  def trash_post(_root, %{id: id}, %{context: %{cur_user: user}}) do
-    CMS.set_flag(Post, id, %{trash: true}, user)
+  def trash_content(_root, ~m(id type community_id)a, %{context: %{cur_user: _user}}) do
+    with {:ok, content} <- match_action(type, :self) do
+      content.target
+      |> struct(%{id: id})
+      |> CMS.set_community_flags(community_id, %{trash: true})
+    end
   end
 
-  def undo_trash_post(_root, %{id: id}, %{context: %{cur_user: user}}) do
-    CMS.set_flag(Post, id, %{trash: false}, user)
+  def undo_trash_content(_root, ~m(id type community_id)a, %{context: %{cur_user: _user}}) do
+    with {:ok, content} <- match_action(type, :self) do
+      content.target
+      |> struct(%{id: id})
+      |> CMS.set_community_flags(community_id, %{trash: false})
+    end
   end
 
   # #######################

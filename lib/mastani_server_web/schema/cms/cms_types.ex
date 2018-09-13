@@ -103,6 +103,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:link_addr, :string)
     field(:body, :string)
     field(:views, :integer)
+    # TODO: remove
     field(:pin, :boolean)
     field(:trash, :boolean)
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
@@ -234,8 +235,9 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:original_author_link, :string)
     field(:views, :integer)
 
-    field(:pin, :boolean)
-    field(:trash, :boolean)
+    # TODO: remove
+    # field(:pin, :boolean)
+    # field(:trash, :boolean)
 
     # field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
@@ -261,8 +263,9 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:repo_watch_count, :integer)
     field(:views, :integer)
 
-    field(:pin, :boolean)
-    field(:trash, :boolean)
+    # TODO: remove
+    # field(:pin, :boolean)
+    # field(:trash, :boolean)
 
     # field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
@@ -312,7 +315,6 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
   object :community do
     # meta(:cache, max_age: 30)
-
     field(:id, :id)
     field(:title, :string)
     field(:desc, :string)
