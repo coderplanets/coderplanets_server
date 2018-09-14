@@ -54,35 +54,23 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # #######################
   # content flag ..
   # #######################
-  def pin_content(_root, ~m(id type community_id)a, %{context: %{cur_user: _user}}) do
-    with {:ok, content} <- match_action(type, :self) do
-      content.target
-      |> struct(%{id: id})
-      |> CMS.set_community_flags(community_id, %{pin: true})
-    end
-  end
+  def pin_content(_root, ~m(id thread community_id)a, _info),
+    do: set_community_flags(community_id, thread, id, %{pin: true})
 
-  def undo_pin_content(_root, ~m(id type community_id)a, %{context: %{cur_user: _user}}) do
-    with {:ok, content} <- match_action(type, :self) do
-      content.target
-      |> struct(%{id: id})
-      |> CMS.set_community_flags(community_id, %{pin: false})
-    end
-  end
+  def undo_pin_content(_root, ~m(id thread community_id)a, _info),
+    do: set_community_flags(community_id, thread, id, %{pin: false})
 
-  def trash_content(_root, ~m(id type community_id)a, %{context: %{cur_user: _user}}) do
-    with {:ok, content} <- match_action(type, :self) do
-      content.target
-      |> struct(%{id: id})
-      |> CMS.set_community_flags(community_id, %{trash: true})
-    end
-  end
+  def trash_content(_root, ~m(id thread community_id)a, _info),
+    do: set_community_flags(community_id, thread, id, %{trash: true})
 
-  def undo_trash_content(_root, ~m(id type community_id)a, %{context: %{cur_user: _user}}) do
-    with {:ok, content} <- match_action(type, :self) do
+  def undo_trash_content(_root, ~m(id thread community_id)a, _info),
+    do: set_community_flags(community_id, thread, id, %{trash: false})
+
+  defp set_community_flags(community_id, thread, id, flag) do
+    with {:ok, content} <- match_action(thread, :self) do
       content.target
       |> struct(%{id: id})
-      |> CMS.set_community_flags(community_id, %{trash: false})
+      |> CMS.set_community_flags(community_id, flag)
     end
   end
 

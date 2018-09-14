@@ -7,10 +7,10 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
 
   @default_inner_page_size 5
 
-  enum(:post_type, do: value(:post))
-  enum(:job_type, do: value(:job))
-  enum(:video_type, do: value(:video))
-  enum(:repo_type, do: value(:repo))
+  enum(:post_thread, do: value(:post))
+  enum(:job_thread, do: value(:job))
+  enum(:video_thread, do: value(:video))
+  enum(:repo_thread, do: value(:repo))
 
   enum(:community_type, do: value(:community))
   enum(:comment_replies_type, do: value(:comment_replies_type))

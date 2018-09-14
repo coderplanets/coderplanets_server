@@ -26,7 +26,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Repo do
     @desc "pin a repo"
     field :pin_repo, :repo do
       arg(:id, non_null(:id))
-      arg(:type, :repo_type, default_value: :repo)
+      arg(:thread, :repo_thread, default_value: :repo)
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
@@ -38,7 +38,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Repo do
     @desc "unpin a repo"
     field :undo_pin_repo, :repo do
       arg(:id, non_null(:id))
-      arg(:type, :repo_type, default_value: :repo)
+      arg(:thread, :repo_thread, default_value: :repo)
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
@@ -50,7 +50,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Repo do
     @desc "trash a repo, not delete"
     field :trash_repo, :repo do
       arg(:id, non_null(:id))
-      arg(:type, :repo_type, default_value: :repo)
+      arg(:thread, :repo_thread, default_value: :repo)
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
@@ -63,7 +63,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Repo do
     @desc "trash a repo, not delete"
     field :undo_trash_repo, :repo do
       arg(:id, non_null(:id))
-      arg(:type, :repo_type, default_value: :repo)
+      arg(:thread, :repo_thread, default_value: :repo)
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)

@@ -25,7 +25,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Video do
     @desc "pin a video"
     field :pin_video, :video do
       arg(:id, non_null(:id))
-      arg(:type, :video_type, default_value: :video)
+      arg(:thread, :video_thread, default_value: :video)
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
@@ -37,7 +37,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Video do
     @desc "unpin a video"
     field :undo_pin_video, :video do
       arg(:id, non_null(:id))
-      arg(:type, :video_type, default_value: :video)
+      arg(:thread, :video_thread, default_value: :video)
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
@@ -49,7 +49,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Video do
     @desc "trash a video, not delete"
     field :trash_video, :video do
       arg(:id, non_null(:id))
-      arg(:type, :video_type, default_value: :video)
+      arg(:thread, :video_thread, default_value: :video)
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
@@ -62,7 +62,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Video do
     @desc "trash a video, not delete"
     field :undo_trash_video, :video do
       arg(:id, non_null(:id))
-      arg(:type, :video_type, default_value: :video)
+      arg(:thread, :video_thread, default_value: :video)
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)

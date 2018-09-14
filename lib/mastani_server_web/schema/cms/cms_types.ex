@@ -199,7 +199,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
     field :favorited_count, :integer do
       arg(:count, :count_type, default_value: :count)
-      arg(:type, :post_type, default_value: :post)
+      arg(:type, :post_thread, default_value: :post)
       # middleware(M.SeeMe)
       resolve(dataloader(CMS, :favorites))
       middleware(M.ConvertToInt)
@@ -207,7 +207,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
     field :starred_count, :integer do
       arg(:count, :count_type, default_value: :count)
-      arg(:type, :post_type, default_value: :post)
+      arg(:type, :post_thread, default_value: :post)
 
       resolve(dataloader(CMS, :stars))
       middleware(M.ConvertToInt)

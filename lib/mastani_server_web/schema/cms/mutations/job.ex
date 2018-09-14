@@ -28,7 +28,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Job do
     @desc "pin a job"
     field :pin_job, :job do
       arg(:id, non_null(:id))
-      arg(:type, :job_type, default_value: :job)
+      arg(:thread, :job_thread, default_value: :job)
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
@@ -40,7 +40,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Job do
     @desc "unpin a job"
     field :undo_pin_job, :job do
       arg(:id, non_null(:id))
-      arg(:type, :job_type, default_value: :job)
+      arg(:thread, :job_thread, default_value: :job)
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
@@ -52,7 +52,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Job do
     @desc "trash a job, not delete"
     field :trash_job, :job do
       arg(:id, non_null(:id))
-      arg(:type, :job_type, default_value: :job)
+      arg(:thread, :job_thread, default_value: :job)
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
@@ -65,7 +65,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Job do
     @desc "trash a job, not delete"
     field :undo_trash_job, :job do
       arg(:id, non_null(:id))
-      arg(:type, :job_type, default_value: :job)
+      arg(:thread, :job_thread, default_value: :job)
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)

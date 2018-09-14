@@ -25,7 +25,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Post do
     @desc "pin a post"
     field :pin_post, :post do
       arg(:id, non_null(:id))
-      arg(:type, :post_type, default_value: :post)
+      arg(:thread, :post_thread, default_value: :post)
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
@@ -37,7 +37,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Post do
     @desc "unpin a post"
     field :undo_pin_post, :post do
       arg(:id, non_null(:id))
-      arg(:type, :post_type, default_value: :post)
+      arg(:thread, :post_thread, default_value: :post)
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
@@ -49,7 +49,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Post do
     @desc "trash a post, not delete"
     field :trash_post, :post do
       arg(:id, non_null(:id))
-      arg(:type, :post_type, default_value: :post)
+      arg(:thread, :post_thread, default_value: :post)
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
@@ -62,7 +62,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Post do
     @desc "trash a post, not delete"
     field :undo_trash_post, :post do
       arg(:id, non_null(:id))
-      arg(:type, :post_type, default_value: :post)
+      arg(:thread, :post_thread, default_value: :post)
       arg(:community_id, non_null(:id))
 
       middleware(M.Authorize, :login)
