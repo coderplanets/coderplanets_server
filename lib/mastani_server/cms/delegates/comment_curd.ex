@@ -69,7 +69,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
 
   defp delete_comment_result({:ok, %{delete_comment: result}}), do: {:ok, result}
 
-  defp delete_comment_result({:error, :delete_comment, result, _steps}) do
+  defp delete_comment_result({:error, :delete_comment, _result, _steps}) do
     {:error, [message: "delete comment fails", code: ecode(:delete_fails)]}
   end
 

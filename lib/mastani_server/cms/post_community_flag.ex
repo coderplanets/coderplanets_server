@@ -4,8 +4,6 @@ defmodule MastaniServer.CMS.PostCommunityFlag do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias Helper.Certification
-  alias MastaniServer.Accounts
   alias MastaniServer.CMS.{Community, Post}
 
   @required_fields ~w(post_id community_id)a

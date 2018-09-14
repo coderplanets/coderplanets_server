@@ -4,8 +4,6 @@ defmodule MastaniServer.CMS.VideoCommunityFlag do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias Helper.Certification
-  alias MastaniServer.Accounts
   alias MastaniServer.CMS.{Community, Video}
 
   @required_fields ~w(video_id community_id)a

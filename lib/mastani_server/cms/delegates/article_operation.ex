@@ -4,11 +4,10 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   """
   import MastaniServer.CMS.Utils.Matcher
   import Ecto.Query, warn: false
-  import Helper.ErrorCode
+  # import Helper.ErrorCode
   import ShortMaps
 
   alias Helper.ORM
-  alias MastaniServer.Accounts.User
 
   alias MastaniServer.CMS.{
     Community,
@@ -43,7 +42,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   defp do_set_flag(content, community_id, attrs) do
     with {:ok, content} <- ORM.find(content.__struct__, content.id),
          {:ok, community} <- ORM.find(Community, community_id),
-         {:ok, record} <- insert_flag_record(content, community_id, attrs) do
+         {:ok, record} <- insert_flag_record(content, community.id, attrs) do
       {:ok, struct(content, %{pin: record.pin, trash: record.trash})}
     end
   end

@@ -161,12 +161,12 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     {:error, result}
   end
 
-  defp create_content_result({:error, :log_action, result, _steps}) do
+  defp create_content_result({:error, :log_action, _result, _steps}) do
     {:error, [message: "log action", code: ecode(:create_fails)]}
   end
 
   # if empty just pass
-  defp set_tags(community, thread, content_id, []), do: {:ok, "pass"}
+  defp set_tags(_community, _thread, _content_id, []), do: {:ok, "pass"}
 
   defp set_tags(community, thread, content_id, tags) do
     try do

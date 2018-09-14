@@ -4,8 +4,6 @@ defmodule MastaniServer.CMS.JobCommunityFlag do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias Helper.Certification
-  alias MastaniServer.Accounts
   alias MastaniServer.CMS.{Community, Job}
 
   @required_fields ~w(job_id community_id)a
