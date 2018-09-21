@@ -40,7 +40,9 @@ defmodule MastaniServer.CMS.Utils.Matcher do
 
   defguard valid_feeling(feel) when feel in [:like, :dislike]
 
-  # posts ...
+  #########################################
+  ##  posts ...
+  #########################################
   def match_action(:post, :self), do: {:ok, %{target: Post, reactor: Post, preload: :author}}
 
   def match_action(:post, :favorite),
@@ -61,19 +63,9 @@ defmodule MastaniServer.CMS.Utils.Matcher do
   def match_action(:post_comment, :dislike),
     do: {:ok, %{target: PostComment, reactor: PostCommentDislike}}
 
-  # videos ...
-  def match_action(:video, :self), do: {:ok, %{target: Video, reactor: Video, preload: :author}}
-
-  def match_action(:video, :community),
-    do: {:ok, %{target: Video, reactor: Community, flag: VideoCommunityFlag}}
-
-  # repos ...
-  def match_action(:repo, :self), do: {:ok, %{target: Repo, reactor: Repo, preload: :author}}
-
-  def match_action(:repo, :community),
-    do: {:ok, %{target: Repo, reactor: Community, flag: RepoCommunityFlag}}
-
-  # jobs ...
+  #########################################
+  ## jobs ...
+  #########################################
   def match_action(:job, :self), do: {:ok, %{target: Job, reactor: Job, preload: :author}}
 
   def match_action(:job, :community),
@@ -87,6 +79,22 @@ defmodule MastaniServer.CMS.Utils.Matcher do
 
   def match_action(:job, :favorite),
     do: {:ok, %{target: Job, reactor: JobFavorite, preload: :user}}
+
+  #########################################
+  ## videos ...
+  #########################################
+  def match_action(:video, :self), do: {:ok, %{target: Video, reactor: Video, preload: :author}}
+
+  def match_action(:video, :community),
+    do: {:ok, %{target: Video, reactor: Community, flag: VideoCommunityFlag}}
+
+  #########################################
+  ## repos ...
+  #########################################
+  def match_action(:repo, :self), do: {:ok, %{target: Repo, reactor: Repo, preload: :author}}
+
+  def match_action(:repo, :community),
+    do: {:ok, %{target: Repo, reactor: Community, flag: RepoCommunityFlag}}
 
   def dynamic_where(thread, id) do
     case thread do

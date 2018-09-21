@@ -6,13 +6,14 @@ defmodule MastaniServer.CMS.Video do
   import Ecto.Changeset
   alias MastaniServer.CMS.{Author, Community, VideoCommunityFlag, Tag}
 
-  @required_fields ~w(title poster desc duration duration_sec source)a
-  @optional_fields ~w(link original_author original_author_link publish_at)
+  @required_fields ~w(title poster thumbnil desc duration duration_sec source link original_author original_author_link publish_at)a
+  # @optional_fields ~w()a
 
   @type t :: %Video{}
   schema "cms_videos" do
     field(:title, :string)
     field(:poster, :string)
+    field(:thumbnil, :string)
     field(:desc, :string)
     field(:duration, :string)
     field(:duration_sec, :integer)
@@ -59,7 +60,7 @@ defmodule MastaniServer.CMS.Video do
   @doc false
   def changeset(%Video{} = video, attrs) do
     video
-    |> cast(attrs, @optional_fields ++ @required_fields)
+    |> cast(attrs, @required_fields)
     |> validate_required(@required_fields)
 
     # |> foreign_key_constraint(:posts_tags, name: :posts_tags_tag_id_fkey)

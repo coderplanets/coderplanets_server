@@ -225,6 +225,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     interface(:article)
     field(:id, :id)
     field(:title, :string)
+    field(:poster, :string)
+    field(:thumbnil, :string)
     field(:desc, :string)
     field(:duration, :string)
     field(:author, :user, resolve: dataloader(CMS, :author))

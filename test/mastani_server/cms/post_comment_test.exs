@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Comment do
+defmodule MastaniServer.Test.PostComment do
   # currently only test comments for post type, rename and seprherate later
   use MastaniServer.TestTools
 

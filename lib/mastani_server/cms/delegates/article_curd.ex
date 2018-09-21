@@ -126,8 +126,6 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
           false ->
             {:ok, "pass"}
         end
-
-        # Repo.insert(%CMS.PostCommunityFlag{post_id: content.id, community_id: community.id, })
       end)
       |> Multi.run(:set_tag, fn %{add_content_author: content} ->
         case attrs |> Map.has_key?(:tags) do

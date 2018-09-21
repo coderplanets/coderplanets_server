@@ -33,15 +33,21 @@ defmodule MastaniServer.Factory do
     %{
       title: Faker.Lorem.Shakespeare.king_richard_iii(),
       poster: Faker.Avatar.image_url(),
+      thumbnil: Faker.Avatar.image_url(),
       desc: desc,
       duration: "03:30",
-      duration_sec: Enum.random(300..12000),
+      duration_sec: Enum.random(300..12_000),
+      durationSec: Enum.random(300..12_000),
       source: "youtube",
       link: "http://www.youtube.com/video/1",
       original_author: "simon",
+      originalAuthor: "simon",
       original_author_link: "http://www.youtube.com/user/1",
+      originalAuthorLink: "http://www.youtube.com/user/1",
       author: mock(:author),
       views: Enum.random(0..2000),
+      publish_at: Timex.today() |> Timex.to_datetime(),
+      publishAt: "2017-11-01T12:00:00Z",
       communities: [
         mock(:community),
         mock(:community)

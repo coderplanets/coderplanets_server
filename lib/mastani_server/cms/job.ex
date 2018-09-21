@@ -4,7 +4,7 @@ defmodule MastaniServer.CMS.Job do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Author, Community, JobFavorite, JobCommunityFlag, Tag}
+  alias MastaniServer.CMS.{Author, Community, JobComment, JobFavorite, JobCommunityFlag, Tag}
 
   @required_fields ~w(title company company_logo location body digest length)a
   @optional_fields ~w(link_addr link_source min_education)a
@@ -41,7 +41,7 @@ defmodule MastaniServer.CMS.Job do
     field(:pin, :boolean, default_value: false, virtual: true)
     field(:trash, :boolean, default_value: false, virtual: true)
 
-    # has_many(:comments, {"jobs_comments", JobComment})
+    has_many(:comments, {"jobs_comments", JobComment})
     has_many(:favorites, {"jobs_favorites", JobFavorite})
     # has_many(:stars, {"posts_stars", PostStar})
 
