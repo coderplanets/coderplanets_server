@@ -52,8 +52,7 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
       assert updated["nickname"] == "new nickname"
     end
 
-    @tag :wip
-    test "user can update it's own education_backgrounds", ~m(user)a do
+    test "user can update it's own backgrounds", ~m(user)a do
       ownd_conn = simu_conn(:user, user)
 
       variables = %{
@@ -77,8 +76,6 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
           }
         ]
       }
-
-      # assert ownd_conn |> mutation_get_error?(@update_query, variables)
 
       updated = ownd_conn |> mutation_result(@update_query, variables, "updateProfile")
       assert updated["nickname"] == "new nickname"
@@ -113,36 +110,6 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
       }
 
       assert ownd_conn |> mutation_get_error?(@update_query, variables)
-    end
-
-    test "user can update it's own work backgrounds", ~m(user)a do
-      ownd_conn = simu_conn(:user, user)
-
-      variables = %{
-        profile: %{
-          nickname: "new nickname",
-          work_backgrounds: [
-            %{
-              company: "company",
-              title: "bad ass"
-            },
-            %{
-              company: "company 2",
-              title: "bad ass2"
-            }
-          ]
-        }
-      }
-
-      # assert ownd_conn |> mutation_get_error?(@update_query, variables)
-
-      updated = ownd_conn |> mutation_result(@update_query, variables, "updateProfile")
-      assert updated["nickname"] == "new nickname"
-
-      assert updated["work_backgrounds"] |> is_list
-      assert updated["work_backgrounds"] |> length == 2
-      assert updated["work_backgrounds"] |> Enum.any?(&(&1["company"] == "company"))
-      assert updated["work_backgrounds"] |> Enum.any?(&(&1["title"] == "bad ass"))
     end
 
     test "user update work backgrounds with invalid data fails", ~m(user)a do
