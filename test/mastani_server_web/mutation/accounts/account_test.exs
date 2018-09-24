@@ -15,8 +15,16 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
 
   describe "[account update]" do
     @update_query """
-    mutation($profile: UserProfileInput!) {
-      updateProfile(profile: $profile) {
+    mutation(
+      $profile: UserProfileInput!,
+      $educationBackgrounds: [EduBackgroundInput],
+      $workBackgrounds: [WorkBackgroundInput]
+    ) {
+      updateProfile(
+        profile: $profile,
+        educationBackgrounds: $educationBackgrounds,
+        workBackgrounds: $workBackgrounds,
+      ) {
         id
         nickname
         education_backgrounds {
@@ -44,23 +52,30 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
       assert updated["nickname"] == "new nickname"
     end
 
+    @tag :wip
     test "user can update it's own education_backgrounds", ~m(user)a do
       ownd_conn = simu_conn(:user, user)
 
       variables = %{
         profile: %{
-          nickname: "new nickname",
-          education_backgrounds: [
-            %{
-              school: "school",
-              major: "bad ass"
-            },
-            %{
-              school: "school2",
-              major: "bad ass2"
-            }
-          ]
-        }
+          nickname: "new nickname"
+        },
+        educationBackgrounds: [
+          %{
+            school: "school",
+            major: "bad ass"
+          },
+          %{
+            school: "school2",
+            major: "bad ass2"
+          }
+        ],
+        workBackgrounds: [
+          %{
+            company: "cps",
+            title: "CTO"
+          }
+        ]
       }
 
       # assert ownd_conn |> mutation_get_error?(@update_query, variables)
@@ -72,6 +87,11 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
       assert updated["education_backgrounds"] |> length == 2
       assert updated["education_backgrounds"] |> Enum.any?(&(&1["school"] == "school"))
       assert updated["education_backgrounds"] |> Enum.any?(&(&1["major"] == "bad ass"))
+
+      assert updated["work_backgrounds"] |> is_list
+      assert updated["work_backgrounds"] |> length == 1
+      assert updated["work_backgrounds"] |> Enum.any?(&(&1["company"] == "cps"))
+      assert updated["work_backgrounds"] |> Enum.any?(&(&1["title"] == "CTO"))
     end
 
     test "user update education_backgrounds with invalid data fails", ~m(user)a do

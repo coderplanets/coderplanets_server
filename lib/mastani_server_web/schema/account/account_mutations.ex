@@ -18,6 +18,8 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
     @desc "update user's profile"
     field :update_profile, :user do
       arg(:profile, non_null(:user_profile_input))
+      arg(:work_backgrounds, list_of(:work_background_input))
+      arg(:education_backgrounds, list_of(:edu_background_input))
 
       middleware(M.Authorize, :login)
       resolve(&R.Accounts.update_profile/3)
@@ -25,7 +27,6 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
 
     field :github_signin, :token_info do
       arg(:code, non_null(:string))
-      # arg(:profile, non_null(:github_profile_input))
 
       middleware(M.GithubUser)
       resolve(&R.Accounts.github_signin/3)
