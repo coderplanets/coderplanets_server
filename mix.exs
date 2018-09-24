@@ -51,15 +51,15 @@ defmodule MastaniServer.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.3.2"},
+      {:phoenix, "~> 1.3.4"},
       {:phoenix_pubsub, "~> 1.1.0"},
       {:phoenix_ecto, "~> 3.4.0"},
-      {:ecto, "~> 2.2.9"},
+      {:ecto, "~> 2.2.10"},
       {:postgrex, ">= 0.13.5"},
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       # GraphQl tool
-      {:absinthe, "~> 1.4.12"},
+      {:absinthe, "~> 1.4.13"},
       {:absinthe_ecto, "~> 0.1.3"},
       # Plug support for Absinthe
       # {:absinthe_plug, "~> 1.4.4"},
