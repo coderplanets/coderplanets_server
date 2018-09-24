@@ -21,7 +21,17 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     User |> ORM.find(cur_user.id)
   end
 
-  def update_profile(_root, %{profile: profile}, %{context: %{cur_user: cur_user}}) do
+  def update_profile(_root, args, %{context: %{cur_user: cur_user}}) do
+    profile =
+      if Map.has_key?(args, :education_backgrounds),
+        do: Map.merge(args.profile, %{education_backgrounds: args.education_backgrounds}),
+        else: args.profile
+
+    profile =
+      if Map.has_key?(args, :work_backgrounds),
+        do: Map.merge(profile, %{work_backgrounds: args.work_backgrounds}),
+        else: profile
+
     Accounts.update_profile(%User{id: cur_user.id}, profile)
   end
 

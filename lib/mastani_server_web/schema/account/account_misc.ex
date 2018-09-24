@@ -32,14 +32,14 @@ defmodule MastaniServerWeb.Schema.Account.Misc do
     field(:public_gists, :integer)
   end
 
-  input_object :education_background do
-    field(:school, :string)
-    field(:major, :string)
-  end
-
-  input_object :work_background do
+  input_object :work_background_input do
     field(:company, :string)
     field(:title, :string)
+  end
+
+  input_object :edu_background_input do
+    field(:school, :string)
+    field(:major, :string)
   end
 
   input_object :user_profile_input do
@@ -50,9 +50,6 @@ defmodule MastaniServerWeb.Schema.Account.Misc do
     field(:email, :string)
     # social
     sscial_fields()
-    # backgrounds
-    field(:education_backgrounds, list_of(:education_background))
-    field(:work_backgrounds, list_of(:work_background))
   end
 
   # see: https://github.com/absinthe-graphql/absinthe/issues/206
