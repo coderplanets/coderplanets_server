@@ -10,6 +10,13 @@ node_js:
 sudo: false
 addons:
   postgresql: '10'
+  apt:
+    packages:
+    - postgresql-10
+    - postgresql-client-10
+env:
+  global:
+  - PGPORT=5433
 before_script:
 - MIX_ENV=test mix deps.get
 - nvm install 8.10 && nvm use 8.10
