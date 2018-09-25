@@ -232,6 +232,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:author, :user, resolve: dataloader(CMS, :author))
 
     field(:source, :string)
+    field(:publish_at, :string)
     field(:link, :string)
     field(:original_author, :string)
     field(:original_author_link, :string)
