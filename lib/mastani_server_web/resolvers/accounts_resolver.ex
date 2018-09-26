@@ -35,8 +35,9 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.update_profile(%User{id: cur_user.id}, profile)
   end
 
-  def github_signin(_root, %{github_user: github_user}, _info) do
-    Accounts.github_signin(github_user)
+  def github_signin(_root, %{github_user: github_user}, %{remote_ip: remote_ip}) do
+    IO.inspect(remote_ip, label: "remote_ip")
+    Accounts.github_signin(github_user, remote_ip)
   end
 
   def list_favorite_categories(_root, %{filter: filter}, %{context: %{cur_user: cur_user}}) do

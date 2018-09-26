@@ -1,4 +1,4 @@
-defmodule MastaniServer.Factory do
+defmodule MastaniServer.Support.Factory do
   @moduledoc """
   This module defines the mock data/func to be used by
   tests that require insert some mock data to db.
@@ -318,6 +318,21 @@ defmodule MastaniServer.Factory do
       }
 
       {:ok, _} = Delivery.notify_someone(u, user, info)
+    end)
+  end
+
+  alias MastaniServer.Statistics.UserGeoInfo
+  alias MastaniServer.Support.GeoData
+
+  alias Helper.ORM
+
+  def insert_geo_data do
+    # IO.inspect GeoData.all, label: "hello"
+    GeoData.all()
+    |> Enum.each(fn info ->
+      # IO.inspect info, label: "inserting"
+      # UserGeoInfo |> Repo.insert(info)
+      UserGeoInfo |> ORM.create(info)
     end)
   end
 end

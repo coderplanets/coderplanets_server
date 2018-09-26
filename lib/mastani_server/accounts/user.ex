@@ -34,6 +34,7 @@ defmodule MastaniServer.Accounts.User do
     field(:email, :string)
     field(:location, :string)
     field(:from_github, :boolean)
+    field(:geo_city, :string)
 
     sscial_fields()
 

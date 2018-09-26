@@ -16,6 +16,18 @@ defmodule MastaniServerWeb.Schema.Utils.CommonTypes do
     field(:done, :boolean)
   end
 
+  object :geo_info do
+    field(:city, :string)
+    field(:value, :integer)
+    field(:long, :float)
+    field(:lant, :float)
+  end
+
+  object :paged_geo_infos do
+    field(:entries, list_of(:geo_info))
+    pagination_fields()
+  end
+
   input_object :ids do
     field(:id, :id)
   end

@@ -1,12 +1,10 @@
 defmodule MastaniServer.Test.Accounts do
   use MastaniServer.TestTools
-
   # TODO import Service.Utils move both helper and github
   import Helper.Utils
 
-  alias MastaniServer.Accounts
-
   alias Helper.{Guardian, ORM}
+  alias MastaniServer.Accounts
 
   # @valid_user mock_attrs(:user)
   @valid_github_profile mock_attrs(:github_profile) |> map_key_stringify
@@ -122,12 +120,28 @@ defmodule MastaniServer.Test.Accounts do
       assert g_user.node_id == @valid_github_profile["node_id"]
     end
 
-    test "exsit github user should not be created twice" do
+    test "exsit github user created twice fails" do
       assert ORM.count(GithubUser) == 0
       {:ok, _} = Accounts.github_signin(@valid_github_profile)
       assert ORM.count(GithubUser) == 1
       {:ok, _} = Accounts.github_signin(@valid_github_profile)
       assert ORM.count(GithubUser) == 1
+    end
+
+    @tag :wip
+    test "github signin user should be locate geo city info" do
+      {:ok, guser} = Accounts.github_signin(@valid_github_profile)
+      {:ok, user} = ORM.find(User, guser.user.id)
+
+      assert user.geo_city !== nil
+    end
+
+    @tag :wip
+    test "github signin user from invalid ip locate geo city fails" do
+      {:ok, guser} = Accounts.github_signin(@valid_github_profile, :fake_ip)
+      {:ok, user} = ORM.find(User, guser.user.id)
+
+      assert user.geo_city == nil
     end
   end
 end
