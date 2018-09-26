@@ -11,7 +11,6 @@ defmodule MastaniServer.Test.Statistics.Geo do
   end
 
   describe "[statistics geo inc] " do
-    @tag :wip
     test "geo data can be inc by city" do
       {:ok, _} = Statistics.UserGeoInfo |> ORM.find_by(%{city: "成都"})
 
@@ -25,14 +24,12 @@ defmodule MastaniServer.Test.Statistics.Geo do
       assert updated.value == 2
     end
 
-    @tag :wip
     test "inc with invalid city fails" do
       assert {:error, _} = Statistics.inc_count("not_exsit")
     end
   end
 
   describe "[statistics geo get] " do
-    @tag :wip
     test "can get geo citis info" do
       {:ok, infos} = Statistics.list_cities_info()
       assert infos.total_count == 0
