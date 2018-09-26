@@ -8,7 +8,7 @@ defmodule MastaniServer.TestTools do
     quote do
       use MastaniServerWeb.ConnCase, async: true
 
-      import MastaniServer.Factory
+      import MastaniServer.Support.Factory
       import MastaniServer.Test.ConnSimulator
       import MastaniServer.Test.AssertHelper
       import Ecto.Query, warn: false

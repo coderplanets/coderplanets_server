@@ -636,6 +636,7 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
       }
     }
     """
+    @tag :wip
     test "login user can subscribe community", ~m(user community)a do
       login_conn = simu_conn(:user, user)
 
@@ -657,6 +658,20 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
       variables = %{communityId: community.id}
 
       assert guest_conn |> mutation_get_error?(@subscribe_query, variables, ecode(:account_login))
+    end
+
+    @tag :wip
+    test "subscribed community should inc it's own geo info", ~m(user community)a do
+      login_conn = simu_conn(:user, user)
+
+      variables = %{communityId: community.id}
+      _created = login_conn |> mutation_result(@subscribe_query, variables, "subscribeCommunity")
+      {:ok, community} = Community |> ORM.find(community.id)
+
+      geo_info_data = community.geo_info |> Map.get("data")
+      update_geo_city = geo_info_data |> Enum.find(fn g -> g["city"] == "成都" end)
+
+      assert update_geo_city["value"] == 1
     end
 
     @unsubscribe_query """
@@ -707,6 +722,31 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
 
       assert guest_conn
              |> mutation_get_error?(@unsubscribe_query, variables, ecode(:account_login))
+    end
+
+    @tag :wip
+    test "unsubscribed community should dec it's own geo info", ~m(user community)a do
+      login_conn = simu_conn(:user, user)
+
+      variables = %{communityId: community.id}
+      _created = login_conn |> mutation_result(@subscribe_query, variables, "subscribeCommunity")
+      {:ok, community} = Community |> ORM.find(community.id)
+
+      geo_info_data = community.geo_info |> Map.get("data")
+      update_geo_city = geo_info_data |> Enum.find(fn g -> g["city"] == "成都" end)
+
+      assert update_geo_city["value"] == 1
+
+      variables = %{communityId: community.id}
+
+      login_conn |> mutation_result(@unsubscribe_query, variables, "unsubscribeCommunity")
+
+      {:ok, community} = Community |> ORM.find(community.id)
+
+      geo_info_data = community.geo_info |> Map.get("data")
+      update_geo_city = geo_info_data |> Enum.find(fn g -> g["city"] == "成都" end)
+
+      assert update_geo_city["value"] == 0
     end
   end
 

@@ -32,6 +32,7 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:sex, :string)
     field(:email, :string)
     field(:location, :string)
+    field(:geo_city, :string)
 
     sscial_fields()
 

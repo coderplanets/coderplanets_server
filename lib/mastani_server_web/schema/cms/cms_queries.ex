@@ -5,6 +5,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
   use Helper.GqlSchemaSuite
 
   object :cms_queries do
+    @desc "spec community info"
     field :community, :community do
       # arg(:id, non_null(:id))
       arg(:id, :id)
@@ -37,6 +38,14 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
       middleware(M.PageSizeProof)
       resolve(&R.CMS.community_editors/3)
+    end
+
+    @desc "get community geo cities info"
+    field :community_geo_info, list_of(:geo_info) do
+      arg(:id, non_null(:id))
+      arg(:raw, :id)
+
+      resolve(&R.CMS.community_geo_info/3)
     end
 
     @desc "get all categories"

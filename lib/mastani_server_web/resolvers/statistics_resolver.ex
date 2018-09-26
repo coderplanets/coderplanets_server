@@ -25,4 +25,8 @@ defmodule MastaniServerWeb.Resolvers.Statistics do
   def make_contrubute(_root, %{user_id: user_id}, _info) do
     Statistics.make_contribute(%Accounts.User{id: user_id})
   end
+
+  def list_cities_geo_info(_root, _args, _info) do
+    Statistics.list_cities_info()
+  end
 end

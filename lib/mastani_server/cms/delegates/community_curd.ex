@@ -124,4 +124,21 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
 
     Thread |> ORM.create(~m(title raw index)a)
   end
+
+  @doc """
+  return community geo infos
+  """
+  def community_geo_info(%Community{id: community_id}) do
+    with {:ok, community} <- ORM.find(Community, community_id) do
+      geo_info_data =
+        community.geo_info
+        |> Map.get("data")
+        |> Enum.map(fn data ->
+          for {key, val} <- data, into: %{}, do: {String.to_atom(key), val}
+        end)
+        |> Enum.reject(&(&1.value <= 0))
+
+      {:ok, geo_info_data}
+    end
+  end
 end
