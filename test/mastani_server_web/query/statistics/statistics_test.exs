@@ -47,7 +47,6 @@ defmodule MastaniServer.Test.Query.Statistics do
   }
   """
   describe "[statistics geo info]" do
-    @tag :wip
     test "should get cities geo infos", ~m(guest_conn)a do
       result = guest_conn |> query_result(@query, %{}, "citiesGeoInfo")
       assert result["entries"] == []

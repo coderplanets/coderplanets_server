@@ -21,7 +21,6 @@ defmodule MastaniServer.Test.Query.CMS.GEO do
     }
   }
   """
-  @tag :wip
   test "empty community should get empty geo info", ~m(guest_conn community)a do
     variables = %{id: community.id}
     results = guest_conn |> query_result(@query, variables, "communityGeoInfo")
@@ -29,7 +28,6 @@ defmodule MastaniServer.Test.Query.CMS.GEO do
     assert results == []
   end
 
-  @tag :wip
   test "community should get geo info after subscribe", ~m(guest_conn community user)a do
     {:ok, _record} = CMS.subscribe_community(community, user)
 

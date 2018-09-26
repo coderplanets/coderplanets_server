@@ -24,7 +24,6 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       }
     }
     """
-    @tag :wip
     test "guest user should get false sessionState", ~m(guest_conn)a do
       results = guest_conn |> query_result(@query, %{}, "sessionState")
       assert results["isValid"] == false
