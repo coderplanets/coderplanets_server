@@ -19,7 +19,7 @@ defmodule MastaniServer.CMS.Community do
 
   @required_fields ~w(title desc user_id logo raw)a
   # @required_fields ~w(title desc user_id)a
-  @optional_fields ~w(label)a
+  @optional_fields ~w(label geo_info)a
 
   schema "communities" do
     field(:title, :string)
@@ -28,6 +28,7 @@ defmodule MastaniServer.CMS.Community do
     # field(:category, :string)
     field(:label, :string)
     field(:raw, :string)
+    field(:geo_info, :map)
 
     belongs_to(:author, Accounts.User, foreign_key: :user_id)
 

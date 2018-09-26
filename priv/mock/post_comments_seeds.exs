@@ -1,4 +1,4 @@
-import MastaniServer.Factory
+import MastaniServer.Support.Factory
 
 alias MastaniServer.{CMS, Accounts}
 

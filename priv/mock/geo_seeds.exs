@@ -1,3 +1,3 @@
 import MastaniServer.Support.Factory
 
-db_insert_multi(:repo, 5)
+insert_geo_data()

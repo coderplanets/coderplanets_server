@@ -148,6 +148,13 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   # #######################
+  # geo infos ..
+  # #######################
+  def community_geo_info(_root, ~m(id)a, _info) do
+    CMS.community_geo_info(%Community{id: id})
+  end
+
+  # #######################
   # tags ..
   # #######################
   def create_tag(_root, args, %{context: %{cur_user: user}}) do
@@ -182,8 +189,8 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # #######################
   # community subscribe ..
   # #######################
-  def subscribe_community(_root, ~m(community_id)a, %{context: %{cur_user: cur_user}}) do
-    CMS.subscribe_community(%Community{id: community_id}, cur_user)
+  def subscribe_community(_root, ~m(community_id)a, %{context: ~m(cur_user remote_ip)a}) do
+    CMS.subscribe_community(%Community{id: community_id}, cur_user, remote_ip)
   end
 
   def unsubscribe_community(_root, ~m(community_id)a, %{context: %{cur_user: cur_user}}) do

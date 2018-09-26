@@ -1,5 +1,5 @@
 #
 
-import MastaniServer.Factory
+import MastaniServer.Support.Factory
 
 db_insert(:job)

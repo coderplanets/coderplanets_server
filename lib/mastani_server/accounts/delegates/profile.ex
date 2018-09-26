@@ -6,7 +6,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   import Helper.Utils, only: [done: 1, get_config: 2]
   import ShortMaps
 
-  alias Helper.{Guardian, ORM, QueryBuilder}
+  alias Helper.{RadarSearch, Guardian, ORM, QueryBuilder}
   alias MastaniServer.Accounts.{GithubUser, User}
   alias MastaniServer.{CMS, Repo}
 
@@ -52,7 +52,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   step 2.2: if access_token's github_id not exsit, then signup
   step 3: return mastani token
   """
-  def github_signin(github_user) do
+  def github_signin(github_user, remote_ip \\ "127.0.0.1") do
     case ORM.find_by(GithubUser, github_id: to_string(github_user["id"])) do
       {:ok, g_user} ->
         {:ok, user} = ORM.find(User, g_user.user_id)
@@ -61,7 +61,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
 
       {:error, _} ->
         # IO.inspect label: "register then send"
-        register_github_user(github_user)
+        register_github_user(github_user, remote_ip)
     end
   end
 
@@ -86,7 +86,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
     |> done()
   end
 
-  defp register_github_user(github_profile) do
+  defp register_github_user(github_profile, remote_ip) do
     Multi.new()
     |> Multi.run(:create_user, fn _ ->
       create_user(github_profile, :github)
@@ -95,10 +95,18 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
       create_profile(user, github_profile, :github)
     end)
     |> Repo.transaction()
-    |> register_github_result()
+    |> register_github_result(remote_ip)
   end
 
-  defp register_github_result({:ok, %{create_user: user}}), do: token_info(user)
+  defp register_github_result({:ok, %{create_user: user}}, remote_ip) do
+    # ignore error
+    case RadarSearch.locate_city(remote_ip) do
+      {:ok, city} -> update_profile(user, %{geo_city: city})
+      {:error, _} -> IO.inspect("location search error")
+    end
+
+    token_info(user)
+  end
 
   defp register_github_result({:error, :create_user, _result, _steps}),
     do: {:error, "Accounts create_user internal error"}

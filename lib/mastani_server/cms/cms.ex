@@ -21,6 +21,8 @@ defmodule MastaniServer.CMS do
   # Community CURD: editors, thread, tag
   # >> editor ..
   defdelegate update_editor(user, community, title), to: CommunityCURD
+  # >> geo info ..
+  defdelegate community_geo_info(community), to: CommunityCURD
   # >> subscribers / editors
   defdelegate community_members(type, community, filters), to: CommunityCURD
   # >> category
@@ -46,7 +48,9 @@ defmodule MastaniServer.CMS do
   defdelegate unset_thread(community, thread), to: CommunityOperation
   # >> subscribe / unsubscribe
   defdelegate subscribe_community(community, user), to: CommunityOperation
+  defdelegate subscribe_community(community, user, remote_ip), to: CommunityOperation
   defdelegate unsubscribe_community(community, user), to: CommunityOperation
+  defdelegate unsubscribe_community(community, user, remote_ip), to: CommunityOperation
 
   # ArticleCURD
   defdelegate paged_contents(queryable, filter), to: ArticleCURD

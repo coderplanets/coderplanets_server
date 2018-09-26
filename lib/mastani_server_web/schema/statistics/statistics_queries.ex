@@ -11,5 +11,10 @@ defmodule MastaniServerWeb.Schema.Statistics.Queries do
 
       resolve(&R.Statistics.list_contributes/3)
     end
+
+    @desc "list cities geo info"
+    field :cities_geo_info, :paged_geo_infos do
+      resolve(&R.Statistics.list_cities_geo_info/3)
+    end
   end
 end

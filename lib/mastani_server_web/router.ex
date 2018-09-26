@@ -4,6 +4,7 @@ defmodule MastaniServerWeb.Router do
   use Sentry.Plug
 
   pipeline :api do
+    plug(Helper.PublicIpPlug)
     plug(:accepts, ["json"])
     plug(MastaniServerWeb.Context)
   end

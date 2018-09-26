@@ -26,9 +26,10 @@ defmodule MastaniServerWeb.Context do
   authorization header is sent.
   """
   def build_context(conn) do
+    # IO.inspect conn.remote_ip, label: "conn"
     with ["Bearer " <> token] <- get_req_header(conn, "authorization"),
          {:ok, cur_user} <- authorize(token) do
-      %{cur_user: cur_user}
+      %{cur_user: cur_user, remote_ip: conn.remote_ip}
     else
       _ -> %{}
     end
