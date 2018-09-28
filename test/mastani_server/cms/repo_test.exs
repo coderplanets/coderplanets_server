@@ -21,7 +21,7 @@ defmodule MastaniServer.Test.Repo do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
 
       {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
-      assert repo.repo_name == repo_attrs.repo_name
+      assert repo.title == repo_attrs.title
     end
 
     test "add user to cms authors, if the user is not exsit in cms authors",
