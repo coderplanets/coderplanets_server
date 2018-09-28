@@ -4,29 +4,35 @@ defmodule MastaniServer.CMS.Repo do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Author, Community, RepoBuilder, RepoCommunityFlag, Tag}
+  alias MastaniServer.CMS.{Author, Community, RepoContributor, RepoCommunityFlag, Tag}
 
-  @required_fields ~w(repo_name desc readme language producer producer_link repo_link repo_star_count repo_fork_count repo_watch_count)a
-  @optional_fields ~w(views last_fetch_time)
+  @required_fields ~w(title owner_name owner_url repo_url desc homepage_url readme issues_count prs_count fork_count watch_count primary_language license release_tag)a
+  @optional_fields ~w(last_fetch_time)
 
   @type t :: %Repo{}
   schema "cms_repos" do
-    field(:repo_name, :string)
+    field(:title, :string)
+    field(:owner_name, :string)
+    field(:owner_url, :string)
+    field(:repo_url, :string)
+
     field(:desc, :string)
+    field(:homepage_url, :string)
     field(:readme, :string)
-    field(:language, :string)
-    belongs_to(:author, Author)
 
-    field(:repo_link, :string)
-    field(:producer, :string)
-    field(:producer_link, :string)
+    field(:issues_count, :integer)
+    field(:prs_count, :integer)
+    field(:fork_count, :integer)
+    field(:watch_count, :integer)
 
-    field(:repo_star_count, :integer)
-    field(:repo_fork_count, :integer)
-    field(:repo_watch_count, :integer)
+    field(:primary_language, :string)
+    field(:license, :string)
+    field(:release_tag, :string)
+
+    embeds_many(:contributors, RepoContributor)
 
     field(:views, :integer, default: 0)
-
+    belongs_to(:author, Author)
     has_many(:community_flags, {"repos_communities_flags", RepoCommunityFlag})
 
     # NOTE: this one is tricky, pin is dynamic changed when return by func: add_pin_contents_ifneed
@@ -34,8 +40,6 @@ defmodule MastaniServer.CMS.Repo do
     field(:trash, :boolean, default_value: false)
 
     field(:last_fetch_time, :utc_datetime)
-    # TODO: replace RepoBuilder with paged user map
-    has_many(:builders, {"repos_builders", RepoBuilder})
 
     many_to_many(
       :tags,

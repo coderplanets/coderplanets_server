@@ -14,7 +14,7 @@ defmodule MastaniServer.Test.Query.Repo do
   query($id: ID!) {
     repo(id: $id) {
       id
-      repo_name
+      title
     }
   }
   """
@@ -23,7 +23,7 @@ defmodule MastaniServer.Test.Query.Repo do
     results = guest_conn |> query_result(@query, variables, "repo")
 
     assert results["id"] == to_string(repo.id)
-    assert is_valid_kv?(results, "repo_name", :string)
+    assert is_valid_kv?(results, "title", :string)
     assert length(Map.keys(results)) == 2
   end
 
