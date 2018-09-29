@@ -8,8 +8,10 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   import Helper.ErrorCode
   import ShortMaps
 
+  alias MastaniServer.Repo
+
   alias MastaniServer.Accounts.User
-  alias MastaniServer.{CMS, Repo, Statistics}
+  alias MastaniServer.{CMS, Statistics}
 
   alias CMS.Delegate.ArticleOperation
   alias Helper.{ORM, QueryBuilder}
@@ -144,7 +146,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   defp create_content_result({:ok, %{add_content_author: result}}), do: {:ok, result}
 
   defp create_content_result({:error, :add_content_author, _result, _steps}) do
-    {:error, [message: "assign author", code: ecode(:create_fails)]}
+    {:error, [message: "create cms content author", code: ecode(:create_fails)]}
   end
 
   defp create_content_result({:error, :set_community, _result, _steps}) do
@@ -176,6 +178,19 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     rescue
       _ -> {:error, [message: "set tag", code: ecode(:create_fails)]}
     end
+  end
+
+  @doc """
+  update CMS repo(github)
+  """
+  alias MastaniServer.CMS
+
+  defp update_repo(%CMS.Repo{} = repo, attrs \\ %{}) do
+    repo
+    |> Ecto.Changeset.change(attrs)
+    |> Ecto.Changeset.put_embed(:contributors, attrs.contributors)
+    |> MastaniServer.CMS.Repo.update_changeset(attrs)
+    |> Repo.update()
   end
 
   @doc """

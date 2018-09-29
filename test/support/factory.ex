@@ -40,8 +40,8 @@ defmodule MastaniServer.Support.Factory do
       durationSec: Enum.random(300..12_000),
       source: "youtube",
       link: "http://www.youtube.com/video/1",
-      original_author: "simon",
-      originalAuthor: "simon",
+      original_author: "mydearxym",
+      originalAuthor: "mydearxym",
       original_author_link: "http://www.youtube.com/user/1",
       originalAuthorLink: "http://www.youtube.com/user/1",
       author: mock(:author),
@@ -61,18 +61,42 @@ defmodule MastaniServer.Support.Factory do
     %{
       title: Faker.Lorem.Shakespeare.king_richard_iii(),
       owner_name: "coderplanets",
+      ownerName: "coderplanets",
       owner_url: "http://www.github.com/coderplanets",
+      ownerUrl: "http://www.github.com/coderplanets",
       repo_url: "http://www.github.com/coderplanets//coderplanets_server",
+      repoUrl: "http://www.github.com/coderplanets//coderplanets_server",
       desc: desc,
       homepage_url: "http://www.github.com/coderplanets",
+      homepageUrl: "http://www.github.com/coderplanets",
       readme: desc,
       issues_count: Enum.random(0..2000),
+      issuesCount: Enum.random(0..2000),
       prs_count: Enum.random(0..2000),
+      prsCount: Enum.random(0..2000),
       fork_count: Enum.random(0..2000),
+      forkCount: Enum.random(0..2000),
       watch_count: Enum.random(0..2000),
+      watchCount: Enum.random(0..2000),
       primary_language: "javascript",
+      primaryLanguage: "javascript",
       license: "MIT",
       release_tag: "v22",
+      releaseTag: "v22",
+      contributors: [
+        %{
+          avatar: Faker.Avatar.image_url(),
+          html_url: Faker.Avatar.image_url(),
+          htmlUrl: Faker.Avatar.image_url(),
+          nickname: "mydearxym"
+        },
+        %{
+          avatar: Faker.Avatar.image_url(),
+          html_url: Faker.Avatar.image_url(),
+          htmlUrl: Faker.Avatar.image_url(),
+          nickname: "mydearxym2"
+        }
+      ],
       author: mock(:author),
       views: Enum.random(0..2000),
       communities: [

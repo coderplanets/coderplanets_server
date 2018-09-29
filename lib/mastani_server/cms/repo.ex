@@ -8,6 +8,7 @@ defmodule MastaniServer.CMS.Repo do
 
   @required_fields ~w(title owner_name owner_url repo_url desc homepage_url readme issues_count prs_count fork_count watch_count primary_language license release_tag)a
   @optional_fields ~w(last_fetch_time)
+  @contributors_field ~w(contributors)
 
   @type t :: %Repo{}
   schema "cms_repos" do
@@ -29,7 +30,7 @@ defmodule MastaniServer.CMS.Repo do
     field(:license, :string)
     field(:release_tag, :string)
 
-    embeds_many(:contributors, RepoContributor)
+    embeds_many(:contributors, RepoContributor, on_replace: :delete)
 
     field(:views, :integer, default: 0)
     belongs_to(:author, Author)
@@ -64,7 +65,10 @@ defmodule MastaniServer.CMS.Repo do
   def changeset(%Repo{} = repo, attrs) do
     repo
     |> cast(attrs, @optional_fields ++ @required_fields)
+    |> cast_embed(:contributors, with: &RepoContributor.changeset/2)
     |> validate_required(@required_fields)
+
+    # |> cast_embed(:contributors, with: &RepoContributor.changeset/2)
 
     # |> foreign_key_constraint(:posts_tags, name: :posts_tags_tag_id_fkey)
     # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)
