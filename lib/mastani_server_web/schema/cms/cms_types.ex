@@ -253,21 +253,26 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   object :repo do
     # interface(:article)
     field(:id, :id)
-    field(:repo_name, :string)
+    field(:title, :string)
+    field(:owner_name, :string)
+    field(:owner_url, :string)
+    field(:repo_url, :string)
+
     field(:desc, :string)
+    field(:homepage_url, :string)
     field(:readme, :string)
-    field(:language, :string)
+
+    field(:issues_count, :integer)
+    field(:prs_count, :integer)
+    field(:fork_count, :integer)
+    field(:watch_count, :integer)
+
+    field(:primary_language, :string)
+    field(:license, :string)
+    field(:release_tag, :string)
+
     field(:author, :user, resolve: dataloader(CMS, :author))
-
-    field(:repo_link, :string)
-    field(:producer, :string)
-    field(:producer_link, :integer)
-
-    field(:repo_star_count, :integer)
-    field(:repo_fork_count, :integer)
-    field(:repo_watch_count, :integer)
     field(:views, :integer)
-
     field(:pin, :boolean)
     field(:trash, :boolean)
     # TODO: remove

@@ -156,6 +156,15 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
   end
 
   @doc """
+  cms github repo contribotor
+  """
+  input_object :repo_contributor_input do
+    field(:avatar, :string)
+    field(:html_url, :string)
+    field(:nickname, :string)
+  end
+
+  @doc """
   only used for reaction result, like: favorite/star/watch ...
   """
   interface :article do
