@@ -250,6 +250,17 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:updated_at, :datetime)
   end
 
+  object :repo_contributor do
+    field(:avatar, :string)
+    field(:html_url, :string)
+    field(:nickname, :string)
+  end
+
+  object :repo_lang do
+    field(:name, :string)
+    field(:color, :string)
+  end
+
   object :repo do
     # interface(:article)
     field(:id, :id)
@@ -262,14 +273,17 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:homepage_url, :string)
     field(:readme, :string)
 
+    field(:star_count, :integer)
     field(:issues_count, :integer)
     field(:prs_count, :integer)
     field(:fork_count, :integer)
     field(:watch_count, :integer)
 
-    field(:primary_language, :string)
+    field(:primary_language, :repo_lang)
     field(:license, :string)
     field(:release_tag, :string)
+
+    field(:contributors, list_of(:repo_contributor))
 
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:views, :integer)

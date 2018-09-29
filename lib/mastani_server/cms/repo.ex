@@ -4,11 +4,10 @@ defmodule MastaniServer.CMS.Repo do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Author, Community, RepoContributor, RepoCommunityFlag, Tag}
+  alias MastaniServer.CMS.{Author, Community, RepoContributor, RepoLang, RepoCommunityFlag, Tag}
 
-  @required_fields ~w(title owner_name owner_url repo_url desc homepage_url readme issues_count prs_count fork_count watch_count primary_language license release_tag)a
-  @optional_fields ~w(last_fetch_time)
-  @contributors_field ~w(contributors)
+  @required_fields ~w(title owner_name owner_url repo_url desc readme star_count issues_count prs_count fork_count watch_count)a
+  @optional_fields ~w(last_fetch_time homepage_url release_tag license)
 
   @type t :: %Repo{}
   schema "cms_repos" do
@@ -21,14 +20,15 @@ defmodule MastaniServer.CMS.Repo do
     field(:homepage_url, :string)
     field(:readme, :string)
 
+    field(:star_count, :integer)
     field(:issues_count, :integer)
     field(:prs_count, :integer)
     field(:fork_count, :integer)
     field(:watch_count, :integer)
 
-    field(:primary_language, :string)
     field(:license, :string)
     field(:release_tag, :string)
+    embeds_one(:primary_language, RepoLang, on_replace: :delete)
 
     embeds_many(:contributors, RepoContributor, on_replace: :delete)
 
@@ -66,11 +66,7 @@ defmodule MastaniServer.CMS.Repo do
     repo
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> cast_embed(:contributors, with: &RepoContributor.changeset/2)
+    |> cast_embed(:primary_language, with: &RepoLang.changeset/2)
     |> validate_required(@required_fields)
-
-    # |> cast_embed(:contributors, with: &RepoContributor.changeset/2)
-
-    # |> foreign_key_constraint(:posts_tags, name: :posts_tags_tag_id_fkey)
-    # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)
   end
 end
