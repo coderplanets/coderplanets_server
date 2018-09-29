@@ -76,6 +76,8 @@ defmodule MastaniServer.Support.Factory do
       prsCount: Enum.random(0..2000),
       fork_count: Enum.random(0..2000),
       forkCount: Enum.random(0..2000),
+      star_count: Enum.random(0..2000),
+      starCount: Enum.random(0..2000),
       watch_count: Enum.random(0..2000),
       watchCount: Enum.random(0..2000),
       primary_language: "javascript",
@@ -83,6 +85,14 @@ defmodule MastaniServer.Support.Factory do
       license: "MIT",
       release_tag: "v22",
       releaseTag: "v22",
+      primary_language: %{
+        name: "javascript",
+        color: "tomato"
+      },
+      primaryLanguage: %{
+        name: "javascript",
+        color: "tomato"
+      },
       contributors: [
         %{
           avatar: Faker.Avatar.image_url(),
