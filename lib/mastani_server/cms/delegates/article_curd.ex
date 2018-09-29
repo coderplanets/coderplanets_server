@@ -145,6 +145,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
 
   defp create_content_result({:ok, %{add_content_author: result}}), do: {:ok, result}
 
+  # TODO: need more spec error handle
   defp create_content_result({:error, :add_content_author, _result, _steps}) do
     {:error, [message: "create cms content author", code: ecode(:create_fails)]}
   end
@@ -178,19 +179,6 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     rescue
       _ -> {:error, [message: "set tag", code: ecode(:create_fails)]}
     end
-  end
-
-  @doc """
-  update CMS repo(github)
-  """
-  alias MastaniServer.CMS
-
-  defp update_repo(%CMS.Repo{} = repo, attrs \\ %{}) do
-    repo
-    |> Ecto.Changeset.change(attrs)
-    |> Ecto.Changeset.put_embed(:contributors, attrs.contributors)
-    |> MastaniServer.CMS.Repo.update_changeset(attrs)
-    |> Repo.update()
   end
 
   @doc """

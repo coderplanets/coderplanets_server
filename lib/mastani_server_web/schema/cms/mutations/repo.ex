@@ -13,19 +13,20 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Repo do
       arg(:repo_url, non_null(:string))
 
       arg(:desc, non_null(:string))
-      arg(:homepage_url, non_null(:string))
+      arg(:homepage_url, :string)
       arg(:readme, non_null(:string))
 
+      arg(:star_count, non_null(:integer))
       arg(:issues_count, non_null(:integer))
       arg(:prs_count, non_null(:integer))
       arg(:fork_count, non_null(:integer))
       arg(:watch_count, non_null(:integer))
 
-      arg(:primary_language, non_null(:string))
-      arg(:license, non_null(:string))
-      arg(:release_tag, non_null(:string))
+      arg(:license, :string)
+      arg(:release_tag, :string)
 
       arg(:contributors, list_of(:repo_contributor_input))
+      arg(:primary_language, non_null(:repo_lang_input))
 
       arg(:community_id, non_null(:id))
       arg(:thread, :cms_thread, default_value: :repo)
