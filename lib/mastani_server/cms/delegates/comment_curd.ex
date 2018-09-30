@@ -9,9 +9,10 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   import MastaniServer.CMS.Utils.Matcher
   import ShortMaps
 
-  alias MastaniServer.{Repo, Accounts}
   alias Helper.{ORM, QueryBuilder}
-  alias MastaniServer.CMS.{PostCommentReply, JobCommentReply}
+  alias MastaniServer.{Repo, Accounts}
+
+  alias MastaniServer.CMS.{PostCommentReply, JobCommentReply, VideoCommentReply}
 
   alias Ecto.Multi
 
@@ -35,9 +36,6 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
       action.reactor |> ORM.create(attrs)
     end
   end
-
-  defp merge_comment_attrs(:post, attrs, id), do: attrs |> Map.merge(%{post_id: id})
-  defp merge_comment_attrs(:job, attrs, id), do: attrs |> Map.merge(%{job_id: id})
 
   @doc """
   Delete the comment and increase all the floor after this comment
@@ -103,6 +101,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   def reply_comment(thread, comment_id, body, %Accounts.User{id: user_id}) do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, comment} <- ORM.find(action.reactor, comment_id) do
+
       next_floor = get_next_floor(thread, action.reactor, comment)
 
       attrs = %{
@@ -113,17 +112,13 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
       }
 
       attrs = merge_reply_attrs(thread, attrs, comment)
-      brige_reply(thread, action.reactor, comment, attrs)
+      bridge_reply(thread, action.reactor, comment, attrs)
     end
   end
 
-  defp merge_reply_attrs(:post, attrs, comment),
-    do: attrs |> Map.merge(%{post_id: comment.post_id})
-
-  defp merge_reply_attrs(:job, attrs, comment), do: attrs |> Map.merge(%{job_id: comment.job_id})
-
-  defp brige_reply(:post, queryable, comment, attrs) do
-    # TODO: use Multi task to refactor
+  # simulate a join connection
+  # TODO: use Multi task to refactor
+  defp bridge_reply(:post, queryable, comment, attrs) do
     with {:ok, reply} <- ORM.create(queryable, attrs) do
       ORM.update(reply, %{reply_id: comment.id})
 
@@ -134,12 +129,21 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     end
   end
 
-  defp brige_reply(:job, queryable, comment, attrs) do
-    # TODO: use Multi task to refactor
+  defp bridge_reply(:job, queryable, comment, attrs) do
     with {:ok, reply} <- ORM.create(queryable, attrs) do
       ORM.update(reply, %{reply_id: comment.id})
 
       {:ok, _} = JobCommentReply |> ORM.create(%{job_comment_id: comment.id, reply_id: reply.id})
+
+      queryable |> ORM.find(reply.id)
+    end
+  end
+
+  defp bridge_reply(:video, queryable, comment, attrs) do
+    with {:ok, reply} <- ORM.create(queryable, attrs) do
+      ORM.update(reply, %{reply_id: comment.id})
+
+      {:ok, _} = VideoCommentReply |> ORM.create(%{video_comment_id: comment.id, reply_id: reply.id})
 
       queryable |> ORM.find(reply.id)
     end
@@ -163,9 +167,23 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     |> ORM.next_count()
   end
 
+  # merge_comment_attrs when create comemnt
+  defp merge_comment_attrs(:post, attrs, id), do: attrs |> Map.merge(%{post_id: id})
+  defp merge_comment_attrs(:job, attrs, id), do: attrs |> Map.merge(%{job_id: id})
+  defp merge_comment_attrs(:video, attrs, id), do: attrs |> Map.merge(%{video_id: id})
+
+  defp merge_reply_attrs(:post, attrs, comment),
+    do: attrs |> Map.merge(%{post_id: comment.post_id})
+
+  defp merge_reply_attrs(:job, attrs, comment), do: attrs |> Map.merge(%{job_id: comment.job_id})
+  defp merge_reply_attrs(:video, attrs, comment), do: attrs |> Map.merge(%{video_id: comment.video_id})
+
+
   defp dynamic_comment_where(:post, id), do: dynamic([c], c.post_id == ^id)
   defp dynamic_comment_where(:job, id), do: dynamic([c], c.job_id == ^id)
+  defp dynamic_comment_where(:video, id), do: dynamic([c], c.video_id == ^id)
 
   defp dynamic_reply_where(:post, comment), do: dynamic([c], c.post_id == ^comment.post_id)
   defp dynamic_reply_where(:job, comment), do: dynamic([c], c.job_id == ^comment.job_id)
+  defp dynamic_reply_where(:video, comment), do: dynamic([c], c.video_id == ^comment.video_id)
 end
