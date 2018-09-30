@@ -6,20 +6,32 @@ defmodule MastaniServer.CMS.Utils.Matcher do
 
   alias MastaniServer.CMS.{
     Community,
+    # threads
     Post,
     Video,
     Repo,
     Job,
+    # reactions
     PostFavorite,
     JobFavorite,
     PostStar,
     JobStar,
+    # comments
     PostComment,
     JobComment,
-    Tag,
-    Community,
+    VideoComment,
+    RepoComment,
+    # commtnes reaction
     PostCommentLike,
     PostCommentDislike,
+    VideoCommentLike,
+    VideoCommentDislike,
+    RepoCommentLike,
+    RepoCommentDislike,
+    #
+    Tag,
+    Community,
+    # flags
     PostCommunityFlag,
     JobCommunityFlag,
     RepoCommunityFlag,
@@ -88,6 +100,15 @@ defmodule MastaniServer.CMS.Utils.Matcher do
   def match_action(:video, :community),
     do: {:ok, %{target: Video, reactor: Community, flag: VideoCommunityFlag}}
 
+  def match_action(:video, :comment),
+    do: {:ok, %{target: Video, reactor: VideoComment, preload: :author}}
+
+  def match_action(:video_comment, :like),
+    do: {:ok, %{target: VideoComment, reactor: VideoCommentLike}}
+
+  def match_action(:video_comment, :dislike),
+    do: {:ok, %{target: VideoComment, reactor: VideoCommentDislike}}
+
   #########################################
   ## repos ...
   #########################################
@@ -96,6 +117,16 @@ defmodule MastaniServer.CMS.Utils.Matcher do
   def match_action(:repo, :community),
     do: {:ok, %{target: Repo, reactor: Community, flag: RepoCommunityFlag}}
 
+  def match_action(:repo, :comment),
+    do: {:ok, %{target: Repo, reactor: RepoComment, preload: :author}}
+
+  def match_action(:repo_comment, :like),
+    do: {:ok, %{target: RepoComment, reactor: RepoCommentLike}}
+
+  def match_action(:repo_comment, :dislike),
+    do: {:ok, %{target: RepoComment, reactor: RepoCommentDislike}}
+
+  # dynamic where query match
   def dynamic_where(thread, id) do
     case thread do
       :post ->
@@ -109,6 +140,18 @@ defmodule MastaniServer.CMS.Utils.Matcher do
 
       :job_comment ->
         {:ok, dynamic([p], p.job_comment_id == ^id)}
+
+      :video ->
+        {:ok, dynamic([p], p.video_id == ^id)}
+
+      :video_comment ->
+        {:ok, dynamic([p], p.video_comment_id == ^id)}
+
+      :repo ->
+        {:ok, dynamic([p], p.repo_id == ^id)}
+
+      :repo_comment ->
+        {:ok, dynamic([p], p.repo_comment_id == ^id)}
 
       _ ->
         {:error, 'where is not match'}
