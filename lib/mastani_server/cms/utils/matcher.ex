@@ -23,6 +23,9 @@ defmodule MastaniServer.CMS.Utils.Matcher do
     # commtnes reaction
     PostCommentLike,
     PostCommentDislike,
+    VideoCommentLike,
+    VideoCommentDislike,
+    #
     Tag,
     Community,
     # flags
@@ -95,7 +98,13 @@ defmodule MastaniServer.CMS.Utils.Matcher do
     do: {:ok, %{target: Video, reactor: Community, flag: VideoCommunityFlag}}
 
   def match_action(:video, :comment),
-      do: {:ok, %{target: Video, reactor: VideoComment, preload: :author}}
+    do: {:ok, %{target: Video, reactor: VideoComment, preload: :author}}
+
+  def match_action(:video_comment, :like),
+    do: {:ok, %{target: VideoComment, reactor: VideoCommentLike}}
+
+  def match_action(:video_comment, :dislike),
+    do: {:ok, %{target: VideoComment, reactor: VideoCommentDislike}}
 
   #########################################
   ## repos ...
