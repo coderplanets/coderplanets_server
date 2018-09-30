@@ -170,5 +170,23 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Community do
 
       resolve(&R.CMS.delete_tag/3)
     end
+
+    @desc "sync github docs like wiki / cheatsheets "
+    field :sync_wiki, :wiki do
+      arg(:community_id, non_null(:id))
+      arg(:readme, non_null(:string))
+      arg(:last_sync, non_null(:datetime))
+
+      middleware(M.Authorize, :login)
+      resolve(&R.CMS.sync_wiki/3)
+    end
+
+    field :add_wiki_contributor, :wiki do
+      arg(:id, non_null(:id))
+      arg(:contributor, non_null(:github_contributor_input))
+
+      middleware(M.Authorize, :login)
+      resolve(&R.CMS.add_wiki_contributor/3)
+    end
   end
 end

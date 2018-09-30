@@ -111,6 +111,7 @@ defmodule MastaniServer.Support.Factory do
       community: mock(:community),
       readme: Faker.Lorem.sentence(%Range{first: 15, last: 60}),
       last_sync: Timex.today() |> Timex.to_datetime(),
+      lastSync: "2017-11-01T12:00:00Z",
       contributors: [
         mock_meta(:github_contributor),
         mock_meta(:github_contributor),
@@ -124,6 +125,7 @@ defmodule MastaniServer.Support.Factory do
 
     %{
       github_id: "#{unique_num}-#{Faker.Lorem.sentence(%Range{first: 5, last: 10})}",
+      githubId: "#{unique_num}-#{Faker.Lorem.sentence(%Range{first: 5, last: 10})}",
       avatar: Faker.Avatar.image_url(),
       html_url: Faker.Avatar.image_url(),
       htmlUrl: Faker.Avatar.image_url(),

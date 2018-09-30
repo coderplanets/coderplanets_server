@@ -248,4 +248,15 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def stamp_passport(_root, ~m(user_id rules)a, %{context: %{cur_user: _user}}) do
     CMS.stamp_passport(rules, %User{id: user_id})
   end
+
+  # #######################
+  # sync github content ..
+  # #######################
+  def sync_wiki(_root, ~m(community_id readme last_sync)a, %{context: %{cur_user: _user}}) do
+    CMS.sync_github_content(%Community{id: community_id}, :wiki, ~m(readme last_sync)a)
+  end
+
+  def add_wiki_contributor(_root, ~m(id contributor)a, %{context: %{cur_user: _user}}) do
+    CMS.add_contributor(%CMS.CommunityWiki{id: id}, contributor)
+  end
 end
