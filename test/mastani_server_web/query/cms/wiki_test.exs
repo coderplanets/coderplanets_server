@@ -7,7 +7,7 @@ defmodule MastaniServer.Test.Query.Wiki do
     {:ok, community} = db_insert(:community)
 
     wiki_attrs = mock_attrs(:wiki, %{community_id: community.id})
-    {:ok, wiki} = CMS.sync_content(community, :wiki, wiki_attrs)
+    {:ok, wiki} = CMS.sync_github_content(community, :wiki, wiki_attrs)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)

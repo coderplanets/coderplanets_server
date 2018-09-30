@@ -26,7 +26,7 @@ defmodule MastaniServer.CMS.Delegate.CommunitySync do
   @doc """
   return paged community subscribers
   """
-  def sync_content(%Community{id: id}, :wiki, attrs) do
+  def sync_github_content(%Community{id: id}, :wiki, attrs) do
     with {:ok, community} <- ORM.find(Community, id) do
       attrs = Map.merge(attrs, %{community_id: community.id})
 

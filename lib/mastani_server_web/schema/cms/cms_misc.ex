@@ -165,6 +165,19 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
   end
 
   @doc """
+  cms github repo contribotor, detail version
+  """
+  input_object :github_contributor_input do
+    field(:github_id, non_null(:string))
+    field(:avatar, non_null(:string))
+    field(:html_url, non_null(:string))
+    field(:nickname, non_null(:string))
+    field(:bio, :string)
+    field(:location, :string)
+    field(:company, :string)
+  end
+
+  @doc """
   cms github repo lang
   """
   input_object :repo_lang_input do
