@@ -94,18 +94,8 @@ defmodule MastaniServer.Support.Factory do
         color: "tomato"
       },
       contributors: [
-        %{
-          avatar: Faker.Avatar.image_url(),
-          html_url: Faker.Avatar.image_url(),
-          htmlUrl: Faker.Avatar.image_url(),
-          nickname: "mydearxym"
-        },
-        %{
-          avatar: Faker.Avatar.image_url(),
-          html_url: Faker.Avatar.image_url(),
-          htmlUrl: Faker.Avatar.image_url(),
-          nickname: "mydearxym2"
-        }
+        mock_meta(:github_contributor),
+        mock_meta(:github_contributor)
       ],
       author: mock(:author),
       views: Enum.random(0..2000),
@@ -113,6 +103,33 @@ defmodule MastaniServer.Support.Factory do
         mock(:community),
         mock(:community)
       ]
+    }
+  end
+
+  defp mock_meta(:wiki) do
+    %{
+      readme: Faker.Lorem.sentence(%Range{first: 15, last: 60}),
+      last_sync: Timex.today() |> Timex.to_datetime(),
+      contributors: [
+        mock_meta(:github_contributor),
+        mock_meta(:github_contributor),
+        mock_meta(:github_contributor)
+      ]
+    }
+  end
+
+  defp mock_meta(:github_contributor) do
+    unique_num = System.unique_integer([:positive, :monotonic])
+
+    %{
+      github_id: "#{unique_num}-#{Faker.Lorem.sentence(%Range{first: 5, last: 10})}",
+      avatar: Faker.Avatar.image_url(),
+      html_url: Faker.Avatar.image_url(),
+      htmlUrl: Faker.Avatar.image_url(),
+      nickname: "mydearxym2",
+      bio: Faker.Lorem.sentence(%Range{first: 15, last: 60}),
+      location: "location #{unique_num}",
+      company: Faker.Company.name()
     }
   end
 
@@ -258,6 +275,11 @@ defmodule MastaniServer.Support.Factory do
   def mock_attrs(:community, attrs), do: mock_meta(:community) |> Map.merge(attrs)
   def mock_attrs(:thread, attrs), do: mock_meta(:thread) |> Map.merge(attrs)
   def mock_attrs(:mention, attrs), do: mock_meta(:mention) |> Map.merge(attrs)
+
+  def mock_attrs(:wiki, attrs), do: mock_meta(:wiki) |> Map.merge(attrs)
+
+  def mock_attrs(:github_contributor, attrs),
+    do: mock_meta(:github_contributor) |> Map.merge(attrs)
 
   def mock_attrs(:communities_threads, attrs),
     do: mock_meta(:communities_threads) |> Map.merge(attrs)

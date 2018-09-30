@@ -9,6 +9,7 @@ defmodule MastaniServer.CMS do
     ArticleOperation,
     ArticleReaction,
     CommentCURD,
+    CommunitySync,
     CommentReaction,
     CommunityCURD,
     CommunityOperation,
@@ -35,6 +36,9 @@ defmodule MastaniServer.CMS do
   defdelegate update_tag(attrs), to: CommunityCURD
   defdelegate get_tags(community, thread), to: CommunityCURD
   defdelegate get_tags(filter), to: CommunityCURD
+  # >> wiki & cheatsheet (sync with github)
+  defdelegate sync_content(community, thread, attrs), to: CommunitySync
+  defdelegate add_contributor(wiki, attrs), to: CommunitySync
 
   # CommunityOperation
   # >> category
