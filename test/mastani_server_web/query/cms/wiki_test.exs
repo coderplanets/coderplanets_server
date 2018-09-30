@@ -27,7 +27,6 @@ defmodule MastaniServer.Test.Query.Wiki do
     }
   }
   """
-  @tag :wip
   test "basic graphql query on wiki", ~m(guest_conn community wiki)a do
     variables = %{community: community.raw}
     results = guest_conn |> query_result(@query, variables, "wiki")
@@ -44,7 +43,6 @@ defmodule MastaniServer.Test.Query.Wiki do
     }
   }
   """
-  @tag :wip
   test "views should +1 after query the wiki", ~m(guest_conn community)a do
     variables = %{community: community.raw}
     views_1 = guest_conn |> query_result(@query, variables, "wiki") |> Map.get("views")

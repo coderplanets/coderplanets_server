@@ -29,7 +29,6 @@ defmodule MastaniServer.Test.Mutation.CMS.Wiki do
     }
   }
   """
-  @tag :wip
   test "login user can sync wiki", ~m(community)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
@@ -56,7 +55,6 @@ defmodule MastaniServer.Test.Mutation.CMS.Wiki do
     }
   }
   """
-  @tag :wip
   test "login user can add contributor to an exsit wiki", ~m(user wiki)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
@@ -70,7 +68,6 @@ defmodule MastaniServer.Test.Mutation.CMS.Wiki do
     assert created["contributors"] |> length == 4
   end
 
-  @tag :wip
   test "add some contributor fails", ~m(user wiki)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)

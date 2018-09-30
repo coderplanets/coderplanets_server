@@ -17,7 +17,6 @@ defmodule MastaniServer.Test.Wiki do
   end
 
   describe "[cms wiki sync]" do
-    @tag :wip
     test "can create create/sync a wiki to a community", ~m(community wiki_attrs)a do
       {:ok, wiki} = CMS.sync_github_content(community, :wiki, wiki_attrs)
 
@@ -25,7 +24,6 @@ defmodule MastaniServer.Test.Wiki do
       assert wiki.last_sync == wiki_attrs.last_sync
     end
 
-    @tag :wip
     test "can update a exsit wiki", ~m(community wiki_attrs)a do
       {:ok, wiki} = CMS.sync_github_content(community, :wiki, wiki_attrs)
 
@@ -36,7 +34,6 @@ defmodule MastaniServer.Test.Wiki do
       assert new_wiki.readme == "new readme"
     end
 
-    @tag :wip
     test "can add contributor to wiki", ~m(community wiki_attrs)a do
       {:ok, wiki} = CMS.sync_github_content(community, :wiki, wiki_attrs)
       cur_contributors = wiki.contributors
@@ -48,7 +45,6 @@ defmodule MastaniServer.Test.Wiki do
       assert length(update_contributors) == 1 + length(cur_contributors)
     end
 
-    @tag :wip
     test "add some contributor fails", ~m(community wiki_attrs)a do
       {:ok, wiki} = CMS.sync_github_content(community, :wiki, wiki_attrs)
       cur_contributors = wiki.contributors
