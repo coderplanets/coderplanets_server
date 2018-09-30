@@ -1,12 +1,8 @@
 defmodule MastaniServer.Test.Mutation.CMS.Wiki do
   use MastaniServer.TestTools
 
-  alias MastaniServer.CMS
-  alias MastaniServer.Statistics
-
-  alias CMS.{Community}
-
   alias Helper.ORM
+  alias MastaniServer.CMS
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -55,7 +51,7 @@ defmodule MastaniServer.Test.Mutation.CMS.Wiki do
     }
   }
   """
-  test "login user can add contributor to an exsit wiki", ~m(user wiki)a do
+  test "login user can add contributor to an exsit wiki", ~m(wiki)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
 
@@ -68,15 +64,14 @@ defmodule MastaniServer.Test.Mutation.CMS.Wiki do
     assert created["contributors"] |> length == 4
   end
 
-  test "add some contributor fails", ~m(user wiki)a do
+  test "add some contributor fails", ~m(wiki)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
 
     contributor_attrs = mock_attrs(:github_contributor)
     variables = %{id: wiki.id, contributor: contributor_attrs}
 
-    created =
-      user_conn |> mutation_result(@add_wiki_contribotor_query, variables, "addWikiContributor")
+    user_conn |> mutation_result(@add_wiki_contribotor_query, variables, "addWikiContributor")
 
     assert user_conn
            |> mutation_get_error?(@add_wiki_contribotor_query, variables, ecode(:already_exsit))

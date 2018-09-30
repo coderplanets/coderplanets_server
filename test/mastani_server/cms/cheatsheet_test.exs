@@ -17,7 +17,6 @@ defmodule MastaniServer.Test.Cheatsheet do
   end
 
   describe "[cms cheatsheet sync]" do
-    @tag :wip
     test "can create create/sync a cheatsheet to a community", ~m(community cheatsheet_attrs)a do
       {:ok, cheatsheet} = CMS.sync_github_content(community, :cheatsheet, cheatsheet_attrs)
 
@@ -25,7 +24,6 @@ defmodule MastaniServer.Test.Cheatsheet do
       assert cheatsheet.last_sync == cheatsheet_attrs.last_sync
     end
 
-    @tag :wip
     test "can update a exsit cheatsheet", ~m(community cheatsheet_attrs)a do
       {:ok, cheatsheet} = CMS.sync_github_content(community, :cheatsheet, cheatsheet_attrs)
 
@@ -38,7 +36,6 @@ defmodule MastaniServer.Test.Cheatsheet do
       assert new_cheatsheet.readme == "new readme"
     end
 
-    @tag :wip
     test "can add contributor to cheatsheet", ~m(community cheatsheet_attrs)a do
       {:ok, cheatsheet} = CMS.sync_github_content(community, :cheatsheet, cheatsheet_attrs)
       cur_contributors = cheatsheet.contributors
@@ -50,7 +47,6 @@ defmodule MastaniServer.Test.Cheatsheet do
       assert length(update_contributors) == 1 + length(cur_contributors)
     end
 
-    @tag :wip
     test "add some contributor fails", ~m(community cheatsheet_attrs)a do
       {:ok, cheatsheet} = CMS.sync_github_content(community, :cheatsheet, cheatsheet_attrs)
       cur_contributors = cheatsheet.contributors
