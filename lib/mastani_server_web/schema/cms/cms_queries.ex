@@ -106,6 +106,12 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.paged_repos/3)
     end
 
+    @desc "get wiki by community raw name"
+    field :wiki, non_null(:wiki) do
+      arg(:community, :string)
+      resolve(&R.CMS.wiki/3)
+    end
+
     @desc "get job by id"
     field :job, non_null(:job) do
       arg(:id, non_null(:id))

@@ -18,6 +18,8 @@ defmodule MastaniServer.CMS.CommunityWiki do
     embeds_many(:contributors, GithubContributor, on_replace: :delete)
     field(:last_sync, :utc_datetime)
 
+    field(:views, :integer, default: 0)
+
     timestamps(type: :utc_datetime)
   end
 
