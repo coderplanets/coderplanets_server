@@ -62,7 +62,6 @@ defmodule MastaniServer.Test.Mutation.Repo do
       }
     }
     """
-    @tag :wip2
     test "create repo with valid attrs and make sure author exsit" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)

@@ -1,12 +1,8 @@
 defmodule MastaniServer.Test.Mutation.CMS.Cheatsheet do
   use MastaniServer.TestTools
 
-  alias MastaniServer.CMS
-  alias MastaniServer.Statistics
-
-  alias CMS.{Community}
-
   alias Helper.ORM
+  alias MastaniServer.CMS
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -29,7 +25,6 @@ defmodule MastaniServer.Test.Mutation.CMS.Cheatsheet do
     }
   }
   """
-  @tag :wip
   test "login user can sync cheatsheet", ~m(community)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
@@ -56,7 +51,7 @@ defmodule MastaniServer.Test.Mutation.CMS.Cheatsheet do
     }
   }
   """
-  test "login user can add contributor to an exsit cheatsheet", ~m(user cheatsheet)a do
+  test "login user can add contributor to an exsit cheatsheet", ~m(cheatsheet)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
 
@@ -70,16 +65,15 @@ defmodule MastaniServer.Test.Mutation.CMS.Cheatsheet do
     assert created["contributors"] |> length == 4
   end
 
-  test "add some contributor fails", ~m(user cheatsheet)a do
+  test "add some contributor fails", ~m(cheatsheet)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
 
     contributor_attrs = mock_attrs(:github_contributor)
     variables = %{id: cheatsheet.id, contributor: contributor_attrs}
 
-    created =
-      user_conn
-      |> mutation_result(@add_cheatsheet_contribotor_query, variables, "addCheatshhetContributor")
+    user_conn
+    |> mutation_result(@add_cheatsheet_contribotor_query, variables, "addCheatshhetContributor")
 
     assert user_conn
            |> mutation_get_error?(
