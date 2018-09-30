@@ -72,11 +72,15 @@ defmodule MastaniServer.Test.VideoComment do
       assert deleted.id == comment.id
     end
 
-    # TODO  it's bug
+    # TODO  may be a bug
+    @tag :bug
+    # maybe case
+    # (Postgrex.Error) ERROR 23505 (unique_violation): duplicate key value violates unique constraint "videos_comments_video_id_author_id_floor_index"
+    # this will crash the server.
     test "after delete, the coments of id > deleted.id should decrease the floor number",
          ~m(video user)a do
       body = "this is a test comment"
-      # in setup we have a comment
+      # in setup we have a comment.
       total = 30 + 1
 
       comments =
