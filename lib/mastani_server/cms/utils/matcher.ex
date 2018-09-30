@@ -6,20 +6,26 @@ defmodule MastaniServer.CMS.Utils.Matcher do
 
   alias MastaniServer.CMS.{
     Community,
+    # threads
     Post,
     Video,
     Repo,
     Job,
+    # reactions
     PostFavorite,
     JobFavorite,
     PostStar,
     JobStar,
+    # comments
     PostComment,
     JobComment,
-    Tag,
-    Community,
+    VideoComment,
+    # commtnes reaction
     PostCommentLike,
     PostCommentDislike,
+    Tag,
+    Community,
+    # flags
     PostCommunityFlag,
     JobCommunityFlag,
     RepoCommunityFlag,
@@ -88,6 +94,9 @@ defmodule MastaniServer.CMS.Utils.Matcher do
   def match_action(:video, :community),
     do: {:ok, %{target: Video, reactor: Community, flag: VideoCommunityFlag}}
 
+  def match_action(:video, :comment),
+      do: {:ok, %{target: Video, reactor: VideoComment, preload: :author}}
+
   #########################################
   ## repos ...
   #########################################
@@ -109,6 +118,12 @@ defmodule MastaniServer.CMS.Utils.Matcher do
 
       :job_comment ->
         {:ok, dynamic([p], p.job_comment_id == ^id)}
+
+      :video ->
+        {:ok, dynamic([p], p.video_id == ^id)}
+
+      :video_comment ->
+        {:ok, dynamic([p], p.video_comment_id == ^id)}
 
       _ ->
         {:error, 'where is not match'}
