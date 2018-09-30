@@ -343,6 +343,18 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:updated_at, :datetime)
   end
 
+  object :cheatsheet do
+    field(:id, :id)
+    field(:readme, :string)
+    field(:contributors, list_of(:github_contributor))
+
+    field(:last_sync, :datetime)
+    field(:views, :integer)
+
+    field(:inserted_at, :datetime)
+    field(:updated_at, :datetime)
+  end
+
   object :thread do
     field(:id, :id)
     field(:title, :string)

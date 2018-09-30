@@ -13,7 +13,8 @@ defmodule MastaniServer.CMS.Community do
     CommunityThread,
     CommunitySubscriber,
     CommunityEditor,
-    CommunityWiki
+    CommunityWiki,
+    CommunityCheatsheet
   }
 
   alias MastaniServer.Accounts
@@ -38,7 +39,7 @@ defmodule MastaniServer.CMS.Community do
     has_many(:editors, {"communities_editors", CommunityEditor})
 
     has_one(:wiki, CommunityWiki)
-    # has_one(:cheatsheet, CommunityCheatsheet)
+    has_one(:cheatsheet, CommunityCheatsheet)
 
     many_to_many(
       :categories,
