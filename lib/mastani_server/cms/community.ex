@@ -12,7 +12,8 @@ defmodule MastaniServer.CMS.Community do
     Job,
     CommunityThread,
     CommunitySubscriber,
-    CommunityEditor
+    CommunityEditor,
+    CommunityWiki
   }
 
   alias MastaniServer.Accounts
@@ -35,6 +36,9 @@ defmodule MastaniServer.CMS.Community do
     has_many(:threads, {"communities_threads", CommunityThread})
     has_many(:subscribers, {"communities_subscribers", CommunitySubscriber})
     has_many(:editors, {"communities_editors", CommunityEditor})
+
+    has_one(:wiki, CommunityWiki)
+    # has_one(:cheatsheet, CommunityCheatsheet)
 
     many_to_many(
       :categories,
