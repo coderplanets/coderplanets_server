@@ -48,16 +48,14 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
         ORM.delete(comment)
       end)
       |> Multi.run(:update_floor, fn _ ->
-        ret =
-          Repo.update_all(
-            from(p in action.reactor, where: p.id > ^comment.id),
-            inc: [floor: -1]
-          )
-          |> done()
-
-        case ret do
+        Repo.update_all(
+          from(p in action.reactor, where: p.id > ^comment.id),
+          inc: [floor: -1]
+        )
+        |> done()
+        |> case do
           {:ok, _} -> {:ok, comment}
-          _ -> {:error, ""}
+          {:error, _} -> {:error, ""}
         end
       end)
       |> Repo.transaction()
