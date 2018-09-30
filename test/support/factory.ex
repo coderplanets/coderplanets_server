@@ -108,6 +108,7 @@ defmodule MastaniServer.Support.Factory do
 
   defp mock_meta(:wiki) do
     %{
+      community: mock(:community),
       readme: Faker.Lorem.sentence(%Range{first: 15, last: 60}),
       last_sync: Timex.today() |> Timex.to_datetime(),
       contributors: [
@@ -301,6 +302,7 @@ defmodule MastaniServer.Support.Factory do
   defp mock(:video), do: CMS.Video |> struct(mock_meta(:video))
   defp mock(:repo), do: CMS.Repo |> struct(mock_meta(:repo))
   defp mock(:job), do: CMS.Job |> struct(mock_meta(:job))
+  defp mock(:wiki), do: CMS.CommunityWiki |> struct(mock_meta(:wiki))
   defp mock(:comment), do: CMS.Comment |> struct(mock_meta(:comment))
   defp mock(:mention), do: Delivery.Mention |> struct(mock_meta(:mention))
   defp mock(:author), do: CMS.Author |> struct(mock_meta(:author))

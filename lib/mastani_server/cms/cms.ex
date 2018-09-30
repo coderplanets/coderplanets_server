@@ -37,6 +37,7 @@ defmodule MastaniServer.CMS do
   defdelegate get_tags(community, thread), to: CommunityCURD
   defdelegate get_tags(filter), to: CommunityCURD
   # >> wiki & cheatsheet (sync with github)
+  defdelegate get_wiki(community), to: CommunitySync
   defdelegate sync_content(community, thread, attrs), to: CommunitySync
   defdelegate add_contributor(wiki, attrs), to: CommunitySync
 

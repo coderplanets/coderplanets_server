@@ -14,6 +14,16 @@ defmodule MastaniServer.CMS.Delegate.CommunitySync do
   }
 
   @doc """
+  get wiki
+  """
+  def get_wiki(%Community{raw: raw}) do
+    with {:ok, community} <- ORM.find_by(Community, raw: raw),
+         {:ok, wiki} <- ORM.find_by(CommunityWiki, community_id: community.id) do
+      CommunityWiki |> ORM.read(wiki.id, inc: :views)
+    end
+  end
+
+  @doc """
   return paged community subscribers
   """
   def sync_content(%Community{id: id}, :wiki, attrs) do

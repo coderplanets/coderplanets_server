@@ -37,6 +37,8 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def repo(_root, %{id: id}, _info), do: Repo |> ORM.read(id, inc: :views)
   def job(_root, %{id: id}, _info), do: Job |> ORM.read(id, inc: :views)
 
+  def wiki(_root, ~m(community)a, _info), do: CMS.get_wiki(%Community{raw: community})
+
   def paged_posts(_root, ~m(filter)a, _info), do: Post |> CMS.paged_contents(filter)
   def paged_videos(_root, ~m(filter)a, _info), do: Video |> CMS.paged_contents(filter)
   def paged_repos(_root, ~m(filter)a, _info), do: Repo |> CMS.paged_contents(filter)
