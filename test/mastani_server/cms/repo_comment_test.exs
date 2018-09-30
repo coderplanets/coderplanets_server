@@ -72,7 +72,8 @@ defmodule MastaniServer.Test.RepoComment do
       assert deleted.id == comment.id
     end
 
-    # TODO  it's bug
+    # TODO  may be a bug
+    @tag :bug
     test "after delete, the coments of id > deleted.id should decrease the floor number",
          ~m(repo user)a do
       body = "this is a test comment"

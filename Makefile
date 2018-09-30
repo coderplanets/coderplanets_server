@@ -125,6 +125,8 @@ test.watch.wip:
 	mix test.watch --only wip
 test.watch.wip2:
 	mix test.watch --only wip2
+test.watch.bug:
+	mix test.watch --only bug
 test.db_reset:
 	env MIX_ENV=test mix ecto.drop
 	env MIX_ENV=test mix ecto.create
