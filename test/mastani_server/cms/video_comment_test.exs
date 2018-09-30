@@ -19,7 +19,6 @@ defmodule MastaniServer.Test.VideoComment do
   end
 
   describe "[comment CURD]" do
-    @tag :wip
     test "login user comment to exsiting video", ~m(video user)a do
       body = "this is a test comment"
 
@@ -30,7 +29,6 @@ defmodule MastaniServer.Test.VideoComment do
       assert comment.author_id == user.id
     end
 
-    @tag :wip
     test "created comment should have a increased floor number", ~m(video user)a do
       body = "this is a test comment"
 
@@ -44,14 +42,12 @@ defmodule MastaniServer.Test.VideoComment do
       assert comment2.floor == 3
     end
 
-    @tag :wip
     test "create comment to non-exsit video fails", ~m(user)a do
       body = "this is a test comment"
 
       assert {:error, _} = CMS.create_comment(:video, non_exsit_id(), body, user)
     end
 
-    @tag :wip
     test "can reply a comment, and reply should be in comment replies list", ~m(comment user)a do
       reply_body = "this is a reply comment"
 
@@ -67,7 +63,6 @@ defmodule MastaniServer.Test.VideoComment do
       assert comment_preload.replies |> Enum.any?(&(&1.reply_id == reply.id))
     end
 
-    @tag :wip
     test "comment can be deleted", ~m(video user)a do
       body = "this is a test comment"
 
@@ -77,9 +72,9 @@ defmodule MastaniServer.Test.VideoComment do
       assert deleted.id == comment.id
     end
 
-    @tag :wip
+    # TODO  it's bug
     test "after delete, the coments of id > deleted.id should decrease the floor number",
-      ~m(video user)a do
+         ~m(video user)a do
       body = "this is a test comment"
       # in setup we have a comment
       total = 30 + 1
@@ -109,7 +104,6 @@ defmodule MastaniServer.Test.VideoComment do
       assert new_comment_last.floor == total
     end
 
-    @tag :wip
     test "comment with replies should be deleted together", ~m(comment user)a do
       reply_body = "this is a reply comment"
 
@@ -124,7 +118,6 @@ defmodule MastaniServer.Test.VideoComment do
         VideoCommentReply |> ORM.find_by(video_comment_id: comment.id, reply_id: reply.id)
     end
 
-    @tag :wip
     test "comments pagination should work", ~m(video user)a do
       body = "fake comment"
 
@@ -139,7 +132,6 @@ defmodule MastaniServer.Test.VideoComment do
       assert results |> is_valid_pagination?(:raw)
     end
 
-    @tag :wip
     test "comment reply can be list one-by-one --> by replied user", ~m(comment)a do
       {:ok, user1} = db_insert(:user)
       {:ok, user2} = db_insert(:user)
@@ -162,60 +154,60 @@ defmodule MastaniServer.Test.VideoComment do
     end
   end
 
-  # describe "[comment Reactions]" do
-  #   test "user can like a comment", ~m(comment user)a do
-  #     {:ok, liked_comment} = CMS.like_comment(:post_comment, comment.id, user)
+  describe "[comment Reactions]" do
+    test "user can like a comment", ~m(comment user)a do
+      {:ok, liked_comment} = CMS.like_comment(:video_comment, comment.id, user)
 
-  #     {:ok, comment_preload} = ORM.find(PostComment, liked_comment.id, preload: :likes)
+      {:ok, comment_preload} = ORM.find(VideoComment, liked_comment.id, preload: :likes)
 
-  #     assert comment_preload.likes |> Enum.any?(&(&1.post_comment_id == comment.id))
-  #   end
+      assert comment_preload.likes |> Enum.any?(&(&1.video_comment_id == comment.id))
+    end
 
-  #   test "user like comment twice fails", ~m(comment user)a do
-  #     {:ok, _} = CMS.like_comment(:post_comment, comment.id, user)
-  #     {:error, _error} = CMS.like_comment(:post_comment, comment.id, user)
-  #     # TODO: fix err_msg later
-  #   end
+    test "user like comment twice fails", ~m(comment user)a do
+      {:ok, _} = CMS.like_comment(:video_comment, comment.id, user)
+      {:error, _error} = CMS.like_comment(:video_comment, comment.id, user)
+      # TODO: fix err_msg later
+    end
 
-  #   test "user can undo a like action", ~m(comment user)a do
-  #     {:ok, like} = CMS.like_comment(:post_comment, comment.id, user)
-  #     {:ok, _} = CMS.undo_like_comment(:post_comment, comment.id, user)
+    test "user can undo a like action", ~m(comment user)a do
+      {:ok, like} = CMS.like_comment(:video_comment, comment.id, user)
+      {:ok, _} = CMS.undo_like_comment(:video_comment, comment.id, user)
 
-  #     {:ok, comment_preload} = ORM.find(PostComment, comment.id, preload: :likes)
-  #     assert false == comment_preload.likes |> Enum.any?(&(&1.id == like.id))
-  #   end
+      {:ok, comment_preload} = ORM.find(VideoComment, comment.id, preload: :likes)
+      assert false == comment_preload.likes |> Enum.any?(&(&1.id == like.id))
+    end
 
-  #   test "user can dislike a comment", ~m(comment user)a do
-  #     # {:ok, like} = CMS.reaction(:post_comment, :like, comment.id, user.id)
-  #     {:ok, disliked_comment} = CMS.dislike_comment(:post_comment, comment.id, user)
+    test "user can dislike a comment", ~m(comment user)a do
+      # {:ok, like} = CMS.reaction(:video_comment, :like, comment.id, user.id)
+      {:ok, disliked_comment} = CMS.dislike_comment(:video_comment, comment.id, user)
 
-  #     {:ok, comment_preload} = ORM.find(PostComment, disliked_comment.id, preload: :dislikes)
+      {:ok, comment_preload} = ORM.find(VideoComment, disliked_comment.id, preload: :dislikes)
 
-  #     assert comment_preload.dislikes |> Enum.any?(&(&1.post_comment_id == comment.id))
-  #   end
+      assert comment_preload.dislikes |> Enum.any?(&(&1.video_comment_id == comment.id))
+    end
 
-  #   test "user can undo a dislike action", ~m(comment user)a do
-  #     {:ok, dislike} = CMS.dislike_comment(:post_comment, comment.id, user)
-  #     {:ok, _} = CMS.undo_dislike_comment(:post_comment, comment.id, user)
+    test "user can undo a dislike action", ~m(comment user)a do
+      {:ok, dislike} = CMS.dislike_comment(:video_comment, comment.id, user)
+      {:ok, _} = CMS.undo_dislike_comment(:video_comment, comment.id, user)
 
-  #     {:ok, comment_preload} = ORM.find(PostComment, comment.id, preload: :dislikes)
-  #     assert false == comment_preload.dislikes |> Enum.any?(&(&1.id == dislike.id))
-  #   end
+      {:ok, comment_preload} = ORM.find(VideoComment, comment.id, preload: :dislikes)
+      assert false == comment_preload.dislikes |> Enum.any?(&(&1.id == dislike.id))
+    end
 
-  #   test "user can get paged likes of a post comment", ~m(comment)a do
-  #     {:ok, user1} = db_insert(:user)
-  #     {:ok, user2} = db_insert(:user)
-  #     {:ok, user3} = db_insert(:user)
+    test "user can get paged likes of a video comment", ~m(comment)a do
+      {:ok, user1} = db_insert(:user)
+      {:ok, user2} = db_insert(:user)
+      {:ok, user3} = db_insert(:user)
 
-  #     {:ok, _like1} = CMS.like_comment(:post_comment, comment.id, user1)
-  #     {:ok, _like2} = CMS.like_comment(:post_comment, comment.id, user2)
-  #     {:ok, _like3} = CMS.like_comment(:post_comment, comment.id, user3)
+      {:ok, _like1} = CMS.like_comment(:video_comment, comment.id, user1)
+      {:ok, _like2} = CMS.like_comment(:video_comment, comment.id, user2)
+      {:ok, _like3} = CMS.like_comment(:video_comment, comment.id, user3)
 
-  #     {:ok, results} = CMS.reaction_users(:post_comment, :like, comment.id, %{page: 1, size: 10})
+      {:ok, results} = CMS.reaction_users(:video_comment, :like, comment.id, %{page: 1, size: 10})
 
-  #     assert results.entries |> Enum.any?(&(&1.id == user1.id))
-  #     assert results.entries |> Enum.any?(&(&1.id == user2.id))
-  #     assert results.entries |> Enum.any?(&(&1.id == user3.id))
-  #   end
-  # end
+      assert results.entries |> Enum.any?(&(&1.id == user1.id))
+      assert results.entries |> Enum.any?(&(&1.id == user2.id))
+      assert results.entries |> Enum.any?(&(&1.id == user3.id))
+    end
+  end
 end

@@ -8,8 +8,8 @@ defmodule MastaniServer.CMS.VideoComment do
 
   alias MastaniServer.CMS.{
     Video,
-    # PostCommentDislike,
-    # PostCommentLike,
+    VideoCommentDislike,
+    VideoCommentLike,
     VideoCommentReply
   }
 
@@ -25,8 +25,8 @@ defmodule MastaniServer.CMS.VideoComment do
     belongs_to(:reply_to, VideoComment, foreign_key: :reply_id)
 
     has_many(:replies, {"videos_comments_replies", VideoCommentReply})
-    # has_many(:likes, {"posts_comments_likes", PostCommentLike})
-    # has_many(:dislikes, {"posts_comments_dislikes", PostCommentDislike})
+    has_many(:likes, {"videos_comments_likes", VideoCommentLike})
+    has_many(:dislikes, {"videos_comments_dislikes", VideoCommentDislike})
 
     timestamps(type: :utc_datetime)
   end

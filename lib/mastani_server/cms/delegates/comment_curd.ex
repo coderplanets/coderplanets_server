@@ -101,7 +101,6 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   def reply_comment(thread, comment_id, body, %Accounts.User{id: user_id}) do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, comment} <- ORM.find(action.reactor, comment_id) do
-
       next_floor = get_next_floor(thread, action.reactor, comment)
 
       attrs = %{
@@ -143,7 +142,8 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     with {:ok, reply} <- ORM.create(queryable, attrs) do
       ORM.update(reply, %{reply_id: comment.id})
 
-      {:ok, _} = VideoCommentReply |> ORM.create(%{video_comment_id: comment.id, reply_id: reply.id})
+      {:ok, _} =
+        VideoCommentReply |> ORM.create(%{video_comment_id: comment.id, reply_id: reply.id})
 
       queryable |> ORM.find(reply.id)
     end
@@ -176,8 +176,9 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     do: attrs |> Map.merge(%{post_id: comment.post_id})
 
   defp merge_reply_attrs(:job, attrs, comment), do: attrs |> Map.merge(%{job_id: comment.job_id})
-  defp merge_reply_attrs(:video, attrs, comment), do: attrs |> Map.merge(%{video_id: comment.video_id})
 
+  defp merge_reply_attrs(:video, attrs, comment),
+    do: attrs |> Map.merge(%{video_id: comment.video_id})
 
   defp dynamic_comment_where(:post, id), do: dynamic([c], c.post_id == ^id)
   defp dynamic_comment_where(:job, id), do: dynamic([c], c.job_id == ^id)
