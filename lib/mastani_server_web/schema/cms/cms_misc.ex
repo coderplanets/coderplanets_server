@@ -41,6 +41,7 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:video)
     value(:repo)
     value(:wiki)
+    value(:cheatsheet)
   end
 
   enum :order_enum do

@@ -259,4 +259,12 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def add_wiki_contributor(_root, ~m(id contributor)a, %{context: %{cur_user: _user}}) do
     CMS.add_contributor(%CMS.CommunityWiki{id: id}, contributor)
   end
+
+  def sync_cheatsheet(_root, ~m(community_id readme last_sync)a, %{context: %{cur_user: _user}}) do
+    CMS.sync_github_content(%Community{id: community_id}, :cheatsheet, ~m(readme last_sync)a)
+  end
+
+  def add_cheatsheet_contributor(_root, ~m(id contributor)a, %{context: %{cur_user: _user}}) do
+    CMS.add_contributor(%CMS.CommunityCheatsheet{id: id}, contributor)
+  end
 end

@@ -94,8 +94,8 @@ defmodule MastaniServer.Support.Factory do
         color: "tomato"
       },
       contributors: [
-        mock_meta(:github_contributor),
-        mock_meta(:github_contributor)
+        mock_meta(:repo_contributor),
+        mock_meta(:repo_contributor)
       ],
       author: mock(:author),
       views: Enum.random(0..2000),
@@ -117,6 +117,19 @@ defmodule MastaniServer.Support.Factory do
         mock_meta(:github_contributor),
         mock_meta(:github_contributor)
       ]
+    }
+  end
+
+  defp mock_meta(:cheatsheet) do
+    mock_meta(:wiki)
+  end
+
+  defp mock_meta(:repo_contributor) do
+    %{
+      avatar: Faker.Avatar.image_url(),
+      html_url: Faker.Avatar.image_url(),
+      htmlUrl: Faker.Avatar.image_url(),
+      nickname: "mydearxym2"
     }
   end
 
@@ -280,6 +293,7 @@ defmodule MastaniServer.Support.Factory do
   def mock_attrs(:mention, attrs), do: mock_meta(:mention) |> Map.merge(attrs)
 
   def mock_attrs(:wiki, attrs), do: mock_meta(:wiki) |> Map.merge(attrs)
+  def mock_attrs(:cheatsheet, attrs), do: mock_meta(:cheatsheet) |> Map.merge(attrs)
 
   def mock_attrs(:github_contributor, attrs),
     do: mock_meta(:github_contributor) |> Map.merge(attrs)
@@ -305,6 +319,7 @@ defmodule MastaniServer.Support.Factory do
   defp mock(:repo), do: CMS.Repo |> struct(mock_meta(:repo))
   defp mock(:job), do: CMS.Job |> struct(mock_meta(:job))
   defp mock(:wiki), do: CMS.CommunityWiki |> struct(mock_meta(:wiki))
+  defp mock(:cheatsheet), do: CMS.CommunityCheatsheet |> struct(mock_meta(:cheatsheet))
   defp mock(:comment), do: CMS.Comment |> struct(mock_meta(:comment))
   defp mock(:mention), do: Delivery.Mention |> struct(mock_meta(:mention))
   defp mock(:author), do: CMS.Author |> struct(mock_meta(:author))
