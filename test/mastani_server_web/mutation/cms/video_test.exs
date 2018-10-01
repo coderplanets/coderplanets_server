@@ -57,7 +57,7 @@ defmodule MastaniServer.Test.Mutation.Video do
       user_conn = simu_conn(:user, user)
 
       {:ok, community} = db_insert(:community)
-      video_attr = mock_attrs(:video)
+      video_attr = mock_attrs(:video) |> camelize_map_key
 
       variables = video_attr |> Map.merge(%{communityId: community.id})
       created = user_conn |> mutation_result(@create_video_query, variables, "createVideo")

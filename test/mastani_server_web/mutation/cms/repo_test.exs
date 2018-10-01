@@ -67,12 +67,11 @@ defmodule MastaniServer.Test.Mutation.Repo do
       user_conn = simu_conn(:user, user)
 
       {:ok, community} = db_insert(:community)
-      repo_attr = mock_attrs(:repo)
+      repo_attr = mock_attrs(:repo) |> camelize_map_key
 
       variables = repo_attr |> Map.merge(%{communityId: community.id})
       created = user_conn |> mutation_result(@create_repo_query, variables, "createRepo")
       {:ok, repo} = ORM.find(CMS.Repo, created["id"])
-      # IO.inspect repo, label: "hello"
 
       assert created["id"] == to_string(repo.id)
       assert {:ok, _} = ORM.find_by(CMS.Author, user_id: user.id)
