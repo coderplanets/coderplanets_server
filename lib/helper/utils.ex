@@ -69,6 +69,39 @@ defmodule Helper.Utils do
     map |> Enum.reduce(%{}, fn {key, val}, acc -> Map.put(acc, to_string(key), val) end)
   end
 
+  @doc """
+  Recursivly camelize the map keys
+  usage: convert factory attrs to used for simu Graphql parmas
+  """
+  def camelize_map_key(map) do
+    map_list =
+      Enum.map(map, fn {k, v} ->
+        v =
+          cond do
+            is_datetime?(v) ->
+              DateTime.to_iso8601(v)
+
+            is_map(v) ->
+              camelize_map_key(safe_map(v))
+
+            true ->
+              v
+          end
+
+        map_to_camel({k, v})
+      end)
+
+    Enum.into(map_list, %{})
+  end
+
+  defp safe_map(%{__struct__: _} = map), do: Map.from_struct(map)
+  defp safe_map(map), do: map
+
+  defp map_to_camel({k, v}), do: {Recase.to_camel(to_string(k)), v}
+
+  def is_datetime?(%DateTime{}), do: true
+  def is_datetime?(_), do: false
+
   def deep_merge(left, right) do
     Map.merge(left, right, &deep_resolve/3)
   end

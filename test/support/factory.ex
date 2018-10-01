@@ -37,17 +37,13 @@ defmodule MastaniServer.Support.Factory do
       desc: desc,
       duration: "03:30",
       duration_sec: Enum.random(300..12_000),
-      durationSec: Enum.random(300..12_000),
       source: "youtube",
       link: "http://www.youtube.com/video/1",
       original_author: "mydearxym",
-      originalAuthor: "mydearxym",
       original_author_link: "http://www.youtube.com/user/1",
-      originalAuthorLink: "http://www.youtube.com/user/1",
       author: mock(:author),
       views: Enum.random(0..2000),
       publish_at: Timex.today() |> Timex.to_datetime(),
-      publishAt: "2017-11-01T12:00:00Z",
       communities: [
         mock(:community),
         mock(:community)
@@ -61,35 +57,20 @@ defmodule MastaniServer.Support.Factory do
     %{
       title: Faker.Lorem.Shakespeare.king_richard_iii(),
       owner_name: "coderplanets",
-      ownerName: "coderplanets",
       owner_url: "http://www.github.com/coderplanets",
-      ownerUrl: "http://www.github.com/coderplanets",
       repo_url: "http://www.github.com/coderplanets//coderplanets_server",
-      repoUrl: "http://www.github.com/coderplanets//coderplanets_server",
       desc: desc,
       homepage_url: "http://www.github.com/coderplanets",
-      homepageUrl: "http://www.github.com/coderplanets",
       readme: desc,
       issues_count: Enum.random(0..2000),
-      issuesCount: Enum.random(0..2000),
       prs_count: Enum.random(0..2000),
-      prsCount: Enum.random(0..2000),
       fork_count: Enum.random(0..2000),
-      forkCount: Enum.random(0..2000),
       star_count: Enum.random(0..2000),
-      starCount: Enum.random(0..2000),
       watch_count: Enum.random(0..2000),
-      watchCount: Enum.random(0..2000),
       primary_language: "javascript",
-      primaryLanguage: "javascript",
       license: "MIT",
       release_tag: "v22",
-      releaseTag: "v22",
       primary_language: %{
-        name: "javascript",
-        color: "tomato"
-      },
-      primaryLanguage: %{
         name: "javascript",
         color: "tomato"
       },
@@ -111,7 +92,6 @@ defmodule MastaniServer.Support.Factory do
       community: mock(:community),
       readme: Faker.Lorem.sentence(%Range{first: 15, last: 60}),
       last_sync: Timex.today() |> Timex.to_datetime(),
-      lastSync: "2017-11-01T12:00:00Z",
       contributors: [
         mock_meta(:github_contributor),
         mock_meta(:github_contributor),
@@ -138,10 +118,8 @@ defmodule MastaniServer.Support.Factory do
 
     %{
       github_id: "#{unique_num}-#{Faker.Lorem.sentence(%Range{first: 5, last: 10})}",
-      githubId: "#{unique_num}-#{Faker.Lorem.sentence(%Range{first: 5, last: 10})}",
       avatar: Faker.Avatar.image_url(),
       html_url: Faker.Avatar.image_url(),
-      htmlUrl: Faker.Avatar.image_url(),
       nickname: "mydearxym2",
       bio: Faker.Lorem.sentence(%Range{first: 15, last: 60}),
       location: "location #{unique_num}",

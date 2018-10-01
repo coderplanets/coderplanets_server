@@ -29,7 +29,8 @@ defmodule MastaniServer.Test.Mutation.CMS.Wiki do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
 
-    wiki_attrs = mock_attrs(:wiki)
+    # IO.inspect(mock_attrs(:wiki) |> camelize_map_key, label: "hello ...")
+    wiki_attrs = mock_attrs(:wiki) |> camelize_map_key
 
     variables = wiki_attrs |> Map.merge(%{communityId: community.id})
     created = user_conn |> mutation_result(@sync_wiki_query, variables, "syncWiki")
