@@ -16,6 +16,7 @@ defmodule MastaniServerWeb.Router do
       "/",
       Absinthe.Plug.GraphiQL,
       schema: MastaniServerWeb.Schema,
+      json_codec: Jason,
       pipeline: {ApolloTracing.Pipeline, :plug},
       interface: :playground,
       context: %{pubsub: MastaniServerWeb.Endpoint}
