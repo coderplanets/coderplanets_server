@@ -325,6 +325,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
   object :github_contributor do
     field(:avatar, :string)
+    field(:bio, :string)
     field(:html_url, :string)
     field(:nickname, :string)
     field(:location, :string)
