@@ -29,7 +29,7 @@ defmodule MastaniServer.Test.Mutation.CMS.Cheatsheet do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
 
-    cheatsheet_attrs = mock_attrs(:cheatsheet)
+    cheatsheet_attrs = mock_attrs(:cheatsheet) |> camelize_map_key
 
     variables = cheatsheet_attrs |> Map.merge(%{communityId: community.id})
     created = user_conn |> mutation_result(@sync_cheatsheet_query, variables, "syncCheatsheet")

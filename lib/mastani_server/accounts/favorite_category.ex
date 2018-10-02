@@ -11,7 +11,7 @@ defmodule MastaniServer.Accounts.FavoriteCategory do
 
   @type t :: %FavoriteCategory{}
   schema "favorite_categories" do
-    belongs_to(:user, Accounts.User, foreign_key: :user_id)
+    belongs_to(:user, User, foreign_key: :user_id)
     # has_many(:posts, ...)
 
     field(:title, :string)

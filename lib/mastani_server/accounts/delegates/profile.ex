@@ -102,7 +102,9 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
     # ignore error
     case RadarSearch.locate_city(remote_ip) do
       {:ok, city} -> update_profile(user, %{geo_city: city})
-      {:error, _} -> IO.inspect("location search error")
+      {:error, _} ->
+        # IO.inspect("location search error")
+        {:ok, "pass"}
     end
 
     token_info(user)

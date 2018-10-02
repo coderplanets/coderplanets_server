@@ -37,7 +37,7 @@ defmodule Helper.RadarSearch do
           {:error, "error"}
       end
     else
-      error ->
+      _ ->
         {:ok, "成都"}
         # {:error, "error"}
     end
