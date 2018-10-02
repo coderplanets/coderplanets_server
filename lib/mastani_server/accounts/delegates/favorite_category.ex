@@ -53,7 +53,7 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
 
   defp delete_favorites_result({:ok, %{delete_favorite_record: result}}), do: {:ok, result}
 
-  defp delete_favorites_result({:error, :delete_category, result, _steps}) do
+  defp delete_favorites_result({:error, :delete_category, _result, _steps}) do
     {:error, [message: "delete category fails", code: ecode(:delete_fails)]}
   end
 
@@ -64,7 +64,7 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
   def list_favorite_categories(
         %User{id: user_id},
         %{private: private},
-        %{page: page, size: size} = filter
+        %{page: page, size: size}
       ) do
     query =
       case private do

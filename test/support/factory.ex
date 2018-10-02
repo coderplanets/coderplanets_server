@@ -67,7 +67,6 @@ defmodule MastaniServer.Support.Factory do
       fork_count: Enum.random(0..2000),
       star_count: Enum.random(0..2000),
       watch_count: Enum.random(0..2000),
-      primary_language: "javascript",
       license: "MIT",
       release_tag: "v22",
       primary_language: %{

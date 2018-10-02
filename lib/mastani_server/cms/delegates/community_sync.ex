@@ -4,7 +4,7 @@ defmodule MastaniServer.CMS.Delegate.CommunitySync do
   """
   import Ecto.Query, warn: false
   import Helper.ErrorCode
-  import ShortMaps
+  # import ShortMaps
 
   alias Helper.ORM
 

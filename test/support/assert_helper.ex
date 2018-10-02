@@ -80,6 +80,7 @@ defmodule MastaniServer.Test.AssertHelper do
   def mutation_get_error?(conn, query, variables) do
     conn
     |> post("/graphiql", query: query, variables: variables)
+    # |> IO.inspect(label: "debug status")
     |> json_response(200)
     # |> IO.inspect(label: "debug")
     |> Map.has_key?("errors")

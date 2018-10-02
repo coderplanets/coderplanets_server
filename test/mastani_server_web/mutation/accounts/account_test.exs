@@ -91,43 +91,45 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
       assert updated["work_backgrounds"] |> Enum.any?(&(&1["title"] == "CTO"))
     end
 
+    @tag :wip
     test "user update education_backgrounds with invalid data fails", ~m(user)a do
       ownd_conn = simu_conn(:user, user)
 
       variables = %{
         profile: %{
-          nickname: "new nickname",
-          education_backgrounds: [
-            %{
-              major: "bad ass2"
-            },
-            %{
-              school: "school2",
-              major: "bad ass2"
-            }
-          ]
-        }
+          nickname: "new nickname"
+        },
+        educationBackgrounds: [
+          %{
+            major: "bad ass2"
+          },
+          %{
+            school: "school2",
+            major: "bad ass2"
+          }
+        ]
       }
 
       assert ownd_conn |> mutation_get_error?(@update_query, variables)
     end
 
+    @tag :wip
     test "user update work backgrounds with invalid data fails", ~m(user)a do
       ownd_conn = simu_conn(:user, user)
 
       variables = %{
         profile: %{
-          nickname: "new nickname",
-          work_backgrounds: [
-            %{
-              title: "bad ass2"
-            },
-            %{
-              company: "school2",
-              title: "bad ass2"
-            }
-          ]
-        }
+          nickname: "new nickname"
+        },
+        workBackgrounds: [
+          %{
+            title: "bad ass2"
+          },
+          %{
+            company: "school2",
+            title: "bad ass2"
+          }
+        ]
       }
 
       assert ownd_conn |> mutation_get_error?(@update_query, variables)
