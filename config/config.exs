@@ -21,6 +21,7 @@ config :logger, :console,
   metadata: [:request_id]
 
 config :phoenix, :format_encoders, json: Jason
+config :ecto, json_library: Jason
 
 # TODO move this config to secret later
 config :mastani_server, Helper.Guardian,
