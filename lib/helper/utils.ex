@@ -23,6 +23,7 @@ defmodule Helper.Utils do
   def done(_, :boolean), do: {:ok, true}
   def done(nil, err_msg), do: {:error, err_msg}
   def done({:ok, _}, with: result), do: {:ok, result}
+  def done({:error, error}, with: _result), do: {:error, error}
 
   def done({:ok, %{id: id}}, :status), do: {:ok, %{done: true, id: id}}
   def done({:error, _}, :status), do: {:ok, %{done: false}}

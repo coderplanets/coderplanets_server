@@ -38,6 +38,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def job(_root, %{id: id}, _info), do: Job |> ORM.read(id, inc: :views)
 
   def wiki(_root, ~m(community)a, _info), do: CMS.get_wiki(%Community{raw: community})
+  def cheatsheet(_root, ~m(community)a, _info), do: CMS.get_cheatsheet(%Community{raw: community})
 
   def paged_posts(_root, ~m(filter)a, _info), do: Post |> CMS.paged_contents(filter)
   def paged_videos(_root, ~m(filter)a, _info), do: Video |> CMS.paged_contents(filter)
@@ -80,11 +81,11 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # thread reaction ..
   # #######################
   def reaction(_root, ~m(id thread action)a, %{context: %{cur_user: user}}) do
-    CMS.reaction(thread, action, id, user)
+    CMS.reaction(thread, action, id, user) |> IO.inspect(label: "reaction")
   end
 
   def undo_reaction(_root, ~m(id thread action)a, %{context: %{cur_user: user}}) do
-    CMS.undo_reaction(thread, action, id, user)
+    CMS.undo_reaction(thread, action, id, user) |> IO.inspect(label: "undo reaction")
   end
 
   def reaction_users(_root, ~m(id action thread filter)a, _info) do
