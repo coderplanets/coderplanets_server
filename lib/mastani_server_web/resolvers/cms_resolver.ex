@@ -81,11 +81,11 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # thread reaction ..
   # #######################
   def reaction(_root, ~m(id thread action)a, %{context: %{cur_user: user}}) do
-    CMS.reaction(thread, action, id, user) |> IO.inspect(label: "reaction")
+    CMS.reaction(thread, action, id, user)
   end
 
   def undo_reaction(_root, ~m(id thread action)a, %{context: %{cur_user: user}}) do
-    CMS.undo_reaction(thread, action, id, user) |> IO.inspect(label: "undo reaction")
+    CMS.undo_reaction(thread, action, id, user)
   end
 
   def reaction_users(_root, ~m(id action thread filter)a, _info) do

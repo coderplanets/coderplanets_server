@@ -24,9 +24,12 @@ defmodule MastaniServer.CMS.Utils.Loader do
     # JOB
     Job,
     JobFavorite,
-    JobStar
+    JobStar,
     # job comment
     # JobComment,
+    # Video
+    VideoFavorite,
+    VideoStar
   }
 
   def data, do: Dataloader.Ecto.new(Repo, query: &query/2, run_batch: &run_batch/5)
@@ -217,15 +220,27 @@ defmodule MastaniServer.CMS.Utils.Loader do
   2. count of the reactions
   3. check is viewer reacted
   """
-  def query({"posts_favorites", PostFavorite}, args),
-    do: PostFavorite |> QueryBuilder.members_pack(args)
+  def query({"posts_favorites", PostFavorite}, args) do
+    PostFavorite |> QueryBuilder.members_pack(args)
+  end
 
-  def query({"posts_stars", PostStar}, args), do: PostStar |> QueryBuilder.members_pack(args)
+  def query({"posts_stars", PostStar}, args) do
+    PostStar |> QueryBuilder.members_pack(args)
+  end
 
-  def query({"jobs_favorites", JobFavorite}, args),
-    do: JobFavorite |> QueryBuilder.members_pack(args)
+  def query({"jobs_favorites", JobFavorite}, args) do
+    JobFavorite |> QueryBuilder.members_pack(args)
+  end
 
-  def query({"jobs_stars", JobStar}, args), do: JobStar |> QueryBuilder.members_pack(args)
+  # def query({"jobs_stars", JobStar}, args), do: JobStar |> QueryBuilder.members_pack(args)
+
+  def query({"videos_favorites", VideoFavorite}, args) do
+    VideoFavorite |> QueryBuilder.members_pack(args)
+  end
+
+  def query({"videos_stars", VideoStar}, args) do
+    VideoStar |> QueryBuilder.members_pack(args)
+  end
 
   def query({"communities_subscribers", CommunitySubscriber}, args) do
     CommunitySubscriber |> QueryBuilder.members_pack(args)
