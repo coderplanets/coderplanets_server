@@ -33,6 +33,12 @@ defmodule Helper.QueryBuilder do
     |> select([f], count(f.id))
   end
 
+  def members_pack(queryable, %{count: _, type: :video}) do
+    queryable
+    |> group_by([f], f.video_id)
+    |> select([f], count(f.id))
+  end
+
   def members_pack(queryable, %{count: _, type: :community}) do
     queryable
     |> group_by([f], f.community_id)

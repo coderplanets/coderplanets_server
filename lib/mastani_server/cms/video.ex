@@ -4,7 +4,7 @@ defmodule MastaniServer.CMS.Video do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Author, Community, VideoCommunityFlag, Tag}
+  alias MastaniServer.CMS.{Author, Community, VideoFavorite, VideoCommunityFlag, VideoStar, Tag}
 
   @required_fields ~w(title poster thumbnil desc duration duration_sec source link original_author original_author_link publish_at)a
   # @optional_fields ~w()a
@@ -17,7 +17,7 @@ defmodule MastaniServer.CMS.Video do
     field(:desc, :string)
     field(:duration, :string)
     field(:duration_sec, :integer)
-
+    belongs_to(:author, Author)
     field(:source, :string)
     field(:link, :string)
 
@@ -25,6 +25,7 @@ defmodule MastaniServer.CMS.Video do
     field(:original_author_link, :string)
 
     field(:views, :integer, default: 0)
+    field(:publish_at, :utc_datetime)
 
     has_many(:community_flags, {"videos_communities_flags", VideoCommunityFlag})
 
@@ -32,10 +33,8 @@ defmodule MastaniServer.CMS.Video do
     field(:pin, :boolean, default_value: false)
     field(:trash, :boolean, default_value: false)
 
-    field(:publish_at, :utc_datetime)
-
-    belongs_to(:author, Author)
-
+    has_many(:favorites, {"videos_favorites", VideoFavorite})
+    has_many(:stars, {"videos_stars", VideoStar})
     # has_many(:comments, {"posts_comments", PostComment})
 
     many_to_many(
