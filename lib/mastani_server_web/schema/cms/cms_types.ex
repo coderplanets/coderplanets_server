@@ -193,12 +193,12 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
     field(:pin, :boolean)
     field(:trash, :boolean)
-    # TODO: remove
-    # field(:pin, :boolean)
-    # field(:trash, :boolean)
 
     # field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
+
+    favorite_fields(:video)
+    star_fields(:video)
     timestamp_fields()
   end
 
@@ -269,12 +269,12 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:trash, :boolean)
 
     # favorite_count, viewer_did ..
-    favorite_fields(:job)
 
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
+    favorite_fields(:job)
     timestamp_fields()
   end
 
