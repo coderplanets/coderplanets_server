@@ -191,10 +191,13 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
   """
   interface :article do
     field(:id, :id)
-    field(:title, :string)
+    # field(:title, :string)
 
     resolve_type(fn
       %CMS.Post{}, _ -> :post
+      %CMS.Job{}, _ -> :job
+      %CMS.Video{}, _ -> :video
+      %CMS.Repo{}, _ -> :repo
       _, _ -> nil
     end)
   end

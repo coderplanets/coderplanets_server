@@ -6,6 +6,13 @@ defmodule MastaniServerWeb.Schema.Utils.Helper do
   @page_size get_config(:general, :page_size)
   # @default_inner_page_size 5
 
+  defmacro timestamp_fields do
+    quote do
+      field(:inserted_at, :datetime)
+      field(:updated_at, :datetime)
+    end
+  end
+
   # see: https://github.com/absinthe-graphql/absinthe/issues/363
   defmacro pagination_args do
     quote do
@@ -37,6 +44,79 @@ defmodule MastaniServerWeb.Schema.Utils.Helper do
       field(:instagram, :string)
       field(:pinterest, :string)
       field(:huaban, :string)
+    end
+  end
+
+  import Absinthe.Resolution.Helpers, only: [dataloader: 2]
+
+  alias MastaniServer.CMS
+  alias MastaniServerWeb.Middleware, as: M
+
+  # fields for: favorite count, users, viewer_did_favorite..
+  defmacro favorite_fields(thread) do
+    quote do
+      field :viewer_has_favorited, :boolean do
+        arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
+
+        middleware(M.Authorize, :login)
+        middleware(M.PutCurrentUser)
+        resolve(dataloader(CMS, :favorites))
+        middleware(M.ViewerDidConvert)
+      end
+
+      field :favorited_count, :integer do
+        arg(:count, :count_type, default_value: :count)
+
+        arg(
+          :type,
+          unquote(String.to_atom("#{to_string(thread)}_thread")),
+          default_value: unquote(thread)
+        )
+
+        resolve(dataloader(CMS, :favorites))
+        middleware(M.ConvertToInt)
+      end
+
+      field :favorited_users, list_of(:user) do
+        arg(:filter, :members_filter)
+
+        middleware(M.PageSizeProof)
+        resolve(dataloader(CMS, :favorites))
+      end
+    end
+  end
+
+  # fields for: star count, users, viewer_did_starred..
+  defmacro star_fields(thread) do
+    quote do
+      field :viewer_has_starred, :boolean do
+        arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
+
+        middleware(M.Authorize, :login)
+        middleware(M.PutCurrentUser)
+        resolve(dataloader(CMS, :stars))
+        middleware(M.ViewerDidConvert)
+      end
+
+      field :starred_count, :integer do
+        arg(:count, :count_type, default_value: :count)
+
+        arg(
+          :type,
+          unquote(String.to_atom("#{to_string(thread)}_thread")),
+          default_value: unquote(thread)
+        )
+
+        resolve(dataloader(CMS, :stars))
+        middleware(M.ConvertToInt)
+      end
+
+      field :starred_users, list_of(:user) do
+        arg(:filter, :members_filter)
+
+        middleware(M.PageSizeProof)
+        resolve(dataloader(CMS, :stars))
+      end
     end
   end
 end

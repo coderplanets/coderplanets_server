@@ -27,6 +27,12 @@ defmodule Helper.QueryBuilder do
     |> select([f], count(f.id))
   end
 
+  def members_pack(queryable, %{count: _, type: :job}) do
+    queryable
+    |> group_by([f], f.job_id)
+    |> select([f], count(f.id))
+  end
+
   def members_pack(queryable, %{count: _, type: :community}) do
     queryable
     |> group_by([f], f.community_id)

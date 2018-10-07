@@ -112,6 +112,12 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.wiki/3)
     end
 
+    @desc "get cheatsheet by community raw name"
+    field :cheatsheet, non_null(:cheatsheet) do
+      arg(:community, :string)
+      resolve(&R.CMS.cheatsheet/3)
+    end
+
     @desc "get job by id"
     field :job, non_null(:job) do
       arg(:id, non_null(:id))
