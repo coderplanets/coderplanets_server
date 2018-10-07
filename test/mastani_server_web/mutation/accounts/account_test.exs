@@ -91,7 +91,6 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
       assert updated["work_backgrounds"] |> Enum.any?(&(&1["title"] == "CTO"))
     end
 
-    @tag :wip
     test "user update education_backgrounds with invalid data fails", ~m(user)a do
       ownd_conn = simu_conn(:user, user)
 
@@ -113,7 +112,6 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
       assert ownd_conn |> mutation_get_error?(@update_query, variables)
     end
 
-    @tag :wip
     test "user update work backgrounds with invalid data fails", ~m(user)a do
       ownd_conn = simu_conn(:user, user)
 

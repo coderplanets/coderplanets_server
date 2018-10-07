@@ -14,8 +14,10 @@ defmodule MastaniServer.CMS.Utils.Matcher do
     # reactions
     PostFavorite,
     JobFavorite,
+    VideoFavorite,
     PostStar,
     JobStar,
+    VideoStar,
     # comments
     PostComment,
     JobComment,
@@ -108,6 +110,12 @@ defmodule MastaniServer.CMS.Utils.Matcher do
 
   def match_action(:video_comment, :dislike),
     do: {:ok, %{target: VideoComment, reactor: VideoCommentDislike}}
+
+  def match_action(:video, :favorite),
+    do: {:ok, %{target: Video, reactor: VideoFavorite, preload: :user}}
+
+  def match_action(:video, :star),
+    do: {:ok, %{target: Video, reactor: VideoStar, preload: :user}}
 
   #########################################
   ## repos ...
