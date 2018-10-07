@@ -35,7 +35,7 @@ defmodule Helper.QueryBuilder do
 
   def members_pack(queryable, %{count: _, type: :video}) do
     queryable
-    |> group_by([f], f.job_id)
+    |> group_by([f], f.video_id)
     |> select([f], count(f.id))
   end
 
