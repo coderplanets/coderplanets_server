@@ -13,13 +13,18 @@ defmodule MastaniServer.CMS.Utils.Loader do
     CommunitySubscriber,
     CommunityThread,
     JobCommentReply,
+    # POST
     Post,
     PostComment,
     PostCommentDislike,
     PostCommentLike,
     PostCommentReply,
     PostFavorite,
-    PostStar
+    PostStar,
+    # JOB
+    Job,
+    JobFavorite,
+    JobStar
     # job comment
     # JobComment,
   }
@@ -212,13 +217,15 @@ defmodule MastaniServer.CMS.Utils.Loader do
   2. count of the reactions
   3. check is viewer reacted
   """
-  def query({"posts_favorites", PostFavorite}, args) do
-    PostFavorite |> QueryBuilder.members_pack(args)
-  end
+  def query({"posts_favorites", PostFavorite}, args),
+    do: PostFavorite |> QueryBuilder.members_pack(args)
 
-  def query({"posts_stars", PostStar}, args) do
-    PostStar |> QueryBuilder.members_pack(args)
-  end
+  def query({"posts_stars", PostStar}, args), do: PostStar |> QueryBuilder.members_pack(args)
+
+  def query({"jobs_favorites", JobFavorite}, args),
+    do: JobFavorite |> QueryBuilder.members_pack(args)
+
+  def query({"jobs_stars", JobStar}, args), do: JobStar |> QueryBuilder.members_pack(args)
 
   def query({"communities_subscribers", CommunitySubscriber}, args) do
     CommunitySubscriber |> QueryBuilder.members_pack(args)

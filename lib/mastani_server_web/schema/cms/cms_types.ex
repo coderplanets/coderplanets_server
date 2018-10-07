@@ -90,8 +90,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       middleware(M.ConvertToInt)
     end
 
-    field(:inserted_at, :datetime)
-    field(:updated_at, :datetime)
+    timestamp_fields()
   end
 
   object :post do
@@ -107,8 +106,6 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:pin, :boolean)
     field(:trash, :boolean)
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
-    field(:inserted_at, :datetime)
-    field(:updated_at, :datetime)
 
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
@@ -171,54 +168,10 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       # middleware(M.CountLength)
     end
 
-    field :viewer_has_favorited, :boolean do
-      arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
+    favorite_fields(:post)
+    star_fields(:post)
 
-      middleware(M.Authorize, :login)
-      # put current user into dataloader's args
-      middleware(M.PutCurrentUser)
-      resolve(dataloader(CMS, :favorites))
-      middleware(M.ViewerDidConvert)
-    end
-
-    field :viewer_has_starred, :boolean do
-      arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
-
-      middleware(M.Authorize, :login)
-      middleware(M.PutCurrentUser)
-      resolve(dataloader(CMS, :stars))
-      middleware(M.ViewerDidConvert)
-    end
-
-    field :favorited_users, list_of(:user) do
-      arg(:filter, :members_filter)
-
-      middleware(M.PageSizeProof)
-      resolve(dataloader(CMS, :favorites))
-    end
-
-    field :favorited_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-      arg(:type, :post_thread, default_value: :post)
-      # middleware(M.SeeMe)
-      resolve(dataloader(CMS, :favorites))
-      middleware(M.ConvertToInt)
-    end
-
-    field :starred_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-      arg(:type, :post_thread, default_value: :post)
-
-      resolve(dataloader(CMS, :stars))
-      middleware(M.ConvertToInt)
-    end
-
-    field :starred_users, list_of(:user) do
-      arg(:filter, :members_filter)
-
-      middleware(M.PageSizeProof)
-      resolve(dataloader(CMS, :stars))
-    end
+    timestamp_fields()
   end
 
   object :video do
@@ -246,8 +199,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
     # field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
-    field(:inserted_at, :datetime)
-    field(:updated_at, :datetime)
+    timestamp_fields()
   end
 
   object :repo_contributor do
@@ -295,8 +247,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
     # field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
-    field(:inserted_at, :datetime)
-    field(:updated_at, :datetime)
+
+    timestamp_fields()
   end
 
   object :job do
@@ -316,11 +268,14 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:pin, :boolean)
     field(:trash, :boolean)
 
+    # favorite_count, viewer_did ..
+    favorite_fields(:job)
+
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
-    field(:inserted_at, :datetime)
-    field(:updated_at, :datetime)
+
+    timestamp_fields()
   end
 
   object :github_contributor do
@@ -340,8 +295,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:last_sync, :datetime)
     field(:views, :integer)
 
-    field(:inserted_at, :datetime)
-    field(:updated_at, :datetime)
+    timestamp_fields()
   end
 
   object :cheatsheet do
@@ -352,8 +306,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:last_sync, :datetime)
     field(:views, :integer)
 
-    field(:inserted_at, :datetime)
-    field(:updated_at, :datetime)
+    timestamp_fields()
   end
 
   object :thread do
@@ -382,8 +335,6 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:desc, :string)
     field(:raw, :string)
     field(:logo, :string)
-    field(:inserted_at, :datetime)
-    field(:updated_at, :datetime)
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:threads, list_of(:thread), resolve: dataloader(CMS, :threads))
     field(:categories, list_of(:category), resolve: dataloader(CMS, :categories))
@@ -444,6 +395,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       # TODO add complex here to warning N+1 problem
       resolve(&R.Statistics.list_contributes_digest/3)
     end
+
+    timestamp_fields()
   end
 
   object :category do
@@ -452,8 +405,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:raw, :string)
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
-    field(:inserted_at, :datetime)
-    field(:updated_at, :datetime)
+
+    timestamp_fields()
   end
 
   object :tag do
@@ -463,8 +416,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:thread, :string)
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:community, :community, resolve: dataloader(CMS, :community))
-    field(:inserted_at, :datetime)
-    field(:updated_at, :datetime)
+
+    timestamp_fields()
   end
 
   object :paged_categories do
