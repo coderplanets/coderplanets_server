@@ -26,6 +26,8 @@ defmodule MastaniServer.CMS.Utils.Matcher do
     # commtnes reaction
     PostCommentLike,
     PostCommentDislike,
+    JobCommentLike,
+    JobCommentDislike,
     VideoCommentLike,
     VideoCommentDislike,
     RepoCommentLike,
@@ -85,14 +87,20 @@ defmodule MastaniServer.CMS.Utils.Matcher do
   def match_action(:job, :community),
     do: {:ok, %{target: Job, reactor: Community, flag: JobCommunityFlag}}
 
+  def match_action(:job, :favorite),
+    do: {:ok, %{target: Job, reactor: JobFavorite, preload: :user}}
+
   def match_action(:job, :star), do: {:ok, %{target: Job, reactor: JobStar, preload: :user}}
   def match_action(:job, :tag), do: {:ok, %{target: Job, reactor: Tag}}
 
   def match_action(:job, :comment),
     do: {:ok, %{target: Job, reactor: JobComment, preload: :author}}
 
-  def match_action(:job, :favorite),
-    do: {:ok, %{target: Job, reactor: JobFavorite, preload: :user}}
+  def match_action(:job_comment, :like),
+    do: {:ok, %{target: JobComment, reactor: JobCommentLike}}
+
+  def match_action(:job_comment, :dislike),
+    do: {:ok, %{target: JobComment, reactor: JobCommentDislike}}
 
   #########################################
   ## videos ...
@@ -102,6 +110,12 @@ defmodule MastaniServer.CMS.Utils.Matcher do
   def match_action(:video, :community),
     do: {:ok, %{target: Video, reactor: Community, flag: VideoCommunityFlag}}
 
+  def match_action(:video, :favorite),
+    do: {:ok, %{target: Video, reactor: VideoFavorite, preload: :user}}
+
+  def match_action(:video, :star),
+    do: {:ok, %{target: Video, reactor: VideoStar, preload: :user}}
+
   def match_action(:video, :comment),
     do: {:ok, %{target: Video, reactor: VideoComment, preload: :author}}
 
@@ -110,12 +124,6 @@ defmodule MastaniServer.CMS.Utils.Matcher do
 
   def match_action(:video_comment, :dislike),
     do: {:ok, %{target: VideoComment, reactor: VideoCommentDislike}}
-
-  def match_action(:video, :favorite),
-    do: {:ok, %{target: Video, reactor: VideoFavorite, preload: :user}}
-
-  def match_action(:video, :star),
-    do: {:ok, %{target: Video, reactor: VideoStar, preload: :user}}
 
   #########################################
   ## repos ...

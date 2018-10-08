@@ -25,6 +25,8 @@ defmodule MastaniServer.CMS.Utils.Loader do
     JobFavorite,
     JobStar,
     JobCommentReply,
+    JobCommentDislike,
+    JobCommentLike,
     # job comment
     # JobComment,
     # Video
@@ -324,6 +326,37 @@ defmodule MastaniServer.CMS.Utils.Loader do
     |> select([c, r], r)
   end
 
+  def query({"jobs_comments_likes", JobCommentLike}, %{count: _}) do
+    JobCommentLike
+    |> group_by([f], f.job_comment_id)
+    |> select([f], count(f.id))
+  end
+
+  def query({"jobs_comments_likes", JobCommentLike}, %{viewer_did: _, cur_user: cur_user}) do
+    JobCommentLike |> where([f], f.user_id == ^cur_user.id)
+  end
+
+  def query({"jobs_comments_likes", JobCommentLike}, %{filter: _filter} = args) do
+    JobCommentLike |> QueryBuilder.members_pack(args)
+  end
+
+  def query({"jobs_comments_dislikes", JobCommentDislike}, %{count: _}) do
+    JobCommentDislike
+    |> group_by([f], f.job_comment_id)
+    |> select([f], count(f.id))
+  end
+
+  def query({"jobs_comments_dislikes", JobCommentDislike}, %{
+        viewer_did: _,
+        cur_user: cur_user
+      }) do
+    JobCommentDislike |> where([f], f.user_id == ^cur_user.id)
+  end
+
+  def query({"jobs_comments_dislikes", JobCommentDislike}, %{filter: _filter} = args) do
+    JobCommentDislike |> QueryBuilder.members_pack(args)
+  end
+
   # ---- job ------
 
   # ---- video comments ------
@@ -334,8 +367,7 @@ defmodule MastaniServer.CMS.Utils.Loader do
   end
 
   def query({"videos_comments_replies", VideoCommentReply}, %{filter: filter}) do
-    VideoCommentReply
-    |> QueryBuilder.load_inner_replies(filter)
+    VideoCommentReply |> QueryBuilder.load_inner_replies(filter)
   end
 
   def query({"videos_comments_replies", VideoCommentReply}, %{reply_to: _}) do
@@ -435,9 +467,5 @@ defmodule MastaniServer.CMS.Utils.Loader do
   # --- repo ------
 
   # default loader
-  def query(queryable, _args) do
-    # IO.inspect(queryable, label: "default loader")
-    # IO.inspect(args, label: "default args")
-    queryable
-  end
+  def query(queryable, _args), do: queryable
 end
