@@ -18,7 +18,7 @@ defmodule MastaniServer.Test.Query.PostComment do
   describe "[post comment]" do
     @query """
     query($id: ID!, $filter: CommentsFilter!) {
-      comments(id: $id, filter: $filter) {
+      pagedComments(id: $id, filter: $filter) {
         entries {
           id
           likesCount
@@ -41,7 +41,7 @@ defmodule MastaniServer.Test.Query.PostComment do
       end)
 
       variables = %{id: post.id, filter: %{page: 1, size: 10}}
-      results = guest_conn |> query_result(@query, variables, "comments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
 
       assert results |> is_valid_pagination?
       assert results["totalCount"] == 30
@@ -73,7 +73,7 @@ defmodule MastaniServer.Test.Query.PostComment do
       {:ok, _} = CMS.like_comment(:post_comment, comment_1.id, user_4)
 
       variables = %{id: post.id, filter: %{page: 1, size: 10, sort: "MOST_LIKES"}}
-      results = guest_conn |> query_result(@query, variables, "comments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
       entries = results["entries"]
 
       assert entries |> Enum.at(0) |> Map.get("id") == to_string(comment_3.id)
@@ -109,7 +109,7 @@ defmodule MastaniServer.Test.Query.PostComment do
       {:ok, _} = CMS.dislike_comment(:post_comment, comment_1.id, user_4)
 
       variables = %{id: post.id, filter: %{page: 1, size: 10, sort: "MOST_DISLIKES"}}
-      results = guest_conn |> query_result(@query, variables, "comments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
       entries = results["entries"]
 
       assert entries |> Enum.at(0) |> Map.get("id") == to_string(comment_3.id)
@@ -121,7 +121,7 @@ defmodule MastaniServer.Test.Query.PostComment do
 
     @query """
     query($id: ID!, $filter: CommentsFilter!) {
-      comments(id: $id, filter: $filter) {
+      pagedComments(id: $id, filter: $filter) {
         entries {
           id
           viewerHasLiked
@@ -137,7 +137,7 @@ defmodule MastaniServer.Test.Query.PostComment do
       {:ok, _like} = CMS.like_comment(:post_comment, comment.id, user)
 
       variables = %{id: post.id, filter: %{page: 1, size: 10}}
-      results = user_conn |> query_result(@query, variables, "comments")
+      results = user_conn |> query_result(@query, variables, "pagedComments")
 
       found =
         results["entries"] |> Enum.filter(&(&1["id"] == to_string(comment.id))) |> List.first()
@@ -145,7 +145,7 @@ defmodule MastaniServer.Test.Query.PostComment do
       assert found["viewerHasLiked"] == false
 
       own_like_conn = simu_conn(:user, user)
-      results = own_like_conn |> query_result(@query, variables, "comments")
+      results = own_like_conn |> query_result(@query, variables, "pagedComments")
 
       found =
         results["entries"] |> Enum.filter(&(&1["id"] == to_string(comment.id))) |> List.first()
@@ -155,7 +155,7 @@ defmodule MastaniServer.Test.Query.PostComment do
 
     @query """
     query($id: ID!, $filter: PagedFilter!) {
-      comments(id: $id, filter: $filter) {
+      pagedComments(id: $id, filter: $filter) {
         entries {
           id
           body
@@ -180,7 +180,7 @@ defmodule MastaniServer.Test.Query.PostComment do
       {:ok, _like} = CMS.like_comment(:post_comment, comment.id, user)
 
       variables = %{id: post.id, filter: %{page: 1, size: 10}}
-      results = guest_conn |> query_result(@query, variables, "comments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
 
       found =
         results["entries"] |> Enum.filter(&(&1["id"] == to_string(comment.id))) |> List.first()
@@ -195,7 +195,7 @@ defmodule MastaniServer.Test.Query.PostComment do
 
     @query """
     query($id: ID!, $filter: PagedFilter!) {
-      comments(id: $id, filter: $filter) {
+      pagedComments(id: $id, filter: $filter) {
         entries {
           id
           body
@@ -220,7 +220,7 @@ defmodule MastaniServer.Test.Query.PostComment do
       {:ok, _like} = CMS.dislike_comment(:post_comment, comment.id, user)
 
       variables = %{id: post.id, filter: %{page: 1, size: 10}}
-      results = guest_conn |> query_result(@query, variables, "comments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
 
       found =
         results["entries"] |> Enum.filter(&(&1["id"] == to_string(comment.id))) |> List.first()
@@ -235,7 +235,7 @@ defmodule MastaniServer.Test.Query.PostComment do
 
     @query """
     query($id: ID!, $filter: PagedFilter!) {
-      comments(id: $id, filter: $filter) {
+      pagedComments(id: $id, filter: $filter) {
         entries {
           id
           body
@@ -260,7 +260,7 @@ defmodule MastaniServer.Test.Query.PostComment do
       {:ok, reply} = CMS.reply_comment(:post, comment.id, "reply body", user)
 
       variables = %{id: post.id, filter: %{page: 1, size: 10}}
-      results = guest_conn |> query_result(@query, variables, "comments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
 
       found =
         results["entries"] |> Enum.filter(&(&1["id"] == to_string(comment.id))) |> List.first()
