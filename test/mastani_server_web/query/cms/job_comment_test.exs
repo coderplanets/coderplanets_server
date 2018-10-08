@@ -47,7 +47,6 @@ defmodule MastaniServer.Test.Query.JobComment do
       assert results["totalCount"] == 30
     end
 
-    @tag :wip
     test "MOST_LIKES filter should work", ~m(guest_conn job user)a do
       body = "test comment"
 
@@ -91,7 +90,6 @@ defmodule MastaniServer.Test.Query.JobComment do
       assert entries |> Enum.at(1) |> Map.get("likesCount") == 4
     end
 
-    @tag :wip
     test "MOST_DISLIKES filter should work", ~m(guest_conn job user)a do
       body = "test comment"
 
@@ -143,7 +141,6 @@ defmodule MastaniServer.Test.Query.JobComment do
       }
     }
     """
-    @tag :wip
     test "login user can get hasLiked feedBack", ~m(user_conn job user)a do
       body = "test comment"
 

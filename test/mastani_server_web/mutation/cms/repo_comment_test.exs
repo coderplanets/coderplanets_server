@@ -49,7 +49,6 @@ defmodule MastaniServer.Test.Mutation.RepoComment do
       }
     }
     """
-    @tag :wip
     test "comment owner can delete comment", ~m(user repo)a do
       variables = %{thread: "REPO", id: repo.id, body: "this a comment"}
 
@@ -62,7 +61,6 @@ defmodule MastaniServer.Test.Mutation.RepoComment do
       assert deleted["id"] == created["id"]
     end
 
-    @tag :wip
     test "unauth user delete comment fails", ~m(user_conn guest_conn repo)a do
       variables = %{thread: "REPO", id: repo.id, body: "this a comment"}
       {:ok, owner} = db_insert(:user)

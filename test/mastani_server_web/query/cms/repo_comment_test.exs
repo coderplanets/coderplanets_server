@@ -31,7 +31,6 @@ defmodule MastaniServer.Test.Query.RepoComment do
       }
     }
     """
-    @tag :wip
     test "guest user can get a paged comment", ~m(guest_conn repo user)a do
       body = "test comment"
 
@@ -48,7 +47,6 @@ defmodule MastaniServer.Test.Query.RepoComment do
       assert results["totalCount"] == 30
     end
 
-    @tag :wip2
     test "MOST_LIKES filter should work", ~m(guest_conn repo user)a do
       body = "test comment"
 
@@ -92,7 +90,6 @@ defmodule MastaniServer.Test.Query.RepoComment do
       assert entries |> Enum.at(1) |> Map.get("likesCount") == 4
     end
 
-    @tag :wip
     test "MOST_DISLIKES filter should work", ~m(guest_conn repo user)a do
       body = "test comment"
 
@@ -144,7 +141,6 @@ defmodule MastaniServer.Test.Query.RepoComment do
       }
     }
     """
-    @tag :wip
     test "login user can get hasLiked feedBack", ~m(user_conn repo user)a do
       body = "test comment"
 
@@ -188,7 +184,6 @@ defmodule MastaniServer.Test.Query.RepoComment do
       }
     }
     """
-    @tag :wip
     test "guest user can get replies info", ~m(guest_conn repo user)a do
       body = "test comment"
       {:ok, comment} = CMS.create_comment(:repo, repo.id, body, user)

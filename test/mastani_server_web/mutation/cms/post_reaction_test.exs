@@ -21,7 +21,6 @@ defmodule MastaniServer.Test.Mutation.PostReaction do
       }
     }
     """
-    @tag :wip
     test "login user can favorite a post", ~m(user_conn post)a do
       variables = %{id: post.id, thread: "POST", action: "FAVORITE"}
       created = user_conn |> mutation_result(@query, variables, "reaction")
@@ -29,7 +28,6 @@ defmodule MastaniServer.Test.Mutation.PostReaction do
       assert created["id"] == to_string(post.id)
     end
 
-    @tag :wip
     test "unauth user favorite a post fails", ~m(guest_conn post)a do
       variables = %{id: post.id, thread: "POST", action: "FAVORITE"}
 
@@ -44,7 +42,6 @@ defmodule MastaniServer.Test.Mutation.PostReaction do
       }
     }
     """
-    @tag :wip
     test "login user can undo favorite a post", ~m(user_conn post user)a do
       {:ok, _} = CMS.reaction(:post, :favorite, post.id, user)
 
@@ -54,7 +51,6 @@ defmodule MastaniServer.Test.Mutation.PostReaction do
       assert updated["id"] == to_string(post.id)
     end
 
-    @tag :wip
     test "unauth user undo favorite a post fails", ~m(guest_conn post)a do
       variables = %{id: post.id, thread: "POST", action: "FAVORITE"}
 
@@ -71,7 +67,6 @@ defmodule MastaniServer.Test.Mutation.PostReaction do
       }
     }
     """
-    @tag :wip
     test "login user can star a post", ~m(user_conn post)a do
       variables = %{id: post.id, thread: "POST", action: "STAR"}
       created = user_conn |> mutation_result(@query, variables, "reaction")
@@ -79,7 +74,6 @@ defmodule MastaniServer.Test.Mutation.PostReaction do
       assert created["id"] == to_string(post.id)
     end
 
-    @tag :wip
     test "unauth user star a post fails", ~m(guest_conn post)a do
       variables = %{id: post.id, thread: "POST", action: "STAR"}
 
@@ -94,7 +88,6 @@ defmodule MastaniServer.Test.Mutation.PostReaction do
       }
     }
     """
-    @tag :wip
     test "login user can undo star a post", ~m(user_conn post user)a do
       {:ok, _} = CMS.reaction(:post, :star, post.id, user)
 
@@ -104,7 +97,6 @@ defmodule MastaniServer.Test.Mutation.PostReaction do
       assert updated["id"] == to_string(post.id)
     end
 
-    @tag :wip
     test "unauth user undo star a post fails", ~m(guest_conn post)a do
       variables = %{id: post.id, thread: "POST", action: "STAR"}
 

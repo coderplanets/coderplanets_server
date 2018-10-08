@@ -130,7 +130,6 @@ defmodule MastaniServer.Test.Mutation.JobComment do
       }
     }
     """
-    @tag :wip
     test "login user can like a comment", ~m(user_conn comment)a do
       variables = %{thread: "JOB_COMMENT", id: comment.id}
       user_conn |> mutation_result(@like_comment_query, variables, "likeComment")
@@ -147,7 +146,6 @@ defmodule MastaniServer.Test.Mutation.JobComment do
       }
     }
     """
-    @tag :wip
     test "login user can undo a like action to comment", ~m(user comment)a do
       variables = %{thread: "JOB_COMMENT", id: comment.id}
       user_conn = simu_conn(:user, user)
@@ -169,7 +167,6 @@ defmodule MastaniServer.Test.Mutation.JobComment do
       }
     }
     """
-    @tag :wip
     test "login user can dislike a comment", ~m(user_conn comment)a do
       variables = %{thread: "JOB_COMMENT", id: comment.id}
       user_conn |> mutation_result(@dislike_comment_query, variables, "dislikeComment")
@@ -186,7 +183,6 @@ defmodule MastaniServer.Test.Mutation.JobComment do
       }
     }
     """
-    @tag :wip
     test "login user can undo dislike a comment", ~m(user comment)a do
       variables = %{thread: "JOB_COMMENT", id: comment.id}
       user_conn = simu_conn(:user, user)
@@ -200,7 +196,6 @@ defmodule MastaniServer.Test.Mutation.JobComment do
       assert false == found.dislikes |> Enum.any?(&(&1.job_comment_id == comment.id))
     end
 
-    @tag :wip
     test "unloged user do/undo like/dislike comment fails", ~m(guest_conn comment)a do
       variables = %{thread: "JOB_COMMENT", id: comment.id}
 
