@@ -17,7 +17,7 @@ defmodule MastaniServer.Test.Query.JobComment do
   describe "[job comment]" do
     @query """
     query($thread: CmsThread, $id: ID!, $filter: CommentsFilter!) {
-      comments(thread: $thread, id: $id, filter: $filter) {
+      pagedComments(thread: $thread, id: $id, filter: $filter) {
         entries {
           id
           body
@@ -39,7 +39,7 @@ defmodule MastaniServer.Test.Query.JobComment do
       end)
 
       variables = %{thread: "JOB", id: job.id, filter: %{page: 1, size: 10}}
-      results = guest_conn |> query_result(@query, variables, "comments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
 
       assert results |> is_valid_pagination?
       assert results["totalCount"] == 30
@@ -47,7 +47,7 @@ defmodule MastaniServer.Test.Query.JobComment do
 
     @query """
     query($thread: CmsThread, $id: ID!, $filter: PagedFilter!) {
-      comments(thread: $thread, id: $id, filter: $filter) {
+      pagedComments(thread: $thread, id: $id, filter: $filter) {
         entries {
           id
           body
@@ -72,7 +72,7 @@ defmodule MastaniServer.Test.Query.JobComment do
       {:ok, reply} = CMS.reply_comment(:job, comment.id, "reply body", user)
 
       variables = %{thread: "JOB", id: job.id, filter: %{page: 1, size: 10}}
-      results = guest_conn |> query_result(@query, variables, "comments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
 
       found =
         results["entries"] |> Enum.filter(&(&1["id"] == to_string(comment.id))) |> List.first()
