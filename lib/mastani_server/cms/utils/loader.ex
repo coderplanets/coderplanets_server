@@ -32,7 +32,11 @@ defmodule MastaniServer.CMS.Utils.Loader do
     VideoStar,
     VideoCommentReply,
     VideoCommentDislike,
-    VideoCommentLike
+    VideoCommentLike,
+    # repo
+    RepoCommentReply,
+    RepoCommentLike,
+    RepoCommentDislike
   }
 
   def data, do: Dataloader.Ecto.new(Repo, query: &query/2, run_batch: &run_batch/5)
@@ -375,6 +379,60 @@ defmodule MastaniServer.CMS.Utils.Loader do
   end
 
   # ---- video ------
+
+  # --- repo comments ------
+  def query({"repos_comments_replies", RepoCommentReply}, %{count: _}) do
+    RepoCommentReply
+    |> group_by([c], c.repo_comment_id)
+    |> select([c], count(c.id))
+  end
+
+  def query({"repos_comments_replies", RepoCommentReply}, %{filter: filter}) do
+    RepoCommentReply
+    |> QueryBuilder.load_inner_replies(filter)
+  end
+
+  def query({"repos_comments_replies", RepoCommentReply}, %{reply_to: _}) do
+    RepoCommentReply
+    |> join(:inner, [c], r in assoc(c, :repo_comment))
+    |> select([c, r], r)
+  end
+
+  def query({"repos_comments_likes", RepoCommentLike}, %{count: _}) do
+    RepoCommentLike
+    |> group_by([f], f.repo_comment_id)
+    |> select([f], count(f.id))
+  end
+
+  def query({"repos_comments_likes", RepoCommentLike}, %{viewer_did: _, cur_user: cur_user}) do
+    RepoCommentLike |> where([f], f.user_id == ^cur_user.id)
+  end
+
+  def query({"repos_comments_likes", RepoCommentLike}, %{filter: _filter} = args) do
+    RepoCommentLike
+    |> QueryBuilder.members_pack(args)
+  end
+
+  def query({"repos_comments_dislikes", RepoCommentDislike}, %{count: _}) do
+    RepoCommentDislike
+    |> group_by([f], f.repo_comment_id)
+    |> select([f], count(f.id))
+  end
+
+  # component dislikes
+  def query({"repos_comments_dislikes", RepoCommentDislike}, %{
+        viewer_did: _,
+        cur_user: cur_user
+      }) do
+    RepoCommentDislike |> where([f], f.user_id == ^cur_user.id)
+  end
+
+  def query({"repos_comments_dislikes", RepoCommentDislike}, %{filter: _filter} = args) do
+    RepoCommentDislike
+    |> QueryBuilder.members_pack(args)
+  end
+
+  # --- repo ------
 
   # default loader
   def query(queryable, _args) do

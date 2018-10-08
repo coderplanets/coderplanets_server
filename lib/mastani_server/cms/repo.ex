@@ -4,7 +4,16 @@ defmodule MastaniServer.CMS.Repo do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Author, Community, RepoContributor, RepoLang, RepoCommunityFlag, Tag}
+
+  alias MastaniServer.CMS.{
+    Author,
+    Community,
+    RepoComment,
+    RepoContributor,
+    RepoLang,
+    RepoCommunityFlag,
+    Tag
+  }
 
   @required_fields ~w(title owner_name owner_url repo_url desc readme star_count issues_count prs_count fork_count watch_count)a
   @optional_fields ~w(last_fetch_time homepage_url release_tag license)
@@ -41,6 +50,8 @@ defmodule MastaniServer.CMS.Repo do
     field(:trash, :boolean, default_value: false)
 
     field(:last_fetch_time, :utc_datetime)
+
+    has_many(:comments, {"repos_comments", RepoComment})
 
     many_to_many(
       :tags,
