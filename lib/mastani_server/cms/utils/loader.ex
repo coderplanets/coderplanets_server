@@ -12,7 +12,6 @@ defmodule MastaniServer.CMS.Utils.Loader do
     CommunityEditor,
     CommunitySubscriber,
     CommunityThread,
-    JobCommentReply,
     # POST
     Post,
     PostComment,
@@ -25,11 +24,15 @@ defmodule MastaniServer.CMS.Utils.Loader do
     Job,
     JobFavorite,
     JobStar,
+    JobCommentReply,
     # job comment
     # JobComment,
     # Video
     VideoFavorite,
-    VideoStar
+    VideoStar,
+    VideoCommentReply,
+    VideoCommentDislike,
+    VideoCommentLike
   }
 
   def data, do: Dataloader.Ecto.new(Repo, query: &query/2, run_batch: &run_batch/5)
@@ -318,6 +321,60 @@ defmodule MastaniServer.CMS.Utils.Loader do
   end
 
   # ---- job ------
+
+  # ---- video comments ------
+  def query({"videos_comments_replies", VideoCommentReply}, %{count: _}) do
+    VideoCommentReply
+    |> group_by([c], c.video_comment_id)
+    |> select([c], count(c.id))
+  end
+
+  def query({"videos_comments_replies", VideoCommentReply}, %{filter: filter}) do
+    VideoCommentReply
+    |> QueryBuilder.load_inner_replies(filter)
+  end
+
+  def query({"videos_comments_replies", VideoCommentReply}, %{reply_to: _}) do
+    VideoCommentReply
+    |> join(:inner, [c], r in assoc(c, :video_comment))
+    |> select([c, r], r)
+  end
+
+  def query({"videos_comments_likes", VideoCommentLike}, %{count: _}) do
+    VideoCommentLike
+    |> group_by([f], f.video_comment_id)
+    |> select([f], count(f.id))
+  end
+
+  def query({"videos_comments_likes", VideoCommentLike}, %{viewer_did: _, cur_user: cur_user}) do
+    VideoCommentLike |> where([f], f.user_id == ^cur_user.id)
+  end
+
+  def query({"videos_comments_likes", VideoCommentLike}, %{filter: _filter} = args) do
+    VideoCommentLike
+    |> QueryBuilder.members_pack(args)
+  end
+
+  def query({"videos_comments_dislikes", VideoCommentDislike}, %{count: _}) do
+    VideoCommentDislike
+    |> group_by([f], f.video_comment_id)
+    |> select([f], count(f.id))
+  end
+
+  # component dislikes
+  def query({"videos_comments_dislikes", VideoCommentDislike}, %{
+        viewer_did: _,
+        cur_user: cur_user
+      }) do
+    VideoCommentDislike |> where([f], f.user_id == ^cur_user.id)
+  end
+
+  def query({"videos_comments_dislikes", VideoCommentDislike}, %{filter: _filter} = args) do
+    VideoCommentDislike
+    |> QueryBuilder.members_pack(args)
+  end
+
+  # ---- video ------
 
   # default loader
   def query(queryable, _args) do
