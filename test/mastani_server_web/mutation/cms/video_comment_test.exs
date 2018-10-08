@@ -49,7 +49,6 @@ defmodule MastaniServer.Test.Mutation.VideoComment do
       }
     }
     """
-    @tag :wip
     test "comment owner can delete comment", ~m(user video)a do
       variables = %{thread: "VIDEO", id: video.id, body: "this a comment"}
 
@@ -62,7 +61,6 @@ defmodule MastaniServer.Test.Mutation.VideoComment do
       assert deleted["id"] == created["id"]
     end
 
-    @tag :wip
     test "unauth user delete comment fails", ~m(user_conn guest_conn video)a do
       variables = %{thread: "VIDEO", id: video.id, body: "this a comment"}
       {:ok, owner} = db_insert(:user)

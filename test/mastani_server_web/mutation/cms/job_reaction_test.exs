@@ -21,7 +21,6 @@ defmodule MastaniServer.Test.Mutation.JobReaction do
       }
     }
     """
-    @tag :wip
     test "login user can favorite a job", ~m(user_conn job)a do
       variables = %{id: job.id, thread: "JOB", action: "FAVORITE"}
       created = user_conn |> mutation_result(@query, variables, "reaction")
@@ -29,7 +28,6 @@ defmodule MastaniServer.Test.Mutation.JobReaction do
       assert created["id"] == to_string(job.id)
     end
 
-    @tag :wip
     test "unauth user favorite a job fails", ~m(guest_conn job)a do
       variables = %{id: job.id, thread: "JOB", action: "FAVORITE"}
 
@@ -44,7 +42,6 @@ defmodule MastaniServer.Test.Mutation.JobReaction do
       }
     }
     """
-    @tag :wip
     test "login user can undo favorite a job", ~m(user_conn job user)a do
       {:ok, _} = CMS.reaction(:job, :favorite, job.id, user)
 
@@ -54,7 +51,6 @@ defmodule MastaniServer.Test.Mutation.JobReaction do
       assert updated["id"] == to_string(job.id)
     end
 
-    @tag :wip
     test "unauth user undo favorite a job fails", ~m(guest_conn job)a do
       variables = %{id: job.id, thread: "JOB", action: "FAVORITE"}
 
@@ -71,7 +67,6 @@ defmodule MastaniServer.Test.Mutation.JobReaction do
       }
     }
     """
-    @tag :wip
     test "login user can star a job", ~m(user_conn job)a do
       variables = %{id: job.id, thread: "JOB", action: "STAR"}
       created = user_conn |> mutation_result(@query, variables, "reaction")
@@ -79,7 +74,6 @@ defmodule MastaniServer.Test.Mutation.JobReaction do
       assert created["id"] == to_string(job.id)
     end
 
-    @tag :wip
     test "unauth user star a job fails", ~m(guest_conn job)a do
       variables = %{id: job.id, thread: "JOB", action: "STAR"}
 
@@ -94,7 +88,6 @@ defmodule MastaniServer.Test.Mutation.JobReaction do
       }
     }
     """
-    @tag :wip
     test "login user can undo star a job", ~m(user_conn job user)a do
       {:ok, _} = CMS.reaction(:job, :star, job.id, user)
 
@@ -104,7 +97,6 @@ defmodule MastaniServer.Test.Mutation.JobReaction do
       assert updated["id"] == to_string(job.id)
     end
 
-    @tag :wip
     test "unauth user undo star a job fails", ~m(guest_conn job)a do
       variables = %{id: job.id, thread: "JOB", action: "STAR"}
 

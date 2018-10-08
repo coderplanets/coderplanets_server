@@ -13,7 +13,6 @@ defmodule MastaniServer.Test.VideoReactions do
   end
 
   describe "[cms video star/favorite reaction]" do
-    @tag :wip
     test "star and undo star reaction to video", ~m(user community video_attrs)a do
       {:ok, video} = CMS.create_content(community, :video, video_attrs, user)
 
@@ -29,7 +28,6 @@ defmodule MastaniServer.Test.VideoReactions do
       assert 0 == reaction_users2 |> Enum.filter(fn ruser -> user.id == ruser.id end) |> length
     end
 
-    @tag :wip
     test "favorite and undo favorite reaction to video", ~m(user community video_attrs)a do
       {:ok, video} = CMS.create_content(community, :video, video_attrs, user)
 
