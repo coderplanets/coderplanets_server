@@ -12,7 +12,6 @@ defmodule MastaniServer.CMS.Utils.Loader do
     CommunityEditor,
     CommunitySubscriber,
     CommunityThread,
-    JobCommentReply,
     # POST
     Post,
     PostComment,
@@ -25,11 +24,21 @@ defmodule MastaniServer.CMS.Utils.Loader do
     Job,
     JobFavorite,
     JobStar,
+    JobCommentReply,
+    JobCommentDislike,
+    JobCommentLike,
     # job comment
     # JobComment,
     # Video
     VideoFavorite,
-    VideoStar
+    VideoStar,
+    VideoCommentReply,
+    VideoCommentDislike,
+    VideoCommentLike,
+    # repo
+    RepoCommentReply,
+    RepoCommentLike,
+    RepoCommentDislike
   }
 
   def data, do: Dataloader.Ecto.new(Repo, query: &query/2, run_batch: &run_batch/5)
@@ -317,12 +326,146 @@ defmodule MastaniServer.CMS.Utils.Loader do
     |> select([c, r], r)
   end
 
+  def query({"jobs_comments_likes", JobCommentLike}, %{count: _}) do
+    JobCommentLike
+    |> group_by([f], f.job_comment_id)
+    |> select([f], count(f.id))
+  end
+
+  def query({"jobs_comments_likes", JobCommentLike}, %{viewer_did: _, cur_user: cur_user}) do
+    JobCommentLike |> where([f], f.user_id == ^cur_user.id)
+  end
+
+  def query({"jobs_comments_likes", JobCommentLike}, %{filter: _filter} = args) do
+    JobCommentLike |> QueryBuilder.members_pack(args)
+  end
+
+  def query({"jobs_comments_dislikes", JobCommentDislike}, %{count: _}) do
+    JobCommentDislike
+    |> group_by([f], f.job_comment_id)
+    |> select([f], count(f.id))
+  end
+
+  def query({"jobs_comments_dislikes", JobCommentDislike}, %{
+        viewer_did: _,
+        cur_user: cur_user
+      }) do
+    JobCommentDislike |> where([f], f.user_id == ^cur_user.id)
+  end
+
+  def query({"jobs_comments_dislikes", JobCommentDislike}, %{filter: _filter} = args) do
+    JobCommentDislike |> QueryBuilder.members_pack(args)
+  end
+
   # ---- job ------
 
-  # default loader
-  def query(queryable, _args) do
-    # IO.inspect(queryable, label: "default loader")
-    # IO.inspect(args, label: "default args")
-    queryable
+  # ---- video comments ------
+  def query({"videos_comments_replies", VideoCommentReply}, %{count: _}) do
+    VideoCommentReply
+    |> group_by([c], c.video_comment_id)
+    |> select([c], count(c.id))
   end
+
+  def query({"videos_comments_replies", VideoCommentReply}, %{filter: filter}) do
+    VideoCommentReply |> QueryBuilder.load_inner_replies(filter)
+  end
+
+  def query({"videos_comments_replies", VideoCommentReply}, %{reply_to: _}) do
+    VideoCommentReply
+    |> join(:inner, [c], r in assoc(c, :video_comment))
+    |> select([c, r], r)
+  end
+
+  def query({"videos_comments_likes", VideoCommentLike}, %{count: _}) do
+    VideoCommentLike
+    |> group_by([f], f.video_comment_id)
+    |> select([f], count(f.id))
+  end
+
+  def query({"videos_comments_likes", VideoCommentLike}, %{viewer_did: _, cur_user: cur_user}) do
+    VideoCommentLike |> where([f], f.user_id == ^cur_user.id)
+  end
+
+  def query({"videos_comments_likes", VideoCommentLike}, %{filter: _filter} = args) do
+    VideoCommentLike
+    |> QueryBuilder.members_pack(args)
+  end
+
+  def query({"videos_comments_dislikes", VideoCommentDislike}, %{count: _}) do
+    VideoCommentDislike
+    |> group_by([f], f.video_comment_id)
+    |> select([f], count(f.id))
+  end
+
+  # component dislikes
+  def query({"videos_comments_dislikes", VideoCommentDislike}, %{
+        viewer_did: _,
+        cur_user: cur_user
+      }) do
+    VideoCommentDislike |> where([f], f.user_id == ^cur_user.id)
+  end
+
+  def query({"videos_comments_dislikes", VideoCommentDislike}, %{filter: _filter} = args) do
+    VideoCommentDislike
+    |> QueryBuilder.members_pack(args)
+  end
+
+  # ---- video ------
+
+  # --- repo comments ------
+  def query({"repos_comments_replies", RepoCommentReply}, %{count: _}) do
+    RepoCommentReply
+    |> group_by([c], c.repo_comment_id)
+    |> select([c], count(c.id))
+  end
+
+  def query({"repos_comments_replies", RepoCommentReply}, %{filter: filter}) do
+    RepoCommentReply
+    |> QueryBuilder.load_inner_replies(filter)
+  end
+
+  def query({"repos_comments_replies", RepoCommentReply}, %{reply_to: _}) do
+    RepoCommentReply
+    |> join(:inner, [c], r in assoc(c, :repo_comment))
+    |> select([c, r], r)
+  end
+
+  def query({"repos_comments_likes", RepoCommentLike}, %{count: _}) do
+    RepoCommentLike
+    |> group_by([f], f.repo_comment_id)
+    |> select([f], count(f.id))
+  end
+
+  def query({"repos_comments_likes", RepoCommentLike}, %{viewer_did: _, cur_user: cur_user}) do
+    RepoCommentLike |> where([f], f.user_id == ^cur_user.id)
+  end
+
+  def query({"repos_comments_likes", RepoCommentLike}, %{filter: _filter} = args) do
+    RepoCommentLike
+    |> QueryBuilder.members_pack(args)
+  end
+
+  def query({"repos_comments_dislikes", RepoCommentDislike}, %{count: _}) do
+    RepoCommentDislike
+    |> group_by([f], f.repo_comment_id)
+    |> select([f], count(f.id))
+  end
+
+  # component dislikes
+  def query({"repos_comments_dislikes", RepoCommentDislike}, %{
+        viewer_did: _,
+        cur_user: cur_user
+      }) do
+    RepoCommentDislike |> where([f], f.user_id == ^cur_user.id)
+  end
+
+  def query({"repos_comments_dislikes", RepoCommentDislike}, %{filter: _filter} = args) do
+    RepoCommentDislike
+    |> QueryBuilder.members_pack(args)
+  end
+
+  # --- repo ------
+
+  # default loader
+  def query(queryable, _args), do: queryable
 end

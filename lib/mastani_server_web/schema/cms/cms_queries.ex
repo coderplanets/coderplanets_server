@@ -180,6 +180,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
     end
 
     # comments
+    # TODO: remove
     field :comments, :paged_comments do
       arg(:id, non_null(:id))
       arg(:thread, :cms_thread, default_value: :post)

@@ -215,8 +215,9 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # #######################
   # comemnts ..
   # #######################
-  def paged_comments(_root, ~m(id thread filter)a, _info),
-    do: CMS.list_comments(thread, id, filter)
+  def paged_comments(_root, ~m(id thread filter)a, _info) do
+    CMS.list_comments(thread, id, filter)
+  end
 
   def create_comment(_root, ~m(thread id body)a, %{context: %{cur_user: user}}) do
     CMS.create_comment(thread, id, body, user)

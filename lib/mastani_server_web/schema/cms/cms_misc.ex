@@ -19,7 +19,6 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
   enum(:viewer_did_type, do: value(:viewer_did))
   enum(:favorite_action, do: value(:favorite))
 
-  enum(:cms_comment, do: value(:post_comment))
   enum(:star_action, do: value(:star))
   enum(:comment_action, do: value(:comment))
 
@@ -32,6 +31,13 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:favorite)
     value(:star)
     value(:watch)
+  end
+
+  enum :cms_comment do
+    value(:post_comment)
+    value(:job_comment)
+    value(:video_comment)
+    value(:repo_comment)
   end
 
   enum :cms_thread do

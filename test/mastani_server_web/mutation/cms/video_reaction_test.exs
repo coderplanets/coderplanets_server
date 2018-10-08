@@ -21,7 +21,6 @@ defmodule MastaniServer.Test.Mutation.VideoReaction do
       }
     }
     """
-    @tag :wip
     test "login user can favorite a video", ~m(user_conn video)a do
       variables = %{id: video.id, thread: "VIDEO", action: "FAVORITE"}
       created = user_conn |> mutation_result(@query, variables, "reaction")
@@ -29,7 +28,6 @@ defmodule MastaniServer.Test.Mutation.VideoReaction do
       assert created["id"] == to_string(video.id)
     end
 
-    @tag :wip
     test "unauth user favorite a video fails", ~m(guest_conn video)a do
       variables = %{id: video.id, thread: "VIDEO", action: "FAVORITE"}
 
@@ -44,7 +42,6 @@ defmodule MastaniServer.Test.Mutation.VideoReaction do
       }
     }
     """
-    @tag :wip
     test "login user can undo favorite a video", ~m(user_conn video user)a do
       {:ok, _} = CMS.reaction(:video, :favorite, video.id, user)
 
@@ -54,7 +51,6 @@ defmodule MastaniServer.Test.Mutation.VideoReaction do
       assert updated["id"] == to_string(video.id)
     end
 
-    @tag :wip
     test "unauth user undo favorite a video fails", ~m(guest_conn video)a do
       variables = %{id: video.id, thread: "VIDEO", action: "FAVORITE"}
 
@@ -71,7 +67,6 @@ defmodule MastaniServer.Test.Mutation.VideoReaction do
       }
     }
     """
-    @tag :wip
     test "login user can star a video", ~m(user_conn video)a do
       variables = %{id: video.id, thread: "VIDEO", action: "STAR"}
       created = user_conn |> mutation_result(@query, variables, "reaction")
@@ -79,7 +74,6 @@ defmodule MastaniServer.Test.Mutation.VideoReaction do
       assert created["id"] == to_string(video.id)
     end
 
-    @tag :wip
     test "unauth user star a video fails", ~m(guest_conn video)a do
       variables = %{id: video.id, thread: "VIDEO", action: "STAR"}
 
@@ -94,7 +88,6 @@ defmodule MastaniServer.Test.Mutation.VideoReaction do
       }
     }
     """
-    @tag :wip
     test "login user can undo star a video", ~m(user_conn video user)a do
       {:ok, _} = CMS.reaction(:video, :star, video.id, user)
 
@@ -104,7 +97,6 @@ defmodule MastaniServer.Test.Mutation.VideoReaction do
       assert updated["id"] == to_string(video.id)
     end
 
-    @tag :wip
     test "unauth user undo star a video fails", ~m(guest_conn video)a do
       variables = %{id: video.id, thread: "VIDEO", action: "STAR"}
 
