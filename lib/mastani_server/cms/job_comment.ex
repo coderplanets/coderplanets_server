@@ -6,7 +6,7 @@ defmodule MastaniServer.CMS.JobComment do
   import Ecto.Changeset
   alias MastaniServer.Accounts
 
-  alias MastaniServer.CMS.{Job, JobCommentReply}
+  alias MastaniServer.CMS.{Job, JobCommentReply, JobCommentLike, JobCommentDislike}
 
   @required_fields ~w(body author_id job_id floor)a
   @optional_fields ~w(reply_id)a
@@ -18,8 +18,11 @@ defmodule MastaniServer.CMS.JobComment do
     belongs_to(:author, Accounts.User, foreign_key: :author_id)
     belongs_to(:job, Job, foreign_key: :job_id)
     belongs_to(:reply_to, JobComment, foreign_key: :reply_id)
-    # belongs_to(:reply_to, JobComment, foreign_key: :job_id)
+
     has_many(:replies, {"jobs_comments_replies", JobCommentReply})
+    has_many(:likes, {"jobs_comments_likes", JobCommentLike})
+    has_many(:dislikes, {"jobs_comments_dislikes", JobCommentDislike})
+
     timestamps(type: :utc_datetime)
   end
 
