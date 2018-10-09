@@ -32,7 +32,6 @@ defmodule MastaniServer.Test.Query.ReactionUsers do
   }
   """
   describe "[favrotes users]" do
-    @tag :wip
     test "guest can get favroted user list after favrote to a post",
          ~m(guest_conn post user user2)a do
       {:ok, _} = CMS.reaction(:post, :favorite, post.id, user)
@@ -47,7 +46,6 @@ defmodule MastaniServer.Test.Query.ReactionUsers do
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(user2.id)))
     end
 
-    @tag :wip
     test "guest can get favroted user list after favrote to a job",
          ~m(guest_conn job user user2)a do
       {:ok, _} = CMS.reaction(:job, :favorite, job.id, user)
@@ -62,7 +60,6 @@ defmodule MastaniServer.Test.Query.ReactionUsers do
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(user2.id)))
     end
 
-    @tag :wip
     test "guest can get favroted user list after favrote to a video",
          ~m(guest_conn video user user2)a do
       {:ok, _} = CMS.reaction(:video, :favorite, video.id, user)
@@ -85,7 +82,6 @@ defmodule MastaniServer.Test.Query.ReactionUsers do
   end
 
   describe "[stars users]" do
-    @tag :wip
     test "guest can get stared user list after star to a post", ~m(guest_conn post user user2)a do
       {:ok, _} = CMS.reaction(:post, :star, post.id, user)
       {:ok, _} = CMS.reaction(:post, :star, post.id, user2)
@@ -99,7 +95,6 @@ defmodule MastaniServer.Test.Query.ReactionUsers do
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(user2.id)))
     end
 
-    @tag :wip
     test "guest can get stared user list after star to a video",
          ~m(guest_conn video user user2)a do
       {:ok, _} = CMS.reaction(:video, :star, video.id, user)

@@ -132,8 +132,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.paged_jobs/3)
     end
 
-    @desc "get paged users of a reaction"
-    # field :favorite_users, :paged_users do
+    @desc "get paged users of a reaction related to cms content"
     field :reaction_users, :paged_users do
       arg(:id, non_null(:id))
       arg(:thread, :react_thread, default_value: :post)
@@ -145,6 +144,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
     end
 
     # get all tags
+    @desc "get paged tags"
     field :paged_tags, :paged_tags do
       arg(:filter, non_null(:paged_filter))
 
