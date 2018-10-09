@@ -131,8 +131,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Operation do
 
     field :reaction, :article do
       arg(:id, non_null(:id))
-      arg(:thread, non_null(:cms_thread))
-      arg(:action, non_null(:cms_action))
+      arg(:thread, non_null(:react_thread))
+      arg(:action, non_null(:react_action))
 
       middleware(M.Authorize, :login)
       resolve(&R.CMS.reaction/3)
@@ -140,8 +140,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Operation do
 
     field :undo_reaction, :article do
       arg(:id, non_null(:id))
-      arg(:thread, non_null(:cms_thread))
-      arg(:action, non_null(:cms_action))
+      arg(:thread, non_null(:react_thread))
+      arg(:action, non_null(:react_action))
 
       middleware(M.Authorize, :login)
       resolve(&R.CMS.undo_reaction/3)

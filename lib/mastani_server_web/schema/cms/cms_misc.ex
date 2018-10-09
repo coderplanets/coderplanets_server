@@ -17,7 +17,7 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
 
   enum(:count_type, do: value(:count))
   enum(:viewer_did_type, do: value(:viewer_did))
-  enum(:favorite_action, do: value(:favorite))
+  # enum(:favorite_action, do: value(:favorite))
 
   enum(:star_action, do: value(:star))
   enum(:comment_action, do: value(:comment))
@@ -27,10 +27,16 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(false)
   end
 
-  enum :cms_action do
+  enum :react_action do
     value(:favorite)
     value(:star)
-    value(:watch)
+    # value(:watch)
+  end
+
+  enum :react_thread do
+    value(:post)
+    value(:job)
+    value(:video)
   end
 
   enum :cms_comment do

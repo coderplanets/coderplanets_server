@@ -132,11 +132,13 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.paged_jobs/3)
     end
 
-    field :favorite_users, :paged_users do
+    @desc "get paged users of a reaction"
+    # field :favorite_users, :paged_users do
+    field :reaction_users, :paged_users do
       arg(:id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
-      arg(:action, :favorite_action, default_value: :favorite)
-      arg(:filter, :paged_article_filter)
+      arg(:thread, :react_thread, default_value: :post)
+      arg(:action, non_null(:react_action))
+      arg(:filter, non_null(:paged_filter))
 
       middleware(M.PageSizeProof)
       resolve(&R.CMS.reaction_users/3)
