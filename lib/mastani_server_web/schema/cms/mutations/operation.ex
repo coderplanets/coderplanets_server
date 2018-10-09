@@ -129,6 +129,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Operation do
       resolve(&R.CMS.unset_community/3)
     end
 
+    @desc "react on a cms content"
     field :reaction, :article do
       arg(:id, non_null(:id))
       arg(:thread, non_null(:react_thread))
@@ -138,6 +139,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Operation do
       resolve(&R.CMS.reaction/3)
     end
 
+    @desc "undoreact on a cms content"
     field :undo_reaction, :article do
       arg(:id, non_null(:id))
       arg(:thread, non_null(:react_thread))
