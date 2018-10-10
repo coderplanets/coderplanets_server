@@ -105,6 +105,13 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
     {:error, [message: "follow acieve fails", code: ecode(:react_fails)]}
   end
 
+  def count_followers(%User{id: user_id}) do
+    UserFollower
+    |> where([uf], uf.follower_id == ^user_id)
+    |> ORM.count()
+    |> done()
+  end
+
   @doc """
   get paged followers of a user
   """

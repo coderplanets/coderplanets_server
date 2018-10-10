@@ -22,14 +22,15 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
     query($id: ID!) {
       user(id: $id) {
         id
+        followersCount
+        followingsCount
         achievement {
           reputation
-          followersCount
         }
       }
     }
     """
-    test "new you has no acheiveements", ~m(guest_conn user)a do
+    test "new user has no acheiveements", ~m(guest_conn user)a do
       variables = %{id: user.id}
       results = guest_conn |> query_result(@query, variables, "user")
 
@@ -38,13 +39,19 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
 
     test "inc user's achievement after user got followed", ~m(guest_conn user)a do
       {:ok, user2} = db_insert(:user)
-      user2 |> Accounts.follow(user)
+      {:ok, user3} = db_insert(:user)
+      {:ok, user4} = db_insert(:user)
 
-      variables = %{id: user.id}
+      user2 |> Accounts.follow(user)
+      user |> Accounts.follow(user2)
+      user3 |> Accounts.follow(user2)
+      user3 |> Accounts.follow(user4)
+
+      variables = %{id: user2.id}
       results = guest_conn |> query_result(@query, variables, "user")
 
-      assert results["achievement"] |> Map.get("followersCount") == @follow_weight
-      assert results["achievement"] |> Map.get("reputation") == @follow_weight
+      assert results |> Map.get("followersCount") == 2
+      assert results["achievement"] |> Map.get("reputation") == 2 * @follow_weight
     end
 
     test "minus user's achievement after user get cancle followed", ~m(guest_conn user)a do
@@ -61,8 +68,7 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       variables = %{id: user.id}
       results = guest_conn |> query_result(@query, variables, "user")
 
-      assert results["achievement"] |> Map.get("followersCount") ==
-               @follow_weight * (total_count - 1)
+      assert results |> Map.get("followersCount") == total_count - 1
 
       assert results["achievement"] |> Map.get("reputation") == @follow_weight * (total_count - 1)
     end

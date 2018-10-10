@@ -24,10 +24,15 @@ defmodule MastaniServer.Accounts.Utils.Loader do
     |> select([u, c], c)
   end
 
+  # TODO: fix later, this is not working
   def query({"users_followers", UserFollower}, %{count: _}) do
+    # UserFollower
+    # |> group_by([f], f.user_id)
+    # |> select([f], count(f.id))
+
     UserFollower
     |> group_by([f], f.user_id)
-    |> select([f], count(f.id))
+    |> select([f], count(f.follower_id))
   end
 
   def query({"users_followings", UserFollowing}, %{count: _}) do
