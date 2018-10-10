@@ -35,6 +35,7 @@ defmodule MastaniServer.Accounts do
   defdelegate undo_follow(user, follower), to: Fans
   defdelegate fetch_followers(user, filter), to: Fans
   defdelegate fetch_followings(user, filter), to: Fans
+  defdelegate count_followers(user), to: Fans
 
   # reacted contents
   defdelegate reacted_contents(thread, react, filter, user), to: ReactedContents

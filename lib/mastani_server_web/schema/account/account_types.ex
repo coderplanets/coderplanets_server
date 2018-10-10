@@ -77,13 +77,22 @@ defmodule MastaniServerWeb.Schema.Account.Types do
       middleware(M.ConvertToInt)
     end
 
+    # NOTE: dataloader not work at this case
+    # field :followers_count, :integer do
+    # arg(:count, :count_type, default_value: :count)
+
+    # resolve(dataloader(Accounts, :followers))
+    # middleware(M.ConvertToInt)
+    # end
+
+    @doc "get follower users count"
     field :followers_count, :integer do
       arg(:count, :count_type, default_value: :count)
 
-      resolve(dataloader(Accounts, :followers))
-      middleware(M.ConvertToInt)
+      resolve(&R.Accounts.count_followers/3)
     end
 
+    @doc "get following users count"
     field :followings_count, :integer do
       arg(:count, :count_type, default_value: :count)
 
@@ -91,6 +100,7 @@ defmodule MastaniServerWeb.Schema.Account.Types do
       middleware(M.ConvertToInt)
     end
 
+    @doc "wether viewer has followed"
     field :viewer_has_followed, :boolean do
       arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
 
@@ -203,10 +213,10 @@ defmodule MastaniServerWeb.Schema.Account.Types do
 
   object :achievement do
     field(:reputation, :integer)
-    field(:followers_count, :integer)
+    # field(:followers_count, :integer)
     field(:contents_stared_count, :integer)
     field(:contents_favorited_count, :integer)
-    field(:contents_watched_count, :integer)
+    # field(:contents_watched_count, :integer)
   end
 
   object :token_info do

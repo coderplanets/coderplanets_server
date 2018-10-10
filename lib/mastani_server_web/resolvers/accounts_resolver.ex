@@ -76,6 +76,8 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.undo_follow(cur_user, %User{id: user_id})
   end
 
+  def count_followers(root, _args, _info), do: Accounts.count_followers(%User{id: root.id})
+
   def paged_followers(_root, ~m(user_id filter)a, _info) do
     Accounts.fetch_followers(%User{id: user_id}, filter)
   end
