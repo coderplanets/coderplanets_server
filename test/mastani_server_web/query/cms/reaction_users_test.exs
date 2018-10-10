@@ -17,12 +17,17 @@ defmodule MastaniServer.Test.Query.ReactionUsers do
   end
 
   @query """
-  query($id: ID!, $thread: ReactThread, $action: ReactAction!, $filter: PagedFilter!) {
+  query(
+    $id: ID!
+    $thread: ReactThread
+    $action: ReactAction!
+    $filter: PagedFilter!
+  ) {
     reactionUsers(id: $id, thread: $thread, action: $action, filter: $filter) {
       entries {
-      id
-      avatar
-      nickname
+        id
+        avatar
+        nickname
       }
       totalPages
       totalCount
