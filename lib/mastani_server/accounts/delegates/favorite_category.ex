@@ -84,6 +84,7 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
   end
 
   alias CMS.{PostFavorite, JobFavorite, VideoFavorite}
+
   @doc """
   set category for favorited content (post, job, video ...)
   """

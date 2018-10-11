@@ -73,7 +73,8 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedVideos do
       assert results2["totalCount"] == total_count
     end
 
-    test "login user can get self paged favoritedVideos", ~m(user_conn user videos total_count)a do
+    test "login user can get self paged favoritedVideos",
+         ~m(user_conn user videos total_count)a do
       Enum.each(videos, fn video ->
         {:ok, _} = CMS.reaction(:video, :favorite, video.id, user)
       end)
@@ -85,6 +86,7 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedVideos do
     end
 
     alias MastaniServer.Accounts
+
     test "can get paged favoritedVideos on a spec category", ~m(user_conn guest_conn videos)a do
       {:ok, user} = db_insert(:user)
 
