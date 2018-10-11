@@ -19,6 +19,8 @@ defmodule MastaniServer.Accounts.FavoriteCategory do
     field(:index, :integer)
     field(:total_count, :integer, default: 0)
     field(:private, :boolean, default: false)
+    # TODO:
+    # last_updated
 
     timestamps(type: :utc_datetime)
   end

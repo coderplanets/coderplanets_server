@@ -51,6 +51,7 @@ defmodule MastaniServer.Accounts.User do
     has_many(:subscribed_communities, {"communities_subscribers", CMS.CommunitySubscriber})
     has_many(:favorited_posts, {"posts_favorites", CMS.PostFavorite})
     has_many(:favorited_jobs, {"jobs_favorites", CMS.JobFavorite})
+    has_many(:favorited_videos, {"videos_favorites", CMS.VideoFavorite})
 
     has_many(:favorite_categories, {"favorite_categories", FavoriteCategory})
 

@@ -46,16 +46,20 @@ defmodule MastaniServer.Accounts.Utils.Loader do
   end
 
   def query({"posts_favorites", CMS.PostFavorite}, %{count: _}) do
-    CMS.PostFavorite |> count_cotents
+    CMS.PostFavorite |> count_contents
   end
 
   def query({"jobs_favorites", CMS.JobFavorite}, %{count: _}) do
-    CMS.JobFavorite |> count_cotents
+    CMS.JobFavorite |> count_contents
+  end
+
+  def query({"videos_favorites", CMS.VideoFavorite}, %{count: _}) do
+    CMS.VideoFavorite |> count_contents
   end
 
   def query(queryable, _args), do: queryable
 
-  defp count_cotents(queryable) do
+  defp count_contents(queryable) do
     queryable
     |> group_by([f], f.user_id)
     |> select([f], count(f.id))
