@@ -94,7 +94,6 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.fetch_followings(cur_user, filter)
   end
 
-
   # get favorited contents
   def favorited_contents(_root, ~m(user_id category_id filter thread)a, _info) do
     Accounts.reacted_contents(thread, :favorite, category_id, filter, %User{id: user_id})

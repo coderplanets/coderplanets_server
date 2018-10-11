@@ -85,6 +85,7 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedJobs do
     end
 
     alias MastaniServer.Accounts
+
     test "can get paged favoritedJobs on a spec category", ~m(user_conn guest_conn jobs)a do
       {:ok, user} = db_insert(:user)
 
