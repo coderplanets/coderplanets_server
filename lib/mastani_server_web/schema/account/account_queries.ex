@@ -60,7 +60,7 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
     end
 
     @desc "get favorites categoories"
-    field :list_favorite_categories, :paged_favorites_categories do
+    field :favorite_categories, :paged_favorites_categories do
       arg(:user_id, :id)
       arg(:filter, non_null(:common_paged_filter))
 
@@ -72,18 +72,33 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
     field :favorited_posts, :paged_posts do
       arg(:user_id, :id)
       arg(:filter, non_null(:paged_filter))
+      arg(:category_id, :id)
+      arg(:thread, :post_thread, default_value: :post)
 
       middleware(M.PageSizeProof)
-      resolve(&R.Accounts.favorited_posts/3)
+      resolve(&R.Accounts.favorited_contents/3)
     end
 
     @desc "get favorited jobs"
     field :favorited_jobs, :paged_jobs do
       arg(:user_id, :id)
       arg(:filter, non_null(:paged_filter))
+      arg(:category_id, :id)
+      arg(:thread, :job_thread, default_value: :job)
 
       middleware(M.PageSizeProof)
-      resolve(&R.Accounts.favorited_jobs/3)
+      resolve(&R.Accounts.favorited_contents/3)
+    end
+
+    @desc "get favorited jobs"
+    field :favorited_videos, :paged_videos do
+      arg(:user_id, :id)
+      arg(:filter, non_null(:paged_filter))
+      arg(:category_id, :id)
+      arg(:thread, :video_thread, default_value: :video)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.favorited_contents/3)
     end
 
     @desc "get all passport rules include system and community etc ..."

@@ -14,7 +14,7 @@ defmodule MastaniServer.CMS.PostFavorite do
   schema "posts_favorites" do
     belongs_to(:user, Accounts.User, foreign_key: :user_id)
     belongs_to(:post, Post, foreign_key: :post_id)
-    # has_many(:category, UserFavoriteCategory)
+
     belongs_to(:category, Accounts.FavoriteCategory)
 
     timestamps(type: :utc_datetime)

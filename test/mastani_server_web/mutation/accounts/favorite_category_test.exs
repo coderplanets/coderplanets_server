@@ -43,7 +43,12 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
 
     @query """
     mutation($id: ID!, $title: String, $desc: String, $private: Boolean) {
-      updateFavoriteCategory(id: $id, title: $title, desc: $desc, private: $private) {
+      updateFavoriteCategory(
+        id: $id
+        title: $title
+        desc: $desc
+        private: $private
+      ) {
         id
         title
         desc
@@ -91,7 +96,7 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
   describe "[Accounts FavoriteCategory set/unset]" do
     @query """
     mutation($id: ID!, $thread: CmsThread, $categoryId: ID!) {
-      setFavorites(id: $id, thread: $thread, categoryId: $categoryId){
+      setFavorites(id: $id, thread: $thread, categoryId: $categoryId) {
         id
         title
         totalCount
@@ -114,7 +119,7 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
 
     @query """
     mutation($id: ID!, $thread: CmsThread, $categoryId: ID!) {
-      unsetFavorites(id: $id, thread: $thread, categoryId: $categoryId){
+      unsetFavorites(id: $id, thread: $thread, categoryId: $categoryId) {
         id
         title
         totalCount

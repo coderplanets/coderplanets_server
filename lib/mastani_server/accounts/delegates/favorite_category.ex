@@ -83,35 +83,23 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
     |> done()
   end
 
-  # def update_favorie_category(), do ...
+  alias CMS.{PostFavorite, JobFavorite, VideoFavorite}
 
-  # def delete_favorie_category(), do ...
-
-  alias CMS.PostFavorite
-
-  defp check_dup_category(content, category) do
-    case content.category_id !== category.id do
-      true -> {:ok, ""}
-      false -> {:error, [message: "viewer has already categoried", code: ecode(:already_did)]}
-    end
-  end
-
-  defp content_favorite_result(:post, content_id, user_id) do
-    PostFavorite |> ORM.find_by(%{post_id: content_id, user_id: user_id})
-  end
-
+  @doc """
+  set category for favorited content (post, job, video ...)
+  """
   def set_favorites(%User{} = user, thread, content_id, category_id) do
     with {:ok, favorite_category} <-
            FavoriteCategory |> ORM.find_by(%{user_id: user.id, id: category_id}) do
       Multi.new()
       |> Multi.run(:favorite_content, fn _ ->
-        case content_favorite_result(thread, content_id, user.id) do
+        case find_content_favorite(thread, content_id, user.id) do
           {:ok, content_favorite} -> check_dup_category(content_favorite, favorite_category)
           {:error, _} -> CMS.reaction(thread, :favorite, content_id, user)
         end
       end)
       |> Multi.run(:update_category_id, fn _ ->
-        {:ok, content_favorite} = content_favorite_result(thread, content_id, user.id)
+        {:ok, content_favorite} = find_content_favorite(thread, content_id, user.id)
 
         content_favorite |> ORM.update(%{category_id: favorite_category.id})
       end)
@@ -143,7 +131,7 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
            FavoriteCategory |> ORM.find_by(%{user_id: user.id, id: category_id}) do
       Multi.new()
       |> Multi.run(:remove_favorite_record, fn _ ->
-        {:ok, content_favorite} = content_favorite_result(thread, content_id, user.id)
+        {:ok, content_favorite} = find_content_favorite(thread, content_id, user.id)
 
         content_favorite |> ORM.delete()
       end)
@@ -165,5 +153,21 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
 
   defp unset_favorites_result({:error, :dec_count, result, _steps}) do
     {:error, result}
+  end
+
+  defp find_content_favorite(:post, content_id, user_id),
+    do: PostFavorite |> ORM.find_by(%{post_id: content_id, user_id: user_id})
+
+  defp find_content_favorite(:job, content_id, user_id),
+    do: JobFavorite |> ORM.find_by(%{job_id: content_id, user_id: user_id})
+
+  defp find_content_favorite(:video, content_id, user_id),
+    do: VideoFavorite |> ORM.find_by(%{video_id: content_id, user_id: user_id})
+
+  defp check_dup_category(content, category) do
+    case content.category_id !== category.id do
+      true -> {:ok, ""}
+      false -> {:error, [message: "viewer has already categoried", code: ecode(:already_did)]}
+    end
   end
 end

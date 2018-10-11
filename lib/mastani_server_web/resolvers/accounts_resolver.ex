@@ -76,6 +76,8 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.undo_follow(cur_user, %User{id: user_id})
   end
 
+  def count_followers(root, _args, _info), do: Accounts.count_followers(%User{id: root.id})
+
   def paged_followers(_root, ~m(user_id filter)a, _info) do
     Accounts.fetch_followers(%User{id: user_id}, filter)
   end
@@ -92,21 +94,17 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.fetch_followings(cur_user, filter)
   end
 
-  # for check other users query
-  def favorited_posts(_root, ~m(user_id filter)a, _info) do
-    Accounts.reacted_contents(:post, :favorite, filter, %User{id: user_id})
+  # get favorited contents
+  def favorited_contents(_root, ~m(user_id category_id filter thread)a, _info) do
+    Accounts.reacted_contents(thread, :favorite, category_id, filter, %User{id: user_id})
   end
 
-  def favorited_posts(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
-    Accounts.reacted_contents(:post, :favorite, filter, cur_user)
+  def favorited_contents(_root, ~m(user_id filter thread)a, _info) do
+    Accounts.reacted_contents(thread, :favorite, filter, %User{id: user_id})
   end
 
-  def favorited_jobs(_root, ~m(user_id filter)a, _info) do
-    Accounts.reacted_contents(:job, :favorite, filter, %User{id: user_id})
-  end
-
-  def favorited_jobs(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
-    Accounts.reacted_contents(:job, :favorite, filter, cur_user)
+  def favorited_contents(_root, ~m(filter thread)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.reacted_contents(thread, :favorite, filter, cur_user)
   end
 
   # TODO: refactor

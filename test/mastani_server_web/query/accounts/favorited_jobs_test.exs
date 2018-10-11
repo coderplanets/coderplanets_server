@@ -48,8 +48,8 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedJobs do
     end
 
     @query """
-    query($userId: ID, $filter: PagedFilter!) {
-      favoritedJobs(userId: $userId, filter: $filter) {
+    query($userId: ID, $categoryId: ID,$filter: PagedFilter!) {
+      favoritedJobs(userId: $userId, categoryId: $categoryId, filter: $filter) {
         entries {
           id
         }
@@ -82,6 +82,43 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedJobs do
       results = user_conn |> query_result(@query, variables, "favoritedJobs")
 
       assert results["totalCount"] == total_count
+    end
+
+    alias MastaniServer.Accounts
+
+    test "can get paged favoritedJobs on a spec category", ~m(user_conn guest_conn jobs)a do
+      {:ok, user} = db_insert(:user)
+
+      Enum.each(jobs, fn job ->
+        {:ok, _} = CMS.reaction(:job, :favorite, job.id, user)
+      end)
+
+      job1 = Enum.at(jobs, 0)
+      job2 = Enum.at(jobs, 1)
+      job3 = Enum.at(jobs, 2)
+      job4 = Enum.at(jobs, 4)
+
+      test_category = "test category"
+      test_category2 = "test category2"
+
+      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
+      {:ok, category2} = Accounts.create_favorite_category(user, %{title: test_category2})
+
+      {:ok, _favorites_category} = Accounts.set_favorites(user, :job, job1.id, category.id)
+      {:ok, _favorites_category} = Accounts.set_favorites(user, :job, job2.id, category.id)
+      {:ok, _favorites_category} = Accounts.set_favorites(user, :job, job3.id, category.id)
+      {:ok, _favorites_category} = Accounts.set_favorites(user, :job, job4.id, category2.id)
+
+      variables = %{userId: user.id, categoryId: category.id, filter: %{page: 1, size: 20}}
+      results = user_conn |> query_result(@query, variables, "favoritedJobs")
+      results2 = guest_conn |> query_result(@query, variables, "favoritedJobs")
+
+      assert results["totalCount"] == 3
+      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job1.id)))
+      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job2.id)))
+      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job3.id)))
+
+      assert results == results2
     end
   end
 end
