@@ -39,6 +39,7 @@ defmodule MastaniServer.Accounts do
 
   # reacted contents
   defdelegate reacted_contents(thread, react, filter, user), to: ReactedContents
+  defdelegate reacted_contents(thread, react, category_id, filter, user), to: ReactedContents
 
   # mentions
   defdelegate fetch_mentions(user, filter), to: Mails

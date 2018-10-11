@@ -17,7 +17,7 @@ defmodule MastaniServer.Test.Query.Accounts.FavoriteCategory do
   describe "[Accounts FavoriteCategory]" do
     @query """
     query($userId: ID, $filter: CommonPagedFilter!) {
-      listFavoriteCategories(userId: $userId, filter: $filter) {
+      favoriteCategories(userId: $userId, filter: $filter) {
         entries {
           id
           title
@@ -35,7 +35,7 @@ defmodule MastaniServer.Test.Query.Accounts.FavoriteCategory do
       {:ok, _} = Accounts.create_favorite_category(user, %{title: test_category, private: false})
 
       variables = %{filter: %{page: 1, size: 20}}
-      results = user_conn |> query_result(@query, variables, "listFavoriteCategories")
+      results = user_conn |> query_result(@query, variables, "favoriteCategories")
       assert results |> is_valid_pagination?
       assert results["totalCount"] == 1
     end
@@ -47,7 +47,7 @@ defmodule MastaniServer.Test.Query.Accounts.FavoriteCategory do
       {:ok, _} = Accounts.create_favorite_category(user, %{title: test_category2, private: true})
 
       variables = %{filter: %{page: 1, size: 20}}
-      results = user_conn |> query_result(@query, variables, "listFavoriteCategories")
+      results = user_conn |> query_result(@query, variables, "favoriteCategories")
       assert results |> is_valid_pagination?
       assert results["totalCount"] == 2
     end
@@ -61,7 +61,7 @@ defmodule MastaniServer.Test.Query.Accounts.FavoriteCategory do
       {:ok, _} = Accounts.create_favorite_category(user, %{title: test_category2, private: true})
 
       variables = %{userId: user.id, filter: %{page: 1, size: 20}}
-      results = guest_conn |> query_result(@query, variables, "listFavoriteCategories")
+      results = guest_conn |> query_result(@query, variables, "favoriteCategories")
       assert results |> is_valid_pagination?
 
       assert results["entries"] |> Enum.any?(&(&1["title"] !== test_category2))
