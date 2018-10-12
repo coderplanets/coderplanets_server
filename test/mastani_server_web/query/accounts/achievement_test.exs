@@ -30,13 +30,6 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       }
     }
     """
-    test "new user has no acheiveements", ~m(guest_conn user)a do
-      variables = %{id: user.id}
-      results = guest_conn |> query_result(@query, variables, "user")
-
-      assert is_nil(results["achievement"])
-    end
-
     test "inc user's achievement after user got followed", ~m(guest_conn user)a do
       {:ok, user2} = db_insert(:user)
       {:ok, user3} = db_insert(:user)

@@ -7,7 +7,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   import ShortMaps
 
   alias Helper.{RadarSearch, Guardian, ORM, QueryBuilder}
-  alias MastaniServer.Accounts.{GithubUser, User}
+  alias MastaniServer.Accounts.{Achievement, GithubUser, User}
   alias MastaniServer.{CMS, Repo}
 
   alias Ecto.Multi
@@ -56,11 +56,9 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
     case ORM.find_by(GithubUser, github_id: to_string(github_user["id"])) do
       {:ok, g_user} ->
         {:ok, user} = ORM.find(User, g_user.user_id)
-        # IO.inspect label: "send back from db"
         token_info(user)
 
       {:error, _} ->
-        # IO.inspect label: "register then send"
         register_github_user(github_user, remote_ip)
     end
   end
@@ -93,6 +91,9 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
     end)
     |> Multi.run(:create_profile, fn %{create_user: user} ->
       create_profile(user, github_profile, :github)
+    end)
+    |> Multi.run(:init_achievement, fn %{create_user: user} ->
+      Achievement |> ORM.upsert_by([user_id: user.id], %{user_id: user.id})
     end)
     |> Repo.transaction()
     |> register_github_result(remote_ip)
