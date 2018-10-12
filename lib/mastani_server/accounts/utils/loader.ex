@@ -45,6 +45,20 @@ defmodule MastaniServer.Accounts.Utils.Loader do
     UserFollower |> where([f], f.follower_id == ^cur_user.id)
   end
 
+  # stared contents count
+  def query({"posts_stars", CMS.PostStar}, %{count: _}) do
+    CMS.PostStar |> count_contents
+  end
+
+  def query({"jobs_stars", CMS.JobStar}, %{count: _}) do
+    CMS.JobStar |> count_contents
+  end
+
+  def query({"videos_stars", CMS.VideoStar}, %{count: _}) do
+    CMS.VideoStar |> count_contents
+  end
+
+  # favorited contents count
   def query({"posts_favorites", CMS.PostFavorite}, %{count: _}) do
     CMS.PostFavorite |> count_contents
   end

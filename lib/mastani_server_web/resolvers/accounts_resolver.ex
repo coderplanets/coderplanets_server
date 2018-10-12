@@ -107,6 +107,15 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.reacted_contents(thread, :favorite, filter, cur_user)
   end
 
+  # gst stared contents
+  def stared_contents(_root, ~m(user_id filter thread)a, _info) do
+    Accounts.reacted_contents(thread, :star, filter, %User{id: user_id})
+  end
+
+  def stared_contents(_root, ~m(filter thread)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.reacted_contents(thread, :star, filter, cur_user)
+  end
+
   # published contents
   def published_contents(_root, ~m(user_id filter thread)a, _info) do
     Accounts.published_contents(%User{id: user_id}, thread, filter)
