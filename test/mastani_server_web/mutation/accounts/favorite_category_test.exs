@@ -22,6 +22,7 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
       createFavoriteCategory(title: $title, private: $private) {
         id
         title
+        lastUpdated
       }
     }
     """
@@ -32,6 +33,7 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
       {:ok, found} = FavoriteCategory |> ORM.find(created |> Map.get("id"))
 
       assert created |> Map.get("id") == to_string(found.id)
+      assert created["lastUpdated"] != nil
     end
 
     test "unauth user create category fails", ~m(guest_conn)a do
@@ -53,6 +55,7 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
         title
         desc
         private
+        lastUpdated
       }
     }
     """
@@ -72,6 +75,7 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
       assert updated["desc"] == "new desc"
       assert updated["private"] == true
       assert updated["title"] == "new title"
+      assert updated["lastUpdated"] != nil
     end
 
     @query """
@@ -100,6 +104,7 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
         id
         title
         totalCount
+        lastUpdated
       }
     }
     """
@@ -112,6 +117,8 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
       {:ok, found} = CMS.PostFavorite |> ORM.find_by(%{post_id: post.id, user_id: user.id})
 
       assert created["totalCount"] == 1
+      assert created["lastUpdated"] != nil
+
       assert found.category_id == category.id
       assert found.user_id == user.id
       assert found.post_id == post.id
@@ -123,6 +130,7 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
         id
         title
         totalCount
+        lastUpdated
       }
     }
     """
@@ -133,6 +141,7 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
 
       {:ok, category} = Accounts.FavoriteCategory |> ORM.find(category.id)
       assert category.total_count == 1
+      assert category.last_updated != nil
 
       variables = %{id: post.id, categoryId: category.id}
       user_conn |> mutation_result(@query, variables, "unsetFavorites")

@@ -17,7 +17,8 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
 
   def create_favorite_category(%User{id: user_id}, %{title: title} = attrs) do
     with {:error, _} <- FavoriteCategory |> ORM.find_by(~m(user_id title)a) do
-      FavoriteCategory |> ORM.create(attrs |> Map.merge(~m(user_id)a))
+      last_updated = Timex.today() |> Timex.to_datetime()
+      FavoriteCategory |> ORM.create(Map.merge(~m(user_id last_updated)a, attrs))
     else
       {:ok, category} ->
         {:error, [message: "#{category.title} already exsits", code: ecode(:already_exsit)]}
@@ -26,7 +27,8 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
 
   def update_favorite_category(%User{id: user_id}, %{id: id} = attrs) do
     with {:ok, category} <- FavoriteCategory |> ORM.find_by(~m(id user_id)a) do
-      category |> ORM.update(attrs)
+      last_updated = Timex.today() |> Timex.to_datetime()
+      category |> ORM.update(Map.merge(~m(last_updated)a, attrs))
     end
   end
 
@@ -103,15 +105,21 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
 
         content_favorite |> ORM.update(%{category_id: favorite_category.id})
       end)
-      |> Multi.run(:inc_count, fn _ ->
-        favorite_category |> ORM.update(%{total_count: favorite_category.total_count + 1})
+      |> Multi.run(:update_category_info, fn _ ->
+        last_updated = Timex.today() |> Timex.to_datetime()
+
+        favorite_category
+        |> ORM.update(%{
+          last_updated: last_updated,
+          total_count: favorite_category.total_count + 1
+        })
       end)
       |> Repo.transaction()
       |> set_favorites_result()
     end
   end
 
-  defp set_favorites_result({:ok, %{inc_count: result}}), do: {:ok, result}
+  defp set_favorites_result({:ok, %{update_category_info: result}}), do: {:ok, result}
 
   defp set_favorites_result({:error, :favorite_content, result, _steps}) do
     # {:error, [message: "favorite content fails", code: ecode(:react_fails)]}
@@ -135,8 +143,14 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
 
         content_favorite |> ORM.delete()
       end)
-      |> Multi.run(:dec_count, fn _ ->
-        favorite_category |> ORM.update(%{total_count: max(favorite_category.total_count - 1, 0)})
+      |> Multi.run(:update_category_info, fn _ ->
+        last_updated = Timex.today() |> Timex.to_datetime()
+
+        favorite_category
+        |> ORM.update(%{
+          last_updated: last_updated,
+          total_count: max(favorite_category.total_count - 1, 0)
+        })
       end)
       |> Repo.transaction()
       |> unset_favorites_result()
@@ -144,7 +158,7 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
   end
 
   # @spec unset_favorites_result({:ok, map()}) :: {:ok, FavoriteCategory.t() }
-  defp unset_favorites_result({:ok, %{dec_count: result}}), do: {:ok, result}
+  defp unset_favorites_result({:ok, %{update_category_info: result}}), do: {:ok, result}
 
   defp unset_favorites_result({:error, :remove_favorite_record, result, _steps}) do
     # {:error, [message: "favorite content fails", code: ecode(:react_fails)]}
