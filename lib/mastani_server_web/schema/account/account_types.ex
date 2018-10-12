@@ -79,8 +79,10 @@ defmodule MastaniServerWeb.Schema.Account.Types do
 
     @desc "paged communities which the user it's the editor"
     field :editable_communities, :paged_communities do
-      arg(:filter, non_null(:paged_filter))
+      # arg(:filter, non_null(:paged_filter))
+      arg(:filter, :paged_filter)
 
+      # middleware(M.SeeMe)
       middleware(M.PageSizeProof)
       resolve(&R.Accounts.editable_communities/3)
     end
@@ -245,12 +247,22 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     pagination_fields()
   end
 
+  object :source_contribute do
+    field(:web, :boolean)
+    field(:server, :boolean)
+    field(:we_app, :boolean)
+    field(:h5, :boolean)
+    field(:mobile, :boolean)
+  end
+
   object :achievement do
     field(:reputation, :integer)
     # field(:followers_count, :integer)
     field(:contents_stared_count, :integer)
     field(:contents_favorited_count, :integer)
     # field(:contents_watched_count, :integer)
+
+    field(:source_contribute, :source_contribute)
   end
 
   object :token_info do

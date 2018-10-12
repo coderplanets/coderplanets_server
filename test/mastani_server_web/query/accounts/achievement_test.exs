@@ -60,10 +60,10 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
     end
 
     @query """
-    query($filter: PagedFilter!) {
+    query {
       account {
         id
-        editableCommunities(filter: $filter) {
+        editableCommunities {
           entries {
             id
             logo
@@ -75,7 +75,7 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       }
     }
     """
-    @tag :wip
+    @tag :wip2
     test "user can get own editable communities list", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
@@ -109,7 +109,6 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       }
     }
     """
-    @tag :wip2
     test "inc user's achievement after user got followed", ~m(guest_conn user)a do
       {:ok, user2} = db_insert(:user)
       {:ok, user3} = db_insert(:user)
