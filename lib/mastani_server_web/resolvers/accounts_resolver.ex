@@ -107,6 +107,15 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.reacted_contents(thread, :favorite, filter, cur_user)
   end
 
+  # paged communities which the user it's the editor
+  def editable_communities(_root, ~m(user_id filter)a, _info) do
+    Accounts.list_editable_communities(%User{id: user_id}, filter)
+  end
+
+  def editable_communities(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.list_editable_communities(cur_user, filter)
+  end
+
   # TODO: refactor
   def get_mail_box_status(_root, _args, %{context: %{cur_user: cur_user}}) do
     Accounts.mailbox_status(cur_user)

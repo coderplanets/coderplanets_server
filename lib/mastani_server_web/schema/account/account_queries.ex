@@ -101,6 +101,15 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.favorited_contents/3)
     end
 
+    @desc "paged communities which the user it's the editor"
+    field :editable_communities, :paged_communities do
+      arg(:user_id, :id)
+      arg(:filter, non_null(:paged_filter))
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.editable_communities/3)
+    end
+
     @desc "get all passport rules include system and community etc ..."
     field :all_passport_rules_string, :rules do
       middleware(M.Authorize, :login)

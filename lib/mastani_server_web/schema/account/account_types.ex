@@ -77,6 +77,14 @@ defmodule MastaniServerWeb.Schema.Account.Types do
       middleware(M.ConvertToInt)
     end
 
+    @desc "paged communities which the user it's the editor"
+    field :editable_communities, :paged_communities do
+      arg(:filter, non_null(:paged_filter))
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.editable_communities/3)
+    end
+
     # NOTE: dataloader not work at this case
     # field :followers_count, :integer do
     # arg(:count, :count_type, default_value: :count)

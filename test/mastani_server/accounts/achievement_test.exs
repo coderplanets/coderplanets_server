@@ -17,6 +17,37 @@ defmodule MastaniServer.Test.Accounts.Achievement do
     {:ok, ~m(user)a}
   end
 
+  alias MastaniServer.CMS
+
+  describe "[Accounts Achievement communities]" do
+    test "normal user should have a empty editable communities list", ~m(user)a do
+      {:ok, results} = Accounts.list_editable_communities(user, %{page: 1, size: 20})
+
+      assert results |> is_valid_pagination?(:raw)
+      assert results.total_count == 0
+    end
+
+    test "community editor should get a editable community list", ~m(user)a do
+      title = "chief editor"
+      {:ok, community} = db_insert(:community)
+      {:ok, community2} = db_insert(:community)
+
+      {:ok, _} = CMS.set_editor(community, title, user)
+      {:ok, _} = CMS.set_editor(community2, title, user)
+
+      # bad boy
+      {:ok, community_x} = db_insert(:community)
+      {:ok, user_x} = db_insert(:user)
+      {:ok, _} = CMS.set_editor(community_x, title, user_x)
+
+      {:ok, editable_communities} = Accounts.list_editable_communities(user, %{page: 1, size: 20})
+
+      assert editable_communities.total_count == 2
+      assert editable_communities.entries |> Enum.any?(&(&1.id == community.id))
+      assert editable_communities.entries |> Enum.any?(&(&1.id == community2.id))
+    end
+  end
+
   describe "[Accounts Achievement funtion]" do
     alias Accounts.Achievement
 
