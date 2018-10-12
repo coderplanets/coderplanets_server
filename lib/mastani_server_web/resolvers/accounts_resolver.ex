@@ -107,6 +107,37 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.reacted_contents(thread, :favorite, filter, cur_user)
   end
 
+  # gst stared contents
+  def stared_contents(_root, ~m(user_id filter thread)a, _info) do
+    Accounts.reacted_contents(thread, :star, filter, %User{id: user_id})
+  end
+
+  def stared_contents(_root, ~m(filter thread)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.reacted_contents(thread, :star, filter, cur_user)
+  end
+
+  # published contents
+  def published_contents(_root, ~m(user_id filter thread)a, _info) do
+    Accounts.published_contents(%User{id: user_id}, thread, filter)
+  end
+
+  def published_contents(_root, ~m(filter thread)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.published_contents(cur_user, thread, filter)
+  end
+
+  # paged communities which the user it's the editor
+  def editable_communities(_root, ~m(user_id filter)a, _info) do
+    Accounts.list_editable_communities(%User{id: user_id}, filter)
+  end
+
+  # def editable_communities(root, ~m(filter)a, _info) do
+  # Accounts.list_editable_communities(%User{id: root.id}, filter)
+  # end
+
+  def editable_communities(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.list_editable_communities(cur_user, filter)
+  end
+
   # TODO: refactor
   def get_mail_box_status(_root, _args, %{context: %{cur_user: cur_user}}) do
     Accounts.mailbox_status(cur_user)

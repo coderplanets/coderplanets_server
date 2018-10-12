@@ -77,6 +77,16 @@ defmodule MastaniServerWeb.Schema.Account.Types do
       middleware(M.ConvertToInt)
     end
 
+    @desc "paged communities which the user it's the editor"
+    field :editable_communities, :paged_communities do
+      # arg(:filter, non_null(:paged_filter))
+      arg(:filter, :paged_filter)
+
+      # middleware(M.SeeMe)
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.editable_communities/3)
+    end
+
     # NOTE: dataloader not work at this case
     # field :followers_count, :integer do
     # arg(:count, :count_type, default_value: :count)
@@ -110,6 +120,33 @@ defmodule MastaniServerWeb.Schema.Account.Types do
       middleware(M.ViewerDidConvert)
     end
 
+    @doc "paged stared posts"
+    field :stared_posts, :paged_posts do
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :post_thread, default_value: :post)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.stared_contents/3)
+    end
+
+    @doc "paged stared jobs"
+    field :stared_jobs, :paged_jobs do
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :job_thread, default_value: :job)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.stared_contents/3)
+    end
+
+    @doc "paged stared videos"
+    field :stared_videos, :paged_videos do
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :video_thread, default_value: :video)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.stared_contents/3)
+    end
+
     @doc "paged favorited posts"
     field :favorited_posts, :paged_posts do
       arg(:filter, non_null(:paged_filter))
@@ -135,6 +172,30 @@ defmodule MastaniServerWeb.Schema.Account.Types do
 
       middleware(M.PageSizeProof)
       resolve(&R.Accounts.favorited_contents/3)
+    end
+
+    @doc "total count of stared posts count"
+    field :stared_posts_count, :integer do
+      arg(:count, :count_type, default_value: :count)
+
+      resolve(dataloader(Accounts, :stared_posts))
+      middleware(M.ConvertToInt)
+    end
+
+    @doc "total count of stared jobs count"
+    field :stared_jobs_count, :integer do
+      arg(:count, :count_type, default_value: :count)
+
+      resolve(dataloader(Accounts, :stared_jobs))
+      middleware(M.ConvertToInt)
+    end
+
+    @doc "total count of stared videos count"
+    field :stared_videos_count, :integer do
+      arg(:count, :count_type, default_value: :count)
+
+      resolve(dataloader(Accounts, :stared_videos))
+      middleware(M.ConvertToInt)
     end
 
     @doc "total count of favorited posts count"
@@ -227,6 +288,8 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:index, :integer)
     field(:total_count, :integer)
     field(:private, :boolean)
+    field(:last_updated, :datetime)
+    field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
   end
 
@@ -235,12 +298,22 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     pagination_fields()
   end
 
+  object :source_contribute do
+    field(:web, :boolean)
+    field(:server, :boolean)
+    field(:we_app, :boolean)
+    field(:h5, :boolean)
+    field(:mobile, :boolean)
+  end
+
   object :achievement do
     field(:reputation, :integer)
     # field(:followers_count, :integer)
     field(:contents_stared_count, :integer)
     field(:contents_favorited_count, :integer)
     # field(:contents_watched_count, :integer)
+
+    field(:source_contribute, :source_contribute)
   end
 
   object :token_info do

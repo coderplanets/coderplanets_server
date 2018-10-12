@@ -4,7 +4,7 @@ defmodule MastaniServer.Accounts.Achievement do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.Accounts.User
+  alias MastaniServer.Accounts.{User, SourceContribute}
 
   @required_fields ~w(user_id)a
   @optional_fields ~w(contents_stared_count contents_favorited_count contents_watched_count followers_count reputation)a
@@ -18,6 +18,8 @@ defmodule MastaniServer.Accounts.Achievement do
     field(:contents_watched_count, :integer, default: 0)
     field(:followers_count, :integer, default: 0)
     field(:reputation, :integer, default: 0)
+    # source_contribute
+    embeds_one(:source_contribute, SourceContribute, on_replace: :delete)
 
     timestamps(type: :utc_datetime)
   end

@@ -7,6 +7,7 @@ defmodule MastaniServer.Accounts do
     Customization,
     Fans,
     FavoriteCategory,
+    Publish,
     Mails,
     Profile,
     ReactedContents
@@ -29,6 +30,11 @@ defmodule MastaniServer.Accounts do
 
   # achievement
   defdelegate achieve(user, operation, key), to: Achievements
+  defdelegate list_editable_communities(user, filter), to: Achievements
+  # defdelegate list_editable_communities(filter), to: Achievements
+
+  # publish
+  defdelegate published_contents(user, thread, filter), to: Publish
 
   # fans
   defdelegate follow(user, follower), to: Fans

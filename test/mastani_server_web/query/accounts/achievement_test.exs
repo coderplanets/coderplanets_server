@@ -1,7 +1,7 @@
 defmodule MastaniServer.Test.Query.Account.Achievement do
   use MastaniServer.TestTools
   import Helper.Utils, only: [get_config: 2]
-  alias MastaniServer.Accounts
+  alias MastaniServer.{Accounts, CMS}
 
   alias Helper.ORM
 
@@ -17,6 +17,82 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
     {:ok, ~m(user_conn guest_conn user)a}
   end
 
+  describe "[account editable-communities]" do
+    @query """
+    query($userId: ID, $filter: PagedFilter!) {
+      editableCommunities(userId: $userId, filter: $filter) {
+        entries {
+          id
+          logo
+          title
+          raw
+        }
+        totalPages
+        totalCount
+        pageSize
+        pageNumber
+      }
+    }
+    """
+    test "can get user's empty editable communities list", ~m(guest_conn user)a do
+      variables = %{userId: user.id, filter: %{page: 1, size: 20}}
+      results = guest_conn |> query_result(@query, variables, "editableCommunities")
+
+      assert results |> is_valid_pagination?(:empty)
+    end
+
+    test "can get user's editable communities list when user is editor", ~m(guest_conn user)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, community2} = db_insert(:community)
+
+      title = "chief editor"
+      {:ok, _} = CMS.set_editor(community, title, user)
+      {:ok, _} = CMS.set_editor(community2, title, user)
+
+      variables = %{userId: user.id, filter: %{page: 1, size: 20}}
+      results = guest_conn |> query_result(@query, variables, "editableCommunities")
+
+      assert results["totalCount"] == 2
+      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(community.id)))
+      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(community2.id)))
+    end
+
+    @query """
+    query {
+      account {
+        id
+        editableCommunities {
+          entries {
+            id
+            logo
+            title
+            raw
+          }
+          totalCount
+        }
+      }
+    }
+    """
+    test "user can get own editable communities list", ~m(user)a do
+      user_conn = simu_conn(:user, user)
+
+      {:ok, community} = db_insert(:community)
+      {:ok, community2} = db_insert(:community)
+
+      title = "chief editor"
+      {:ok, _} = CMS.set_editor(community, title, user)
+      {:ok, _} = CMS.set_editor(community2, title, user)
+
+      variables = %{filter: %{page: 1, size: 20}}
+      results = user_conn |> query_result(@query, variables, "account")
+      editable_communities = results["editableCommunities"]
+
+      assert editable_communities["totalCount"] == 2
+      assert editable_communities["entries"] |> Enum.any?(&(&1["id"] == to_string(community.id)))
+      assert editable_communities["entries"] |> Enum.any?(&(&1["id"] == to_string(community2.id)))
+    end
+  end
+
   describe "[account follow achieveMent]" do
     @query """
     query($id: ID!) {
@@ -30,13 +106,6 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       }
     }
     """
-    test "new user has no acheiveements", ~m(guest_conn user)a do
-      variables = %{id: user.id}
-      results = guest_conn |> query_result(@query, variables, "user")
-
-      assert is_nil(results["achievement"])
-    end
-
     test "inc user's achievement after user got followed", ~m(guest_conn user)a do
       {:ok, user2} = db_insert(:user)
       {:ok, user3} = db_insert(:user)

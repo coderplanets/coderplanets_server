@@ -7,8 +7,9 @@ defmodule MastaniServer.Test.Accounts.ReactedContents do
     {:ok, user} = db_insert(:user)
     {:ok, post} = db_insert(:post)
     {:ok, job} = db_insert(:job)
+    {:ok, video} = db_insert(:video)
 
-    {:ok, ~m(user post job)a}
+    {:ok, ~m(user post job video)a}
   end
 
   describe "[user favorited  contents]" do
@@ -48,6 +49,15 @@ defmodule MastaniServer.Test.Accounts.ReactedContents do
       {:ok, jobs} = Accounts.reacted_contents(:job, :star, filter, user)
       assert jobs |> is_valid_pagination?(:raw)
       assert job.id == jobs |> Map.get(:entries) |> List.first() |> Map.get(:id)
+    end
+
+    test "user can get paged stared_videos", ~m(user video)a do
+      {:ok, _} = CMS.reaction(:video, :star, video.id, user)
+
+      filter = %{page: 1, size: 20}
+      {:ok, jobs} = Accounts.reacted_contents(:video, :star, filter, user)
+      assert jobs |> is_valid_pagination?(:raw)
+      assert video.id == jobs |> Map.get(:entries) |> List.first() |> Map.get(:id)
     end
   end
 end

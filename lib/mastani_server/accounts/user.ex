@@ -49,6 +49,13 @@ defmodule MastaniServer.Accounts.User do
     has_many(:followings, {"users_followings", UserFollowing})
 
     has_many(:subscribed_communities, {"communities_subscribers", CMS.CommunitySubscriber})
+
+    # stared contents
+    has_many(:stared_posts, {"posts_stars", CMS.PostStar})
+    has_many(:stared_jobs, {"jobs_stars", CMS.JobStar})
+    has_many(:stared_videos, {"videos_stars", CMS.VideoStar})
+
+    # favorited contents
     has_many(:favorited_posts, {"posts_favorites", CMS.PostFavorite})
     has_many(:favorited_jobs, {"jobs_favorites", CMS.JobFavorite})
     has_many(:favorited_videos, {"videos_favorites", CMS.VideoFavorite})
