@@ -28,7 +28,7 @@ defmodule MastaniServer.Accounts.Delegate.ReactedContents do
   end
 
   @doc """
-  paged favorite contents
+  paged favorited/stared contents
   """
   def reacted_contents(thread, react, ~m(page size)a = filter, %User{id: user_id}) do
     with {:ok, action} <- match_action(thread, react) do
