@@ -19,7 +19,6 @@ defmodule MastaniServer.Test.Accounts.PublishedContents do
   end
 
   describe "[Accounts Publised posts]" do
-    @tag :wip
     test "fresh user get empty paged published posts", ~m(user)a do
       {:ok, results} = Accounts.published_contents(user, :post, %{page: 1, size: 20})
 
@@ -27,7 +26,6 @@ defmodule MastaniServer.Test.Accounts.PublishedContents do
       assert results.total_count == 0
     end
 
-    @tag :wip
     test "user can get paged published posts", ~m(user user2 community community2)a do
       pub_posts =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
@@ -66,7 +64,6 @@ defmodule MastaniServer.Test.Accounts.PublishedContents do
   end
 
   describe "[Accounts Publised jobs]" do
-    @tag :wip
     test "fresh user get empty paged published jobs", ~m(user)a do
       {:ok, results} = Accounts.published_contents(user, :job, %{page: 1, size: 20})
 
@@ -74,7 +71,6 @@ defmodule MastaniServer.Test.Accounts.PublishedContents do
       assert results.total_count == 0
     end
 
-    @tag :wip
     test "user can get paged published jobs", ~m(user user2 community community2)a do
       pub_jobs =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
@@ -113,7 +109,6 @@ defmodule MastaniServer.Test.Accounts.PublishedContents do
   end
 
   describe "[Accounts Publised videos]" do
-    @tag :wip
     test "fresh user get empty paged published videos", ~m(user)a do
       {:ok, results} = Accounts.published_contents(user, :video, %{page: 1, size: 20})
 
@@ -121,7 +116,6 @@ defmodule MastaniServer.Test.Accounts.PublishedContents do
       assert results.total_count == 0
     end
 
-    @tag :wip
     test "user can get paged published videos", ~m(user user2 community community2)a do
       pub_videos =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
@@ -160,7 +154,6 @@ defmodule MastaniServer.Test.Accounts.PublishedContents do
   end
 
   describe "[Accounts Publised repos]" do
-    @tag :wip
     test "fresh user get empty paged published repos", ~m(user)a do
       {:ok, results} = Accounts.published_contents(user, :repo, %{page: 1, size: 20})
 
@@ -168,7 +161,6 @@ defmodule MastaniServer.Test.Accounts.PublishedContents do
       assert results.total_count == 0
     end
 
-    @tag :wip
     test "user can get paged published repos", ~m(user user2 community community2)a do
       pub_repos =
         Enum.reduce(1..@publish_count, [], fn _, acc ->

@@ -34,7 +34,6 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       }
     }
     """
-    @tag :wip
     test "can get user's empty editable communities list", ~m(guest_conn user)a do
       variables = %{userId: user.id, filter: %{page: 1, size: 20}}
       results = guest_conn |> query_result(@query, variables, "editableCommunities")
@@ -42,7 +41,6 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       assert results |> is_valid_pagination?(:empty)
     end
 
-    @tag :wip
     test "can get user's editable communities list when user is editor", ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
       {:ok, community2} = db_insert(:community)
@@ -75,7 +73,6 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       }
     }
     """
-    @tag :wip2
     test "user can get own editable communities list", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
