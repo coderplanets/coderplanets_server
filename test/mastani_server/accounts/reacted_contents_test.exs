@@ -51,7 +51,6 @@ defmodule MastaniServer.Test.Accounts.ReactedContents do
       assert job.id == jobs |> Map.get(:entries) |> List.first() |> Map.get(:id)
     end
 
-    @tag :wip
     test "user can get paged stared_videos", ~m(user video)a do
       {:ok, _} = CMS.reaction(:video, :star, video.id, user)
 

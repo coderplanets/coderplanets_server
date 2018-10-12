@@ -1,11 +1,7 @@
 defmodule MastaniServer.Test.Accounts.PublishedContents do
   use MastaniServer.TestTools
 
-  import Helper.Utils, only: [get_config: 2]
-  alias Helper.ORM
-
   alias MastaniServer.{Accounts, CMS}
-  alias MastaniServer.Accounts.User
 
   @publish_count 10
 
