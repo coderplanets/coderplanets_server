@@ -227,6 +227,8 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:index, :integer)
     field(:total_count, :integer)
     field(:private, :boolean)
+    field(:last_updated, :datetime)
+    field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
   end
 
