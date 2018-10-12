@@ -32,7 +32,6 @@ defmodule MastaniServer.Test.Query.Accounts.StaredContents do
       }
     }
     """
-    @tag :wip
     test "login user can get it's own staredPosts", ~m(user_conn user posts)a do
       Enum.each(posts, fn post ->
         {:ok, _} = CMS.reaction(:post, :star, post.id, user)
@@ -61,7 +60,6 @@ defmodule MastaniServer.Test.Query.Accounts.StaredContents do
       }
     }
     """
-    @tag :wip
     test "other user can get other user's paged staredPosts",
          ~m(user_conn guest_conn posts)a do
       {:ok, user} = db_insert(:user)
@@ -94,7 +92,6 @@ defmodule MastaniServer.Test.Query.Accounts.StaredContents do
       }
     }
     """
-    @tag :wip
     test "login user can get it's own staredJobs", ~m(user_conn user jobs)a do
       Enum.each(jobs, fn job ->
         {:ok, _} = CMS.reaction(:job, :star, job.id, user)
@@ -123,7 +120,6 @@ defmodule MastaniServer.Test.Query.Accounts.StaredContents do
       }
     }
     """
-    @tag :wip
     test "other user can get other user's paged staredJobs",
          ~m(user_conn guest_conn jobs)a do
       {:ok, user} = db_insert(:user)
@@ -156,7 +152,6 @@ defmodule MastaniServer.Test.Query.Accounts.StaredContents do
       }
     }
     """
-    @tag :wip
     test "login user can get it's own staredVideos", ~m(user_conn user videos)a do
       Enum.each(videos, fn video ->
         {:ok, _} = CMS.reaction(:video, :star, video.id, user)
@@ -185,7 +180,6 @@ defmodule MastaniServer.Test.Query.Accounts.StaredContents do
       }
     }
     """
-    @tag :wip
     test "other user can get other user's paged staredVideos",
          ~m(user_conn guest_conn videos)a do
       {:ok, user} = db_insert(:user)

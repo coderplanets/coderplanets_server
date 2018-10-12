@@ -74,7 +74,6 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedJobs do
       assert results2["totalCount"] == @total_count
     end
 
-    @tag :wip2
     test "login user can get self paged favoritedJobs", ~m(user_conn user jobs)a do
       Enum.each(jobs, fn job ->
         {:ok, _} = CMS.reaction(:job, :favorite, job.id, user)
