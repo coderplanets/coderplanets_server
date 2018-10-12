@@ -7,7 +7,8 @@ defmodule MastaniServer.Accounts.Delegate.Achievements do
   3. create content been favorited by other user + 2
   4. followed by other user + 3
   """
-  import Helper.Utils, only: [get_config: 2]
+  import Ecto.Query, warn: false
+  import Helper.Utils, only: [get_config: 2, done: 1]
   import ShortMaps
 
   alias Helper.{ORM, SpecType}
@@ -119,6 +120,22 @@ defmodule MastaniServer.Accounts.Delegate.Achievements do
 
       false ->
         count - unit
+    end
+  end
+
+  @doc """
+  list communities which the user is editor in it
+  """
+  alias MastaniServer.CMS.CommunityEditor
+
+  def list_editable_communities(%User{id: user_id}, %{page: page, size: size}) do
+    with {:ok, user} <- ORM.find(User, user_id) do
+      CommunityEditor
+      |> where([e], e.user_id == ^user.id)
+      |> join(:inner, [e], c in assoc(e, :community))
+      |> select([e, c], c)
+      |> ORM.paginater(page: page, size: size)
+      |> done()
     end
   end
 end

@@ -29,6 +29,8 @@ defmodule MastaniServer.Accounts do
 
   # achievement
   defdelegate achieve(user, operation, key), to: Achievements
+  defdelegate list_editable_communities(user, filter), to: Achievements
+  # defdelegate list_editable_communities(filter), to: Achievements
 
   # fans
   defdelegate follow(user, follower), to: Fans
