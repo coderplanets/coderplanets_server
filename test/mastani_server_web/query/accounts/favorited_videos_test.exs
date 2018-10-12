@@ -3,16 +3,17 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedVideos do
 
   alias MastaniServer.CMS
 
+  @total_count 20
+
   setup do
     {:ok, user} = db_insert(:user)
 
-    total_count = 20
-    {:ok, videos} = db_insert_multi(:video, total_count)
+    {:ok, videos} = db_insert_multi(:video, @total_count)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user, user)
 
-    {:ok, ~m(guest_conn user_conn user total_count videos)a}
+    {:ok, ~m(guest_conn user_conn user videos)a}
   end
 
   describe "[account favorited videos]" do
@@ -30,7 +31,7 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedVideos do
       }
     }
     """
-    test "login user can get it's own favoritedVideos", ~m(user_conn user total_count videos)a do
+    test "login user can get it's own favoritedVideos", ~m(user_conn user videos)a do
       Enum.each(videos, fn video ->
         {:ok, _} = CMS.reaction(:video, :favorite, video.id, user)
       end)
@@ -39,8 +40,8 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedVideos do
 
       variables = %{filter: %{page: 1, size: 20}}
       results = user_conn |> query_result(@query, variables, "account")
-      assert results["favoritedVideos"] |> Map.get("totalCount") == total_count
-      assert results["favoritedVideosCount"] == total_count
+      assert results["favoritedVideos"] |> Map.get("totalCount") == @total_count
+      assert results["favoritedVideosCount"] == @total_count
 
       assert results["favoritedVideos"]
              |> Map.get("entries")
@@ -48,7 +49,7 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedVideos do
     end
 
     @query """
-    query($userId: ID, $categoryId: ID, $filter: PagedFilter!) {
+    query($userId: ID!, $categoryId: ID, $filter: PagedFilter!) {
       favoritedVideos(userId: $userId, categoryId: $categoryId, filter: $filter) {
         entries {
           id
@@ -58,7 +59,7 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedVideos do
     }
     """
     test "other user can get other user's paged favoritedVideos",
-         ~m(user_conn guest_conn total_count videos)a do
+         ~m(user_conn guest_conn videos)a do
       {:ok, user} = db_insert(:user)
 
       Enum.each(videos, fn video ->
@@ -69,20 +70,8 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedVideos do
       results = user_conn |> query_result(@query, variables, "favoritedVideos")
       results2 = guest_conn |> query_result(@query, variables, "favoritedVideos")
 
-      assert results["totalCount"] == total_count
-      assert results2["totalCount"] == total_count
-    end
-
-    test "login user can get self paged favoritedVideos",
-         ~m(user_conn user videos total_count)a do
-      Enum.each(videos, fn video ->
-        {:ok, _} = CMS.reaction(:video, :favorite, video.id, user)
-      end)
-
-      variables = %{filter: %{page: 1, size: 20}}
-      results = user_conn |> query_result(@query, variables, "favoritedVideos")
-
-      assert results["totalCount"] == total_count
+      assert results["totalCount"] == @total_count
+      assert results2["totalCount"] == @total_count
     end
 
     alias MastaniServer.Accounts

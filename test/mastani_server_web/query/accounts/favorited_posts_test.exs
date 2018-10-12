@@ -3,16 +3,17 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedPosts do
 
   alias MastaniServer.CMS
 
+  @total_count 20
+
   setup do
     {:ok, user} = db_insert(:user)
 
-    total_count = 20
-    {:ok, posts} = db_insert_multi(:post, total_count)
+    {:ok, posts} = db_insert_multi(:post, @total_count)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user, user)
 
-    {:ok, ~m(guest_conn user_conn user total_count posts)a}
+    {:ok, ~m(guest_conn user_conn user posts)a}
   end
 
   describe "[account favorited posts]" do
@@ -30,7 +31,7 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedPosts do
       }
     }
     """
-    test "login user can get it's own favoritedPosts", ~m(user_conn user total_count posts)a do
+    test "login user can get it's own favoritedPosts", ~m(user_conn user posts)a do
       Enum.each(posts, fn post ->
         {:ok, _} = CMS.reaction(:post, :favorite, post.id, user)
       end)
@@ -39,8 +40,8 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedPosts do
 
       variables = %{filter: %{page: 1, size: 20}}
       results = user_conn |> query_result(@query, variables, "account")
-      assert results["favoritedPosts"] |> Map.get("totalCount") == total_count
-      assert results["favoritedPostsCount"] == total_count
+      assert results["favoritedPosts"] |> Map.get("totalCount") == @total_count
+      assert results["favoritedPostsCount"] == @total_count
 
       assert results["favoritedPosts"]
              |> Map.get("entries")
@@ -48,7 +49,7 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedPosts do
     end
 
     @query """
-    query($userId: ID, $categoryId: ID, $filter: PagedFilter!) {
+    query($userId: ID!, $categoryId: ID, $filter: PagedFilter!) {
       favoritedPosts(userId: $userId, categoryId: $categoryId, filter: $filter) {
         entries {
           id
@@ -58,7 +59,7 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedPosts do
     }
     """
     test "other user can get other user's paged favoritedPosts",
-         ~m(user_conn guest_conn total_count posts)a do
+         ~m(user_conn guest_conn posts)a do
       {:ok, user} = db_insert(:user)
 
       Enum.each(posts, fn post ->
@@ -69,19 +70,8 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedPosts do
       results = user_conn |> query_result(@query, variables, "favoritedPosts")
       results2 = guest_conn |> query_result(@query, variables, "favoritedPosts")
 
-      assert results["totalCount"] == total_count
-      assert results2["totalCount"] == total_count
-    end
-
-    test "login user can get self paged favoritedPosts", ~m(user_conn user posts total_count)a do
-      Enum.each(posts, fn post ->
-        {:ok, _} = CMS.reaction(:post, :favorite, post.id, user)
-      end)
-
-      variables = %{filter: %{page: 1, size: 20}}
-      results = user_conn |> query_result(@query, variables, "favoritedPosts")
-
-      assert results["totalCount"] == total_count
+      assert results["totalCount"] == @total_count
+      assert results2["totalCount"] == @total_count
     end
 
     alias MastaniServer.Accounts
