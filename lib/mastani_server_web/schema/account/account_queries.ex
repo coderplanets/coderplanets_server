@@ -101,6 +101,46 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.favorited_contents/3)
     end
 
+    @desc "get paged published posts"
+    field :published_posts, :paged_posts do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :post_thread, default_value: :post)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.published_contents/3)
+    end
+
+    @desc "get paged published jobs"
+    field :published_jobs, :paged_jobs do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :job_thread, default_value: :job)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.published_contents/3)
+    end
+
+    @desc "get paged published videos"
+    field :published_videos, :paged_videos do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :video_thread, default_value: :video)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.published_contents/3)
+    end
+
+    @desc "get paged published repos"
+    field :published_repos, :paged_repos do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :repo_thread, default_value: :repo)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.published_contents/3)
+    end
+
     @desc "paged communities which the user it's the editor"
     field :editable_communities, :paged_communities do
       arg(:user_id, :id)
