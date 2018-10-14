@@ -52,7 +52,6 @@ defmodule MastaniServer.Test.Query.Video do
     }
   }
   """
-  @tag :wip
   test "login user can get nil video favorited category id", ~m(video)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
@@ -62,7 +61,6 @@ defmodule MastaniServer.Test.Query.Video do
     assert result["favoritedCategoryId"] == nil
   end
 
-  @tag :wip
   test "login user can get video favorited category id after favorited", ~m(video)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
