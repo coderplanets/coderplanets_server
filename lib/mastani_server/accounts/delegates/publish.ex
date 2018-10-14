@@ -4,15 +4,15 @@ defmodule MastaniServer.Accounts.Delegate.Publish do
   """
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1]
-  import Helper.ErrorCode
+  # import Helper.ErrorCode
   import ShortMaps
 
   import MastaniServer.CMS.Utils.Matcher
 
-  alias Helper.{ORM, QueryBuilder, SpecType}
-  alias MastaniServer.{Accounts, Repo}
+  alias Helper.{ORM, QueryBuilder}
+  # alias MastaniServer.{Accounts, Repo}
 
-  alias MastaniServer.Accounts.{User}
+  alias MastaniServer.Accounts.User
   alias MastaniServer.CMS
 
   @doc """

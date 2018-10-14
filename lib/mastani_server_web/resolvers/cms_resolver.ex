@@ -92,6 +92,10 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.reaction_users(thread, action, id, filter)
   end
 
+  def favorited_category(root, ~m(thread)a, %{context: %{cur_user: user}}) do
+    CMS.favorited_category(thread, root.id, user)
+  end
+
   # #######################
   # category ..
   # #######################
