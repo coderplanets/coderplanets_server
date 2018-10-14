@@ -21,9 +21,9 @@ defmodule MastaniServer.CMS.Utils.Loader do
     PostFavorite,
     PostStar,
     # JOB
-    Job,
+    # Job,
     JobFavorite,
-    JobStar,
+    # JobStar,
     JobCommentReply,
     JobCommentDislike,
     JobCommentLike,

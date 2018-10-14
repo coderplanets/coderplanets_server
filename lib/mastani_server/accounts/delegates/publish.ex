@@ -13,7 +13,7 @@ defmodule MastaniServer.Accounts.Delegate.Publish do
   # alias MastaniServer.{Accounts, Repo}
 
   alias MastaniServer.Accounts.User
-  alias MastaniServer.CMS
+  # alias MastaniServer.CMS
 
   @doc """
   get paged published contets of a user
