@@ -130,12 +130,12 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.list_editable_communities(%User{id: user_id}, filter)
   end
 
-  # def editable_communities(root, ~m(filter)a, _info) do
-  # Accounts.list_editable_communities(%User{id: root.id}, filter)
-  # end
-
   def editable_communities(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
     Accounts.list_editable_communities(cur_user, filter)
+  end
+
+  def editable_communities(root, ~m(filter)a, _info) do
+    Accounts.list_editable_communities(%User{id: root.id}, filter)
   end
 
   # TODO: refactor

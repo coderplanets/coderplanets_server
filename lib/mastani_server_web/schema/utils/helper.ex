@@ -50,11 +50,13 @@ defmodule MastaniServerWeb.Schema.Utils.Helper do
   import Absinthe.Resolution.Helpers, only: [dataloader: 2]
 
   alias MastaniServer.CMS
+  alias MastaniServerWeb.Resolvers, as: R
   alias MastaniServerWeb.Middleware, as: M
 
   # fields for: favorite count, users, viewer_did_favorite..
   defmacro favorite_fields(thread) do
     quote do
+      @doc "if viewer has favroted of this #{unquote(thread)}"
       field :viewer_has_favorited, :boolean do
         arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
 
@@ -64,6 +66,7 @@ defmodule MastaniServerWeb.Schema.Utils.Helper do
         middleware(M.ViewerDidConvert)
       end
 
+      @doc "favroted count of this #{unquote(thread)}"
       field :favorited_count, :integer do
         arg(:count, :count_type, default_value: :count)
 
@@ -77,11 +80,24 @@ defmodule MastaniServerWeb.Schema.Utils.Helper do
         middleware(M.ConvertToInt)
       end
 
+      @doc "list of user who has favroted this #{unquote(thread)}"
       field :favorited_users, list_of(:user) do
         arg(:filter, :members_filter)
 
         middleware(M.PageSizeProof)
         resolve(dataloader(CMS, :favorites))
+      end
+
+      @doc "get viewer's favroted category if seted"
+      field :favorited_category_id, :id do
+        arg(
+          :thread,
+          unquote(String.to_atom("#{to_string(thread)}_thread")),
+          default_value: unquote(thread)
+        )
+
+        middleware(M.Authorize, :login)
+        resolve(&R.CMS.favorited_category/3)
       end
     end
   end
