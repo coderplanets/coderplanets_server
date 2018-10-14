@@ -41,4 +41,37 @@ defmodule MastaniServer.Test.Query.Video do
     views_2 = user_conn |> query_result(@query, variables, "video") |> Map.get("views")
     assert views_2 == views_1 + 1
   end
+
+  alias MastaniServer.Accounts
+
+  @query """
+  query($id: ID!) {
+    video(id: $id) {
+      id
+      favoritedCategoryId
+    }
+  }
+  """
+  test "login user can get nil video favorited category id", ~m(video)a do
+    {:ok, user} = db_insert(:user)
+    user_conn = simu_conn(:user, user)
+
+    variables = %{id: video.id}
+    result = user_conn |> query_result(@query, variables, "video")
+    assert result["favoritedCategoryId"] == nil
+  end
+
+  test "login user can get video favorited category id after favorited", ~m(video)a do
+    {:ok, user} = db_insert(:user)
+    user_conn = simu_conn(:user, user)
+
+    test_category = "test category"
+    {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
+    {:ok, _favorite_category} = Accounts.set_favorites(user, :video, video.id, category.id)
+
+    variables = %{id: video.id}
+    result = user_conn |> query_result(@query, variables, "video")
+
+    assert result["favoritedCategoryId"] == to_string(category.id)
+  end
 end

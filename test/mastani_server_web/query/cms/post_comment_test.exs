@@ -13,6 +13,63 @@ defmodule MastaniServer.Test.Query.PostComment do
     {:ok, ~m(user_conn guest_conn post user)a}
   end
 
+  describe "[post dataloader comment]" do
+    @query """
+    query($filter: PagedArticleFilter) {
+      pagedPosts(filter: $filter) {
+        entries {
+          id
+          title
+          commentsParticipatorsCount
+          commentsParticipators(filter: { first: 5 }) {
+            id
+            nickname
+          }
+          commentsCount
+        }
+        totalCount
+      }
+    }
+    """
+    test "can get comments participators of a post", ~m(user guest_conn)a do
+      {:ok, user2} = db_insert(:user)
+
+      {:ok, community} = db_insert(:community)
+      {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
+
+      variables = %{filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+
+      comments_participators_count =
+        results["entries"] |> List.first() |> Map.get("commentsParticipatorsCount")
+
+      assert comments_participators_count == 0
+
+      body = "this is a test comment"
+      assert {:ok, _comment} = CMS.create_comment(:post, post.id, body, user)
+      assert {:ok, _comment} = CMS.create_comment(:post, post.id, body, user)
+
+      assert {:ok, _comment} = CMS.create_comment(:post, post.id, body, user2)
+
+      variables = %{filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+
+      comments_participators_count =
+        results["entries"] |> List.first() |> Map.get("commentsParticipatorsCount")
+
+      comments_count = results["entries"] |> List.first() |> Map.get("commentsCount")
+
+      assert comments_participators_count == 2
+      assert comments_count == 3
+
+      comments_participators =
+        results["entries"] |> List.first() |> Map.get("commentsParticipators")
+
+      assert comments_participators |> Enum.any?(&(&1["id"] == to_string(user.id)))
+      assert comments_participators |> Enum.any?(&(&1["id"] == to_string(user2.id)))
+    end
+  end
+
   # TODO: user can get specific user's replies :list_replies
   # TODO: filter comment by time / like / reply
   describe "[post comment]" do

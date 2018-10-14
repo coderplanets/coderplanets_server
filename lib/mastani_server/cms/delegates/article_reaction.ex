@@ -36,7 +36,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleReaction do
 
   defp reaction_result({:ok, %{create_reaction_record: result}}), do: result |> done()
 
-  defp reaction_result({:error, :create_reaction_record, result, _steps}) do
+  defp reaction_result({:error, :create_reaction_record, _result, _steps}) do
     {:error, [message: "create reaction fails", code: ecode(:react_fails)]}
   end
 
@@ -75,7 +75,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleReaction do
 
   defp undo_reaction_result({:ok, %{delete_reaction_record: result}}), do: result |> done()
 
-  defp undo_reaction_result({:error, :delete_reaction_record, result, _steps}) do
+  defp undo_reaction_result({:error, :delete_reaction_record, _result, _steps}) do
     {:error, [message: "delete reaction fails", code: ecode(:react_fails)]}
   end
 

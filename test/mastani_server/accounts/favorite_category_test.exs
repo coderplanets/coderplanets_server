@@ -134,6 +134,24 @@ defmodule MastaniServer.Test.Accounts.FavoriteCategory do
 
       assert {:error, _} = CMS.PostFavorite |> ORM.find_by(%{post_id: post.id, user_id: user.id})
     end
+
+    test "after unset category the old category count should -1", ~m(user post)a do
+      test_category = "test category"
+      test_category2 = "test category2"
+      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
+      {:ok, category2} = Accounts.create_favorite_category(user, %{title: test_category2})
+
+      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post.id, category.id)
+      {:ok, favorete_cat} = Accounts.FavoriteCategory |> ORM.find(category.id)
+      assert favorete_cat.total_count == 1
+
+      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post.id, category2.id)
+      {:ok, favorete_cat} = Accounts.FavoriteCategory |> ORM.find(category2.id)
+      assert favorete_cat.total_count == 1
+
+      {:ok, favorete_cat} = Accounts.FavoriteCategory |> ORM.find(category.id)
+      assert favorete_cat.total_count == 0
+    end
   end
 
   describe "[favorite category total_count]" do

@@ -8,6 +8,7 @@ defmodule MastaniServer.CMS do
     ArticleCURD,
     ArticleOperation,
     ArticleReaction,
+    FavoritedContents,
     CommentCURD,
     CommunitySync,
     CommentReaction,
@@ -67,6 +68,7 @@ defmodule MastaniServer.CMS do
   defdelegate reaction(thread, react, content_id, user), to: ArticleReaction
   defdelegate undo_reaction(thread, react, content_id, user), to: ArticleReaction
 
+  defdelegate favorited_category(thread, content_id, user), to: FavoritedContents
   # ArticleOperation
   # >> set flag on article, like: pin / unpin article
   defdelegate set_community_flags(queryable, community_id, attrs), to: ArticleOperation

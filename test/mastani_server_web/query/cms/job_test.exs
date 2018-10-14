@@ -38,85 +38,95 @@ defmodule MastaniServer.Test.Query.Job do
     assert is_valid_kv?(results, "body", :string)
   end
 
-  # @query """
-  # query($id: ID!) {
-  # job(id: $id) {
-  # id
-  # favoritedUsers {
-  # nickname
-  # id
-  # }
-  # }
-  # }
-  # """
-  # test "post have favoritedUsers query field", ~m(user_conn job)a do
-  # variables = %{id: job.id}
-  # results = user_conn |> query_result(@query, variables, "job")
+  @query """
+  query($id: ID!) {
+    job(id: $id) {
+      id
+      favoritedUsers {
+        nickname
+        id
+      }
+    }
+  }
+  """
+  test "job have favoritedUsers query field", ~m(user_conn job)a do
+    variables = %{id: job.id}
+    results = user_conn |> query_result(@query, variables, "job")
 
-  # assert results["id"] == to_string(job.id)
-  # assert is_valid_kv?(results, "favoritedUsers", :list)
-  # end
+    assert results["id"] == to_string(job.id)
+    assert is_valid_kv?(results, "favoritedUsers", :list)
+  end
 
-  # @query """
-  # query Post($id: ID!) {
-  # post(id: $id) {
-  # views
-  # }
-  # }
-  # """
-  # test "views should +1 after query the post", ~m(user_conn post)a do
-  # variables = %{id: post.id}
-  # views_1 = user_conn |> query_result(@query, variables, "post") |> Map.get("views")
+  @query """
+  query($id: ID!) {
+    job(id: $id) {
+      views
+    }
+  }
+  """
+  test "views should +1 after query the job", ~m(user_conn job)a do
+    variables = %{id: job.id}
+    views_1 = user_conn |> query_result(@query, variables, "job") |> Map.get("views")
 
-  # variables = %{id: post.id}
-  # views_2 = user_conn |> query_result(@query, variables, "post") |> Map.get("views")
-  # assert views_2 == views_1 + 1
-  # end
+    variables = %{id: job.id}
+    views_2 = user_conn |> query_result(@query, variables, "job") |> Map.get("views")
+    assert views_2 == views_1 + 1
+  end
 
-  # @query """
-  # query Post($id: ID!) {
-  # post(id: $id) {
-  # id
-  # title
-  # body
-  # viewerHasFavorited
-  # }
-  # }
-  # """
-  # test "logged user can query viewerHasFavorited field", ~m(user_conn post)a do
-  # variables = %{id: post.id}
+  @query """
+  query($id: ID!) {
+    job(id: $id) {
+      id
+      title
+      body
+      viewerHasFavorited
+    }
+  }
+  """
+  test "logged user can query viewerHasFavorited field", ~m(user_conn job)a do
+    variables = %{id: job.id}
 
-  # assert user_conn
-  # |> query_result(@query, variables, "post")
-  # |> has_boolen_value?("viewerHasFavorited")
-  # end
+    assert user_conn
+           |> query_result(@query, variables, "job")
+           |> has_boolen_value?("viewerHasFavorited")
+  end
 
-  # test "unlogged user can not query viewerHasFavorited field", ~m(guest_conn post)a do
-  # variables = %{id: post.id}
+  test "unlogged user can not query viewerHasFavorited field", ~m(guest_conn job)a do
+    variables = %{id: job.id}
 
-  # assert guest_conn |> query_get_error?(@query, variables)
-  # end
+    assert guest_conn |> query_get_error?(@query, variables)
+  end
 
-  # @query """
-  # query Post($id: ID!) {
-  # post(id: $id) {
-  # id
-  # title
-  # body
-  # viewerHasStarred
-  # }
-  # }
-  # """
-  # test "logged user can query viewerHasStarred field", ~m(user_conn post)a do
-  # variables = %{id: post.id}
+  alias MastaniServer.Accounts
 
-  # assert user_conn
-  # |> query_result(@query, variables, "post")
-  # |> has_boolen_value?("viewerHasStarred")
-  # end
+  @query """
+  query($id: ID!) {
+    job(id: $id) {
+      id
+      favoritedCategoryId
+    }
+  }
+  """
+  test "login user can get nil job favorited category id", ~m(job)a do
+    {:ok, user} = db_insert(:user)
+    user_conn = simu_conn(:user, user)
 
-  # test "unlogged user can not query viewerHasStarred field", ~m(guest_conn post)a do
-  # variables = %{id: post.id}
-  # assert guest_conn |> query_get_error?(@query, variables)
-  # end
+    variables = %{id: job.id}
+    result = user_conn |> query_result(@query, variables, "job")
+    assert result["favoritedCategoryId"] == nil
+  end
+
+  test "login user can get job favorited category id after favorited", ~m(job)a do
+    {:ok, user} = db_insert(:user)
+    user_conn = simu_conn(:user, user)
+
+    test_category = "test category"
+    {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
+    {:ok, _favorite_category} = Accounts.set_favorites(user, :job, job.id, category.id)
+
+    variables = %{id: job.id}
+    result = user_conn |> query_result(@query, variables, "job")
+
+    assert result["favoritedCategoryId"] == to_string(category.id)
+  end
 end

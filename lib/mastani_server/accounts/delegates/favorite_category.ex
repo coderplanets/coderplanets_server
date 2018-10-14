@@ -4,6 +4,8 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
   """
   import Ecto.Query, warn: false
 
+  alias Helper.QueryBuilder
+
   import Helper.ErrorCode
   import Helper.Utils, only: [done: 1]
 
@@ -12,6 +14,8 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
   alias Helper.ORM
   alias MastaniServer.Accounts.{FavoriteCategory, User}
   alias MastaniServer.{CMS, Repo}
+
+  alias CMS.{PostFavorite, JobFavorite, VideoFavorite}
 
   alias Ecto.Multi
 
@@ -66,7 +70,7 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
   def list_favorite_categories(
         %User{id: user_id},
         %{private: private},
-        %{page: page, size: size}
+        %{page: page, size: size} = filter
       ) do
     query =
       case private do
@@ -81,11 +85,10 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
       end
 
     query
+    |> QueryBuilder.filter_pack(filter)
     |> ORM.paginater(page: page, size: size)
     |> done()
   end
-
-  alias CMS.{PostFavorite, JobFavorite, VideoFavorite}
 
   @doc """
   set category for favorited content (post, job, video ...)
@@ -95,14 +98,27 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
            FavoriteCategory |> ORM.find_by(%{user_id: user.id, id: category_id}) do
       Multi.new()
       |> Multi.run(:favorite_content, fn _ ->
-        case find_content_favorite(thread, content_id, user.id) do
-          {:ok, content_favorite} -> check_dup_category(content_favorite, favorite_category)
-          {:error, _} -> CMS.reaction(thread, :favorite, content_id, user)
+        with {:ok, content_favorite} <- find_content_favorite(thread, content_id, user.id) do
+          check_dup_category(content_favorite, favorite_category)
+        else
+          {:error, _} ->
+            case CMS.reaction(thread, :favorite, content_id, user) do
+              {:ok, _} -> find_content_favorite(thread, content_id, user.id)
+              {:error, error} -> {:error, error}
+            end
         end
       end)
-      |> Multi.run(:update_category_id, fn _ ->
-        {:ok, content_favorite} = find_content_favorite(thread, content_id, user.id)
-
+      |> Multi.run(:dec_old_category_count, fn %{favorite_content: content_favorite} ->
+        with false <- is_nil(content_favorite.category_id),
+             {:ok, old_category} <- FavoriteCategory |> ORM.find(content_favorite.category_id) do
+          old_category
+          |> ORM.update(%{total_count: max(old_category.total_count - 1, 0)})
+        else
+          true -> {:ok, ""}
+          error -> {:error, error}
+        end
+      end)
+      |> Multi.run(:update_content_category_id, fn %{favorite_content: content_favorite} ->
         content_favorite |> ORM.update(%{category_id: favorite_category.id})
       end)
       |> Multi.run(:update_category_info, fn _ ->
@@ -126,7 +142,11 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
     {:error, result}
   end
 
-  defp set_favorites_result({:error, :update_category_id, _result, _steps}) do
+  defp set_favorites_result({:error, :dec_old_category_count, _result, _steps}) do
+    {:error, [message: "update old category count fails", code: ecode(:update_fails)]}
+  end
+
+  defp set_favorites_result({:error, :update_content_category_id, _result, _steps}) do
     {:error, [message: "update category content fails", code: ecode(:update_fails)]}
   end
 
@@ -180,7 +200,7 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
 
   defp check_dup_category(content, category) do
     case content.category_id !== category.id do
-      true -> {:ok, ""}
+      true -> {:ok, content}
       false -> {:error, [message: "viewer has already categoried", code: ecode(:already_did)]}
     end
   end
