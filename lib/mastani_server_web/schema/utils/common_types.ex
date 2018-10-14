@@ -34,5 +34,6 @@ defmodule MastaniServerWeb.Schema.Utils.CommonTypes do
 
   input_object :common_paged_filter do
     pagination_args()
+    field(:sort, :comment_sort_enum, default_value: :desc_inserted)
   end
 end
