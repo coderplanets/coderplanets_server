@@ -129,11 +129,11 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Operation do
       resolve(&R.CMS.unset_community/3)
     end
 
-    @desc "react on a cms content"
+    @desc "react on a cms content, except favorite"
     field :reaction, :article do
       arg(:id, non_null(:id))
       arg(:thread, non_null(:react_thread))
-      arg(:action, non_null(:react_action))
+      arg(:action, non_null(:reactable_action))
 
       middleware(M.Authorize, :login)
       resolve(&R.CMS.reaction/3)
@@ -143,7 +143,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Operation do
     field :undo_reaction, :article do
       arg(:id, non_null(:id))
       arg(:thread, non_null(:react_thread))
-      arg(:action, non_null(:react_action))
+      arg(:action, non_null(:reactable_action))
 
       middleware(M.Authorize, :login)
       resolve(&R.CMS.undo_reaction/3)
