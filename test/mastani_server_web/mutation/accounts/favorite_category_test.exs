@@ -9,11 +9,13 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
   setup do
     {:ok, user} = db_insert(:user)
     {:ok, post} = db_insert(:post)
+    {:ok, job} = db_insert(:job)
+    {:ok, video} = db_insert(:video)
 
     user_conn = simu_conn(:user, user)
     guest_conn = simu_conn(:guest)
 
-    {:ok, ~m(user_conn guest_conn user post)a}
+    {:ok, ~m(user_conn guest_conn user post job video)a}
   end
 
   describe "[Accounts FavoriteCategory CURD]" do
@@ -94,6 +96,54 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
 
       assert deleted["done"] == true
       assert {:error, _} = FavoriteCategory |> ORM.find(category.id)
+    end
+
+    test "after favorite deleted, the favroted action also be deleted ",
+         ~m(user_conn user post)a do
+      test_category = "test category"
+      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
+
+      {:ok, _favorite_category} = Accounts.set_favorites(user, :post, post.id, category.id)
+
+      assert {:ok, _} =
+               CMS.PostFavorite |> ORM.find_by(%{user_id: user.id, category_id: category.id})
+
+      variables = %{id: category.id}
+      user_conn |> mutation_result(@query, variables, "deleteFavoriteCategory")
+
+      assert {:error, _} =
+               CMS.PostFavorite |> ORM.find_by(%{user_id: user.id, category_id: category.id})
+    end
+
+    test "after favorite deleted, the related author's reputation should be downgrade",
+         ~m(user_conn user post job)a do
+      {:ok, author} = db_insert(:author)
+      {:ok, post2} = db_insert(:post, %{author: author})
+      {:ok, job2} = db_insert(:job, %{author: author})
+      test_category = "test category"
+      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
+
+      test_category2 = "test category2"
+      {:ok, category2} = Accounts.create_favorite_category(user, %{title: test_category2})
+
+      {:ok, _} = Accounts.set_favorites(user, :post, post.id, category.id)
+      {:ok, _} = Accounts.set_favorites(user, :post, post2.id, category.id)
+      {:ok, _} = Accounts.set_favorites(user, :job, job.id, category.id)
+      {:ok, _} = Accounts.set_favorites(user, :job, job2.id, category2.id)
+
+      # author.id
+      {:ok, achievement} = ORM.find_by(Accounts.Achievement, user_id: author.user.id)
+
+      assert achievement.contents_favorited_count == 2
+      assert achievement.reputation == 4
+
+      variables = %{id: category.id}
+      user_conn |> mutation_result(@query, variables, "deleteFavoriteCategory")
+
+      {:ok, achievement} = ORM.find_by(Accounts.Achievement, user_id: author.user.id)
+
+      assert achievement.contents_favorited_count == 1
+      assert achievement.reputation == 2
     end
   end
 

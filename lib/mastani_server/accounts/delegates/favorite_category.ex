@@ -7,11 +7,12 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
   alias Helper.QueryBuilder
 
   import Helper.ErrorCode
-  import Helper.Utils, only: [done: 1]
+  import Helper.Utils, only: [done: 1, count_words: 1]
 
   import ShortMaps
 
   alias Helper.ORM
+  alias MastaniServer.Accounts
   alias MastaniServer.Accounts.{FavoriteCategory, User}
   alias MastaniServer.{CMS, Repo}
 
@@ -39,25 +40,62 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
   def delete_favorite_category(%User{id: user_id}, id) do
     with {:ok, category} <- FavoriteCategory |> ORM.find_by(~m(id user_id)a) do
       Multi.new()
+      |> Multi.run(:downgrade_achievement, fn _ ->
+        # find user favvoried-contents(posts & jobs & videos) 's author,
+        # and downgrade their's acieveents
+        # NOTE: this is too fucking violent and should be refactor later
+        # we find favroted posts/jobs/videos author_ids then doengrade their achievement
+        # this implentment is limited, if the user have lots contents in a favoreted-category
+        # ant those contents have diffenert author each, it may be fucked
+        # should be in a queue job or sth
+        {:ok, post_author_ids} = affected_author_ids(:post, CMS.PostFavorite, category)
+        {:ok, job_author_ids} = affected_author_ids(:job, CMS.JobFavorite, category)
+        {:ok, video_author_ids} = affected_author_ids(:video, CMS.VideoFavorite, category)
+
+        # author_ids_list = count_words(total_author_ids) |> Map.to_list
+        author_ids_list =
+          (post_author_ids ++ job_author_ids ++ video_author_ids) |> count_words |> Map.to_list()
+
+        # NOTE: if the contents have too many unique authors, it may be crash the server
+        # so limit size to 20 unique authors
+        Enum.each(author_ids_list |> Enum.slice(0, 20), fn {author_id, count} ->
+          Accounts.downgrade_achievement(%User{id: author_id}, :favorite, count)
+        end)
+
+        {:ok, %{done: true}}
+      end)
       |> Multi.run(:delete_category, fn _ ->
         category |> ORM.delete()
-      end)
-      |> Multi.run(:delete_favorite_record, fn _ ->
-        query =
-          from(
-            pf in CMS.PostFavorite,
-            where: pf.user_id == ^user_id,
-            where: pf.category_id == ^category.id
-          )
-
-        query |> Repo.delete_all() |> done()
       end)
       |> Repo.transaction()
       |> delete_favorites_result()
     end
   end
 
-  defp delete_favorites_result({:ok, %{delete_favorite_record: result}}), do: {:ok, result}
+  # NOTE: this is too fucking violent and should be refactor later
+  # we find favroted posts/jobs/videos author_ids then doengrade their achievement
+  # this implentment is limited, if the user have lots contents in a favoreted-category
+  # ant those contents have diffenert author each, it may be fucked
+  defp affected_author_ids(thread, queryable, category) do
+    query =
+      from(
+        fc in queryable,
+        join: content in assoc(fc, ^thread),
+        join: author in assoc(content, :author),
+        where: fc.category_id == ^category.id,
+        select: author.user_id
+      )
+
+    case ORM.find_all(query, %{page: 1, size: 50}) do
+      {:ok, paged_contents} ->
+        {:ok, paged_contents |> Map.get(:entries)}
+
+      {:error, _} ->
+        {:ok, []}
+    end
+  end
+
+  defp delete_favorites_result({:ok, %{downgrade_achievement: result}}), do: {:ok, result}
 
   defp delete_favorites_result({:error, :delete_category, _result, _steps}) do
     {:error, [message: "delete category fails", code: ecode(:delete_fails)]}
@@ -158,10 +196,8 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
     with {:ok, favorite_category} <-
            FavoriteCategory |> ORM.find_by(%{user_id: user.id, id: category_id}) do
       Multi.new()
-      |> Multi.run(:remove_favorite_record, fn _ ->
-        {:ok, content_favorite} = find_content_favorite(thread, content_id, user.id)
-
-        content_favorite |> ORM.delete()
+      |> Multi.run(:undo_favorite_action, fn _ ->
+        CMS.undo_reaction(thread, :favorite, content_id, user)
       end)
       |> Multi.run(:update_category_info, fn _ ->
         last_updated = Timex.today() |> Timex.to_datetime()
@@ -180,7 +216,7 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
   # @spec unset_favorites_result({:ok, map()}) :: {:ok, FavoriteCategory.t() }
   defp unset_favorites_result({:ok, %{update_category_info: result}}), do: {:ok, result}
 
-  defp unset_favorites_result({:error, :remove_favorite_record, result, _steps}) do
+  defp unset_favorites_result({:error, :undo_favorite_action, result, _steps}) do
     # {:error, [message: "favorite content fails", code: ecode(:react_fails)]}
     {:error, result}
   end
