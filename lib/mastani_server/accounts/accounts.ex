@@ -31,6 +31,7 @@ defmodule MastaniServer.Accounts do
   # achievement
   defdelegate achieve(user, operation, key), to: Achievements
   defdelegate list_editable_communities(user, filter), to: Achievements
+  defdelegate downgrade_achievement(user, action, count), to: Achievements
   # defdelegate list_editable_communities(filter), to: Achievements
 
   # publish

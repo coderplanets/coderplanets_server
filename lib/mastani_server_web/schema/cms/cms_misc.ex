@@ -33,6 +33,11 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     # value(:watch)
   end
 
+  enum :reactable_action do
+    value(:star)
+    # value(:watch)
+  end
+
   enum :react_thread do
     value(:post)
     value(:job)
