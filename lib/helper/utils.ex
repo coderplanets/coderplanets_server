@@ -140,4 +140,15 @@ defmodule Helper.Utils do
   # NOT a map. We fall back to standard merge behavior, preferring
   # the value on the right.
   defp deep_resolve(_key, _left, right), do: right
+
+  @doc """
+  ["a", "b", "c", "c"] => %{"a" => 1, "b" => 1, "c" => 2}
+  """
+  def count_words(words) when is_list(words) do
+    Enum.reduce(words, %{}, &update_word_count/2)
+  end
+
+  defp update_word_count(word, acc) do
+    Map.update(acc, to_string(word), 1, &(&1 + 1))
+  end
 end

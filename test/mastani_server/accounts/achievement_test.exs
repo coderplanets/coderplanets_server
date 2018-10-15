@@ -57,9 +57,9 @@ defmodule MastaniServer.Test.Accounts.Achievement do
       user |> Accounts.achieve(:add, :favorite)
       {:ok, achievement} = Achievement |> ORM.find_by(user_id: user.id)
 
-      assert achievement.followers_count == @follow_weight
-      assert achievement.contents_stared_count == @star_weight
-      assert achievement.contents_favorited_count == @favorite_weight
+      assert achievement.followers_count == 1
+      assert achievement.contents_stared_count == 1
+      assert achievement.contents_favorited_count == 1
 
       reputation = @follow_weight + @star_weight + @favorite_weight
       assert achievement.reputation == reputation
@@ -99,7 +99,7 @@ defmodule MastaniServer.Test.Accounts.Achievement do
 
       {:ok, user} = User |> ORM.find(user.id, preload: :achievement)
 
-      assert user.achievement.followers_count == @follow_weight * total_count
+      assert user.achievement.followers_count == total_count
       assert user.achievement.reputation == @follow_weight * total_count
     end
 
@@ -116,8 +116,8 @@ defmodule MastaniServer.Test.Accounts.Achievement do
 
       {:ok, user} = User |> ORM.find(user.id, preload: :achievement)
 
-      assert user.achievement.followers_count == @follow_weight * (total_count - 1)
-      assert user.achievement.reputation == @follow_weight * (total_count - 1)
+      assert user.achievement.followers_count == total_count - 1
+      assert user.achievement.reputation == @follow_weight * total_count - @follow_weight
     end
   end
 end

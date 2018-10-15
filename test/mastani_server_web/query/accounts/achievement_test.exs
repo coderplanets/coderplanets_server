@@ -167,7 +167,7 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       variables = %{id: author_user_id}
       results = guest_conn |> query_result(@query, variables, "user")
 
-      assert results["achievement"] |> Map.get("contentsFavoritedCount") == @favorite_weight
+      assert results["achievement"] |> Map.get("contentsFavoritedCount") == 1
       assert results["achievement"] |> Map.get("reputation") == @favorite_weight
     end
 
@@ -189,11 +189,10 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       variables = %{id: author_user_id}
       results = guest_conn |> query_result(@query, variables, "user")
 
-      assert results["achievement"] |> Map.get("contentsFavoritedCount") ==
-               @favorite_weight * (total_count - 1)
+      assert results["achievement"] |> Map.get("contentsFavoritedCount") == total_count - 1
 
       assert results["achievement"] |> Map.get("reputation") ==
-               @favorite_weight * (total_count - 1)
+               @favorite_weight * total_count - @favorite_weight
     end
   end
 end
