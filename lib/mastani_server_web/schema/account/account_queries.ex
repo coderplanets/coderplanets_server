@@ -172,10 +172,40 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
     end
 
     @desc "get paged published comments on post"
-    field :published_comments, :paged_comments do
+    field :published_post_comments, :paged_post_comments do
       arg(:user_id, non_null(:id))
       arg(:filter, non_null(:paged_filter))
-      arg(:thread, :commentable_thread, default_value: :post)
+      arg(:thread, :post_thread, default_value: :post)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.published_comments/3)
+    end
+
+    @desc "get paged published comments on job"
+    field :published_job_comments, :paged_job_comments do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :job_thread, default_value: :job)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.published_comments/3)
+    end
+
+    @desc "get paged published comments on video"
+    field :published_video_comments, :paged_video_comments do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :video_thread, default_value: :video)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.published_comments/3)
+    end
+
+    @desc "get paged published comments on repo"
+    field :published_repo_comments, :paged_repo_comments do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :repo_thread, default_value: :repo)
 
       middleware(M.PageSizeProof)
       resolve(&R.Accounts.published_comments/3)

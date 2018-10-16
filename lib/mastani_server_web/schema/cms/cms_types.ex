@@ -348,6 +348,26 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     comments_fields()
   end
 
+  object :post_comment do
+    comments_fields()
+    field(:post, :post, resolve: dataloader(CMS, :post))
+  end
+
+  object :job_comment do
+    comments_fields()
+    field(:job, :job, resolve: dataloader(CMS, :job))
+  end
+
+  object :video_comment do
+    comments_fields()
+    field(:video, :video, resolve: dataloader(CMS, :video))
+  end
+
+  object :repo_comment do
+    comments_fields()
+    field(:repo, :repo, resolve: dataloader(CMS, :repo))
+  end
+
   object :paged_categories do
     field(:entries, list_of(:category))
     pagination_fields()
@@ -375,6 +395,26 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
   object :paged_comments do
     field(:entries, list_of(:comment))
+    pagination_fields()
+  end
+
+  object :paged_post_comments do
+    field(:entries, list_of(:post_comment))
+    pagination_fields()
+  end
+
+  object :paged_job_comments do
+    field(:entries, list_of(:job_comment))
+    pagination_fields()
+  end
+
+  object :paged_video_comments do
+    field(:entries, list_of(:video_comment))
+    pagination_fields()
+  end
+
+  object :paged_repo_comments do
+    field(:entries, list_of(:repo_comment))
     pagination_fields()
   end
 

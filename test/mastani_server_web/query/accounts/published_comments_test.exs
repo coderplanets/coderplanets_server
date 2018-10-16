@@ -16,13 +16,17 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedComments do
 
   describe "[account published comments on post]" do
     @query """
-    query($userId: ID!, $thread: CommentableThread, $filter: PagedFilter!) {
-      publishedComments(userId: $userId, thread: $thread, filter: $filter) {
+    query($userId: ID!, $filter: PagedFilter!) {
+      publishedPostComments(userId: $userId, filter: $filter) {
         entries {
           id
           body
           author {
             id
+          }
+          post {
+            id
+            title
           }
         }
         totalPages
@@ -44,12 +48,13 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedComments do
 
       random_comment_id = pub_comments |> Enum.random() |> Map.get(:id) |> to_string
 
-      variables = %{userId: user.id, thread: "POST", filter: %{page: 1, size: 20}}
-      results = guest_conn |> query_result(@query, variables, "publishedComments")
+      variables = %{userId: user.id, filter: %{page: 1, size: 20}}
+      results = guest_conn |> query_result(@query, variables, "publishedPostComments")
 
       assert results |> is_valid_pagination?
       assert results["totalCount"] == @publish_count
 
+      assert results["entries"] |> Enum.all?(&(&1["post"]["id"] == to_string(post.id)))
       assert results["entries"] |> Enum.all?(&(&1["author"]["id"] == to_string(user.id)))
       assert results["entries"] |> Enum.any?(&(&1["id"] == random_comment_id))
     end
@@ -57,13 +62,17 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedComments do
 
   describe "[account published comments on job]" do
     @query """
-    query($userId: ID!, $thread: CommentableThread, $filter: PagedFilter!) {
-      publishedComments(userId: $userId, thread: $thread, filter: $filter) {
+    query($userId: ID!, $filter: PagedFilter!) {
+      publishedJobComments(userId: $userId, filter: $filter) {
         entries {
           id
           body
           author {
             id
+          }
+          job {
+            id
+            title
           }
         }
         totalPages
@@ -85,12 +94,13 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedComments do
 
       random_comment_id = pub_comments |> Enum.random() |> Map.get(:id) |> to_string
 
-      variables = %{userId: user.id, thread: "JOB", filter: %{page: 1, size: 20}}
-      results = guest_conn |> query_result(@query, variables, "publishedComments")
+      variables = %{userId: user.id, filter: %{page: 1, size: 20}}
+      results = guest_conn |> query_result(@query, variables, "publishedJobComments")
 
       assert results |> is_valid_pagination?
       assert results["totalCount"] == @publish_count
 
+      assert results["entries"] |> Enum.all?(&(&1["job"]["id"] == to_string(job.id)))
       assert results["entries"] |> Enum.all?(&(&1["author"]["id"] == to_string(user.id)))
       assert results["entries"] |> Enum.any?(&(&1["id"] == random_comment_id))
     end
@@ -98,13 +108,17 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedComments do
 
   describe "[account published comments on video]" do
     @query """
-    query($userId: ID!, $thread: CommentableThread, $filter: PagedFilter!) {
-      publishedComments(userId: $userId, thread: $thread, filter: $filter) {
+    query($userId: ID!, $filter: PagedFilter!) {
+      publishedVideoComments(userId: $userId, filter: $filter) {
         entries {
           id
           body
           author {
             id
+          }
+          video {
+            id
+            title
           }
         }
         totalPages
@@ -126,12 +140,13 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedComments do
 
       random_comment_id = pub_comments |> Enum.random() |> Map.get(:id) |> to_string
 
-      variables = %{userId: user.id, thread: "VIDEO", filter: %{page: 1, size: 20}}
-      results = guest_conn |> query_result(@query, variables, "publishedComments")
+      variables = %{userId: user.id, filter: %{page: 1, size: 20}}
+      results = guest_conn |> query_result(@query, variables, "publishedVideoComments")
 
       assert results |> is_valid_pagination?
       assert results["totalCount"] == @publish_count
 
+      assert results["entries"] |> Enum.all?(&(&1["video"]["id"] == to_string(video.id)))
       assert results["entries"] |> Enum.all?(&(&1["author"]["id"] == to_string(user.id)))
       assert results["entries"] |> Enum.any?(&(&1["id"] == random_comment_id))
     end
@@ -139,13 +154,17 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedComments do
 
   describe "[account published comments on repo]" do
     @query """
-    query($userId: ID!, $thread: CommentableThread, $filter: PagedFilter!) {
-      publishedComments(userId: $userId, thread: $thread, filter: $filter) {
+    query($userId: ID!, $filter: PagedFilter!) {
+      publishedRepoComments(userId: $userId, filter: $filter) {
         entries {
           id
           body
           author {
             id
+          }
+          repo {
+            id
+            title
           }
         }
         totalPages
@@ -167,12 +186,13 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedComments do
 
       random_comment_id = pub_comments |> Enum.random() |> Map.get(:id) |> to_string
 
-      variables = %{userId: user.id, thread: "REPO", filter: %{page: 1, size: 20}}
-      results = guest_conn |> query_result(@query, variables, "publishedComments")
+      variables = %{userId: user.id, filter: %{page: 1, size: 20}}
+      results = guest_conn |> query_result(@query, variables, "publishedRepoComments")
 
       assert results |> is_valid_pagination?
       assert results["totalCount"] == @publish_count
 
+      assert results["entries"] |> Enum.all?(&(&1["repo"]["id"] == to_string(repo.id)))
       assert results["entries"] |> Enum.all?(&(&1["author"]["id"] == to_string(user.id)))
       assert results["entries"] |> Enum.any?(&(&1["id"] == random_comment_id))
     end
