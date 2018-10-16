@@ -15,7 +15,7 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedContents do
     {:ok, ~m(guest_conn user_conn user community)a}
   end
 
-  describe "[account favorited posts]" do
+  describe "[account published posts]" do
     @query """
     query($userId: ID!, $filter: PagedFilter!) {
       publishedPosts(userId: $userId, filter: $filter) {
@@ -54,7 +54,7 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedContents do
     end
   end
 
-  describe "[account favorited jobs]" do
+  describe "[account published jobs]" do
     @query """
     query($userId: ID!, $filter: PagedFilter!) {
       publishedJobs(userId: $userId, filter: $filter) {
@@ -93,7 +93,7 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedContents do
     end
   end
 
-  describe "[account favorited videos]" do
+  describe "[account published videos]" do
     @query """
     query($userId: ID!, $filter: PagedFilter!) {
       publishedVideos(userId: $userId, filter: $filter) {
@@ -132,7 +132,7 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedContents do
     end
   end
 
-  describe "[account favorited repos]" do
+  describe "[account published repos]" do
     @query """
     query($userId: ID!, $filter: PagedFilter!) {
       publishedRepos(userId: $userId, filter: $filter) {
