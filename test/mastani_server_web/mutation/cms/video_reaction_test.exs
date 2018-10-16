@@ -13,52 +13,6 @@ defmodule MastaniServer.Test.Mutation.VideoReaction do
     {:ok, ~m(user_conn guest_conn video user)a}
   end
 
-  describe "[video favorite]" do
-    @query """
-    mutation($id: ID!, $action: String!, $thread: CmsThread!) {
-      reaction(id: $id, action: $action, thread: $thread) {
-        id
-      }
-    }
-    """
-    test "login user can favorite a video", ~m(user_conn video)a do
-      variables = %{id: video.id, thread: "VIDEO", action: "FAVORITE"}
-      created = user_conn |> mutation_result(@query, variables, "reaction")
-
-      assert created["id"] == to_string(video.id)
-    end
-
-    test "unauth user favorite a video fails", ~m(guest_conn video)a do
-      variables = %{id: video.id, thread: "VIDEO", action: "FAVORITE"}
-
-      assert guest_conn
-             |> mutation_get_error?(@query, variables, ecode(:account_login))
-    end
-
-    @query """
-    mutation($id: ID!, $action: String!, $thread: CmsThread!) {
-      undoReaction(id: $id, action: $action, thread: $thread) {
-        id
-      }
-    }
-    """
-    test "login user can undo favorite a video", ~m(user_conn video user)a do
-      {:ok, _} = CMS.reaction(:video, :favorite, video.id, user)
-
-      variables = %{id: video.id, thread: "VIDEO", action: "FAVORITE"}
-      updated = user_conn |> mutation_result(@query, variables, "undoReaction")
-
-      assert updated["id"] == to_string(video.id)
-    end
-
-    test "unauth user undo favorite a video fails", ~m(guest_conn video)a do
-      variables = %{id: video.id, thread: "VIDEO", action: "FAVORITE"}
-
-      assert guest_conn
-             |> mutation_get_error?(@query, variables, ecode(:account_login))
-    end
-  end
-
   describe "[video star]" do
     @query """
     mutation($id: ID!, $action: String!, $thread: CmsThread!) {
