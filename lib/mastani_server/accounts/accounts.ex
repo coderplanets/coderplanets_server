@@ -36,6 +36,7 @@ defmodule MastaniServer.Accounts do
 
   # publish
   defdelegate published_contents(user, thread, filter), to: Publish
+  defdelegate published_comments(user, thread, filter), to: Publish
 
   # fans
   defdelegate follow(user, follower), to: Fans

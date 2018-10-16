@@ -22,9 +22,25 @@ defmodule MastaniServer.Accounts.Delegate.Publish do
     with {:ok, user} <- ORM.find(User, user_id),
          {:ok, content} <- match_action(thread, :self) do
       content.target
-      |> join(:inner, [p], a in assoc(p, :author))
-      |> where([p, a], a.user_id == ^user.id)
-      |> select([p, a], p)
+      |> join(:inner, [content], author in assoc(content, :author))
+      |> where([content, author], author.user_id == ^user.id)
+      |> select([content, author], content)
+      |> QueryBuilder.filter_pack(filter)
+      |> ORM.paginater(~m(page size)a)
+      |> done()
+    end
+  end
+
+  @doc """
+  get paged published comments of a user
+  """
+  def published_comments(%User{id: user_id}, thread, %{page: page, size: size} = filter) do
+    with {:ok, user} <- ORM.find(User, user_id),
+         {:ok, content} <- match_action(thread, :comment) do
+      content.reactor
+      |> join(:inner, [comment], author in assoc(comment, :author))
+      |> where([comment, author], author.id == ^user.id)
+      |> select([comment, author], comment)
       |> QueryBuilder.filter_pack(filter)
       |> ORM.paginater(~m(page size)a)
       |> done()
