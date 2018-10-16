@@ -7,12 +7,11 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedComments do
 
   setup do
     {:ok, user} = db_insert(:user)
-    {:ok, community} = db_insert(:community)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user, user)
 
-    {:ok, ~m(guest_conn user_conn user community)a}
+    {:ok, ~m(guest_conn user_conn user)a}
   end
 
   describe "[account published comments on post]" do
@@ -33,7 +32,7 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedComments do
       }
     }
     """
-    test "user can get paged published comments on post", ~m(guest_conn user community)a do
+    test "user can get paged published comments on post", ~m(guest_conn user)a do
       {:ok, post} = db_insert(:post)
 
       pub_comments =
@@ -74,7 +73,7 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedComments do
       }
     }
     """
-    test "user can get paged published comments on job", ~m(guest_conn user community)a do
+    test "user can get paged published comments on job", ~m(guest_conn user)a do
       {:ok, job} = db_insert(:job)
 
       pub_comments =
@@ -115,7 +114,7 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedComments do
       }
     }
     """
-    test "user can get paged published comments on video", ~m(guest_conn user community)a do
+    test "user can get paged published comments on video", ~m(guest_conn user)a do
       {:ok, video} = db_insert(:video)
 
       pub_comments =
@@ -156,7 +155,7 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedComments do
       }
     }
     """
-    test "user can get paged published comments on repo", ~m(guest_conn user community)a do
+    test "user can get paged published comments on repo", ~m(guest_conn user)a do
       {:ok, repo} = db_insert(:repo)
 
       pub_comments =
