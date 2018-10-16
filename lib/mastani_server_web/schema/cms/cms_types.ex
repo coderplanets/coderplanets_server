@@ -17,82 +17,6 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:id, :id)
   end
 
-  object :comment do
-    field(:id, :id)
-    field(:body, :string)
-    field(:floor, :integer)
-    field(:author, :user, resolve: dataloader(CMS, :author))
-
-    field :reply_to, :comment do
-      resolve(dataloader(CMS, :reply_to))
-    end
-
-    field :likes, list_of(:user) do
-      arg(:filter, :members_filter)
-
-      middleware(M.PageSizeProof)
-      resolve(dataloader(CMS, :likes))
-    end
-
-    field :likes_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-
-      resolve(dataloader(CMS, :likes))
-      middleware(M.ConvertToInt)
-    end
-
-    field :viewer_has_liked, :boolean do
-      arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
-
-      middleware(M.Authorize, :login)
-      # put current user into dataloader's args
-      middleware(M.PutCurrentUser)
-      resolve(dataloader(CMS, :likes))
-      middleware(M.ViewerDidConvert)
-    end
-
-    field :dislikes, list_of(:user) do
-      arg(:filter, :members_filter)
-
-      middleware(M.PageSizeProof)
-      resolve(dataloader(CMS, :dislikes))
-    end
-
-    field :viewer_has_disliked, :boolean do
-      arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
-
-      middleware(M.Authorize, :login)
-      # put current user into dataloader's args
-      middleware(M.PutCurrentUser)
-      resolve(dataloader(CMS, :dislikes))
-      middleware(M.ViewerDidConvert)
-    end
-
-    field :dislikes_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-
-      resolve(dataloader(CMS, :dislikes))
-      middleware(M.ConvertToInt)
-    end
-
-    field :replies, list_of(:comment) do
-      arg(:filter, :members_filter)
-
-      middleware(M.ForceLoader)
-      middleware(M.PageSizeProof)
-      resolve(dataloader(CMS, :replies))
-    end
-
-    field :replies_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-
-      resolve(dataloader(CMS, :replies))
-      middleware(M.ConvertToInt)
-    end
-
-    timestamp_fields()
-  end
-
   object :post do
     interface(:article)
     field(:id, :id)
@@ -418,6 +342,10 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:community, :community, resolve: dataloader(CMS, :community))
 
     timestamp_fields()
+  end
+
+  object :comment do
+    comments_fields()
   end
 
   object :paged_categories do
