@@ -13,52 +13,6 @@ defmodule MastaniServer.Test.Mutation.JobReaction do
     {:ok, ~m(user_conn guest_conn job user)a}
   end
 
-  describe "[job favorite]" do
-    @query """
-    mutation($id: ID!, $action: String!, $thread: CmsThread!) {
-      reaction(id: $id, action: $action, thread: $thread) {
-        id
-      }
-    }
-    """
-    test "login user can favorite a job", ~m(user_conn job)a do
-      variables = %{id: job.id, thread: "JOB", action: "FAVORITE"}
-      created = user_conn |> mutation_result(@query, variables, "reaction")
-
-      assert created["id"] == to_string(job.id)
-    end
-
-    test "unauth user favorite a job fails", ~m(guest_conn job)a do
-      variables = %{id: job.id, thread: "JOB", action: "FAVORITE"}
-
-      assert guest_conn
-             |> mutation_get_error?(@query, variables, ecode(:account_login))
-    end
-
-    @query """
-    mutation($id: ID!, $action: String!, $thread: CmsThread!) {
-      undoReaction(id: $id, action: $action, thread: $thread) {
-        id
-      }
-    }
-    """
-    test "login user can undo favorite a job", ~m(user_conn job user)a do
-      {:ok, _} = CMS.reaction(:job, :favorite, job.id, user)
-
-      variables = %{id: job.id, thread: "JOB", action: "FAVORITE"}
-      updated = user_conn |> mutation_result(@query, variables, "undoReaction")
-
-      assert updated["id"] == to_string(job.id)
-    end
-
-    test "unauth user undo favorite a job fails", ~m(guest_conn job)a do
-      variables = %{id: job.id, thread: "JOB", action: "FAVORITE"}
-
-      assert guest_conn
-             |> mutation_get_error?(@query, variables, ecode(:account_login))
-    end
-  end
-
   describe "[job star]" do
     @query """
     mutation($id: ID!, $action: String!, $thread: CmsThread!) {
