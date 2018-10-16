@@ -51,6 +51,13 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:repo_comment)
   end
 
+  enum :commentable_thread do
+    value(:post)
+    value(:job)
+    value(:video)
+    value(:repo)
+  end
+
   enum :cms_thread do
     value(:post)
     value(:job)

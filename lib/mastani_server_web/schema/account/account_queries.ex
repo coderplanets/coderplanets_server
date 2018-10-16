@@ -171,6 +171,16 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.published_contents/3)
     end
 
+    @desc "get paged published comments on post"
+    field :published_comments, :paged_comments do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :commentable_thread, default_value: :post)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.published_comments/3)
+    end
+
     @desc "paged communities which the user it's the editor"
     field :editable_communities, :paged_communities do
       arg(:user_id, :id)
