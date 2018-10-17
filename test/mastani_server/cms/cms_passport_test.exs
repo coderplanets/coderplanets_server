@@ -58,7 +58,7 @@ defmodule MastaniServer.Test.CMSPassport do
     end
 
     test "get a normal user's passport fails", ~m(user)a do
-      assert {:error, _} = CMS.get_passport(user)
+      assert {:ok, %{}} = CMS.get_passport(user)
     end
 
     test "get a non-exsit user's passport fails" do

@@ -210,12 +210,8 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   end
 
   def get_passport_string(root, _args, %{context: %{cur_user: _}}) do
-    case CMS.get_passport(%User{id: root.id}) do
-      {:ok, passport} ->
-        {:ok, Jason.encode!(passport)}
-
-      {:error, _} ->
-        {:ok, nil}
+    with {:ok, passport} <- CMS.get_passport(%User{id: root.id}) do
+      {:ok, Jason.encode!(passport)}
     end
   end
 

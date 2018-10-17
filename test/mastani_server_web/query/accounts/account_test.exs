@@ -75,6 +75,16 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert results["nickname"] == user.nickname
       assert results["educationBackgrounds"] == []
       assert results["workBackgrounds"] == []
+      assert results["cmsPassport"] == nil
+    end
+
+    test "login newbie user can get own empty cms_passport", ~m(user)a do
+      user_conn = simu_conn(:user, user)
+      variables = %{id: user.id}
+      results = user_conn |> query_result(@query, variables, "user")
+
+      assert results["cmsPassport"] == %{}
+      assert results["cmsPassportString"] == "{}"
     end
 
     @valid_rules %{
@@ -96,14 +106,14 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert Map.equal?(Jason.decode!(results["cmsPassportString"]), @valid_rules)
     end
 
-    test "login user can get nil if cms_passport not exsit", ~m(user)a do
+    test "login user can get empty if cms_passport not exsit", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
       variables = %{id: user.id}
       results = user_conn |> query_result(@query, variables, "user")
 
-      assert nil == results["cmsPassport"]
-      assert nil == results["cmsPassportString"]
+      assert %{} == results["cmsPassport"]
+      assert "{}" == results["cmsPassportString"]
     end
 
     @query """

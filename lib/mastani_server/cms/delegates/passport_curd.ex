@@ -25,8 +25,14 @@ defmodule MastaniServer.CMS.Delegate.PassportCURD do
   return a user's passport in CMS context
   """
   def get_passport(%Accounts.User{} = user) do
-    with {:ok, passport} <- ORM.find_by(UserPasport, user_id: user.id) do
-      {:ok, passport.rules}
+    with {:ok, _} <- ORM.find(Accounts.User, user.id) do
+      case ORM.find_by(UserPasport, user_id: user.id) do
+        {:ok, passport} ->
+          {:ok, passport.rules}
+
+        {:error, error} ->
+          {:ok, %{}}
+      end
     end
   end
 
