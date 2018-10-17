@@ -24,18 +24,19 @@ defmodule MastaniServer.CMS.Utils.Loader do
     # Job,
     JobFavorite,
     # JobStar,
+    JobComment,
     JobCommentReply,
     JobCommentDislike,
     JobCommentLike,
-    # job comment
-    # JobComment,
     # Video
     VideoFavorite,
     VideoStar,
+    VideoComment,
     VideoCommentReply,
     VideoCommentDislike,
     VideoCommentLike,
     # repo
+    RepoComment,
     RepoCommentReply,
     RepoCommentLike,
     RepoCommentDislike
@@ -309,6 +310,12 @@ defmodule MastaniServer.CMS.Utils.Loader do
   end
 
   # ---- job comments ------
+  def query({"jobs_comments", JobComment}, %{count: _}) do
+    JobComment
+    |> group_by([c], c.job_id)
+    |> select([c], count(c.id))
+  end
+
   def query({"jobs_comments_replies", JobCommentReply}, %{count: _}) do
     JobCommentReply
     |> group_by([c], c.job_comment_id)
@@ -360,6 +367,12 @@ defmodule MastaniServer.CMS.Utils.Loader do
   # ---- job ------
 
   # ---- video comments ------
+  def query({"videos_comments", VideoComment}, %{count: _}) do
+    VideoComment
+    |> group_by([c], c.video_id)
+    |> select([c], count(c.id))
+  end
+
   def query({"videos_comments_replies", VideoCommentReply}, %{count: _}) do
     VideoCommentReply
     |> group_by([c], c.video_comment_id)
@@ -413,6 +426,12 @@ defmodule MastaniServer.CMS.Utils.Loader do
   # ---- video ------
 
   # --- repo comments ------
+  def query({"repos_comments", RepoComment}, %{count: _}) do
+    RepoComment
+    |> group_by([c], c.repo_id)
+    |> select([c], count(c.id))
+  end
+
   def query({"repos_comments_replies", RepoCommentReply}, %{count: _}) do
     RepoCommentReply
     |> group_by([c], c.repo_comment_id)
