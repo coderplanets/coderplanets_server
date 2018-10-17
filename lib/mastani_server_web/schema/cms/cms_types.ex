@@ -121,6 +121,13 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     # field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
+    field :comments_count, :integer do
+      arg(:count, :count_type, default_value: :count)
+
+      resolve(dataloader(CMS, :comments))
+      middleware(M.ConvertToInt)
+    end
+
     favorite_fields(:video)
     star_fields(:video)
     timestamp_fields()
@@ -172,6 +179,13 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     # field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
+    field :comments_count, :integer do
+      arg(:count, :count_type, default_value: :count)
+
+      resolve(dataloader(CMS, :comments))
+      middleware(M.ConvertToInt)
+    end
+
     timestamp_fields()
   end
 
@@ -197,6 +211,13 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
+
+    field :comments_count, :integer do
+      arg(:count, :count_type, default_value: :count)
+
+      resolve(dataloader(CMS, :comments))
+      middleware(M.ConvertToInt)
+    end
 
     favorite_fields(:job)
     timestamp_fields()

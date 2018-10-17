@@ -16,6 +16,31 @@ defmodule MastaniServer.Test.Query.RepoComment do
   # TODO: user can get specific user's replies :list_replies
   describe "[repo comment]" do
     @query """
+    query($filter: PagedArticleFilter) {
+      pagedRepos(filter: $filter) {
+        entries {
+          id
+          title
+          commentsCount
+        }
+        totalCount
+      }
+    }
+    """
+    test "can get comments info in paged repos", ~m(user guest_conn)a do
+      body = "this is a test comment"
+
+      {:ok, community} = db_insert(:community)
+      {:ok, repo} = CMS.create_content(community, :repo, mock_attrs(:repo), user)
+      {:ok, _comment} = CMS.create_comment(:repo, repo.id, body, user)
+
+      variables = %{filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedRepos")
+
+      assert results["entries"] |> List.first() |> Map.get("commentsCount") == 1
+    end
+
+    @query """
     query($thread: CmsThread, $id: ID!, $filter: CommentsFilter!) {
       pagedComments(thread: $thread, id: $id, filter: $filter) {
         entries {

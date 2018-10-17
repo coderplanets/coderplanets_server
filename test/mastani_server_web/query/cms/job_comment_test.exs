@@ -14,7 +14,33 @@ defmodule MastaniServer.Test.Query.JobComment do
   end
 
   # TODO: user can get specific user's replies :list_replies
+
   describe "[job comment]" do
+    @query """
+    query($filter: PagedArticleFilter) {
+      pagedJobs(filter: $filter) {
+        entries {
+          id
+          title
+          commentsCount
+        }
+        totalCount
+      }
+    }
+    """
+    test "can get comments info in paged jobs", ~m(user guest_conn)a do
+      body = "this is a test comment"
+
+      {:ok, community} = db_insert(:community)
+      {:ok, job} = CMS.create_content(community, :job, mock_attrs(:job), user)
+      {:ok, _comment} = CMS.create_comment(:job, job.id, body, user)
+
+      variables = %{filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+
+      assert results["entries"] |> List.first() |> Map.get("commentsCount") == 1
+    end
+
     @query """
     query($thread: CmsThread, $id: ID!, $filter: CommentsFilter!) {
       pagedComments(thread: $thread, id: $id, filter: $filter) {
@@ -23,6 +49,7 @@ defmodule MastaniServer.Test.Query.JobComment do
           body
           likesCount
           dislikesCount
+          commentsCount
         }
         totalPages
         totalCount

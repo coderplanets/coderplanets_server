@@ -16,6 +16,31 @@ defmodule MastaniServer.Test.Query.VideoComment do
   # TODO: user can get specific user's replies :list_replies
   describe "[video comment]" do
     @query """
+    query($filter: PagedArticleFilter) {
+      pagedVideos(filter: $filter) {
+        entries {
+          id
+          title
+          commentsCount
+        }
+        totalCount
+      }
+    }
+    """
+    test "can get comments info in paged videos", ~m(user guest_conn)a do
+      body = "this is a test comment"
+
+      {:ok, community} = db_insert(:community)
+      {:ok, video} = CMS.create_content(community, :video, mock_attrs(:video), user)
+      {:ok, _comment} = CMS.create_comment(:video, video.id, body, user)
+
+      variables = %{filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
+
+      assert results["entries"] |> List.first() |> Map.get("commentsCount") == 1
+    end
+
+    @query """
     query($thread: CmsThread, $id: ID!, $filter: CommentsFilter!) {
       pagedComments(thread: $thread, id: $id, filter: $filter) {
         entries {
