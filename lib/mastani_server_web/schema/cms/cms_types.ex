@@ -37,43 +37,15 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field :comments, list_of(:comment) do
       arg(:filter, :members_filter)
 
-      # middleware(M.ForceLoader)
       middleware(M.PageSizeProof)
       resolve(dataloader(CMS, :comments))
     end
 
-    @dec "total comments of the post"
-    field :comments_count, :integer do
-      arg(:count, :count_type, default_value: :count)
+    # comments_count
+    # comments_participators
+    comments_counter_fields()
 
-      resolve(dataloader(CMS, :comments))
-      middleware(M.ConvertToInt)
-    end
-
-    field :comments_participators, list_of(:user) do
-      arg(:filter, :members_filter)
-      arg(:unique, :unique_type, default_value: true)
-
-      middleware(M.ForceLoader)
-      middleware(M.PageSizeProof)
-      resolve(dataloader(CMS, :comments))
-    end
-
-    field :comments_participators2, list_of(:user) do
-      arg(:filter, :members_filter)
-      arg(:unique, :unique_type, default_value: true)
-
-      middleware(M.PageSizeProof)
-
-      resolve(fn post, _args, %{context: %{loader: loader}} ->
-        loader
-        |> Dataloader.load(CMS, {:many, CMS.PostComment}, cp_users: post.id)
-        |> on_load(fn loader ->
-          {:ok, Dataloader.get(loader, CMS, {:many, CMS.PostComment}, cp_users: post.id)}
-        end)
-      end)
-    end
-
+    @desc "totalCount of unique participator list of a the comments"
     field :comments_participators_count, :integer do
       resolve(fn post, _args, %{context: %{loader: loader}} ->
         loader
@@ -84,18 +56,40 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       end)
     end
 
-    field :comments_participators_count_wired, :integer do
-      arg(:unique, :unique_type, default_value: true)
-      arg(:count, :count_type, default_value: :count)
-
-      # middleware(M.ForceLoader)
-      resolve(dataloader(CMS, :comments))
-      # middleware(M.CountLength)
-    end
-
     favorite_fields(:post)
     star_fields(:post)
 
+    timestamp_fields()
+  end
+
+  object :job do
+    interface(:article)
+    field(:id, :id)
+    field(:title, :string)
+    field(:desc, :string)
+    field(:company, :string)
+    field(:company_logo, :string)
+    field(:digest, :string)
+    field(:location, :string)
+    field(:length, :integer)
+    field(:link_addr, :string)
+    field(:body, :string)
+    field(:views, :integer)
+
+    field(:pin, :boolean)
+    field(:trash, :boolean)
+
+    # favorite_count, viewer_did ..
+
+    field(:author, :user, resolve: dataloader(CMS, :author))
+    field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
+    field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
+
+    # comments_count
+    # comments_participators
+    comments_counter_fields()
+
+    favorite_fields(:job)
     timestamp_fields()
   end
 
@@ -122,13 +116,9 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
-    @dec "total comments of the video"
-    field :comments_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-
-      resolve(dataloader(CMS, :comments))
-      middleware(M.ConvertToInt)
-    end
+    # comments_count
+    # comments_participators
+    comments_counter_fields()
 
     favorite_fields(:video)
     star_fields(:video)
@@ -181,49 +171,10 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
-    @dec "total comments of the repo"
-    field :comments_count, :integer do
-      arg(:count, :count_type, default_value: :count)
+    # comments_count
+    # comments_participators
+    comments_counter_fields()
 
-      resolve(dataloader(CMS, :comments))
-      middleware(M.ConvertToInt)
-    end
-
-    timestamp_fields()
-  end
-
-  object :job do
-    interface(:article)
-    field(:id, :id)
-    field(:title, :string)
-    field(:desc, :string)
-    field(:company, :string)
-    field(:company_logo, :string)
-    field(:digest, :string)
-    field(:location, :string)
-    field(:length, :integer)
-    field(:link_addr, :string)
-    field(:body, :string)
-    field(:views, :integer)
-
-    field(:pin, :boolean)
-    field(:trash, :boolean)
-
-    # favorite_count, viewer_did ..
-
-    field(:author, :user, resolve: dataloader(CMS, :author))
-    field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
-    field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
-
-    @dec "total comments of the job"
-    field :comments_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-
-      resolve(dataloader(CMS, :comments))
-      middleware(M.ConvertToInt)
-    end
-
-    favorite_fields(:job)
     timestamp_fields()
   end
 
