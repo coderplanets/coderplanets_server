@@ -214,7 +214,7 @@ defmodule MastaniServerWeb.Schema.Utils.Helper do
     end
   end
 
-  defmacro comments_counter_fields do
+  defmacro comments_counter_fields(thread) do
     quote do
       # @dec "total comments of the post"
       field :comments_count, :integer do
@@ -233,6 +233,16 @@ defmodule MastaniServerWeb.Schema.Utils.Helper do
         middleware(M.PageSizeProof)
         resolve(dataloader(CMS, :comments))
         middleware(M.CutParticipators)
+      end
+
+      field(:paged_comments_participators, :paged_users) do
+        arg(
+          :thread,
+          unquote(String.to_atom("#{to_string(thread)}_thread")),
+          default_value: unquote(thread)
+        )
+
+        resolve(&R.CMS.paged_comments_participators/3)
       end
     end
   end
