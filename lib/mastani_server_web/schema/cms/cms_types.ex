@@ -56,6 +56,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       end)
     end
 
+    # fields for: favorite count, favorited_users, viewer_did_favorite..
     favorite_fields(:post)
     star_fields(:post)
 
@@ -79,8 +80,6 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:pin, :boolean)
     field(:trash, :boolean)
 
-    # favorite_count, viewer_did ..
-
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
@@ -89,6 +88,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     # comments_participators
     comments_counter_fields()
 
+    # fields for: favorite count, favorited_users, viewer_did_favorite..
     favorite_fields(:job)
     timestamp_fields()
   end
@@ -120,20 +120,10 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     # comments_participators
     comments_counter_fields()
 
+    # fields for: favorite count, favorited_users, viewer_did_favorite..
     favorite_fields(:video)
     star_fields(:video)
     timestamp_fields()
-  end
-
-  object :repo_contributor do
-    field(:avatar, :string)
-    field(:html_url, :string)
-    field(:nickname, :string)
-  end
-
-  object :repo_lang do
-    field(:name, :string)
-    field(:color, :string)
   end
 
   object :repo do
@@ -174,8 +164,21 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     # comments_count
     # comments_participators
     comments_counter_fields()
+    # fields for: favorite count, favorited_users, viewer_did_favorite..
+    favorite_fields(:repo)
 
     timestamp_fields()
+  end
+
+  object :repo_contributor do
+    field(:avatar, :string)
+    field(:html_url, :string)
+    field(:nickname, :string)
+  end
+
+  object :repo_lang do
+    field(:name, :string)
+    field(:color, :string)
   end
 
   object :github_contributor do

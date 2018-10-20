@@ -53,7 +53,7 @@ defmodule MastaniServerWeb.Schema.Utils.Helper do
   alias MastaniServerWeb.Resolvers, as: R
   alias MastaniServerWeb.Middleware, as: M
 
-  # fields for: favorite count, users, viewer_did_favorite..
+  # fields for: favorite count, favorited_users, viewer_did_favorite..
   defmacro favorite_fields(thread) do
     quote do
       @doc "if viewer has favroted of this #{unquote(thread)}"
