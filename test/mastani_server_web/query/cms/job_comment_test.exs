@@ -30,7 +30,6 @@ defmodule MastaniServer.Test.Query.JobComment do
       }
     }
     """
-    @tag :wip
     test "can get comments participators of a job", ~m(user guest_conn)a do
       {:ok, user2} = db_insert(:user)
 
@@ -54,7 +53,6 @@ defmodule MastaniServer.Test.Query.JobComment do
       assert comments_count == 3
     end
 
-    @tag :wip
     test "can get comments participators of a job with multi user", ~m(user guest_conn)a do
       body = "this is a test comment"
       {:ok, community} = db_insert(:community)
