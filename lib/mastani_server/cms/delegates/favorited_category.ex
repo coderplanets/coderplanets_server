@@ -9,29 +9,33 @@ defmodule MastaniServer.CMS.Delegate.FavoritedContents do
   alias MastaniServer.CMS
 
   def favorited_category(:post, id, %User{id: user_id}) do
-    case ORM.find_by(CMS.PostFavorite, post_id: id, user_id: user_id) do
-      {:ok, post_favorite} ->
-        {:ok, post_favorite.category_id}
-
-      _ ->
-        {:ok, nil}
-    end
+    CMS.PostFavorite
+    |> ORM.find_by(post_id: id, user_id: user_id)
+    |> handle_reault
   end
 
   def favorited_category(:job, id, %User{id: user_id}) do
-    case ORM.find_by(CMS.JobFavorite, job_id: id, user_id: user_id) do
-      {:ok, job_favorite} ->
-        {:ok, job_favorite.category_id}
-
-      _ ->
-        {:ok, nil}
-    end
+    CMS.JobFavorite
+    |> ORM.find_by(job_id: id, user_id: user_id)
+    |> handle_reault
   end
 
   def favorited_category(:video, id, %User{id: user_id}) do
-    case ORM.find_by(CMS.VideoFavorite, video_id: id, user_id: user_id) do
-      {:ok, video_favorite} ->
-        {:ok, video_favorite.category_id}
+    CMS.VideoFavorite
+    |> ORM.find_by(video_id: id, user_id: user_id)
+    |> handle_reault
+  end
+
+  def favorited_category(:repo, id, %User{id: user_id}) do
+    CMS.RepoFavorite
+    |> ORM.find_by(repo_id: id, user_id: user_id)
+    |> handle_reault
+  end
+
+  defp handle_reault(result) do
+    case result do
+      {:ok, content} ->
+        {:ok, content.category_id}
 
       _ ->
         {:ok, nil}
