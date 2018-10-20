@@ -159,7 +159,6 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
       }
     }
     """
-    @tag :wip
     test "user can put a post to favorites category", ~m(user user_conn post)a do
       test_category = "test category"
       {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
@@ -176,7 +175,6 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
       assert found.post_id == post.id
     end
 
-    @tag :wip
     test "user can put a job to favorites category", ~m(user user_conn job)a do
       test_category = "test category"
       {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
@@ -193,7 +191,6 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
       assert found.job_id == job.id
     end
 
-    @tag :wip
     test "user can put a video to favorites category", ~m(user user_conn video)a do
       test_category = "test category"
       {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
@@ -210,7 +207,6 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
       assert found.video_id == video.id
     end
 
-    @tag :wip
     test "user can put a repo to favorites category", ~m(user user_conn repo)a do
       test_category = "test category"
       {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
@@ -254,7 +250,6 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
       assert {:error, _} = CMS.PostFavorite |> ORM.find_by(%{post_id: post.id, user_id: user.id})
     end
 
-    @tag :wip
     test "user can unset a job to favorites category", ~m(user user_conn job)a do
       test_category = "test category"
       {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
@@ -272,7 +267,6 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
       assert {:error, _} = CMS.JobFavorite |> ORM.find_by(%{job_id: job.id, user_id: user.id})
     end
 
-    @tag :wip
     test "user can unset a video to favorites category", ~m(user user_conn video)a do
       test_category = "test category"
       {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
@@ -292,7 +286,6 @@ defmodule MastaniServer.Test.Mutation.Accounts.FavoriteCategory do
                CMS.VideoFavorite |> ORM.find_by(%{video_id: video.id, user_id: user.id})
     end
 
-    @tag :wip
     test "user can unset a repo to favorites category", ~m(user user_conn repo)a do
       test_category = "test category"
       {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
