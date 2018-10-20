@@ -73,6 +73,9 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     {:error, [message: "update follor fails", code: ecode(:delete_fails)]}
   end
 
+  @doc """
+  list paged comments
+  """
   def list_comments(thread, content_id, %{page: page, size: size} = filters) do
     with {:ok, action} <- match_action(thread, :comment) do
       dynamic = dynamic_comment_where(thread, content_id)
@@ -80,6 +83,24 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
       action.reactor
       |> where(^dynamic)
       |> QueryBuilder.filter_pack(filters)
+      |> ORM.paginater(~m(page size)a)
+      |> done()
+    end
+  end
+
+  @doc """
+  list paged comments participators
+  """
+  def list_comments_participators(thread, content_id, %{page: page, size: size} = filters) do
+    with {:ok, action} <- match_action(thread, :comment) do
+      dynamic = dynamic_comment_where(thread, content_id)
+
+      action.reactor
+      |> where(^dynamic)
+      |> QueryBuilder.filter_pack(filters)
+      |> join(:inner, [c], a in assoc(c, :author))
+      |> distinct([c, a], a.id)
+      |> select([c, a], a)
       |> ORM.paginater(~m(page size)a)
       |> done()
     end
