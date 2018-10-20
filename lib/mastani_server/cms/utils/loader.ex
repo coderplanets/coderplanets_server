@@ -136,6 +136,9 @@ defmodule MastaniServer.CMS.Utils.Loader do
   @doc """
   get unique participators join in comments
   """
+  # NOTE: this is NOT the right solution
+  # should use WINDOW function
+  # see https://github.com/coderplanets/coderplanets_server/issues/16
   def query({"posts_comments", PostComment}, %{filter: filter, unique: true}) do
     PostComment
     # |> QueryBuilder.filter_pack(filter)
