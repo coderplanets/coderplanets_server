@@ -19,7 +19,6 @@ defmodule MastaniServer.Test.Query.Repo do
     }
   }
   """
-  @tag :wip
   test "basic graphql query on repo with logined user", ~m(user_conn repo)a do
     variables = %{id: repo.id}
     results = user_conn |> query_result(@query, variables, "repo")
@@ -30,7 +29,6 @@ defmodule MastaniServer.Test.Query.Repo do
     assert length(Map.keys(results)) == 3
   end
 
-  @tag :wip
   test "basic graphql query on repo with stranger(unloged user)", ~m(guest_conn repo)a do
     variables = %{id: repo.id}
     results = guest_conn |> query_result(@query, variables, "repo")
@@ -51,7 +49,6 @@ defmodule MastaniServer.Test.Query.Repo do
     }
   }
   """
-  @tag :wip
   test "repo have favoritedUsers query field", ~m(user_conn repo)a do
     variables = %{id: repo.id}
     results = user_conn |> query_result(@query, variables, "repo")
@@ -67,7 +64,6 @@ defmodule MastaniServer.Test.Query.Repo do
     }
   }
   """
-  @tag :wip
   test "views should +1 after query the repo", ~m(user_conn repo)a do
     variables = %{id: repo.id}
     views_1 = user_conn |> query_result(@query, variables, "repo") |> Map.get("views")
@@ -86,7 +82,6 @@ defmodule MastaniServer.Test.Query.Repo do
     }
   }
   """
-  @tag :wip
   test "logged user can query viewerHasFavorited field", ~m(user_conn repo)a do
     variables = %{id: repo.id}
 
@@ -95,7 +90,6 @@ defmodule MastaniServer.Test.Query.Repo do
            |> has_boolen_value?("viewerHasFavorited")
   end
 
-  @tag :wip
   test "unlogged user can not query viewerHasFavorited field", ~m(guest_conn repo)a do
     variables = %{id: repo.id}
 
@@ -112,7 +106,6 @@ defmodule MastaniServer.Test.Query.Repo do
     }
   }
   """
-  @tag :wip
   test "login user can get nil repo favorited category id", ~m(repo)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
@@ -122,7 +115,6 @@ defmodule MastaniServer.Test.Query.Repo do
     assert result["favoritedCategoryId"] == nil
   end
 
-  @tag :wip
   test "login user can get repo favorited category id after favorited", ~m(repo)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
