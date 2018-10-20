@@ -42,8 +42,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     end
 
     # comments_count
-    # comments_participators
-    comments_counter_fields()
+    # comments_participators / paged
+    comments_counter_fields(:post)
 
     @desc "totalCount of unique participator list of a the comments"
     field :comments_participators_count, :integer do
@@ -86,7 +86,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
     # comments_count
     # comments_participators
-    comments_counter_fields()
+    comments_counter_fields(:job)
 
     # fields for: favorite count, favorited_users, viewer_did_favorite..
     favorite_fields(:job)
@@ -118,7 +118,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
     # comments_count
     # comments_participators
-    comments_counter_fields()
+    comments_counter_fields(:video)
 
     # fields for: favorite count, favorited_users, viewer_did_favorite..
     favorite_fields(:video)
@@ -163,7 +163,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
     # comments_count
     # comments_participators
-    comments_counter_fields()
+    comments_counter_fields(:repo)
     # fields for: favorite count, favorited_users, viewer_did_favorite..
     favorite_fields(:repo)
 

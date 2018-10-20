@@ -24,6 +24,12 @@ defmodule MastaniServer.Test.Query.VideoComment do
             id
             nickname
           }
+          pagedCommentsParticipators {
+            entries {
+              id
+            }
+            totalCount
+          }
           commentsCount
         }
         totalCount
@@ -78,6 +84,58 @@ defmodule MastaniServer.Test.Query.VideoComment do
       assert results["entries"] |> List.first() |> Map.get("commentsParticipators") |> length == 5
       assert results["entries"] |> List.last() |> Map.get("commentsParticipators") |> length == 5
     end
+
+    test "can get paged commetns participators of a video", ~m(user guest_conn)a do
+      body = "this is a test comment"
+
+      {:ok, community} = db_insert(:community)
+      {:ok, video} = CMS.create_content(community, :video, mock_attrs(:video), user)
+      {:ok, users_list} = db_insert_multi(:user, 10)
+
+      Enum.each(
+        users_list,
+        &CMS.create_comment(:video, video.id, body, &1)
+      )
+
+      variables = %{filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
+      participators = results["entries"] |> List.first() |> Map.get("pagedCommentsParticipators")
+
+      assert participators["totalCount"] == 10
+    end
+  end
+
+  @query """
+  query($id: ID!, $thread: CmsThread, $filter: PagedFilter!) {
+    pagedCommentsParticipators(id: $id, thread: $thread, filter: $filter) {
+      entries {
+        id
+        nickname
+      }
+      totalPages
+      totalCount
+      pageSize
+      pageNumber
+    }
+  }
+  """
+  test "can get video's paged commetns participators", ~m(user guest_conn)a do
+    body = "this is a test comment"
+
+    {:ok, community} = db_insert(:community)
+    {:ok, video} = CMS.create_content(community, :video, mock_attrs(:video), user)
+    {:ok, users_list} = db_insert_multi(:user, 10)
+
+    Enum.each(
+      users_list,
+      &CMS.create_comment(:video, video.id, body, &1)
+    )
+
+    variables = %{id: video.id, thread: "VIDEO", filter: %{page: 1, size: 20}}
+    results = guest_conn |> query_result(@query, variables, "pagedCommentsParticipators")
+    assert results |> is_valid_pagination?()
+
+    assert results["totalCount"] == 10
   end
 
   # TODO: user can get specific user's replies :list_replies

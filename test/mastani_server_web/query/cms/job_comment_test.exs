@@ -24,6 +24,12 @@ defmodule MastaniServer.Test.Query.JobComment do
             id
             nickname
           }
+          pagedCommentsParticipators {
+            entries {
+              id
+            }
+            totalCount
+          }
           commentsCount
         }
         totalCount
@@ -78,6 +84,58 @@ defmodule MastaniServer.Test.Query.JobComment do
       assert results["entries"] |> List.first() |> Map.get("commentsParticipators") |> length == 5
       assert results["entries"] |> List.last() |> Map.get("commentsParticipators") |> length == 5
     end
+
+    test "can get paged commetns participators of a job", ~m(user guest_conn)a do
+      body = "this is a test comment"
+
+      {:ok, community} = db_insert(:community)
+      {:ok, job} = CMS.create_content(community, :job, mock_attrs(:job), user)
+      {:ok, users_list} = db_insert_multi(:user, 10)
+
+      Enum.each(
+        users_list,
+        &CMS.create_comment(:job, job.id, body, &1)
+      )
+
+      variables = %{filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+      participators = results["entries"] |> List.first() |> Map.get("pagedCommentsParticipators")
+
+      assert participators["totalCount"] == 10
+    end
+  end
+
+  @query """
+  query($id: ID!, $thread: CmsThread, $filter: PagedFilter!) {
+    pagedCommentsParticipators(id: $id, thread: $thread, filter: $filter) {
+      entries {
+        id
+        nickname
+      }
+      totalPages
+      totalCount
+      pageSize
+      pageNumber
+    }
+  }
+  """
+  test "can get job's paged commetns participators", ~m(user guest_conn)a do
+    body = "this is a test comment"
+
+    {:ok, community} = db_insert(:community)
+    {:ok, job} = CMS.create_content(community, :job, mock_attrs(:job), user)
+    {:ok, users_list} = db_insert_multi(:user, 10)
+
+    Enum.each(
+      users_list,
+      &CMS.create_comment(:job, job.id, body, &1)
+    )
+
+    variables = %{id: job.id, thread: "JOB", filter: %{page: 1, size: 20}}
+    results = guest_conn |> query_result(@query, variables, "pagedCommentsParticipators")
+    assert results |> is_valid_pagination?()
+
+    assert results["totalCount"] == 10
   end
 
   # TODO: user can get specific user's replies :list_replies
