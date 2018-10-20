@@ -13,6 +13,75 @@ defmodule MastaniServer.Test.Query.VideoComment do
     {:ok, ~m(user_conn guest_conn video user)a}
   end
 
+  describe "[video dataloader comment]" do
+    @query """
+    query($filter: PagedArticleFilter) {
+      pagedVideos(filter: $filter) {
+        entries {
+          id
+          title
+          commentsParticipators(filter: { first: 5 }) {
+            id
+            nickname
+          }
+          commentsCount
+        }
+        totalCount
+      }
+    }
+    """
+    @tag :wip
+    test "can get comments participators of a video", ~m(user guest_conn)a do
+      {:ok, user2} = db_insert(:user)
+
+      {:ok, community} = db_insert(:community)
+      {:ok, video} = CMS.create_content(community, :video, mock_attrs(:video), user)
+
+      variables = %{thread: "VIDEO", filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
+
+      body = "this is a test comment"
+      assert {:ok, _comment} = CMS.create_comment(:video, video.id, body, user)
+      assert {:ok, _comment} = CMS.create_comment(:video, video.id, body, user)
+
+      assert {:ok, _comment} = CMS.create_comment(:video, video.id, body, user2)
+
+      variables = %{filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
+
+      comments_count = results["entries"] |> List.first() |> Map.get("commentsCount")
+
+      assert comments_count == 3
+    end
+
+    @tag :wip
+    test "can get comments participators of a video with multi user", ~m(user guest_conn)a do
+      body = "this is a test comment"
+      {:ok, community} = db_insert(:community)
+      {:ok, video1} = CMS.create_content(community, :video, mock_attrs(:video), user)
+      {:ok, video2} = CMS.create_content(community, :video, mock_attrs(:video), user)
+
+      {:ok, users_list} = db_insert_multi(:user, 10)
+      {:ok, users_list2} = db_insert_multi(:user, 10)
+
+      Enum.each(
+        users_list,
+        &CMS.create_comment(:video, video1.id, body, &1)
+      )
+
+      Enum.each(
+        users_list2,
+        &CMS.create_comment(:video, video2.id, body, &1)
+      )
+
+      variables = %{thread: "VIDEO", filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
+
+      assert results["entries"] |> List.first() |> Map.get("commentsParticipators") |> length == 5
+      assert results["entries"] |> List.last() |> Map.get("commentsParticipators") |> length == 5
+    end
+  end
+
   # TODO: user can get specific user's replies :list_replies
   describe "[video comment]" do
     @query """

@@ -13,8 +13,76 @@ defmodule MastaniServer.Test.Query.JobComment do
     {:ok, ~m(user_conn guest_conn job user)a}
   end
 
-  # TODO: user can get specific user's replies :list_replies
+  describe "[job dataloader comment]" do
+    @query """
+    query($filter: PagedArticleFilter) {
+      pagedJobs(filter: $filter) {
+        entries {
+          id
+          title
+          commentsParticipators(filter: { first: 5 }) {
+            id
+            nickname
+          }
+          commentsCount
+        }
+        totalCount
+      }
+    }
+    """
+    @tag :wip
+    test "can get comments participators of a job", ~m(user guest_conn)a do
+      {:ok, user2} = db_insert(:user)
 
+      {:ok, community} = db_insert(:community)
+      {:ok, job} = CMS.create_content(community, :job, mock_attrs(:job), user)
+
+      variables = %{thread: "JOB", filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+
+      body = "this is a test comment"
+      assert {:ok, _comment} = CMS.create_comment(:job, job.id, body, user)
+      assert {:ok, _comment} = CMS.create_comment(:job, job.id, body, user)
+
+      assert {:ok, _comment} = CMS.create_comment(:job, job.id, body, user2)
+
+      variables = %{filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+
+      comments_count = results["entries"] |> List.first() |> Map.get("commentsCount")
+
+      assert comments_count == 3
+    end
+
+    @tag :wip
+    test "can get comments participators of a job with multi user", ~m(user guest_conn)a do
+      body = "this is a test comment"
+      {:ok, community} = db_insert(:community)
+      {:ok, job1} = CMS.create_content(community, :job, mock_attrs(:job), user)
+      {:ok, job2} = CMS.create_content(community, :job, mock_attrs(:job), user)
+
+      {:ok, users_list} = db_insert_multi(:user, 10)
+      {:ok, users_list2} = db_insert_multi(:user, 10)
+
+      Enum.each(
+        users_list,
+        &CMS.create_comment(:job, job1.id, body, &1)
+      )
+
+      Enum.each(
+        users_list2,
+        &CMS.create_comment(:job, job2.id, body, &1)
+      )
+
+      variables = %{thread: "JOB", filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+
+      assert results["entries"] |> List.first() |> Map.get("commentsParticipators") |> length == 5
+      assert results["entries"] |> List.last() |> Map.get("commentsParticipators") |> length == 5
+    end
+  end
+
+  # TODO: user can get specific user's replies :list_replies
   describe "[job comment]" do
     @query """
     query($filter: PagedArticleFilter) {
