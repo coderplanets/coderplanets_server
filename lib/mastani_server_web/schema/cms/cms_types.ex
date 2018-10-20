@@ -118,7 +118,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:pin, :boolean)
     field(:trash, :boolean)
 
-    # field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
+    field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
     field :comments_count, :integer do
@@ -151,6 +151,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:owner_name, :string)
     field(:owner_url, :string)
     field(:repo_url, :string)
+    field(:author, :user, resolve: dataloader(CMS, :author))
 
     field(:desc, :string)
     field(:homepage_url, :string)
@@ -168,7 +169,6 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
     field(:contributors, list_of(:repo_contributor))
 
-    field(:author, :user, resolve: dataloader(CMS, :author))
     field(:views, :integer)
     field(:pin, :boolean)
     field(:trash, :boolean)
@@ -176,7 +176,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     # field(:pin, :boolean)
     # field(:trash, :boolean)
 
-    # field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
+    field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
     field :comments_count, :integer do
