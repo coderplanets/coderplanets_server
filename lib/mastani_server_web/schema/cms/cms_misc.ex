@@ -35,7 +35,7 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
 
   enum :reactable_action do
     value(:star)
-    value(:favorite)
+    # value(:favorite)
     # value(:watch)
   end
 

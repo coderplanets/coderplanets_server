@@ -49,7 +49,6 @@ defmodule MastaniServer.Test.Query.JobComment do
           body
           likesCount
           dislikesCount
-          commentsCount
         }
         totalPages
         totalCount
@@ -58,6 +57,7 @@ defmodule MastaniServer.Test.Query.JobComment do
       }
     }
     """
+    @tag :wip2
     test "guest user can get a paged comment", ~m(guest_conn job user)a do
       body = "test comment"
 
