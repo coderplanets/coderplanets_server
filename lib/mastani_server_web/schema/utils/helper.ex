@@ -213,4 +213,27 @@ defmodule MastaniServerWeb.Schema.Utils.Helper do
       timestamp_fields()
     end
   end
+
+  defmacro comments_counter_fields do
+    quote do
+      # @dec "total comments of the post"
+      field :comments_count, :integer do
+        arg(:count, :count_type, default_value: :count)
+
+        resolve(dataloader(CMS, :comments))
+        middleware(M.ConvertToInt)
+      end
+
+      # @desc "unique participator list of a the comments"
+      field :comments_participators, list_of(:user) do
+        arg(:filter, :members_filter)
+        arg(:unique, :unique_type, default_value: true)
+
+        # middleware(M.ForceLoader)
+        middleware(M.PageSizeProof)
+        resolve(dataloader(CMS, :comments))
+        middleware(M.CutParticipators)
+      end
+    end
+  end
 end

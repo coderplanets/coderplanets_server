@@ -31,6 +31,7 @@ defmodule MastaniServer.Test.Query.PostComment do
       }
     }
     """
+    @tag :wip
     test "can get comments participators of a post", ~m(user guest_conn)a do
       {:ok, user2} = db_insert(:user)
 
@@ -67,6 +68,36 @@ defmodule MastaniServer.Test.Query.PostComment do
 
       assert comments_participators |> Enum.any?(&(&1["id"] == to_string(user.id)))
       assert comments_participators |> Enum.any?(&(&1["id"] == to_string(user2.id)))
+    end
+
+    @tag :wip
+    test "can get comments participators of a post with multi user", ~m(user guest_conn)a do
+      body = "this is a test comment"
+      {:ok, community} = db_insert(:community)
+      {:ok, post1} = CMS.create_content(community, :post, mock_attrs(:post), user)
+      {:ok, post2} = CMS.create_content(community, :post, mock_attrs(:post), user)
+
+      {:ok, users_list} = db_insert_multi(:user, 10)
+      {:ok, users_list2} = db_insert_multi(:user, 10)
+
+      Enum.each(
+        users_list,
+        &CMS.create_comment(:post, post1.id, body, &1)
+      )
+
+      Enum.each(
+        users_list2,
+        &CMS.create_comment(:post, post2.id, body, &1)
+      )
+
+      variables = %{filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+
+      assert results["entries"] |> List.first() |> Map.get("commentsParticipators") |> length == 5
+      assert results["entries"] |> List.first() |> Map.get("commentsParticipatorsCount") == 10
+
+      assert results["entries"] |> List.last() |> Map.get("commentsParticipators") |> length == 5
+      assert results["entries"] |> List.last() |> Map.get("commentsParticipatorsCount") == 10
     end
   end
 
