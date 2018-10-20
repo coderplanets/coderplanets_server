@@ -13,7 +13,6 @@ defmodule MastaniServer.Test.RepoReactions do
   end
 
   describe "[cms repo star/favorite reaction]" do
-    @tag :wip
     test "favorite and undo favorite reaction to repo", ~m(user community repo_attrs)a do
       {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
 
