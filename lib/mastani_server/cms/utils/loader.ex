@@ -36,6 +36,7 @@ defmodule MastaniServer.CMS.Utils.Loader do
     VideoCommentDislike,
     VideoCommentLike,
     # repo
+    RepoFavorite,
     RepoComment,
     RepoCommentReply,
     RepoCommentLike,
@@ -111,7 +112,9 @@ defmodule MastaniServer.CMS.Utils.Loader do
     JobFavorite |> QueryBuilder.members_pack(args)
   end
 
-  # def query({"jobs_stars", JobStar}, args), do: JobStar |> QueryBuilder.members_pack(args)
+  def query({"repos_favorites", RepoFavorite}, args) do
+    RepoFavorite |> QueryBuilder.members_pack(args)
+  end
 
   def query({"videos_favorites", VideoFavorite}, args) do
     VideoFavorite |> QueryBuilder.members_pack(args)
