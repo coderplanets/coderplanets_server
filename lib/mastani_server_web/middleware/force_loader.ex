@@ -1,8 +1,9 @@
-# this is a tmp solution for load related-users like situations
-# it turn dataloader into nomal N+1 resolver
-# NOTE: it should be replaced using "Select-Top-N-By-Group" solution
-
 defmodule MastaniServerWeb.Middleware.ForceLoader do
+  @moduledoc """
+  # this is a tmp solution for load related-users like situations
+  # it turn dataloader into nomal N+1 resolver
+  # NOTE: it should be replaced using "Select-Top-N-By-Group" solution
+  """
   @behaviour Absinthe.Middleware
 
   def call(%{source: %{id: id}} = resolution, _) do
