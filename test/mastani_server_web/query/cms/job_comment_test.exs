@@ -49,7 +49,6 @@ defmodule MastaniServer.Test.Query.JobComment do
           body
           likesCount
           dislikesCount
-          commentsCount
         }
         totalPages
         totalCount

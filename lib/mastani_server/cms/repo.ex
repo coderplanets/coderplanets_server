@@ -10,6 +10,7 @@ defmodule MastaniServer.CMS.Repo do
     Community,
     RepoComment,
     RepoContributor,
+    RepoFavorite,
     RepoLang,
     RepoCommunityFlag,
     Tag
@@ -52,6 +53,7 @@ defmodule MastaniServer.CMS.Repo do
     field(:last_fetch_time, :utc_datetime)
 
     has_many(:comments, {"repos_comments", RepoComment})
+    has_many(:favorites, {"repos_favorites", RepoFavorite})
 
     many_to_many(
       :tags,

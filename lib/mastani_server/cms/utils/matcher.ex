@@ -15,6 +15,7 @@ defmodule MastaniServer.CMS.Utils.Matcher do
     PostFavorite,
     JobFavorite,
     VideoFavorite,
+    RepoFavorite,
     PostStar,
     JobStar,
     VideoStar,
@@ -132,6 +133,9 @@ defmodule MastaniServer.CMS.Utils.Matcher do
 
   def match_action(:repo, :community),
     do: {:ok, %{target: Repo, reactor: Community, flag: RepoCommunityFlag}}
+
+  def match_action(:repo, :favorite),
+    do: {:ok, %{target: Repo, reactor: RepoFavorite, preload: :user}}
 
   def match_action(:repo, :comment),
     do: {:ok, %{target: Repo, reactor: RepoComment, preload: :author}}
