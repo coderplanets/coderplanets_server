@@ -42,6 +42,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       resolve(dataloader(CMS, :comments))
     end
 
+    @dec "total comments of the post"
     field :comments_count, :integer do
       arg(:count, :count_type, default_value: :count)
 
@@ -121,6 +122,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
+    @dec "total comments of the video"
     field :comments_count, :integer do
       arg(:count, :count_type, default_value: :count)
 
@@ -179,6 +181,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
+    @dec "total comments of the repo"
     field :comments_count, :integer do
       arg(:count, :count_type, default_value: :count)
 
@@ -212,6 +215,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
+    @dec "total comments of the job"
     field :comments_count, :integer do
       arg(:count, :count_type, default_value: :count)
 

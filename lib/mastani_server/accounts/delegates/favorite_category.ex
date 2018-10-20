@@ -16,7 +16,7 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
   alias MastaniServer.Accounts.{FavoriteCategory, User}
   alias MastaniServer.{CMS, Repo}
 
-  alias CMS.{PostFavorite, JobFavorite, VideoFavorite}
+  alias CMS.{PostFavorite, JobFavorite, VideoFavorite, RepoFavorite}
 
   alias Ecto.Multi
 
@@ -51,10 +51,13 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
         {:ok, post_author_ids} = affected_author_ids(:post, CMS.PostFavorite, category)
         {:ok, job_author_ids} = affected_author_ids(:job, CMS.JobFavorite, category)
         {:ok, video_author_ids} = affected_author_ids(:video, CMS.VideoFavorite, category)
+        {:ok, repo_author_ids} = affected_author_ids(:repo, CMS.RepoFavorite, category)
 
         # author_ids_list = count_words(total_author_ids) |> Map.to_list
         author_ids_list =
-          (post_author_ids ++ job_author_ids ++ video_author_ids) |> count_words |> Map.to_list()
+          (post_author_ids ++ job_author_ids ++ video_author_ids ++ repo_author_ids)
+          |> count_words
+          |> Map.to_list()
 
         # NOTE: if the contents have too many unique authors, it may be crash the server
         # so limit size to 20 unique authors
@@ -233,6 +236,9 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
 
   defp find_content_favorite(:video, content_id, user_id),
     do: VideoFavorite |> ORM.find_by(%{video_id: content_id, user_id: user_id})
+
+  defp find_content_favorite(:repo, content_id, user_id),
+    do: RepoFavorite |> ORM.find_by(%{repo_id: content_id, user_id: user_id})
 
   defp check_dup_category(content, category) do
     case content.category_id !== category.id do
