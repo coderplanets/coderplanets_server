@@ -127,6 +127,12 @@ defmodule MastaniServer.Test.Query.Post do
     post(id: $id) {
       id
       favoritedCategoryId
+      pagedCommentsParticipators {
+        entries {
+          id
+        }
+        totalCount
+      }
     }
   }
   """
