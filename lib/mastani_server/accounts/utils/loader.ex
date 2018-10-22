@@ -67,6 +67,10 @@ defmodule MastaniServer.Accounts.Utils.Loader do
     CMS.VideoFavorite |> count_contents
   end
 
+  def query({"repos_favorites", CMS.RepoFavorite}, %{count: _}) do
+    CMS.RepoFavorite |> count_contents
+  end
+
   def query(queryable, _args), do: queryable
 
   defp count_contents(queryable) do
