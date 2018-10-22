@@ -79,6 +79,7 @@ defmodule MastaniServer.Test.Query.Repo do
       id
       title
       viewerHasFavorited
+      favoritedCount
     }
   }
   """
