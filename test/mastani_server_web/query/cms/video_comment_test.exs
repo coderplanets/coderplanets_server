@@ -43,7 +43,7 @@ defmodule MastaniServer.Test.Query.VideoComment do
       {:ok, video} = CMS.create_content(community, :video, mock_attrs(:video), user)
 
       variables = %{thread: "VIDEO", filter: %{community: community.raw}}
-      results = guest_conn |> query_result(@query, variables, "pagedVideos")
+      guest_conn |> query_result(@query, variables, "pagedVideos")
 
       body = "this is a test comment"
       assert {:ok, _comment} = CMS.create_comment(:video, video.id, body, user)

@@ -43,7 +43,7 @@ defmodule MastaniServer.Test.Query.RepoComment do
       {:ok, repo} = CMS.create_content(community, :repo, mock_attrs(:repo), user)
 
       variables = %{thread: "REPO", filter: %{community: community.raw}}
-      results = guest_conn |> query_result(@query, variables, "pagedRepos")
+      guest_conn |> query_result(@query, variables, "pagedRepos")
 
       body = "this is a test comment"
       assert {:ok, _comment} = CMS.create_comment(:repo, repo.id, body, user)

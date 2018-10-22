@@ -43,7 +43,7 @@ defmodule MastaniServer.Test.Query.JobComment do
       {:ok, job} = CMS.create_content(community, :job, mock_attrs(:job), user)
 
       variables = %{thread: "JOB", filter: %{community: community.raw}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+      guest_conn |> query_result(@query, variables, "pagedJobs")
 
       body = "this is a test comment"
       assert {:ok, _comment} = CMS.create_comment(:job, job.id, body, user)
