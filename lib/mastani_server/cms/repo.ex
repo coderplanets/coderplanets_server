@@ -17,7 +17,7 @@ defmodule MastaniServer.CMS.Repo do
   }
 
   @required_fields ~w(title owner_name owner_url repo_url desc readme star_count issues_count prs_count fork_count watch_count)a
-  @optional_fields ~w(last_fetch_time homepage_url release_tag license)
+  @optional_fields ~w(last_sync homepage_url release_tag license)
 
   @type t :: %Repo{}
   schema "cms_repos" do
@@ -50,7 +50,7 @@ defmodule MastaniServer.CMS.Repo do
     field(:pin, :boolean, default_value: false)
     field(:trash, :boolean, default_value: false)
 
-    field(:last_fetch_time, :utc_datetime)
+    field(:last_sync, :utc_datetime)
 
     has_many(:comments, {"repos_comments", RepoComment})
     has_many(:favorites, {"repos_favorites", RepoFavorite})
