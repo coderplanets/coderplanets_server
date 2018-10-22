@@ -17,9 +17,9 @@ defmodule MastaniServer.Test.Accounts.Fans do
       {:ok, user2} = db_insert(:user)
 
       {:ok, _followeer} = user |> Accounts.follow(user2)
-      {:ok, found} = User |> ORM.find(user.id, preload: :followers)
+      {:ok, found} = User |> ORM.find(user2.id, preload: :followers)
 
-      assert found |> Map.get(:followers) |> Enum.any?(&(&1.user_id == user.id))
+      assert found |> Map.get(:followers) |> Enum.any?(&(&1.follower_id == user.id))
       assert found |> Map.get(:followers) |> length == 1
     end
 
@@ -52,12 +52,12 @@ defmodule MastaniServer.Test.Accounts.Fans do
       {:ok, user2} = db_insert(:user)
       {:ok, _followeer} = user |> Accounts.follow(user2)
 
-      {:ok, found} = User |> ORM.find(user.id, preload: :followers)
+      {:ok, found} = User |> ORM.find(user2.id, preload: :followers)
       assert found |> Map.get(:followers) |> length == 1
 
       {:ok, _followeer} = user |> Accounts.undo_follow(user2)
 
-      {:ok, found} = User |> ORM.find(user.id, preload: :followers)
+      {:ok, found} = User |> ORM.find(user2.id, preload: :followers)
       assert found |> Map.get(:followers) |> length == 0
     end
   end

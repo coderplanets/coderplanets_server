@@ -20,6 +20,7 @@ defmodule MastaniServer.Test.Mutation.Accounts.Fans do
     mutation($userId: ID!) {
       follow(userId: $userId) {
         id
+        viewerHasFollowed
       }
     }
     """
@@ -30,6 +31,7 @@ defmodule MastaniServer.Test.Mutation.Accounts.Fans do
       followed = user_conn |> mutation_result(@query, variables, "follow")
 
       assert followed["id"] == to_string(user2.id)
+      assert followed["viewerHasFollowed"] == true
     end
 
     test "login user follow other user twice fails", ~m(user_conn)a do
@@ -70,16 +72,16 @@ defmodule MastaniServer.Test.Mutation.Accounts.Fans do
       {:ok, user2} = db_insert(:user)
       {:ok, _followeer} = user |> Accounts.follow(user2)
 
-      {:ok, found} = User |> ORM.find(user.id, preload: :followers)
+      {:ok, found} = User |> ORM.find(user2.id, preload: :followers)
       assert found |> Map.get(:followers) |> length == 1
 
       variables = %{userId: user2.id}
       user_conn |> mutation_result(@query, variables, "undoFollow")
 
-      {:ok, found} = User |> ORM.find(user.id, preload: :followers)
+      {:ok, found} = User |> ORM.find(user2.id, preload: :followers)
       assert found |> Map.get(:followers) |> length == 0
 
-      {:ok, found} = User |> ORM.find(user.id, preload: :followings)
+      {:ok, found} = User |> ORM.find(user2.id, preload: :followings)
       assert found |> Map.get(:followings) |> length == 0
     end
   end

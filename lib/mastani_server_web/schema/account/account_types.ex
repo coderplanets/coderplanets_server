@@ -87,19 +87,12 @@ defmodule MastaniServerWeb.Schema.Account.Types do
       resolve(&R.Accounts.editable_communities/3)
     end
 
-    # NOTE: dataloader not work at this case
-    # field :followers_count, :integer do
-    # arg(:count, :count_type, default_value: :count)
-
-    # resolve(dataloader(Accounts, :followers))
-    # middleware(M.ConvertToInt)
-    # end
-
     @doc "get follower users count"
     field :followers_count, :integer do
       arg(:count, :count_type, default_value: :count)
 
-      resolve(&R.Accounts.count_followers/3)
+      resolve(dataloader(Accounts, :followers))
+      middleware(M.ConvertToInt)
     end
 
     @doc "get following users count"
