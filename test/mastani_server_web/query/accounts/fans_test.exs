@@ -148,9 +148,10 @@ defmodule MastaniServer.Test.Query.Account.Fans do
       resolts = user_conn |> query_result(@query, variables, "user")
       assert resolts |> Map.get("viewerHasFollowed") == false
 
-      {:ok, _} = user2 |> Accounts.follow(user)
+      {:ok, _} = user |> Accounts.follow(user2)
       variables = %{id: user2.id}
       resolts = user_conn |> query_result(@query, variables, "user")
+
       assert resolts |> Map.get("viewerHasFollowed") == true
     end
   end

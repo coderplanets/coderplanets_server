@@ -123,7 +123,7 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       assert results["achievement"] |> Map.get("reputation") == 2 * @follow_weight
     end
 
-    test "minus user's achievement after user get cancle followed", ~m(guest_conn user)a do
+    test "minus user's achievement after user get undo followed", ~m(guest_conn user)a do
       total_count = 10
       {:ok, users} = db_insert_multi(:user, total_count)
 
