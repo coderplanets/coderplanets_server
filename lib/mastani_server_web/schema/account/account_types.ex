@@ -167,6 +167,15 @@ defmodule MastaniServerWeb.Schema.Account.Types do
       resolve(&R.Accounts.favorited_contents/3)
     end
 
+    @doc "paged favorited repos"
+    field :favorited_repos, :paged_repos do
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :repo_thread, default_value: :repo)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.favorited_contents/3)
+    end
+
     @doc "total count of stared posts count"
     field :stared_posts_count, :integer do
       arg(:count, :count_type, default_value: :count)
@@ -212,6 +221,14 @@ defmodule MastaniServerWeb.Schema.Account.Types do
       arg(:count, :count_type, default_value: :count)
 
       resolve(dataloader(Accounts, :favorited_videos))
+      middleware(M.ConvertToInt)
+    end
+
+    @doc "total count of favorited videos count"
+    field :favorited_repos_count, :integer do
+      arg(:count, :count_type, default_value: :count)
+
+      resolve(dataloader(Accounts, :favorited_repos))
       middleware(M.ConvertToInt)
     end
 

@@ -120,12 +120,23 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.favorited_contents/3)
     end
 
-    @desc "get favorited jobs"
+    @desc "get favorited videos"
     field :favorited_videos, :paged_videos do
       arg(:user_id, non_null(:id))
       arg(:filter, non_null(:paged_filter))
       arg(:category_id, :id)
       arg(:thread, :video_thread, default_value: :video)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.favorited_contents/3)
+    end
+
+    @desc "get favorited repos"
+    field :favorited_repos, :paged_repos do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:category_id, :id)
+      arg(:thread, :repo_thread, default_value: :repo)
 
       middleware(M.PageSizeProof)
       resolve(&R.Accounts.favorited_contents/3)
