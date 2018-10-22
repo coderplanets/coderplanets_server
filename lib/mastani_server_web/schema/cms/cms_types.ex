@@ -158,6 +158,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     # field(:pin, :boolean)
     # field(:trash, :boolean)
 
+    field(:last_sync, :datetime)
+
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
