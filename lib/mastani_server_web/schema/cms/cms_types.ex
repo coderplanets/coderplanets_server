@@ -24,6 +24,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:digest, :string)
     field(:length, :integer)
     field(:link_addr, :string)
+    field(:copy_right, :string)
     field(:body, :string)
     field(:views, :integer)
     # TODO: remove

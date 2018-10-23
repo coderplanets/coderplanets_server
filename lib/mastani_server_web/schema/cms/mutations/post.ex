@@ -12,6 +12,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Post do
       arg(:digest, non_null(:string))
       arg(:length, non_null(:integer))
       arg(:link_addr, :string)
+      arg(:copy_right, :string)
       arg(:community_id, non_null(:id))
       arg(:thread, :cms_thread, default_value: :post)
       arg(:tags, list_of(:ids))
@@ -90,6 +91,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Post do
       arg(:title, :string)
       arg(:body, :string)
       arg(:digest, :string)
+      arg(:copy_right, :string)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :post)
