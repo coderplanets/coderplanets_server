@@ -34,6 +34,8 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:location, :string)
     field(:geo_city, :string)
 
+    field(:views, :integer)
+
     sscial_fields()
 
     field(:inserted_at, :datetime)

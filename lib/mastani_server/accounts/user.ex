@@ -36,6 +36,8 @@ defmodule MastaniServer.Accounts.User do
     field(:from_github, :boolean)
     field(:geo_city, :string)
 
+    field(:views, :integer, default: 0)
+
     sscial_fields()
 
     embeds_many(:education_backgrounds, EducationBackground)
