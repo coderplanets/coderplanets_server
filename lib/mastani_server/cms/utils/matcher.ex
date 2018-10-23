@@ -11,6 +11,11 @@ defmodule MastaniServer.CMS.Utils.Matcher do
     Video,
     Repo,
     Job,
+    # viewer
+    PostViewer,
+    JobViewer,
+    VideoViewer,
+    RepoViewer,
     # reactions
     PostFavorite,
     JobFavorite,
@@ -60,7 +65,8 @@ defmodule MastaniServer.CMS.Utils.Matcher do
   #########################################
   ##  posts ...
   #########################################
-  def match_action(:post, :self), do: {:ok, %{target: Post, reactor: Post, preload: :author}}
+  def match_action(:post, :self),
+    do: {:ok, %{target: Post, reactor: Post, preload: :author, viewer: PostViewer}}
 
   def match_action(:post, :favorite),
     do: {:ok, %{target: Post, reactor: PostFavorite, preload: :user, preload_right: :post}}
@@ -83,7 +89,8 @@ defmodule MastaniServer.CMS.Utils.Matcher do
   #########################################
   ## jobs ...
   #########################################
-  def match_action(:job, :self), do: {:ok, %{target: Job, reactor: Job, preload: :author}}
+  def match_action(:job, :self),
+    do: {:ok, %{target: Job, reactor: Job, preload: :author, viewer: JobViewer}}
 
   def match_action(:job, :community),
     do: {:ok, %{target: Job, reactor: Community, flag: JobCommunityFlag}}
@@ -106,7 +113,8 @@ defmodule MastaniServer.CMS.Utils.Matcher do
   #########################################
   ## videos ...
   #########################################
-  def match_action(:video, :self), do: {:ok, %{target: Video, reactor: Video, preload: :author}}
+  def match_action(:video, :self),
+    do: {:ok, %{target: Video, reactor: Video, preload: :author, viewer: VideoViewer}}
 
   def match_action(:video, :community),
     do: {:ok, %{target: Video, reactor: Community, flag: VideoCommunityFlag}}
@@ -129,7 +137,8 @@ defmodule MastaniServer.CMS.Utils.Matcher do
   #########################################
   ## repos ...
   #########################################
-  def match_action(:repo, :self), do: {:ok, %{target: Repo, reactor: Repo, preload: :author}}
+  def match_action(:repo, :self),
+    do: {:ok, %{target: Repo, reactor: Repo, preload: :author, viewer: RepoViewer}}
 
   def match_action(:repo, :community),
     do: {:ok, %{target: Repo, reactor: Community, flag: RepoCommunityFlag}}

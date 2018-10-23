@@ -20,6 +20,23 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   alias Ecto.Multi
 
   @doc """
+  login user read cms content by add views count and viewer record
+  """
+  def read_content(thread, id, %User{id: user_id}) do
+    condition = %{user_id: user_id} |> Map.merge(content_id(thread, id))
+
+    with {:ok, action} <- match_action(thread, :self),
+         {:ok, _viewer} <- action.viewer |> ORM.findby_or_insert(condition, condition) do
+      action.target |> ORM.read(id, inc: :views)
+    end
+  end
+
+  defp content_id(:post, id), do: %{post_id: id}
+  defp content_id(:job, id), do: %{job_id: id}
+  defp content_id(:repo, id), do: %{repo_id: id}
+  defp content_id(:video, id), do: %{video_id: id}
+
+  @doc """
   get paged post / job ...
   """
   def paged_contents(queryable, filter) do

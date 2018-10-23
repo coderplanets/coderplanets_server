@@ -60,22 +60,6 @@ defmodule MastaniServer.Test.Query.Post do
   @query """
   query($id: ID!) {
     post(id: $id) {
-      views
-    }
-  }
-  """
-  test "views should +1 after query the post", ~m(user_conn post)a do
-    variables = %{id: post.id}
-    views_1 = user_conn |> query_result(@query, variables, "post") |> Map.get("views")
-
-    variables = %{id: post.id}
-    views_2 = user_conn |> query_result(@query, variables, "post") |> Map.get("views")
-    assert views_2 == views_1 + 1
-  end
-
-  @query """
-  query($id: ID!) {
-    post(id: $id) {
       id
       title
       body

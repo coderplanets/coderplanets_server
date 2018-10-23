@@ -30,12 +30,31 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def delete_community(_root, %{id: id}, _info), do: Community |> ORM.find_delete(id)
 
   # #######################
-  # community thread (post, job)
+  # community thread (post, job), login user should be logged
   # #######################
+  def post(_root, %{id: id}, %{context: %{cur_user: user}}) do
+    CMS.read_content(:post, id, user)
+  end
+
   def post(_root, %{id: id}, _info), do: Post |> ORM.read(id, inc: :views)
-  def video(_root, %{id: id}, _info), do: Video |> ORM.read(id, inc: :views)
-  def repo(_root, %{id: id}, _info), do: Repo |> ORM.read(id, inc: :views)
+
+  def job(_root, %{id: id}, %{context: %{cur_user: user}}) do
+    CMS.read_content(:job, id, user)
+  end
+
   def job(_root, %{id: id}, _info), do: Job |> ORM.read(id, inc: :views)
+
+  def video(_root, %{id: id}, %{context: %{cur_user: user}}) do
+    CMS.read_content(:video, id, user)
+  end
+
+  def video(_root, %{id: id}, _info), do: Video |> ORM.read(id, inc: :views)
+
+  def repo(_root, %{id: id}, %{context: %{cur_user: user}}) do
+    CMS.read_content(:repo, id, user)
+  end
+
+  def repo(_root, %{id: id}, _info), do: Repo |> ORM.read(id, inc: :views)
 
   def wiki(_root, ~m(community)a, _info), do: CMS.get_wiki(%Community{raw: community})
   def cheatsheet(_root, ~m(community)a, _info), do: CMS.get_cheatsheet(%Community{raw: community})

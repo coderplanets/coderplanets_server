@@ -12,6 +12,7 @@ defmodule MastaniServer.CMS.Video do
     VideoFavorite,
     VideoCommunityFlag,
     VideoStar,
+    VideoViewer,
     Tag
   }
 
@@ -44,6 +45,7 @@ defmodule MastaniServer.CMS.Video do
 
     has_many(:favorites, {"videos_favorites", VideoFavorite})
     has_many(:stars, {"videos_stars", VideoStar})
+    has_many(:viewers, {"videos_viewers", VideoViewer})
     has_many(:comments, {"videos_comments", VideoComment})
 
     many_to_many(
