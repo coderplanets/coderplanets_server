@@ -24,7 +24,6 @@ defmodule MastaniServer.Test.Query.JobViewer do
     }
   }
   """
-  @tag :wip
   test "guest user views should +1 after query the job", ~m(guest_conn job)a do
     variables = %{id: job.id}
     views_1 = guest_conn |> query_result(@query, variables, "job") |> Map.get("views")
@@ -34,7 +33,6 @@ defmodule MastaniServer.Test.Query.JobViewer do
     assert views_2 == views_1 + 1
   end
 
-  @tag :wip
   test "login views should +1 after query the job", ~m(user_conn job)a do
     variables = %{id: job.id}
     views_1 = user_conn |> query_result(@query, variables, "job") |> Map.get("views")
@@ -44,7 +42,6 @@ defmodule MastaniServer.Test.Query.JobViewer do
     assert views_2 == views_1 + 1
   end
 
-  @tag :wip
   test "login views be record only once in job viewers", ~m(job)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
@@ -85,7 +82,6 @@ defmodule MastaniServer.Test.Query.JobViewer do
     }
   }
   """
-  @tag :wip
   test "user get has viewed flag after query/read the job", ~m(user_conn community job)a do
     variables = %{filter: %{community: community.raw}}
     results = user_conn |> query_result(@paged_query, variables, "pagedJobs")

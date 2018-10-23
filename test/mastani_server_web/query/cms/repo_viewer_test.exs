@@ -24,7 +24,6 @@ defmodule MastaniServer.Test.Query.RepoViewer do
     }
   }
   """
-  @tag :wip
   test "guest user views should +1 after query the repo", ~m(guest_conn repo)a do
     variables = %{id: repo.id}
     views_1 = guest_conn |> query_result(@query, variables, "repo") |> Map.get("views")
@@ -34,7 +33,6 @@ defmodule MastaniServer.Test.Query.RepoViewer do
     assert views_2 == views_1 + 1
   end
 
-  @tag :wip
   test "login views should +1 after query the repo", ~m(user_conn repo)a do
     variables = %{id: repo.id}
     views_1 = user_conn |> query_result(@query, variables, "repo") |> Map.get("views")
@@ -44,7 +42,6 @@ defmodule MastaniServer.Test.Query.RepoViewer do
     assert views_2 == views_1 + 1
   end
 
-  @tag :wip
   test "login views be record only once in repo viewers", ~m(repo)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
@@ -85,7 +82,6 @@ defmodule MastaniServer.Test.Query.RepoViewer do
     }
   }
   """
-  @tag :wip
   test "user get has viewed flag after query/read the repo", ~m(user_conn community repo)a do
     variables = %{filter: %{community: community.raw}}
     results = user_conn |> query_result(@paged_query, variables, "pagedRepos")
