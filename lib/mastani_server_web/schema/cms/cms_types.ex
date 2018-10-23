@@ -167,6 +167,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
+    has_viewed_field()
     # comments_count
     # comments_participators
     comments_counter_fields(:repo)
