@@ -53,6 +53,19 @@ defmodule MastaniServerWeb.Schema.Utils.Helper do
   alias MastaniServerWeb.Resolvers, as: R
   alias MastaniServerWeb.Middleware, as: M
 
+  defmacro has_viewed_field do
+    quote do
+      # @desc "if user has viewed this content"
+      field :viewer_has_viewed, :boolean do
+        middleware(M.Authorize, :login)
+        middleware(M.PutCurrentUser)
+
+        resolve(dataloader(CMS, :viewers))
+        middleware(M.ViewerDidConvert)
+      end
+    end
+  end
+
   # fields for: favorite count, favorited_users, viewer_did_favorite..
   defmacro favorite_fields(thread) do
     quote do

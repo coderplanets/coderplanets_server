@@ -11,6 +11,7 @@ defmodule MastaniServer.CMS.Job do
     JobComment,
     JobFavorite,
     JobStar,
+    JobViewer,
     JobCommunityFlag,
     Tag
   }
@@ -53,6 +54,7 @@ defmodule MastaniServer.CMS.Job do
     has_many(:comments, {"jobs_comments", JobComment})
     has_many(:favorites, {"jobs_favorites", JobFavorite})
     has_many(:stars, {"jobs_stars", JobStar})
+    has_many(:viewers, {"jobs_viewers", JobViewer})
 
     many_to_many(
       :tags,

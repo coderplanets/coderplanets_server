@@ -23,6 +23,7 @@ defmodule MastaniServer.CMS.Utils.Loader do
     PostStar,
     # JOB
     # Job,
+    JobViewer,
     JobFavorite,
     # JobStar,
     JobComment,
@@ -97,6 +98,11 @@ defmodule MastaniServer.CMS.Utils.Loader do
 
   def query({"posts_viewers", PostViewer}, %{cur_user: cur_user}) do
     PostViewer |> where([pv], pv.user_id == ^cur_user.id)
+  end
+
+  # TODO: move later
+  def query({"jobs_viewers", JobViewer}, %{cur_user: cur_user}) do
+    JobViewer |> where([pv], pv.user_id == ^cur_user.id)
   end
 
   @doc """
