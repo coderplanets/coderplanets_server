@@ -30,7 +30,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def delete_community(_root, %{id: id}, _info), do: Community |> ORM.find_delete(id)
 
   # #######################
-  # community thread (post, job)
+  # community thread (post, job), login user should be logged
   # #######################
   def post(_root, %{id: id}, %{context: %{cur_user: user}}) do
     CMS.read_content(:post, id, user)
@@ -49,6 +49,10 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   def video(_root, %{id: id}, _info), do: Video |> ORM.read(id, inc: :views)
+
+  def repo(_root, %{id: id}, %{context: %{cur_user: user}}) do
+    CMS.read_content(:repo, id, user)
+  end
 
   def repo(_root, %{id: id}, _info), do: Repo |> ORM.read(id, inc: :views)
 

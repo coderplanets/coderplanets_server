@@ -15,6 +15,7 @@ defmodule MastaniServer.CMS.Utils.Matcher do
     PostViewer,
     JobViewer,
     VideoViewer,
+    RepoViewer,
     # reactions
     PostFavorite,
     JobFavorite,
@@ -136,7 +137,8 @@ defmodule MastaniServer.CMS.Utils.Matcher do
   #########################################
   ## repos ...
   #########################################
-  def match_action(:repo, :self), do: {:ok, %{target: Repo, reactor: Repo, preload: :author}}
+  def match_action(:repo, :self),
+    do: {:ok, %{target: Repo, reactor: Repo, preload: :author, viewer: RepoViewer}}
 
   def match_action(:repo, :community),
     do: {:ok, %{target: Repo, reactor: Community, flag: RepoCommunityFlag}}

@@ -31,6 +31,7 @@ defmodule MastaniServer.CMS.Utils.Loader do
     JobCommentDislike,
     JobCommentLike,
     # Video
+    VideoViewer,
     VideoFavorite,
     VideoStar,
     VideoComment,
@@ -38,6 +39,7 @@ defmodule MastaniServer.CMS.Utils.Loader do
     VideoCommentDislike,
     VideoCommentLike,
     # repo
+    RepoViewer,
     RepoFavorite,
     RepoComment,
     RepoCommentReply,
@@ -100,9 +102,16 @@ defmodule MastaniServer.CMS.Utils.Loader do
     PostViewer |> where([pv], pv.user_id == ^cur_user.id)
   end
 
-  # TODO: move later
   def query({"jobs_viewers", JobViewer}, %{cur_user: cur_user}) do
     JobViewer |> where([pv], pv.user_id == ^cur_user.id)
+  end
+
+  def query({"videos_viewers", VideoViewer}, %{cur_user: cur_user}) do
+    VideoViewer |> where([pv], pv.user_id == ^cur_user.id)
+  end
+
+  def query({"repos_viewers", RepoViewer}, %{cur_user: cur_user}) do
+    RepoViewer |> where([pv], pv.user_id == ^cur_user.id)
   end
 
   @doc """

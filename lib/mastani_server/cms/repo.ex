@@ -11,6 +11,7 @@ defmodule MastaniServer.CMS.Repo do
     RepoComment,
     RepoContributor,
     RepoFavorite,
+    RepoViewer,
     RepoLang,
     RepoCommunityFlag,
     Tag
@@ -54,6 +55,7 @@ defmodule MastaniServer.CMS.Repo do
 
     has_many(:comments, {"repos_comments", RepoComment})
     has_many(:favorites, {"repos_favorites", RepoFavorite})
+    has_many(:viewers, {"repos_viewers", RepoViewer})
 
     many_to_many(
       :tags,
