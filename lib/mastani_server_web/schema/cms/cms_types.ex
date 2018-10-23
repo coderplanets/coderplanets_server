@@ -123,6 +123,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     # comments_participators
     comments_counter_fields(:video)
 
+    has_viewed_field()
     # fields for: favorite count, favorited_users, viewer_did_favorite..
     favorite_fields(:video)
     star_fields(:video)
