@@ -57,15 +57,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
       end)
     end
 
-    @desc "if user has viewed this post"
-    field :viewer_has_viewed, :boolean do
-      middleware(M.Authorize, :login)
-      middleware(M.PutCurrentUser)
-
-      resolve(dataloader(CMS, :viewers))
-      middleware(M.ViewerDidConvert)
-    end
-
+    has_viewed_field()
     # fields for: favorite count, favorited_users, viewer_did_favorite..
     favorite_fields(:post)
     star_fields(:post)
@@ -98,6 +90,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     # comments_participators
     comments_counter_fields(:job)
 
+    has_viewed_field()
     # fields for: favorite count, favorited_users, viewer_did_favorite..
     favorite_fields(:job)
     timestamp_fields()

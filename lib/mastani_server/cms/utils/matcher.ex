@@ -13,6 +13,7 @@ defmodule MastaniServer.CMS.Utils.Matcher do
     Job,
     # viewer
     PostViewer,
+    JobViewer,
     # reactions
     PostFavorite,
     JobFavorite,
@@ -86,7 +87,8 @@ defmodule MastaniServer.CMS.Utils.Matcher do
   #########################################
   ## jobs ...
   #########################################
-  def match_action(:job, :self), do: {:ok, %{target: Job, reactor: Job, preload: :author}}
+  def match_action(:job, :self),
+    do: {:ok, %{target: Job, reactor: Job, preload: :author, viewer: JobViewer}}
 
   def match_action(:job, :community),
     do: {:ok, %{target: Job, reactor: Community, flag: JobCommunityFlag}}

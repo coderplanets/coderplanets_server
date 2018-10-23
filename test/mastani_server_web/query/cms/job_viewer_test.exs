@@ -1,0 +1,105 @@
+defmodule MastaniServer.Test.Query.JobViewer do
+  use MastaniServer.TestTools
+
+  alias Helper.ORM
+  alias MastaniServer.CMS
+
+  setup do
+    {:ok, community} = db_insert(:community)
+    {:ok, user} = db_insert(:user)
+    {:ok, job} = CMS.create_content(community, :job, mock_attrs(:job), user)
+    # noise
+    {:ok, job2} = CMS.create_content(community, :job, mock_attrs(:job), user)
+
+    guest_conn = simu_conn(:guest)
+    user_conn = simu_conn(:user)
+
+    {:ok, ~m(user_conn guest_conn community job job2)a}
+  end
+
+  @query """
+  query($id: ID!) {
+    job(id: $id) {
+      views
+    }
+  }
+  """
+  @tag :wip
+  test "guest user views should +1 after query the job", ~m(guest_conn job)a do
+    variables = %{id: job.id}
+    views_1 = guest_conn |> query_result(@query, variables, "job") |> Map.get("views")
+
+    variables = %{id: job.id}
+    views_2 = guest_conn |> query_result(@query, variables, "job") |> Map.get("views")
+    assert views_2 == views_1 + 1
+  end
+
+  @tag :wip
+  test "login views should +1 after query the job", ~m(user_conn job)a do
+    variables = %{id: job.id}
+    views_1 = user_conn |> query_result(@query, variables, "job") |> Map.get("views")
+
+    variables = %{id: job.id}
+    views_2 = user_conn |> query_result(@query, variables, "job") |> Map.get("views")
+    assert views_2 == views_1 + 1
+  end
+
+  @tag :wip
+  test "login views be record only once in job viewers", ~m(job)a do
+    {:ok, user} = db_insert(:user)
+    user_conn = simu_conn(:user, user)
+
+    assert {:error, _} = ORM.find_by(CMS.JobViewer, %{job_id: job.id, user_id: user.id})
+
+    variables = %{id: job.id}
+    user_conn |> query_result(@query, variables, "job") |> Map.get("views")
+    assert {:ok, viewer} = ORM.find_by(CMS.JobViewer, %{job_id: job.id, user_id: user.id})
+    assert viewer.job_id == job.id
+    assert viewer.user_id == user.id
+
+    variables = %{id: job.id}
+    user_conn |> query_result(@query, variables, "job") |> Map.get("views")
+    assert {:ok, _} = ORM.find_by(CMS.JobViewer, %{job_id: job.id, user_id: user.id})
+    assert viewer.job_id == job.id
+    assert viewer.user_id == user.id
+  end
+
+  @paged_query """
+  query($filter: PagedArticleFilter!) {
+    pagedJobs(filter: $filter) {
+      entries {
+        id
+        views
+        viewerHasViewed
+      }
+    }
+  }
+  """
+
+  @query """
+  query($id: ID!) {
+    job(id: $id) {
+      id
+      views
+      viewerHasViewed
+    }
+  }
+  """
+  @tag :wip
+  test "user get has viewed flag after query/read the job", ~m(user_conn community job)a do
+    variables = %{filter: %{community: community.raw}}
+    results = user_conn |> query_result(@paged_query, variables, "pagedJobs")
+    found = Enum.find(results["entries"], &(&1["id"] == to_string(job.id)))
+    assert found["viewerHasViewed"] == false
+
+    variables = %{id: job.id}
+    result = user_conn |> query_result(@query, variables, "job")
+    assert result["viewerHasViewed"] == true
+
+    variables = %{filter: %{community: community.raw}}
+    results = user_conn |> query_result(@paged_query, variables, "pagedJobs")
+
+    found = Enum.find(results["entries"], &(&1["id"] == to_string(job.id)))
+    assert found["viewerHasViewed"] == true
+  end
+end

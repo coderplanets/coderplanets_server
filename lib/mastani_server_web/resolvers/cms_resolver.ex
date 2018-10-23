@@ -32,16 +32,20 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # #######################
   # community thread (post, job)
   # #######################
-  # def post(_root, %{id: id}, _info), do: Post |> ORM.read(id, inc: :views)
   def post(_root, %{id: id}, %{context: %{cur_user: user}}) do
     CMS.read_content(:post, id, user)
   end
 
   def post(_root, %{id: id}, _info), do: Post |> ORM.read(id, inc: :views)
 
+  def job(_root, %{id: id}, %{context: %{cur_user: user}}) do
+    CMS.read_content(:job, id, user)
+  end
+
+  def job(_root, %{id: id}, _info), do: Job |> ORM.read(id, inc: :views)
+
   def video(_root, %{id: id}, _info), do: Video |> ORM.read(id, inc: :views)
   def repo(_root, %{id: id}, _info), do: Repo |> ORM.read(id, inc: :views)
-  def job(_root, %{id: id}, _info), do: Job |> ORM.read(id, inc: :views)
 
   def wiki(_root, ~m(community)a, _info), do: CMS.get_wiki(%Community{raw: community})
   def cheatsheet(_root, ~m(community)a, _info), do: CMS.get_cheatsheet(%Community{raw: community})
