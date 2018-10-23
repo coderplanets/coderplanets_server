@@ -111,11 +111,12 @@ defmodule MastaniServer.Test.Mutation.Post do
     end
 
     @query """
-    mutation($id: ID!, $title: String, $body: String){
-      updatePost(id: $id, title: $title, body: $body) {
+    mutation($id: ID!, $title: String, $body: String, $copyRight: String){
+      updatePost(id: $id, title: $title, body: $body, copyRight: $copyRight) {
         id
         title
         body
+        copyRight
       }
     }
     """
@@ -131,19 +132,22 @@ defmodule MastaniServer.Test.Mutation.Post do
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
     end
 
+    @tag :wip
     test "post can be update by owner", ~m(owner_conn post)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
       variables = %{
         id: post.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}"
+        body: "updated body #{unique_num}",
+        copyRight: "translate"
       }
 
       updated_post = owner_conn |> mutation_result(@query, variables, "updatePost")
 
       assert updated_post["title"] == variables.title
       assert updated_post["body"] == variables.body
+      assert updated_post["copyRight"] == variables.copyRight
     end
 
     test "login user with auth passport update a post", ~m(post)a do

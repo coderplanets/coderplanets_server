@@ -16,7 +16,7 @@ defmodule MastaniServer.CMS.Post do
   }
 
   @required_fields ~w(title body digest length)a
-  @optional_fields ~w(link_addr)a
+  @optional_fields ~w(link_addr copy_right)a
 
   @type t :: %Post{}
   schema "cms_posts" do
@@ -24,6 +24,7 @@ defmodule MastaniServer.CMS.Post do
     field(:title, :string)
     field(:digest, :string)
     field(:link_addr, :string)
+    field(:copy_right, :string)
     field(:length, :integer)
     field(:views, :integer, default: 0)
 
