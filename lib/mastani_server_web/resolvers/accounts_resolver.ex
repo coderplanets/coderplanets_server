@@ -9,7 +9,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
 
   alias Accounts.{MentionMail, NotificationMail, SysNotificationMail, User}
 
-  def user(_root, %{id: id}, _info), do: User |> ORM.find(id)
+  def user(_root, %{id: id}, _info), do: User |> ORM.read(id, inc: :views)
   def users(_root, ~m(filter)a, _info), do: User |> ORM.find_all(filter)
 
   def session_state(_root, _args, %{context: %{cur_user: cur_user}}),
@@ -17,9 +17,8 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
 
   def session_state(_root, _args, _info), do: {:ok, %{is_valid: false}}
 
-  def account(_root, _args, %{context: %{cur_user: cur_user}}) do
-    User |> ORM.find(cur_user.id)
-  end
+  def account(_root, _args, %{context: %{cur_user: cur_user}}),
+    do: User |> ORM.read(cur_user.id, inc: :views)
 
   def update_profile(_root, args, %{context: %{cur_user: cur_user}}) do
     profile =

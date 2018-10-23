@@ -2,7 +2,9 @@ defmodule MastaniServer.Test.Query.Account.Basic do
   use MastaniServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
-  alias MastaniServer.CMS
+
+  alias Helper.ORM
+  alias MastaniServer.{Accounts, CMS}
 
   @default_subscribed_communities get_config(:general, :default_subscribed_communities)
 
@@ -54,6 +56,7 @@ defmodule MastaniServer.Test.Query.Account.Basic do
         id
         nickname
         bio
+        views
         cmsPassport
         cmsPassportString
         educationBackgrounds {
@@ -76,6 +79,15 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert results["educationBackgrounds"] == []
       assert results["workBackgrounds"] == []
       assert results["cmsPassport"] == nil
+    end
+
+    test "user's views +1 after visit", ~m(guest_conn user)a do
+      {:ok, target_user} = ORM.find(Accounts.User, user.id)
+      assert target_user.views == 0
+
+      variables = %{id: user.id}
+      results = guest_conn |> query_result(@query, variables, "user")
+      assert results["views"] == 1
     end
 
     test "login newbie user can get own empty cms_passport", ~m(user)a do
