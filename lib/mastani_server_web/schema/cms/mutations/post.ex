@@ -90,6 +90,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Post do
       arg(:title, :string)
       arg(:body, :string)
       arg(:digest, :string)
+      arg(:copy_right, :string)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :post)
