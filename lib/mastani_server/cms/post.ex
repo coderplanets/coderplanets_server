@@ -12,6 +12,7 @@ defmodule MastaniServer.CMS.Post do
     PostCommunityFlag,
     PostFavorite,
     PostStar,
+    PostViewer,
     Tag
   }
 
@@ -42,6 +43,7 @@ defmodule MastaniServer.CMS.Post do
     has_many(:comments, {"posts_comments", PostComment})
     has_many(:favorites, {"posts_favorites", PostFavorite})
     has_many(:stars, {"posts_stars", PostStar})
+    has_many(:viewers, {"posts_viewers", PostViewer})
     # The keys are inflected from the schema names!
     # see https://hexdocs.pm/ecto/Ecto.Schema.html
     many_to_many(

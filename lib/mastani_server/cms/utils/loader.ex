@@ -14,6 +14,7 @@ defmodule MastaniServer.CMS.Utils.Loader do
     CommunityThread,
     # POST
     Post,
+    PostViewer,
     PostComment,
     PostCommentDislike,
     PostCommentLike,
@@ -92,6 +93,10 @@ defmodule MastaniServer.CMS.Utils.Loader do
       order_by: [asc: t.index],
       select: t
     )
+  end
+
+  def query({"posts_viewers", PostViewer}, %{cur_user: cur_user}) do
+    PostViewer |> where([pv], pv.user_id == ^cur_user.id)
   end
 
   @doc """
