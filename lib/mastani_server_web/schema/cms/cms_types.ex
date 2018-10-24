@@ -86,6 +86,12 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
+    field(:min_salary, :integer)
+    field(:max_salary, :integer)
+    field(:min_experience, :integer)
+    field(:max_experience, :integer)
+    field(:min_education, :string)
+
     # comments_count
     # comments_participators
     comments_counter_fields(:job)

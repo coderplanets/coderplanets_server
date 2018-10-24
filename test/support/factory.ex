@@ -140,6 +140,11 @@ defmodule MastaniServer.Support.Factory do
       length: String.length(body),
       author: mock(:author),
       views: Enum.random(0..2000),
+      min_salary: Enum.random(0..2000),
+      max_salary: Enum.random(2000..20000),
+      min_experience: Enum.random(1..3),
+      max_experience: Enum.random(5..20),
+      min_education: "master",
       communities: [
         mock(:community)
       ]
