@@ -17,7 +17,7 @@ defmodule MastaniServer.CMS.Job do
   }
 
   @required_fields ~w(title company company_logo location body digest length)a
-  @optional_fields ~w(link_addr link_source min_education)a
+  @optional_fields ~w(link_addr link_source min_salary max_salary min_experience max_experience min_education)a
 
   @type t :: %Job{}
   schema "cms_jobs" do
