@@ -92,6 +92,14 @@ defmodule MastaniServer.Test.Query.JobViewer do
     result = user_conn |> query_result(@query, variables, "job")
     assert result["viewerHasViewed"] == true
 
+    # noise: test viewer dataloader
+    {:ok, user2} = db_insert(:user)
+    user_conn2 = simu_conn(:user, user2)
+    variables = %{filter: %{community: community.raw}}
+    results = user_conn2 |> query_result(@paged_query, variables, "pagedJobs")
+    found = Enum.find(results["entries"], &(&1["id"] == to_string(job.id)))
+    assert found["viewerHasViewed"] == false
+
     variables = %{filter: %{community: community.raw}}
     results = user_conn |> query_result(@paged_query, variables, "pagedJobs")
 
