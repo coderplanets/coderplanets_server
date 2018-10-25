@@ -16,15 +16,13 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Job do
       arg(:length, non_null(:integer))
       arg(:community_id, non_null(:id))
 
-      arg(:min_salary, non_null(:integer))
-      arg(:max_salary, non_null(:integer))
-      arg(:min_experience, non_null(:integer))
-      arg(:max_experience, non_null(:integer))
+      arg(:salary, non_null(:string))
+      arg(:exp, non_null(:string))
+      arg(:education, non_null(:string))
+      arg(:field, non_null(:string))
 
-      arg(:min_education, :string)
-
+      arg(:desc, :string)
       arg(:link_addr, :string)
-      arg(:link_source, :string)
 
       arg(:thread, :cms_thread, default_value: :job)
       arg(:tags, list_of(:ids))
@@ -100,12 +98,13 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Job do
       arg(:title, :string)
       arg(:body, :string)
       arg(:digest, :string)
-      arg(:min_salary, :integer)
-      arg(:max_salary, :integer)
-      arg(:min_experience, :integer)
-      arg(:max_experience, :integer)
+      arg(:salary, :string)
+      arg(:exp, :string)
+      arg(:education, :string)
+      arg(:field, :string)
 
-      arg(:min_education, :string)
+      arg(:desc, :string)
+      arg(:link_addr, :string)
       # ...
 
       middleware(M.Authorize, :login)

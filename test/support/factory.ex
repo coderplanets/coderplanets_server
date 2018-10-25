@@ -136,15 +136,15 @@ defmodule MastaniServer.Support.Factory do
       company_logo: Faker.Avatar.image_url(),
       location: "location #{unique_num}",
       body: body,
+      desc: "活少, 美女多",
       digest: String.slice(body, 1, 150),
       length: String.length(body),
       author: mock(:author),
       views: Enum.random(0..2000),
-      min_salary: Enum.random(0..2000),
-      max_salary: Enum.random(2000..20000),
-      min_experience: Enum.random(1..3),
-      max_experience: Enum.random(5..20),
-      min_education: "master",
+      salary: "20k-50k",
+      exp: "1-3年",
+      education: "master",
+      field: "互联网",
       communities: [
         mock(:community)
       ]

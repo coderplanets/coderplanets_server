@@ -17,30 +17,25 @@ defmodule MastaniServer.CMS.Job do
   }
 
   @required_fields ~w(title company company_logo location body digest length)a
-  @optional_fields ~w(link_addr link_source min_salary max_salary min_experience max_experience min_education)a
+  @optional_fields ~w(desc company_link link_addr salary exp education field)a
 
   @type t :: %Job{}
   schema "cms_jobs" do
     field(:title, :string)
     field(:company, :string)
-    field(:bonus, :string)
     field(:company_logo, :string)
+    field(:company_link, :string)
     field(:location, :string)
     field(:desc, :string)
     field(:body, :string)
     belongs_to(:author, Author)
     field(:views, :integer, default: 0)
     field(:link_addr, :string)
-    field(:link_source, :string)
 
-    field(:min_salary, :integer, default: 0)
-    field(:max_salary, :integer, default: 10_000_000)
-
-    field(:min_experience, :integer, default: 1)
-    field(:max_experience, :integer, default: 3)
-
-    # college - bachelor - master - doctor
-    field(:min_education, :string)
+    field(:salary, :string)
+    field(:exp, :string)
+    field(:education, :string)
+    field(:field, :string)
 
     field(:digest, :string)
     field(:length, :integer)
