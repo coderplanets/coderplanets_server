@@ -39,6 +39,19 @@ defmodule MastaniServer.Test.Mutation.Post do
       assert {:ok, _} = ORM.find_by(CMS.Author, user_id: user.id)
     end
 
+    # NOTE: this test is IMPORTANT, cause json_codec: Jason in router will cause
+    # server crash when GraphQL parse error
+    test "create post with missing non_null field should get 200 error" do
+      {:ok, user} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      {:ok, community} = db_insert(:community)
+      post_attr = mock_attrs(:post)
+      variables = post_attr |> Map.merge(%{communityId: community.id}) |> Map.delete(:title)
+
+      assert user_conn |> mutation_get_error?(@create_post_query, variables)
+    end
+
     test "can create post with tags" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
