@@ -26,8 +26,12 @@ defmodule MastaniServer.Test.Mutation.Job do
       $company: String!,
       $companyLogo: String!
       $location: String!,
+      $salary: String!,
+      $exp: String!,
+      $education: String!,
+      $field: String!,
       $tags: [Ids]
-      ){
+     ) {
       createJob(
         title: $title,
         body: $body,
@@ -37,11 +41,19 @@ defmodule MastaniServer.Test.Mutation.Job do
         company: $company,
         companyLogo: $companyLogo,
         location: $location,
+        salary: $salary,
+        exp: $exp,
+        education: $education,
+        field: $field,
         tags: $tags
         ) {
           id
           title
           body
+          salary
+          exp
+          education
+          field
           communities {
             id
             title
@@ -56,10 +68,14 @@ defmodule MastaniServer.Test.Mutation.Job do
       {:ok, community} = db_insert(:community)
       job_attr = mock_attrs(:job)
 
-      variables = job_attr |> Map.merge(%{communityId: community.id})
-      variables = variables |> Map.merge(%{companyLogo: job_attr.company_logo})
+      variables = job_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
 
       created = user_conn |> mutation_result(@create_job_query, variables, "createJob")
+
+      assert created["salary"] == variables["salary"]
+      assert created["exp"] == variables["exp"]
+      assert created["field"] == variables["field"]
+      assert created["education"] == variables["education"]
 
       {:ok, found} = ORM.find(CMS.Job, created["id"])
 
@@ -90,11 +106,12 @@ defmodule MastaniServer.Test.Mutation.Job do
     end
 
     @query """
-    mutation($id: ID!, $title: String, $body: String){
-      updateJob(id: $id, title: $title, body: $body) {
+    mutation($id: ID!, $title: String, $body: String, $salary: String){
+      updateJob(id: $id, title: $title, body: $body, salary: $salary) {
         id
         title
         body
+        salary
       }
     }
     """
@@ -104,7 +121,8 @@ defmodule MastaniServer.Test.Mutation.Job do
       variables = %{
         id: job.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}"
+        body: "updated body #{unique_num}",
+        salary: "15k-20k"
       }
 
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
@@ -116,13 +134,15 @@ defmodule MastaniServer.Test.Mutation.Job do
       variables = %{
         id: job.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}"
+        body: "updated body #{unique_num}",
+        salary: "15k-20k"
       }
 
       updated = owner_conn |> mutation_result(@query, variables, "updateJob")
 
       assert updated["title"] == variables.title
       assert updated["body"] == variables.body
+      assert updated["salary"] == variables.salary
     end
 
     test "login user with auth passport update a job", ~m(job)a do

@@ -72,6 +72,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:desc, :string)
     field(:company, :string)
     field(:company_logo, :string)
+    field(:company_link, :string)
     field(:digest, :string)
     field(:location, :string)
     field(:length, :integer)
@@ -85,6 +86,11 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
+
+    field(:salary, :string)
+    field(:exp, :string)
+    field(:education, :string)
+    field(:field, :string)
 
     # comments_count
     # comments_participators
