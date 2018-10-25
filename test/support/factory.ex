@@ -134,7 +134,6 @@ defmodule MastaniServer.Support.Factory do
       title: Faker.Lorem.Shakespeare.king_richard_iii(),
       company: Faker.Company.name(),
       company_logo: Faker.Avatar.image_url(),
-      location: "location #{unique_num}",
       body: body,
       desc: "活少, 美女多",
       digest: String.slice(body, 1, 150),
@@ -145,6 +144,8 @@ defmodule MastaniServer.Support.Factory do
       exp: "1-3年",
       education: "master",
       field: "互联网",
+      finance: "x轮",
+      scale: "300人",
       communities: [
         mock(:community)
       ]
