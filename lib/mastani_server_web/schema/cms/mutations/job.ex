@@ -10,7 +10,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Job do
       arg(:title, non_null(:string))
       arg(:company, non_null(:string))
       arg(:company_logo, non_null(:string))
-      arg(:location, non_null(:string))
+      arg(:company_link, :string)
       arg(:body, non_null(:string))
       arg(:digest, non_null(:string))
       arg(:length, non_null(:integer))

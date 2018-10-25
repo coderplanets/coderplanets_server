@@ -74,9 +74,9 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:company_logo, :string)
     field(:company_link, :string)
     field(:digest, :string)
-    field(:location, :string)
     field(:length, :integer)
     field(:link_addr, :string)
+    field(:copy_right, :string)
     field(:body, :string)
     field(:views, :integer)
 

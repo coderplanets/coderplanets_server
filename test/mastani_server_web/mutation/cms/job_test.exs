@@ -25,7 +25,6 @@ defmodule MastaniServer.Test.Mutation.Job do
       $communityId: ID!,
       $company: String!,
       $companyLogo: String!
-      $location: String!,
       $salary: String!,
       $exp: String!,
       $education: String!,
@@ -42,7 +41,6 @@ defmodule MastaniServer.Test.Mutation.Job do
         communityId: $communityId,
         company: $company,
         companyLogo: $companyLogo,
-        location: $location,
         salary: $salary,
         exp: $exp,
         education: $education,
