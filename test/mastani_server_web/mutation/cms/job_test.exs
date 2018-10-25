@@ -29,6 +29,8 @@ defmodule MastaniServer.Test.Mutation.Job do
       $salary: String!,
       $exp: String!,
       $education: String!,
+      $finance: String!,
+      $scale: String!,
       $field: String!,
       $tags: [Ids]
      ) {
@@ -44,6 +46,8 @@ defmodule MastaniServer.Test.Mutation.Job do
         salary: $salary,
         exp: $exp,
         education: $education,
+        finance: $finance,
+        scale: $scale,
         field: $field,
         tags: $tags
         ) {

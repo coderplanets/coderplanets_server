@@ -91,6 +91,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:exp, :string)
     field(:education, :string)
     field(:field, :string)
+    field(:finance, :string)
+    field(:scale, :string)
 
     # comments_count
     # comments_participators
