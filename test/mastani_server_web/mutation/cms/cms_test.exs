@@ -202,7 +202,6 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
       }
     }
     """
-    @tag :wip2
     test "create tag with valid attrs, has default POST thread", ~m(community)a do
       variables = mock_attrs(:tag, %{communityId: community.id})
 
@@ -220,7 +219,6 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
       assert belong_community["id"] == to_string(community.id)
     end
 
-    @tag :wip2
     test "auth user create duplicate tag fails", ~m(community)a do
       variables = mock_attrs(:tag, %{communityId: community.id})
       passport_rules = %{community.title => %{"post.tag.create" => true}}
@@ -267,7 +265,6 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
       }
     }
     """
-    @tag :wip
     test "auth user can update a tag", ~m(tag community)a do
       variables = %{id: tag.id, color: "GREEN", title: "new title", communityId: community.id}
 
