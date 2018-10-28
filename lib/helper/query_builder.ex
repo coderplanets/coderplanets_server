@@ -185,6 +185,13 @@ defmodule Helper.QueryBuilder do
           where: t.title == ^tag_name
         )
 
+      {:topic, topic}, queryable ->
+        from(
+          q in queryable,
+          join: t in assoc(q, :topics),
+          where: t.raw == ^topic
+        )
+
       {:category, catetory_raw}, queryable ->
         from(
           q in queryable,
