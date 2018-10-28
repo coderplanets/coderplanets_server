@@ -122,7 +122,7 @@ defmodule Helper.Utils do
     results =
       Enum.map(attrs, fn {k, v} ->
         if is_atom(v) do
-          {k, to_string(v)}
+          {k, v |> to_string() |> String.upcase()}
         else
           {k, v}
         end
