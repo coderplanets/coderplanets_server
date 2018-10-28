@@ -70,6 +70,11 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:cheatsheet)
   end
 
+  enum :cms_topic do
+    value(:index)
+    value(:city)
+  end
+
   enum :order_enum do
     value(:asc)
     value(:desc)
@@ -174,6 +179,8 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     field(:sort, :sort_enum)
     field(:tag, :string, default_value: :all)
     field(:community, :string)
+    # field(:topic, :string, default_value: :index)
+    field(:topic, :string)
 
     # @desc "Matching a name"
     # field(:order, :order_enum, default_value: :desc)
