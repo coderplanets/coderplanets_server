@@ -246,8 +246,8 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
     end
 
     @query """
-    query($communityId: ID, $thread: CmsThread!) {
-      partialTags(communityId: $communityId, thread: $thread) {
+    query($communityId: ID, $thread: CmsThread!, $topic: CmsTopic ) {
+      partialTags(communityId: $communityId, thread: $thread, topic: $topic) {
         id
         title
         color
@@ -260,9 +260,10 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       }
     }
     """
-    test "guest user can get partial tags by communityId", ~m(guest_conn community)a do
-      {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
-      {:ok, tag2} = db_insert(:tag, %{thread: "job", community: community})
+    @tag :wip2
+    test "guest user can get partial tags by communityId and thread", ~m(guest_conn community)a do
+      {:ok, tag} = db_insert(:tag, %{thread: "POST", community: community})
+      {:ok, tag2} = db_insert(:tag, %{thread: "JOB", community: community})
 
       variables = %{thread: "POST", communityId: community.id}
 
@@ -270,6 +271,17 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
 
       assert results |> Enum.any?(&(&1["id"] == to_string(tag.id)))
       assert results |> Enum.any?(&(&1["id"] != to_string(tag2.id)))
+    end
+
+    @tag :wip2
+    test "user can get partial tags by topic", ~m(guest_conn community user)a do
+      valid_attrs = mock_attrs(:tag, %{community_id: community.id})
+      {:ok, _tag} = CMS.create_tag(:post, valid_attrs, %User{id: user.id})
+
+      variables = %{thread: "POST", communityId: community.id, topic: "INDEX"}
+
+      results = guest_conn |> query_result(@query, variables, "partialTags")
+      assert results |> length == 1
     end
 
     @query """
@@ -287,9 +299,10 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       }
     }
     """
+    @tag :wip2
     test "guest user can get partial tags by communityRaw", ~m(guest_conn community)a do
-      {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
-      {:ok, tag2} = db_insert(:tag, %{thread: "job", community: community})
+      {:ok, tag} = db_insert(:tag, %{thread: "POST", community: community})
+      {:ok, tag2} = db_insert(:tag, %{thread: "JOB", community: community})
 
       variables = %{thread: "POST", community: community.raw}
 
