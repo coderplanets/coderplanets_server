@@ -34,6 +34,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
+    # field(:topic)
 
     field :comments, list_of(:comment) do
       arg(:filter, :members_filter)
