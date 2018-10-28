@@ -18,7 +18,8 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
     RepoCommunityFlag,
     Video,
     VideoCommunityFlag,
-    Tag
+    Tag,
+    Topic
   }
 
   alias MastaniServer.CMS.Repo, as: CMSRepo
@@ -130,6 +131,26 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
       |> Repo.update()
     end
   end
+
+  @doc """
+  set topic only for post
+  """
+  def set_topic(%Topic{title: title}, :post, content_id) do
+    with {:ok, content} <- ORM.find(Post, content_id, preload: :topics),
+         {:ok, topic} <-
+           ORM.findby_or_insert(Topic, %{title: title}, %{
+             title: title,
+             thread: "post",
+             raw: title
+           }) do
+      content
+      |> Ecto.Changeset.change()
+      |> Ecto.Changeset.put_assoc(:topics, content.topics ++ [topic])
+      |> Repo.update()
+    end
+  end
+
+  def set_topic(_topic, _thread, _content_id), do: {:ok, :pass}
 
   # make sure the reuest tag is in the current community thread
   # example: you can't set a other thread tag to this thread's article

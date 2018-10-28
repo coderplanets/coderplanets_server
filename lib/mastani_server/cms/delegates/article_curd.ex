@@ -16,7 +16,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   alias CMS.Delegate.ArticleOperation
   alias Helper.{ORM, QueryBuilder}
 
-  alias CMS.{Author, Community, Tag}
+  alias CMS.{Author, Community, Tag, Topic}
   alias Ecto.Multi
 
   @doc """
@@ -118,7 +118,13 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   {:error, %Ecto.Changeset{}}
 
   """
-  def create_content(%Community{id: community_id}, thread, attrs, %User{id: user_id}) do
+  def create_content(
+        %Community{id: community_id},
+        thread,
+        attrs,
+        %User{id: user_id},
+        options \\ %{topic: "index"}
+      ) do
     with {:ok, author} <- ensure_author_exists(%User{id: user_id}),
          {:ok, action} <- match_action(thread, :community),
          {:ok, community} <- ORM.find(Community, community_id) do
@@ -132,6 +138,9 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
       end)
       |> Multi.run(:set_community, fn %{add_content_author: content} ->
         ArticleOperation.set_community(community, thread, content.id)
+      end)
+      |> Multi.run(:set_topic, fn %{add_content_author: content} ->
+        ArticleOperation.set_topic(%Topic{title: options.topic}, thread, content.id)
       end)
       |> Multi.run(:set_community_flag, fn %{add_content_author: content} ->
         # TODO: remove this judge, as content should have a flag
@@ -173,6 +182,11 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
 
   defp create_content_result({:error, :set_community_flag, _result, _steps}) do
     {:error, [message: "set community flag", code: ecode(:create_fails)]}
+  end
+
+  defp create_content_result({:error, :set_topic, result, _steps}) do
+    IO.inspect(result, label: "set topic")
+    {:error, [message: "set topic", code: ecode(:create_fails)]}
   end
 
   defp create_content_result({:error, :set_tag, result, _steps}) do

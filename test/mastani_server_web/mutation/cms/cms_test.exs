@@ -208,13 +208,14 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
       passport_rules = %{community.title => %{"post.tag.create" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
+      # IO.inspect variables, label: "hello variables"
       created = rule_conn |> mutation_result(@create_tag_query, variables, "createTag")
       belong_community = created["community"]
 
       {:ok, found} = Tag |> ORM.find(created["id"])
 
       assert created["id"] == to_string(found.id)
-      assert found.thread == "post"
+      assert found.thread == "POST"
       assert belong_community["id"] == to_string(community.id)
     end
 
@@ -271,7 +272,8 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       updated = rule_conn |> mutation_result(@update_tag_query, variables, "updateTag")
-      assert updated["color"] == "green"
+
+      assert updated["color"] == "GREEN"
       assert updated["title"] == "new title"
     end
 

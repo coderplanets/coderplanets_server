@@ -134,6 +134,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Community do
       arg(:color, non_null(:rainbow_color_enum))
       arg(:community_id, non_null(:id))
       arg(:thread, :cms_thread, default_value: :post)
+      arg(:topic, :cms_topic, default_value: :index)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)

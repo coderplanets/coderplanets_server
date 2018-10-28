@@ -70,6 +70,11 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:cheatsheet)
   end
 
+  enum :cms_topic do
+    value(:index)
+    value(:city)
+  end
+
   enum :order_enum do
     value(:asc)
     value(:desc)
@@ -174,12 +179,24 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     field(:sort, :sort_enum)
     field(:tag, :string, default_value: :all)
     field(:community, :string)
-
     # @desc "Matching a name"
     # field(:order, :order_enum, default_value: :desc)
 
     # @desc "Matching a tag"
     # field(:tag, :string, default_value: :all)
+  end
+
+  @desc "posts_filter doc"
+  input_object :paged_posts_filter do
+    @desc "limit of records (default 20), if first > 30, only return 30 at most"
+    pagination_args()
+
+    field(:when, :when_enum)
+    field(:sort, :sort_enum)
+    field(:tag, :string, default_value: :all)
+    field(:community, :string)
+    # field(:topic, :string, default_value: "index")
+    field(:topic, :string)
   end
 
   @doc """

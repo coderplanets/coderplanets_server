@@ -36,6 +36,7 @@ defmodule MastaniServer.CMS do
   defdelegate create_tag(thread, attrs, user), to: CommunityCURD
   defdelegate update_tag(attrs), to: CommunityCURD
   defdelegate get_tags(community, thread), to: CommunityCURD
+  defdelegate get_tags(community, thread, topic), to: CommunityCURD
   defdelegate get_tags(filter), to: CommunityCURD
   # >> wiki & cheatsheet (sync with github)
   defdelegate get_wiki(community), to: CommunitySync
@@ -63,6 +64,7 @@ defmodule MastaniServer.CMS do
   defdelegate read_content(thread, id, user), to: ArticleCURD
   defdelegate paged_contents(queryable, filter), to: ArticleCURD
   defdelegate create_content(community, thread, attrs, user), to: ArticleCURD
+  defdelegate create_content(community, thread, attrs, user, options), to: ArticleCURD
   defdelegate reaction_users(thread, react, id, filters), to: ArticleCURD
 
   # ArticleReaction
