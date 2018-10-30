@@ -73,7 +73,6 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
     @desc "get paged posts"
     field :paged_posts, :paged_posts do
       arg(:filter, non_null(:paged_posts_filter))
-      # arg(:filter, non_null(:paged_article_filter))
 
       middleware(M.PageSizeProof)
       resolve(&R.CMS.paged_posts/3)

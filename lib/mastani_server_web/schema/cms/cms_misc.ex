@@ -68,11 +68,17 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:repo)
     value(:wiki)
     value(:cheatsheet)
+    # for home pages
+    value(:city)
+    value(:share)
+    value(:news)
   end
 
   enum :cms_topic do
     value(:index)
     value(:city)
+    value(:share)
+    value(:news)
   end
 
   enum :order_enum do

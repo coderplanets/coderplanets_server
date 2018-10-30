@@ -16,8 +16,24 @@ defmodule MastaniServer.Test.Mutation.Post do
 
   describe "[mutation post curd]" do
     @create_post_query """
-    mutation($title: String!, $body: String!, $digest: String!, $length: Int!, $communityId: ID!, $tags: [Ids]){
-      createPost(title: $title, body: $body, digest: $digest, length: $length, communityId: $communityId, tags: $tags) {
+    mutation(
+      $title: String!
+      $body: String!
+      $digest: String!
+      $length: Int!
+      $communityId: ID!
+      $tags: [Ids]
+      $topic: CmsTopic
+    ) {
+      createPost(
+        title: $title
+        body: $body
+        digest: $digest
+        length: $length
+        communityId: $communityId
+        tags: $tags
+        topic: $topic
+      ) {
         title
         body
         id
