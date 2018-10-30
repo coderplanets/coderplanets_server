@@ -122,8 +122,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
         %Community{id: community_id},
         thread,
         attrs,
-        %User{id: user_id},
-        options \\ %{topic: "index"}
+        %User{id: user_id}
       ) do
     with {:ok, author} <- ensure_author_exists(%User{id: user_id}),
          {:ok, action} <- match_action(thread, :community),
@@ -140,7 +139,13 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
         ArticleOperation.set_community(community, thread, content.id)
       end)
       |> Multi.run(:set_topic, fn %{add_content_author: content} ->
-        ArticleOperation.set_topic(%Topic{title: options.topic}, thread, content.id)
+        topic_title =
+          case attrs |> Map.has_key?(:topic) do
+            true -> attrs.topic
+            false -> "INDEX"
+          end
+
+        ArticleOperation.set_topic(%Topic{title: topic_title}, thread, content.id)
       end)
       |> Multi.run(:set_community_flag, fn %{add_content_author: content} ->
         # TODO: remove this judge, as content should have a flag
