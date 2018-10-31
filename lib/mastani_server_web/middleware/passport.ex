@@ -16,7 +16,9 @@ defmodule MastaniServerWeb.Middleware.Passport do
   import Helper.Utils
   import Helper.ErrorCode
 
-  def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
+  def call(%{errors: errors} = resolution, _) when length(errors) > 0 do
+    resolution
+  end
 
   def call(%{arguments: %{passport_is_owner: true}} = resolution, claim: "owner"), do: resolution
 
@@ -131,13 +133,15 @@ defmodule MastaniServerWeb.Middleware.Passport do
 
   defp cp_check(resolution, claim) do
     cur_passport = resolution.context.cur_user.cur_passport
-    community_title = resolution.arguments.passport_communities |> List.first() |> Map.get(:title)
 
+    # community_title = resolution.arguments.passport_communities |> List.first() |> Map.get(:title)
+    community_raw = resolution.arguments.passport_communities |> List.first() |> Map.get(:raw)
     thread = resolution.arguments.thread |> to_string
 
     path =
       claim
-      |> String.replace("c?", community_title)
+      # |> String.replace("c?", community_title)
+      |> String.replace("c?", community_raw)
       |> String.replace("t?", thread)
       |> String.split("->")
 

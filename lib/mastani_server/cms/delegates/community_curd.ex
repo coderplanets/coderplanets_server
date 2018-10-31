@@ -57,7 +57,6 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
          {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}),
          {:ok, _community} <- ORM.find(Community, attrs.community_id),
          {:ok, topic} = find_or_insert_topic(attrs) do
-
       attrs =
         attrs
         |> Map.merge(%{author_id: author.id, topic_id: topic.id})

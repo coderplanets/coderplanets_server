@@ -328,6 +328,12 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     timestamp_fields()
   end
 
+  object :topic do
+    field(:id, :id)
+    field(:title, :string)
+    field(:raw, :string)
+  end
+
   object :tag do
     field(:id, :id)
     field(:title, :string)
@@ -335,6 +341,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:thread, :string)
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:community, :community, resolve: dataloader(CMS, :community))
+    field(:topic, :topic, resolve: dataloader(CMS, :topic))
 
     timestamp_fields()
   end
