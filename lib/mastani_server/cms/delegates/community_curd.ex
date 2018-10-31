@@ -57,10 +57,12 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
          {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}),
          {:ok, _community} <- ORM.find(Community, attrs.community_id),
          {:ok, topic} = find_or_insert_topic(attrs) do
+
       attrs =
         attrs
         |> Map.merge(%{author_id: author.id, topic_id: topic.id})
         |> map_atom_value(:string)
+        |> Map.merge(%{thread: attrs.thread |> to_string |> String.downcase()})
 
       action.reactor |> ORM.create(attrs)
     end
@@ -79,8 +81,10 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   get tags belongs to a community / thread
   """
   def get_tags(%Community{id: community_id}, thread, topic) when not is_nil(community_id) do
-    thread = thread |> to_string |> String.upcase()
-    topic = topic |> to_string |> String.upcase()
+    # thread = thread |> to_string |> String.upcase()
+    # topic = topic |> to_string |> String.upcase()
+    thread = thread |> to_string |> String.downcase()
+    topic = topic |> to_string |> String.downcase()
 
     Tag
     |> join(:inner, [t], c in assoc(t, :community))
@@ -92,7 +96,8 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   end
 
   def get_tags(%Community{id: community_id}, thread) when not is_nil(community_id) do
-    thread = thread |> to_string |> String.upcase()
+    # thread = thread |> to_string |> String.upcase()
+    thread = thread |> to_string |> String.downcase()
 
     Tag
     |> join(:inner, [t], c in assoc(t, :community))
@@ -103,7 +108,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   end
 
   def get_tags(%Community{raw: community_raw}, thread) do
-    thread = thread |> to_string |> String.upcase()
+    thread = thread |> to_string |> String.downcase()
 
     Tag
     |> join(:inner, [t], c in assoc(t, :community))
@@ -163,9 +168,9 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     end
   end
 
-  defp find_or_insert_topic(%{topic: title} = attrs) when is_atom(title) do
-    title = title |> to_string() |> String.upcase()
-    thread = attrs.thread |> to_string() |> String.upcase()
+  defp find_or_insert_topic(%{topic: title} = attrs) when is_binary(title) do
+    title = title |> to_string() |> String.downcase()
+    thread = attrs.thread |> to_string() |> String.downcase()
 
     ORM.findby_or_insert(Topic, %{title: title}, %{
       title: title,
@@ -175,10 +180,10 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   end
 
   defp find_or_insert_topic(%{thread: thread}) do
-    find_or_insert_topic(%{topic: :index, thread: thread})
+    find_or_insert_topic(%{topic: "index", thread: thread})
   end
 
   defp find_or_insert_topic(_attrs) do
-    find_or_insert_topic(%{topic: :index, thread: :post})
+    find_or_insert_topic(%{topic: "index", thread: :post})
   end
 end
