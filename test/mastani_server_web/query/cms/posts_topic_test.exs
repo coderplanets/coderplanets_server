@@ -111,7 +111,7 @@ defmodule MastaniServer.Test.Query.PostsTopic do
       }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "topic filter on non-posts has no effect", ~m(guest_conn user community)a do
       job_attrs = mock_attrs(:job, %{community_id: community.id, topic: "index"})
       {:ok, _} = CMS.create_content(community, :job, job_attrs, user)

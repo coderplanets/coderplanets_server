@@ -167,7 +167,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:community_id, :id)
       arg(:community, :string)
       arg(:thread, :cms_thread, default_value: :post)
-      arg(:topic, :cms_topic)
+      arg(:topic, :string)
 
       resolve(&R.CMS.get_tags/3)
     end
