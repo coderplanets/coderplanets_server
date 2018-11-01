@@ -190,7 +190,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   end
 
   # for user self's
-  def subscribed_communities(_root, %{filter: filter}, %{cur_user: cur_user}) do
+  def subscribed_communities(_root, %{filter: filter}, %{context: %{cur_user: cur_user}}) do
     Accounts.subscribed_communities(%User{id: cur_user.id}, filter)
   end
 
