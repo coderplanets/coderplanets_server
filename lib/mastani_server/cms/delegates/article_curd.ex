@@ -142,7 +142,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
         topic_title =
           case attrs |> Map.has_key?(:topic) do
             true -> attrs.topic
-            false -> "INDEX"
+            false -> "posts"
           end
 
         ArticleOperation.set_topic(%Topic{title: topic_title}, thread, content.id)

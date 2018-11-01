@@ -187,13 +187,15 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
 
   describe "[mutation cms tag]" do
     @create_tag_query """
-    mutation($thread: CmsThread!, $title: String!, $color: RainbowColorEnum!, $communityId: ID!) {
-      createTag(thread: $thread, title: $title, color: $color, communityId: $communityId) {
+    mutation($thread: CmsThread!, $title: String!, $color: RainbowColorEnum!, $communityId: ID!, $topic: String) {
+      createTag(thread: $thread, title: $title, color: $color, communityId: $communityId, topic: $topic) {
         id
         title
         color
         thread
-
+        topic {
+          title
+        }
         community {
           id
           logo
@@ -203,13 +205,12 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
     }
     """
     @tag :wip
-    test "create tag with valid attrs, has default POST thread", ~m(community)a do
+    test "create tag with valid attrs, has default POST thread and default posts topic",
+         ~m(community)a do
       variables = mock_attrs(:tag, %{communityId: community.id})
 
       passport_rules = %{community.title => %{"post.tag.create" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
-
-      # IO.inspect variables, label: "hello variables"
 
       created = rule_conn |> mutation_result(@create_tag_query, variables, "createTag")
       belong_community = created["community"]
@@ -218,12 +219,35 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
 
       assert created["id"] == to_string(found.id)
       assert found.thread == "post"
+      assert created["topic"]["title"] == "posts"
       assert belong_community["id"] == to_string(community.id)
     end
 
-    @tag :wip
+    @tag :wip2
+    test "can create some tag on different topic", ~m(community)a do
+      variables = mock_attrs(:tag, %{communityId: community.id, topic: "city"})
+
+      passport_rules = %{community.title => %{"post.tag.create" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      created = rule_conn |> mutation_result(@create_tag_query, variables, "createTag")
+      assert created["title"] == variables.title
+      assert created["topic"]["title"] == "city"
+
+      assert rule_conn
+             |> mutation_get_error?(@create_tag_query, variables)
+
+      variables = variables |> Map.merge(%{topic: "news"})
+      created = rule_conn |> mutation_result(@create_tag_query, variables, "createTag")
+      assert created["title"] == variables.title
+      assert created["topic"]["title"] == "news"
+    end
+
+    @tag :wip2
     test "auth user create duplicate tag fails", ~m(community)a do
       variables = mock_attrs(:tag, %{communityId: community.id})
+      # IO.inspect variables, label: "hello variables"
+
       passport_rules = %{community.title => %{"post.tag.create" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 

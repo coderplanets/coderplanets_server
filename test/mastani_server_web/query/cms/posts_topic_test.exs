@@ -8,9 +8,9 @@ defmodule MastaniServer.Test.Query.PostsTopic do
   setup do
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
-    post_attrs = mock_attrs(:post, %{community_id: community.id, topic: "INDEX"})
+    post_attrs = mock_attrs(:post, %{community_id: community.id, topic: "posts"})
     {:ok, _post} = CMS.create_content(community, :post, post_attrs, user)
-    post_attrs = mock_attrs(:post, %{community_id: community.id, topic: "INDEX"})
+    post_attrs = mock_attrs(:post, %{community_id: community.id, topic: "posts"})
     {:ok, _post} = CMS.create_content(community, :post, post_attrs, user)
 
     guest_conn = simu_conn(:guest)
@@ -63,10 +63,10 @@ defmodule MastaniServer.Test.Query.PostsTopic do
       {:ok, community} = db_insert(:community)
       post_attr = mock_attrs(:post)
 
-      variables = post_attr |> Map.merge(%{communityId: community.id, topic: "CITY"})
+      variables = post_attr |> Map.merge(%{communityId: community.id, topic: "city"})
       created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
 
-      variables = %{filter: %{page: 1, size: 10, topic: "CITY"}}
+      variables = %{filter: %{page: 1, size: 10, topic: "city"}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
       assert results["totalCount"] == 1
@@ -89,11 +89,11 @@ defmodule MastaniServer.Test.Query.PostsTopic do
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
       assert results["totalCount"] == 2
 
-      variables = %{filter: %{page: 1, size: 10, topic: "INDEX"}}
+      variables = %{filter: %{page: 1, size: 10, topic: "posts"}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
       assert results["totalCount"] == 2
 
-      variables = %{filter: %{page: 1, size: 10, topic: "OTHER"}}
+      variables = %{filter: %{page: 1, size: 10, topic: "other"}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
       assert results["totalCount"] == 0
     end
@@ -113,7 +113,7 @@ defmodule MastaniServer.Test.Query.PostsTopic do
     """
     @tag :wip
     test "topic filter on non-posts has no effect", ~m(guest_conn user community)a do
-      job_attrs = mock_attrs(:job, %{community_id: community.id, topic: "index"})
+      job_attrs = mock_attrs(:job, %{community_id: community.id, topic: "posts"})
       {:ok, _} = CMS.create_content(community, :job, job_attrs, user)
 
       job_attrs = mock_attrs(:job, %{community_id: community.id, topic: "city"})
@@ -123,7 +123,7 @@ defmodule MastaniServer.Test.Query.PostsTopic do
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
       assert results["totalCount"] == 2
 
-      variables = %{filter: %{page: 1, size: 10, topic: "index"}}
+      variables = %{filter: %{page: 1, size: 10, topic: "posts"}}
       assert guest_conn |> query_get_error?(@query, variables)
     end
   end
