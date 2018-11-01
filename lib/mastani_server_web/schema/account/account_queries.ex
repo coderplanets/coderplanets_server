@@ -15,7 +15,7 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
 
     @desc "get user by id"
     field :user, :user do
-      arg(:id, non_null(:id))
+      arg(:id, :id)
 
       resolve(&R.Accounts.user/3)
     end

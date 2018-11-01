@@ -11,47 +11,13 @@ defmodule MastaniServer.Test.Query.Account.Basic do
   setup do
     {:ok, user} = db_insert(:user)
     guest_conn = simu_conn(:guest)
-    # user_conn = simu_conn(:user, user)
-    {:ok, ~m(guest_conn user)a}
-  end
-
-  describe "[account session state]" do
-    @query """
-    query {
-      sessionState {
-        isValid
-        user {
-          id
-        }
-      }
-    }
-    """
-    test "guest user should get false sessionState", ~m(guest_conn)a do
-      results = guest_conn |> query_result(@query, %{}, "sessionState")
-      assert results["isValid"] == false
-      assert results["user"] == nil
-    end
-
-    test "login user should get true sessionState", ~m(user)a do
-      user_conn = simu_conn(:user, user)
-      results = user_conn |> query_result(@query, %{}, "sessionState")
-
-      assert results["isValid"] == true
-      assert results["user"] |> Map.get("id") == to_string(user.id)
-    end
-
-    test "user with invalid token get false sessionState" do
-      user_conn = simu_conn(:invalid_token)
-      results = user_conn |> query_result(@query, %{}, "sessionState")
-
-      assert results["isValid"] == false
-      assert results["user"] == nil
-    end
+    user_conn = simu_conn(:user, user)
+    {:ok, ~m(guest_conn user_conn user)a}
   end
 
   describe "[account basic]" do
     @query """
-    query($id: ID!) {
+    query($id: ID) {
       user(id: $id) {
         id
         nickname
@@ -79,6 +45,11 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert results["educationBackgrounds"] == []
       assert results["workBackgrounds"] == []
       assert results["cmsPassport"] == nil
+    end
+
+    test "login user can get it's own profile", ~m(user_conn user)a do
+      results = user_conn |> query_result(@query, %{}, "user")
+      assert results["id"] == to_string(user.id)
     end
 
     test "user's views +1 after visit", ~m(guest_conn user)a do
@@ -273,6 +244,40 @@ defmodule MastaniServer.Test.Query.Account.Basic do
 
       assert results |> is_valid_pagination?
       assert @default_subscribed_communities == results["pageSize"]
+    end
+  end
+
+  describe "[account session state]" do
+    @query """
+    query {
+    sessionState {
+    isValid
+    user {
+    id
+    }
+    }
+    }
+    """
+    test "guest user should get false sessionState", ~m(guest_conn)a do
+      results = guest_conn |> query_result(@query, %{}, "sessionState")
+      assert results["isValid"] == false
+      assert results["user"] == nil
+    end
+
+    test "login user should get true sessionState", ~m(user)a do
+      user_conn = simu_conn(:user, user)
+      results = user_conn |> query_result(@query, %{}, "sessionState")
+
+      assert results["isValid"] == true
+      assert results["user"] |> Map.get("id") == to_string(user.id)
+    end
+
+    test "user with invalid token get false sessionState" do
+      user_conn = simu_conn(:invalid_token)
+      results = user_conn |> query_result(@query, %{}, "sessionState")
+
+      assert results["isValid"] == false
+      assert results["user"] == nil
     end
   end
 end
