@@ -14,7 +14,7 @@ defmodule MastaniServer.Test.Query.Accounts.Messages do
   describe "[account messages queries]" do
     @query """
     query {
-      account {
+      user {
         id
         mailBox {
           hasMail
@@ -29,7 +29,7 @@ defmodule MastaniServer.Test.Query.Accounts.Messages do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
-      result = user_conn |> query_result(@query, %{}, "account")
+      result = user_conn |> query_result(@query, %{}, "user")
       mail_box = result["mailBox"]
       assert mail_box["hasMail"] == false
       assert mail_box["totalCount"] == 0
@@ -39,7 +39,7 @@ defmodule MastaniServer.Test.Query.Accounts.Messages do
       mock_mentions_for(user, 2)
       mock_notifications_for(user, 18)
 
-      result = user_conn |> query_result(@query, %{}, "account")
+      result = user_conn |> query_result(@query, %{}, "user")
       mail_box = result["mailBox"]
       assert mail_box["hasMail"] == true
       assert mail_box["totalCount"] == 20
@@ -55,7 +55,7 @@ defmodule MastaniServer.Test.Query.Accounts.Messages do
 
     @query """
     query($filter: MessagesFilter!) {
-      account {
+      user {
         id
         mentions(filter: $filter) {
           entries {
@@ -90,14 +90,14 @@ defmodule MastaniServer.Test.Query.Accounts.Messages do
       user_conn = simu_conn(:user, user)
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
-      result = user_conn |> query_result(@query, variables, "account")
+      result = user_conn |> query_result(@query, variables, "user")
       mentions = result["mentions"]
       assert mentions["totalCount"] == 0
 
       mock_mentions_for(user, 3)
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
-      result = user_conn |> query_result(@query, variables, "account")
+      result = user_conn |> query_result(@query, variables, "user")
       mentions = result["mentions"]
 
       assert mentions["totalCount"] == 3
@@ -109,14 +109,14 @@ defmodule MastaniServer.Test.Query.Accounts.Messages do
       user_conn = simu_conn(:user, user)
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
-      result = user_conn |> query_result(@query, variables, "account")
+      result = user_conn |> query_result(@query, variables, "user")
       notifications = result["notifications"]
       assert notifications["totalCount"] == 0
 
       mock_notifications_for(user, 3)
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
-      result = user_conn |> query_result(@query, variables, "account")
+      result = user_conn |> query_result(@query, variables, "user")
       notifications = result["notifications"]
 
       assert notifications["totalCount"] == 3
@@ -128,14 +128,14 @@ defmodule MastaniServer.Test.Query.Accounts.Messages do
       user_conn = simu_conn(:user, user)
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
-      result = user_conn |> query_result(@query, variables, "account")
+      result = user_conn |> query_result(@query, variables, "user")
       notifications = result["sysNotifications"]
       assert notifications["totalCount"] == 0
 
       mock_sys_notification(5)
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
-      result = user_conn |> query_result(@query, variables, "account")
+      result = user_conn |> query_result(@query, variables, "user")
       notifications = result["sysNotifications"]
 
       assert notifications["totalCount"] == 5

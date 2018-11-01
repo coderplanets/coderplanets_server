@@ -20,7 +20,7 @@ defmodule MastaniServer.Test.Query.Accounts.StaredContents do
   describe "[accounts stared posts]" do
     @query """
     query($filter: PagedFilter!) {
-      account {
+      user {
         id
         staredPosts(filter: $filter) {
           entries {
@@ -40,7 +40,7 @@ defmodule MastaniServer.Test.Query.Accounts.StaredContents do
       random_id = posts |> Enum.shuffle() |> List.first() |> Map.get(:id) |> to_string
 
       variables = %{filter: %{page: 1, size: 20}}
-      results = user_conn |> query_result(@query, variables, "account")
+      results = user_conn |> query_result(@query, variables, "user")
       # IO.inspect results, label: "hello"
       assert results["staredPosts"] |> Map.get("totalCount") == @total_count
       assert results["staredPostsCount"] == @total_count
@@ -80,7 +80,7 @@ defmodule MastaniServer.Test.Query.Accounts.StaredContents do
   describe "[accounts stared jobs]" do
     @query """
     query($filter: PagedFilter!) {
-      account {
+      user {
         id
         staredJobs(filter: $filter) {
           entries {
@@ -100,7 +100,7 @@ defmodule MastaniServer.Test.Query.Accounts.StaredContents do
       random_id = jobs |> Enum.shuffle() |> List.first() |> Map.get(:id) |> to_string
 
       variables = %{filter: %{page: 1, size: 20}}
-      results = user_conn |> query_result(@query, variables, "account")
+      results = user_conn |> query_result(@query, variables, "user")
       # IO.inspect results, label: "hello"
       assert results["staredJobs"] |> Map.get("totalCount") == @total_count
       assert results["staredJobsCount"] == @total_count
@@ -140,7 +140,7 @@ defmodule MastaniServer.Test.Query.Accounts.StaredContents do
   describe "[accounts stared videos]" do
     @query """
     query($filter: PagedFilter!) {
-      account {
+      user {
         id
         staredVideos(filter: $filter) {
           entries {
@@ -160,7 +160,7 @@ defmodule MastaniServer.Test.Query.Accounts.StaredContents do
       random_id = videos |> Enum.shuffle() |> List.first() |> Map.get(:id) |> to_string
 
       variables = %{filter: %{page: 1, size: 20}}
-      results = user_conn |> query_result(@query, variables, "account")
+      results = user_conn |> query_result(@query, variables, "user")
       # IO.inspect results, label: "hello"
       assert results["staredVideos"] |> Map.get("totalCount") == @total_count
       assert results["staredVideosCount"] == @total_count

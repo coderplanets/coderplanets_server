@@ -18,7 +18,7 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedRepos do
   describe "[accounts favorited repos]" do
     @query """
     query($filter: PagedFilter!) {
-      account {
+      user {
         id
         favoritedRepos(filter: $filter) {
           entries {
@@ -38,7 +38,7 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedRepos do
       random_id = repos |> Enum.shuffle() |> List.first() |> Map.get(:id) |> to_string
 
       variables = %{filter: %{page: 1, size: 20}}
-      results = user_conn |> query_result(@query, variables, "account")
+      results = user_conn |> query_result(@query, variables, "user")
       assert results["favoritedRepos"] |> Map.get("totalCount") == @total_count
       assert results["favoritedReposCount"] == @total_count
 
