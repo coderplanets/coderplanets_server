@@ -15,7 +15,6 @@ defmodule MastaniServer.Test.CMS do
   end
 
   describe "[cms tag]" do
-    @tag :wip
     test "create tag with valid data", ~m(community user)a do
       valid_attrs = mock_attrs(:tag, %{community_id: community.id})
 

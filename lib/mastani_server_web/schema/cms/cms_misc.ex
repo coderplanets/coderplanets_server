@@ -201,7 +201,6 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     field(:sort, :sort_enum)
     field(:tag, :string, default_value: :all)
     field(:community, :string)
-    # field(:topic, :string, default_value: "index")
     field(:topic, :string)
   end
 
