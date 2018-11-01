@@ -75,6 +75,8 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   get users subscribed communities
   """
   def subscribed_communities(%User{id: id}, %{page: page, size: size} = filter) do
+    filter = filter |> Map.delete(:first)
+
     CMS.CommunitySubscriber
     |> where([c], c.user_id == ^id)
     |> join(:inner, [c], cc in assoc(c, :community))

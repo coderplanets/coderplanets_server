@@ -35,7 +35,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   end
 
   def github_signin(_root, %{github_user: github_user}, %{remote_ip: remote_ip}) do
-    IO.inspect(remote_ip, label: "remote_ip")
+    # IO.inspect(remote_ip, label: "remote_ip")
     Accounts.github_signin(github_user, remote_ip)
   end
 
@@ -188,7 +188,10 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.subscribed_communities(%User{id: cur_user.id}, filter)
   end
 
-  #
+  def subscribed_communities(%{id: id}, %{filter: filter}, _info) do
+    Accounts.subscribed_communities(%User{id: id}, filter)
+  end
+
   def subscribed_communities(_root, %{user_id: "", filter: filter}, _info) do
     Accounts.default_subscribed_communities(filter)
   end
