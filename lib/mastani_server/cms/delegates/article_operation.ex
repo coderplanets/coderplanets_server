@@ -19,14 +19,104 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
     Video,
     VideoCommunityFlag,
     Tag,
-    Topic
+    Topic,
+    PinedPost,
+    PinedJob,
+    PinedVideo,
+    PinedRepo
   }
 
   alias MastaniServer.CMS.Repo, as: CMSRepo
   alias MastaniServer.Repo
 
+  def pin_content(%Post{id: post_id}, %Community{id: community_id}, topic) do
+    with {:ok, %{id: topic_id}} <- ORM.find_by(Topic, %{raw: topic}),
+         {:ok, pined} <-
+           ORM.findby_or_insert(
+             PinedPost,
+             ~m(post_id community_id topic_id)a,
+             ~m(post_id community_id topic_id)a
+           ) do
+      Post |> ORM.find(pined.post_id)
+    end
+  end
+
+  def undo_pin_content(%Post{id: post_id}, %Community{id: community_id}, topic) do
+    with {:ok, %{id: topic_id}} <- ORM.find_by(Topic, %{raw: topic}),
+         {:ok, pined} <-
+           ORM.find_by(
+             PinedPost,
+             post_id: post_id,
+             community_id: community_id,
+             topic_id: topic_id
+           ),
+         {:ok, deleted} <- ORM.delete(pined) do
+      Post |> ORM.find(deleted.post_id)
+    end
+  end
+
+  def pin_content(%Job{id: job_id}, %Community{id: community_id}) do
+    attrs = ~m(job_id community_id)a
+
+    with {:ok, pined} <- ORM.findby_or_insert(PinedJob, attrs, attrs) do
+      Job |> ORM.find(pined.job_id)
+    end
+  end
+
+  def undo_pin_content(%Job{id: job_id}, %Community{id: community_id}) do
+    with {:ok, pined} <-
+           ORM.find_by(
+             PinedJob,
+             job_id: job_id,
+             community_id: community_id
+           ),
+         {:ok, deleted} <- ORM.delete(pined) do
+      Job |> ORM.find(deleted.job_id)
+    end
+  end
+
+  def pin_content(%Video{id: video_id}, %Community{id: community_id}) do
+    attrs = ~m(video_id community_id)a
+
+    with {:ok, pined} <- ORM.findby_or_insert(PinedVideo, attrs, attrs) do
+      Video |> ORM.find(pined.video_id)
+    end
+  end
+
+  def undo_pin_content(%Video{id: video_id}, %Community{id: community_id}) do
+    with {:ok, pined} <-
+           ORM.find_by(
+             PinedVideo,
+             video_id: video_id,
+             community_id: community_id
+           ),
+         {:ok, deleted} <- ORM.delete(pined) do
+      Video |> ORM.find(deleted.video_id)
+    end
+  end
+
+  def pin_content(%CMSRepo{id: repo_id}, %Community{id: community_id}) do
+    attrs = ~m(repo_id community_id)a
+
+    with {:ok, pined} <- ORM.findby_or_insert(PinedRepo, attrs, attrs) do
+      CMSRepo |> ORM.find(pined.repo_id)
+    end
+  end
+
+  def undo_pin_content(%CMSRepo{id: repo_id}, %Community{id: community_id}) do
+    with {:ok, pined} <-
+           ORM.find_by(
+             PinedRepo,
+             repo_id: repo_id,
+             community_id: community_id
+           ),
+         {:ok, deleted} <- ORM.delete(pined) do
+      CMSRepo |> ORM.find(deleted.repo_id)
+    end
+  end
+
   @doc """
-  pin / unpin, trash / untrash articles
+  trash / untrash articles
   """
   def set_community_flags(%Post{id: _} = content, community_id, attrs),
     do: do_set_flag(content, community_id, attrs)

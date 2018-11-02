@@ -27,8 +27,9 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Post do
     @desc "pin a post"
     field :pin_post, :post do
       arg(:id, non_null(:id))
-      arg(:thread, :post_thread, default_value: :post)
       arg(:community_id, non_null(:id))
+      arg(:thread, :post_thread, default_value: :post)
+      arg(:topic, :string, default_value: "posts")
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
@@ -41,6 +42,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Post do
       arg(:id, non_null(:id))
       arg(:thread, :post_thread, default_value: :post)
       arg(:community_id, non_null(:id))
+      arg(:topic, :string, default_value: "posts")
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
