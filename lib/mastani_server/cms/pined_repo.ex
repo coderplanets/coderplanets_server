@@ -1,4 +1,4 @@
-defmodule MastaniServer.CMS.RepoCommunityFlag do
+defmodule MastaniServer.CMS.PinedRepo do
   @moduledoc false
   alias __MODULE__
 
@@ -7,26 +7,22 @@ defmodule MastaniServer.CMS.RepoCommunityFlag do
   alias MastaniServer.CMS.{Community, Repo}
 
   @required_fields ~w(repo_id community_id)a
-  @optional_fields ~w(trash)a
 
-  @type t :: %RepoCommunityFlag{}
-
-  schema "repos_communities_flags" do
+  @type t :: %PinedRepo{}
+  schema "pined_repos" do
     belongs_to(:repo, Repo, foreign_key: :repo_id)
     belongs_to(:community, Community, foreign_key: :community_id)
-
-    field(:trash, :boolean)
 
     timestamps(type: :utc_datetime)
   end
 
   @doc false
-  def changeset(%RepoCommunityFlag{} = repo_community_flag, attrs) do
-    repo_community_flag
-    |> cast(attrs, @optional_fields ++ @required_fields)
+  def changeset(%PinedRepo{} = pined_repo, attrs) do
+    pined_repo
+    |> cast(attrs, @required_fields)
     |> validate_required(@required_fields)
     |> foreign_key_constraint(:repo_id)
     |> foreign_key_constraint(:community_id)
-    |> unique_constraint(:repo_id, name: :repos_communities_flags_repo_id_community_id_index)
+    |> unique_constraint(:pined_repos, name: :pined_repos_repo_id_community_id_index)
   end
 end

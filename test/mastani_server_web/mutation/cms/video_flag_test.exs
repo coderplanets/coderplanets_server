@@ -108,7 +108,6 @@ defmodule MastaniServer.Test.Mutation.VideoFlag do
     mutation($id: ID!, $communityId: ID!){
       undoPinVideo(id: $id, communityId: $communityId) {
         id
-        pin
       }
     }
     """
@@ -118,10 +117,10 @@ defmodule MastaniServer.Test.Mutation.VideoFlag do
       passport_rules = %{community.raw => %{"video.undo_pin" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
+      CMS.pin_content(video, community)
       updated = rule_conn |> mutation_result(@query, variables, "undoPinVideo")
 
       assert updated["id"] == to_string(video.id)
-      assert updated["pin"] == false
     end
 
     test "unauth user undo pin video fails", ~m(user_conn guest_conn community video)a do
