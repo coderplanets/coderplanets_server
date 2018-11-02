@@ -46,139 +46,6 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     |> add_pin_contents_ifneed(queryable, filter)
   end
 
-  defp flag_query(queryable, filter, flag \\ %{}) do
-    flag = %{trash: false} |> Map.merge(flag)
-
-    # NOTE: this case judge is used for test case
-    case filter |> Map.has_key?(:community) do
-      true ->
-        queryable
-        |> join(:inner, [q], f in assoc(q, :community_flags))
-        |> where([q, f], f.trash == ^flag.trash)
-        |> join(:inner, [q, f], c in assoc(f, :community))
-        |> where([q, f, c], c.raw == ^filter.community)
-
-      false ->
-        queryable
-    end
-  end
-
-  # only first page need pin contents
-  # TODO: use seperate pined table, which is much more smaller
-  defp add_pin_contents_ifneed(contents, CMS.Post, %{community: community} = filter) do
-    with {:ok, normal_contents} <- contents,
-         true <- Map.has_key?(filter, :community),
-         true <- 1 == Map.get(normal_contents, :page_number) do
-      {:ok, pined_content} =
-        CMS.PinedPost
-        |> join(:inner, [p], c in assoc(p, :community))
-        |> join(:inner, [p], t in assoc(p, :topic))
-        |> join(:inner, [p], content in assoc(p, :post))
-        |> where(
-          [p, c, t, content],
-          c.raw == ^filter.community and t.raw == ^Map.get(filter, :topic, "posts")
-        )
-        |> select([p, c, t, content], content)
-        # 10 pined contents per community/thread, at most
-        |> ORM.paginater(%{page: 1, size: 10})
-        |> done()
-
-      concat_contents(pined_content, normal_contents)
-    else
-      _error ->
-        contents
-    end
-  end
-
-  defp add_pin_contents_ifneed(contents, CMS.Job, %{community: community} = filter) do
-    with {:ok, normal_contents} <- contents,
-         true <- Map.has_key?(filter, :community),
-         true <- 1 == Map.get(normal_contents, :page_number) do
-      {:ok, pined_content} =
-        CMS.PinedJob
-        |> join(:inner, [p], c in assoc(p, :community))
-        |> join(:inner, [p], content in assoc(p, :job))
-        |> where([p, c, content], c.raw == ^filter.community)
-        |> select([p, c, content], content)
-        # 10 pined contents per community/thread, at most
-        |> ORM.paginater(%{page: 1, size: 10})
-        |> done()
-
-      concat_contents(pined_content, normal_contents)
-    else
-      _error ->
-        contents
-    end
-  end
-
-  defp add_pin_contents_ifneed(contents, CMS.Video, %{community: community} = filter) do
-    with {:ok, normal_contents} <- contents,
-         true <- Map.has_key?(filter, :community),
-         true <- 1 == Map.get(normal_contents, :page_number) do
-      {:ok, pined_content} =
-        CMS.PinedVideo
-        |> join(:inner, [p], c in assoc(p, :community))
-        |> join(:inner, [p], content in assoc(p, :video))
-        |> where([p, c, content], c.raw == ^filter.community)
-        |> select([p, c, content], content)
-        # 10 pined contents per community/thread, at most
-        |> ORM.paginater(%{page: 1, size: 10})
-        |> done()
-
-      concat_contents(pined_content, normal_contents)
-    else
-      _error ->
-        contents
-    end
-  end
-
-  defp add_pin_contents_ifneed(contents, CMS.Repo, %{community: community} = filter) do
-    with {:ok, normal_contents} <- contents,
-         true <- Map.has_key?(filter, :community),
-         true <- 1 == Map.get(normal_contents, :page_number) do
-      {:ok, pined_content} =
-        CMS.PinedRepo
-        |> join(:inner, [p], c in assoc(p, :community))
-        |> join(:inner, [p], content in assoc(p, :repo))
-        |> where([p, c, content], c.raw == ^filter.community)
-        |> select([p, c, content], content)
-        # 10 pined contents per community/thread, at most
-        |> ORM.paginater(%{page: 1, size: 10})
-        |> done()
-
-      concat_contents(pined_content, normal_contents)
-    else
-      _error ->
-        contents
-    end
-  end
-
-  defp add_pin_contents_ifneed(contents, _querable, _filter), do: contents
-
-  defp concat_contents(pined_content, normal_contents) do
-    case pined_content |> Map.get(:total_count) do
-      0 ->
-        {:ok, normal_contents}
-
-      _ ->
-        # NOTE: this is tricy, should use dataloader refactor
-        pind_entries =
-          pined_content
-          |> Map.get(:entries)
-          |> Enum.map(&struct(&1, %{pin: true}))
-
-        normal_entries = normal_contents |> Map.get(:entries)
-
-        normal_count = normal_contents |> Map.get(:total_count)
-        pind_count = pined_content |> Map.get(:total_count)
-
-        normal_contents
-        |> Map.put(:entries, pind_entries ++ normal_entries)
-        |> Map.put(:total_count, pind_count + normal_count)
-        |> done
-    end
-  end
-
   @doc """
   Creates a content(post/job ...), and set community.
 
@@ -327,5 +194,108 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
 
   defp handle_existing_author({:error, changeset}) do
     ORM.find_by(Author, user_id: changeset.data.user_id)
+  end
+
+  defp flag_query(queryable, filter, flag \\ %{}) do
+    flag = %{trash: false} |> Map.merge(flag)
+
+    # NOTE: this case judge is used for test case
+    case filter |> Map.has_key?(:community) do
+      true ->
+        queryable
+        |> join(:inner, [q], f in assoc(q, :community_flags))
+        |> where([q, f], f.trash == ^flag.trash)
+        |> join(:inner, [q, f], c in assoc(f, :community))
+        |> where([q, f, c], c.raw == ^filter.community)
+
+      false ->
+        queryable
+    end
+  end
+
+  # only first page need pin contents
+  # TODO: use seperate pined table, which is much more smaller
+  defp add_pin_contents_ifneed(contents, CMS.Post, %{community: community} = filter) do
+    with {:ok, normal_contents} <- contents,
+         true <- Map.has_key?(filter, :community),
+         true <- 1 == Map.get(normal_contents, :page_number) do
+      {:ok, pined_content} =
+        CMS.PinedPost
+        |> join(:inner, [p], c in assoc(p, :community))
+        |> join(:inner, [p], t in assoc(p, :topic))
+        |> join(:inner, [p], content in assoc(p, :post))
+        |> where(
+          [p, c, t, content],
+          c.raw == ^filter.community and t.raw == ^Map.get(filter, :topic, "posts")
+        )
+        |> select([p, c, t, content], content)
+        # 10 pined contents per community/thread, at most
+        |> ORM.paginater(%{page: 1, size: 10})
+        |> done()
+
+      concat_contents(pined_content, normal_contents)
+    else
+      _error ->
+        contents
+    end
+  end
+
+  defp add_pin_contents_ifneed(contents, CMS.Job, %{community: community} = filter) do
+    merge_pin_contents(contents, :job, CMS.PinedJob, filter)
+  end
+
+  defp add_pin_contents_ifneed(contents, CMS.Video, %{community: community} = filter) do
+    merge_pin_contents(contents, :video, CMS.PinedVideo, filter)
+  end
+
+  defp add_pin_contents_ifneed(contents, CMS.Repo, %{community: community} = filter) do
+    merge_pin_contents(contents, :repo, CMS.PinedRepo, filter)
+  end
+
+  defp merge_pin_contents(contents, thread, pin_schema, %{community: community} = filter) do
+    with {:ok, normal_contents} <- contents,
+         true <- Map.has_key?(filter, :community),
+         true <- 1 == Map.get(normal_contents, :page_number) do
+      {:ok, pined_content} =
+        pin_schema
+        |> join(:inner, [p], c in assoc(p, :community))
+        |> join(:inner, [p], content in assoc(p, ^thread))
+        |> where([p, c, content], c.raw == ^filter.community)
+        |> select([p, c, content], content)
+        # 10 pined contents per community/thread, at most
+        |> ORM.paginater(%{page: 1, size: 10})
+        |> done()
+
+      concat_contents(pined_content, normal_contents)
+    else
+      _error ->
+        contents
+    end
+  end
+
+  defp add_pin_contents_ifneed(contents, _querable, _filter), do: contents
+
+  defp concat_contents(pined_content, normal_contents) do
+    case pined_content |> Map.get(:total_count) do
+      0 ->
+        {:ok, normal_contents}
+
+      _ ->
+        # NOTE: this is tricy, should use dataloader refactor
+        pind_entries =
+          pined_content
+          |> Map.get(:entries)
+          |> Enum.map(&struct(&1, %{pin: true}))
+
+        normal_entries = normal_contents |> Map.get(:entries)
+
+        normal_count = normal_contents |> Map.get(:total_count)
+        pind_count = pined_content |> Map.get(:total_count)
+
+        normal_contents
+        |> Map.put(:entries, pind_entries ++ normal_entries)
+        |> Map.put(:total_count, pind_count + normal_count)
+        |> done
+    end
   end
 end

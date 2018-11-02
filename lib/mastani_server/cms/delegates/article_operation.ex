@@ -43,13 +43,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
 
   def undo_pin_content(%Post{id: post_id}, %Community{id: community_id}, topic) do
     with {:ok, %{id: topic_id}} <- ORM.find_by(Topic, %{raw: topic}),
-         {:ok, pined} <-
-           ORM.find_by(
-             PinedPost,
-             post_id: post_id,
-             community_id: community_id,
-             topic_id: topic_id
-           ),
+         {:ok, pined} <- ORM.find_by(PinedPost, ~m(post_id community_id topic_id)a),
          {:ok, deleted} <- ORM.delete(pined) do
       Post |> ORM.find(deleted.post_id)
     end
@@ -64,12 +58,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   end
 
   def undo_pin_content(%Job{id: job_id}, %Community{id: community_id}) do
-    with {:ok, pined} <-
-           ORM.find_by(
-             PinedJob,
-             job_id: job_id,
-             community_id: community_id
-           ),
+    with {:ok, pined} <- ORM.find_by(PinedJob, ~m(job_id community_id)a),
          {:ok, deleted} <- ORM.delete(pined) do
       Job |> ORM.find(deleted.job_id)
     end
@@ -84,12 +73,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   end
 
   def undo_pin_content(%Video{id: video_id}, %Community{id: community_id}) do
-    with {:ok, pined} <-
-           ORM.find_by(
-             PinedVideo,
-             video_id: video_id,
-             community_id: community_id
-           ),
+    with {:ok, pined} <- ORM.find_by(PinedVideo, ~m(video_id community_id)a),
          {:ok, deleted} <- ORM.delete(pined) do
       Video |> ORM.find(deleted.video_id)
     end
@@ -104,12 +88,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   end
 
   def undo_pin_content(%CMSRepo{id: repo_id}, %Community{id: community_id}) do
-    with {:ok, pined} <-
-           ORM.find_by(
-             PinedRepo,
-             repo_id: repo_id,
-             community_id: community_id
-           ),
+    with {:ok, pined} <- ORM.find_by(PinedRepo, ~m(repo_id community_id)a),
          {:ok, deleted} <- ORM.delete(pined) do
       CMSRepo |> ORM.find(deleted.repo_id)
     end
