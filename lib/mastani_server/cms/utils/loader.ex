@@ -7,6 +7,8 @@ defmodule MastaniServer.CMS.Utils.Loader do
   alias Helper.QueryBuilder
   alias MastaniServer.Repo
   # alias MastaniServer.Accounts
+  alias MastaniServer.CMS.Repo, as: CMSRepo
+
   alias MastaniServer.CMS.{
     Author,
     CommunityEditor,
@@ -22,7 +24,7 @@ defmodule MastaniServer.CMS.Utils.Loader do
     PostFavorite,
     PostStar,
     # JOB
-    # Job,
+    Job,
     JobViewer,
     JobFavorite,
     # JobStar,
@@ -31,6 +33,7 @@ defmodule MastaniServer.CMS.Utils.Loader do
     JobCommentDislike,
     JobCommentLike,
     # Video
+    Video,
     VideoViewer,
     VideoFavorite,
     VideoStar,
@@ -38,7 +41,7 @@ defmodule MastaniServer.CMS.Utils.Loader do
     VideoCommentReply,
     VideoCommentDislike,
     VideoCommentLike,
-    # repo
+    # Repo,
     RepoViewer,
     RepoFavorite,
     RepoComment,
@@ -51,14 +54,30 @@ defmodule MastaniServer.CMS.Utils.Loader do
 
   # Big thanks: https://elixirforum.com/t/grouping-error-in-absinthe-dadaloader/13671/2
   # see also: https://github.com/absinthe-graphql/dataloader/issues/25
-  def run_batch(Post, post_query, :posts_count, community_ids, repo_opts) do
+  def run_batch(Post, content_query, :posts_count, community_ids, repo_opts) do
+    query_content_counts(content_query, community_ids, repo_opts)
+  end
+
+  def run_batch(Job, content_query, :jobs_count, community_ids, repo_opts) do
+    query_content_counts(content_query, community_ids, repo_opts)
+  end
+
+  def run_batch(Video, content_query, :videos_count, community_ids, repo_opts) do
+    query_content_counts(content_query, community_ids, repo_opts)
+  end
+
+  def run_batch(CMSRepo, content_query, :repos_count, community_ids, repo_opts) do
+    query_content_counts(content_query, community_ids, repo_opts)
+  end
+
+  defp query_content_counts(content_query, community_ids, repo_opts) do
     query =
       from(
-        p in post_query,
-        join: c in assoc(p, :communities),
+        content in content_query,
+        join: c in assoc(content, :communities),
         where: c.id in ^community_ids,
         group_by: c.id,
-        select: {c.id, [count(p.id)]}
+        select: {c.id, [count(content.id)]}
       )
 
     results =

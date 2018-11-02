@@ -258,17 +258,17 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:threads, list_of(:thread), resolve: dataloader(CMS, :threads))
     field(:categories, list_of(:category), resolve: dataloader(CMS, :categories))
 
-    # Big thanks: https://elixirforum.com/t/grouping-error-in-absinthe-dadaloader/13671/2
-    # see also: https://github.com/absinthe-graphql/dataloader/issues/25
-    field :posts_count, :integer do
-      resolve(fn community, _args, %{context: %{loader: loader}} ->
-        loader
-        |> Dataloader.load(CMS, {:one, CMS.Post}, posts_count: community.id)
-        |> on_load(fn loader ->
-          {:ok, Dataloader.get(loader, CMS, {:one, CMS.Post}, posts_count: community.id)}
-        end)
-      end)
-    end
+    @doc "total count of post contents"
+    content_counts_field(:post, CMS.Post)
+
+    @doc "total count of job contents"
+    content_counts_field(:job, CMS.Job)
+
+    @doc "total count of video contents"
+    content_counts_field(:video, CMS.Video)
+
+    @doc "total count of repo contents"
+    content_counts_field(:repo, CMS.Repo)
 
     field :subscribers, list_of(:user) do
       arg(:filter, :members_filter)
