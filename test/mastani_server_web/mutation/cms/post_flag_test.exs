@@ -84,6 +84,7 @@ defmodule MastaniServer.Test.Mutation.PostFlag do
       }
     }
     """
+    @tag :wip
     test "auth user can pin post", ~m(community post)a do
       variables = %{id: post.id, communityId: community.id}
 
@@ -95,6 +96,7 @@ defmodule MastaniServer.Test.Mutation.PostFlag do
       assert updated["id"] == to_string(post.id)
     end
 
+    @tag :wip
     test "unauth user pin post fails", ~m(user_conn guest_conn community post)a do
       variables = %{id: post.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
@@ -112,18 +114,20 @@ defmodule MastaniServer.Test.Mutation.PostFlag do
       }
     }
     """
+    @tag :wip
     test "auth user can undo pin post", ~m(community post)a do
       variables = %{id: post.id, communityId: community.id}
 
       passport_rules = %{community.raw => %{"post.undo_pin" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
+      CMS.pin_content(post, community, "posts")
       updated = rule_conn |> mutation_result(@query, variables, "undoPinPost")
 
       assert updated["id"] == to_string(post.id)
-      assert updated["pin"] == false
     end
 
+    @tag :wip
     test "unauth user undo pin post fails", ~m(user_conn guest_conn community post)a do
       variables = %{id: post.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})

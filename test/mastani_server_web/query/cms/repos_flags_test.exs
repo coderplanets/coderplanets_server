@@ -50,6 +50,7 @@ defmodule MastaniServer.Test.Query.ReposFlags do
       }
     }
     """
+    @tag :wip
     test "if have pined repos, the pined repos should at the top of entries",
          ~m(guest_conn community repo_m)a do
       variables = %{filter: %{community: community.raw}}
@@ -61,28 +62,31 @@ defmodule MastaniServer.Test.Query.ReposFlags do
       assert results["pageSize"] == @page_size
       assert results["totalCount"] == @total_count
 
-      CMS.set_community_flags(%Repo{id: repo_m.id}, community.id, %{pin: true})
+      {:ok, _pined_post} = CMS.pin_content(repo_m, community)
 
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
       entries_first = results["entries"] |> List.first()
 
-      assert results["totalCount"] == @total_count
+      assert results["totalCount"] == @total_count + 1
       assert entries_first["id"] == to_string(repo_m.id)
       assert entries_first["pin"] == true
     end
 
+    @tag :wip
     test "pind repos should not appear when page > 1", ~m(guest_conn community)a do
       variables = %{filter: %{page: 2, size: 20}}
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
       assert results |> is_valid_pagination?
 
       random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _} = CMS.set_community_flags(%Repo{id: random_id}, community.id, %{pin: true})
+
+      {:ok, _pined_post} = CMS.pin_content(%Repo{id: random_id}, community)
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
 
       assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))
     end
 
+    @tag :wip
     test "if have trashed repos, the trashed repos should not appears in result",
          ~m(guest_conn community)a do
       variables = %{filter: %{community: community.raw}}

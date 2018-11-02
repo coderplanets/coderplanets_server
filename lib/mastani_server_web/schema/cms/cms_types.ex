@@ -27,7 +27,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:copy_right, :string)
     field(:body, :string)
     field(:views, :integer)
-    # TODO: remove
+    # NOTE: only meaningful in paged-xxx queries
     field(:pin, :boolean)
     field(:trash, :boolean)
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
