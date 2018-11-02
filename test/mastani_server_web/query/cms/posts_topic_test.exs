@@ -53,7 +53,7 @@ defmodule MastaniServer.Test.Query.PostsTopic do
       }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "create post with valid args and topic ", ~m(guest_conn)a do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -62,7 +62,7 @@ defmodule MastaniServer.Test.Query.PostsTopic do
       post_attr = mock_attrs(:post)
 
       variables = post_attr |> Map.merge(%{communityId: community.id, topic: "city"})
-      created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+      _created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
 
       variables = %{filter: %{page: 1, size: 10, topic: "city"}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
@@ -81,7 +81,7 @@ defmodule MastaniServer.Test.Query.PostsTopic do
       }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "topic filter on posts should work", ~m(guest_conn)a do
       variables = %{filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")

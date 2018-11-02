@@ -92,7 +92,6 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
         case action |> Map.has_key?(:flag) do
           true ->
             ArticleOperation.set_community_flags(content, community.id, %{
-              pin: false,
               trash: false
             })
 
