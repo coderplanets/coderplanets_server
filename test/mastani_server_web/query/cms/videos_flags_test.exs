@@ -50,7 +50,6 @@ defmodule MastaniServer.Test.Query.VideosFlags do
       }
     }
     """
-    @tag :wip
     test "if have pined videos, the pined videos should at the top of entries",
          ~m(guest_conn community video_m)a do
       variables = %{filter: %{community: community.raw}}
@@ -72,7 +71,6 @@ defmodule MastaniServer.Test.Query.VideosFlags do
       assert entries_first["pin"] == true
     end
 
-    @tag :wip
     test "pind videos should not appear when page > 1", ~m(guest_conn community)a do
       variables = %{filter: %{page: 2, size: 20}}
       results = guest_conn |> query_result(@query, variables, "pagedVideos")
@@ -85,7 +83,6 @@ defmodule MastaniServer.Test.Query.VideosFlags do
       assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))
     end
 
-    @tag :wip
     test "if have trashed videos, the trashed videos should not appears in result",
          ~m(guest_conn community)a do
       variables = %{filter: %{community: community.raw}}

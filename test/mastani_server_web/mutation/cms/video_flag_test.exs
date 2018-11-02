@@ -84,7 +84,6 @@ defmodule MastaniServer.Test.Mutation.VideoFlag do
       }
     }
     """
-    @tag :wip
     test "auth user can pin video", ~m(community video)a do
       variables = %{id: video.id, communityId: community.id}
 
@@ -96,7 +95,6 @@ defmodule MastaniServer.Test.Mutation.VideoFlag do
       assert updated["id"] == to_string(video.id)
     end
 
-    @tag :wip
     test "unauth user pin video fails", ~m(user_conn guest_conn community video)a do
       variables = %{id: video.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
@@ -113,7 +111,6 @@ defmodule MastaniServer.Test.Mutation.VideoFlag do
       }
     }
     """
-    @tag :wip
     test "auth user can undo pin video", ~m(community video)a do
       variables = %{id: video.id, communityId: community.id}
 
@@ -126,7 +123,6 @@ defmodule MastaniServer.Test.Mutation.VideoFlag do
       assert updated["id"] == to_string(video.id)
     end
 
-    @tag :wip
     test "unauth user undo pin video fails", ~m(user_conn guest_conn community video)a do
       variables = %{id: video.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})

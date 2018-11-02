@@ -50,7 +50,6 @@ defmodule MastaniServer.Test.Query.ReposFlags do
       }
     }
     """
-    @tag :wip
     test "if have pined repos, the pined repos should at the top of entries",
          ~m(guest_conn community repo_m)a do
       variables = %{filter: %{community: community.raw}}
@@ -72,7 +71,6 @@ defmodule MastaniServer.Test.Query.ReposFlags do
       assert entries_first["pin"] == true
     end
 
-    @tag :wip
     test "pind repos should not appear when page > 1", ~m(guest_conn community)a do
       variables = %{filter: %{page: 2, size: 20}}
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
@@ -86,7 +84,6 @@ defmodule MastaniServer.Test.Query.ReposFlags do
       assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))
     end
 
-    @tag :wip
     test "if have trashed repos, the trashed repos should not appears in result",
          ~m(guest_conn community)a do
       variables = %{filter: %{community: community.raw}}
