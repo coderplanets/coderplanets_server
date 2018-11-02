@@ -260,7 +260,6 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       }
     }
     """
-    @tag :wip
     test "guest user can get partial tags by communityId and thread", ~m(guest_conn community)a do
       {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
       {:ok, tag2} = db_insert(:tag, %{thread: "job", community: community})
@@ -273,7 +272,6 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       assert results |> Enum.any?(&(&1["id"] != to_string(tag2.id)))
     end
 
-    @tag :wip
     test "user can get partial tags by default index topic", ~m(guest_conn community user)a do
       valid_attrs = mock_attrs(:tag, %{community_id: community.id})
       {:ok, _tag} = CMS.create_tag(:post, valid_attrs, %User{id: user.id})
@@ -299,7 +297,6 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       }
     }
     """
-    @tag :wip
     test "guest user can get partial tags by communityRaw", ~m(guest_conn community)a do
       {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
       {:ok, tag2} = db_insert(:tag, %{thread: "job", community: community})

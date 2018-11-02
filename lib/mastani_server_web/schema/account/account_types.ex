@@ -65,11 +65,18 @@ defmodule MastaniServerWeb.Schema.Account.Types do
       resolve(&R.Accounts.get_passport/3)
     end
 
-    field :subscribed_communities, list_of(:community) do
-      arg(:filter, :members_filter)
+    # field :subscribed_communities, list_of(:community) do
+    # arg(:filter, :members_filter)
+
+    # middleware(M.PageSizeProof)
+    # resolve(dataloader(Accounts, :subscribed_communities))
+    # end
+    @desc "paged communities subscribed by this user"
+    field :subscribed_communities, :paged_communities do
+      arg(:filter, :paged_filter)
 
       middleware(M.PageSizeProof)
-      resolve(dataloader(Accounts, :subscribed_communities))
+      resolve(&R.Accounts.subscribed_communities/3)
     end
 
     field :subscribed_communities_count, :integer do

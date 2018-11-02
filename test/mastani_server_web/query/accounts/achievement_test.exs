@@ -59,7 +59,7 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
 
     @query """
     query {
-      account {
+      user {
         id
         editableCommunities {
           entries {
@@ -84,7 +84,7 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       {:ok, _} = CMS.set_editor(community2, title, user)
 
       variables = %{filter: %{page: 1, size: 20}}
-      results = user_conn |> query_result(@query, variables, "account")
+      results = user_conn |> query_result(@query, variables, "user")
       editable_communities = results["editableCommunities"]
 
       assert editable_communities["totalCount"] == 2

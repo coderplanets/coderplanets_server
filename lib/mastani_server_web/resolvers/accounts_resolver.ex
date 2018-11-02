@@ -3,6 +3,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   accounts resolvers
   """
   import ShortMaps
+  import Helper.ErrorCode
 
   alias Helper.{Certification, ORM}
   alias MastaniServer.{Accounts, CMS}
@@ -10,15 +11,20 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   alias Accounts.{MentionMail, NotificationMail, SysNotificationMail, User}
 
   def user(_root, %{id: id}, _info), do: User |> ORM.read(id, inc: :views)
+
+  def user(_root, _args, %{context: %{cur_user: cur_user}}),
+    do: User |> ORM.read(cur_user.id, inc: :views)
+
+  def user(_root, _args, _info) do
+    {:error, [message: "need login", code: ecode(:account_login)]}
+  end
+
   def users(_root, ~m(filter)a, _info), do: User |> ORM.find_all(filter)
 
   def session_state(_root, _args, %{context: %{cur_user: cur_user}}),
     do: {:ok, %{is_valid: true, user: cur_user}}
 
   def session_state(_root, _args, _info), do: {:ok, %{is_valid: false}}
-
-  def account(_root, _args, %{context: %{cur_user: cur_user}}),
-    do: User |> ORM.read(cur_user.id, inc: :views)
 
   def update_profile(_root, args, %{context: %{cur_user: cur_user}}) do
     profile =
@@ -35,7 +41,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   end
 
   def github_signin(_root, %{github_user: github_user}, %{remote_ip: remote_ip}) do
-    IO.inspect(remote_ip, label: "remote_ip")
+    # IO.inspect(remote_ip, label: "remote_ip")
     Accounts.github_signin(github_user, remote_ip)
   end
 
@@ -184,11 +190,14 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   end
 
   # for user self's
-  def subscribed_communities(_root, %{filter: filter}, %{cur_user: cur_user}) do
+  def subscribed_communities(_root, %{filter: filter}, %{context: %{cur_user: cur_user}}) do
     Accounts.subscribed_communities(%User{id: cur_user.id}, filter)
   end
 
-  #
+  def subscribed_communities(%{id: id}, %{filter: filter}, _info) do
+    Accounts.subscribed_communities(%User{id: id}, filter)
+  end
+
   def subscribed_communities(_root, %{user_id: "", filter: filter}, _info) do
     Accounts.default_subscribed_communities(filter)
   end
