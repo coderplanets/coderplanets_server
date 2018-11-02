@@ -50,8 +50,29 @@ defmodule MastaniServerWeb.Schema.Utils.Helper do
   import Absinthe.Resolution.Helpers, only: [dataloader: 2]
 
   alias MastaniServer.CMS
-  alias MastaniServerWeb.Resolvers, as: R
   alias MastaniServerWeb.Middleware, as: M
+  alias MastaniServerWeb.Resolvers, as: R
+
+  # Big thanks: https://elixirforum.com/t/grouping-error-in-absinthe-dadaloader/13671/2
+  # see also: https://github.com/absinthe-graphql/dataloader/issues/25
+  defmacro content_counts_field(thread, schema) do
+    quote do
+      field unquote(String.to_atom("#{to_string(thread)}s_count")), :integer do
+        resolve(fn community, _args, %{context: %{loader: loader}} ->
+          loader
+          |> Dataloader.load(CMS, {:one, unquote(schema)}, [
+            {unquote(String.to_atom("#{to_string(thread)}s_count")), community.id}
+          ])
+          |> on_load(fn loader ->
+            {:ok,
+             Dataloader.get(loader, CMS, {:one, unquote(schema)}, [
+               {unquote(String.to_atom("#{to_string(thread)}s_count")), community.id}
+             ])}
+          end)
+        end)
+      end
+    end
+  end
 
   defmacro has_viewed_field do
     quote do
