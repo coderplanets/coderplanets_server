@@ -53,7 +53,6 @@ defmodule MastaniServer.Test.Query.PostsTopic do
       }
     }
     """
-    @tag :wip
     test "create post with valid args and topic ", ~m(guest_conn)a do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -81,7 +80,6 @@ defmodule MastaniServer.Test.Query.PostsTopic do
       }
     }
     """
-    @tag :wip
     test "topic filter on posts should work", ~m(guest_conn)a do
       variables = %{filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")

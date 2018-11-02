@@ -51,7 +51,6 @@ defmodule MastaniServer.Test.Query.PostsFlags do
       }
     }
     """
-    @tag :wip
     test "if have pined posts, the pined posts should at the top of entries",
          ~m(guest_conn community post_m)a do
       variables = %{filter: %{community: community.raw}}
@@ -73,7 +72,6 @@ defmodule MastaniServer.Test.Query.PostsFlags do
       assert entries_first["pin"] == true
     end
 
-    @tag :wip
     test "pind posts should not appear when page > 1", ~m(guest_conn community)a do
       variables = %{filter: %{page: 2, size: 20}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
@@ -89,7 +87,6 @@ defmodule MastaniServer.Test.Query.PostsFlags do
       assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))
     end
 
-    @tag :wip
     test "if have trashed posts, the trashed posts should not appears in result",
          ~m(guest_conn community)a do
       variables = %{filter: %{community: community.raw}}

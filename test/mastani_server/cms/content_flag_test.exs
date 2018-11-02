@@ -29,7 +29,6 @@ defmodule MastaniServer.Test.ContentFlags do
   end
 
   describe "[cms post flag]" do
-    @tag :wip
     test "user can set trash flag on post based on community", ~m(community post)a do
       community_id = community.id
       post_id = post.id
@@ -49,7 +48,6 @@ defmodule MastaniServer.Test.ContentFlags do
   end
 
   describe "[cms job flag]" do
-    @tag :wip
     test "user can set trash flag on job", ~m(community job)a do
       community_id = community.id
       job_id = job.id
@@ -68,7 +66,6 @@ defmodule MastaniServer.Test.ContentFlags do
   end
 
   describe "[cms video flag]" do
-    @tag :wip
     test "user can set trash flag on a video", ~m(community video)a do
       community_id = community.id
       video_id = video.id
@@ -87,7 +84,6 @@ defmodule MastaniServer.Test.ContentFlags do
   end
 
   describe "[cms repo flag]" do
-    @tag :wip2
     test "user can set trash flag on repo", ~m(community repo)a do
       community_id = community.id
       repo_id = repo.id

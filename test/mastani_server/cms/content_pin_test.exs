@@ -56,14 +56,12 @@ defmodule MastaniServer.Test.ContentsPin do
   end
 
   describe "[cms video pin]" do
-    @tag :wip
     test "can pin a video", ~m(community video)a do
       {:ok, pined_video} = CMS.pin_content(video, community)
 
       assert pined_video.id == video.id
     end
 
-    @tag :wip
     test "can undo pin to a video", ~m(community video)a do
       {:ok, pined_video} = CMS.pin_content(video, community)
       assert pined_video.id == video.id
@@ -74,14 +72,12 @@ defmodule MastaniServer.Test.ContentsPin do
   end
 
   describe "[cms repo pin]" do
-    @tag :wip
     test "can pin a repo", ~m(community repo)a do
       {:ok, pined_repo} = CMS.pin_content(repo, community)
 
       assert pined_repo.id == repo.id
     end
 
-    @tag :wip
     test "can undo pin to a repo", ~m(community repo)a do
       {:ok, pined_repo} = CMS.pin_content(repo, community)
       assert pined_repo.id == repo.id
