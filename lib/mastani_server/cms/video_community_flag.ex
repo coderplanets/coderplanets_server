@@ -7,7 +7,7 @@ defmodule MastaniServer.CMS.VideoCommunityFlag do
   alias MastaniServer.CMS.{Community, Video}
 
   @required_fields ~w(video_id community_id)a
-  @optional_fields ~w(pin trash)a
+  @optional_fields ~w(trash)a
 
   @type t :: %VideoCommunityFlag{}
 
@@ -15,7 +15,6 @@ defmodule MastaniServer.CMS.VideoCommunityFlag do
     belongs_to(:video, Video, foreign_key: :video_id)
     belongs_to(:community, Community, foreign_key: :community_id)
 
-    field(:pin, :boolean)
     field(:trash, :boolean)
 
     timestamps(type: :utc_datetime)

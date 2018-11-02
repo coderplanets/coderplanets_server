@@ -113,7 +113,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
     with {:ok, content} <- ORM.find(content.__struct__, content.id),
          {:ok, community} <- ORM.find(Community, community_id),
          {:ok, record} <- insert_flag_record(content, community.id, attrs) do
-      {:ok, struct(content, %{pin: record.pin, trash: record.trash})}
+      {:ok, struct(content, %{trash: record.trash})}
     end
   end
 

@@ -87,7 +87,7 @@ defmodule MastaniServer.Test.ContentFlags do
   end
 
   describe "[cms repo flag]" do
-    @tag :wip
+    @tag :wip2
     test "user can set trash flag on repo", ~m(community repo)a do
       community_id = community.id
       repo_id = repo.id
