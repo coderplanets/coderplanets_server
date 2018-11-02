@@ -1,8 +1,6 @@
 defmodule MastaniServer.Test.Query.PostsTopic do
   use MastaniServer.TestTools
 
-  # import Helper.Utils, only: [get_config: 2]
-  alias Helper.ORM
   alias MastaniServer.CMS
 
   setup do
@@ -63,7 +61,7 @@ defmodule MastaniServer.Test.Query.PostsTopic do
       post_attr = mock_attrs(:post)
 
       variables = post_attr |> Map.merge(%{communityId: community.id, topic: "city"})
-      created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+      _created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
 
       variables = %{filter: %{page: 1, size: 10, topic: "city"}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
