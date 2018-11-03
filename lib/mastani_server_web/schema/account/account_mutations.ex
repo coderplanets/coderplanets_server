@@ -97,6 +97,14 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
       resolve(&R.Accounts.unset_favorites/3)
     end
 
+    @desc "set user's customization"
+    field :set_customization, :user do
+      arg(:user_id, :id)
+      arg(:customization, non_null(:customization_input))
+
+      resolve(&R.Accounts.set_customization/3)
+    end
+
     @desc "mark a mention as read"
     field :mark_mention_read, :status do
       arg(:id, non_null(:id))

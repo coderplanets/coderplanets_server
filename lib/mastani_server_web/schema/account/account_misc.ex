@@ -52,6 +52,28 @@ defmodule MastaniServerWeb.Schema.Account.Misc do
     sscial_fields()
   end
 
+  enum :cus_banner_layout_num do
+    value(:digest)
+    value(:brief)
+  end
+
+  enum :cus_contents_layout_num do
+    value(:digest)
+    value(:list)
+  end
+
+  input_object :customization_input do
+    field(:theme, :string)
+    field(:community_chart, :boolean)
+    field(:brainwash_free, :boolean)
+
+    field(:banner_layout, :cus_banner_layout_num, default_value: :digest)
+    field(:contents_layout, :cus_contents_layout_num, default_value: :digest)
+    field(:content_divider, :boolean)
+    field(:mark_viewed, :boolean)
+    field(:display_density, :string, default_value: "20")
+  end
+
   # see: https://github.com/absinthe-graphql/absinthe/issues/206
   # https://github.com/absinthe-graphql/absinthe/wiki/Scalar-Recipes
   scalar :json, name: "Json" do

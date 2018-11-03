@@ -45,6 +45,22 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.github_signin(github_user, remote_ip)
   end
 
+  def get_customization(_root, _args, %{context: %{cur_user: cur_user}}) do
+    Accounts.get_customization(cur_user)
+  end
+
+  # def set_customization(_root, ~m(user_id customization)a, %{context: %{cur_user: cur_user}}) do
+  # Accounts.set_customization(%User{id: user_id}, customization)
+  # end
+
+  def set_customization(_root, ~m(customization)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.set_customization(cur_user, customization)
+  end
+
+  def set_customization(_root, _args, _info) do
+    {:error, [message: "need login", code: ecode(:account_login)]}
+  end
+
   def list_favorite_categories(_root, %{filter: filter}, %{context: %{cur_user: cur_user}}) do
     Accounts.list_favorite_categories(cur_user, %{private: true}, filter)
   end

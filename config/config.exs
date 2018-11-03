@@ -51,6 +51,16 @@ config :mastani_server, :general,
   user_achieve_favorite_weight: 2,
   user_achieve_follow_weight: 3
 
+config :mastani_server, :customization,
+  theme: "cyan",
+  community_chart: false,
+  brainwash_free: false,
+  banner_layout: "digest",
+  contents_layout: "digest",
+  content_divider: false,
+  mark_viewed: true,
+  display_density: "20"
+
 config :mastani_server, MastaniServerWeb.Gettext, default_locale: "zh_CN", locales: ~w(en zh_CN)
 
 import_config "#{Mix.env()}.exs"
