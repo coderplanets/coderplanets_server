@@ -66,6 +66,7 @@ defmodule MastaniServer.Accounts do
   defdelegate has_purchased?(user, key), to: Billing
 
   # customization
-  defdelegate add_custom_setting(user, key, value), to: Customization
-  defdelegate add_custom_setting(user, key), to: Customization
+  defdelegate get_customization(user), to: Customization
+  defdelegate set_customization(user, key, value), to: Customization
+  defdelegate set_customization(user, options), to: Customization
 end

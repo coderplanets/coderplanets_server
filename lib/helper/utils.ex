@@ -6,10 +6,20 @@ defmodule Helper.Utils do
   import Helper.ErrorHandler
   import Helper.ErrorCode
 
-  def get_config(section, key, app \\ :mastani_server) do
+  def get_config(section, key, app \\ :mastani_server)
+
+  def get_config(section, :all, app) do
     app
     |> Application.get_env(section)
-    # |> IO.inspect(label: "debug ci")
+    |> case do
+      nil -> ""
+      config -> config
+    end
+  end
+
+  def get_config(section, key, app) do
+    app
+    |> Application.get_env(section)
     |> case do
       nil -> ""
       config -> Keyword.get(config, key)
@@ -121,10 +131,15 @@ defmodule Helper.Utils do
   def map_atom_value(attrs, :string) do
     results =
       Enum.map(attrs, fn {k, v} ->
-        if is_atom(v) do
-          {k, v |> to_string() |> String.downcase()}
-        else
-          {k, v}
+        cond do
+          v == true or v == false ->
+            {k, v}
+
+          is_atom(v) ->
+            {k, v |> to_string() |> String.downcase()}
+
+          true ->
+            {k, v}
         end
       end)
 

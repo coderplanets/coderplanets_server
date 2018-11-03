@@ -44,6 +44,11 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:github_profile, :github_profile, resolve: dataloader(Accounts, :github_profile))
     field(:achievement, :achievement, resolve: dataloader(Accounts, :achievement))
 
+    field(:customization, :customization) do
+      middleware(M.Authorize, :login)
+      resolve(&R.Accounts.get_customization/3)
+    end
+
     field(:education_backgrounds, list_of(:education_background))
     field(:work_backgrounds, list_of(:work_background))
 
@@ -280,6 +285,19 @@ defmodule MastaniServerWeb.Schema.Account.Types do
       middleware(M.PageSizeProof)
       resolve(&R.Accounts.fetch_sys_notifications/3)
     end
+  end
+
+  # field(:sidebar_layout, :map)
+  object :customization do
+    field(:theme, :string)
+    field(:community_chart, :boolean)
+    field(:brainwash_free, :boolean)
+
+    field(:banner_layout, :string)
+    field(:contents_layout, :string)
+    field(:content_divider, :boolean)
+    field(:mark_viewed, :boolean)
+    field(:display_density, :string)
   end
 
   object :github_profile do
