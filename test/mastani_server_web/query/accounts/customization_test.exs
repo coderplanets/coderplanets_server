@@ -34,7 +34,6 @@ defmodule MastaniServer.Test.Query.Account.Customization do
       }
     }
     """
-    @tag :wip
     test "user can have default customization configs", ~m(user_conn user)a do
       results = user_conn |> query_result(@query, %{}, "user")
 
