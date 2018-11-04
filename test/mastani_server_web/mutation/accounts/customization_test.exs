@@ -27,7 +27,6 @@ defmodule MastaniServer.Test.Mutation.Account.Customization do
       }
     }
     """
-    @tag :wip2
     test "user can set customization", ~m(user_conn user)a do
       ownd_conn = simu_conn(:user, user)
 
@@ -48,7 +47,6 @@ defmodule MastaniServer.Test.Mutation.Account.Customization do
       assert result["customization"]["displayDensity"] == "25"
     end
 
-    @tag :wip2
     test "user set customization with invalid attr fails", ~m(user_conn user)a do
       ownd_conn = simu_conn(:user, user)
 
@@ -68,7 +66,6 @@ defmodule MastaniServer.Test.Mutation.Account.Customization do
       assert user_conn |> mutation_get_error?(@query, variables2)
     end
 
-    @tag :wip2
     test "unlogin user set customization fails", ~m(guest_conn)a do
       variables = %{
         customization: %{

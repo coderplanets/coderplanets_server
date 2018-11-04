@@ -16,8 +16,12 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
   """
   def get_customization(%User{id: user_id}) do
     case ORM.find_by(Customization, user_id: user_id) do
-      {:ok, customization} -> {:ok, Map.merge(@default_customization, customization)}
-      {:error, _} -> {:ok, @default_customization}
+      {:ok, customization} ->
+        customization = customization |> Map.from_struct() |> filter_nil_value
+        {:ok, Map.merge(@default_customization, customization)}
+
+      {:error, _} ->
+        {:ok, @default_customization}
     end
   end
 
@@ -98,5 +102,9 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
     # NOTE: :brainwash_free aka. "ads_free"
     # use brainwash to avoid brower-block-plugins
     [:theme, :brainwash_free, :community_chart]
+  end
+
+  defp filter_nil_value(map) do
+    for {k, v} <- map, !is_nil(v), into: %{}, do: {k, v}
   end
 end
