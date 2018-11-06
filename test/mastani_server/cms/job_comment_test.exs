@@ -151,4 +151,60 @@ defmodule MastaniServer.Test.JobComment do
       assert user3.id == found_reply3 |> List.first() |> Map.get(:author_id)
     end
   end
+
+  describe "[comment Reactions]" do
+    test "user can like a comment", ~m(comment user)a do
+      {:ok, liked_comment} = CMS.like_comment(:job_comment, comment.id, user)
+
+      {:ok, comment_preload} = ORM.find(JobComment, liked_comment.id, preload: :likes)
+
+      assert comment_preload.likes |> Enum.any?(&(&1.job_comment_id == comment.id))
+    end
+
+    test "user like comment twice fails", ~m(comment user)a do
+      {:ok, _} = CMS.like_comment(:job_comment, comment.id, user)
+      {:error, _error} = CMS.like_comment(:job_comment, comment.id, user)
+      # TODO: fix err_msg later
+    end
+
+    test "user can undo a like action", ~m(comment user)a do
+      {:ok, like} = CMS.like_comment(:job_comment, comment.id, user)
+      {:ok, _} = CMS.undo_like_comment(:job_comment, comment.id, user)
+
+      {:ok, comment_preload} = ORM.find(JobComment, comment.id, preload: :likes)
+      assert false == comment_preload.likes |> Enum.any?(&(&1.id == like.id))
+    end
+
+    test "user can dislike a comment", ~m(comment user)a do
+      {:ok, disliked_comment} = CMS.dislike_comment(:job_comment, comment.id, user)
+
+      {:ok, comment_preload} = ORM.find(JobComment, disliked_comment.id, preload: :dislikes)
+
+      assert comment_preload.dislikes |> Enum.any?(&(&1.job_comment_id == comment.id))
+    end
+
+    test "user can undo a dislike action", ~m(comment user)a do
+      {:ok, dislike} = CMS.dislike_comment(:job_comment, comment.id, user)
+      {:ok, _} = CMS.undo_dislike_comment(:job_comment, comment.id, user)
+
+      {:ok, comment_preload} = ORM.find(JobComment, comment.id, preload: :dislikes)
+      assert false == comment_preload.dislikes |> Enum.any?(&(&1.id == dislike.id))
+    end
+
+    test "user can get paged likes of a job comment", ~m(comment)a do
+      {:ok, user1} = db_insert(:user)
+      {:ok, user2} = db_insert(:user)
+      {:ok, user3} = db_insert(:user)
+
+      {:ok, _like1} = CMS.like_comment(:job_comment, comment.id, user1)
+      {:ok, _like2} = CMS.like_comment(:job_comment, comment.id, user2)
+      {:ok, _like3} = CMS.like_comment(:job_comment, comment.id, user3)
+
+      {:ok, results} = CMS.reaction_users(:job_comment, :like, comment.id, %{page: 1, size: 10})
+
+      assert results.entries |> Enum.any?(&(&1.id == user1.id))
+      assert results.entries |> Enum.any?(&(&1.id == user2.id))
+      assert results.entries |> Enum.any?(&(&1.id == user3.id))
+    end
+  end
 end

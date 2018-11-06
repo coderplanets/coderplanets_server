@@ -5,7 +5,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
   import ShortMaps
 
   alias Ecto.Multi
-  alias Helper.{Certification, ORM}
+  alias Helper.{Certification, RadarSearch, ORM}
   alias MastaniServer.Accounts.User
   alias MastaniServer.CMS.Delegate.PassportCURD
   alias MastaniServer.Repo
@@ -99,16 +99,75 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
   @doc """
   subscribe a community. (ONLY community, post etc use watch )
   """
-  def subscribe_community(%Community{id: community_id}, %User{id: user_id}) do
+  def subscribe_community(
+        %Community{id: community_id},
+        %User{id: user_id},
+        remote_ip \\ {127, 0, 0, 1}
+      ) do
+    remote_ip = Enum.join(Tuple.to_list(remote_ip), ".")
+
     with {:ok, record} <- CommunitySubscriber |> ORM.create(~m(user_id community_id)a) do
+      update_geo_info(community_id, user_id, remote_ip, :inc)
       Community |> ORM.find(record.community_id)
     end
   end
 
-  def unsubscribe_community(%Community{id: community_id}, %User{id: user_id}) do
+  def unsubscribe_community(
+        %Community{id: community_id},
+        %User{id: user_id},
+        remote_ip \\ {127, 0, 0, 1}
+      ) do
+    remote_ip = Enum.join(Tuple.to_list(remote_ip), ".")
+
     with {:ok, record} <-
            CommunitySubscriber |> ORM.findby_delete(community_id: community_id, user_id: user_id) do
+      update_geo_info(community_id, user_id, remote_ip, :dec)
       Community |> ORM.find(record.community_id)
     end
+  end
+
+  defp update_geo_info(community_id, user_id, remote_ip, method) do
+    {:ok, user} = ORM.find(User, user_id)
+
+    case get_user_geocity(user.geo_city, remote_ip) do
+      {:ok, user_geo_city} ->
+        update_community_geo(community_id, user_geo_city, method)
+
+      {:error, _} ->
+        {:ok, "pass"}
+    end
+  end
+
+  defp get_user_geocity(nil, remote_ip) do
+    case RadarSearch.locate_city(remote_ip) do
+      {:ok, city} -> {:ok, city}
+      {:error, _} -> {:error, "update_geo_info error"}
+    end
+  end
+
+  defp get_user_geocity(geo_city, _remote_ip), do: {:ok, geo_city}
+
+  defp update_community_geo(community_id, city, method) do
+    with {:ok, community} <- Community |> ORM.find(community_id) do
+      community_geo_data = community.geo_info |> Map.get("data")
+
+      cur_city_info = community_geo_data |> Enum.find(fn g -> g["city"] == city end)
+      new_city_info = update_geo_value(cur_city_info, method)
+
+      community_geo_data =
+        community_geo_data
+        |> Enum.reject(fn g -> g["city"] == city end)
+        |> Kernel.++([new_city_info])
+
+      community |> ORM.update(%{geo_info: %{data: community_geo_data}})
+    end
+  end
+
+  defp update_geo_value(geo_info, :inc) do
+    Map.merge(geo_info, %{"value" => geo_info["value"] + 1})
+  end
+
+  defp update_geo_value(geo_info, :dec) do
+    Map.merge(geo_info, %{"value" => max(geo_info["value"] - 1, 0)})
   end
 end

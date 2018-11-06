@@ -14,32 +14,103 @@ defmodule MastaniServer.Test.Query.Repo do
   query($id: ID!) {
     repo(id: $id) {
       id
-      repo_name
+      title
+      readme
     }
   }
   """
-  test "basic graphql query on repo by user", ~m(guest_conn repo)a do
+  test "basic graphql query on repo with logined user", ~m(user_conn repo)a do
+    variables = %{id: repo.id}
+    results = user_conn |> query_result(@query, variables, "repo")
+
+    assert results["id"] == to_string(repo.id)
+    assert is_valid_kv?(results, "title", :string)
+    assert is_valid_kv?(results, "readme", :string)
+    assert length(Map.keys(results)) == 3
+  end
+
+  test "basic graphql query on repo with stranger(unloged user)", ~m(guest_conn repo)a do
     variables = %{id: repo.id}
     results = guest_conn |> query_result(@query, variables, "repo")
 
     assert results["id"] == to_string(repo.id)
-    assert is_valid_kv?(results, "repo_name", :string)
-    assert length(Map.keys(results)) == 2
+    assert is_valid_kv?(results, "title", :string)
+    assert is_valid_kv?(results, "readme", :string)
   end
 
   @query """
   query($id: ID!) {
     repo(id: $id) {
-      views
+      id
+      favoritedUsers {
+        nickname
+        id
+      }
     }
   }
   """
-  test "views should +1 after query the repo", ~m(user_conn repo)a do
+  test "repo have favoritedUsers query field", ~m(user_conn repo)a do
     variables = %{id: repo.id}
-    views_1 = user_conn |> query_result(@query, variables, "repo") |> Map.get("views")
+    results = user_conn |> query_result(@query, variables, "repo")
+
+    assert results["id"] == to_string(repo.id)
+    assert is_valid_kv?(results, "favoritedUsers", :list)
+  end
+
+  @query """
+  query($id: ID!) {
+    repo(id: $id) {
+      id
+      title
+      viewerHasFavorited
+      favoritedCount
+    }
+  }
+  """
+  test "logged user can query viewerHasFavorited field", ~m(user_conn repo)a do
+    variables = %{id: repo.id}
+
+    assert user_conn
+           |> query_result(@query, variables, "repo")
+           |> has_boolen_value?("viewerHasFavorited")
+  end
+
+  test "unlogged user can not query viewerHasFavorited field", ~m(guest_conn repo)a do
+    variables = %{id: repo.id}
+
+    assert guest_conn |> query_get_error?(@query, variables)
+  end
+
+  alias MastaniServer.Accounts
+
+  @query """
+  query($id: ID!) {
+    repo(id: $id) {
+      id
+      favoritedCategoryId
+    }
+  }
+  """
+  test "login user can get nil repo favorited category id", ~m(repo)a do
+    {:ok, user} = db_insert(:user)
+    user_conn = simu_conn(:user, user)
 
     variables = %{id: repo.id}
-    views_2 = user_conn |> query_result(@query, variables, "repo") |> Map.get("views")
-    assert views_2 == views_1 + 1
+    result = user_conn |> query_result(@query, variables, "repo")
+    assert result["favoritedCategoryId"] == nil
+  end
+
+  test "login user can get repo favorited category id after favorited", ~m(repo)a do
+    {:ok, user} = db_insert(:user)
+    user_conn = simu_conn(:user, user)
+
+    test_category = "test category"
+    {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
+    {:ok, _favorite_category} = Accounts.set_favorites(user, :repo, repo.id, category.id)
+
+    variables = %{id: repo.id}
+    result = user_conn |> query_result(@query, variables, "repo")
+
+    assert result["favoritedCategoryId"] == to_string(category.id)
   end
 end

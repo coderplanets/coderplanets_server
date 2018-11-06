@@ -18,6 +18,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     CommunityEditor,
     CommunitySubscriber,
     Tag,
+    Topic,
     Thread
   }
 
@@ -51,27 +52,51 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   @doc """
   create a Tag base on type: post / tuts / videos ...
   """
-  def create_tag(thread, attrs, %Accounts.User{id: user_id}) when valid_thread(thread) do
+  def create_tag(thread, attrs, %Accounts.User{id: user_id}) do
     with {:ok, action} <- match_action(thread, :tag),
          {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}),
-         {:ok, _community} <- ORM.find(Community, attrs.community_id) do
-      attrs = attrs |> Map.merge(%{author_id: author.id})
-      attrs = attrs |> map_atom_value(:string)
+         {:ok, _community} <- ORM.find(Community, attrs.community_id),
+         {:ok, topic} = find_or_insert_topic(attrs) do
+      attrs =
+        attrs
+        |> Map.merge(%{author_id: author.id, topic_id: topic.id})
+        |> map_atom_value(:string)
+        |> Map.merge(%{thread: attrs.thread |> to_string |> String.downcase()})
 
       action.reactor |> ORM.create(attrs)
     end
   end
 
   def update_tag(%{id: _id} = attrs) do
-    attrs = attrs |> map_atom_value(:string)
-    Tag |> ORM.find_update(%{id: attrs.id, title: attrs.title, color: attrs.color})
+    ~m(id title color)a = attrs |> map_atom_value(:string)
+
+    with {:ok, %{id: topic_id}} = find_or_insert_topic(attrs) do
+      Tag
+      |> ORM.find_update(~m(id title color color topic_id)a)
+    end
   end
 
   @doc """
   get tags belongs to a community / thread
   """
+  def get_tags(%Community{id: community_id}, thread, topic) when not is_nil(community_id) do
+    # thread = thread |> to_string |> String.upcase()
+    # topic = topic |> to_string |> String.upcase()
+    thread = thread |> to_string |> String.downcase()
+    topic = topic |> to_string |> String.downcase()
+
+    Tag
+    |> join(:inner, [t], c in assoc(t, :community))
+    |> join(:inner, [t], cp in assoc(t, :topic))
+    |> where([t, c, cp], c.id == ^community_id and t.thread == ^thread and cp.title == ^topic)
+    |> distinct([t], t.title)
+    |> Repo.all()
+    |> done()
+  end
+
   def get_tags(%Community{id: community_id}, thread) when not is_nil(community_id) do
-    thread = to_string(thread)
+    # thread = thread |> to_string |> String.upcase()
+    thread = thread |> to_string |> String.downcase()
 
     Tag
     |> join(:inner, [t], c in assoc(t, :community))
@@ -81,8 +106,8 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     |> done()
   end
 
-  def get_tags(%Community{raw: community_raw}, thread) when not is_nil(community_raw) do
-    thread = to_string(thread)
+  def get_tags(%Community{raw: community_raw}, thread) do
+    thread = thread |> to_string |> String.downcase()
 
     Tag
     |> join(:inner, [t], c in assoc(t, :community))
@@ -123,5 +148,41 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     index = attrs |> Map.get(:index, 0)
 
     Thread |> ORM.create(~m(title raw index)a)
+  end
+
+  @doc """
+  return community geo infos
+  """
+  def community_geo_info(%Community{id: community_id}) do
+    with {:ok, community} <- ORM.find(Community, community_id) do
+      geo_info_data =
+        community.geo_info
+        |> Map.get("data")
+        |> Enum.map(fn data ->
+          for {key, val} <- data, into: %{}, do: {String.to_atom(key), val}
+        end)
+        |> Enum.reject(&(&1.value <= 0))
+
+      {:ok, geo_info_data}
+    end
+  end
+
+  defp find_or_insert_topic(%{topic: title} = attrs) when is_binary(title) do
+    title = title |> to_string() |> String.downcase()
+    thread = attrs.thread |> to_string() |> String.downcase()
+
+    ORM.findby_or_insert(Topic, %{title: title}, %{
+      title: title,
+      thread: thread,
+      raw: title
+    })
+  end
+
+  defp find_or_insert_topic(%{thread: thread}) do
+    find_or_insert_topic(%{topic: "index", thread: thread})
+  end
+
+  defp find_or_insert_topic(_attrs) do
+    find_or_insert_topic(%{topic: "index", thread: :post})
   end
 end

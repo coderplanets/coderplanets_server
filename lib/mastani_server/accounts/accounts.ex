@@ -7,6 +7,7 @@ defmodule MastaniServer.Accounts do
     Customization,
     Fans,
     FavoriteCategory,
+    Publish,
     Mails,
     Profile,
     ReactedContents
@@ -15,6 +16,7 @@ defmodule MastaniServer.Accounts do
   # profile
   defdelegate update_profile(user, attrs), to: Profile
   defdelegate github_signin(github_user), to: Profile
+  defdelegate github_signin(github_user, remote_ip), to: Profile
   defdelegate default_subscribed_communities(filter), to: Profile
   defdelegate subscribed_communities(user, filter), to: Profile
 
@@ -28,6 +30,13 @@ defmodule MastaniServer.Accounts do
 
   # achievement
   defdelegate achieve(user, operation, key), to: Achievements
+  defdelegate list_editable_communities(user, filter), to: Achievements
+  defdelegate downgrade_achievement(user, action, count), to: Achievements
+  # defdelegate list_editable_communities(filter), to: Achievements
+
+  # publish
+  defdelegate published_contents(user, thread, filter), to: Publish
+  defdelegate published_comments(user, thread, filter), to: Publish
 
   # fans
   defdelegate follow(user, follower), to: Fans
@@ -37,6 +46,7 @@ defmodule MastaniServer.Accounts do
 
   # reacted contents
   defdelegate reacted_contents(thread, react, filter, user), to: ReactedContents
+  defdelegate reacted_contents(thread, react, category_id, filter, user), to: ReactedContents
 
   # mentions
   defdelegate fetch_mentions(user, filter), to: Mails
@@ -56,6 +66,7 @@ defmodule MastaniServer.Accounts do
   defdelegate has_purchased?(user, key), to: Billing
 
   # customization
-  defdelegate add_custom_setting(user, key, value), to: Customization
-  defdelegate add_custom_setting(user, key), to: Customization
+  defdelegate get_customization(user), to: Customization
+  defdelegate set_customization(user, key, value), to: Customization
+  defdelegate set_customization(user, options), to: Customization
 end

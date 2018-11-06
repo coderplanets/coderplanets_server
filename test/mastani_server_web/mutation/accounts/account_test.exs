@@ -96,17 +96,17 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
 
       variables = %{
         profile: %{
-          nickname: "new nickname",
-          education_backgrounds: [
-            %{
-              major: "bad ass2"
-            },
-            %{
-              school: "school2",
-              major: "bad ass2"
-            }
-          ]
-        }
+          nickname: "new nickname"
+        },
+        educationBackgrounds: [
+          %{
+            major: "bad ass2"
+          },
+          %{
+            school: "school2",
+            major: "bad ass2"
+          }
+        ]
       }
 
       assert ownd_conn |> mutation_get_error?(@update_query, variables)
@@ -117,17 +117,17 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
 
       variables = %{
         profile: %{
-          nickname: "new nickname",
-          work_backgrounds: [
-            %{
-              title: "bad ass2"
-            },
-            %{
-              company: "school2",
-              title: "bad ass2"
-            }
-          ]
-        }
+          nickname: "new nickname"
+        },
+        workBackgrounds: [
+          %{
+            title: "bad ass2"
+          },
+          %{
+            company: "school2",
+            title: "bad ass2"
+          }
+        ]
       }
 
       assert ownd_conn |> mutation_get_error?(@update_query, variables)

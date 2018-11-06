@@ -6,10 +6,20 @@ defmodule Helper.Utils do
   import Helper.ErrorHandler
   import Helper.ErrorCode
 
-  def get_config(section, key, app \\ :mastani_server) do
+  def get_config(section, key, app \\ :mastani_server)
+
+  def get_config(section, :all, app) do
     app
     |> Application.get_env(section)
-    # |> IO.inspect(label: "debug ci")
+    |> case do
+      nil -> ""
+      config -> config
+    end
+  end
+
+  def get_config(section, key, app) do
+    app
+    |> Application.get_env(section)
     |> case do
       nil -> ""
       config -> Keyword.get(config, key)
@@ -23,6 +33,7 @@ defmodule Helper.Utils do
   def done(_, :boolean), do: {:ok, true}
   def done(nil, err_msg), do: {:error, err_msg}
   def done({:ok, _}, with: result), do: {:ok, result}
+  def done({:error, error}, with: _result), do: {:error, error}
 
   def done({:ok, %{id: id}}, :status), do: {:ok, %{done: true, id: id}}
   def done({:error, _}, :status), do: {:ok, %{done: false}}
@@ -69,6 +80,39 @@ defmodule Helper.Utils do
     map |> Enum.reduce(%{}, fn {key, val}, acc -> Map.put(acc, to_string(key), val) end)
   end
 
+  @doc """
+  Recursivly camelize the map keys
+  usage: convert factory attrs to used for simu Graphql parmas
+  """
+  def camelize_map_key(map) do
+    map_list =
+      Enum.map(map, fn {k, v} ->
+        v =
+          cond do
+            is_datetime?(v) ->
+              DateTime.to_iso8601(v)
+
+            is_map(v) ->
+              camelize_map_key(safe_map(v))
+
+            true ->
+              v
+          end
+
+        map_to_camel({k, v})
+      end)
+
+    Enum.into(map_list, %{})
+  end
+
+  defp safe_map(%{__struct__: _} = map), do: Map.from_struct(map)
+  defp safe_map(map), do: map
+
+  defp map_to_camel({k, v}), do: {Recase.to_camel(to_string(k)), v}
+
+  def is_datetime?(%DateTime{}), do: true
+  def is_datetime?(_), do: false
+
   def deep_merge(left, right) do
     Map.merge(left, right, &deep_resolve/3)
   end
@@ -87,10 +131,15 @@ defmodule Helper.Utils do
   def map_atom_value(attrs, :string) do
     results =
       Enum.map(attrs, fn {k, v} ->
-        if is_atom(v) do
-          {k, to_string(v)}
-        else
-          {k, v}
+        cond do
+          v == true or v == false ->
+            {k, v}
+
+          is_atom(v) ->
+            {k, v |> to_string() |> String.downcase()}
+
+          true ->
+            {k, v}
         end
       end)
 
@@ -106,4 +155,15 @@ defmodule Helper.Utils do
   # NOT a map. We fall back to standard merge behavior, preferring
   # the value on the right.
   defp deep_resolve(_key, _left, right), do: right
+
+  @doc """
+  ["a", "b", "c", "c"] => %{"a" => 1, "b" => 1, "c" => 2}
+  """
+  def count_words(words) when is_list(words) do
+    Enum.reduce(words, %{}, &update_word_count/2)
+  end
+
+  defp update_word_count(word, acc) do
+    Map.update(acc, to_string(word), 1, &(&1 + 1))
+  end
 end

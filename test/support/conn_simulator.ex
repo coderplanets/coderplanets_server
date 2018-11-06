@@ -2,7 +2,7 @@ defmodule MastaniServer.Test.ConnSimulator do
   @moduledoc """
   mock user_conn, owner_conn, guest_conn
   """
-  import MastaniServer.Factory
+  import MastaniServer.Support.Factory
   import Phoenix.ConnTest, only: [build_conn: 0]
   import Plug.Conn, only: [put_req_header: 3]
 

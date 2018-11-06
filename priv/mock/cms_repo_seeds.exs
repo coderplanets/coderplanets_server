@@ -1,3 +1,3 @@
-import MastaniServer.Factory
+import MastaniServer.Support.Factory
 
-db_insert_multi(:repo, 5)
+db_insert_multi(:repo, 1)

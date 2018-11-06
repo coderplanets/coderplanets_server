@@ -41,7 +41,9 @@ defmodule MastaniServerWeb.Middleware.PageSizeProof do
   defp valid_size(%{filter: %{first: size}} = arg), do: do_size_check(size, arg)
   defp valid_size(%{filter: %{size: size}} = arg), do: do_size_check(size, arg)
 
-  defp valid_size(arg), do: arg |> Map.merge(%{filter: %{first: @inner_page_size}})
+  # defp valid_size(arg), do: arg |> Map.merge(%{filter: %{first: @inner_page_size}})
+  defp valid_size(arg),
+    do: arg |> Map.merge(%{filter: %{page: 1, size: @max_page_size, first: @inner_page_size}})
 
   defp do_size_check(size, arg) do
     case size in 1..@max_page_size do

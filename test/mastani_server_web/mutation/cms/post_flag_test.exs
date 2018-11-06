@@ -118,10 +118,10 @@ defmodule MastaniServer.Test.Mutation.PostFlag do
       passport_rules = %{community.raw => %{"post.undo_pin" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
+      CMS.pin_content(post, community, "posts")
       updated = rule_conn |> mutation_result(@query, variables, "undoPinPost")
 
       assert updated["id"] == to_string(post.id)
-      assert updated["pin"] == false
     end
 
     test "unauth user undo pin post fails", ~m(user_conn guest_conn community post)a do

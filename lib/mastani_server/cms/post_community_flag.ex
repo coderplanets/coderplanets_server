@@ -7,7 +7,7 @@ defmodule MastaniServer.CMS.PostCommunityFlag do
   alias MastaniServer.CMS.{Community, Post}
 
   @required_fields ~w(post_id community_id)a
-  @optional_fields ~w(pin trash refined)a
+  @optional_fields ~w(trash)a
 
   @type t :: %PostCommunityFlag{}
 
@@ -15,8 +15,6 @@ defmodule MastaniServer.CMS.PostCommunityFlag do
     belongs_to(:post, Post, foreign_key: :post_id)
     belongs_to(:community, Community, foreign_key: :community_id)
 
-    field(:pin, :boolean)
-    field(:refined, :boolean)
     field(:trash, :boolean)
 
     timestamps(type: :utc_datetime)

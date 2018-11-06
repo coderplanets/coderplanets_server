@@ -1,12 +1,10 @@
 defmodule MastaniServer.Test.Accounts do
   use MastaniServer.TestTools
-
   # TODO import Service.Utils move both helper and github
   import Helper.Utils
 
-  alias MastaniServer.Accounts
-
   alias Helper.{Guardian, ORM}
+  alias MastaniServer.Accounts
 
   # @valid_user mock_attrs(:user)
   @valid_github_profile mock_attrs(:github_profile) |> map_key_stringify
@@ -122,12 +120,47 @@ defmodule MastaniServer.Test.Accounts do
       assert g_user.node_id == @valid_github_profile["node_id"]
     end
 
-    test "exsit github user should not be created twice" do
+    test "new user have a empty achievement" do
+      assert {:error, _} =
+               ORM.find_by(GithubUser, github_id: to_string(@valid_github_profile["id"]))
+
+      assert {:error, _} = ORM.find_by(User, nickname: @valid_github_profile["login"])
+
+      {:ok, %{token: token, user: _user}} = Accounts.github_signin(@valid_github_profile)
+      {:ok, claims, _info} = Guardian.jwt_decode(token)
+
+      {:ok, created_user} = ORM.find(User, claims.id, preload: :achievement)
+      achievement = created_user.achievement
+      assert achievement.user_id == created_user.id
+      assert achievement.reputation == 0
+      assert achievement.contents_favorited_count == 0
+      assert achievement.contents_stared_count == 0
+      assert achievement.source_contribute.h5 == false
+      assert achievement.source_contribute.web == false
+      assert achievement.source_contribute.we_app == false
+      assert achievement.source_contribute.mobile == false
+    end
+
+    test "exsit github user created twice fails" do
       assert ORM.count(GithubUser) == 0
       {:ok, _} = Accounts.github_signin(@valid_github_profile)
       assert ORM.count(GithubUser) == 1
       {:ok, _} = Accounts.github_signin(@valid_github_profile)
       assert ORM.count(GithubUser) == 1
+    end
+
+    test "github signin user should be locate geo city info" do
+      {:ok, guser} = Accounts.github_signin(@valid_github_profile)
+      {:ok, user} = ORM.find(User, guser.user.id)
+
+      assert user.geo_city !== nil
+    end
+
+    test "github signin user from invalid ip locate geo city fails" do
+      {:ok, guser} = Accounts.github_signin(@valid_github_profile, :fake_ip)
+      {:ok, user} = ORM.find(User, guser.user.id)
+
+      assert user.geo_city == nil
     end
   end
 end

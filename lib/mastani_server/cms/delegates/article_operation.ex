@@ -18,14 +18,84 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
     RepoCommunityFlag,
     Video,
     VideoCommunityFlag,
-    Tag
+    Tag,
+    Topic,
+    PinedPost,
+    PinedJob,
+    PinedVideo,
+    PinedRepo
   }
 
   alias MastaniServer.CMS.Repo, as: CMSRepo
   alias MastaniServer.Repo
 
+  def pin_content(%Post{id: post_id}, %Community{id: community_id}, topic) do
+    with {:ok, %{id: topic_id}} <- ORM.find_by(Topic, %{raw: topic}),
+         {:ok, pined} <-
+           ORM.findby_or_insert(
+             PinedPost,
+             ~m(post_id community_id topic_id)a,
+             ~m(post_id community_id topic_id)a
+           ) do
+      Post |> ORM.find(pined.post_id)
+    end
+  end
+
+  def undo_pin_content(%Post{id: post_id}, %Community{id: community_id}, topic) do
+    with {:ok, %{id: topic_id}} <- ORM.find_by(Topic, %{raw: topic}),
+         {:ok, pined} <- ORM.find_by(PinedPost, ~m(post_id community_id topic_id)a),
+         {:ok, deleted} <- ORM.delete(pined) do
+      Post |> ORM.find(deleted.post_id)
+    end
+  end
+
+  def pin_content(%Job{id: job_id}, %Community{id: community_id}) do
+    attrs = ~m(job_id community_id)a
+
+    with {:ok, pined} <- ORM.findby_or_insert(PinedJob, attrs, attrs) do
+      Job |> ORM.find(pined.job_id)
+    end
+  end
+
+  def undo_pin_content(%Job{id: job_id}, %Community{id: community_id}) do
+    with {:ok, pined} <- ORM.find_by(PinedJob, ~m(job_id community_id)a),
+         {:ok, deleted} <- ORM.delete(pined) do
+      Job |> ORM.find(deleted.job_id)
+    end
+  end
+
+  def pin_content(%Video{id: video_id}, %Community{id: community_id}) do
+    attrs = ~m(video_id community_id)a
+
+    with {:ok, pined} <- ORM.findby_or_insert(PinedVideo, attrs, attrs) do
+      Video |> ORM.find(pined.video_id)
+    end
+  end
+
+  def undo_pin_content(%Video{id: video_id}, %Community{id: community_id}) do
+    with {:ok, pined} <- ORM.find_by(PinedVideo, ~m(video_id community_id)a),
+         {:ok, deleted} <- ORM.delete(pined) do
+      Video |> ORM.find(deleted.video_id)
+    end
+  end
+
+  def pin_content(%CMSRepo{id: repo_id}, %Community{id: community_id}) do
+    attrs = ~m(repo_id community_id)a
+
+    with {:ok, pined} <- ORM.findby_or_insert(PinedRepo, attrs, attrs) do
+      CMSRepo |> ORM.find(pined.repo_id)
+    end
+  end
+
+  def undo_pin_content(%CMSRepo{id: repo_id}, %Community{id: community_id}) do
+    with {:ok, pined} <- ORM.find_by(PinedRepo, ~m(repo_id community_id)a),
+         {:ok, deleted} <- ORM.delete(pined) do
+      CMSRepo |> ORM.find(deleted.repo_id)
+    end
+  end
+
   @doc """
-  pin / unpin, trash / untrash articles
+  trash / untrash articles
   """
   def set_community_flags(%Post{id: _} = content, community_id, attrs),
     do: do_set_flag(content, community_id, attrs)
@@ -43,7 +113,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
     with {:ok, content} <- ORM.find(content.__struct__, content.id),
          {:ok, community} <- ORM.find(Community, community_id),
          {:ok, record} <- insert_flag_record(content, community.id, attrs) do
-      {:ok, struct(content, %{pin: record.pin, trash: record.trash})}
+      {:ok, struct(content, %{trash: record.trash})}
     end
   end
 
@@ -130,6 +200,26 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
       |> Repo.update()
     end
   end
+
+  @doc """
+  set topic only for post
+  """
+  def set_topic(%Topic{title: title}, :post, content_id) do
+    with {:ok, content} <- ORM.find(Post, content_id, preload: :topics),
+         {:ok, topic} <-
+           ORM.findby_or_insert(Topic, %{title: title}, %{
+             title: title,
+             thread: "post",
+             raw: title
+           }) do
+      content
+      |> Ecto.Changeset.change()
+      |> Ecto.Changeset.put_assoc(:topics, content.topics ++ [topic])
+      |> Repo.update()
+    end
+  end
+
+  def set_topic(_topic, _thread, _content_id), do: {:ok, :pass}
 
   # make sure the reuest tag is in the current community thread
   # example: you can't set a other thread tag to this thread's article

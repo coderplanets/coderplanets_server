@@ -2,7 +2,7 @@ defmodule MastaniServer.Test.Helper.ORMTest do
   use MastaniServerWeb.ConnCase, async: true
 
   # TODO import Service.Utils move both helper and github
-  import MastaniServer.Factory
+  import MastaniServer.Support.Factory
 
   alias MastaniServer.CMS.{Post, Author}
   alias MastaniServer.Accounts.User

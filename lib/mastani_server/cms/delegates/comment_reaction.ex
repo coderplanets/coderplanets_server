@@ -1,8 +1,8 @@
 defmodule MastaniServer.CMS.Delegate.CommentReaction do
   import MastaniServer.CMS.Utils.Matcher
 
-  alias MastaniServer.Accounts
   alias Helper.ORM
+  alias MastaniServer.Accounts
 
   def like_comment(thread, comment_id, %Accounts.User{id: user_id}) do
     feel_comment(thread, comment_id, user_id, :like)
@@ -20,10 +20,16 @@ defmodule MastaniServer.CMS.Delegate.CommentReaction do
     undo_feel_comment(thread, comment_id, user_id, :dislike)
   end
 
+  defp merge_thread_comment_id(:post_comment, comment_id), do: %{post_comment_id: comment_id}
+  defp merge_thread_comment_id(:job_comment, comment_id), do: %{job_comment_id: comment_id}
+  defp merge_thread_comment_id(:video_comment, comment_id), do: %{video_comment_id: comment_id}
+  defp merge_thread_comment_id(:repo_comment, comment_id), do: %{repo_comment_id: comment_id}
+
   defp feel_comment(thread, comment_id, user_id, feeling)
        when valid_feeling(feeling) do
     with {:ok, action} <- match_action(thread, feeling) do
-      clause = %{post_comment_id: comment_id, user_id: user_id}
+      clause = Map.merge(%{user_id: user_id}, merge_thread_comment_id(thread, comment_id))
+      # clause = %{post_comment_id: comment_id, user_id: user_id}
 
       case ORM.find_by(action.reactor, clause) do
         {:ok, _} ->
@@ -39,7 +45,8 @@ defmodule MastaniServer.CMS.Delegate.CommentReaction do
 
   defp undo_feel_comment(thread, comment_id, user_id, feeling) do
     with {:ok, action} <- match_action(thread, feeling) do
-      clause = %{post_comment_id: comment_id, user_id: user_id}
+      clause = Map.merge(%{user_id: user_id}, merge_thread_comment_id(thread, comment_id))
+      # clause = %{post_comment_id: comment_id, user_id: user_id}
       ORM.findby_delete(action.reactor, clause)
       ORM.find(action.target, comment_id)
     end

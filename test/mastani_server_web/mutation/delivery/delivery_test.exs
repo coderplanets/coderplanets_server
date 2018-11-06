@@ -14,7 +14,7 @@ defmodule MastaniServer.Test.Mutation.Delivery do
 
   @account_query """
   query($filter: MessagesFilter!) {
-    account {
+    user {
       id
       mentions(filter: $filter) {
         entries {
@@ -73,7 +73,7 @@ defmodule MastaniServer.Test.Mutation.Delivery do
         rule_conn |> mutation_result(@query, variables, "publishSystemNotification")
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
-      result = user_conn |> query_result(@account_query, variables, "account")
+      result = user_conn |> query_result(@account_query, variables, "user")
       sys_notifications = result["sysNotifications"]
 
       assert sys_notifications["totalCount"] == 1
@@ -107,7 +107,7 @@ defmodule MastaniServer.Test.Mutation.Delivery do
       mock_sys_notification(3)
       variables = %{filter: %{page: 1, size: 20, read: false}}
 
-      result = user_conn |> query_result(@account_query, variables, "account")
+      result = user_conn |> query_result(@account_query, variables, "user")
 
       notifications = result["sysNotifications"]
       assert notifications["totalCount"] == 3
@@ -118,14 +118,14 @@ defmodule MastaniServer.Test.Mutation.Delivery do
       user_conn |> mutation_result(@query, variables, "markSysNotificationRead")
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
-      result = user_conn |> query_result(@account_query, variables, "account")
+      result = user_conn |> query_result(@account_query, variables, "user")
 
       notifications = result["sysNotifications"]
       assert notifications["totalCount"] == 2
 
       variables = %{filter: %{page: 1, size: 20, read: true}}
 
-      result = user_conn |> query_result(@account_query, variables, "account")
+      result = user_conn |> query_result(@account_query, variables, "user")
       notifications = result["sysNotifications"]
       assert notifications["totalCount"] == 1
     end
@@ -190,7 +190,7 @@ defmodule MastaniServer.Test.Mutation.Delivery do
       mock_mentions_for(user, 3)
       variables = %{filter: %{page: 1, size: 20, read: false}}
 
-      result = user_conn |> query_result(@account_query, variables, "account")
+      result = user_conn |> query_result(@account_query, variables, "user")
       mentions = result["mentions"]
       assert mentions["totalCount"] == 3
 
@@ -201,13 +201,13 @@ defmodule MastaniServer.Test.Mutation.Delivery do
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
 
-      result = user_conn |> query_result(@account_query, variables, "account")
+      result = user_conn |> query_result(@account_query, variables, "user")
       mentions = result["mentions"]
       assert mentions["totalCount"] == 2
 
       variables = %{filter: %{page: 1, size: 20, read: true}}
 
-      result = user_conn |> query_result(@account_query, variables, "account")
+      result = user_conn |> query_result(@account_query, variables, "user")
       mentions = result["mentions"]
       assert mentions["totalCount"] == 1
     end
@@ -226,7 +226,7 @@ defmodule MastaniServer.Test.Mutation.Delivery do
       mock_mentions_for(user, 3)
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
-      result = user_conn |> query_result(@account_query, variables, "account")
+      result = user_conn |> query_result(@account_query, variables, "user")
       mentions = result["mentions"]
       # IO.inspect mentions, label: "mentions"
       assert mentions["totalCount"] == 3
@@ -234,7 +234,7 @@ defmodule MastaniServer.Test.Mutation.Delivery do
       user_conn |> mutation_result(@query, %{}, "markMentionReadAll")
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
-      result = user_conn |> query_result(@account_query, variables, "account")
+      result = user_conn |> query_result(@account_query, variables, "user")
       mentions = result["mentions"]
 
       assert mentions["totalCount"] == 0
@@ -254,7 +254,7 @@ defmodule MastaniServer.Test.Mutation.Delivery do
       mock_notifications_for(user, 3)
       variables = %{filter: %{page: 1, size: 20, read: false}}
 
-      result = user_conn |> query_result(@account_query, variables, "account")
+      result = user_conn |> query_result(@account_query, variables, "user")
 
       notifications = result["notifications"]
       assert notifications["totalCount"] == 3
@@ -265,14 +265,14 @@ defmodule MastaniServer.Test.Mutation.Delivery do
       user_conn |> mutation_result(@query, variables, "markNotificationRead")
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
-      result = user_conn |> query_result(@account_query, variables, "account")
+      result = user_conn |> query_result(@account_query, variables, "user")
 
       notifications = result["notifications"]
       assert notifications["totalCount"] == 2
 
       variables = %{filter: %{page: 1, size: 20, read: true}}
 
-      result = user_conn |> query_result(@account_query, variables, "account")
+      result = user_conn |> query_result(@account_query, variables, "user")
       notifications = result["notifications"]
       assert notifications["totalCount"] == 1
     end
@@ -291,14 +291,14 @@ defmodule MastaniServer.Test.Mutation.Delivery do
       mock_notifications_for(user, 3)
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
-      result = user_conn |> query_result(@account_query, variables, "account")
+      result = user_conn |> query_result(@account_query, variables, "user")
       notifications = result["notifications"]
       assert notifications["totalCount"] == 3
 
       user_conn |> mutation_result(@query, %{}, "markNotificationReadAll")
 
       variables = %{filter: %{page: 1, size: 20, read: false}}
-      result = user_conn |> query_result(@account_query, variables, "account")
+      result = user_conn |> query_result(@account_query, variables, "user")
       notifications = result["notifications"]
 
       assert notifications["totalCount"] == 0

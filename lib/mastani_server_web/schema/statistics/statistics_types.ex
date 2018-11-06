@@ -2,7 +2,7 @@ defmodule MastaniServerWeb.Schema.Statistics.Types do
   use Absinthe.Schema.Notation
   use Absinthe.Ecto, repo: MastaniServer.Repo
 
-  # import Absinthe.Resolution.Helpers
+  # import MastaniServerWeb.Schema.Utils.Helper
 
   # alias MastaniServer.Accounts
 

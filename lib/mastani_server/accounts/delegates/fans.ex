@@ -24,7 +24,8 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
       Multi.new()
       |> Multi.insert(
         :create_follower,
-        UserFollower.changeset(%UserFollower{}, ~m(user_id follower_id)a)
+        # UserFollower.changeset(%UserFollower{}, ~m(user_id follower_id)a)
+        UserFollower.changeset(%UserFollower{}, %{user_id: follower_id, follower_id: user_id})
       )
       |> Multi.insert(
         :create_following,
@@ -46,7 +47,7 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
 
   @spec follow_result({:ok, map()}) :: SpecType.done()
   defp follow_result({:ok, %{create_follower: user_follower}}) do
-    User |> ORM.find(user_follower.follower_id)
+    User |> ORM.find(user_follower.user_id)
   end
 
   defp follow_result({:error, :create_follower, _result, _steps}) do
@@ -70,7 +71,7 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
          {:ok, _follow_user} <- ORM.find(User, follower_id) do
       Multi.new()
       |> Multi.run(:delete_follower, fn _ ->
-        ORM.findby_delete(UserFollower, ~m(user_id follower_id)a)
+        ORM.findby_delete(UserFollower, %{user_id: follower_id, follower_id: user_id})
       end)
       |> Multi.run(:delete_following, fn _ ->
         ORM.findby_delete(UserFollowing, %{user_id: user_id, following_id: follower_id})
@@ -111,8 +112,8 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
   @spec fetch_followers(User.t(), map()) :: {:ok, map()} | {:error, String.t()}
   def fetch_followers(%User{id: user_id}, filter) do
     UserFollower
-    |> where([uf], uf.follower_id == ^user_id)
-    |> join(:inner, [uf], u in assoc(uf, :user))
+    |> where([uf], uf.user_id == ^user_id)
+    |> join(:inner, [uf], u in assoc(uf, :follower))
     |> load_fans(filter)
   end
 

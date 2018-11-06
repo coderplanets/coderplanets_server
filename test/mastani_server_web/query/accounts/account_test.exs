@@ -2,58 +2,27 @@ defmodule MastaniServer.Test.Query.Account.Basic do
   use MastaniServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
-  alias MastaniServer.CMS
+
+  alias Helper.ORM
+  alias MastaniServer.{Accounts, CMS}
 
   @default_subscribed_communities get_config(:general, :default_subscribed_communities)
 
   setup do
     {:ok, user} = db_insert(:user)
     guest_conn = simu_conn(:guest)
-    # user_conn = simu_conn(:user, user)
-    {:ok, ~m(guest_conn user)a}
-  end
-
-  describe "[account session state]" do
-    @query """
-    query {
-      sessionState {
-        isValid
-        user {
-          id
-        }
-      }
-    }
-    """
-    test "guest user should get false sessionState", ~m(guest_conn)a do
-      results = guest_conn |> query_result(@query, %{}, "sessionState")
-      assert results["isValid"] == false
-      assert results["user"] == nil
-    end
-
-    test "login user should get true sessionState", ~m(user)a do
-      user_conn = simu_conn(:user, user)
-      results = user_conn |> query_result(@query, %{}, "sessionState")
-
-      assert results["isValid"] == true
-      assert results["user"] |> Map.get("id") == to_string(user.id)
-    end
-
-    test "user with invalid token get false sessionState" do
-      user_conn = simu_conn(:invalid_token)
-      results = user_conn |> query_result(@query, %{}, "sessionState")
-
-      assert results["isValid"] == false
-      assert results["user"] == nil
-    end
+    user_conn = simu_conn(:user, user)
+    {:ok, ~m(guest_conn user_conn user)a}
   end
 
   describe "[account basic]" do
     @query """
-    query($id: ID!) {
+    query($id: ID) {
       user(id: $id) {
         id
         nickname
         bio
+        views
         cmsPassport
         cmsPassportString
         educationBackgrounds {
@@ -75,6 +44,30 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert results["nickname"] == user.nickname
       assert results["educationBackgrounds"] == []
       assert results["workBackgrounds"] == []
+      assert results["cmsPassport"] == nil
+    end
+
+    test "login user can get it's own profile", ~m(user_conn user)a do
+      results = user_conn |> query_result(@query, %{}, "user")
+      assert results["id"] == to_string(user.id)
+    end
+
+    test "user's views +1 after visit", ~m(guest_conn user)a do
+      {:ok, target_user} = ORM.find(Accounts.User, user.id)
+      assert target_user.views == 0
+
+      variables = %{id: user.id}
+      results = guest_conn |> query_result(@query, variables, "user")
+      assert results["views"] == 1
+    end
+
+    test "login newbie user can get own empty cms_passport", ~m(user)a do
+      user_conn = simu_conn(:user, user)
+      variables = %{id: user.id}
+      results = user_conn |> query_result(@query, variables, "user")
+
+      assert results["cmsPassport"] == %{}
+      assert results["cmsPassportString"] == "{}"
     end
 
     @valid_rules %{
@@ -96,14 +89,14 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert Map.equal?(Jason.decode!(results["cmsPassportString"]), @valid_rules)
     end
 
-    test "login user can get nil if cms_passport not exsit", ~m(user)a do
+    test "login user can get empty if cms_passport not exsit", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
       variables = %{id: user.id}
       results = user_conn |> query_result(@query, variables, "user")
 
-      assert nil == results["cmsPassport"]
-      assert nil == results["cmsPassportString"]
+      assert %{} == results["cmsPassport"]
+      assert "{}" == results["cmsPassportString"]
     end
 
     @query """
@@ -159,15 +152,19 @@ defmodule MastaniServer.Test.Query.Account.Basic do
         nickname
         subscribedCommunitiesCount
         subscribedCommunities {
-          id
-          title
+          entries {
+            id
+            title
+          }
+          pageSize
+          totalCount
         }
       }
     }
     """
-    test "gest user can get subscrubed community list and count", ~m(guest_conn user)a do
+    test "guest user can get subscrubed community list and count", ~m(guest_conn user)a do
       variables = %{id: user.id}
-      {:ok, communities} = db_insert_multi(:community, inner_page_size())
+      {:ok, communities} = db_insert_multi(:community, page_size())
 
       Enum.each(
         communities,
@@ -175,7 +172,7 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       )
 
       results = guest_conn |> query_result(@query, variables, "user")
-      subscribed_communities = results["subscribedCommunities"]
+      subscribed_communities = results["subscribedCommunities"]["entries"]
       subscribed_communities_count = results["subscribedCommunitiesCount"]
       [community_1, community_2, community_3, community_x] = communities |> firstn_and_last(3)
 
@@ -183,12 +180,12 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert subscribed_communities |> Enum.any?(&(&1["id"] == to_string(community_2.id)))
       assert subscribed_communities |> Enum.any?(&(&1["id"] == to_string(community_3.id)))
       assert subscribed_communities |> Enum.any?(&(&1["id"] == to_string(community_x.id)))
-      assert subscribed_communities_count == inner_page_size()
+      assert subscribed_communities_count == page_size()
     end
 
     test "gest user can get subscrubed communities count of 20 at most", ~m(guest_conn user)a do
       variables = %{id: user.id}
-      {:ok, communities} = db_insert_multi(:community, inner_page_size() + 1)
+      {:ok, communities} = db_insert_multi(:community, page_size() + 1)
 
       Enum.each(
         communities,
@@ -198,7 +195,8 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       results = guest_conn |> query_result(@query, variables, "user")
       subscribed_communities = results["subscribedCommunities"]
 
-      assert length(subscribed_communities) == inner_page_size()
+      assert subscribed_communities["totalCount"] == page_size() + 1
+      assert subscribed_communities["pageSize"] == page_size()
     end
 
     @query """
@@ -214,7 +212,7 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       }
     }
     """
-    test "gest user can get paged default subscrubed communities", ~m(guest_conn)a do
+    test "guest user can get paged default subscrubed communities", ~m(guest_conn)a do
       {:ok, _} = db_insert_multi(:community, 25)
 
       variables = %{filter: %{page: 1, size: 10}}
@@ -246,6 +244,40 @@ defmodule MastaniServer.Test.Query.Account.Basic do
 
       assert results |> is_valid_pagination?
       assert @default_subscribed_communities == results["pageSize"]
+    end
+  end
+
+  describe "[account session state]" do
+    @query """
+    query {
+    sessionState {
+    isValid
+    user {
+    id
+    }
+    }
+    }
+    """
+    test "guest user should get false sessionState", ~m(guest_conn)a do
+      results = guest_conn |> query_result(@query, %{}, "sessionState")
+      assert results["isValid"] == false
+      assert results["user"] == nil
+    end
+
+    test "login user should get true sessionState", ~m(user)a do
+      user_conn = simu_conn(:user, user)
+      results = user_conn |> query_result(@query, %{}, "sessionState")
+
+      assert results["isValid"] == true
+      assert results["user"] |> Map.get("id") == to_string(user.id)
+    end
+
+    test "user with invalid token get false sessionState" do
+      user_conn = simu_conn(:invalid_token)
+      results = user_conn |> query_result(@query, %{}, "sessionState")
+
+      assert results["isValid"] == false
+      assert results["user"] == nil
     end
   end
 end

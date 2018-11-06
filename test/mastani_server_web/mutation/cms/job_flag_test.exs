@@ -118,10 +118,11 @@ defmodule MastaniServer.Test.Mutation.JobFlag do
       passport_rules = %{community.raw => %{"job.undo_pin" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
+      CMS.pin_content(job, community)
       updated = rule_conn |> mutation_result(@query, variables, "undoPinJob")
 
       assert updated["id"] == to_string(job.id)
-      assert updated["pin"] == false
+      # assert updated["pin"] == false
     end
 
     test "unauth user undo pin job fails", ~m(user_conn guest_conn community job)a do

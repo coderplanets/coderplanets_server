@@ -121,4 +121,89 @@ defmodule MastaniServer.Test.Mutation.JobComment do
     test "TODO owner can NOT delete comment when comment has created after 3 hours" do
     end
   end
+
+  describe "[job comment reactions]" do
+    @like_comment_query """
+    mutation($thread: CmsComment!, $id: ID!) {
+      likeComment(thread: $thread, id: $id) {
+        id
+      }
+    }
+    """
+    test "login user can like a comment", ~m(user_conn comment)a do
+      variables = %{thread: "JOB_COMMENT", id: comment.id}
+      user_conn |> mutation_result(@like_comment_query, variables, "likeComment")
+
+      {:ok, found} = CMS.JobComment |> ORM.find(comment.id, preload: :likes)
+
+      assert found.likes |> Enum.any?(&(&1.job_comment_id == comment.id))
+    end
+
+    @undo_like_comment_query """
+    mutation($thread: CmsComment!, $id: ID!) {
+      undoLikeComment(thread: $thread, id: $id) {
+        id
+      }
+    }
+    """
+    test "login user can undo a like action to comment", ~m(user comment)a do
+      variables = %{thread: "JOB_COMMENT", id: comment.id}
+      user_conn = simu_conn(:user, user)
+      user_conn |> mutation_result(@like_comment_query, variables, "likeComment")
+
+      {:ok, found} = CMS.JobComment |> ORM.find(comment.id, preload: :likes)
+      assert found.likes |> Enum.any?(&(&1.job_comment_id == comment.id))
+
+      user_conn |> mutation_result(@undo_like_comment_query, variables, "undoLikeComment")
+
+      {:ok, found} = CMS.JobComment |> ORM.find(comment.id, preload: :likes)
+      assert false == found.likes |> Enum.any?(&(&1.job_comment_id == comment.id))
+    end
+
+    @dislike_comment_query """
+    mutation($thread: CmsComment!, $id: ID!) {
+      dislikeComment(thread: $thread, id: $id) {
+        id
+      }
+    }
+    """
+    test "login user can dislike a comment", ~m(user_conn comment)a do
+      variables = %{thread: "JOB_COMMENT", id: comment.id}
+      user_conn |> mutation_result(@dislike_comment_query, variables, "dislikeComment")
+
+      {:ok, found} = CMS.JobComment |> ORM.find(comment.id, preload: :dislikes)
+
+      assert found.dislikes |> Enum.any?(&(&1.job_comment_id == comment.id))
+    end
+
+    @undo_dislike_comment_query """
+    mutation($thread: CmsComment!, $id: ID!) {
+      undoDislikeComment(thread: $thread, id: $id) {
+      id
+      }
+    }
+    """
+    test "login user can undo dislike a comment", ~m(user comment)a do
+      variables = %{thread: "JOB_COMMENT", id: comment.id}
+      user_conn = simu_conn(:user, user)
+      user_conn |> mutation_result(@dislike_comment_query, variables, "dislikeComment")
+      {:ok, found} = CMS.JobComment |> ORM.find(comment.id, preload: :dislikes)
+      assert found.dislikes |> Enum.any?(&(&1.job_comment_id == comment.id))
+
+      user_conn |> mutation_result(@undo_dislike_comment_query, variables, "undoDislikeComment")
+
+      {:ok, found} = CMS.JobComment |> ORM.find(comment.id, preload: :dislikes)
+      assert false == found.dislikes |> Enum.any?(&(&1.job_comment_id == comment.id))
+    end
+
+    test "unloged user do/undo like/dislike comment fails", ~m(guest_conn comment)a do
+      variables = %{thread: "JOB_COMMENT", id: comment.id}
+
+      assert guest_conn |> mutation_get_error?(@like_comment_query, variables)
+      assert guest_conn |> mutation_get_error?(@dislike_comment_query, variables)
+
+      assert guest_conn |> mutation_get_error?(@undo_like_comment_query, variables)
+      assert guest_conn |> mutation_get_error?(@undo_dislike_comment_query, variables)
+    end
+  end
 end

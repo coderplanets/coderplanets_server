@@ -8,7 +8,9 @@ defmodule MastaniServer.CMS do
     ArticleCURD,
     ArticleOperation,
     ArticleReaction,
+    FavoritedContents,
     CommentCURD,
+    CommunitySync,
     CommentReaction,
     CommunityCURD,
     CommunityOperation,
@@ -21,6 +23,8 @@ defmodule MastaniServer.CMS do
   # Community CURD: editors, thread, tag
   # >> editor ..
   defdelegate update_editor(user, community, title), to: CommunityCURD
+  # >> geo info ..
+  defdelegate community_geo_info(community), to: CommunityCURD
   # >> subscribers / editors
   defdelegate community_members(type, community, filters), to: CommunityCURD
   # >> category
@@ -32,7 +36,13 @@ defmodule MastaniServer.CMS do
   defdelegate create_tag(thread, attrs, user), to: CommunityCURD
   defdelegate update_tag(attrs), to: CommunityCURD
   defdelegate get_tags(community, thread), to: CommunityCURD
+  defdelegate get_tags(community, thread, topic), to: CommunityCURD
   defdelegate get_tags(filter), to: CommunityCURD
+  # >> wiki & cheatsheet (sync with github)
+  defdelegate get_wiki(community), to: CommunitySync
+  defdelegate get_cheatsheet(community), to: CommunitySync
+  defdelegate sync_github_content(community, thread, attrs), to: CommunitySync
+  defdelegate add_contributor(content, attrs), to: CommunitySync
 
   # CommunityOperation
   # >> category
@@ -46,9 +56,12 @@ defmodule MastaniServer.CMS do
   defdelegate unset_thread(community, thread), to: CommunityOperation
   # >> subscribe / unsubscribe
   defdelegate subscribe_community(community, user), to: CommunityOperation
+  defdelegate subscribe_community(community, user, remote_ip), to: CommunityOperation
   defdelegate unsubscribe_community(community, user), to: CommunityOperation
+  defdelegate unsubscribe_community(community, user, remote_ip), to: CommunityOperation
 
   # ArticleCURD
+  defdelegate read_content(thread, id, user), to: ArticleCURD
   defdelegate paged_contents(queryable, filter), to: ArticleCURD
   defdelegate create_content(community, thread, attrs, user), to: ArticleCURD
   defdelegate reaction_users(thread, react, id, filters), to: ArticleCURD
@@ -57,9 +70,18 @@ defmodule MastaniServer.CMS do
   defdelegate reaction(thread, react, content_id, user), to: ArticleReaction
   defdelegate undo_reaction(thread, react, content_id, user), to: ArticleReaction
 
+  defdelegate favorited_category(thread, content_id, user), to: FavoritedContents
   # ArticleOperation
   # >> set flag on article, like: pin / unpin article
   defdelegate set_community_flags(queryable, community_id, attrs), to: ArticleOperation
+  defdelegate pin_content(queryable, community_id, topic), to: ArticleOperation
+  defdelegate undo_pin_content(queryable, community_id, topic), to: ArticleOperation
+  defdelegate pin_content(queryable, community_id), to: ArticleOperation
+  defdelegate undo_pin_content(queryable, community_id), to: ArticleOperation
+
+  # defdelegate pin_content(queryable, community_id, thread), to: ArticleOperation
+  # defdelegate undo_pin_content(queryable, community_id, thread, topic), to: ArticleOperation
+  # defdelegate undo_pin_content(queryable, community_id, thread), to: ArticleOperation
 
   # >> tag: set / unset
   defdelegate set_tag(community, thread, tag, content_id), to: ArticleOperation
@@ -69,9 +91,11 @@ defmodule MastaniServer.CMS do
   defdelegate unset_community(community, thread, content_id), to: ArticleOperation
 
   # Comment CURD
+  defdelegate list_comments(thread, content_id, filters), to: CommentCURD
+  defdelegate list_comments_participators(thread, content_id, filters), to: CommentCURD
+
   defdelegate create_comment(thread, content_id, body, user), to: CommentCURD
   defdelegate delete_comment(thread, content_id), to: CommentCURD
-  defdelegate list_comments(thread, content_id, filters), to: CommentCURD
   defdelegate list_replies(thread, comment, user), to: CommentCURD
   defdelegate reply_comment(thread, comment, body, user), to: CommentCURD
 

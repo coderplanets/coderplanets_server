@@ -17,9 +17,8 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
 
   enum(:count_type, do: value(:count))
   enum(:viewer_did_type, do: value(:viewer_did))
-  enum(:favorite_action, do: value(:favorite))
+  # enum(:favorite_action, do: value(:favorite))
 
-  enum(:cms_comment, do: value(:post_comment))
   enum(:star_action, do: value(:star))
   enum(:comment_action, do: value(:comment))
 
@@ -28,18 +27,58 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(false)
   end
 
-  enum :cms_action do
+  enum :react_action do
     value(:favorite)
     value(:star)
-    value(:watch)
+    # value(:watch)
+  end
+
+  enum :reactable_action do
+    value(:star)
+    # value(:favorite)
+    # value(:watch)
+  end
+
+  enum :react_thread do
+    value(:post)
+    value(:job)
+    value(:video)
+    value(:repo)
+  end
+
+  enum :cms_comment do
+    value(:post_comment)
+    value(:job_comment)
+    value(:video_comment)
+    value(:repo_comment)
+  end
+
+  enum :commentable_thread do
+    value(:post)
+    value(:job)
+    value(:video)
+    value(:repo)
   end
 
   enum :cms_thread do
     value(:post)
     value(:job)
+    value(:user)
     value(:video)
     value(:repo)
     value(:wiki)
+    value(:cheatsheet)
+    # for home pages
+    value(:city)
+    value(:share)
+    value(:news)
+  end
+
+  enum :cms_topic do
+    value(:index)
+    value(:city)
+    value(:share)
+    value(:news)
   end
 
   enum :order_enum do
@@ -146,7 +185,6 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     field(:sort, :sort_enum)
     field(:tag, :string, default_value: :all)
     field(:community, :string)
-
     # @desc "Matching a name"
     # field(:order, :order_enum, default_value: :desc)
 
@@ -154,15 +192,60 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     # field(:tag, :string, default_value: :all)
   end
 
+  @desc "posts_filter doc"
+  input_object :paged_posts_filter do
+    @desc "limit of records (default 20), if first > 30, only return 30 at most"
+    pagination_args()
+
+    field(:when, :when_enum)
+    field(:sort, :sort_enum)
+    field(:tag, :string, default_value: :all)
+    field(:community, :string)
+    field(:topic, :string)
+  end
+
+  @doc """
+  cms github repo contribotor
+  """
+  input_object :repo_contributor_input do
+    field(:avatar, :string)
+    field(:html_url, :string)
+    field(:nickname, :string)
+  end
+
+  @doc """
+  cms github repo contribotor, detail version
+  """
+  input_object :github_contributor_input do
+    field(:github_id, non_null(:string))
+    field(:avatar, non_null(:string))
+    field(:html_url, non_null(:string))
+    field(:nickname, non_null(:string))
+    field(:bio, :string)
+    field(:location, :string)
+    field(:company, :string)
+  end
+
+  @doc """
+  cms github repo lang
+  """
+  input_object :repo_lang_input do
+    field(:name, :string)
+    field(:color, :string)
+  end
+
   @doc """
   only used for reaction result, like: favorite/star/watch ...
   """
   interface :article do
     field(:id, :id)
-    field(:title, :string)
+    # field(:title, :string)
 
     resolve_type(fn
       %CMS.Post{}, _ -> :post
+      %CMS.Job{}, _ -> :job
+      %CMS.Video{}, _ -> :video
+      %CMS.Repo{}, _ -> :repo
       _, _ -> nil
     end)
   end

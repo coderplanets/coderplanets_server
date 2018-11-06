@@ -21,6 +21,7 @@ config :logger, :console,
   metadata: [:request_id]
 
 config :phoenix, :format_encoders, json: Jason
+config :ecto, json_library: Jason
 
 # TODO move this config to secret later
 config :mastani_server, Helper.Guardian,
@@ -49,6 +50,16 @@ config :mastani_server, :general,
   user_achieve_watch_weight: 1,
   user_achieve_favorite_weight: 2,
   user_achieve_follow_weight: 3
+
+config :mastani_server, :customization,
+  theme: "cyan",
+  community_chart: false,
+  brainwash_free: false,
+  banner_layout: "digest",
+  contents_layout: "digest",
+  content_divider: false,
+  mark_viewed: true,
+  display_density: "20"
 
 config :mastani_server, MastaniServerWeb.Gettext, default_locale: "zh_CN", locales: ~w(en zh_CN)
 

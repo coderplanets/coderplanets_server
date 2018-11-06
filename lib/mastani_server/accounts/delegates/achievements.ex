@@ -7,7 +7,8 @@ defmodule MastaniServer.Accounts.Delegate.Achievements do
   3. create content been favorited by other user + 2
   4. followed by other user + 3
   """
-  import Helper.Utils, only: [get_config: 2]
+  import Ecto.Query, warn: false
+  import Helper.Utils, only: [get_config: 2, done: 1]
   import ShortMaps
 
   alias Helper.{ORM, SpecType}
@@ -24,7 +25,7 @@ defmodule MastaniServer.Accounts.Delegate.Achievements do
   @spec achieve(User.t(), atom, atom) :: SpecType.done()
   def achieve(%User{id: user_id}, :add, :follow) do
     with {:ok, achievement} <- ORM.findby_or_insert(Achievement, ~m(user_id)a, ~m(user_id)a) do
-      followers_count = achievement.followers_count + @follow_weight
+      followers_count = achievement.followers_count + 1
       reputation = achievement.reputation + @follow_weight
 
       achievement
@@ -37,8 +38,8 @@ defmodule MastaniServer.Accounts.Delegate.Achievements do
   """
   def achieve(%User{id: user_id}, :minus, :follow) do
     with {:ok, achievement} <- ORM.findby_or_insert(Achievement, ~m(user_id)a, ~m(user_id)a) do
-      followers_count = achievement.followers_count |> safe_minus(@follow_weight)
-      reputation = achievement.reputation |> safe_minus(@follow_weight)
+      followers_count = max(achievement.followers_count - 1, 0)
+      reputation = max(achievement.reputation - @follow_weight, 0)
 
       achievement
       |> ORM.update(~m(followers_count reputation)a)
@@ -50,7 +51,7 @@ defmodule MastaniServer.Accounts.Delegate.Achievements do
   """
   def achieve(%User{id: user_id} = _user, :add, :star) do
     with {:ok, achievement} <- ORM.findby_or_insert(Achievement, ~m(user_id)a, ~m(user_id)a) do
-      contents_stared_count = achievement.contents_stared_count + @star_weight
+      contents_stared_count = achievement.contents_stared_count + 1
       reputation = achievement.reputation + @star_weight
 
       achievement
@@ -63,8 +64,8 @@ defmodule MastaniServer.Accounts.Delegate.Achievements do
   """
   def achieve(%User{id: user_id} = _user, :minus, :star) do
     with {:ok, achievement} <- ORM.findby_or_insert(Achievement, ~m(user_id)a, ~m(user_id)a) do
-      contents_stared_count = achievement.contents_stared_count |> safe_minus(@star_weight)
-      reputation = achievement.reputation |> safe_minus(@star_weight)
+      contents_stared_count = max(achievement.contents_stared_count - 1, 0)
+      reputation = max(achievement.reputation - @star_weight, 0)
 
       achievement
       |> ORM.update(~m(contents_stared_count reputation)a)
@@ -76,7 +77,7 @@ defmodule MastaniServer.Accounts.Delegate.Achievements do
   """
   def achieve(%User{id: user_id} = _user, :add, :favorite) do
     with {:ok, achievement} <- ORM.findby_or_insert(Achievement, ~m(user_id)a, ~m(user_id)a) do
-      contents_favorited_count = achievement.contents_favorited_count + @favorite_weight
+      contents_favorited_count = achievement.contents_favorited_count + 1
       reputation = achievement.reputation + @favorite_weight
 
       achievement
@@ -89,10 +90,9 @@ defmodule MastaniServer.Accounts.Delegate.Achievements do
   """
   def achieve(%User{id: user_id} = _user, :minus, :favorite) do
     with {:ok, achievement} <- ORM.findby_or_insert(Achievement, ~m(user_id)a, ~m(user_id)a) do
-      contents_favorited_count =
-        achievement.contents_favorited_count |> safe_minus(@favorite_weight)
+      contents_favorited_count = max(achievement.contents_favorited_count - 1, 0)
 
-      reputation = achievement.reputation |> safe_minus(@favorite_weight)
+      reputation = max(achievement.reputation - @favorite_weight, 0)
 
       achievement
       |> ORM.update(~m(contents_favorited_count reputation)a)
@@ -111,6 +111,19 @@ defmodule MastaniServer.Accounts.Delegate.Achievements do
   # IO.inspect("acheiveements plus")
   # end
 
+  @doc """
+  only used for user delete the farorited category, other case is auto
+  """
+  def downgrade_achievement(%User{id: user_id}, :favorite, count) do
+    with {:ok, achievement} <- ORM.find_by(Achievement, user_id: user_id) do
+      contents_favorited_count = max(achievement.contents_favorited_count - count, 0)
+      reputation = max(achievement.reputation - count * @favorite_weight, 0)
+
+      achievement
+      |> ORM.update(~m(contents_favorited_count reputation)a)
+    end
+  end
+
   @spec safe_minus(non_neg_integer(), non_neg_integer()) :: non_neg_integer()
   defp safe_minus(count, unit) when is_integer(count) and is_integer(unit) and unit > 0 do
     case count <= 0 do
@@ -119,6 +132,22 @@ defmodule MastaniServer.Accounts.Delegate.Achievements do
 
       false ->
         count - unit
+    end
+  end
+
+  @doc """
+  list communities which the user is editor in it
+  """
+  alias MastaniServer.CMS.CommunityEditor
+
+  def list_editable_communities(%User{id: user_id}, %{page: page, size: size}) do
+    with {:ok, user} <- ORM.find(User, user_id) do
+      CommunityEditor
+      |> where([e], e.user_id == ^user.id)
+      |> join(:inner, [e], c in assoc(e, :community))
+      |> select([e, c], c)
+      |> ORM.paginater(page: page, size: size)
+      |> done()
     end
   end
 end

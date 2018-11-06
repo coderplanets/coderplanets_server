@@ -1,23 +1,46 @@
 defmodule MastaniServer.Accounts.Delegate.Customization do
+  @moduledoc """
+  customization for user
+  """
   import Ecto.Query, warn: false
+  import Helper.Utils, only: [get_config: 2, map_atom_value: 2]
 
+  alias Helper.ORM
   alias MastaniServer.Accounts
   alias MastaniServer.Accounts.{User, Customization}
-  alias Helper.ORM
-  # ...
-  # TODO: Constants
+
+  @default_customization get_config(:customization, :all) |> Enum.into(%{})
+
+  @doc """
+  get user's customization, if not have, return default customization
+  """
+  def get_customization(%User{id: user_id}) do
+    case ORM.find_by(Customization, user_id: user_id) do
+      {:ok, customization} ->
+        customization = customization |> Map.from_struct() |> filter_nil_value
+        {:ok, Map.merge(@default_customization, customization)}
+
+      {:error, _} ->
+        {:ok, @default_customization}
+    end
+  end
 
   @doc """
   add custom setting to user
   """
   # for map_size
   # see https://stackoverflow.com/questions/33248816/pattern-match-function-against-empty-map
-  def add_custom_setting(%User{} = _user, map) when map_size(map) == 0 do
+  def set_customization(%User{} = _user, map) when map_size(map) == 0 do
     {:error, "AccountCustomization: invalid option or not purchased"}
   end
 
-  def add_custom_setting(%User{} = user, map) when is_map(map) do
-    valid? = map |> Map.keys() |> Enum.all?(&can_set?(user, &1, :boolean))
+  def set_customization(%User{} = user, map) when is_map(map) do
+    map = map |> map_atom_value(:string)
+
+    valid? =
+      map
+      |> Map.keys()
+      |> Enum.all?(&can_set?(user, &1, :boolean))
 
     case valid? do
       true ->
@@ -29,7 +52,7 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
     end
   end
 
-  def add_custom_setting(%User{} = user, key, value \\ true) do
+  def set_customization(%User{} = user, key, value \\ true) do
     with {:ok, key} <- can_set?(user, key) do
       attrs = Map.put(%{user_id: user.id}, key, value)
       Customization |> ORM.upsert_by([user_id: user.id], attrs)
@@ -61,7 +84,14 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
   # sidebar_layout  --  user can arrange subscribed community index
   """
   def valid_custom_items(:free) do
-    [:theme, :sidebar_layout]
+    [
+      :sidebar_layout,
+      :banner_layout,
+      :contents_layout,
+      :content_divider,
+      :mark_viewed,
+      :display_density
+    ]
   end
 
   @doc """
@@ -71,6 +101,10 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
   def valid_custom_items(:advance) do
     # NOTE: :brainwash_free aka. "ads_free"
     # use brainwash to avoid brower-block-plugins
-    [:brainwash_free, :community_chart]
+    [:theme, :brainwash_free, :community_chart]
+  end
+
+  defp filter_nil_value(map) do
+    for {k, v} <- map, !is_nil(v), into: %{}, do: {k, v}
   end
 end

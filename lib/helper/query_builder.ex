@@ -27,6 +27,24 @@ defmodule Helper.QueryBuilder do
     |> select([f], count(f.id))
   end
 
+  def members_pack(queryable, %{count: _, type: :job}) do
+    queryable
+    |> group_by([f], f.job_id)
+    |> select([f], count(f.id))
+  end
+
+  def members_pack(queryable, %{count: _, type: :video}) do
+    queryable
+    |> group_by([f], f.video_id)
+    |> select([f], count(f.id))
+  end
+
+  def members_pack(queryable, %{count: _, type: :repo}) do
+    queryable
+    |> group_by([f], f.repo_id)
+    |> select([f], count(f.id))
+  end
+
   def members_pack(queryable, %{count: _, type: :community}) do
     queryable
     |> group_by([f], f.community_id)
@@ -167,6 +185,13 @@ defmodule Helper.QueryBuilder do
           where: t.title == ^tag_name
         )
 
+      {:topic, topic}, queryable ->
+        from(
+          q in queryable,
+          join: t in assoc(q, :topics),
+          where: t.raw == ^topic
+        )
+
       {:category, catetory_raw}, queryable ->
         from(
           q in queryable,
@@ -178,6 +203,13 @@ defmodule Helper.QueryBuilder do
         from(
           q in queryable,
           join: t in assoc(q, :communities),
+          where: t.raw == ^community_raw
+        )
+
+      {:one_community, community_raw}, queryable ->
+        from(
+          q in queryable,
+          join: t in assoc(q, :community),
           where: t.raw == ^community_raw
         )
 

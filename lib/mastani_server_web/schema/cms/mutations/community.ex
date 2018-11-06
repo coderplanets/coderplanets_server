@@ -80,7 +80,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Community do
     @desc "create independent thread"
     field :create_thread, :thread do
       arg(:title, non_null(:string))
-      arg(:raw, non_null(:cms_thread))
+      arg(:raw, non_null(:string))
       arg(:index, :integer, default_value: 0)
 
       middleware(M.Authorize, :login)
@@ -134,6 +134,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Community do
       arg(:color, non_null(:rainbow_color_enum))
       arg(:community_id, non_null(:id))
       arg(:thread, :cms_thread, default_value: :post)
+      arg(:topic, :string, default_value: "posts")
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
@@ -169,6 +170,44 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Community do
       middleware(M.Passport, claim: "cms->c?->t?.tag.delete")
 
       resolve(&R.CMS.delete_tag/3)
+    end
+
+    @desc "sync github wiki"
+    field :sync_wiki, :wiki do
+      arg(:community_id, non_null(:id))
+      arg(:readme, non_null(:string))
+      arg(:last_sync, non_null(:datetime))
+
+      middleware(M.Authorize, :login)
+      resolve(&R.CMS.sync_wiki/3)
+    end
+
+    @desc "add contributor to wiki "
+    field :add_wiki_contributor, :wiki do
+      arg(:id, non_null(:id))
+      arg(:contributor, non_null(:github_contributor_input))
+
+      middleware(M.Authorize, :login)
+      resolve(&R.CMS.add_wiki_contributor/3)
+    end
+
+    @desc "sync github  cheatsheets "
+    field :sync_cheatsheet, :cheatsheet do
+      arg(:community_id, non_null(:id))
+      arg(:readme, non_null(:string))
+      arg(:last_sync, non_null(:datetime))
+
+      middleware(M.Authorize, :login)
+      resolve(&R.CMS.sync_cheatsheet/3)
+    end
+
+    @desc "add contributor to cheatsheets"
+    field :add_cheatsheet_contributor, :cheatsheet do
+      arg(:id, non_null(:id))
+      arg(:contributor, non_null(:github_contributor_input))
+
+      middleware(M.Authorize, :login)
+      resolve(&R.CMS.add_cheatsheet_contributor/3)
     end
   end
 end

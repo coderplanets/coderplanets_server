@@ -26,12 +26,14 @@ defmodule MastaniServer.Test.Query.Account.Fans do
       variables = %{filter: %{page: 1, size: 20}}
 
       {:ok, user2} = db_insert(:user)
+      {:ok, user3} = db_insert(:user)
       {:ok, _followeer} = user |> Accounts.follow(user2)
+      {:ok, _followeer} = user3 |> Accounts.follow(user2)
 
       user2_conn = simu_conn(:user, user2)
       results = user2_conn |> query_result(@query, variables, "pagedFollowers")
 
-      assert results |> Map.get("totalCount") == 1
+      assert results |> Map.get("totalCount") == 2
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(user.id)))
     end
 
@@ -61,11 +63,15 @@ defmodule MastaniServer.Test.Query.Account.Fans do
       variables = %{filter: %{page: 1, size: 20}}
 
       {:ok, user2} = db_insert(:user)
+      {:ok, user3} = db_insert(:user)
+      {:ok, user4} = db_insert(:user)
       {:ok, _followeer} = user |> Accounts.follow(user2)
+      {:ok, _followeer} = user |> Accounts.follow(user3)
+      {:ok, _followeer} = user |> Accounts.follow(user4)
 
       results = user_conn |> query_result(@query, variables, "pagedFollowings")
 
-      assert results |> Map.get("totalCount") == 1
+      assert results |> Map.get("totalCount") == 3
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(user2.id)))
     end
 
@@ -92,12 +98,13 @@ defmodule MastaniServer.Test.Query.Account.Fans do
       total_count = 15
       {:ok, users} = db_insert_multi(:user, total_count)
 
-      Enum.each(users, fn cool_user ->
-        {:ok, _} = user |> Accounts.follow(cool_user)
+      Enum.each(users, fn other_user ->
+        {:ok, _} = other_user |> Accounts.follow(user)
       end)
 
       variables = %{id: user.id}
       resolts = user_conn |> query_result(@query, variables, "user")
+
       assert resolts |> Map.get("followersCount") == total_count
     end
 
@@ -141,9 +148,10 @@ defmodule MastaniServer.Test.Query.Account.Fans do
       resolts = user_conn |> query_result(@query, variables, "user")
       assert resolts |> Map.get("viewerHasFollowed") == false
 
-      {:ok, _} = user2 |> Accounts.follow(user)
+      {:ok, _} = user |> Accounts.follow(user2)
       variables = %{id: user2.id}
       resolts = user_conn |> query_result(@query, variables, "user")
+
       assert resolts |> Map.get("viewerHasFollowed") == true
     end
   end

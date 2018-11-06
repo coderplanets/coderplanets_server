@@ -61,12 +61,12 @@ defmodule MastaniServer.Test.Query.ReposFlags do
       assert results["pageSize"] == @page_size
       assert results["totalCount"] == @total_count
 
-      CMS.set_community_flags(%Repo{id: repo_m.id}, community.id, %{pin: true})
+      {:ok, _pined_post} = CMS.pin_content(repo_m, community)
 
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
       entries_first = results["entries"] |> List.first()
 
-      assert results["totalCount"] == @total_count
+      assert results["totalCount"] == @total_count + 1
       assert entries_first["id"] == to_string(repo_m.id)
       assert entries_first["pin"] == true
     end
@@ -77,7 +77,8 @@ defmodule MastaniServer.Test.Query.ReposFlags do
       assert results |> is_valid_pagination?
 
       random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _} = CMS.set_community_flags(%Repo{id: random_id}, community.id, %{pin: true})
+
+      {:ok, _pined_post} = CMS.pin_content(%Repo{id: random_id}, community)
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
 
       assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))

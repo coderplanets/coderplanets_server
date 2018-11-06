@@ -16,8 +16,24 @@ defmodule MastaniServer.Test.Mutation.Post do
 
   describe "[mutation post curd]" do
     @create_post_query """
-    mutation($title: String!, $body: String!, $digest: String!, $length: Int!, $communityId: ID!, $tags: [Ids]){
-      createPost(title: $title, body: $body, digest: $digest, length: $length, communityId: $communityId, tags: $tags) {
+    mutation(
+      $title: String!
+      $body: String!
+      $digest: String!
+      $length: Int!
+      $communityId: ID!
+      $tags: [Ids]
+      $topic: CmsTopic
+    ) {
+      createPost(
+        title: $title
+        body: $body
+        digest: $digest
+        length: $length
+        communityId: $communityId
+        tags: $tags
+        topic: $topic
+      ) {
         title
         body
         id
@@ -37,6 +53,19 @@ defmodule MastaniServer.Test.Mutation.Post do
 
       assert created["id"] == to_string(post.id)
       assert {:ok, _} = ORM.find_by(CMS.Author, user_id: user.id)
+    end
+
+    # NOTE: this test is IMPORTANT, cause json_codec: Jason in router will cause
+    # server crash when GraphQL parse error
+    test "create post with missing non_null field should get 200 error" do
+      {:ok, user} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      {:ok, community} = db_insert(:community)
+      post_attr = mock_attrs(:post)
+      variables = post_attr |> Map.merge(%{communityId: community.id}) |> Map.delete(:title)
+
+      assert user_conn |> mutation_get_error?(@create_post_query, variables)
     end
 
     test "can create post with tags" do
@@ -111,11 +140,12 @@ defmodule MastaniServer.Test.Mutation.Post do
     end
 
     @query """
-    mutation($id: ID!, $title: String, $body: String){
-      updatePost(id: $id, title: $title, body: $body) {
+    mutation($id: ID!, $title: String, $body: String, $copyRight: String){
+      updatePost(id: $id, title: $title, body: $body, copyRight: $copyRight) {
         id
         title
         body
+        copyRight
       }
     }
     """
@@ -137,13 +167,15 @@ defmodule MastaniServer.Test.Mutation.Post do
       variables = %{
         id: post.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}"
+        body: "updated body #{unique_num}",
+        copyRight: "translate"
       }
 
       updated_post = owner_conn |> mutation_result(@query, variables, "updatePost")
 
       assert updated_post["title"] == variables.title
       assert updated_post["body"] == variables.body
+      assert updated_post["copyRight"] == variables.copyRight
     end
 
     test "login user with auth passport update a post", ~m(post)a do

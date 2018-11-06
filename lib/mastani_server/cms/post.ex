@@ -12,11 +12,13 @@ defmodule MastaniServer.CMS.Post do
     PostCommunityFlag,
     PostFavorite,
     PostStar,
-    Tag
+    PostViewer,
+    Tag,
+    Topic
   }
 
   @required_fields ~w(title body digest length)a
-  @optional_fields ~w(link_addr)a
+  @optional_fields ~w(link_addr copy_right)a
 
   @type t :: %Post{}
   schema "cms_posts" do
@@ -24,6 +26,7 @@ defmodule MastaniServer.CMS.Post do
     field(:title, :string)
     field(:digest, :string)
     field(:link_addr, :string)
+    field(:copy_right, :string)
     field(:length, :integer)
     field(:views, :integer, default: 0)
 
@@ -41,6 +44,7 @@ defmodule MastaniServer.CMS.Post do
     has_many(:comments, {"posts_comments", PostComment})
     has_many(:favorites, {"posts_favorites", PostFavorite})
     has_many(:stars, {"posts_stars", PostStar})
+    has_many(:viewers, {"posts_viewers", PostViewer})
     # The keys are inflected from the schema names!
     # see https://hexdocs.pm/ecto/Ecto.Schema.html
     many_to_many(
@@ -48,6 +52,16 @@ defmodule MastaniServer.CMS.Post do
       Tag,
       join_through: "posts_tags",
       join_keys: [post_id: :id, tag_id: :id],
+      # :delete_all will only remove data from the join source
+      on_delete: :delete_all,
+      on_replace: :delete
+    )
+
+    many_to_many(
+      :topics,
+      Topic,
+      join_through: "posts_topics",
+      join_keys: [post_id: :id, topic_id: :id],
       # :delete_all will only remove data from the join source
       on_delete: :delete_all,
       on_replace: :delete

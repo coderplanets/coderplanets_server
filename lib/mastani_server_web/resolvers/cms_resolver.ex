@@ -30,12 +30,34 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def delete_community(_root, %{id: id}, _info), do: Community |> ORM.find_delete(id)
 
   # #######################
-  # community thread (post, job)
+  # community thread (post, job), login user should be logged
   # #######################
+  def post(_root, %{id: id}, %{context: %{cur_user: user}}) do
+    CMS.read_content(:post, id, user)
+  end
+
   def post(_root, %{id: id}, _info), do: Post |> ORM.read(id, inc: :views)
-  def video(_root, %{id: id}, _info), do: Video |> ORM.read(id, inc: :views)
-  def repo(_root, %{id: id}, _info), do: Repo |> ORM.read(id, inc: :views)
+
+  def job(_root, %{id: id}, %{context: %{cur_user: user}}) do
+    CMS.read_content(:job, id, user)
+  end
+
   def job(_root, %{id: id}, _info), do: Job |> ORM.read(id, inc: :views)
+
+  def video(_root, %{id: id}, %{context: %{cur_user: user}}) do
+    CMS.read_content(:video, id, user)
+  end
+
+  def video(_root, %{id: id}, _info), do: Video |> ORM.read(id, inc: :views)
+
+  def repo(_root, %{id: id}, %{context: %{cur_user: user}}) do
+    CMS.read_content(:repo, id, user)
+  end
+
+  def repo(_root, %{id: id}, _info), do: Repo |> ORM.read(id, inc: :views)
+
+  def wiki(_root, ~m(community)a, _info), do: CMS.get_wiki(%Community{raw: community})
+  def cheatsheet(_root, ~m(community)a, _info), do: CMS.get_cheatsheet(%Community{raw: community})
 
   def paged_posts(_root, ~m(filter)a, _info), do: Post |> CMS.paged_contents(filter)
   def paged_videos(_root, ~m(filter)a, _info), do: Video |> CMS.paged_contents(filter)
@@ -46,25 +68,64 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.create_content(%Community{id: community_id}, thread, args, user)
   end
 
-  def update_content(_root, %{passport_source: content} = args, _info),
-    do: ORM.update(content, args)
+  def update_content(_root, %{passport_source: content} = args, _info) do
+    ORM.update(content, args)
+  end
 
   def delete_content(_root, %{passport_source: content}, _info), do: ORM.delete(content)
 
   # #######################
   # content flag ..
   # #######################
-  def pin_content(_root, ~m(id thread community_id)a, _info),
-    do: set_community_flags(community_id, thread, id, %{pin: true})
+  def pin_content(_root, ~m(id community_id thread topic)a, _info) do
+    CMS.pin_content(%CMS.Post{id: id}, %Community{id: community_id}, topic)
+  end
 
-  def undo_pin_content(_root, ~m(id thread community_id)a, _info),
-    do: set_community_flags(community_id, thread, id, %{pin: false})
+  def undo_pin_content(_root, ~m(id community_id thread topic)a, _info) do
+    CMS.undo_pin_content(%CMS.Post{id: id}, %Community{id: community_id}, topic)
+  end
+
+  def pin_content(_root, ~m(id community_id thread)a, _info) do
+    do_pin_content(id, community_id, thread)
+  end
+
+  def undo_pin_content(_root, ~m(id community_id thread)a, _info) do
+    do_undo_pin_content(id, community_id, thread)
+  end
+
+  def do_pin_content(id, community_id, :job),
+    do: CMS.pin_content(%CMS.Job{id: id}, %Community{id: community_id})
+
+  def do_pin_content(id, community_id, :video),
+    do: CMS.pin_content(%CMS.Video{id: id}, %Community{id: community_id})
+
+  def do_pin_content(id, community_id, :repo),
+    do: CMS.pin_content(%CMS.Repo{id: id}, %Community{id: community_id})
+
+  def do_undo_pin_content(id, community_id, :job) do
+    CMS.undo_pin_content(%CMS.Job{id: id}, %Community{id: community_id})
+  end
+
+  def do_undo_pin_content(id, community_id, :video) do
+    CMS.undo_pin_content(%CMS.Video{id: id}, %Community{id: community_id})
+  end
+
+  def do_undo_pin_content(id, community_id, :repo) do
+    CMS.undo_pin_content(%CMS.Repo{id: id}, %Community{id: community_id})
+  end
 
   def trash_content(_root, ~m(id thread community_id)a, _info),
     do: set_community_flags(community_id, thread, id, %{trash: true})
 
   def undo_trash_content(_root, ~m(id thread community_id)a, _info),
     do: set_community_flags(community_id, thread, id, %{trash: false})
+
+  # TODO: report contents
+  # def report_content(_root, ~m(id thread community_id)a, _info),
+  # do: set_community_flags(community_id, thread, id, %{report: true})
+
+  # def undo_report_content(_root, ~m(id thread community_id)a, _info),
+  # do: set_community_flags(community_id, thread, id, %{report: false})
 
   defp set_community_flags(community_id, thread, id, flag) do
     with {:ok, content} <- match_action(thread, :self) do
@@ -87,6 +148,10 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def reaction_users(_root, ~m(id action thread filter)a, _info) do
     CMS.reaction_users(thread, action, id, filter)
+  end
+
+  def favorited_category(root, ~m(thread)a, %{context: %{cur_user: user}}) do
+    CMS.favorited_category(thread, root.id, user)
   end
 
   # #######################
@@ -148,6 +213,13 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   end
 
   # #######################
+  # geo infos ..
+  # #######################
+  def community_geo_info(_root, ~m(id)a, _info) do
+    CMS.community_geo_info(%Community{id: id})
+  end
+
+  # #######################
   # tags ..
   # #######################
   def create_tag(_root, args, %{context: %{cur_user: user}}) do
@@ -164,6 +236,14 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def unset_tag(_root, ~m(id thread tag_id)a, _info),
     do: CMS.unset_tag(thread, %Tag{id: tag_id}, id)
+
+  def get_tags(_root, ~m(community_id thread topic)a, _info) do
+    CMS.get_tags(%Community{id: community_id}, thread, topic)
+  end
+
+  def get_tags(_root, ~m(community thread topic)a, _info) do
+    CMS.get_tags(%Community{raw: community}, thread, topic)
+  end
 
   def get_tags(_root, ~m(community_id thread)a, _info) do
     CMS.get_tags(%Community{id: community_id}, thread)
@@ -182,8 +262,8 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # #######################
   # community subscribe ..
   # #######################
-  def subscribe_community(_root, ~m(community_id)a, %{context: %{cur_user: cur_user}}) do
-    CMS.subscribe_community(%Community{id: community_id}, cur_user)
+  def subscribe_community(_root, ~m(community_id)a, %{context: ~m(cur_user remote_ip)a}) do
+    CMS.subscribe_community(%Community{id: community_id}, cur_user, remote_ip)
   end
 
   def unsubscribe_community(_root, ~m(community_id)a, %{context: %{cur_user: cur_user}}) do
@@ -205,8 +285,17 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # #######################
   # comemnts ..
   # #######################
-  def paged_comments(_root, ~m(id thread filter)a, _info),
-    do: CMS.list_comments(thread, id, filter)
+  def paged_comments(_root, ~m(id thread filter)a, _info) do
+    CMS.list_comments(thread, id, filter)
+  end
+
+  def paged_comments_participators(_root, ~m(id thread filter)a, _info) do
+    CMS.list_comments_participators(thread, id, filter)
+  end
+
+  def paged_comments_participators(root, ~m(thread)a, _info) do
+    CMS.list_comments_participators(thread, root.id, %{page: 1, size: 20})
+  end
 
   def create_comment(_root, ~m(thread id body)a, %{context: %{cur_user: user}}) do
     CMS.create_comment(thread, id, body, user)
@@ -238,5 +327,24 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def stamp_passport(_root, ~m(user_id rules)a, %{context: %{cur_user: _user}}) do
     CMS.stamp_passport(rules, %User{id: user_id})
+  end
+
+  # #######################
+  # sync github content ..
+  # #######################
+  def sync_wiki(_root, ~m(community_id readme last_sync)a, %{context: %{cur_user: _user}}) do
+    CMS.sync_github_content(%Community{id: community_id}, :wiki, ~m(readme last_sync)a)
+  end
+
+  def add_wiki_contributor(_root, ~m(id contributor)a, %{context: %{cur_user: _user}}) do
+    CMS.add_contributor(%CMS.CommunityWiki{id: id}, contributor)
+  end
+
+  def sync_cheatsheet(_root, ~m(community_id readme last_sync)a, %{context: %{cur_user: _user}}) do
+    CMS.sync_github_content(%Community{id: community_id}, :cheatsheet, ~m(readme last_sync)a)
+  end
+
+  def add_cheatsheet_contributor(_root, ~m(id contributor)a, %{context: %{cur_user: _user}}) do
+    CMS.add_contributor(%CMS.CommunityCheatsheet{id: id}, contributor)
   end
 end

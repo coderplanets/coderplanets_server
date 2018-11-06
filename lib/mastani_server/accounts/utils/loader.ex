@@ -24,10 +24,11 @@ defmodule MastaniServer.Accounts.Utils.Loader do
     |> select([u, c], c)
   end
 
+  # TODO: fix later, this is not working
   def query({"users_followers", UserFollower}, %{count: _}) do
     UserFollower
     |> group_by([f], f.user_id)
-    |> select([f], count(f.id))
+    |> select([f], count(f.follower_id))
   end
 
   def query({"users_followings", UserFollowing}, %{count: _}) do
@@ -40,17 +41,39 @@ defmodule MastaniServer.Accounts.Utils.Loader do
     UserFollower |> where([f], f.follower_id == ^cur_user.id)
   end
 
+  # stared contents count
+  def query({"posts_stars", CMS.PostStar}, %{count: _}) do
+    CMS.PostStar |> count_contents
+  end
+
+  def query({"jobs_stars", CMS.JobStar}, %{count: _}) do
+    CMS.JobStar |> count_contents
+  end
+
+  def query({"videos_stars", CMS.VideoStar}, %{count: _}) do
+    CMS.VideoStar |> count_contents
+  end
+
+  # favorited contents count
   def query({"posts_favorites", CMS.PostFavorite}, %{count: _}) do
-    CMS.PostFavorite |> count_cotents
+    CMS.PostFavorite |> count_contents
   end
 
   def query({"jobs_favorites", CMS.JobFavorite}, %{count: _}) do
-    CMS.JobFavorite |> count_cotents
+    CMS.JobFavorite |> count_contents
+  end
+
+  def query({"videos_favorites", CMS.VideoFavorite}, %{count: _}) do
+    CMS.VideoFavorite |> count_contents
+  end
+
+  def query({"repos_favorites", CMS.RepoFavorite}, %{count: _}) do
+    CMS.RepoFavorite |> count_contents
   end
 
   def query(queryable, _args), do: queryable
 
-  defp count_cotents(queryable) do
+  defp count_contents(queryable) do
     queryable
     |> group_by([f], f.user_id)
     |> select([f], count(f.id))

@@ -7,7 +7,7 @@ defmodule MastaniServer.CMS.JobCommunityFlag do
   alias MastaniServer.CMS.{Community, Job}
 
   @required_fields ~w(job_id community_id)a
-  @optional_fields ~w(pin trash)a
+  @optional_fields ~w(trash)a
 
   @type t :: %JobCommunityFlag{}
 
@@ -15,7 +15,6 @@ defmodule MastaniServer.CMS.JobCommunityFlag do
     belongs_to(:job, Job, foreign_key: :job_id)
     belongs_to(:community, Community, foreign_key: :community_id)
 
-    field(:pin, :boolean)
     field(:trash, :boolean)
 
     timestamps(type: :utc_datetime)

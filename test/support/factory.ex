@@ -1,4 +1,4 @@
-defmodule MastaniServer.Factory do
+defmodule MastaniServer.Support.Factory do
   @moduledoc """
   This module defines the mock data/func to be used by
   tests that require insert some mock data to db.
@@ -37,17 +37,13 @@ defmodule MastaniServer.Factory do
       desc: desc,
       duration: "03:30",
       duration_sec: Enum.random(300..12_000),
-      durationSec: Enum.random(300..12_000),
       source: "youtube",
       link: "http://www.youtube.com/video/1",
-      original_author: "simon",
-      originalAuthor: "simon",
+      original_author: "mydearxym",
       original_author_link: "http://www.youtube.com/user/1",
-      originalAuthorLink: "http://www.youtube.com/user/1",
       author: mock(:author),
       views: Enum.random(0..2000),
       publish_at: Timex.today() |> Timex.to_datetime(),
-      publishAt: "2017-11-01T12:00:00Z",
       communities: [
         mock(:community),
         mock(:community)
@@ -59,22 +55,74 @@ defmodule MastaniServer.Factory do
     desc = Faker.Lorem.sentence(%Range{first: 15, last: 60})
 
     %{
-      repo_name: Faker.Lorem.Shakespeare.king_richard_iii(),
+      title: Faker.Lorem.Shakespeare.king_richard_iii(),
+      owner_name: "coderplanets",
+      owner_url: "http://www.github.com/coderplanets",
+      repo_url: "http://www.github.com/coderplanets//coderplanets_server",
       desc: desc,
+      homepage_url: "http://www.github.com/coderplanets",
       readme: desc,
-      language: "javascript",
+      issues_count: Enum.random(0..2000),
+      prs_count: Enum.random(0..2000),
+      fork_count: Enum.random(0..2000),
+      star_count: Enum.random(0..2000),
+      watch_count: Enum.random(0..2000),
+      license: "MIT",
+      release_tag: "v22",
+      primary_language: %{
+        name: "javascript",
+        color: "tomato"
+      },
+      contributors: [
+        mock_meta(:repo_contributor),
+        mock_meta(:repo_contributor)
+      ],
       author: mock(:author),
-      repo_link: "http://www.github.com/mydearxym",
-      producer: "mydearxym",
-      producer_link: "http://www.github.com/mydearxym",
-      repo_star_count: Enum.random(0..2000),
-      repo_fork_count: Enum.random(0..2000),
-      repo_watch_count: Enum.random(0..2000),
       views: Enum.random(0..2000),
       communities: [
         mock(:community),
         mock(:community)
       ]
+    }
+  end
+
+  defp mock_meta(:wiki) do
+    %{
+      community: mock(:community),
+      readme: Faker.Lorem.sentence(%Range{first: 15, last: 60}),
+      last_sync: Timex.today() |> Timex.to_datetime(),
+      contributors: [
+        mock_meta(:github_contributor),
+        mock_meta(:github_contributor),
+        mock_meta(:github_contributor)
+      ]
+    }
+  end
+
+  defp mock_meta(:cheatsheet) do
+    mock_meta(:wiki)
+  end
+
+  defp mock_meta(:repo_contributor) do
+    %{
+      avatar: Faker.Avatar.image_url(),
+      html_url: Faker.Avatar.image_url(),
+      htmlUrl: Faker.Avatar.image_url(),
+      nickname: "mydearxym2"
+    }
+  end
+
+  defp mock_meta(:github_contributor) do
+    unique_num = System.unique_integer([:positive, :monotonic])
+
+    %{
+      github_id: "#{unique_num}-#{Faker.Lorem.sentence(%Range{first: 5, last: 10})}",
+      avatar: Faker.Avatar.image_url(),
+      html_url: Faker.Avatar.image_url(),
+      nickname: "mydearxym2",
+      bio: Faker.Lorem.sentence(%Range{first: 15, last: 60}),
+      location: "location #{unique_num}",
+      company: Faker.Company.name()
     }
   end
 
@@ -86,12 +134,18 @@ defmodule MastaniServer.Factory do
       title: Faker.Lorem.Shakespeare.king_richard_iii(),
       company: Faker.Company.name(),
       company_logo: Faker.Avatar.image_url(),
-      location: "location #{unique_num}",
       body: body,
+      desc: "活少, 美女多",
       digest: String.slice(body, 1, 150),
       length: String.length(body),
       author: mock(:author),
       views: Enum.random(0..2000),
+      salary: "20k-50k",
+      exp: "1-3年",
+      education: "master",
+      field: "互联网",
+      finance: "x轮",
+      scale: "300人",
       communities: [
         mock(:community)
       ]
@@ -221,6 +275,12 @@ defmodule MastaniServer.Factory do
   def mock_attrs(:thread, attrs), do: mock_meta(:thread) |> Map.merge(attrs)
   def mock_attrs(:mention, attrs), do: mock_meta(:mention) |> Map.merge(attrs)
 
+  def mock_attrs(:wiki, attrs), do: mock_meta(:wiki) |> Map.merge(attrs)
+  def mock_attrs(:cheatsheet, attrs), do: mock_meta(:cheatsheet) |> Map.merge(attrs)
+
+  def mock_attrs(:github_contributor, attrs),
+    do: mock_meta(:github_contributor) |> Map.merge(attrs)
+
   def mock_attrs(:communities_threads, attrs),
     do: mock_meta(:communities_threads) |> Map.merge(attrs)
 
@@ -241,6 +301,8 @@ defmodule MastaniServer.Factory do
   defp mock(:video), do: CMS.Video |> struct(mock_meta(:video))
   defp mock(:repo), do: CMS.Repo |> struct(mock_meta(:repo))
   defp mock(:job), do: CMS.Job |> struct(mock_meta(:job))
+  defp mock(:wiki), do: CMS.CommunityWiki |> struct(mock_meta(:wiki))
+  defp mock(:cheatsheet), do: CMS.CommunityCheatsheet |> struct(mock_meta(:cheatsheet))
   defp mock(:comment), do: CMS.Comment |> struct(mock_meta(:comment))
   defp mock(:mention), do: Delivery.Mention |> struct(mock_meta(:mention))
   defp mock(:author), do: CMS.Author |> struct(mock_meta(:author))
@@ -318,6 +380,21 @@ defmodule MastaniServer.Factory do
       }
 
       {:ok, _} = Delivery.notify_someone(u, user, info)
+    end)
+  end
+
+  alias MastaniServer.Statistics.UserGeoInfo
+  alias MastaniServer.Support.GeoData
+
+  alias Helper.ORM
+
+  def insert_geo_data do
+    # IO.inspect GeoData.all, label: "hello"
+    GeoData.all()
+    |> Enum.each(fn info ->
+      # IO.inspect info, label: "inserting"
+      # UserGeoInfo |> Repo.insert(info)
+      UserGeoInfo |> ORM.create(info)
     end)
   end
 end

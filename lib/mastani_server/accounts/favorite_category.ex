@@ -7,11 +7,11 @@ defmodule MastaniServer.Accounts.FavoriteCategory do
   alias MastaniServer.Accounts.User
 
   @required_fields ~w(user_id title)a
-  @optional_fields ~w(index total_count private desc)a
+  @optional_fields ~w(index total_count private desc last_updated)a
 
   @type t :: %FavoriteCategory{}
   schema "favorite_categories" do
-    belongs_to(:user, Accounts.User, foreign_key: :user_id)
+    belongs_to(:user, User, foreign_key: :user_id)
     # has_many(:posts, ...)
 
     field(:title, :string)
@@ -19,6 +19,8 @@ defmodule MastaniServer.Accounts.FavoriteCategory do
     field(:index, :integer)
     field(:total_count, :integer, default: 0)
     field(:private, :boolean, default: false)
+    # last time when add/delete items in category
+    field(:last_updated, :utc_datetime)
 
     timestamps(type: :utc_datetime)
   end

@@ -187,13 +187,15 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
 
   describe "[mutation cms tag]" do
     @create_tag_query """
-    mutation($thread: CmsThread!, $title: String!, $color: RainbowColorEnum!, $communityId: ID!) {
-      createTag(thread: $thread, title: $title, color: $color, communityId: $communityId) {
+    mutation($thread: CmsThread!, $title: String!, $color: RainbowColorEnum!, $communityId: ID!, $topic: String) {
+      createTag(thread: $thread, title: $title, color: $color, communityId: $communityId, topic: $topic) {
         id
         title
         color
         thread
-
+        topic {
+          title
+        }
         community {
           id
           logo
@@ -202,7 +204,8 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
       }
     }
     """
-    test "create tag with valid attrs, has default POST thread", ~m(community)a do
+    test "create tag with valid attrs, has default POST thread and default posts topic",
+         ~m(community)a do
       variables = mock_attrs(:tag, %{communityId: community.id})
 
       passport_rules = %{community.title => %{"post.tag.create" => true}}
@@ -215,11 +218,33 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
 
       assert created["id"] == to_string(found.id)
       assert found.thread == "post"
+      assert created["topic"]["title"] == "posts"
       assert belong_community["id"] == to_string(community.id)
+    end
+
+    test "can create some tag on different topic", ~m(community)a do
+      variables = mock_attrs(:tag, %{communityId: community.id, topic: "city"})
+
+      passport_rules = %{community.title => %{"post.tag.create" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      created = rule_conn |> mutation_result(@create_tag_query, variables, "createTag")
+      assert created["title"] == variables.title
+      assert created["topic"]["title"] == "city"
+
+      assert rule_conn
+             |> mutation_get_error?(@create_tag_query, variables)
+
+      variables = variables |> Map.merge(%{topic: "news"})
+      created = rule_conn |> mutation_result(@create_tag_query, variables, "createTag")
+      assert created["title"] == variables.title
+      assert created["topic"]["title"] == "news"
     end
 
     test "auth user create duplicate tag fails", ~m(community)a do
       variables = mock_attrs(:tag, %{communityId: community.id})
+      # IO.inspect variables, label: "hello variables"
+
       passport_rules = %{community.title => %{"post.tag.create" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
@@ -271,6 +296,7 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       updated = rule_conn |> mutation_result(@update_tag_query, variables, "updateTag")
+
       assert updated["color"] == "green"
       assert updated["title"] == "new title"
     end
@@ -659,6 +685,19 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
       assert guest_conn |> mutation_get_error?(@subscribe_query, variables, ecode(:account_login))
     end
 
+    test "subscribed community should inc it's own geo info", ~m(user community)a do
+      login_conn = simu_conn(:user, user)
+
+      variables = %{communityId: community.id}
+      _created = login_conn |> mutation_result(@subscribe_query, variables, "subscribeCommunity")
+      {:ok, community} = Community |> ORM.find(community.id)
+
+      geo_info_data = community.geo_info |> Map.get("data")
+      update_geo_city = geo_info_data |> Enum.find(fn g -> g["city"] == "成都" end)
+
+      assert update_geo_city["value"] == 1
+    end
+
     @unsubscribe_query """
     mutation($communityId: ID!){
       unsubscribeCommunity(communityId: $communityId) {
@@ -707,6 +746,30 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
 
       assert guest_conn
              |> mutation_get_error?(@unsubscribe_query, variables, ecode(:account_login))
+    end
+
+    test "unsubscribed community should dec it's own geo info", ~m(user community)a do
+      login_conn = simu_conn(:user, user)
+
+      variables = %{communityId: community.id}
+      _created = login_conn |> mutation_result(@subscribe_query, variables, "subscribeCommunity")
+      {:ok, community} = Community |> ORM.find(community.id)
+
+      geo_info_data = community.geo_info |> Map.get("data")
+      update_geo_city = geo_info_data |> Enum.find(fn g -> g["city"] == "成都" end)
+
+      assert update_geo_city["value"] == 1
+
+      variables = %{communityId: community.id}
+
+      login_conn |> mutation_result(@unsubscribe_query, variables, "unsubscribeCommunity")
+
+      {:ok, community} = Community |> ORM.find(community.id)
+
+      geo_info_data = community.geo_info |> Map.get("data")
+      update_geo_city = geo_info_data |> Enum.find(fn g -> g["city"] == "成都" end)
+
+      assert update_geo_city["value"] == 0
     end
   end
 

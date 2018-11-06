@@ -54,7 +54,7 @@ defmodule MastaniServer.Mixfile do
       {:phoenix, "~> 1.3.4"},
       {:phoenix_pubsub, "~> 1.1.0"},
       {:phoenix_ecto, "~> 3.4.0"},
-      {:ecto, "~> 2.2.10"},
+      {:ecto, "~> 2.2.11"},
       {:postgrex, ">= 0.13.5"},
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
@@ -84,11 +84,12 @@ defmodule MastaniServer.Mixfile do
       {:pre_commit, "~> 0.3.4"},
       {:inch_ex, "~> 1.0", only: [:dev, :test]},
       {:short_maps, "~> 0.1.1"},
-      {:jason, "~> 1.0"},
+      {:jason, "~> 1.1.1"},
       {:credo, "~> 0.10.0", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.2", only: [:dev, :mock], runtime: false},
       {:excoveralls, "~> 0.8", only: :test},
-      {:sentry, "~> 6.4"}
+      {:sentry, "~> 6.4"},
+      {:recase, "~> 0.3.0"}
     ]
   end
 

@@ -4,9 +4,10 @@ defmodule MastaniServer.CMS.Tag do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Author, Community, Job, Post, Video}
+  alias MastaniServer.CMS.{Author, Community, Topic, Job, Post, Video}
 
-  @required_fields ~w(thread title color author_id community_id)a
+  @required_fields ~w(thread title color author_id topic_id community_id)a
+  # @required_fields ~w(thread title color author_id  community_id)a
 
   @type t :: %Tag{}
   schema "tags" do
@@ -14,6 +15,7 @@ defmodule MastaniServer.CMS.Tag do
     field(:color, :string)
     field(:thread, :string)
     belongs_to(:community, Community)
+    belongs_to(:topic, Topic)
     belongs_to(:author, Author)
 
     many_to_many(
@@ -49,7 +51,7 @@ defmodule MastaniServer.CMS.Tag do
     |> validate_required(@required_fields)
     |> foreign_key_constraint(:user_id)
     |> foreign_key_constraint(:community_id)
-    |> unique_constraint(:tag_duplicate, name: :tags_community_id_thread_title_index)
+    |> unique_constraint(:tag_duplicate, name: :tags_community_id_thread_topic_id_title_index)
 
     # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)
   end

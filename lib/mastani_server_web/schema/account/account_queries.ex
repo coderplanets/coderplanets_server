@@ -15,7 +15,7 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
 
     @desc "get user by id"
     field :user, :user do
-      arg(:id, non_null(:id))
+      arg(:id, :id)
 
       resolve(&R.Accounts.user/3)
     end
@@ -60,7 +60,7 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
     end
 
     @desc "get favorites categoories"
-    field :list_favorite_categories, :paged_favorites_categories do
+    field :favorite_categories, :paged_favorites_categories do
       arg(:user_id, :id)
       arg(:filter, non_null(:common_paged_filter))
 
@@ -68,22 +68,167 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.list_favorite_categories/3)
     end
 
-    @desc "get favorited posts"
-    field :favorited_posts, :paged_posts do
-      arg(:user_id, :id)
+    @doc "paged stared posts"
+    field :stared_posts, :paged_posts do
+      arg(:user_id, non_null(:id))
       arg(:filter, non_null(:paged_filter))
+      arg(:thread, :post_thread, default_value: :post)
 
       middleware(M.PageSizeProof)
-      resolve(&R.Accounts.favorited_posts/3)
+      resolve(&R.Accounts.stared_contents/3)
+    end
+
+    @doc "paged stared jobs"
+    field :stared_jobs, :paged_jobs do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :job_thread, default_value: :job)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.stared_contents/3)
+    end
+
+    @doc "paged stared videos"
+    field :stared_videos, :paged_videos do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :video_thread, default_value: :video)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.stared_contents/3)
+    end
+
+    @desc "get favorited posts"
+    field :favorited_posts, :paged_posts do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:category_id, :id)
+      arg(:thread, :post_thread, default_value: :post)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.favorited_contents/3)
     end
 
     @desc "get favorited jobs"
     field :favorited_jobs, :paged_jobs do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:category_id, :id)
+      arg(:thread, :job_thread, default_value: :job)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.favorited_contents/3)
+    end
+
+    @desc "get favorited videos"
+    field :favorited_videos, :paged_videos do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:category_id, :id)
+      arg(:thread, :video_thread, default_value: :video)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.favorited_contents/3)
+    end
+
+    @desc "get favorited repos"
+    field :favorited_repos, :paged_repos do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:category_id, :id)
+      arg(:thread, :repo_thread, default_value: :repo)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.favorited_contents/3)
+    end
+
+    @desc "get paged published posts"
+    field :published_posts, :paged_posts do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :post_thread, default_value: :post)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.published_contents/3)
+    end
+
+    @desc "get paged published jobs"
+    field :published_jobs, :paged_jobs do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :job_thread, default_value: :job)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.published_contents/3)
+    end
+
+    @desc "get paged published videos"
+    field :published_videos, :paged_videos do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :video_thread, default_value: :video)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.published_contents/3)
+    end
+
+    @desc "get paged published repos"
+    field :published_repos, :paged_repos do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :repo_thread, default_value: :repo)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.published_contents/3)
+    end
+
+    @desc "get paged published comments on post"
+    field :published_post_comments, :paged_post_comments do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :post_thread, default_value: :post)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.published_comments/3)
+    end
+
+    @desc "get paged published comments on job"
+    field :published_job_comments, :paged_job_comments do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :job_thread, default_value: :job)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.published_comments/3)
+    end
+
+    @desc "get paged published comments on video"
+    field :published_video_comments, :paged_video_comments do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :video_thread, default_value: :video)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.published_comments/3)
+    end
+
+    @desc "get paged published comments on repo"
+    field :published_repo_comments, :paged_repo_comments do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :repo_thread, default_value: :repo)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.published_comments/3)
+    end
+
+    @desc "paged communities which the user it's the editor"
+    field :editable_communities, :paged_communities do
       arg(:user_id, :id)
       arg(:filter, non_null(:paged_filter))
 
       middleware(M.PageSizeProof)
-      resolve(&R.Accounts.favorited_jobs/3)
+      resolve(&R.Accounts.editable_communities/3)
     end
 
     @desc "get all passport rules include system and community etc ..."

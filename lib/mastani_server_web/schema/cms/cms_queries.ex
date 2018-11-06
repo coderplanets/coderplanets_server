@@ -5,6 +5,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
   use Helper.GqlSchemaSuite
 
   object :cms_queries do
+    @desc "spec community info"
     field :community, :community do
       # arg(:id, non_null(:id))
       arg(:id, :id)
@@ -39,6 +40,14 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.community_editors/3)
     end
 
+    @desc "get community geo cities info"
+    field :community_geo_info, list_of(:geo_info) do
+      arg(:id, non_null(:id))
+      arg(:raw, :id)
+
+      resolve(&R.CMS.community_geo_info/3)
+    end
+
     @desc "get all categories"
     field :paged_categories, :paged_categories do
       arg(:filter, :paged_filter)
@@ -63,7 +72,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
     @desc "get paged posts"
     field :paged_posts, :paged_posts do
-      arg(:filter, non_null(:paged_article_filter))
+      arg(:filter, non_null(:paged_posts_filter))
 
       middleware(M.PageSizeProof)
       resolve(&R.CMS.paged_posts/3)
@@ -97,6 +106,18 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.paged_repos/3)
     end
 
+    @desc "get wiki by community raw name"
+    field :wiki, non_null(:wiki) do
+      arg(:community, :string)
+      resolve(&R.CMS.wiki/3)
+    end
+
+    @desc "get cheatsheet by community raw name"
+    field :cheatsheet, non_null(:cheatsheet) do
+      arg(:community, :string)
+      resolve(&R.CMS.cheatsheet/3)
+    end
+
     @desc "get job by id"
     field :job, non_null(:job) do
       arg(:id, non_null(:id))
@@ -111,17 +132,19 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.paged_jobs/3)
     end
 
-    field :favorite_users, :paged_users do
+    @desc "get paged users of a reaction related to cms content"
+    field :reaction_users, :paged_users do
       arg(:id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
-      arg(:action, :favorite_action, default_value: :favorite)
-      arg(:filter, :paged_article_filter)
+      arg(:thread, :react_thread, default_value: :post)
+      arg(:action, non_null(:react_action))
+      arg(:filter, non_null(:paged_filter))
 
       middleware(M.PageSizeProof)
       resolve(&R.CMS.reaction_users/3)
     end
 
     # get all tags
+    @desc "get paged tags"
     field :paged_tags, :paged_tags do
       arg(:filter, non_null(:paged_filter))
 
@@ -144,6 +167,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:community_id, :id)
       arg(:community, :string)
       arg(:thread, :cms_thread, default_value: :post)
+      arg(:topic, :string)
 
       resolve(&R.CMS.get_tags/3)
     end
@@ -158,7 +182,18 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.paged_comments/3)
     end
 
+    @desc "get paged comments participators"
+    field :paged_comments_participators, :paged_users do
+      arg(:id, non_null(:id))
+      arg(:thread, :cms_thread, default_value: :post)
+      arg(:filter, :paged_filter)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.CMS.paged_comments_participators/3)
+    end
+
     # comments
+    # TODO: remove
     field :comments, :paged_comments do
       arg(:id, non_null(:id))
       arg(:thread, :cms_thread, default_value: :post)

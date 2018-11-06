@@ -60,22 +60,6 @@ defmodule MastaniServer.Test.Query.Post do
   @query """
   query($id: ID!) {
     post(id: $id) {
-      views
-    }
-  }
-  """
-  test "views should +1 after query the post", ~m(user_conn post)a do
-    variables = %{id: post.id}
-    views_1 = user_conn |> query_result(@query, variables, "post") |> Map.get("views")
-
-    variables = %{id: post.id}
-    views_2 = user_conn |> query_result(@query, variables, "post") |> Map.get("views")
-    assert views_2 == views_1 + 1
-  end
-
-  @query """
-  query($id: ID!) {
-    post(id: $id) {
       id
       title
       body
@@ -118,5 +102,44 @@ defmodule MastaniServer.Test.Query.Post do
   test "unlogged user can not query viewerHasStarred field", ~m(guest_conn post)a do
     variables = %{id: post.id}
     assert guest_conn |> query_get_error?(@query, variables, ecode(:account_login))
+  end
+
+  alias MastaniServer.Accounts
+
+  @query """
+  query($id: ID!) {
+    post(id: $id) {
+      id
+      favoritedCategoryId
+      pagedCommentsParticipators {
+        entries {
+          id
+        }
+        totalCount
+      }
+    }
+  }
+  """
+  test "login user can get nil post favorited category id", ~m(post)a do
+    {:ok, user} = db_insert(:user)
+    user_conn = simu_conn(:user, user)
+
+    variables = %{id: post.id}
+    result = user_conn |> query_result(@query, variables, "post")
+    assert result["favoritedCategoryId"] == nil
+  end
+
+  test "login user can get post favorited category id after favorited", ~m(post)a do
+    {:ok, user} = db_insert(:user)
+    user_conn = simu_conn(:user, user)
+
+    test_category = "test category"
+    {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
+    {:ok, _favorite_category} = Accounts.set_favorites(user, :post, post.id, category.id)
+
+    variables = %{id: post.id}
+    result = user_conn |> query_result(@query, variables, "post")
+
+    assert result["favoritedCategoryId"] == to_string(category.id)
   end
 end

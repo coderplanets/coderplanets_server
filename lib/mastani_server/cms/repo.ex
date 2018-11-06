@@ -4,38 +4,58 @@ defmodule MastaniServer.CMS.Repo do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias MastaniServer.CMS.{Author, Community, RepoBuilder, RepoCommunityFlag, Tag}
 
-  @required_fields ~w(repo_name desc readme language producer producer_link repo_link repo_star_count repo_fork_count repo_watch_count)a
-  @optional_fields ~w(views last_fetch_time)
+  alias MastaniServer.CMS.{
+    Author,
+    Community,
+    RepoComment,
+    RepoContributor,
+    RepoFavorite,
+    RepoViewer,
+    RepoLang,
+    RepoCommunityFlag,
+    Tag
+  }
+
+  @required_fields ~w(title owner_name owner_url repo_url desc readme star_count issues_count prs_count fork_count watch_count)a
+  @optional_fields ~w(last_sync homepage_url release_tag license)
 
   @type t :: %Repo{}
   schema "cms_repos" do
-    field(:repo_name, :string)
+    field(:title, :string)
+    field(:owner_name, :string)
+    field(:owner_url, :string)
+    field(:repo_url, :string)
+
     field(:desc, :string)
+    field(:homepage_url, :string)
     field(:readme, :string)
-    field(:language, :string)
-    belongs_to(:author, Author)
 
-    field(:repo_link, :string)
-    field(:producer, :string)
-    field(:producer_link, :string)
+    field(:star_count, :integer)
+    field(:issues_count, :integer)
+    field(:prs_count, :integer)
+    field(:fork_count, :integer)
+    field(:watch_count, :integer)
 
-    field(:repo_star_count, :integer)
-    field(:repo_fork_count, :integer)
-    field(:repo_watch_count, :integer)
+    field(:license, :string)
+    field(:release_tag, :string)
+    embeds_one(:primary_language, RepoLang, on_replace: :delete)
+
+    embeds_many(:contributors, RepoContributor, on_replace: :delete)
 
     field(:views, :integer, default: 0)
-
+    belongs_to(:author, Author)
     has_many(:community_flags, {"repos_communities_flags", RepoCommunityFlag})
 
     # NOTE: this one is tricky, pin is dynamic changed when return by func: add_pin_contents_ifneed
     field(:pin, :boolean, default_value: false)
     field(:trash, :boolean, default_value: false)
 
-    field(:last_fetch_time, :utc_datetime)
-    # TODO: replace RepoBuilder with paged user map
-    has_many(:builders, {"repos_builders", RepoBuilder})
+    field(:last_sync, :utc_datetime)
+
+    has_many(:comments, {"repos_comments", RepoComment})
+    has_many(:favorites, {"repos_favorites", RepoFavorite})
+    has_many(:viewers, {"repos_viewers", RepoViewer})
 
     many_to_many(
       :tags,
@@ -60,9 +80,8 @@ defmodule MastaniServer.CMS.Repo do
   def changeset(%Repo{} = repo, attrs) do
     repo
     |> cast(attrs, @optional_fields ++ @required_fields)
+    |> cast_embed(:contributors, with: &RepoContributor.changeset/2)
+    |> cast_embed(:primary_language, with: &RepoLang.changeset/2)
     |> validate_required(@required_fields)
-
-    # |> foreign_key_constraint(:posts_tags, name: :posts_tags_tag_id_fkey)
-    # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)
   end
 end
