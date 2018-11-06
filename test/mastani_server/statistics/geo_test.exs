@@ -1,11 +1,11 @@
 defmodule MastaniServer.Test.Statistics.Geo do
   use MastaniServer.TestTools
 
-  alias Helper.ORM
+  alias Helper.{ORM, GeoPool}
   alias MastaniServer.{Statistics}
 
   setup do
-    insert_geo_data()
+    GeoPool.insert_geo_data()
 
     # {:ok, ~m(user_conn guest_conn community)a}
   end

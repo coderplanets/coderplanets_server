@@ -1,11 +1,12 @@
 defmodule MastaniServer.Test.Query.Statistics do
   use MastaniServer.TestTools
 
+  alias Helper.GeoPool
   alias MastaniServer.Accounts.User
   alias MastaniServer.Statistics
 
   setup do
-    insert_geo_data()
+    GeoPool.insert_geo_data()
 
     {:ok, user} = db_insert(:user)
     guest_conn = simu_conn(:guest)
