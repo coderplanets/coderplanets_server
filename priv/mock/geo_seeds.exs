@@ -1,3 +1,3 @@
-import MastaniServer.Support.Factory
+alias Helper.GeoPool
 
-insert_geo_data()
+GeoPool.insert_geo_data()
