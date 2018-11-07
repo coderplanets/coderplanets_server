@@ -25,7 +25,7 @@ defmodule Helper.RadarSearch do
   end
 
   # http://ip.yqie.com/search.aspx?searchword=%E6%88%90%E9%83%BD%E5%B8%82
-  def locate_city(ip) do
+  def locate_city(ip) when is_tuple(ip) and tuple_size(ip) == 4 do
     query = [ip: ip, key: @ip_service_key]
 
     with true <- Mix.env() !== :test do
@@ -42,6 +42,9 @@ defmodule Helper.RadarSearch do
         # {:error, "error"}
     end
   end
+
+  # not valid io, just ignore it
+  def locate_city(_ip), do:  {:error, "invalid ip"}
 
   defp handle_result({:ok, result}) do
     case result do
