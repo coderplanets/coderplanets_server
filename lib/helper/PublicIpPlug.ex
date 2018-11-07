@@ -9,7 +9,7 @@ defmodule Helper.PublicIpPlug do
   def call(%{assigns: %{ip: _}} = conn, _opts), do: conn
 
   def call(conn, _opts) do
-    process(conn, Plug.Conn.get_req_header(conn, "x-forwarded-for"))
+    process(conn, Plug.Conn.get_req_header(conn, "X-Forwarded-For"))
   end
 
   def process(conn, []) do
