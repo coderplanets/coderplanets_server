@@ -41,9 +41,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   end
 
   def github_signin(_root, %{github_user: github_user}, %{context: %{remote_ip: remote_ip}}) do
-    IO.inspect(github_user, label: "github_signin resolver github_user")
-    IO.inspect(remote_ip, label: "github_signin resolver remote_ip")
-    Accounts.github_signin(github_user, remote_ip)
+    Accounts.github_signin(github_user, remote_ip) |> IO.inspect(label: "signin done")
   end
 
   def get_customization(_root, _args, %{context: %{cur_user: cur_user}}) do
