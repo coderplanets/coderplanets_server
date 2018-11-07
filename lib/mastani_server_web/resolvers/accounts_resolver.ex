@@ -22,12 +22,12 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   def users(_root, ~m(filter)a, _info), do: User |> ORM.find_all(filter)
 
   def session_state(_root, _args, %{context: %{cur_user: cur_user}}) do
-    IO.inspect cur_user, label: "session_state ok"
+    IO.inspect(cur_user, label: "session_state ok")
     {:ok, %{is_valid: true, user: cur_user}}
   end
 
-  def session_state(_root, _args, _info)  do
-    IO.inspect "ii", label: "session_state error"
+  def session_state(_root, _args, _info) do
+    IO.inspect("ii", label: "session_state error")
     {:ok, %{is_valid: false}}
   end
 
