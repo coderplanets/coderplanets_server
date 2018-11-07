@@ -40,17 +40,10 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.update_profile(%User{id: cur_user.id}, profile)
   end
 
-  def github_signin(_root, %{github_user: github_user}, %{remote_ip: remote_ip}) do
+  def github_signin(_root, %{github_user: github_user}, %{context: %{remote_ip: remote_ip}}) do
     IO.inspect(github_user, label: "github_signin resolver github_user")
     IO.inspect(remote_ip, label: "github_signin resolver remote_ip")
     Accounts.github_signin(github_user, remote_ip)
-  end
-
-  def github_signin(_root, args, info) do
-    IO.inspect(args, label: "github_signin -- resolver args")
-    IO.inspect(info.context, label: "github_signin -- resolver info.context")
-    # Accounts.github_signin(github_user, remote_ip)
-    {:error, "fuck"}
   end
 
   def get_customization(_root, _args, %{context: %{cur_user: cur_user}}) do
