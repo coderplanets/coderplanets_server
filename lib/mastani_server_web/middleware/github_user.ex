@@ -5,7 +5,7 @@ defmodule MastaniServerWeb.Middleware.GithubUser do
   alias Helper.OAuth2.Github
 
   def call(%{arguments: %{code: code}} = resolution, _) do
-    IO.inspect(token, label: "GithubUser middleware code")
+    IO.inspect(code, label: "GithubUser middleware code")
 
     case Github.user_profile(code) do
       {:ok, user} ->
