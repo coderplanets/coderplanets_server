@@ -45,6 +45,10 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.github_signin(github_user, remote_ip)
   end
 
+  def github_signin(_root, %{github_user: github_user}, _info) do
+    Accounts.github_signin(github_user)
+  end
+
   def get_customization(_root, _args, %{context: %{cur_user: cur_user}}) do
     Accounts.get_customization(cur_user)
   end

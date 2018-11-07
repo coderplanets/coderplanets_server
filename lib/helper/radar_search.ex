@@ -25,7 +25,7 @@ defmodule Helper.RadarSearch do
   end
 
   # http://ip.yqie.com/search.aspx?searchword=%E6%88%90%E9%83%BD%E5%B8%82
-  def locate_city(ip) when is_tuple(ip) and tuple_size(ip) == 4 do
+  def locate_city(ip) do
     query = [ip: ip, key: @ip_service_key]
 
     with true <- Mix.env() !== :test do

@@ -105,9 +105,6 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   end
 
   defp register_github_result({:ok, %{create_user: user}}, remote_ip) do
-    IO.inspect(remote_ip, label: "register_github_result ")
-
-    # ignore error
     case RadarSearch.locate_city(remote_ip) do
       {:ok, city} ->
         update_profile(user, %{geo_city: city})
