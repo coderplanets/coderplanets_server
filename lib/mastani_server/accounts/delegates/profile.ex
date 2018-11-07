@@ -53,6 +53,9 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   step 3: return mastani token
   """
   def github_signin(github_user, remote_ip \\ "127.0.0.1") do
+    IO.inspect remote_ip, label: "delegates github_signin remote_ip"
+    IO.inspect github_user, label: "delegates github_signin github_user"
+
     case ORM.find_by(GithubUser, github_id: to_string(github_user["id"])) do
       {:ok, g_user} ->
         {:ok, user} = ORM.find(User, g_user.user_id)
@@ -102,6 +105,8 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   end
 
   defp register_github_result({:ok, %{create_user: user}}, remote_ip) do
+    IO.inspect remote_ip, label: "register_github_result "
+
     # ignore error
     case RadarSearch.locate_city(remote_ip) do
       {:ok, city} ->
