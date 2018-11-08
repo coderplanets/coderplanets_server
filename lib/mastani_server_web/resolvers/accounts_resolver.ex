@@ -5,7 +5,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   import ShortMaps
   import Helper.ErrorCode
 
-  alias Helper.{Certification, ORM}
+  alias Helper.{Certification, ORM, RadarSearch}
   alias MastaniServer.{Accounts, CMS}
 
   alias Accounts.{MentionMail, NotificationMail, SysNotificationMail, User}
@@ -23,8 +23,8 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
 
   def session_state(_root, _args, %{context: %{cur_user: cur_user, remote_ip: remote_ip}}) do
     city = RadarSearch.locate_city(remote_ip)
-    IO.inspect remote_ip, label: "hello session_state remote_ip"
-    IO.inspect city, label: "hello session_state"
+    IO.inspect(remote_ip, label: "hello session_state remote_ip")
+    IO.inspect(city, label: "hello session_state")
     # case RadarSearch.locate_city(remote_ip) do
     # {:ok, city} ->
     # update_profile(user, %{geo_city: city})

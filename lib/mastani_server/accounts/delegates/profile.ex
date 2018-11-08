@@ -6,7 +6,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   import Helper.Utils, only: [done: 1, get_config: 2]
   import ShortMaps
 
-  alias Helper.{RadarSearch, Guardian, ORM, QueryBuilder}
+  alias Helper.{Guardian, ORM, QueryBuilder}
   alias MastaniServer.Accounts.{Achievement, GithubUser, User}
   alias MastaniServer.{CMS, Repo}
 
