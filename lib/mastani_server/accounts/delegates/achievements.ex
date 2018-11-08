@@ -100,15 +100,12 @@ defmodule MastaniServer.Accounts.Delegate.Achievements do
   end
 
   # def achieve(%User{} = _user, :+, :watch) do
-  # IO.inspect("acheiveements add :conent_watched")
   # end
 
   # def achieve(%User{} = _user, :+, key) do
-  # IO.inspect("acheiveements add #{key}")
   # end
 
   # def achieve(%User{} = _user, :-, _key) do
-  # IO.inspect("acheiveements plus")
   # end
 
   @doc """

@@ -5,16 +5,12 @@ defmodule MastaniServerWeb.Middleware.GithubUser do
   alias Helper.OAuth2.Github
 
   def call(%{arguments: %{code: code}} = resolution, _) do
-    IO.inspect(code, label: "in GithubUser middleware , code")
-
     case Github.user_profile(code) do
       {:ok, user} ->
         arguments = resolution.arguments |> Map.merge(%{github_user: user})
         %{resolution | arguments: arguments}
 
       {:error, err_msg} ->
-        IO.inspect(err_msg, label: "user_profile error")
-
         resolution
         |> handle_absinthe_error(err_msg)
     end

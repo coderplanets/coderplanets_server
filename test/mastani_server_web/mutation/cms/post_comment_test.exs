@@ -61,7 +61,6 @@ defmodule MastaniServer.Test.Mutation.PostComment do
       deleted =
         user_conn |> mutation_result(@delete_comment_query, %{id: created["id"]}, "deleteComment")
 
-      # IO.inspect deleted, label: "deleted"
       assert deleted["id"] == created["id"]
     end
 

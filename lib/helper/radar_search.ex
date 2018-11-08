@@ -30,12 +30,10 @@ defmodule Helper.RadarSearch do
   # http://ip.yqie.com/search.aspx?searchword=%E6%88%90%E9%83%BD%E5%B8%82
   def locate_city(ip) do
     query = [ip: ip, key: get_config(:radar_search, :ip_service)]
-    IO.inspect(ip, label: "locate_city ip")
 
     with true <- Mix.env() !== :test do
       case get(@endpoint, query: query) do
         %{status: 200, body: %{"city" => city}} ->
-          IO.inspect(city, label: "get city")
           handle_result({:ok, city})
 
         _error ->
