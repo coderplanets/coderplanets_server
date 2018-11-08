@@ -6,7 +6,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   import Helper.Utils, only: [done: 1, get_config: 2]
   import ShortMaps
 
-  alias Helper.{Guardian, ORM, QueryBuilder}
+  alias Helper.{Guardian, ORM, QueryBuilder, RadarSearch}
   alias MastaniServer.Accounts.{Achievement, GithubUser, User}
   alias MastaniServer.{CMS, Repo}
 
@@ -41,6 +41,21 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
       end
 
     changeset |> User.update_changeset(attrs) |> Repo.update()
+  end
+
+  def update_geo(%User{geo_city: geo_city} = user, remote_ip) when is_nil(geo_city) do
+    case RadarSearch.locate_city(remote_ip) do
+      {:ok, city} ->
+        IO.inspect city, label: "do update"
+        update_profile(user, %{geo_city: city})
+
+      {:error, _} ->
+        {:ok, "pass"}
+    end
+  end
+
+  def update_geo(_user, _remote_ip) do
+    {:ok, "pass"}
   end
 
   @doc """

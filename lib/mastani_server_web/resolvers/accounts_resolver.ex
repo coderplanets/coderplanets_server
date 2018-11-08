@@ -25,14 +25,8 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     IO.inspect(remote_ip, label: "hello session_state remote_ip")
     IO.inspect(cur_user, label: "hello session_state cur_user")
 
-    city = RadarSearch.locate_city(remote_ip)
-    IO.inspect(city, label: "hello session_state")
-    # case RadarSearch.locate_city(remote_ip) do
-    # {:ok, city} ->
-    # update_profile(user, %{geo_city: city})
-    # {:error, _} ->
-    # {:ok, "pass"}
-    # end
+    hello = Accounts.update_geo(cur_user, remote_ip)
+    IO.inspect hello, label: "afteri"
 
     {:ok, %{is_valid: true, user: cur_user}}
   end
