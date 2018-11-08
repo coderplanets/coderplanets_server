@@ -32,17 +32,19 @@ defmodule Helper.RadarSearch do
   def locate_city(ip) do
     query = [ip: ip, key: @ip_service_key]
     IO.inspect(ip, label: "locate_city ip")
+    IO.inspect(@ip_service_key, label: "@ip_service_key")
 
     with true <- Mix.env() !== :test do
-      IO.inspect @endpoint, label: "before get"
-      IO.inspect query, label: "before get query"
+      IO.inspect(@endpoint, label: "before get")
+      IO.inspect(query, label: "before get query")
+
       case get(@endpoint, query: query) do
-        %{status: 200, body: body} ->
-          IO.inspect body, label: "get city"
-          handle_result({:ok, body["city"]})
+        %{status: 200, body: %{"city" => city }} ->
+          IO.inspect(city, label: "get city")
+          handle_result({:ok, city})
 
         error ->
-          IO.inspect error, label: "get city error"
+          IO.inspect(error, label: "get city error")
           {:error, "error"}
       end
     else
