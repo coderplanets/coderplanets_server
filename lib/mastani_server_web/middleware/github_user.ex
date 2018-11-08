@@ -9,7 +9,6 @@ defmodule MastaniServerWeb.Middleware.GithubUser do
 
     case Github.user_profile(code) do
       {:ok, user} ->
-        IO.inspect(user, label: "user_profile")
         arguments = resolution.arguments |> Map.merge(%{github_user: user})
         %{resolution | arguments: arguments}
 
