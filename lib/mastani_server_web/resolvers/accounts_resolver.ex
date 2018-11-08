@@ -21,6 +21,20 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
 
   def users(_root, ~m(filter)a, _info), do: User |> ORM.find_all(filter)
 
+  def session_state(_root, _args, %{context: %{cur_user: cur_user, remote_ip: remote_ip}}) do
+    city = RadarSearch.locate_city(remote_ip)
+    IO.inspect remote_ip, label: "hello session_state remote_ip"
+    IO.inspect city, label: "hello session_state"
+    # case RadarSearch.locate_city(remote_ip) do
+    # {:ok, city} ->
+    # update_profile(user, %{geo_city: city})
+    # {:error, _} ->
+    # {:ok, "pass"}
+    # end
+
+    {:ok, %{is_valid: true, user: cur_user}}
+  end
+
   def session_state(_root, _args, %{context: %{cur_user: cur_user}}) do
     {:ok, %{is_valid: true, user: cur_user}}
   end

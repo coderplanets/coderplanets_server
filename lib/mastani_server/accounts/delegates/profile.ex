@@ -52,8 +52,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   step 2.2: if access_token's github_id not exsit, then signup
   step 3: return mastani token
   """
-  def github_signin(github_user, remote_ip \\ :localhost) do
-    IO.inspect(remote_ip, label: "delegates github_signin remote_ip")
+  def github_signin(github_user) do
     IO.inspect(github_user, label: "delegates github_signin github_user")
 
     case ORM.find_by(GithubUser, github_id: to_string(github_user["id"])) do
@@ -62,7 +61,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
         token_info(user)
 
       {:error, _} ->
-        register_github_user(github_user, remote_ip)
+        register_github_user(github_user)
     end
   end
 
@@ -89,7 +88,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
     |> done()
   end
 
-  defp register_github_user(github_profile, remote_ip) do
+  defp register_github_user(github_profile) do
     Multi.new()
     |> Multi.run(:create_user, fn _ ->
       create_user(github_profile, :github)
@@ -101,19 +100,10 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
       Achievement |> ORM.upsert_by([user_id: user.id], %{user_id: user.id})
     end)
     |> Repo.transaction()
-    |> register_github_result(remote_ip)
+    |> register_github_result
   end
 
-  defp register_github_result({:ok, %{create_user: user}}, remote_ip) do
-    case RadarSearch.locate_city(remote_ip) do
-      {:ok, city} ->
-        update_profile(user, %{geo_city: city})
-
-      # IO.inspect("location search error")
-      {:error, _} ->
-        {:ok, "pass"}
-    end
-
+  defp register_github_result({:ok, %{create_user: user}}) do
     token_info(user)
   end
 
