@@ -55,13 +55,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.update_profile(%User{id: cur_user.id}, profile)
   end
 
-  def github_signin(_root, %{github_user: github_user}, %{context: %{remote_ip: remote_ip}}) do
-    IO.inspect(remote_ip, label: "resolver passed remote_ip")
-    Accounts.github_signin(github_user, remote_ip)
-  end
-
-  def github_signin(_root, %{github_user: github_user}, info) do
-    IO.inspect(info.context, label: "resolver passed without remote_ip")
+  def github_signin(_root, %{github_user: github_user}, _info) do
     Accounts.github_signin(github_user)
   end
 
