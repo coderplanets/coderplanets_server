@@ -54,7 +54,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   """
   def github_signin(github_user, remote_ip \\ :localhost) do
     IO.inspect(remote_ip, label: "delegates github_signin remote_ip")
-    IO.inspect(github_user, label: "delegates github_signin github_user")
+    IO.inspect(github_user.bio, label: "delegates github_signin github_user")
 
     case ORM.find_by(GithubUser, github_id: to_string(github_user["id"])) do
       {:ok, g_user} ->

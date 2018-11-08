@@ -42,6 +42,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   end
 
   def github_signin(_root, %{github_user: github_user}, %{context: %{remote_ip: remote_ip}}) do
+    IO.inspect remote_ip, label: "resolver passed remote_ip"
     Accounts.github_signin(github_user, remote_ip)
   end
 
