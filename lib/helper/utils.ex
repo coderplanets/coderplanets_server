@@ -18,6 +18,13 @@ defmodule Helper.Utils do
   end
 
   def get_config(section, key, app) do
+    IO.inspect section, label: "get_config section"
+    IO.inspect key, label: "get_config key"
+    IO.inspect app, label: "get_config app"
+
+    fuck = Application.get_env(app, section)
+    IO.inspect fuck, label: "hello Application.get_env"
+
     app
     |> Application.get_env(section)
     |> case do
