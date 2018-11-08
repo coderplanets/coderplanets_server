@@ -36,6 +36,7 @@ defmodule Helper.RadarSearch do
     IO.inspect(ip, label: "locate_city ip")
     IO.inspect(@ip_service_key, label: "@ip_service_key")
     IO.inspect(@fuck, label: "@@fuck")
+    IO.inspect(get_config(:radar_search, :ip_service), label: "get config")
 
     with true <- Mix.env() !== :test do
       case get(@endpoint, query: query) do
