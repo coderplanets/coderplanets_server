@@ -23,6 +23,8 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
 
   def session_state(_root, _args, %{context: %{cur_user: cur_user, remote_ip: remote_ip}}) do
     IO.inspect(remote_ip, label: "hello session_state remote_ip")
+    IO.inspect(cur_user, label: "hello session_state cur_user")
+
     city = RadarSearch.locate_city(remote_ip)
     IO.inspect(city, label: "hello session_state")
     # case RadarSearch.locate_city(remote_ip) do
