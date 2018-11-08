@@ -8,6 +8,8 @@ defmodule Helper.RadarSearch do
 
   @endpoint "https://restapi.amap.com/v3/ip"
   @ip_service_key get_config(:radar_search, :ip_service)
+
+  @fuck get_config(:github_oauth, :client_id)
   @timeout_limit 5000
 
   # plug(Tesla.Middleware.BaseUrl, "https://restapi.amap.com/v3/ip")
@@ -33,6 +35,7 @@ defmodule Helper.RadarSearch do
     query = [ip: ip, key: @ip_service_key]
     IO.inspect(ip, label: "locate_city ip")
     IO.inspect(@ip_service_key, label: "@ip_service_key")
+    IO.inspect(@fuck, label: "@@fuck")
 
     with true <- Mix.env() !== :test do
       case get(@endpoint, query: query) do
