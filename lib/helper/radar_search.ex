@@ -31,14 +31,18 @@ defmodule Helper.RadarSearch do
   # http://ip.yqie.com/search.aspx?searchword=%E6%88%90%E9%83%BD%E5%B8%82
   def locate_city(ip) do
     query = [ip: ip, key: @ip_service_key]
-    IO.inspect ip, label: "locate_city ip"
+    IO.inspect(ip, label: "locate_city ip")
 
     with true <- Mix.env() !== :test do
+      IO.inspect @endpoint, label: "before get"
+      IO.inspect query, label: "before get query"
       case get(@endpoint, query: query) do
         %{status: 200, body: body} ->
+          IO.inspect body, label: "get city"
           handle_result({:ok, body["city"]})
 
-        _ ->
+        error ->
+          IO.inspect error, label: "get city error"
           {:error, "error"}
       end
     else
