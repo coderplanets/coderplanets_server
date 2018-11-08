@@ -83,6 +83,9 @@ config :mastani_server, :github_oauth,
   client_id: System.get_env("OAUTH_GITHUB_CLIENT_ID"),
   client_secret: System.get_env("OAUTH_GITHUB_CLIENT_SECRET")
 
+config :mastani_server, :radar_search,
+  ip_service: System.get_env("IP_LOCATE_KEY")
+
 config :sentry,
   dsn: System.get_env("SENTRY_DSN"),
   environment_name: :prod,

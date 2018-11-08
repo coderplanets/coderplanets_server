@@ -35,23 +35,19 @@ defmodule Helper.RadarSearch do
     IO.inspect(@ip_service_key, label: "@ip_service_key")
 
     with true <- Mix.env() !== :test do
-      IO.inspect(@endpoint, label: "before get")
-      IO.inspect(query, label: "before get query")
-
       case get(@endpoint, query: query) do
-        %{status: 200, body: %{"city" => city }} ->
+        %{status: 200, body: %{"city" => city}} ->
           IO.inspect(city, label: "get city")
           handle_result({:ok, city})
 
-        error ->
-          IO.inspect(error, label: "get city error")
+        _error ->
           {:error, "error"}
       end
     else
       _ ->
         # NOTE: this only for test usage
+        # error is ignored, just check next time
         {:ok, "成都"}
-        # {:error, "error"}
     end
   end
 
