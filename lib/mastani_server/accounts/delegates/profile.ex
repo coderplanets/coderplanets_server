@@ -52,7 +52,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   step 2.2: if access_token's github_id not exsit, then signup
   step 3: return mastani token
   """
-  def github_signin(github_user, remote_ip \\ "127.0.0.1") do
+  def github_signin(github_user, remote_ip \\ :localhost) do
     IO.inspect(remote_ip, label: "delegates github_signin remote_ip")
     IO.inspect(github_user, label: "delegates github_signin github_user")
 

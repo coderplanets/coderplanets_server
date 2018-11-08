@@ -24,6 +24,10 @@ defmodule Helper.RadarSearch do
     {:error, "not found"}
   end
 
+  def locate_city(:localhost) do
+    {:error, "localhost"}
+  end
+
   # http://ip.yqie.com/search.aspx?searchword=%E6%88%90%E9%83%BD%E5%B8%82
   def locate_city(ip) do
     query = [ip: ip, key: @ip_service_key]
