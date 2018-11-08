@@ -68,7 +68,6 @@ defmodule MastaniServer.Test.Mutation.Delivery do
         sourceType: "post"
       }
 
-      # IO.inspect variables, label: "variables"
       %{"done" => true} =
         rule_conn |> mutation_result(@query, variables, "publishSystemNotification")
 
@@ -153,7 +152,6 @@ defmodule MastaniServer.Test.Mutation.Delivery do
         userId: user2.id
       }
 
-      # IO.inspect variables, label: "variables"
       user_conn |> mutation_result(@query, variables, "mentionSomeone")
       filter = %{page: 1, size: 20, read: false}
       {:ok, mentions} = Accounts.fetch_mentions(user2, filter)
@@ -228,7 +226,6 @@ defmodule MastaniServer.Test.Mutation.Delivery do
       variables = %{filter: %{page: 1, size: 20, read: false}}
       result = user_conn |> query_result(@account_query, variables, "user")
       mentions = result["mentions"]
-      # IO.inspect mentions, label: "mentions"
       assert mentions["totalCount"] == 3
 
       user_conn |> mutation_result(@query, %{}, "markMentionReadAll")

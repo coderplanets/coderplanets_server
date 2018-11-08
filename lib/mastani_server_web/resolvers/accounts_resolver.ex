@@ -22,12 +22,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   def users(_root, ~m(filter)a, _info), do: User |> ORM.find_all(filter)
 
   def session_state(_root, _args, %{context: %{cur_user: cur_user, remote_ip: remote_ip}}) do
-    IO.inspect(remote_ip, label: "hello session_state remote_ip")
-    IO.inspect(cur_user, label: "hello session_state cur_user")
-
-    hello = Accounts.update_geo(cur_user, remote_ip)
-    IO.inspect hello, label: "afteri"
-
+    Accounts.update_geo(cur_user, remote_ip)
     {:ok, %{is_valid: true, user: cur_user}}
   end
 

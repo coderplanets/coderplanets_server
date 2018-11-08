@@ -71,7 +71,6 @@ defmodule MastaniServer.Test.Delivery.SysNotification do
       {:ok, sys_notifications} = Accounts.fetch_sys_notifications(user, filter)
       {:ok, record} = Delivery.fetch_record(user)
 
-      # IO.inspect sys_notifications, label: "sys_notifications"
       latest_insert_time =
         sys_notifications.entries |> List.first() |> Map.get(:inserted_at) |> to_string
 

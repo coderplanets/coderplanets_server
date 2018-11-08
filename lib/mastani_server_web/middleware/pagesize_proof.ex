@@ -17,9 +17,6 @@ defmodule MastaniServerWeb.Middleware.PageSizeProof do
   def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
 
   def call(resolution, _) do
-    # IO.inspect resolution.arguments, label: "resolution arguments"
-    # IO.inspect valid_size(resolution.arguments), label: "valid_size"
-
     case valid_size(resolution.arguments) do
       {:error, msg} ->
         resolution |> handle_absinthe_error(msg, ecode(:pagination))

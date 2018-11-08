@@ -243,7 +243,6 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
 
     test "auth user create duplicate tag fails", ~m(community)a do
       variables = mock_attrs(:tag, %{communityId: community.id})
-      # IO.inspect variables, label: "hello variables"
 
       passport_rules = %{community.title => %{"post.tag.create" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)

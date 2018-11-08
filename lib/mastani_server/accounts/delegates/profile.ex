@@ -46,7 +46,6 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   def update_geo(%User{geo_city: geo_city} = user, remote_ip) when is_nil(geo_city) do
     case RadarSearch.locate_city(remote_ip) do
       {:ok, city} ->
-        IO.inspect city, label: "do update"
         update_profile(user, %{geo_city: city})
 
       {:error, _} ->
@@ -68,8 +67,6 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   step 3: return mastani token
   """
   def github_signin(github_user) do
-    IO.inspect(github_user, label: "delegates github_signin github_user")
-
     case ORM.find_by(GithubUser, github_id: to_string(github_user["id"])) do
       {:ok, g_user} ->
         {:ok, user} = ORM.find(User, g_user.user_id)

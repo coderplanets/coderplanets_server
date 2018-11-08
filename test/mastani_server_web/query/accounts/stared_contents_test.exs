@@ -41,7 +41,6 @@ defmodule MastaniServer.Test.Query.Accounts.StaredContents do
 
       variables = %{filter: %{page: 1, size: 20}}
       results = user_conn |> query_result(@query, variables, "user")
-      # IO.inspect results, label: "hello"
       assert results["staredPosts"] |> Map.get("totalCount") == @total_count
       assert results["staredPostsCount"] == @total_count
 
@@ -101,7 +100,6 @@ defmodule MastaniServer.Test.Query.Accounts.StaredContents do
 
       variables = %{filter: %{page: 1, size: 20}}
       results = user_conn |> query_result(@query, variables, "user")
-      # IO.inspect results, label: "hello"
       assert results["staredJobs"] |> Map.get("totalCount") == @total_count
       assert results["staredJobsCount"] == @total_count
 
@@ -161,7 +159,6 @@ defmodule MastaniServer.Test.Query.Accounts.StaredContents do
 
       variables = %{filter: %{page: 1, size: 20}}
       results = user_conn |> query_result(@query, variables, "user")
-      # IO.inspect results, label: "hello"
       assert results["staredVideos"] |> Map.get("totalCount") == @total_count
       assert results["staredVideosCount"] == @total_count
 

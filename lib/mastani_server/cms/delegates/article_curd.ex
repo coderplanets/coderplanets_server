@@ -129,7 +129,6 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   end
 
   defp create_content_result({:error, :set_topic, result, _steps}) do
-    IO.inspect(result, label: "set topic")
     {:error, [message: "set topic", code: ecode(:create_fails)]}
   end
 
