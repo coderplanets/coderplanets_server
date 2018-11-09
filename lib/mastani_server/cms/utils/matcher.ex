@@ -125,6 +125,8 @@ defmodule MastaniServer.CMS.Utils.Matcher do
   def match_action(:video, :star),
     do: {:ok, %{target: Video, reactor: VideoStar, preload: :user}}
 
+  def match_action(:video, :tag), do: {:ok, %{target: Video, reactor: Tag}}
+
   def match_action(:video, :comment),
     do: {:ok, %{target: Video, reactor: VideoComment, preload: :author}}
 
@@ -142,6 +144,8 @@ defmodule MastaniServer.CMS.Utils.Matcher do
 
   def match_action(:repo, :community),
     do: {:ok, %{target: Repo, reactor: Community, flag: RepoCommunityFlag}}
+
+  def match_action(:repo, :tag), do: {:ok, %{target: Repo, reactor: Tag}}
 
   def match_action(:repo, :favorite),
     do: {:ok, %{target: Repo, reactor: RepoFavorite, preload: :user}}

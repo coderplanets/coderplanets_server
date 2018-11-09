@@ -131,6 +131,7 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:cyan)
     value(:blue)
     value(:purple)
+    value(:grey)
   end
 
   @desc "inline members-like filter for dataloader usage"

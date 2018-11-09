@@ -26,6 +26,9 @@ defmodule MastaniServer.Test.Seeds.Communities do
 
       {:ok, found} = ORM.find(CMS.Community, radom_community.id, preload: :categories)
       assert length(found.categories) !== 0
+
+      # {:ok, tags} = ORM.find_all(CMS.Tag, %{page: 1, size: 20})
+      # IO.inspect tags, label: "hello tags"
     end
 
     @tag :wip
