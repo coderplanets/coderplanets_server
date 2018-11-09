@@ -52,6 +52,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   @doc """
   create a Tag base on type: post / tuts / videos ...
   """
+  # TODO: change to create_tag(community, thread, attrs, ....)
   def create_tag(thread, attrs, %Accounts.User{id: user_id}) do
     with {:ok, action} <- match_action(thread, :tag),
          {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}),

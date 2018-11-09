@@ -24,7 +24,7 @@ defmodule Helper.RadarSearch do
   end
 
   def locate_city(:localhost) do
-    {:error, "localhost"}
+    {:ok, "成都"}
   end
 
   # http://ip.yqie.com/search.aspx?searchword=%E6%88%90%E9%83%BD%E5%B8%82
