@@ -114,6 +114,36 @@ deploy.prod:
 	@echo "deploy to docker done!"
 	@echo "todo: restart docker container"
 
+reset:
+	$(call reset.help)
+	@echo "\n"
+reset.help:
+	$(call reset.help)
+	@echo "\n"
+reset.test:
+	env MIX_ENV=test mix ecto.drop
+	env MIX_ENV=test mix ecto.create
+reset.mock:
+	env MIX_ENV=mock mix ecto.reset
+reset.prod:
+	env MIX_ENV=prod mix ecto.reset
+
+seeds:
+	$(call reset.help)
+	@echo "\n"
+seeds.help:
+	$(call reset.help)
+	@echo "\n"
+seeds.mock:
+	@echo "------------------------------"
+	@echo "seeds the mock database"
+	env MIX_ENV=mock mix cps.seeds
+
+seeds.prod:
+	@echo "------------------------------"
+	@echo "seeds the prod database"
+	env MIX_ENV=prod mix cps.seeds
+
 test.help:
 	$(call test.help)
 	@echo "\n"
@@ -127,9 +157,6 @@ test.watch.wip2:
 	mix test.watch --only wip2
 test.watch.bug:
 	mix test.watch --only bug
-test.db_reset:
-	env MIX_ENV=test mix ecto.drop
-	env MIX_ENV=test mix ecto.create
 test.report:
 	MIX_ENV=mix test.coverage
 	$(call browse,"./cover/excoveralls.html")

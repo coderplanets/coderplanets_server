@@ -19,15 +19,26 @@ defmodule MastaniServer.Test.Seeds.Communities do
 
       # {:ok, results} = ORM.find_all(CMS.Thread, %{page: 1, size: 20})
       {:ok, results} = ORM.find_all(CMS.Community, %{page: 1, size: 20})
-      # IO.inspect results.entries |> Enum.random(), label: "threads results"
       radom_community = results.entries |> Enum.random()
-      # IO.inspect radom_community, label: "hello radom_community"
 
       {:ok, found} = ORM.find(CMS.Community, radom_community.id, preload: :threads)
-      assert length(found.threads) !== 0
+      assert length(found.threads) == 7
 
       {:ok, found} = ORM.find(CMS.Community, radom_community.id, preload: :categories)
       assert length(found.categories) !== 0
+    end
+
+    @tag :wip
+    test "home community seeds works" do
+      CMS.seed_communities(:home)
+
+      # {:ok, results} = ORM.find_all(CMS.Thread, %{page: 1, size: 20})
+      {:ok, community} = ORM.find_by(CMS.Community, %{raw: "home"})
+      assert community.title == "coderplanets"
+      assert community.raw == "home"
+
+      {:ok, found} = ORM.find(CMS.Community, community.id, preload: :threads)
+      assert length(found.threads) == 6
     end
   end
 end

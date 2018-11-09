@@ -1,4 +1,5 @@
 alias MastaniServer.CMS
 
-# seed communities with default threads and categories
+# NOTE: the order is important
 CMS.seed_communities(:pl)
+CMS.seed_communities(:home)
