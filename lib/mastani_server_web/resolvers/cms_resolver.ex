@@ -36,7 +36,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.read_content(:post, id, user)
   end
 
-  def post(_root, %{id: id}, _info), do: Post |> ORM.read(id, inc: :views)
+  def post(_root, %{id: id}, _info), do: Post |> ORM.read(id, inc: :views) |> IO.inspect(label: "read done")
 
   def job(_root, %{id: id}, %{context: %{cur_user: user}}) do
     CMS.read_content(:job, id, user)
