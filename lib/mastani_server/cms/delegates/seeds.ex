@@ -49,7 +49,6 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
          {:ok, bot} <- seed_bot(),
          {:ok, categories} <- seed_categories(bot, :default),
          {:ok, communities} <- seed_for_communities(bot, :pl) do
-
       threadify_communities(communities, threads)
       categorify_communities(communities, categories)
       # {:ok, _} = CMS.set_category(%Community{id: community.id}, %Category{id: category.id})
@@ -70,12 +69,12 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
     with true <- is_empty_db?(CMS.Community) do
       Enum.each(@pl_communities, fn c ->
         args = %{
-        title: c,
-        desc: "yes, #{c} is awesome!",
-        logo: "https://coderplanets.oss-cn-beijing.aliyuncs.com/icons/pl/#{c}.svg",
-        raw: c,
-        user_id: bot.id
-      }
+          title: c,
+          desc: "yes, #{c} is awesome!",
+          logo: "https://coderplanets.oss-cn-beijing.aliyuncs.com/icons/pl/#{c}.svg",
+          raw: c,
+          user_id: bot.id
+        }
 
         Community |> ORM.create(args)
       end)
