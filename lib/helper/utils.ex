@@ -146,6 +146,10 @@ defmodule Helper.Utils do
     results |> Enum.into(%{})
   end
 
+  def empty_pagi_data do
+    %{entries: [], total_count: 0, page_size: 0, total_pages: 1, page_number: 1}
+  end
+
   # Key exists in both maps, and both values are maps as well.
   # These can be merged recursively.
   # defp deep_resolve(_key, left = %{},right = %{}) do

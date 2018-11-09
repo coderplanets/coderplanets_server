@@ -14,7 +14,8 @@ defmodule MastaniServer.CMS do
     CommentReaction,
     CommunityCURD,
     CommunityOperation,
-    PassportCURD
+    PassportCURD,
+    Seeds
   }
 
   # do not pattern match in delegating func, do it on one delegating inside
@@ -113,4 +114,7 @@ defmodule MastaniServer.CMS do
   defdelegate get_passport(user), to: PassportCURD
   defdelegate list_passports(community, key), to: PassportCURD
   defdelegate delete_passport(user), to: PassportCURD
+
+  # seeds
+  defdelegate seed_communities(opt), to: Seeds
 end
