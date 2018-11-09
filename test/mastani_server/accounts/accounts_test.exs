@@ -149,18 +149,11 @@ defmodule MastaniServer.Test.Accounts do
       assert ORM.count(GithubUser) == 1
     end
 
-    test "github signin user should be locate geo city info" do
+    test "github signin user should not locate geo city info" do
       {:ok, guser} = Accounts.github_signin(@valid_github_profile)
       {:ok, user} = ORM.find(User, guser.user.id)
 
-      assert user.geo_city !== nil
-    end
-
-    test "github signin user from invalid ip locate geo city fails" do
-      {:ok, guser} = Accounts.github_signin(@valid_github_profile, :fake_ip)
-      {:ok, user} = ORM.find(User, guser.user.id)
-
-      assert user.geo_city == nil
+      assert user.geo_city === nil
     end
   end
 end

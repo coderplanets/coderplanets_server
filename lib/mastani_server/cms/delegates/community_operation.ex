@@ -102,10 +102,8 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
   def subscribe_community(
         %Community{id: community_id},
         %User{id: user_id},
-        remote_ip \\ {127, 0, 0, 1}
+        remote_ip \\ :localhost
       ) do
-    remote_ip = Enum.join(Tuple.to_list(remote_ip), ".")
-
     with {:ok, record} <- CommunitySubscriber |> ORM.create(~m(user_id community_id)a) do
       update_geo_info(community_id, user_id, remote_ip, :inc)
       Community |> ORM.find(record.community_id)
@@ -115,10 +113,8 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
   def unsubscribe_community(
         %Community{id: community_id},
         %User{id: user_id},
-        remote_ip \\ {127, 0, 0, 1}
+        remote_ip \\ :localhost
       ) do
-    remote_ip = Enum.join(Tuple.to_list(remote_ip), ".")
-
     with {:ok, record} <-
            CommunitySubscriber |> ORM.findby_delete(community_id: community_id, user_id: user_id) do
       update_geo_info(community_id, user_id, remote_ip, :dec)
