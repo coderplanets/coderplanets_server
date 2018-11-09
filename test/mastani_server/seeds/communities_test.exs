@@ -7,9 +7,9 @@ defmodule MastaniServer.Test.Seeds.Communities do
   alias Helper.{Certification, ORM}
 
   # setup do
-    # {:ok, user} = db_insert(:user)
+  # {:ok, user} = db_insert(:user)
 
-    # {:ok, ~m(user category)a}
+  # {:ok, ~m(user category)a}
   # end
 
   describe "[cms communities seeds]" do
