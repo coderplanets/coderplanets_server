@@ -120,6 +120,28 @@ define console.help
 	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 endef
 
+define reset.help
+	@echo "\n"
+	@echo "  [WARNING: reset db commands]"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo "  reset.test  : reset test db"
+	@echo "  ..................................."
+	@echo "  reset.mock  : reset mock db"
+	@echo "  ..................................."
+	@echo "  reset.prod  : reset prod db"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+endef
+
+define seeds.help
+	@echo "\n"
+	@echo "  [seeds db commands]"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo "  seeds.mock  : insert default communities etc .. to mock db"
+	@echo "  .........................................................."
+	@echo "  seeds.prod  : insert default communities etc .. to prod db"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+endef
+
 define test.help
 	@echo "\n"
 	@echo "  [valid test commands]"
