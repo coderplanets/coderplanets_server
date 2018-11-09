@@ -223,8 +223,10 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # #######################
   # tags ..
   # #######################
-  def create_tag(_root, args, %{context: %{cur_user: user}}) do
-    CMS.create_tag(args.thread, args, user)
+  def create_tag(_root, %{thread: thread, community_id: community_id} = args, %{
+        context: %{cur_user: user}
+      }) do
+    CMS.create_tag(%Community{id: community_id}, thread, args, user)
   end
 
   def delete_tag(_root, %{id: id}, _info), do: Tag |> ORM.find_delete(id)

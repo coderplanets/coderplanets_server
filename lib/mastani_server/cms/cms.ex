@@ -34,7 +34,7 @@ defmodule MastaniServer.CMS do
   # >> thread
   defdelegate create_thread(attrs), to: CommunityCURD
   # >> tag
-  defdelegate create_tag(thread, attrs, user), to: CommunityCURD
+  defdelegate create_tag(community, thread, attrs, user), to: CommunityCURD
   defdelegate update_tag(attrs), to: CommunityCURD
   defdelegate get_tags(community, thread), to: CommunityCURD
   defdelegate get_tags(community, thread, topic), to: CommunityCURD

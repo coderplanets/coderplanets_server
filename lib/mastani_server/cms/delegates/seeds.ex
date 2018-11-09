@@ -20,6 +20,9 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   @default_threads ["post", "user", "job", "video", "wiki", "cheatsheet", "repo"]
   @home_threads ["post", "user", "news", "city", "share", "job"]
 
+  # those thread has tag list
+  @general_threads ["post", "job", "repo", "video"]
+
   @pl_communities ["javascript", "scala", "haskell", "swift", "typescript", "lua", "racket"]
   @default_categories ["pl", "front-end", "back-end", "ai", "design", "mobile", "others"]
 
@@ -78,6 +81,9 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
          {:ok, categories} <- seed_categories(bot, :default),
          {:ok, communities} <- seed_for_communities(bot, :pl) do
       threadify_communities(communities.entries, threads)
+      # tagfy_threads(communities.entries, threads)
+
+      # TODO: set tags for post, video, job, repo thread
       categorify_communities(communities.entries, categories)
     end
   end
@@ -142,6 +148,18 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   defp threadify_communities(community, threads) do
     Enum.each(threads, fn thread ->
       {:ok, _} = CMS.set_thread(%Community{id: community.id}, %Thread{id: thread.id})
+    end)
+  end
+
+  # tagfy only post job repo and video
+  defp tagfy_threads(communities, threads) when is_list(communities) do
+    Enum.each(communities, fn community ->
+      Enum.each(threads, fn thread ->
+        case thread.raw in @general_threads do
+          true -> IO.inspect(thread.raw, label: "set this thread")
+          false -> IO.inspect(thread.raw, label: "not target")
+        end
+      end)
     end)
   end
 

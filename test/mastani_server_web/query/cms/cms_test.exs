@@ -237,8 +237,10 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
     test "guest user can get paged tags", ~m(guest_conn community user)a do
       variables = %{filter: %{page: 1, size: 10}}
 
-      valid_attrs = mock_attrs(:tag, %{user_id: user.id, community_id: community.id})
-      {:ok, _} = CMS.create_tag(:post, valid_attrs, %User{id: user.id})
+      valid_attrs = mock_attrs(:tag, %{user_id: user.id})
+
+      {:ok, _} =
+        CMS.create_tag(%Community{id: community.id}, :post, valid_attrs, %User{id: user.id})
 
       results = guest_conn |> query_result(@query, variables, "tags")
 
@@ -273,8 +275,10 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
     end
 
     test "user can get partial tags by default index topic", ~m(guest_conn community user)a do
-      valid_attrs = mock_attrs(:tag, %{community_id: community.id})
-      {:ok, _tag} = CMS.create_tag(:post, valid_attrs, %User{id: user.id})
+      valid_attrs = mock_attrs(:tag)
+
+      {:ok, _tag} =
+        CMS.create_tag(%Community{id: community.id}, :post, valid_attrs, %User{id: user.id})
 
       variables = %{thread: "POST", communityId: community.id, topic: "index"}
       results = guest_conn |> query_result(@query, variables, "partialTags")
