@@ -52,14 +52,15 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   @doc """
   create a Tag base on type: post / tuts / videos ...
   """
-  def create_tag(thread, attrs, %Accounts.User{id: user_id}) do
+  # TODO: change to create_tag(community, thread, attrs, ....)
+  def create_tag(%Community{id: community_id}, thread, attrs, %Accounts.User{id: user_id}) do
     with {:ok, action} <- match_action(thread, :tag),
          {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}),
-         {:ok, _community} <- ORM.find(Community, attrs.community_id),
+         {:ok, _community} <- ORM.find(Community, community_id),
          {:ok, topic} = find_or_insert_topic(attrs) do
       attrs =
         attrs
-        |> Map.merge(%{author_id: author.id, topic_id: topic.id})
+        |> Map.merge(%{author_id: author.id, topic_id: topic.id, community_id: community_id})
         |> map_atom_value(:string)
         |> Map.merge(%{thread: attrs.thread |> to_string |> String.downcase()})
 

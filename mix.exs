@@ -102,15 +102,16 @@ defmodule MastaniServer.Mixfile do
   defp aliases do
     # test.watch is powerd by: https://github.com/lpil/mix-test.watch
     [
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/mock/user_seeds.exs"],
-      # "ecto.setup": ["ecto.create", "ecto.migrate"],
+      # "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/mock/user_seeds.exs"],
+      "ecto.setup": ["ecto.create", "ecto.migrate"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"],
       "test.coverage": ["coveralls.html"],
       "test.coverage.short": ["coveralls"],
       "doc.report": ["inch.report"],
       lint: ["credo --strict"],
-      "lint.static": ["dialyzer --format dialyxir"]
+      "lint.static": ["dialyzer --format dialyxir"],
+      "cps.seeds": ["run priv/mock/cps_seeds.exs"]
     ]
   end
 end

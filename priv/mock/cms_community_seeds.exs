@@ -31,8 +31,7 @@ Enum.each(communities, fn c ->
       title: c,
       desc: "#{c} is the my favorites",
       logo: "https://coderplanets.oss-cn-beijing.aliyuncs.com/icons/pl/#{c}.svg",
-      raw: c,
-      category: "编程语言"
+      raw: c
     })
 
   Enum.each(thread_ids, fn thread_id ->

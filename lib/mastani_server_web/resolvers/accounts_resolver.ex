@@ -5,7 +5,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   import ShortMaps
   import Helper.ErrorCode
 
-  alias Helper.{Certification, ORM, RadarSearch}
+  alias Helper.{Certification, ORM, RadarSearch, Utils}
   alias MastaniServer.{Accounts, CMS}
 
   alias Accounts.{MentionMail, NotificationMail, SysNotificationMail, User}
@@ -70,8 +70,14 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.list_favorite_categories(cur_user, %{private: true}, filter)
   end
 
-  def list_favorite_categories(_root, %{user_id: user_id, filter: filter}, _info) do
+  def list_favorite_categories(_root, %{user_id: user_id, filter: filter}, _info)
+      when not is_nil(user_id) do
     Accounts.list_favorite_categories(%User{id: user_id}, %{private: false}, filter)
+  end
+
+  # guest user
+  def list_favorite_categories(_root, _args, _info) do
+    {:ok, Utils.empty_pagi_data()}
   end
 
   def create_favorite_category(_root, attrs, %{context: %{cur_user: cur_user}}) do

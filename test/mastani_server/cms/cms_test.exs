@@ -3,6 +3,7 @@ defmodule MastaniServer.Test.CMS do
 
   alias MastaniServer.Accounts.User
   alias MastaniServer.CMS
+  alias CMS.Community
 
   alias Helper.{Certification, ORM}
 
@@ -16,22 +17,28 @@ defmodule MastaniServer.Test.CMS do
 
   describe "[cms tag]" do
     test "create tag with valid data", ~m(community user)a do
-      valid_attrs = mock_attrs(:tag, %{community_id: community.id})
+      valid_attrs = mock_attrs(:tag)
 
-      {:ok, tag} = CMS.create_tag(:post, valid_attrs, %User{id: user.id})
+      {:ok, tag} = CMS.create_tag(community, :post, valid_attrs, %User{id: user.id})
       assert tag.title == valid_attrs.title
     end
 
     test "create tag with non-exsit user fails", ~m(user)a do
-      invalid_attrs = mock_attrs(:tag, %{community_id: non_exsit_id()})
+      invalid_attrs = mock_attrs(:tag)
 
-      assert {:error, _} = CMS.create_tag(:post, invalid_attrs, %User{id: user.id})
+      assert {:error, _} =
+               CMS.create_tag(%Community{id: non_exsit_id()}, :post, invalid_attrs, %User{
+                 id: user.id
+               })
     end
 
     test "create tag with non-exsit community fails", ~m(user)a do
-      invalid_attrs = mock_attrs(:tag, %{community_id: non_exsit_id()})
+      invalid_attrs = mock_attrs(:tag)
 
-      assert {:error, _} = CMS.create_tag(:post, invalid_attrs, %User{id: user.id})
+      assert {:error, _} =
+               CMS.create_tag(%Community{id: non_exsit_id()}, :post, invalid_attrs, %User{
+                 id: user.id
+               })
     end
   end
 
