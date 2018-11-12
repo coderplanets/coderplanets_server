@@ -129,10 +129,10 @@ reset.prod:
 	env MIX_ENV=prod mix ecto.reset
 
 seeds:
-	$(call reset.help)
+	$(call seeds.help)
 	@echo "\n"
 seeds.help:
-	$(call reset.help)
+	$(call seeds.help)
 	@echo "\n"
 seeds.mock:
 	@echo "------------------------------"

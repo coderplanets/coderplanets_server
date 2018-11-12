@@ -3,8 +3,11 @@ defmodule MastaniServer.Test.Seeds.Communities do
 
   alias MastaniServer.Accounts.User
   alias MastaniServer.CMS
+  alias CMS.Delegate.SeedsConfig
 
   alias Helper.{Certification, ORM}
+
+  alias Helper.Utils
 
   # setup do
   # {:ok, user} = db_insert(:user)
@@ -42,6 +45,41 @@ defmodule MastaniServer.Test.Seeds.Communities do
 
       {:ok, found} = ORM.find(CMS.Community, community.id, preload: :threads)
       assert length(found.threads) == 6
+    end
+
+    @tag :wip
+    test "seeded general community has general tags" do
+      CMS.seed_communities(:pl)
+      {:ok, results} = ORM.find_all(CMS.Community, %{page: 1, size: 20})
+      radom_community = results.entries |> Enum.random()
+
+      # test post threads
+      {:ok, random_community} = ORM.find(CMS.Community, radom_community.id)
+      {:ok, tags} = CMS.get_tags(random_community, :post)
+      found_tags = tags |> Utils.pick_by(:title)
+      config_tags = SeedsConfig.tags(:post) |> Utils.pick_by(:title)
+      assert found_tags |> Enum.sort() == config_tags |> Enum.sort()
+
+      # test job threads
+      {:ok, random_community} = ORM.find(CMS.Community, radom_community.id)
+      {:ok, tags} = CMS.get_tags(random_community, :job)
+      found_tags = tags |> Utils.pick_by(:title)
+      config_tags = SeedsConfig.tags(:job) |> Utils.pick_by(:title)
+      assert found_tags |> Enum.sort() == config_tags |> Enum.sort()
+
+      # test video threads
+      {:ok, random_community} = ORM.find(CMS.Community, radom_community.id)
+      {:ok, tags} = CMS.get_tags(random_community, :video)
+      found_tags = tags |> Utils.pick_by(:title)
+      config_tags = SeedsConfig.tags(:video) |> Utils.pick_by(:title)
+      assert found_tags |> Enum.sort() == config_tags |> Enum.sort()
+
+      # test repo threads
+      {:ok, random_community} = ORM.find(CMS.Community, radom_community.id)
+      {:ok, tags} = CMS.get_tags(random_community, :repo)
+      found_tags = tags |> Utils.pick_by(:title)
+      config_tags = SeedsConfig.tags(:repo) |> Utils.pick_by(:title)
+      assert found_tags |> Enum.sort() == config_tags |> Enum.sort()
     end
   end
 end

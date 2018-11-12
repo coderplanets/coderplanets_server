@@ -135,6 +135,10 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
   def tags(:video) do
     [
       %{
+        title: "refined",
+        color: :red
+      },
+      %{
         title: "conf",
         color: :red
       },
