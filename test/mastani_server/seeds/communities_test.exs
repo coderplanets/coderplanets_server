@@ -16,7 +16,7 @@ defmodule MastaniServer.Test.Seeds.Communities do
   # end
 
   describe "[cms communities seeds]" do
-    @tag :wip
+    # @tag :wip
     test "default pl communities seeds works" do
       CMS.seed_communities(:pl)
 
@@ -34,7 +34,7 @@ defmodule MastaniServer.Test.Seeds.Communities do
       # IO.inspect tags, label: "hello tags"
     end
 
-    @tag :wip
+    # @tag :wip
     test "home community seeds works" do
       CMS.seed_communities(:home)
 
@@ -47,7 +47,7 @@ defmodule MastaniServer.Test.Seeds.Communities do
       assert length(found.threads) == 6
     end
 
-    @tag :wip
+    # @tag :wip
     test "seeded general community has general tags" do
       CMS.seed_communities(:pl)
       {:ok, results} = ORM.find_all(CMS.Community, %{page: 1, size: 20})
@@ -80,6 +80,19 @@ defmodule MastaniServer.Test.Seeds.Communities do
       found_tags = tags |> Utils.pick_by(:title)
       config_tags = SeedsConfig.tags(:repo) |> Utils.pick_by(:title)
       assert found_tags |> Enum.sort() == config_tags |> Enum.sort()
+    end
+
+    @tag :wip
+    test "seeded home community has home-spec tags" do
+      CMS.seed_communities(:home)
+
+      # {:ok, results} = ORM.find_all(CMS.Thread, %{page: 1, size: 20})
+      {:ok, community} = ORM.find_by(CMS.Community, %{raw: "home"})
+      assert community.title == "coderplanets"
+      assert community.raw == "home"
+
+      {:ok, found} = ORM.find(CMS.Community, community.id, preload: :threads)
+      assert length(found.threads) == 6
     end
   end
 end

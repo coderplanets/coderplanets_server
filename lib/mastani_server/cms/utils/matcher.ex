@@ -73,6 +73,10 @@ defmodule MastaniServer.CMS.Utils.Matcher do
 
   def match_action(:post, :star), do: {:ok, %{target: Post, reactor: PostStar, preload: :user}}
   def match_action(:post, :tag), do: {:ok, %{target: Post, reactor: Tag}}
+  # NOTE: the news, share, city thread also use common tag
+  def match_action(:news, :tag), do: {:ok, %{target: Post, reactor: Tag}}
+  def match_action(:share, :tag), do: {:ok, %{target: Post, reactor: Tag}}
+  def match_action(:city, :tag), do: {:ok, %{target: Post, reactor: Tag}}
 
   def match_action(:post, :community),
     do: {:ok, %{target: Post, reactor: Community, flag: PostCommunityFlag}}

@@ -95,6 +95,21 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     |> done()
   end
 
+  def get_tags(%Community{raw: community_raw}, thread, topic) when not is_nil(community_raw) do
+    # thread = thread |> to_string |> String.upcase()
+    # topic = topic |> to_string |> String.upcase()
+    thread = thread |> to_string |> String.downcase()
+    topic = topic |> to_string |> String.downcase()
+
+    Tag
+    |> join(:inner, [t], c in assoc(t, :community))
+    |> join(:inner, [t], cp in assoc(t, :topic))
+    |> where([t, c, cp], c.raw == ^community_raw and t.thread == ^thread and cp.title == ^topic)
+    |> distinct([t], t.title)
+    |> Repo.all()
+    |> done()
+  end
+
   def get_tags(%Community{id: community_id}, thread) when not is_nil(community_id) do
     # thread = thread |> to_string |> String.upcase()
     thread = thread |> to_string |> String.downcase()
@@ -180,10 +195,10 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   end
 
   defp find_or_insert_topic(%{thread: thread}) do
-    find_or_insert_topic(%{topic: "index", thread: thread})
+    find_or_insert_topic(%{topic: "posts", thread: thread})
   end
 
   defp find_or_insert_topic(_attrs) do
-    find_or_insert_topic(%{topic: "index", thread: :post})
+    find_or_insert_topic(%{topic: "posts", thread: :post})
   end
 end

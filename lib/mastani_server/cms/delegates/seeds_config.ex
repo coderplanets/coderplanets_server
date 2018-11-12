@@ -59,46 +59,17 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
       %{
         title: "spread",
         color: :purple
-      }
-    ]
-    |> Enum.map(fn attr -> Map.merge(%{thread: :post}, attr) end)
-  end
-
-  def tags(:job) do
-    [
-      %{
-        title: "beijing",
-        color: :red
-      },
-      %{
-        title: "shanghai",
-        color: :orange
-      },
-      %{
-        title: "shenzhen",
-        color: :yellow
-      },
-      %{
-        title: "hangzhou",
-        color: :green
-      },
-      %{
-        title: "chengdu",
-        color: :cyan
-      },
-      %{
-        title: "wuhan",
-        color: :blue
-      },
-      %{
-        title: "oversea",
-        color: :purple
       },
       %{
         title: "other",
         color: :grey
       }
     ]
+    |> Enum.map(fn attr -> Map.merge(%{thread: :post}, attr) end)
+  end
+
+  def tags(:job) do
+    city_tags()
     |> Enum.map(fn attr -> Map.merge(%{thread: :job}, attr) end)
   end
 
@@ -158,5 +129,183 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
     |> Enum.map(fn attr -> Map.merge(%{thread: :video}, attr) end)
   end
 
+  # home posts
+  def tags(:home, :post) do
+    [
+      %{
+        title: "refined",
+        color: :red
+      },
+      %{
+        title: "tech",
+        color: :orange
+      },
+      %{
+        title: "ask",
+        color: :yellow
+      },
+      %{
+        title: "workplace",
+        color: :green
+      },
+      %{
+        title: "3c",
+        color: :cyan
+      },
+      %{
+        title: "hangout",
+        color: :blue
+      },
+      # %{
+      # title: "spread",
+      # color: :purple
+      # },
+      %{
+        title: "other",
+        color: :grey
+      }
+    ]
+    |> Enum.map(fn attr -> Map.merge(%{thread: :post}, attr) end)
+  end
+
+  def tags(:home, :share) do
+    [
+      %{
+        title: "refined",
+        color: :red
+      },
+      %{
+        title: "product",
+        color: :orange
+      },
+      %{
+        title: "design",
+        color: :yellow
+      },
+      %{
+        # 个人作品
+        title: "personal-project",
+        color: :green
+      },
+      %{
+        title: "tools-libs",
+        color: :cyan
+      },
+      # %{
+      # title: "architecture",
+      # color: :blue
+      # },
+      # %{
+      # title: "spread",
+      # color: :purple
+      # },
+      %{
+        title: "other",
+        color: :grey
+      }
+    ]
+    |> Enum.map(fn attr -> Map.merge(%{thread: :share, topic: "share"}, attr) end)
+  end
+
+  def tags(:home, :news) do
+    [
+      %{
+        title: "science",
+        color: :red
+      },
+      %{
+        # 业界
+        title: "tech",
+        color: :orange
+      },
+      %{
+        title: "hardware",
+        color: :yellow
+      },
+      %{
+        title: "games",
+        color: :green
+      },
+      %{
+        title: "apple",
+        color: :cyan
+      },
+      %{
+        title: "startup",
+        color: :blue
+      },
+      %{
+        title: "safe",
+        color: :purple
+      },
+      %{
+        title: "other",
+        color: :grey
+      }
+    ]
+    |> Enum.map(fn attr -> Map.merge(%{thread: :news, topic: "news"}, attr) end)
+  end
+
+  def tags(:home, :city) do
+    city_tags()
+    |> Enum.map(fn attr -> Map.merge(%{thread: :city, topic: "city"}, attr) end)
+  end
+
+  def tags(:home, :job) do
+    city_tags()
+    |> IO.inspect(label: "insert HOME job")
+    |> Enum.map(fn attr -> Map.merge(%{thread: :job, topic: "job"}, attr) end)
+  end
+
   def tags(_), do: []
+  def tags(:home, _), do: []
+
+  defp city_tags do
+    [
+      %{
+        title: "beijing",
+        color: :red
+      },
+      %{
+        title: "shanghai",
+        color: :orange
+      },
+      %{
+        title: "shenzhen",
+        color: :yellow
+      },
+      %{
+        title: "hangzhou",
+        color: :green
+      },
+      %{
+        title: "guangzhou",
+        color: :cyan
+      },
+      %{
+        title: "chengdu",
+        color: :blue
+      },
+      %{
+        title: "wuhan",
+        color: :purple
+      },
+      %{
+        title: "nanjing",
+        color: :yellowgreen
+      },
+      %{
+        title: "xiamen",
+        color: :dodgerblue
+      },
+      %{
+        title: "oversea",
+        color: :brown
+      },
+      %{
+        title: "other",
+        color: :grey
+      }
+    ]
+  end
 end

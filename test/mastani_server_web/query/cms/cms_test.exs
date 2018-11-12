@@ -280,7 +280,7 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       {:ok, _tag} =
         CMS.create_tag(%Community{id: community.id}, :post, valid_attrs, %User{id: user.id})
 
-      variables = %{thread: "POST", communityId: community.id, topic: "index"}
+      variables = %{thread: "POST", communityId: community.id, topic: "posts"}
       results = guest_conn |> query_result(@query, variables, "partialTags")
 
       assert results |> length == 1

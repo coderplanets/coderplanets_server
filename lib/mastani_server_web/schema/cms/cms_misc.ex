@@ -131,6 +131,9 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:cyan)
     value(:blue)
     value(:purple)
+    value(:dodgerblue)
+    value(:yellowgreen)
+    value(:brown)
     value(:grey)
   end
 

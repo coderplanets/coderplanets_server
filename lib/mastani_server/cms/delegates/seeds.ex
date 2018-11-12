@@ -103,6 +103,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
 
       {:ok, community} = Community |> ORM.create(args)
       threadify_communities(community, threads)
+      tagfy_threads(community, threads, bot, :home)
     end
   end
 
@@ -158,10 +159,24 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
     end)
   end
 
+  defp tagfy_threads(community, threads, bot, :home) do
+    Enum.each(threads, fn thread ->
+      set_tags(community, thread, bot, :home)
+    end)
+  end
+
   defp set_tags(%Community{} = community, %Thread{raw: raw}, bot) do
     thread = raw |> String.to_atom()
 
     Enum.each(SeedsConfig.tags(thread), fn attr ->
+      CMS.create_tag(community, thread, attr, %Accounts.User{id: bot.id})
+    end)
+  end
+
+  defp set_tags(%Community{} = community, %Thread{raw: raw}, bot, :home) do
+    thread = raw |> String.to_atom()
+
+    Enum.each(SeedsConfig.tags(:home, thread), fn attr ->
       CMS.create_tag(community, thread, attr, %Accounts.User{id: bot.id})
     end)
   end
