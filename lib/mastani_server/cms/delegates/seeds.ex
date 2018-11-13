@@ -20,24 +20,25 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   alias CMS.Delegate.SeedsConfig
 
   @default_threads SeedsConfig.threads(:default)
-  @home_threads SeedsConfig.threads(:home)
+  @home_threads SeedsConfig.threads(:home, :list)
   @pl_communities SeedsConfig.communities(:pl)
   @default_categories SeedsConfig.categories(:default)
 
   def seed_threads(:default) do
     with true <- is_empty_db?(CMS.Thread) do
-      Enum.each(@default_threads, fn thread ->
-        title = thread
-        raw = thread
-        {:ok, _thread} = CMS.create_thread(~m(title raw)a)
+      @default_threads
+      |> Enum.each(fn thread ->
+        {:ok, _thread} = CMS.create_thread(thread)
       end)
 
+      thread_titles =
+        @default_threads
+        |> Enum.reduce([], fn x, acc -> acc ++ [x.title] end)
+
       CMS.Thread
-      |> where([t], t.raw in @default_threads)
+      |> where([t], t.raw in ^thread_titles)
       |> ORM.paginater(page: 1, size: 10)
       |> done()
-
-      # ORM.find_all(CMS.Thread, %{page: 1, size: 20})
     end
   end
 
@@ -50,7 +51,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
 
     {:ok, _thread} = CMS.create_thread(%{title: "news", raw: "news", index: 1})
     {:ok, _thread} = CMS.create_thread(%{title: "share", raw: "share", index: 2})
-    {:ok, _thread} = CMS.create_thread(%{title: "city", raw: "city", index: 4})
+    {:ok, _thread} = CMS.create_thread(%{title: "city", raw: "city", index: 16})
 
     CMS.Thread
     |> where([t], t.raw in @home_threads)

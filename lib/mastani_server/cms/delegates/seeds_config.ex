@@ -19,12 +19,53 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
   @doc """
   default threads seeds for general communities
   """
-  def threads(:default), do: ["post", "user", "job", "video", "wiki", "cheatsheet", "repo"]
+  # ["post", "user", "job", "video", "wiki", "cheatsheet", "repo"]
+  def threads(:default) do
+    [
+      %{
+        title: "post",
+        raw: 'post',
+        index: 0
+      },
+      %{
+        title: "video",
+        raw: 'video',
+        index: 5
+      },
+      %{
+        title: "repo",
+        raw: 'repo',
+        index: 10
+      },
+      %{
+        title: "user",
+        raw: 'user',
+        index: 15
+      },
+      %{
+        title: "wiki",
+        raw: 'wiki',
+        index: 20
+      },
+      %{
+        title: "cheatsheet",
+        raw: 'cheatsheet',
+        index: 25
+      },
+      %{
+        title: "job",
+        raw: 'job',
+        index: 30
+      }
+    ]
+  end
 
   @doc """
   default threads seeds for home
   """
-  def threads(:home), do: ["post", "user", "news", "city", "share", "job"]
+  def threads(:home, :list) do
+    ["post", "user", "news", "city", "share", "job"]
+  end
 
   @doc """
   default tags for general communities
@@ -253,7 +294,6 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
 
   def tags(:home, :job) do
     city_tags()
-    |> IO.inspect(label: "insert HOME job")
     |> Enum.map(fn attr -> Map.merge(%{thread: :job, topic: "job"}, attr) end)
   end
 
