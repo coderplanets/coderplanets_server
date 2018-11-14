@@ -250,20 +250,22 @@ defmodule MastaniServer.Test.Query.Account.Basic do
   describe "[account session state]" do
     @query """
     query {
-    sessionState {
-    isValid
-    user {
-    id
-    }
-    }
+      sessionState {
+        isValid
+        user {
+          id
+        }
+      }
     }
     """
+    @tag :wip
     test "guest user should get false sessionState", ~m(guest_conn)a do
       results = guest_conn |> query_result(@query, %{}, "sessionState")
       assert results["isValid"] == false
       assert results["user"] == nil
     end
 
+    @tag :wip
     test "login user should get true sessionState", ~m(user)a do
       user_conn = simu_conn(:user, user)
       results = user_conn |> query_result(@query, %{}, "sessionState")
@@ -272,12 +274,27 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert results["user"] |> Map.get("id") == to_string(user.id)
     end
 
+    @tag :wip
     test "user with invalid token get false sessionState" do
       user_conn = simu_conn(:invalid_token)
       results = user_conn |> query_result(@query, %{}, "sessionState")
 
       assert results["isValid"] == false
       assert results["user"] == nil
+    end
+
+    @tag :wip
+    test "user should subscribe home community if not subscribed before", ~m(user)a do
+      {:ok, community} = db_insert(:community, %{raw: "home"})
+
+      user_conn = simu_conn(:user, user)
+      results = user_conn |> query_result(@query, %{}, "sessionState")
+
+      {:ok, record} =
+        ORM.find_by(CMS.CommunitySubscriber, %{community_id: community.id, user_id: user.id})
+
+      assert record.user_id == user.id
+      assert record.community_id == community.id
     end
   end
 end

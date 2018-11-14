@@ -106,12 +106,12 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
         color: :grey
       }
     ]
-    |> Enum.map(fn attr -> Map.merge(%{thread: :post}, attr) end)
+    |> Enum.map(fn attr -> Map.merge(%{thread: :post, topic: "posts"}, attr) end)
   end
 
   def tags(:job) do
     city_tags()
-    |> Enum.map(fn attr -> Map.merge(%{thread: :job}, attr) end)
+    |> Enum.map(fn attr -> Map.merge(%{thread: :job, topic: "jobs"}, attr) end)
   end
 
   def tags(:repo) do
@@ -141,7 +141,7 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
         color: :grey
       }
     ]
-    |> Enum.map(fn attr -> Map.merge(%{thread: :repo}, attr) end)
+    |> Enum.map(fn attr -> Map.merge(%{thread: :repo, topic: "repos"}, attr) end)
   end
 
   def tags(:video) do
@@ -159,7 +159,7 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
         color: :orange
       },
       %{
-        title: "security",
+        title: "safe",
         color: :yellow
       },
       %{
@@ -167,7 +167,7 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
         color: :grey
       }
     ]
-    |> Enum.map(fn attr -> Map.merge(%{thread: :video}, attr) end)
+    |> Enum.map(fn attr -> Map.merge(%{thread: :video, topic: "videos"}, attr) end)
   end
 
   # home posts
@@ -206,7 +206,7 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
         color: :grey
       }
     ]
-    |> Enum.map(fn attr -> Map.merge(%{thread: :post}, attr) end)
+    |> Enum.map(fn attr -> Map.merge(%{thread: :post, topic: "posts"}, attr) end)
   end
 
   def tags(:home, :share) do
@@ -294,7 +294,7 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
 
   def tags(:home, :job) do
     city_tags()
-    |> Enum.map(fn attr -> Map.merge(%{thread: :job, topic: "job"}, attr) end)
+    |> Enum.map(fn attr -> Map.merge(%{thread: :job, topic: "jobs"}, attr) end)
   end
 
   def tags(_), do: []

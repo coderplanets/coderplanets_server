@@ -5,7 +5,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Repo do
   use Helper.GqlSchemaSuite
 
   object :cms_repo_mutations do
-    @desc "create a user"
+    @desc "create a repo"
     field :create_repo, :repo do
       arg(:title, non_null(:string))
       arg(:owner_name, non_null(:string))

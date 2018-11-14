@@ -23,7 +23,7 @@ defmodule MastaniServer.Accounts.User do
   alias MastaniServer.CMS
 
   @required_fields ~w(nickname avatar)a
-  @optional_fields ~w(nickname bio sex location douban dribble email facebook pinterest pinterest github huaban qq  weibo weichat twitter zhihu)a
+  @optional_fields ~w(nickname bio remote_ip sex location douban dribble email facebook pinterest pinterest github huaban qq  weibo weichat twitter zhihu)a
 
   @type t :: %User{}
   schema "users" do
@@ -35,6 +35,7 @@ defmodule MastaniServer.Accounts.User do
     field(:location, :string)
     field(:from_github, :boolean)
     field(:geo_city, :string)
+    field(:remote_ip, :string)
 
     field(:views, :integer, default: 0)
 

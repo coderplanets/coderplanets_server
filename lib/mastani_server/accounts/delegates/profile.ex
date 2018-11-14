@@ -43,14 +43,22 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
     changeset |> User.update_changeset(attrs) |> Repo.update()
   end
 
+  @doc """
+  update geo info for user, include geo_city & remote ip
+  """
   def update_geo(%User{geo_city: geo_city} = user, remote_ip) when is_nil(geo_city) do
     case RadarSearch.locate_city(remote_ip) do
       {:ok, city} ->
-        update_profile(user, %{geo_city: city})
+        update_profile(user, %{geo_city: city, remote_ip: remote_ip})
 
       {:error, _} ->
+        update_profile(user, %{remote_ip: remote_ip})
         {:ok, "pass"}
     end
+  end
+
+  def update_geo(%User{} = user, remote_ip) do
+    update_profile(user, %{remote_ip: remote_ip})
   end
 
   def update_geo(_user, _remote_ip) do

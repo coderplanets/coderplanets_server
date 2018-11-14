@@ -61,6 +61,9 @@ defmodule MastaniServer.CMS do
   defdelegate unsubscribe_community(community, user), to: CommunityOperation
   defdelegate unsubscribe_community(community, user, remote_ip), to: CommunityOperation
 
+  defdelegate subscribe_default_community_ifnot(user, remote_ip), to: CommunityOperation
+  defdelegate subscribe_default_community_ifnot(user), to: CommunityOperation
+
   # ArticleCURD
   defdelegate read_content(thread, id, user), to: ArticleCURD
   defdelegate paged_contents(queryable, filter), to: ArticleCURD
