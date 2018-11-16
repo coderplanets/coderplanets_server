@@ -16,7 +16,7 @@ defmodule MastaniServer.Test.Seeds.Communities do
   # end
 
   describe "[cms communities seeds]" do
-    @tag :wip
+    @tag :wip2
     test "default pl communities seeds works" do
       CMS.seed_communities(:pl)
 

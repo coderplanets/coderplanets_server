@@ -9,12 +9,14 @@ defmodule MastaniServer.CMS.Category do
   # alias Helper.Certification
 
   @required_fields ~w(title raw author_id)a
+  @optional_fields ~w(index)a
 
   @type t :: %Category{}
 
   schema "categories" do
     field(:title, :string)
     field(:raw, :string)
+    field(:index, :integer)
     belongs_to(:author, Author)
 
     many_to_many(
@@ -32,7 +34,7 @@ defmodule MastaniServer.CMS.Category do
   @doc false
   def changeset(%Category{} = category, attrs) do
     category
-    |> cast(attrs, @required_fields)
+    |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
     # |> validate_inclusion(:title, Certification.editor_titles(:cms))
     # |> foreign_key_constraint(:community_id)

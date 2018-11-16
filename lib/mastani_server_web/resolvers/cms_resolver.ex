@@ -161,7 +161,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def paged_categories(_root, ~m(filter)a, _info), do: Category |> ORM.find_all(filter)
 
   def create_category(_root, ~m(title raw)a, %{context: %{cur_user: user}}) do
-    CMS.create_category(%Category{title: title, raw: raw}, user)
+    CMS.create_category(%{title: title, raw: raw}, user)
   end
 
   def delete_category(_root, %{id: id}, _info), do: Category |> ORM.find_delete(id)

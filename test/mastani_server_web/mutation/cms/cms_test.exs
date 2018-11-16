@@ -35,6 +35,7 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
       }
     }
     """
+    @tag :wip2
     test "auth user can create category", ~m(user)a do
       variables = mock_attrs(:category, %{user_id: user.id})
       rule_conn = simu_conn(:user, cms: %{"category.create" => true})

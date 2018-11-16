@@ -49,7 +49,7 @@ defmodule MastaniServer.Test.CMS do
       valid_attrs = mock_attrs(:category, %{user_id: user.id})
       ~m(title raw)a = valid_attrs
 
-      {:ok, category} = CMS.create_category(~m(%Category title raw)a, %User{id: user.id})
+      {:ok, category} = CMS.create_category(~m(title raw)a, %User{id: user.id})
 
       assert category.title == valid_attrs.title
     end
@@ -58,15 +58,15 @@ defmodule MastaniServer.Test.CMS do
       valid_attrs = mock_attrs(:category, %{user_id: user.id})
       ~m(title raw)a = valid_attrs
 
-      assert {:ok, _} = CMS.create_category(~m(%Category title raw)a, %User{id: user.id})
-      assert {:error, _} = CMS.create_category(~m(%Category title)a, %User{id: user.id})
+      assert {:ok, _} = CMS.create_category(~m(title raw)a, %User{id: user.id})
+      assert {:error, _} = CMS.create_category(~m(title)a, %User{id: user.id})
     end
 
     test "update category with valid attrs", ~m(user)a do
       valid_attrs = mock_attrs(:category, %{user_id: user.id})
       ~m(title raw)a = valid_attrs
 
-      {:ok, category} = CMS.create_category(~m(%Category title raw)a, %User{id: user.id})
+      {:ok, category} = CMS.create_category(~m(title raw)a, %User{id: user.id})
 
       assert category.title == valid_attrs.title
       {:ok, updated} = CMS.update_category(%Category{id: category.id, title: "new title"})
@@ -78,9 +78,9 @@ defmodule MastaniServer.Test.CMS do
       valid_attrs = mock_attrs(:category, %{user_id: user.id})
       ~m(title raw)a = valid_attrs
 
-      {:ok, category} = CMS.create_category(~m(%Category title raw)a, %User{id: user.id})
+      {:ok, category} = CMS.create_category(~m(title raw)a, %User{id: user.id})
 
-      new_category_attrs = %Category{title: "category2 title", raw: "category2 title"}
+      new_category_attrs = %{title: "category2 title", raw: "category2 title"}
       {:ok, category2} = CMS.create_category(new_category_attrs, %User{id: user.id})
 
       {:error, _} = CMS.update_category(%Category{id: category.id, title: category2.title})

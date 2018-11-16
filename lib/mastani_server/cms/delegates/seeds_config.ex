@@ -7,14 +7,80 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
   default seeds for pragraming lang's communities
   """
   def communities(:pl) do
-    ["javascript", "scala", "haskell", "swift", "typescript", "lua", "racket"]
+    ["javascript", "scala", "haskell", "swift", "typescript", "lua", "racket", "elixir"]
+  end
+
+  def communities(:city) do
+    [
+      "beijing",
+      "shanghai",
+      "shenzhen",
+      "hangzhou",
+      "guangzhou",
+      "chengdu",
+      "wuhan",
+      "xiamen",
+      "nanjing",
+      "nanjing"
+    ]
+  end
+
+  def communities(:framwork) do
+    ["react", "angular", "vue", "angular"]
   end
 
   @doc """
   default categories seeds for general community
   """
-  def categories(:default),
-    do: ["pl", "front-end", "back-end", "ai", "design", "mobile", "others"]
+  def categories(:default) do
+    [
+      %{
+        title: "pl",
+        raw: "pl",
+        index: 0
+      },
+      %{
+        title: "frontend",
+        raw: "frontend",
+        index: 3
+      },
+      %{
+        title: "backend",
+        raw: "backend",
+        index: 6
+      },
+      %{
+        title: "mobile",
+        raw: "mobile",
+        index: 9
+      },
+      %{
+        title: "ai",
+        raw: "ai",
+        index: 12
+      },
+      %{
+        title: "design",
+        raw: "design",
+        index: 15
+      },
+      %{
+        title: "blockchain",
+        raw: "blockchain",
+        index: 18
+      },
+      %{
+        title: "city",
+        raw: "city",
+        index: 21
+      },
+      %{
+        title: "other",
+        raw: "other",
+        index: 24
+      }
+    ]
+  end
 
   @doc """
   default threads seeds for general communities
@@ -24,37 +90,37 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
     [
       %{
         title: "post",
-        raw: 'post',
+        raw: "post",
         index: 0
       },
       %{
         title: "video",
-        raw: 'video',
+        raw: "video",
         index: 5
       },
       %{
         title: "repo",
-        raw: 'repo',
+        raw: "repo",
         index: 10
       },
       %{
         title: "user",
-        raw: 'user',
+        raw: "user",
         index: 15
       },
       %{
         title: "wiki",
-        raw: 'wiki',
+        raw: "wiki",
         index: 20
       },
       %{
         title: "cheatsheet",
-        raw: 'cheatsheet',
+        raw: "cheatsheet",
         index: 25
       },
       %{
         title: "job",
-        raw: 'job',
+        raw: "job",
         index: 30
       }
     ]

@@ -63,9 +63,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   def seed_categories(bot, :default) do
     with true <- is_empty_db?(Category) do
       Enum.each(@default_categories, fn cat ->
-        title = cat
-        raw = cat
-        CMS.create_category(%Category{title: title, raw: raw}, bot)
+        CMS.create_category(cat, bot)
       end)
 
       ORM.find_all(Category, %{page: 1, size: 20})

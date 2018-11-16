@@ -184,12 +184,13 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       }
     }
     """
+    @tag :wip
     test "guest user can get paged categories", ~m(guest_conn user)a do
       variables = %{filter: %{page: 1, size: 10}}
       valid_attrs = mock_attrs(:category)
       ~m(title raw)a = valid_attrs
 
-      {:ok, _} = CMS.create_category(~m(%Category title raw)a, %User{id: user.id})
+      {:ok, _} = CMS.create_category(~m(title raw)a, %User{id: user.id})
 
       results = guest_conn |> query_result(@query, variables, "pagedCategories")
       author = results["entries"] |> List.first() |> Map.get("author")
@@ -198,12 +199,13 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       assert author["id"] == to_string(user.id)
     end
 
+    @tag :wip
     test "paged categories containes communities info", ~m(guest_conn user community)a do
       variables = %{filter: %{page: 1, size: 10}}
       valid_attrs = mock_attrs(:category)
       ~m(title raw)a = valid_attrs
 
-      {:ok, category} = CMS.create_category(~m(%Category title raw)a, %User{id: user.id})
+      {:ok, category} = CMS.create_category(~m(title raw)a, %User{id: user.id})
 
       {:ok, _} = CMS.set_category(%Community{id: community.id}, %Category{id: category.id})
 

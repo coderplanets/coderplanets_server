@@ -258,14 +258,12 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       }
     }
     """
-    @tag :wip
     test "guest user should get false sessionState", ~m(guest_conn)a do
       results = guest_conn |> query_result(@query, %{}, "sessionState")
       assert results["isValid"] == false
       assert results["user"] == nil
     end
 
-    @tag :wip
     test "login user should get true sessionState", ~m(user)a do
       user_conn = simu_conn(:user, user)
       results = user_conn |> query_result(@query, %{}, "sessionState")
@@ -274,7 +272,6 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert results["user"] |> Map.get("id") == to_string(user.id)
     end
 
-    @tag :wip
     test "user with invalid token get false sessionState" do
       user_conn = simu_conn(:invalid_token)
       results = user_conn |> query_result(@query, %{}, "sessionState")
@@ -283,7 +280,6 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert results["user"] == nil
     end
 
-    @tag :wip
     test "user should subscribe home community if not subscribed before", ~m(user)a do
       {:ok, community} = db_insert(:community, %{raw: "home"})
 
