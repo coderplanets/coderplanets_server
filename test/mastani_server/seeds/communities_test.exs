@@ -44,7 +44,7 @@ defmodule MastaniServer.Test.Seeds.Communities do
       assert community.raw == "home"
 
       {:ok, found} = ORM.find(CMS.Community, community.id, preload: :threads)
-      assert length(found.threads) == 6
+      assert length(found.threads) == 7
     end
 
     @tag :wip
@@ -92,7 +92,7 @@ defmodule MastaniServer.Test.Seeds.Communities do
       assert community.raw == "home"
 
       {:ok, found} = ORM.find(CMS.Community, community.id, preload: :threads)
-      assert length(found.threads) == 6
+      assert length(found.threads) == 7
     end
   end
 end

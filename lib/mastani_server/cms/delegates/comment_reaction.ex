@@ -25,8 +25,7 @@ defmodule MastaniServer.CMS.Delegate.CommentReaction do
   defp merge_thread_comment_id(:video_comment, comment_id), do: %{video_comment_id: comment_id}
   defp merge_thread_comment_id(:repo_comment, comment_id), do: %{repo_comment_id: comment_id}
 
-  defp feel_comment(thread, comment_id, user_id, feeling)
-       when valid_feeling(feeling) do
+  defp feel_comment(thread, comment_id, user_id, feeling) do
     with {:ok, action} <- match_action(thread, feeling) do
       clause = Map.merge(%{user_id: user_id}, merge_thread_comment_id(thread, comment_id))
       # clause = %{post_comment_id: comment_id, user_id: user_id}

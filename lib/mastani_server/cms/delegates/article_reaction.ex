@@ -16,7 +16,6 @@ defmodule MastaniServer.CMS.Delegate.ArticleReaction do
   @doc """
   favorite / star / watch CMS contents like post / tuts / video ...
   """
-  # when valid_reaction(thread, react) do
   def reaction(thread, react, content_id, %User{id: user_id}) do
     with {:ok, action} <- match_action(thread, react),
          {:ok, content} <- ORM.find(action.target, content_id, preload: [author: :user]),
@@ -55,7 +54,6 @@ defmodule MastaniServer.CMS.Delegate.ArticleReaction do
   @doc """
   unfavorite / unstar / unwatch CMS contents like post / tuts / video ...
   """
-  # when valid_reaction(thread, react) do
   def undo_reaction(thread, react, content_id, %User{id: user_id}) do
     with {:ok, action} <- match_action(thread, react),
          {:ok, content} <- ORM.find(action.target, content_id, preload: [author: :user]),

@@ -64,7 +64,7 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
   default threads seeds for home
   """
   def threads(:home, :list) do
-    ["post", "user", "news", "city", "share", "job"]
+    ["post", "tech", "user", "radar", "city", "share", "job"]
   end
 
   @doc """
@@ -178,7 +178,7 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
         color: :red
       },
       %{
-        title: "tech",
+        title: "design",
         color: :orange
       },
       %{
@@ -207,6 +207,44 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
       }
     ]
     |> Enum.map(fn attr -> Map.merge(%{thread: :post, topic: "posts"}, attr) end)
+  end
+
+  def tags(:home, :tech) do
+    [
+      %{
+        title: "frontend",
+        color: :red
+      },
+      %{
+        title: "backend",
+        color: :orange
+      },
+      %{
+        title: "mobile",
+        color: :yellow
+      },
+      %{
+        title: "operation",
+        color: :green
+      },
+      %{
+        title: "blockchain",
+        color: :cyan
+      },
+      %{
+        title: "db",
+        color: :blue
+      },
+      %{
+        title: "ai",
+        color: :purple
+      },
+      %{
+        title: "other",
+        color: :grey
+      }
+    ]
+    |> Enum.map(fn attr -> Map.merge(%{thread: :tech, topic: "tech"}, attr) end)
   end
 
   def tags(:home, :share) do
@@ -248,7 +286,7 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
     |> Enum.map(fn attr -> Map.merge(%{thread: :share, topic: "share"}, attr) end)
   end
 
-  def tags(:home, :news) do
+  def tags(:home, :radar) do
     [
       %{
         title: "science",
@@ -284,7 +322,7 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
         color: :grey
       }
     ]
-    |> Enum.map(fn attr -> Map.merge(%{thread: :news, topic: "news"}, attr) end)
+    |> Enum.map(fn attr -> Map.merge(%{thread: :radar, topic: "radar"}, attr) end)
   end
 
   def tags(:home, :city) do

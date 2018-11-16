@@ -235,10 +235,10 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
       assert rule_conn
              |> mutation_get_error?(@create_tag_query, variables)
 
-      variables = variables |> Map.merge(%{topic: "news"})
+      variables = variables |> Map.merge(%{topic: "radar"})
       created = rule_conn |> mutation_result(@create_tag_query, variables, "createTag")
       assert created["title"] == variables.title
-      assert created["topic"]["title"] == "news"
+      assert created["topic"]["title"] == "radar"
     end
 
     test "auth user create duplicate tag fails", ~m(community)a do

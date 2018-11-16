@@ -49,8 +49,9 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
       {:error, _} -> seed_threads(:default)
     end
 
-    {:ok, _thread} = CMS.create_thread(%{title: "news", raw: "news", index: 1})
-    {:ok, _thread} = CMS.create_thread(%{title: "share", raw: "share", index: 2})
+    {:ok, _thread} = CMS.create_thread(%{title: "tech", raw: "tech", index: 1})
+    {:ok, _thread} = CMS.create_thread(%{title: "radar", raw: "radar", index: 2})
+    {:ok, _thread} = CMS.create_thread(%{title: "share", raw: "share", index: 3})
     {:ok, _thread} = CMS.create_thread(%{title: "city", raw: "city", index: 16})
 
     CMS.Thread
