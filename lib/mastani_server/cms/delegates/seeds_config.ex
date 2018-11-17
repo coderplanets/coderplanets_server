@@ -64,12 +64,19 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
       "sails",
       "zend",
       "vue",
-      "angular"
+      "angular",
+      "android",
+      "iphone",
+      "tensorflow"
     ]
   end
 
   def communities(:design) do
     ["css"]
+  end
+
+  def communities(:blockchain) do
+    ["ethereum", "bitcoin"]
   end
 
   def communities(:editor) do

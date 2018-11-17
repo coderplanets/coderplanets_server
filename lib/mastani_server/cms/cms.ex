@@ -120,4 +120,5 @@ defmodule MastaniServer.CMS do
 
   # seeds
   defdelegate seed_communities(opt), to: Seeds
+  defdelegate seed_set_category(communities, category), to: Seeds
 end

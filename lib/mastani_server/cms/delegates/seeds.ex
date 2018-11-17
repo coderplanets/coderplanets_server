@@ -32,6 +32,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   @editor_communities SeedsConfig.communities(:editor)
   @database_communities SeedsConfig.communities(:database)
   @devops_communities SeedsConfig.communities(:devops)
+  @dblockchain_communities SeedsConfig.communities(:blockchain)
   # done
   @city_communities SeedsConfig.communities(:city)
 
@@ -63,7 +64,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
       threadify_communities(communities, threads)
       tagfy_threads(communities, threads, bot)
 
-      categorify_communities(communities, categories, :other)
+      # categorify_communities(communities, categories, :other)
     end
   end
 
@@ -93,7 +94,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
       threadify_communities(communities, threads)
       tagfy_threads(communities, threads, bot)
 
-      categorify_communities(communities, categories, :other)
+      # categorify_communities(communities, categories, :other)
     end
   end
 
@@ -113,6 +114,21 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   end
 
   @doc """
+  seed communities for database
+  """
+  def seed_communities(:blockchain) do
+    with {:ok, threads} <- seed_threads(:default),
+         {:ok, bot} <- seed_bot(),
+         {:ok, categories} <- seed_categories(bot, :default),
+         {:ok, communities} <- seed_for_communities(bot, :blockchain) do
+      threadify_communities(communities, threads)
+      tagfy_threads(communities, threads, bot)
+
+      # categorify_communities(communities, categories, :other)
+    end
+  end
+
+  @doc """
   seed communities for designs
   """
   def seed_communities(:design) do
@@ -123,7 +139,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
       threadify_communities(communities, threads)
       tagfy_threads(communities, threads, bot)
 
-      categorify_communities(communities, categories, :other)
+      # categorify_communities(communities, categories, :other)
     end
   end
 
@@ -237,6 +253,19 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
     ORM.find_all(Category, %{page: 1, size: 20})
   end
 
+  @doc """
+  set list of communities to a spec category
+  """
+  def seed_set_category(communities_names, cat_name) when is_list(communities_names) do
+    {:ok, category} = ORM.find_by(Category, %{raw: cat_name})
+
+    Enum.each(communities_names, fn name ->
+      {:ok, community} = ORM.find_by(Community, %{raw: name})
+
+      {:ok, _} = CMS.set_category(%Community{id: community.id}, %Category{id: category.id})
+    end)
+  end
+
   defp seed_bot do
     case ORM.find(Accounts.User, 1) do
       {:ok, user} ->
@@ -282,6 +311,12 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
     end
   end
 
+  defp seed_for_communities(bot, :blockchain) do
+    with {:error, _} <- ORM.find_by(Community, %{raw: "bitcoin"}) do
+      {:ok, communities} = insert_multi_communities(bot, @dblockchain_communities, :blockchain)
+    end
+  end
+
   defp seed_for_communities(bot, :design) do
     with {:error, _} <- ORM.find_by(Community, %{raw: "css"}) do
       {:ok, communities} = insert_multi_communities(bot, @design_communities, :design)
@@ -296,6 +331,9 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
 
   defp png_icons do
     [
+      "tensorflow",
+      "ethereum",
+      "bitcoin",
       "git",
       "jetbrains",
       "oracle",
