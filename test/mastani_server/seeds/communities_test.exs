@@ -34,6 +34,24 @@ defmodule MastaniServer.Test.Seeds.Communities do
       # IO.inspect tags, label: "hello tags"
     end
 
+    @tag :wip2
+    test "city communities seeds works" do
+      CMS.seed_communities(:city)
+
+      # {:ok, results} = ORM.find_all(CMS.Thread, %{page: 1, size: 20})
+      {:ok, results} = ORM.find_all(CMS.Community, %{page: 1, size: 20})
+      radom_community = results.entries |> Enum.random()
+
+      {:ok, found} = ORM.find(CMS.Community, radom_community.id, preload: :threads)
+      assert length(found.threads) == 5
+
+      {:ok, found} = ORM.find(CMS.Community, radom_community.id, preload: :categories)
+      assert length(found.categories) !== 0
+
+      # {:ok, tags} = ORM.find_all(CMS.Tag, %{page: 1, size: 20})
+      # IO.inspect tags, label: "hello tags"
+    end
+
     @tag :wip
     test "home community seeds works" do
       CMS.seed_communities(:home)

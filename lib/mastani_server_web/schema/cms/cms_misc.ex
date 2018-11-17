@@ -83,13 +83,9 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:city)
     value(:share)
     value(:radar)
-  end
-
-  enum :cms_topic do
-    value(:index)
-    value(:city)
-    value(:share)
-    value(:radar)
+    # city community
+    value(:group)
+    value(:company)
   end
 
   enum :order_enum do

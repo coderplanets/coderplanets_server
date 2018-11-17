@@ -6,8 +6,89 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
   @doc """
   default seeds for pragraming lang's communities
   """
+  # png: reason
   def communities(:pl) do
-    ["javascript", "scala", "haskell", "swift", "typescript", "lua", "racket", "elixir"]
+    [
+      "c",
+      "clojure",
+      "cpp",
+      "csharp",
+      "dart",
+      "delphi",
+      "elm",
+      "erlang",
+      "fsharp",
+      "go",
+      "gradle",
+      "groovy",
+      "java",
+      "javascript",
+      "julia",
+      "kotlin",
+      "lisp",
+      "lua",
+      "ocaml",
+      "perl",
+      "php",
+      "python",
+      "r",
+      "racket",
+      "red",
+      "reason",
+      "rust",
+      "scala",
+      "haskell",
+      "swift",
+      "typescript",
+      "elixir"
+    ]
+  end
+
+  # png: backbone, eggjs
+  def communities(:framework) do
+    [
+      "backbone",
+      "d3",
+      "django",
+      "drupal",
+      "eggjs",
+      "electron",
+      "ionic",
+      "laravel",
+      "meteor",
+      "nestjs",
+      "nodejs",
+      "phoenix",
+      "rails",
+      "react",
+      "sails",
+      "zend",
+      "vue",
+      "angular"
+    ]
+  end
+
+  def communities(:design) do
+    ["css"]
+  end
+
+  def communities(:editor) do
+    ["vim", "atom", "emacs", "vscode", "visualstudio", "jetbrains"]
+  end
+
+  def communities(:database) do
+    [
+      "oracle",
+      "hive",
+      "cassandra",
+      "elasticsearch",
+      "sql-server",
+      "neo4j",
+      "mongodb",
+      "mysql",
+      "postgresql",
+      "redis"
+    ]
   end
 
   def communities(:city) do
@@ -20,13 +101,12 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
       "chengdu",
       "wuhan",
       "xiamen",
-      "nanjing",
       "nanjing"
     ]
   end
 
-  def communities(:framwork) do
-    ["react", "angular", "vue", "angular"]
+  def communities(:devops) do
+    ["git", "cps-support"]
   end
 
   @doc """
@@ -82,10 +162,6 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
     ]
   end
 
-  @doc """
-  default threads seeds for general communities
-  """
-  # ["post", "user", "job", "video", "wiki", "cheatsheet", "repo"]
   def threads(:default) do
     [
       %{
@@ -124,6 +200,13 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
         index: 30
       }
     ]
+  end
+
+  @doc """
+  city threads seeds
+  """
+  def threads(:city, :list) do
+    ["post", "user", "group", "company", "job"]
   end
 
   @doc """
@@ -218,15 +301,15 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
       },
       %{
         title: "conf",
-        color: :red
-      },
-      %{
-        title: "tuts",
         color: :orange
       },
       %{
-        title: "safe",
+        title: "tuts",
         color: :yellow
+      },
+      %{
+        title: "safe",
+        color: :green
       },
       %{
         title: "other",
@@ -234,6 +317,44 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
       }
     ]
     |> Enum.map(fn attr -> Map.merge(%{thread: :video, topic: "videos"}, attr) end)
+  end
+
+  def tags(:city, :post) do
+    [
+      %{
+        title: "refined",
+        color: :red
+      },
+      %{
+        title: "workplace",
+        color: :orange
+      },
+      %{
+        title: "ask",
+        color: :yellow
+      },
+      %{
+        title: "activity",
+        color: :green
+      },
+      %{
+        title: "2hand",
+        color: :cyan
+      },
+      %{
+        title: "hangout",
+        color: :blue
+      },
+      # %{
+      # title: "spread",
+      # color: :purple
+      # },
+      %{
+        title: "other",
+        color: :grey
+      }
+    ]
+    |> Enum.map(fn attr -> Map.merge(%{thread: :post, topic: "posts"}, attr) end)
   end
 
   # home posts
