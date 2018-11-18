@@ -140,7 +140,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   @doc """
   set content to diffent community
   """
-  def set_community(%Community{id: community_id}, thread, content_id) when valid_thread(thread) do
+  def set_community(%Community{id: community_id}, thread, content_id) do
     with {:ok, action} <- match_action(thread, :community),
          {:ok, content} <- ORM.find(action.target, content_id, preload: :communities),
          {:ok, community} <- ORM.find(action.reactor, community_id) do
@@ -151,8 +151,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
     end
   end
 
-  def unset_community(%Community{id: community_id}, thread, content_id)
-      when valid_thread(thread) do
+  def unset_community(%Community{id: community_id}, thread, content_id) do
     with {:ok, action} <- match_action(thread, :community),
          {:ok, content} <- ORM.find(action.target, content_id, preload: :communities),
          {:ok, community} <- ORM.find(action.reactor, community_id) do
@@ -190,7 +189,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
     end
   end
 
-  def unset_tag(thread, %Tag{id: tag_id}, content_id) when valid_thread(thread) do
+  def unset_tag(thread, %Tag{id: tag_id}, content_id) do
     with {:ok, action} <- match_action(thread, :tag),
          {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
          {:ok, tag} <- ORM.find(action.reactor, tag_id) do

@@ -48,20 +48,6 @@ defmodule MastaniServer.CMS.Utils.Matcher do
     VideoCommunityFlag
   }
 
-  @support_thread [:post, :video, :repo, :job]
-  @support_react [:favorite, :star, :watch, :comment, :tag, :self]
-
-  defguard valid_thread(thread) when thread in @support_thread
-  defguard invalid_thread(thread) when thread not in @support_thread
-
-  defguard valid_reaction(thread, react)
-           when valid_thread(thread) and react in @support_react
-
-  defguard invalid_reaction(thread, react)
-           when invalid_thread(thread) and react not in @support_react
-
-  defguard valid_feeling(feel) when feel in [:like, :dislike]
-
   #########################################
   ##  posts ...
   #########################################
@@ -73,6 +59,11 @@ defmodule MastaniServer.CMS.Utils.Matcher do
 
   def match_action(:post, :star), do: {:ok, %{target: Post, reactor: PostStar, preload: :user}}
   def match_action(:post, :tag), do: {:ok, %{target: Post, reactor: Tag}}
+  # NOTE: the tech, radar, share, city thread also use common tag
+  def match_action(:radar, :tag), do: {:ok, %{target: Post, reactor: Tag}}
+  def match_action(:share, :tag), do: {:ok, %{target: Post, reactor: Tag}}
+  def match_action(:city, :tag), do: {:ok, %{target: Post, reactor: Tag}}
+  def match_action(:tech, :tag), do: {:ok, %{target: Post, reactor: Tag}}
 
   def match_action(:post, :community),
     do: {:ok, %{target: Post, reactor: Community, flag: PostCommunityFlag}}

@@ -86,8 +86,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Operation do
       arg(:thread, :cms_thread, default_value: :post)
 
       middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->t?.tag.set")
+      # middleware(M.PassportLoader, source: :community)
+      # middleware(M.Passport, claim: "cms->c?->t?.tag.set")
 
       resolve(&R.CMS.set_tag/3)
     end
@@ -101,8 +101,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Operation do
       arg(:thread, :cms_thread, default_value: :post)
 
       middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->t?.tag.unset")
+      # middleware(M.PassportLoader, source: :community)
+      # middleware(M.Passport, claim: "cms->c?->t?.tag.unset")
 
       resolve(&R.CMS.unset_tag/3)
     end

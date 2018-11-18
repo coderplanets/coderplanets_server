@@ -164,7 +164,6 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   with or without page info
   """
   def reaction_users(thread, react, id, %{page: page, size: size} = filters) do
-    # when valid_reaction(thread, react) do
     with {:ok, action} <- match_action(thread, react),
          {:ok, where} <- dynamic_where(thread, id) do
       # common_filter(action.reactor)

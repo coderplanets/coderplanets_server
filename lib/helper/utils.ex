@@ -123,10 +123,19 @@ defmodule Helper.Utils do
       else: val |> String.to_integer()
   end
 
+  # TODO: enhance, doc
   def repeat(times, [x]) when is_integer(x), do: to_string(for _ <- 1..times, do: x)
   def repeat(times, x), do: for(_ <- 1..times, do: x)
 
+  # TODO: enhance, doc
   def add(num, offset \\ 1) when is_integer(num) and is_integer(offset), do: num + offset
+
+  # TODO: enhance, doc
+  def pick_by(source, key) when is_list(source) and is_atom(key) do
+    Enum.reduce(source, [], fn t, acc ->
+      acc ++ [Map.get(t, key)]
+    end)
+  end
 
   def map_atom_value(attrs, :string) do
     results =

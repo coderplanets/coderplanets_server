@@ -161,7 +161,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def paged_categories(_root, ~m(filter)a, _info), do: Category |> ORM.find_all(filter)
 
   def create_category(_root, ~m(title raw)a, %{context: %{cur_user: user}}) do
-    CMS.create_category(%Category{title: title, raw: raw}, user)
+    CMS.create_category(%{title: title, raw: raw}, user)
   end
 
   def delete_category(_root, %{id: id}, _info), do: Category |> ORM.find_delete(id)
@@ -237,8 +237,9 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.set_tag(%Community{id: community_id}, thread, %Tag{id: tag_id}, id)
   end
 
-  def unset_tag(_root, ~m(id thread tag_id)a, _info),
-    do: CMS.unset_tag(thread, %Tag{id: tag_id}, id)
+  def unset_tag(_root, ~m(id thread tag_id)a, _info) do
+    CMS.unset_tag(thread, %Tag{id: tag_id}, id)
+  end
 
   def get_tags(_root, ~m(community_id thread topic)a, _info) do
     CMS.get_tags(%Community{id: community_id}, thread, topic)

@@ -110,15 +110,37 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
     end
   end
 
+  @doc """
+  unsubscribe a community
+  """
+  # TODO: can't unsubscribe home community
   def unsubscribe_community(
         %Community{id: community_id},
         %User{id: user_id},
         remote_ip \\ :localhost
       ) do
-    with {:ok, record} <-
-           CommunitySubscriber |> ORM.findby_delete(community_id: community_id, user_id: user_id) do
-      update_geo_info(community_id, user_id, remote_ip, :dec)
-      Community |> ORM.find(record.community_id)
+    with {:ok, community} <- ORM.find(Community, community_id),
+         {:ok, record} <-
+           CommunitySubscriber |> ORM.findby_delete(community_id: community.id, user_id: user_id) do
+      case community.raw !== "home" do
+        true ->
+          update_geo_info(community_id, user_id, remote_ip, :dec)
+          Community |> ORM.find(record.community_id)
+
+        false ->
+          {:error, "can't delete home community"}
+      end
+    end
+  end
+
+  @doc """
+  if user is new subscribe home community by default
+  """
+  def subscribe_default_community_ifnot(%User{} = user, remote_ip \\ :localhost) do
+    with {:ok, community} <- ORM.find_by(Community, raw: "home"),
+         {:error, _} <-
+           ORM.find_by(CommunitySubscriber, %{community_id: community.id, user_id: user.id}) do
+      subscribe_community(community, user, remote_ip)
     end
   end
 

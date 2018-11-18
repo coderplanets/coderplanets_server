@@ -44,6 +44,11 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:job)
     value(:video)
     value(:repo)
+    # home community
+    value(:tech)
+    value(:city)
+    value(:share)
+    value(:radar)
   end
 
   enum :cms_comment do
@@ -58,6 +63,11 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:job)
     value(:video)
     value(:repo)
+    # home community
+    value(:tech)
+    value(:city)
+    value(:share)
+    value(:radar)
   end
 
   enum :cms_thread do
@@ -68,17 +78,14 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:repo)
     value(:wiki)
     value(:cheatsheet)
-    # for home pages
+    # home community
+    value(:tech)
     value(:city)
     value(:share)
-    value(:news)
-  end
-
-  enum :cms_topic do
-    value(:index)
-    value(:city)
-    value(:share)
-    value(:news)
+    value(:radar)
+    # city community
+    value(:group)
+    value(:company)
   end
 
   enum :order_enum do
@@ -131,6 +138,9 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:cyan)
     value(:blue)
     value(:purple)
+    value(:dodgerblue)
+    value(:yellowgreen)
+    value(:brown)
     value(:grey)
   end
 

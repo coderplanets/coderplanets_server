@@ -5,7 +5,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Job do
   use Helper.GqlSchemaSuite
 
   object :cms_job_mutations do
-    @desc "create a user"
+    @desc "create a job"
     field :create_job, :job do
       arg(:title, non_null(:string))
       arg(:company, non_null(:string))
@@ -31,6 +31,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Job do
       arg(:tags, list_of(:ids))
 
       middleware(M.Authorize, :login)
+      middleware(M.PublishThrottle)
       resolve(&R.CMS.create_content/3)
     end
 
