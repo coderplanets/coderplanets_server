@@ -144,6 +144,10 @@ seeds.prod:
 	@echo "seeds the prod database"
 	env MIX_ENV=prod mix cps.seeds
 
+reseeds.mock:
+	env MIX_ENV=mock mix ecto.reset
+	env MIX_ENV=mock mix cps.seeds
+
 test.help:
 	$(call test.help)
 	@echo "\n"
