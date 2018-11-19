@@ -63,6 +63,17 @@ defmodule MastaniServer.Test.AssertHelper do
     end
   end
 
+  def is_valid_pagination?(obj, :raw, :empty) when is_map(obj) do
+    case is_valid_pagination?(obj, :raw) do
+      false ->
+        false
+
+      true ->
+        obj.entries |> Enum.empty?() and obj.total_count == 0 and obj.page_number == 1 and
+        obj.total_pages == 1
+    end
+  end
+
   def is_valid_pagination?(obj, :raw) when is_map(obj) do
     is_valid_kv?(obj, "entries", :list) and is_valid_kv?(obj, "total_pages", :int) and
       is_valid_kv?(obj, "total_count", :int) and is_valid_kv?(obj, "page_size", :int) and

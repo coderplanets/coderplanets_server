@@ -48,5 +48,11 @@ defmodule MastaniServer.Test.CMS.Search do
       assert searched.entries |> Enum.any?(&(&1.title == "java"))
       assert searched.entries |> Enum.any?(&(&1.title == "javascript"))
     end
+
+    @tag :wip
+    test "search non exsit community should get empty pagi data" do
+      {:ok, searched} = CMS.search_items(:community, %{title: "non-exsit"})
+      assert searched |> is_valid_pagination?(:raw, :empty)
+    end
   end
 end
