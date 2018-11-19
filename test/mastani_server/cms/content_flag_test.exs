@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.ContentFlags do
+defmodule MastaniServer.Test.CMS.ContentFlags do
   use MastaniServer.TestTools
 
   alias MastaniServer.CMS

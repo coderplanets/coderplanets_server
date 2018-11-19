@@ -355,4 +355,8 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def add_cheatsheet_contributor(_root, ~m(id contributor)a, %{context: %{cur_user: _user}}) do
     CMS.add_contributor(%CMS.CommunityCheatsheet{id: id}, contributor)
   end
+
+  def search_items(_root, %{part: part, title: title}, _info) do
+    CMS.search_items(part, %{title: title})
+  end
 end

@@ -1,13 +1,11 @@
 defmodule MastaniServer.Test.Seeds.Communities do
   use MastaniServer.TestTools
 
-  alias MastaniServer.Accounts.User
+  # alias MastaniServer.Accounts.User
   alias MastaniServer.CMS
   alias CMS.Delegate.SeedsConfig
 
-  alias Helper.{Certification, ORM}
-
-  alias Helper.Utils
+  alias Helper.{ORM, Utils}
 
   # setup do
   # {:ok, user} = db_insert(:user)
@@ -16,7 +14,6 @@ defmodule MastaniServer.Test.Seeds.Communities do
   # end
 
   describe "[cms communities seeds]" do
-    @tag :wip2
     test "default pl communities seeds works" do
       CMS.seed_communities(:pl)
 
@@ -34,7 +31,6 @@ defmodule MastaniServer.Test.Seeds.Communities do
       # IO.inspect tags, label: "hello tags"
     end
 
-    @tag :wip2
     test "city communities seeds works" do
       CMS.seed_communities(:city)
 
@@ -52,7 +48,6 @@ defmodule MastaniServer.Test.Seeds.Communities do
       # IO.inspect tags, label: "hello tags"
     end
 
-    @tag :wip
     test "home community seeds works" do
       CMS.seed_communities(:home)
 
@@ -65,7 +60,6 @@ defmodule MastaniServer.Test.Seeds.Communities do
       assert length(found.threads) == 7
     end
 
-    @tag :wip
     test "seeded general community has general tags" do
       CMS.seed_communities(:pl)
       {:ok, results} = ORM.find_all(CMS.Community, %{page: 1, size: 20})
@@ -100,7 +94,6 @@ defmodule MastaniServer.Test.Seeds.Communities do
       assert found_tags |> Enum.sort() == config_tags |> Enum.sort()
     end
 
-    @tag :wip
     test "seeded home community has home-spec tags" do
       CMS.seed_communities(:home)
 

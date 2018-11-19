@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.JobReactions do
+defmodule MastaniServer.Test.CMS.JobReactions do
   use MastaniServer.TestTools
 
   alias MastaniServer.CMS

@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.ContentsPin do
+defmodule MastaniServer.Test.CMS.ContentsPin do
   use MastaniServer.TestTools
 
   # alias Helper.ORM

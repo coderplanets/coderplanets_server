@@ -245,6 +245,30 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     field(:color, :string)
   end
 
+  enum :sort_enum do
+    value(:most_views)
+    value(:most_updated)
+    value(:most_favorites)
+    value(:most_stars)
+    value(:most_watched)
+    value(:most_comments)
+    value(:least_views)
+    value(:least_updated)
+    value(:least_favorites)
+    value(:least_stars)
+    value(:least_watched)
+    value(:least_comments)
+    value(:recent_updated)
+  end
+
+  enum :search_part do
+    value(:community)
+    value(:post)
+    value(:job)
+    value(:video)
+    value(:repo)
+  end
+
   @doc """
   only used for reaction result, like: favorite/star/watch ...
   """

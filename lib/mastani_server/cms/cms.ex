@@ -15,6 +15,7 @@ defmodule MastaniServer.CMS do
     CommunityCURD,
     CommunityOperation,
     PassportCURD,
+    Search,
     Seeds
   }
 
@@ -117,6 +118,9 @@ defmodule MastaniServer.CMS do
   defdelegate get_passport(user), to: PassportCURD
   defdelegate list_passports(community, key), to: PassportCURD
   defdelegate delete_passport(user), to: PassportCURD
+
+  # search
+  defdelegate search_items(part, args), to: Search
 
   # seeds
   defdelegate seed_communities(opt), to: Seeds

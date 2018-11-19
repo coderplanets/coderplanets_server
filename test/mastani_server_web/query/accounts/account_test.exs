@@ -284,7 +284,7 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       {:ok, community} = db_insert(:community, %{raw: "home"})
 
       user_conn = simu_conn(:user, user)
-      results = user_conn |> query_result(@query, %{}, "sessionState")
+      _results = user_conn |> query_result(@query, %{}, "sessionState")
 
       {:ok, record} =
         ORM.find_by(CMS.CommunitySubscriber, %{community_id: community.id, user_id: user.id})

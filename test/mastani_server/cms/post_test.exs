@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Post do
+defmodule MastaniServer.Test.CMS.Post do
   use MastaniServer.TestTools
 
   alias Helper.ORM

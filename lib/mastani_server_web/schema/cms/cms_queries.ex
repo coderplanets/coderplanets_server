@@ -202,5 +202,13 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       middleware(M.PageSizeProof)
       resolve(&R.CMS.paged_comments/3)
     end
+
+    @desc "search communities by title"
+    field :search_communities, :paged_communities do
+      arg(:title, non_null(:string))
+      arg(:part, :community_type, default_value: :community)
+
+      resolve(&R.CMS.search_items/3)
+    end
   end
 end

@@ -184,7 +184,6 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       }
     }
     """
-    @tag :wip
     test "guest user can get paged categories", ~m(guest_conn user)a do
       variables = %{filter: %{page: 1, size: 10}}
       valid_attrs = mock_attrs(:category)
@@ -199,7 +198,6 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       assert author["id"] == to_string(user.id)
     end
 
-    @tag :wip
     test "paged categories containes communities info", ~m(guest_conn user community)a do
       variables = %{filter: %{page: 1, size: 10}}
       valid_attrs = mock_attrs(:category)
