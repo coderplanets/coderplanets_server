@@ -42,7 +42,12 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:updated_at, :datetime)
     field(:from_github, :boolean)
     field(:github_profile, :github_profile, resolve: dataloader(Accounts, :github_profile))
-    field(:achievement, :achievement, resolve: dataloader(Accounts, :achievement))
+    # field(:achievement, :achievement, resolve: dataloader(Accounts, :achievement))
+
+    field(:achievement, :achievement) do
+      resolve(dataloader(Accounts, :achievement))
+      middleware(M.AchievementProof)
+    end
 
     field(:customization, :customization) do
       middleware(M.Authorize, :login)
