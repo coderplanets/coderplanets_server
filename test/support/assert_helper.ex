@@ -70,7 +70,7 @@ defmodule MastaniServer.Test.AssertHelper do
 
       true ->
         obj.entries |> Enum.empty?() and obj.total_count == 0 and obj.page_number == 1 and
-        obj.total_pages == 1
+          obj.total_pages == 1
     end
   end
 

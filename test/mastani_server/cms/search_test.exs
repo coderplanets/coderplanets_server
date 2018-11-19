@@ -16,7 +16,6 @@ defmodule MastaniServer.Test.CMS.Search do
   end
 
   describe "[cms search community]" do
-    @tag :wip
     test "search community by full title should valid paged communities" do
       {:ok, searched} = CMS.search_items(:community, %{title: "react"})
 
@@ -25,7 +24,6 @@ defmodule MastaniServer.Test.CMS.Search do
       assert searched.entries |> Enum.at(0) |> Map.get(:title) == "react"
     end
 
-    @tag :wip
     test "search community blur title should return valid communities" do
       {:ok, searched} = CMS.search_items(:community, %{title: "reac"})
       assert searched.entries |> Enum.at(0) |> Map.get(:title) == "react"
@@ -49,7 +47,6 @@ defmodule MastaniServer.Test.CMS.Search do
       assert searched.entries |> Enum.any?(&(&1.title == "javascript"))
     end
 
-    @tag :wip
     test "search non exsit community should get empty pagi data" do
       {:ok, searched} = CMS.search_items(:community, %{title: "non-exsit"})
       assert searched |> is_valid_pagination?(:raw, :empty)

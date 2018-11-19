@@ -7,7 +7,6 @@ defmodule MastaniServer.Test.Query.CMS.Search do
 
   setup do
     guest_conn = simu_conn(:guest)
-    {:ok, user} = db_insert(:user)
     {:ok, _community} = db_insert(:community, %{title: "react"})
     {:ok, _community} = db_insert(:community, %{title: "php"})
     {:ok, _community} = db_insert(:community, %{title: "每日妹子"})
@@ -18,7 +17,6 @@ defmodule MastaniServer.Test.Query.CMS.Search do
   end
 
   describe "[cms search community query]" do
-
     @query """
     query($title: String!) {
       searchCommunities(title: $title) {
@@ -30,7 +28,6 @@ defmodule MastaniServer.Test.Query.CMS.Search do
       }
     }
     """
-    @tag :wip
     test "search community by full title should valid paged communities", ~m(guest_conn)a do
       variables = %{title: "react"}
       results = guest_conn |> query_result(@query, variables, "searchCommunities")
@@ -46,7 +43,6 @@ defmodule MastaniServer.Test.Query.CMS.Search do
       assert results["entries"] |> Enum.any?(&(&1["title"] == "javascript"))
     end
 
-    @tag :wip
     test "search non-exsit community should get empty pagi data", ~m(guest_conn)a do
       variables = %{title: "non-exsit"}
       results = guest_conn |> query_result(@query, variables, "searchCommunities")
