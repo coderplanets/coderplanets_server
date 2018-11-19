@@ -17,6 +17,31 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
     {:ok, ~m(user_conn guest_conn user)a}
   end
 
+  describe "[account get acheiveements]" do
+    @query """
+    query($id: ID!) {
+      user(id: $id) {
+        id
+        achievement {
+          reputation
+          contentsStaredCount
+          contentsFavoritedCount
+          sourceContribute {
+            web
+            server
+          }
+        }
+      }
+    }
+    """
+    test "empty user should get empty achievement", ~m(guest_conn user)a do
+      variables = %{id: user.id}
+
+      results = guest_conn |> query_result(@query, variables, "user")
+      assert results["achievement"] !== nil
+    end
+  end
+
   describe "[account editable-communities]" do
     @query """
     query($userId: ID, $filter: PagedFilter!) {
