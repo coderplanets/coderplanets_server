@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.CMSPassport do
+defmodule MastaniServer.Test.CMS.Passport do
   use MastaniServer.TestTools
 
   alias MastaniServer.Accounts.User

@@ -23,7 +23,7 @@ defmodule MastaniServer.Test.Mutation.Post do
       $length: Int!
       $communityId: ID!
       $tags: [Ids]
-      $topic: CmsTopic
+      $topic: String
     ) {
       createPost(
         title: $title

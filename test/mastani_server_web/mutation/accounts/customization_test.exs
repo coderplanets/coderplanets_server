@@ -27,9 +27,8 @@ defmodule MastaniServer.Test.Mutation.Account.Customization do
       }
     }
     """
-    test "user can set customization", ~m(user_conn user)a do
-      ownd_conn = simu_conn(:user, user)
-
+    test "user can set customization", ~m(user_conn)a do
+      # ownd_conn = simu_conn(:user, user)
       variables = %{
         customization: %{
           bannerLayout: "BRIEF",
@@ -47,9 +46,7 @@ defmodule MastaniServer.Test.Mutation.Account.Customization do
       assert result["customization"]["displayDensity"] == "25"
     end
 
-    test "user set customization with invalid attr fails", ~m(user_conn user)a do
-      ownd_conn = simu_conn(:user, user)
-
+    test "user set customization with invalid attr fails", ~m(user_conn)a do
       variables1 = %{
         customization: %{
           bannerLayout: "OTHER"

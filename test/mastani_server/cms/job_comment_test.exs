@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.JobComment do
+defmodule MastaniServer.Test.CMS.JobComment do
   # currently only test comments for job type, rename and seprherate later
   use MastaniServer.TestTools
 

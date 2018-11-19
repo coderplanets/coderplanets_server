@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Cheatsheet do
+defmodule MastaniServer.Test.CMS.Cheatsheet do
   use MastaniServer.TestTools
 
   alias Helper.ORM

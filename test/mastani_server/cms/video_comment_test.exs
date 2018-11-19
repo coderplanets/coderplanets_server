@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.VideoComment do
+defmodule MastaniServer.Test.CMS.VideoComment do
   # currently only test comments for video type, rename and seprherate later
   use MastaniServer.TestTools
 

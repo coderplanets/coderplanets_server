@@ -1,9 +1,6 @@
 defmodule MastaniServer.Test.Query.Account.Customization do
   use MastaniServer.TestTools
   import Helper.Utils, only: [get_config: 2]
-  alias MastaniServer.{Accounts, CMS}
-
-  alias Helper.ORM
 
   @default_customization get_config(:customization, :all) |> Enum.into(%{})
 

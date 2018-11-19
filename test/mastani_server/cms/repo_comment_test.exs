@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.RepoComment do
+defmodule MastaniServer.Test.CMS.RepoComment do
   # currently only test comments for repo type, rename and seprherate later
   use MastaniServer.TestTools
 

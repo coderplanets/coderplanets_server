@@ -25,7 +25,7 @@ defmodule MastaniServer.Test.Query.PostsTopic do
       $length: Int!
       $communityId: ID!
       $tags: [Ids]
-      $topic: CmsTopic
+      $topic: String
     ) {
       createPost(
         title: $title

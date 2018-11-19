@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.VideoReactions do
+defmodule MastaniServer.Test.CMS.VideoReactions do
   use MastaniServer.TestTools
 
   alias MastaniServer.CMS

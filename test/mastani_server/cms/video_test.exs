@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.Video do
+defmodule MastaniServer.Test.CMS.Video do
   use MastaniServer.TestTools
 
   alias Helper.ORM
