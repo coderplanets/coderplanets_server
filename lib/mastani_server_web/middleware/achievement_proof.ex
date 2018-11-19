@@ -7,7 +7,7 @@ defmodule MastaniServerWeb.Middleware.AchievementProof do
 
   def call(%{value: nil} = resolution, _) do
     value = %{
-      reputation: 100,
+      reputation: 0,
       contents_stared_count: 0,
       contents_favorited_count: 0,
       source_contribute: %{
