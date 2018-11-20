@@ -33,6 +33,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Job do
       middleware(M.Authorize, :login)
       middleware(M.PublishThrottle)
       resolve(&R.CMS.create_content/3)
+      middleware(M.Statistics.MakeContribute, for: :user)
     end
 
     @desc "pin a job"

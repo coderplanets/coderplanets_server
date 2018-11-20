@@ -22,6 +22,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Post do
       middleware(M.PublishThrottle)
       # middleware(M.PublishThrottle, interval: 3, hour_limit: 15, day_limit: 30)
       resolve(&R.CMS.create_content/3)
+      middleware(M.Statistics.MakeContribute, for: :user)
     end
 
     @desc "pin a post"

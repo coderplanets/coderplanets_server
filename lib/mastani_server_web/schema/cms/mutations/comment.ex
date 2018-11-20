@@ -16,6 +16,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Comment do
       middleware(M.Authorize, :login)
       # TODO: 文章作者可以删除评论，文章可以设置禁止评论
       resolve(&R.CMS.create_comment/3)
+      middleware(M.Statistics.MakeContribute, for: :user)
     end
 
     field :delete_comment, :comment do
@@ -41,6 +42,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Comment do
       middleware(M.Authorize, :login)
 
       resolve(&R.CMS.reply_comment/3)
+      middleware(M.Statistics.MakeContribute, for: :user)
     end
 
     @desc "like a comment"
