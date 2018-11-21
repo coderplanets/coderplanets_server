@@ -180,7 +180,7 @@ defmodule MastaniServer.CMS.Utils.Loader do
   # see https://github.com/coderplanets/coderplanets_server/issues/16
   def query({"posts_comments", PostComment}, %{filter: filter, unique: true}) do
     PostComment
-    # |> QueryBuilder.filter_pack(filter)
+    |> QueryBuilder.filter_pack(filter)
     |> join(:inner, [c], a in assoc(c, :author))
     |> distinct([c, a], a.id)
     |> select([c, a], a)

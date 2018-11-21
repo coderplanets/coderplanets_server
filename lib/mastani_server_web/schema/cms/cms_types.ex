@@ -18,6 +18,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   end
 
   object :post do
+    meta(:cache, max_age: 30)
     interface(:article)
     field(:id, :id)
     field(:title, :string)
@@ -248,7 +249,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
   end
 
   object :community do
-    # meta(:cache, max_age: 30)
+    meta(:cache, max_age: 30)
     field(:id, :id)
     field(:title, :string)
     field(:desc, :string)
