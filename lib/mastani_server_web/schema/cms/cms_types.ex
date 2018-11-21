@@ -235,12 +235,12 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:index, :integer)
   end
 
-  object :contribute do
+  object :contribute, meta: [max_age: 30] do
     field(:date, :date)
     field(:count, :integer)
   end
 
-  object :contribute_map do
+  object :contribute_map, meta: [max_age: 30] do
     field(:start_date, :date)
     field(:end_date, :date)
     field(:total_count, :integer)
