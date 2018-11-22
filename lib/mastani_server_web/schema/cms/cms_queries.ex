@@ -210,5 +210,37 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
       resolve(&R.CMS.search_items/3)
     end
+
+    @desc "search post by title"
+    field :search_posts, :paged_posts do
+      arg(:title, non_null(:string))
+      arg(:part, :post_thread, default_value: :post)
+
+      resolve(&R.CMS.search_items/3)
+    end
+
+    @desc "search job by title"
+    field :search_jobs, :paged_jobs do
+      arg(:title, non_null(:string))
+      arg(:part, :job_thread, default_value: :job)
+
+      resolve(&R.CMS.search_items/3)
+    end
+
+    @desc "search video by title"
+    field :search_videos, :paged_videos do
+      arg(:title, non_null(:string))
+      arg(:part, :video_thread, default_value: :video)
+
+      resolve(&R.CMS.search_items/3)
+    end
+
+    @desc "search repo by title"
+    field :search_repos, :paged_repos do
+      arg(:title, non_null(:string))
+      arg(:part, :repo_thread, default_value: :repo)
+
+      resolve(&R.CMS.search_items/3)
+    end
   end
 end

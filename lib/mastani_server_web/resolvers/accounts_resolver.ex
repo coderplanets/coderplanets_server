@@ -264,4 +264,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   # def create_user(_root, args, %{context: %{cur_user: %{root: true}}}) do
   # Accounts.create_user2(args)
   # end
+  def search_users(_root, %{name: name}, _info) do
+    Accounts.search_users(%{name: name})
+  end
 end

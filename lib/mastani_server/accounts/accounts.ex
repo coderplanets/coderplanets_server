@@ -10,7 +10,8 @@ defmodule MastaniServer.Accounts do
     Publish,
     Mails,
     Profile,
-    ReactedContents
+    ReactedContents,
+    Search
   }
 
   # profile
@@ -69,4 +70,6 @@ defmodule MastaniServer.Accounts do
   defdelegate get_customization(user), to: Customization
   defdelegate set_customization(user, key, value), to: Customization
   defdelegate set_customization(user, options), to: Customization
+
+  defdelegate search_users(args), to: Search
 end

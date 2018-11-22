@@ -237,5 +237,12 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
 
       resolve(&R.Accounts.get_all_rules/3)
     end
+
+    @desc "search user by name"
+    field :search_users, :paged_users do
+      arg(:name, non_null(:string))
+
+      resolve(&R.Accounts.search_users/3)
+    end
   end
 end

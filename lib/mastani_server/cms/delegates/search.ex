@@ -7,7 +7,9 @@ defmodule MastaniServer.CMS.Delegate.Search do
   import Ecto.Query, warn: false
 
   alias Helper.ORM
-  alias MastaniServer.CMS.{Community}
+  alias MastaniServer.CMS.{Community, Post, Job, Video, Repo}
+
+  @search_items_count 15
 
   @doc """
   search community by title
@@ -15,10 +17,47 @@ defmodule MastaniServer.CMS.Delegate.Search do
   def search_items(:community, %{title: title} = args) do
     Community
     |> where([c], ilike(c.title, ^"%#{title}%") or ilike(c.raw, ^"%#{title}%"))
-    |> ORM.paginater(page: 1, size: 10)
+    |> ORM.paginater(page: 1, size: @search_items_count)
     |> done()
+  end
 
-    # from candidate in query,
-    # where: like(candidate.first_name, ^("%#{text}%"))
+  @doc """
+  search post by title
+  """
+  def search_items(:post, %{title: title} = args) do
+    Post
+    |> where([c], ilike(c.title, ^"%#{title}%") or ilike(c.digest, ^"%#{title}%"))
+    |> ORM.paginater(page: 1, size: @search_items_count)
+    |> done()
+  end
+
+  @doc """
+  search job by title or company name
+  """
+  def search_items(:job, %{title: title} = args) do
+    Job
+    |> where([c], ilike(c.title, ^"%#{title}%") or ilike(c.company, ^"%#{title}%"))
+    |> ORM.paginater(page: 1, size: @search_items_count)
+    |> done()
+  end
+
+  @doc """
+  search video by title
+  """
+  def search_items(:video, %{title: title} = args) do
+    Video
+    |> where([c], ilike(c.title, ^"%#{title}%") or ilike(c.desc, ^"%#{title}%"))
+    |> ORM.paginater(page: 1, size: @search_items_count)
+    |> done()
+  end
+
+  @doc """
+  search repo by title
+  """
+  def search_items(:repo, %{title: title} = args) do
+    Repo
+    |> where([c], ilike(c.title, ^"%#{title}%") or ilike(c.owner_name, ^"%#{title}%"))
+    |> ORM.paginater(page: 1, size: @search_items_count)
+    |> done()
   end
 end

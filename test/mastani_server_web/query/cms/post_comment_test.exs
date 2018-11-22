@@ -76,7 +76,7 @@ defmodule MastaniServer.Test.Query.PostComment do
       assert comments_participators |> Enum.any?(&(&1["id"] == to_string(user2.id)))
     end
 
-    @tag :wip2
+    @tag :wip
     test "can get comments participators of a post with multi user", ~m(user guest_conn)a do
       body = "this is a test comment"
       {:ok, community} = db_insert(:community)
