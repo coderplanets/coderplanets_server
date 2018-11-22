@@ -81,8 +81,10 @@ defmodule MastaniServer.Test.Query.RepoComment do
       variables = %{thread: "REPO", filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
 
-      assert results["entries"] |> List.first() |> Map.get("commentsParticipators") |> length == 5
-      assert results["entries"] |> List.last() |> Map.get("commentsParticipators") |> length == 5
+      assert results["entries"] |> List.first() |> Map.get("commentsParticipators") |> length ==
+               10
+
+      assert results["entries"] |> List.last() |> Map.get("commentsParticipators") |> length == 10
     end
 
     test "can get paged commetns participators of a repo", ~m(user guest_conn)a do
