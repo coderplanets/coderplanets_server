@@ -52,7 +52,6 @@ defmodule MastaniServer.Test.Query.CMS.Search do
       }
     }
     """
-    @tag :wip
     test "search post by full title should valid paged communities", ~m(guest_conn)a do
       variables = %{title: "react"}
       results = guest_conn |> query_result(@query, variables, "searchPosts")
@@ -68,7 +67,6 @@ defmodule MastaniServer.Test.Query.CMS.Search do
       assert results["entries"] |> Enum.any?(&(&1["title"] == "javascript"))
     end
 
-    @tag :wip
     test "search non-exsit post should get empty pagi data", ~m(guest_conn)a do
       variables = %{title: "non-exsit"}
       results = guest_conn |> query_result(@query, variables, "searchPosts")
@@ -90,7 +88,6 @@ defmodule MastaniServer.Test.Query.CMS.Search do
       }
     }
     """
-    @tag :wip
     test "search job by full title should valid paged communities", ~m(guest_conn)a do
       variables = %{title: "react"}
       results = guest_conn |> query_result(@query, variables, "searchJobs")
@@ -106,7 +103,6 @@ defmodule MastaniServer.Test.Query.CMS.Search do
       assert results["entries"] |> Enum.any?(&(&1["title"] == "javascript"))
     end
 
-    @tag :wip
     test "search non-exsit job should get empty pagi data", ~m(guest_conn)a do
       variables = %{title: "non-exsit"}
       results = guest_conn |> query_result(@query, variables, "searchJobs")
@@ -128,7 +124,6 @@ defmodule MastaniServer.Test.Query.CMS.Search do
       }
     }
     """
-    @tag :wip
     test "search video by full title should valid paged communities", ~m(guest_conn)a do
       variables = %{title: "react"}
       results = guest_conn |> query_result(@query, variables, "searchVideos")
@@ -144,7 +139,6 @@ defmodule MastaniServer.Test.Query.CMS.Search do
       assert results["entries"] |> Enum.any?(&(&1["title"] == "javascript"))
     end
 
-    @tag :wip
     test "search non-exsit video should get empty pagi data", ~m(guest_conn)a do
       variables = %{title: "non-exsit"}
       results = guest_conn |> query_result(@query, variables, "searchVideos")
@@ -166,7 +160,6 @@ defmodule MastaniServer.Test.Query.CMS.Search do
       }
     }
     """
-    @tag :wip
     test "search repo by full title should valid paged communities", ~m(guest_conn)a do
       variables = %{title: "react"}
       results = guest_conn |> query_result(@query, variables, "searchRepos")
@@ -182,7 +175,6 @@ defmodule MastaniServer.Test.Query.CMS.Search do
       assert results["entries"] |> Enum.any?(&(&1["title"] == "javascript"))
     end
 
-    @tag :wip
     test "search non-exsit repo should get empty pagi data", ~m(guest_conn)a do
       variables = %{title: "non-exsit"}
       results = guest_conn |> query_result(@query, variables, "searchRepos")

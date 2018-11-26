@@ -29,7 +29,6 @@ defmodule MastaniServer.Test.Query.Accounts.Search do
       }
     }
     """
-    @tag :wip
     test "search user by full nickname should valid paged communities", ~m(guest_conn)a do
       variables = %{name: "react"}
       results = guest_conn |> query_result(@query, variables, "searchUsers")
@@ -45,7 +44,6 @@ defmodule MastaniServer.Test.Query.Accounts.Search do
       assert results["entries"] |> Enum.any?(&(&1["nickname"] == "javascript"))
     end
 
-    @tag :wip
     test "search non-exsit user should get empty pagi data", ~m(guest_conn)a do
       variables = %{name: "non-exsit"}
       results = guest_conn |> query_result(@query, variables, "searchUsers")

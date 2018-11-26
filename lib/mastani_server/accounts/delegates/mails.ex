@@ -13,14 +13,16 @@ defmodule MastaniServer.Accounts.Delegate.Mails do
   def fetch_mentions(%User{} = user, filter) do
     with {:ok, mentions} <- Delivery.fetch_mentions(user, filter),
          {:ok, washed_mentions} <- wash_data(MentionMail, mentions.entries) do
-      MentionMail |> messages_handler(washed_mentions, user, filter)
+      MentionMail |> Repo.insert_all(washed_mentions)
+      MentionMail |> messages_fetcher(washed_mentions, user, filter)
     end
   end
 
   def fetch_notifications(%User{} = user, filter) do
     with {:ok, notifications} <- Delivery.fetch_notifications(user, filter),
          {:ok, washed_notifications} <- wash_data(NotificationMail, notifications.entries) do
-      NotificationMail |> messages_handler(washed_notifications, user, filter)
+      NotificationMail |> Repo.insert_all(washed_notifications)
+      NotificationMail |> messages_fetcher(washed_notifications, user, filter)
     end
   end
 
@@ -41,18 +43,17 @@ defmodule MastaniServer.Accounts.Delegate.Mails do
     end
   end
 
-  defp messages_handler(queryable, washed_data, %User{id: user_id}, %{
+  defp messages_fetcher(queryable, washed_data, %User{id: user_id}, %{
          page: page,
          size: size,
          read: read
        }) do
     queryable
-    |> Repo.insert_all(washed_data)
-
-    queryable
     |> order_by(desc: :inserted_at)
     |> where([m], m.to_user_id == ^user_id)
     |> where([m], m.read == ^read)
+    |> preload(:from_user)
+    |> preload(:to_user)
     |> ORM.paginater(~m(page size)a)
     |> done()
   end

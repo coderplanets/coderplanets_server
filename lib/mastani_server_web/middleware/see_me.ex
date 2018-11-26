@@ -5,8 +5,9 @@
 defmodule MastaniServerWeb.Middleware.SeeMe do
   @behaviour Absinthe.Middleware
 
-  def call(res, _) do
+  def call(resolution, _) do
     # IO.inspect("see me")
-    res
+    # IO.inspect resolution.arguments, label: "see me"
+    resolution
   end
 end

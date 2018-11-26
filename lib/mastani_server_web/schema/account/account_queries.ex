@@ -17,6 +17,7 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
     field :user, :user do
       arg(:id, :id)
 
+      middleware(M.SeeMe)
       resolve(&R.Accounts.user/3)
     end
 
@@ -25,12 +26,12 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.session_state/3)
     end
 
-    @desc "get login-user's info"
-    field :account, :user do
-      middleware(M.Authorize, :login)
+    # @desc "get login-user's info"
+    # field :account, :user do
+    #   middleware(M.Authorize, :login)
 
-      resolve(&R.Accounts.account/3)
-    end
+    #   resolve(&R.Accounts.account/3)
+    # end
 
     @desc "anyone can get anyone's subscribed communities"
     field :subscribed_communities, :paged_communities do
@@ -39,6 +40,15 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
 
       middleware(M.PageSizeProof)
       resolve(&R.Accounts.subscribed_communities/3)
+    end
+
+    @desc "get user's mentions"
+    field :mentions, :paged_mentions do
+      arg(:filter, :messages_filter)
+
+      middleware(M.Authorize, :login)
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.fetch_mentions/3)
     end
 
     @desc "get user's follower"

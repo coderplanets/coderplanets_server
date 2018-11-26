@@ -22,7 +22,6 @@ defmodule MastaniServer.Test.CMS.Search do
   end
 
   describe "[cms search post]" do
-    @tag :wip
     test "search post by full title should valid paged posts" do
       {:ok, searched} = CMS.search_items(:post, %{title: "react"})
 
@@ -31,7 +30,6 @@ defmodule MastaniServer.Test.CMS.Search do
       assert searched.entries |> Enum.at(0) |> Map.get(:title) == "react"
     end
 
-    @tag :wip
     test "search post blur title should return valid communities" do
       {:ok, searched} = CMS.search_items(:post, %{title: "reac"})
       assert searched.entries |> Enum.at(0) |> Map.get(:title) == "react"

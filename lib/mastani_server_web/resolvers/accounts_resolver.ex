@@ -12,10 +12,11 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
 
   def user(_root, %{id: id}, _info), do: User |> ORM.read(id, inc: :views)
 
-  def user(_root, _args, %{context: %{cur_user: cur_user}}),
-    do: User |> ORM.read(cur_user.id, inc: :views)
+  def user(_root, _args, %{context: %{cur_user: cur_user}}) do
+    User |> ORM.read(cur_user.id, inc: :views)
+  end
 
-  def user(_root, _args, _info) do
+  def user(_root, args, info) do
     {:error, [message: "need login", code: ecode(:account_login)]}
   end
 

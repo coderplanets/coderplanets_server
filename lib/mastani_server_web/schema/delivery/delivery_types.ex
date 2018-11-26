@@ -18,8 +18,12 @@ defmodule MastaniServerWeb.Schema.Delivery.Types do
     field(:id, :id)
     field(:from_user_id, :id)
     field(:to_user_id, :id)
+    field(:from_user, :user)
+    field(:to_user, :user)
 
     field(:source_title, :string)
+    field(:source_preview, :string)
+    field(:source_type, :string)
     field(:read, :boolean)
   end
 
