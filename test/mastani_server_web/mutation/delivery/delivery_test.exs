@@ -132,11 +132,23 @@ defmodule MastaniServer.Test.Mutation.Delivery do
 
   describe "[delivery mutations]" do
     @query """
-    mutation($userId: ID!, $sourceTitle: String!, $sourceId: ID!, $sourceType: String!, $sourcePreview: String!) {
-    mentionSomeone(userId: $userId, sourceTitle: $sourceTitle, sourceId: $sourceId ,sourceType: $sourceType, sourcePreview: $sourcePreview) {
+    mutation(
+      $userId: ID!
+      $sourceTitle: String!
+      $sourceId: ID!
+      $sourceType: String!
+      $sourcePreview: String!
+    ) {
+      mentionSomeone(
+        userId: $userId
+        sourceTitle: $sourceTitle
+        sourceId: $sourceId
+        sourceType: $sourceType
+        sourcePreview: $sourcePreview
+      ) {
         done
-        }
       }
+    }
     """
     test "login user can mention someone" do
       {:ok, user} = db_insert(:user)

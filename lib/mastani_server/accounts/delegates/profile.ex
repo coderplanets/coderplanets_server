@@ -151,14 +151,14 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
     }
 
     changeset =
-      case profile |> Map.has_key?("company") do
-        true ->
+      case profile |> Map.get("company") do
+        nil ->
+          %User{} |> Ecto.Changeset.change(attrs)
+
+        _ ->
           %User{}
           |> Ecto.Changeset.change(attrs)
           |> Ecto.Changeset.put_embed(:work_backgrounds, [%{company: profile["company"]}])
-
-        false ->
-          %User{} |> Ecto.Changeset.change(attrs)
       end
 
     Repo.insert(changeset)
