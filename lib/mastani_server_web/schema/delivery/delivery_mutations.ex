@@ -5,8 +5,8 @@ defmodule MastaniServerWeb.Schema.Delivery.Mutations do
   use Helper.GqlSchemaSuite
 
   object :delivery_mutations do
-    field :mention_someone, :status do
-      arg(:user_id, non_null(:id))
+    field :mention_others, :status do
+      arg(:user_ids, non_null(list_of(:ids)))
 
       arg(:source_id, non_null(:id))
       arg(:source_title, non_null(:string))
@@ -16,8 +16,7 @@ defmodule MastaniServerWeb.Schema.Delivery.Mutations do
       arg(:parent_type, :string)
 
       middleware(M.Authorize, :login)
-
-      resolve(&R.Delivery.mention_someone/3)
+      resolve(&R.Delivery.mention_others/3)
     end
 
     field :publish_system_notification, :status do

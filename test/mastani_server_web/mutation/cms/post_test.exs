@@ -2,7 +2,7 @@ defmodule MastaniServer.Test.Mutation.Post do
   use MastaniServer.TestTools
 
   alias Helper.ORM
-  alias MastaniServer.CMS
+  alias MastaniServer.{CMS, Delivery}
 
   setup do
     {:ok, post} = db_insert(:post)
@@ -23,6 +23,7 @@ defmodule MastaniServer.Test.Mutation.Post do
       $length: Int!
       $communityId: ID!
       $tags: [Ids]
+      $mentionUsers: [Ids]
       $topic: String
     ) {
       createPost(
@@ -32,6 +33,7 @@ defmodule MastaniServer.Test.Mutation.Post do
         length: $length
         communityId: $communityId
         tags: $tags
+        mentionUsers: $mentionUsers
         topic: $topic
       ) {
         title
@@ -68,6 +70,7 @@ defmodule MastaniServer.Test.Mutation.Post do
       assert user_conn |> mutation_get_error?(@create_post_query, variables)
     end
 
+    @tag :wip
     test "can create post with tags" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -88,6 +91,33 @@ defmodule MastaniServer.Test.Mutation.Post do
 
       assert post.tags |> Enum.any?(&(&1.id == tag1.id))
       assert post.tags |> Enum.any?(&(&1.id == tag2.id))
+    end
+
+    @tag :wip
+    test "can create post with mentionUsers" do
+      {:ok, user} = db_insert(:user)
+      {:ok, user2} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      {:ok, community} = db_insert(:community)
+      post_attr = mock_attrs(:post)
+
+      variables =
+        post_attr
+        |> Map.merge(%{communityId: community.id})
+        |> Map.merge(%{mentionUsers: [%{id: user2.id}]})
+
+      # |> Map.merge(%{mentionUsers: ["id"]})
+      # |> Map.merge(%{mentionUsers: []})
+
+      filter = %{page: 1, size: 20, read: false}
+      {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
+      assert mentions.total_count == 0
+
+      created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+
+      {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
+      assert mentions.total_count == 1
     end
 
     @query """

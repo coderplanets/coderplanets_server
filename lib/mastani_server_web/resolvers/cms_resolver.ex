@@ -6,7 +6,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   import Ecto.Query, warn: false
 
   alias MastaniServer.Accounts.User
-  alias MastaniServer.CMS
+  alias MastaniServer.{CMS, Delivery}
   alias MastaniServer.CMS.{Post, Video, Repo, Job, Community, Category, Tag, Thread}
   alias Helper.ORM
 

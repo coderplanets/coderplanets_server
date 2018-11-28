@@ -13,7 +13,7 @@ defmodule MastaniServer.Accounts.Delegate.Mails do
   def fetch_mentions(%User{} = user, filter) do
     with {:ok, mentions} <- Delivery.fetch_mentions(user, filter),
          {:ok, washed_mentions} <- wash_data(MentionMail, mentions.entries) do
-      MentionMail |> Repo.insert_all(washed_mentions)
+      result = MentionMail |> Repo.insert_all(washed_mentions)
       MentionMail |> messages_fetcher(washed_mentions, user, filter)
     end
   end

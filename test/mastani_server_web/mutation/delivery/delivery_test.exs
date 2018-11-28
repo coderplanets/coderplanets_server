@@ -133,14 +133,14 @@ defmodule MastaniServer.Test.Mutation.Delivery do
   describe "[delivery mutations]" do
     @query """
     mutation(
-      $userId: ID!
+      $userIds: [Ids]!
       $sourceTitle: String!
       $sourceId: ID!
       $sourceType: String!
       $sourcePreview: String!
     ) {
-      mentionSomeone(
-        userId: $userId
+      mentionOthers(
+        userIds: $userIds
         sourceTitle: $sourceTitle
         sourceId: $sourceId
         sourceType: $sourceType
@@ -150,7 +150,8 @@ defmodule MastaniServer.Test.Mutation.Delivery do
       }
     }
     """
-    test "login user can mention someone" do
+    @tag :wip
+    test "login user can mention other user" do
       {:ok, user} = db_insert(:user)
       {:ok, user2} = db_insert(:user)
 
@@ -161,10 +162,10 @@ defmodule MastaniServer.Test.Mutation.Delivery do
         sourceTitle: "fake post title",
         sourceType: "post",
         sourcePreview: "preview",
-        userId: user2.id
+        userIds: [%{id: user2.id}]
       }
 
-      user_conn |> mutation_result(@query, variables, "mentionSomeone")
+      user_conn |> mutation_result(@query, variables, "mentionOthers")
       filter = %{page: 1, size: 20, read: false}
       {:ok, mentions} = Accounts.fetch_mentions(user2, filter)
 
@@ -172,6 +173,7 @@ defmodule MastaniServer.Test.Mutation.Delivery do
       assert user.id == mentions.entries |> List.first() |> Map.get(:from_user_id)
     end
 
+    @tag :wip
     test "unauth user send mention fails", ~m(guest_conn)a do
       {:ok, user2} = db_insert(:user)
 
@@ -180,7 +182,7 @@ defmodule MastaniServer.Test.Mutation.Delivery do
         sourceTitle: "fake post title",
         sourceType: "post",
         sourcePreview: "preview",
-        userId: user2.id
+        userIds: [%{id: user2.id}]
       }
 
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))

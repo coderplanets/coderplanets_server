@@ -4,25 +4,65 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
   """
   import Helper.Utils, only: [done: 2]
 
+  alias MastaniServer.Repo
   alias MastaniServer.Accounts.User
   alias MastaniServer.Delivery.Mention
   alias Helper.ORM
 
   alias MastaniServer.Delivery.Delegate.Utils
 
-  def mention_someone(%User{id: from_user_id}, %User{id: to_user_id}, info) do
-    attrs = %{
-      from_user_id: from_user_id,
-      to_user_id: to_user_id,
-      source_id: info.source_id,
-      source_title: info.source_title,
-      source_type: info.source_type,
-      source_preview: info.source_preview
+  # TODO: move mention logic to create contents
+  # TODO: 同一篇文章不能 mention 同一个 user 多次？
+  def mention_others(%User{id: from_user_id}, [], _info), do: {:error, %{done: false}}
+  def mention_others(%User{id: from_user_id}, nil, _info), do: {:error, %{done: false}}
+  def mention_others(%User{id: from_user_id}, [nil], _info), do: {:error, %{done: false}}
+
+  def mention_others(%User{id: from_user_id}, to_uses, info) do
+    other_users = Enum.uniq(to_uses)
+
+    records =
+      Enum.reduce(other_users, [], fn to_user, acc ->
+        attrs = %{
+          from_user_id: from_user_id,
+          to_user_id: idfy_ifneed(to_user.id),
+          source_id: stringfy_ifneed(info.source_id),
+          source_title: info.source_title,
+          source_type: info.source_type,
+          source_preview: info.source_preview,
+          # timestamp are not auto-gen, see:
+          # https://stackoverflow.com/questions/37537094/insert-all-does-not-create-auto-generated-inserted-at-with-ecto-2-0/46844417
+          inserted_at: Ecto.DateTime.utc(),
+          updated_at: Ecto.DateTime.utc()
+        }
+
+        acc ++ [attrs]
+      end)
+
+    Repo.insert_all(Mention, records)
+
+    {:ok, %{done: true}}
+    # |> done(:status)
+  end
+
+  def idfy_ifneed(id) when is_binary(id), do: String.to_integer(id)
+  def idfy_ifneed(id), do: id
+
+  def stringfy_ifneed(id) when is_binary(id), do: id
+  def stringfy_ifneed(id) when is_integer(id), do: to_string(id)
+  def stringfy_ifneed(id), do: id
+
+  def mention_from_content(:post, content, args, %User{} = from_user) do
+    to_user_ids = Map.get(args, :mention_users)
+    topic = Map.get(args, :topic, "posts")
+
+    info = %{
+      source_title: content.title,
+      source_type: topic,
+      source_id: content.id,
+      source_preview: content.digest
     }
 
-    Mention
-    |> ORM.create(attrs)
-    |> done(:status)
+    mention_others(from_user, to_user_ids, info)
   end
 
   @doc """

@@ -361,7 +361,7 @@ defmodule MastaniServer.Support.Factory do
         source_preview: "preview #{unique_num}"
       }
 
-      {:ok, _} = Delivery.mention_someone(u, user, info)
+      {:ok, _} = Delivery.mention_others(u, [%{id: user.id}], info)
     end)
   end
 
