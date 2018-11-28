@@ -1,7 +1,7 @@
 defmodule MastaniServerWeb.Router do
   use MastaniServerWeb, :router
   use Plug.ErrorHandler
-  use Sentry.Plug
+  # use Sentry.Plug
 
   pipeline :api do
     # plug(Helper.PublicIpPlug)

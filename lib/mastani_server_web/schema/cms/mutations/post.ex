@@ -17,6 +17,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Post do
       arg(:thread, :cms_thread, default_value: :post)
       arg(:topic, :string, default_value: "posts")
       arg(:tags, list_of(:ids))
+      arg(:mention_users, list_of(:ids))
 
       middleware(M.Authorize, :login)
       middleware(M.PublishThrottle)

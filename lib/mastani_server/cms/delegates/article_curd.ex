@@ -11,7 +11,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   alias MastaniServer.Repo
 
   alias MastaniServer.Accounts.User
-  alias MastaniServer.{CMS, Statistics}
+  alias MastaniServer.{CMS, Delivery, Statistics}
 
   alias CMS.Delegate.ArticleOperation
   alias Helper.{ORM, QueryBuilder}
@@ -104,6 +104,10 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
           true -> set_tags(community, thread, content.id, attrs.tags)
           false -> {:ok, "pass"}
         end
+      end)
+      |> Multi.run(:mention_users, fn %{add_content_author: content} ->
+        Delivery.mention_from_content(thread, content, attrs, %User{id: user_id})
+        {:ok, "pass"}
       end)
       |> Multi.run(:log_action, fn _ ->
         Statistics.log_publish_action(%User{id: user_id})
