@@ -9,7 +9,7 @@ defmodule MastaniServerWeb.Schema.Delivery.Queries do
     field :xxxx_todo, :boolean do
       arg(:id, non_null(:id))
 
-      resolve(&R.Delivery.mention_someone/3)
+      resolve(&R.Delivery.mention_others/3)
     end
   end
 end
