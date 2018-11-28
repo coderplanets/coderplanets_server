@@ -30,6 +30,7 @@ defmodule MastaniServerWeb.Context do
          {:ok, cur_user} <- authorize(token) do
       case RemoteIP.parse(get_req_header(conn, "x-forwarded-for")) do
         {:ok, remote_ip} ->
+          IO.inspect remote_ip, label: "get remote ip"
           %{cur_user: cur_user, remote_ip: remote_ip}
 
         {:error, _} ->
