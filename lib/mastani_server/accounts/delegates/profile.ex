@@ -89,7 +89,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   get default subscribed communities for unlogin user
   """
   def default_subscribed_communities(%{page: _, size: _} = filter) do
-    filter = Map.merge(filter, %{size: @default_subscribed_communities})
+    filter = Map.merge(filter, %{size: @default_subscribed_communities, category: "pl"})
     CMS.Community |> ORM.find_all(filter)
   end
 
