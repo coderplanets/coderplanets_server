@@ -43,7 +43,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
     @desc "get community geo cities info"
     field :community_geo_info, list_of(:geo_info) do
       arg(:id, non_null(:id))
-      arg(:raw, :id)
+      arg(:raw, :string)
 
       resolve(&R.CMS.community_geo_info/3)
     end
