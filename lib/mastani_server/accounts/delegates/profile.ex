@@ -47,8 +47,9 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   update geo info for user, include geo_city & remote ip
   """
   def update_geo(%User{geo_city: geo_city} = user, remote_ip) when is_nil(geo_city) do
-    IO.inspect geo_city, label: "update_geo geo_city nil"
-    IO.inspect remote_ip, label: "update_geo remote_ip"
+    IO.inspect(geo_city, label: "update_geo geo_city nil")
+    IO.inspect(remote_ip, label: "update_geo remote_ip")
+
     case RadarSearch.locate_city(remote_ip) do
       {:ok, city} ->
         update_profile(user, %{geo_city: city, remote_ip: remote_ip})
@@ -60,8 +61,8 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   end
 
   def update_geo(%User{} = user, remote_ip) do
-    IO.inspect user, label: "update_geo geo_city not nil"
-    IO.inspect remote_ip, label: "update_geo geo_city not nil remote_ip"
+    IO.inspect(user, label: "update_geo geo_city not nil")
+    IO.inspect(remote_ip, label: "update_geo geo_city not nil remote_ip")
     update_profile(user, %{remote_ip: remote_ip})
   end
 

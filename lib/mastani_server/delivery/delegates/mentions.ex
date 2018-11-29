@@ -65,6 +65,10 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
     mention_others(from_user, to_user_ids, info)
   end
 
+  def mention_from_content(_, _content, _args, %User{} = _from_user) do
+    {:ok, %{done: "pass"}}
+  end
+
   @doc """
   fetch mentions from Delivery stop
   """
