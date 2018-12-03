@@ -8,7 +8,7 @@ defmodule MastaniServer.Accounts.Customization do
   alias MastaniServer.Accounts.User
 
   @required_fields ~w(user_id)a
-  @optional_fields ~w(theme sidebar_layout community_chart brainwash_free banner_layout contents_layout content_divider mark_viewed display_density)a
+  @optional_fields ~w(theme sidebar_layout sidebar_communities_index community_chart brainwash_free banner_layout contents_layout content_divider mark_viewed display_density)a
 
   @type t :: %Customization{}
   schema "customizations" do
@@ -16,6 +16,8 @@ defmodule MastaniServer.Accounts.Customization do
 
     field(:theme, :boolean)
     field(:sidebar_layout, :map)
+    field(:sidebar_communities_index, :map)
+
     field(:community_chart, :boolean)
     field(:brainwash_free, :boolean)
 

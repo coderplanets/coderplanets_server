@@ -31,15 +31,18 @@ defmodule MastaniServer.Test.Accounts.Customization do
       {:ok, _result} = Accounts.set_customization(user, :brainwash_free, true)
     end
 
+    @tag :wip
     test "user can set multiable customization at once", ~m(user)a do
       {:ok, result} =
         Accounts.set_customization(user, %{
           content_divider: true,
-          sidebar_layout: %{hello: :world}
+          sidebar_layout: %{hello: :world},
+          sidebar_communities_index: %{javascript: 1, elixir: 2}
         })
 
       assert result.content_divider == true
       assert result.sidebar_layout == %{hello: :world}
+      assert result.sidebar_communities_index == %{javascript: 1, elixir: 2}
 
       assert {:error, _result} =
                Accounts.set_customization(user, %{content_divider: true, no_exsit: true})

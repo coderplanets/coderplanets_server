@@ -59,7 +59,8 @@ config :mastani_server, :customization,
   contents_layout: "digest",
   content_divider: false,
   mark_viewed: true,
-  display_density: "20"
+  display_density: "20",
+  sidebar_communities_index: %{}
 
 config :mastani_server, MastaniServerWeb.Gettext, default_locale: "zh_CN", locales: ~w(en zh_CN)
 

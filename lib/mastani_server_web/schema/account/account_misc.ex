@@ -72,6 +72,12 @@ defmodule MastaniServerWeb.Schema.Account.Misc do
     field(:content_divider, :boolean)
     field(:mark_viewed, :boolean)
     field(:display_density, :string, default_value: "20")
+    # field(:sidebar_communities_index, list_of(:community_index))
+  end
+
+  input_object :community_index do
+    field(:community, :string)
+    field(:index, :integer)
   end
 
   # see: https://github.com/absinthe-graphql/absinthe/issues/206

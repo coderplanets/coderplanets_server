@@ -86,6 +86,7 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
   def valid_custom_items(:free) do
     [
       :sidebar_layout,
+      :sidebar_communities_index,
       :banner_layout,
       :contents_layout,
       :content_divider,

@@ -155,6 +155,8 @@ defmodule MastaniServer.Test.Query.Account.Basic do
           entries {
             id
             title
+            raw
+            index
           }
           pageSize
           totalCount
@@ -162,6 +164,7 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       }
     }
     """
+    @tag :wip
     test "guest user can get subscrubed community list and count", ~m(guest_conn user)a do
       variables = %{id: user.id}
       {:ok, communities} = db_insert_multi(:community, page_size())
@@ -173,6 +176,9 @@ defmodule MastaniServer.Test.Query.Account.Basic do
 
       results = guest_conn |> query_result(@query, variables, "user")
       subscribed_communities = results["subscribedCommunities"]["entries"]
+
+      # IO.inspect subscribed_communities, label: "hello subed"
+
       subscribed_communities_count = results["subscribedCommunitiesCount"]
       [community_1, community_2, community_3, community_x] = communities |> firstn_and_last(3)
 
@@ -183,7 +189,46 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert subscribed_communities_count == page_size()
     end
 
-    test "gest user can get subscrubed communities count of 20 at most", ~m(guest_conn user)a do
+    @tag :wip2
+    test "guest user can get subscrubed community list by index", ~m(guest_conn user)a do
+      variables = %{id: user.id}
+      {:ok, communities} = db_insert_multi(:community, page_size())
+
+      Enum.each(
+        communities,
+        &CMS.subscribe_community(%Community{id: &1.id}, user)
+      )
+
+      [community_1, community_2, community_3, community_x] = communities |> firstn_and_last(3)
+
+      {:ok, _} =
+        Accounts.set_customization(user, %{
+          sidebar_communities_index: %{
+            community_1.raw => 3,
+            community_2.raw => 2,
+            community_3.raw => 1
+          }
+        })
+
+      results = guest_conn |> query_result(@query, variables, "user")
+      subscribed_communities = results["subscribedCommunities"]["entries"]
+
+      found_community_1 =
+        Enum.find(subscribed_communities, fn c -> c["raw"] == community_1.raw end)
+
+      found_community_2 =
+        Enum.find(subscribed_communities, fn c -> c["raw"] == community_2.raw end)
+
+      found_community_3 =
+        Enum.find(subscribed_communities, fn c -> c["raw"] == community_3.raw end)
+
+      assert found_community_1["index"] == 3
+      assert found_community_2["index"] == 2
+      assert found_community_3["index"] == 1
+    end
+
+    @tag :wip
+    test "guest user can get subscrubed communities count of 20 at most", ~m(guest_conn user)a do
       variables = %{id: user.id}
       {:ok, communities} = db_insert_multi(:community, page_size() + 1)
 
@@ -235,7 +280,7 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       }
     }
     """
-    test "gest user can get paged default subscrubed communities with empty args",
+    test "guest user can get paged default subscrubed communities with empty args",
          ~m(guest_conn)a do
       {:ok, _} = db_insert_multi(:community, 25)
 
