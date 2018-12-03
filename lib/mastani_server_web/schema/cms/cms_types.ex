@@ -375,7 +375,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     pagination_fields()
   end
 
-  object :paged_posts do
+  object :paged_posts, meta: [max_age: 30] do
     field(:entries, list_of(:post))
     pagination_fields()
   end
