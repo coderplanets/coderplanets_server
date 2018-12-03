@@ -26,7 +26,6 @@ defmodule MastaniServer.Test.Query.Accounts.Mention do
       }
     }
     """
-    @tag :wip
     test "auth user can get it's own mailbox status" do
       {:ok, [user, user2]} = db_insert_multi(:user, 2)
 
@@ -75,7 +74,6 @@ defmodule MastaniServer.Test.Query.Accounts.Mention do
       }
     }
     """
-    @tag :wip
     test "auth user can get it's own mentions" do
       {:ok, [user, user2]} = db_insert_multi(:user, 2)
 

@@ -150,7 +150,6 @@ defmodule MastaniServer.Test.Mutation.Delivery do
       }
     }
     """
-    @tag :wip
     test "login user can mention other user" do
       {:ok, user} = db_insert(:user)
       {:ok, user2} = db_insert(:user)
@@ -173,7 +172,6 @@ defmodule MastaniServer.Test.Mutation.Delivery do
       assert user.id == mentions.entries |> List.first() |> Map.get(:from_user_id)
     end
 
-    @tag :wip
     test "unauth user send mention fails", ~m(guest_conn)a do
       {:ok, user2} = db_insert(:user)
 

@@ -70,7 +70,6 @@ defmodule MastaniServer.Test.Mutation.Post do
       assert user_conn |> mutation_get_error?(@create_post_query, variables)
     end
 
-    @tag :wip
     test "can create post with tags" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -93,7 +92,6 @@ defmodule MastaniServer.Test.Mutation.Post do
       assert post.tags |> Enum.any?(&(&1.id == tag2.id))
     end
 
-    @tag :wip
     test "can create post with mentionUsers" do
       {:ok, user} = db_insert(:user)
       {:ok, user2} = db_insert(:user)

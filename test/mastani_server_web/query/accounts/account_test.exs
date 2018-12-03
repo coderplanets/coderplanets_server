@@ -36,7 +36,6 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       }
     }
     """
-    @tag :wip
     test "guest user can get specific user's info by user's id", ~m(guest_conn user)a do
       variables = %{id: user.id}
       results = guest_conn |> query_result(@query, variables, "user")
@@ -48,7 +47,6 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert results["cmsPassport"] == nil
     end
 
-    @tag :wip
     test "login user can get it's own profile", ~m(user_conn user)a do
       results = user_conn |> query_result(@query, %{}, "user")
       assert results["id"] == to_string(user.id)

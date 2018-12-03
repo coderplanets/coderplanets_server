@@ -50,6 +50,7 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
         entries {
           id
           title
+          index
           categories {
             id
             title
@@ -72,6 +73,14 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       assert results |> is_valid_pagination?
       # 1 is for setup community
       assert results["totalCount"] == 5 + 1
+    end
+
+    test "community has default index = 100000", ~m(guest_conn)a do
+      {:ok, _communities} = db_insert_multi(:community, 5)
+      variables = %{filter: %{page: 1, size: 20}}
+      results = guest_conn |> query_result(@query, variables, "pagedCommunities")
+
+      results["entries"] |> Enum.all?(fn x -> x["index"] == 100_000 end)
     end
 
     test "guest user can get paged communities based on category", ~m(guest_conn)a do
