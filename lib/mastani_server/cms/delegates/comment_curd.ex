@@ -100,6 +100,10 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
       |> QueryBuilder.filter_pack(filters)
       |> join(:inner, [c], a in assoc(c, :author))
       |> distinct([c, a], a.id)
+      # new added when upgrade to ecto v3
+      |> group_by([c, a], a.id)
+      |> group_by([c, a], c.inserted_at)
+      # new added when upgrade to ecto v3 end
       |> select([c, a], a)
       |> ORM.paginater(~m(page size)a)
       |> done()
