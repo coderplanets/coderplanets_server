@@ -13,7 +13,7 @@ defmodule MastaniServer.Statistics.CommunityContribute do
     # field(:community_id, :id)
     belongs_to(:community, CMS.Community)
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   @doc false

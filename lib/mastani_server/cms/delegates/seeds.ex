@@ -47,8 +47,8 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
          {:ok, bot} <- seed_bot(),
          {:ok, categories} <- seed_categories(bot, :default),
          {:ok, communities} <- seed_for_communities(bot, :pl) do
-      threadify_communities(communities, threads)
-      tagfy_threads(communities, threads, bot)
+      threadify_communities(communities, threads.entries)
+      tagfy_threads(communities, threads.entries, bot)
       categorify_communities(communities, categories, :pl)
     end
   end
@@ -59,10 +59,10 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   def seed_communities(:framework) do
     with {:ok, threads} <- seed_threads(:default),
          {:ok, bot} <- seed_bot(),
-         {:ok, categories} <- seed_categories(bot, :default),
+         {:ok, _categories} <- seed_categories(bot, :default),
          {:ok, communities} <- seed_for_communities(bot, :framework) do
-      threadify_communities(communities, threads)
-      tagfy_threads(communities, threads, bot)
+      threadify_communities(communities, threads.entries)
+      tagfy_threads(communities, threads.entries, bot)
 
       # categorify_communities(communities, categories, :other)
     end
@@ -76,8 +76,8 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
          {:ok, bot} <- seed_bot(),
          {:ok, categories} <- seed_categories(bot, :default),
          {:ok, communities} <- seed_for_communities(bot, :editor) do
-      threadify_communities(communities, threads)
-      tagfy_threads(communities, threads, bot)
+      threadify_communities(communities, threads.entries)
+      tagfy_threads(communities, threads.entries, bot)
 
       categorify_communities(communities, categories, :other)
     end
@@ -89,10 +89,10 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   def seed_communities(:database) do
     with {:ok, threads} <- seed_threads(:default),
          {:ok, bot} <- seed_bot(),
-         {:ok, categories} <- seed_categories(bot, :default),
+         {:ok, _categories} <- seed_categories(bot, :default),
          {:ok, communities} <- seed_for_communities(bot, :database) do
-      threadify_communities(communities, threads)
-      tagfy_threads(communities, threads, bot)
+      threadify_communities(communities, threads.entries)
+      tagfy_threads(communities, threads.entries, bot)
 
       # categorify_communities(communities, categories, :other)
     end
@@ -106,8 +106,8 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
          {:ok, bot} <- seed_bot(),
          {:ok, categories} <- seed_categories(bot, :default),
          {:ok, communities} <- seed_for_communities(bot, :devops) do
-      threadify_communities(communities, threads)
-      tagfy_threads(communities, threads, bot)
+      threadify_communities(communities, threads.entries)
+      tagfy_threads(communities, threads.entries, bot)
 
       categorify_communities(communities, categories, :other)
     end
@@ -119,10 +119,10 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   def seed_communities(:blockchain) do
     with {:ok, threads} <- seed_threads(:default),
          {:ok, bot} <- seed_bot(),
-         {:ok, categories} <- seed_categories(bot, :default),
+         {:ok, _categories} <- seed_categories(bot, :default),
          {:ok, communities} <- seed_for_communities(bot, :blockchain) do
-      threadify_communities(communities, threads)
-      tagfy_threads(communities, threads, bot)
+      threadify_communities(communities, threads.entries)
+      tagfy_threads(communities, threads.entries, bot)
 
       # categorify_communities(communities, categories, :other)
     end
@@ -134,10 +134,10 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   def seed_communities(:design) do
     with {:ok, threads} <- seed_threads(:default),
          {:ok, bot} <- seed_bot(),
-         {:ok, categories} <- seed_categories(bot, :default),
+         {:ok, _categories} <- seed_categories(bot, :default),
          {:ok, communities} <- seed_for_communities(bot, :design) do
-      threadify_communities(communities, threads)
-      tagfy_threads(communities, threads, bot)
+      threadify_communities(communities, threads.entries)
+      tagfy_threads(communities, threads.entries, bot)
 
       # categorify_communities(communities, categories, :other)
     end
@@ -151,8 +151,8 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
          {:ok, bot} <- seed_bot(),
          {:ok, categories} <- seed_categories(bot, :default),
          {:ok, communities} <- seed_for_communities(bot, :city) do
-      threadify_communities(communities, threads)
-      tagfy_threads(communities, threads, bot, :city)
+      threadify_communities(communities, threads.entries)
+      tagfy_threads(communities, threads.entries, bot, :city)
       categorify_communities(communities, categories, :city)
     end
   end
@@ -174,9 +174,9 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
       }
 
       {:ok, community} = Community |> ORM.create(args)
-      threadify_communities(community, threads)
 
-      tagfy_threads(community, threads, bot, :home)
+      threadify_communities(community, threads.entries)
+      tagfy_threads(community, threads.entries, bot, :home)
       categorify_communities(community, categories, :other)
     end
   end
@@ -283,49 +283,49 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   # seed raw communities, without thread or categories staff
   defp seed_for_communities(bot, :pl) do
     with {:error, _} <- ORM.find_by(Community, %{raw: "javascript"}) do
-      {:ok, communities} = insert_multi_communities(bot, @pl_communities, :pl)
+      {:ok, _communities} = insert_multi_communities(bot, @pl_communities, :pl)
     end
   end
 
   defp seed_for_communities(bot, :framework) do
     with {:error, _} <- ORM.find_by(Community, %{raw: "react"}) do
-      {:ok, communities} = insert_multi_communities(bot, @framework_communities, :framework)
+      {:ok, _communities} = insert_multi_communities(bot, @framework_communities, :framework)
     end
   end
 
   defp seed_for_communities(bot, :editor) do
     with {:error, _} <- ORM.find_by(Community, %{raw: "emacs"}) do
-      {:ok, communities} = insert_multi_communities(bot, @editor_communities, :editor)
+      {:ok, _communities} = insert_multi_communities(bot, @editor_communities, :editor)
     end
   end
 
   defp seed_for_communities(bot, :database) do
     with {:error, _} <- ORM.find_by(Community, %{raw: "mysql"}) do
-      {:ok, communities} = insert_multi_communities(bot, @database_communities, :database)
+      {:ok, _communities} = insert_multi_communities(bot, @database_communities, :database)
     end
   end
 
   defp seed_for_communities(bot, :devops) do
     with {:error, _} <- ORM.find_by(Community, %{raw: "cps-support"}) do
-      {:ok, communities} = insert_multi_communities(bot, @devops_communities, :devops)
+      {:ok, _communities} = insert_multi_communities(bot, @devops_communities, :devops)
     end
   end
 
   defp seed_for_communities(bot, :blockchain) do
     with {:error, _} <- ORM.find_by(Community, %{raw: "bitcoin"}) do
-      {:ok, communities} = insert_multi_communities(bot, @dblockchain_communities, :blockchain)
+      {:ok, _communities} = insert_multi_communities(bot, @dblockchain_communities, :blockchain)
     end
   end
 
   defp seed_for_communities(bot, :design) do
     with {:error, _} <- ORM.find_by(Community, %{raw: "css"}) do
-      {:ok, communities} = insert_multi_communities(bot, @design_communities, :design)
+      {:ok, _communities} = insert_multi_communities(bot, @design_communities, :design)
     end
   end
 
   defp seed_for_communities(bot, :city) do
     with {:error, _} <- ORM.find_by(Community, %{raw: "chengdu"}) do
-      {:ok, communities} = insert_multi_communities(bot, @city_communities, :city)
+      {:ok, _communities} = insert_multi_communities(bot, @city_communities, :city)
     end
   end
 
@@ -399,7 +399,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
 
   # tagfy only post job repo and video
 
-  defp tagfy_threads(communities, threads, bot, :city) when is_list(communities) do
+  defp tagfy_threads(communities, _threads, bot, :city) when is_list(communities) do
     Enum.each(communities, fn community ->
       set_tags(community, :post, bot, :city)
     end)

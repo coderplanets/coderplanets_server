@@ -31,8 +31,10 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
           source_preview: info.source_preview,
           # timestamp are not auto-gen, see:
           # https://stackoverflow.com/questions/37537094/insert-all-does-not-create-auto-generated-inserted-at-with-ecto-2-0/46844417
-          inserted_at: Ecto.DateTime.utc(),
-          updated_at: Ecto.DateTime.utc()
+          # Ecto.DateTime.utc(),
+          inserted_at: DateTime.truncate(Timex.now(), :second),
+          # Ecto.DateTime.utc()
+          updated_at: DateTime.truncate(Timex.now(), :second)
         }
 
         acc ++ [attrs]

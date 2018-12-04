@@ -51,13 +51,14 @@ defmodule MastaniServer.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.3.4"},
+      {:phoenix, "~> 1.4.0"},
       {:phoenix_pubsub, "~> 1.1.0"},
-      {:phoenix_ecto, "~> 3.4.0"},
-      {:ecto, "~> 2.2.11"},
+      {:ecto_sql, "~> 3.0"},
+      {:phoenix_ecto, "~> 4.0"},
       {:postgrex, ">= 0.13.5"},
       {:gettext, "~> 0.11"},
-      {:cowboy, "~> 1.0"},
+      {:plug_cowboy, "~> 2.0"},
+      {:plug, "~> 1.7"},
       # GraphQl tool
       {:absinthe, "~> 1.4.13"},
       {:absinthe_ecto, "~> 0.1.3"},
@@ -74,7 +75,9 @@ defmodule MastaniServer.Mixfile do
       {:tesla, "~> 0.10.0"},
       # for fake data in test env
       {:faker, "~> 0.9"},
-      {:scrivener_ecto, git: "https://github.com/mastani-stack/scrivener_ecto", override: true},
+      {:scrivener_ecto,
+       git: "https://github.com/mastani-stack/scrivener_ecto", branch: "dev", override: true},
+      # {:scrivener_ecto, "~> 2.0.0"},
       {:guardian, "~> 1.0"},
       {:timex, "~> 3.2.1"},
       {:dataloader, "~> 1.0.2"},
