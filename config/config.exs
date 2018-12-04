@@ -20,8 +20,7 @@ config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
-config :phoenix, :format_encoders, json: Jason
-config :ecto, json_library: Jason
+config :phoenix, :json_library, Jason
 
 # TODO move this config to secret later
 config :mastani_server, Helper.Guardian,

@@ -18,7 +18,7 @@ defmodule MastaniServer.CMS.Repo do
   }
 
   @required_fields ~w(title owner_name owner_url repo_url desc readme star_count issues_count prs_count fork_count watch_count)a
-  @optional_fields ~w(last_sync homepage_url release_tag license)
+  @optional_fields ~w(last_sync homepage_url release_tag license)a
 
   @type t :: %Repo{}
   schema "cms_repos" do
@@ -73,7 +73,8 @@ defmodule MastaniServer.CMS.Repo do
       on_replace: :delete
     )
 
-    timestamps(type: :utc_datetime)
+    # timestamps(type: :utc_datetime)
+    timestamps(type: :utc_datetime_usec)
   end
 
   @doc false

@@ -51,13 +51,14 @@ defmodule MastaniServer.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.3.4"},
-      {:phoenix_pubsub, "~> 1.1.0"},
-      {:phoenix_ecto, "~> 3.4.0"},
-      {:ecto, "~> 2.2.11"},
-      {:postgrex, ">= 0.13.5"},
+      {:phoenix, "~> 1.4.0"},
+      {:phoenix_pubsub, "~> 1.1.1"},
+      {:ecto_sql, "~> 3.0.3"},
+      {:phoenix_ecto, "~> 4.0"},
+      {:postgrex, ">= 0.14.1"},
       {:gettext, "~> 0.11"},
-      {:cowboy, "~> 1.0"},
+      {:plug_cowboy, "~> 2.0"},
+      {:plug, "~> 1.7.1"},
       # GraphQl tool
       {:absinthe, "~> 1.4.13"},
       {:absinthe_ecto, "~> 0.1.3"},
@@ -70,15 +71,17 @@ defmodule MastaniServer.Mixfile do
       # Argon2 password hashing algorithm
       # {:argon2_elixir, "~> 1.2"},
       # CORS
-      {:corsica, "~> 1.1.1"},
+      {:corsica, "~> 1.1.2"},
       {:tesla, "~> 0.10.0"},
       # for fake data in test env
       {:faker, "~> 0.9"},
-      {:scrivener_ecto, git: "https://github.com/mastani-stack/scrivener_ecto", override: true},
+      {:scrivener_ecto,
+       git: "https://github.com/mastani-stack/scrivener_ecto", branch: "dev", override: true},
+      # {:scrivener_ecto, "~> 2.0.0"},
       {:guardian, "~> 1.0"},
-      {:timex, "~> 3.2.1"},
+      {:timex, "~> 3.4.2"},
       {:dataloader, "~> 1.0.2"},
-      {:mix_test_watch, "~> 0.5", only: :dev, runtime: false},
+      {:mix_test_watch, "~> 0.9", only: :dev, runtime: false},
       {:ex_unit_notifier, "~> 0.1", only: :test},
       {:apollo_tracing, "~> 0.4.1"},
       {:pre_commit, "~> 0.3.4"},

@@ -197,7 +197,7 @@ defmodule MastaniServer.Test.Query.Account.Basic do
         &CMS.subscribe_community(%Community{id: &1.id}, user)
       )
 
-      [community_1, community_2, community_3, community_x] = communities |> firstn_and_last(3)
+      [community_1, community_2, community_3, _community_x] = communities |> firstn_and_last(3)
 
       {:ok, _} =
         Accounts.set_customization(user, %{

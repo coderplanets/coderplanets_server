@@ -326,6 +326,8 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
     |> Enum.map(fn attr -> Map.merge(%{thread: :video, topic: "videos"}, attr) end)
   end
 
+  def tags(_), do: []
+
   def tags(:city, :post) do
     [
       %{
@@ -529,7 +531,6 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
     |> Enum.map(fn attr -> Map.merge(%{thread: :job, topic: "jobs"}, attr) end)
   end
 
-  def tags(_), do: []
   def tags(:home, _), do: []
 
   defp city_tags do

@@ -87,12 +87,11 @@ defmodule Helper.ORM do
   defp inc_views_count(content, queryable) do
     {1, [result]} =
       Repo.update_all(
-        from(p in queryable, where: p.id == ^content.id),
-        [inc: [views: 1]],
-        returning: [:views]
+        from(p in queryable, where: p.id == ^content.id, select: p.views),
+        inc: [views: 1]
       )
 
-    put_in(content.views, result.views)
+    put_in(content.views, result)
   end
 
   @doc """

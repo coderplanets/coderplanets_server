@@ -68,7 +68,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
       :insert_editor,
       CommunityEditor.changeset(%CommunityEditor{}, ~m(user_id community_id title)a)
     )
-    |> Multi.run(:stamp_passport, fn _ ->
+    |> Multi.run(:stamp_passport, fn _, _ ->
       rules = Certification.passport_rules(cms: title)
       PassportCURD.stamp_passport(rules, %User{id: user_id})
     end)

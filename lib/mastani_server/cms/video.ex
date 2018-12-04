@@ -64,7 +64,8 @@ defmodule MastaniServer.CMS.Video do
       on_replace: :delete
     )
 
-    timestamps(type: :utc_datetime)
+    # timestamps(type: :utc_datetime)
+    timestamps(type: :utc_datetime_usec)
   end
 
   @doc false
