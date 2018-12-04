@@ -41,8 +41,8 @@ defmodule MastaniServer.Test.Statistics.Geo do
       {:ok, infos} = Statistics.list_cities_info()
 
       assert infos.total_count == 2
-      assert infos |> Enum.any?(&(&1.city == "成都"))
-      assert infos |> Enum.any?(&(&1.city == "广州"))
+      assert infos.entries |> Enum.any?(&(&1.city == "成都"))
+      assert infos.entries |> Enum.any?(&(&1.city == "广州"))
     end
   end
 end

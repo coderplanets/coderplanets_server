@@ -12,7 +12,7 @@ defmodule MastaniServer.Statistics.UserContribute do
     field(:date, :date)
     belongs_to(:user, Accounts.User)
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   @doc false

@@ -112,7 +112,7 @@ defmodule MastaniServer.Test.Mutation.Post do
       {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
       assert mentions.total_count == 0
 
-      created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+      _created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
 
       {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
       assert mentions.total_count == 1
