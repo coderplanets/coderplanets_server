@@ -9,7 +9,7 @@ node_js:
 - 8
 sudo: false
 addons:
-  postgresql: '9.4'
+  postgresql: '9.6'
 before_script:
 - MIX_ENV=test mix deps.get
 - nvm install 8.10 && nvm use 8.10
