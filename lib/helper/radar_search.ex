@@ -48,7 +48,7 @@ defmodule Helper.RadarSearch do
   end
 
   # not valid io, just ignore it
-  def locate_city(_ip), do: {:error, "invalid ip"}
+  # def locate_city(_ip), do: {:error, "invalid ip"}
 
   defp handle_result({:ok, result}) do
     case result do

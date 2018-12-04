@@ -45,7 +45,7 @@ defmodule MastaniServer.Statistics.Delegate.Contribute do
     |> QueryBuilder.recent_inserted(months: @user_contribute_months)
     |> select([c], %{date: c.date, count: c.count})
     |> Repo.all()
-    |> to_contrubutes_map()
+    |> to_contributes_map()
     |> done
   end
 
@@ -73,13 +73,12 @@ defmodule MastaniServer.Statistics.Delegate.Contribute do
     |> to_contribute_records()
   end
 
-  defp to_contrubutes_map(data) do
+  defp to_contributes_map(data) do
     end_date = Timex.today()
     start_date = Timex.shift(Timex.today(), months: -6)
     total_count = Enum.reduce(data, 0, &(&1.count + &2))
 
-    records = to_contribute_records(data)
-
+    records = data
     ~m(start_date end_date total_count records)a
   end
 
@@ -121,8 +120,10 @@ defmodule MastaniServer.Statistics.Delegate.Contribute do
   end
 
   defp convert_date(date) do
-    {:ok, edate} = Date.from_erl(date)
-    edate
+    date
+    # IO.inspect date, label: "convert_date"
+    # {:ok, edate} = Date.to_string(date) #Date.from_erl(date)
+    # edate
   end
 
   defp inc_contribute_count(contribute, :community) do
@@ -140,11 +141,10 @@ defmodule MastaniServer.Statistics.Delegate.Contribute do
   defp do_inc_count(query, contribute, count \\ 1) do
     {1, [result]} =
       Repo.update_all(
-        query,
-        [inc: [count: count]],
-        returning: [:count]
+        from(p in query, select: p.count),
+        inc: [count: count]
       )
 
-    put_in(contribute.count, result.count)
+    put_in(contribute.count, result)
   end
 end

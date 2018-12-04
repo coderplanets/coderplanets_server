@@ -68,17 +68,17 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
          {:ok, action} <- match_action(thread, :community),
          {:ok, community} <- ORM.find(Community, community_id) do
       Multi.new()
-      |> Multi.run(:add_content_author, fn _ ->
+      |> Multi.run(:add_content_author, fn _, _ ->
         action.target
         |> struct()
         |> action.target.changeset(attrs)
         |> Ecto.Changeset.put_change(:author_id, author.id)
         |> Repo.insert()
       end)
-      |> Multi.run(:set_community, fn %{add_content_author: content} ->
+      |> Multi.run(:set_community, fn _, %{add_content_author: content} ->
         ArticleOperation.set_community(community, thread, content.id)
       end)
-      |> Multi.run(:set_topic, fn %{add_content_author: content} ->
+      |> Multi.run(:set_topic, fn _, %{add_content_author: content} ->
         topic_title =
           case attrs |> Map.has_key?(:topic) do
             true -> attrs.topic
@@ -87,7 +87,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
 
         ArticleOperation.set_topic(%Topic{title: topic_title}, thread, content.id)
       end)
-      |> Multi.run(:set_community_flag, fn %{add_content_author: content} ->
+      |> Multi.run(:set_community_flag, fn _, %{add_content_author: content} ->
         # TODO: remove this judge, as content should have a flag
         case action |> Map.has_key?(:flag) do
           true ->
@@ -99,17 +99,17 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
             {:ok, "pass"}
         end
       end)
-      |> Multi.run(:set_tag, fn %{add_content_author: content} ->
+      |> Multi.run(:set_tag, fn _, %{add_content_author: content} ->
         case attrs |> Map.has_key?(:tags) do
           true -> set_tags(community, thread, content.id, attrs.tags)
           false -> {:ok, "pass"}
         end
       end)
-      |> Multi.run(:mention_users, fn %{add_content_author: content} ->
+      |> Multi.run(:mention_users, fn _, %{add_content_author: content} ->
         Delivery.mention_from_content(thread, content, attrs, %User{id: user_id})
         {:ok, "pass"}
       end)
-      |> Multi.run(:log_action, fn _ ->
+      |> Multi.run(:log_action, fn _, _ ->
         Statistics.log_publish_action(%User{id: user_id})
       end)
       |> Repo.transaction()
@@ -132,7 +132,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     {:error, [message: "set community flag", code: ecode(:create_fails)]}
   end
 
-  defp create_content_result({:error, :set_topic, result, _steps}) do
+  defp create_content_result({:error, :set_topic, _result, _steps}) do
     {:error, [message: "set topic", code: ecode(:create_fails)]}
   end
 
@@ -227,7 +227,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
         |> join(:inner, [p], content in assoc(p, :post))
         |> where(
           [p, c, t, content],
-          c.raw == ^filter.community and t.raw == ^Map.get(filter, :topic, "posts")
+          c.raw == ^community and t.raw == ^Map.get(filter, :topic, "posts")
         )
         |> select([p, c, t, content], content)
         # 10 pined contents per community/thread, at most
@@ -241,19 +241,21 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  defp add_pin_contents_ifneed(contents, CMS.Job, %{community: community} = filter) do
+  defp add_pin_contents_ifneed(contents, CMS.Job, %{community: _community} = filter) do
     merge_pin_contents(contents, :job, CMS.PinedJob, filter)
   end
 
-  defp add_pin_contents_ifneed(contents, CMS.Video, %{community: community} = filter) do
+  defp add_pin_contents_ifneed(contents, CMS.Video, %{community: _community} = filter) do
     merge_pin_contents(contents, :video, CMS.PinedVideo, filter)
   end
 
-  defp add_pin_contents_ifneed(contents, CMS.Repo, %{community: community} = filter) do
+  defp add_pin_contents_ifneed(contents, CMS.Repo, %{community: _community} = filter) do
     merge_pin_contents(contents, :repo, CMS.PinedRepo, filter)
   end
 
-  defp merge_pin_contents(contents, thread, pin_schema, %{community: community} = filter) do
+  defp add_pin_contents_ifneed(contents, _querable, _filter), do: contents
+
+  defp merge_pin_contents(contents, thread, pin_schema, %{community: _community} = filter) do
     with {:ok, normal_contents} <- contents,
          true <- Map.has_key?(filter, :community),
          true <- 1 == Map.get(normal_contents, :page_number) do
@@ -273,8 +275,6 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
         contents
     end
   end
-
-  defp add_pin_contents_ifneed(contents, _querable, _filter), do: contents
 
   defp concat_contents(pined_content, normal_contents) do
     case pined_content |> Map.get(:total_count) do

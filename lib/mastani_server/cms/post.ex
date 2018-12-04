@@ -74,7 +74,9 @@ defmodule MastaniServer.CMS.Post do
       on_replace: :delete
     )
 
-    timestamps(type: :utc_datetime)
+    # timestamps(type: :utc_datetime)
+    # for paged test to diff
+    timestamps(type: :utc_datetime_usec)
   end
 
   @doc false
@@ -86,12 +88,4 @@ defmodule MastaniServer.CMS.Post do
     # |> foreign_key_constraint(:posts_tags, name: :posts_tags_tag_id_fkey)
     # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)
   end
-
-  @doc """
-  for update flag
-  """
-  # def flag_changeset(%Post{} = post, attrs) do
-  # post
-  # |> cast(attrs, ~w(pin trash)a)
-  # end
 end
