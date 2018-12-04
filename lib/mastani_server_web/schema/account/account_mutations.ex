@@ -101,6 +101,7 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
     field :set_customization, :user do
       arg(:user_id, :id)
       arg(:customization, non_null(:customization_input))
+      arg(:sidebar_communities_index, list_of(:community_index))
 
       resolve(&R.Accounts.set_customization/3)
     end

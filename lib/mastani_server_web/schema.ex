@@ -3,6 +3,7 @@ defmodule MastaniServerWeb.Schema do
   scham index
   """
   use Absinthe.Schema
+  # use ApolloTracing
 
   alias MastaniServerWeb.Middleware, as: M
   alias MastaniServerWeb.Schema.{Account, CMS, Delivery, Statistics, Utils}

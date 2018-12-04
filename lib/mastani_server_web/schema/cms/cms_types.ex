@@ -252,6 +252,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:title, :string)
     field(:desc, :string)
     field(:raw, :string)
+    field(:index, :integer)
     field(:logo, :string)
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:threads, list_of(:thread), resolve: dataloader(CMS, :threads))

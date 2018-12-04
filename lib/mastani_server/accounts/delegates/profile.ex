@@ -6,6 +6,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   import Helper.Utils, only: [done: 1, get_config: 2]
   import ShortMaps
 
+  alias MastaniServer.Accounts
   alias Helper.{Guardian, ORM, QueryBuilder, RadarSearch}
   alias MastaniServer.Accounts.{Achievement, GithubUser, User}
   alias MastaniServer.{CMS, Repo}
@@ -47,9 +48,6 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   update geo info for user, include geo_city & remote ip
   """
   def update_geo(%User{geo_city: geo_city} = user, remote_ip) when is_nil(geo_city) do
-    IO.inspect(geo_city, label: "update_geo geo_city nil")
-    IO.inspect(remote_ip, label: "update_geo remote_ip")
-
     case RadarSearch.locate_city(remote_ip) do
       {:ok, city} ->
         update_profile(user, %{geo_city: city, remote_ip: remote_ip})
@@ -60,15 +58,8 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
     end
   end
 
-  def update_geo(%User{} = user, remote_ip) do
-    IO.inspect(user, label: "update_geo geo_city not nil")
-    IO.inspect(remote_ip, label: "update_geo geo_city not nil remote_ip")
-    update_profile(user, %{remote_ip: remote_ip})
-  end
-
-  def update_geo(_user, _remote_ip) do
-    {:ok, "pass"}
-  end
+  def update_geo(%User{} = user, remote_ip), do: update_profile(user, %{remote_ip: remote_ip})
+  def update_geo(_user, _remote_ip), do: {:ok, "pass"}
 
   @doc """
   github_signin steps:
@@ -101,16 +92,36 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   @doc """
   get users subscribed communities
   """
-  def subscribed_communities(%User{id: id}, %{page: page, size: size} = filter) do
+  def subscribed_communities(%User{id: id} = user, %{page: page, size: size} = filter) do
     filter = filter |> Map.delete(:first)
-
+    # TODO: merge customed index
     CMS.CommunitySubscriber
     |> where([c], c.user_id == ^id)
     |> join(:inner, [c], cc in assoc(c, :community))
     |> select([c, cc], cc)
     |> QueryBuilder.filter_pack(filter)
     |> ORM.paginater(~m(page size)a)
+    |> sort_communities(user)
     |> done()
+  end
+
+  # sort by users sort customization
+  defp sort_communities(paged_communities, user) do
+    with {:ok, customization} <- Accounts.get_customization(user) do
+      case Enum.empty?(customization.sidebar_communities_index) do
+        true ->
+          paged_communities
+
+        false ->
+          entries =
+            Enum.map(paged_communities.entries, fn c ->
+              index = Map.get(customization.sidebar_communities_index, c.raw, 100_000)
+              %{c | index: index}
+            end)
+
+          %{paged_communities | entries: entries}
+      end
+    end
   end
 
   defp register_github_user(github_profile) do

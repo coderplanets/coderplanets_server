@@ -15,8 +15,16 @@ defmodule MastaniServer.Test.Mutation.Account.Customization do
 
   describe "[account customization mutation]" do
     @query """
-    mutation($userId: ID, $customization: CustomizationInput!) {
-      setCustomization( userId: $userId, customization: $customization) {
+    mutation(
+      $userId: ID,
+      $customization: CustomizationInput!,
+      $sidebarCommunitiesIndex: [CommunityIndex]
+      ) {
+      setCustomization(
+      userId: $userId,
+      customization: $customization,
+      sidebarCommunitiesIndex: $sidebarCommunitiesIndex
+      ) {
         id
         customization {
           bannerLayout
@@ -35,7 +43,8 @@ defmodule MastaniServer.Test.Mutation.Account.Customization do
           contentDivider: true,
           markViewed: false,
           displayDensity: "25"
-        }
+        },
+        sidebarCommunitiesIndex: [%{community: "javascript", index: 1}]
       }
 
       result = user_conn |> mutation_result(@query, variables, "setCustomization")

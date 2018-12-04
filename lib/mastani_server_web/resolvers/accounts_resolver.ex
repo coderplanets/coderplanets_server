@@ -63,7 +63,20 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   # Accounts.set_customization(%User{id: user_id}, customization)
   # end
 
-  def set_customization(_root, ~m(customization)a, %{context: %{cur_user: cur_user}}) do
+  def set_customization(_root, ~m(customization)a = args, %{context: %{cur_user: cur_user}}) do
+    sidebar_communities_index =
+      try do
+        args
+        |> Map.get(:sidebar_communities_index, [])
+        |> Enum.map(fn %{community: c, index: i} -> {c, i} end)
+        |> Map.new()
+      rescue
+        _ -> %{}
+      end
+
+    customization =
+      Map.merge(customization, %{sidebar_communities_index: sidebar_communities_index})
+
     Accounts.set_customization(cur_user, customization)
   end
 

@@ -35,7 +35,6 @@ defmodule MastaniServer.Test.Query.Account.Customization do
       results = user_conn |> query_result(@query, %{}, "user")
 
       assert results["id"] == to_string(user.id)
-
       assert results["customization"]["theme"] == @default_customization |> Map.get(:theme)
 
       assert results["customization"]["bannerLayout"] ==

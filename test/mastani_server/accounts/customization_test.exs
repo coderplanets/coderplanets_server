@@ -35,11 +35,13 @@ defmodule MastaniServer.Test.Accounts.Customization do
       {:ok, result} =
         Accounts.set_customization(user, %{
           content_divider: true,
-          sidebar_layout: %{hello: :world}
+          sidebar_layout: %{hello: :world},
+          sidebar_communities_index: %{javascript: 1, elixir: 2}
         })
 
       assert result.content_divider == true
       assert result.sidebar_layout == %{hello: :world}
+      assert result.sidebar_communities_index == %{javascript: 1, elixir: 2}
 
       assert {:error, _result} =
                Accounts.set_customization(user, %{content_divider: true, no_exsit: true})
