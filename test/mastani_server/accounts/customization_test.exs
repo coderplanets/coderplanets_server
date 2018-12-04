@@ -31,7 +31,6 @@ defmodule MastaniServer.Test.Accounts.Customization do
       {:ok, _result} = Accounts.set_customization(user, :brainwash_free, true)
     end
 
-    @tag :wip
     test "user can set multiable customization at once", ~m(user)a do
       {:ok, result} =
         Accounts.set_customization(user, %{

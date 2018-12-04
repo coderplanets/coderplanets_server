@@ -164,7 +164,6 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       }
     }
     """
-    @tag :wip
     test "guest user can get subscrubed community list and count", ~m(guest_conn user)a do
       variables = %{id: user.id}
       {:ok, communities} = db_insert_multi(:community, page_size())
@@ -189,7 +188,6 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert subscribed_communities_count == page_size()
     end
 
-    @tag :wip2
     test "guest user can get subscrubed community list by index", ~m(guest_conn user)a do
       variables = %{id: user.id}
       {:ok, communities} = db_insert_multi(:community, page_size())
@@ -227,7 +225,6 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert found_community_3["index"] == 1
     end
 
-    @tag :wip
     test "guest user can get subscrubed communities count of 20 at most", ~m(guest_conn user)a do
       variables = %{id: user.id}
       {:ok, communities} = db_insert_multi(:community, page_size() + 1)

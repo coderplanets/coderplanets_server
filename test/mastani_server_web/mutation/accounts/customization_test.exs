@@ -35,7 +35,6 @@ defmodule MastaniServer.Test.Mutation.Account.Customization do
       }
     }
     """
-    @tag :wip
     test "user can set customization", ~m(user_conn)a do
       # ownd_conn = simu_conn(:user, user)
       variables = %{
