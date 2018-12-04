@@ -37,7 +37,6 @@ defmodule MastaniServer.Test.Query.PostComment do
       }
     }
     """
-    @tag :wip
     test "can get comments participators of a post", ~m(user guest_conn)a do
       {:ok, user2} = db_insert(:user)
 

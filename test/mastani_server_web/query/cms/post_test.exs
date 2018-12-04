@@ -114,7 +114,6 @@ defmodule MastaniServer.Test.Query.Post do
     }
   }
   """
-  @tag :wip
   test "login user can get nil post favorited category id", ~m(post)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
