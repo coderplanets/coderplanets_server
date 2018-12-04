@@ -44,18 +44,20 @@ launch.prod:
 
 migrate:
 	mix ecto.migrate
+migrate.prod:
+	MIX_ENV=prod mix ecto.migrate
 migrate.mock:
 	MIX_ENV=mock mix ecto.migrate
+migrate.dev:
+	MIX_ENV=dev mix ecto.migrate
+migrate.test:
+	MIX_ENV=test mix ecto.migrate
 rollback:
 	mix ecto.rollback
 rollback.mock:
 	MIX_ENV=mock mix ecto.rollback
 rollback.test:
 	MIX_ENV=test mix ecto.rollback
-migrate.dev:
-	MIX_ENV=dev mix ecto.migrate
-migrate.test:
-	MIX_ENV=test mix ecto.migrate
 rollback.dev:
 	MIX_ENV=dev mix ecto.rollback
 
