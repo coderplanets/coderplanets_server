@@ -6,7 +6,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   import Ecto.Query, warn: false
 
   alias MastaniServer.Accounts.User
-  alias MastaniServer.{CMS, Delivery}
+  alias MastaniServer.CMS
   alias MastaniServer.CMS.{Post, Video, Repo, Job, Community, Category, Tag, Thread}
   alias Helper.ORM
 
@@ -78,16 +78,16 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   # #######################
   # content flag ..
   # #######################
-  def pin_content(_root, ~m(id community_id thread topic)a, _info) do
+  def pin_content(_root, ~m(id community_id topic)a, _info) do
     CMS.pin_content(%CMS.Post{id: id}, %Community{id: community_id}, topic)
-  end
-
-  def undo_pin_content(_root, ~m(id community_id thread topic)a, _info) do
-    CMS.undo_pin_content(%CMS.Post{id: id}, %Community{id: community_id}, topic)
   end
 
   def pin_content(_root, ~m(id community_id thread)a, _info) do
     do_pin_content(id, community_id, thread)
+  end
+
+  def undo_pin_content(_root, ~m(id community_id topic)a, _info) do
+    CMS.undo_pin_content(%CMS.Post{id: id}, %Community{id: community_id}, topic)
   end
 
   def undo_pin_content(_root, ~m(id community_id thread)a, _info) do

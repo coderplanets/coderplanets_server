@@ -41,26 +41,11 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
     end
   end
 
-  def undo_pin_content(%Post{id: post_id}, %Community{id: community_id}, topic) do
-    with {:ok, %{id: topic_id}} <- ORM.find_by(Topic, %{raw: topic}),
-         {:ok, pined} <- ORM.find_by(PinedPost, ~m(post_id community_id topic_id)a),
-         {:ok, deleted} <- ORM.delete(pined) do
-      Post |> ORM.find(deleted.post_id)
-    end
-  end
-
   def pin_content(%Job{id: job_id}, %Community{id: community_id}) do
     attrs = ~m(job_id community_id)a
 
     with {:ok, pined} <- ORM.findby_or_insert(PinedJob, attrs, attrs) do
       Job |> ORM.find(pined.job_id)
-    end
-  end
-
-  def undo_pin_content(%Job{id: job_id}, %Community{id: community_id}) do
-    with {:ok, pined} <- ORM.find_by(PinedJob, ~m(job_id community_id)a),
-         {:ok, deleted} <- ORM.delete(pined) do
-      Job |> ORM.find(deleted.job_id)
     end
   end
 
@@ -72,18 +57,33 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
     end
   end
 
-  def undo_pin_content(%Video{id: video_id}, %Community{id: community_id}) do
-    with {:ok, pined} <- ORM.find_by(PinedVideo, ~m(video_id community_id)a),
-         {:ok, deleted} <- ORM.delete(pined) do
-      Video |> ORM.find(deleted.video_id)
-    end
-  end
-
   def pin_content(%CMSRepo{id: repo_id}, %Community{id: community_id}) do
     attrs = ~m(repo_id community_id)a
 
     with {:ok, pined} <- ORM.findby_or_insert(PinedRepo, attrs, attrs) do
       CMSRepo |> ORM.find(pined.repo_id)
+    end
+  end
+
+  def undo_pin_content(%Post{id: post_id}, %Community{id: community_id}, topic) do
+    with {:ok, %{id: topic_id}} <- ORM.find_by(Topic, %{raw: topic}),
+         {:ok, pined} <- ORM.find_by(PinedPost, ~m(post_id community_id topic_id)a),
+         {:ok, deleted} <- ORM.delete(pined) do
+      Post |> ORM.find(deleted.post_id)
+    end
+  end
+
+  def undo_pin_content(%Job{id: job_id}, %Community{id: community_id}) do
+    with {:ok, pined} <- ORM.find_by(PinedJob, ~m(job_id community_id)a),
+         {:ok, deleted} <- ORM.delete(pined) do
+      Job |> ORM.find(deleted.job_id)
+    end
+  end
+
+  def undo_pin_content(%Video{id: video_id}, %Community{id: community_id}) do
+    with {:ok, pined} <- ORM.find_by(PinedVideo, ~m(video_id community_id)a),
+         {:ok, deleted} <- ORM.delete(pined) do
+      Video |> ORM.find(deleted.video_id)
     end
   end
 
@@ -222,16 +222,16 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
 
   # make sure the reuest tag is in the current community thread
   # example: you can't set a other thread tag to this thread's article
-  defp tag_in_community_thread?(%Community{id: communityId}, thread, tag) do
-    with {:ok, community} <- ORM.find(Community, communityId) do
-      matched_tags =
-        Tag
-        |> where([t], t.community_id == ^community.id)
-        # |> where([t], t.thread == ^(to_string(thread) |> String.upcase()))
-        |> where([t], t.thread == ^to_string(thread))
-        |> Repo.all()
 
-      tag in matched_tags
-    end
-  end
+  # defp tag_in_community_thread?(%Community{id: communityId}, thread, tag) do
+  # with {:ok, community} <- ORM.find(Community, communityId) do
+  # matched_tags =
+  # Tag
+  # |> where([t], t.community_id == ^community.id)
+  # |> where([t], t.thread == ^to_string(thread))
+  # |> Repo.all()
+
+  # tag in matched_tags
+  # end
+  # end
 end

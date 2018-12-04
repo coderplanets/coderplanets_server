@@ -132,7 +132,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     {:error, [message: "set community flag", code: ecode(:create_fails)]}
   end
 
-  defp create_content_result({:error, :set_topic, result, _steps}) do
+  defp create_content_result({:error, :set_topic, _result, _steps}) do
     {:error, [message: "set topic", code: ecode(:create_fails)]}
   end
 
@@ -227,7 +227,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
         |> join(:inner, [p], content in assoc(p, :post))
         |> where(
           [p, c, t, content],
-          c.raw == ^filter.community and t.raw == ^Map.get(filter, :topic, "posts")
+          c.raw == ^community and t.raw == ^Map.get(filter, :topic, "posts")
         )
         |> select([p, c, t, content], content)
         # 10 pined contents per community/thread, at most
@@ -241,19 +241,21 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  defp add_pin_contents_ifneed(contents, CMS.Job, %{community: community} = filter) do
+  defp add_pin_contents_ifneed(contents, CMS.Job, %{community: _community} = filter) do
     merge_pin_contents(contents, :job, CMS.PinedJob, filter)
   end
 
-  defp add_pin_contents_ifneed(contents, CMS.Video, %{community: community} = filter) do
+  defp add_pin_contents_ifneed(contents, CMS.Video, %{community: _community} = filter) do
     merge_pin_contents(contents, :video, CMS.PinedVideo, filter)
   end
 
-  defp add_pin_contents_ifneed(contents, CMS.Repo, %{community: community} = filter) do
+  defp add_pin_contents_ifneed(contents, CMS.Repo, %{community: _community} = filter) do
     merge_pin_contents(contents, :repo, CMS.PinedRepo, filter)
   end
 
-  defp merge_pin_contents(contents, thread, pin_schema, %{community: community} = filter) do
+  defp add_pin_contents_ifneed(contents, _querable, _filter), do: contents
+
+  defp merge_pin_contents(contents, thread, pin_schema, %{community: _community} = filter) do
     with {:ok, normal_contents} <- contents,
          true <- Map.has_key?(filter, :community),
          true <- 1 == Map.get(normal_contents, :page_number) do
@@ -273,8 +275,6 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
         contents
     end
   end
-
-  defp add_pin_contents_ifneed(contents, _querable, _filter), do: contents
 
   defp concat_contents(pined_content, normal_contents) do
     case pined_content |> Map.get(:total_count) do

@@ -5,7 +5,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
   import ShortMaps
   import Helper.ErrorCode
 
-  alias Helper.{Certification, ORM, RadarSearch, Utils}
+  alias Helper.{Certification, ORM, Utils}
   alias MastaniServer.{Accounts, CMS}
 
   alias Accounts.{MentionMail, NotificationMail, SysNotificationMail, User}
@@ -16,7 +16,7 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     User |> ORM.read(cur_user.id, inc: :views)
   end
 
-  def user(_root, args, info) do
+  def user(_root, _args, _info) do
     {:error, [message: "need login", code: ecode(:account_login)]}
   end
 

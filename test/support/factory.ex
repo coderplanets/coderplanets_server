@@ -128,7 +128,6 @@ defmodule MastaniServer.Support.Factory do
 
   defp mock_meta(:job) do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
-    unique_num = System.unique_integer([:positive, :monotonic])
 
     %{
       title: Faker.Lorem.Shakespeare.king_richard_iii(),

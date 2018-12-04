@@ -255,7 +255,7 @@ defmodule MastaniServer.CMS.Utils.Loader do
   end
 
   # ---- job comments ------
-  def query({"jobs_comments", JobComment}, %{filter: filter, unique: true}) do
+  def query({"jobs_comments", JobComment}, %{filter: _filter, unique: true}) do
     JobComment
     # |> QueryBuilder.filter_pack(filter)
     |> join(:inner, [c], a in assoc(c, :author))
@@ -329,7 +329,7 @@ defmodule MastaniServer.CMS.Utils.Loader do
   # ---- job comments end------
 
   # ---- video comments ------
-  def query({"videos_comments", VideoComment}, %{filter: filter, unique: true}) do
+  def query({"videos_comments", VideoComment}, %{filter: _filter, unique: true}) do
     VideoComment
     # |> QueryBuilder.filter_pack(filter)
     |> join(:inner, [c], a in assoc(c, :author))
@@ -405,7 +405,7 @@ defmodule MastaniServer.CMS.Utils.Loader do
   # ---- video ------
 
   # --- repo comments ------
-  def query({"repos_comments", RepoComment}, %{filter: filter, unique: true}) do
+  def query({"repos_comments", RepoComment}, %{filter: _filter, unique: true}) do
     RepoComment
     # |> QueryBuilder.filter_pack(filter)
     |> join(:inner, [c], a in assoc(c, :author))

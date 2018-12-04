@@ -1,7 +1,7 @@
 defmodule MastaniServer.Repo do
   import Helper.Utils, only: [get_config: 2]
 
-  use Ecto.Repo, otp_app: :mastani_server
+  use Ecto.Repo, otp_app: :mastani_server, adapter: Ecto.Adapters.Postgres
   use Scrivener, page_size: get_config(:general, :page_size)
 
   @dialyzer {:nowarn_function, rollback: 1}

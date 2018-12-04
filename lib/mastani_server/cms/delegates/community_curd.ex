@@ -73,7 +73,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
 
     with {:ok, %{id: topic_id}} = find_or_insert_topic(attrs) do
       Tag
-      |> ORM.find_update(~m(id title color color topic_id)a)
+      |> ORM.find_update(~m(id title color topic_id)a)
     end
   end
 

@@ -88,12 +88,4 @@ defmodule MastaniServer.CMS.Post do
     # |> foreign_key_constraint(:posts_tags, name: :posts_tags_tag_id_fkey)
     # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)
   end
-
-  @doc """
-  for update flag
-  """
-  # def flag_changeset(%Post{} = post, attrs) do
-  # post
-  # |> cast(attrs, ~w(pin trash)a)
-  # end
 end
