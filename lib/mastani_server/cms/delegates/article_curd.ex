@@ -68,17 +68,17 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
          {:ok, action} <- match_action(thread, :community),
          {:ok, community} <- ORM.find(Community, community_id) do
       Multi.new()
-      |> Multi.run(:add_content_author, fn _ ->
+      |> Multi.run(:add_content_author, fn _, _ ->
         action.target
         |> struct()
         |> action.target.changeset(attrs)
         |> Ecto.Changeset.put_change(:author_id, author.id)
         |> Repo.insert()
       end)
-      |> Multi.run(:set_community, fn %{add_content_author: content} ->
+      |> Multi.run(:set_community, fn _, %{add_content_author: content} ->
         ArticleOperation.set_community(community, thread, content.id)
       end)
-      |> Multi.run(:set_topic, fn %{add_content_author: content} ->
+      |> Multi.run(:set_topic, fn _, %{add_content_author: content} ->
         topic_title =
           case attrs |> Map.has_key?(:topic) do
             true -> attrs.topic
@@ -87,7 +87,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
 
         ArticleOperation.set_topic(%Topic{title: topic_title}, thread, content.id)
       end)
-      |> Multi.run(:set_community_flag, fn %{add_content_author: content} ->
+      |> Multi.run(:set_community_flag, fn _, %{add_content_author: content} ->
         # TODO: remove this judge, as content should have a flag
         case action |> Map.has_key?(:flag) do
           true ->
@@ -99,17 +99,17 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
             {:ok, "pass"}
         end
       end)
-      |> Multi.run(:set_tag, fn %{add_content_author: content} ->
+      |> Multi.run(:set_tag, fn _, %{add_content_author: content} ->
         case attrs |> Map.has_key?(:tags) do
           true -> set_tags(community, thread, content.id, attrs.tags)
           false -> {:ok, "pass"}
         end
       end)
-      |> Multi.run(:mention_users, fn %{add_content_author: content} ->
+      |> Multi.run(:mention_users, fn _, %{add_content_author: content} ->
         Delivery.mention_from_content(thread, content, attrs, %User{id: user_id})
         {:ok, "pass"}
       end)
-      |> Multi.run(:log_action, fn _ ->
+      |> Multi.run(:log_action, fn _, _ ->
         Statistics.log_publish_action(%User{id: user_id})
       end)
       |> Repo.transaction()

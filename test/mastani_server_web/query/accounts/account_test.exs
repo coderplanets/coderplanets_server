@@ -52,6 +52,7 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert results["id"] == to_string(user.id)
     end
 
+    @tag :wip
     test "user's views +1 after visit", ~m(guest_conn user)a do
       {:ok, target_user} = ORM.find(Accounts.User, user.id)
       assert target_user.views == 0
