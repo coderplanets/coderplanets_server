@@ -44,10 +44,10 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, comment} <- ORM.find(action.reactor, content_id) do
       Multi.new()
-      |> Multi.run(:delete_comment, fn _ ->
+      |> Multi.run(:delete_comment, fn _, _ ->
         ORM.delete(comment)
       end)
-      |> Multi.run(:update_floor, fn _ ->
+      |> Multi.run(:update_floor, fn _, _ ->
         Repo.update_all(
           from(p in action.reactor, where: p.id > ^comment.id),
           inc: [floor: -1]

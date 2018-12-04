@@ -40,7 +40,7 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
   def delete_favorite_category(%User{id: user_id}, id) do
     with {:ok, category} <- FavoriteCategory |> ORM.find_by(~m(id user_id)a) do
       Multi.new()
-      |> Multi.run(:downgrade_achievement, fn _ ->
+      |> Multi.run(:downgrade_achievement, fn _, _ ->
         # find user favvoried-contents(posts & jobs & videos) 's author,
         # and downgrade their's acieveents
         # NOTE: this is too fucking violent and should be refactor later
@@ -67,7 +67,7 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
 
         {:ok, %{done: true}}
       end)
-      |> Multi.run(:delete_category, fn _ ->
+      |> Multi.run(:delete_category, fn _, _ ->
         category |> ORM.delete()
       end)
       |> Repo.transaction()
@@ -138,7 +138,7 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
     with {:ok, favorite_category} <-
            FavoriteCategory |> ORM.find_by(%{user_id: user.id, id: category_id}) do
       Multi.new()
-      |> Multi.run(:favorite_content, fn _ ->
+      |> Multi.run(:favorite_content, fn _, _ ->
         with {:ok, content_favorite} <- find_content_favorite(thread, content_id, user.id) do
           check_dup_category(content_favorite, favorite_category)
         else
@@ -149,7 +149,7 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
             end
         end
       end)
-      |> Multi.run(:dec_old_category_count, fn %{favorite_content: content_favorite} ->
+      |> Multi.run(:dec_old_category_count, fn _, %{favorite_content: content_favorite} ->
         with false <- is_nil(content_favorite.category_id),
              {:ok, old_category} <- FavoriteCategory |> ORM.find(content_favorite.category_id) do
           old_category
@@ -159,10 +159,10 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
           error -> {:error, error}
         end
       end)
-      |> Multi.run(:update_content_category_id, fn %{favorite_content: content_favorite} ->
+      |> Multi.run(:update_content_category_id, fn _, %{favorite_content: content_favorite} ->
         content_favorite |> ORM.update(%{category_id: favorite_category.id})
       end)
-      |> Multi.run(:update_category_info, fn _ ->
+      |> Multi.run(:update_category_info, fn _, _ ->
         last_updated = Timex.today() |> Timex.to_datetime()
 
         favorite_category
@@ -199,10 +199,10 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
     with {:ok, favorite_category} <-
            FavoriteCategory |> ORM.find_by(%{user_id: user.id, id: category_id}) do
       Multi.new()
-      |> Multi.run(:undo_favorite_action, fn _ ->
+      |> Multi.run(:undo_favorite_action, fn _, _ ->
         CMS.undo_reaction(thread, :favorite, content_id, user)
       end)
-      |> Multi.run(:update_category_info, fn _ ->
+      |> Multi.run(:update_category_info, fn _, _ ->
         last_updated = Timex.today() |> Timex.to_datetime()
 
         favorite_category

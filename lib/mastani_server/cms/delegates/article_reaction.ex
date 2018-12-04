@@ -21,10 +21,10 @@ defmodule MastaniServer.CMS.Delegate.ArticleReaction do
          {:ok, content} <- ORM.find(action.target, content_id, preload: [author: :user]),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
       Multi.new()
-      |> Multi.run(:create_reaction_record, fn _ ->
+      |> Multi.run(:create_reaction_record, fn _, _ ->
         create_reaction_record(action, user, thread, content)
       end)
-      |> Multi.run(:add_achievement, fn _ ->
+      |> Multi.run(:add_achievement, fn _, _ ->
         achiever_id = content.author.user_id
         Accounts.achieve(%User{id: achiever_id}, :add, react)
       end)
@@ -59,10 +59,10 @@ defmodule MastaniServer.CMS.Delegate.ArticleReaction do
          {:ok, content} <- ORM.find(action.target, content_id, preload: [author: :user]),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
       Multi.new()
-      |> Multi.run(:delete_reaction_record, fn _ ->
+      |> Multi.run(:delete_reaction_record, fn _, _ ->
         delete_reaction_record(action, user, thread, content)
       end)
-      |> Multi.run(:minus_achievement, fn _ ->
+      |> Multi.run(:minus_achievement, fn _, _ ->
         achiever_id = content.author.user_id
         Accounts.achieve(%User{id: achiever_id}, :minus, react)
       end)

@@ -31,7 +31,7 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
         :create_following,
         UserFollowing.changeset(%UserFollowing{}, %{user_id: user_id, following_id: follower_id})
       )
-      |> Multi.run(:add_achievement, fn _ ->
+      |> Multi.run(:add_achievement, fn _, _ ->
         Accounts.achieve(%User{id: follower_id}, :add, :follow)
       end)
       |> Repo.transaction()
@@ -70,13 +70,13 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
     with true <- to_string(user_id) !== to_string(follower_id),
          {:ok, _follow_user} <- ORM.find(User, follower_id) do
       Multi.new()
-      |> Multi.run(:delete_follower, fn _ ->
+      |> Multi.run(:delete_follower, fn _, _ ->
         ORM.findby_delete(UserFollower, %{user_id: follower_id, follower_id: user_id})
       end)
-      |> Multi.run(:delete_following, fn _ ->
+      |> Multi.run(:delete_following, fn _, _ ->
         ORM.findby_delete(UserFollowing, %{user_id: user_id, following_id: follower_id})
       end)
-      |> Multi.run(:minus_achievement, fn _ ->
+      |> Multi.run(:minus_achievement, fn _, _ ->
         Accounts.achieve(%User{id: follower_id}, :minus, :follow)
       end)
       |> Repo.transaction()

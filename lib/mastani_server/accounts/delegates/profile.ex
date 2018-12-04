@@ -126,13 +126,13 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
 
   defp register_github_user(github_profile) do
     Multi.new()
-    |> Multi.run(:create_user, fn _ ->
+    |> Multi.run(:create_user, fn _, _ ->
       create_user(github_profile, :github)
     end)
-    |> Multi.run(:create_profile, fn %{create_user: user} ->
+    |> Multi.run(:create_profile, fn _, %{create_user: user} ->
       create_profile(user, github_profile, :github)
     end)
-    |> Multi.run(:init_achievement, fn %{create_user: user} ->
+    |> Multi.run(:init_achievement, fn _, %{create_user: user} ->
       Achievement |> ORM.upsert_by([user_id: user.id], %{user_id: user.id})
     end)
     |> Repo.transaction()

@@ -141,11 +141,10 @@ defmodule MastaniServer.Statistics.Delegate.Contribute do
   defp do_inc_count(query, contribute, count \\ 1) do
     {1, [result]} =
       Repo.update_all(
-        query,
-        [inc: [count: count]],
-        returning: [:count]
+        from(p in query, select: p.count),
+        inc: [count: count]
       )
 
-    put_in(contribute.count, result.count)
+    put_in(contribute.count, result)
   end
 end
