@@ -30,7 +30,7 @@ defmodule MastaniServer.CMS.Delegate.PassportCURD do
         {:ok, passport} ->
           {:ok, passport.rules}
 
-        {:error, error} ->
+        {:error, _error} ->
           {:ok, %{}}
       end
     end

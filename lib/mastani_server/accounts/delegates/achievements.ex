@@ -121,16 +121,16 @@ defmodule MastaniServer.Accounts.Delegate.Achievements do
     end
   end
 
-  @spec safe_minus(non_neg_integer(), non_neg_integer()) :: non_neg_integer()
-  defp safe_minus(count, unit) when is_integer(count) and is_integer(unit) and unit > 0 do
-    case count <= 0 do
-      true ->
-        0
+  # @spec safe_minus(non_neg_integer(), non_neg_integer()) :: non_neg_integer()
+  # defp safe_minus(count, unit) when is_integer(count) and is_integer(unit) and unit > 0 do
+  # case count <= 0 do
+  # true ->
+  # 0
 
-      false ->
-        count - unit
-    end
-  end
+  # false ->
+  # count - unit
+  # end
+  # end
 
   @doc """
   list communities which the user is editor in it

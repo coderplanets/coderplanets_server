@@ -2,20 +2,18 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
   @moduledoc """
   The Delivery context.
   """
-  import Helper.Utils, only: [done: 2]
-
+  # import Helper.Utils, only: [done: 2]
   alias MastaniServer.Repo
   alias MastaniServer.Accounts.User
   alias MastaniServer.Delivery.Mention
-  alias Helper.ORM
 
   alias MastaniServer.Delivery.Delegate.Utils
 
   # TODO: move mention logic to create contents
   # TODO: 同一篇文章不能 mention 同一个 user 多次？
-  def mention_others(%User{id: from_user_id}, [], _info), do: {:error, %{done: false}}
-  def mention_others(%User{id: from_user_id}, nil, _info), do: {:error, %{done: false}}
-  def mention_others(%User{id: from_user_id}, [nil], _info), do: {:error, %{done: false}}
+  def mention_others(%User{id: _from_user_id}, [], _info), do: {:error, %{done: false}}
+  def mention_others(%User{id: _from_user_id}, nil, _info), do: {:error, %{done: false}}
+  def mention_others(%User{id: _from_user_id}, [nil], _info), do: {:error, %{done: false}}
 
   def mention_others(%User{id: from_user_id}, to_uses, info) do
     other_users = Enum.uniq(to_uses)
