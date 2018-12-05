@@ -17,6 +17,7 @@ defmodule MastaniServer.CMS.Post do
     Topic
   }
 
+  @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title body digest length)a
   @optional_fields ~w(link_addr copy_right)a
 
@@ -76,7 +77,8 @@ defmodule MastaniServer.CMS.Post do
 
     # timestamps(type: :utc_datetime)
     # for paged test to diff
-    timestamps(type: :utc_datetime_usec)
+    # timestamps(type: :utc_datetime_usec)
+    timestamps()
   end
 
   @doc false
