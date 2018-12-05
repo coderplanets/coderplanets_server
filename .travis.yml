@@ -18,7 +18,7 @@ before_script:
 - npm install -g apollo
 script:
 - MIX_ENV=test mix compile --warnings-as-errors, coveralls.json
-- mix test
+- mix test --only wip
 - commitlint-travis
 after_script:
 - MIX_ENV=test mix inch.report
