@@ -112,6 +112,7 @@ defmodule MastaniServer.Test.Query.PagedVideos do
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(video.id)))
     end
 
+    @tag :skip_travis
     test "filter sort should have default :desc_inserted", ~m(guest_conn)a do
       variables = %{filter: %{}}
       results = guest_conn |> query_result(@query, variables, "pagedVideos")

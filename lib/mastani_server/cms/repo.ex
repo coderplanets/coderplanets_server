@@ -17,6 +17,7 @@ defmodule MastaniServer.CMS.Repo do
     Tag
   }
 
+  @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title owner_name owner_url repo_url desc readme star_count issues_count prs_count fork_count watch_count)a
   @optional_fields ~w(last_sync homepage_url release_tag license)a
 
@@ -74,7 +75,7 @@ defmodule MastaniServer.CMS.Repo do
     )
 
     # timestamps(type: :utc_datetime)
-    timestamps(type: :utc_datetime_usec)
+    timestamps()
   end
 
   @doc false

@@ -117,7 +117,7 @@ defmodule MastaniServer.Test.Query.PagedPosts do
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(post.id)))
     end
 
-    @tag :wip
+    @tag :skip_travis
     test "filter sort should have default :desc_inserted", ~m(guest_conn)a do
       variables = %{filter: %{}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")

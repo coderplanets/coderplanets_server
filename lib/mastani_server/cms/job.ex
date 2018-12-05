@@ -16,6 +16,7 @@ defmodule MastaniServer.CMS.Job do
     Tag
   }
 
+  @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title company company_logo body digest length)a
   @optional_fields ~w(desc company_link link_addr copy_right salary exp education field finance scale)a
 
@@ -71,7 +72,7 @@ defmodule MastaniServer.CMS.Job do
     )
 
     # timestamps(type: :utc_datetime)
-    timestamps(type: :utc_datetime_usec)
+    timestamps()
   end
 
   @doc false
