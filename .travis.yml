@@ -14,15 +14,15 @@ before_script:
 - nvm install 8.10 && nvm use 8.10
 - npm install
 - npm install -g @commitlint/travis-cli
-- npm install -g apollo
+# - npm install -g apollo
 script:
 - MIX_ENV=test mix compile --warnings-as-errors, coveralls.json
 - mix test --exclude skip_travis
 - commitlint-travis
 after_script:
 - MIX_ENV=test mix inch.report
-- apollo schema:check  --endpoint="http://apiraw.coderplanets.com/graphiql"
-- apollo schema:publish --endpoint="http://apiraw.coderplanets.com/graphiql"
+# - apollo schema:check  --endpoint="http://apiraw.coderplanets.com/graphiql"
+# - apollo schema:publish --endpoint="http://apiraw.coderplanets.com/graphiql"
 after_success:
 - bash <(curl -s -k https://codecov.io/bash)
 cache:
