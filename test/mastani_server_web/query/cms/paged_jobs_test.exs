@@ -14,7 +14,7 @@ defmodule MastaniServer.Test.Query.PagedJobs do
   @cur_date Timex.now()
   @last_week Timex.shift(Timex.beginning_of_week(@cur_date), days: -1, microseconds: -1)
   @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -7, microseconds: -1)
-  @last_year Timex.shift(Timex.beginning_of_year(@cur_date), days: -1, microseconds: -1)
+  @last_year Timex.shift(Timex.beginning_of_year(@cur_date), days: -2, microseconds: -1)
 
   @today_count 35
 

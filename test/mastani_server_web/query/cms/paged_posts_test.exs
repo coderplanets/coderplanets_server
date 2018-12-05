@@ -30,8 +30,6 @@ defmodule MastaniServer.Test.Query.PagedPosts do
     {:ok, post1} = db_insert(:post, %{title: "last week", inserted_at: @last_week})
     {:ok, post3} = db_insert(:post, %{title: "last year", inserted_at: @last_year})
 
-    IO.inspect @last_year, label: "hello @last_year"
-
     db_insert_multi(:post, @today_count)
 
     guest_conn = simu_conn(:guest)
