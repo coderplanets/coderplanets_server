@@ -13,7 +13,7 @@ defmodule MastaniServer.Test.Query.PagedPosts do
   @cur_date Timex.now()
   @last_week Timex.shift(Timex.beginning_of_week(@cur_date), days: -1, microseconds: -1)
   @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -7, microseconds: -1)
-  @last_year Timex.shift(Timex.beginning_of_year(@cur_date), days: -1, microseconds: -1)
+  @last_year Timex.shift(Timex.beginning_of_year(@cur_date), days: -2, microseconds: -1)
 
   @today_count 35
 
@@ -29,6 +29,8 @@ defmodule MastaniServer.Test.Query.PagedPosts do
     {:ok, post2} = db_insert(:post, %{title: "last month", inserted_at: @last_month})
     {:ok, post1} = db_insert(:post, %{title: "last week", inserted_at: @last_week})
     {:ok, post3} = db_insert(:post, %{title: "last year", inserted_at: @last_year})
+
+    IO.inspect @last_year, label: "hello @last_year"
 
     db_insert_multi(:post, @today_count)
 
