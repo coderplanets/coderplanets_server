@@ -1,29 +1,28 @@
 language: elixir
 elixir:
-- 1.6
+- 1.6.6
 otp_release:
-- 19.3
 - 20.1
 - 21.0
 node_js:
 - 8
 sudo: false
 addons:
-  postgresql: '9.4'
+  postgresql: '9.6'
 before_script:
 - MIX_ENV=test mix deps.get
 - nvm install 8.10 && nvm use 8.10
 - npm install
 - npm install -g @commitlint/travis-cli
-- npm install -g apollo
+# - npm install -g apollo
 script:
 - MIX_ENV=test mix compile --warnings-as-errors, coveralls.json
-- mix test
+- mix test --exclude skip_travis
 - commitlint-travis
 after_script:
 - MIX_ENV=test mix inch.report
-- apollo schema:check  --endpoint="http://apiraw.coderplanets.com/graphiql"
-- apollo schema:publish --endpoint="http://apiraw.coderplanets.com/graphiql"
+# - apollo schema:check  --endpoint="http://apiraw.coderplanets.com/graphiql"
+# - apollo schema:publish --endpoint="http://apiraw.coderplanets.com/graphiql"
 after_success:
 - bash <(curl -s -k https://codecov.io/bash)
 cache:

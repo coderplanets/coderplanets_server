@@ -16,6 +16,7 @@ defmodule MastaniServer.CMS.Video do
     Tag
   }
 
+  @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title poster thumbnil desc duration duration_sec source link original_author original_author_link publish_at)a
   # @optional_fields ~w()a
 
@@ -65,7 +66,7 @@ defmodule MastaniServer.CMS.Video do
     )
 
     # timestamps(type: :utc_datetime)
-    timestamps(type: :utc_datetime_usec)
+    timestamps()
   end
 
   @doc false
