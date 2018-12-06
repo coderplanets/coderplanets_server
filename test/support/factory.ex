@@ -243,6 +243,15 @@ defmodule MastaniServer.Support.Factory do
     }
   end
 
+  defp mock_meta(:repo_contributor) do
+    %{
+      avatar: Faker.Avatar.image_url(),
+      html_url: Faker.Avatar.image_url(),
+      htmlUrl: Faker.Avatar.image_url(),
+      nickname: "mydearxym2"
+    }
+  end
+
   defp mock_meta(:github_profile) do
     unique_num = System.unique_integer([:positive, :monotonic])
 
