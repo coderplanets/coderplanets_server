@@ -73,7 +73,7 @@ defmodule MastaniServer.Test.CMS.VideoComment do
     end
 
     # TODO  may be a bug
-    @tag :bug
+    @tag :pain_in_ass
     # maybe case
     # (Postgrex.Error) ERROR 23505 (unique_violation): duplicate key value violates unique constraint "videos_comments_video_id_author_id_floor_index"
     # this will crash the server.
