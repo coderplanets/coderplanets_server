@@ -22,7 +22,8 @@ defmodule MastaniServerWeb.Endpoint do
     Corsica,
     # log: [rejected: :error],
     log: [rejected: :debug],
-    origins: "*",
+    origins: ["http://localhost:3000", ~r{^https://(.*\.?)coderplanets\.com$}],
+    # origins: "*",
     allow_headers: [
       "authorization",
       "content-type",
@@ -31,7 +32,8 @@ defmodule MastaniServerWeb.Endpoint do
       "origin",
       "x-requested-with"
     ],
-    allow_credentials: true
+    allow_credentials: true,
+    max_age: 600
   )
 
   plug(MastaniServerWeb.Router)
