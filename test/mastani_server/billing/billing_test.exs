@@ -1,11 +1,9 @@
 defmodule MastaniServer.Test.Billing do
   use MastaniServer.TestTools
 
-  alias MastaniServer.Accounts.User
+  # alias MastaniServer.Accounts.User
   alias MastaniServer.Billing
-  # alias MastaniServer.CMS
-
-  alias Helper.ORM
+  # alias Helper.ORM
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -32,15 +30,22 @@ defmodule MastaniServer.Test.Billing do
     end
 
     @tag :wip
+    test "create create bill record with valid note", ~m(user valid_attrs)a do
+      {:ok, record} = Billing.create_record(user, valid_attrs |> Map.merge(%{note: "i am girl"}))
+
+      assert record.note == "i am girl"
+    end
+
+    @tag :wip
     test "create bill record with previous record unhandled fails", ~m(user valid_attrs)a do
-      {:ok, record} = Billing.create_record(user, valid_attrs)
+      {:ok, _record} = Billing.create_record(user, valid_attrs)
       {:error, error} = Billing.create_record(user, valid_attrs)
       assert error |> Keyword.get(:code) == ecode(:exsit_pending_bill)
     end
 
     @tag :wip
     test "can get paged bill records of a user", ~m(user valid_attrs)a do
-      {:ok, record} = Billing.create_record(user, valid_attrs)
+      {:ok, _record} = Billing.create_record(user, valid_attrs)
 
       {:ok, records} = Billing.get_records(user, %{page: 1, size: 20})
 
