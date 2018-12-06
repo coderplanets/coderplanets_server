@@ -28,6 +28,7 @@ defmodule MastaniServer.Test.Query.PostComment do
           pagedCommentsParticipators {
             entries {
               id
+              nickname
             }
             totalCount
           }
@@ -121,6 +122,67 @@ defmodule MastaniServer.Test.Query.PostComment do
       participators = results["entries"] |> List.first() |> Map.get("pagedCommentsParticipators")
 
       assert participators["totalCount"] == 10
+    end
+
+    @query """
+    query($filter: PagedArticleFilter) {
+      pagedPosts(filter: $filter) {
+        entries {
+          id
+          commentsParticipators(filter: { first: 5 }) {
+            id
+            nickname
+          }
+        }
+      }
+    }
+    """
+    @tag :pain_in_ass
+    test "top N per Group test", ~m(user guest_conn)a do
+      body = "this is a test comment"
+
+      {:ok, community} = db_insert(:community)
+      {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
+      {:ok, post2} = CMS.create_content(community, :post, mock_attrs(:post), user)
+      # {:ok, users_list} = db_insert_multi(:user, 10)
+
+      CMS.create_comment(:post, post.id, body, user)
+      CMS.create_comment(:post, post2.id, body, user)
+
+      variables = %{filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+
+      # for test window function
+      commentsParticipators = results["entries"]
+      # IO.inspect(commentsParticipators, label: "commentsParticipators->")
+    end
+
+    # ~m(user guest_conn)a do
+    test "top N per Group test v2" do
+      # body = "this is a test comment"
+
+      # {:ok, community} = db_insert(:community)
+      # {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
+      # {:ok, post2} = CMS.create_content(community, :post, mock_attrs(:post), user)
+      # {:ok, users_list} = db_insert_multi(:user, 10)
+      # {:ok, users_list2} = db_insert_multi(:user, 10)
+
+      # Enum.each(
+      # users_list,
+      # &CMS.create_comment(:post, post.id, body, &1)
+      # )
+
+      # Enum.each(
+      # users_list2,
+      # &CMS.create_comment(:post, post2.id, body, &1)
+      # )
+
+      # variables = %{filter: %{community: community.raw}}
+      # results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      # commentsParticipators =
+      # results["entries"] |> List.first() |> Map.get("commentsParticipators")
+
+      # IO.inspect(commentsParticipators, label: "commentsParticipators->")
     end
   end
 

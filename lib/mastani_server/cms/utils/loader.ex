@@ -179,6 +179,16 @@ defmodule MastaniServer.CMS.Utils.Loader do
   # should use WINDOW function
   # see https://github.com/coderplanets/coderplanets_server/issues/16
   def query({"posts_comments", PostComment}, %{filter: filter, unique: true}) do
+    # PostComment
+    # |> QueryBuilder.filter_pack(filter)
+    # |> join(:inner, [c], a in assoc(c, :author))
+    # |> distinct([c, a], a.id)
+    # |> select([c, a], %{
+    # nickname: a.nickname,
+    # id: a.id,
+    # what_ever: row_number() |> over(partition_by: a.id)
+    # })
+
     PostComment
     |> QueryBuilder.filter_pack(filter)
     |> join(:inner, [c], a in assoc(c, :author))
