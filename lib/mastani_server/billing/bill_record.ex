@@ -35,4 +35,10 @@ defmodule MastaniServer.Billing.BillRecord do
     # |> validate_length(:title, min: 1, max: 30)
     |> foreign_key_constraint(:user_id)
   end
+
+  def state_changeset(bill_record, attrs) do
+    bill_record
+    |> cast(attrs, [:state])
+    |> validate_required([:state])
+  end
 end

@@ -6,7 +6,7 @@ defmodule MastaniServerWeb.Schema do
   # use ApolloTracing
 
   alias MastaniServerWeb.Middleware, as: M
-  alias MastaniServerWeb.Schema.{Account, CMS, Delivery, Statistics, Utils}
+  alias MastaniServerWeb.Schema.{Account, Billing, CMS, Delivery, Statistics, Utils}
 
   import_types(Absinthe.Type.Custom)
 
@@ -17,6 +17,11 @@ defmodule MastaniServerWeb.Schema do
   import_types(Account.Types)
   import_types(Account.Queries)
   import_types(Account.Mutations)
+
+  # billing
+  import_types(Billing.Types)
+  import_types(Billing.Queries)
+  import_types(Billing.Mutations)
 
   # statistics
   import_types(Statistics.Types)
@@ -41,6 +46,7 @@ defmodule MastaniServerWeb.Schema do
 
   query do
     import_fields(:account_queries)
+    import_fields(:billing_queries)
     import_fields(:statistics_queries)
     import_fields(:delivery_queries)
     import_fields(:cms_queries)
@@ -49,6 +55,8 @@ defmodule MastaniServerWeb.Schema do
   mutation do
     # account
     import_fields(:account_mutations)
+    # billing
+    import_fields(:billing_mutations)
     # statistics
     import_fields(:statistics_mutations)
     # delivery
