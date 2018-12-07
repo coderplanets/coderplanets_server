@@ -11,7 +11,13 @@ defmodule MastaniServer.Billing.Delegate.CURD do
   alias MastaniServer.Accounts.User
   alias MastaniServer.Billing.BillRecord
   alias MastaniServer.Repo
+  alias MastaniServer.Billing.Delegate.Actions
 
+  alias Ecto.Multi
+
+  @doc """
+  create bill recoard with pending state
+  """
   def create_record(%User{id: user_id}, attrs) do
     with {:ok, user} <- ORM.find(User, user_id) do
       case ORM.find_by(BillRecord, user_id: user.id, state: "pending") do
@@ -24,6 +30,9 @@ defmodule MastaniServer.Billing.Delegate.CURD do
     end
   end
 
+  @doc """
+  list all the bill records
+  """
   def list_records(%User{id: user_id}, %{page: page, size: size} = _filter) do
     with {:ok, user} <- ORM.find(User, user_id) do
       BillRecord
@@ -33,7 +42,32 @@ defmodule MastaniServer.Billing.Delegate.CURD do
     end
   end
 
+  @doc """
+  update the bill state to: done/reject
+  """
   def update_record_state(record_id, state) do
+    Multi.new()
+    |> Multi.run(:update_state, fn _, _ ->
+      up_update_record_state(record_id, state)
+    end)
+    |> Multi.run(:after_action, fn _, %{update_state: record} ->
+      Actions.after_bill_state(record, state)
+    end)
+    |> Repo.transaction()
+    |> update_state_result()
+  end
+
+  defp update_state_result({:ok, %{after_action: result}}), do: {:ok, result}
+
+  defp update_state_result({:error, :update_state, _result, _steps}) do
+    {:error, [message: "update state error", code: ecode(:bill_state)]}
+  end
+
+  defp update_state_result({:error, :after_action, _result, _steps}) do
+    {:error, [message: "update state action error", code: ecode(:bill_action)]}
+  end
+
+  defp up_update_record_state(record_id, state) do
     state = to_string(state)
 
     with {:ok, bill_record} <- ORM.find(BillRecord, record_id) do
@@ -41,8 +75,6 @@ defmodule MastaniServer.Billing.Delegate.CURD do
       |> Ecto.Changeset.change(~m(state)a)
       |> BillRecord.state_changeset(~m(state)a)
       |> Repo.update()
-
-      # TODO: after_action
     end
   end
 
