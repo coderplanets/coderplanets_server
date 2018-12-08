@@ -272,6 +272,14 @@ defmodule MastaniServer.Support.Factory do
     }
   end
 
+  defp mock_meta(:bill) do
+    %{
+      payment_usage: "donate",
+      payment_method: "alipay",
+      amount: 51.2
+    }
+  end
+
   def mock_attrs(_, attrs \\ %{})
   def mock_attrs(:user, attrs), do: mock_meta(:user) |> Map.merge(attrs)
   def mock_attrs(:author, attrs), do: mock_meta(:author) |> Map.merge(attrs)
@@ -296,6 +304,8 @@ defmodule MastaniServer.Support.Factory do
   def mock_attrs(:sys_notification, attrs), do: mock_meta(:sys_notification) |> Map.merge(attrs)
   def mock_attrs(:category, attrs), do: mock_meta(:category) |> Map.merge(attrs)
   def mock_attrs(:github_profile, attrs), do: mock_meta(:github_profile) |> Map.merge(attrs)
+
+  def mock_attrs(:bill, attrs), do: mock_meta(:bill) |> Map.merge(attrs)
 
   # NOTICE: avoid Recursive problem
   # bad example:

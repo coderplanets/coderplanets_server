@@ -7,9 +7,27 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
 
   alias Helper.ORM
   alias MastaniServer.Accounts
-  alias MastaniServer.Accounts.{User, Customization}
+
+  alias Accounts.{User, Customization}
+  alias Accounts.Delegate.Achievements
 
   @default_customization get_config(:customization, :all) |> Enum.into(%{})
+
+  def upgrade_by_plan(%User{} = user, :donate) do
+    Achievements.set_member(user, :donate)
+  end
+
+  def upgrade_by_plan(%User{} = user, :seninor) do
+    Achievements.set_member(user, :seninor)
+  end
+
+  def upgrade_by_plan(%User{} = user, :sponsor) do
+    Achievements.set_member(user, :sponsor)
+  end
+
+  def upgrade_by_plan(%User{} = _user, plan) do
+    {:error, "no such plan"}
+  end
 
   @doc """
   get user's customization, if not have, return default customization

@@ -70,6 +70,7 @@ defmodule MastaniServer.Accounts do
   defdelegate get_customization(user), to: Customization
   defdelegate set_customization(user, key, value), to: Customization
   defdelegate set_customization(user, options), to: Customization
+  defdelegate upgrade_by_plan(user, plan), to: Customization
 
   defdelegate search_users(args), to: Search
 end

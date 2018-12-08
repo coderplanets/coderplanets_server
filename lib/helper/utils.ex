@@ -84,7 +84,7 @@ defmodule Helper.Utils do
   Recursivly camelize the map keys
   usage: convert factory attrs to used for simu Graphql parmas
   """
-  def camelize_map_key(map) do
+  def camelize_map_key(map, v_trans \\ :ignore) do
     map_list =
       Enum.map(map, fn {k, v} ->
         v =
@@ -95,6 +95,9 @@ defmodule Helper.Utils do
             is_map(v) ->
               camelize_map_key(safe_map(v))
 
+            is_binary(v) ->
+              handle_camelize_value_trans(v, v_trans)
+
             true ->
               v
           end
@@ -104,6 +107,10 @@ defmodule Helper.Utils do
 
     Enum.into(map_list, %{})
   end
+
+  defp handle_camelize_value_trans(v, :ignore), do: v
+  defp handle_camelize_value_trans(v, :downcase), do: String.downcase(v)
+  defp handle_camelize_value_trans(v, :upcase), do: String.upcase(v)
 
   defp safe_map(%{__struct__: _} = map), do: Map.from_struct(map)
   defp safe_map(map), do: map
