@@ -3,7 +3,6 @@ defmodule MastaniServer.Accounts do
 
   alias MastaniServer.Accounts.Delegate.{
     Achievements,
-    Billing,
     Customization,
     Fans,
     FavoriteCategory,
@@ -60,11 +59,6 @@ defmodule MastaniServer.Accounts do
   defdelegate mailbox_status(user), to: Mails
   defdelegate mark_mail_read_all(user, opt), to: Mails
   defdelegate mark_mail_read(mail, user), to: Mails
-
-  # purchase
-  defdelegate purchase_service(user, key, value), to: Billing
-  defdelegate purchase_service(user, key), to: Billing
-  defdelegate has_purchased?(user, key), to: Billing
 
   # customization
   defdelegate get_customization(user), to: Customization

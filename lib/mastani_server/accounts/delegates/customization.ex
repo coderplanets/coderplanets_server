@@ -48,80 +48,63 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
   """
   # for map_size
   # see https://stackoverflow.com/questions/33248816/pattern-match-function-against-empty-map
+
   def set_customization(%User{} = _user, map) when map_size(map) == 0 do
-    {:error, "AccountCustomization: invalid option or not purchased"}
+    {:error, "AccountCustomization: invalid option or not member"}
   end
 
-  def set_customization(%User{} = user, map) when is_map(map) do
-    map = map |> map_atom_value(:string)
+  def set_customization(%User{id: user_id} = user, map) when is_map(map) do
+    with {:ok, %{achievement: achievement}} <- ORM.find(User, user_id, preload: :achievement) do
+      map = map |> map_atom_value(:string)
 
-    valid? =
-      map
-      |> Map.keys()
-      |> Enum.all?(&can_set?(user, &1, :boolean))
+      valid? =
+        map
+        |> Map.keys()
+        |> Enum.all?(&c11n_item_require?(&1, achievement))
 
-    case valid? do
-      true ->
-        attrs = Map.merge(%{user_id: user.id}, map)
-        Customization |> ORM.upsert_by([user_id: user.id], attrs)
+      case valid? do
+        true ->
+          attrs = Map.merge(%{user_id: user.id}, map)
+          Customization |> ORM.upsert_by([user_id: user.id], attrs)
 
-      false ->
-        {:error, "AccountCustomization: invalid option or not purchased"}
+        false ->
+          {:error, "AccountCustomization: invalid option or not member"}
+      end
     end
   end
 
   def set_customization(%User{} = user, key, value \\ true) do
-    with {:ok, key} <- can_set?(user, key) do
-      attrs = Map.put(%{user_id: user.id}, key, value)
-      Customization |> ORM.upsert_by([user_id: user.id], attrs)
+    with {:ok, %{achievement: achievement}} <- ORM.find(User, user.id, preload: :achievement) do
+      case c11n_item_require?(key, achievement) do
+        true ->
+          attrs = Map.put(%{user_id: user.id}, key, value)
+          Customization |> ORM.upsert_by([user_id: user.id], attrs)
+
+        false ->
+          {:error, "AccountCustomization: invalid option or not member"}
+      end
     end
   end
 
-  defp can_set?(%User{} = user, key, :boolean) do
-    case can_set?(%User{} = user, key) do
-      {:ok, _} -> true
-      {:error, _} -> false
-    end
+  defp c11n_item_require?(:theme, %{
+         donate_member: donate_member,
+         seninor_member: seninor_member,
+         sponsor_member: sponsor_member
+       }) do
+    donate_member or seninor_member or sponsor_member
   end
 
-  def can_set?(%User{} = user, key) do
-    cond do
-      key in valid_custom_items(:free) ->
-        {:ok, key}
+  defp c11n_item_require?(:banner_layout, _), do: true
+  defp c11n_item_require?(:contents_layout, _), do: true
+  defp c11n_item_require?(:content_divider, _), do: true
+  defp c11n_item_require?(:mark_viewed, _), do: true
+  defp c11n_item_require?(:display_density, _), do: true
+  defp c11n_item_require?(:sidebar_layout, _), do: true
+  defp c11n_item_require?(:sidebar_communities_index, _), do: true
+  # defp c11n_item_require?(:brainwash_free, _), do: true
+  # defp c11n_item_require?(:community_chart, _), do: true
 
-      key in valid_custom_items(:advance) ->
-        Accounts.has_purchased?(user, key)
-
-      true ->
-        {:error, "AccountCustomization: invalid option"}
-    end
-  end
-
-  @doc """
-  # theme           --  user can set a default theme
-  # sidebar_layout  --  user can arrange subscribed community index
-  """
-  def valid_custom_items(:free) do
-    [
-      :sidebar_layout,
-      :sidebar_communities_index,
-      :banner_layout,
-      :contents_layout,
-      :content_divider,
-      :mark_viewed,
-      :display_density
-    ]
-  end
-
-  @doc """
-  # :brainwash_free    --  ads free
-  # ::community_chart  --  user can access comunity charts
-  """
-  def valid_custom_items(:advance) do
-    # NOTE: :brainwash_free aka. "ads_free"
-    # use brainwash to avoid brower-block-plugins
-    [:theme, :brainwash_free, :community_chart]
-  end
+  defp c11n_item_require?(_, _), do: false
 
   defp filter_nil_value(map) do
     for {k, v} <- map, !is_nil(v), into: %{}, do: {k, v}
