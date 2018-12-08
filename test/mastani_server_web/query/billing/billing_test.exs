@@ -37,8 +37,6 @@ defmodule MastaniServer.Test.Query.Billing.Basic do
       }
     }
     """
-
-    @tag :wip
     test "login user can get it's own billing records ", ~m(user_conn user valid_attrs)a do
       {:ok, _record} = Billing.create_record(user, valid_attrs)
 

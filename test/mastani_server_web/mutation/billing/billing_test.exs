@@ -31,8 +31,7 @@ defmodule MastaniServer.Test.Mutation.Billing.Basic do
       }
     }
     """
-    @tag :wip
-    test "auth user can create bill", ~m(user user_conn valid_attrs)a do
+    test "auth user can create bill", ~m(user_conn valid_attrs)a do
       variables = valid_attrs |> camelize_map_key(:upcase)
 
       created = user_conn |> mutation_result(@create_query, variables, "createBill")
@@ -49,7 +48,6 @@ defmodule MastaniServer.Test.Mutation.Billing.Basic do
       }
     }
     """
-    @tag :wip
     test "auth user can update bill state", ~m(user valid_attrs)a do
       {:ok, record} = Billing.create_record(user, valid_attrs)
 

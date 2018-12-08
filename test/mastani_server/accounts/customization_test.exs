@@ -12,23 +12,19 @@ defmodule MastaniServer.Test.Accounts.Customization do
   end
 
   describe "[user customization]" do
-    @tag :wip
     test "user can have default customization without payment", ~m(user)a do
       {:ok, result} = Accounts.set_customization(user, :banner_layout, "digest")
       assert result.banner_layout == "digest"
     end
 
-    @tag :wip
     test "user set non exsit customization fails", ~m(user)a do
       {:error, _} = Accounts.set_customization(user, :non_exsit, true)
     end
 
-    @tag :wip2
     test "user set advance customization without payment fails", ~m(user)a do
       {:error, _} = Accounts.set_customization(user, :theme, "blue")
     end
 
-    @tag :wip2
     test "user can set multiable customization at once", ~m(user)a do
       {:ok, result} =
         Accounts.set_customization(user, %{
