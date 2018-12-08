@@ -96,7 +96,7 @@ defmodule MastaniServer.Test.Billing do
       assert achievement.seninor_member == true
     end
 
-    @tag :wip2
+    @tag :wip
     test "sponsor updgrade to seninor_member after bill handled", ~m(user valid_attrs)a do
       attrs = valid_attrs |> Map.merge(%{amount: 0, payment_usage: "sponsor"})
 

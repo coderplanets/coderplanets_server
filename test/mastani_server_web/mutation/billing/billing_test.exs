@@ -1,7 +1,11 @@
 defmodule MastaniServer.Test.Mutation.Billing.Basic do
   use MastaniServer.TestTools
 
+  import Helper.Utils
+
   alias MastaniServer.Billing
+
+  @seninor_amount_threshold get_config(:general, :seninor_amount_threshold)
 
   setup do
     {:ok, user} = db_insert(:user)
