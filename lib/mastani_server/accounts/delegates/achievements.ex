@@ -106,7 +106,6 @@ defmodule MastaniServer.Accounts.Delegate.Achievements do
 
   def do_set_member(%User{id: user_id}, attrs) do
     with {:ok, achievement} <- ORM.findby_or_insert(Achievement, ~m(user_id)a, ~m(user_id)a) do
-      IO.inspect(attrs, label: "hello attrs")
       achievement |> ORM.update(attrs)
     end
   end
