@@ -99,14 +99,16 @@ defmodule MastaniServer.Accounts.Delegate.Achievements do
     end
   end
 
-  # def achieve(%User{} = _user, :+, :watch) do
-  # end
+  def set_member(%User{} = user, :donate), do: do_set_member(user, %{donate_member: true})
+  def set_member(%User{} = user, :seninor), do: do_set_member(user, %{seninor_member: true})
+  def set_member(%User{} = user, :sponsor), do: do_set_member(user, %{sponsor_member: true})
+  def set_member(_user, _plan), do: {:error, "no such plan"}
 
-  # def achieve(%User{} = _user, :+, key) do
-  # end
-
-  # def achieve(%User{} = _user, :-, _key) do
-  # end
+  def do_set_member(%User{id: user_id}, attrs) do
+    with {:ok, achievement} <- ORM.findby_or_insert(Achievement, ~m(user_id)a, ~m(user_id)a) do
+      achievement |> ORM.update(attrs)
+    end
+  end
 
   @doc """
   only used for user delete the farorited category, other case is auto

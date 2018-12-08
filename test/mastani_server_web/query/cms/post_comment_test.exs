@@ -153,7 +153,7 @@ defmodule MastaniServer.Test.Query.PostComment do
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
       # for test window function
-      commentsParticipators = results["entries"]
+      _commentsParticipators = results["entries"]
       # IO.inspect(commentsParticipators, label: "commentsParticipators->")
     end
 

@@ -243,6 +243,15 @@ defmodule MastaniServer.Support.Factory do
     }
   end
 
+  defp mock_meta(:repo_contributor) do
+    %{
+      avatar: Faker.Avatar.image_url(),
+      html_url: Faker.Avatar.image_url(),
+      htmlUrl: Faker.Avatar.image_url(),
+      nickname: "mydearxym2"
+    }
+  end
+
   defp mock_meta(:github_profile) do
     unique_num = System.unique_integer([:positive, :monotonic])
 
@@ -260,6 +269,14 @@ defmodule MastaniServer.Support.Factory do
       html_url: Faker.Avatar.image_url(),
       followers: unique_num * unique_num,
       following: unique_num * unique_num * unique_num
+    }
+  end
+
+  defp mock_meta(:bill) do
+    %{
+      payment_usage: "donate",
+      payment_method: "alipay",
+      amount: 51.2
     }
   end
 
@@ -287,6 +304,8 @@ defmodule MastaniServer.Support.Factory do
   def mock_attrs(:sys_notification, attrs), do: mock_meta(:sys_notification) |> Map.merge(attrs)
   def mock_attrs(:category, attrs), do: mock_meta(:category) |> Map.merge(attrs)
   def mock_attrs(:github_profile, attrs), do: mock_meta(:github_profile) |> Map.merge(attrs)
+
+  def mock_attrs(:bill, attrs), do: mock_meta(:bill) |> Map.merge(attrs)
 
   # NOTICE: avoid Recursive problem
   # bad example:
