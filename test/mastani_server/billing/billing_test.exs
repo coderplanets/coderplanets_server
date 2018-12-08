@@ -1,28 +1,28 @@
 defmodule MastaniServer.Test.Billing do
   use MastaniServer.TestTools
 
-  # alias MastaniServer.Accounts.User
+  import Helper.Utils, only: [get_config: 2]
+
+  alias Helper.ORM
+  alias MastaniServer.Accounts.User
   alias MastaniServer.Billing
-  # alias Helper.ORM
+
+  @seninor_amount_threshold get_config(:general, :seninor_amount_threshold)
 
   setup do
     {:ok, user} = db_insert(:user)
 
-    valid_attrs = %{
-      amount: 10.24,
-      payment_usage: "donate",
-      payment_method: "alipay"
-    }
+    valid_attrs = mock_attrs(:bill)
 
     {:ok, ~m(user valid_attrs)a}
   end
 
   describe "[billing curd]" do
     @tag :wip
-    test "create create bill record with valid attrs", ~m(user valid_attrs)a do
+    test "create bill record with valid attrs", ~m(user valid_attrs)a do
       {:ok, record} = Billing.create_record(user, valid_attrs)
 
-      assert record.amount == 10.24
+      assert record.amount == @seninor_amount_threshold
       assert record.payment_usage == "donate"
       assert record.state == "pending"
       assert record.user_id == user.id
@@ -30,7 +30,7 @@ defmodule MastaniServer.Test.Billing do
     end
 
     @tag :wip
-    test "create create bill record with valid note", ~m(user valid_attrs)a do
+    test "create bill record with valid note", ~m(user valid_attrs)a do
       {:ok, record} = Billing.create_record(user, valid_attrs |> Map.merge(%{note: "i am girl"}))
 
       assert record.note == "i am girl"
@@ -59,6 +59,52 @@ defmodule MastaniServer.Test.Billing do
 
       records |> is_valid_pagination?(:raw)
       assert records.entries |> List.first() |> Map.get(:user_id) == user.id
+    end
+  end
+
+  describe "[after billing]" do
+    @tag :wip
+    test "user updgrade to seninor_member after seninor bill handled", ~m(user valid_attrs)a do
+      attrs = valid_attrs |> Map.merge(%{amount: @seninor_amount_threshold})
+
+      {:ok, record} = Billing.create_record(user, attrs)
+      {:ok, updated} = Billing.update_record_state(record.id, :done)
+
+      {:ok, %{achievement: achievement}} = ORM.find(User, user.id, preload: :achievement)
+      assert achievement.seninor_member == true
+    end
+
+    @tag :wip
+    test "user updgrade to donate_member after donate bill handled", ~m(user valid_attrs)a do
+      attrs = valid_attrs |> Map.merge(%{amount: @seninor_amount_threshold - 10})
+
+      {:ok, record} = Billing.create_record(user, attrs)
+      {:ok, updated} = Billing.update_record_state(record.id, :done)
+
+      {:ok, %{achievement: achievement}} = ORM.find(User, user.id, preload: :achievement)
+      assert achievement.donate_member == true
+    end
+
+    @tag :wip
+    test "girls updgrade to seninor_member after bill handled", ~m(user valid_attrs)a do
+      attrs = valid_attrs |> Map.merge(%{amount: 0, payment_usage: "girls_code_too_plan"})
+
+      {:ok, record} = Billing.create_record(user, attrs)
+      {:ok, updated} = Billing.update_record_state(record.id, :done)
+
+      {:ok, %{achievement: achievement}} = ORM.find(User, user.id, preload: :achievement)
+      assert achievement.seninor_member == true
+    end
+
+    @tag :wip2
+    test "sponsor updgrade to seninor_member after bill handled", ~m(user valid_attrs)a do
+      attrs = valid_attrs |> Map.merge(%{amount: 0, payment_usage: "sponsor"})
+
+      {:ok, record} = Billing.create_record(user, attrs)
+      {:ok, updated} = Billing.update_record_state(record.id, :done)
+
+      {:ok, %{achievement: achievement}} = ORM.find(User, user.id, preload: :achievement)
+      assert achievement.sponsor_member == true
     end
   end
 end

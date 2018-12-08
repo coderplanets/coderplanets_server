@@ -9,18 +9,14 @@ defmodule MastaniServer.Test.Mutation.Billing.Basic do
     user_conn = simu_conn(:user)
     guest_conn = simu_conn(:guest)
 
-    valid_attrs = %{
-      amount: 10.24,
-      payment_usage: "donate",
-      payment_method: "alipay"
-    }
+    valid_attrs = mock_attrs(:bill)
 
     {:ok, ~m(user_conn guest_conn user valid_attrs)a}
   end
 
-  describe "[account curd]" do
+  describe "[billing curd]" do
     @create_query """
-    mutation($paymentMethod: String!, $paymentUsage: String!, $amount: Float!) {
+    mutation($paymentMethod: PaymentMethodEnum!, $paymentUsage: PaymentUsageEnum!, $amount: Float!) {
       createBill(paymentMethod: $paymentMethod, paymentUsage: $paymentUsage, amount: $amount) {
         id
         state
@@ -32,16 +28,12 @@ defmodule MastaniServer.Test.Mutation.Billing.Basic do
     }
     """
     @tag :wip
-    test "auth user can create bill", ~m(user user_conn)a do
-      variables = %{
-        paymentUsage: "donate",
-        paymentMethod: "alipay",
-        amount: 512
-      }
+    test "auth user can create bill", ~m(user user_conn valid_attrs)a do
+      variables = valid_attrs |> camelize_map_key(:upcase)
 
       created = user_conn |> mutation_result(@create_query, variables, "createBill")
 
-      assert created["amount"] == 512
+      assert created["amount"] == @seninor_amount_threshold
       assert created["state"] == "pending"
     end
 

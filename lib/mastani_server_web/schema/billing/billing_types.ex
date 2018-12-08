@@ -13,6 +13,20 @@ defmodule MastaniServerWeb.Schema.Billing.Types do
     value(:reject)
   end
 
+  enum :payment_usage_enum do
+    value(:seninor)
+    value(:girls_code_too_plan)
+    value(:donate)
+    value(:sponsor)
+    # cms
+    # value(:pin_post) #...
+  end
+
+  enum :payment_method_enum do
+    value(:wechat)
+    value(:alipay)
+  end
+
   object :bill do
     field(:id, :id)
     field(:state, :string)

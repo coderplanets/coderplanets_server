@@ -7,8 +7,8 @@ defmodule MastaniServerWeb.Schema.Billing.Mutations do
   object :billing_mutations do
     @desc "create bill"
     field :create_bill, :bill do
-      arg(:payment_method, non_null(:string))
-      arg(:payment_usage, non_null(:string))
+      arg(:payment_method, non_null(:payment_method_enum))
+      arg(:payment_usage, non_null(:payment_usage_enum))
       arg(:amount, non_null(:float))
 
       middleware(M.Authorize, :login)
