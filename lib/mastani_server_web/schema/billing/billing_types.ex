@@ -14,7 +14,7 @@ defmodule MastaniServerWeb.Schema.Billing.Types do
   end
 
   enum :payment_usage_enum do
-    value(:seninor)
+    value(:senior)
     value(:girls_code_too_plan)
     value(:donate)
     value(:sponsor)
@@ -37,6 +37,7 @@ defmodule MastaniServerWeb.Schema.Billing.Types do
     field(:payment_method, :string)
 
     field(:note, :string)
+    field(:inserted_at, :datetime)
   end
 
   object :paged_bills do

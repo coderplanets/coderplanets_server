@@ -147,7 +147,7 @@ defmodule MastaniServer.Test.Statistics do
       ])
 
       {:ok, contributes} = Statistics.list_contributes(%Community{id: community.id})
-      assert length(contributes) == 1
+      assert length(contributes) == @community_contribute_days + 1
     end
   end
 end

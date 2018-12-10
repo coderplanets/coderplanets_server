@@ -8,7 +8,7 @@ defmodule MastaniServer.Accounts.Achievement do
   alias MastaniServer.Accounts.{User, SourceContribute}
 
   @required_fields ~w(user_id)a
-  @optional_fields ~w(contents_stared_count contents_favorited_count contents_watched_count followers_count reputation donate_member seninor_member sponsor_member)a
+  @optional_fields ~w(contents_stared_count contents_favorited_count contents_watched_count followers_count reputation donate_member senior_member sponsor_member)a
 
   @type t :: %Achievement{}
   schema "user_achievements" do
@@ -22,9 +22,9 @@ defmodule MastaniServer.Accounts.Achievement do
     # source_contribute
     embeds_one(:source_contribute, SourceContribute, on_replace: :delete)
 
-    field(:donate_member, :boolean)
-    field(:seninor_member, :boolean)
-    field(:sponsor_member, :boolean)
+    field(:donate_member, :boolean, default: false)
+    field(:senior_member, :boolean, default: false)
+    field(:sponsor_member, :boolean, default: false)
 
     timestamps(type: :utc_datetime)
   end

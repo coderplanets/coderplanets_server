@@ -10,6 +10,7 @@ defmodule MastaniServerWeb.Schema.Billing.Mutations do
       arg(:payment_method, non_null(:payment_method_enum))
       arg(:payment_usage, non_null(:payment_usage_enum))
       arg(:amount, non_null(:float))
+      arg(:note, :string)
 
       middleware(M.Authorize, :login)
       resolve(&R.Billing.create_bill/3)

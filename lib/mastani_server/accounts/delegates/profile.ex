@@ -86,7 +86,28 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   """
   def default_subscribed_communities(%{page: _, size: _} = filter) do
     filter = Map.merge(filter, %{size: @default_subscribed_communities, category: "pl"})
-    CMS.Community |> ORM.find_all(filter)
+
+    with {:ok, home_community} <- ORM.find_by(CMS.Community, raw: "home"),
+         {:ok, paged_communities} <- ORM.find_all(CMS.Community, filter) do
+      %{
+        entries: paged_communities.entries ++ [home_community],
+        page_number: paged_communities.page_number,
+        page_size: paged_communities.page_size,
+        total_count: paged_communities.total_count + 1,
+        total_pages: paged_communities.total_pages
+      }
+      |> done()
+    else
+      _error ->
+        %{
+          entries: [],
+          page_number: 1,
+          page_size: @default_subscribed_communities,
+          total_count: 0,
+          total_pages: 1
+        }
+        |> done()
+    end
   end
 
   @doc """

@@ -246,6 +246,7 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       subscribedCommunities(filter: $filter) {
         entries {
           title
+          raw
         }
         totalCount
         totalPages
@@ -256,12 +257,24 @@ defmodule MastaniServer.Test.Query.Account.Basic do
     """
     test "guest user can get paged default subscrubed communities", ~m(guest_conn)a do
       {:ok, _} = db_insert_multi(:community, 25)
+      {:ok, _} = db_insert(:community, %{raw: "home"})
 
       variables = %{filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "subscribedCommunities")
 
       assert results |> is_valid_pagination?
       assert @default_subscribed_communities == results["pageSize"]
+    end
+
+    test "guest user can get paged default subscrubed communities with home included",
+         ~m(guest_conn)a do
+      {:ok, _} = db_insert_multi(:community, 25)
+      {:ok, _} = db_insert(:community, %{raw: "home"})
+
+      variables = %{filter: %{page: 1, size: 10}}
+      results = guest_conn |> query_result(@query, variables, "subscribedCommunities")
+
+      assert results["entries"] |> Enum.any?(&(&1["raw"] == "home"))
     end
 
     @query """

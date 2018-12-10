@@ -9,24 +9,24 @@ defmodule MastaniServer.Billing.Delegate.Actions do
 
   alias Accounts.User
 
-  @seninor_amount_threshold get_config(:general, :seninor_amount_threshold)
+  @senior_amount_threshold get_config(:general, :senior_amount_threshold)
 
   def after_bill(%BillRecord{payment_usage: "donate", amount: amount} = record, :done) do
-    plan = if amount >= @seninor_amount_threshold, do: :seninor, else: :donate
+    plan = if amount >= @senior_amount_threshold, do: :senior, else: :donate
 
     with {:ok, _} <- Accounts.upgrade_by_plan(%User{id: record.user_id}, plan) do
       {:ok, record}
     end
   end
 
-  def after_bill(%BillRecord{payment_usage: "seninor"} = record, :done) do
-    with {:ok, _} <- Accounts.upgrade_by_plan(%User{id: record.user_id}, :seninor) do
+  def after_bill(%BillRecord{payment_usage: "senior"} = record, :done) do
+    with {:ok, _} <- Accounts.upgrade_by_plan(%User{id: record.user_id}, :senior) do
       {:ok, record}
     end
   end
 
   def after_bill(%BillRecord{payment_usage: "girls_code_too_plan"} = record, :done) do
-    with {:ok, _} <- Accounts.upgrade_by_plan(%User{id: record.user_id}, :seninor) do
+    with {:ok, _} <- Accounts.upgrade_by_plan(%User{id: record.user_id}, :senior) do
       {:ok, record}
     end
   end

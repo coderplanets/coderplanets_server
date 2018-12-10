@@ -17,8 +17,8 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
     Achievements.set_member(user, :donate)
   end
 
-  def upgrade_by_plan(%User{} = user, :seninor) do
-    Achievements.set_member(user, :seninor)
+  def upgrade_by_plan(%User{} = user, :senior) do
+    Achievements.set_member(user, :senior)
   end
 
   def upgrade_by_plan(%User{} = user, :sponsor) do
@@ -88,10 +88,10 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
 
   defp c11n_item_require?(:theme, %{
          donate_member: donate_member,
-         seninor_member: seninor_member,
+         senior_member: senior_member,
          sponsor_member: sponsor_member
        }) do
-    donate_member or seninor_member or sponsor_member
+    donate_member or senior_member or sponsor_member
   end
 
   defp c11n_item_require?(:banner_layout, _), do: true

@@ -52,6 +52,7 @@ defmodule MastaniServer.Statistics.Delegate.Contribute do
   def list_contributes(%Community{id: id}) do
     %Community{id: id}
     |> get_contributes()
+    |> to_counts_digest(days: @community_contribute_days)
     |> done
   end
 
@@ -86,7 +87,7 @@ defmodule MastaniServer.Statistics.Delegate.Contribute do
     data
     |> Enum.map(fn %{count: count, date: date} ->
       %{
-        date: convert_date(date),
+        date: date,
         count: count
       }
     end)
@@ -117,13 +118,6 @@ defmodule MastaniServer.Statistics.Delegate.Contribute do
 
         results |> Tuple.to_list()
     end
-  end
-
-  defp convert_date(date) do
-    date
-    # IO.inspect date, label: "convert_date"
-    # {:ok, edate} = Date.to_string(date) #Date.from_erl(date)
-    # edate
   end
 
   defp inc_contribute_count(contribute, :community) do
