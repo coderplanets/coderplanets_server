@@ -5,7 +5,7 @@ defmodule MastaniServer.Test.Mutation.Billing.Basic do
 
   alias MastaniServer.Billing
 
-  @seninor_amount_threshold get_config(:general, :seninor_amount_threshold)
+  @senior_amount_threshold get_config(:general, :senior_amount_threshold)
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -20,8 +20,16 @@ defmodule MastaniServer.Test.Mutation.Billing.Basic do
 
   describe "[billing curd]" do
     @create_query """
-    mutation($paymentMethod: PaymentMethodEnum!, $paymentUsage: PaymentUsageEnum!, $amount: Float!) {
-      createBill(paymentMethod: $paymentMethod, paymentUsage: $paymentUsage, amount: $amount) {
+    mutation(
+      $paymentMethod: PaymentMethodEnum!
+      $paymentUsage: PaymentUsageEnum!
+      $amount: Float!
+    ) {
+      createBill(
+        paymentMethod: $paymentMethod
+        paymentUsage: $paymentUsage
+        amount: $amount
+      ) {
         id
         state
         amount
@@ -36,7 +44,7 @@ defmodule MastaniServer.Test.Mutation.Billing.Basic do
 
       created = user_conn |> mutation_result(@create_query, variables, "createBill")
 
-      assert created["amount"] == @seninor_amount_threshold
+      assert created["amount"] == @senior_amount_threshold
       assert created["state"] == "pending"
     end
 

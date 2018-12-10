@@ -100,7 +100,7 @@ defmodule MastaniServer.Accounts.Delegate.Achievements do
   end
 
   def set_member(%User{} = user, :donate), do: do_set_member(user, %{donate_member: true})
-  def set_member(%User{} = user, :seninor), do: do_set_member(user, %{seninor_member: true})
+  def set_member(%User{} = user, :senior), do: do_set_member(user, %{senior_member: true})
   def set_member(%User{} = user, :sponsor), do: do_set_member(user, %{sponsor_member: true})
   def set_member(_user, _plan), do: {:error, "no such plan"}
 

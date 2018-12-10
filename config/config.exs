@@ -45,7 +45,7 @@ config :mastani_server, :general,
   publish_throttle_hour_limit: 20,
   publish_throttle_day_limit: 30,
   # membership
-  seninor_amount_threshold: 51.2,
+  senior_amount_threshold: 51.2,
   # user achievements
   user_achieve_star_weight: 1,
   user_achieve_watch_weight: 1,

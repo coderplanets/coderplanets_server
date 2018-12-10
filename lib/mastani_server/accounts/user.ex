@@ -14,7 +14,6 @@ defmodule MastaniServer.Accounts.User do
     FavoriteCategory,
     GithubUser,
     Purchase,
-    UserBill,
     UserFollower,
     UserFollowing,
     WorkBackground
@@ -70,7 +69,6 @@ defmodule MastaniServer.Accounts.User do
     field(:paid_member, :boolean)
     field(:platinum_member, :boolean)
 
-    has_many(:bills, {"users_bills", UserBill})
     has_one(:customization, Customization)
     has_one(:purchase, Purchase)
 
