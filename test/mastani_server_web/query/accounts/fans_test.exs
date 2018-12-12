@@ -94,7 +94,6 @@ defmodule MastaniServer.Test.Query.Account.Fans do
       }
     }
     """
-    @tag :wip
     test "can get user's followersCount", ~m(user_conn user)a do
       total_count = 15
       {:ok, users} = db_insert_multi(:user, total_count)
@@ -117,7 +116,6 @@ defmodule MastaniServer.Test.Query.Account.Fans do
       }
     }
     """
-    @tag :wip
     test "can get user's followingsCount", ~m(user_conn user)a do
       total_count = 15
       {:ok, users} = db_insert_multi(:user, total_count)
@@ -143,7 +141,6 @@ defmodule MastaniServer.Test.Query.Account.Fans do
       }
     }
     """
-    @tag :wip
     test "login user can check if 'i' has followed this user", ~m(user_conn user)a do
       {:ok, user2} = db_insert(:user)
 

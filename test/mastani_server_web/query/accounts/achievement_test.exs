@@ -34,7 +34,6 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       }
     }
     """
-    @tag :wip
     test "empty user should get empty achievement", ~m(guest_conn user)a do
       variables = %{login: user.login}
 
@@ -132,7 +131,6 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       }
     }
     """
-    @tag :wip
     test "inc user's achievement after user got followed", ~m(guest_conn user)a do
       {:ok, user2} = db_insert(:user)
       {:ok, user3} = db_insert(:user)
@@ -150,7 +148,6 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       assert results["achievement"] |> Map.get("reputation") == 2 * @follow_weight
     end
 
-    @tag :wip
     test "minus user's achievement after user get undo followed", ~m(guest_conn user)a do
       total_count = 10
       {:ok, users} = db_insert_multi(:user, total_count)
@@ -185,7 +182,6 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       }
     }
     """
-    @tag :wip
     test "inc user's achievement after user's post got favorited", ~m(guest_conn user)a do
       {:ok, post} = db_insert(:post)
       {:ok, _} = CMS.reaction(:post, :favorite, post.id, user)
@@ -200,7 +196,6 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       assert results["achievement"] |> Map.get("reputation") == @favorite_weight
     end
 
-    @tag :wip
     test "minus user's acheiveements after user's post get cancle favorited", ~m(guest_conn)a do
       total_count = 10
       {:ok, post} = db_insert(:post)

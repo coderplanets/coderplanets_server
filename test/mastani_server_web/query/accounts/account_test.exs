@@ -36,7 +36,6 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       }
     }
     """
-    @tag :wip
     test "guest user can get specific user's info by user's id", ~m(guest_conn user)a do
       variables = %{login: user.login}
       results = guest_conn |> query_result(@query, variables, "user")
@@ -48,13 +47,11 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert results["cmsPassport"] == nil
     end
 
-    @tag :wip
     test "login user can get it's own profile", ~m(user_conn user)a do
       results = user_conn |> query_result(@query, %{}, "user")
       assert results["id"] == to_string(user.id)
     end
 
-    @tag :wip
     test "user's views +1 after visit", ~m(guest_conn user)a do
       {:ok, target_user} = ORM.find(Accounts.User, user.id)
       assert target_user.views == 0
@@ -64,7 +61,6 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert results["views"] == 1
     end
 
-    @tag :wip
     test "login newbie user can get own empty cms_passport", ~m(user)a do
       user_conn = simu_conn(:user, user)
       variables = %{login: user.login}
@@ -81,7 +77,6 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       }
     }
 
-    @tag :wip
     test "login user can get own cms_passport and cms_passport_string", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
@@ -93,7 +88,6 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert Map.equal?(Jason.decode!(results["cmsPassportString"]), @valid_rules)
     end
 
-    @tag :wip
     test "login user can get empty if cms_passport not exsit", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
@@ -168,7 +162,6 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       }
     }
     """
-    @tag :wip
     test "guest user can get subscrubed communities list and count", ~m(guest_conn user)a do
       variables = %{login: user.login}
       {:ok, communities} = db_insert_multi(:community, page_size())
@@ -193,7 +186,6 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert subscribed_communities_count == page_size()
     end
 
-    @tag :wip
     test "guest user can get subscrubed community list by index", ~m(guest_conn user)a do
       variables = %{login: user.login}
       {:ok, communities} = db_insert_multi(:community, page_size())
@@ -231,7 +223,6 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert found_community_3["index"] == 1
     end
 
-    @tag :wip
     test "guest user can get subscrubed communities count of 20 at most", ~m(guest_conn user)a do
       variables = %{login: user.login}
       {:ok, communities} = db_insert_multi(:community, page_size() + 1)
