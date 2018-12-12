@@ -87,6 +87,7 @@ defmodule MastaniServer.Test.Accounts do
   describe "[github login]" do
     alias Accounts.{GithubUser, User}
 
+    @tag :wip
     test "register a valid github user with non-exist in db" do
       assert {:error, _} =
                ORM.find_by(GithubUser, github_id: to_string(@valid_github_profile["id"]))
@@ -99,6 +100,7 @@ defmodule MastaniServer.Test.Accounts do
       {:ok, created_user} = ORM.find(User, claims.id)
 
       assert user.id == created_user.id
+      assert created_user.login == @valid_github_profile["login"]
       assert created_user.nickname == @valid_github_profile["login"]
       assert created_user.avatar == @valid_github_profile["avatar_url"]
       assert created_user.bio == @valid_github_profile["bio"]
