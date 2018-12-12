@@ -15,9 +15,9 @@ defmodule MastaniServerWeb.Schema.Account.Queries do
 
     @desc "get user by id"
     field :user, :user do
-      arg(:id, :id)
+      # arg(:id, :id)
+      arg(:login, :string)
 
-      middleware(M.SeeMe)
       resolve(&R.Accounts.user/3)
     end
 
