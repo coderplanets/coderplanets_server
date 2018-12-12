@@ -17,8 +17,8 @@ defmodule MastaniServer.Test.Query.Account.Basic do
 
   describe "[account basic]" do
     @query """
-    query($id: ID) {
-      user(id: $id) {
+    query($login: String) {
+      user(login: $login) {
         id
         nickname
         bio
@@ -36,8 +36,9 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       }
     }
     """
+    @tag :wip
     test "guest user can get specific user's info by user's id", ~m(guest_conn user)a do
-      variables = %{id: user.id}
+      variables = %{login: user.login}
       results = guest_conn |> query_result(@query, variables, "user")
 
       assert results["id"] == to_string(user.id)
@@ -47,23 +48,26 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert results["cmsPassport"] == nil
     end
 
+    @tag :wip
     test "login user can get it's own profile", ~m(user_conn user)a do
       results = user_conn |> query_result(@query, %{}, "user")
       assert results["id"] == to_string(user.id)
     end
 
+    @tag :wip
     test "user's views +1 after visit", ~m(guest_conn user)a do
       {:ok, target_user} = ORM.find(Accounts.User, user.id)
       assert target_user.views == 0
 
-      variables = %{id: user.id}
+      variables = %{login: user.login}
       results = guest_conn |> query_result(@query, variables, "user")
       assert results["views"] == 1
     end
 
+    @tag :wip
     test "login newbie user can get own empty cms_passport", ~m(user)a do
       user_conn = simu_conn(:user, user)
-      variables = %{id: user.id}
+      variables = %{login: user.login}
       results = user_conn |> query_result(@query, variables, "user")
 
       assert results["cmsPassport"] == %{}
@@ -77,23 +81,23 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       }
     }
 
+    @tag :wip
     test "login user can get own cms_passport and cms_passport_string", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
       {:ok, _} = CMS.stamp_passport(@valid_rules, user)
 
-      variables = %{id: user.id}
-      results = user_conn |> query_result(@query, variables, "user")
+      results = user_conn |> query_result(@query, %{}, "user")
 
       assert Map.equal?(results["cmsPassport"], @valid_rules)
       assert Map.equal?(Jason.decode!(results["cmsPassportString"]), @valid_rules)
     end
 
+    @tag :wip
     test "login user can get empty if cms_passport not exsit", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
-      variables = %{id: user.id}
-      results = user_conn |> query_result(@query, variables, "user")
+      results = user_conn |> query_result(@query, %{}, "user")
 
       assert %{} == results["cmsPassport"]
       assert "{}" == results["cmsPassportString"]
@@ -146,8 +150,8 @@ defmodule MastaniServer.Test.Query.Account.Basic do
     alias CMS.Community
 
     @query """
-    query($id: ID!) {
-      user(id: $id) {
+    query($login: String!) {
+      user(login: $login) {
         id
         nickname
         subscribedCommunitiesCount
@@ -164,8 +168,9 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       }
     }
     """
-    test "guest user can get subscrubed community list and count", ~m(guest_conn user)a do
-      variables = %{id: user.id}
+    @tag :wip
+    test "guest user can get subscrubed communities list and count", ~m(guest_conn user)a do
+      variables = %{login: user.login}
       {:ok, communities} = db_insert_multi(:community, page_size())
 
       Enum.each(
@@ -188,8 +193,9 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert subscribed_communities_count == page_size()
     end
 
+    @tag :wip
     test "guest user can get subscrubed community list by index", ~m(guest_conn user)a do
-      variables = %{id: user.id}
+      variables = %{login: user.login}
       {:ok, communities} = db_insert_multi(:community, page_size())
 
       Enum.each(
@@ -225,8 +231,9 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert found_community_3["index"] == 1
     end
 
+    @tag :wip
     test "guest user can get subscrubed communities count of 20 at most", ~m(guest_conn user)a do
-      variables = %{id: user.id}
+      variables = %{login: user.login}
       {:ok, communities} = db_insert_multi(:community, page_size() + 1)
 
       Enum.each(

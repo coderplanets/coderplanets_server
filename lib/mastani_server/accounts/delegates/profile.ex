@@ -178,6 +178,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
 
   defp create_user(profile, :github) do
     attrs = %{
+      login: profile["login"],
       nickname: profile["login"],
       github: "https://github.com/#{profile["login"]}",
       avatar: profile["avatar_url"],

@@ -237,7 +237,8 @@ defmodule MastaniServer.Support.Factory do
 
     %{
       # username: "#{Faker.Name.first_name()} #{unique_num}",
-      nickname: "#{Faker.Name.first_name()} #{unique_num}",
+      login: "#{Faker.Name.first_name()}#{unique_num}",
+      nickname: "#{Faker.Name.first_name()}#{unique_num}",
       bio: Faker.Lorem.Shakespeare.romeo_and_juliet(),
       avatar: Faker.Avatar.image_url()
     }
