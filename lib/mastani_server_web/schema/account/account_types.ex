@@ -27,6 +27,7 @@ defmodule MastaniServerWeb.Schema.Account.Types do
   object :user do
     field(:id, :id)
     field(:nickname, :string)
+    field(:login, :string)
     field(:avatar, :string)
     field(:bio, :string)
     field(:sex, :string)
