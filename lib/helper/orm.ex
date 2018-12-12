@@ -84,6 +84,12 @@ defmodule Helper.ORM do
     end
   end
 
+  def read_by(queryable, clauses, inc: :views) do
+    with {:ok, result} <- find_by(queryable, clauses) do
+      result |> inc_views_count(queryable) |> done()
+    end
+  end
+
   defp inc_views_count(content, queryable) do
     {1, [result]} =
       Repo.update_all(

@@ -13,7 +13,7 @@ defmodule MastaniServer.TestTools do
       import MastaniServer.Test.AssertHelper
       import Ecto.Query, warn: false
       import Helper.ErrorCode
-      import Helper.Utils, only: [camelize_map_key: 1]
+      import Helper.Utils, only: [camelize_map_key: 1, camelize_map_key: 2]
 
       import ShortMaps
     end

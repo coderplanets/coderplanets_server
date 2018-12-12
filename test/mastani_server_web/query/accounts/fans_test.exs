@@ -87,8 +87,8 @@ defmodule MastaniServer.Test.Query.Account.Fans do
     end
 
     @query """
-    query($id: ID!) {
-      user(id: $id) {
+    query($login: String!) {
+      user(login: $login) {
         id
         followersCount
       }
@@ -102,15 +102,15 @@ defmodule MastaniServer.Test.Query.Account.Fans do
         {:ok, _} = other_user |> Accounts.follow(user)
       end)
 
-      variables = %{id: user.id}
+      variables = %{login: user.login}
       resolts = user_conn |> query_result(@query, variables, "user")
 
       assert resolts |> Map.get("followersCount") == total_count
     end
 
     @query """
-    query($id: ID!) {
-      user(id: $id) {
+    query($login: String!) {
+      user(login: $login) {
         id
         followingsCount
       }
@@ -128,14 +128,14 @@ defmodule MastaniServer.Test.Query.Account.Fans do
       {:ok, [user2, user3]} = db_insert_multi(:user, 2)
       {:ok, _} = user2 |> Accounts.follow(user3)
 
-      variables = %{id: user.id}
+      variables = %{login: user.login}
       resolts = user_conn |> query_result(@query, variables, "user")
       assert resolts |> Map.get("followingsCount") == total_count
     end
 
     @query """
-    query($id: ID!) {
-      user(id: $id) {
+    query($login: String!) {
+      user(login: $login) {
         id
         viewerHasFollowed
       }
@@ -144,12 +144,12 @@ defmodule MastaniServer.Test.Query.Account.Fans do
     test "login user can check if 'i' has followed this user", ~m(user_conn user)a do
       {:ok, user2} = db_insert(:user)
 
-      variables = %{id: user2.id}
+      variables = %{login: user2.login}
       resolts = user_conn |> query_result(@query, variables, "user")
       assert resolts |> Map.get("viewerHasFollowed") == false
 
       {:ok, _} = user |> Accounts.follow(user2)
-      variables = %{id: user2.id}
+      variables = %{login: user2.login}
       resolts = user_conn |> query_result(@query, variables, "user")
 
       assert resolts |> Map.get("viewerHasFollowed") == true

@@ -27,6 +27,7 @@ defmodule MastaniServerWeb.Schema.Account.Types do
   object :user do
     field(:id, :id)
     field(:nickname, :string)
+    field(:login, :string)
     field(:avatar, :string)
     field(:bio, :string)
     field(:sex, :string)
@@ -356,6 +357,9 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     # field(:contents_watched_count, :integer)
 
     field(:source_contribute, :source_contribute)
+    field(:donate_member, :boolean)
+    field(:senior_member, :boolean)
+    field(:sponsor_member, :boolean)
   end
 
   object :token_info do

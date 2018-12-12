@@ -10,6 +10,9 @@ defmodule MastaniServerWeb.Middleware.AchievementProof do
       reputation: 0,
       contents_stared_count: 0,
       contents_favorited_count: 0,
+      donate_member: false,
+      senior_member: false,
+      sponsor_member: false,
       source_contribute: %{
         web: false,
         server: false,

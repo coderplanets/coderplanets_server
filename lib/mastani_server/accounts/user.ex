@@ -14,7 +14,6 @@ defmodule MastaniServer.Accounts.User do
     FavoriteCategory,
     GithubUser,
     Purchase,
-    UserBill,
     UserFollower,
     UserFollowing,
     WorkBackground
@@ -23,10 +22,11 @@ defmodule MastaniServer.Accounts.User do
   alias MastaniServer.CMS
 
   @required_fields ~w(nickname avatar)a
-  @optional_fields ~w(nickname bio remote_ip sex location douban dribble email facebook pinterest pinterest github huaban qq  weibo weichat twitter zhihu)a
+  @optional_fields ~w(login nickname bio remote_ip sex location douban dribble email facebook pinterest pinterest github huaban qq  weibo weichat twitter zhihu)a
 
   @type t :: %User{}
   schema "users" do
+    field(:login, :string)
     field(:nickname, :string)
     field(:avatar, :string)
     field(:sex, :string)
@@ -70,7 +70,6 @@ defmodule MastaniServer.Accounts.User do
     field(:paid_member, :boolean)
     field(:platinum_member, :boolean)
 
-    has_many(:bills, {"users_bills", UserBill})
     has_one(:customization, Customization)
     has_one(:purchase, Purchase)
 

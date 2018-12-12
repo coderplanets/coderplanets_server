@@ -10,7 +10,8 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
 
   alias Accounts.{MentionMail, NotificationMail, SysNotificationMail, User}
 
-  def user(_root, %{id: id}, _info), do: User |> ORM.read(id, inc: :views)
+  # def user(_root, %{id: id}, _info), do: User |> ORM.read(id, inc: :views)
+  def user(_root, %{login: login}, _info), do: User |> ORM.read_by(%{login: login}, inc: :views)
 
   def user(_root, _args, %{context: %{cur_user: cur_user}}) do
     User |> ORM.read(cur_user.id, inc: :views)

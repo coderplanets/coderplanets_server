@@ -19,8 +19,8 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
 
   describe "[account get acheiveements]" do
     @query """
-    query($id: ID!) {
-      user(id: $id) {
+    query($login: String!) {
+      user(login: $login) {
         id
         achievement {
           reputation
@@ -35,7 +35,7 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
     }
     """
     test "empty user should get empty achievement", ~m(guest_conn user)a do
-      variables = %{id: user.id}
+      variables = %{login: user.login}
 
       results = guest_conn |> query_result(@query, variables, "user")
       assert results["achievement"] !== nil
@@ -120,8 +120,8 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
 
   describe "[account follow achieveMent]" do
     @query """
-    query($id: ID!) {
-      user(id: $id) {
+    query($login: String!) {
+      user(login: $login) {
         id
         followersCount
         followingsCount
@@ -141,7 +141,7 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       user3 |> Accounts.follow(user2)
       user3 |> Accounts.follow(user4)
 
-      variables = %{id: user2.id}
+      variables = %{login: user2.login}
       results = guest_conn |> query_result(@query, variables, "user")
 
       assert results |> Map.get("followersCount") == 2
@@ -159,7 +159,7 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       ramdom_fan = users |> Enum.shuffle() |> List.first()
       ramdom_fan |> Accounts.undo_follow(user)
 
-      variables = %{id: user.id}
+      variables = %{login: user.login}
       results = guest_conn |> query_result(@query, variables, "user")
 
       assert results |> Map.get("followersCount") == total_count - 1
@@ -172,8 +172,8 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
     alias MastaniServer.CMS
 
     @query """
-    query($id: ID!) {
-      user(id: $id) {
+    query($login: String!) {
+      user(login: $login) {
         id
         achievement {
           reputation
@@ -187,9 +187,9 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       {:ok, _} = CMS.reaction(:post, :favorite, post.id, user)
 
       {:ok, post} = CMS.Post |> ORM.find(post.id, preload: [author: :user])
-      author_user_id = post.author.user_id
+      author_user_login = post.author.user.login
 
-      variables = %{id: author_user_id}
+      variables = %{login: author_user_login}
       results = guest_conn |> query_result(@query, variables, "user")
 
       assert results["achievement"] |> Map.get("contentsFavoritedCount") == 1
@@ -206,12 +206,12 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
       end)
 
       {:ok, post} = CMS.Post |> ORM.find(post.id, preload: [author: :user])
-      author_user_id = post.author.user_id
+      author_user_login = post.author.user.login
 
       user = users |> Enum.shuffle() |> List.first()
       {:ok, _} = CMS.undo_reaction(:post, :favorite, post.id, user)
 
-      variables = %{id: author_user_id}
+      variables = %{login: author_user_login}
       results = guest_conn |> query_result(@query, variables, "user")
 
       assert results["achievement"] |> Map.get("contentsFavoritedCount") == total_count - 1
