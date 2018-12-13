@@ -37,7 +37,7 @@ defmodule MastaniServer.Billing.Delegate.Actions do
     end
   end
 
-  def after_bill(%BillRecord{payment_usage: payment_usage} = record, _state) do
+  def after_bill(%BillRecord{payment_usage: _payment_usage}, _state) do
     {:error, "mismatch action"}
   end
 end
