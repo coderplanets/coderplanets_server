@@ -1,11 +1,11 @@
 defmodule MastaniServerWeb.Schema.Billing.Types do
+  @moduledoc """
+  general types used by Billing
+  """
   use Helper.GqlSchemaSuite
 
   import MastaniServerWeb.Schema.Utils.Helper
-  import Absinthe.Resolution.Helpers
-
-  # alias MastaniServer.Billing
-  alias MastaniServerWeb.Schema
+  # import Absinthe.Resolution.Helpers
 
   enum :bill_state_enum do
     value(:pending)

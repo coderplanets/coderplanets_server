@@ -25,7 +25,7 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
     Achievements.set_member(user, :sponsor)
   end
 
-  def upgrade_by_plan(%User{} = _user, plan) do
+  def upgrade_by_plan(%User{} = _user, _plan) do
     {:error, "no such plan"}
   end
 
