@@ -1,6 +1,7 @@
 include Makefile.include.mk
 
 help:
+	$(call setup.help)
 	$(call launch.help)
 	$(call gen.help)
 	$(call commit.help)
@@ -13,10 +14,16 @@ help:
 	$(call github.help)
 	@echo "\n"
 
-init:
-	mix ecto.setup
+setup.help:
+	$(call setup.help)
+	@echo "\n"
 
-dep:
+setup:
+	$(call setup.help)
+	@echo "\n"
+
+setup.run:
+	mix ecto.setup
 	mix deps.get
 	npm install # for commitizen
 
@@ -25,9 +32,6 @@ build:
 
 format:
 	mix format
-
-dev:
-	MIX_ENV=mock mix phx.server
 
 launch.help:
 	$(call launch.help)
