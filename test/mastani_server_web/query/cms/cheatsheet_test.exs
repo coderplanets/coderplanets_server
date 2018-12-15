@@ -36,6 +36,13 @@ defmodule MastaniServer.Test.Query.Cheatsheet do
     assert results["contributors"] |> length !== 0
   end
 
+  test "non-exsit community should get empty cheatsheet readme", ~m(guest_conn)a do
+    variables = %{community: "non-exsit"}
+    results = guest_conn |> query_result(@query, variables, "cheatsheet")
+
+    assert results["readme"] |> byte_size == 0
+  end
+
   @query """
   query($community: String!) {
     cheatsheet(community: $community) {

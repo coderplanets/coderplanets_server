@@ -36,6 +36,13 @@ defmodule MastaniServer.Test.Query.Wiki do
     assert results["contributors"] |> length !== 0
   end
 
+  test "non-exsit community should get empty wiki readme", ~m(guest_conn)a do
+    variables = %{community: "non-exsit"}
+    results = guest_conn |> query_result(@query, variables, "wiki")
+
+    assert results["readme"] |> byte_size == 0
+  end
+
   @query """
   query($community: String!) {
     wiki(community: $community) {
