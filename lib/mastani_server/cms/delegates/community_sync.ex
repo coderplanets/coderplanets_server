@@ -21,6 +21,9 @@ defmodule MastaniServer.CMS.Delegate.CommunitySync do
     with {:ok, community} <- ORM.find_by(Community, raw: raw),
          {:ok, wiki} <- ORM.find_by(CommunityWiki, community_id: community.id) do
       CommunityWiki |> ORM.read(wiki.id, inc: :views)
+    else
+      _error ->
+        {:ok, %{readme: "", contributors: []}}
     end
   end
 
@@ -31,6 +34,9 @@ defmodule MastaniServer.CMS.Delegate.CommunitySync do
     with {:ok, community} <- ORM.find_by(Community, raw: raw),
          {:ok, wiki} <- ORM.find_by(CommunityCheatsheet, community_id: community.id) do
       CommunityCheatsheet |> ORM.read(wiki.id, inc: :views)
+    else
+      _error ->
+        {:ok, %{readme: "", contributors: []}}
     end
   end
 
