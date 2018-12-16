@@ -26,6 +26,13 @@ defmodule MastaniServerWeb.Middleware.Passport do
     do: resolution
 
   def call(
+        %{context: %{cur_user: %{cur_passport: %{"cms" => %{"root" => true}}}}} = resolution,
+        _claim
+      ) do
+    resolution
+  end
+
+  def call(
         %{
           context: %{cur_user: %{cur_passport: _}},
           arguments: %{community: _, thread: _}
