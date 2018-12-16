@@ -34,6 +34,7 @@ defmodule Helper.Certification do
   def all_rules(:cms) do
     %{
       general: [
+        "root",
         "system_accountant",
         "system_notification.publish",
         "stamp_passport",
