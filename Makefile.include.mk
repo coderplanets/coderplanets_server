@@ -37,11 +37,23 @@ define browse
 	$(BROWSER_TOOL) "$(1)"
 endef
 
+
+define setup.help
+	@echo "\n"
+	@echo "  [valid setup commands]"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo "  setup.run   : setup the basic env for you, include 3-step"
+	@echo "              | 1. mix ecto.setup # create/migrate tables in db"
+	@echo "              | 2. mix deps.get   # for insall deps"
+	@echo "              | 3. npm install    # for commit-msg linter"
+	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+endef
+
 define launch.help
 	@echo "\n"
 	@echo "  [valid launch commands]"
 	@echo "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo "  dev         : start phoenix server in local mock env"
+	@echo "  launch.mock : start server in mock(default) mode"
 	@echo "              | config locate in \"config/mock.exs\""
 	@echo "  ....................................................."
 	@echo "  launch.dev  : start phoenix server in development env"
@@ -155,9 +167,6 @@ define test.help
 	@echo "  test.watch.wip2  : shortcut for lots of @wip around"
 	@echo "  ....................................................."
 	@echo "  test.watch.bug  : sometimes fails for unkown reason"
-	@echo "  ....................................................."
-	@echo "  test.db_reset    : reset test database"
-	@echo "                   | needed when add new migration"
 	@echo "  ....................................................."
 	@echo "  test.report      : show test coverage status web page"
 	@echo "  ....................................................."

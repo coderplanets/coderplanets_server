@@ -11,3 +11,4 @@ CI isn’t just for running tests, there are many other things to do:
 - [x] publish graphql schema to apollo-engine
 - [x] check graphql schema is valid
 - [x] make sure the commit message follow conventsions
+- [x] send alert emails to developers if build fails

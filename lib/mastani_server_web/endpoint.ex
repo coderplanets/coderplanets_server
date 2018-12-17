@@ -22,7 +22,11 @@ defmodule MastaniServerWeb.Endpoint do
     Corsica,
     # log: [rejected: :error],
     log: [rejected: :debug],
-    origins: ["http://localhost:3000", ~r{^https://(.*\.?)coderplanets\.com$}],
+    origins: [
+      "http://localhost:3000",
+      "http://localhost:3001",
+      ~r{^https://(.*\.?)coderplanets\.com$}
+    ],
     # origins: "*",
     allow_headers: [
       "authorization",
