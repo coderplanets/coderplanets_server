@@ -232,13 +232,13 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.mark_mail_read(%SysNotificationMail{id: id}, cur_user)
   end
 
+  def subscribed_communities(%{id: id}, %{filter: filter}, _info) do
+    Accounts.subscribed_communities(%User{id: id}, filter)
+  end
+
   # for user self's
   def subscribed_communities(_root, %{filter: filter}, %{context: %{cur_user: cur_user}}) do
     Accounts.subscribed_communities(%User{id: cur_user.id}, filter)
-  end
-
-  def subscribed_communities(%{id: id}, %{filter: filter}, _info) do
-    Accounts.subscribed_communities(%User{id: id}, filter)
   end
 
   def subscribed_communities(_root, %{user_id: "", filter: filter}, _info) do
