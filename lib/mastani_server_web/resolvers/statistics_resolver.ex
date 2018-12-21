@@ -29,4 +29,8 @@ defmodule MastaniServerWeb.Resolvers.Statistics do
   def list_cities_geo_info(_root, _args, _info) do
     Statistics.list_cities_info()
   end
+
+  def count_status(_root, _args, _info) do
+    Statistics.count_status()
+  end
 end

@@ -64,4 +64,29 @@ defmodule MastaniServer.Test.Query.Statistics do
       assert result["entries"] |> Enum.any?(&(&1["city"] == "广州"))
     end
   end
+
+  describe "[statistics count status]" do
+    @query """
+    query {
+      countStatus {
+        communitiesCount
+        postsCount
+        jobsCount
+        videosCount
+        reposCount
+        categorysCount
+        tagsCount
+        threadsCount
+      }
+    }
+    """
+    @tag :wip
+    test "root manager should get count status" do
+      passport_rules = %{"root" => true}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      hello = rule_conn |> query_result(@query, %{}, "countStatus")
+      IO.inspect(hello, label: "hello")
+    end
+  end
 end
