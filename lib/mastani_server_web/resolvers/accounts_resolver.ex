@@ -185,6 +185,12 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
     Accounts.list_editable_communities(%User{id: user_id}, filter)
   end
 
+  def editable_communities(_root, ~m(filter)a, %{
+        context: %{cur_user: %{cur_passport: %{"cms" => %{"root" => true}}} = _cur_user}
+      }) do
+    CMS.Community |> ORM.find_all(filter)
+  end
+
   def editable_communities(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
     Accounts.list_editable_communities(cur_user, filter)
   end

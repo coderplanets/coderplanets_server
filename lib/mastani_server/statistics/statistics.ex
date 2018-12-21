@@ -6,7 +6,8 @@ defmodule MastaniServer.Statistics do
   alias MastaniServer.Statistics.Delegate.{
     Contribute,
     Throttle,
-    Geo
+    Geo,
+    Status
   }
 
   # contributes
@@ -22,4 +23,7 @@ defmodule MastaniServer.Statistics do
   # geo
   defdelegate inc_count(city), to: Geo
   defdelegate list_cities_info(), to: Geo
+
+  # countStatus
+  defdelegate count_status(), to: Status
 end
