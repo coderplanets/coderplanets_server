@@ -241,6 +241,14 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.unset_tag(thread, %Tag{id: tag_id}, id)
   end
 
+  def get_tags(_root, %{community_id: community_id, all: true}, _info) do
+    CMS.get_tags(%Community{id: community_id})
+  end
+
+  def get_tags(_root, %{community: community, all: true}, _info) do
+    CMS.get_tags(%Community{raw: community})
+  end
+
   def get_tags(_root, ~m(community_id thread topic)a, _info) do
     CMS.get_tags(%Community{id: community_id}, thread, topic)
   end
