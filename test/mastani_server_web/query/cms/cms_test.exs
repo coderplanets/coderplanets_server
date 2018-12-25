@@ -29,7 +29,6 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       }
     }
     """
-    @tag :wip
     test "can get threads count ", ~m(community guest_conn)a do
       {:ok, threads} = db_insert_multi(:thread, 5)
 
@@ -43,7 +42,6 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       assert results["threadsCount"] == 5
     end
 
-    @tag :wip
     test "can get tags count ", ~m(community guest_conn user)a do
       {:ok, tags} = db_insert_multi(:tag, 5)
 
@@ -291,8 +289,8 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
     end
 
     @query """
-    query($communityId: ID, $thread: CmsThread!, $topic: String ) {
-      partialTags(communityId: $communityId, thread: $thread, topic: $topic) {
+    query($communityId: ID, $community: String, $thread: CmsThread, $topic: String, $all: Boolean ) {
+      partialTags(communityId: $communityId, community: $community, thread: $thread, topic: $topic, all: $all) {
         id
         title
         color
@@ -305,6 +303,22 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       }
     }
     """
+    @tag :wip
+    test "guest user can get all partial tags belongs to a community", ~m(guest_conn community)a do
+      {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
+      {:ok, tag2} = db_insert(:tag, %{thread: "job", community: community})
+
+      variables = %{all: true, communityId: community.id}
+      results = guest_conn |> query_result(@query, variables, "partialTags")
+
+      assert results |> length == 2
+
+      variables = %{all: true, community: community.raw}
+      results = guest_conn |> query_result(@query, variables, "partialTags")
+
+      assert results |> length == 2
+    end
+
     test "guest user can get partial tags by communityId and thread", ~m(guest_conn community)a do
       {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
       {:ok, tag2} = db_insert(:tag, %{thread: "job", community: community})
