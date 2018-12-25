@@ -359,4 +359,15 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def search_items(_root, %{part: part, title: title}, _info) do
     CMS.search_items(part, %{title: title})
   end
+
+  # ##############################################
+  # counts just for manngers to use in admin site ..
+  # ##############################################
+  def threads_count(root, _, _) do
+    CMS.count(%Community{id: root.id}, :threads)
+  end
+
+  def tags_count(root, _, _) do
+    CMS.count(%Community{id: root.id}, :tags)
+  end
 end

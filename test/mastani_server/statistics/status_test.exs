@@ -14,7 +14,6 @@ defmodule MastaniServer.Test.Statistics.Status do
     :ok
   end
 
-  @tag :wip
   test "can get basic count info of the whole site" do
     {:ok, counts} = Statistics.count_status()
     IO.inspect(counts, label: "counts")
