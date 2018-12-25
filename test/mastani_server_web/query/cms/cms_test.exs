@@ -3,7 +3,7 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
 
   alias MastaniServer.Accounts.User
   alias MastaniServer.CMS
-  alias CMS.{Community, Thread, Tag, Category}
+  alias CMS.{Community, Thread, Category}
 
   setup do
     guest_conn = simu_conn(:guest)
@@ -43,13 +43,13 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
     end
 
     test "can get tags count ", ~m(community guest_conn user)a do
-      {:ok, tags} = db_insert_multi(:tag, 5)
+      {:ok, _tags} = db_insert_multi(:tag, 5)
 
-      CMS.create_tag(%Community{id: community.id}, :post, valid_attrs = mock_attrs(:tag), %User{
+      CMS.create_tag(%Community{id: community.id}, :post, mock_attrs(:tag), %User{
         id: user.id
       })
 
-      CMS.create_tag(%Community{id: community.id}, :post, valid_attrs = mock_attrs(:tag), %User{
+      CMS.create_tag(%Community{id: community.id}, :post, mock_attrs(:tag), %User{
         id: user.id
       })
 
@@ -303,10 +303,10 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       }
     }
     """
-    @tag :wip
-    test "guest user can get all partial tags belongs to a community", ~m(guest_conn community)a do
-      {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
-      {:ok, tag2} = db_insert(:tag, %{thread: "job", community: community})
+    test "guest user can get all partial tags belongs to a community",
+         ~m(guest_conn community)a do
+      {:ok, _tag} = db_insert(:tag, %{thread: "post", community: community})
+      {:ok, _tag2} = db_insert(:tag, %{thread: "job", community: community})
 
       variables = %{all: true, communityId: community.id}
       results = guest_conn |> query_result(@query, variables, "partialTags")
