@@ -5,7 +5,7 @@ defmodule MastaniServer.Test.Statistics.Status do
   alias MastaniServer.Statistics
 
   @communities_count 10
-  @posts_count 11
+  # @posts_count 11
 
   setup do
     {:ok, _} = db_insert_multi(:community, @communities_count)
