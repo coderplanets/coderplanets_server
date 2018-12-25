@@ -18,7 +18,7 @@ defmodule MastaniServerWeb.Schema.Statistics.Types do
     field(:videos_count, :integer)
     field(:repos_count, :integer)
 
-    field(:categorys_count, :integer)
+    field(:categories_count, :integer)
     field(:tags_count, :integer)
     field(:threads_count, :integer)
   end

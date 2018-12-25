@@ -74,19 +74,18 @@ defmodule MastaniServer.Test.Query.Statistics do
         jobsCount
         videosCount
         reposCount
-        categorysCount
+        categoriesCount
         tagsCount
         threadsCount
       }
     }
     """
-    @tag :wip
     test "root manager should get count status" do
       passport_rules = %{"root" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      hello = rule_conn |> query_result(@query, %{}, "countStatus")
-      IO.inspect(hello, label: "hello")
+      result = rule_conn |> query_result(@query, %{}, "countStatus")
+      assert result["postsCount"] == 0
     end
   end
 end

@@ -3,7 +3,7 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
 
   alias MastaniServer.Accounts.User
   alias MastaniServer.CMS
-  alias CMS.{Community, Thread, Category}
+  alias CMS.{Community, Thread, Tag, Category}
 
   setup do
     guest_conn = simu_conn(:guest)
@@ -15,10 +15,12 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
 
   describe "[cms communities]" do
     @query """
-    query($id: ID) {
-      community(id: $id) {
+    query($id: ID, $raw: String) {
+      community(id: $id, raw: $raw) {
         id
         title
+        threadsCount
+        tagsCount
         threads {
           id
           raw
@@ -27,6 +29,38 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       }
     }
     """
+    @tag :wip
+    test "can get threads count ", ~m(community guest_conn)a do
+      {:ok, threads} = db_insert_multi(:thread, 5)
+
+      Enum.map(threads, fn t ->
+        CMS.set_thread(%Community{id: community.id}, %Thread{id: t.id})
+      end)
+
+      variables = %{raw: community.raw}
+      results = guest_conn |> query_result(@query, variables, "community")
+
+      assert results["threadsCount"] == 5
+    end
+
+    @tag :wip
+    test "can get tags count ", ~m(community guest_conn user)a do
+      {:ok, tags} = db_insert_multi(:tag, 5)
+
+      CMS.create_tag(%Community{id: community.id}, :post, valid_attrs = mock_attrs(:tag), %User{
+        id: user.id
+      })
+
+      CMS.create_tag(%Community{id: community.id}, :post, valid_attrs = mock_attrs(:tag), %User{
+        id: user.id
+      })
+
+      variables = %{raw: community.raw}
+      results = guest_conn |> query_result(@query, variables, "community")
+
+      assert results["tagsCount"] == 2
+    end
+
     test "guest use get community threads with default asc sort index",
          ~m(guest_conn community)a do
       {:ok, threads} = db_insert_multi(:thread, 5)

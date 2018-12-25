@@ -184,6 +184,25 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     end
   end
 
+  @doc "count the total threads in community"
+  def count(%Community{id: id}, :threads) do
+    with {:ok, community} <- ORM.find(Community, id, preload: :threads) do
+      {:ok, length(community.threads)}
+    end
+  end
+
+  @doc "count the total tags in community"
+  def count(%Community{id: id}, :tags) do
+    with {:ok, community} <- ORM.find(Community, id) do
+      result =
+        Tag
+        |> where([t], t.community_id == ^community.id)
+        |> ORM.paginater(page: 1, size: 1)
+
+      {:ok, result.total_count}
+    end
+  end
+
   defp find_or_insert_topic(%{topic: title} = attrs) when is_binary(title) do
     title = title |> to_string() |> String.downcase()
     thread = attrs.thread |> to_string() |> String.downcase()
