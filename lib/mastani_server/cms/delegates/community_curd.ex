@@ -248,20 +248,27 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     find_or_insert_topic(%{topic: "posts", thread: :post})
   end
 
-  defp load_community_members(%Community{id: id}, modal, %{page: page, size: size} = filters)
+  defp load_community_members(%Community{id: id}, queryable, %{page: page, size: size} = filters)
        when not is_nil(id) do
-    modal
+    queryable
     |> where([c], c.community_id == ^id)
     |> QueryBuilder.load_inner_users(filters)
     |> ORM.paginater(~m(page size)a)
     |> done()
   end
 
-  defp load_community_members(%Community{raw: raw}, modal, %{page: page, size: size} = filters) do
-    modal
-    |> join(:inner, [u], c in assoc(u, :community))
-    |> where([u, c], c.raw == ^raw)
-    |> QueryBuilder.load_inner_users(filters)
+  defp load_community_members(
+         %Community{raw: raw},
+         queryable,
+         %{page: page, size: size} = filters
+       ) do
+    queryable
+    |> join(:inner, [member], c in assoc(member, :community))
+    |> where([member, c], c.raw == ^raw)
+    |> join(:inner, [member], u in assoc(member, :user))
+    |> select([member, c, u], u)
+    |> QueryBuilder.filter_pack(filters)
+    # |> QueryBuilder.load_inner_users(filters)
     |> ORM.paginater(~m(page size)a)
     |> done()
   end

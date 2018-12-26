@@ -535,7 +535,9 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
     query($id: ID, $community: String, $filter: PagedFilter!) {
       communitySubscribers(id: $id, community: $community, filter: $filter) {
         entries {
+          id
           nickname
+          avatar
         }
         totalCount
         totalPages
