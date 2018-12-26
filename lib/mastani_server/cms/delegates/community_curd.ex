@@ -25,22 +25,29 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   @doc """
   return paged community subscribers
   """
-  def community_members(:editors, %Community{id: id}, filters) do
-    load_community_members(id, CommunityEditor, filters)
+  def community_members(:editors, %Community{id: id} = community, filters)
+      when not is_nil(id) do
+    load_community_members(community, CommunityEditor, filters)
   end
 
-  def community_members(:subscribers, %Community{id: id}, filters) do
-    load_community_members(id, CommunitySubscriber, filters)
+  def community_members(:editors, %Community{raw: raw} = community, filters)
+      when not is_nil(raw) do
+    load_community_members(community, CommunityEditor, filters)
   end
 
-  defp load_community_members(id, modal, %{page: page, size: size} = filters) do
-    modal
-    |> where([c], c.community_id == ^id)
-    |> QueryBuilder.load_inner_users(filters)
-    |> ORM.paginater(~m(page size)a)
-    |> done()
+  def community_members(:subscribers, %Community{id: id} = community, filters)
+      when not is_nil(id) do
+    load_community_members(community, CommunitySubscriber, filters)
   end
 
+  def community_members(:subscribers, %Community{raw: raw} = community, filters)
+      when not is_nil(raw) do
+    load_community_members(community, CommunitySubscriber, filters)
+  end
+
+  @doc """
+  update community editor
+  """
   def update_editor(%Community{id: community_id}, title, %Accounts.User{id: user_id}) do
     clauses = ~m(user_id community_id)a
 
@@ -75,6 +82,25 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
       Tag
       |> ORM.find_update(~m(id title color topic_id)a)
     end
+  end
+
+  @doc """
+  get all tags belongs to a community
+  """
+  def get_tags(%Community{id: community_id}) when not is_nil(community_id) do
+    Tag
+    |> join(:inner, [t], c in assoc(t, :community))
+    |> where([t, c, cp], c.id == ^community_id)
+    |> Repo.all()
+    |> done()
+  end
+
+  def get_tags(%Community{raw: community_raw}) when not is_nil(community_raw) do
+    Tag
+    |> join(:inner, [t], c in assoc(t, :community))
+    |> where([t, c, cp], c.raw == ^community_raw)
+    |> Repo.all()
+    |> done()
   end
 
   @doc """
@@ -184,6 +210,25 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     end
   end
 
+  @doc "count the total threads in community"
+  def count(%Community{id: id}, :threads) do
+    with {:ok, community} <- ORM.find(Community, id, preload: :threads) do
+      {:ok, length(community.threads)}
+    end
+  end
+
+  @doc "count the total tags in community"
+  def count(%Community{id: id}, :tags) do
+    with {:ok, community} <- ORM.find(Community, id) do
+      result =
+        Tag
+        |> where([t], t.community_id == ^community.id)
+        |> ORM.paginater(page: 1, size: 1)
+
+      {:ok, result.total_count}
+    end
+  end
+
   defp find_or_insert_topic(%{topic: title} = attrs) when is_binary(title) do
     title = title |> to_string() |> String.downcase()
     thread = attrs.thread |> to_string() |> String.downcase()
@@ -201,5 +246,30 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
 
   defp find_or_insert_topic(_attrs) do
     find_or_insert_topic(%{topic: "posts", thread: :post})
+  end
+
+  defp load_community_members(%Community{id: id}, queryable, %{page: page, size: size} = filters)
+       when not is_nil(id) do
+    queryable
+    |> where([c], c.community_id == ^id)
+    |> QueryBuilder.load_inner_users(filters)
+    |> ORM.paginater(~m(page size)a)
+    |> done()
+  end
+
+  defp load_community_members(
+         %Community{raw: raw},
+         queryable,
+         %{page: page, size: size} = filters
+       ) do
+    queryable
+    |> join(:inner, [member], c in assoc(member, :community))
+    |> where([member, c], c.raw == ^raw)
+    |> join(:inner, [member], u in assoc(member, :user))
+    |> select([member, c, u], u)
+    |> QueryBuilder.filter_pack(filters)
+    # |> QueryBuilder.load_inner_users(filters)
+    |> ORM.paginater(~m(page size)a)
+    |> done()
   end
 end

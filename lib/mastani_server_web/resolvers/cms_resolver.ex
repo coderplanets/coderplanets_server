@@ -241,6 +241,14 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.unset_tag(thread, %Tag{id: tag_id}, id)
   end
 
+  def get_tags(_root, %{community_id: community_id, all: true}, _info) do
+    CMS.get_tags(%Community{id: community_id})
+  end
+
+  def get_tags(_root, %{community: community, all: true}, _info) do
+    CMS.get_tags(%Community{raw: community})
+  end
+
   def get_tags(_root, ~m(community_id thread topic)a, _info) do
     CMS.get_tags(%Community{id: community_id}, thread, topic)
   end
@@ -281,6 +289,12 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def community_subscribers(_root, ~m(id filter)a, _info) do
     CMS.community_members(:subscribers, %Community{id: id}, filter)
   end
+
+  def community_subscribers(_root, ~m(community filter)a, _info) do
+    CMS.community_members(:subscribers, %Community{raw: community}, filter)
+  end
+
+  def community_subscribers(_root, _args, _info), do: {:error, "invalid args"}
 
   def set_community(_root, ~m(thread id community_id)a, _info) do
     CMS.set_community(%Community{id: community_id}, thread, id)
@@ -358,5 +372,16 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def search_items(_root, %{part: part, title: title}, _info) do
     CMS.search_items(part, %{title: title})
+  end
+
+  # ##############################################
+  # counts just for manngers to use in admin site ..
+  # ##############################################
+  def threads_count(root, _, _) do
+    CMS.count(%Community{id: root.id}, :threads)
+  end
+
+  def tags_count(root, _, _) do
+    CMS.count(%Community{id: root.id}, :tags)
   end
 end
