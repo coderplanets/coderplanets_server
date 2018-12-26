@@ -24,7 +24,8 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
     @desc "paged subscribers of a community"
     field :community_subscribers, :paged_users do
-      arg(:id, non_null(:id))
+      arg(:id, :id)
+      arg(:community, :string)
       arg(:filter, :paged_filter)
 
       middleware(M.PageSizeProof)

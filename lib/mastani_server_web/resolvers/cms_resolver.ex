@@ -290,6 +290,12 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.community_members(:subscribers, %Community{id: id}, filter)
   end
 
+  def community_subscribers(_root, ~m(community filter)a, _info) do
+    CMS.community_members(:subscribers, %Community{raw: community}, filter)
+  end
+
+  def community_subscribers(_root, _args, _info), do: {:error, "invalid args"}
+
   def set_community(_root, ~m(thread id community_id)a, _info) do
     CMS.set_community(%Community{id: community_id}, thread, id)
   end
