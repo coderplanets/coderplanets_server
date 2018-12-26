@@ -25,22 +25,29 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   @doc """
   return paged community subscribers
   """
-  def community_members(:editors, %Community{id: id}, filters) do
-    load_community_members(id, CommunityEditor, filters)
+  def community_members(:editors, %Community{id: id} = community, filters)
+      when not is_nil(id) do
+    load_community_members(community, CommunityEditor, filters)
   end
 
-  def community_members(:subscribers, %Community{id: id}, filters) do
-    load_community_members(id, CommunitySubscriber, filters)
+  def community_members(:editors, %Community{raw: raw} = community, filters)
+      when not is_nil(raw) do
+    load_community_members(community, CommunityEditor, filters)
   end
 
-  defp load_community_members(id, modal, %{page: page, size: size} = filters) do
-    modal
-    |> where([c], c.community_id == ^id)
-    |> QueryBuilder.load_inner_users(filters)
-    |> ORM.paginater(~m(page size)a)
-    |> done()
+  def community_members(:subscribers, %Community{id: id} = community, filters)
+      when not is_nil(id) do
+    load_community_members(community, CommunitySubscriber, filters)
   end
 
+  def community_members(:subscribers, %Community{raw: raw} = community, filters)
+      when not is_nil(raw) do
+    load_community_members(community, CommunitySubscriber, filters)
+  end
+
+  @doc """
+  update community editor
+  """
   def update_editor(%Community{id: community_id}, title, %Accounts.User{id: user_id}) do
     clauses = ~m(user_id community_id)a
 
@@ -239,5 +246,23 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
 
   defp find_or_insert_topic(_attrs) do
     find_or_insert_topic(%{topic: "posts", thread: :post})
+  end
+
+  defp load_community_members(%Community{id: id}, modal, %{page: page, size: size} = filters)
+       when not is_nil(id) do
+    modal
+    |> where([c], c.community_id == ^id)
+    |> QueryBuilder.load_inner_users(filters)
+    |> ORM.paginater(~m(page size)a)
+    |> done()
+  end
+
+  defp load_community_members(%Community{raw: raw}, modal, %{page: page, size: size} = filters) do
+    modal
+    |> join(:inner, [u], c in assoc(u, :community))
+    |> where([u, c], c.raw == ^raw)
+    |> QueryBuilder.load_inner_users(filters)
+    |> ORM.paginater(~m(page size)a)
+    |> done()
   end
 end
