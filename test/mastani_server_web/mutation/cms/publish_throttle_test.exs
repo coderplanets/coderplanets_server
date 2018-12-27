@@ -20,8 +20,20 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
   end
 
   @create_post_query """
-  mutation($title: String!, $body: String!, $digest: String!, $length: Int!, $communityId: ID!){
-    createPost(title: $title, body: $body, digest: $digest, length: $length, communityId: $communityId) {
+  mutation(
+    $title: String!
+    $body: String!
+    $digest: String!
+    $length: Int!
+    $communityId: ID!
+  ) {
+    createPost(
+      title: $title
+      body: $body
+      digest: $digest
+      length: $length
+      communityId: $communityId
+    ) {
       title
       body
       id
@@ -37,7 +49,7 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
     assert created |> Map.has_key?("id")
   end
 
-  test "user create 2 content with valid inverval time", ~m(community)a do
+  test "user create 2 content with valid inverval time success", ~m(community)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
 
@@ -51,20 +63,39 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
       minutes: -@throttle_interval
     )
 
-    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
     created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+    assert created |> Map.has_key?("id")
+  end
+
+  test "root create multi content with invalid inverval time success", ~m(community)a do
+    {:ok, user} = db_insert(:user)
+    passport_rules = %{"root" => true}
+    rule_conn = simu_conn(:user, cms: passport_rules)
+    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
+
+    created = rule_conn |> mutation_result(@create_post_query, variables, "createPost")
+    assert created |> Map.has_key?("id")
+
+    created = rule_conn |> mutation_result(@create_post_query, variables, "createPost")
+    assert created |> Map.has_key?("id")
+
+    Statistics.mock_throttle_attr(
+      :last_publish_time,
+      %User{id: user.id},
+      minutes: -(@throttle_interval - 1)
+    )
+
+    created = rule_conn |> mutation_result(@create_post_query, variables, "createPost")
     assert created |> Map.has_key?("id")
   end
 
   test "user create multi content with invalid inverval time", ~m(community)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
-
     variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
+
     created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
     assert created |> Map.has_key?("id")
-
-    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
 
     assert user_conn
            |> mutation_get_error?(@create_post_query, variables, ecode(:throttle_inverval))
@@ -74,8 +105,6 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
       %User{id: user.id},
       minutes: -(@throttle_interval - 1)
     )
-
-    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
 
     assert user_conn
            |> mutation_get_error?(@create_post_query, variables, ecode(:throttle_inverval))
@@ -101,8 +130,6 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
       count: @hour_limit
     )
 
-    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
-
     assert user_conn
            |> mutation_get_error?(@create_post_query, variables, ecode(:throttle_hour))
   end
@@ -127,8 +154,6 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
       count: @hour_limit
     )
 
-    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
-
     assert user_conn
            |> mutation_get_error?(@create_post_query, variables, ecode(:throttle_hour))
 
@@ -138,7 +163,6 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
       hours: -1
     )
 
-    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
     created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
     assert created |> Map.has_key?("id")
   end
@@ -162,8 +186,6 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
       %User{id: user.id},
       count: @day_total
     )
-
-    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
 
     assert user_conn
            |> mutation_get_error?(@create_post_query, variables, ecode(:throttle_day))
@@ -189,8 +211,6 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
       count: @day_total
     )
 
-    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
-
     assert user_conn
            |> mutation_get_error?(@create_post_query, variables, ecode(:throttle_day))
 
@@ -200,7 +220,6 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
       days: -1
     )
 
-    variables = mock_attrs(:post) |> Map.merge(%{communityId: community.id})
     created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
     assert created |> Map.has_key?("id")
   end

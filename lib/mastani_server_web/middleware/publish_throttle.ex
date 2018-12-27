@@ -1,13 +1,24 @@
 defmodule MastaniServerWeb.Middleware.PublishThrottle do
+  @moduledoc """
+  throttle control for publish contents
+  """
+
   @behaviour Absinthe.Middleware
   import Helper.Utils, only: [handle_absinthe_error: 3, get_config: 2]
   import Helper.ErrorCode
 
-  alias MastaniServer.{Statistics, Accounts}
+  alias MastaniServer.{Accounts, Statistics}
 
   @interval_minutes get_config(:general, :publish_throttle_interval_minutes)
   @hour_limit get_config(:general, :publish_throttle_hour_limit)
   @day_total get_config(:general, :publish_throttle_day_limit)
+
+  def call(
+        %{context: %{cur_user: %{cur_passport: %{"cms" => %{"root" => true}}}}} = resolution,
+        _
+      ) do
+    resolution
+  end
 
   def call(%{context: %{cur_user: cur_user}} = resolution, opt) do
     with {:ok, record} <- Statistics.load_throttle_record(%Accounts.User{id: cur_user.id}),
