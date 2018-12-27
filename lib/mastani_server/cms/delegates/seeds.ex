@@ -6,7 +6,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   import Helper.Utils, only: [done: 1]
   import Ecto.Query, warn: false
 
-  @oss_endpoint "https://coderplanets.oss-cn-beijing.aliyuncs.com"
+  @oss_endpoint "https://cps-oss.oss-cn-shanghai.aliyuncs.com"
   # import MastaniServer.CMS.Utils.Matcher
   # import Helper.Utils, only: [done: 1, map_atom_value: 2]
   # import MastaniServer.CMS.Delegate.ArticleCURD, only: [ensure_author_exists: 1]
@@ -168,7 +168,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
       args = %{
         title: "coderplanets",
         desc: "the most sexy community for developers, ever.",
-        logo: "#{@oss_endpoint}/icons/cmd/keyboard_logo.svg",
+        logo: "#{@oss_endpoint}/icons/cmd/keyboard_logo.png",
         raw: "home",
         user_id: bot.id
       }
@@ -329,21 +329,18 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
     end
   end
 
-  defp png_icons do
+  defp svg_icons do
     [
-      "tensorflow",
-      "ethereum",
-      "bitcoin",
-      "git",
-      "jetbrains",
-      "oracle",
-      "hive",
-      "cassandra",
-      "neo4j",
-      "sql-server",
-      "eggjs",
-      "backbone",
-      "reason"
+      "cps-support",
+      "beijing",
+      "shanghai",
+      "shenzhen",
+      "hangzhou",
+      "guangzhou",
+      "chengdu",
+      "wuhan",
+      "xiamen",
+      "nanjing"
     ]
   end
 
@@ -352,7 +349,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
 
     communities =
       Enum.reduce(communities, [], fn c, acc ->
-        ext = if Enum.member?(png_icons(), c), do: "png", else: "svg"
+        ext = if Enum.member?(svg_icons(), c), do: "svg", else: "png"
 
         args = %{
           title: trans(c),
