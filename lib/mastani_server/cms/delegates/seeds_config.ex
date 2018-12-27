@@ -57,6 +57,7 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
       "laravel",
       "meteor",
       "nestjs",
+      "nuxtjs",
       "nodejs",
       "phoenix",
       "rails",
@@ -66,13 +67,19 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
       "vue",
       "angular",
       "android",
-      "iphone",
-      "tensorflow"
+      "ios",
+      "tensorflow",
+      # new
+      "rxjs",
+      "flutter",
+      "taro",
+      "webrtc",
+      "wasm"
     ]
   end
 
   def communities(:design) do
-    ["css"]
+    ["css", "antd"]
   end
 
   def communities(:blockchain) do
@@ -87,6 +94,8 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
     [
       "oracle",
       "hive",
+      "spark",
+      "hadoop",
       "cassandra",
       "elasticsearch",
       "sql-server",
@@ -113,7 +122,7 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
   end
 
   def communities(:devops) do
-    ["git", "cps-support"]
+    ["git", "cps-support", "docker", "kubernetes"]
   end
 
   @doc """
