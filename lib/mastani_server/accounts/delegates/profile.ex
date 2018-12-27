@@ -74,7 +74,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
     case ORM.find_by(GithubUser, github_id: to_string(github_user["id"])) do
       {:ok, g_user} ->
         {:ok, user} = ORM.find(User, g_user.user_id)
-        token_info(user)
+        gen_token(user)
 
       {:error, _} ->
         register_github_user(github_user)
@@ -160,9 +160,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
     |> register_github_result
   end
 
-  defp register_github_result({:ok, %{create_user: user}}) do
-    token_info(user)
-  end
+  defp register_github_result({:ok, %{create_user: user}}), do: gen_token(user)
 
   defp register_github_result({:error, :create_user, _result, _steps}),
     do: {:error, "Accounts create_user internal error"}
@@ -170,7 +168,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   defp register_github_result({:error, :create_profile, _result, _steps}),
     do: {:error, "Accounts create_profile internal error"}
 
-  defp token_info(%User{} = user) do
+  defp gen_token(%User{} = user) do
     with {:ok, token, _info} <- Guardian.jwt_encode(user) do
       {:ok, %{token: token, user: user}}
     end
