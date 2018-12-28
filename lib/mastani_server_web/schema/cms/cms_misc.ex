@@ -130,6 +130,11 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:recent_updated)
   end
 
+  enum :length_enum do
+    value(:most_words)
+    value(:least_words)
+  end
+
   enum :rainbow_color_enum do
     value(:red)
     value(:orange)
@@ -182,6 +187,7 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     # field(:sort, :sort_input)
     field(:when, :when_enum)
     field(:sort, :sort_enum)
+    field(:length, :length_enum)
     # @desc "Matching a tag"
     # @desc "Added to the menu after this date"
     # field(:added_after, :datetime)
@@ -194,6 +200,7 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
 
     field(:when, :when_enum)
     field(:sort, :sort_enum)
+    field(:length, :length_enum)
     field(:tag, :string, default_value: :all)
     field(:community, :string)
     # @desc "Matching a name"
@@ -210,6 +217,7 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
 
     field(:when, :when_enum)
     field(:sort, :sort_enum)
+    field(:length, :length_enum)
     field(:tag, :string, default_value: :all)
     field(:community, :string)
     field(:topic, :string)
