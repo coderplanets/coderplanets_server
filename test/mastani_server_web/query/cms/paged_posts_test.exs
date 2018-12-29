@@ -154,6 +154,81 @@ defmodule MastaniServer.Test.Query.PagedPosts do
     end
   end
 
+  describe "[query paged_posts filter read]" do
+    @query """
+    query($filter: PagedArticleFilter!) {
+      pagedPosts(filter: $filter) {
+        entries {
+          id
+          viewerHasViewed
+        }
+        totalCount
+      }
+    }
+    """
+    @tag :wip
+    test "read state true filter should work", ~m(user)a do
+      user_conn = simu_conn(:user, user)
+      {:ok, community} = db_insert(:community)
+
+      {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
+      {:ok, _post2} = CMS.create_content(community, :post, mock_attrs(:post), user)
+      {:ok, _post3} = CMS.create_content(community, :post, mock_attrs(:post), user)
+
+      variables = %{filter: %{community: community.raw}}
+      results = user_conn |> query_result(@query, variables, "pagedPosts")
+      assert results["totalCount"] == 3
+
+      {:ok, _} = CMS.read_content(:post, post.id, user)
+
+      variables = %{filter: %{community: community.raw, read: "TRUE"}}
+      results = user_conn |> query_result(@query, variables, "pagedPosts")
+
+      assert results["totalCount"] == 1
+    end
+
+    # test "read state false filter should work", ~m(user)a do
+    # user_conn = simu_conn(:user, user)
+    # {:ok, community} = db_insert(:community)
+
+    # {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
+    # {:ok, _post2} = CMS.create_content(community, :post, mock_attrs(:post), user)
+    # {:ok, _post3} = CMS.create_content(community, :post, mock_attrs(:post), user)
+
+    # variables = %{filter: %{community: community.raw}}
+    # results = user_conn |> query_result(@query, variables, "pagedPosts")
+    # assert results["totalCount"] == 3
+
+    # {:ok, _} = CMS.read_content(:post, post.id, user)
+
+    # variables = %{filter: %{community: community.raw, read: "FALSE"}}
+    # results = user_conn |> query_result(@query, variables, "pagedPosts")
+
+    # assert results["totalCount"] == 2
+    # end
+
+    @tag :wip
+    test "read state all filter should work", ~m(user)a do
+      user_conn = simu_conn(:user, user)
+      {:ok, community} = db_insert(:community)
+
+      {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
+      {:ok, _post2} = CMS.create_content(community, :post, mock_attrs(:post), user)
+      {:ok, _post3} = CMS.create_content(community, :post, mock_attrs(:post), user)
+
+      variables = %{filter: %{community: community.raw}}
+      results = user_conn |> query_result(@query, variables, "pagedPosts")
+      assert results["totalCount"] == 3
+
+      {:ok, _} = CMS.read_content(:post, post.id, user)
+
+      variables = %{filter: %{community: community.raw, read: "ALL"}}
+      results = user_conn |> query_result(@query, variables, "pagedPosts")
+
+      assert results["totalCount"] == 3
+    end
+  end
+
   # TODO test  sort, tag, community, when ...
   @doc """
   test: FILTER when [TODAY] [THIS_WEEK] [THIS_MONTH] [THIS_YEAR]

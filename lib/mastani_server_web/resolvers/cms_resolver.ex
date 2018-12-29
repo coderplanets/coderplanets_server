@@ -60,9 +60,28 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def wiki(_root, ~m(community)a, _info), do: CMS.get_wiki(%Community{raw: community})
   def cheatsheet(_root, ~m(community)a, _info), do: CMS.get_cheatsheet(%Community{raw: community})
 
+  def paged_posts(_root, ~m(filter)a, %{context: %{cur_user: user}}) do
+    Post |> CMS.paged_contents(filter, user)
+  end
+
   def paged_posts(_root, ~m(filter)a, _info), do: Post |> CMS.paged_contents(filter)
+
+  def paged_videos(_root, ~m(filter)a, %{context: %{cur_user: user}}) do
+    Video |> CMS.paged_contents(filter, user)
+  end
+
   def paged_videos(_root, ~m(filter)a, _info), do: Video |> CMS.paged_contents(filter)
+
+  def paged_repos(_root, ~m(filter)a, %{context: %{cur_user: user}}) do
+    Repo |> CMS.paged_contents(filter, user)
+  end
+
   def paged_repos(_root, ~m(filter)a, _info), do: Repo |> CMS.paged_contents(filter)
+
+  def paged_jobs(_root, ~m(filter)a, %{context: %{cur_user: user}}) do
+    Job |> CMS.paged_contents(filter, user)
+  end
+
   def paged_jobs(_root, ~m(filter)a, _info), do: Job |> CMS.paged_contents(filter)
 
   def create_content(_root, ~m(community_id thread)a = args, %{context: %{cur_user: user}}) do
