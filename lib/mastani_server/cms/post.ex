@@ -19,7 +19,7 @@ defmodule MastaniServer.CMS.Post do
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title body digest length)a
-  @optional_fields ~w(link_addr copy_right)a
+  @optional_fields ~w(link_addr copy_right link_addr)a
 
   @type t :: %Post{}
   schema "cms_posts" do
