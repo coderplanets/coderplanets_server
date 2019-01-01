@@ -13,7 +13,7 @@ defmodule MastaniServer.Test.Query.PagedRepos do
   @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -7, microseconds: -1)
   @last_year Timex.shift(Timex.beginning_of_year(@cur_date), days: -2, microseconds: -1)
 
-  @today_count 35
+  @today_count 15
 
   @last_week_count 1
   @last_month_count 1
@@ -27,11 +27,11 @@ defmodule MastaniServer.Test.Query.PagedRepos do
     db_insert_multi(:repo, @today_count)
     db_insert(:repo, %{repo_name: "last week", inserted_at: @last_week})
     db_insert(:repo, %{repo_name: "last month", inserted_at: @last_month})
-    db_insert(:repo, %{repo_name: "last year", inserted_at: @last_year})
+    {:ok, repo_last_year} = db_insert(:repo, %{repo_name: "last year", inserted_at: @last_year})
 
     guest_conn = simu_conn(:guest)
 
-    {:ok, ~m(guest_conn user)a}
+    {:ok, ~m(guest_conn user repo_last_year)a}
   end
 
   describe "[query paged_repos filter pagination]" do
@@ -159,12 +159,12 @@ defmodule MastaniServer.Test.Query.PagedRepos do
       }
     }
     """
-    test "THIS_YEAR option should work", ~m(guest_conn)a do
+    @tag :wip
+    test "THIS_YEAR option should work", ~m(guest_conn repo_last_year)a do
       variables = %{filter: %{when: "THIS_YEAR"}}
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
 
-      expect_count = @total_count - @last_year_count
-      assert results |> Map.get("totalCount") == expect_count
+      assert results["entries"] |> Enum.any?(&(&1["id"] != repo_last_year.id))
     end
 
     test "TODAY option should work", ~m(guest_conn)a do
