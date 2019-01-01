@@ -164,7 +164,6 @@ defmodule MastaniServer.Test.Query.PagedJobs do
       }
     }
     """
-    @tag :wip
     test "THIS_YEAR option should work", ~m(guest_conn job_last_year)a do
       variables = %{filter: %{when: "THIS_YEAR"}}
       results = guest_conn |> query_result(@query, variables, "pagedJobs")

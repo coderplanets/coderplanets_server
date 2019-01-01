@@ -217,7 +217,7 @@ defmodule MastaniServer.Test.Mutation.PublishThrottle do
     Statistics.mock_throttle_attr(
       :publish_date,
       %User{id: user.id},
-      days: -1
+      days: -2
     )
 
     created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
