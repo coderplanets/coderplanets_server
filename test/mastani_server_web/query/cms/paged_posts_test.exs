@@ -12,10 +12,10 @@ defmodule MastaniServer.Test.Query.PagedPosts do
 
   @cur_date Timex.now()
   @last_week Timex.shift(Timex.beginning_of_week(@cur_date), days: -1, microseconds: -1)
-  @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -7, microseconds: -1)
-  @last_year Timex.shift(Timex.beginning_of_year(@cur_date), days: -2, microseconds: -1)
+  @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -1, microseconds: -1)
+  @last_year Timex.shift(Timex.beginning_of_year(@cur_date), days: -3, microseconds: -1)
 
-  @today_count 35
+  @today_count 15
 
   @last_week_count 1
   @last_month_count 1
@@ -28,13 +28,13 @@ defmodule MastaniServer.Test.Query.PagedPosts do
 
     {:ok, post2} = db_insert(:post, %{title: "last month", inserted_at: @last_month})
     {:ok, post1} = db_insert(:post, %{title: "last week", inserted_at: @last_week})
-    {:ok, post3} = db_insert(:post, %{title: "last year", inserted_at: @last_year})
+    {:ok, post_last_year} = db_insert(:post, %{title: "last year", inserted_at: @last_year})
 
     db_insert_multi(:post, @today_count)
 
     guest_conn = simu_conn(:guest)
 
-    {:ok, ~m(guest_conn user post1 post2 post3)a}
+    {:ok, ~m(guest_conn user post1 post2 post_last_year)a}
   end
 
   describe "[query paged_posts filter pagination]" do
@@ -154,6 +154,79 @@ defmodule MastaniServer.Test.Query.PagedPosts do
     end
   end
 
+  describe "[query paged_posts filter read]" do
+    @query """
+    query($filter: PagedArticleFilter!) {
+      pagedPosts(filter: $filter) {
+        entries {
+          id
+          viewerHasViewed
+        }
+        totalCount
+      }
+    }
+    """
+    test "read state true filter should work", ~m(user)a do
+      user_conn = simu_conn(:user, user)
+      {:ok, community} = db_insert(:community)
+
+      {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
+      {:ok, _post2} = CMS.create_content(community, :post, mock_attrs(:post), user)
+      {:ok, _post3} = CMS.create_content(community, :post, mock_attrs(:post), user)
+
+      variables = %{filter: %{community: community.raw}}
+      results = user_conn |> query_result(@query, variables, "pagedPosts")
+      assert results["totalCount"] == 3
+
+      {:ok, _} = CMS.read_content(:post, post.id, user)
+
+      variables = %{filter: %{community: community.raw, read: "TRUE"}}
+      results = user_conn |> query_result(@query, variables, "pagedPosts")
+
+      assert results["totalCount"] == 1
+    end
+
+    # test "read state false filter should work", ~m(user)a do
+    # user_conn = simu_conn(:user, user)
+    # {:ok, community} = db_insert(:community)
+
+    # {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
+    # {:ok, _post2} = CMS.create_content(community, :post, mock_attrs(:post), user)
+    # {:ok, _post3} = CMS.create_content(community, :post, mock_attrs(:post), user)
+
+    # variables = %{filter: %{community: community.raw}}
+    # results = user_conn |> query_result(@query, variables, "pagedPosts")
+    # assert results["totalCount"] == 3
+
+    # {:ok, _} = CMS.read_content(:post, post.id, user)
+
+    # variables = %{filter: %{community: community.raw, read: "FALSE"}}
+    # results = user_conn |> query_result(@query, variables, "pagedPosts")
+
+    # assert results["totalCount"] == 2
+    # end
+
+    test "read state all filter should work", ~m(user)a do
+      user_conn = simu_conn(:user, user)
+      {:ok, community} = db_insert(:community)
+
+      {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
+      {:ok, _post2} = CMS.create_content(community, :post, mock_attrs(:post), user)
+      {:ok, _post3} = CMS.create_content(community, :post, mock_attrs(:post), user)
+
+      variables = %{filter: %{community: community.raw}}
+      results = user_conn |> query_result(@query, variables, "pagedPosts")
+      assert results["totalCount"] == 3
+
+      {:ok, _} = CMS.read_content(:post, post.id, user)
+
+      variables = %{filter: %{community: community.raw, read: "ALL"}}
+      results = user_conn |> query_result(@query, variables, "pagedPosts")
+
+      assert results["totalCount"] == 3
+    end
+  end
+
   # TODO test  sort, tag, community, when ...
   @doc """
   test: FILTER when [TODAY] [THIS_WEEK] [THIS_MONTH] [THIS_YEAR]
@@ -171,12 +244,11 @@ defmodule MastaniServer.Test.Query.PagedPosts do
       }
     }
     """
-    test "THIS_YEAR option should work", ~m(guest_conn)a do
+    test "THIS_YEAR option should work", ~m(guest_conn post_last_year)a do
       variables = %{filter: %{when: "THIS_YEAR"}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
-      expect_count = @total_count - @last_year_count
-      assert results |> Map.get("totalCount") == expect_count
+      assert results["entries"] |> Enum.any?(&(&1["id"] != post_last_year.id))
     end
 
     test "TODAY option should work", ~m(guest_conn)a do

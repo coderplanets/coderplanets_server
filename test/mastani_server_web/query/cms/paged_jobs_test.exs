@@ -16,7 +16,7 @@ defmodule MastaniServer.Test.Query.PagedJobs do
   @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -7, microseconds: -1)
   @last_year Timex.shift(Timex.beginning_of_year(@cur_date), days: -2, microseconds: -1)
 
-  @today_count 35
+  @today_count 15
 
   @last_week_count 1
   @last_month_count 1
@@ -30,11 +30,11 @@ defmodule MastaniServer.Test.Query.PagedJobs do
     db_insert_multi(:job, @today_count)
     db_insert(:job, %{title: "last week", inserted_at: @last_week})
     db_insert(:job, %{title: "last month", inserted_at: @last_month})
-    db_insert(:job, %{title: "last year", inserted_at: @last_year})
+    {:ok, job_last_year} = db_insert(:job, %{title: "last year", inserted_at: @last_year})
 
     guest_conn = simu_conn(:guest)
 
-    {:ok, ~m(guest_conn user)a}
+    {:ok, ~m(guest_conn user job_last_year)a}
   end
 
   describe "[query paged_jobs filter pagination]" do
@@ -164,12 +164,11 @@ defmodule MastaniServer.Test.Query.PagedJobs do
       }
     }
     """
-    test "THIS_YEAR option should work", ~m(guest_conn)a do
+    test "THIS_YEAR option should work", ~m(guest_conn job_last_year)a do
       variables = %{filter: %{when: "THIS_YEAR"}}
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
 
-      expect_count = @total_count - @last_year_count
-      assert results |> Map.get("totalCount") == expect_count
+      assert results["entries"] |> Enum.any?(&(&1["id"] != job_last_year.id))
     end
 
     test "TODAY option should work", ~m(guest_conn)a do

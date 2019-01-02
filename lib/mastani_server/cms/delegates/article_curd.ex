@@ -4,7 +4,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   """
   import Ecto.Query, warn: false
   import MastaniServer.CMS.Utils.Matcher
-  import Helper.Utils, only: [done: 1]
+  import Helper.Utils, only: [done: 1, pick_by: 2]
   import Helper.ErrorCode
   import ShortMaps
 
@@ -31,20 +31,26 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  defp content_id(:post, id), do: %{post_id: id}
-  defp content_id(:job, id), do: %{job_id: id}
-  defp content_id(:repo, id), do: %{repo_id: id}
-  defp content_id(:video, id), do: %{video_id: id}
-
   @doc """
   get paged post / job ...
   """
-  def paged_contents(queryable, filter) do
+  def paged_contents(queryable, filter, user) do
     queryable
-    |> flag_query(filter)
+    |> community_with_flag_query(filter)
+    |> read_state_query(filter, user)
     |> ORM.find_all(filter)
     |> add_pin_contents_ifneed(queryable, filter)
   end
+
+  def paged_contents(queryable, filter) do
+    queryable
+    |> community_with_flag_query(filter)
+    |> ORM.find_all(filter)
+    # TODO: if filter has when/sort/length/job... then don't
+    |> add_pin_contents_ifneed(queryable, filter)
+  end
+
+  def read_state_query(queryable, _), do: queryable
 
   @doc """
   Creates a content(post/job ...), and set community.
@@ -197,19 +203,43 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     ORM.find_by(Author, user_id: changeset.data.user_id)
   end
 
-  defp flag_query(queryable, filter, flag \\ %{}) do
+  # filter community & untrash
+  defp community_with_flag_query(queryable, filter, flag \\ %{}) do
     flag = %{trash: false} |> Map.merge(flag)
-
     # NOTE: this case judge is used for test case
     case filter |> Map.has_key?(:community) do
       true ->
         queryable
-        |> join(:inner, [q], f in assoc(q, :community_flags))
-        |> where([q, f], f.trash == ^flag.trash)
-        |> join(:inner, [q, f], c in assoc(f, :community))
-        |> where([q, f, c], c.raw == ^filter.community)
+        |> join(:inner, [content], f in assoc(content, :community_flags))
+        |> join(:inner, [content, f], c in assoc(f, :community))
+        |> where([content, f, c], f.trash == ^flag.trash)
+        |> where([content, f, c], c.raw == ^filter.community)
 
       false ->
+        queryable
+    end
+  end
+
+  # query if user has viewed before
+  defp read_state_query(queryable, %{read: read} = filter, user) do
+    cond do
+      read == true ->
+        queryable
+        |> join(:inner, [content, f, c], viewers in assoc(content, :viewers))
+        |> where([content, f, c, viewers], viewers.user_id == ^user.id)
+
+      read == false ->
+        # hello = ORM.find_all(CMS.PostViewer, %{page: 1, size: 10})
+        # IO.inspect hello, label: "hello"
+
+        # queryable
+        # |> join(:left, [content, f, c], viewers in assoc(content, :viewers))
+        # |> where([content, f, c, viewers], viewers.user_id != ^user.id)
+        # |> where([content, f, c, viewers], content.id != viewers.post_id)
+        # |> IO.inspect(label: "query")
+        queryable
+
+      true ->
         queryable
     end
   end
@@ -282,7 +312,6 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
         {:ok, normal_contents}
 
       _ ->
-        # NOTE: this is tricy, should use dataloader refactor
         pind_entries =
           pined_content
           |> Map.get(:entries)
@@ -293,10 +322,19 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
         normal_count = normal_contents |> Map.get(:total_count)
         pind_count = pined_content |> Map.get(:total_count)
 
+        # remote the pined content from normal_entries (if have)
+        pind_ids = pick_by(pind_entries, :id)
+        normal_entries = Enum.reject(normal_entries, &(&1.id in pind_ids))
+
         normal_contents
         |> Map.put(:entries, pind_entries ++ normal_entries)
         |> Map.put(:total_count, pind_count + normal_count)
         |> done
     end
   end
+
+  defp content_id(:post, id), do: %{post_id: id}
+  defp content_id(:job, id), do: %{job_id: id}
+  defp content_id(:repo, id), do: %{repo_id: id}
+  defp content_id(:video, id), do: %{video_id: id}
 end
