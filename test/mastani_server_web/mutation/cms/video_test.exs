@@ -66,5 +66,59 @@ defmodule MastaniServer.Test.Mutation.Video do
       assert created["id"] == to_string(video.id)
       assert {:ok, _} = ORM.find_by(CMS.Author, user_id: user.id)
     end
+
+    @update_video_query """
+    mutation(
+      $id: ID!
+      $title: String,
+      $poster: String,
+      $thumbnil: String,
+      $desc: String!,
+      $duration: String,
+      $durationSec: Int,
+      $source: String,
+      $link: String,
+      $originalAuthor: String,
+      $originalAuthorLink: String,
+      $publishAt: String,
+    ) {
+      updateVideo(
+        id: $id,
+        title: $title,
+        poster: $poster,
+        thumbnil: $thumbnil,
+        desc: $desc,
+        duration: $duration,
+        durationSec: $durationSec,
+        source: $source,
+        link: $link,
+        originalAuthor:$originalAuthor,
+        originalAuthorLink: $originalAuthorLink,
+        publishAt: $publishAt,
+      ) {
+        id
+        title
+        desc
+        link
+      }
+    }
+    """
+    @tag :wip
+    test "update video", ~m(owner_conn video)a do
+      unique_num = System.unique_integer([:positive, :monotonic])
+
+      variables = %{
+        id: video.id,
+        title: "updated title #{unique_num}",
+        desc: "updated body #{unique_num}",
+        link: "https://xxx",
+      }
+
+      updated = owner_conn |> mutation_result(@update_video_query, variables, "updateVideo")
+
+      assert updated["title"] == variables.title
+      assert updated["desc"] == variables.desc
+      assert updated["link"] == variables.link
+    end
   end
 end

@@ -97,14 +97,23 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Video do
     field :update_video, :video do
       arg(:id, non_null(:id))
       arg(:title, :string)
-      arg(:body, :string)
-      arg(:digest, :string)
+      arg(:poster, :string)
+      arg(:thumbnil, :string)
+      arg(:desc, :string)
+      arg(:duration, :string)
+      arg(:duration_sec, :integer)
+
+      arg(:source, :string)
+      arg(:link, :string)
+      arg(:original_author, :string)
+      arg(:original_author_link, :string)
+      arg(:publish_at, :datetime)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :video)
       middleware(M.Passport, claim: "owner;cms->c?->video.edit")
 
-      resolve(&R.CMS.update_content/3)
+      resolve(&R.CMS.update_content2/3)
     end
   end
 end
