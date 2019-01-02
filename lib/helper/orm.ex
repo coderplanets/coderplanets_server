@@ -138,6 +138,12 @@ defmodule Helper.ORM do
     |> Repo.update()
   end
 
+  def update2(content, attrs) do
+    content
+    |> content.__struct__.update_changeset(attrs)
+    |> Repo.update()
+  end
+
   @doc """
   find and update sourc
   """
