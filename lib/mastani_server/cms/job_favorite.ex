@@ -27,4 +27,11 @@ defmodule MastaniServer.CMS.JobFavorite do
     |> validate_required(@required_fields)
     |> unique_constraint(:user_id, name: :jobs_favorites_user_id_job_id_index)
   end
+
+  @doc false
+  def update_changeset(%JobFavorite{} = job_favorite, attrs) do
+    job_favorite
+    |> cast(attrs, @optional_fields ++ @required_fields)
+    |> unique_constraint(:user_id, name: :jobs_favorites_user_id_job_id_index)
+  end
 end

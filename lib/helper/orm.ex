@@ -134,12 +134,6 @@ defmodule Helper.ORM do
   """
   def update(content, attrs) do
     content
-    |> content.__struct__.changeset(attrs)
-    |> Repo.update()
-  end
-
-  def update2(content, attrs) do
-    content
     |> content.__struct__.update_changeset(attrs)
     |> Repo.update()
   end

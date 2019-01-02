@@ -27,4 +27,11 @@ defmodule MastaniServer.CMS.VideoFavorite do
     |> validate_required(@required_fields)
     |> unique_constraint(:user_id, name: :videos_favorites_user_id_video_id_index)
   end
+
+  @doc false
+  def update_changeset(%VideoFavorite{} = video_favorite, attrs) do
+    video_favorite
+    |> cast(attrs, @optional_fields ++ @required_fields)
+    |> unique_constraint(:user_id, name: :videos_favorites_user_id_video_id_index)
+  end
 end

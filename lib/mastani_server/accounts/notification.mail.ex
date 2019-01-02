@@ -34,4 +34,12 @@ defmodule MastaniServer.Accounts.NotificationMail do
     |> foreign_key_constraint(:from_user_id)
     |> foreign_key_constraint(:to_user_id)
   end
+
+  @doc false
+  def update_changeset(%NotificationMail{} = notication_mail, attrs) do
+    notication_mail
+    |> cast(attrs, @optional_fields ++ @required_fields)
+    |> foreign_key_constraint(:from_user_id)
+    |> foreign_key_constraint(:to_user_id)
+  end
 end

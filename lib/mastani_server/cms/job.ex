@@ -81,4 +81,10 @@ defmodule MastaniServer.CMS.Job do
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
   end
+
+  @doc false
+  def update_changeset(%Job{} = job, attrs) do
+    job
+    |> cast(attrs, @optional_fields ++ @required_fields)
+  end
 end

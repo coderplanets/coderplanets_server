@@ -92,7 +92,7 @@ defmodule MastaniServer.Test.Mutation.Video do
         durationSec: $durationSec,
         source: $source,
         link: $link,
-        originalAuthor:$originalAuthor,
+        originalAuthor: $originalAuthor,
         originalAuthorLink: $originalAuthorLink,
         publishAt: $publishAt,
       ) {
@@ -111,7 +111,7 @@ defmodule MastaniServer.Test.Mutation.Video do
         id: video.id,
         title: "updated title #{unique_num}",
         desc: "updated body #{unique_num}",
-        link: "https://xxx",
+        link: "https://xxx"
       }
 
       updated = owner_conn |> mutation_result(@update_video_query, variables, "updateVideo")

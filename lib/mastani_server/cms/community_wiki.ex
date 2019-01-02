@@ -30,4 +30,11 @@ defmodule MastaniServer.CMS.CommunityWiki do
     |> cast_embed(:contributors, with: &GithubContributor.changeset/2)
     |> validate_required(@required_fields)
   end
+
+  @doc false
+  def update_changeset(%CommunityWiki{} = community_wiki, attrs) do
+    community_wiki
+    |> cast(attrs, @required_fields ++ @optional_fields)
+    |> cast_embed(:contributors, with: &GithubContributor.changeset/2)
+  end
 end
