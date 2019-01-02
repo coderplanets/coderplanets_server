@@ -90,4 +90,13 @@ defmodule MastaniServer.CMS.Post do
     # |> foreign_key_constraint(:posts_tags, name: :posts_tags_tag_id_fkey)
     # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)
   end
+
+  @doc false
+  def update_changeset(%Post{} = post, attrs) do
+    post
+    |> cast(attrs, @optional_fields ++ @required_fields)
+
+    # |> foreign_key_constraint(:posts_tags, name: :posts_tags_tag_id_fkey)
+    # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)
+  end
 end

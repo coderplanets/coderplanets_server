@@ -40,4 +40,13 @@ defmodule MastaniServer.CMS.VideoComment do
     |> foreign_key_constraint(:video_id)
     |> foreign_key_constraint(:author_id)
   end
+
+  @doc false
+  def update_changeset(%VideoComment{} = video_comment, attrs) do
+    video_comment
+    |> cast(attrs, @required_fields ++ @optional_fields)
+    |> validate_length(:body, min: 1)
+    |> foreign_key_constraint(:video_id)
+    |> foreign_key_constraint(:author_id)
+  end
 end

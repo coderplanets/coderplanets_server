@@ -30,4 +30,12 @@ defmodule MastaniServer.Statistics.PublishThrottle do
     |> foreign_key_constraint(:user_id)
     |> unique_constraint(:user, name: :publish_throttles_user_id_index)
   end
+
+  @doc false
+  def update_changeset(%PublishThrottle{} = publish_throttle, attrs) do
+    publish_throttle
+    |> cast(attrs, @optional_fields ++ @required_fields)
+    |> foreign_key_constraint(:user_id)
+    |> unique_constraint(:user, name: :publish_throttles_user_id_index)
+  end
 end

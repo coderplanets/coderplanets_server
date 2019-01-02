@@ -16,7 +16,6 @@ defmodule MastaniServer.Test.Statistics.Status do
 
   test "can get basic count info of the whole site" do
     {:ok, counts} = Statistics.count_status()
-    IO.inspect(counts, label: "counts")
 
     assert counts.communities_count == @communities_count
     # assert counts.posts_count == @posts_count

@@ -90,12 +90,27 @@ defmodule MastaniServer.CMS.Community do
     timestamps(type: :utc_datetime)
   end
 
+  @doc false
   def changeset(%Community{} = community, attrs) do
     # |> cast_assoc(:author)
     # |> unique_constraint(:title, name: :communities_title_index)
     community
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
+    |> validate_length(:title, min: 1, max: 30)
+    |> foreign_key_constraint(:user_id)
+    |> unique_constraint(:title, name: :communities_title_index)
+
+    # |> foreign_key_constraint(:communities_author_fkey)
+    # |> unique_constraint(:user_id, name: :posts_favorites_user_id_post_id_index)
+  end
+
+  @doc false
+  def update_changeset(%Community{} = community, attrs) do
+    # |> cast_assoc(:author)
+    # |> unique_constraint(:title, name: :communities_title_index)
+    community
+    |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_length(:title, min: 1, max: 30)
     |> foreign_key_constraint(:user_id)
     |> unique_constraint(:title, name: :communities_title_index)

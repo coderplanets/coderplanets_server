@@ -34,4 +34,12 @@ defmodule MastaniServer.CMS.JobComment do
     |> foreign_key_constraint(:job_id)
     |> foreign_key_constraint(:author_id)
   end
+
+  @doc false
+  def update_changeset(%JobComment{} = job_comment, attrs) do
+    job_comment
+    |> cast(attrs, @required_fields ++ @optional_fields)
+    |> foreign_key_constraint(:job_id)
+    |> foreign_key_constraint(:author_id)
+  end
 end

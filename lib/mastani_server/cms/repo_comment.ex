@@ -40,4 +40,13 @@ defmodule MastaniServer.CMS.RepoComment do
     |> foreign_key_constraint(:repo_id)
     |> foreign_key_constraint(:author_id)
   end
+
+  @doc false
+  def update_changeset(%RepoComment{} = repo_comment, attrs) do
+    repo_comment
+    |> cast(attrs, @required_fields ++ @optional_fields)
+    |> validate_length(:body, min: 1)
+    |> foreign_key_constraint(:repo_id)
+    |> foreign_key_constraint(:author_id)
+  end
 end

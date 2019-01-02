@@ -82,5 +82,6 @@ defmodule MastaniServer.CMS.Video do
   def update_changeset(%Video{} = video, attrs) do
     video
     |> cast(attrs, @optional_fields)
+    |> validate_length(:original_author, min: 3, max: 30)
   end
 end

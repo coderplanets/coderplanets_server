@@ -27,4 +27,11 @@ defmodule MastaniServer.CMS.RepoFavorite do
     |> validate_required(@required_fields)
     |> unique_constraint(:user_id, name: :repos_favorites_user_id_repo_id_index)
   end
+
+  @doc false
+  def update_changeset(%RepoFavorite{} = repo_favorite, attrs) do
+    repo_favorite
+    |> cast(attrs, @optional_fields ++ @required_fields)
+    |> unique_constraint(:user_id, name: :repos_favorites_user_id_repo_id_index)
+  end
 end

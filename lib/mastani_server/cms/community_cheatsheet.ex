@@ -30,4 +30,11 @@ defmodule MastaniServer.CMS.CommunityCheatsheet do
     |> cast_embed(:contributors, with: &GithubContributor.changeset/2)
     |> validate_required(@required_fields)
   end
+
+  @doc false
+  def update_changeset(%CommunityCheatsheet{} = community_cheatsheet, attrs) do
+    community_cheatsheet
+    |> cast(attrs, @required_fields ++ @optional_fields)
+    |> cast_embed(:contributors, with: &GithubContributor.changeset/2)
+  end
 end

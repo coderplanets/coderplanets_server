@@ -36,4 +36,11 @@ defmodule MastaniServer.Accounts.Achievement do
     |> validate_required(@required_fields)
     |> foreign_key_constraint(:user_id)
   end
+
+  @doc false
+  def update_changeset(%Achievement{} = achievement, attrs) do
+    achievement
+    |> cast(attrs, @optional_fields ++ @required_fields)
+    |> foreign_key_constraint(:user_id)
+  end
 end

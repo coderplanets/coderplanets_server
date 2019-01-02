@@ -32,4 +32,12 @@ defmodule MastaniServer.Accounts.MentionMail do
     |> foreign_key_constraint(:from_user_id)
     |> foreign_key_constraint(:to_user_id)
   end
+
+  @doc false
+  def update_changeset(%MentionMail{} = mention, attrs) do
+    mention
+    |> cast(attrs, @optional_fields ++ @required_fields)
+    |> foreign_key_constraint(:from_user_id)
+    |> foreign_key_constraint(:to_user_id)
+  end
 end
