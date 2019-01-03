@@ -65,11 +65,12 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
          {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}),
          {:ok, _community} <- ORM.find(Community, community_id),
          {:ok, topic} = find_or_insert_topic(attrs) do
+
       attrs =
         attrs
         |> Map.merge(%{author_id: author.id, topic_id: topic.id, community_id: community_id})
         |> map_atom_value(:string)
-        |> Map.merge(%{thread: attrs.thread |> to_string |> String.downcase()})
+        |> Map.merge(%{thread: thread |> to_string |> String.downcase()})
 
       action.reactor |> ORM.create(attrs)
     end

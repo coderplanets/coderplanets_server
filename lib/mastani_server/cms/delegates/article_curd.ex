@@ -129,8 +129,8 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     |> Multi.run(:update_content, fn _, _ ->
       ORM.update(content, args)
     end)
-    |> Multi.run(:set_tag, fn _, _ ->
-      set_tags(content, args.tags)
+    |> Multi.run(:update_tag, fn _, _ ->
+      update_tags(content, args.tags)
     end)
     |> Repo.transaction()
     |> update_content_result()
@@ -345,23 +345,35 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  defp set_tags(_content, tags_ids) when length(tags_ids) == 0, do: {:ok, :pass}
-  # for update_content, currently only support 1 tag a time
-  defp set_tags(content, tags_ids) do
-    tag_id = tags_ids |> List.first() |> Map.get(:id)
+  defp update_tags(_content, tags_ids) when length(tags_ids) == 0, do: {:ok, :pass}
 
-    with {:ok, content} <- ORM.find(content.__struct__, content.id, preload: :tags),
-         {:ok, tag} <- ORM.find(Tag, tag_id) do
+  # Job is special, the tags in job only represent city, so everytime update
+  # tags on job content, should be override the old ones, in this way, every
+  # communiies contains this job will have the same city info
+  defp update_tags(%CMS.Job{} = content, tags_ids) do
+    with {:ok, content} <- ORM.find(CMS.Job, content.id, preload: :tags) do
+      city_tags =
+        Enum.reduce(tags_ids, [], fn t, acc ->
+          {:ok, tag} = ORM.find(Tag, t.id)
+          acc ++ [tag]
+        end)
+
       content
       |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:tags, content.tags ++ [tag])
+      |> Ecto.Changeset.put_assoc(:tags, city_tags)
       |> Repo.update()
+
+    else
+      _ -> {:error, "update city tag"}
     end
   end
 
+  # except Job, other content will just pass, should use set_tag function instead
+  defp update_tags(_, _tags_ids), do: {:ok, :pass}
+
   defp update_content_result({:ok, %{update_content: result}}), do: {:ok, result}
   defp update_content_result({:error, :update_content, result, _steps}), do: {:error, result}
-  defp update_content_result({:error, :set_tag, result, _steps}), do: {:error, result}
+  defp update_content_result({:error, :update_tag, result, _steps}), do: {:error, result}
 
   defp content_id(:post, id), do: %{post_id: id}
   defp content_id(:job, id), do: %{job_id: id}
