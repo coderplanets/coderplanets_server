@@ -70,31 +70,31 @@ defmodule MastaniServer.Test.Mutation.Video do
     @update_video_query """
     mutation(
       $id: ID!
-      $title: String,
-      $poster: String,
-      $thumbnil: String,
-      $desc: String!,
-      $duration: String,
-      $durationSec: Int,
-      $source: String,
-      $link: String,
-      $originalAuthor: String,
-      $originalAuthorLink: String,
-      $publishAt: String,
+      $title: String
+      $poster: String
+      $thumbnil: String
+      $desc: String
+      $duration: String
+      $durationSec: Int
+      $source: String
+      $link: String
+      $originalAuthor: String
+      $originalAuthorLink: String
+      $publishAt: String
     ) {
       updateVideo(
-        id: $id,
-        title: $title,
-        poster: $poster,
-        thumbnil: $thumbnil,
-        desc: $desc,
-        duration: $duration,
-        durationSec: $durationSec,
-        source: $source,
-        link: $link,
-        originalAuthor: $originalAuthor,
-        originalAuthorLink: $originalAuthorLink,
-        publishAt: $publishAt,
+        id: $id
+        title: $title
+        poster: $poster
+        thumbnil: $thumbnil
+        desc: $desc
+        duration: $duration
+        durationSec: $durationSec
+        source: $source
+        link: $link
+        originalAuthor: $originalAuthor
+        originalAuthorLink: $originalAuthorLink
+        publishAt: $publishAt
       ) {
         id
         title
@@ -103,7 +103,6 @@ defmodule MastaniServer.Test.Mutation.Video do
       }
     }
     """
-    @tag :wip
     test "update video", ~m(owner_conn video)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
@@ -119,6 +118,30 @@ defmodule MastaniServer.Test.Mutation.Video do
       assert updated["title"] == variables.title
       assert updated["desc"] == variables.desc
       assert updated["link"] == variables.link
+    end
+
+    @query """
+    mutation($id: ID!){
+      deleteVideo(id: $id) {
+        id
+      }
+    }
+    """
+    test "can delete a video by video's owner", ~m(owner_conn video)a do
+      deleted = owner_conn |> mutation_result(@query, %{id: video.id}, "deleteVideo")
+
+      assert deleted["id"] == to_string(video.id)
+      assert {:error, _} = ORM.find(CMS.Video, deleted["id"])
+    end
+
+    test "can delete a video by auth user", ~m(video)a do
+      belongs_community_title = video.communities |> List.first() |> Map.get(:title)
+      rule_conn = simu_conn(:user, cms: %{belongs_community_title => %{"video.delete" => true}})
+
+      deleted = rule_conn |> mutation_result(@query, %{id: video.id}, "deleteVideo")
+
+      assert deleted["id"] == to_string(video.id)
+      assert {:error, _} = ORM.find(CMS.Video, deleted["id"])
     end
   end
 end

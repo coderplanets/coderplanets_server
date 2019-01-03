@@ -50,8 +50,6 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     |> add_pin_contents_ifneed(queryable, filter)
   end
 
-  def read_state_query(queryable, _), do: queryable
-
   @doc """
   Creates a content(post/job ...), and set community.
 
@@ -123,46 +121,19 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  defp create_content_result({:ok, %{add_content_author: result}}), do: {:ok, result}
-
-  # TODO: need more spec error handle
-  defp create_content_result({:error, :add_content_author, _result, _steps}) do
-    {:error, [message: "create cms content author", code: ecode(:create_fails)]}
-  end
-
-  defp create_content_result({:error, :set_community, _result, _steps}) do
-    {:error, [message: "set community", code: ecode(:create_fails)]}
-  end
-
-  defp create_content_result({:error, :set_community_flag, _result, _steps}) do
-    {:error, [message: "set community flag", code: ecode(:create_fails)]}
-  end
-
-  defp create_content_result({:error, :set_topic, _result, _steps}) do
-    {:error, [message: "set topic", code: ecode(:create_fails)]}
-  end
-
-  defp create_content_result({:error, :set_tag, result, _steps}) do
-    {:error, result}
-  end
-
-  defp create_content_result({:error, :log_action, _result, _steps}) do
-    {:error, [message: "log action", code: ecode(:create_fails)]}
-  end
-
-  # if empty just pass
-  defp set_tags(_community, _thread, _content_id, []), do: {:ok, "pass"}
-
-  defp set_tags(community, thread, content_id, tags) do
-    try do
-      Enum.each(tags, fn tag ->
-        {:ok, _} = ArticleOperation.set_tag(community, thread, %Tag{id: tag.id}, content_id)
-      end)
-
-      {:ok, "psss"}
-    rescue
-      _ -> {:error, [message: "set tag", code: ecode(:create_fails)]}
-    end
+  @doc """
+  update a content(post/job ...)
+  """
+  def update_content(content, args) do
+    Multi.new()
+    |> Multi.run(:update_content, fn _, _ ->
+      ORM.update(content, args)
+    end)
+    |> Multi.run(:set_tag, fn _, _ ->
+      set_tags(content, args.tags)
+    end)
+    |> Repo.transaction()
+    |> update_content_result()
   end
 
   @doc """
@@ -243,6 +214,8 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
         queryable
     end
   end
+
+  defp read_state_query(queryable, _), do: queryable
 
   # only first page need pin contents
   # TODO: use seperate pined table, which is much more smaller
@@ -332,6 +305,63 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
         |> done
     end
   end
+
+  defp create_content_result({:ok, %{add_content_author: result}}), do: {:ok, result}
+
+  # TODO: need more spec error handle
+  defp create_content_result({:error, :add_content_author, _result, _steps}) do
+    {:error, [message: "create cms content author", code: ecode(:create_fails)]}
+  end
+
+  defp create_content_result({:error, :set_community, _result, _steps}) do
+    {:error, [message: "set community", code: ecode(:create_fails)]}
+  end
+
+  defp create_content_result({:error, :set_community_flag, _result, _steps}) do
+    {:error, [message: "set community flag", code: ecode(:create_fails)]}
+  end
+
+  defp create_content_result({:error, :set_topic, _result, _steps}) do
+    {:error, [message: "set topic", code: ecode(:create_fails)]}
+  end
+
+  defp create_content_result({:error, :set_tag, result, _steps}) do
+    {:error, result}
+  end
+
+  defp create_content_result({:error, :log_action, _result, _steps}) do
+    {:error, [message: "log action", code: ecode(:create_fails)]}
+  end
+
+  defp set_tags(community, thread, content_id, tags) do
+    try do
+      Enum.each(tags, fn tag ->
+        {:ok, _} = ArticleOperation.set_tag(community, thread, %Tag{id: tag.id}, content_id)
+      end)
+
+      {:ok, "psss"}
+    rescue
+      _ -> {:error, [message: "set tag", code: ecode(:create_fails)]}
+    end
+  end
+
+  defp set_tags(_content, tags_ids) when length(tags_ids) == 0, do: {:ok, :pass}
+  # for update_content, currently only support 1 tag a time
+  defp set_tags(content, tags_ids) do
+    tag_id = tags_ids |> List.first() |> Map.get(:id)
+
+    with {:ok, content} <- ORM.find(content.__struct__, content.id, preload: :tags),
+         {:ok, tag} <- ORM.find(Tag, tag_id) do
+      content
+      |> Ecto.Changeset.change()
+      |> Ecto.Changeset.put_assoc(:tags, content.tags ++ [tag])
+      |> Repo.update()
+    end
+  end
+
+  defp update_content_result({:ok, %{update_content: result}}), do: {:ok, result}
+  defp update_content_result({:error, :update_content, result, _steps}), do: {:error, result}
+  defp update_content_result({:error, :set_tag, result, _steps}), do: {:error, result}
 
   defp content_id(:post, id), do: %{post_id: id}
   defp content_id(:job, id), do: %{job_id: id}
