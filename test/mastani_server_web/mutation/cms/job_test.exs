@@ -169,6 +169,32 @@ defmodule MastaniServer.Test.Mutation.Job do
       assert updated["tags"] |> Enum.any?(&(&1["id"] == to_string(tag.id)))
     end
 
+    # TODO: test multiable tags
+
+    @tag :wip
+    test "update job tags will replace old city-tags", ~m(owner_conn user job)a do
+      unique_num = System.unique_integer([:positive, :monotonic])
+
+      {:ok, community} = db_insert(:community)
+      {:ok, community2} = db_insert(:community)
+      {:ok, tag} = CMS.create_tag(%CMS.Community{id: community.id}, :job, mock_attrs(:tag), user)
+      {:ok, tag2} = CMS.create_tag(%CMS.Community{id: community2.id}, :job, mock_attrs(:tag), user)
+
+      {:ok, _} = CMS.set_tag(community2, :job, tag2, job.id)
+
+      variables = %{
+        id: job.id,
+        title: "updated title #{unique_num}",
+        tags: [%{id: tag.id}]
+      }
+
+      updated = owner_conn |> mutation_result(@query, variables, "updateJob")
+
+      assert updated["title"] == variables.title
+      assert updated["tags"] |> length ==  1
+      assert updated["tags"] |> Enum.any?(&(&1["id"] == to_string(tag.id)))
+    end
+
     test "login user with auth passport update a job", ~m(job)a do
       job_communities_0 = job.communities |> List.first() |> Map.get(:title)
       passport_rules = %{job_communities_0 => %{"job.edit" => true}}
