@@ -113,7 +113,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Video do
       middleware(M.PassportLoader, source: :video)
       middleware(M.Passport, claim: "owner;cms->c?->video.edit")
 
-      resolve(&R.CMS.update_content2/3)
+      resolve(&R.CMS.update_content/3)
     end
   end
 end

@@ -71,6 +71,7 @@ defmodule MastaniServer.CMS do
   defdelegate paged_contents(queryable, filter, user), to: ArticleCURD
   defdelegate paged_contents(queryable, filter), to: ArticleCURD
   defdelegate create_content(community, thread, attrs, user), to: ArticleCURD
+  defdelegate update_content(content, attrs), to: ArticleCURD
   defdelegate reaction_users(thread, react, id, filters), to: ArticleCURD
 
   # ArticleReaction

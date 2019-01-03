@@ -108,12 +108,15 @@ defmodule MastaniServer.Test.Mutation.Job do
     end
 
     @query """
-    mutation($id: ID!, $title: String, $body: String, $salary: String){
-      updateJob(id: $id, title: $title, body: $body, salary: $salary) {
+    mutation($id: ID!, $title: String, $body: String, $salary: String, $tags: [Ids]){
+      updateJob(id: $id, title: $title, body: $body, salary: $salary, tags: $tags) {
         id
         title
         body
         salary
+        tags {
+          id
+        }
       }
     }
     """
@@ -145,6 +148,25 @@ defmodule MastaniServer.Test.Mutation.Job do
       assert updated["title"] == variables.title
       assert updated["body"] == variables.body
       assert updated["salary"] == variables.salary
+    end
+
+    @tag :wip
+    test "job can be update along with tags(city)", ~m(owner_conn user job)a do
+      unique_num = System.unique_integer([:positive, :monotonic])
+
+      {:ok, community} = db_insert(:community)
+      {:ok, tag} = CMS.create_tag(%CMS.Community{id: community.id}, :job, mock_attrs(:tag), user)
+
+      variables = %{
+        id: job.id,
+        title: "updated title #{unique_num}",
+        tags: [%{id: tag.id}]
+      }
+
+      updated = owner_conn |> mutation_result(@query, variables, "updateJob")
+
+      assert updated["title"] == variables.title
+      assert updated["tags"] |> Enum.any?(&(&1["id"] == to_string(tag.id)))
     end
 
     test "login user with auth passport update a job", ~m(job)a do
