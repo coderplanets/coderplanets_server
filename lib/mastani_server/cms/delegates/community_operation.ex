@@ -152,7 +152,7 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
         update_community_geo(community_id, user_geo_city, method)
 
       {:error, _} ->
-        {:ok, "pass"}
+        {:ok, :pass}
     end
   end
 

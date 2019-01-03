@@ -54,12 +54,12 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
 
       {:error, _} ->
         update_profile(user, %{remote_ip: remote_ip})
-        {:ok, "pass"}
+        {:ok, :pass}
     end
   end
 
   def update_geo(%User{} = user, remote_ip), do: update_profile(user, %{remote_ip: remote_ip})
-  def update_geo(_user, _remote_ip), do: {:ok, "pass"}
+  def update_geo(_user, _remote_ip), do: {:ok, :pass}
 
   @doc """
   github_signin steps:
