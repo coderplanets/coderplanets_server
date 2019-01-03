@@ -187,7 +187,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   def seed_threads(:default) do
     case ORM.find_by(CMS.Thread, %{raw: "post"}) do
       {:ok, _} ->
-        {:ok, "pass"}
+        {:ok, :pass}
 
       {:error, _} ->
         @default_threads
@@ -208,7 +208,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
 
   def seed_threads(:city) do
     case ORM.find_by(CMS.Thread, %{raw: "post"}) do
-      {:ok, _} -> {:ok, "pass"}
+      {:ok, _} -> {:ok, :pass}
       {:error, _} -> seed_threads(:default)
     end
 
@@ -224,7 +224,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   # NOTE: the home threads should be insert after default threads
   def seed_threads(:home) do
     case ORM.find_by(CMS.Thread, %{raw: "post"}) do
-      {:ok, _} -> {:ok, "pass"}
+      {:ok, _} -> {:ok, :pass}
       {:error, _} -> seed_threads(:default)
     end
 

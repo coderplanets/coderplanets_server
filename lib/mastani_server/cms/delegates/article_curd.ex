@@ -100,18 +100,18 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
             })
 
           false ->
-            {:ok, "pass"}
+            {:ok, :pass}
         end
       end)
       |> Multi.run(:set_tag, fn _, %{add_content_author: content} ->
         case attrs |> Map.has_key?(:tags) do
           true -> set_tags(community, thread, content.id, attrs.tags)
-          false -> {:ok, "pass"}
+          false -> {:ok, :pass}
         end
       end)
       |> Multi.run(:mention_users, fn _, %{add_content_author: content} ->
         Delivery.mention_from_content(thread, content, attrs, %User{id: user_id})
-        {:ok, "pass"}
+        {:ok, :pass}
       end)
       |> Multi.run(:log_action, fn _, _ ->
         Statistics.log_publish_action(%User{id: user_id})

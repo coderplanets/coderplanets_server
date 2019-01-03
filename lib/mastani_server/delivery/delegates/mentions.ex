@@ -66,7 +66,7 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
   end
 
   def mention_from_content(_, _content, _args, %User{} = _from_user) do
-    {:ok, %{done: "pass"}}
+    {:ok, %{done: :pass}}
   end
 
   @doc """
