@@ -130,6 +130,11 @@ defmodule MastaniServer.Support.Factory do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
 
     salary_enum = ["2k以下", "2k-5k", "5k-10k", "10k-15k", "15k-25k", "20k-50k", "50k以上"]
+    exp_enum = ["不限", "应届", "3年以下", "3-5年", "5-10年", "10年以上"]
+    education_enum = ["不限", "大专", "本科", "硕士", "博士"]
+    field_enum = ["互联网", "电子商务", "金融", "企业服务", "教育", "游戏", "O2O", "区块链"]
+    finance_enum = ["未融资", "天使轮", "A轮", "B轮", "C轮", "D轮以上", "已上市", "不需融资"]
+    scale_enum = ["少于15人", "15-50人", "50-150人", "150-500人", "500-2000人", "2000人以上"]
 
     %{
       title: Faker.Lorem.Shakespeare.king_richard_iii(),
@@ -142,11 +147,11 @@ defmodule MastaniServer.Support.Factory do
       author: mock(:author),
       views: Enum.random(0..2000),
       salary: salary_enum |> Enum.at(Enum.random(0..(length(salary_enum) - 1))),
-      exp: "1-3年",
-      education: "master",
-      field: "互联网",
-      finance: "x轮",
-      scale: "300人",
+      exp: exp_enum |> Enum.at(Enum.random(0..(length(exp_enum) - 1))),
+      education: education_enum |> Enum.at(Enum.random(0..(length(education_enum) - 1))),
+      field: field_enum |> Enum.at(Enum.random(0..(length(field_enum) - 1))),
+      finance: finance_enum |> Enum.at(Enum.random(0..(length(finance_enum) - 1))),
+      scale: scale_enum |> Enum.at(Enum.random(0..(length(scale_enum) - 1))),
       communities: [
         mock(:community)
       ]
