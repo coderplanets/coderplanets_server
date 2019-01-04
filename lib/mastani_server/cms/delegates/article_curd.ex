@@ -37,6 +37,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   def paged_contents(queryable, filter, user) do
     queryable
     |> community_with_flag_query(filter)
+    |> domain_filter_query(filter)
     |> read_state_query(filter, user)
     |> ORM.find_all(filter)
     |> add_pin_contents_ifneed(queryable, filter)
@@ -45,6 +46,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   def paged_contents(queryable, filter) do
     queryable
     |> community_with_flag_query(filter)
+    |> domain_filter_query(filter)
     |> ORM.find_all(filter)
     # TODO: if filter has when/sort/length/job... then don't
     |> add_pin_contents_ifneed(queryable, filter)
@@ -191,8 +193,88 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     end
   end
 
+  defp domain_filter_query(CMS.Job = queryable, filter) do
+    Enum.reduce(filter, queryable, fn
+      {:salary, salary}, queryable ->
+        queryable |> where([content], content.salary == ^salary)
+
+      {:field, field}, queryable ->
+        queryable |> where([content], content.field == ^field)
+
+      {:finance, finance}, queryable ->
+        queryable |> where([content], content.finance == ^finance)
+
+      {:scale, scale}, queryable ->
+        queryable |> where([content], content.scale == ^scale)
+
+      {:exp, exp}, queryable ->
+        if exp == "不限", do: queryable, else: queryable |> where([content], content.exp == ^exp)
+
+      {:education, education}, queryable ->
+        cond do
+          education == "大专" ->
+            queryable
+            |> where([content], content.education == "大专" or content.education == "不限")
+
+          education == "本科" ->
+            queryable
+            |> where([content], content.education != "不限")
+            |> where([content], content.education != "大专")
+
+          education == "硕士" ->
+            queryable
+            |> where([content], content.education != "不限")
+            |> where([content], content.education != "大专")
+            |> where([content], content.education != "本科")
+
+          education == "不限" ->
+            queryable
+
+          true ->
+            queryable |> where([content], content.education == ^education)
+        end
+
+      {_, _}, queryable ->
+        queryable
+    end)
+  end
+
+  defp domain_filter_query(CMS.Video = queryable, filter) do
+    Enum.reduce(filter, queryable, fn
+      {:source, source}, queryable ->
+        queryable |> where([content], content.source == ^source)
+
+      {_, _}, queryable ->
+        queryable
+    end)
+  end
+
+  defp domain_filter_query(CMS.Repo = queryable, filter) do
+    Enum.reduce(filter, queryable, fn
+      {:sort, :most_github_star}, queryable ->
+        queryable |> order_by(desc: :star_count)
+
+      {:sort, :most_github_fork}, queryable ->
+        queryable |> order_by(desc: :fork_count)
+
+      {:sort, :most_github_watch}, queryable ->
+        queryable |> order_by(desc: :watch_count)
+
+      {:sort, :most_github_pr}, queryable ->
+        queryable |> order_by(desc: :prs_count)
+
+      {:sort, :most_github_issue}, queryable ->
+        queryable |> order_by(desc: :issues_count)
+
+      {_, _}, queryable ->
+        queryable
+    end)
+  end
+
+  defp domain_filter_query(queryable, _filter), do: queryable
+
   # query if user has viewed before
-  defp read_state_query(queryable, %{read: read} = filter, user) do
+  defp read_state_query(queryable, %{read: read} = _filter, user) do
     cond do
       read == true ->
         queryable

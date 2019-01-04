@@ -34,7 +34,7 @@ defmodule MastaniServer.Test.Query.VideosFlags do
 
   describe "[query videos flags]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedVideosFilter!) {
       pagedVideos(filter: $filter) {
         entries {
           id

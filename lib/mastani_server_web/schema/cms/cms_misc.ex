@@ -119,7 +119,6 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:most_updated)
     value(:most_favorites)
     value(:most_stars)
-    value(:most_watched)
     value(:most_comments)
     value(:least_views)
     value(:least_updated)
@@ -128,6 +127,18 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     value(:least_watched)
     value(:least_comments)
     value(:recent_updated)
+  end
+
+  enum :repo_sort_enum do
+    value(:most_github_star)
+    value(:most_github_fork)
+    value(:most_github_watch)
+    value(:most_github_pr)
+    value(:most_github_issue)
+    value(:most_views)
+    value(:most_comments)
+    value(:recent_updated)
+    value(:most_favorites)
   end
 
   enum :length_enum do
@@ -204,32 +215,52 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
   input_object :paged_article_filter do
     @desc "limit of records (default 20), if first > 30, only return 30 at most"
     pagination_args()
-
-    field(:when, :when_enum)
+    article_filter_fields()
     field(:sort, :sort_enum)
-    field(:length, :length_enum)
-    field(:read, :read_enum, default_value: :all)
-    field(:tag, :string, default_value: :all)
-    field(:community, :string)
-    # @desc "Matching a name"
-    # field(:order, :order_enum, default_value: :desc)
-
-    # @desc "Matching a tag"
-    # field(:tag, :string, default_value: :all)
   end
 
   @desc "posts_filter doc"
   input_object :paged_posts_filter do
     @desc "limit of records (default 20), if first > 30, only return 30 at most"
     pagination_args()
-
-    field(:when, :when_enum)
+    article_filter_fields()
     field(:sort, :sort_enum)
-    field(:length, :length_enum)
-    field(:read, :read_enum, default_value: :all)
-    field(:tag, :string, default_value: :all)
-    field(:community, :string)
+
     field(:topic, :string)
+  end
+
+  @desc "job_filter doc"
+  input_object :paged_jobs_filter do
+    @desc "limit of records (default 20), if first > 30, only return 30 at most"
+    pagination_args()
+    article_filter_fields()
+    field(:sort, :sort_enum)
+
+    field(:salary, :string)
+    field(:exp, :string)
+    field(:education, :string)
+    field(:field, :string)
+    field(:finance, :string)
+    field(:scale, :string)
+  end
+
+  @desc "article_filter doc"
+  input_object :paged_videos_filter do
+    @desc "limit of records (default 20), if first > 30, only return 30 at most"
+    pagination_args()
+    article_filter_fields()
+    field(:sort, :sort_enum)
+
+    field(:source, :string)
+  end
+
+  @desc "article_filter doc"
+  input_object :paged_repos_filter do
+    @desc "limit of records (default 20), if first > 30, only return 30 at most"
+    pagination_args()
+    article_filter_fields()
+
+    field(:sort, :repo_sort_enum)
   end
 
   @doc """
@@ -260,22 +291,6 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
   input_object :repo_lang_input do
     field(:name, :string)
     field(:color, :string)
-  end
-
-  enum :sort_enum do
-    value(:most_views)
-    value(:most_updated)
-    value(:most_favorites)
-    value(:most_stars)
-    value(:most_watched)
-    value(:most_comments)
-    value(:least_views)
-    value(:least_updated)
-    value(:least_favorites)
-    value(:least_stars)
-    value(:least_watched)
-    value(:least_comments)
-    value(:recent_updated)
   end
 
   enum :search_part do

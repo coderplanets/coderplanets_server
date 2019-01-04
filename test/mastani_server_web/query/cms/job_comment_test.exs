@@ -15,7 +15,7 @@ defmodule MastaniServer.Test.Query.JobComment do
 
   describe "[job dataloader comment]" do
     @query """
-    query($filter: PagedArticleFilter) {
+    query($filter: PagedJobsFilter) {
       pagedJobs(filter: $filter) {
         entries {
           id
@@ -143,7 +143,7 @@ defmodule MastaniServer.Test.Query.JobComment do
   # TODO: user can get specific user's replies :list_replies
   describe "[job comment]" do
     @query """
-    query($filter: PagedArticleFilter) {
+    query($filter: PagedJobsFilter) {
       pagedJobs(filter: $filter) {
         entries {
           id

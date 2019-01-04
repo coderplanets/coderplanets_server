@@ -37,7 +37,7 @@ defmodule MastaniServer.Test.Query.PagedVideos do
 
   describe "[query paged_videos filter pagination]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedVideosFilter!) {
       pagedVideos(filter: $filter) {
         entries {
           id
@@ -82,7 +82,7 @@ defmodule MastaniServer.Test.Query.PagedVideos do
 
   describe "[query paged_videos filter sort]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedVideosFilter!) {
       pagedVideos(filter: $filter) {
         entries {
           id
@@ -127,7 +127,7 @@ defmodule MastaniServer.Test.Query.PagedVideos do
     end
 
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedVideosFilter!) {
       pagedVideos(filter: $filter) {
         entries {
           id
@@ -149,7 +149,7 @@ defmodule MastaniServer.Test.Query.PagedVideos do
 
   describe "[query paged_videos filter when]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedVideosFilter!) {
       pagedVideos(filter: $filter) {
         entries {
           id
@@ -200,6 +200,32 @@ defmodule MastaniServer.Test.Query.PagedVideos do
         end
 
       assert results |> Map.get("totalCount") == expect_count
+    end
+  end
+
+  describe "[query paged_videos filter extra]" do
+    @query """
+    query($filter: PagedVideosFilter!) {
+      pagedVideos(filter: $filter) {
+        entries {
+          id
+          source
+        }
+        totalCount
+      }
+    }
+    """
+    test "source option should work", ~m(guest_conn)a do
+      {:ok, video} = db_insert(:video, %{source: "youtube"})
+      {:ok, video2} = db_insert(:video, %{source: "bilibil"})
+
+      variables = %{filter: %{page: 1, size: 20, source: "youtube"}}
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
+
+      assert results["totalCount"] >= 1
+      assert results["entries"] |> Enum.all?(&(&1["source"] == "youtube"))
+      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(video.id)))
+      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(video2.id)))
     end
   end
 end
