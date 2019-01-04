@@ -36,7 +36,7 @@ defmodule MastaniServer.Test.Query.PagedRepos do
 
   describe "[query paged_repos filter pagination]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedReposFilter!) {
       pagedRepos(filter: $filter) {
         entries {
           id
@@ -81,7 +81,7 @@ defmodule MastaniServer.Test.Query.PagedRepos do
 
   describe "[query paged_repos filter sort]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedReposFilter!) {
       pagedRepos(filter: $filter) {
         entries {
           id
@@ -126,7 +126,7 @@ defmodule MastaniServer.Test.Query.PagedRepos do
     end
 
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedReposFilter!) {
       pagedRepos(filter: $filter) {
         entries {
           id
@@ -148,7 +148,7 @@ defmodule MastaniServer.Test.Query.PagedRepos do
 
   describe "[query paged_repos filter when]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedReposFilter!) {
       pagedRepos(filter: $filter) {
         entries {
           id
@@ -199,6 +199,40 @@ defmodule MastaniServer.Test.Query.PagedRepos do
         end
 
       assert results |> Map.get("totalCount") == expect_count
+    end
+  end
+
+  describe "[query paged_videos filter extra]" do
+    @query """
+    query($filter: PagedReposFilter!) {
+      pagedRepos(filter: $filter) {
+        entries {
+          id
+          starCount
+          forkCount
+        }
+        totalCount
+      }
+    }
+    """
+    test "most star option should work", ~m(guest_conn)a do
+      variables = %{filter: %{page: 1, size: 20, sort: "MOST_GITHUB_STAR"}}
+      results = guest_conn |> query_result(@query, variables, "pagedRepos")
+
+      first_count = results["entries"] |> Enum.at(0) |> Map.get("starCount")
+      last_count = results["entries"] |> Enum.at(10) |> Map.get("starCount")
+
+      assert first_count > last_count
+    end
+
+    test "most fork option should work", ~m(guest_conn)a do
+      variables = %{filter: %{page: 1, size: 20, sort: "MOST_GITHUB_FORK"}}
+      results = guest_conn |> query_result(@query, variables, "pagedRepos")
+
+      first_count = results["entries"] |> Enum.at(0) |> Map.get("forkCount")
+      last_count = results["entries"] |> Enum.at(10) |> Map.get("forkCount")
+
+      assert first_count > last_count
     end
   end
 end

@@ -15,7 +15,7 @@ defmodule MastaniServer.Test.Query.RepoComment do
 
   describe "[repo dataloader comment]" do
     @query """
-    query($filter: PagedArticleFilter) {
+    query($filter: PagedReposFilter) {
       pagedRepos(filter: $filter) {
         entries {
           id
@@ -143,7 +143,7 @@ defmodule MastaniServer.Test.Query.RepoComment do
   # TODO: user can get specific user's replies :list_replies
   describe "[repo comment]" do
     @query """
-    query($filter: PagedArticleFilter) {
+    query($filter: PagedReposFilter) {
       pagedRepos(filter: $filter) {
         entries {
           id

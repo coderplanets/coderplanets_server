@@ -249,6 +249,28 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     end)
   end
 
+  defp domain_filter_query(CMS.Repo = queryable, filter) do
+    Enum.reduce(filter, queryable, fn
+      {:sort, :most_github_star}, queryable ->
+        queryable |> order_by(desc: :star_count)
+
+      {:sort, :most_github_fork}, queryable ->
+        queryable |> order_by(desc: :fork_count)
+
+      {:sort, :most_github_watch}, queryable ->
+        queryable |> order_by(desc: :watch_count)
+
+      {:sort, :most_github_pr}, queryable ->
+        queryable |> order_by(desc: :prs_count)
+
+      {:sort, :most_github_issue}, queryable ->
+        queryable |> order_by(desc: :issues_count)
+
+      {_, _}, queryable ->
+        queryable
+    end)
+  end
+
   defp domain_filter_query(queryable, _filter), do: queryable
 
   # query if user has viewed before
