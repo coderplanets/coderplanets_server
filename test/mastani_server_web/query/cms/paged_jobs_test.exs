@@ -39,7 +39,7 @@ defmodule MastaniServer.Test.Query.PagedJobs do
 
   describe "[query paged_jobs filter pagination]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedJobsFilter!) {
       pagedJobs(filter: $filter) {
         entries {
           id
@@ -84,7 +84,7 @@ defmodule MastaniServer.Test.Query.PagedJobs do
 
   describe "[query paged_jobss filter sort]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedJobsFilter!) {
       pagedJobs(filter: $filter) {
         entries {
           id
@@ -125,7 +125,7 @@ defmodule MastaniServer.Test.Query.PagedJobs do
     end
 
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedJobsFilter!) {
       pagedJobs(filter: $filter) {
         entries {
           id
@@ -151,7 +151,7 @@ defmodule MastaniServer.Test.Query.PagedJobs do
   """
   describe "[query paged_jobs filter when]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedJobsFilter!) {
       pagedJobs(filter: $filter) {
         entries {
           id
@@ -204,6 +204,32 @@ defmodule MastaniServer.Test.Query.PagedJobs do
         end
 
       assert results |> Map.get("totalCount") == expect_count
+    end
+  end
+
+  describe "[query paged_jobs filter extra]" do
+    @query """
+    query($filter: PagedJobsFilter!) {
+      pagedJobs(filter: $filter) {
+        entries {
+          id
+          salary
+        }
+        totalCount
+      }
+    }
+    """
+    @tag :wip
+    test "salary option should work", ~m(guest_conn)a do
+      {:ok, job} = db_insert(:job, %{salary: "2k-5k"})
+      {:ok, job2} = db_insert(:job, %{salary: "5k-10k"})
+
+      variables = %{filter: %{page: 1, size: 20, salary: "2k-5k"}}
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+
+      assert results["totalCount"] >= 1
+      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job.id)))
+      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job2.id)))
     end
   end
 end

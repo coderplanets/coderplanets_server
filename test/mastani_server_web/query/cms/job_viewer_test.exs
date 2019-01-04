@@ -62,7 +62,7 @@ defmodule MastaniServer.Test.Query.JobViewer do
   end
 
   @paged_query """
-  query($filter: PagedArticleFilter!) {
+  query($filter: PagedJobsFilter!) {
     pagedJobs(filter: $filter) {
       entries {
         id

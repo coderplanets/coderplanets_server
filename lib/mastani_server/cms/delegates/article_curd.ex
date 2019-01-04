@@ -37,6 +37,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   def paged_contents(queryable, filter, user) do
     queryable
     |> community_with_flag_query(filter)
+    |> domain_filter_query(filter)
     |> read_state_query(filter, user)
     |> ORM.find_all(filter)
     |> add_pin_contents_ifneed(queryable, filter)
@@ -45,6 +46,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   def paged_contents(queryable, filter) do
     queryable
     |> community_with_flag_query(filter)
+    |> domain_filter_query(filter)
     |> ORM.find_all(filter)
     # TODO: if filter has when/sort/length/job... then don't
     |> add_pin_contents_ifneed(queryable, filter)
@@ -190,6 +192,18 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
         queryable
     end
   end
+
+  defp domain_filter_query(CMS.Job = queryable, filter) do
+    Enum.reduce(filter, queryable, fn
+      {:salary, salary}, queryable ->
+        queryable |> where([content], content.salary == ^salary)
+
+      {_, _}, queryable ->
+        queryable
+    end)
+  end
+
+  defp domain_filter_query(queryable, _filter), do: queryable
 
   # query if user has viewed before
   defp read_state_query(queryable, %{read: read} = filter, user) do
