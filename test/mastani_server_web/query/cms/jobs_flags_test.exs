@@ -35,7 +35,7 @@ defmodule MastaniServer.Test.Query.JobsFlags do
 
   describe "[query jobs flags]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedJobsFilter!) {
       pagedJobs(filter: $filter) {
         entries {
           id

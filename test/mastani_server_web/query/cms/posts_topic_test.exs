@@ -97,7 +97,7 @@ defmodule MastaniServer.Test.Query.PostsTopic do
 
   describe "[query non-posts topic filter]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedJobsFilter!) {
       pagedJobs(filter: $filter) {
         entries {
           id

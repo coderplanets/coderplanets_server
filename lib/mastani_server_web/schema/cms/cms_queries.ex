@@ -127,7 +127,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
     @desc "get paged jobs"
     field :paged_jobs, :paged_jobs do
-      arg(:filter, non_null(:paged_article_filter))
+      arg(:filter, non_null(:paged_jobs_filter))
 
       middleware(M.PageSizeProof)
       resolve(&R.CMS.paged_jobs/3)

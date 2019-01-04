@@ -129,6 +129,8 @@ defmodule MastaniServer.Support.Factory do
   defp mock_meta(:job) do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
 
+    salary_enum = ["2k以下", "2k-5k", "5k-10k", "10k-15k", "15k-25k", "20k-50k", "50k以上"]
+
     %{
       title: Faker.Lorem.Shakespeare.king_richard_iii(),
       company: Faker.Company.name(),
@@ -139,7 +141,7 @@ defmodule MastaniServer.Support.Factory do
       length: String.length(body),
       author: mock(:author),
       views: Enum.random(0..2000),
-      salary: "20k-50k",
+      salary: salary_enum |> Enum.at(Enum.random(0..(length(salary_enum) - 1))),
       exp: "1-3年",
       education: "master",
       field: "互联网",
