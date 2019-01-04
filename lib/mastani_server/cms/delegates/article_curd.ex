@@ -274,35 +274,28 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   defp domain_filter_query(queryable, _filter), do: queryable
 
   # query if user has viewed before
-  defp read_state_query(queryable, %{read: read} = _filter, user) do
-    cond do
-      read == true ->
-        queryable
-        |> join(:inner, [content, f, c], viewers in assoc(content, :viewers))
-        |> where([content, f, c, viewers], viewers.user_id == ^user.id)
-
-      read == false ->
-        # hello = ORM.find_all(CMS.PostViewer, %{page: 1, size: 10})
-        # IO.inspect hello, label: "hello"
-
-        # queryable
-        # |> join(:left, [content, f, c], viewers in assoc(content, :viewers))
-        # |> where([content, f, c, viewers], viewers.user_id != ^user.id)
-        # |> where([content, f, c, viewers], content.id != viewers.post_id)
-        # |> IO.inspect(label: "query")
-        queryable
-
-      true ->
-        queryable
-    end
+  defp read_state_query(queryable, %{read: true} = _filter, user) do
+    queryable
+    |> join(:inner, [content, f, c], viewers in assoc(content, :viewers))
+    |> where([content, f, c, viewers], viewers.user_id == ^user.id)
   end
 
-  defp read_state_query(queryable, _), do: queryable
+  defp read_state_query(queryable, %{read: false} = _filter, _user) do
+    # queryable
+    # |> join(:left, [content, f, c], viewers in assoc(content, :viewers))
+    # |> where([content, f, c, viewers], viewers.user_id != ^user.id)
+    # |> where([content, f, c, viewers], content.id != viewers.post_id)
+    # |> IO.inspect(label: "query")
+    queryable
+  end
+
+  defp read_state_query(queryable, _, _), do: queryable
 
   # only first page need pin contents
   # TODO: use seperate pined table, which is much more smaller
   defp add_pin_contents_ifneed(contents, CMS.Post, %{community: community} = filter) do
-    with {:ok, normal_contents} <- contents,
+    with {:ok, _} <- should_add_pin?(filter),
+         {:ok, normal_contents} <- contents,
          true <- Map.has_key?(filter, :community),
          true <- 1 == Map.get(normal_contents, :page_number) do
       {:ok, pined_content} =
@@ -325,6 +318,19 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
         contents
     end
   end
+
+  # if filter contains like: tags, sort.., then don't add pin content
+  defp should_add_pin?(%{page: 1, tag: :all, sort: :desc_inserted, read: :all} = filter) do
+    filter
+    |> Map.keys()
+    |> Enum.reject(fn x -> x in [:community, :tag, :sort, :read, :topic, :page, :size] end)
+    |> case do
+      [] -> {:ok, :pass}
+      _ -> {:error, :pass}
+    end
+  end
+
+  defp should_add_pin?(_filter), do: {:error, :pass}
 
   defp add_pin_contents_ifneed(contents, CMS.Job, %{community: _community} = filter) do
     merge_pin_contents(contents, :job, CMS.PinedJob, filter)
