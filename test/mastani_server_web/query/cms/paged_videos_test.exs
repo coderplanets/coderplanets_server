@@ -215,7 +215,6 @@ defmodule MastaniServer.Test.Query.PagedVideos do
       }
     }
     """
-    @tag :wip
     test "source option should work", ~m(guest_conn)a do
       {:ok, video} = db_insert(:video, %{source: "youtube"})
       {:ok, video2} = db_insert(:video, %{source: "bilibil"})

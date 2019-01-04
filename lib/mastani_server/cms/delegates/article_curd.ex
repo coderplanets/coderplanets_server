@@ -252,7 +252,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   defp domain_filter_query(queryable, _filter), do: queryable
 
   # query if user has viewed before
-  defp read_state_query(queryable, %{read: read} = filter, user) do
+  defp read_state_query(queryable, %{read: read} = _filter, user) do
     cond do
       read == true ->
         queryable
