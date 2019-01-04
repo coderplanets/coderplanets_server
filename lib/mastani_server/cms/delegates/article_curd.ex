@@ -362,7 +362,6 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
       |> Ecto.Changeset.change()
       |> Ecto.Changeset.put_assoc(:tags, city_tags)
       |> Repo.update()
-
     else
       _ -> {:error, "update city tag"}
     end
