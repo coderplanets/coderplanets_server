@@ -15,7 +15,7 @@ defmodule MastaniServer.Test.Query.VideoComment do
 
   describe "[video dataloader comment]" do
     @query """
-    query($filter: PagedArticleFilter) {
+    query($filter: PagedVideosFilter) {
       pagedVideos(filter: $filter) {
         entries {
           id
@@ -143,7 +143,7 @@ defmodule MastaniServer.Test.Query.VideoComment do
   # TODO: user can get specific user's replies :list_replies
   describe "[video comment]" do
     @query """
-    query($filter: PagedArticleFilter) {
+    query($filter: PagedVideosFilter) {
       pagedVideos(filter: $filter) {
         entries {
           id

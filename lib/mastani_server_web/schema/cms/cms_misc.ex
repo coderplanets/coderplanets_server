@@ -218,6 +218,20 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     # field(:tag, :string, default_value: :all)
   end
 
+  @desc "posts_filter doc"
+  input_object :paged_posts_filter do
+    @desc "limit of records (default 20), if first > 30, only return 30 at most"
+    pagination_args()
+
+    field(:when, :when_enum)
+    field(:sort, :sort_enum)
+    field(:length, :length_enum)
+    field(:read, :read_enum, default_value: :all)
+    field(:tag, :string, default_value: :all)
+    field(:community, :string)
+    field(:topic, :string)
+  end
+
   @desc "job_filter doc"
   input_object :paged_jobs_filter do
     @desc "limit of records (default 20), if first > 30, only return 30 at most"
@@ -238,8 +252,8 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     field(:scale, :string)
   end
 
-  @desc "posts_filter doc"
-  input_object :paged_posts_filter do
+  @desc "article_filter doc"
+  input_object :paged_videos_filter do
     @desc "limit of records (default 20), if first > 30, only return 30 at most"
     pagination_args()
 
@@ -249,7 +263,7 @@ defmodule MastaniServerWeb.Schema.CMS.Misc do
     field(:read, :read_enum, default_value: :all)
     field(:tag, :string, default_value: :all)
     field(:community, :string)
-    field(:topic, :string)
+    field(:source, :string)
   end
 
   @doc """
