@@ -88,7 +88,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.create_content(%Community{id: community_id}, thread, args, user)
   end
 
-  def update_content(_root, %{passport_source: content, tags: tags} = args, _info) do
+  def update_content(_root, %{passport_source: content, tags: _tags} = args, _info) do
     CMS.update_content(content, args)
   end
 
