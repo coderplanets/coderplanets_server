@@ -276,6 +276,10 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
 
   def tags(:job) do
     city_tags()
+    |> Map.merge(%{
+      title: "remote",
+      color: :cadetblue
+    })
     |> Enum.map(fn attr -> Map.merge(%{thread: :job, topic: "jobs"}, attr) end)
   end
 
@@ -537,6 +541,10 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
 
   def tags(:home, :job) do
     city_tags()
+    |> Map.merge(%{
+      title: "remote",
+      color: :cadetblue
+    })
     |> Enum.map(fn attr -> Map.merge(%{thread: :job, topic: "jobs"}, attr) end)
   end
 
