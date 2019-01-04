@@ -33,7 +33,6 @@ defmodule MastaniServerWeb.Schema.Utils.Helper do
   defmacro article_filter_fields do
     quote do
       field(:when, :when_enum)
-      field(:sort, :sort_enum)
       field(:length, :length_enum)
       field(:read, :read_enum, default_value: :all)
       field(:tag, :string, default_value: :all)

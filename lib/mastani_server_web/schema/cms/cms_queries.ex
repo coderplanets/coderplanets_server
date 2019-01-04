@@ -101,7 +101,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
     @desc "get paged videos"
     field :paged_repos, :paged_repos do
-      arg(:filter, non_null(:paged_article_filter))
+      arg(:filter, non_null(:paged_repos_filter))
 
       middleware(M.PageSizeProof)
       resolve(&R.CMS.paged_repos/3)

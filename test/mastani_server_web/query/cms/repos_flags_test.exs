@@ -34,7 +34,7 @@ defmodule MastaniServer.Test.Query.ReposFlags do
 
   describe "[query repos flags]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedReposFilter!) {
       pagedRepos(filter: $filter) {
         entries {
           id
