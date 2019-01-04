@@ -36,8 +36,8 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   """
   def paged_contents(queryable, filter, user) do
     queryable
-    |> community_with_flag_query(filter)
     |> domain_filter_query(filter)
+    |> community_with_flag_query(filter)
     |> read_state_query(filter, user)
     |> ORM.find_all(filter)
     |> add_pin_contents_ifneed(queryable, filter)
@@ -45,8 +45,8 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
 
   def paged_contents(queryable, filter) do
     queryable
-    |> community_with_flag_query(filter)
     |> domain_filter_query(filter)
+    |> community_with_flag_query(filter)
     |> ORM.find_all(filter)
     # TODO: if filter has when/sort/length/job... then don't
     |> add_pin_contents_ifneed(queryable, filter)
@@ -319,19 +319,6 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  # if filter contains like: tags, sort.., then don't add pin content
-  defp should_add_pin?(%{page: 1, tag: :all, sort: :desc_inserted, read: :all} = filter) do
-    filter
-    |> Map.keys()
-    |> Enum.reject(fn x -> x in [:community, :tag, :sort, :read, :topic, :page, :size] end)
-    |> case do
-      [] -> {:ok, :pass}
-      _ -> {:error, :pass}
-    end
-  end
-
-  defp should_add_pin?(_filter), do: {:error, :pass}
-
   defp add_pin_contents_ifneed(contents, CMS.Job, %{community: _community} = filter) do
     merge_pin_contents(contents, :job, CMS.PinedJob, filter)
   end
@@ -347,7 +334,8 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   defp add_pin_contents_ifneed(contents, _querable, _filter), do: contents
 
   defp merge_pin_contents(contents, thread, pin_schema, %{community: _community} = filter) do
-    with {:ok, normal_contents} <- contents,
+    with {:ok, _} <- should_add_pin?(filter),
+         {:ok, normal_contents} <- contents,
          true <- Map.has_key?(filter, :community),
          true <- 1 == Map.get(normal_contents, :page_number) do
       {:ok, pined_content} =
@@ -366,6 +354,19 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
         contents
     end
   end
+
+  # if filter contains like: tags, sort.., then don't add pin content
+  defp should_add_pin?(%{page: 1, tag: :all, sort: :desc_inserted, read: :all} = filter) do
+    filter
+    |> Map.keys()
+    |> Enum.reject(fn x -> x in [:community, :tag, :sort, :read, :topic, :page, :size] end)
+    |> case do
+      [] -> {:ok, :pass}
+      _ -> {:error, :pass}
+    end
+  end
+
+  defp should_add_pin?(filter), do: {:error, :pass}
 
   defp concat_contents(pined_content, normal_contents) do
     case pined_content |> Map.get(:total_count) do
