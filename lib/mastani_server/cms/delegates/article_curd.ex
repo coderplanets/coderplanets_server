@@ -239,6 +239,16 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     end)
   end
 
+  defp domain_filter_query(CMS.Video = queryable, filter) do
+    Enum.reduce(filter, queryable, fn
+      {:source, source}, queryable ->
+        queryable |> where([content], content.source == ^source)
+
+      {_, _}, queryable ->
+        queryable
+    end)
+  end
+
   defp domain_filter_query(queryable, _filter), do: queryable
 
   # query if user has viewed before

@@ -62,7 +62,7 @@ defmodule MastaniServer.Test.Query.VideoViewer do
   end
 
   @paged_query """
-  query($filter: PagedArticleFilter!) {
+  query($filter: PagedVideosFilter!) {
     pagedVideos(filter: $filter) {
       entries {
         id

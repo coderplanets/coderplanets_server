@@ -29,6 +29,7 @@ defmodule MastaniServer.Support.Factory do
 
   defp mock_meta(:video) do
     desc = Faker.Lorem.sentence(%Range{first: 15, last: 60})
+    source_enum = ["youtube", "bilibil", "vimeo", "other"]
 
     %{
       title: Faker.Lorem.Shakespeare.king_richard_iii(),
@@ -37,7 +38,7 @@ defmodule MastaniServer.Support.Factory do
       desc: desc,
       duration: "03:30",
       duration_sec: Enum.random(300..12_000),
-      source: "youtube",
+      source: source_enum |> Enum.at(Enum.random(0..(length(source_enum) - 1))),
       link: "http://www.youtube.com/video/1",
       original_author: "mydearxym",
       original_author_link: "http://www.youtube.com/user/1",
