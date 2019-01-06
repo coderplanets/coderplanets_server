@@ -354,7 +354,7 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.list_comments_participators(thread, root.id, %{page: 1, size: 20})
   end
 
-  def create_comment(_root, ~m(thread id body)a = args, %{context: %{cur_user: user}}) do
+  def create_comment(_root, ~m(thread id)a = args, %{context: %{cur_user: user}}) do
     CMS.create_comment(thread, id, args, user)
   end
 
@@ -362,8 +362,8 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.delete_comment(thread, id)
   end
 
-  def reply_comment(_root, ~m(thread id body)a, %{context: %{cur_user: user}}) do
-    CMS.reply_comment(thread, id, body, user)
+  def reply_comment(_root, ~m(thread id)a = args, %{context: %{cur_user: user}}) do
+    CMS.reply_comment(thread, id, args, user)
   end
 
   def like_comment(_root, ~m(thread id)a, %{context: %{cur_user: user}}) do
