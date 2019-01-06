@@ -13,7 +13,7 @@ defmodule MastaniServer.Test.PostComment do
 
     body = "this is a test comment"
 
-    {:ok, comment} = CMS.create_comment(:post, post.id, body, user)
+    {:ok, comment} = CMS.create_comment(:post, post.id, %{body: body}, user)
 
     {:ok, ~m(post user comment)a}
   end
@@ -22,7 +22,7 @@ defmodule MastaniServer.Test.PostComment do
     test "login user comment to exsiting post", ~m(post user)a do
       body = "this is a test comment"
 
-      assert {:ok, comment} = CMS.create_comment(:post, post.id, body, user)
+      assert {:ok, comment} = CMS.create_comment(:post, post.id, %{body: body}, user)
 
       assert comment.post_id == post.id
       assert comment.body == body
@@ -32,11 +32,11 @@ defmodule MastaniServer.Test.PostComment do
     test "created comment should have a increased floor number", ~m(post user)a do
       body = "this is a test comment"
 
-      assert {:ok, comment1} = CMS.create_comment(:post, post.id, body, user)
+      assert {:ok, comment1} = CMS.create_comment(:post, post.id, %{body: body}, user)
 
       {:ok, user2} = db_insert(:user)
 
-      assert {:ok, comment2} = CMS.create_comment(:post, post.id, body, user2)
+      assert {:ok, comment2} = CMS.create_comment(:post, post.id, %{body: body}, user2)
 
       assert comment1.floor == 2
       assert comment2.floor == 3
@@ -45,7 +45,7 @@ defmodule MastaniServer.Test.PostComment do
     test "create comment to non-exsit post fails", ~m(user)a do
       body = "this is a test comment"
 
-      assert {:error, _} = CMS.create_comment(:post, non_exsit_id(), body, user)
+      assert {:error, _} = CMS.create_comment(:post, non_exsit_id(), %{body: body}, user)
     end
 
     test "can reply a comment, and reply should be in comment replies list", ~m(comment user)a do
@@ -66,7 +66,7 @@ defmodule MastaniServer.Test.PostComment do
     test "comment can be deleted", ~m(post user)a do
       body = "this is a test comment"
 
-      assert {:ok, comment} = CMS.create_comment(:post, post.id, body, user)
+      assert {:ok, comment} = CMS.create_comment(:post, post.id, %{body: body}, user)
 
       {:ok, deleted} = CMS.delete_comment(:post, comment.id)
       assert deleted.id == comment.id
@@ -80,7 +80,7 @@ defmodule MastaniServer.Test.PostComment do
 
       comments =
         Enum.reduce(1..total, [], fn _, acc ->
-          {:ok, value} = CMS.create_comment(:post, post.id, body, user)
+          {:ok, value} = CMS.create_comment(:post, post.id, %{body: body}, user)
 
           acc ++ [value]
         end)
@@ -121,7 +121,7 @@ defmodule MastaniServer.Test.PostComment do
       body = "fake comment"
 
       Enum.reduce(1..30, [], fn _, acc ->
-        {:ok, value} = CMS.create_comment(:post, post.id, body, user)
+        {:ok, value} = CMS.create_comment(:post, post.id, %{body: body}, user)
 
         acc ++ [value]
       end)

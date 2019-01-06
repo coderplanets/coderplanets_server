@@ -46,10 +46,10 @@ defmodule MastaniServer.Test.Query.VideoComment do
       guest_conn |> query_result(@query, variables, "pagedVideos")
 
       body = "this is a test comment"
-      assert {:ok, _comment} = CMS.create_comment(:video, video.id, body, user)
-      assert {:ok, _comment} = CMS.create_comment(:video, video.id, body, user)
+      assert {:ok, _comment} = CMS.create_comment(:video, video.id, %{body: body}, user)
+      assert {:ok, _comment} = CMS.create_comment(:video, video.id, %{body: body}, user)
 
-      assert {:ok, _comment} = CMS.create_comment(:video, video.id, body, user2)
+      assert {:ok, _comment} = CMS.create_comment(:video, video.id, %{body: body}, user2)
 
       variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedVideos")
@@ -70,12 +70,12 @@ defmodule MastaniServer.Test.Query.VideoComment do
 
       Enum.each(
         users_list,
-        &CMS.create_comment(:video, video1.id, body, &1)
+        &CMS.create_comment(:video, video1.id, %{body: body}, &1)
       )
 
       Enum.each(
         users_list2,
-        &CMS.create_comment(:video, video2.id, body, &1)
+        &CMS.create_comment(:video, video2.id, %{body: body}, &1)
       )
 
       variables = %{thread: "VIDEO", filter: %{community: community.raw}}
@@ -96,7 +96,7 @@ defmodule MastaniServer.Test.Query.VideoComment do
 
       Enum.each(
         users_list,
-        &CMS.create_comment(:video, video.id, body, &1)
+        &CMS.create_comment(:video, video.id, %{body: body}, &1)
       )
 
       variables = %{filter: %{community: community.raw}}
@@ -130,7 +130,7 @@ defmodule MastaniServer.Test.Query.VideoComment do
 
     Enum.each(
       users_list,
-      &CMS.create_comment(:video, video.id, body, &1)
+      &CMS.create_comment(:video, video.id, %{body: body}, &1)
     )
 
     variables = %{id: video.id, thread: "VIDEO", filter: %{page: 1, size: 20}}
@@ -159,7 +159,7 @@ defmodule MastaniServer.Test.Query.VideoComment do
 
       {:ok, community} = db_insert(:community)
       {:ok, video} = CMS.create_content(community, :video, mock_attrs(:video), user)
-      {:ok, _comment} = CMS.create_comment(:video, video.id, body, user)
+      {:ok, _comment} = CMS.create_comment(:video, video.id, %{body: body}, user)
 
       variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedVideos")
@@ -187,7 +187,7 @@ defmodule MastaniServer.Test.Query.VideoComment do
       body = "test comment"
 
       Enum.reduce(1..30, [], fn _, acc ->
-        {:ok, value} = CMS.create_comment(:video, video.id, body, user)
+        {:ok, value} = CMS.create_comment(:video, video.id, %{body: body}, user)
 
         acc ++ [value]
       end)
@@ -204,7 +204,7 @@ defmodule MastaniServer.Test.Query.VideoComment do
 
       comments =
         Enum.reduce(1..10, [], fn _, acc ->
-          {:ok, value} = CMS.create_comment(:video, video.id, body, user)
+          {:ok, value} = CMS.create_comment(:video, video.id, %{body: body}, user)
 
           acc ++ [value]
         end)
@@ -247,7 +247,7 @@ defmodule MastaniServer.Test.Query.VideoComment do
 
       comments =
         Enum.reduce(1..10, [], fn _, acc ->
-          {:ok, value} = CMS.create_comment(:video, video.id, body, user)
+          {:ok, value} = CMS.create_comment(:video, video.id, %{body: body}, user)
 
           acc ++ [value]
         end)
@@ -296,7 +296,7 @@ defmodule MastaniServer.Test.Query.VideoComment do
     test "login user can get hasLiked feedBack", ~m(user_conn video user)a do
       body = "test comment"
 
-      {:ok, comment} = CMS.create_comment(:video, video.id, body, user)
+      {:ok, comment} = CMS.create_comment(:video, video.id, %{body: body}, user)
 
       {:ok, _like} = CMS.like_comment(:video_comment, comment.id, user)
 
@@ -338,7 +338,7 @@ defmodule MastaniServer.Test.Query.VideoComment do
     """
     test "guest user can get replies info", ~m(guest_conn video user)a do
       body = "test comment"
-      {:ok, comment} = CMS.create_comment(:video, video.id, body, user)
+      {:ok, comment} = CMS.create_comment(:video, video.id, %{body: body}, user)
 
       {:ok, reply} = CMS.reply_comment(:video, comment.id, "reply body", user)
 

@@ -11,7 +11,7 @@ defmodule MastaniServer.Test.Mutation.RepoComment do
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
 
-    {:ok, comment} = CMS.create_comment(:repo, repo.id, "test comment", user)
+    {:ok, comment} = CMS.create_comment(:repo, repo.id, %{body: "test comment"}, user)
 
     {:ok, ~m(user_conn guest_conn repo user comment)a}
   end

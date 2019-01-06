@@ -46,10 +46,10 @@ defmodule MastaniServer.Test.Query.RepoComment do
       guest_conn |> query_result(@query, variables, "pagedRepos")
 
       body = "this is a test comment"
-      assert {:ok, _comment} = CMS.create_comment(:repo, repo.id, body, user)
-      assert {:ok, _comment} = CMS.create_comment(:repo, repo.id, body, user)
+      assert {:ok, _comment} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
+      assert {:ok, _comment} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
 
-      assert {:ok, _comment} = CMS.create_comment(:repo, repo.id, body, user2)
+      assert {:ok, _comment} = CMS.create_comment(:repo, repo.id, %{body: body}, user2)
 
       variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
@@ -70,12 +70,12 @@ defmodule MastaniServer.Test.Query.RepoComment do
 
       Enum.each(
         users_list,
-        &CMS.create_comment(:repo, repo1.id, body, &1)
+        &CMS.create_comment(:repo, repo1.id, %{body: body}, &1)
       )
 
       Enum.each(
         users_list2,
-        &CMS.create_comment(:repo, repo2.id, body, &1)
+        &CMS.create_comment(:repo, repo2.id, %{body: body}, &1)
       )
 
       variables = %{thread: "REPO", filter: %{community: community.raw}}
@@ -96,7 +96,7 @@ defmodule MastaniServer.Test.Query.RepoComment do
 
       Enum.each(
         users_list,
-        &CMS.create_comment(:repo, repo.id, body, &1)
+        &CMS.create_comment(:repo, repo.id, %{body: body}, &1)
       )
 
       variables = %{filter: %{community: community.raw}}
@@ -130,7 +130,7 @@ defmodule MastaniServer.Test.Query.RepoComment do
 
     Enum.each(
       users_list,
-      &CMS.create_comment(:repo, repo.id, body, &1)
+      &CMS.create_comment(:repo, repo.id, %{body: body}, &1)
     )
 
     variables = %{id: repo.id, thread: "REPO", filter: %{page: 1, size: 20}}
@@ -159,7 +159,7 @@ defmodule MastaniServer.Test.Query.RepoComment do
 
       {:ok, community} = db_insert(:community)
       {:ok, repo} = CMS.create_content(community, :repo, mock_attrs(:repo), user)
-      {:ok, _comment} = CMS.create_comment(:repo, repo.id, body, user)
+      {:ok, _comment} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
 
       variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
@@ -187,7 +187,7 @@ defmodule MastaniServer.Test.Query.RepoComment do
       body = "test comment"
 
       Enum.reduce(1..30, [], fn _, acc ->
-        {:ok, value} = CMS.create_comment(:repo, repo.id, body, user)
+        {:ok, value} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
 
         acc ++ [value]
       end)
@@ -204,7 +204,7 @@ defmodule MastaniServer.Test.Query.RepoComment do
 
       comments =
         Enum.reduce(1..10, [], fn _, acc ->
-          {:ok, value} = CMS.create_comment(:repo, repo.id, body, user)
+          {:ok, value} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
 
           acc ++ [value]
         end)
@@ -247,7 +247,7 @@ defmodule MastaniServer.Test.Query.RepoComment do
 
       comments =
         Enum.reduce(1..10, [], fn _, acc ->
-          {:ok, value} = CMS.create_comment(:repo, repo.id, body, user)
+          {:ok, value} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
 
           acc ++ [value]
         end)
@@ -296,7 +296,7 @@ defmodule MastaniServer.Test.Query.RepoComment do
     test "login user can get hasLiked feedBack", ~m(user_conn repo user)a do
       body = "test comment"
 
-      {:ok, comment} = CMS.create_comment(:repo, repo.id, body, user)
+      {:ok, comment} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
 
       {:ok, _like} = CMS.like_comment(:repo_comment, comment.id, user)
 
@@ -338,7 +338,7 @@ defmodule MastaniServer.Test.Query.RepoComment do
     """
     test "guest user can get replies info", ~m(guest_conn repo user)a do
       body = "test comment"
-      {:ok, comment} = CMS.create_comment(:repo, repo.id, body, user)
+      {:ok, comment} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
 
       {:ok, reply} = CMS.reply_comment(:repo, comment.id, "reply body", user)
 
