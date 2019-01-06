@@ -340,7 +340,7 @@ defmodule MastaniServer.Test.Query.RepoComment do
       body = "test comment"
       {:ok, comment} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
 
-      {:ok, reply} = CMS.reply_comment(:repo, comment.id, "reply body", user)
+      {:ok, reply} = CMS.reply_comment(:repo, comment.id, %{body: "reply body"}, user)
 
       variables = %{thread: "REPO", id: repo.id, filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedComments")

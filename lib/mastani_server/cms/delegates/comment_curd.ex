@@ -10,7 +10,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   import ShortMaps
 
   alias Helper.{ORM, QueryBuilder}
-  alias MastaniServer.{Repo, Accounts}
+  alias MastaniServer.{Accounts, Repo}
 
   alias MastaniServer.CMS.{PostCommentReply, JobCommentReply, VideoCommentReply, RepoCommentReply}
 
@@ -19,7 +19,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   @doc """
   Creates a comment for psot, job ...
   """
-  def create_comment(thread, content_id, %{body: body} = args, %Accounts.User{id: user_id}) do
+  def create_comment(thread, content_id, %{body: body} = _args, %Accounts.User{id: user_id}) do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, content} <- ORM.find(action.target, content_id),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
@@ -27,7 +27,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
       |> Multi.run(:create_comment, fn _, _ ->
         do_create_comment(thread, action, content, body, user)
       end)
-      |> Multi.run(:mention_users, fn _, %{create_comment: comment} ->
+      |> Multi.run(:mention_users, fn _, %{create_comment: _comment} ->
         # IO.inspect comment, label: "hello the fuck"
         {:ok, :pass}
       end)
@@ -140,7 +140,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     end
   end
 
-  def reply_comment(thread, comment_id, body, %Accounts.User{id: user_id}) do
+  def reply_comment(thread, comment_id, %{body: body} = _args, %Accounts.User{id: user_id}) do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, comment} <- ORM.find(action.reactor, comment_id) do
       next_floor = get_next_floor(thread, action.reactor, comment)
