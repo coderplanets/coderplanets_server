@@ -11,6 +11,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Comment do
       arg(:thread, :cms_thread, default_value: :post)
       arg(:id, non_null(:id))
       arg(:body, non_null(:string))
+      arg(:mention_users, list_of(:ids))
 
       # TDOO: use a comment resolver
       middleware(M.Authorize, :login)
