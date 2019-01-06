@@ -198,6 +198,7 @@ defmodule MastaniServer.Support.Factory do
 
     %{
       title: title,
+      aka: title,
       desc: "community desc",
       raw: title,
       logo: "https://coderplanets.oss-cn-beijing.aliyuncs.com/icons/pl/elixir.svg",
