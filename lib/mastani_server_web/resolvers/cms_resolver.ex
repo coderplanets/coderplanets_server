@@ -5,17 +5,29 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   import ShortMaps
   import Ecto.Query, warn: false
 
+  alias Helper.ORM
   alias MastaniServer.Accounts.User
   alias MastaniServer.CMS
   alias MastaniServer.CMS.{Post, Video, Repo, Job, Community, Category, Tag, Thread}
-  alias Helper.ORM
 
   # #######################
   # community ..
   # #######################
   def community(_root, %{id: id}, _info), do: Community |> ORM.find(id)
-  def community(_root, %{title: title}, _info), do: Community |> ORM.find_by(title: title)
-  def community(_root, %{raw: raw}, _info), do: Community |> ORM.find_by(raw: raw)
+
+  def community(_root, %{title: title}, _info) do
+    case Community |> ORM.find_by(title: title) do
+      {:ok, community} -> {:ok, community}
+      {:error, _} -> Community |> ORM.find_by(aka: title)
+    end
+  end
+
+  def community(_root, %{raw: raw}, _info) do
+    case Community |> ORM.find_by(raw: raw) do
+      {:ok, community} -> {:ok, community}
+      {:error, _} -> Community |> ORM.find_by(aka: raw)
+    end
+  end
 
   def community(_root, _args, _info), do: {:error, "please provide community id or title or raw"}
   def paged_communities(_root, ~m(filter)a, _info), do: Community |> ORM.find_all(filter)

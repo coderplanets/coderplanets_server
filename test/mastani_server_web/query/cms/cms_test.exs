@@ -29,6 +29,18 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       }
     }
     """
+    test "can get from alias community name", ~m(guest_conn)a do
+      {:ok, _community} = db_insert(:community, %{raw: "kubernetes", aka: "k8s"})
+
+      variables = %{raw: "k8s"}
+      aka_results = guest_conn |> query_result(@query, variables, "community")
+
+      variables = %{raw: "kubernetes"}
+      results = guest_conn |> query_result(@query, variables, "community")
+
+      assert results["id"] == aka_results["id"]
+    end
+
     test "can get threads count ", ~m(community guest_conn)a do
       {:ok, threads} = db_insert_multi(:thread, 5)
 
