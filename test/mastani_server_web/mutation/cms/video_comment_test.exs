@@ -11,7 +11,7 @@ defmodule MastaniServer.Test.Mutation.VideoComment do
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
 
-    {:ok, comment} = CMS.create_comment(:video, video.id, "test comment", user)
+    {:ok, comment} = CMS.create_comment(:video, video.id, %{body: "test comment"}, user)
 
     {:ok, ~m(user_conn guest_conn video user comment)a}
   end

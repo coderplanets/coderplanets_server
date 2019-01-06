@@ -19,11 +19,10 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   @doc """
   Creates a comment for psot, job ...
   """
-  def create_comment(thread, content_id, body, %Accounts.User{id: user_id}) do
+  def create_comment(thread, content_id, %{body: body} = args, %Accounts.User{id: user_id}) do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, content} <- ORM.find(action.target, content_id),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
-
       Multi.new()
       |> Multi.run(:create_comment, fn _, _ ->
         do_create_comment(thread, action, content, body, user)
@@ -39,11 +38,13 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
 
   defp do_create_comment(thread, action, content, body, user) do
     next_floor = get_next_floor(thread, action.reactor, content.id)
+
     attrs = %{
       author_id: user.id,
       body: body,
       floor: next_floor
     }
+
     attrs = merge_comment_attrs(thread, attrs, content.id)
 
     action.reactor |> ORM.create(attrs)
