@@ -51,7 +51,6 @@ defmodule MastaniServer.Test.Query.PostsFlags do
       }
     }
     """
-    @tag :wip
     test "if have pined posts, the pined posts should at the top of entries",
          ~m(guest_conn community post_m)a do
       variables = %{filter: %{community: community.raw}}
