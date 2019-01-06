@@ -353,6 +353,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
 
         args = %{
           title: trans(c),
+          aka: c,
           desc: "#{c} is awesome!",
           logo: "#{@oss_endpoint}/icons/#{type}/#{c}.#{ext}",
           raw: c,
