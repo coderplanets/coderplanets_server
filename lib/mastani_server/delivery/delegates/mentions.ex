@@ -69,6 +69,22 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
     {:ok, %{done: :pass}}
   end
 
+  def mention_from_comment(:post, content, args, %User{} = from_user) do
+    to_user_ids = Map.get(args, :mention_users)
+    # topic = Map.get(args, :topic, "posts")
+
+    info = %{
+      source_title: content.title,
+      source_type: "comment",
+      source_id: content.id,
+      source_preview: content.digest
+      # TODO: comment floor
+      # comment_floor: args....
+    }
+
+    mention_others(from_user, to_user_ids, info)
+  end
+
   @doc """
   fetch mentions from Delivery stop
   """

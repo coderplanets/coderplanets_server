@@ -23,18 +23,36 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, content} <- ORM.find(action.target, content_id),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
-      next_floor = get_next_floor(thread, action.reactor, content.id)
 
-      attrs = %{
-        author_id: user.id,
-        body: body,
-        floor: next_floor
-      }
-
-      attrs = merge_comment_attrs(thread, attrs, content.id)
-
-      action.reactor |> ORM.create(attrs)
+      Multi.new()
+      |> Multi.run(:create_comment, fn _, _ ->
+        do_create_comment(thread, action, content, body, user)
+      end)
+      |> Multi.run(:mention_users, fn _, %{create_comment: comment} ->
+        # IO.inspect comment, label: "hello the fuck"
+        {:ok, :pass}
+      end)
+      |> Repo.transaction()
+      |> create_comment_result()
     end
+  end
+
+  defp do_create_comment(thread, action, content, body, user) do
+    next_floor = get_next_floor(thread, action.reactor, content.id)
+    attrs = %{
+      author_id: user.id,
+      body: body,
+      floor: next_floor
+    }
+    attrs = merge_comment_attrs(thread, attrs, content.id)
+
+    action.reactor |> ORM.create(attrs)
+  end
+
+  defp create_comment_result({:ok, %{create_comment: result}}), do: {:ok, result}
+
+  defp create_comment_result({:error, :create_comment, result, _steps}) do
+    {:error, result}
   end
 
   @doc """
