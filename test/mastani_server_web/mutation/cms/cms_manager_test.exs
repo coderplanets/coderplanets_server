@@ -65,7 +65,7 @@ defmodule MastaniServer.Test.Mutation.CMS.Manager do
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       body = "this is a test comment"
-      {:ok, comment} = CMS.create_comment(:post, post.id, body, user)
+      {:ok, comment} = CMS.create_comment(:post, post.id, %{body: body}, user)
       {:ok, _} = ORM.find(CMS.PostComment, comment.id)
 
       deleted = rule_conn |> mutation_result(@query, %{id: post.id}, "deletePost")
