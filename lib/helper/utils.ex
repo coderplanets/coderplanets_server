@@ -130,6 +130,11 @@ defmodule Helper.Utils do
       else: val |> String.to_integer()
   end
 
+  def stringfy(v) when is_binary(v), do: v
+  def stringfy(v) when is_integer(v), do: to_string(v)
+  def stringfy(v) when is_atom(v), do: to_string(v)
+  def stringfy(v), do: v
+
   # TODO: enhance, doc
   def repeat(times, [x]) when is_integer(x), do: to_string(for _ <- 1..times, do: x)
   def repeat(times, x), do: for(_ <- 1..times, do: x)

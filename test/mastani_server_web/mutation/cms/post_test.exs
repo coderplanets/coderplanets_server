@@ -105,9 +105,6 @@ defmodule MastaniServer.Test.Mutation.Post do
         |> Map.merge(%{communityId: community.id})
         |> Map.merge(%{mentionUsers: [%{id: user2.id}]})
 
-      # |> Map.merge(%{mentionUsers: ["id"]})
-      # |> Map.merge(%{mentionUsers: []})
-
       filter = %{page: 1, size: 20, read: false}
       {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
       assert mentions.total_count == 0

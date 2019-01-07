@@ -2,7 +2,7 @@ defmodule MastaniServer.Test.Mutation.JobComment do
   use MastaniServer.TestTools
 
   alias Helper.ORM
-  alias MastaniServer.CMS
+  alias MastaniServer.{CMS, Delivery}
 
   setup do
     {:ok, job} = db_insert(:job)
@@ -21,8 +21,8 @@ defmodule MastaniServer.Test.Mutation.JobComment do
 
   describe "[job comment CURD]" do
     @create_comment_query """
-    mutation($thread: CmsThread, $id: ID!, $body: String!) {
-      createComment(thread: $thread, id: $id, body: $body) {
+    mutation($thread: CmsThread, $id: ID!, $body: String!, $mentionUsers: [Ids]) {
+      createComment(thread: $thread, id: $id, body: $body, mentionUsers: $mentionUsers) {
         id
         body
       }
@@ -35,6 +35,32 @@ defmodule MastaniServer.Test.Mutation.JobComment do
       {:ok, found} = ORM.find(CMS.JobComment, created["id"])
 
       assert created["id"] == to_string(found.id)
+    end
+
+    test "can mention other user when create comment to job", ~m(user_conn job)a do
+      {:ok, user2} = db_insert(:user)
+
+      comment_body = "this is a comment"
+
+      variables =
+        %{thread: "JOB", id: job.id, body: comment_body}
+        |> Map.merge(%{mentionUsers: [%{id: user2.id}]})
+
+      filter = %{page: 1, size: 20, read: false}
+      {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
+      assert mentions.total_count == 0
+
+      _created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
+
+      {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
+      assert mentions.total_count == 1
+      the_mention = mentions.entries |> List.first()
+
+      assert the_mention.source_title == job.title
+      assert the_mention.source_type == "comment"
+      assert the_mention.parent_id == to_string(job.id)
+      assert the_mention.parent_type == "job"
+      assert the_mention.source_preview == comment_body
     end
 
     test "guest user create comment fails", ~m(guest_conn job)a do
