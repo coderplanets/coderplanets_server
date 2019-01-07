@@ -2,7 +2,7 @@ defmodule MastaniServer.Test.Mutation.PostComment do
   use MastaniServer.TestTools
 
   alias Helper.ORM
-  alias MastaniServer.CMS
+  alias MastaniServer.{CMS, Delivery}
 
   setup do
     {:ok, post} = db_insert(:post)
@@ -12,7 +12,7 @@ defmodule MastaniServer.Test.Mutation.PostComment do
     # {:ok, post2} = db_insert(:post)
 
     guest_conn = simu_conn(:guest)
-    user_conn = simu_conn(:user)
+    user_conn = simu_conn(:user, user)
 
     {:ok, comment} = CMS.create_comment(:post, post.id, %{body: "test comment"}, user)
 
@@ -21,8 +21,8 @@ defmodule MastaniServer.Test.Mutation.PostComment do
 
   describe "[post comment CURD]" do
     @create_comment_query """
-    mutation($thread: CmsThread, $id: ID!, $body: String!) {
-      createComment(thread: $thread, id: $id, body: $body) {
+    mutation($thread: CmsThread, $id: ID!, $body: String!, $mentionUsers: [Ids]) {
+      createComment(thread: $thread, id: $id, body: $body, mentionUsers: $mentionUsers) {
         id
         body
       }
@@ -44,11 +44,36 @@ defmodule MastaniServer.Test.Mutation.PostComment do
              |> mutation_get_error?(@create_comment_query, variables, ecode(:account_login))
     end
 
+    test "can mention other user when create comment to post", ~m(user_conn post)a  do
+      {:ok, user2} = db_insert(:user)
+
+      comment_body = "this is a comment"
+      variables =
+        %{thread: "POST", id: post.id, body: comment_body}
+        |> Map.merge(%{mentionUsers: [%{id: user2.id}]})
+
+      filter = %{page: 1, size: 20, read: false}
+      {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
+      assert mentions.total_count == 0
+
+      _created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
+
+      {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
+      assert mentions.total_count == 1
+      the_mention = mentions.entries |> List.first
+
+      assert the_mention.source_title == post.title
+      assert the_mention.source_type == "comment"
+      assert the_mention.parent_id == to_string(post.id)
+      assert the_mention.parent_type == "post"
+      assert the_mention.source_preview == comment_body
+    end
+
     @delete_comment_query """
     mutation($thread: CmsThread, $id: ID!) {
-    deleteComment(thread: $thread, id: $id) {
-      id
-      body
+      deleteComment(thread: $thread, id: $id) {
+        id
+        body
       }
     }
     """
