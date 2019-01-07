@@ -10,7 +10,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   import ShortMaps
 
   alias Helper.{ORM, QueryBuilder}
-  alias MastaniServer.{Accounts, Repo}
+  alias MastaniServer.{Accounts, Delivery, Repo}
 
   alias MastaniServer.CMS.{PostCommentReply, JobCommentReply, VideoCommentReply, RepoCommentReply}
 
@@ -19,7 +19,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   @doc """
   Creates a comment for psot, job ...
   """
-  def create_comment(thread, content_id, %{body: body} = _args, %Accounts.User{id: user_id}) do
+  def create_comment(thread, content_id, %{body: body} = args, %Accounts.User{id: user_id}) do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, content} <- ORM.find(action.target, content_id),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
@@ -27,8 +27,8 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
       |> Multi.run(:create_comment, fn _, _ ->
         do_create_comment(thread, action, content, body, user)
       end)
-      |> Multi.run(:mention_users, fn _, %{create_comment: _comment} ->
-        # IO.inspect comment, label: "hello the fuck"
+      |> Multi.run(:mention_users, fn _, %{create_comment: comment} ->
+        Delivery.mention_from_comment(thread, content, comment, args, user)
         {:ok, :pass}
       end)
       |> Repo.transaction()
