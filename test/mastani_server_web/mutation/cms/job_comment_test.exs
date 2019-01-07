@@ -37,10 +37,11 @@ defmodule MastaniServer.Test.Mutation.JobComment do
       assert created["id"] == to_string(found.id)
     end
 
-    test "can mention other user when create comment to job", ~m(user_conn job)a  do
+    test "can mention other user when create comment to job", ~m(user_conn job)a do
       {:ok, user2} = db_insert(:user)
 
       comment_body = "this is a comment"
+
       variables =
         %{thread: "JOB", id: job.id, body: comment_body}
         |> Map.merge(%{mentionUsers: [%{id: user2.id}]})
@@ -53,7 +54,7 @@ defmodule MastaniServer.Test.Mutation.JobComment do
 
       {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
       assert mentions.total_count == 1
-      the_mention = mentions.entries |> List.first
+      the_mention = mentions.entries |> List.first()
 
       assert the_mention.source_title == job.title
       assert the_mention.source_type == "comment"

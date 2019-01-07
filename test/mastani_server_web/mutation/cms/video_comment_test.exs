@@ -34,10 +34,11 @@ defmodule MastaniServer.Test.Mutation.VideoComment do
       assert created["id"] == to_string(found.id)
     end
 
-    test "can mention other user when create comment to video", ~m(user_conn video)a  do
+    test "can mention other user when create comment to video", ~m(user_conn video)a do
       {:ok, user2} = db_insert(:user)
 
       comment_body = "this is a comment"
+
       variables =
         %{thread: "VIDEO", id: video.id, body: comment_body}
         |> Map.merge(%{mentionUsers: [%{id: user2.id}]})
@@ -50,7 +51,7 @@ defmodule MastaniServer.Test.Mutation.VideoComment do
 
       {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
       assert mentions.total_count == 1
-      the_mention = mentions.entries |> List.first
+      the_mention = mentions.entries |> List.first()
 
       assert the_mention.source_title == video.title
       assert the_mention.source_type == "comment"
