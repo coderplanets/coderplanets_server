@@ -44,10 +44,11 @@ defmodule MastaniServer.Test.Mutation.PostComment do
              |> mutation_get_error?(@create_comment_query, variables, ecode(:account_login))
     end
 
-    test "can mention other user when create comment to post", ~m(user_conn post)a  do
+    test "can mention other user when create comment to post", ~m(user_conn post)a do
       {:ok, user2} = db_insert(:user)
 
       comment_body = "this is a comment"
+
       variables =
         %{thread: "POST", id: post.id, body: comment_body}
         |> Map.merge(%{mentionUsers: [%{id: user2.id}]})
@@ -60,7 +61,7 @@ defmodule MastaniServer.Test.Mutation.PostComment do
 
       {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
       assert mentions.total_count == 1
-      the_mention = mentions.entries |> List.first
+      the_mention = mentions.entries |> List.first()
 
       assert the_mention.source_title == post.title
       assert the_mention.source_type == "comment"

@@ -77,7 +77,7 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
       source_preview: comment.body,
       floor: comment.floor,
       parent_id: content.id,
-      parent_type: thread,
+      parent_type: thread
     }
 
     mention_others(from_user, to_user_ids, info)
