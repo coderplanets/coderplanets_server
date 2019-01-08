@@ -2,7 +2,7 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
   @moduledoc """
   The Delivery context.
   """
-  import Helper.Utils, only: [stringfy: 1]
+  import Helper.Utils, only: [stringfy: 1, integerfy: 1]
   alias MastaniServer.Repo
   alias MastaniServer.Accounts.User
   alias MastaniServer.Delivery.Mention
@@ -22,7 +22,7 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
       Enum.reduce(other_users, [], fn to_user, acc ->
         attrs = %{
           from_user_id: from_user_id,
-          to_user_id: idfy_ifneed(to_user.id),
+          to_user_id: integerfy(to_user.id),
           source_id: stringfy(info.source_id),
           source_title: info.source_title,
           source_type: info.source_type,
@@ -46,9 +46,6 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
     # |> done(:status)
   end
 
-  def idfy_ifneed(id) when is_binary(id), do: String.to_integer(id)
-  def idfy_ifneed(id), do: id
-
   def mention_from_content(:post, content, args, %User{} = from_user) do
     to_user_ids = Map.get(args, :mention_users)
     topic = Map.get(args, :topic, "posts")
@@ -63,9 +60,7 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
     mention_others(from_user, to_user_ids, info)
   end
 
-  def mention_from_content(_, _content, _args, %User{} = _from_user) do
-    {:ok, %{done: :pass}}
-  end
+  def mention_from_content(_thread, _, _, _user), do: {:ok, :pass}
 
   def mention_from_comment(thread, content, comment, args, %User{} = from_user) do
     to_user_ids = Map.get(args, :mention_users)

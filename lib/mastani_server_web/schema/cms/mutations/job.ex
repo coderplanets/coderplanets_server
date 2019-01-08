@@ -29,6 +29,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Job do
 
       arg(:thread, :cms_thread, default_value: :job)
       arg(:tags, list_of(:ids))
+      arg(:mention_users, list_of(:ids))
 
       middleware(M.Authorize, :login)
       middleware(M.PublishThrottle)
