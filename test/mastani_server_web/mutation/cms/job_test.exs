@@ -2,7 +2,7 @@ defmodule MastaniServer.Test.Mutation.Job do
   use MastaniServer.TestTools
 
   alias Helper.ORM
-  alias MastaniServer.CMS
+  alias MastaniServer.{CMS, Delivery}
 
   setup do
     {:ok, job} = db_insert(:job)
@@ -31,6 +31,7 @@ defmodule MastaniServer.Test.Mutation.Job do
       $finance: String!,
       $scale: String!,
       $field: String!,
+      $mentionUsers: [Ids],
       $tags: [Ids]
      ) {
       createJob(
@@ -47,6 +48,7 @@ defmodule MastaniServer.Test.Mutation.Job do
         finance: $finance,
         scale: $scale,
         field: $field,
+        mentionUsers: $mentionUsers,
         tags: $tags
         ) {
           id
@@ -105,6 +107,34 @@ defmodule MastaniServer.Test.Mutation.Job do
 
       assert job.tags |> Enum.any?(&(&1.id == tag1.id))
       assert job.tags |> Enum.any?(&(&1.id == tag2.id))
+    end
+
+    test "can create job with mentionUsers" do
+      {:ok, user} = db_insert(:user)
+      {:ok, user2} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      {:ok, community} = db_insert(:community)
+      job_attr = mock_attrs(:job)
+
+      variables =
+        job_attr
+        |> camelize_map_key
+        |> Map.merge(%{communityId: community.id})
+        |> Map.merge(%{mentionUsers: [%{id: user2.id}]})
+
+      filter = %{page: 1, size: 20, read: false}
+      {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
+      assert mentions.total_count == 0
+
+      _created = user_conn |> mutation_result(@create_job_query, variables, "createJob")
+
+      {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
+      the_mention = mentions.entries |> List.first()
+
+      assert mentions.total_count == 1
+      assert the_mention.source_type == "job"
+      assert the_mention.read == false
     end
 
     @query """

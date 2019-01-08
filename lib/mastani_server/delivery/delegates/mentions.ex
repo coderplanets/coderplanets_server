@@ -60,6 +60,19 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
     mention_others(from_user, to_user_ids, info)
   end
 
+  def mention_from_content(:job, content, args, %User{} = from_user) do
+    to_user_ids = Map.get(args, :mention_users)
+
+    info = %{
+      source_title: content.title,
+      source_type: "job",
+      source_id: content.id,
+      source_preview: content.digest
+    }
+
+    mention_others(from_user, to_user_ids, info)
+  end
+
   def mention_from_content(_thread, _, _, _user), do: {:ok, :pass}
 
   def mention_from_comment(thread, content, comment, args, %User{} = from_user) do
