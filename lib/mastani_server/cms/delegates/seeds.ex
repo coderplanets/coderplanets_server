@@ -28,7 +28,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   # done
   @pl_communities SeedsConfig.communities(:pl)
   @framework_communities SeedsConfig.communities(:framework)
-  @design_communities SeedsConfig.communities(:design)
+  @ui_communities SeedsConfig.communities(:ui)
   @editor_communities SeedsConfig.communities(:editor)
   @database_communities SeedsConfig.communities(:database)
   @devops_communities SeedsConfig.communities(:devops)
@@ -131,11 +131,11 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   @doc """
   seed communities for designs
   """
-  def seed_communities(:design) do
+  def seed_communities(:ui) do
     with {:ok, threads} <- seed_threads(:default),
          {:ok, bot} <- seed_bot(),
          {:ok, _categories} <- seed_categories(bot, :default),
-         {:ok, communities} <- seed_for_communities(bot, :design) do
+         {:ok, communities} <- seed_for_communities(bot, :ui) do
       threadify_communities(communities, threads.entries)
       tagfy_threads(communities, threads.entries, bot)
 
@@ -317,9 +317,9 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
     end
   end
 
-  defp seed_for_communities(bot, :design) do
+  defp seed_for_communities(bot, :ui) do
     with {:error, _} <- ORM.find_by(Community, %{raw: "css"}) do
-      {:ok, _communities} = insert_multi_communities(bot, @design_communities, :design)
+      {:ok, _communities} = insert_multi_communities(bot, @ui_communities, :ui)
     end
   end
 
