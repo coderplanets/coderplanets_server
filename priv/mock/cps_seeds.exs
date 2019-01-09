@@ -4,23 +4,29 @@ alias MastaniServer.CMS
 CMS.seed_communities(:home)
 CMS.seed_communities(:city)
 CMS.seed_communities(:editor)
-CMS.seed_communities(:design)
+CMS.seed_communities(:ui)
 CMS.seed_communities(:blockchain)
 CMS.seed_communities(:devops)
 CMS.seed_communities(:database)
 CMS.seed_communities(:framework)
 CMS.seed_communities(:pl)
 
-CMS.seed_set_category(["css", "antd"], "design")
+CMS.seed_set_category(
+  ["css", "bootstrap", "semantic-ui", "material-design", "fabric", "antd"],
+  "ui"
+)
 
-CMS.seed_set_category(["ios", "android"], "mobile")
+CMS.seed_set_category(
+  ["ios", "android", "flutter", "ionic", "react-native", "weex", "xamarin", "nativescript"],
+  "mobile"
+)
+
 CMS.seed_set_category(["ethereum", "bitcoin"], "blockchain")
 
 CMS.seed_set_category(["tensorflow"], "ai")
 
 CMS.seed_set_category(
   [
-    "flutter",
     "taro",
     "webrtc",
     "wasm",
@@ -28,7 +34,6 @@ CMS.seed_set_category(
     "d3",
     "react",
     "angular",
-    "ionic",
     "meteor",
     "vue",
     "electron"

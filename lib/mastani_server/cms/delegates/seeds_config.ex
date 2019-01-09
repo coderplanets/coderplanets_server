@@ -53,7 +53,6 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
       "drupal",
       "eggjs",
       "electron",
-      "ionic",
       "laravel",
       "meteor",
       "nestjs",
@@ -66,9 +65,15 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
       "zend",
       "vue",
       "angular",
+      "tensorflow",
+      # mobile
       "android",
       "ios",
-      "tensorflow",
+      "react-native",
+      "weex",
+      "xamarin",
+      "nativescript",
+      "ionic",
       # new
       "rxjs",
       "flutter",
@@ -78,8 +83,8 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
     ]
   end
 
-  def communities(:design) do
-    ["css", "antd"]
+  def communities(:ui) do
+    ["css", "bootstrap", "semantic-ui", "material-design", "fabric", "antd"]
   end
 
   def communities(:blockchain) do
@@ -156,8 +161,8 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
         index: 12
       },
       %{
-        title: "design",
-        raw: "design",
+        title: "ui",
+        raw: "ui",
         index: 15
       },
       %{
