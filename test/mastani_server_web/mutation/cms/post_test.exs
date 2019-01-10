@@ -393,6 +393,34 @@ defmodule MastaniServer.Test.Mutation.Post do
       assert community2.id in assoc_communities
     end
 
+    @tag :wip
+    test "when set to multi communiies, the first is the original" do
+      passport_rules = %{"post.community.set" => true}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+      {:ok, user} = db_insert(:user)
+
+      {:ok, community} = db_insert(:community)
+
+      post_attrs = mock_attrs(:post, %{community_id: community.id})
+      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+
+      {:ok, community2} = db_insert(:community)
+      {:ok, community3} = db_insert(:community)
+
+      variables = %{id: post.id, communityId: community.id}
+      rule_conn |> mutation_result(@set_community_query, variables, "setCommunity")
+
+      variables = %{id: post.id, communityId: community2.id}
+      rule_conn |> mutation_result(@set_community_query, variables, "setCommunity")
+
+      variables = %{id: post.id, communityId: community3.id}
+      rule_conn |> mutation_result(@set_community_query, variables, "setCommunity")
+
+      {:ok, found} = ORM.find(CMS.Post, post.id, preload: :communities)
+
+      assert found.communities |> List.first() |> Map.get(:id) == community.id
+    end
+
     @unset_community_query """
     mutation($id: ID!, $communityId: ID!) {
       unsetCommunity(id: $id, communityId: $communityId) {
