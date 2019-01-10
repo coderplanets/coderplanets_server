@@ -97,19 +97,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   @doc """
   trash / untrash articles
   """
-  def set_community_flags(%Post{id: _} = content, community_id, attrs),
-    do: do_set_flag(content, community_id, attrs)
-
-  def set_community_flags(%Job{id: _} = content, community_id, attrs),
-    do: do_set_flag(content, community_id, attrs)
-
-  def set_community_flags(%CMSRepo{id: _} = content, community_id, attrs),
-    do: do_set_flag(content, community_id, attrs)
-
-  def set_community_flags(%Video{id: _} = content, community_id, attrs),
-    do: do_set_flag(content, community_id, attrs)
-
-  defp do_set_flag(content, community_id, attrs) do
+  def set_community_flags(content, community_id, attrs) do
     with {:ok, content} <- ORM.find(content.__struct__, content.id),
          {:ok, community} <- ORM.find(Community, community_id),
          {:ok, record} <- insert_flag_record(content, community.id, attrs) do
