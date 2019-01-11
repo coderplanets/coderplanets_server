@@ -107,7 +107,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
       end)
       |> Multi.run(:set_tag, fn _, %{add_content_author: content} ->
         case attrs |> Map.has_key?(:tags) do
-          true -> set_tags(community, thread, content.id, attrs.tags)
+          true -> set_tags(thread, content.id, attrs.tags)
           false -> {:ok, :pass}
         end
       end)
@@ -422,10 +422,10 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     {:error, [message: "log action", code: ecode(:create_fails)]}
   end
 
-  defp set_tags(community, thread, content_id, tags) do
+  defp set_tags(thread, content_id, tags) do
     try do
       Enum.each(tags, fn tag ->
-        {:ok, _} = ArticleOperation.set_tag(community, thread, %Tag{id: tag.id}, content_id)
+        {:ok, _} = ArticleOperation.set_tag(thread, %Tag{id: tag.id}, content_id)
       end)
 
       {:ok, "psss"}

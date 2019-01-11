@@ -268,8 +268,8 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def update_tag(_root, args, _info), do: CMS.update_tag(args)
 
-  def set_tag(_root, ~m(community_id thread id tag_id)a, _info) do
-    CMS.set_tag(%Community{id: community_id}, thread, %Tag{id: tag_id}, id)
+  def set_tag(_root, ~m(thread id tag_id)a, _info) do
+    CMS.set_tag(thread, %Tag{id: tag_id}, id)
   end
 
   def set_refined_tag(_root, ~m(community_id thread id topic)a, _info) do

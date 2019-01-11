@@ -92,7 +92,7 @@ defmodule MastaniServer.CMS do
   # defdelegate undo_pin_content(queryable, community_id, thread), to: ArticleOperation
 
   # >> tag: set / unset
-  defdelegate set_tag(community, thread, tag, content_id), to: ArticleOperation
+  defdelegate set_tag(thread, tag, content_id), to: ArticleOperation
   defdelegate unset_tag(thread, tag, content_id), to: ArticleOperation
   defdelegate set_refined_tag(community, thread, topic, content_id), to: ArticleOperation
   defdelegate set_refined_tag(community, thread, content_id), to: ArticleOperation

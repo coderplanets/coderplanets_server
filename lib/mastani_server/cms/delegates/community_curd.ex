@@ -104,6 +104,16 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   end
 
   @doc """
+  get all paged tags
+  """
+  def get_tags(%{page: page, size: size} = filter) do
+    Tag
+    |> QueryBuilder.filter_pack(filter)
+    |> ORM.paginater(~m(page size)a)
+    |> done()
+  end
+
+  @doc """
   get tags belongs to a community / thread
   """
   def get_tags(%Community{id: community_id}, thread, topic) when not is_nil(community_id) do
@@ -156,16 +166,6 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
     |> where([t, c], c.raw == ^community_raw and t.thread == ^thread)
     |> distinct([t], t.title)
     |> Repo.all()
-    |> done()
-  end
-
-  @doc """
-  get all paged tags
-  """
-  def get_tags(%{page: page, size: size} = filter) do
-    Tag
-    |> QueryBuilder.filter_pack(filter)
-    |> ORM.paginater(~m(page size)a)
     |> done()
   end
 

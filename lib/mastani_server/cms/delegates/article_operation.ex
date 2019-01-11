@@ -155,7 +155,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   refined tag can't set by this func, use set_refined_tag instead
   """
   # check community first
-  def set_tag(%Community{id: _communitId}, thread, %Tag{id: tag_id}, content_id) do
+  def set_tag(thread, %Tag{id: tag_id}, content_id) do
     with {:ok, action} <- match_action(thread, :tag),
          {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
          {:ok, tag} <- ORM.find(action.reactor, tag_id) do
