@@ -3,7 +3,7 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
 
   alias MastaniServer.Accounts.User
   alias MastaniServer.CMS
-  alias CMS.{Community, Thread, Category}
+  alias CMS.{Community, Category}
 
   setup do
     guest_conn = simu_conn(:guest)
@@ -70,7 +70,7 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
          ~m(guest_conn community)a do
       {:ok, threads} = db_insert_multi(:thread, 5)
 
-      Enum.map(threads, fn thead ->
+      Enum.map(threads, fn thread ->
         CMS.set_thread(community, thread)
       end)
 
