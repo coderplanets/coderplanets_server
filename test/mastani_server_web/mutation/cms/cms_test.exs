@@ -541,8 +541,9 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
       }
     }
     """
+    @tag :wip
     test "auth user can remove thread from community", ~m(user community thread)a do
-      CMS.set_thread(%Community{id: community.id}, %Thread{id: thread.id})
+      CMS.set_thread(community, thread)
       {:ok, found_community} = Community |> ORM.find(community.id, preload: :threads)
 
       assert found_community.threads |> Enum.any?(&(&1.thread_id == thread.id))

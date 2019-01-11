@@ -421,13 +421,13 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
     thread = raw |> String.to_atom()
 
     Enum.each(SeedsConfig.tags(thread), fn attr ->
-      CMS.create_tag(community, thread, attr, %Accounts.User{id: bot.id})
+      CMS.create_tag(community, thread, attr, bot)
     end)
   end
 
   defp set_tags(%Community{} = community, :post, bot, :city) do
     Enum.each(SeedsConfig.tags(:city, :post), fn attr ->
-      CMS.create_tag(community, :post, attr, %Accounts.User{id: bot.id})
+      CMS.create_tag(community, :post, attr, bot)
     end)
   end
 
@@ -435,7 +435,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
     thread = raw |> String.to_atom()
 
     Enum.each(SeedsConfig.tags(:home, thread), fn attr ->
-      CMS.create_tag(community, thread, attr, %Accounts.User{id: bot.id})
+      CMS.create_tag(community, thread, attr, bot)
     end)
   end
 
