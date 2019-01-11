@@ -4,7 +4,7 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
   alias MastaniServer.CMS
   alias MastaniServer.Statistics
 
-  alias CMS.{Category, Community, CommunityEditor, Passport, Tag, Thread}
+  alias CMS.{Category, Community, CommunityEditor, Passport, Tag}
 
   alias Helper.ORM
 
