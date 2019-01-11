@@ -78,7 +78,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Operation do
       resolve(&R.CMS.unsubscribe_community/3)
     end
 
-    @desc "set a tag within community"
+    @desc "set a tag to content"
     field :set_tag, :tag do
       arg(:id, non_null(:id))
       arg(:tag_id, non_null(:id))
@@ -86,13 +86,27 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Operation do
       arg(:thread, :cms_thread, default_value: :post)
 
       middleware(M.Authorize, :login)
-      # middleware(M.PassportLoader, source: :community)
-      # middleware(M.Passport, claim: "cms->c?->t?.tag.set")
+      middleware(M.PassportLoader, source: :community)
+      middleware(M.Passport, claim: "cms->c?->t?.tag.set")
 
       resolve(&R.CMS.set_tag/3)
     end
 
-    @desc "unset a tag within community"
+    @desc "set a refined tag to content"
+    field :set_refined_tag, :tag do
+      arg(:id, non_null(:id))
+      arg(:community_id, non_null(:id))
+      arg(:thread, :cms_thread, default_value: :post)
+      arg(:topic, :string)
+
+      middleware(M.Authorize, :login)
+      middleware(M.PassportLoader, source: :community)
+      middleware(M.Passport, claim: "cms->c?->t?.refinedtag.set")
+
+      resolve(&R.CMS.set_refined_tag/3)
+    end
+
+    @desc "unset a tag to content"
     field :unset_tag, :tag do
       # thread id
       arg(:id, non_null(:id))
@@ -101,10 +115,24 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Operation do
       arg(:thread, :cms_thread, default_value: :post)
 
       middleware(M.Authorize, :login)
-      # middleware(M.PassportLoader, source: :community)
-      # middleware(M.Passport, claim: "cms->c?->t?.tag.unset")
+      middleware(M.PassportLoader, source: :community)
+      middleware(M.Passport, claim: "cms->c?->t?.tag.unset")
 
       resolve(&R.CMS.unset_tag/3)
+    end
+
+    @desc "unset a refined tag to content"
+    field :unset_refined_tag, :tag do
+      arg(:id, non_null(:id))
+      arg(:community_id, non_null(:id))
+      arg(:thread, :cms_thread, default_value: :post)
+      arg(:topic, :string)
+
+      middleware(M.Authorize, :login)
+      middleware(M.PassportLoader, source: :community)
+      middleware(M.Passport, claim: "cms->c?->t?.refinedtag.set")
+
+      resolve(&R.CMS.unset_refined_tag/3)
     end
 
     # TODO: use community loader

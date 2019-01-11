@@ -144,4 +144,117 @@ defmodule MastaniServer.Test.Mutation.Video do
       assert {:error, _} = ORM.find(CMS.Video, deleted["id"])
     end
   end
+
+  describe "[mutation video tag]" do
+    @set_tag_query """
+    mutation($thread: String!, $id: ID!, $tagId: ID! $communityId: ID!) {
+      setTag(thread: $thread, id: $id, tagId: $tagId, communityId: $communityId) {
+        id
+        title
+      }
+    }
+    """
+    @set_refined_tag_query """
+    mutation($communityId: ID!, $thread: CmsThread, $topic: String, $id: ID!) {
+      setRefinedTag(communityId: $communityId, thread: $thread, topic: $topic, id: $id) {
+        id
+        title
+      }
+    }
+    """
+    @tag :wip
+    test "auth user can set a valid tag to video", ~m(video)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, tag} = db_insert(:tag, %{thread: "video", community: community})
+
+      passport_rules = %{community.title => %{"video.tag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      variables = %{thread: "VIDEO", id: video.id, tagId: tag.id, communityId: community.id}
+      rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
+      {:ok, found} = ORM.find(CMS.Video, video.id, preload: :tags)
+
+      assoc_tags = found.tags |> Enum.map(& &1.id)
+      assert tag.id in assoc_tags
+    end
+
+    @tag :wip
+    test "can not set refined tag to video", ~m(video)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, tag} = db_insert(:tag, %{thread: "video", community: community, title: "refined"})
+
+      passport_rules = %{community.title => %{"video.tag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      variables = %{id: video.id, tagId: tag.id, communityId: community.id}
+
+      assert rule_conn |> mutation_get_error?(@set_tag_query, variables)
+    end
+
+    @tag :wip
+    test "auth user can set refined tag to video", ~m(video)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, tag} = db_insert(:tag, %{thread: "video", community: community, title: "refined"})
+
+      passport_rules = %{community.title => %{"video.refinedtag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      variables = %{id: video.id, communityId: community.id, thread: "VIDEO"}
+      rule_conn |> mutation_result(@set_refined_tag_query, variables, "setRefinedTag")
+      {:ok, found} = ORM.find(CMS.Video, video.id, preload: :tags)
+
+      assoc_tags = found.tags |> Enum.map(& &1.id)
+      assert tag.id in assoc_tags
+    end
+
+    @tag :wip
+    test "can set multi tag to a video", ~m(video)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, tag} = db_insert(:tag, %{community: community, thread: "video"})
+      {:ok, tag2} = db_insert(:tag, %{community: community, thread: "video"})
+
+      passport_rules = %{community.title => %{"video.tag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      variables = %{thread: "VIDEO", id: video.id, tagId: tag.id, communityId: community.id}
+      rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
+
+      variables2 = %{thread: "VIDEO", id: video.id, tagId: tag2.id, communityId: community.id}
+      rule_conn |> mutation_result(@set_tag_query, variables2, "setTag")
+
+      {:ok, found} = ORM.find(CMS.Video, video.id, preload: :tags)
+
+      assoc_tags = found.tags |> Enum.map(& &1.id)
+      assert tag.id in assoc_tags
+      assert tag2.id in assoc_tags
+    end
+
+    @unset_refined_tag_query """
+    mutation($communityId: ID!, $thread: CmsThread, $topic: String, $id: ID!) {
+      unsetRefinedTag(communityId: $communityId, thread: $thread, topic: $topic, id: $id) {
+        id
+        title
+      }
+    }
+    """
+    @tag :wip
+    test "can unset refined tag to a video", ~m(video)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, tag} = db_insert(:tag, %{thread: "video", community: community, title: "refined"})
+
+      passport_rules = %{community.title => %{"video.refinedtag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      variables = %{id: video.id, communityId: community.id, thread: "VIDEO"}
+      rule_conn |> mutation_result(@set_refined_tag_query, variables, "setRefinedTag")
+
+      variables = %{id: video.id, communityId: community.id, thread: "VIDEO"}
+      rule_conn |> mutation_result(@unset_refined_tag_query, variables, "unsetRefinedTag")
+
+      {:ok, found} = ORM.find(CMS.Video, video.id, preload: :tags)
+
+      assoc_tags = found.tags |> Enum.map(& &1.id)
+      assert tag.id not in assoc_tags
+    end
+  end
 end

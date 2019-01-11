@@ -249,6 +249,14 @@ defmodule MastaniServer.Test.Mutation.Post do
       }
     }
     """
+    @set_refined_tag_query """
+    mutation($communityId: ID!, $thread: CmsThread, $topic: String, $id: ID!) {
+      setRefinedTag(communityId: $communityId, thread: $thread, topic: $topic, id: $id) {
+        id
+        title
+      }
+    }
+    """
     test "auth user can set a valid tag to post", ~m(post)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
@@ -258,6 +266,56 @@ defmodule MastaniServer.Test.Mutation.Post do
 
       variables = %{id: post.id, tagId: tag.id, communityId: community.id}
       rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
+      {:ok, found} = ORM.find(CMS.Post, post.id, preload: :tags)
+
+      assoc_tags = found.tags |> Enum.map(& &1.id)
+      assert tag.id in assoc_tags
+    end
+
+    @tag :wip
+    test "can not set refined tag to post", ~m(post)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, _tag} = db_insert(:tag, %{thread: "post", community: community, title: "refined"})
+
+      passport_rules = %{community.title => %{"post.tag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      variables = %{id: post.id, communityId: community.id}
+
+      assert rule_conn |> mutation_get_error?(@set_tag_query, variables)
+    end
+
+    @tag :wip
+    test "auth user can set refined tag to post", ~m(post)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, tag} = db_insert(:tag, %{thread: "post", community: community, title: "refined"})
+
+      passport_rules = %{community.title => %{"post.refinedtag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      variables = %{id: post.id, communityId: community.id}
+      rule_conn |> mutation_result(@set_refined_tag_query, variables, "setRefinedTag")
+      {:ok, found} = ORM.find(CMS.Post, post.id, preload: :tags)
+
+      assoc_tags = found.tags |> Enum.map(& &1.id)
+      assert tag.id in assoc_tags
+    end
+
+    @tag :wip
+    test "auth user can set refined tag to post of spec topic", ~m(post)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, user} = db_insert(:user)
+
+      tag_attrs =
+        mock_attrs(:tag, %{thread: "post", community: community, title: "refined", topic: "tech"})
+
+      {:ok, tag} = CMS.create_tag(community, :post, tag_attrs, user)
+
+      passport_rules = %{community.title => %{"post.refinedtag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      variables = %{id: post.id, communityId: community.id, topic: "tech"}
+      rule_conn |> mutation_result(@set_refined_tag_query, variables, "setRefinedTag")
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :tags)
 
       assoc_tags = found.tags |> Enum.map(& &1.id)
@@ -305,7 +363,15 @@ defmodule MastaniServer.Test.Mutation.Post do
       }
     }
     """
-    test "can unset tag from a post", ~m(post)a do
+    @unset_refined_tag_query """
+    mutation($communityId: ID!, $thread: CmsThread, $topic: String, $id: ID!) {
+      unsetRefinedTag(communityId: $communityId, thread: $thread, topic: $topic, id: $id) {
+        id
+        title
+      }
+    }
+    """
+    test "can unset tag to a post", ~m(post)a do
       {:ok, community} = db_insert(:community)
 
       passport_rules = %{community.title => %{"post.tag.set" => true}}
@@ -336,6 +402,51 @@ defmodule MastaniServer.Test.Mutation.Post do
 
       assert tag.id not in assoc_tags
       assert tag2.id in assoc_tags
+    end
+
+    @tag :wip
+    test "can unset refined tag to a post", ~m(post)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, tag} = db_insert(:tag, %{thread: "post", community: community, title: "refined"})
+
+      passport_rules = %{community.title => %{"post.refinedtag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      variables = %{id: post.id, communityId: community.id}
+      rule_conn |> mutation_result(@set_refined_tag_query, variables, "setRefinedTag")
+
+      variables = %{id: post.id, communityId: community.id}
+      rule_conn |> mutation_result(@unset_refined_tag_query, variables, "unsetRefinedTag")
+
+      {:ok, found} = ORM.find(CMS.Post, post.id, preload: :tags)
+
+      assoc_tags = found.tags |> Enum.map(& &1.id)
+      assert tag.id not in assoc_tags
+    end
+
+    @tag :wip
+    test "can unset refined tag to a post of spec topic", ~m(post)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, user} = db_insert(:user)
+
+      tag_attrs =
+        mock_attrs(:tag, %{thread: "post", community: community, title: "refined", topic: "tech"})
+
+      {:ok, tag} = CMS.create_tag(community, :post, tag_attrs, user)
+
+      passport_rules = %{community.title => %{"post.refinedtag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      variables = %{id: post.id, communityId: community.id, topic: "tech"}
+      rule_conn |> mutation_result(@set_refined_tag_query, variables, "setRefinedTag")
+
+      variables = %{id: post.id, communityId: community.id, topic: "tech"}
+      rule_conn |> mutation_result(@unset_refined_tag_query, variables, "unsetRefinedTag")
+
+      {:ok, found} = ORM.find(CMS.Post, post.id, preload: :tags)
+
+      assoc_tags = found.tags |> Enum.map(& &1.id)
+      assert tag.id not in assoc_tags
     end
   end
 
@@ -393,7 +504,6 @@ defmodule MastaniServer.Test.Mutation.Post do
       assert community2.id in assoc_communities
     end
 
-    @tag :wip
     test "when set to multi communiies, the first is the original" do
       passport_rules = %{"post.community.set" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
