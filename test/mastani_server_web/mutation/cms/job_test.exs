@@ -198,6 +198,7 @@ defmodule MastaniServer.Test.Mutation.Job do
       assert updated["tags"] |> Enum.any?(&(&1["id"] == to_string(tag.id)))
     end
 
+    @tag :wip
     test "update job tags will replace old city-tags", ~m(owner_conn user job)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
@@ -208,7 +209,7 @@ defmodule MastaniServer.Test.Mutation.Job do
       {:ok, tag2} =
         CMS.create_tag(%CMS.Community{id: community2.id}, :job, mock_attrs(:tag), user)
 
-      {:ok, _} = CMS.set_tag(community2, :job, tag2, job.id)
+      {:ok, _} = CMS.set_tag(:job, tag2, job.id)
 
       variables = %{
         id: job.id,

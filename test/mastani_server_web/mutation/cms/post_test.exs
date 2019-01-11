@@ -257,6 +257,7 @@ defmodule MastaniServer.Test.Mutation.Post do
       }
     }
     """
+    @tag :wip
     test "auth user can set a valid tag to post", ~m(post)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
@@ -275,12 +276,12 @@ defmodule MastaniServer.Test.Mutation.Post do
     @tag :wip
     test "can not set refined tag to post", ~m(post)a do
       {:ok, community} = db_insert(:community)
-      {:ok, _tag} = db_insert(:tag, %{thread: "post", community: community, title: "refined"})
+      {:ok, tag} = db_insert(:tag, %{thread: "post", community: community, title: "refined"})
 
       passport_rules = %{community.title => %{"post.tag.set" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      variables = %{id: post.id, communityId: community.id}
+      variables = %{id: post.id, tagId: tag.id}
 
       assert rule_conn |> mutation_get_error?(@set_tag_query, variables)
     end

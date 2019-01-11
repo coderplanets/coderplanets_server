@@ -82,6 +82,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Operation do
     field :set_tag, :tag do
       arg(:id, non_null(:id))
       arg(:tag_id, non_null(:id))
+      # community_id only use for passport check
       arg(:community_id, non_null(:id))
       arg(:thread, :cms_thread, default_value: :post)
 
