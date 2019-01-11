@@ -272,8 +272,24 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.set_tag(%Community{id: community_id}, thread, %Tag{id: tag_id}, id)
   end
 
+  def set_refined_tag(_root, ~m(community_id thread id topic)a, _info) do
+    CMS.set_refined_tag(%Community{id: community_id}, thread, topic, id)
+  end
+
+  def set_refined_tag(_root, ~m(community_id thread id)a, _info) do
+    CMS.set_refined_tag(%Community{id: community_id}, thread, id)
+  end
+
   def unset_tag(_root, ~m(id thread tag_id)a, _info) do
     CMS.unset_tag(thread, %Tag{id: tag_id}, id)
+  end
+
+  def unset_refined_tag(_root, ~m(community_id thread id topic)a, _info) do
+    CMS.unset_refined_tag(%Community{id: community_id}, thread, topic, id)
+  end
+
+  def unset_refined_tag(_root, ~m(community_id thread id)a, _info) do
+    CMS.unset_refined_tag(%Community{id: community_id}, thread, id)
   end
 
   def get_tags(_root, %{community_id: community_id, all: true}, _info) do

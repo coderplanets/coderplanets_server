@@ -94,6 +94,10 @@ defmodule MastaniServer.CMS do
   # >> tag: set / unset
   defdelegate set_tag(community, thread, tag, content_id), to: ArticleOperation
   defdelegate unset_tag(thread, tag, content_id), to: ArticleOperation
+  defdelegate set_refined_tag(community, thread, topic, content_id), to: ArticleOperation
+  defdelegate set_refined_tag(community, thread, content_id), to: ArticleOperation
+  defdelegate unset_refined_tag(community, thread, topic, content_id), to: ArticleOperation
+  defdelegate unset_refined_tag(community, thread, content_id), to: ArticleOperation
   # >> community: set / unset
   defdelegate set_community(community, thread, content_id), to: ArticleOperation
   defdelegate unset_community(community, thread, content_id), to: ArticleOperation
