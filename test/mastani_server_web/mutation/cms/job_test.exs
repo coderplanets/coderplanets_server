@@ -180,11 +180,12 @@ defmodule MastaniServer.Test.Mutation.Job do
       assert updated["salary"] == variables.salary
     end
 
+    @tag :wip
     test "job can be update along with tags(city)", ~m(owner_conn user job)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
       {:ok, community} = db_insert(:community)
-      {:ok, tag} = CMS.create_tag(%CMS.Community{id: community.id}, :job, mock_attrs(:tag), user)
+      {:ok, tag} = CMS.create_tag(community, :job, mock_attrs(:tag), user)
 
       variables = %{
         id: job.id,
@@ -204,10 +205,8 @@ defmodule MastaniServer.Test.Mutation.Job do
 
       {:ok, community} = db_insert(:community)
       {:ok, community2} = db_insert(:community)
-      {:ok, tag} = CMS.create_tag(%CMS.Community{id: community.id}, :job, mock_attrs(:tag), user)
-
-      {:ok, tag2} =
-        CMS.create_tag(%CMS.Community{id: community2.id}, :job, mock_attrs(:tag), user)
+      {:ok, tag} = CMS.create_tag(community, :job, mock_attrs(:tag), user)
+      {:ok, tag2} = CMS.create_tag(community2, :job, mock_attrs(:tag), user)
 
       {:ok, _} = CMS.set_tag(:job, tag2, job.id)
 

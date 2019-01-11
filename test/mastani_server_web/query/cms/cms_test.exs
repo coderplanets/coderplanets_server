@@ -41,11 +41,12 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       assert results["id"] == aka_results["id"]
     end
 
+    @tag :wip
     test "can get threads count ", ~m(community guest_conn)a do
       {:ok, threads} = db_insert_multi(:thread, 5)
 
-      Enum.map(threads, fn t ->
-        CMS.set_thread(%Community{id: community.id}, %Thread{id: t.id})
+      Enum.map(threads, fn thread ->
+        CMS.set_thread(community, thread)
       end)
 
       variables = %{raw: community.raw}
@@ -54,16 +55,12 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       assert results["threadsCount"] == 5
     end
 
+    @tag :wip
     test "can get tags count ", ~m(community guest_conn user)a do
       {:ok, _tags} = db_insert_multi(:tag, 5)
 
-      CMS.create_tag(%Community{id: community.id}, :post, mock_attrs(:tag), %User{
-        id: user.id
-      })
-
-      CMS.create_tag(%Community{id: community.id}, :post, mock_attrs(:tag), %User{
-        id: user.id
-      })
+      CMS.create_tag(community, :post, mock_attrs(:tag), user)
+      CMS.create_tag(community, :post, mock_attrs(:tag), user)
 
       variables = %{raw: community.raw}
       results = guest_conn |> query_result(@query, variables, "community")
@@ -71,12 +68,13 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       assert results["tagsCount"] == 2
     end
 
+    @tag :wip
     test "guest use get community threads with default asc sort index",
          ~m(guest_conn community)a do
       {:ok, threads} = db_insert_multi(:thread, 5)
 
-      Enum.map(threads, fn t ->
-        CMS.set_thread(%Community{id: community.id}, %Thread{id: t.id})
+      Enum.map(threads, fn thead ->
+        CMS.set_thread(community, thread)
       end)
 
       variables = %{id: community.id}
@@ -287,13 +285,12 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       }
     }
     """
+    @tag :wip
     test "guest user can get paged tags", ~m(guest_conn community user)a do
       variables = %{filter: %{page: 1, size: 10}}
 
       valid_attrs = mock_attrs(:tag, %{user_id: user.id})
-
-      {:ok, _} =
-        CMS.create_tag(%Community{id: community.id}, :post, valid_attrs, %User{id: user.id})
+      {:ok, _} = CMS.create_tag(community, :post, valid_attrs, user)
 
       results = guest_conn |> query_result(@query, variables, "tags")
 
@@ -345,9 +342,7 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
 
     test "user can get partial tags by default index topic", ~m(guest_conn community user)a do
       valid_attrs = mock_attrs(:tag)
-
-      {:ok, _tag} =
-        CMS.create_tag(%Community{id: community.id}, :post, valid_attrs, %User{id: user.id})
+      {:ok, _tag} = CMS.create_tag(community, :post, valid_attrs, user)
 
       variables = %{thread: "POST", communityId: community.id, topic: "posts"}
       results = guest_conn |> query_result(@query, variables, "partialTags")
