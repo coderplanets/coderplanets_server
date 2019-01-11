@@ -180,7 +180,6 @@ defmodule MastaniServer.Test.Mutation.Job do
       assert updated["salary"] == variables.salary
     end
 
-    @tag :wip
     test "job can be update along with tags(city)", ~m(owner_conn user job)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
@@ -199,7 +198,6 @@ defmodule MastaniServer.Test.Mutation.Job do
       assert updated["tags"] |> Enum.any?(&(&1["id"] == to_string(tag.id)))
     end
 
-    @tag :wip
     test "update job tags will replace old city-tags", ~m(owner_conn user job)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
@@ -299,7 +297,6 @@ defmodule MastaniServer.Test.Mutation.Job do
       }
     }
     """
-    @tag :wip
     test "auth user can set a valid tag to job", ~m(job)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "job", community: community})
@@ -315,7 +312,6 @@ defmodule MastaniServer.Test.Mutation.Job do
       assert tag.id in assoc_tags
     end
 
-    @tag :wip
     test "can not set refined tag to job", ~m(job)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "job", community: community, title: "refined"})
@@ -328,7 +324,6 @@ defmodule MastaniServer.Test.Mutation.Job do
       assert rule_conn |> mutation_get_error?(@set_tag_query, variables)
     end
 
-    @tag :wip
     test "auth user can set refined tag to job", ~m(job)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "job", community: community, title: "refined"})
@@ -385,7 +380,6 @@ defmodule MastaniServer.Test.Mutation.Job do
       }
     }
     """
-    @tag :wip
     test "can unset refined tag to a job", ~m(job)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "job", community: community, title: "refined"})

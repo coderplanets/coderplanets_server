@@ -41,7 +41,6 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       assert results["id"] == aka_results["id"]
     end
 
-    @tag :wip
     test "can get threads count ", ~m(community guest_conn)a do
       {:ok, threads} = db_insert_multi(:thread, 5)
 
@@ -55,7 +54,6 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       assert results["threadsCount"] == 5
     end
 
-    @tag :wip
     test "can get tags count ", ~m(community guest_conn user)a do
       {:ok, _tags} = db_insert_multi(:tag, 5)
 
@@ -68,7 +66,6 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       assert results["tagsCount"] == 2
     end
 
-    @tag :wip
     test "guest use get community threads with default asc sort index",
          ~m(guest_conn community)a do
       {:ok, threads} = db_insert_multi(:thread, 5)
@@ -285,7 +282,6 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       }
     }
     """
-    @tag :wip
     test "guest user can get paged tags", ~m(guest_conn community user)a do
       variables = %{filter: %{page: 1, size: 10}}
 
