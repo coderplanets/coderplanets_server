@@ -162,7 +162,6 @@ defmodule MastaniServer.Test.Mutation.Video do
       }
     }
     """
-    @tag :wip
     test "auth user can set a valid tag to video", ~m(video)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "video", community: community})
@@ -178,7 +177,6 @@ defmodule MastaniServer.Test.Mutation.Video do
       assert tag.id in assoc_tags
     end
 
-    @tag :wip
     test "can not set refined tag to video", ~m(video)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "video", community: community, title: "refined"})
@@ -191,7 +189,6 @@ defmodule MastaniServer.Test.Mutation.Video do
       assert rule_conn |> mutation_get_error?(@set_tag_query, variables)
     end
 
-    @tag :wip
     test "auth user can set refined tag to video", ~m(video)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "video", community: community, title: "refined"})
@@ -207,7 +204,6 @@ defmodule MastaniServer.Test.Mutation.Video do
       assert tag.id in assoc_tags
     end
 
-    @tag :wip
     test "can set multi tag to a video", ~m(video)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{community: community, thread: "video"})
@@ -237,7 +233,6 @@ defmodule MastaniServer.Test.Mutation.Video do
       }
     }
     """
-    @tag :wip
     test "can unset refined tag to a video", ~m(video)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "video", community: community, title: "refined"})

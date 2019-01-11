@@ -70,7 +70,6 @@ defmodule MastaniServer.Test.CMS do
       assert updated.title == "new title"
     end
 
-    @tag :wip
     test "update title to existing title fails", ~m(user)a do
       valid_attrs = mock_attrs(:category, %{user_id: user.id})
       ~m(title raw)a = valid_attrs
@@ -83,7 +82,6 @@ defmodule MastaniServer.Test.CMS do
       {:error, _} = CMS.update_category(%Category{id: category.id, title: category2.title})
     end
 
-    @tag :wip
     test "can set a category to a community", ~m(community category)a do
       {:ok, _} = CMS.set_category(community, category)
 
@@ -97,7 +95,6 @@ defmodule MastaniServer.Test.CMS do
       assert community.id in assoc_communities
     end
 
-    @tag :wip
     test "can unset a category to a community", ~m(community category)a do
       {:ok, _} = CMS.set_category(community, category)
       CMS.unset_category(community, category)
@@ -167,7 +164,6 @@ defmodule MastaniServer.Test.CMS do
       assert {:error, _error} = CMS.create_thread(~m(title raw)a)
     end
 
-    @tag :wip
     test "can set a thread to community", ~m(community)a do
       title = "POST"
       raw = title
@@ -181,7 +177,6 @@ defmodule MastaniServer.Test.CMS do
   describe "[cms community editors]" do
     alias CMS.{Community, CommunityEditor}
 
-    @tag :wip
     test "can add editor to a community, editor has default passport", ~m(user community)a do
       title = "chief editor"
 

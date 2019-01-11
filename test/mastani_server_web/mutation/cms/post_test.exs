@@ -257,7 +257,6 @@ defmodule MastaniServer.Test.Mutation.Post do
       }
     }
     """
-    @tag :wip
     test "auth user can set a valid tag to post", ~m(post)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
@@ -273,7 +272,6 @@ defmodule MastaniServer.Test.Mutation.Post do
       assert tag.id in assoc_tags
     end
 
-    @tag :wip
     test "can not set refined tag to post", ~m(post)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "post", community: community, title: "refined"})
@@ -286,7 +284,6 @@ defmodule MastaniServer.Test.Mutation.Post do
       assert rule_conn |> mutation_get_error?(@set_tag_query, variables)
     end
 
-    @tag :wip
     test "auth user can set refined tag to post", ~m(post)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "post", community: community, title: "refined"})
@@ -302,7 +299,6 @@ defmodule MastaniServer.Test.Mutation.Post do
       assert tag.id in assoc_tags
     end
 
-    @tag :wip
     test "auth user can set refined tag to post of spec topic", ~m(post)a do
       {:ok, community} = db_insert(:community)
       {:ok, user} = db_insert(:user)
@@ -405,7 +401,6 @@ defmodule MastaniServer.Test.Mutation.Post do
       assert tag2.id in assoc_tags
     end
 
-    @tag :wip
     test "can unset refined tag to a post", ~m(post)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "post", community: community, title: "refined"})
@@ -425,7 +420,6 @@ defmodule MastaniServer.Test.Mutation.Post do
       assert tag.id not in assoc_tags
     end
 
-    @tag :wip
     test "can unset refined tag to a post of spec topic", ~m(post)a do
       {:ok, community} = db_insert(:community)
       {:ok, user} = db_insert(:user)
