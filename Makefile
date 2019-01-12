@@ -154,6 +154,10 @@ reseeds.mock:
 	env MIX_ENV=mock mix ecto.reset
 	env MIX_ENV=mock mix cps.seeds
 
+reseeds.test:
+	env MIX_ENV=test mix ecto.reset
+	env MIX_ENV=test mix cps.seeds
+
 test.help:
 	$(call test.help)
 	@echo "\n"
