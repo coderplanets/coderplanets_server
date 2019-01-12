@@ -156,7 +156,12 @@ defmodule MastaniServer.Test.Mutation.Video do
     """
     @set_refined_tag_query """
     mutation($communityId: ID!, $thread: CmsThread, $topic: String, $id: ID!) {
-      setRefinedTag(communityId: $communityId, thread: $thread, topic: $topic, id: $id) {
+      setRefinedTag(
+        communityId: $communityId
+        thread: $thread
+        topic: $topic
+        id: $id
+      ) {
         id
         title
       }
@@ -227,7 +232,12 @@ defmodule MastaniServer.Test.Mutation.Video do
 
     @unset_refined_tag_query """
     mutation($communityId: ID!, $thread: CmsThread, $topic: String, $id: ID!) {
-      unsetRefinedTag(communityId: $communityId, thread: $thread, topic: $topic, id: $id) {
+      unsetRefinedTag(
+        communityId: $communityId
+        thread: $thread
+        topic: $topic
+        id: $id
+      ) {
         id
         title
       }
