@@ -29,6 +29,17 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       }
     }
     """
+    # @tag :cache
+    # test "make sure apollo cache works", ~m(guest_conn)a do
+    # {:ok, _community} = db_insert(:community, %{raw: "cacheme"})
+
+    # variables = %{raw: "cacheme"}
+    # guest_conn |> query_result(@query, variables, "community")
+
+    # variables = %{raw: "cacheme"}
+    # guest_conn |> query_result(@query, variables, "community")
+    # end
+
     test "can get from alias community name", ~m(guest_conn)a do
       {:ok, _community} = db_insert(:community, %{raw: "kubernetes", aka: "k8s"})
 
