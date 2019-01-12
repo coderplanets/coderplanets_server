@@ -478,7 +478,6 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
         color: :yellow
       },
       %{
-        # 个人作品
         title: "personal-project",
         color: :green
       },
@@ -486,7 +485,6 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
         title: "tools-libs",
         color: :cyan
       },
-
       # %{
       # title: "architecture",
       # color: :blue
