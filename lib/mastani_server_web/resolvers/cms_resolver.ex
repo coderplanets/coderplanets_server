@@ -5,17 +5,29 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   import ShortMaps
   import Ecto.Query, warn: false
 
+  alias Helper.ORM
   alias MastaniServer.Accounts.User
   alias MastaniServer.CMS
   alias MastaniServer.CMS.{Post, Video, Repo, Job, Community, Category, Tag, Thread}
-  alias Helper.ORM
 
   # #######################
   # community ..
   # #######################
   def community(_root, %{id: id}, _info), do: Community |> ORM.find(id)
-  def community(_root, %{title: title}, _info), do: Community |> ORM.find_by(title: title)
-  def community(_root, %{raw: raw}, _info), do: Community |> ORM.find_by(raw: raw)
+
+  def community(_root, %{title: title}, _info) do
+    case Community |> ORM.find_by(title: title) do
+      {:ok, community} -> {:ok, community}
+      {:error, _} -> Community |> ORM.find_by(aka: title)
+    end
+  end
+
+  def community(_root, %{raw: raw}, _info) do
+    case Community |> ORM.find_by(raw: raw) do
+      {:ok, community} -> {:ok, community}
+      {:error, _} -> Community |> ORM.find_by(aka: raw)
+    end
+  end
 
   def community(_root, _args, _info), do: {:error, "please provide community id or title or raw"}
   def paged_communities(_root, ~m(filter)a, _info), do: Community |> ORM.find_all(filter)
@@ -60,13 +72,36 @@ defmodule MastaniServerWeb.Resolvers.CMS do
   def wiki(_root, ~m(community)a, _info), do: CMS.get_wiki(%Community{raw: community})
   def cheatsheet(_root, ~m(community)a, _info), do: CMS.get_cheatsheet(%Community{raw: community})
 
+  def paged_posts(_root, ~m(filter)a, %{context: %{cur_user: user}}) do
+    Post |> CMS.paged_contents(filter, user)
+  end
+
   def paged_posts(_root, ~m(filter)a, _info), do: Post |> CMS.paged_contents(filter)
+
+  def paged_videos(_root, ~m(filter)a, %{context: %{cur_user: user}}) do
+    Video |> CMS.paged_contents(filter, user)
+  end
+
   def paged_videos(_root, ~m(filter)a, _info), do: Video |> CMS.paged_contents(filter)
+
+  def paged_repos(_root, ~m(filter)a, %{context: %{cur_user: user}}) do
+    Repo |> CMS.paged_contents(filter, user)
+  end
+
   def paged_repos(_root, ~m(filter)a, _info), do: Repo |> CMS.paged_contents(filter)
+
+  def paged_jobs(_root, ~m(filter)a, %{context: %{cur_user: user}}) do
+    Job |> CMS.paged_contents(filter, user)
+  end
+
   def paged_jobs(_root, ~m(filter)a, _info), do: Job |> CMS.paged_contents(filter)
 
   def create_content(_root, ~m(community_id thread)a = args, %{context: %{cur_user: user}}) do
     CMS.create_content(%Community{id: community_id}, thread, args, user)
+  end
+
+  def update_content(_root, %{passport_source: content, tags: _tags} = args, _info) do
+    CMS.update_content(content, args)
   end
 
   def update_content(_root, %{passport_source: content} = args, _info) do
@@ -233,12 +268,36 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def update_tag(_root, args, _info), do: CMS.update_tag(args)
 
-  def set_tag(_root, ~m(community_id thread id tag_id)a, _info) do
-    CMS.set_tag(%Community{id: community_id}, thread, %Tag{id: tag_id}, id)
+  def set_tag(_root, ~m(thread id tag_id)a, _info) do
+    CMS.set_tag(thread, %Tag{id: tag_id}, id)
+  end
+
+  def set_refined_tag(_root, ~m(community_id thread id topic)a, _info) do
+    CMS.set_refined_tag(%Community{id: community_id}, thread, topic, id)
+  end
+
+  def set_refined_tag(_root, ~m(community_id thread id)a, _info) do
+    CMS.set_refined_tag(%Community{id: community_id}, thread, id)
   end
 
   def unset_tag(_root, ~m(id thread tag_id)a, _info) do
     CMS.unset_tag(thread, %Tag{id: tag_id}, id)
+  end
+
+  def unset_refined_tag(_root, ~m(community_id thread id topic)a, _info) do
+    CMS.unset_refined_tag(%Community{id: community_id}, thread, topic, id)
+  end
+
+  def unset_refined_tag(_root, ~m(community_id thread id)a, _info) do
+    CMS.unset_refined_tag(%Community{id: community_id}, thread, id)
+  end
+
+  def get_tags(_root, %{community_id: community_id, all: true}, _info) do
+    CMS.get_tags(%Community{id: community_id})
+  end
+
+  def get_tags(_root, %{community: community, all: true}, _info) do
+    CMS.get_tags(%Community{raw: community})
   end
 
   def get_tags(_root, ~m(community_id thread topic)a, _info) do
@@ -282,6 +341,12 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.community_members(:subscribers, %Community{id: id}, filter)
   end
 
+  def community_subscribers(_root, ~m(community filter)a, _info) do
+    CMS.community_members(:subscribers, %Community{raw: community}, filter)
+  end
+
+  def community_subscribers(_root, _args, _info), do: {:error, "invalid args"}
+
   def set_community(_root, ~m(thread id community_id)a, _info) do
     CMS.set_community(%Community{id: community_id}, thread, id)
   end
@@ -305,16 +370,16 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.list_comments_participators(thread, root.id, %{page: 1, size: 20})
   end
 
-  def create_comment(_root, ~m(thread id body)a, %{context: %{cur_user: user}}) do
-    CMS.create_comment(thread, id, body, user)
+  def create_comment(_root, ~m(thread id)a = args, %{context: %{cur_user: user}}) do
+    CMS.create_comment(thread, id, args, user)
   end
 
   def delete_comment(_root, ~m(thread id)a, _info) do
     CMS.delete_comment(thread, id)
   end
 
-  def reply_comment(_root, ~m(thread id body)a, %{context: %{cur_user: user}}) do
-    CMS.reply_comment(thread, id, body, user)
+  def reply_comment(_root, ~m(thread id)a = args, %{context: %{cur_user: user}}) do
+    CMS.reply_comment(thread, id, args, user)
   end
 
   def like_comment(_root, ~m(thread id)a, %{context: %{cur_user: user}}) do
@@ -358,5 +423,16 @@ defmodule MastaniServerWeb.Resolvers.CMS do
 
   def search_items(_root, %{part: part, title: title}, _info) do
     CMS.search_items(part, %{title: title})
+  end
+
+  # ##############################################
+  # counts just for manngers to use in admin site ..
+  # ##############################################
+  def threads_count(root, _, _) do
+    CMS.count(%Community{id: root.id}, :threads)
+  end
+
+  def tags_count(root, _, _) do
+    CMS.count(%Community{id: root.id}, :tags)
   end
 end

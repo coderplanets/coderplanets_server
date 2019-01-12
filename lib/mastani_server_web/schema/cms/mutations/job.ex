@@ -29,6 +29,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Job do
 
       arg(:thread, :cms_thread, default_value: :job)
       arg(:tags, list_of(:ids))
+      arg(:mention_users, list_of(:ids))
 
       middleware(M.Authorize, :login)
       middleware(M.PublishThrottle)
@@ -103,16 +104,22 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Job do
       arg(:title, :string)
       arg(:body, :string)
       arg(:digest, :string)
+      arg(:length, :integer)
       arg(:salary, :string)
       arg(:copy_right, :string)
       arg(:desc, :string)
       arg(:link_addr, :string)
+
+      arg(:company, :string)
+      arg(:company_logo, :string)
+      arg(:company_link, :string)
 
       arg(:exp, :string)
       arg(:education, :string)
       arg(:field, :string)
       arg(:finance, :string)
       arg(:scale, :string)
+      arg(:tags, list_of(:ids))
 
       # ...
 

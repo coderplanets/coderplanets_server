@@ -142,6 +142,12 @@ defmodule Helper.QueryBuilder do
       {:sort, :most_dislikes}, queryable ->
         queryable |> sort_by_count(:dislikes, :desc)
 
+      {:length, :most_words}, queryable ->
+        queryable |> order_by(desc: :length)
+
+      {:length, :least_words}, queryable ->
+        queryable |> order_by(asc: :length)
+
       {:when, :today}, queryable ->
         # date = DateTime.utc_now() |> Timex.to_datetime()
         # use timezone info is server is not in the some timezone

@@ -18,7 +18,7 @@ defmodule MastaniServer.CMS.Video do
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title poster thumbnil desc duration duration_sec source link original_author original_author_link publish_at)a
-  # @optional_fields ~w()a
+  @optional_fields ~w(title poster thumbnil desc duration duration_sec source link original_author original_author_link publish_at)a
 
   @type t :: %Video{}
   schema "cms_videos" do
@@ -77,5 +77,11 @@ defmodule MastaniServer.CMS.Video do
 
     # |> foreign_key_constraint(:posts_tags, name: :posts_tags_tag_id_fkey)
     # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)
+  end
+
+  def update_changeset(%Video{} = video, attrs) do
+    video
+    |> cast(attrs, @optional_fields)
+    |> validate_length(:original_author, min: 3, max: 30)
   end
 end

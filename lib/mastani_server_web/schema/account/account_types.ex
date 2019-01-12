@@ -25,6 +25,7 @@ defmodule MastaniServerWeb.Schema.Account.Types do
   end
 
   object :user do
+    meta(:cache, max_age: 30)
     field(:id, :id)
     field(:nickname, :string)
     field(:login, :string)

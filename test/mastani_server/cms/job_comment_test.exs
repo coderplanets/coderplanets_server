@@ -13,7 +13,7 @@ defmodule MastaniServer.Test.CMS.JobComment do
 
     body = "this is a test comment"
 
-    {:ok, comment} = CMS.create_comment(:job, job.id, body, user)
+    {:ok, comment} = CMS.create_comment(:job, job.id, %{body: body}, user)
 
     {:ok, ~m(job user comment)a}
   end
@@ -22,7 +22,7 @@ defmodule MastaniServer.Test.CMS.JobComment do
     test "login user comment to exsiting job", ~m(job user)a do
       body = "this is a test comment"
 
-      assert {:ok, comment} = CMS.create_comment(:job, job.id, body, user)
+      assert {:ok, comment} = CMS.create_comment(:job, job.id, %{body: body}, user)
 
       assert comment.job_id == job.id
       assert comment.body == body
@@ -32,11 +32,11 @@ defmodule MastaniServer.Test.CMS.JobComment do
     test "created comment should have a increased floor number", ~m(job user)a do
       body = "this is a test comment"
 
-      assert {:ok, comment1} = CMS.create_comment(:job, job.id, body, user)
+      assert {:ok, comment1} = CMS.create_comment(:job, job.id, %{body: body}, user)
 
       {:ok, user2} = db_insert(:user)
 
-      assert {:ok, comment2} = CMS.create_comment(:job, job.id, body, user2)
+      assert {:ok, comment2} = CMS.create_comment(:job, job.id, %{body: body}, user2)
 
       assert comment1.floor == 2
       assert comment2.floor == 3
@@ -45,13 +45,13 @@ defmodule MastaniServer.Test.CMS.JobComment do
     test "create comment to non-exsit job fails", ~m(user)a do
       body = "this is a test comment"
 
-      assert {:error, _} = CMS.create_comment(:job, non_exsit_id(), body, user)
+      assert {:error, _} = CMS.create_comment(:job, non_exsit_id(), %{body: body}, user)
     end
 
     test "can reply a comment, and reply should be in comment replies list", ~m(comment user)a do
       reply_body = "this is a reply comment"
 
-      {:ok, reply} = CMS.reply_comment(:job, comment.id, reply_body, user)
+      {:ok, reply} = CMS.reply_comment(:job, comment.id, %{body: reply_body}, user)
 
       {:ok, reply_preload} = ORM.find(JobComment, reply.id, preload: :reply_to)
       {:ok, comment_preload} = ORM.find(JobComment, comment.id, preload: :replies)
@@ -66,7 +66,7 @@ defmodule MastaniServer.Test.CMS.JobComment do
     test "comment can be deleted", ~m(job user)a do
       body = "this is a test comment"
 
-      assert {:ok, comment} = CMS.create_comment(:job, job.id, body, user)
+      assert {:ok, comment} = CMS.create_comment(:job, job.id, %{body: body}, user)
 
       {:ok, deleted} = CMS.delete_comment(:job, comment.id)
       assert deleted.id == comment.id
@@ -80,7 +80,7 @@ defmodule MastaniServer.Test.CMS.JobComment do
 
       comments =
         Enum.reduce(1..total, [], fn _, acc ->
-          {:ok, value} = CMS.create_comment(:job, job.id, body, user)
+          {:ok, value} = CMS.create_comment(:job, job.id, %{body: body}, user)
 
           acc ++ [value]
         end)
@@ -106,7 +106,7 @@ defmodule MastaniServer.Test.CMS.JobComment do
     test "comment with replies should be deleted together", ~m(comment user)a do
       reply_body = "this is a reply comment"
 
-      {:ok, reply} = CMS.reply_comment(:job, comment.id, reply_body, user)
+      {:ok, reply} = CMS.reply_comment(:job, comment.id, %{body: reply_body}, user)
 
       JobComment |> ORM.find_delete(comment.id)
 
@@ -120,7 +120,7 @@ defmodule MastaniServer.Test.CMS.JobComment do
       body = "fake comment"
 
       Enum.reduce(1..30, [], fn _, acc ->
-        {:ok, value} = CMS.create_comment(:job, job.id, body, user)
+        {:ok, value} = CMS.create_comment(:job, job.id, %{body: body}, user)
 
         acc ++ [value]
       end)
@@ -135,11 +135,11 @@ defmodule MastaniServer.Test.CMS.JobComment do
       {:ok, user2} = db_insert(:user)
       {:ok, user3} = db_insert(:user)
 
-      {:ok, _} = CMS.reply_comment(:job, comment.id, "reply by user1", user1)
+      {:ok, _} = CMS.reply_comment(:job, comment.id, %{body: "reply by user1"}, user1)
 
-      {:ok, _} = CMS.reply_comment(:job, comment.id, "reply by user2", user2)
+      {:ok, _} = CMS.reply_comment(:job, comment.id, %{body: "reply by user2"}, user2)
 
-      {:ok, _} = CMS.reply_comment(:job, comment.id, "reply by user3", user3)
+      {:ok, _} = CMS.reply_comment(:job, comment.id, %{body: "reply by user3"}, user3)
 
       {:ok, found_reply1} = CMS.list_replies(:job, comment.id, user1)
       assert user1.id == found_reply1 |> List.first() |> Map.get(:author_id)

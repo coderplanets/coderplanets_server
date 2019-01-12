@@ -97,19 +97,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   @doc """
   trash / untrash articles
   """
-  def set_community_flags(%Post{id: _} = content, community_id, attrs),
-    do: do_set_flag(content, community_id, attrs)
-
-  def set_community_flags(%Job{id: _} = content, community_id, attrs),
-    do: do_set_flag(content, community_id, attrs)
-
-  def set_community_flags(%CMSRepo{id: _} = content, community_id, attrs),
-    do: do_set_flag(content, community_id, attrs)
-
-  def set_community_flags(%Video{id: _} = content, community_id, attrs),
-    do: do_set_flag(content, community_id, attrs)
-
-  defp do_set_flag(content, community_id, attrs) do
+  def set_community_flags(content, community_id, attrs) do
     with {:ok, content} <- ORM.find(content.__struct__, content.id),
          {:ok, community} <- ORM.find(Community, community_id),
          {:ok, record} <- insert_flag_record(content, community.id, attrs) do
@@ -163,17 +151,21 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
   end
 
   @doc """
-  set tag for post / tuts / videos ...
+  set general tag for post / tuts / videos ...
+  refined tag can't set by this func, use set_refined_tag instead
   """
   # check community first
-  def set_tag(%Community{id: _communitId}, thread, %Tag{id: tag_id}, content_id) do
+  def set_tag(thread, %Tag{id: tag_id}, content_id) do
     with {:ok, action} <- match_action(thread, :tag),
          {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
          {:ok, tag} <- ORM.find(action.reactor, tag_id) do
-      content
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:tags, content.tags ++ [tag])
-      |> Repo.update()
+      case tag.title != "refined" do
+        true ->
+          update_content_tag(content, tag)
+
+        false ->
+          {:error, "use set_refined_tag instead"}
+      end
 
       # NOTE: this should be control by Middleware
       # case tag_in_community_thread?(%Community{id: communitId}, thread, tag) do
@@ -193,11 +185,69 @@ defmodule MastaniServer.CMS.Delegate.ArticleOperation do
     with {:ok, action} <- match_action(thread, :tag),
          {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
          {:ok, tag} <- ORM.find(action.reactor, tag_id) do
-      content
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:tags, content.tags -- [tag])
-      |> Repo.update()
+      update_content_tag(content, tag, :drop)
     end
+  end
+
+  @doc """
+  set refined_tag to common content
+  """
+  def set_refined_tag(%Community{id: community_id}, thread, topic_raw, content_id) do
+    with {:ok, action} <- match_action(thread, :tag),
+         {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
+         {:ok, topic} <- ORM.find_by(Topic, %{raw: topic_raw}),
+         {:ok, tag} <-
+           ORM.find_by(action.reactor, %{
+             title: "refined",
+             community_id: community_id,
+             topic_id: topic.id
+           }) do
+      update_content_tag(content, tag)
+    end
+  end
+
+  def set_refined_tag(%Community{id: community_id}, thread, content_id) do
+    with {:ok, action} <- match_action(thread, :tag),
+         {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
+         {:ok, tag} <-
+           ORM.find_by(action.reactor, %{title: "refined", community_id: community_id}) do
+      update_content_tag(content, tag)
+    end
+  end
+
+  @doc """
+  unset refined_tag to common content
+  """
+  def unset_refined_tag(%Community{id: community_id}, thread, topic_raw, content_id) do
+    with {:ok, action} <- match_action(thread, :tag),
+         {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
+         {:ok, topic} <- ORM.find_by(Topic, %{raw: topic_raw}),
+         {:ok, tag} <-
+           ORM.find_by(action.reactor, %{
+             title: "refined",
+             community_id: community_id,
+             topic_id: topic.id
+           }) do
+      update_content_tag(content, tag, :drop)
+    end
+  end
+
+  def unset_refined_tag(%Community{id: community_id}, thread, content_id) do
+    with {:ok, action} <- match_action(thread, :tag),
+         {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
+         {:ok, tag} <-
+           ORM.find_by(action.reactor, %{title: "refined", community_id: community_id}) do
+      update_content_tag(content, tag, :drop)
+    end
+  end
+
+  defp update_content_tag(content, %Tag{} = tag, opt \\ :add) do
+    new_tags = if opt == :add, do: content.tags ++ [tag], else: content.tags -- [tag]
+
+    content
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_assoc(:tags, new_tags)
+    |> Repo.update()
   end
 
   @doc """

@@ -6,7 +6,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   import Helper.Utils, only: [done: 1]
   import Ecto.Query, warn: false
 
-  @oss_endpoint "https://coderplanets.oss-cn-beijing.aliyuncs.com"
+  @oss_endpoint "https://cps-oss.oss-cn-shanghai.aliyuncs.com"
   # import MastaniServer.CMS.Utils.Matcher
   # import Helper.Utils, only: [done: 1, map_atom_value: 2]
   # import MastaniServer.CMS.Delegate.ArticleCURD, only: [ensure_author_exists: 1]
@@ -28,7 +28,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   # done
   @pl_communities SeedsConfig.communities(:pl)
   @framework_communities SeedsConfig.communities(:framework)
-  @design_communities SeedsConfig.communities(:design)
+  @ui_communities SeedsConfig.communities(:ui)
   @editor_communities SeedsConfig.communities(:editor)
   @database_communities SeedsConfig.communities(:database)
   @devops_communities SeedsConfig.communities(:devops)
@@ -131,11 +131,11 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   @doc """
   seed communities for designs
   """
-  def seed_communities(:design) do
+  def seed_communities(:ui) do
     with {:ok, threads} <- seed_threads(:default),
          {:ok, bot} <- seed_bot(),
          {:ok, _categories} <- seed_categories(bot, :default),
-         {:ok, communities} <- seed_for_communities(bot, :design) do
+         {:ok, communities} <- seed_for_communities(bot, :ui) do
       threadify_communities(communities, threads.entries)
       tagfy_threads(communities, threads.entries, bot)
 
@@ -168,7 +168,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
       args = %{
         title: "coderplanets",
         desc: "the most sexy community for developers, ever.",
-        logo: "#{@oss_endpoint}/icons/cmd/keyboard_logo.svg",
+        logo: "#{@oss_endpoint}/icons/cmd/keyboard_logo.png",
         raw: "home",
         user_id: bot.id
       }
@@ -187,7 +187,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   def seed_threads(:default) do
     case ORM.find_by(CMS.Thread, %{raw: "post"}) do
       {:ok, _} ->
-        {:ok, "pass"}
+        {:ok, :pass}
 
       {:error, _} ->
         @default_threads
@@ -208,7 +208,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
 
   def seed_threads(:city) do
     case ORM.find_by(CMS.Thread, %{raw: "post"}) do
-      {:ok, _} -> {:ok, "pass"}
+      {:ok, _} -> {:ok, :pass}
       {:error, _} -> seed_threads(:default)
     end
 
@@ -224,7 +224,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
   # NOTE: the home threads should be insert after default threads
   def seed_threads(:home) do
     case ORM.find_by(CMS.Thread, %{raw: "post"}) do
-      {:ok, _} -> {:ok, "pass"}
+      {:ok, _} -> {:ok, :pass}
       {:error, _} -> seed_threads(:default)
     end
 
@@ -317,9 +317,9 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
     end
   end
 
-  defp seed_for_communities(bot, :design) do
+  defp seed_for_communities(bot, :ui) do
     with {:error, _} <- ORM.find_by(Community, %{raw: "css"}) do
-      {:ok, _communities} = insert_multi_communities(bot, @design_communities, :design)
+      {:ok, _communities} = insert_multi_communities(bot, @ui_communities, :ui)
     end
   end
 
@@ -329,21 +329,18 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
     end
   end
 
-  defp png_icons do
+  defp svg_icons do
     [
-      "tensorflow",
-      "ethereum",
-      "bitcoin",
-      "git",
-      "jetbrains",
-      "oracle",
-      "hive",
-      "cassandra",
-      "neo4j",
-      "sql-server",
-      "eggjs",
-      "backbone",
-      "reason"
+      "cps-support",
+      "beijing",
+      "shanghai",
+      "shenzhen",
+      "hangzhou",
+      "guangzhou",
+      "chengdu",
+      "wuhan",
+      "xiamen",
+      "nanjing"
     ]
   end
 
@@ -352,10 +349,11 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
 
     communities =
       Enum.reduce(communities, [], fn c, acc ->
-        ext = if Enum.member?(png_icons(), c), do: "png", else: "svg"
+        ext = if Enum.member?(svg_icons(), c), do: "svg", else: "png"
 
         args = %{
           title: trans(c),
+          aka: c,
           desc: "#{c} is awesome!",
           logo: "#{@oss_endpoint}/icons/#{type}/#{c}.#{ext}",
           raw: c,
@@ -423,13 +421,13 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
     thread = raw |> String.to_atom()
 
     Enum.each(SeedsConfig.tags(thread), fn attr ->
-      CMS.create_tag(community, thread, attr, %Accounts.User{id: bot.id})
+      CMS.create_tag(community, thread, attr, bot)
     end)
   end
 
   defp set_tags(%Community{} = community, :post, bot, :city) do
     Enum.each(SeedsConfig.tags(:city, :post), fn attr ->
-      CMS.create_tag(community, :post, attr, %Accounts.User{id: bot.id})
+      CMS.create_tag(community, :post, attr, bot)
     end)
   end
 
@@ -437,7 +435,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
     thread = raw |> String.to_atom()
 
     Enum.each(SeedsConfig.tags(:home, thread), fn attr ->
-      CMS.create_tag(community, thread, attr, %Accounts.User{id: bot.id})
+      CMS.create_tag(community, thread, attr, bot)
     end)
   end
 

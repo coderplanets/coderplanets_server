@@ -4,7 +4,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   """
   import Ecto.Query, warn: false
   import MastaniServer.CMS.Utils.Matcher
-  import Helper.Utils, only: [done: 1]
+  import Helper.Utils, only: [done: 1, pick_by: 2]
   import Helper.ErrorCode
   import ShortMaps
 
@@ -31,18 +31,24 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  defp content_id(:post, id), do: %{post_id: id}
-  defp content_id(:job, id), do: %{job_id: id}
-  defp content_id(:repo, id), do: %{repo_id: id}
-  defp content_id(:video, id), do: %{video_id: id}
-
   @doc """
   get paged post / job ...
   """
+  def paged_contents(queryable, filter, user) do
+    queryable
+    |> domain_filter_query(filter)
+    |> community_with_flag_query(filter)
+    |> read_state_query(filter, user)
+    |> ORM.find_all(filter)
+    |> add_pin_contents_ifneed(queryable, filter)
+  end
+
   def paged_contents(queryable, filter) do
     queryable
-    |> flag_query(filter)
+    |> domain_filter_query(filter)
+    |> community_with_flag_query(filter)
     |> ORM.find_all(filter)
+    # TODO: if filter has when/sort/length/job... then don't
     |> add_pin_contents_ifneed(queryable, filter)
   end
 
@@ -96,18 +102,18 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
             })
 
           false ->
-            {:ok, "pass"}
+            {:ok, :pass}
         end
       end)
       |> Multi.run(:set_tag, fn _, %{add_content_author: content} ->
         case attrs |> Map.has_key?(:tags) do
-          true -> set_tags(community, thread, content.id, attrs.tags)
-          false -> {:ok, "pass"}
+          true -> set_tags(thread, content.id, attrs.tags)
+          false -> {:ok, :pass}
         end
       end)
       |> Multi.run(:mention_users, fn _, %{add_content_author: content} ->
         Delivery.mention_from_content(thread, content, attrs, %User{id: user_id})
-        {:ok, "pass"}
+        {:ok, :pass}
       end)
       |> Multi.run(:log_action, fn _, _ ->
         Statistics.log_publish_action(%User{id: user_id})
@@ -117,46 +123,19 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  defp create_content_result({:ok, %{add_content_author: result}}), do: {:ok, result}
-
-  # TODO: need more spec error handle
-  defp create_content_result({:error, :add_content_author, _result, _steps}) do
-    {:error, [message: "create cms content author", code: ecode(:create_fails)]}
-  end
-
-  defp create_content_result({:error, :set_community, _result, _steps}) do
-    {:error, [message: "set community", code: ecode(:create_fails)]}
-  end
-
-  defp create_content_result({:error, :set_community_flag, _result, _steps}) do
-    {:error, [message: "set community flag", code: ecode(:create_fails)]}
-  end
-
-  defp create_content_result({:error, :set_topic, _result, _steps}) do
-    {:error, [message: "set topic", code: ecode(:create_fails)]}
-  end
-
-  defp create_content_result({:error, :set_tag, result, _steps}) do
-    {:error, result}
-  end
-
-  defp create_content_result({:error, :log_action, _result, _steps}) do
-    {:error, [message: "log action", code: ecode(:create_fails)]}
-  end
-
-  # if empty just pass
-  defp set_tags(_community, _thread, _content_id, []), do: {:ok, "pass"}
-
-  defp set_tags(community, thread, content_id, tags) do
-    try do
-      Enum.each(tags, fn tag ->
-        {:ok, _} = ArticleOperation.set_tag(community, thread, %Tag{id: tag.id}, content_id)
-      end)
-
-      {:ok, "psss"}
-    rescue
-      _ -> {:error, [message: "set tag", code: ecode(:create_fails)]}
-    end
+  @doc """
+  update a content(post/job ...)
+  """
+  def update_content(content, args) do
+    Multi.new()
+    |> Multi.run(:update_content, fn _, _ ->
+      ORM.update(content, args)
+    end)
+    |> Multi.run(:update_tag, fn _, _ ->
+      update_tags(content, args.tags)
+    end)
+    |> Repo.transaction()
+    |> update_content_result()
   end
 
   @doc """
@@ -197,27 +176,126 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     ORM.find_by(Author, user_id: changeset.data.user_id)
   end
 
-  defp flag_query(queryable, filter, flag \\ %{}) do
+  # filter community & untrash
+  defp community_with_flag_query(queryable, filter, flag \\ %{}) do
     flag = %{trash: false} |> Map.merge(flag)
-
     # NOTE: this case judge is used for test case
     case filter |> Map.has_key?(:community) do
       true ->
         queryable
-        |> join(:inner, [q], f in assoc(q, :community_flags))
-        |> where([q, f], f.trash == ^flag.trash)
-        |> join(:inner, [q, f], c in assoc(f, :community))
-        |> where([q, f, c], c.raw == ^filter.community)
+        |> join(:inner, [content], f in assoc(content, :community_flags))
+        |> join(:inner, [content, f], c in assoc(f, :community))
+        |> where([content, f, c], f.trash == ^flag.trash)
+        |> where([content, f, c], c.raw == ^filter.community)
 
       false ->
         queryable
     end
   end
 
+  defp domain_filter_query(CMS.Job = queryable, filter) do
+    Enum.reduce(filter, queryable, fn
+      {:salary, salary}, queryable ->
+        queryable |> where([content], content.salary == ^salary)
+
+      {:field, field}, queryable ->
+        queryable |> where([content], content.field == ^field)
+
+      {:finance, finance}, queryable ->
+        queryable |> where([content], content.finance == ^finance)
+
+      {:scale, scale}, queryable ->
+        queryable |> where([content], content.scale == ^scale)
+
+      {:exp, exp}, queryable ->
+        if exp == "不限", do: queryable, else: queryable |> where([content], content.exp == ^exp)
+
+      {:education, education}, queryable ->
+        cond do
+          education == "大专" ->
+            queryable
+            |> where([content], content.education == "大专" or content.education == "不限")
+
+          education == "本科" ->
+            queryable
+            |> where([content], content.education != "不限")
+            |> where([content], content.education != "大专")
+
+          education == "硕士" ->
+            queryable
+            |> where([content], content.education != "不限")
+            |> where([content], content.education != "大专")
+            |> where([content], content.education != "本科")
+
+          education == "不限" ->
+            queryable
+
+          true ->
+            queryable |> where([content], content.education == ^education)
+        end
+
+      {_, _}, queryable ->
+        queryable
+    end)
+  end
+
+  defp domain_filter_query(CMS.Video = queryable, filter) do
+    Enum.reduce(filter, queryable, fn
+      {:source, source}, queryable ->
+        queryable |> where([content], content.source == ^source)
+
+      {_, _}, queryable ->
+        queryable
+    end)
+  end
+
+  defp domain_filter_query(CMS.Repo = queryable, filter) do
+    Enum.reduce(filter, queryable, fn
+      {:sort, :most_github_star}, queryable ->
+        queryable |> order_by(desc: :star_count)
+
+      {:sort, :most_github_fork}, queryable ->
+        queryable |> order_by(desc: :fork_count)
+
+      {:sort, :most_github_watch}, queryable ->
+        queryable |> order_by(desc: :watch_count)
+
+      {:sort, :most_github_pr}, queryable ->
+        queryable |> order_by(desc: :prs_count)
+
+      {:sort, :most_github_issue}, queryable ->
+        queryable |> order_by(desc: :issues_count)
+
+      {_, _}, queryable ->
+        queryable
+    end)
+  end
+
+  defp domain_filter_query(queryable, _filter), do: queryable
+
+  # query if user has viewed before
+  defp read_state_query(queryable, %{read: true} = _filter, user) do
+    queryable
+    |> join(:inner, [content, f, c], viewers in assoc(content, :viewers))
+    |> where([content, f, c, viewers], viewers.user_id == ^user.id)
+  end
+
+  defp read_state_query(queryable, %{read: false} = _filter, _user) do
+    # queryable
+    # |> join(:left, [content, f, c], viewers in assoc(content, :viewers))
+    # |> where([content, f, c, viewers], viewers.user_id != ^user.id)
+    # |> where([content, f, c, viewers], content.id != viewers.post_id)
+    # |> IO.inspect(label: "query")
+    queryable
+  end
+
+  defp read_state_query(queryable, _, _), do: queryable
+
   # only first page need pin contents
   # TODO: use seperate pined table, which is much more smaller
   defp add_pin_contents_ifneed(contents, CMS.Post, %{community: community} = filter) do
-    with {:ok, normal_contents} <- contents,
+    with {:ok, _} <- should_add_pin?(filter),
+         {:ok, normal_contents} <- contents,
          true <- Map.has_key?(filter, :community),
          true <- 1 == Map.get(normal_contents, :page_number) do
       {:ok, pined_content} =
@@ -256,7 +334,8 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   defp add_pin_contents_ifneed(contents, _querable, _filter), do: contents
 
   defp merge_pin_contents(contents, thread, pin_schema, %{community: _community} = filter) do
-    with {:ok, normal_contents} <- contents,
+    with {:ok, _} <- should_add_pin?(filter),
+         {:ok, normal_contents} <- contents,
          true <- Map.has_key?(filter, :community),
          true <- 1 == Map.get(normal_contents, :page_number) do
       {:ok, pined_content} =
@@ -276,13 +355,25 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     end
   end
 
+  # if filter contains like: tags, sort.., then don't add pin content
+  defp should_add_pin?(%{page: 1, tag: :all, sort: :desc_inserted, read: :all} = filter) do
+    filter
+    |> Map.keys()
+    |> Enum.reject(fn x -> x in [:community, :tag, :sort, :read, :topic, :page, :size] end)
+    |> case do
+      [] -> {:ok, :pass}
+      _ -> {:error, :pass}
+    end
+  end
+
+  defp should_add_pin?(filter), do: {:error, :pass}
+
   defp concat_contents(pined_content, normal_contents) do
     case pined_content |> Map.get(:total_count) do
       0 ->
         {:ok, normal_contents}
 
       _ ->
-        # NOTE: this is tricy, should use dataloader refactor
         pind_entries =
           pined_content
           |> Map.get(:entries)
@@ -293,10 +384,87 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
         normal_count = normal_contents |> Map.get(:total_count)
         pind_count = pined_content |> Map.get(:total_count)
 
+        # remote the pined content from normal_entries (if have)
+        pind_ids = pick_by(pind_entries, :id)
+        normal_entries = Enum.reject(normal_entries, &(&1.id in pind_ids))
+
         normal_contents
         |> Map.put(:entries, pind_entries ++ normal_entries)
         |> Map.put(:total_count, pind_count + normal_count)
         |> done
     end
   end
+
+  defp create_content_result({:ok, %{add_content_author: result}}), do: {:ok, result}
+
+  # TODO: need more spec error handle
+  defp create_content_result({:error, :add_content_author, _result, _steps}) do
+    {:error, [message: "create cms content author", code: ecode(:create_fails)]}
+  end
+
+  defp create_content_result({:error, :set_community, _result, _steps}) do
+    {:error, [message: "set community", code: ecode(:create_fails)]}
+  end
+
+  defp create_content_result({:error, :set_community_flag, _result, _steps}) do
+    {:error, [message: "set community flag", code: ecode(:create_fails)]}
+  end
+
+  defp create_content_result({:error, :set_topic, _result, _steps}) do
+    {:error, [message: "set topic", code: ecode(:create_fails)]}
+  end
+
+  defp create_content_result({:error, :set_tag, result, _steps}) do
+    {:error, result}
+  end
+
+  defp create_content_result({:error, :log_action, _result, _steps}) do
+    {:error, [message: "log action", code: ecode(:create_fails)]}
+  end
+
+  defp set_tags(thread, content_id, tags) do
+    try do
+      Enum.each(tags, fn tag ->
+        {:ok, _} = ArticleOperation.set_tag(thread, %Tag{id: tag.id}, content_id)
+      end)
+
+      {:ok, "psss"}
+    rescue
+      _ -> {:error, [message: "set tag", code: ecode(:create_fails)]}
+    end
+  end
+
+  defp update_tags(_content, tags_ids) when length(tags_ids) == 0, do: {:ok, :pass}
+
+  # Job is special, the tags in job only represent city, so everytime update
+  # tags on job content, should be override the old ones, in this way, every
+  # communiies contains this job will have the same city info
+  defp update_tags(%CMS.Job{} = content, tags_ids) do
+    with {:ok, content} <- ORM.find(CMS.Job, content.id, preload: :tags) do
+      city_tags =
+        Enum.reduce(tags_ids, [], fn t, acc ->
+          {:ok, tag} = ORM.find(Tag, t.id)
+          acc ++ [tag]
+        end)
+
+      content
+      |> Ecto.Changeset.change()
+      |> Ecto.Changeset.put_assoc(:tags, city_tags)
+      |> Repo.update()
+    else
+      _ -> {:error, "update city tag"}
+    end
+  end
+
+  # except Job, other content will just pass, should use set_tag function instead
+  defp update_tags(_, _tags_ids), do: {:ok, :pass}
+
+  defp update_content_result({:ok, %{update_content: result}}), do: {:ok, result}
+  defp update_content_result({:error, :update_content, result, _steps}), do: {:error, result}
+  defp update_content_result({:error, :update_tag, result, _steps}), do: {:error, result}
+
+  defp content_id(:post, id), do: %{post_id: id}
+  defp content_id(:job, id), do: %{job_id: id}
+  defp content_id(:repo, id), do: %{repo_id: id}
+  defp content_id(:video, id), do: %{video_id: id}
 end

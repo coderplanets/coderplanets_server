@@ -34,6 +34,7 @@ defmodule MastaniServer.CMS do
   defdelegate update_category(category_attrs), to: CommunityCURD
   # >> thread
   defdelegate create_thread(attrs), to: CommunityCURD
+  defdelegate count(community, part), to: CommunityCURD
   # >> tag
   defdelegate create_tag(community, thread, attrs, user), to: CommunityCURD
   defdelegate update_tag(attrs), to: CommunityCURD
@@ -67,8 +68,10 @@ defmodule MastaniServer.CMS do
 
   # ArticleCURD
   defdelegate read_content(thread, id, user), to: ArticleCURD
+  defdelegate paged_contents(queryable, filter, user), to: ArticleCURD
   defdelegate paged_contents(queryable, filter), to: ArticleCURD
   defdelegate create_content(community, thread, attrs, user), to: ArticleCURD
+  defdelegate update_content(content, attrs), to: ArticleCURD
   defdelegate reaction_users(thread, react, id, filters), to: ArticleCURD
 
   # ArticleReaction
@@ -89,8 +92,12 @@ defmodule MastaniServer.CMS do
   # defdelegate undo_pin_content(queryable, community_id, thread), to: ArticleOperation
 
   # >> tag: set / unset
-  defdelegate set_tag(community, thread, tag, content_id), to: ArticleOperation
+  defdelegate set_tag(thread, tag, content_id), to: ArticleOperation
   defdelegate unset_tag(thread, tag, content_id), to: ArticleOperation
+  defdelegate set_refined_tag(community, thread, topic, content_id), to: ArticleOperation
+  defdelegate set_refined_tag(community, thread, content_id), to: ArticleOperation
+  defdelegate unset_refined_tag(community, thread, topic, content_id), to: ArticleOperation
+  defdelegate unset_refined_tag(community, thread, content_id), to: ArticleOperation
   # >> community: set / unset
   defdelegate set_community(community, thread, content_id), to: ArticleOperation
   defdelegate unset_community(community, thread, content_id), to: ArticleOperation
@@ -99,10 +106,10 @@ defmodule MastaniServer.CMS do
   defdelegate list_comments(thread, content_id, filters), to: CommentCURD
   defdelegate list_comments_participators(thread, content_id, filters), to: CommentCURD
 
-  defdelegate create_comment(thread, content_id, body, user), to: CommentCURD
+  defdelegate create_comment(thread, content_id, args, user), to: CommentCURD
   defdelegate delete_comment(thread, content_id), to: CommentCURD
   defdelegate list_replies(thread, comment, user), to: CommentCURD
-  defdelegate reply_comment(thread, comment, body, user), to: CommentCURD
+  defdelegate reply_comment(thread, comment, args, user), to: CommentCURD
 
   # Comment Reaction
   # >> like / undo like

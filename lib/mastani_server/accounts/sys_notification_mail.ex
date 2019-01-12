@@ -29,4 +29,11 @@ defmodule MastaniServer.Accounts.SysNotificationMail do
     |> validate_required(@required_fields)
     |> foreign_key_constraint(:user_id)
   end
+
+  @doc false
+  def update_changeset(%SysNotificationMail{} = sys_notication_mail, attrs) do
+    sys_notication_mail
+    |> cast(attrs, @optional_fields ++ @required_fields)
+    |> foreign_key_constraint(:user_id)
+  end
 end

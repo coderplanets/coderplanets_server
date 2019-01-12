@@ -2,7 +2,7 @@ defmodule MastaniServer.Test.Mutation.Job do
   use MastaniServer.TestTools
 
   alias Helper.ORM
-  alias MastaniServer.CMS
+  alias MastaniServer.{CMS, Delivery}
 
   setup do
     {:ok, job} = db_insert(:job)
@@ -31,6 +31,7 @@ defmodule MastaniServer.Test.Mutation.Job do
       $finance: String!,
       $scale: String!,
       $field: String!,
+      $mentionUsers: [Ids],
       $tags: [Ids]
      ) {
       createJob(
@@ -47,6 +48,7 @@ defmodule MastaniServer.Test.Mutation.Job do
         finance: $finance,
         scale: $scale,
         field: $field,
+        mentionUsers: $mentionUsers,
         tags: $tags
         ) {
           id
@@ -107,13 +109,44 @@ defmodule MastaniServer.Test.Mutation.Job do
       assert job.tags |> Enum.any?(&(&1.id == tag2.id))
     end
 
+    test "can create job with mentionUsers" do
+      {:ok, user} = db_insert(:user)
+      {:ok, user2} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      {:ok, community} = db_insert(:community)
+      job_attr = mock_attrs(:job)
+
+      variables =
+        job_attr
+        |> camelize_map_key
+        |> Map.merge(%{communityId: community.id})
+        |> Map.merge(%{mentionUsers: [%{id: user2.id}]})
+
+      filter = %{page: 1, size: 20, read: false}
+      {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
+      assert mentions.total_count == 0
+
+      _created = user_conn |> mutation_result(@create_job_query, variables, "createJob")
+
+      {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
+      the_mention = mentions.entries |> List.first()
+
+      assert mentions.total_count == 1
+      assert the_mention.source_type == "job"
+      assert the_mention.read == false
+    end
+
     @query """
-    mutation($id: ID!, $title: String, $body: String, $salary: String){
-      updateJob(id: $id, title: $title, body: $body, salary: $salary) {
+    mutation($id: ID!, $title: String, $body: String, $salary: String, $tags: [Ids]){
+      updateJob(id: $id, title: $title, body: $body, salary: $salary, tags: $tags) {
         id
         title
         body
         salary
+        tags {
+          id
+        }
       }
     }
     """
@@ -145,6 +178,47 @@ defmodule MastaniServer.Test.Mutation.Job do
       assert updated["title"] == variables.title
       assert updated["body"] == variables.body
       assert updated["salary"] == variables.salary
+    end
+
+    test "job can be update along with tags(city)", ~m(owner_conn user job)a do
+      unique_num = System.unique_integer([:positive, :monotonic])
+
+      {:ok, community} = db_insert(:community)
+      {:ok, tag} = CMS.create_tag(community, :job, mock_attrs(:tag), user)
+
+      variables = %{
+        id: job.id,
+        title: "updated title #{unique_num}",
+        tags: [%{id: tag.id}]
+      }
+
+      updated = owner_conn |> mutation_result(@query, variables, "updateJob")
+
+      assert updated["title"] == variables.title
+      assert updated["tags"] |> Enum.any?(&(&1["id"] == to_string(tag.id)))
+    end
+
+    test "update job tags will replace old city-tags", ~m(owner_conn user job)a do
+      unique_num = System.unique_integer([:positive, :monotonic])
+
+      {:ok, community} = db_insert(:community)
+      {:ok, community2} = db_insert(:community)
+      {:ok, tag} = CMS.create_tag(community, :job, mock_attrs(:tag), user)
+      {:ok, tag2} = CMS.create_tag(community2, :job, mock_attrs(:tag), user)
+
+      {:ok, _} = CMS.set_tag(:job, tag2, job.id)
+
+      variables = %{
+        id: job.id,
+        title: "updated title #{unique_num}",
+        tags: [%{id: tag.id}]
+      }
+
+      updated = owner_conn |> mutation_result(@query, variables, "updateJob")
+
+      assert updated["title"] == variables.title
+      assert updated["tags"] |> length == 1
+      assert updated["tags"] |> Enum.any?(&(&1["id"] == to_string(tag.id)))
     end
 
     test "login user with auth passport update a job", ~m(job)a do
@@ -215,6 +289,14 @@ defmodule MastaniServer.Test.Mutation.Job do
       }
     }
     """
+    @set_refined_tag_query """
+    mutation($communityId: ID!, $thread: CmsThread, $topic: String, $id: ID!) {
+      setRefinedTag(communityId: $communityId, thread: $thread, topic: $topic, id: $id) {
+        id
+        title
+      }
+    }
+    """
     test "auth user can set a valid tag to job", ~m(job)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "job", community: community})
@@ -224,10 +306,37 @@ defmodule MastaniServer.Test.Mutation.Job do
 
       variables = %{thread: "JOB", id: job.id, tagId: tag.id, communityId: community.id}
       rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
-      # {:ok, found} = ORM.find(CMS.Job, job.id, preload: :tags)
+      {:ok, found} = ORM.find(CMS.Job, job.id, preload: :tags)
 
-      # assoc_tags = found.tags |> Enum.map(& &1.id)
-      # assert tag.id in assoc_tags
+      assoc_tags = found.tags |> Enum.map(& &1.id)
+      assert tag.id in assoc_tags
+    end
+
+    test "can not set refined tag to job", ~m(job)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, tag} = db_insert(:tag, %{thread: "job", community: community, title: "refined"})
+
+      passport_rules = %{community.title => %{"job.tag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      variables = %{id: job.id, tagId: tag.id, communityId: community.id}
+
+      assert rule_conn |> mutation_get_error?(@set_tag_query, variables)
+    end
+
+    test "auth user can set refined tag to job", ~m(job)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, tag} = db_insert(:tag, %{thread: "job", community: community, title: "refined"})
+
+      passport_rules = %{community.title => %{"job.refinedtag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      variables = %{id: job.id, communityId: community.id, thread: "JOB"}
+      rule_conn |> mutation_result(@set_refined_tag_query, variables, "setRefinedTag")
+      {:ok, found} = ORM.find(CMS.Job, job.id, preload: :tags)
+
+      assoc_tags = found.tags |> Enum.map(& &1.id)
+      assert tag.id in assoc_tags
     end
 
     # TODO: should fix in auth layer
@@ -261,6 +370,33 @@ defmodule MastaniServer.Test.Mutation.Job do
       assoc_tags = found.tags |> Enum.map(& &1.id)
       assert tag.id in assoc_tags
       assert tag2.id in assoc_tags
+    end
+
+    @unset_refined_tag_query """
+    mutation($communityId: ID!, $thread: CmsThread, $topic: String, $id: ID!) {
+      unsetRefinedTag(communityId: $communityId, thread: $thread, topic: $topic, id: $id) {
+        id
+        title
+      }
+    }
+    """
+    test "can unset refined tag to a job", ~m(job)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, tag} = db_insert(:tag, %{thread: "job", community: community, title: "refined"})
+
+      passport_rules = %{community.title => %{"job.refinedtag.set" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      variables = %{id: job.id, communityId: community.id, thread: "JOB"}
+      rule_conn |> mutation_result(@set_refined_tag_query, variables, "setRefinedTag")
+
+      variables = %{id: job.id, communityId: community.id, thread: "JOB"}
+      rule_conn |> mutation_result(@unset_refined_tag_query, variables, "unsetRefinedTag")
+
+      {:ok, found} = ORM.find(CMS.Job, job.id, preload: :tags)
+
+      assoc_tags = found.tags |> Enum.map(& &1.id)
+      assert tag.id not in assoc_tags
     end
   end
 end

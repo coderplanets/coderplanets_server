@@ -24,7 +24,8 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
     @desc "paged subscribers of a community"
     field :community_subscribers, :paged_users do
-      arg(:id, non_null(:id))
+      arg(:id, :id)
+      arg(:community, :string)
       arg(:filter, :paged_filter)
 
       middleware(M.PageSizeProof)
@@ -86,7 +87,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
     @desc "get paged videos"
     field :paged_videos, :paged_videos do
-      arg(:filter, non_null(:paged_article_filter))
+      arg(:filter, non_null(:paged_videos_filter))
 
       middleware(M.PageSizeProof)
       resolve(&R.CMS.paged_videos/3)
@@ -100,7 +101,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
     @desc "get paged videos"
     field :paged_repos, :paged_repos do
-      arg(:filter, non_null(:paged_article_filter))
+      arg(:filter, non_null(:paged_repos_filter))
 
       middleware(M.PageSizeProof)
       resolve(&R.CMS.paged_repos/3)
@@ -126,7 +127,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
 
     @desc "get paged jobs"
     field :paged_jobs, :paged_jobs do
-      arg(:filter, non_null(:paged_article_filter))
+      arg(:filter, non_null(:paged_jobs_filter))
 
       middleware(M.PageSizeProof)
       resolve(&R.CMS.paged_jobs/3)
@@ -168,6 +169,7 @@ defmodule MastaniServerWeb.Schema.CMS.Queries do
       arg(:community, :string)
       arg(:thread, :cms_thread, default_value: :post)
       arg(:topic, :string)
+      arg(:all, :boolean, default_value: false)
 
       resolve(&R.CMS.get_tags/3)
     end

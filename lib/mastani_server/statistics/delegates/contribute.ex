@@ -38,7 +38,7 @@ defmodule MastaniServer.Statistics.Delegate.Contribute do
   Returns the list of user_contribute by latest 6 months.
   """
   def list_contributes(%User{id: id}) do
-    user_id = tobe_integer(id)
+    user_id = integerfy(id)
 
     "user_contributes"
     |> where([c], c.user_id == ^user_id)
@@ -64,7 +64,7 @@ defmodule MastaniServer.Statistics.Delegate.Contribute do
   end
 
   defp get_contributes(%Community{id: id}) do
-    community_id = tobe_integer(id)
+    community_id = integerfy(id)
 
     "community_contributes"
     |> where([c], c.community_id == ^community_id)

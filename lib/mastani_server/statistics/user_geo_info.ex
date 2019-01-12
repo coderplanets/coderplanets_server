@@ -25,4 +25,10 @@ defmodule MastaniServer.Statistics.UserGeoInfo do
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
   end
+
+  @doc false
+  def update_changeset(%UserGeoInfo{} = user_geo_info, attrs) do
+    user_geo_info
+    |> cast(attrs, @optional_fields ++ @required_fields)
+  end
 end

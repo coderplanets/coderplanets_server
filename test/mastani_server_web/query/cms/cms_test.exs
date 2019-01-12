@@ -3,7 +3,7 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
 
   alias MastaniServer.Accounts.User
   alias MastaniServer.CMS
-  alias CMS.{Community, Thread, Category}
+  alias CMS.{Community, Category}
 
   setup do
     guest_conn = simu_conn(:guest)
@@ -15,10 +15,12 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
 
   describe "[cms communities]" do
     @query """
-    query($id: ID) {
-      community(id: $id) {
+    query($id: ID, $raw: String) {
+      community(id: $id, raw: $raw) {
         id
         title
+        threadsCount
+        tagsCount
         threads {
           id
           raw
@@ -27,12 +29,60 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       }
     }
     """
+    # @tag :cache
+    # test "make sure apollo cache works", ~m(guest_conn)a do
+    # {:ok, _community} = db_insert(:community, %{raw: "cacheme"})
+
+    # variables = %{raw: "cacheme"}
+    # guest_conn |> query_result(@query, variables, "community")
+
+    # variables = %{raw: "cacheme"}
+    # guest_conn |> query_result(@query, variables, "community")
+    # end
+
+    test "can get from alias community name", ~m(guest_conn)a do
+      {:ok, _community} = db_insert(:community, %{raw: "kubernetes", aka: "k8s"})
+
+      variables = %{raw: "k8s"}
+      aka_results = guest_conn |> query_result(@query, variables, "community")
+
+      variables = %{raw: "kubernetes"}
+      results = guest_conn |> query_result(@query, variables, "community")
+
+      assert results["id"] == aka_results["id"]
+    end
+
+    test "can get threads count ", ~m(community guest_conn)a do
+      {:ok, threads} = db_insert_multi(:thread, 5)
+
+      Enum.map(threads, fn thread ->
+        CMS.set_thread(community, thread)
+      end)
+
+      variables = %{raw: community.raw}
+      results = guest_conn |> query_result(@query, variables, "community")
+
+      assert results["threadsCount"] == 5
+    end
+
+    test "can get tags count ", ~m(community guest_conn user)a do
+      {:ok, _tags} = db_insert_multi(:tag, 5)
+
+      CMS.create_tag(community, :post, mock_attrs(:tag), user)
+      CMS.create_tag(community, :post, mock_attrs(:tag), user)
+
+      variables = %{raw: community.raw}
+      results = guest_conn |> query_result(@query, variables, "community")
+
+      assert results["tagsCount"] == 2
+    end
+
     test "guest use get community threads with default asc sort index",
          ~m(guest_conn community)a do
       {:ok, threads} = db_insert_multi(:thread, 5)
 
-      Enum.map(threads, fn t ->
-        CMS.set_thread(%Community{id: community.id}, %Thread{id: t.id})
+      Enum.map(threads, fn thread ->
+        CMS.set_thread(community, thread)
       end)
 
       variables = %{id: community.id}
@@ -247,9 +297,7 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       variables = %{filter: %{page: 1, size: 10}}
 
       valid_attrs = mock_attrs(:tag, %{user_id: user.id})
-
-      {:ok, _} =
-        CMS.create_tag(%Community{id: community.id}, :post, valid_attrs, %User{id: user.id})
+      {:ok, _} = CMS.create_tag(community, :post, valid_attrs, user)
 
       results = guest_conn |> query_result(@query, variables, "tags")
 
@@ -257,8 +305,8 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
     end
 
     @query """
-    query($communityId: ID, $thread: CmsThread!, $topic: String ) {
-      partialTags(communityId: $communityId, thread: $thread, topic: $topic) {
+    query($communityId: ID, $community: String, $thread: CmsThread, $topic: String, $all: Boolean ) {
+      partialTags(communityId: $communityId, community: $community, thread: $thread, topic: $topic, all: $all) {
         id
         title
         color
@@ -271,6 +319,22 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       }
     }
     """
+    test "guest user can get all partial tags belongs to a community",
+         ~m(guest_conn community)a do
+      {:ok, _tag} = db_insert(:tag, %{thread: "post", community: community})
+      {:ok, _tag2} = db_insert(:tag, %{thread: "job", community: community})
+
+      variables = %{all: true, communityId: community.id}
+      results = guest_conn |> query_result(@query, variables, "partialTags")
+
+      assert results |> length == 2
+
+      variables = %{all: true, community: community.raw}
+      results = guest_conn |> query_result(@query, variables, "partialTags")
+
+      assert results |> length == 2
+    end
+
     test "guest user can get partial tags by communityId and thread", ~m(guest_conn community)a do
       {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
       {:ok, tag2} = db_insert(:tag, %{thread: "job", community: community})
@@ -285,9 +349,7 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
 
     test "user can get partial tags by default index topic", ~m(guest_conn community user)a do
       valid_attrs = mock_attrs(:tag)
-
-      {:ok, _tag} =
-        CMS.create_tag(%Community{id: community.id}, :post, valid_attrs, %User{id: user.id})
+      {:ok, _tag} = CMS.create_tag(community, :post, valid_attrs, user)
 
       variables = %{thread: "POST", communityId: community.id, topic: "posts"}
       results = guest_conn |> query_result(@query, variables, "partialTags")
@@ -484,10 +546,12 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
     end
 
     @query """
-    query($id: ID!, $filter: PagedFilter!) {
-      communitySubscribers(id: $id, filter: $filter) {
+    query($id: ID, $community: String, $filter: PagedFilter!) {
+      communitySubscribers(id: $id, community: $community, filter: $filter) {
         entries {
+          id
           nickname
+          avatar
         }
         totalCount
         totalPages
@@ -496,7 +560,7 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       }
     }
     """
-    test "guest user can get paged subscribers", ~m(guest_conn community)a do
+    test "guest user can get paged subscribers by community id", ~m(guest_conn community)a do
       {:ok, users} = db_insert_multi(:user, 25)
 
       Enum.each(
@@ -505,6 +569,20 @@ defmodule MastaniServer.Test.Query.CMS.Basic do
       )
 
       variables = %{id: community.id, filter: %{page: 1, size: 10}}
+      results = guest_conn |> query_result(@query, variables, "communitySubscribers")
+
+      assert results |> is_valid_pagination?
+    end
+
+    test "guest user can get paged subscribers by community raw", ~m(guest_conn community)a do
+      {:ok, users} = db_insert_multi(:user, 25)
+
+      Enum.each(
+        users,
+        &CMS.subscribe_community(community, %User{id: &1.id})
+      )
+
+      variables = %{community: community.raw, filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "communitySubscribers")
 
       assert results |> is_valid_pagination?

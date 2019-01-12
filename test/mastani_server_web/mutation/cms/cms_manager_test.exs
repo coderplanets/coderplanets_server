@@ -28,7 +28,6 @@ defmodule MastaniServer.Test.Mutation.CMS.Manager do
       }
     }
     """
-    @tag :wip
     test "root can trash a post", ~m(community user)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id})
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
@@ -51,7 +50,6 @@ defmodule MastaniServer.Test.Mutation.CMS.Manager do
       }
     }
     """
-    @tag :wip
     test "root can delete a post", ~m(post)a do
       passport_rules = %{"root" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
@@ -62,20 +60,19 @@ defmodule MastaniServer.Test.Mutation.CMS.Manager do
       assert {:error, _} = ORM.find(CMS.Post, deleted["id"])
     end
 
-    @tag :wip
     test "root can delete a post with comment", ~m(post user)a do
       passport_rules = %{"root" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       body = "this is a test comment"
-      {:ok, comment} = CMS.create_comment(:post, post.id, body, user)
+      {:ok, comment} = CMS.create_comment(:post, post.id, %{body: body}, user)
       {:ok, _} = ORM.find(CMS.PostComment, comment.id)
 
       deleted = rule_conn |> mutation_result(@query, %{id: post.id}, "deletePost")
 
       assert deleted["id"] == to_string(post.id)
       assert {:error, _} = ORM.find(CMS.Post, deleted["id"])
-      assert {:error, error} = ORM.find(CMS.PostComment, comment.id)
+      assert {:error, _error} = ORM.find(CMS.PostComment, comment.id)
     end
   end
 end

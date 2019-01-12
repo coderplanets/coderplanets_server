@@ -62,7 +62,7 @@ defmodule MastaniServer.Test.Query.RepoViewer do
   end
 
   @paged_query """
-  query($filter: PagedArticleFilter!) {
+  query($filter: PagedReposFilter!) {
     pagedRepos(filter: $filter) {
       entries {
         id

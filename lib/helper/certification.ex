@@ -88,6 +88,7 @@ defmodule Helper.Certification do
         "post.tag.update",
         "post.tag.delete",
         "post.tag.set",
+        "post.refinedtag.set",
         "post.tag.unset",
         # post flag
         "post.pin",
@@ -99,17 +100,37 @@ defmodule Helper.Certification do
         "job.tag.update",
         "job.tag.delete",
         "job.tag.set",
+        "job.refinedtag.set",
         "job.tag.unset",
         # job flag
         "job.pin",
         "job.undo_pin",
         "job.trash",
         "job.undo_trash",
+        # video tag
+        "video.tag.create",
+        "video.tag.update",
+        "video.tag.delete",
+        "video.tag.set",
+        "video.refinedtag.set",
+        "video.tag.unset",
         # video flag
         "video.pin",
         "video.undo_pin",
         "video.trash",
-        "video.undo_trash"
+        "video.undo_trash",
+        # repo tag
+        "repo.tag.create",
+        "repo.tag.update",
+        "repo.tag.delete",
+        "repo.tag.set",
+        "repo.refinedtag.set",
+        "repo.tag.unset",
+        # repo flag
+        "repo.pin",
+        "repo.undo_pin",
+        "repo.trash",
+        "repo.undo_trash"
       ]
     }
   end

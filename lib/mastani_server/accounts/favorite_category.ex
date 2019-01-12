@@ -33,4 +33,12 @@ defmodule MastaniServer.Accounts.FavoriteCategory do
     |> validate_length(:title, min: 1)
     |> foreign_key_constraint(:user_id)
   end
+
+  @doc false
+  def update_changeset(%FavoriteCategory{} = favorite_category, attrs) do
+    favorite_category
+    |> cast(attrs, @optional_fields ++ @required_fields)
+    |> validate_length(:title, min: 1)
+    |> foreign_key_constraint(:user_id)
+  end
 end

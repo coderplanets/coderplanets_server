@@ -53,10 +53,10 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
       "drupal",
       "eggjs",
       "electron",
-      "ionic",
       "laravel",
       "meteor",
       "nestjs",
+      "nuxtjs",
       "nodejs",
       "phoenix",
       "rails",
@@ -65,14 +65,26 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
       "zend",
       "vue",
       "angular",
+      "tensorflow",
+      # mobile
       "android",
-      "iphone",
-      "tensorflow"
+      "ios",
+      "react-native",
+      "weex",
+      "xamarin",
+      "nativescript",
+      "ionic",
+      # new
+      "rxjs",
+      "flutter",
+      "taro",
+      "webrtc",
+      "wasm"
     ]
   end
 
-  def communities(:design) do
-    ["css"]
+  def communities(:ui) do
+    ["css", "bootstrap", "semantic-ui", "material-design", "fabric", "antd"]
   end
 
   def communities(:blockchain) do
@@ -87,6 +99,8 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
     [
       "oracle",
       "hive",
+      "spark",
+      "hadoop",
       "cassandra",
       "elasticsearch",
       "sql-server",
@@ -113,7 +127,7 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
   end
 
   def communities(:devops) do
-    ["git", "cps-support"]
+    ["git", "cps-support", "docker", "kubernetes"]
   end
 
   @doc """
@@ -147,8 +161,8 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
         index: 12
       },
       %{
-        title: "design",
-        raw: "design",
+        title: "ui",
+        raw: "ui",
         index: 15
       },
       %{
@@ -267,6 +281,12 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
 
   def tags(:job) do
     city_tags()
+    |> Enum.concat([
+      %{
+        title: "remote",
+        color: :cadetblue
+      }
+    ])
     |> Enum.map(fn attr -> Map.merge(%{thread: :job, topic: "jobs"}, attr) end)
   end
 
@@ -528,6 +548,12 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
 
   def tags(:home, :job) do
     city_tags()
+    |> Enum.concat([
+      %{
+        title: "remote",
+        color: :cadetblue
+      }
+    ])
     |> Enum.map(fn attr -> Map.merge(%{thread: :job, topic: "jobs"}, attr) end)
   end
 

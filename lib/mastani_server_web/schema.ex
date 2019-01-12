@@ -73,7 +73,7 @@ defmodule MastaniServerWeb.Schema do
   end
 
   def middleware(middleware, _field, %{identifier: :query}) do
-    middleware ++ [M.GeneralError]
+    [ApolloTracing.Middleware.Caching] ++ middleware ++ [M.GeneralError]
   end
 
   def middleware(middleware, _field, %{identifier: :mutation}) do
@@ -81,7 +81,8 @@ defmodule MastaniServerWeb.Schema do
   end
 
   def middleware(middleware, _field, _object) do
-    [ApolloTracing.Middleware.Tracing, ApolloTracing.Middleware.Caching] ++ middleware
+    # [ApolloTracing.Middleware.Tracing, ApolloTracing.Middleware.Caching] ++ middleware
+    [ApolloTracing.Middleware.Tracing] ++ middleware
   end
 
   def plugins do

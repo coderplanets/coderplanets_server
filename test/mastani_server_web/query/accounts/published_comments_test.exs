@@ -42,7 +42,7 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedComments do
       pub_comments =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
           body = "this is a test comment"
-          {:ok, comment} = CMS.create_comment(:post, post.id, body, user)
+          {:ok, comment} = CMS.create_comment(:post, post.id, %{body: body}, user)
           acc ++ [comment]
         end)
 
@@ -88,7 +88,7 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedComments do
       pub_comments =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
           body = "this is a test comment"
-          {:ok, comment} = CMS.create_comment(:job, job.id, body, user)
+          {:ok, comment} = CMS.create_comment(:job, job.id, %{body: body}, user)
           acc ++ [comment]
         end)
 
@@ -134,7 +134,7 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedComments do
       pub_comments =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
           body = "this is a test comment"
-          {:ok, comment} = CMS.create_comment(:video, video.id, body, user)
+          {:ok, comment} = CMS.create_comment(:video, video.id, %{body: body}, user)
           acc ++ [comment]
         end)
 
@@ -180,7 +180,7 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedComments do
       pub_comments =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
           body = "this is a test comment"
-          {:ok, comment} = CMS.create_comment(:repo, repo.id, body, user)
+          {:ok, comment} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
           acc ++ [comment]
         end)
 

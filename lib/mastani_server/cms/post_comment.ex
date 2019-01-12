@@ -39,4 +39,12 @@ defmodule MastaniServer.CMS.PostComment do
     |> foreign_key_constraint(:post_id)
     |> foreign_key_constraint(:author_id)
   end
+
+  @doc false
+  def update_changeset(%PostComment{} = post_comment, attrs) do
+    post_comment
+    |> cast(attrs, @required_fields ++ @optional_fields)
+    |> foreign_key_constraint(:post_id)
+    |> foreign_key_constraint(:author_id)
+  end
 end

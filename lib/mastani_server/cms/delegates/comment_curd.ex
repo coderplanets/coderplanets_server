@@ -10,7 +10,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   import ShortMaps
 
   alias Helper.{ORM, QueryBuilder}
-  alias MastaniServer.{Repo, Accounts}
+  alias MastaniServer.{Accounts, Delivery, Repo}
 
   alias MastaniServer.CMS.{PostCommentReply, JobCommentReply, VideoCommentReply, RepoCommentReply}
 
@@ -19,22 +19,41 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   @doc """
   Creates a comment for psot, job ...
   """
-  def create_comment(thread, content_id, body, %Accounts.User{id: user_id}) do
+  def create_comment(thread, content_id, %{body: body} = args, %Accounts.User{id: user_id}) do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, content} <- ORM.find(action.target, content_id),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
-      next_floor = get_next_floor(thread, action.reactor, content.id)
-
-      attrs = %{
-        author_id: user.id,
-        body: body,
-        floor: next_floor
-      }
-
-      attrs = merge_comment_attrs(thread, attrs, content.id)
-
-      action.reactor |> ORM.create(attrs)
+      Multi.new()
+      |> Multi.run(:create_comment, fn _, _ ->
+        do_create_comment(thread, action, content, body, user)
+      end)
+      |> Multi.run(:mention_users, fn _, %{create_comment: comment} ->
+        Delivery.mention_from_comment(thread, content, comment, args, user)
+        {:ok, :pass}
+      end)
+      |> Repo.transaction()
+      |> create_comment_result()
     end
+  end
+
+  defp do_create_comment(thread, action, content, body, user) do
+    next_floor = get_next_floor(thread, action.reactor, content.id)
+
+    attrs = %{
+      author_id: user.id,
+      body: body,
+      floor: next_floor
+    }
+
+    attrs = merge_comment_attrs(thread, attrs, content.id)
+
+    action.reactor |> ORM.create(attrs)
+  end
+
+  defp create_comment_result({:ok, %{create_comment: result}}), do: {:ok, result}
+
+  defp create_comment_result({:error, :create_comment, result, _steps}) do
+    {:error, result}
   end
 
   @doc """
@@ -121,7 +140,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     end
   end
 
-  def reply_comment(thread, comment_id, body, %Accounts.User{id: user_id}) do
+  def reply_comment(thread, comment_id, %{body: body} = _args, %Accounts.User{id: user_id}) do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, comment} <- ORM.find(action.reactor, comment_id) do
       next_floor = get_next_floor(thread, action.reactor, comment)

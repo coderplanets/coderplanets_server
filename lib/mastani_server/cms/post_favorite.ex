@@ -27,4 +27,11 @@ defmodule MastaniServer.CMS.PostFavorite do
     |> validate_required(@required_fields)
     |> unique_constraint(:user_id, name: :posts_favorites_user_id_post_id_index)
   end
+
+  @doc false
+  def update_changeset(%PostFavorite{} = post_favorite, attrs) do
+    post_favorite
+    |> cast(attrs, @optional_fields ++ @required_fields)
+    |> unique_constraint(:user_id, name: :posts_favorites_user_id_post_id_index)
+  end
 end

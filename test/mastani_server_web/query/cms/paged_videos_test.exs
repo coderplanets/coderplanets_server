@@ -15,7 +15,7 @@ defmodule MastaniServer.Test.Query.PagedVideos do
   @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -7, microseconds: -1)
   @last_year Timex.shift(Timex.beginning_of_year(@cur_date), days: -2, microseconds: -1)
 
-  @today_count 35
+  @today_count 15
 
   @last_week_count 1
   @last_month_count 1
@@ -28,16 +28,16 @@ defmodule MastaniServer.Test.Query.PagedVideos do
     db_insert_multi(:video, @today_count)
     db_insert(:video, %{title: "last week", inserted_at: @last_week})
     db_insert(:video, %{title: "last month", inserted_at: @last_month})
-    db_insert(:video, %{title: "last year", inserted_at: @last_year})
+    {:ok, video_last_year} = db_insert(:video, %{title: "last year", inserted_at: @last_year})
 
     guest_conn = simu_conn(:guest)
 
-    {:ok, ~m(guest_conn user)a}
+    {:ok, ~m(guest_conn user video_last_year)a}
   end
 
   describe "[query paged_videos filter pagination]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedVideosFilter!) {
       pagedVideos(filter: $filter) {
         entries {
           id
@@ -82,7 +82,7 @@ defmodule MastaniServer.Test.Query.PagedVideos do
 
   describe "[query paged_videos filter sort]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedVideosFilter!) {
       pagedVideos(filter: $filter) {
         entries {
           id
@@ -127,7 +127,7 @@ defmodule MastaniServer.Test.Query.PagedVideos do
     end
 
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedVideosFilter!) {
       pagedVideos(filter: $filter) {
         entries {
           id
@@ -149,7 +149,7 @@ defmodule MastaniServer.Test.Query.PagedVideos do
 
   describe "[query paged_videos filter when]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedVideosFilter!) {
       pagedVideos(filter: $filter) {
         entries {
           id
@@ -160,12 +160,11 @@ defmodule MastaniServer.Test.Query.PagedVideos do
       }
     }
     """
-    test "THIS_YEAR option should work", ~m(guest_conn)a do
+    test "THIS_YEAR option should work", ~m(guest_conn video_last_year)a do
       variables = %{filter: %{when: "THIS_YEAR"}}
       results = guest_conn |> query_result(@query, variables, "pagedVideos")
 
-      expect_count = @total_count - @last_year_count
-      assert results |> Map.get("totalCount") == expect_count
+      assert results["entries"] |> Enum.any?(&(&1["id"] != video_last_year.id))
     end
 
     test "TODAY option should work", ~m(guest_conn)a do
@@ -201,6 +200,32 @@ defmodule MastaniServer.Test.Query.PagedVideos do
         end
 
       assert results |> Map.get("totalCount") == expect_count
+    end
+  end
+
+  describe "[query paged_videos filter extra]" do
+    @query """
+    query($filter: PagedVideosFilter!) {
+      pagedVideos(filter: $filter) {
+        entries {
+          id
+          source
+        }
+        totalCount
+      }
+    }
+    """
+    test "source option should work", ~m(guest_conn)a do
+      {:ok, video} = db_insert(:video, %{source: "youtube"})
+      {:ok, video2} = db_insert(:video, %{source: "bilibil"})
+
+      variables = %{filter: %{page: 1, size: 20, source: "youtube"}}
+      results = guest_conn |> query_result(@query, variables, "pagedVideos")
+
+      assert results["totalCount"] >= 1
+      assert results["entries"] |> Enum.all?(&(&1["source"] == "youtube"))
+      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(video.id)))
+      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(video2.id)))
     end
   end
 end

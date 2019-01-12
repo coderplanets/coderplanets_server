@@ -19,7 +19,7 @@ defmodule MastaniServer.CMS.Post do
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title body digest length)a
-  @optional_fields ~w(link_addr copy_right)a
+  @optional_fields ~w(link_addr copy_right link_addr)a
 
   @type t :: %Post{}
   schema "cms_posts" do
@@ -86,6 +86,15 @@ defmodule MastaniServer.CMS.Post do
     post
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
+
+    # |> foreign_key_constraint(:posts_tags, name: :posts_tags_tag_id_fkey)
+    # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)
+  end
+
+  @doc false
+  def update_changeset(%Post{} = post, attrs) do
+    post
+    |> cast(attrs, @optional_fields ++ @required_fields)
 
     # |> foreign_key_constraint(:posts_tags, name: :posts_tags_tag_id_fkey)
     # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)

@@ -19,7 +19,7 @@ defmodule MastaniServer.Test.CMS do
     test "create tag with valid data", ~m(community user)a do
       valid_attrs = mock_attrs(:tag)
 
-      {:ok, tag} = CMS.create_tag(community, :post, valid_attrs, %User{id: user.id})
+      {:ok, tag} = CMS.create_tag(community, :post, valid_attrs, user)
       assert tag.title == valid_attrs.title
     end
 
@@ -27,18 +27,14 @@ defmodule MastaniServer.Test.CMS do
       invalid_attrs = mock_attrs(:tag)
 
       assert {:error, _} =
-               CMS.create_tag(%Community{id: non_exsit_id()}, :post, invalid_attrs, %User{
-                 id: user.id
-               })
+               CMS.create_tag(%Community{id: non_exsit_id()}, :post, invalid_attrs, user)
     end
 
     test "create tag with non-exsit community fails", ~m(user)a do
       invalid_attrs = mock_attrs(:tag)
 
       assert {:error, _} =
-               CMS.create_tag(%Community{id: non_exsit_id()}, :post, invalid_attrs, %User{
-                 id: user.id
-               })
+               CMS.create_tag(%Community{id: non_exsit_id()}, :post, invalid_attrs, user)
     end
   end
 
@@ -49,7 +45,7 @@ defmodule MastaniServer.Test.CMS do
       valid_attrs = mock_attrs(:category, %{user_id: user.id})
       ~m(title raw)a = valid_attrs
 
-      {:ok, category} = CMS.create_category(~m(title raw)a, %User{id: user.id})
+      {:ok, category} = CMS.create_category(~m(title raw)a, user)
 
       assert category.title == valid_attrs.title
     end
@@ -58,15 +54,15 @@ defmodule MastaniServer.Test.CMS do
       valid_attrs = mock_attrs(:category, %{user_id: user.id})
       ~m(title raw)a = valid_attrs
 
-      assert {:ok, _} = CMS.create_category(~m(title raw)a, %User{id: user.id})
-      assert {:error, _} = CMS.create_category(~m(title)a, %User{id: user.id})
+      assert {:ok, _} = CMS.create_category(~m(title raw)a, user)
+      assert {:error, _} = CMS.create_category(~m(title)a, user)
     end
 
     test "update category with valid attrs", ~m(user)a do
       valid_attrs = mock_attrs(:category, %{user_id: user.id})
       ~m(title raw)a = valid_attrs
 
-      {:ok, category} = CMS.create_category(~m(title raw)a, %User{id: user.id})
+      {:ok, category} = CMS.create_category(~m(title raw)a, user)
 
       assert category.title == valid_attrs.title
       {:ok, updated} = CMS.update_category(%Category{id: category.id, title: "new title"})
@@ -78,16 +74,16 @@ defmodule MastaniServer.Test.CMS do
       valid_attrs = mock_attrs(:category, %{user_id: user.id})
       ~m(title raw)a = valid_attrs
 
-      {:ok, category} = CMS.create_category(~m(title raw)a, %User{id: user.id})
+      {:ok, category} = CMS.create_category(~m(title raw)a, user)
 
       new_category_attrs = %{title: "category2 title", raw: "category2 title"}
-      {:ok, category2} = CMS.create_category(new_category_attrs, %User{id: user.id})
+      {:ok, category2} = CMS.create_category(new_category_attrs, user)
 
       {:error, _} = CMS.update_category(%Category{id: category.id, title: category2.title})
     end
 
     test "can set a category to a community", ~m(community category)a do
-      {:ok, _} = CMS.set_category(%Community{id: community.id}, %Category{id: category.id})
+      {:ok, _} = CMS.set_category(community, category)
 
       {:ok, found_community} = ORM.find(Community, community.id, preload: :categories)
       {:ok, found_category} = ORM.find(Category, category.id, preload: :communities)
@@ -100,9 +96,8 @@ defmodule MastaniServer.Test.CMS do
     end
 
     test "can unset a category to a community", ~m(community category)a do
-      {:ok, _} = CMS.set_category(%Community{id: community.id}, %Category{id: category.id})
-
-      CMS.unset_category(%Community{id: community.id}, %Category{id: category.id})
+      {:ok, _} = CMS.set_category(community, category)
+      CMS.unset_category(community, category)
 
       {:ok, found_community} = ORM.find(Community, community.id, preload: :categories)
       {:ok, found_category} = ORM.find(Category, category.id, preload: :communities)
@@ -173,10 +168,7 @@ defmodule MastaniServer.Test.CMS do
       title = "POST"
       raw = title
       {:ok, thread} = CMS.create_thread(~m(title raw)a)
-      thread_id = thread.id
-      community_id = community.id
-
-      {:ok, ret_community} = CMS.set_thread(%Community{id: community_id}, %Thread{id: thread_id})
+      {:ok, ret_community} = CMS.set_thread(community, thread)
 
       assert ret_community.id == community.id
     end
@@ -193,7 +185,7 @@ defmodule MastaniServer.Test.CMS do
       related_rules = Certification.passport_rules(cms: title)
 
       {:ok, editor} = CommunityEditor |> ORM.find_by(user_id: user.id)
-      {:ok, user_passport} = CMS.get_passport(%User{id: user.id})
+      {:ok, user_passport} = CMS.get_passport(user)
 
       assert editor.user_id == user.id
       assert editor.community_id == community.id

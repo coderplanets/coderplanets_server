@@ -2,7 +2,7 @@ defmodule MastaniServer.Test.Mutation.RepoComment do
   use MastaniServer.TestTools
 
   alias Helper.ORM
-  alias MastaniServer.CMS
+  alias MastaniServer.{CMS, Delivery}
 
   setup do
     {:ok, repo} = db_insert(:repo)
@@ -11,15 +11,15 @@ defmodule MastaniServer.Test.Mutation.RepoComment do
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
 
-    {:ok, comment} = CMS.create_comment(:repo, repo.id, "test comment", user)
+    {:ok, comment} = CMS.create_comment(:repo, repo.id, %{body: "test comment"}, user)
 
     {:ok, ~m(user_conn guest_conn repo user comment)a}
   end
 
   describe "[repo comment CURD]" do
     @create_comment_query """
-    mutation($thread: CmsThread, $id: ID!, $body: String!) {
-      createComment(thread: $thread, id: $id, body: $body) {
+    mutation($thread: CmsThread, $id: ID!, $body: String!, $mentionUsers: [Ids]) {
+      createComment(thread: $thread, id: $id, body: $body, mentionUsers: $mentionUsers) {
         id
         body
       }
@@ -32,6 +32,32 @@ defmodule MastaniServer.Test.Mutation.RepoComment do
       {:ok, found} = ORM.find(CMS.RepoComment, created["id"])
 
       assert created["id"] == to_string(found.id)
+    end
+
+    test "can mention other user when create comment to repo", ~m(user_conn repo)a do
+      {:ok, user2} = db_insert(:user)
+
+      comment_body = "this is a comment"
+
+      variables =
+        %{thread: "REPO", id: repo.id, body: comment_body}
+        |> Map.merge(%{mentionUsers: [%{id: user2.id}]})
+
+      filter = %{page: 1, size: 20, read: false}
+      {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
+      assert mentions.total_count == 0
+
+      _created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
+
+      {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
+      assert mentions.total_count == 1
+      the_mention = mentions.entries |> List.first()
+
+      assert the_mention.source_title == repo.title
+      assert the_mention.source_type == "comment"
+      assert the_mention.parent_id == to_string(repo.id)
+      assert the_mention.parent_type == "repo"
+      assert the_mention.source_preview == comment_body
     end
 
     test "guest user create comment fails", ~m(guest_conn repo)a do
