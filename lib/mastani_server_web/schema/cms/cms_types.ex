@@ -17,7 +17,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:id, :id)
   end
 
-  object :post, meta: [max_age: 30] do
+  object :post do
+    meta(:cache, max_age: 30)
     interface(:article)
     field(:id, :id)
     field(:title, :string)
@@ -235,19 +236,22 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:index, :integer)
   end
 
-  object :contribute, meta: [max_age: 30] do
+  object :contribute do
+    meta(:cache, max_age: 30)
     field(:date, :date)
     field(:count, :integer)
   end
 
-  object :contribute_map, meta: [max_age: 30] do
+  object :contribute_map do
+    meta(:cache, max_age: 30)
     field(:start_date, :date)
     field(:end_date, :date)
     field(:total_count, :integer)
     field(:records, list_of(:contribute))
   end
 
-  object :community, meta: [max_age: 30] do
+  object :community do
+    meta(:cache, max_age: 30)
     field(:id, :id)
     field(:title, :string)
     field(:desc, :string)
@@ -384,7 +388,8 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     pagination_fields()
   end
 
-  object :paged_posts, meta: [max_age: 30] do
+  object :paged_posts do
+    meta(:cache, max_age: 30)
     field(:entries, list_of(:post))
     pagination_fields()
   end

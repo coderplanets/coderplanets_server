@@ -7,6 +7,7 @@ defmodule MastaniServerWeb.Schema.Statistics.Types do
   # alias MastaniServer.Accounts
 
   object :user_contribute do
+    meta(:cache, max_age: 30)
     field(:count, :integer)
     field(:date, :date)
   end
