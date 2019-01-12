@@ -486,6 +486,7 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
         title: "tools-libs",
         color: :cyan
       },
+
       # %{
       # title: "architecture",
       # color: :blue
