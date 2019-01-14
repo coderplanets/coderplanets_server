@@ -127,7 +127,7 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
   end
 
   def communities(:devops) do
-    ["git", "cps-support", "docker", "kubernetes"]
+    ["git", "cps-support", "docker", "kubernetes", "shell"]
   end
 
   @doc """
