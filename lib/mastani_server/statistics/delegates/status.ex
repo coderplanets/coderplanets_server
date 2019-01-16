@@ -4,7 +4,6 @@ defmodule MastaniServer.Statistics.Delegate.Status do
   """
 
   import Ecto.Query, warn: false
-  import Helper.Utils
   import ShortMaps
 
   # alias MastaniServer.Repo

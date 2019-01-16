@@ -366,7 +366,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  defp should_add_pin?(filter), do: {:error, :pass}
+  defp should_add_pin?(_filter), do: {:error, :pass}
 
   defp concat_contents(pined_content, normal_contents) do
     case pined_content |> Map.get(:total_count) do

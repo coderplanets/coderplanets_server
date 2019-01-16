@@ -33,7 +33,7 @@ defmodule MastaniServer.Billing.Delegate.CURD do
   def create_record(%User{id: user_id}, attrs) do
     with {:ok, user} <- ORM.find(User, user_id) do
       case ORM.find_by(BillRecord, user_id: user.id, state: "pending") do
-        {:ok, record} ->
+        {:ok, _record} ->
           {:error, [message: "you have pending bill", code: ecode(:exsit_pending_bill)]}
 
         {:error, _} ->
