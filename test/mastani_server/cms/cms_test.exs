@@ -148,7 +148,7 @@ defmodule MastaniServer.Test.CMS do
   # end
 
   describe "[cms community thread]" do
-    alias CMS.{Community, Thread}
+    alias CMS.Community
 
     test "can create thread to a community" do
       title = "post"
