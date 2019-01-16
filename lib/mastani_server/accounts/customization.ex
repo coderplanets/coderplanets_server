@@ -14,7 +14,7 @@ defmodule MastaniServer.Accounts.Customization do
   schema "customizations" do
     belongs_to(:user, User)
 
-    field(:theme, :boolean)
+    field(:theme, :string)
     field(:sidebar_layout, :map)
     field(:sidebar_communities_index, :map)
 

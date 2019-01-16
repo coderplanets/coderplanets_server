@@ -4,6 +4,7 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
   """
   import Ecto.Query, warn: false
   import Helper.Utils, only: [get_config: 2, map_atom_value: 2]
+  import ShortMaps
 
   alias Helper.ORM
   alias MastaniServer.Accounts
@@ -54,7 +55,9 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
   end
 
   def set_customization(%User{id: user_id} = user, map) when is_map(map) do
-    with {:ok, %{achievement: achievement}} <- ORM.find(User, user_id, preload: :achievement) do
+    with {:ok, ~m(achievement customization)a} <-
+           ORM.find(User, user_id, preload: [:achievement, :customization]) do
+      cur_c11n = extract_cur_c11n(customization)
       map = map |> map_atom_value(:string)
 
       valid? =
@@ -64,6 +67,7 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
 
       case valid? do
         true ->
+          map = Map.merge(cur_c11n, map)
           attrs = Map.merge(%{user_id: user.id}, map)
           Customization |> ORM.upsert_by([user_id: user.id], attrs)
 
@@ -84,6 +88,14 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
           {:error, "AccountCustomization: invalid option or not member"}
       end
     end
+  end
+
+  defp extract_cur_c11n(nil), do: @default_customization
+
+  defp extract_cur_c11n(%Customization{} = customization) do
+    customization = customization |> Map.from_struct() |> filter_nil_value
+
+    Map.merge(@default_customization, customization)
   end
 
   defp c11n_item_require?(:theme, %{
