@@ -56,7 +56,7 @@ defmodule MastaniServer.Mixfile do
       {:ecto_sql, "~> 3.0.3"},
       {:phoenix_ecto, "~> 4.0"},
       {:postgrex, ">= 0.14.1"},
-      {:gettext, "~> 0.11"},
+      {:gettext, "~> 0.16.1"},
       {:plug_cowboy, "~> 2.0"},
       {:plug, "~> 1.7.1"},
       # GraphQl tool

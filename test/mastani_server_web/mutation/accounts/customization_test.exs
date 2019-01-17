@@ -20,7 +20,7 @@ defmodule MastaniServer.Test.Mutation.Account.Customization do
       $customization: CustomizationInput!,
       $sidebarCommunitiesIndex: [CommunityIndex]
       ) {
-      setCustomization(
+    setCustomization(
       userId: $userId,
       customization: $customization,
       sidebarCommunitiesIndex: $sidebarCommunitiesIndex
@@ -52,6 +52,27 @@ defmodule MastaniServer.Test.Mutation.Account.Customization do
       assert result["customization"]["bannerLayout"] == "brief"
       assert result["customization"]["contentDivider"] == true
       assert result["customization"]["markViewed"] == false
+      assert result["customization"]["displayDensity"] == "25"
+    end
+
+    test "set single customization should merge not overwright other settings", ~m(user_conn)a do
+      variables = %{
+        customization: %{
+          bannerLayout: "BRIEF"
+        }
+      }
+
+      result = user_conn |> mutation_result(@query, variables, "setCustomization")
+      assert result["customization"]["bannerLayout"] == "brief"
+
+      variables = %{
+        customization: %{
+          displayDensity: "25"
+        }
+      }
+
+      result = user_conn |> mutation_result(@query, variables, "setCustomization")
+      assert result["customization"]["bannerLayout"] == "brief"
       assert result["customization"]["displayDensity"] == "25"
     end
 

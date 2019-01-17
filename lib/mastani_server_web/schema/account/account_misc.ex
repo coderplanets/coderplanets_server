@@ -67,12 +67,11 @@ defmodule MastaniServerWeb.Schema.Account.Misc do
     field(:community_chart, :boolean)
     field(:brainwash_free, :boolean)
 
-    field(:banner_layout, :cus_banner_layout_num, default_value: :digest)
-    field(:contents_layout, :cus_contents_layout_num, default_value: :digest)
+    field(:banner_layout, :cus_banner_layout_num)
+    field(:contents_layout, :cus_contents_layout_num)
     field(:content_divider, :boolean)
     field(:mark_viewed, :boolean)
-    field(:display_density, :string, default_value: "20")
-    # field(:sidebar_communities_index, list_of(:community_index))
+    field(:display_density, :string)
   end
 
   input_object :community_index do
