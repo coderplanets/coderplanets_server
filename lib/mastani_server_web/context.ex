@@ -42,7 +42,7 @@ defmodule MastaniServerWeb.Context do
 
   defp authorize(token) do
     with {:ok, claims, _info} <- Guardian.jwt_decode(token) do
-      case ORM.find(Accounts.User, claims.id) do
+      case ORM.find(Accounts.User, claims.id, preload: :customization) do
         {:ok, user} ->
           check_passport(user)
 
