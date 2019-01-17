@@ -16,6 +16,16 @@ defmodule MastaniServerWeb.Middleware.PageSizeProof do
   # 3. large size should trigger error
   def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
 
+  def call(%{context: %{cur_user: %{customization: customization}}} = resolution, _info)
+      when not is_nil(customization) do
+    size = String.to_integer(customization.display_density)
+
+    filter = resolution.arguments.filter |> Map.merge(%{size: size})
+    arguments = resolution.arguments |> Map.merge(%{filter: filter})
+
+    %{resolution | arguments: sort_desc_by_default(arguments)}
+  end
+
   def call(resolution, _) do
     case valid_size(resolution.arguments) do
       {:error, msg} ->

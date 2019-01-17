@@ -3,6 +3,9 @@ defmodule MastaniServer.Test.Mutation.Account.Customization do
 
   # alias MastaniServer.{Accounts}
   # alias Helper.ORM
+  import Helper.Utils, only: [get_config: 2]
+
+  @max_page_size get_config(:general, :page_size)
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -53,6 +56,48 @@ defmodule MastaniServer.Test.Mutation.Account.Customization do
       assert result["customization"]["contentDivider"] == true
       assert result["customization"]["markViewed"] == false
       assert result["customization"]["displayDensity"] == "25"
+    end
+
+    @paged_post_query """
+    query($filter: PagedArticleFilter!) {
+      pagedPosts(filter: $filter) {
+        pageSize
+        pageNumber
+      }
+    }
+    """
+    test "PageSizeProof middleware should load items based on c11n settings", ~m(user)a do
+      user_conn = simu_conn(:user, user)
+      db_insert_multi(:post, 50)
+
+      variables = %{filter: %{page: 1}}
+      results = user_conn |> query_result(@paged_post_query, variables, "pagedPosts")
+      assert results["pageSize"] == @max_page_size
+
+      variables = %{
+        customization: %{
+          displayDensity: "25"
+        }
+      }
+
+      user_conn |> mutation_result(@query, variables, "setCustomization")
+
+      variables = %{filter: %{page: 1}}
+      results = user_conn |> query_result(@paged_post_query, variables, "pagedPosts")
+      assert results["pageSize"] == 25
+
+      variables = %{
+        customization: %{
+          displayDensity: "20"
+        }
+      }
+
+      user_conn |> mutation_result(@query, variables, "setCustomization")
+
+      variables = %{filter: %{page: 2}}
+      results = user_conn |> query_result(@paged_post_query, variables, "pagedPosts")
+      assert results["pageSize"] == 20
+      assert results["pageNumber"] == 2
     end
 
     test "set single customization should merge not overwright other settings", ~m(user_conn)a do
