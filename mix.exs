@@ -93,7 +93,9 @@ defmodule MastaniServer.Mixfile do
       {:excoveralls, "~> 0.8", only: :test},
       {:sentry, "~> 6.4"},
       {:recase, "~> 0.3.0"},
-      {:nanoid, "~> 2.0.0"}
+      {:nanoid, "~> 2.0.0"},
+      # redirect www -> non-www
+      {:plug_canonical_host, "~> 0.3.1"}
     ]
   end
 
