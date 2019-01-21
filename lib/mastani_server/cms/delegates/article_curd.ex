@@ -397,7 +397,10 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
 
   defp create_content_result({:ok, %{add_content_author: result}}), do: {:ok, result}
 
-  # TODO: need more spec error handle
+  defp create_content_result({:error, :add_content_author, %Ecto.Changeset{} = result, _steps}) do
+    {:error, result}
+  end
+
   defp create_content_result({:error, :add_content_author, _result, _steps}) do
     {:error, [message: "create cms content author", code: ecode(:create_fails)]}
   end

@@ -35,6 +35,10 @@ defmodule MastaniServer.CMS.Delegate.ArticleReaction do
 
   defp reaction_result({:ok, %{create_reaction_record: result}}), do: result |> done()
 
+  defp reaction_result({:error, :create_reaction_record, %Ecto.Changeset{} = result, _steps}) do
+    {:error, result}
+  end
+
   defp reaction_result({:error, :create_reaction_record, _result, _steps}) do
     {:error, [message: "create reaction fails", code: ecode(:react_fails)]}
   end

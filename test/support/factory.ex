@@ -14,7 +14,7 @@ defmodule MastaniServer.Support.Factory do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
 
     %{
-      title: Faker.Lorem.Shakespeare.king_richard_iii(),
+      title: String.slice(body, 1, 49),
       body: body,
       digest: String.slice(body, 1, 150),
       length: String.length(body),
@@ -32,10 +32,10 @@ defmodule MastaniServer.Support.Factory do
     source_enum = ["youtube", "bilibil", "vimeo", "other"]
 
     %{
-      title: Faker.Lorem.Shakespeare.king_richard_iii(),
+      title: String.slice(desc, 1, 49),
       poster: Faker.Avatar.image_url(),
       thumbnil: Faker.Avatar.image_url(),
-      desc: desc,
+      desc: String.slice(desc, 1, 49),
       duration: "03:30",
       duration_sec: Enum.random(300..12_000),
       source: source_enum |> Enum.at(Enum.random(0..(length(source_enum) - 1))),
@@ -56,7 +56,7 @@ defmodule MastaniServer.Support.Factory do
     desc = Faker.Lorem.sentence(%Range{first: 15, last: 60})
 
     %{
-      title: Faker.Lorem.Shakespeare.king_richard_iii(),
+      title: String.slice(desc, 1, 49),
       owner_name: "coderplanets",
       owner_url: "http://www.github.com/coderplanets",
       repo_url: "http://www.github.com/coderplanets//coderplanets_server",
@@ -138,7 +138,7 @@ defmodule MastaniServer.Support.Factory do
     scale_enum = ["少于15人", "15-50人", "50-150人", "150-500人", "500-2000人", "2000人以上"]
 
     %{
-      title: Faker.Lorem.Shakespeare.king_richard_iii(),
+      title: String.slice(body, 1, 49),
       company: Faker.Company.name(),
       company_logo: Faker.Avatar.image_url(),
       body: body,

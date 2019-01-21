@@ -90,6 +90,9 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
     User |> ORM.find(editor.user_id)
   end
 
+  defp set_editor_result({:error, :stamp_passport, %Ecto.Changeset{} = result, _steps}),
+    do: {:error, result}
+
   defp set_editor_result({:error, :stamp_passport, _result, _steps}),
     do: {:error, "stamp passport error"}
 

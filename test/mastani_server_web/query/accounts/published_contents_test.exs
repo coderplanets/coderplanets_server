@@ -32,6 +32,7 @@ defmodule MastaniServer.Test.Query.Accounts.PublishedContents do
       }
     }
     """
+    @tag :wip
     test "user can get paged published posts", ~m(guest_conn user community)a do
       pub_posts =
         Enum.reduce(1..@publish_count, [], fn _, acc ->

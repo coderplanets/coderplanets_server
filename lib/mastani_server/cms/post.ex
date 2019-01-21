@@ -87,15 +87,21 @@ defmodule MastaniServer.CMS.Post do
     post
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
-
-    # |> foreign_key_constraint(:posts_tags, name: :posts_tags_tag_id_fkey)
-    # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)
+    |> generl_changeset
   end
 
   @doc false
   def update_changeset(%Post{} = post, attrs) do
     post
     |> cast(attrs, @optional_fields ++ @required_fields)
+    |> generl_changeset
+  end
+
+  defp generl_changeset(content) do
+    content
+    |> validate_length(:title, min: 3, max: 50)
+    |> validate_length(:body, min: 3, max: 10_000)
+    |> validate_length(:link_addr, min: 5, max: 200)
 
     # |> foreign_key_constraint(:posts_tags, name: :posts_tags_tag_id_fkey)
     # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)

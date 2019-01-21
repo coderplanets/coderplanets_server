@@ -50,6 +50,10 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
     User |> ORM.find(user_follower.user_id)
   end
 
+  defp follow_result({:error, :create_follower, %Ecto.Changeset{} = result, _steps}) do
+    {:error, [message: "already followed", code: ecode(:already_did)]}
+  end
+
   defp follow_result({:error, :create_follower, _result, _steps}) do
     {:error, [message: "already followed", code: ecode(:already_did)]}
   end
