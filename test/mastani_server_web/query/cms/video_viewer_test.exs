@@ -82,7 +82,6 @@ defmodule MastaniServer.Test.Query.VideoViewer do
     }
   }
   """
-  @tag :wip
   test "user get has viewed flag after query/read the video", ~m(user_conn community video)a do
     variables = %{filter: %{community: community.raw}}
     results = user_conn |> query_result(@paged_query, variables, "pagedVideos")

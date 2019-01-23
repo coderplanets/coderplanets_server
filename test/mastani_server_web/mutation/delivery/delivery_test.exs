@@ -138,6 +138,7 @@ defmodule MastaniServer.Test.Mutation.Delivery do
       $sourceId: ID!
       $sourceType: String!
       $sourcePreview: String!
+      $community: String!
     ) {
       mentionOthers(
         userIds: $userIds
@@ -145,6 +146,7 @@ defmodule MastaniServer.Test.Mutation.Delivery do
         sourceId: $sourceId
         sourceType: $sourceType
         sourcePreview: $sourcePreview
+        community: $community
       ) {
         done
       }
@@ -161,6 +163,7 @@ defmodule MastaniServer.Test.Mutation.Delivery do
         sourceTitle: "fake post title",
         sourceType: "post",
         sourcePreview: "preview",
+        community: "elixir",
         userIds: [%{id: user2.id}]
       }
 
@@ -168,8 +171,9 @@ defmodule MastaniServer.Test.Mutation.Delivery do
       filter = %{page: 1, size: 20, read: false}
       {:ok, mentions} = Accounts.fetch_mentions(user2, filter)
 
-      assert variables.sourceTitle == mentions.entries |> List.first() |> Map.get(:source_title)
-      assert user.id == mentions.entries |> List.first() |> Map.get(:from_user_id)
+      assert mentions.entries |> List.first() |> Map.get(:source_title) == variables.sourceTitle
+      assert mentions.entries |> List.first() |> Map.get(:from_user_id) == user.id
+      assert mentions.entries |> List.first() |> Map.get(:community) == "elixir"
     end
 
     test "unauth user send mention fails", ~m(guest_conn)a do
@@ -180,6 +184,7 @@ defmodule MastaniServer.Test.Mutation.Delivery do
         sourceTitle: "fake post title",
         sourceType: "post",
         sourcePreview: "preview",
+        community: "elixir",
         userIds: [%{id: user2.id}]
       }
 

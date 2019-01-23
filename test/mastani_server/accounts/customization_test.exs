@@ -12,7 +12,6 @@ defmodule MastaniServer.Test.Accounts.Customization do
   end
 
   describe "[user customization]" do
-    @tag :wip
     test "user can have default customization", ~m(user)a do
       {:ok, result} = Accounts.get_customization(user)
 
