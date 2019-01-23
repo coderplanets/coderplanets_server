@@ -70,6 +70,7 @@ defmodule MastaniServerWeb.Schema.Account.Misc do
     field(:banner_layout, :cus_banner_layout_num)
     field(:contents_layout, :cus_contents_layout_num)
     field(:content_divider, :boolean)
+    field(:content_hover, :boolean)
     field(:mark_viewed, :boolean)
     field(:display_density, :string)
   end
