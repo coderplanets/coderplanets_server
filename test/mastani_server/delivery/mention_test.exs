@@ -23,7 +23,8 @@ defmodule MastaniServer.Test.Delivery.Mention do
 
       assert mentions |> is_valid_pagination?(:raw)
       assert mentions |> Map.get(:total_count) == 1
-      assert user.id == mentions.entries |> List.first() |> Map.get(:to_user_id)
+      assert mentions.entries |> List.first() |> Map.get(:to_user_id) == user.id
+      assert mentions.entries |> List.first() |> Map.get(:community) == "elixir"
     end
 
     test "user can fetch mentions and store in own mention mail-box" do

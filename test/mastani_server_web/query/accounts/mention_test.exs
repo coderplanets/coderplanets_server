@@ -65,6 +65,7 @@ defmodule MastaniServer.Test.Query.Accounts.Mention do
           sourceTitle
           sourcePreview
           sourceType
+          community
           read
         }
         totalPages
@@ -89,6 +90,7 @@ defmodule MastaniServer.Test.Query.Accounts.Mention do
       assert results["totalCount"] == 1
 
       assert results["entries"] |> Enum.any?(&(&1["toUserId"] == to_string(user.id)))
+      assert results["entries"] |> Enum.any?(&(&1["community"] == "elixir"))
     end
   end
 end

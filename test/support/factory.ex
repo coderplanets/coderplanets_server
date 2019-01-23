@@ -383,6 +383,7 @@ defmodule MastaniServer.Support.Factory do
       unique_num = System.unique_integer([:positive, :monotonic])
 
       info = %{
+        community: "elixir",
         source_id: "1",
         source_title: "Title #{unique_num}",
         source_type: "post",

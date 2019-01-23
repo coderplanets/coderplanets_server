@@ -29,6 +29,7 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
           source_preview: info.source_preview,
           parent_id: stringfy(Map.get(info, :parent_id)),
           parent_type: stringfy(Map.get(info, :parent_type)),
+          community: Map.get(info, :community),
           # timestamp are not auto-gen, see:
           # https://stackoverflow.com/questions/37537094/insert-all-does-not-create-auto-generated-inserted-at-with-ecto-2-0/46844417
           # Ecto.DateTime.utc(),
