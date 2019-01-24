@@ -78,7 +78,7 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
 
   def mention_from_content(_community, _thread, _, _, _user), do: {:ok, :pass}
 
-  def mention_from_comment(thread, content, comment, args, %User{} = from_user) do
+  def mention_from_comment(community, thread, content, comment, args, %User{} = from_user) do
     to_user_ids = Map.get(args, :mention_users)
 
     info = %{
@@ -88,7 +88,8 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
       source_preview: comment.body,
       floor: comment.floor,
       parent_id: content.id,
-      parent_type: thread
+      parent_type: thread,
+      community: community
     }
 
     mention_others(from_user, to_user_ids, info)

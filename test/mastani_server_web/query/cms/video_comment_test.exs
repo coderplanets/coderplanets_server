@@ -6,11 +6,12 @@ defmodule MastaniServer.Test.Query.VideoComment do
   setup do
     {:ok, video} = db_insert(:video)
     {:ok, user} = db_insert(:user)
+    {:ok, community} = db_insert(:community)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
 
-    {:ok, ~m(user_conn guest_conn video user)a}
+    {:ok, ~m(user_conn guest_conn video user community)a}
   end
 
   describe "[video dataloader comment]" do
@@ -46,10 +47,20 @@ defmodule MastaniServer.Test.Query.VideoComment do
       guest_conn |> query_result(@query, variables, "pagedVideos")
 
       body = "this is a test comment"
-      assert {:ok, _comment} = CMS.create_comment(:video, video.id, %{body: body}, user)
-      assert {:ok, _comment} = CMS.create_comment(:video, video.id, %{body: body}, user)
 
-      assert {:ok, _comment} = CMS.create_comment(:video, video.id, %{body: body}, user2)
+      assert {:ok, _comment} =
+               CMS.create_comment(:video, video.id, %{community: community.raw, body: body}, user)
+
+      assert {:ok, _comment} =
+               CMS.create_comment(:video, video.id, %{community: community.raw, body: body}, user)
+
+      assert {:ok, _comment} =
+               CMS.create_comment(
+                 :video,
+                 video.id,
+                 %{community: community.raw, body: body},
+                 user2
+               )
 
       variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedVideos")
@@ -70,12 +81,12 @@ defmodule MastaniServer.Test.Query.VideoComment do
 
       Enum.each(
         users_list,
-        &CMS.create_comment(:video, video1.id, %{body: body}, &1)
+        &CMS.create_comment(:video, video1.id, %{community: community.raw, body: body}, &1)
       )
 
       Enum.each(
         users_list2,
-        &CMS.create_comment(:video, video2.id, %{body: body}, &1)
+        &CMS.create_comment(:video, video2.id, %{community: community.raw, body: body}, &1)
       )
 
       variables = %{thread: "VIDEO", filter: %{community: community.raw}}
@@ -96,7 +107,7 @@ defmodule MastaniServer.Test.Query.VideoComment do
 
       Enum.each(
         users_list,
-        &CMS.create_comment(:video, video.id, %{body: body}, &1)
+        &CMS.create_comment(:video, video.id, %{community: community.raw, body: body}, &1)
       )
 
       variables = %{filter: %{community: community.raw}}
@@ -130,7 +141,7 @@ defmodule MastaniServer.Test.Query.VideoComment do
 
     Enum.each(
       users_list,
-      &CMS.create_comment(:video, video.id, %{body: body}, &1)
+      &CMS.create_comment(:video, video.id, %{community: community.raw, body: body}, &1)
     )
 
     variables = %{id: video.id, thread: "VIDEO", filter: %{page: 1, size: 20}}
@@ -159,7 +170,9 @@ defmodule MastaniServer.Test.Query.VideoComment do
 
       {:ok, community} = db_insert(:community)
       {:ok, video} = CMS.create_content(community, :video, mock_attrs(:video), user)
-      {:ok, _comment} = CMS.create_comment(:video, video.id, %{body: body}, user)
+
+      {:ok, _comment} =
+        CMS.create_comment(:video, video.id, %{community: community.raw, body: body}, user)
 
       variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedVideos")
@@ -183,11 +196,12 @@ defmodule MastaniServer.Test.Query.VideoComment do
       }
     }
     """
-    test "guest user can get a paged comment", ~m(guest_conn video user)a do
+    test "guest user can get a paged comment", ~m(guest_conn video user community)a do
       body = "test comment"
 
       Enum.reduce(1..30, [], fn _, acc ->
-        {:ok, value} = CMS.create_comment(:video, video.id, %{body: body}, user)
+        {:ok, value} =
+          CMS.create_comment(:video, video.id, %{community: community.raw, body: body}, user)
 
         acc ++ [value]
       end)
@@ -199,12 +213,13 @@ defmodule MastaniServer.Test.Query.VideoComment do
       assert results["totalCount"] == 30
     end
 
-    test "MOST_LIKES filter should work", ~m(guest_conn video user)a do
+    test "MOST_LIKES filter should work", ~m(guest_conn video user community)a do
       body = "test comment"
 
       comments =
         Enum.reduce(1..10, [], fn _, acc ->
-          {:ok, value} = CMS.create_comment(:video, video.id, %{body: body}, user)
+          {:ok, value} =
+            CMS.create_comment(:video, video.id, %{community: community.raw, body: body}, user)
 
           acc ++ [value]
         end)
@@ -242,12 +257,13 @@ defmodule MastaniServer.Test.Query.VideoComment do
       assert entries |> Enum.at(1) |> Map.get("likesCount") == 4
     end
 
-    test "MOST_DISLIKES filter should work", ~m(guest_conn video user)a do
+    test "MOST_DISLIKES filter should work", ~m(guest_conn video user community)a do
       body = "test comment"
 
       comments =
         Enum.reduce(1..10, [], fn _, acc ->
-          {:ok, value} = CMS.create_comment(:video, video.id, %{body: body}, user)
+          {:ok, value} =
+            CMS.create_comment(:video, video.id, %{community: community.raw, body: body}, user)
 
           acc ++ [value]
         end)
@@ -293,10 +309,11 @@ defmodule MastaniServer.Test.Query.VideoComment do
       }
     }
     """
-    test "login user can get hasLiked feedBack", ~m(user_conn video user)a do
+    test "login user can get hasLiked feedBack", ~m(user_conn video user community)a do
       body = "test comment"
 
-      {:ok, comment} = CMS.create_comment(:video, video.id, %{body: body}, user)
+      {:ok, comment} =
+        CMS.create_comment(:video, video.id, %{community: community.raw, body: body}, user)
 
       {:ok, _like} = CMS.like_comment(:video_comment, comment.id, user)
 
@@ -336,9 +353,11 @@ defmodule MastaniServer.Test.Query.VideoComment do
       }
     }
     """
-    test "guest user can get replies info", ~m(guest_conn video user)a do
+    test "guest user can get replies info", ~m(guest_conn video user community)a do
       body = "test comment"
-      {:ok, comment} = CMS.create_comment(:video, video.id, %{body: body}, user)
+
+      {:ok, comment} =
+        CMS.create_comment(:video, video.id, %{community: community.raw, body: body}, user)
 
       {:ok, reply} = CMS.reply_comment(:video, comment.id, %{body: "reply body"}, user)
 

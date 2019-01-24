@@ -6,12 +6,13 @@ defmodule MastaniServer.Test.Mutation.Post do
 
   setup do
     {:ok, post} = db_insert(:post)
+    {:ok, community} = db_insert(:community)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
     owner_conn = simu_conn(:owner, post)
 
-    {:ok, ~m(user_conn guest_conn owner_conn post)a}
+    {:ok, ~m(user_conn guest_conn owner_conn community post)a}
   end
 
   describe "[mutation post curd]" do
@@ -567,15 +568,15 @@ defmodule MastaniServer.Test.Mutation.Post do
 
   describe "[mutation post comment]" do
     @create_comment_query """
-    mutation($thread: CmsThread!, $id: ID!, $body: String!) {
-      createComment(thread: $thread,id: $id, body: $body) {
+    mutation($community: String!, $thread: CmsThread!, $id: ID!, $body: String!) {
+      createComment(community: $community, thread: $thread,id: $id, body: $body) {
         id
         body
       }
     }
     """
-    test "create comment to a exsit post", ~m(post user_conn)a do
-      variables = %{thread: "POST", id: post.id, body: "a test comment"}
+    test "create comment to a exsit post", ~m(post user_conn community)a do
+      variables = %{community: community.raw, thread: "POST", id: post.id, body: "a test comment"}
       created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
 
       assert created["body"] == variables.body
@@ -588,8 +589,14 @@ defmodule MastaniServer.Test.Mutation.Post do
       }
     }
     """
-    test "delete a comment", ~m(post user_conn)a do
-      variables1 = %{thread: "POST", id: post.id, body: "a test comment"}
+    test "delete a comment", ~m(post user_conn community)a do
+      variables1 = %{
+        community: community.raw,
+        thread: "POST",
+        id: post.id,
+        body: "a test comment"
+      }
+
       created = user_conn |> mutation_result(@create_comment_query, variables1, "createComment")
       assert created["body"] == variables1.body
 

@@ -10,42 +10,53 @@ defmodule MastaniServer.Test.CMS.RepoComment do
   setup do
     {:ok, repo} = db_insert(:repo)
     {:ok, user} = db_insert(:user)
+    {:ok, community} = db_insert(:community)
 
     body = "this is a test comment"
 
-    {:ok, comment} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
+    {:ok, comment} =
+      CMS.create_comment(:repo, repo.id, %{community: community.raw, body: body}, user)
 
-    {:ok, ~m(repo user comment)a}
+    {:ok, ~m(repo user comment community)a}
   end
 
   describe "[comment CURD]" do
-    test "login user comment to exsiting repo", ~m(repo user)a do
+    test "login user comment to exsiting repo", ~m(repo user community)a do
       body = "this is a test comment"
 
-      assert {:ok, comment} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
+      assert {:ok, comment} =
+               CMS.create_comment(:repo, repo.id, %{community: community.raw, body: body}, user)
 
       assert comment.repo_id == repo.id
       assert comment.body == body
       assert comment.author_id == user.id
     end
 
-    test "created comment should have a increased floor number", ~m(repo user)a do
+    test "created comment should have a increased floor number", ~m(repo user community)a do
       body = "this is a test comment"
 
-      assert {:ok, comment1} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
+      assert {:ok, comment1} =
+               CMS.create_comment(:repo, repo.id, %{community: community.raw, body: body}, user)
 
       {:ok, user2} = db_insert(:user)
 
-      assert {:ok, comment2} = CMS.create_comment(:repo, repo.id, %{body: body}, user2)
+      assert {:ok, comment2} =
+               CMS.create_comment(:repo, repo.id, %{community: community.raw, body: body}, user2)
 
       assert comment1.floor == 2
       assert comment2.floor == 3
     end
 
-    test "create comment to non-exsit repo fails", ~m(user)a do
+    test "create comment to non-exsit repo fails", ~m(user community)a do
       body = "this is a test comment"
 
-      assert {:error, _} = CMS.create_comment(:repo, non_exsit_id(), %{body: body}, user)
+      assert {:error, _} =
+               CMS.create_comment(
+                 :repo,
+                 non_exsit_id(),
+                 %{community: community.raw, body: body},
+                 user
+               )
     end
 
     test "can reply a comment, and reply should be in comment replies list", ~m(comment user)a do
@@ -63,24 +74,26 @@ defmodule MastaniServer.Test.CMS.RepoComment do
       assert comment_preload.replies |> Enum.any?(&(&1.reply_id == reply.id))
     end
 
-    test "comment can be deleted", ~m(repo user)a do
+    test "comment can be deleted", ~m(repo community user)a do
       body = "this is a test comment"
 
-      assert {:ok, comment} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
+      assert {:ok, comment} =
+               CMS.create_comment(:repo, repo.id, %{community: community.raw, body: body}, user)
 
       {:ok, deleted} = CMS.delete_comment(:repo, comment.id)
       assert deleted.id == comment.id
     end
 
     test "after delete, the coments of id > deleted.id should decrease the floor number",
-         ~m(repo user)a do
+         ~m(repo community user)a do
       body = "this is a test comment"
       # in setup we have a comment
       total = 30 + 1
 
       comments =
         Enum.reduce(1..total, [], fn _, acc ->
-          {:ok, value} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
+          {:ok, value} =
+            CMS.create_comment(:repo, repo.id, %{community: community.raw, body: body}, user)
 
           acc ++ [value]
         end)
@@ -117,11 +130,12 @@ defmodule MastaniServer.Test.CMS.RepoComment do
         RepoCommentReply |> ORM.find_by(repo_comment_id: comment.id, reply_id: reply.id)
     end
 
-    test "comments pagination should work", ~m(repo user)a do
+    test "comments pagination should work", ~m(repo community user)a do
       body = "fake comment"
 
       Enum.reduce(1..30, [], fn _, acc ->
-        {:ok, value} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
+        {:ok, value} =
+          CMS.create_comment(:repo, repo.id, %{community: community.raw, body: body}, user)
 
         acc ++ [value]
       end)

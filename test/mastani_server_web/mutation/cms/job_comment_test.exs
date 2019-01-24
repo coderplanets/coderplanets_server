@@ -7,6 +7,7 @@ defmodule MastaniServer.Test.Mutation.JobComment do
   setup do
     {:ok, job} = db_insert(:job)
     {:ok, user} = db_insert(:user)
+    {:ok, community} = db_insert(:community)
 
     # {:ok, user2} = db_insert(:user)
     # {:ok, post2} = db_insert(:post)
@@ -14,22 +15,23 @@ defmodule MastaniServer.Test.Mutation.JobComment do
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
 
-    {:ok, comment} = CMS.create_comment(:job, job.id, %{body: "test comment"}, user)
+    {:ok, comment} =
+      CMS.create_comment(:job, job.id, %{community: community.raw, body: "test comment"}, user)
 
-    {:ok, ~m(user_conn guest_conn job user comment)a}
+    {:ok, ~m(user_conn guest_conn job user community comment)a}
   end
 
   describe "[job comment CURD]" do
     @create_comment_query """
-    mutation($thread: CmsThread, $id: ID!, $body: String!, $mentionUsers: [Ids]) {
-      createComment(thread: $thread, id: $id, body: $body, mentionUsers: $mentionUsers) {
+    mutation($community: String!, $thread: CmsThread, $id: ID!, $body: String!, $mentionUsers: [Ids]) {
+      createComment(community: $community, thread: $thread, id: $id, body: $body, mentionUsers: $mentionUsers) {
         id
         body
       }
     }
     """
-    test "login user can create comment to a job", ~m(user_conn job)a do
-      variables = %{thread: "JOB", id: job.id, body: "this a comment"}
+    test "login user can create comment to a job", ~m(user_conn community job)a do
+      variables = %{community: community.raw, thread: "JOB", id: job.id, body: "this a comment"}
       created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
 
       {:ok, found} = ORM.find(CMS.JobComment, created["id"])
@@ -37,13 +39,13 @@ defmodule MastaniServer.Test.Mutation.JobComment do
       assert created["id"] == to_string(found.id)
     end
 
-    test "can mention other user when create comment to job", ~m(user_conn job)a do
+    test "can mention other user when create comment to job", ~m(user_conn community job)a do
       {:ok, user2} = db_insert(:user)
 
       comment_body = "this is a comment"
 
       variables =
-        %{thread: "JOB", id: job.id, body: comment_body}
+        %{community: community.raw, thread: "JOB", id: job.id, body: comment_body}
         |> Map.merge(%{mentionUsers: [%{id: user2.id}]})
 
       filter = %{page: 1, size: 20, read: false}
@@ -63,8 +65,8 @@ defmodule MastaniServer.Test.Mutation.JobComment do
       assert the_mention.source_preview == comment_body
     end
 
-    test "guest user create comment fails", ~m(guest_conn job)a do
-      variables = %{thread: "JOB", id: job.id, body: "this a comment"}
+    test "guest user create comment fails", ~m(guest_conn job community)a do
+      variables = %{community: community.raw, thread: "JOB", id: job.id, body: "this a comment"}
 
       assert guest_conn
              |> mutation_get_error?(@create_comment_query, variables, ecode(:account_login))
@@ -78,8 +80,9 @@ defmodule MastaniServer.Test.Mutation.JobComment do
       }
     }
     """
-    test "comment owner can delete comment", ~m(user job)a do
-      variables = %{thread: "JOB", id: job.id, body: "this a comment"}
+
+    test "comment owner can delete comment", ~m(user community job)a do
+      variables = %{community: community.raw, thread: "JOB", id: job.id, body: "this a comment"}
 
       user_conn = simu_conn(:user, user)
       created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
@@ -95,8 +98,8 @@ defmodule MastaniServer.Test.Mutation.JobComment do
       assert deleted["id"] == created["id"]
     end
 
-    test "unauth user delete comment fails", ~m(user_conn guest_conn job)a do
-      variables = %{thread: "JOB", id: job.id, body: "this a comment"}
+    test "unauth user delete comment fails", ~m(user_conn guest_conn community job)a do
+      variables = %{community: community.raw, thread: "JOB", id: job.id, body: "this a comment"}
       {:ok, owner} = db_insert(:user)
       owner_conn = simu_conn(:user, owner)
       created = owner_conn |> mutation_result(@create_comment_query, variables, "createComment")

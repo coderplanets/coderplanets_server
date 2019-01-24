@@ -6,11 +6,12 @@ defmodule MastaniServer.Test.Query.RepoComment do
   setup do
     {:ok, repo} = db_insert(:repo)
     {:ok, user} = db_insert(:user)
+    {:ok, community} = db_insert(:community)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
 
-    {:ok, ~m(user_conn guest_conn repo user)a}
+    {:ok, ~m(user_conn guest_conn repo community user)a}
   end
 
   describe "[repo dataloader comment]" do
@@ -36,7 +37,8 @@ defmodule MastaniServer.Test.Query.RepoComment do
       }
     }
     """
-    test "can get comments participators of a repo", ~m(user guest_conn)a do
+
+    test "can get comments participators of a repo", ~m(guest_conn user)a do
       {:ok, user2} = db_insert(:user)
 
       {:ok, community} = db_insert(:community)
@@ -46,10 +48,15 @@ defmodule MastaniServer.Test.Query.RepoComment do
       guest_conn |> query_result(@query, variables, "pagedRepos")
 
       body = "this is a test comment"
-      assert {:ok, _comment} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
-      assert {:ok, _comment} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
 
-      assert {:ok, _comment} = CMS.create_comment(:repo, repo.id, %{body: body}, user2)
+      assert {:ok, _comment} =
+               CMS.create_comment(:repo, repo.id, %{community: community.raw, body: body}, user)
+
+      assert {:ok, _comment} =
+               CMS.create_comment(:repo, repo.id, %{community: community.raw, body: body}, user)
+
+      assert {:ok, _comment} =
+               CMS.create_comment(:repo, repo.id, %{community: community.raw, body: body}, user2)
 
       variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
@@ -59,7 +66,7 @@ defmodule MastaniServer.Test.Query.RepoComment do
       assert comments_count == 3
     end
 
-    test "can get comments participators of a repo with multi user", ~m(user guest_conn)a do
+    test "can get comments participators of a repo with multi user", ~m(guest_conn user)a do
       body = "this is a test comment"
       {:ok, community} = db_insert(:community)
       {:ok, repo1} = CMS.create_content(community, :repo, mock_attrs(:repo), user)
@@ -70,12 +77,12 @@ defmodule MastaniServer.Test.Query.RepoComment do
 
       Enum.each(
         users_list,
-        &CMS.create_comment(:repo, repo1.id, %{body: body}, &1)
+        &CMS.create_comment(:repo, repo1.id, %{community: community.raw, body: body}, &1)
       )
 
       Enum.each(
         users_list2,
-        &CMS.create_comment(:repo, repo2.id, %{body: body}, &1)
+        &CMS.create_comment(:repo, repo2.id, %{community: community.raw, body: body}, &1)
       )
 
       variables = %{thread: "REPO", filter: %{community: community.raw}}
@@ -87,7 +94,7 @@ defmodule MastaniServer.Test.Query.RepoComment do
       assert results["entries"] |> List.last() |> Map.get("commentsParticipators") |> length == 10
     end
 
-    test "can get paged commetns participators of a repo", ~m(user guest_conn)a do
+    test "can get paged commetns participators of a repo", ~m(guest_conn user)a do
       body = "this is a test comment"
 
       {:ok, community} = db_insert(:community)
@@ -96,7 +103,7 @@ defmodule MastaniServer.Test.Query.RepoComment do
 
       Enum.each(
         users_list,
-        &CMS.create_comment(:repo, repo.id, %{body: body}, &1)
+        &CMS.create_comment(:repo, repo.id, %{community: community.raw, body: body}, &1)
       )
 
       variables = %{filter: %{community: community.raw}}
@@ -121,7 +128,8 @@ defmodule MastaniServer.Test.Query.RepoComment do
     }
   }
   """
-  test "can get repo's paged commetns participators", ~m(user guest_conn)a do
+
+  test "can get repo's paged commetns participators", ~m(guest_conn user)a do
     body = "this is a test comment"
 
     {:ok, community} = db_insert(:community)
@@ -130,7 +138,7 @@ defmodule MastaniServer.Test.Query.RepoComment do
 
     Enum.each(
       users_list,
-      &CMS.create_comment(:repo, repo.id, %{body: body}, &1)
+      &CMS.create_comment(:repo, repo.id, %{community: community.raw, body: body}, &1)
     )
 
     variables = %{id: repo.id, thread: "REPO", filter: %{page: 1, size: 20}}
@@ -154,12 +162,15 @@ defmodule MastaniServer.Test.Query.RepoComment do
       }
     }
     """
+
     test "can get comments info in paged repos", ~m(user guest_conn)a do
       body = "this is a test comment"
 
       {:ok, community} = db_insert(:community)
       {:ok, repo} = CMS.create_content(community, :repo, mock_attrs(:repo), user)
-      {:ok, _comment} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
+
+      {:ok, _comment} =
+        CMS.create_comment(:repo, repo.id, %{community: community.raw, body: body}, user)
 
       variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
@@ -183,11 +194,12 @@ defmodule MastaniServer.Test.Query.RepoComment do
       }
     }
     """
-    test "guest user can get a paged comment", ~m(guest_conn repo user)a do
+    test "guest user can get a paged comment", ~m(guest_conn repo community user)a do
       body = "test comment"
 
       Enum.reduce(1..30, [], fn _, acc ->
-        {:ok, value} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
+        {:ok, value} =
+          CMS.create_comment(:repo, repo.id, %{community: community.raw, body: body}, user)
 
         acc ++ [value]
       end)
@@ -199,12 +211,13 @@ defmodule MastaniServer.Test.Query.RepoComment do
       assert results["totalCount"] == 30
     end
 
-    test "MOST_LIKES filter should work", ~m(guest_conn repo user)a do
+    test "MOST_LIKES filter should work", ~m(guest_conn repo user community)a do
       body = "test comment"
 
       comments =
         Enum.reduce(1..10, [], fn _, acc ->
-          {:ok, value} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
+          {:ok, value} =
+            CMS.create_comment(:repo, repo.id, %{community: community.raw, body: body}, user)
 
           acc ++ [value]
         end)
@@ -242,12 +255,13 @@ defmodule MastaniServer.Test.Query.RepoComment do
       assert entries |> Enum.at(1) |> Map.get("likesCount") == 4
     end
 
-    test "MOST_DISLIKES filter should work", ~m(guest_conn repo user)a do
+    test "MOST_DISLIKES filter should work", ~m(guest_conn repo community user)a do
       body = "test comment"
 
       comments =
         Enum.reduce(1..10, [], fn _, acc ->
-          {:ok, value} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
+          {:ok, value} =
+            CMS.create_comment(:repo, repo.id, %{community: community.raw, body: body}, user)
 
           acc ++ [value]
         end)
@@ -293,10 +307,12 @@ defmodule MastaniServer.Test.Query.RepoComment do
       }
     }
     """
-    test "login user can get hasLiked feedBack", ~m(user_conn repo user)a do
+
+    test "login user can get hasLiked feedBack", ~m(user_conn repo community user)a do
       body = "test comment"
 
-      {:ok, comment} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
+      {:ok, comment} =
+        CMS.create_comment(:repo, repo.id, %{community: community.raw, body: body}, user)
 
       {:ok, _like} = CMS.like_comment(:repo_comment, comment.id, user)
 
@@ -336,9 +352,12 @@ defmodule MastaniServer.Test.Query.RepoComment do
       }
     }
     """
-    test "guest user can get replies info", ~m(guest_conn repo user)a do
+
+    test "guest user can get replies info", ~m(guest_conn repo community user)a do
       body = "test comment"
-      {:ok, comment} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
+
+      {:ok, comment} =
+        CMS.create_comment(:repo, repo.id, %{community: community.raw, body: body}, user)
 
       {:ok, reply} = CMS.reply_comment(:repo, comment.id, %{body: "reply body"}, user)
 
