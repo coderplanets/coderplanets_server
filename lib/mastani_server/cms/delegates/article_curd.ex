@@ -112,7 +112,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
         end
       end)
       |> Multi.run(:mention_users, fn _, %{add_content_author: content} ->
-        Delivery.mention_from_content(thread, content, attrs, %User{id: user_id})
+        Delivery.mention_from_content(community.raw, thread, content, attrs, %User{id: user_id})
         {:ok, :pass}
       end)
       |> Multi.run(:log_action, fn _, _ ->

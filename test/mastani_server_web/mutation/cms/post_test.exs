@@ -112,7 +112,9 @@ defmodule MastaniServer.Test.Mutation.Post do
       _created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
 
       {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
+
       assert mentions.total_count == 1
+      assert mentions.entries |> List.first() |> Map.get(:community) !== nil
     end
 
     @query """
