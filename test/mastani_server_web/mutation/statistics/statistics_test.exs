@@ -213,16 +213,17 @@ defmodule MastaniServer.Test.Mutation.Statistics do
     end
 
     @create_comment_query """
-    mutation($thread: CmsThread, $id: ID!, $body: String!) {
-      createComment(thread: $thread, id: $id, body: $body) {
+    mutation($community: String!, $thread: CmsThread, $id: ID!, $body: String!) {
+      createComment(community: $community, thread: $thread, id: $id, body: $body) {
         id
         body
       }
     }
     """
-    test "user should have contribute list after create a comment", ~m(user_conn user)a do
+    test "user should have contribute list after create a comment",
+         ~m(user_conn user community)a do
       {:ok, post} = db_insert(:post)
-      variables = %{thread: "POST", id: post.id, body: "this a comment"}
+      variables = %{community: community.raw, thread: "POST", id: post.id, body: "this a comment"}
       user_conn |> mutation_result(@create_comment_query, variables, "createComment")
 
       {:ok, contributes} = ORM.find_by(Statistics.UserContribute, user_id: user.id)

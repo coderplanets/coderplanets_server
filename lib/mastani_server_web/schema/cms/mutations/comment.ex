@@ -8,6 +8,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Comment do
     @desc "create a comment"
     field :create_comment, :comment do
       # TODO use thread and force community pass-in
+      arg(:community, non_null(:string))
       arg(:thread, :cms_thread, default_value: :post)
       arg(:id, non_null(:id))
       arg(:body, non_null(:string))

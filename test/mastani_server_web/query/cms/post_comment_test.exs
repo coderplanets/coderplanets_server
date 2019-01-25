@@ -6,11 +6,12 @@ defmodule MastaniServer.Test.Query.PostComment do
   setup do
     {:ok, post} = db_insert(:post)
     {:ok, user} = db_insert(:user)
+    {:ok, community} = db_insert(:community)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
 
-    {:ok, ~m(user_conn guest_conn post user)a}
+    {:ok, ~m(user_conn guest_conn post user community)a}
   end
 
   describe "[post dataloader comment]" do
@@ -53,10 +54,15 @@ defmodule MastaniServer.Test.Query.PostComment do
       assert comments_participators_count == 0
 
       body = "this is a test comment"
-      assert {:ok, _comment} = CMS.create_comment(:post, post.id, %{body: body}, user)
-      assert {:ok, _comment} = CMS.create_comment(:post, post.id, %{body: body}, user)
 
-      assert {:ok, _comment} = CMS.create_comment(:post, post.id, %{body: body}, user2)
+      assert {:ok, _comment} =
+               CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
+
+      assert {:ok, _comment} =
+               CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
+
+      assert {:ok, _comment} =
+               CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user2)
 
       variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
@@ -87,12 +93,12 @@ defmodule MastaniServer.Test.Query.PostComment do
 
       Enum.each(
         users_list,
-        &CMS.create_comment(:post, post1.id, %{body: body}, &1)
+        &CMS.create_comment(:post, post1.id, %{community: community.raw, body: body}, &1)
       )
 
       Enum.each(
         users_list2,
-        &CMS.create_comment(:post, post2.id, %{body: body}, &1)
+        &CMS.create_comment(:post, post2.id, %{community: community.raw, body: body}, &1)
       )
 
       variables = %{filter: %{community: community.raw}}
@@ -114,7 +120,7 @@ defmodule MastaniServer.Test.Query.PostComment do
 
       Enum.each(
         users_list,
-        &CMS.create_comment(:post, post.id, %{body: body}, &1)
+        &CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, &1)
       )
 
       variables = %{filter: %{community: community.raw}}
@@ -146,8 +152,8 @@ defmodule MastaniServer.Test.Query.PostComment do
       {:ok, post2} = CMS.create_content(community, :post, mock_attrs(:post), user)
       # {:ok, users_list} = db_insert_multi(:user, 10)
 
-      CMS.create_comment(:post, post.id, %{body: body}, user)
-      CMS.create_comment(:post, post2.id, %{body: body}, user)
+      CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
+      CMS.create_comment(:post, post2.id, %{community: community.raw, body: body}, user)
 
       variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
@@ -209,7 +215,7 @@ defmodule MastaniServer.Test.Query.PostComment do
 
     Enum.each(
       users_list,
-      &CMS.create_comment(:post, post.id, %{body: body}, &1)
+      &CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, &1)
     )
 
     variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: 20}}
@@ -237,11 +243,12 @@ defmodule MastaniServer.Test.Query.PostComment do
       }
     }
     """
-    test "guest user can get a paged comment", ~m(guest_conn post user)a do
+    test "guest user can get a paged comment", ~m(guest_conn post user community)a do
       body = "test comment"
 
       Enum.reduce(1..30, [], fn _, acc ->
-        {:ok, value} = CMS.create_comment(:post, post.id, %{body: body}, user)
+        {:ok, value} =
+          CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
 
         acc ++ [value]
       end)
@@ -253,12 +260,13 @@ defmodule MastaniServer.Test.Query.PostComment do
       assert results["totalCount"] == 30
     end
 
-    test "MOST_LIKES filter should work", ~m(guest_conn post user)a do
+    test "MOST_LIKES filter should work", ~m(guest_conn post user community)a do
       body = "test comment"
 
       comments =
         Enum.reduce(1..10, [], fn _, acc ->
-          {:ok, value} = CMS.create_comment(:post, post.id, %{body: body}, user)
+          {:ok, value} =
+            CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
 
           acc ++ [value]
         end)
@@ -289,12 +297,13 @@ defmodule MastaniServer.Test.Query.PostComment do
       assert entries |> Enum.at(1) |> Map.get("likesCount") == 4
     end
 
-    test "MOST_DISLIKES filter should work", ~m(guest_conn post user)a do
+    test "MOST_DISLIKES filter should work", ~m(guest_conn post user community)a do
       body = "test comment"
 
       comments =
         Enum.reduce(1..10, [], fn _, acc ->
-          {:ok, value} = CMS.create_comment(:post, post.id, %{body: body}, user)
+          {:ok, value} =
+            CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
 
           acc ++ [value]
         end)
@@ -335,10 +344,11 @@ defmodule MastaniServer.Test.Query.PostComment do
       }
     }
     """
-    test "login user can get hasLiked feedBack", ~m(user_conn post user)a do
+    test "login user can get hasLiked feedBack", ~m(user_conn post user community)a do
       body = "test comment"
 
-      {:ok, comment} = CMS.create_comment(:post, post.id, %{body: body}, user)
+      {:ok, comment} =
+        CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
 
       {:ok, _like} = CMS.like_comment(:post_comment, comment.id, user)
 
@@ -378,10 +388,11 @@ defmodule MastaniServer.Test.Query.PostComment do
       }
     }
     """
-    test "guest user can get likes info", ~m(guest_conn post user)a do
+    test "guest user can get likes info", ~m(guest_conn post user community)a do
       body = "test comment"
 
-      {:ok, comment} = CMS.create_comment(:post, post.id, %{body: body}, user)
+      {:ok, comment} =
+        CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
 
       {:ok, _like} = CMS.like_comment(:post_comment, comment.id, user)
 
@@ -418,10 +429,11 @@ defmodule MastaniServer.Test.Query.PostComment do
       }
     }
     """
-    test "guest user can get dislikes info", ~m(guest_conn post user)a do
+    test "guest user can get dislikes info", ~m(guest_conn post user community)a do
       body = "test comment"
 
-      {:ok, comment} = CMS.create_comment(:post, post.id, %{body: body}, user)
+      {:ok, comment} =
+        CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
 
       {:ok, _like} = CMS.dislike_comment(:post_comment, comment.id, user)
 
@@ -458,10 +470,11 @@ defmodule MastaniServer.Test.Query.PostComment do
       }
     }
     """
-    test "guest user can get replies info", ~m(guest_conn post user)a do
+    test "guest user can get replies info", ~m(guest_conn post user community)a do
       body = "test comment"
 
-      {:ok, comment} = CMS.create_comment(:post, post.id, %{body: body}, user)
+      {:ok, comment} =
+        CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
 
       {:ok, reply} = CMS.reply_comment(:post, comment.id, %{body: "reply body"}, user)
 

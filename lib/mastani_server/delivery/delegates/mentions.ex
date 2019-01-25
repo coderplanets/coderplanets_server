@@ -29,6 +29,7 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
           source_preview: info.source_preview,
           parent_id: stringfy(Map.get(info, :parent_id)),
           parent_type: stringfy(Map.get(info, :parent_type)),
+          community: Map.get(info, :community),
           # timestamp are not auto-gen, see:
           # https://stackoverflow.com/questions/37537094/insert-all-does-not-create-auto-generated-inserted-at-with-ecto-2-0/46844417
           # Ecto.DateTime.utc(),
@@ -46,7 +47,7 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
     # |> done(:status)
   end
 
-  def mention_from_content(:post, content, args, %User{} = from_user) do
+  def mention_from_content(community, :post, content, args, %User{} = from_user) do
     to_user_ids = Map.get(args, :mention_users)
     topic = Map.get(args, :topic, "posts")
 
@@ -54,28 +55,30 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
       source_title: content.title,
       source_type: topic,
       source_id: content.id,
-      source_preview: content.digest
+      source_preview: content.digest,
+      community: community
     }
 
     mention_others(from_user, to_user_ids, info)
   end
 
-  def mention_from_content(:job, content, args, %User{} = from_user) do
+  def mention_from_content(community, :job, content, args, %User{} = from_user) do
     to_user_ids = Map.get(args, :mention_users)
 
     info = %{
       source_title: content.title,
       source_type: "job",
       source_id: content.id,
-      source_preview: content.digest
+      source_preview: content.digest,
+      community: community
     }
 
     mention_others(from_user, to_user_ids, info)
   end
 
-  def mention_from_content(_thread, _, _, _user), do: {:ok, :pass}
+  def mention_from_content(_community, _thread, _, _, _user), do: {:ok, :pass}
 
-  def mention_from_comment(thread, content, comment, args, %User{} = from_user) do
+  def mention_from_comment(community, thread, content, comment, args, %User{} = from_user) do
     to_user_ids = Map.get(args, :mention_users)
 
     info = %{
@@ -85,7 +88,8 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
       source_preview: comment.body,
       floor: comment.floor,
       parent_id: content.id,
-      parent_type: thread
+      parent_type: thread,
+      community: community
     }
 
     mention_others(from_user, to_user_ids, info)

@@ -36,9 +36,21 @@ defmodule MastaniServer.CMS.VideoComment do
     video_comment
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
-    |> validate_length(:body, min: 1)
+    |> generl_changeset
+  end
+
+  @doc false
+  def update_changeset(%VideoComment{} = video_comment, attrs) do
+    video_comment
+    |> cast(attrs, @required_fields ++ @optional_fields)
+    |> generl_changeset
+  end
+
+  defp generl_changeset(content) do
+    content
     |> foreign_key_constraint(:video_id)
     |> foreign_key_constraint(:author_id)
+    |> validate_length(:body, min: 3, max: 2000)
   end
 
   @doc false

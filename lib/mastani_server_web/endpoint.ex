@@ -1,6 +1,10 @@
 defmodule MastaniServerWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :mastani_server
 
+  if Mix.env() == :prod do
+    plug(PlugCanonicalHost, canonical_host: "coderplanets.com")
+  end
+
   socket("/socket", MastaniServerWeb.UserSocket)
 
   plug(Plug.RequestId)

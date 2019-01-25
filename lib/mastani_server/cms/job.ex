@@ -80,6 +80,20 @@ defmodule MastaniServer.CMS.Job do
     job
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
+    |> generl_changeset
+  end
+
+  @doc false
+  def update_changeset(%Job{} = job, attrs) do
+    job
+    |> cast(attrs, @optional_fields ++ @required_fields)
+    |> generl_changeset
+  end
+
+  defp generl_changeset(content) do
+    content
+    |> validate_length(:title, min: 3, max: 50)
+    |> validate_length(:body, min: 3, max: 10_000)
   end
 
   @doc false

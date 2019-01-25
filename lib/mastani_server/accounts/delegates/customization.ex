@@ -63,7 +63,7 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
       valid? =
         map
         |> Map.keys()
-        |> Enum.all?(&c11n_item_require?(&1, achievement))
+        |> Enum.all?(&c11n_item_setable?(&1, achievement))
 
       case valid? do
         true ->
@@ -79,7 +79,7 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
 
   def set_customization(%User{} = user, key, value \\ true) do
     with {:ok, %{achievement: achievement}} <- ORM.find(User, user.id, preload: :achievement) do
-      case c11n_item_require?(key, achievement) do
+      case c11n_item_setable?(key, achievement) do
         true ->
           attrs = Map.put(%{user_id: user.id}, key, value)
           Customization |> ORM.upsert_by([user_id: user.id], attrs)
@@ -98,7 +98,7 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
     Map.merge(@default_customization, customization)
   end
 
-  defp c11n_item_require?(:theme, %{
+  defp c11n_item_setable?(:theme, %{
          donate_member: donate_member,
          senior_member: senior_member,
          sponsor_member: sponsor_member
@@ -106,17 +106,18 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
     donate_member or senior_member or sponsor_member
   end
 
-  defp c11n_item_require?(:banner_layout, _), do: true
-  defp c11n_item_require?(:contents_layout, _), do: true
-  defp c11n_item_require?(:content_divider, _), do: true
-  defp c11n_item_require?(:mark_viewed, _), do: true
-  defp c11n_item_require?(:display_density, _), do: true
-  defp c11n_item_require?(:sidebar_layout, _), do: true
-  defp c11n_item_require?(:sidebar_communities_index, _), do: true
-  # defp c11n_item_require?(:brainwash_free, _), do: true
-  # defp c11n_item_require?(:community_chart, _), do: true
+  defp c11n_item_setable?(:banner_layout, _achievement), do: true
+  defp c11n_item_setable?(:contents_layout, _achievement), do: true
+  defp c11n_item_setable?(:content_divider, _achievement), do: true
+  defp c11n_item_setable?(:content_hover, _achievement), do: true
+  defp c11n_item_setable?(:mark_viewed, _achievement), do: true
+  defp c11n_item_setable?(:display_density, _achievement), do: true
+  defp c11n_item_setable?(:sidebar_layout, _achievement), do: true
+  defp c11n_item_setable?(:sidebar_communities_index, _achievement), do: true
+  # defp c11n_item_setable?(:brainwash_free, _achievement), do: true
+  # defp c11n_item_setable?(:community_chart, _achievement), do: true
 
-  defp c11n_item_require?(_, _), do: false
+  defp c11n_item_setable?(_, _achievement), do: false
 
   defp filter_nil_value(map) do
     for {k, v} <- map, !is_nil(v), into: %{}, do: {k, v}

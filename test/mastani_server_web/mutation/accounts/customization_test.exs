@@ -32,6 +32,7 @@ defmodule MastaniServer.Test.Mutation.Account.Customization do
         customization {
           bannerLayout
           contentDivider
+          contentHover
           markViewed
           displayDensity
         }
@@ -44,6 +45,7 @@ defmodule MastaniServer.Test.Mutation.Account.Customization do
         customization: %{
           bannerLayout: "BRIEF",
           contentDivider: true,
+          contentHover: false,
           markViewed: false,
           displayDensity: "25"
         },
@@ -54,6 +56,7 @@ defmodule MastaniServer.Test.Mutation.Account.Customization do
 
       assert result["customization"]["bannerLayout"] == "brief"
       assert result["customization"]["contentDivider"] == true
+      assert result["customization"]["contentHover"] == false
       assert result["customization"]["markViewed"] == false
       assert result["customization"]["displayDensity"] == "25"
     end

@@ -31,8 +31,21 @@ defmodule MastaniServer.CMS.JobComment do
     job_comment
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
+    |> generl_changeset
+  end
+
+  @doc false
+  def update_changeset(%JobComment{} = job_comment, attrs) do
+    job_comment
+    |> cast(attrs, @required_fields ++ @optional_fields)
+    |> generl_changeset
+  end
+
+  defp generl_changeset(content) do
+    content
     |> foreign_key_constraint(:job_id)
     |> foreign_key_constraint(:author_id)
+    |> validate_length(:body, min: 3, max: 2000)
   end
 
   @doc false

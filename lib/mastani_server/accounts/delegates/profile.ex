@@ -162,6 +162,9 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
 
   defp register_github_result({:ok, %{create_user: user}}), do: gen_token(user)
 
+  defp register_github_result({:error, :create_user, %Ecto.Changeset{} = result, _steps}),
+    do: {:error, result}
+
   defp register_github_result({:error, :create_user, _result, _steps}),
     do: {:error, "Accounts create_user internal error"}
 

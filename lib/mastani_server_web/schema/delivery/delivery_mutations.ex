@@ -12,6 +12,7 @@ defmodule MastaniServerWeb.Schema.Delivery.Mutations do
       arg(:source_title, non_null(:string))
       arg(:source_type, non_null(:string))
       arg(:source_preview, non_null(:string))
+      arg(:community, non_null(:string))
       arg(:parent_id, :id)
       arg(:parent_type, :string)
 

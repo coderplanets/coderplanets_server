@@ -60,12 +60,15 @@ defmodule MastaniServer.Test.Mutation.CMS.Manager do
       assert {:error, _} = ORM.find(CMS.Post, deleted["id"])
     end
 
-    test "root can delete a post with comment", ~m(post user)a do
+    test "root can delete a post with comment", ~m(post community user)a do
       passport_rules = %{"root" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       body = "this is a test comment"
-      {:ok, comment} = CMS.create_comment(:post, post.id, %{body: body}, user)
+
+      {:ok, comment} =
+        CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
+
       {:ok, _} = ORM.find(CMS.PostComment, comment.id)
 
       deleted = rule_conn |> mutation_result(@query, %{id: post.id}, "deletePost")

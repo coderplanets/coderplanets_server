@@ -303,6 +303,7 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:banner_layout, :string)
     field(:contents_layout, :string)
     field(:content_divider, :boolean)
+    field(:content_hover, :boolean)
     field(:mark_viewed, :boolean)
     field(:display_density, :string)
   end

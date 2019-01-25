@@ -74,9 +74,22 @@ defmodule MastaniServer.CMS.Video do
     video
     |> cast(attrs, @required_fields)
     |> validate_required(@required_fields)
+    |> generl_changeset
+  end
 
-    # |> foreign_key_constraint(:posts_tags, name: :posts_tags_tag_id_fkey)
-    # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)
+  def update_changeset(%Video{} = video, attrs) do
+    video
+    |> cast(attrs, @optional_fields)
+    |> generl_changeset
+  end
+
+  defp generl_changeset(content) do
+    content
+    |> validate_length(:title, min: 3, max: 50)
+    |> validate_length(:desc, min: 3, max: 200)
+    |> validate_length(:original_author, min: 3, max: 30)
+    |> validate_length(:original_author_link, min: 5, max: 200)
+    |> validate_length(:link, min: 5, max: 200)
   end
 
   def update_changeset(%Video{} = video, attrs) do

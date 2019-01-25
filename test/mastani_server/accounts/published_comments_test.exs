@@ -8,8 +8,9 @@ defmodule MastaniServer.Test.Accounts.PublishedComments do
   setup do
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
+    {:ok, community} = db_insert(:community)
 
-    {:ok, ~m(user user2)a}
+    {:ok, ~m(user user2 community)a}
   end
 
   describe "[Accounts Publised post comments]" do
@@ -20,7 +21,7 @@ defmodule MastaniServer.Test.Accounts.PublishedComments do
       assert results.total_count == 0
     end
 
-    test "user can get paged published posts", ~m(user user2)a do
+    test "user can get paged published posts", ~m(user user2 community)a do
       body = "this is a test comment"
       {:ok, post} = db_insert(:post)
       {:ok, post2} = db_insert(:post)
@@ -28,12 +29,18 @@ defmodule MastaniServer.Test.Accounts.PublishedComments do
       pub_comments =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
           body = "this is a test comment"
-          {:ok, comment} = CMS.create_comment(:post, post.id, %{body: body}, user)
+
+          {:ok, comment} =
+            CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
+
           acc ++ [comment]
         end)
 
-      {:ok, _comment} = CMS.create_comment(:post, post2.id, %{body: body}, user)
-      {:ok, _comment} = CMS.create_comment(:post, post2.id, %{body: body}, user2)
+      {:ok, _comment} =
+        CMS.create_comment(:post, post2.id, %{community: community.raw, body: body}, user)
+
+      {:ok, _comment} =
+        CMS.create_comment(:post, post2.id, %{community: community.raw, body: body}, user2)
 
       {:ok, results} = Accounts.published_comments(user, :post, %{page: 1, size: 20})
 
@@ -53,7 +60,7 @@ defmodule MastaniServer.Test.Accounts.PublishedComments do
       assert results.total_count == 0
     end
 
-    test "user can get paged published jobs", ~m(user user2)a do
+    test "user can get paged published jobs", ~m(user user2 community)a do
       body = "this is a test comment"
       {:ok, job} = db_insert(:job)
       {:ok, job2} = db_insert(:job)
@@ -61,12 +68,18 @@ defmodule MastaniServer.Test.Accounts.PublishedComments do
       pub_comments =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
           body = "this is a test comment"
-          {:ok, comment} = CMS.create_comment(:job, job.id, %{body: body}, user)
+
+          {:ok, comment} =
+            CMS.create_comment(:job, job.id, %{community: community.raw, body: body}, user)
+
           acc ++ [comment]
         end)
 
-      {:ok, _comment} = CMS.create_comment(:job, job2.id, %{body: body}, user)
-      {:ok, _comment} = CMS.create_comment(:job, job2.id, %{body: body}, user2)
+      {:ok, _comment} =
+        CMS.create_comment(:job, job2.id, %{community: community.raw, body: body}, user)
+
+      {:ok, _comment} =
+        CMS.create_comment(:job, job2.id, %{community: community.raw, body: body}, user2)
 
       {:ok, results} = Accounts.published_comments(user, :job, %{page: 1, size: 20})
 
@@ -86,7 +99,7 @@ defmodule MastaniServer.Test.Accounts.PublishedComments do
       assert results.total_count == 0
     end
 
-    test "user can get paged published videos", ~m(user user2)a do
+    test "user can get paged published videos", ~m(user user2 community)a do
       body = "this is a test comment"
       {:ok, video} = db_insert(:video)
       {:ok, video2} = db_insert(:video)
@@ -94,12 +107,18 @@ defmodule MastaniServer.Test.Accounts.PublishedComments do
       pub_comments =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
           body = "this is a test comment"
-          {:ok, comment} = CMS.create_comment(:video, video.id, %{body: body}, user)
+
+          {:ok, comment} =
+            CMS.create_comment(:video, video.id, %{community: community.raw, body: body}, user)
+
           acc ++ [comment]
         end)
 
-      {:ok, _comment} = CMS.create_comment(:video, video2.id, %{body: body}, user)
-      {:ok, _comment} = CMS.create_comment(:video, video2.id, %{body: body}, user2)
+      {:ok, _comment} =
+        CMS.create_comment(:video, video2.id, %{community: community.raw, body: body}, user)
+
+      {:ok, _comment} =
+        CMS.create_comment(:video, video2.id, %{community: community.raw, body: body}, user2)
 
       {:ok, results} = Accounts.published_comments(user, :video, %{page: 1, size: 20})
 
@@ -119,7 +138,7 @@ defmodule MastaniServer.Test.Accounts.PublishedComments do
       assert results.total_count == 0
     end
 
-    test "user can get paged published repos", ~m(user user2)a do
+    test "user can get paged published repos", ~m(user user2 community)a do
       body = "this is a test comment"
       {:ok, repo} = db_insert(:repo)
       {:ok, repo2} = db_insert(:repo)
@@ -127,12 +146,18 @@ defmodule MastaniServer.Test.Accounts.PublishedComments do
       pub_comments =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
           body = "this is a test comment"
-          {:ok, comment} = CMS.create_comment(:repo, repo.id, %{body: body}, user)
+
+          {:ok, comment} =
+            CMS.create_comment(:repo, repo.id, %{community: community.raw, body: body}, user)
+
           acc ++ [comment]
         end)
 
-      {:ok, _comment} = CMS.create_comment(:repo, repo2.id, %{body: body}, user)
-      {:ok, _comment} = CMS.create_comment(:repo, repo2.id, %{body: body}, user2)
+      {:ok, _comment} =
+        CMS.create_comment(:repo, repo2.id, %{community: community.raw, body: body}, user)
+
+      {:ok, _comment} =
+        CMS.create_comment(:repo, repo2.id, %{community: community.raw, body: body}, user2)
 
       {:ok, results} = Accounts.published_comments(user, :repo, %{page: 1, size: 20})
 

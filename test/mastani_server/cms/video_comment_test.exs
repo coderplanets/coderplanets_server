@@ -10,48 +10,66 @@ defmodule MastaniServer.Test.CMS.VideoComment do
   setup do
     {:ok, video} = db_insert(:video)
     {:ok, user} = db_insert(:user)
+    {:ok, community} = db_insert(:community)
 
     body = "this is a test comment"
 
-    {:ok, comment} = CMS.create_comment(:video, video.id, %{body: body}, user)
+    {:ok, comment} =
+      CMS.create_comment(:video, video.id, %{community: community.raw, body: body}, user)
 
-    {:ok, ~m(video user comment)a}
+    {:ok, ~m(video user community comment)a}
   end
 
   describe "[comment CURD]" do
-    test "login user comment to exsiting video", ~m(video user)a do
+    test "login user comment to exsiting video", ~m(video community user)a do
       body = "this is a test comment"
 
-      assert {:ok, comment} = CMS.create_comment(:video, video.id, %{body: body}, user)
+      assert {:ok, comment} =
+               CMS.create_comment(:video, video.id, %{community: community.raw, body: body}, user)
 
       assert comment.video_id == video.id
       assert comment.body == body
       assert comment.author_id == user.id
     end
 
-    test "created comment should have a increased floor number", ~m(video user)a do
+    test "created comment should have a increased floor number", ~m(video community user)a do
       body = "this is a test comment"
 
-      assert {:ok, comment1} = CMS.create_comment(:video, video.id, %{body: body}, user)
+      assert {:ok, comment1} =
+               CMS.create_comment(:video, video.id, %{community: community.raw, body: body}, user)
 
       {:ok, user2} = db_insert(:user)
 
-      assert {:ok, comment2} = CMS.create_comment(:video, video.id, %{body: body}, user2)
+      assert {:ok, comment2} =
+               CMS.create_comment(
+                 :video,
+                 video.id,
+                 %{community: community.raw, body: body},
+                 user2
+               )
 
       assert comment1.floor == 2
       assert comment2.floor == 3
     end
 
-    test "create comment to non-exsit video fails", ~m(user)a do
+    test "create comment to non-exsit video fails", ~m(community user)a do
       body = "this is a test comment"
 
-      assert {:error, _} = CMS.create_comment(:video, non_exsit_id(), %{body: body}, user)
+      assert {:error, _} =
+               CMS.create_comment(
+                 :video,
+                 non_exsit_id(),
+                 %{community: community.raw, body: body},
+                 user
+               )
     end
 
-    test "can reply a comment, and reply should be in comment replies list", ~m(comment user)a do
+    test "can reply a comment, and reply should be in comment replies list",
+         ~m(comment community user)a do
       reply_body = "this is a reply comment"
 
-      {:ok, reply} = CMS.reply_comment(:video, comment.id, %{body: reply_body}, user)
+      {:ok, reply} =
+        CMS.reply_comment(:video, comment.id, %{community: community.raw, body: reply_body}, user)
 
       {:ok, reply_preload} = ORM.find(VideoComment, reply.id, preload: :reply_to)
       {:ok, comment_preload} = ORM.find(VideoComment, comment.id, preload: :replies)
@@ -63,10 +81,11 @@ defmodule MastaniServer.Test.CMS.VideoComment do
       assert comment_preload.replies |> Enum.any?(&(&1.reply_id == reply.id))
     end
 
-    test "comment can be deleted", ~m(video user)a do
+    test "comment can be deleted", ~m(video user community)a do
       body = "this is a test comment"
 
-      assert {:ok, comment} = CMS.create_comment(:video, video.id, %{body: body}, user)
+      assert {:ok, comment} =
+               CMS.create_comment(:video, video.id, %{community: community.raw, body: body}, user)
 
       {:ok, deleted} = CMS.delete_comment(:video, comment.id)
       assert deleted.id == comment.id
@@ -78,14 +97,15 @@ defmodule MastaniServer.Test.CMS.VideoComment do
     # (Postgrex.Error) ERROR 23505 (unique_violation): duplicate key value violates unique constraint "videos_comments_video_id_author_id_floor_index"
     # this will crash the server.
     test "after delete, the coments of id > deleted.id should decrease the floor number",
-         ~m(video user)a do
+         ~m(video user community)a do
       body = "this is a test comment"
       # in setup we have a comment.
       total = 30 + 1
 
       comments =
         Enum.reduce(1..total, [], fn _, acc ->
-          {:ok, value} = CMS.create_comment(:video, video.id, %{body: body}, user)
+          {:ok, value} =
+            CMS.create_comment(:video, video.id, %{community: community.raw, body: body}, user)
 
           acc ++ [value]
         end)
@@ -122,11 +142,12 @@ defmodule MastaniServer.Test.CMS.VideoComment do
         VideoCommentReply |> ORM.find_by(video_comment_id: comment.id, reply_id: reply.id)
     end
 
-    test "comments pagination should work", ~m(video user)a do
+    test "comments pagination should work", ~m(video community user)a do
       body = "fake comment"
 
       Enum.reduce(1..30, [], fn _, acc ->
-        {:ok, value} = CMS.create_comment(:video, video.id, %{body: body}, user)
+        {:ok, value} =
+          CMS.create_comment(:video, video.id, %{community: community.raw, body: body}, user)
 
         acc ++ [value]
       end)

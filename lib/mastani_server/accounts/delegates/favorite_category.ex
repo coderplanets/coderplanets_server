@@ -100,6 +100,10 @@ defmodule MastaniServer.Accounts.Delegate.FavoriteCategory do
 
   defp delete_favorites_result({:ok, %{downgrade_achievement: result}}), do: {:ok, result}
 
+  defp delete_favorites_result({:error, :delete_category, %Ecto.Changeset{} = result, _steps}) do
+    {:error, result}
+  end
+
   defp delete_favorites_result({:error, :delete_category, _result, _steps}) do
     {:error, [message: "delete category fails", code: ecode(:delete_fails)]}
   end

@@ -82,9 +82,22 @@ defmodule MastaniServer.CMS.Repo do
   def changeset(%Repo{} = repo, attrs) do
     repo
     |> cast(attrs, @optional_fields ++ @required_fields)
+    |> validate_required(@required_fields)
+    |> generl_changeset
+  end
+
+  @doc false
+  def update_changeset(%Repo{} = repo, attrs) do
+    repo
+    |> cast(attrs, @optional_fields ++ @required_fields)
+    |> generl_changeset
+  end
+
+  defp generl_changeset(content) do
+    content
+    |> validate_length(:title, min: 1, max: 80)
     |> cast_embed(:contributors, with: &RepoContributor.changeset/2)
     |> cast_embed(:primary_language, with: &RepoLang.changeset/2)
-    |> validate_required(@required_fields)
   end
 
   @doc false

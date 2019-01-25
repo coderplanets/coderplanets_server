@@ -12,9 +12,33 @@ defmodule MastaniServer.Test.Accounts.Customization do
   end
 
   describe "[user customization]" do
-    test "user can have default customization without payment", ~m(user)a do
+    test "user can have default customization", ~m(user)a do
+      {:ok, result} = Accounts.get_customization(user)
+
+      default = %{
+        banner_layout: "digest",
+        brainwash_free: false,
+        community_chart: false,
+        content_divider: false,
+        content_hover: true,
+        contents_layout: "digest",
+        display_density: "20",
+        mark_viewed: true,
+        sidebar_communities_index: %{},
+        theme: "cyan"
+      }
+
+      assert result == default
+    end
+
+    test "user can set default customization without payment", ~m(user)a do
       {:ok, result} = Accounts.set_customization(user, :banner_layout, "digest")
       assert result.banner_layout == "digest"
+    end
+
+    test "user can set contentHover without payment", ~m(user)a do
+      {:ok, result} = Accounts.set_customization(user, :content_hover, false)
+      assert result.content_hover == false
     end
 
     test "user set non exsit customization fails", ~m(user)a do

@@ -20,9 +20,9 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Post do
       arg(:mention_users, list_of(:ids))
 
       middleware(M.Authorize, :login)
-      middleware(M.PublishThrottle)
+      # middleware(M.PublishThrottle)
       middleware(M.AddSourceIcon)
-      # middleware(M.PublishThrottle, interval: 3, hour_limit: 15, day_limit: 30)
+      middleware(M.PublishThrottle, interval: 3, hour_limit: 15, day_limit: 30)
       resolve(&R.CMS.create_content/3)
       middleware(M.Statistics.MakeContribute, for: :user)
     end

@@ -19,7 +19,12 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
   @doc """
   Creates a comment for psot, job ...
   """
-  def create_comment(thread, content_id, %{body: body} = args, %Accounts.User{id: user_id}) do
+  def create_comment(
+        thread,
+        content_id,
+        %{community: community, body: body} = args,
+        %Accounts.User{id: user_id}
+      ) do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, content} <- ORM.find(action.target, content_id),
          {:ok, user} <- ORM.find(Accounts.User, user_id) do
@@ -28,7 +33,7 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
         do_create_comment(thread, action, content, body, user)
       end)
       |> Multi.run(:mention_users, fn _, %{create_comment: comment} ->
-        Delivery.mention_from_comment(thread, content, comment, args, user)
+        Delivery.mention_from_comment(community, thread, content, comment, args, user)
         {:ok, :pass}
       end)
       |> Repo.transaction()

@@ -59,6 +59,7 @@ config :mastani_server, :customization,
   banner_layout: "digest",
   contents_layout: "digest",
   content_divider: false,
+  content_hover: true,
   mark_viewed: true,
   display_density: "20",
   sidebar_communities_index: %{}
