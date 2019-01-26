@@ -123,9 +123,6 @@ defmodule MastaniServer.Test.Mutation.Video do
     end
 
     test "can update video with tags", ~m(owner_conn video)a do
-      {:ok, user} = db_insert(:user)
-      user_conn = simu_conn(:user, user)
-
       {:ok, tag1} = db_insert(:tag)
       {:ok, tag2} = db_insert(:tag)
 
@@ -146,9 +143,6 @@ defmodule MastaniServer.Test.Mutation.Video do
     end
 
     test "can update video with refined tag", ~m(owner_conn video)a do
-      {:ok, user} = db_insert(:user)
-      user_conn = simu_conn(:user, user)
-
       {:ok, tag_refined} = db_insert(:tag, %{title: "refined"})
       {:ok, tag2} = db_insert(:tag)
 

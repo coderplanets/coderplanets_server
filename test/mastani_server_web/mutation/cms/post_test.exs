@@ -190,9 +190,6 @@ defmodule MastaniServer.Test.Mutation.Post do
     end
 
     test "can update post with tags", ~m(owner_conn post)a do
-      {:ok, user} = db_insert(:user)
-      user_conn = simu_conn(:user, user)
-
       {:ok, tag1} = db_insert(:tag)
       {:ok, tag2} = db_insert(:tag)
 
@@ -213,9 +210,6 @@ defmodule MastaniServer.Test.Mutation.Post do
     end
 
     test "can update post with refined tag", ~m(owner_conn post)a do
-      {:ok, user} = db_insert(:user)
-      user_conn = simu_conn(:user, user)
-
       {:ok, tag_refined} = db_insert(:tag, %{title: "refined"})
       {:ok, tag2} = db_insert(:tag)
 

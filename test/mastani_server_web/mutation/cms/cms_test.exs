@@ -2,8 +2,6 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
   use MastaniServer.TestTools
 
   alias MastaniServer.CMS
-  alias MastaniServer.Statistics
-
   alias CMS.{Category, Community, CommunityEditor, Passport, Tag}
 
   alias Helper.ORM
@@ -399,33 +397,6 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
 
       assert rule_conn
              |> mutation_get_error?(@create_community_query, variables, ecode(:passport))
-    end
-
-    test "creator of community should be add to userContributes and communityContributes" do
-      variables = mock_attrs(:community)
-      rule_conn = simu_conn(:user, cms: %{"community.create" => true})
-
-      created_community =
-        rule_conn |> mutation_result(@create_community_query, variables, "createCommunity")
-
-      author = created_community["author"]
-
-      {:ok, found_community} = Community |> ORM.find(created_community["id"])
-
-      {:ok, user_contribute} = ORM.find_by(Statistics.UserContribute, user_id: author["id"])
-
-      {:ok, community_contribute} =
-        ORM.find_by(Statistics.CommunityContribute, community_id: found_community.id)
-
-      assert user_contribute.date == Timex.today()
-      assert to_string(user_contribute.user_id) == author["id"]
-      assert user_contribute.count == 1
-
-      assert community_contribute.date == Timex.today()
-      assert community_contribute.community_id == found_community.id
-      assert community_contribute.count == 1
-
-      assert created_community["id"] == to_string(found_community.id)
     end
 
     test "create duplicated community fails", %{community: community} do

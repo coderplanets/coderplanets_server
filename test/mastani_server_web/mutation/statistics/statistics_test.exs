@@ -41,7 +41,6 @@ defmodule MastaniServer.Test.Mutation.Statistics do
       }
     }
     """
-    @tag :wip
     test "user should have contribute list after create a post", ~m(user_conn user community)a do
       post_attr = mock_attrs(:post)
       variables = post_attr |> Map.merge(%{communityId: community.id})
@@ -52,9 +51,8 @@ defmodule MastaniServer.Test.Mutation.Statistics do
       assert contributes.count == 1
     end
 
-    @tag :wip
     test "community should have contribute list after create a post",
-         ~m(user_conn user community)a do
+         ~m(user_conn community)a do
       post_attr = mock_attrs(:post)
       variables = post_attr |> Map.merge(%{communityId: community.id})
 
