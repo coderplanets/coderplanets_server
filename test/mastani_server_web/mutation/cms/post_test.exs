@@ -189,7 +189,6 @@ defmodule MastaniServer.Test.Mutation.Post do
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
     end
 
-    @tag :wip
     test "can update post with tags", ~m(owner_conn post)a do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -213,7 +212,6 @@ defmodule MastaniServer.Test.Mutation.Post do
       assert tag2.id in tag_ids
     end
 
-    @tag :wip
     test "can update post with refined tag", ~m(owner_conn post)a do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)

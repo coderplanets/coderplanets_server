@@ -63,7 +63,6 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert results["cmsPassport"] == nil
     end
 
-    @tag :wip
     test "login user can get it's own profile", ~m(user_conn user)a do
       results = user_conn |> query_result(@query, %{}, "user")
       assert results["id"] == to_string(user.id)

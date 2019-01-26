@@ -105,7 +105,6 @@ defmodule MastaniServer.Test.Mutation.Video do
       }
     }
     """
-    @tag :wip
     test "update video", ~m(owner_conn video)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
@@ -123,7 +122,6 @@ defmodule MastaniServer.Test.Mutation.Video do
       assert updated["link"] == variables.link
     end
 
-    @tag :wip
     test "can update video with tags", ~m(owner_conn video)a do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -147,7 +145,6 @@ defmodule MastaniServer.Test.Mutation.Video do
       assert tag2.id in tag_ids
     end
 
-    @tag :wip
     test "can update video with refined tag", ~m(owner_conn video)a do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
