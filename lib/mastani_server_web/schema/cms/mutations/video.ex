@@ -108,6 +108,7 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Video do
       arg(:original_author, :string)
       arg(:original_author_link, :string)
       arg(:publish_at, :datetime)
+      arg(:tags, list_of(:ids))
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :video)

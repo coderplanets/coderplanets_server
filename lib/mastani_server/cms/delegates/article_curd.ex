@@ -460,21 +460,21 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  defp update_tags(%CMS.Repo{} = content, tags_ids) do
-    with {:ok, content} <- ORM.find(CMS.Repo, content.id, preload: :tags) do
-      concat_tags(content, tags_ids)
-    end
-  end
-
   # except Job, other content will just pass, should use set_tag function instead
   defp update_tags(_, _tags_ids), do: {:ok, :pass}
 
   defp concat_tags(content, tags_ids) do
     tags =
       Enum.reduce(tags_ids, [], fn t, acc ->
-        # TODO: refined tag is not setable
         {:ok, tag} = ORM.find(Tag, t.id)
-        acc ++ [tag]
+
+        case tag.title == "refined" do
+          true ->
+            acc
+
+          false ->
+            acc ++ [tag]
+        end
       end)
 
     content

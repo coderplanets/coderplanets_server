@@ -1,7 +1,7 @@
 defmodule MastaniServer.Test.Mutation.Post do
   use MastaniServer.TestTools
 
-  alias Helper.ORM
+  alias Helper.{ORM, Utils}
   alias MastaniServer.{CMS, Delivery}
 
   setup do
@@ -168,8 +168,8 @@ defmodule MastaniServer.Test.Mutation.Post do
     end
 
     @query """
-    mutation($id: ID!, $title: String, $body: String, $copyRight: String){
-      updatePost(id: $id, title: $title, body: $body, copyRight: $copyRight) {
+    mutation($id: ID!, $title: String, $body: String, $copyRight: String, $tags: [Ids]){
+      updatePost(id: $id, title: $title, body: $body, copyRight: $copyRight, tags: $tags) {
         id
         title
         body
@@ -187,6 +187,54 @@ defmodule MastaniServer.Test.Mutation.Post do
       }
 
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
+    end
+
+    @tag :wip
+    test "can update post with tags", ~m(owner_conn post)a do
+      {:ok, user} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      {:ok, tag1} = db_insert(:tag)
+      {:ok, tag2} = db_insert(:tag)
+
+      unique_num = System.unique_integer([:positive, :monotonic])
+
+      variables = %{
+        id: post.id,
+        title: "updated title #{unique_num}",
+        tags: [%{id: tag1.id}, %{id: tag2.id}]
+      }
+
+      updated = owner_conn |> mutation_result(@query, variables, "updatePost")
+      {:ok, post} = ORM.find(CMS.Post, updated["id"], preload: :tags)
+      tag_ids = post.tags |> Utils.pick_by(:id)
+
+      assert tag1.id in tag_ids
+      assert tag2.id in tag_ids
+    end
+
+    @tag :wip
+    test "can update post with refined tag", ~m(owner_conn post)a do
+      {:ok, user} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      {:ok, tag_refined} = db_insert(:tag, %{title: "refined"})
+      {:ok, tag2} = db_insert(:tag)
+
+      unique_num = System.unique_integer([:positive, :monotonic])
+
+      variables = %{
+        id: post.id,
+        title: "updated title #{unique_num}",
+        tags: [%{id: tag_refined.id}, %{id: tag2.id}]
+      }
+
+      updated = owner_conn |> mutation_result(@query, variables, "updatePost")
+      {:ok, post} = ORM.find(CMS.Post, updated["id"], preload: :tags)
+      tag_ids = post.tags |> Utils.pick_by(:id)
+
+      assert tag_refined.id not in tag_ids
+      assert tag2.id in tag_ids
     end
 
     test "post can be update by owner", ~m(owner_conn post)a do

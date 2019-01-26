@@ -1,7 +1,7 @@
 defmodule MastaniServer.Test.Mutation.Video do
   use MastaniServer.TestTools
 
-  alias Helper.ORM
+  alias Helper.{ORM, Utils}
   alias MastaniServer.CMS
 
   setup do
@@ -81,6 +81,7 @@ defmodule MastaniServer.Test.Mutation.Video do
       $originalAuthor: String
       $originalAuthorLink: String
       $publishAt: String
+      $tags: [Ids]
     ) {
       updateVideo(
         id: $id
@@ -95,6 +96,7 @@ defmodule MastaniServer.Test.Mutation.Video do
         originalAuthor: $originalAuthor
         originalAuthorLink: $originalAuthorLink
         publishAt: $publishAt
+        tags: $tags
       ) {
         id
         title
@@ -103,6 +105,7 @@ defmodule MastaniServer.Test.Mutation.Video do
       }
     }
     """
+    @tag :wip
     test "update video", ~m(owner_conn video)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
@@ -118,6 +121,54 @@ defmodule MastaniServer.Test.Mutation.Video do
       assert updated["title"] == variables.title
       assert updated["desc"] == variables.desc
       assert updated["link"] == variables.link
+    end
+
+    @tag :wip
+    test "can update video with tags", ~m(owner_conn video)a do
+      {:ok, user} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      {:ok, tag1} = db_insert(:tag)
+      {:ok, tag2} = db_insert(:tag)
+
+      unique_num = System.unique_integer([:positive, :monotonic])
+
+      variables = %{
+        id: video.id,
+        title: "updated title #{unique_num}",
+        tags: [%{id: tag1.id}, %{id: tag2.id}]
+      }
+
+      updated = owner_conn |> mutation_result(@update_video_query, variables, "updateVideo")
+      {:ok, video} = ORM.find(CMS.Video, updated["id"], preload: :tags)
+      tag_ids = video.tags |> Utils.pick_by(:id)
+
+      assert tag1.id in tag_ids
+      assert tag2.id in tag_ids
+    end
+
+    @tag :wip
+    test "can update video with refined tag", ~m(owner_conn video)a do
+      {:ok, user} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      {:ok, tag_refined} = db_insert(:tag, %{title: "refined"})
+      {:ok, tag2} = db_insert(:tag)
+
+      unique_num = System.unique_integer([:positive, :monotonic])
+
+      variables = %{
+        id: video.id,
+        title: "updated title #{unique_num}",
+        tags: [%{id: tag_refined.id}, %{id: tag2.id}]
+      }
+
+      updated = owner_conn |> mutation_result(@update_video_query, variables, "updateVideo")
+      {:ok, video} = ORM.find(CMS.Video, updated["id"], preload: :tags)
+      tag_ids = video.tags |> Utils.pick_by(:id)
+
+      assert tag_refined.id not in tag_ids
+      assert tag2.id in tag_ids
     end
 
     @query """
