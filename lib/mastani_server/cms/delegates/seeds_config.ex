@@ -31,6 +31,7 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
       "perl",
       "php",
       "python",
+      "ruby",
       "r",
       "racket",
       "red",
