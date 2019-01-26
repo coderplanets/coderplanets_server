@@ -34,9 +34,8 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Repo do
 
       middleware(M.Authorize, :login)
       middleware(M.PublishThrottle)
-
       resolve(&R.CMS.create_content/3)
-      middleware(M.Statistics.MakeContribute, for: :user)
+      middleware(M.Statistics.MakeContribute, for: [:user, :community])
     end
 
     @desc "pin a repo"
