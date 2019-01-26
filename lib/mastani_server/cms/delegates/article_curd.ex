@@ -444,23 +444,44 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   # communiies contains this job will have the same city info
   defp update_tags(%CMS.Job{} = content, tags_ids) do
     with {:ok, content} <- ORM.find(CMS.Job, content.id, preload: :tags) do
-      city_tags =
-        Enum.reduce(tags_ids, [], fn t, acc ->
-          {:ok, tag} = ORM.find(Tag, t.id)
-          acc ++ [tag]
-        end)
+      concat_tags(content, tags_ids)
+    end
+  end
 
-      content
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:tags, city_tags)
-      |> Repo.update()
-    else
-      _ -> {:error, "update city tag"}
+  defp update_tags(%CMS.Post{} = content, tags_ids) do
+    with {:ok, content} <- ORM.find(CMS.Post, content.id, preload: :tags) do
+      concat_tags(content, tags_ids)
+    end
+  end
+
+  defp update_tags(%CMS.Video{} = content, tags_ids) do
+    with {:ok, content} <- ORM.find(CMS.Video, content.id, preload: :tags) do
+      concat_tags(content, tags_ids)
+    end
+  end
+
+  defp update_tags(%CMS.Repo{} = content, tags_ids) do
+    with {:ok, content} <- ORM.find(CMS.Repo, content.id, preload: :tags) do
+      concat_tags(content, tags_ids)
     end
   end
 
   # except Job, other content will just pass, should use set_tag function instead
   defp update_tags(_, _tags_ids), do: {:ok, :pass}
+
+  defp concat_tags(content, tags_ids) do
+    tags =
+      Enum.reduce(tags_ids, [], fn t, acc ->
+        # TODO: refined tag is not setable
+        {:ok, tag} = ORM.find(Tag, t.id)
+        acc ++ [tag]
+      end)
+
+    content
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_assoc(:tags, tags)
+    |> Repo.update()
+  end
 
   defp update_content_result({:ok, %{update_content: result}}), do: {:ok, result}
   defp update_content_result({:error, :update_content, result, _steps}), do: {:error, result}
