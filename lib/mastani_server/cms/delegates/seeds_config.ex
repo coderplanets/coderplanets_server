@@ -6,7 +6,6 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
   @doc """
   default seeds for pragraming lang's communities
   """
-  # png: reason
   def communities(:pl) do
     [
       "c",
