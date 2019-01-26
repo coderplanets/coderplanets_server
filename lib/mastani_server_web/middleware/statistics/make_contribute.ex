@@ -14,18 +14,21 @@ defmodule MastaniServerWeb.Middleware.Statistics.MakeContribute do
   def call(%{value: nil, errors: _} = resolution, _), do: resolution
 
   def call(
-        %{arguments: %{community_id: community_id}, context: %{cur_user: cur_user}} = resolution,
+        %{arguments: arguments, context: %{cur_user: cur_user}} = resolution,
         for: threads
       ) do
-
     case is_list(threads) do
       true ->
         if :user in threads, do: Statistics.make_contribute(%User{id: cur_user.id})
-        if :community in threads, do: Statistics.make_contribute(%Community{id: community_id})
+
+        if :community in threads,
+          do: Statistics.make_contribute(%Community{id: arguments.community_id})
 
       false ->
         if :user == threads, do: Statistics.make_contribute(%User{id: cur_user.id})
-        if :community == threads, do: Statistics.make_contribute(%Community{id: community_id})
+
+        if :community == threads,
+          do: Statistics.make_contribute(%Community{id: arguments.community_id})
     end
 
     resolution
