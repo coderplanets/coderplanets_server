@@ -95,7 +95,7 @@ defmodule MastaniServer.Accounts.Delegate.Fans do
   end
 
   defp undo_follow_result({:ok, %{delete_follower: user_follower}}) do
-    User |> ORM.find(user_follower.follower_id)
+    User |> ORM.find(user_follower.user_id)
   end
 
   defp undo_follow_result({:error, :delete_follower, _result, _steps}) do
