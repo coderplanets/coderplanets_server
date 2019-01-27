@@ -1,7 +1,11 @@
 defmodule MastaniServer.Test.Query.CMS.GEO do
   use MastaniServer.TestTools
 
+  import Helper.Utils, only: [get_config: 2]
+
   alias MastaniServer.CMS
+
+  @remote_ip get_config(:test, :remote_ip)
 
   setup do
     guest_conn = simu_conn(:guest)
@@ -28,8 +32,9 @@ defmodule MastaniServer.Test.Query.CMS.GEO do
     assert results == []
   end
 
+  @tag :wip
   test "community should get geo info after subscribe", ~m(guest_conn community user)a do
-    {:ok, _record} = CMS.subscribe_community(community, user)
+    {:ok, _record} = CMS.subscribe_community(community, user, @remote_ip)
 
     variables = %{id: community.id}
     results = guest_conn |> query_result(@query, variables, "communityGeoInfo")

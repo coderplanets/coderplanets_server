@@ -333,6 +333,10 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.subscribe_community(%Community{id: community_id}, cur_user)
   end
 
+  def unsubscribe_community(_root, ~m(community_id)a, %{context: ~m(cur_user remote_ip)a}) do
+    CMS.unsubscribe_community(%Community{id: community_id}, cur_user, remote_ip)
+  end
+
   def unsubscribe_community(_root, ~m(community_id)a, %{context: %{cur_user: cur_user}}) do
     CMS.unsubscribe_community(%Community{id: community_id}, cur_user)
   end

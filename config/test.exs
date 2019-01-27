@@ -9,6 +9,10 @@ config :mastani_server, MastaniServerWeb.Endpoint,
 # Print only warnings and errors during test
 config :logger, level: :warn
 
+config :mastani_server, :test,
+  # 成都电信 ip, for test use
+  remote_ip: "171.223.96.88"
+
 # Configure your database
 config :mastani_server, MastaniServer.Repo,
   adapter: Ecto.Adapters.Postgres,

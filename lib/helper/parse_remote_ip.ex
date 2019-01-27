@@ -2,9 +2,12 @@ defmodule Helper.RemoteIP do
   @moduledoc """
   parse remote ip in rep_headers -> x-forwarded-for
   """
+  import Helper.Utils, only: [get_config: 2]
+
+  @remote_ip get_config(:test, :remote_ip)
 
   def parse([]) do
-    {:error, "NOT_FOUND"}
+    if Mix.env() == :test, do: {:ok, @remote_ip}, else: {:error, "NOT_FOUND"}
   end
 
   # remote ip is the fisrt ip in the proxy_ips chain

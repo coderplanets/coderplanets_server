@@ -104,11 +104,20 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
   """
   def subscribe_community(
         %Community{id: community_id},
-        %User{id: user_id},
-        remote_ip \\ :localhost
+        %User{id: user_id}
       ) do
     with {:ok, record} <- CommunitySubscriber |> ORM.create(~m(user_id community_id)a) do
-      update_geo_info(community_id, user_id, remote_ip, :inc)
+      Community |> ORM.find(record.community_id)
+    end
+  end
+
+  def subscribe_community(
+        %Community{id: community_id},
+        %User{id: user_id},
+        remote_ip
+      ) do
+    with {:ok, record} <- CommunitySubscriber |> ORM.create(~m(user_id community_id)a) do
+      update_community_geo(community_id, user_id, remote_ip, :inc)
       Community |> ORM.find(record.community_id)
     end
   end
@@ -116,18 +125,53 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
   @doc """
   unsubscribe a community
   """
-  # TODO: can't unsubscribe home community
   def unsubscribe_community(
         %Community{id: community_id},
-        %User{id: user_id},
-        remote_ip \\ :localhost
+        %User{id: user_id}
       ) do
     with {:ok, community} <- ORM.find(Community, community_id),
          {:ok, record} <-
            CommunitySubscriber |> ORM.findby_delete(community_id: community.id, user_id: user_id) do
       case community.raw !== "home" do
         true ->
-          update_geo_info(community_id, user_id, remote_ip, :dec)
+          Community |> ORM.find(record.community_id)
+
+        false ->
+          {:error, "can't delete home community"}
+      end
+    end
+  end
+
+  def unsubscribe_community(
+        %Community{id: community_id},
+        %User{id: user_id, geo_city: nil},
+        remote_ip
+      ) do
+    with {:ok, community} <- ORM.find(Community, community_id),
+         {:ok, record} <-
+           CommunitySubscriber |> ORM.findby_delete(community_id: community.id, user_id: user_id) do
+      case community.raw !== "home" do
+        true ->
+          update_community_geo(community_id, user_id, remote_ip, :dec)
+          Community |> ORM.find(record.community_id)
+
+        false ->
+          {:error, "can't delete home community"}
+      end
+    end
+  end
+
+  def unsubscribe_community(
+        %Community{id: community_id},
+        %User{id: user_id, geo_city: city},
+        remote_ip
+      ) do
+    with {:ok, community} <- ORM.find(Community, community_id),
+         {:ok, record} <-
+           CommunitySubscriber |> ORM.findby_delete(community_id: community.id, user_id: user_id) do
+      case community.raw !== "home" do
+        true ->
+          update_community_geo_map(community.id, city, :dec)
           Community |> ORM.find(record.community_id)
 
         false ->
@@ -139,20 +183,53 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
   @doc """
   if user is new subscribe home community by default
   """
-  def subscribe_default_community_ifnot(%User{} = user, remote_ip \\ :localhost) do
+  # 这里只有一种情况，就是第一次没有解析到 remote_ip, 那么就直接订阅社区, 但不更新自己以及社区的地理信息
+  def subscribe_default_community_ifnot(%User{} = user) do
     with {:ok, community} <- ORM.find_by(Community, raw: "home"),
          {:error, _} <-
            ORM.find_by(CommunitySubscriber, %{community_id: community.id, user_id: user.id}) do
-      subscribe_community(community, user, remote_ip)
+      subscribe_community(community, user)
     end
   end
 
-  defp update_geo_info(community_id, user_id, remote_ip, method) do
+  # 3种情况
+  # 1. 第一次就直接解析到了 remote_ip, 正常订阅加更新地理信息
+  # 2. 之前已经订阅过，但是之前的 remote_ip 为空
+  # 3. 有 remote_ip 但是 geo_city 信息没有解析到
+  def subscribe_default_community_ifnot(%User{geo_city: nil} = user, remote_ip) do
+    with {:ok, community} <- ORM.find_by(Community, raw: "home") do
+      case ORM.find_by(CommunitySubscriber, %{community_id: community.id, user_id: user.id}) do
+        {:error, _} ->
+          # 之前没有订阅过且第一次就解析到了 remote_ip
+          subscribe_community(community, user, remote_ip)
+
+        {:ok, _} ->
+          # 之前订阅过，但是之前没有正确解析到 remote_ip 地址, 这次直接更新地理信息
+          update_community_geo(community.id, user.id, remote_ip, :inc)
+      end
+    end
+  end
+
+  # 用户的 geo_city 和 remote_ip 都有了，如果没订阅 home 直接就更新 community geo 即可
+  def subscribe_default_community_ifnot(%User{geo_city: city} = user, _remote_ip) do
+    with {:ok, community} <- ORM.find_by(Community, raw: "home") do
+      case ORM.find_by(CommunitySubscriber, %{community_id: community.id, user_id: user.id}) do
+        {:error, _} ->
+          update_community_geo_map(community.id, city, :inc)
+
+        {:ok, _} ->
+          # 手续齐全且之前也订阅了
+          {:ok, :pass}
+      end
+    end
+  end
+
+  defp update_community_geo(community_id, user_id, remote_ip, method) do
     {:ok, user} = ORM.find(User, user_id)
 
     case get_user_geocity(user.geo_city, remote_ip) do
       {:ok, user_geo_city} ->
-        update_community_geo(community_id, user_geo_city, method)
+        update_community_geo_map(community_id, user_geo_city, method)
 
       {:error, _} ->
         {:ok, :pass}
@@ -162,13 +239,13 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
   defp get_user_geocity(nil, remote_ip) do
     case RadarSearch.locate_city(remote_ip) do
       {:ok, city} -> {:ok, city}
-      {:error, _} -> {:error, "update_geo_info error"}
+      {:error, _} -> {:error, "update_community geo error"}
     end
   end
 
   defp get_user_geocity(geo_city, _remote_ip), do: {:ok, geo_city}
 
-  defp update_community_geo(community_id, city, method) do
+  defp update_community_geo_map(community_id, city, method) do
     with {:ok, community} <- Community |> ORM.find(community_id) do
       community_geo_data = community.geo_info |> Map.get("data")
 
