@@ -28,14 +28,10 @@ defmodule MastaniServerWeb.Context do
   def build_context(conn) do
     with ["Bearer " <> token] <- get_req_header(conn, "authorization"),
          {:ok, cur_user} <- authorize(token) do
-      IO.inspect(get_req_header(conn, "x-forwarded-for"), label: "get header x-forwarded-for")
-
-      IO.inspect(conn.req_headers, label: "hello conn")
-
-      IO.inspect(
-        RemoteIP.parse(get_req_header(conn, "x-forwarded-for")),
-        label: "x-forwarded-for"
-      )
+      # IO.inspect(
+        # RemoteIP.parse(get_req_header(conn, "x-forwarded-for")),
+        # label: "x-forwarded-for"
+      # )
 
       case RemoteIP.parse(get_req_header(conn, "x-forwarded-for")) do
         {:ok, remote_ip} ->
