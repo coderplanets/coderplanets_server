@@ -8,7 +8,7 @@ defmodule Helper.RemoteIP do
   end
 
   # remote ip is the fisrt ip in the proxy_ips chain
-  def parse(proxy_ips) do
+  def parse([proxy_ips]) do
     client_ip = proxy_ips |> String.split(",") |> List.first()
 
     case client_ip not in slb_ips do
