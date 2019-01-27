@@ -3,8 +3,12 @@ defmodule Helper.RemoteIP do
   parse remote ip in rep_headers -> x-forwarded-for
   """
 
+  def parse([]) do
+    {:error, "NOT_FOUND"}
+  end
+
   # remote ip is the fisrt ip in the proxy_ips chain
-  def parse([proxy_ips, _]) do
+  def parse(proxy_ips) do
     client_ip = proxy_ips |> String.split(",") |> List.first()
 
     case client_ip not in slb_ips do
