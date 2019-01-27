@@ -76,7 +76,9 @@ defmodule MastaniServer.Test.Mutation.Accounts.Fans do
       assert found |> Map.get(:followers) |> length == 1
 
       variables = %{userId: user2.id}
-      user_conn |> mutation_result(@query, variables, "undoFollow")
+      result = user_conn |> mutation_result(@query, variables, "undoFollow")
+
+      assert result["id"] == to_string(user2.id)
 
       {:ok, found} = User |> ORM.find(user2.id, preload: :followers)
       assert found |> Map.get(:followers) |> length == 0
