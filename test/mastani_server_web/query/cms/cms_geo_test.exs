@@ -32,7 +32,6 @@ defmodule MastaniServer.Test.Query.CMS.GEO do
     assert results == []
   end
 
-  @tag :wip
   test "community should get geo info after subscribe", ~m(guest_conn community user)a do
     {:ok, _record} = CMS.subscribe_community(community, user, @remote_ip)
 
