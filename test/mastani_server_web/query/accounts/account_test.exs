@@ -349,7 +349,6 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert results["user"] == nil
     end
 
-    @tag :wip
     test "user should subscribe home community if not subscribed before", ~m(user)a do
       {:ok, community} = db_insert(:community, %{raw: "home"})
 
