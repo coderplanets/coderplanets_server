@@ -655,7 +655,6 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
       assert guest_conn |> mutation_get_error?(@subscribe_query, variables, ecode(:account_login))
     end
 
-    @tag :wip3
     test "subscribed community should inc it's own geo info", ~m(user community)a do
       login_conn = simu_conn(:user, user)
 
@@ -679,7 +678,6 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
       }
     }
     """
-    @tag :wip
     test "login user can unsubscribe community", ~m(user community)a do
       {:ok, cur_subscribers} =
         CMS.community_members(:subscribers, %Community{id: community.id}, %{page: 1, size: 10})
@@ -720,7 +718,6 @@ defmodule MastaniServer.Test.Mutation.CMS.Basic do
              |> mutation_get_error?(@unsubscribe_query, variables, ecode(:account_login))
     end
 
-    @tag :wip2
     test "unsubscribed community should dec it's own geo info", ~m(user community)a do
       login_conn = simu_conn(:user, user)
 

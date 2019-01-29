@@ -378,6 +378,10 @@ defmodule MastaniServerWeb.Resolvers.CMS do
     CMS.create_comment(thread, id, args, user)
   end
 
+  def update_comment(_root, ~m(thread id)a = args, %{context: %{cur_user: user}}) do
+    CMS.update_comment(thread, id, args, user)
+  end
+
   def delete_comment(_root, ~m(thread id)a, _info) do
     CMS.delete_comment(thread, id)
   end

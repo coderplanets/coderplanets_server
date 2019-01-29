@@ -622,6 +622,24 @@ defmodule MastaniServer.Test.Mutation.Post do
       assert created["body"] == variables.body
     end
 
+    @update_comment_query """
+    mutation($thread: CmsThread!, $id: ID!, $body: String!) {
+      updateComment(thread: $thread,id: $id, body: $body) {
+        id
+        body
+      }
+    }
+    """
+    test "can update a exsit comment", ~m(post user_conn community)a do
+      variables = %{community: community.raw, thread: "POST", id: post.id, body: "a test comment"}
+      created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
+
+      variables = %{thread: "POST", id: created["id"], body: "updated body"}
+      updated = user_conn |> mutation_result(@update_comment_query, variables, "updateComment")
+
+      assert updated["body"] == "updated body"
+    end
+
     @delete_comment_query """
     mutation($id: ID!) {
       deleteComment(id: $id) {
