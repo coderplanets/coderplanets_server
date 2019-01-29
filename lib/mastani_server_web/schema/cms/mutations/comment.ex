@@ -21,6 +21,18 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Comment do
       middleware(M.Statistics.MakeContribute, for: :user)
     end
 
+    @desc "update a comment"
+    field :update_comment, :comment do
+      arg(:id, non_null(:id))
+      arg(:thread, :cms_thread, default_value: :post)
+      arg(:body, non_null(:string))
+
+      # TDOO: use a comment resolver
+      middleware(M.Authorize, :login)
+      resolve(&R.CMS.update_comment/3)
+    end
+
+    @desc "delete a comment"
     field :delete_comment, :comment do
       arg(:thread, :cms_thread, default_value: :post)
       arg(:id, non_null(:id))

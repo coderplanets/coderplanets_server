@@ -41,6 +41,19 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     end
   end
 
+  @doc """
+  Creates a comment for psot, job ...
+  """
+  def update_comment(thread, id, %{body: body} = args, %Accounts.User{id: user_id}) do
+    {:ok, action} = match_action(thread, :comment)
+
+    with {:ok, action} <- match_action(thread, :comment),
+         {:ok, content} <- ORM.find(action.reactor, id),
+         true <- content.author_id == user_id do
+      ORM.update(content, %{body: body})
+    end
+  end
+
   defp do_create_comment(thread, action, content, body, user) do
     next_floor = get_next_floor(thread, action.reactor, content.id)
 

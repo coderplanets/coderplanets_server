@@ -107,6 +107,7 @@ defmodule MastaniServer.CMS do
   defdelegate list_comments_participators(thread, content_id, filters), to: CommentCURD
 
   defdelegate create_comment(thread, content_id, args, user), to: CommentCURD
+  defdelegate update_comment(thread, id, args, user), to: CommentCURD
   defdelegate delete_comment(thread, content_id), to: CommentCURD
   defdelegate list_replies(thread, comment, user), to: CommentCURD
   defdelegate reply_comment(thread, comment, args, user), to: CommentCURD
