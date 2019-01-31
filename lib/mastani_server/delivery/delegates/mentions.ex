@@ -38,6 +38,11 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
           updated_at: DateTime.truncate(Timex.now(), :second)
         }
 
+        attrs =
+          if Map.has_key?(info, :floor),
+            do: Map.merge(attrs, %{floor: integerfy(info.floor)}),
+            else: attrs
+
         acc ++ [attrs]
       end)
 
@@ -93,6 +98,31 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
     }
 
     mention_others(from_user, to_user_ids, info)
+  end
+
+  defp get_reply_content_id(:post, comment), do: comment.post_id
+  defp get_reply_content_id(:job, comment), do: comment.job_id
+  defp get_reply_content_id(:video, comment), do: comment.video_id
+  defp get_reply_content_id(:repo, comment), do: comment.repo_id
+
+  def mention_from_comment_reply(community, thread, comment, args, %User{} = from_user) do
+    # IO.inspect comment, label: "reply this comment"
+    content_id = get_reply_content_id(thread, comment)
+    to_user_ids = Map.get(args, :mention_users)
+
+    info = %{
+      source_title: comment.body,
+      source_type: "comment_reply",
+      source_id: content_id,
+      source_preview: args.body,
+      floor: args.floor,
+      parent_id: content_id,
+      parent_type: thread,
+      community: community
+    }
+
+    mention_others(from_user, to_user_ids, info)
+    mention_others(from_user, [%{id: comment.author_id}], info)
   end
 
   @doc """

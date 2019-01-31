@@ -41,6 +41,30 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     end
   end
 
+  def reply_comment(
+        thread,
+        comment_id,
+        %{community: community, body: body} = args,
+        %Accounts.User{id: user_id} = user
+      ) do
+    with {:ok, action} <- match_action(thread, :comment),
+         {:ok, comment} <- ORM.find(action.reactor, comment_id) do
+      next_floor = get_next_floor(thread, action.reactor, comment)
+
+      attrs = %{
+        author_id: user_id,
+        body: body,
+        reply_to: comment,
+        floor: next_floor,
+        mention_users: Map.get(args, :mention_users, [])
+      }
+
+      Delivery.mention_from_comment_reply(community, thread, comment, attrs, user)
+      attrs = merge_reply_attrs(thread, attrs, comment)
+      bridge_reply(thread, action.reactor, comment, attrs)
+    end
+  end
+
   @doc """
   Creates a comment for psot, job ...
   """
@@ -52,26 +76,6 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
          true <- content.author_id == user_id do
       ORM.update(content, %{body: body})
     end
-  end
-
-  defp do_create_comment(thread, action, content, body, user) do
-    next_floor = get_next_floor(thread, action.reactor, content.id)
-
-    attrs = %{
-      author_id: user.id,
-      body: body,
-      floor: next_floor
-    }
-
-    attrs = merge_comment_attrs(thread, attrs, content.id)
-
-    action.reactor |> ORM.create(attrs)
-  end
-
-  defp create_comment_result({:ok, %{create_comment: result}}), do: {:ok, result}
-
-  defp create_comment_result({:error, :create_comment, result, _steps}) do
-    {:error, result}
   end
 
   @doc """
@@ -98,16 +102,6 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
       |> Repo.transaction()
       |> delete_comment_result()
     end
-  end
-
-  defp delete_comment_result({:ok, %{delete_comment: result}}), do: {:ok, result}
-
-  defp delete_comment_result({:error, :delete_comment, _result, _steps}) do
-    {:error, [message: "delete comment fails", code: ecode(:delete_fails)]}
-  end
-
-  defp delete_comment_result({:error, :update_floor, _result, _steps}) do
-    {:error, [message: "update follor fails", code: ecode(:delete_fails)]}
   end
 
   @doc """
@@ -158,21 +152,34 @@ defmodule MastaniServer.CMS.Delegate.CommentCURD do
     end
   end
 
-  def reply_comment(thread, comment_id, %{body: body} = _args, %Accounts.User{id: user_id}) do
-    with {:ok, action} <- match_action(thread, :comment),
-         {:ok, comment} <- ORM.find(action.reactor, comment_id) do
-      next_floor = get_next_floor(thread, action.reactor, comment)
+  defp do_create_comment(thread, action, content, body, user) do
+    next_floor = get_next_floor(thread, action.reactor, content.id)
 
-      attrs = %{
-        author_id: user_id,
-        body: body,
-        reply_to: comment,
-        floor: next_floor
-      }
+    attrs = %{
+      author_id: user.id,
+      body: body,
+      floor: next_floor
+    }
 
-      attrs = merge_reply_attrs(thread, attrs, comment)
-      bridge_reply(thread, action.reactor, comment, attrs)
-    end
+    attrs = merge_comment_attrs(thread, attrs, content.id)
+
+    action.reactor |> ORM.create(attrs)
+  end
+
+  defp create_comment_result({:ok, %{create_comment: result}}), do: {:ok, result}
+
+  defp create_comment_result({:error, :create_comment, result, _steps}) do
+    {:error, result}
+  end
+
+  defp delete_comment_result({:ok, %{delete_comment: result}}), do: {:ok, result}
+
+  defp delete_comment_result({:error, :delete_comment, _result, _steps}) do
+    {:error, [message: "delete comment fails", code: ecode(:delete_fails)]}
+  end
+
+  defp delete_comment_result({:error, :update_floor, _result, _steps}) do
+    {:error, [message: "update follor fails", code: ecode(:delete_fails)]}
   end
 
   # simulate a join connection

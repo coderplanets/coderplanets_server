@@ -20,8 +20,20 @@ defmodule MastaniServer.Test.Mutation.PostComment do
 
   describe "[post comment CURD]" do
     @create_comment_query """
-    mutation($community: String!, $thread: CmsThread, $id: ID!, $body: String!, $mentionUsers: [Ids]) {
-      createComment(community: $community, thread: $thread, id: $id, body: $body, mentionUsers: $mentionUsers) {
+    mutation(
+      $community: String!
+      $thread: CmsThread
+      $id: ID!
+      $body: String!
+      $mentionUsers: [Ids]
+    ) {
+      createComment(
+        community: $community
+        thread: $thread
+        id: $id
+        body: $body
+        mentionUsers: $mentionUsers
+      ) {
         id
         body
       }
@@ -108,22 +120,102 @@ defmodule MastaniServer.Test.Mutation.PostComment do
     end
 
     @reply_comment_query """
-    mutation($thread: CmsThread!, $id: ID!, $body: String!) {
-      replyComment(thread: $thread, id: $id, body: $body) {
+    mutation(
+      $community: String!
+      $thread: CmsThread
+      $id: ID!
+      $body: String!
+      $mentionUsers: [Ids]
+    ) {
+      replyComment(
+        community: $community
+        thread: $thread
+        id: $id
+        body: $body
+        mentionUsers: $mentionUsers
+      ) {
         id
         body
         replyTo {
           id
-          body
         }
       }
     }
     """
-    test "login user can reply to a exsit comment", ~m(user_conn comment)a do
-      variables = %{thread: "POST", id: comment.id, body: "this a reply"}
+    test "login user can reply to a exsit comment", ~m(user_conn community comment)a do
+      variables = %{
+        community: community.raw,
+        thread: "POST",
+        id: comment.id,
+        body: "this a reply"
+      }
+
       replied = user_conn |> mutation_result(@reply_comment_query, variables, "replyComment")
 
       assert replied["replyTo"] |> Map.get("id") == to_string(comment.id)
+    end
+
+    test "should mention author when reply to a comment", ~m(community post user)a do
+      body = "this is a comment"
+
+      {:ok, comment} =
+        CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
+
+      variables = %{
+        community: community.raw,
+        thread: "POST",
+        id: comment.id,
+        body: "this a reply"
+      }
+
+      {:ok, user2} = db_insert(:user)
+      user_conn2 = simu_conn(:user, user2)
+      _replied = user_conn2 |> mutation_result(@reply_comment_query, variables, "replyComment")
+
+      filter = %{page: 1, size: 20, read: false}
+      {:ok, mentions} = Delivery.fetch_mentions(user, filter)
+      assert mentions.total_count == 1
+      the_mention = mentions.entries |> List.first()
+
+      assert the_mention.from_user_id == user2.id
+      assert the_mention.to_user_id == user.id
+      assert the_mention.floor != nil
+      assert the_mention.source_title == comment.body
+      assert the_mention.source_type == "comment_reply"
+      assert the_mention.parent_id == to_string(post.id)
+      assert the_mention.parent_type == "post"
+    end
+
+    test "can mention others in a reply", ~m(community post user user_conn)a do
+      body = "this is a comment"
+      {:ok, user2} = db_insert(:user)
+
+      {:ok, comment} =
+        CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
+
+      variables = %{
+        community: community.raw,
+        thread: "POST",
+        id: comment.id,
+        body: "this is a reply",
+        mentionUsers: [%{id: user2.id}]
+      }
+
+      _replied = user_conn |> mutation_result(@reply_comment_query, variables, "replyComment")
+
+      filter = %{page: 1, size: 20, read: false}
+      {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
+      assert mentions.total_count == 1
+      the_mention = mentions.entries |> List.first()
+
+      assert the_mention.from_user_id == user.id
+      assert the_mention.to_user_id == user2.id
+      assert the_mention.floor != nil
+      assert the_mention.source_title == comment.body
+      assert the_mention.source_type == "comment_reply"
+      assert the_mention.source_preview == "this is a reply"
+      assert the_mention.parent_id == to_string(post.id)
+      assert the_mention.parent_type == "post"
     end
 
     test "guest user reply comment fails", ~m(guest_conn comment)a do

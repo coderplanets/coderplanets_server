@@ -59,10 +59,12 @@ defmodule MastaniServer.Test.CMS.RepoComment do
                )
     end
 
-    test "can reply a comment, and reply should be in comment replies list", ~m(comment user)a do
+    test "can reply a comment, and reply should be in comment replies list",
+         ~m(community comment user)a do
       reply_body = "this is a reply comment"
 
-      {:ok, reply} = CMS.reply_comment(:repo, comment.id, %{body: reply_body}, user)
+      {:ok, reply} =
+        CMS.reply_comment(:repo, comment.id, %{community: community.raw, body: reply_body}, user)
 
       {:ok, reply_preload} = ORM.find(RepoComment, reply.id, preload: :reply_to)
       {:ok, comment_preload} = ORM.find(RepoComment, comment.id, preload: :replies)
@@ -116,10 +118,11 @@ defmodule MastaniServer.Test.CMS.RepoComment do
       assert new_comment_last.floor == total
     end
 
-    test "comment with replies should be deleted together", ~m(comment user)a do
+    test "comment with replies should be deleted together", ~m(community comment user)a do
       reply_body = "this is a reply comment"
 
-      {:ok, reply} = CMS.reply_comment(:repo, comment.id, %{body: reply_body}, user)
+      {:ok, reply} =
+        CMS.reply_comment(:repo, comment.id, %{community: community.raw, body: reply_body}, user)
 
       RepoComment |> ORM.find_delete(comment.id)
 
@@ -145,16 +148,34 @@ defmodule MastaniServer.Test.CMS.RepoComment do
       assert results |> is_valid_pagination?(:raw)
     end
 
-    test "comment reply can be list one-by-one --> by replied user", ~m(comment)a do
+    test "comment reply can be list one-by-one --> by replied user", ~m(community comment)a do
       {:ok, user1} = db_insert(:user)
       {:ok, user2} = db_insert(:user)
       {:ok, user3} = db_insert(:user)
 
-      {:ok, _} = CMS.reply_comment(:repo, comment.id, %{body: "reply by user1"}, user1)
+      {:ok, _} =
+        CMS.reply_comment(
+          :repo,
+          comment.id,
+          %{community: community.raw, body: "reply by user1"},
+          user1
+        )
 
-      {:ok, _} = CMS.reply_comment(:repo, comment.id, %{body: "reply by user2"}, user2)
+      {:ok, _} =
+        CMS.reply_comment(
+          :repo,
+          comment.id,
+          %{community: community.raw, body: "reply by user2"},
+          user2
+        )
 
-      {:ok, _} = CMS.reply_comment(:repo, comment.id, %{body: "reply by user3"}, user3)
+      {:ok, _} =
+        CMS.reply_comment(
+          :repo,
+          comment.id,
+          %{community: community.raw, body: "reply by user3"},
+          user3
+        )
 
       {:ok, found_reply1} = CMS.list_replies(:repo, comment.id, user1)
       assert user1.id == found_reply1 |> List.first() |> Map.get(:author_id)
