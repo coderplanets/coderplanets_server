@@ -69,6 +69,13 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
         true ->
           map = Map.merge(cur_c11n, map)
           attrs = Map.merge(%{user_id: user.id}, map)
+
+          attrs =
+            if Map.has_key?(attrs, :theme),
+              do: Map.merge(attrs, %{theme: String.downcase(attrs.theme)}),
+              else: attrs
+
+          IO.inspect(attrs, label: "hello attrs")
           Customization |> ORM.upsert_by([user_id: user.id], attrs)
 
         false ->
