@@ -25,6 +25,11 @@ defmodule MastaniServerWeb.Schema.Delivery.Types do
     field(:source_id, :string)
     field(:source_preview, :string)
     field(:source_type, :string)
+
+    field(:parent_id, :string)
+    field(:parent_type, :string)
+    field(:floor, :integer)
+
     field(:community, :string)
     field(:read, :boolean)
   end

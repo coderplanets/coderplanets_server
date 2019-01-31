@@ -359,7 +359,13 @@ defmodule MastaniServer.Test.Query.VideoComment do
       {:ok, comment} =
         CMS.create_comment(:video, video.id, %{community: community.raw, body: body}, user)
 
-      {:ok, reply} = CMS.reply_comment(:video, comment.id, %{body: "reply body"}, user)
+      {:ok, reply} =
+        CMS.reply_comment(
+          :video,
+          comment.id,
+          %{community: community.raw, body: "reply body"},
+          user
+        )
 
       variables = %{thread: "VIDEO", id: video.id, filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedComments")

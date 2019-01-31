@@ -476,7 +476,13 @@ defmodule MastaniServer.Test.Query.PostComment do
       {:ok, comment} =
         CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
 
-      {:ok, reply} = CMS.reply_comment(:post, comment.id, %{body: "reply body"}, user)
+      {:ok, reply} =
+        CMS.reply_comment(
+          :post,
+          comment.id,
+          %{community: community.raw, body: "reply body"},
+          user
+        )
 
       variables = %{id: post.id, filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedComments")

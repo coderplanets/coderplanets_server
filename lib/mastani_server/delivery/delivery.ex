@@ -14,6 +14,7 @@ defmodule MastaniServer.Delivery do
   defdelegate mention_others(from_user, to_user_ids, info), to: Mentions
   defdelegate mention_from_content(community, thread, content, args, user), to: Mentions
   defdelegate mention_from_comment(community, thread, content, comment, args, user), to: Mentions
+  defdelegate mention_from_comment_reply(community, thread, comment, args, user), to: Mentions
   defdelegate fetch_mentions(user, filter), to: Mentions
 
   # notifications

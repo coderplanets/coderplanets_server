@@ -9,11 +9,8 @@ defmodule MastaniServer.Test.Mutation.JobComment do
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
 
-    # {:ok, user2} = db_insert(:user)
-    # {:ok, post2} = db_insert(:post)
-
     guest_conn = simu_conn(:guest)
-    user_conn = simu_conn(:user)
+    user_conn = simu_conn(:user, user)
 
     {:ok, comment} =
       CMS.create_comment(:job, job.id, %{community: community.raw, body: "test comment"}, user)
@@ -116,29 +113,103 @@ defmodule MastaniServer.Test.Mutation.JobComment do
     end
 
     @reply_comment_query """
-    mutation($thread: CmsThread!, $id: ID!, $body: String!) {
-      replyComment(thread: $thread, id: $id, body: $body) {
+    mutation(
+      $community: String!
+      $thread: CmsThread
+      $id: ID!
+      $body: String!
+      $mentionUsers: [Ids]
+    ) {
+      replyComment(
+        community: $community
+        thread: $thread
+        id: $id
+        body: $body
+        mentionUsers: $mentionUsers
+      ) {
         id
         body
         replyTo {
           id
-          body
         }
       }
     }
     """
-    test "login user can reply to a exsit comment", ~m(user_conn comment)a do
-      variables = %{thread: "JOB", id: comment.id, body: "this a reply"}
+    test "login user can reply to a exsit comment", ~m(user_conn community comment)a do
+      variables = %{community: community.raw, thread: "JOB", id: comment.id, body: "this a reply"}
       replied = user_conn |> mutation_result(@reply_comment_query, variables, "replyComment")
 
       assert replied["replyTo"] |> Map.get("id") == to_string(comment.id)
     end
 
-    test "guest user reply comment fails", ~m(guest_conn comment)a do
-      variables = %{thread: "JOB", id: comment.id, body: "this a reply"}
+    test "guest user reply comment fails", ~m(guest_conn community comment)a do
+      variables = %{community: community.raw, thread: "JOB", id: comment.id, body: "this a reply"}
 
       assert guest_conn
              |> mutation_get_error?(@reply_comment_query, variables, ecode(:account_login))
+    end
+
+    test "should mention author when reply to a comment", ~m(community job user)a do
+      body = "this is a comment"
+
+      {:ok, comment} =
+        CMS.create_comment(:job, job.id, %{community: community.raw, body: body}, user)
+
+      variables = %{
+        community: community.raw,
+        thread: "JOB",
+        id: comment.id,
+        body: "this a reply"
+      }
+
+      {:ok, user2} = db_insert(:user)
+      user_conn2 = simu_conn(:user, user2)
+      _replied = user_conn2 |> mutation_result(@reply_comment_query, variables, "replyComment")
+
+      filter = %{page: 1, size: 20, read: false}
+      {:ok, mentions} = Delivery.fetch_mentions(user, filter)
+      assert mentions.total_count == 1
+      the_mention = mentions.entries |> List.first()
+
+      assert the_mention.from_user_id == user2.id
+      assert the_mention.to_user_id == user.id
+      assert the_mention.floor != nil
+      assert the_mention.source_title == comment.body
+      assert the_mention.source_type == "comment_reply"
+      assert the_mention.parent_id == to_string(job.id)
+      assert the_mention.parent_type == "job"
+    end
+
+    test "can mention others in a reply", ~m(community job user user_conn)a do
+      body = "this is a comment"
+      {:ok, user2} = db_insert(:user)
+
+      {:ok, comment} =
+        CMS.create_comment(:job, job.id, %{community: community.raw, body: body}, user)
+
+      variables = %{
+        community: community.raw,
+        thread: "JOB",
+        id: comment.id,
+        body: "this is a reply",
+        mentionUsers: [%{id: user2.id}]
+      }
+
+      _replied = user_conn |> mutation_result(@reply_comment_query, variables, "replyComment")
+
+      filter = %{page: 1, size: 20, read: false}
+      {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
+      assert mentions.total_count == 1
+      the_mention = mentions.entries |> List.first()
+
+      assert the_mention.from_user_id == user.id
+      assert the_mention.to_user_id == user2.id
+      assert the_mention.floor != nil
+      assert the_mention.source_title == comment.body
+      assert the_mention.source_type == "comment_reply"
+      assert the_mention.source_preview == "this is a reply"
+      assert the_mention.parent_id == to_string(job.id)
+      assert the_mention.parent_type == "job"
     end
 
     test "TODO owner can NOT delete comment when comment has replies" do
