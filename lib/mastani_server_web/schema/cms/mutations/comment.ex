@@ -49,9 +49,11 @@ defmodule MastaniServerWeb.Schema.CMS.Mutations.Comment do
 
     @desc "reply a exsiting comment"
     field :reply_comment, :comment do
+      arg(:community, non_null(:string))
       arg(:thread, non_null(:cms_thread), default_value: :post)
       arg(:id, non_null(:id))
       arg(:body, non_null(:string))
+      arg(:mention_users, list_of(:ids))
 
       middleware(M.Authorize, :login)
 
