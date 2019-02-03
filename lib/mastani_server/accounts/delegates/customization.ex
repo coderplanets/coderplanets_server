@@ -75,7 +75,6 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
               do: Map.merge(attrs, %{theme: String.downcase(attrs.theme)}),
               else: attrs
 
-          IO.inspect(attrs, label: "hello attrs")
           Customization |> ORM.upsert_by([user_id: user.id], attrs)
 
         false ->
