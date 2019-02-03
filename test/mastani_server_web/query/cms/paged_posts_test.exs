@@ -260,6 +260,7 @@ defmodule MastaniServer.Test.Query.PagedPosts do
       assert results |> Map.get("totalCount") == expect_count
     end
 
+    @tag :skip_travis
     test "THIS_WEEK option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_WEEK"}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
