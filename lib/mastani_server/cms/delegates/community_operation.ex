@@ -130,15 +130,16 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
         %User{id: user_id}
       ) do
     with {:ok, community} <- ORM.find(Community, community_id),
+         true <- community.raw !== "home",
          {:ok, record} <-
-           CommunitySubscriber |> ORM.findby_delete(community_id: community.id, user_id: user_id) do
-      case community.raw !== "home" do
-        true ->
-          Community |> ORM.find(record.community_id)
+           ORM.findby_delete(CommunitySubscriber, community_id: community.id, user_id: user_id) do
+      Community |> ORM.find(record.community_id)
+    else
+      false ->
+        {:error, "can not unsubscribe home community"}
 
-        false ->
-          {:error, "can't delete home community"}
-      end
+      error ->
+        error
     end
   end
 
@@ -148,16 +149,17 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
         remote_ip
       ) do
     with {:ok, community} <- ORM.find(Community, community_id),
+         true <- community.raw !== "home",
          {:ok, record} <-
            CommunitySubscriber |> ORM.findby_delete(community_id: community.id, user_id: user_id) do
-      case community.raw !== "home" do
-        true ->
-          update_community_geo(community_id, user_id, remote_ip, :dec)
-          Community |> ORM.find(record.community_id)
+      update_community_geo(community_id, user_id, remote_ip, :dec)
+      Community |> ORM.find(record.community_id)
+    else
+      false ->
+        {:error, "can't delete home community"}
 
-        false ->
-          {:error, "can't delete home community"}
-      end
+      error ->
+        error
     end
   end
 
@@ -167,16 +169,17 @@ defmodule MastaniServer.CMS.Delegate.CommunityOperation do
         remote_ip
       ) do
     with {:ok, community} <- ORM.find(Community, community_id),
+         true <- community.raw !== "home",
          {:ok, record} <-
            CommunitySubscriber |> ORM.findby_delete(community_id: community.id, user_id: user_id) do
-      case community.raw !== "home" do
-        true ->
-          update_community_geo_map(community.id, city, :dec)
-          Community |> ORM.find(record.community_id)
+      update_community_geo_map(community.id, city, :dec)
+      Community |> ORM.find(record.community_id)
+    else
+      false ->
+        {:error, "can't delete home community"}
 
-        false ->
-          {:error, "can't delete home community"}
-      end
+      error ->
+        error
     end
   end
 
