@@ -266,7 +266,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
     end)
   end
 
-  defp seed_bot do
+  def seed_bot do
     case ORM.find(Accounts.User, 1) do
       {:ok, user} ->
         {:ok, user}
@@ -399,25 +399,25 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
 
   defp tagfy_threads(communities, _threads, bot, :city) when is_list(communities) do
     Enum.each(communities, fn community ->
-      set_tags(community, :post, bot, :city)
+      create_tags(community, :post, bot, :city)
     end)
   end
 
   defp tagfy_threads(communities, threads, bot) when is_list(communities) do
     Enum.each(communities, fn community ->
       Enum.each(threads, fn thread ->
-        set_tags(community, thread, bot)
+        create_tags(community, thread, bot)
       end)
     end)
   end
 
   defp tagfy_threads(community, threads, bot, :home) do
     Enum.each(threads, fn thread ->
-      set_tags(community, thread, bot, :home)
+      create_tags(community, thread, bot, :home)
     end)
   end
 
-  defp set_tags(%Community{} = community, %Thread{raw: raw}, bot) do
+  defp create_tags(%Community{} = community, %Thread{raw: raw}, bot) do
     thread = raw |> String.to_atom()
 
     Enum.each(SeedsConfig.tags(thread), fn attr ->
@@ -425,13 +425,13 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
     end)
   end
 
-  defp set_tags(%Community{} = community, :post, bot, :city) do
+  defp create_tags(%Community{} = community, :post, bot, :city) do
     Enum.each(SeedsConfig.tags(:city, :post), fn attr ->
       CMS.create_tag(community, :post, attr, bot)
     end)
   end
 
-  defp set_tags(%Community{} = community, %Thread{raw: raw}, bot, :home) do
+  defp create_tags(%Community{} = community, %Thread{raw: raw}, bot, :home) do
     thread = raw |> String.to_atom()
 
     Enum.each(SeedsConfig.tags(:home, thread), fn attr ->
