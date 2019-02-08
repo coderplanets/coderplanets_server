@@ -72,7 +72,7 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
 
           attrs =
             if Map.has_key?(attrs, :theme),
-              do: Map.merge(attrs, %{theme: String.downcase(attrs.theme)}),
+              do: Map.merge(attrs, %{theme: downcase_theme(attrs.theme)}),
               else: attrs
 
           Customization |> ORM.upsert_by([user_id: user.id], attrs)
@@ -128,4 +128,7 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
   defp filter_nil_value(map) do
     for {k, v} <- map, !is_nil(v), into: %{}, do: {k, v}
   end
+
+  defp downcase_theme("solarizedDark"), do: "solarizedDark"
+  defp downcase_theme(theme), do: String.downcase(theme)
 end
