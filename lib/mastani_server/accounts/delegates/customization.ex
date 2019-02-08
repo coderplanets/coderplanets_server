@@ -129,6 +129,6 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
     for {k, v} <- map, !is_nil(v), into: %{}, do: {k, v}
   end
 
-  defp downcase_theme("solarizedDark"), do: "solarizedDark"
+  defp downcase_theme("SOLARIZEDDARK"), do: "solarizedDark"
   defp downcase_theme(theme), do: String.downcase(theme)
 end
