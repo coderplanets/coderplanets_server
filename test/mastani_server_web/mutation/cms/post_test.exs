@@ -46,7 +46,6 @@ defmodule MastaniServer.Test.Mutation.Post do
       }
     }
     """
-    @tag :wip
     test "create post with valid attrs and make sure author exsit" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)

@@ -26,7 +26,6 @@ defmodule MastaniServer.Test.Repo do
       assert repo.contributors |> length !== 0
     end
 
-    @tag :wip
     test "created repo has origial community info", ~m(user community repo_attrs)a do
       {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
       {:ok, found} = ORM.find(CMS.Repo, repo.id, preload: :origial_community)

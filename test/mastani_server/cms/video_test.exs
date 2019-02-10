@@ -23,7 +23,6 @@ defmodule MastaniServer.Test.CMS.Video do
       assert video.title == video_attrs.title
     end
 
-    @tag :wip
     test "created video has origial community info", ~m(user community video_attrs)a do
       {:ok, video} = CMS.create_content(community, :video, video_attrs, user)
       {:ok, found} = ORM.find(CMS.Video, video.id, preload: :origial_community)
