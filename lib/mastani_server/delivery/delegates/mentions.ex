@@ -24,9 +24,13 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
           from_user_id: from_user_id,
           to_user_id: integerfy(to_user.id),
           source_id: stringfy(info.source_id),
-          source_title: info.source_title,
+          # source_title has 256 limit under table
+          # chinese takes 2 chars
+          source_title: String.slice(info.source_title, 0, 50),
           source_type: info.source_type,
-          source_preview: info.source_preview,
+          # source_preview has 256 limit under table
+          # chinese takes 2 chars
+          source_preview: String.slice(info.source_preview, 0, 50),
           parent_id: stringfy(Map.get(info, :parent_id)),
           parent_type: stringfy(Map.get(info, :parent_type)),
           community: Map.get(info, :community),
@@ -57,10 +61,10 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
     topic = Map.get(args, :topic, "posts")
 
     info = %{
-      source_title: content.title,
+      source_title: String.slice(content.title, 0, 50),
       source_type: topic,
       source_id: content.id,
-      source_preview: content.digest,
+      source_preview: String.slice(content.digest, 0, 50),
       community: community
     }
 
@@ -71,10 +75,10 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
     to_user_ids = Map.get(args, :mention_users)
 
     info = %{
-      source_title: content.title,
+      source_title: String.slice(content.title, 0, 50),
       source_type: "job",
       source_id: content.id,
-      source_preview: content.digest,
+      source_preview: String.slice(content.digest, 0, 50),
       community: community
     }
 
@@ -87,10 +91,10 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
     to_user_ids = Map.get(args, :mention_users)
 
     info = %{
-      source_title: content.title,
+      source_title: String.slice(content.title, 0, 50),
       source_type: "comment",
       source_id: comment.id,
-      source_preview: comment.body,
+      source_preview: String.slice(comment.body, 0, 50),
       floor: comment.floor,
       parent_id: content.id,
       parent_type: thread,
@@ -111,10 +115,10 @@ defmodule MastaniServer.Delivery.Delegate.Mentions do
     to_user_ids = Map.get(args, :mention_users)
 
     info = %{
-      source_title: comment.body,
+      source_title: String.slice(comment.body, 0, 50),
       source_type: "comment_reply",
       source_id: content_id,
-      source_preview: args.body,
+      source_preview: String.slice(args.body, 0, 50),
       floor: args.floor,
       parent_id: content_id,
       parent_type: thread,

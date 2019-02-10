@@ -187,7 +187,8 @@ defmodule MastaniServer.Test.Mutation.PostComment do
     end
 
     test "can mention others in a reply", ~m(community post user user_conn)a do
-      body = "this is a comment"
+      body = "this is a comment" |> String.duplicate(100)
+      reply_body = "this is a reply" |> String.duplicate(100)
       {:ok, user2} = db_insert(:user)
 
       {:ok, comment} =
@@ -197,7 +198,7 @@ defmodule MastaniServer.Test.Mutation.PostComment do
         community: community.raw,
         thread: "POST",
         id: comment.id,
-        body: "this is a reply",
+        body: reply_body,
         mentionUsers: [%{id: user2.id}]
       }
 
@@ -211,9 +212,9 @@ defmodule MastaniServer.Test.Mutation.PostComment do
       assert the_mention.from_user_id == user.id
       assert the_mention.to_user_id == user2.id
       assert the_mention.floor != nil
-      assert the_mention.source_title == comment.body
+      assert String.contains?(comment.body, the_mention.source_title)
       assert the_mention.source_type == "comment_reply"
-      assert the_mention.source_preview == "this is a reply"
+      assert String.contains?(reply_body, the_mention.source_preview)
       assert the_mention.parent_id == to_string(post.id)
       assert the_mention.parent_type == "post"
     end
