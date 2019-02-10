@@ -17,12 +17,22 @@ defmodule MastaniServer.Test.CMS.Post do
   describe "[cms post curd]" do
     alias CMS.{Author, Community}
 
+    @tag :wip
     test "can create post with valid attrs", ~m(user community post_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
 
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 
       assert post.title == post_attrs.title
+    end
+
+    @tag :wip
+    test "created post has origial community info", ~m(user community post_attrs)a do
+      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, found} = ORM.find(CMS.Post, post.id, preload: :origial_community)
+
+      assert post.origial_community_id == community.id
+      assert found.origial_community.id == community.id
     end
 
     test "can create post with exsited tags", ~m(user community post_attrs)a do

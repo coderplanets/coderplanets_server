@@ -40,9 +40,13 @@ defmodule MastaniServer.Test.Mutation.Post do
         title
         body
         id
+        origialCommunity {
+          id
+        }
       }
     }
     """
+    @tag :wip
     test "create post with valid attrs and make sure author exsit" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -55,6 +59,8 @@ defmodule MastaniServer.Test.Mutation.Post do
       {:ok, post} = ORM.find(CMS.Post, created["id"])
 
       assert created["id"] == to_string(post.id)
+      assert created["origialCommunity"]["id"] == to_string(community.id)
+
       assert {:ok, _} = ORM.find_by(CMS.Author, user_id: user.id)
     end
 
