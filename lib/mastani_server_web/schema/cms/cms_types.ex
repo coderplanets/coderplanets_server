@@ -35,6 +35,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
 
     field(:author, :user, resolve: dataloader(CMS, :author))
+    field(:origial_community, :community, resolve: dataloader(CMS, :origial_community))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
     # field(:topic)
 
