@@ -325,6 +325,14 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
         color: :cyan
       },
       %{
+        title: "docs",
+        color: :blue
+      },
+      %{
+        title: "tuts",
+        color: :purple
+      },
+      %{
         title: "other",
         color: :grey
       }
