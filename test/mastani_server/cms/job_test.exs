@@ -24,6 +24,15 @@ defmodule MastaniServer.Test.Job do
       assert found.title == job.title
     end
 
+    @tag :wip
+    test "created job has origial community info", ~m(user community job_attrs)a do
+      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, found} = ORM.find(CMS.Job, job.id, preload: :origial_community)
+
+      assert job.origial_community_id == community.id
+      assert found.origial_community.id == community.id
+    end
+
     test "can create job with exsited tags", ~m(user community job_attrs)a do
       {:ok, tag1} = db_insert(:tag)
       {:ok, tag2} = db_insert(:tag)
