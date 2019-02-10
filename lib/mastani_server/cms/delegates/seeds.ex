@@ -26,6 +26,8 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
 
   # communities
   # done
+  @pl_patch_communities SeedsConfig.communities(:pl_patch)
+  @framework_patch_communities SeedsConfig.communities(:framework_patch)
   @pl_communities SeedsConfig.communities(:pl)
   @framework_communities SeedsConfig.communities(:framework)
   @ui_communities SeedsConfig.communities(:ui)
@@ -38,6 +40,34 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
 
   # categories
   @default_categories SeedsConfig.categories(:default)
+
+  @doc """
+  seed communities for pl_patch
+  """
+  def seed_communities(:pl_patch) do
+    with {:ok, threads} <- seed_threads(:default),
+         {:ok, bot} <- seed_bot(),
+         {:ok, categories} <- seed_categories(bot, :default),
+         {:ok, communities} <- seed_for_communities(bot, :pl_patch) do
+      threadify_communities(communities, threads.entries)
+      tagfy_threads(communities, threads.entries, bot)
+      categorify_communities(communities, categories, :pl)
+    end
+  end
+
+  @doc """
+  seed communities for pl_patch
+  """
+  def seed_communities(:framework_patch) do
+    with {:ok, threads} <- seed_threads(:default),
+         {:ok, bot} <- seed_bot(),
+         {:ok, categories} <- seed_categories(bot, :default),
+         {:ok, communities} <- seed_for_communities(bot, :framework_patch) do
+      threadify_communities(communities, threads.entries)
+      tagfy_threads(communities, threads.entries, bot)
+      categorify_communities(communities, categories, :other)
+    end
+  end
 
   @doc """
   seed communities pragraming languages
@@ -277,6 +307,21 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
 
         Accounts.User |> ORM.findby_or_insert(~m(nickname avatar)a, ~m(nickname avatar)a)
         # Accounts.User |> ORM.create(~m(nickname avatar)a)
+    end
+  end
+
+  # manual pl patch missing community
+  defp seed_for_communities(bot, :pl_patch) do
+    with {:error, _} <- ORM.find_by(Community, %{raw: "deno"}) do
+      {:ok, _communities} = insert_multi_communities(bot, @pl_patch_communities, :pl)
+    end
+  end
+
+  # manual framework patch missing community
+  defp seed_for_communities(bot, :framework_patch) do
+    with {:error, _} <- ORM.find_by(Community, %{raw: "graphql"}) do
+      {:ok, _communities} =
+        insert_multi_communities(bot, @framework_patch_communities, :framework)
     end
   end
 
