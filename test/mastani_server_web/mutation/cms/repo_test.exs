@@ -59,9 +59,13 @@ defmodule MastaniServer.Test.Mutation.Repo do
         id
         title
         desc
+        origialCommunity {
+          id
+        }
       }
     }
     """
+    @tag :wip
     test "create repo with valid attrs and make sure author exsit" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -74,6 +78,9 @@ defmodule MastaniServer.Test.Mutation.Repo do
       {:ok, repo} = ORM.find(CMS.Repo, created["id"])
 
       assert created["id"] == to_string(repo.id)
+
+      assert created["id"] == to_string(repo.id)
+      assert created["origialCommunity"]["id"] == to_string(community.id)
       assert {:ok, _} = ORM.find_by(CMS.Author, user_id: user.id)
     end
   end

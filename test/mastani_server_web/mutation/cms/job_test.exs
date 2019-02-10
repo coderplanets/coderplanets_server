@@ -58,6 +58,9 @@ defmodule MastaniServer.Test.Mutation.Job do
           exp
           education
           field
+          origialCommunity {
+            id
+          }
           communities {
             id
             title
@@ -65,6 +68,7 @@ defmodule MastaniServer.Test.Mutation.Job do
       }
     }
     """
+    @tag :wip
     test "create job with valid attrs and make sure author exsit" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -82,6 +86,9 @@ defmodule MastaniServer.Test.Mutation.Job do
       assert created["education"] == variables["education"]
 
       {:ok, found} = ORM.find(CMS.Job, created["id"])
+
+      assert created["id"] == to_string(found.id)
+      assert created["origialCommunity"]["id"] == to_string(community.id)
 
       assert created["id"] == to_string(found.id)
     end

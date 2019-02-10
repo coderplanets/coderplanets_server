@@ -18,7 +18,7 @@ defmodule MastaniServer.CMS.Job do
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title company company_logo body digest length)a
-  @optional_fields ~w(desc company_link link_addr copy_right salary exp education field finance scale)a
+  @optional_fields ~w(origial_community_id desc company_link link_addr copy_right salary exp education field finance scale)a
 
   @type t :: %Job{}
   schema "cms_jobs" do
@@ -63,6 +63,8 @@ defmodule MastaniServer.CMS.Job do
       on_delete: :delete_all,
       on_replace: :delete
     )
+
+    belongs_to(:origial_community, Community)
 
     many_to_many(
       :communities,

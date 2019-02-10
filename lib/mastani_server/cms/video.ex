@@ -18,7 +18,7 @@ defmodule MastaniServer.CMS.Video do
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title poster thumbnil desc duration duration_sec source link original_author original_author_link publish_at)a
-  @optional_fields ~w(title poster thumbnil desc duration duration_sec source link original_author original_author_link publish_at)a
+  @optional_fields ~w(origial_community_id  title poster thumbnil desc duration duration_sec source link original_author original_author_link publish_at)a
 
   @type t :: %Video{}
   schema "cms_videos" do
@@ -57,6 +57,8 @@ defmodule MastaniServer.CMS.Video do
       on_delete: :delete_all,
       on_replace: :delete
     )
+
+    belongs_to(:origial_community, Community)
 
     many_to_many(
       :communities,
