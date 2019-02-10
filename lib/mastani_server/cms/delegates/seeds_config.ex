@@ -3,6 +3,12 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
   init config for seeds
   """
 
+  def communities(:pl_patch) do
+    [
+      "deno"
+    ]
+  end
+
   @doc """
   default seeds for pragraming lang's communities
   """
@@ -41,6 +47,12 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
       "swift",
       "typescript",
       "elixir"
+    ]
+  end
+
+  def communities(:framework_patch) do
+    [
+      "graphql"
     ]
   end
 
@@ -311,6 +323,14 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
       %{
         title: "product",
         color: :cyan
+      },
+      %{
+        title: "docs",
+        color: :blue
+      },
+      %{
+        title: "tuts",
+        color: :purple
       },
       %{
         title: "other",
