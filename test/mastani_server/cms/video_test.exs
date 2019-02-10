@@ -23,6 +23,14 @@ defmodule MastaniServer.Test.CMS.Video do
       assert video.title == video_attrs.title
     end
 
+    test "created video has origial community info", ~m(user community video_attrs)a do
+      {:ok, video} = CMS.create_content(community, :video, video_attrs, user)
+      {:ok, found} = ORM.find(CMS.Video, video.id, preload: :origial_community)
+
+      assert video.origial_community_id == community.id
+      assert found.origial_community.id == community.id
+    end
+
     test "add user to cms authors, if the user is not exsit in cms authors",
          ~m(user community video_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)

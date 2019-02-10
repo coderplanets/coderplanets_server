@@ -4,7 +4,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
   """
   import Ecto.Query, warn: false
   import MastaniServer.CMS.Utils.Matcher
-  import Helper.Utils, only: [done: 1, pick_by: 2]
+  import Helper.Utils, only: [done: 1, pick_by: 2, integerfy: 1]
   import Helper.ErrorCode
   import ShortMaps
 
@@ -74,17 +74,18 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
          {:ok, action} <- match_action(thread, :community),
          {:ok, community} <- ORM.find(Community, community_id) do
       Multi.new()
-      |> Multi.run(:add_content_author, fn _, _ ->
+      |> Multi.run(:create_content, fn _, _ ->
         action.target
         |> struct()
         |> action.target.changeset(attrs)
         |> Ecto.Changeset.put_change(:author_id, author.id)
+        |> Ecto.Changeset.put_change(:origial_community_id, integerfy(community_id))
         |> Repo.insert()
       end)
-      |> Multi.run(:set_community, fn _, %{add_content_author: content} ->
+      |> Multi.run(:set_community, fn _, %{create_content: content} ->
         ArticleOperation.set_community(community, thread, content.id)
       end)
-      |> Multi.run(:set_topic, fn _, %{add_content_author: content} ->
+      |> Multi.run(:set_topic, fn _, %{create_content: content} ->
         topic_title =
           case attrs |> Map.has_key?(:topic) do
             true -> attrs.topic
@@ -93,7 +94,7 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
 
         ArticleOperation.set_topic(%Topic{title: topic_title}, thread, content.id)
       end)
-      |> Multi.run(:set_community_flag, fn _, %{add_content_author: content} ->
+      |> Multi.run(:set_community_flag, fn _, %{create_content: content} ->
         # TODO: remove this judge, as content should have a flag
         case action |> Map.has_key?(:flag) do
           true ->
@@ -105,13 +106,13 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
             {:ok, :pass}
         end
       end)
-      |> Multi.run(:set_tag, fn _, %{add_content_author: content} ->
+      |> Multi.run(:set_tag, fn _, %{create_content: content} ->
         case attrs |> Map.has_key?(:tags) do
           true -> set_tags(thread, content.id, attrs.tags)
           false -> {:ok, :pass}
         end
       end)
-      |> Multi.run(:mention_users, fn _, %{add_content_author: content} ->
+      |> Multi.run(:mention_users, fn _, %{create_content: content} ->
         Delivery.mention_from_content(community.raw, thread, content, attrs, %User{id: user_id})
         {:ok, :pass}
       end)
@@ -395,13 +396,13 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  defp create_content_result({:ok, %{add_content_author: result}}), do: {:ok, result}
+  defp create_content_result({:ok, %{create_content: result}}), do: {:ok, result}
 
-  defp create_content_result({:error, :add_content_author, %Ecto.Changeset{} = result, _steps}) do
+  defp create_content_result({:error, :create_content, %Ecto.Changeset{} = result, _steps}) do
     {:error, result}
   end
 
-  defp create_content_result({:error, :add_content_author, _result, _steps}) do
+  defp create_content_result({:error, :create_content, _result, _steps}) do
     {:error, [message: "create cms content author", code: ecode(:create_fails)]}
   end
 

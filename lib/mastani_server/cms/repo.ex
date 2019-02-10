@@ -19,7 +19,7 @@ defmodule MastaniServer.CMS.Repo do
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title owner_name owner_url repo_url desc readme star_count issues_count prs_count fork_count watch_count)a
-  @optional_fields ~w(last_sync homepage_url release_tag license)a
+  @optional_fields ~w(origial_community_id last_sync homepage_url release_tag license)a
 
   @type t :: %Repo{}
   schema "cms_repos" do
@@ -66,6 +66,8 @@ defmodule MastaniServer.CMS.Repo do
       on_delete: :delete_all,
       on_replace: :delete
     )
+
+    belongs_to(:origial_community, Community)
 
     many_to_many(
       :communities,

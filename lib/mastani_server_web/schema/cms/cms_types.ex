@@ -35,6 +35,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
 
     field(:author, :user, resolve: dataloader(CMS, :author))
+    field(:origial_community, :community, resolve: dataloader(CMS, :origial_community))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
     # field(:topic)
 
@@ -88,6 +89,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
 
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
+    field(:origial_community, :community, resolve: dataloader(CMS, :origial_community))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
     field(:salary, :string)
@@ -128,6 +130,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:trash, :boolean)
 
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
+    field(:origial_community, :community, resolve: dataloader(CMS, :origial_community))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
     # comments_count
@@ -176,6 +179,7 @@ defmodule MastaniServerWeb.Schema.CMS.Types do
     field(:last_sync, :datetime)
 
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
+    field(:origial_community, :community, resolve: dataloader(CMS, :origial_community))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
     has_viewed_field()

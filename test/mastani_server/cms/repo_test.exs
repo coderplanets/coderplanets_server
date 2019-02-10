@@ -26,6 +26,14 @@ defmodule MastaniServer.Test.Repo do
       assert repo.contributors |> length !== 0
     end
 
+    test "created repo has origial community info", ~m(user community repo_attrs)a do
+      {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
+      {:ok, found} = ORM.find(CMS.Repo, repo.id, preload: :origial_community)
+
+      assert repo.origial_community_id == community.id
+      assert found.origial_community.id == community.id
+    end
+
     test "add user to cms authors, if the user is not exsit in cms authors",
          ~m(user community repo_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)

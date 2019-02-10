@@ -49,6 +49,9 @@ defmodule MastaniServer.Test.Mutation.Video do
         id
         title
         desc
+        origialCommunity {
+          id
+        }
       }
     }
     """
@@ -64,6 +67,9 @@ defmodule MastaniServer.Test.Mutation.Video do
       {:ok, video} = ORM.find(CMS.Video, created["id"])
 
       assert created["id"] == to_string(video.id)
+      assert created["id"] == to_string(video.id)
+      assert created["origialCommunity"]["id"] == to_string(community.id)
+
       assert {:ok, _} = ORM.find_by(CMS.Author, user_id: user.id)
     end
 
