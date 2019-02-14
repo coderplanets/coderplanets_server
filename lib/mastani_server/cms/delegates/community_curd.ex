@@ -161,6 +161,23 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
   def get_tags(%Community{raw: community_raw}, thread) do
     thread = thread |> to_string |> String.downcase()
 
+    result = get_tags_query(community_raw, thread)
+
+    case result do
+      {:ok, []} ->
+        with {:ok, community} <- ORM.find_by(Community, aka: community_raw) do
+          get_tags_query(community.raw, thread)
+        end
+
+      {:ok, ret} ->
+        {:ok, ret}
+
+      {:error, error} ->
+        {:error, error}
+    end
+  end
+
+  defp get_tags_query(community_raw, thread) do
     Tag
     |> join(:inner, [t], c in assoc(t, :community))
     |> where([t, c], c.raw == ^community_raw and t.thread == ^thread)
