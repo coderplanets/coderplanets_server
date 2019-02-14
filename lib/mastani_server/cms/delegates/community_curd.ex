@@ -167,6 +167,8 @@ defmodule MastaniServer.CMS.Delegate.CommunityCURD do
       {:ok, []} ->
         with {:ok, community} <- ORM.find_by(Community, aka: community_raw) do
           get_tags_query(community.raw, thread)
+        else
+          _ -> {:ok, []}
         end
 
       {:ok, ret} ->
