@@ -5,7 +5,8 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
 
   def communities(:pl_patch) do
     [
-      "deno"
+      # "deno"
+      "crystal"
     ]
   end
 
@@ -52,7 +53,8 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
 
   def communities(:framework_patch) do
     [
-      "graphql"
+      "cyclejs"
+      # "graphql"
     ]
   end
 
