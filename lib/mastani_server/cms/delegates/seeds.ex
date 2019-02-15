@@ -312,17 +312,12 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
 
   # manual pl patch missing community
   defp seed_for_communities(bot, :pl_patch) do
-    with {:error, _} <- ORM.find_by(Community, %{raw: "deno"}) do
-      {:ok, _communities} = insert_multi_communities(bot, @pl_patch_communities, :pl)
-    end
+    {:ok, _communities} = insert_multi_communities(bot, @pl_patch_communities, :pl)
   end
 
   # manual framework patch missing community
   defp seed_for_communities(bot, :framework_patch) do
-    with {:error, _} <- ORM.find_by(Community, %{raw: "graphql"}) do
-      {:ok, _communities} =
-        insert_multi_communities(bot, @framework_patch_communities, :framework)
-    end
+    {:ok, _communities} = insert_multi_communities(bot, @framework_patch_communities, :framework)
   end
 
   # seed raw communities, without thread or categories staff
