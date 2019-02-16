@@ -104,14 +104,15 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
     Map.merge(@default_customization, customization)
   end
 
-  defp c11n_item_setable?(:theme, %{
-         donate_member: donate_member,
-         senior_member: senior_member,
-         sponsor_member: sponsor_member
-       }) do
-    donate_member or senior_member or sponsor_member
-  end
+  # defp c11n_item_setable?(:theme, %{
+  # donate_member: donate_member,
+  # senior_member: senior_member,
+  # sponsor_member: sponsor_member
+  # }) do
+  # donate_member or senior_member or sponsor_member
+  # end
 
+  defp c11n_item_setable?(:theme, _achievement), do: true
   defp c11n_item_setable?(:banner_layout, _achievement), do: true
   defp c11n_item_setable?(:contents_layout, _achievement), do: true
   defp c11n_item_setable?(:content_divider, _achievement), do: true
