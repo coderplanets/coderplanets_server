@@ -131,5 +131,6 @@ defmodule MastaniServer.Accounts.Delegate.Customization do
   end
 
   defp downcase_theme("SOLARIZEDDARK"), do: "solarizedDark"
+  defp downcase_theme("IRONGREEN"), do: "ironGreen"
   defp downcase_theme(theme), do: String.downcase(theme)
 end
