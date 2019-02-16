@@ -45,9 +45,9 @@ defmodule MastaniServer.Test.Accounts.Customization do
       {:error, _} = Accounts.set_customization(user, :non_exsit, true)
     end
 
-    test "user set advance customization without payment fails", ~m(user)a do
-      {:error, _} = Accounts.set_customization(user, :theme, "blue")
-    end
+    # test "user set advance customization without payment fails", ~m(user)a do
+    # {:error, _} = Accounts.set_customization(user, :theme, "blue")
+    # end
 
     test "user can set multiable customization at once", ~m(user)a do
       {:ok, result} =
