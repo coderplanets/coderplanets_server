@@ -67,7 +67,7 @@ defmodule MastaniServer.Test.Query.JobsFlags do
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
       entries_first = results["entries"] |> List.first()
 
-      assert results["totalCount"] == @total_count + 1
+      assert results["totalCount"] == @total_count
       assert entries_first["id"] == to_string(job_m.id)
       assert entries_first["pin"] == true
     end

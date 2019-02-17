@@ -66,7 +66,7 @@ defmodule MastaniServer.Test.Query.ReposFlags do
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
       entries_first = results["entries"] |> List.first()
 
-      assert results["totalCount"] == @total_count + 1
+      assert results["totalCount"] == @total_count
       assert entries_first["id"] == to_string(repo_m.id)
       assert entries_first["pin"] == true
     end
