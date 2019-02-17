@@ -382,8 +382,8 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
 
         normal_entries = normal_contents |> Map.get(:entries)
 
-        normal_count = normal_contents |> Map.get(:total_count)
         pind_count = pined_content |> Map.get(:total_count)
+        normal_count = normal_contents |> Map.get(:total_count)
 
         # remote the pined content from normal_entries (if have)
         pind_ids = pick_by(pind_entries, :id)
@@ -391,7 +391,9 @@ defmodule MastaniServer.CMS.Delegate.ArticleCURD do
 
         normal_contents
         |> Map.put(:entries, pind_entries ++ normal_entries)
-        |> Map.put(:total_count, pind_count + normal_count)
+        # those two are equals
+        # |> Map.put(:total_count, pind_count + normal_count - pind_count)
+        |> Map.put(:total_count, normal_count)
         |> done
     end
   end
