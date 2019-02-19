@@ -103,7 +103,7 @@ defmodule MastaniServer.CMS.Post do
     content
     |> validate_length(:title, min: 3, max: 50)
     |> validate_length(:body, min: 3, max: 10_000)
-    |> validate_length(:link_addr, min: 5, max: 200)
+    |> validate_length(:link_addr, min: 5, max: 400)
 
     # |> foreign_key_constraint(:posts_tags, name: :posts_tags_tag_id_fkey)
     # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)
