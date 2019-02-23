@@ -6,7 +6,12 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
   def communities(:pl_patch) do
     [
       # "deno"
-      "crystal"
+      # "crystal"
+      "applescript",
+      "hack",
+      "nim",
+      "fasm",
+      "zig"
     ]
   end
 
