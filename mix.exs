@@ -67,7 +67,7 @@ defmodule MastaniServer.Mixfile do
       # treat parse error as status "200"
       {:absinthe_plug, git: "https://github.com/mastani-stack/absinthe_plug", override: true},
       # Password hashing lib
-      {:comeonin, "~> 4.0.3"},
+      {:comeonin, "~> 5.0.0"},
       # Argon2 password hashing algorithm
       # {:argon2_elixir, "~> 1.2"},
       # CORS
@@ -88,7 +88,7 @@ defmodule MastaniServer.Mixfile do
       {:inch_ex, "~> 1.0", only: [:dev, :test]},
       {:short_maps, "~> 0.1.1"},
       {:jason, "~> 1.1.1"},
-      {:credo, "~> 0.10.0", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.0.2", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.2", only: [:dev, :mock], runtime: false},
       {:excoveralls, "~> 0.8", only: :test},
       {:sentry, "~> 6.4"},
