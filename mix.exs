@@ -79,7 +79,7 @@ defmodule MastaniServer.Mixfile do
        git: "https://github.com/mastani-stack/scrivener_ecto", branch: "dev", override: true},
       # {:scrivener_ecto, "~> 2.0.0"},
       {:guardian, "~> 1.0"},
-      {:timex, "~> 3.4.2"},
+      {:timex, "~> 3.5.0"},
       {:dataloader, "~> 1.0.2"},
       {:mix_test_watch, "~> 0.9", only: :dev, runtime: false},
       {:ex_unit_notifier, "~> 0.1", only: :test},
