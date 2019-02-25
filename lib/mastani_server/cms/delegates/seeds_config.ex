@@ -7,11 +7,12 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
     [
       # "deno"
       # "crystal"
-      "applescript",
-      "hack",
-      "nim",
-      "fasm",
-      "zig"
+      # "applescript",
+      # "hack",
+      # "nim",
+      # "fasm",
+      # "zig"
+      "prolog"
     ]
   end
 
