@@ -39,7 +39,7 @@ defmodule MastaniServer.Accounts.User do
 
     field(:views, :integer, default: 0)
 
-    sscial_fields()
+    social_fields()
 
     embeds_many(:education_backgrounds, EducationBackground)
     embeds_many(:work_backgrounds, WorkBackground)

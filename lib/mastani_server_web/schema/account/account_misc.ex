@@ -49,7 +49,7 @@ defmodule MastaniServerWeb.Schema.Account.Misc do
     field(:location, :string)
     field(:email, :string)
     # social
-    sscial_fields()
+    social_fields()
   end
 
   enum :cus_banner_layout_num do
