@@ -30,7 +30,6 @@ defmodule MastaniServer.Test.Accounts do
       assert updated.sex == attrs.sex
     end
 
-    @tag :wip
     test "update user social fields with valid attrs" do
       {:ok, user} = db_insert(:user)
 
@@ -93,7 +92,6 @@ defmodule MastaniServer.Test.Accounts do
   describe "[github login]" do
     alias Accounts.{GithubUser, User}
 
-    @tag :wip2
     test "register a valid github user with non-exist in db" do
       assert {:error, _} =
                ORM.find_by(GithubUser, github_id: to_string(@valid_github_profile["id"]))
