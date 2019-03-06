@@ -12,6 +12,7 @@ defmodule MastaniServer.Test.Accounts do
   describe "[update user]" do
     alias Accounts.User
 
+    @tag :wip
     test "update user with valid attrs" do
       {:ok, user} = db_insert(:user)
 
@@ -31,6 +32,23 @@ defmodule MastaniServer.Test.Accounts do
       assert updated.bio == attrs.bio
       assert updated.nickname == attrs.nickname
       assert updated.sex == attrs.sex
+    end
+
+    @tag :wip
+    test "update user social fields with valid attrs" do
+      {:ok, user} = db_insert(:user)
+
+      attrs = %{
+        social: %{
+          github: "github addr",
+          weibo: "weibo addr"
+        }
+      }
+
+      {:ok, updated} = Accounts.update_profile(%User{id: user.id}, attrs)
+
+      assert updated.social.github == attrs.social.github
+      assert updated.social.weibo == attrs.social.weibo
     end
 
     test "update user education backgorunds with valid attrs" do

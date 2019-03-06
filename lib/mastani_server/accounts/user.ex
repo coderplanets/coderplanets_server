@@ -16,7 +16,8 @@ defmodule MastaniServer.Accounts.User do
     Purchase,
     UserFollower,
     UserFollowing,
-    WorkBackground
+    WorkBackground,
+    Social
   }
 
   alias MastaniServer.CMS
@@ -43,6 +44,8 @@ defmodule MastaniServer.Accounts.User do
 
     embeds_many(:education_backgrounds, EducationBackground)
     embeds_many(:work_backgrounds, WorkBackground)
+
+    has_one(:social, Social)
 
     has_one(:achievement, Achievement)
     has_one(:github_profile, GithubUser)

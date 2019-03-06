@@ -52,6 +52,10 @@ defmodule MastaniServerWeb.Schema.Account.Misc do
     social_fields()
   end
 
+  input_object :social_input do
+    social_fields()
+  end
+
   enum :cus_banner_layout_num do
     value(:digest)
     value(:brief)

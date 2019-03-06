@@ -18,6 +18,7 @@ defmodule MastaniServerWeb.Schema.Account.Mutations do
     @desc "update user's profile"
     field :update_profile, :user do
       arg(:profile, non_null(:user_profile_input))
+      arg(:social, :social_input)
       arg(:work_backgrounds, list_of(:work_background_input))
       arg(:education_backgrounds, list_of(:edu_background_input))
 

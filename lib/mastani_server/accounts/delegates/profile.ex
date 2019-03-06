@@ -8,7 +8,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
 
   alias MastaniServer.Accounts
   alias Helper.{Guardian, ORM, QueryBuilder, RadarSearch}
-  alias MastaniServer.Accounts.{Achievement, GithubUser, User}
+  alias MastaniServer.Accounts.{Achievement, GithubUser, User, Social}
   alias MastaniServer.{CMS, Repo}
 
   alias Ecto.Multi
@@ -23,25 +23,39 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
       user
       |> Ecto.Changeset.change(attrs)
 
-    changeset =
-      cond do
-        Map.has_key?(attrs, :education_backgrounds) ->
-          changeset
-          |> Ecto.Changeset.put_embed(:education_backgrounds, attrs.education_backgrounds)
+    # TODO: update social if need
+    changeset
+    |> update_social_ifneed(user, attrs)
+    |> embed_background_ifneed(changeset)
+    |> User.update_changeset(attrs)
+    |> Repo.update()
+  end
 
-        Map.has_key?(attrs, :work_backgrounds) ->
-          changeset
-          |> Ecto.Changeset.put_embed(:work_backgrounds, attrs.work_backgrounds)
+  defp update_social_ifneed(changeset, user, %{social: attrs}) do
+    IO.inspect(user.id, label: "update_social_ifneed user")
 
-        Map.has_key?(attrs, :other_embeds) ->
-          changeset
-          |> Ecto.Changeset.put_embed(:other_embeds, attrs.other_embeds)
+    Social |> ORM.upsert_by([user_id: user.id], attrs)
+    # IO.inspect user.id, label: "update_social_ifneed user"
+    IO.inspect(attrs, label: "update_social_ifneed")
 
-        true ->
-          changeset
-      end
+    changeset
+  end
 
-    changeset |> User.update_changeset(attrs) |> Repo.update()
+  defp update_social_ifneed(changeset, _user, _attrs), do: changeset
+
+  defp embed_background_ifneed(%Ecto.Changeset{} = changeset, attrs) do
+    cond do
+      Map.has_key?(attrs, :education_backgrounds) ->
+        changeset
+        |> Ecto.Changeset.put_embed(:education_backgrounds, attrs.education_backgrounds)
+
+      Map.has_key?(attrs, :work_backgrounds) ->
+        changeset
+        |> Ecto.Changeset.put_embed(:work_backgrounds, attrs.work_backgrounds)
+
+      true ->
+        changeset
+    end
   end
 
   @doc """
