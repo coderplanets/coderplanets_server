@@ -31,33 +31,6 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
     |> Repo.update()
   end
 
-  defp update_social_ifneed(changeset, user, %{social: attrs}) do
-    IO.inspect(user.id, label: "update_social_ifneed user")
-
-    Social |> ORM.upsert_by([user_id: user.id], attrs)
-    # IO.inspect user.id, label: "update_social_ifneed user"
-    IO.inspect(attrs, label: "update_social_ifneed")
-
-    changeset
-  end
-
-  defp update_social_ifneed(changeset, _user, _attrs), do: changeset
-
-  defp embed_background_ifneed(%Ecto.Changeset{} = changeset, attrs) do
-    cond do
-      Map.has_key?(attrs, :education_backgrounds) ->
-        changeset
-        |> Ecto.Changeset.put_embed(:education_backgrounds, attrs.education_backgrounds)
-
-      Map.has_key?(attrs, :work_backgrounds) ->
-        changeset
-        |> Ecto.Changeset.put_embed(:work_backgrounds, attrs.work_backgrounds)
-
-      true ->
-        changeset
-    end
-  end
-
   @doc """
   update geo info for user, include geo_city & remote ip
   """
@@ -228,5 +201,27 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
     %GithubUser{}
     |> GithubUser.changeset(attrs)
     |> Repo.insert()
+  end
+
+  defp update_social_ifneed(changeset, user, %{social: attrs}) do
+    Social |> ORM.upsert_by([user_id: user.id], attrs)
+    changeset
+  end
+
+  defp update_social_ifneed(changeset, _user, _attrs), do: changeset
+
+  defp embed_background_ifneed(%Ecto.Changeset{} = changeset, attrs) do
+    cond do
+      Map.has_key?(attrs, :education_backgrounds) ->
+        changeset
+        |> Ecto.Changeset.put_embed(:education_backgrounds, attrs.education_backgrounds)
+
+      Map.has_key?(attrs, :work_backgrounds) ->
+        changeset
+        |> Ecto.Changeset.put_embed(:work_backgrounds, attrs.work_backgrounds)
+
+      true ->
+        changeset
+    end
   end
 end
