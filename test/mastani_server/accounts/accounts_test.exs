@@ -12,7 +12,6 @@ defmodule MastaniServer.Test.Accounts do
   describe "[update user]" do
     alias Accounts.User
 
-    @tag :wip
     test "update user with valid attrs" do
       {:ok, user} = db_insert(:user)
 
@@ -21,10 +20,7 @@ defmodule MastaniServer.Test.Accounts do
         sex: "dude",
         bio: "new bio",
         email: "new@qq.com",
-        company: "at home",
-        qq: "8384384483",
-        weibo: "8384",
-        weichat: "8384"
+        company: "at home"
       }
 
       {:ok, updated} = Accounts.update_profile(%User{id: user.id}, attrs)
@@ -92,19 +88,12 @@ defmodule MastaniServer.Test.Accounts do
       assert updated.work_backgrounds |> Enum.any?(&(&1.company == "company"))
       assert updated.work_backgrounds |> Enum.any?(&(&1.title == "bad ass"))
     end
-
-    test "update user with invalid attrs fails ?" do
-      {:ok, user} = db_insert(:user)
-
-      assert {:error, _} = Accounts.update_profile(%User{id: user.id}, %{qq: "123"})
-      assert {:error, _} = Accounts.update_profile(%User{id: user.id}, %{sex: "other"})
-      assert {:error, _} = Accounts.update_profile(%User{id: user.id}, %{email: "other"})
-    end
   end
 
   describe "[github login]" do
     alias Accounts.{GithubUser, User}
 
+    @tag :wip2
     test "register a valid github user with non-exist in db" do
       assert {:error, _} =
                ORM.find_by(GithubUser, github_id: to_string(@valid_github_profile["id"]))
@@ -121,8 +110,6 @@ defmodule MastaniServer.Test.Accounts do
       assert created_user.nickname == @valid_github_profile["login"]
       assert created_user.avatar == @valid_github_profile["avatar_url"]
       assert created_user.bio == @valid_github_profile["bio"]
-      assert created_user.github == "https://github.com/#{@valid_github_profile["login"]}"
-
       assert created_user.email == @valid_github_profile["email"]
 
       company_title = created_user.work_backgrounds |> List.first() |> Map.get(:company)

@@ -48,8 +48,6 @@ defmodule MastaniServerWeb.Schema.Account.Misc do
     field(:sex, :string)
     field(:location, :string)
     field(:email, :string)
-    # social
-    social_fields()
   end
 
   input_object :social_input do
