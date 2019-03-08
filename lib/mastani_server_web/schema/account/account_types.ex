@@ -28,8 +28,7 @@ defmodule MastaniServerWeb.Schema.Account.Types do
 
     field(:views, :integer)
 
-    field(:social, :social_map)
-    # social_fields()
+    field(:social, :social_map, resolve: dataloader(Accounts, :social))
 
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
