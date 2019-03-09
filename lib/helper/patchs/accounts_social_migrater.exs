@@ -8,8 +8,11 @@ defmodule Helper.Patch.SocialMigrater do
   def insert_social_records(id, map) when map_size(map) == 0, do: IO.puts("pass robot user")
 
   def insert_social_records(id, attrs) do
-    attrs = Map.merge(%{user_id: user.id}, attrs)
-    Social |> ORM.upsert_by([user_id: id], attrs) |> IO.inspect(label: "result")
+    attrs = Map.merge(%{user_id: id}, attrs)
+
+    Social
+    |> ORM.upsert_by([user_id: id], attrs)
+    |> IO.inspect(label: "result")
   end
 end
 
