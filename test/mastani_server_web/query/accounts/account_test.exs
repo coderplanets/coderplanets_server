@@ -34,6 +34,10 @@ defmodule MastaniServer.Test.Query.Account.Basic do
           endDate
           totalCount
         }
+        social {
+          github
+          douban
+        }
         educationBackgrounds {
           school
           major
@@ -60,6 +64,8 @@ defmodule MastaniServer.Test.Query.Account.Basic do
       assert results["nickname"] == user.nickname
       assert results["educationBackgrounds"] == []
       assert results["workBackgrounds"] == []
+      assert results["social"]["github"] == nil
+      assert results["social"]["douban"] == nil
       assert results["cmsPassport"] == nil
     end
 

@@ -46,6 +46,11 @@ defmodule MastaniServerWeb.Resolvers.Accounts do
         do: Map.merge(profile, %{work_backgrounds: args.work_backgrounds}),
         else: profile
 
+    profile =
+      if Map.has_key?(args, :social),
+        do: Map.merge(profile, %{social: args.social}),
+        else: profile
+
     Accounts.update_profile(%User{id: cur_user.id}, profile)
   end
 

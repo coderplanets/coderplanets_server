@@ -20,10 +20,7 @@ defmodule MastaniServer.Test.Accounts do
         sex: "dude",
         bio: "new bio",
         email: "new@qq.com",
-        company: "at home",
-        qq: "8384384483",
-        weibo: "8384",
-        weichat: "8384"
+        company: "at home"
       }
 
       {:ok, updated} = Accounts.update_profile(%User{id: user.id}, attrs)
@@ -31,6 +28,22 @@ defmodule MastaniServer.Test.Accounts do
       assert updated.bio == attrs.bio
       assert updated.nickname == attrs.nickname
       assert updated.sex == attrs.sex
+    end
+
+    test "update user social fields with valid attrs" do
+      {:ok, user} = db_insert(:user)
+
+      attrs = %{
+        social: %{
+          github: "github addr",
+          weibo: "weibo addr"
+        }
+      }
+
+      {:ok, updated} = Accounts.update_profile(%User{id: user.id}, attrs)
+
+      assert updated.social.github == attrs.social.github
+      assert updated.social.weibo == attrs.social.weibo
     end
 
     test "update user education backgorunds with valid attrs" do
@@ -74,14 +87,6 @@ defmodule MastaniServer.Test.Accounts do
       assert updated.work_backgrounds |> Enum.any?(&(&1.company == "company"))
       assert updated.work_backgrounds |> Enum.any?(&(&1.title == "bad ass"))
     end
-
-    test "update user with invalid attrs fails ?" do
-      {:ok, user} = db_insert(:user)
-
-      assert {:error, _} = Accounts.update_profile(%User{id: user.id}, %{qq: "123"})
-      assert {:error, _} = Accounts.update_profile(%User{id: user.id}, %{sex: "other"})
-      assert {:error, _} = Accounts.update_profile(%User{id: user.id}, %{email: "other"})
-    end
   end
 
   describe "[github login]" do
@@ -103,8 +108,6 @@ defmodule MastaniServer.Test.Accounts do
       assert created_user.nickname == @valid_github_profile["login"]
       assert created_user.avatar == @valid_github_profile["avatar_url"]
       assert created_user.bio == @valid_github_profile["bio"]
-      assert created_user.github == "https://github.com/#{@valid_github_profile["login"]}"
-
       assert created_user.email == @valid_github_profile["email"]
 
       company_title = created_user.work_backgrounds |> List.first() |> Map.get(:company)
@@ -130,7 +133,9 @@ defmodule MastaniServer.Test.Accounts do
       {:ok, %{token: token, user: _user}} = Accounts.github_signin(@valid_github_profile)
       {:ok, claims, _info} = Guardian.jwt_decode(token)
 
-      {:ok, created_user} = ORM.find(User, claims.id, preload: :achievement)
+      {:ok, created_user} = ORM.find(User, claims.id, preload: [:achievement, :social])
+      assert is_nil(created_user.social.github) == false
+
       achievement = created_user.achievement
       assert achievement.user_id == created_user.id
       assert achievement.reputation == 0

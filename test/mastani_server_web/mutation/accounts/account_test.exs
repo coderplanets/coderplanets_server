@@ -17,16 +17,21 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
     @update_query """
     mutation(
       $profile: UserProfileInput!,
+      $social: SocialInput,
       $educationBackgrounds: [EduBackgroundInput],
       $workBackgrounds: [WorkBackgroundInput]
     ) {
       updateProfile(
         profile: $profile,
+        social: $social,
         educationBackgrounds: $educationBackgrounds,
         workBackgrounds: $workBackgrounds,
       ) {
         id
         nickname
+        social {
+          zhihu
+        }
         education_backgrounds {
           school
           major
@@ -44,12 +49,16 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
       variables = %{
         profile: %{
           nickname: "new nickname"
+        },
+        social: %{
+          zhihu: "xieyiming-75"
         }
       }
 
       updated = ownd_conn |> mutation_result(@update_query, variables, "updateProfile")
 
       assert updated["nickname"] == "new nickname"
+      assert updated["social"]["zhihu"] == variables.social.zhihu
     end
 
     test "user can update it's own backgrounds", ~m(user)a do

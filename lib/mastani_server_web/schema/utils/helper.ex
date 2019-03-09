@@ -40,7 +40,7 @@ defmodule MastaniServerWeb.Schema.Utils.Helper do
     end
   end
 
-  defmacro sscial_fields do
+  defmacro social_fields do
     quote do
       field(:qq, :string)
       field(:weibo, :string)

@@ -16,13 +16,14 @@ defmodule MastaniServer.Accounts.User do
     Purchase,
     UserFollower,
     UserFollowing,
-    WorkBackground
+    WorkBackground,
+    Social
   }
 
   alias MastaniServer.CMS
 
   @required_fields ~w(nickname avatar)a
-  @optional_fields ~w(login nickname bio remote_ip sex location douban dribble email facebook pinterest pinterest github huaban qq  weibo weichat twitter zhihu)a
+  @optional_fields ~w(login nickname bio remote_ip sex location email)a
 
   @type t :: %User{}
   schema "users" do
@@ -39,10 +40,11 @@ defmodule MastaniServer.Accounts.User do
 
     field(:views, :integer, default: 0)
 
-    sscial_fields()
-
     embeds_many(:education_backgrounds, EducationBackground)
     embeds_many(:work_backgrounds, WorkBackground)
+
+    has_one(:social, Social)
+    social_fields()
 
     has_one(:achievement, Achievement)
     has_one(:github_profile, GithubUser)
@@ -95,8 +97,9 @@ defmodule MastaniServer.Accounts.User do
     |> validate_inclusion(:sex, ["dude", "girl"])
     |> validate_format(:email, ~r/@/)
     |> validate_length(:location, min: 2, max: 30)
-    |> validate_length(:qq, min: 8, max: 15)
-    |> validate_length(:weichat, min: 3, max: 30)
-    |> validate_length(:weibo, min: 3, max: 30)
+
+    # |> validate_length(:qq, min: 8, max: 15)
+    # |> validate_length(:weichat, min: 3, max: 30)
+    # |> validate_length(:weibo, min: 3, max: 30)
   end
 end

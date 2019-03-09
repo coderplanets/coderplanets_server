@@ -14,16 +14,6 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:is_valid, :boolean)
   end
 
-  object :education_background do
-    field(:school, :string)
-    field(:major, :string)
-  end
-
-  object :work_background do
-    field(:company, :string)
-    field(:title, :string)
-  end
-
   object :user do
     meta(:cache, max_age: 30)
     field(:id, :id)
@@ -38,7 +28,8 @@ defmodule MastaniServerWeb.Schema.Account.Types do
 
     field(:views, :integer)
 
-    sscial_fields()
+    social_fields()
+    field(:social, :social_map, resolve: dataloader(Accounts, :social))
 
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
@@ -324,6 +315,20 @@ defmodule MastaniServerWeb.Schema.Account.Types do
     field(:bio, :string)
     field(:public_repos, :integer)
     field(:public_gists, :integer)
+  end
+
+  object :education_background do
+    field(:school, :string)
+    field(:major, :string)
+  end
+
+  object :work_background do
+    field(:company, :string)
+    field(:title, :string)
+  end
+
+  object :social_map do
+    social_fields()
   end
 
   object :favorites_category do
