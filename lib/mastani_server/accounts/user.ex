@@ -4,7 +4,7 @@ defmodule MastaniServer.Accounts.User do
 
   use Ecto.Schema
 
-  # import MastaniServerWeb.Schema.Utils.Helper
+  import MastaniServerWeb.Schema.Utils.Helper
   import Ecto.Changeset
 
   alias MastaniServer.Accounts.{
@@ -44,6 +44,7 @@ defmodule MastaniServer.Accounts.User do
     embeds_many(:work_backgrounds, WorkBackground)
 
     has_one(:social, Social)
+    social_fields()
 
     has_one(:achievement, Achievement)
     has_one(:github_profile, GithubUser)
