@@ -5,7 +5,7 @@ alias MastaniServer.Accounts.{User, Social}
 alias Helper.Patch.SocialMigrater
 
 defmodule Helper.Patch.SocialMigrater do
-  def insert_social_records(id, map) when map_size(map) == 0, do: IO.puts "pass robot user"
+  def insert_social_records(id, map) when map_size(map) == 0, do: IO.puts("pass robot user")
 
   def insert_social_records(id, attrs) do
     IO.inspect(id, label: "user id")
@@ -42,4 +42,3 @@ Enum.each(accounts.entries, fn user ->
 
   SocialMigrater.insert_social_records(user.id, social_attrs)
 end)
-
