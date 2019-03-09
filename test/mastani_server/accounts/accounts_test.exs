@@ -133,7 +133,9 @@ defmodule MastaniServer.Test.Accounts do
       {:ok, %{token: token, user: _user}} = Accounts.github_signin(@valid_github_profile)
       {:ok, claims, _info} = Guardian.jwt_decode(token)
 
-      {:ok, created_user} = ORM.find(User, claims.id, preload: :achievement)
+      {:ok, created_user} = ORM.find(User, claims.id, preload: [:achievement, :social])
+      assert is_nil(created_user.social.github) == false
+
       achievement = created_user.achievement
       assert achievement.user_id == created_user.id
       assert achievement.reputation == 0

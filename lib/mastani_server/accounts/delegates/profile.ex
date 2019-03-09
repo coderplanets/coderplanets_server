@@ -23,7 +23,6 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
       user
       |> Ecto.Changeset.change(attrs)
 
-    # TODO: update social if need
     changeset
     |> update_social_ifneed(user, attrs)
     |> embed_background_ifneed(changeset)
@@ -140,6 +139,9 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
     |> Multi.run(:create_profile, fn _, %{create_user: user} ->
       create_profile(user, github_profile, :github)
     end)
+    |> Multi.run(:update_profile_social, fn _, %{create_user: user} ->
+      update_profile_social(user, github_profile, :github)
+    end)
     |> Multi.run(:init_achievement, fn _, %{create_user: user} ->
       Achievement |> ORM.upsert_by([user_id: user.id], %{user_id: user.id})
     end)
@@ -158,6 +160,9 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   defp register_github_result({:error, :create_profile, _result, _steps}),
     do: {:error, "Accounts create_profile internal error"}
 
+  defp register_github_result({:error, :update_profile_social, _result, _steps}),
+    do: {:error, "Accounts update_profile_social error"}
+
   defp gen_token(%User{} = user) do
     with {:ok, token, _info} <- Guardian.jwt_encode(user) do
       {:ok, %{token: token, user: user}}
@@ -168,7 +173,6 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
     attrs = %{
       login: String.downcase(profile["login"]),
       nickname: profile["login"],
-      github: "https://github.com/#{profile["login"]}",
       avatar: profile["avatar_url"],
       bio: profile["bio"],
       location: profile["location"],
@@ -190,6 +194,14 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
     Repo.insert(changeset)
   end
 
+  def update_profile_social(user, profile, :github) do
+    update_social_ifneed(user, %{
+      social: %{
+        github: "https://github.com/#{profile["login"]}"
+      }
+    })
+  end
+
   defp create_profile(user, github_profile, :github) do
     # attrs = github_user |> Map.merge(%{github_id: github_user.id, user_id: 1}) |> Map.delete(:id)
     attrs =
@@ -203,7 +215,12 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
     |> Repo.insert()
   end
 
-  defp update_social_ifneed(changeset, user, %{social: attrs}) do
+  defp update_social_ifneed(%User{} = user, %{social: attrs}) do
+    attrs = Map.merge(%{user_id: user.id}, attrs)
+    Social |> ORM.upsert_by([user_id: user.id], attrs)
+  end
+
+  defp update_social_ifneed(changeset, %User{} = user, %{social: attrs}) do
     Social |> ORM.upsert_by([user_id: user.id], attrs)
     changeset
   end
