@@ -38,6 +38,7 @@ defmodule MastaniServer.Accounts.Social do
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
     |> foreign_key_constraint(:user_id)
+    |> unique_constraint(:user, name: :user_socials_user_id_index)
   end
 
   @doc false
@@ -45,5 +46,6 @@ defmodule MastaniServer.Accounts.Social do
     social
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> foreign_key_constraint(:user_id)
+    |> unique_constraint(:user, name: :user_socials_user_id_index)
   end
 end
