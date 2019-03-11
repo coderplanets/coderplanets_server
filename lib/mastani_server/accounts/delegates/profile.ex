@@ -221,8 +221,15 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
   end
 
   defp update_social_ifneed(changeset, %User{} = user, %{social: attrs}) do
-    Social |> ORM.upsert_by([user_id: user.id], attrs)
-    Ecto.Changeset.put_change(changeset, :social, nil)
+    case ORM.find_by(Social, user_id: user.id) do
+      {:ok, _} ->
+        ORM.update_by(Social, [user_id: user.id], attrs)
+        Ecto.Changeset.put_change(changeset, :social, nil)
+
+      {:error, _} ->
+        ORM.create(Social, attrs)
+        changeset
+    end
   end
 
   defp update_social_ifneed(changeset, _user, _attrs), do: changeset

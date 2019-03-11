@@ -31,6 +31,8 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
         nickname
         social {
           zhihu
+          github
+          twitter
         }
         education_backgrounds {
           school
@@ -48,10 +50,15 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
 
       variables = %{
         profile: %{
-          nickname: "new nickname"
+          nickname: "new nickname",
+          bio: "everyday is the opportunity you don't get back,  so live life to the fullest",
+          location: "china |> chengDu (成都).",
+          sex: "dude"
         },
         social: %{
-          zhihu: "xieyiming-75"
+          zhihu: "xieyiming-75",
+          github: "mydearxym",
+          twitter: "fe2"
         }
       }
 
@@ -59,6 +66,8 @@ defmodule MastaniServer.Test.Mutation.Account.Basic do
 
       assert updated["nickname"] == "new nickname"
       assert updated["social"]["zhihu"] == variables.social.zhihu
+      assert updated["social"]["github"] == variables.social.github
+      assert updated["social"]["twitter"] == variables.social.twitter
     end
 
     test "user can update it's own backgrounds", ~m(user)a do
