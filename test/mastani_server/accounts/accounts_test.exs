@@ -34,6 +34,7 @@ defmodule MastaniServer.Test.Accounts do
       {:ok, user} = db_insert(:user)
 
       attrs = %{
+        location: "new name",
         social: %{
           github: "github addr",
           weibo: "weibo addr"
@@ -41,6 +42,8 @@ defmodule MastaniServer.Test.Accounts do
       }
 
       {:ok, updated} = Accounts.update_profile(%User{id: user.id}, attrs)
+
+      assert updated.location == "new name"
 
       assert updated.social.github == attrs.social.github
       assert updated.social.weibo == attrs.social.weibo
