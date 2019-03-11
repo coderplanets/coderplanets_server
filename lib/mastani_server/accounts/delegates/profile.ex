@@ -222,7 +222,7 @@ defmodule MastaniServer.Accounts.Delegate.Profile do
 
   defp update_social_ifneed(changeset, %User{} = user, %{social: attrs}) do
     Social |> ORM.upsert_by([user_id: user.id], attrs)
-    changeset
+    Ecto.Changeset.put_change(changeset, :social, nil)
   end
 
   defp update_social_ifneed(changeset, _user, _attrs), do: changeset
