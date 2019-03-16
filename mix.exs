@@ -51,16 +51,16 @@ defmodule MastaniServer.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.4.0"},
+      {:phoenix, "~> 1.4.1"},
       {:phoenix_pubsub, "~> 1.1.1"},
-      {:ecto_sql, "~> 3.0.3"},
+      {:ecto_sql, "~> 3.0.5"},
       {:phoenix_ecto, "~> 4.0"},
       {:postgrex, ">= 0.14.1"},
       {:gettext, "~> 0.16.1"},
       {:plug_cowboy, "~> 2.0"},
-      {:plug, "~> 1.7.1"},
+      {:plug, "~> 1.7.2"},
       # GraphQl tool
-      {:absinthe, "~> 1.4.13"},
+      {:absinthe, "~> 1.4.16"},
       {:absinthe_ecto, "~> 0.1.3"},
       # Plug support for Absinthe
       # {:absinthe_plug, "~> 1.4.4"},
@@ -79,7 +79,7 @@ defmodule MastaniServer.Mixfile do
        git: "https://github.com/mastani-stack/scrivener_ecto", branch: "dev", override: true},
       # {:scrivener_ecto, "~> 2.0.0"},
       {:guardian, "~> 1.0"},
-      {:timex, "~> 3.4.2"},
+      {:timex, "~> 3.5.0"},
       {:dataloader, "~> 1.0.2"},
       {:mix_test_watch, "~> 0.9", only: :dev, runtime: false},
       {:ex_unit_notifier, "~> 0.1", only: :test},
