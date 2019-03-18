@@ -12,7 +12,7 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
       # "nim",
       # "fasm",
       # "zig"
-      "prolog"
+      # "prolog"
     ]
   end
 
@@ -59,8 +59,10 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
 
   def communities(:framework_patch) do
     [
-      "cyclejs"
+      # "cyclejs"
       # "graphql"
+      # "dubbo",
+      "mithril"
     ]
   end
 
