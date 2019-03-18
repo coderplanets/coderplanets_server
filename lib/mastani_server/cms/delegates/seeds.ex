@@ -65,7 +65,7 @@ defmodule MastaniServer.CMS.Delegate.Seeds do
          {:ok, communities} <- seed_for_communities(bot, :framework_patch) do
       threadify_communities(communities, threads.entries)
       tagfy_threads(communities, threads.entries, bot)
-      categorify_communities(communities, categories, :frontend)
+      categorify_communities(communities, categories, :backend)
     end
   end
 
