@@ -14,15 +14,51 @@
 [English](https://github.com/coderplanets/coderplanets_server) | 中文
 
 
-#### 中文文档出于时间关系尚未完善，欢迎 PR
+## 简介
 
+coderplanets.com 的后台
 
-## credit 
+## 文档
 
-[keyboard logo](https://www.flaticon.com/free-icon/keyboard_211884#term=keyboard&page=8&position=88) is made by
-[freepik](https://www.flaticon.com/authors/freepik) from
-[flaticon](https://www.flaticon.com), licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0)
+- [架构](architecture)
+  - [简介](docs/architecture/intro.md)
+  - [GraphQL](docs/architecture/grqphQL.md)
+- [开发环境](development)
+  - [简介](docs/development/intro.md)
+  - [搭建](docs/development/setup.md)
+  - [Console](docs/development/console.md)
+  - [Linter](docs/development/linter.md)
+  - [Generator](development/generator.md)
+- [部署](deployment)
+  - [简介](docs/deployment/intro.md)(目前部署在阿里云)
+  - [Release](docs/deployment/release.md)
+- [测试](testing)
+  - [单元测试](docs/testing/unit-testing.md)
+  - [GraphQL 测试](docs/testing/graphql-testing.md)
+- [分析](analysis)
+  - [Apollo 引擎](docs/analysis/apollo-engine.md)
+  - [错误追踪](docs/analysis/error-tracking.md)
+- [CI](ci)
+  - [简介](docs/ci/intro.md)
+  - [测试覆盖](docs/ci/test-coverage.md)
+  - [文档覆盖](docs/ci/doc-coverage.md)
+  - [Commit Msg Lint](docs/ci/commit-msg-lint.md)
+  - [schema 检查](docs/ci/schema-check.md)
+- [路线图](docs/roadmap.md)
+- [FAQ](docs/FAQ.md)
+- [贡献](docs/contributing.md)
+- [故障排除](docs/troubleshooting.md)
+
+## 支持一下 cps
+wip ...
+
+## credit
+
+[Logo](https://www.flaticon.com/free-icon/keyboard_211884#term=keyboard&page=8&position=88) 制作来自
+[freepik](https://www.flaticon.com/authors/freepik) 和
+[flaticon](https://www.flaticon.com), 获得 [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0) 许可
 
 ## License
 
-This project is licensed under the Apache License v2. For more information see LICENSE.md.
+该项目获得 Apache License v2 许可。有关更多信息，请参阅 LICENSE.md
+
