@@ -61,8 +61,9 @@ defmodule MastaniServer.CMS.Delegate.SeedsConfig do
     [
       # "cyclejs"
       # "graphql"
-      "dubbo"
+      # "dubbo"
       # "mithril"
+      "machine-learning"
     ]
   end
 
