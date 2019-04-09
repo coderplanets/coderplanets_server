@@ -28,6 +28,8 @@ after_success:
 cache:
   directories:
   - "$HOME/.cargo"
+  - _build
+  - deps
 env:
   # prod
   matrix:
