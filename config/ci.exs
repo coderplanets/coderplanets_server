@@ -16,7 +16,7 @@ config :mastani_server, MastaniServer.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "postgres",
   password: "postgres",
-  database: "mastani_server_tmp",
+  database: "mastani_server_ci",
   hostname: "localhost",
   pool_size: 10
 
