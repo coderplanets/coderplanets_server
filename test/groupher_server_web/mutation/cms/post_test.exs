@@ -63,10 +63,7 @@ defmodule GroupherServer.Test.Mutation.Post do
       assert {:ok, _} = ORM.find_by(CMS.Author, user_id: user.id)
     end
 
-<<<<<<< HEAD
-=======
     @tag :wip
->>>>>>> fix(xss): add escape hepler for resources
     test "create post should excape xss attracts" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
