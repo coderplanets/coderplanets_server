@@ -72,7 +72,7 @@ defmodule MastaniServer.Mixfile do
       # {:argon2_elixir, "~> 1.2"},
       # CORS
       {:corsica, "~> 1.1.2"},
-      {:tesla, "~> 0.10.0"},
+      {:tesla, "~> 1.2.1"},
       # for fake data in test env
       {:faker, "~> 0.9"},
       {:scrivener_ecto,
