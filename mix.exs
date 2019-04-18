@@ -53,7 +53,7 @@ defmodule MastaniServer.Mixfile do
     [
       {:phoenix, "~> 1.4.1"},
       {:phoenix_pubsub, "~> 1.1.1"},
-      {:ecto_sql, "~> 3.0.5"},
+      {:ecto_sql, "~> 3.1.1"},
       {:phoenix_ecto, "~> 4.0"},
       {:postgrex, ">= 0.14.1"},
       {:gettext, "~> 0.16.1"},
