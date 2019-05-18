@@ -19,8 +19,7 @@ defmodule MastaniServer.Test.Accounts do
         nickname: "new nickname",
         sex: "dude",
         bio: "new bio",
-        email: "new@qq.com",
-        company: "at home"
+        email: "new@qq.com"
       }
 
       {:ok, updated} = Accounts.update_profile(%User{id: user.id}, attrs)
