@@ -108,7 +108,6 @@ defmodule MastaniServer.Support.Factory do
     %{
       avatar: Faker.Avatar.image_url(),
       html_url: Faker.Avatar.image_url(),
-      htmlUrl: Faker.Avatar.image_url(),
       nickname: "mydearxym2"
     }
   end
