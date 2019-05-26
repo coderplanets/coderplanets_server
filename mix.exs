@@ -93,7 +93,7 @@ defmodule MastaniServer.Mixfile do
       {:dialyxir, "~> 1.0.0-rc.2", only: [:dev, :mock], runtime: false},
       {:excoveralls, "~> 0.8", only: :test},
       {:sentry, "~> 6.4"},
-      {:recase, "~> 0.3.0"},
+      {:recase, "~> 0.4.0"},
       {:nanoid, "~> 2.0.0"}
     ]
   end
