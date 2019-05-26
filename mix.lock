@@ -56,7 +56,7 @@
   "recase": {:hex, :recase, "0.4.0", "8fb52846f75948156385af2dfdc12f69e5ce27b022a9d1682c70a2fb3ed149c7", [:mix], [], "hexpm"},
   "scrivener": {:hex, :scrivener, "2.5.0", "e1f78c62b6806d91cc9c4778deef1ea4e80aa9fadfce2c16831afe0468cc8a2c", [:mix], [], "hexpm"},
   "scrivener_ecto": {:git, "https://github.com/mastani-stack/scrivener_ecto", "a6ebbbe9585e9829219ed0f73a3afcb4edde3558", [branch: "dev"]},
-  "sentry": {:hex, :sentry, "6.4.1", "882287f1f3167dc4794865124977e2d88878d51d19930c0d0e7cc3a663a4a181", [:mix], [{:hackney, "~> 1.8 or 1.6.5", [hex: :hackney, repo: "hexpm", optional: false]}, {:phoenix, "~> 1.3", [hex: :phoenix, repo: "hexpm", optional: true]}, {:plug, "~> 1.6", [hex: :plug, repo: "hexpm", optional: true]}, {:poison, "~> 1.5 or ~> 2.0 or ~> 3.0", [hex: :poison, repo: "hexpm", optional: false]}], "hexpm"},
+  "sentry": {:hex, :sentry, "7.0.6", "ed99dbb1fa9027c83677384c37208589ac419501c5b084f1a24558231980222b", [:mix], [{:hackney, "~> 1.8 or 1.6.5", [hex: :hackney, repo: "hexpm", optional: false]}, {:jason, "~> 1.1", [hex: :jason, repo: "hexpm", optional: true]}, {:phoenix, "~> 1.3", [hex: :phoenix, repo: "hexpm", optional: true]}, {:plug, "~> 1.6", [hex: :plug, repo: "hexpm", optional: true]}, {:plug_cowboy, "~> 1.0 or ~> 2.0", [hex: :plug_cowboy, repo: "hexpm", optional: true]}], "hexpm"},
   "short_maps": {:hex, :short_maps, "0.1.2", "a7c2bfd91179cdbdfe90e74a023992335d116982fa672612c74776b2e9257a7b", [:mix], [], "hexpm"},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.4", "f0eafff810d2041e93f915ef59899c923f4568f4585904d010387ed74988e77b", [:make, :mix, :rebar3], [], "hexpm"},
   "telemetry": {:hex, :telemetry, "0.4.0", "8339bee3fa8b91cb84d14c2935f8ecf399ccd87301ad6da6b71c09553834b2ab", [:rebar3], [], "hexpm"},
