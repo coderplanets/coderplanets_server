@@ -1,6 +1,6 @@
 # use /test/support/populater
 
-import MastaniServer.Support.Factory
+import GroupherServer.Support.Factory
 
 default_user = %{
   username: "mydearxym",

@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddRawToCategory do
+defmodule GroupherServer.Repo.Migrations.AddRawToCategory do
   use Ecto.Migration
 
   def change do

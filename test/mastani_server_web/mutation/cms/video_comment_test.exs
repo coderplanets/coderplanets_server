@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.Mutation.VideoComment do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Mutation.VideoComment do
+  use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias MastaniServer.{CMS, Delivery}
+  alias GroupherServer.{CMS, Delivery}
 
   setup do
     {:ok, video} = db_insert(:video)

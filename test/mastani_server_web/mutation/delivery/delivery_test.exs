@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.Mutation.Delivery do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Mutation.Delivery do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.Accounts
+  alias GroupherServer.Accounts
 
   setup do
     {:ok, user} = db_insert(:user)

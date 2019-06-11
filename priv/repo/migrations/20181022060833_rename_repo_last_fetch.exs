@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.RenameRepoLastFetch do
+defmodule GroupherServer.Repo.Migrations.RenameRepoLastFetch do
   use Ecto.Migration
 
   def change do

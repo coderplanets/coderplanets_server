@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.Mutation.Accounts.Fans do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Mutation.Accounts.Fans do
+  use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias MastaniServer.Accounts
+  alias GroupherServer.Accounts
 
   setup do
     {:ok, user} = db_insert(:user)

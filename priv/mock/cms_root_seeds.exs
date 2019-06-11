@@ -1,7 +1,7 @@
-import MastaniServer.Support.Factory
+import GroupherServer.Support.Factory
 import Helper.Utils, only: [map_key_stringify: 1]
 
-alias MastaniServer.{Accounts, CMS}
+alias GroupherServer.{Accounts, CMS}
 
 root_rules = %{
   "root" => true

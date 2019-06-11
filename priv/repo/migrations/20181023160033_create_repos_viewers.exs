@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreateReposViewers do
+defmodule GroupherServer.Repo.Migrations.CreateReposViewers do
   use Ecto.Migration
 
   def change do

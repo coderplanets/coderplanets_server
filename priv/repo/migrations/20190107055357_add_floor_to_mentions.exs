@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddFloorToMentions do
+defmodule GroupherServer.Repo.Migrations.AddFloorToMentions do
   use Ecto.Migration
 
   def change do

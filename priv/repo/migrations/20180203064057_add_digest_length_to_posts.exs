@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddDigestLengthToPosts do
+defmodule GroupherServer.Repo.Migrations.AddDigestLengthToPosts do
   use Ecto.Migration
 
   def change do

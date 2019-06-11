@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.CMS do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.CMS do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.Accounts.User
-  alias MastaniServer.CMS
+  alias GroupherServer.Accounts.User
+  alias GroupherServer.CMS
   alias CMS.Community
 
   alias Helper.{Certification, ORM}

@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.RemovePostIdFavoritesCategories do
+defmodule GroupherServer.Repo.Migrations.RemovePostIdFavoritesCategories do
   use Ecto.Migration
 
   def change do

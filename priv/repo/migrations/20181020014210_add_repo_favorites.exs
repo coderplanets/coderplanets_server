@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddRepoFavorites do
+defmodule GroupherServer.Repo.Migrations.AddRepoFavorites do
   use Ecto.Migration
 
   def change do

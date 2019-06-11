@@ -1,9 +1,9 @@
-defmodule MastaniServer.Test.Query.VideosFlags do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.VideosFlags do
+  use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
 
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   alias CMS.Video
 

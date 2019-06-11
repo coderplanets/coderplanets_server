@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddTrashFlagToPost do
+defmodule GroupherServer.Repo.Migrations.AddTrashFlagToPost do
   use Ecto.Migration
 
   def change do

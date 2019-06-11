@@ -1,9 +1,9 @@
-defmodule MastaniServer.Test.CMS.RepoComment do
+defmodule GroupherServer.Test.CMS.RepoComment do
   # currently only test comments for repo type, rename and seprherate later
-  use MastaniServer.TestTools
+  use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   alias CMS.{RepoComment, RepoCommentReply}
 

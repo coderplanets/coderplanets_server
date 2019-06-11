@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddIndexToThreads do
+defmodule GroupherServer.Repo.Migrations.AddIndexToThreads do
   use Ecto.Migration
 
   def change do

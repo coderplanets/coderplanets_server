@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.CMS.ContentFlags do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.CMS.ContentFlags do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   alias CMS.{
     Post,

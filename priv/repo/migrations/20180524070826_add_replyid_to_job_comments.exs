@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddReplyidToJobComments do
+defmodule GroupherServer.Repo.Migrations.AddReplyidToJobComments do
   use Ecto.Migration
 
   def change do

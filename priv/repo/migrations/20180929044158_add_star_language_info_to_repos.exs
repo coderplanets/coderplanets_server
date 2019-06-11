@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddStarLanguageInfoToRepos do
+defmodule GroupherServer.Repo.Migrations.AddStarLanguageInfoToRepos do
   use Ecto.Migration
 
   def change do

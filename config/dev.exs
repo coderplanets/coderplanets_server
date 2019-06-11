@@ -6,7 +6,7 @@ use Mix.Config
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
 # with brunch.io to recompile .js and .css sources.
-config :mastani_server, MastaniServerWeb.Endpoint,
+config :groupher_server, GroupherServerWeb.Endpoint,
   http: [port: String.to_integer(System.get_env("SERVE_PORT") || "7001")],
   debug_errors: true,
   code_reloader: true,
@@ -38,11 +38,11 @@ config :phoenix, :stacktrace_depth, 20
 
 # You can generate a new secret by running:
 # mix phx.gen.secret
-config :mastani_server, MastaniServerWeb.Endpoint,
+config :groupher_server, GroupherServerWeb.Endpoint,
   secret_key_base: System.get_env("SECRET_KEY_BASE")
 
 # should use RDS 内网地址
-config :mastani_server, MastaniServer.Repo,
+config :groupher_server, GroupherServer.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: System.get_env("DB_USERNAME"),
   password: System.get_env("DB_PASSWORD"),
@@ -51,6 +51,6 @@ config :mastani_server, MastaniServer.Repo,
   port: String.to_integer(System.get_env("DB_PORT") || "3433"),
   pool_size: String.to_integer(System.get_env("DB_POOL_SIZE") || "20")
 
-config :mastani_server, :github_oauth,
+config :groupher_server, :github_oauth,
   client_id: System.get_env("OAUTH_GITHUB_CLIENT_ID"),
   client_secret: System.get_env("OAUTH_GITHUB_CLIENT_SECRET")

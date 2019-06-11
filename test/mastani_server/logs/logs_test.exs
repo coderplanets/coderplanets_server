@@ -1,10 +1,10 @@
-defmodule MastaniServer.Test.Logs do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Logs do
+  use GroupherServer.TestTools
 
-  # alias MastaniServer.Logs
+  # alias GroupherServer.Logs
 
   describe "user_activity_logs" do
-    # alias MastaniServer.Logs.UserActivity
+    # alias GroupherServer.Logs.UserActivity
 
     test "TODO " do
       true

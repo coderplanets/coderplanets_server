@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.CMS.Passport do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.CMS.Passport do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.Accounts.User
-  alias MastaniServer.CMS
+  alias GroupherServer.Accounts.User
+  alias GroupherServer.CMS
 
   setup do
     {:ok, [user, user2]} = db_insert_multi(:user, 2)

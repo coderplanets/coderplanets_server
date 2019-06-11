@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreateGithubUsers do
+defmodule GroupherServer.Repo.Migrations.CreateGithubUsers do
   use Ecto.Migration
 
   def change do

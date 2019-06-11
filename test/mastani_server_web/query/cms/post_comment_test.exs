@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.Query.PostComment do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.PostComment do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   setup do
     {:ok, post} = db_insert(:post)

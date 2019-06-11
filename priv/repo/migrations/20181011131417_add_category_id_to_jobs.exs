@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddCategoryIdToJobs do
+defmodule GroupherServer.Repo.Migrations.AddCategoryIdToJobs do
   use Ecto.Migration
 
   def change do

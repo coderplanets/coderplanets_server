@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddUniqueIndexToTags do
+defmodule GroupherServer.Repo.Migrations.AddUniqueIndexToTags do
   use Ecto.Migration
 
   def change do

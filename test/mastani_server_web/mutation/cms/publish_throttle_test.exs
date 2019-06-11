@@ -1,10 +1,10 @@
-defmodule MastaniServer.Test.Mutation.PublishThrottle do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Mutation.PublishThrottle do
+  use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
 
-  alias MastaniServer.Accounts.User
-  alias MastaniServer.Statistics
+  alias GroupherServer.Accounts.User
+  alias GroupherServer.Statistics
 
   @throttle_interval get_config(:general, :publish_throttle_interval_minutes)
   @hour_limit get_config(:general, :publish_throttle_hour_limit)

@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.Query.Accounts.Search do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.Accounts.Search do
+  use GroupherServer.TestTools
 
-  # alias MastaniServer.Accounts.User
-  # alias MastaniServer.CMS
+  # alias GroupherServer.Accounts.User
+  # alias GroupherServer.CMS
   # alias CMS.{Community}
 
   setup do

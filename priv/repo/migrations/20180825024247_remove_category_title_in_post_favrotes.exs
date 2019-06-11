@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.RemoveCategoryTitleInPostFavrotes do
+defmodule GroupherServer.Repo.Migrations.RemoveCategoryTitleInPostFavrotes do
   use Ecto.Migration
 
   def change do

@@ -1,9 +1,9 @@
-defmodule MastaniServer.Test.Mutation.Billing.Basic do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Mutation.Billing.Basic do
+  use GroupherServer.TestTools
 
   import Helper.Utils
 
-  alias MastaniServer.Billing
+  alias GroupherServer.Billing
 
   @senior_amount_threshold get_config(:general, :senior_amount_threshold)
 

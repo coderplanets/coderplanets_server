@@ -1,4 +1,4 @@
-defmodule MastaniServer.Support.GeoData do
+defmodule GroupherServer.Support.GeoData do
   @moduledoc """
   return geo data
   """

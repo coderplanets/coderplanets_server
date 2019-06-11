@@ -1,4 +1,4 @@
-defmodule MastaniServer.Test.AssertHelper do
+defmodule GroupherServer.Test.AssertHelper do
   @moduledoc """
   This module defines some helper function used by
   tests that require check from graphql response
@@ -7,7 +7,7 @@ defmodule MastaniServer.Test.AssertHelper do
   import Phoenix.ConnTest
   import Helper.Utils, only: [map_key_stringify: 1, get_config: 2]
 
-  @endpoint MastaniServerWeb.Endpoint
+  @endpoint GroupherServerWeb.Endpoint
 
   @page_size get_config(:general, :page_size)
   @inner_page_size get_config(:general, :inner_page_size)

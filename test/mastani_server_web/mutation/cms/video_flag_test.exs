@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.Mutation.VideoFlag do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Mutation.VideoFlag do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   setup do
     {:ok, user} = db_insert(:user)

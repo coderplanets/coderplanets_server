@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddTopicToTags do
+defmodule GroupherServer.Repo.Migrations.AddTopicToTags do
   use Ecto.Migration
 
   def change do

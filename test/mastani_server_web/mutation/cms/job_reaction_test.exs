@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.Mutation.JobReaction do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Mutation.JobReaction do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   setup do
     {:ok, job} = db_insert(:job)

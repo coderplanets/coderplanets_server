@@ -1,8 +1,8 @@
 # for mock CMS posts
 
-defmodule MastaniServer.Mock.CMS.Post do
-  alias MastaniServer.Repo
-  alias MastaniServer.CMS.Post
+defmodule GroupherServer.Mock.CMS.Post do
+  alias GroupherServer.Repo
+  alias GroupherServer.CMS.Post
 
   def random_attrs do
     %{

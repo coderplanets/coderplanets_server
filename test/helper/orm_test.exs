@@ -1,15 +1,15 @@
-defmodule MastaniServer.Test.Helper.ORMTest do
-  use MastaniServerWeb.ConnCase, async: true
+defmodule GroupherServer.Test.Helper.ORMTest do
+  use GroupherServerWeb.ConnCase, async: true
 
   # TODO import Service.Utils move both helper and github
-  import MastaniServer.Support.Factory
+  import GroupherServer.Support.Factory
 
-  alias MastaniServer.CMS.{Post, Author}
-  alias MastaniServer.Accounts.User
+  alias GroupherServer.CMS.{Post, Author}
+  alias GroupherServer.Accounts.User
   alias Helper.ORM
 
   @posts_count 20
-  @post_clauses %{title: "hello mastani"}
+  @post_clauses %{title: "hello groupher"}
 
   setup do
     # TODO: token

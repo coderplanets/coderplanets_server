@@ -1,7 +1,7 @@
 
 this document is intended to give you a taste of how `coderplanets_server` works, It still assumes basic knowledge of Elixir/Phoenix and GraphQL. **If you're completely new to Elixir/GraphQL, please refer to https://elixir-lang.org/getting-started/introduction or https://www.howtographql.com/ first!**
 
-> NOTE: since coderplanets_server is build on top of [mastani-stack](https://github.com/mastani-stack), the whole project is under namespace of `Mastani`
+> NOTE: since coderplanets_server is build on top of [groupher-stack](https://github.com/groupher-stack), the whole project is under namespace of `Groupher`
 
 ## Tech Stack
 
@@ -42,7 +42,7 @@ In any case, here's the TL;DR:
 
 ### `lib/`
 
-- `mastani_server/`  we split our logic code into contexts. a context will group
+- `groupher_server/`  we split our logic code into contexts. a context will group
   related functionality which located in context's `delegates` dir,  By using contexts, we decouple and isolate our systems into *5* manageable, independent parts:
   - `accounts/` handle account-related logic like: register, profile, mailbox, achievement, billing, customization ...
   - `cms/` handle content-releated logic like: community curd/operation/reactions, contents(posts, jobs, videos, ..) CURD/operation/reactions ...
@@ -50,7 +50,7 @@ In any case, here's the TL;DR:
   - `log/` record important actions
   - `statistics/` handle statistics like: user contributes, community contributes ...
   
-- `mastani_server_web/` handle "web-interface" only logic
+- `groupher_server_web/` handle "web-interface" only logic
   - `resolvers/` graphql resolvers based on Context
   - `schema/` graphql schema based on Context, include queries & mutations
   - `middleware/` common logic like authorize, passport, pagesize_check ...

@@ -1,6 +1,6 @@
-alias MastaniServer.CMS
-alias MastaniServer.CMS.Delegate.SeedsConfig
-alias MastaniServer.CMS.Delegate.Seeds
+alias GroupherServer.CMS
+alias GroupherServer.CMS.Delegate.SeedsConfig
+alias GroupherServer.CMS.Delegate.Seeds
 alias Helper.ORM
 
 patch_communities =

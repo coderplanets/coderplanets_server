@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.CMS.ContentsPin do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.CMS.ContentsPin do
+  use GroupherServer.TestTools
 
   # alias Helper.ORM
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   # alias CMS.{
   # Post,

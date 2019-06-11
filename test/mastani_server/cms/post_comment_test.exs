@@ -1,9 +1,9 @@
-defmodule MastaniServer.Test.PostComment do
+defmodule GroupherServer.Test.PostComment do
   # currently only test comments for post type, rename and seprherate later
-  use MastaniServer.TestTools
+  use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   alias CMS.{PostComment, PostCommentReply}
 

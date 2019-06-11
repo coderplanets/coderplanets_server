@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.RemoveOldCommunityThreadsUniqueIndex do
+defmodule GroupherServer.Repo.Migrations.RemoveOldCommunityThreadsUniqueIndex do
   use Ecto.Migration
 
   def change do

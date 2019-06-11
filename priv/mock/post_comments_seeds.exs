@@ -1,6 +1,6 @@
-import MastaniServer.Support.Factory
+import GroupherServer.Support.Factory
 
-alias MastaniServer.{CMS, Accounts}
+alias GroupherServer.{CMS, Accounts}
 
 {:ok, user} = db_insert(:user)
 {:ok, post} = db_insert(:post)

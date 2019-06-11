@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CopyRightDefaultForJobs do
+defmodule GroupherServer.Repo.Migrations.CopyRightDefaultForJobs do
   use Ecto.Migration
 
   def change do

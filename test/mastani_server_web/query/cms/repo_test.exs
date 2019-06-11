@@ -1,5 +1,5 @@
-defmodule MastaniServer.Test.Query.Repo do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.Repo do
+  use GroupherServer.TestTools
 
   setup do
     {:ok, repo} = db_insert(:repo)
@@ -81,7 +81,7 @@ defmodule MastaniServer.Test.Query.Repo do
     assert guest_conn |> query_get_error?(@query, variables)
   end
 
-  alias MastaniServer.Accounts
+  alias GroupherServer.Accounts
 
   @query """
   query($id: ID!) {

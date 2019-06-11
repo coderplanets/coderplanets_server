@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.Delivery.Basic do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Delivery.Basic do
+  use GroupherServer.TestTools
 
   import Ecto.Query, warn: false
-  alias MastaniServer.Delivery
+  alias GroupherServer.Delivery
 
   test "user can check mailbox status" do
     {:ok, user} = db_insert(:user)

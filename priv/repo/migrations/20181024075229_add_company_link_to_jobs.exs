@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddCompanyLinkToJobs do
+defmodule GroupherServer.Repo.Migrations.AddCompanyLinkToJobs do
   use Ecto.Migration
 
   def change do

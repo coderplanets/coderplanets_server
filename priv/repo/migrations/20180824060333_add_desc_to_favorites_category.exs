@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddDescToFavoritesCategory do
+defmodule GroupherServer.Repo.Migrations.AddDescToFavoritesCategory do
   use Ecto.Migration
 
   def change do

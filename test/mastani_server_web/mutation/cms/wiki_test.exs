@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.Mutation.CMS.Wiki do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Mutation.CMS.Wiki do
+  use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   setup do
     {:ok, user} = db_insert(:user)

@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.Query.PostViewer do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.PostViewer do
+  use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   setup do
     {:ok, community} = db_insert(:community)

@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.TmpDropVideosCommentsFloorIndex do
+defmodule GroupherServer.Repo.Migrations.TmpDropVideosCommentsFloorIndex do
   use Ecto.Migration
 
   def change do

@@ -1,12 +1,12 @@
 # Inside the script, you can read and write to any of your
 # repositories directly:
 #
-#     MastaniServer.Repo.insert!(%MastaniServer.SomeSchema{})
+#     GroupherServer.Repo.insert!(%GroupherServer.SomeSchema{})
 #
 
-defmodule MastaniServer.Mock.User do
-  alias MastaniServer.Repo
-  alias MastaniServer.Accounts.User
+defmodule GroupherServer.Mock.User do
+  alias GroupherServer.Repo
+  alias GroupherServer.Accounts.User
 
   def random_attrs do
     %{

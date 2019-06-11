@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.Statistics.Status do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Statistics.Status do
+  use GroupherServer.TestTools
 
   # alias Helper.ORM
-  alias MastaniServer.Statistics
+  alias GroupherServer.Statistics
 
   @communities_count 10
   # @posts_count 11

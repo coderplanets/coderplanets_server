@@ -1,3 +1,3 @@
-import MastaniServer.Support.Factory
+import GroupherServer.Support.Factory
 
 db_insert_multi(:video, 3)

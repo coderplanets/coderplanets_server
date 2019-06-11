@@ -1,9 +1,9 @@
-defmodule MastaniServer.Test.Query.Statistics do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.Statistics do
+  use GroupherServer.TestTools
 
   alias Helper.GeoPool
-  alias MastaniServer.Accounts.User
-  alias MastaniServer.Statistics
+  alias GroupherServer.Accounts.User
+  alias GroupherServer.Statistics
 
   setup do
     GeoPool.insert_geo_data()

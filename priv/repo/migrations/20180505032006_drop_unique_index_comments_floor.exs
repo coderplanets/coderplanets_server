@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.DropUniqueIndexCommentsFloor do
+defmodule GroupherServer.Repo.Migrations.DropUniqueIndexCommentsFloor do
   use Ecto.Migration
 
   def change do

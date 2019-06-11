@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.Mutation.Account.Basic do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Mutation.Account.Basic do
+  use GroupherServer.TestTools
 
-  # alias MastaniServer.{Accounts}
+  # alias GroupherServer.{Accounts}
   # alias Helper.ORM
 
   setup do

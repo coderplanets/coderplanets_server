@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddTimestampToPublishThrottle do
+defmodule GroupherServer.Repo.Migrations.AddTimestampToPublishThrottle do
   use Ecto.Migration
 
   def change do

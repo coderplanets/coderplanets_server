@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.Query.Account.Achievement do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.Account.Achievement do
+  use GroupherServer.TestTools
   import Helper.Utils, only: [get_config: 2]
-  alias MastaniServer.{Accounts, CMS}
+  alias GroupherServer.{Accounts, CMS}
 
   alias Helper.ORM
 
@@ -169,7 +169,7 @@ defmodule MastaniServer.Test.Query.Account.Achievement do
   end
 
   describe "[account favorite achieveMent]" do
-    alias MastaniServer.CMS
+    alias GroupherServer.CMS
 
     @query """
     query($login: String!) {

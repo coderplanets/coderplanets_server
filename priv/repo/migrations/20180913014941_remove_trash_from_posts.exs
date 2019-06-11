@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.RemoveTrashFromPosts do
+defmodule GroupherServer.Repo.Migrations.RemoveTrashFromPosts do
   use Ecto.Migration
 
   def change do

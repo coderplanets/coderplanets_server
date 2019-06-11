@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.RemoveFlags do
+defmodule GroupherServer.Repo.Migrations.RemoveFlags do
   use Ecto.Migration
 
   def change do

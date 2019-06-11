@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.ReposBuildersJoinTable do
+defmodule GroupherServer.Repo.Migrations.ReposBuildersJoinTable do
   use Ecto.Migration
 
   def change do

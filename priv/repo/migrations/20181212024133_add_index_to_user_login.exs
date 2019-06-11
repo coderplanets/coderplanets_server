@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddIndexToUserLogin do
+defmodule GroupherServer.Repo.Migrations.AddIndexToUserLogin do
   use Ecto.Migration
 
   def change do
