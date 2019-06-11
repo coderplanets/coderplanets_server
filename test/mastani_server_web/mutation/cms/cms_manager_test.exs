@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.Mutation.CMS.Manager do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Mutation.CMS.Manager do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
   # alias CMS.{Category, Community, CommunityEditor, Passport, Tag, Thread}
   alias Helper.ORM
 

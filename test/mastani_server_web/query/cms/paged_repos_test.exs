@@ -1,10 +1,10 @@
-defmodule MastaniServer.Test.Query.PagedRepos do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.PagedRepos do
+  use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
 
-  alias MastaniServer.CMS
-  alias MastaniServer.Repo
+  alias GroupherServer.CMS
+  alias GroupherServer.Repo
 
   @page_size get_config(:general, :page_size)
 

@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.ReplaceUserSexWithDefaultValue do
+defmodule GroupherServer.Repo.Migrations.ReplaceUserSexWithDefaultValue do
   use Ecto.Migration
 
   def change do

@@ -1,10 +1,10 @@
-defmodule MastaniServer.Test.Accounts.Achievement do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Accounts.Achievement do
+  use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
   alias Helper.ORM
-  alias MastaniServer.Accounts
-  alias MastaniServer.Accounts.User
+  alias GroupherServer.Accounts
+  alias GroupherServer.Accounts.User
 
   @follow_weight get_config(:general, :user_achieve_follow_weight)
   @favorite_weight get_config(:general, :user_achieve_favorite_weight)
@@ -17,7 +17,7 @@ defmodule MastaniServer.Test.Accounts.Achievement do
     {:ok, ~m(user)a}
   end
 
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   describe "[Accounts Achievement communities]" do
     test "normal user should have a empty editable communities list", ~m(user)a do

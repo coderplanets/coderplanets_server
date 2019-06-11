@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddWorkBackgroundsToUsers do
+defmodule GroupherServer.Repo.Migrations.AddWorkBackgroundsToUsers do
   use Ecto.Migration
 
   def change do

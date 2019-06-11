@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.Query.Cheatsheet do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.Cheatsheet do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   setup do
     {:ok, community} = db_insert(:community)

@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.Query.Accounts.FavoriteCategory do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.Accounts.FavoriteCategory do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.Accounts
+  alias GroupherServer.Accounts
   # alias Accounts.FavoriteCategory
 
   setup do

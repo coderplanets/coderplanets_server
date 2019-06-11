@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddCategoryIdToVideos do
+defmodule GroupherServer.Repo.Migrations.AddCategoryIdToVideos do
   use Ecto.Migration
 
   def change do

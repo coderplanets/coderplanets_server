@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreateUserActivityLogs do
+defmodule GroupherServer.Repo.Migrations.CreateUserActivityLogs do
   use Ecto.Migration
 
   def change do

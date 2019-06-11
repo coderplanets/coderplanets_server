@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreateUserFollowing do
+defmodule GroupherServer.Repo.Migrations.CreateUserFollowing do
   use Ecto.Migration
 
   def change do

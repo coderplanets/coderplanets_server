@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.Wiki do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Wiki do
+  use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   alias CMS.{CommunityWiki}
 

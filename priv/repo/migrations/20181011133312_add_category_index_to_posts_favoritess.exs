@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddCategoryIndexToPostsFavoritess do
+defmodule GroupherServer.Repo.Migrations.AddCategoryIndexToPostsFavoritess do
   use Ecto.Migration
 
   def change do

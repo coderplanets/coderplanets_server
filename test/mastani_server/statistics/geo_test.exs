@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.Statistics.Geo do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Statistics.Geo do
+  use GroupherServer.TestTools
 
   alias Helper.{ORM, GeoPool}
-  alias MastaniServer.{Statistics}
+  alias GroupherServer.{Statistics}
 
   setup do
     GeoPool.insert_geo_data()

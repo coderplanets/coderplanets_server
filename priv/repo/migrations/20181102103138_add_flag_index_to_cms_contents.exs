@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddFlagIndexToCmsContents do
+defmodule GroupherServer.Repo.Migrations.AddFlagIndexToCmsContents do
   use Ecto.Migration
 
   def change do

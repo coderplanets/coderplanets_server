@@ -14,8 +14,8 @@ package` section
 
 ## snapshot
 
-![apollo-explorer](https://github.com/mydearxym/mastani_server/blob/dev/docs/snapshots/apollo-explorer.png)
-![apollo-metrics](https://github.com/mydearxym/mastani_server/blob/dev/docs/snapshots/apollo-metrics.png)
+![apollo-explorer](https://github.com/mydearxym/groupher_server/blob/dev/docs/snapshots/apollo-explorer.png)
+![apollo-metrics](https://github.com/mydearxym/groupher_server/blob/dev/docs/snapshots/apollo-metrics.png)
 
 
 

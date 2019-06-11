@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.Mutation.RepoComment do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Mutation.RepoComment do
+  use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias MastaniServer.{CMS, Delivery}
+  alias GroupherServer.{CMS, Delivery}
 
   setup do
     {:ok, repo} = db_insert(:repo)

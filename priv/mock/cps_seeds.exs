@@ -1,4 +1,4 @@
-alias MastaniServer.CMS
+alias GroupherServer.CMS
 
 # NOTE: seed order matters
 CMS.seed_communities(:home)

@@ -1,7 +1,7 @@
 
 ### GraphQL 接口测试
 
-GraphQL 接口的测试部分全部位于 `test/mastani_server_web/` 目录下, 按照接口的用途
+GraphQL 接口的测试部分全部位于 `test/groupher_server_web/` 目录下, 按照接口的用途
 又分为 `query` 和 `mutation` 目录。
 
 以 `query` 测试为例, `query` 目录下按照项目的 `context` 分为: 
@@ -46,11 +46,11 @@ accounts   billing    cms    statistics
 以一个实际例子作为说明: 
 
 ```elixir
-defmodule MastaniServer.Test.Query.CMS.Basic do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.CMS.Basic do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.Accounts.User
-  alias MastaniServer.CMS
+  alias GroupherServer.Accounts.User
+  alias GroupherServer.CMS
   alias CMS.{Community, Thread, Category}
 
   setup do
@@ -99,7 +99,7 @@ end
 1. 每个测试开头引入的 TestTools 包含常用的测试模块，函数等
 
 ```elixir
-use MastaniServer.TestTools
+use GroupherServer.TestTools
 ```
 
 2. setup 中可以存放所有文件中都需要初始化的一些数据

@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.Query.Accounts.StaredContents do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.Accounts.StaredContents do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   @total_count 20
 

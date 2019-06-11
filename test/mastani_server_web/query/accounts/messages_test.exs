@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.Query.Accounts.Messages do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.Accounts.Messages do
+  use GroupherServer.TestTools
 
-  # alias MastaniServer.{Accounts}
+  # alias GroupherServer.{Accounts}
   setup do
     {:ok, user} = db_insert(:user)
 

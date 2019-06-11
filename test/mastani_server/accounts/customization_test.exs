@@ -1,9 +1,9 @@
-defmodule MastaniServer.Test.Accounts.Customization do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Accounts.Customization do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.Accounts
+  alias GroupherServer.Accounts
   # import Helper.Utils
-  # alias MastaniServer.{Accounts}
+  # alias GroupherServer.{Accounts}
 
   setup do
     {:ok, user} = db_insert(:user)

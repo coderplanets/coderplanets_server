@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.Query.Accounts.FavritedPosts do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.Accounts.FavritedPosts do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   @total_count 20
 
@@ -74,7 +74,7 @@ defmodule MastaniServer.Test.Query.Accounts.FavritedPosts do
       assert results2["totalCount"] == @total_count
     end
 
-    alias MastaniServer.Accounts
+    alias GroupherServer.Accounts
 
     test "can get paged favoritedPosts on a spec category", ~m(user_conn guest_conn posts)a do
       {:ok, user} = db_insert(:user)

@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreateFlags do
+defmodule GroupherServer.Repo.Migrations.CreateFlags do
   use Ecto.Migration
 
   def change do

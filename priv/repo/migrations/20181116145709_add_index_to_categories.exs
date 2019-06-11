@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddIndexToCategories do
+defmodule GroupherServer.Repo.Migrations.AddIndexToCategories do
   use Ecto.Migration
 
   def change do

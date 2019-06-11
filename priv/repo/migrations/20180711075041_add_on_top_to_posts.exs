@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddOnTopToPosts do
+defmodule GroupherServer.Repo.Migrations.AddOnTopToPosts do
   use Ecto.Migration
 
   def change do

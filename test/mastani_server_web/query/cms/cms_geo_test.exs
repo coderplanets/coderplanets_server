@@ -1,9 +1,9 @@
-defmodule MastaniServer.Test.Query.CMS.GEO do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.CMS.GEO do
+  use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
 
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   @remote_ip get_config(:test, :remote_ip)
 

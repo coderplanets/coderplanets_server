@@ -1,5 +1,5 @@
-defmodule MastaniServer.Test.Mutation.Radar do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Mutation.Radar do
+  use GroupherServer.TestTools
 
   # alias Helper.ORM
 

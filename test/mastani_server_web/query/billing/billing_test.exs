@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.Query.Billing.Basic do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.Billing.Basic do
+  use GroupherServer.TestTools
 
   # alias Helper.ORM
-  alias MastaniServer.Billing
+  alias GroupherServer.Billing
 
   setup do
     {:ok, user} = db_insert(:user)

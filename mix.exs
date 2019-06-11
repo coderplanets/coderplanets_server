@@ -1,9 +1,9 @@
-defmodule MastaniServer.Mixfile do
+defmodule GroupherServer.Mixfile do
   use Mix.Project
 
   def project do
     [
-      app: :mastani_server,
+      app: :groupher_server,
       version: "0.1.7",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -27,7 +27,7 @@ defmodule MastaniServer.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {MastaniServer.Application, []},
+      mod: {GroupherServer.Application, []},
       extra_applications: [
         :corsica,
         :ex_unit,

@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.RemoveCommunityCategoryColumn do
+defmodule GroupherServer.Repo.Migrations.RemoveCommunityCategoryColumn do
   use Ecto.Migration
 
   def change do

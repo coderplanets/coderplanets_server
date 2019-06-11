@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.RenameCmspassportRoles do
+defmodule GroupherServer.Repo.Migrations.RenameCmspassportRoles do
   use Ecto.Migration
 
   def change do

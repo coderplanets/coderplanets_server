@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.Seeds.Communities do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Seeds.Communities do
+  use GroupherServer.TestTools
 
-  # alias MastaniServer.Accounts.User
-  alias MastaniServer.CMS
+  # alias GroupherServer.Accounts.User
+  alias GroupherServer.CMS
   alias CMS.Delegate.SeedsConfig
 
   alias Helper.{ORM, Utils}

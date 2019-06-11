@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.PostReactions do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.PostReactions do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   setup do
     {:ok, user} = db_insert(:user)

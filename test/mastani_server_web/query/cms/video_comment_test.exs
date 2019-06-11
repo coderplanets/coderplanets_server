@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.Query.VideoComment do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.VideoComment do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   setup do
     {:ok, video} = db_insert(:video)

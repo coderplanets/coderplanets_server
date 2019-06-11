@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreateBillsForAccounts do
+defmodule GroupherServer.Repo.Migrations.CreateBillsForAccounts do
   use Ecto.Migration
 
   def change do

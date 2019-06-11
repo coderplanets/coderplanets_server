@@ -1,10 +1,10 @@
-defmodule MastaniServer.Test.Query.Account.Basic do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.Account.Basic do
+  use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
 
   alias Helper.ORM
-  alias MastaniServer.{Accounts, CMS}
+  alias GroupherServer.{Accounts, CMS}
 
   @default_subscribed_communities get_config(:general, :default_subscribed_communities)
 

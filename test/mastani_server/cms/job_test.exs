@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.Job do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Job do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
   alias Helper.ORM
 
   setup do

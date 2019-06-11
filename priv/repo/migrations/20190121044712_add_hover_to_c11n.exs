@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddHoverToC11n do
+defmodule GroupherServer.Repo.Migrations.AddHoverToC11n do
   use Ecto.Migration
 
   def change do

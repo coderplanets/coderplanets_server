@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.Mutation.Account.Customization do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Mutation.Account.Customization do
+  use GroupherServer.TestTools
 
-  # alias MastaniServer.{Accounts}
+  # alias GroupherServer.{Accounts}
   # alias Helper.ORM
   import Helper.Utils, only: [get_config: 2]
 

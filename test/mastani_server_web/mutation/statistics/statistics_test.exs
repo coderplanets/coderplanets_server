@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.Mutation.Statistics do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Mutation.Statistics do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.Statistics
-  # alias MastaniServer.Accounts.User
+  alias GroupherServer.Statistics
+  # alias GroupherServer.Accounts.User
   alias Helper.ORM
 
   setup do

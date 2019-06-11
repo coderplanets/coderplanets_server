@@ -1,11 +1,11 @@
-defmodule MastaniServer.Test.Query.PagedJobs do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.PagedJobs do
+  use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
   import Ecto.Query, warn: false
 
-  alias MastaniServer.CMS
-  alias MastaniServer.Repo
+  alias GroupherServer.CMS
+  alias GroupherServer.Repo
 
   alias CMS.Job
 

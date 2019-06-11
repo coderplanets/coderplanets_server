@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.Accounts.ReactedContents do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Accounts.ReactedContents do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.{Accounts, CMS}
+  alias GroupherServer.{Accounts, CMS}
 
   setup do
     {:ok, user} = db_insert(:user)

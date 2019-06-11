@@ -1,5 +1,5 @@
-defmodule MastaniServer.Test.Query.Video do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.Video do
+  use GroupherServer.TestTools
 
   setup do
     {:ok, video} = db_insert(:video)
@@ -27,7 +27,7 @@ defmodule MastaniServer.Test.Query.Video do
     assert length(Map.keys(results)) == 2
   end
 
-  alias MastaniServer.Accounts
+  alias GroupherServer.Accounts
 
   @query """
   query($id: ID!) {

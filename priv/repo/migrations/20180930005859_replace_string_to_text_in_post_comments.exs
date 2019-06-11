@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.ReplaceStringToTextInPostComments do
+defmodule GroupherServer.Repo.Migrations.ReplaceStringToTextInPostComments do
   use Ecto.Migration
 
   def change do

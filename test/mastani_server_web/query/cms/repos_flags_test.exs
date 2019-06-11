@@ -1,9 +1,9 @@
-defmodule MastaniServer.Test.Query.ReposFlags do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.ReposFlags do
+  use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
 
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   alias CMS.Repo
 

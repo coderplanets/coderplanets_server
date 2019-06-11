@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddViewsToCmsPosts do
+defmodule GroupherServer.Repo.Migrations.AddViewsToCmsPosts do
   use Ecto.Migration
 
   def change do

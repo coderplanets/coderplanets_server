@@ -1,4 +1,4 @@
-defmodule MastaniServer.DataCase do
+defmodule GroupherServer.DataCase do
   @moduledoc """
   This module defines the setup for tests requiring
   access to the application's data layer.
@@ -16,20 +16,20 @@ defmodule MastaniServer.DataCase do
 
   using do
     quote do
-      alias MastaniServer.Repo
+      alias GroupherServer.Repo
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import MastaniServer.DataCase
+      import GroupherServer.DataCase
     end
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(MastaniServer.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(GroupherServer.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(MastaniServer.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(GroupherServer.Repo, {:shared, self()})
     end
 
     :ok

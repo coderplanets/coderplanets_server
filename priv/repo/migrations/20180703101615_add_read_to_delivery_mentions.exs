@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddReadToDeliveryMentions do
+defmodule GroupherServer.Repo.Migrations.AddReadToDeliveryMentions do
   use Ecto.Migration
 
   def change do

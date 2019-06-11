@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AlterC11nTheme do
+defmodule GroupherServer.Repo.Migrations.AlterC11nTheme do
   use Ecto.Migration
 
   def change do

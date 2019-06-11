@@ -1,5 +1,5 @@
-defmodule MastaniServer.Test.Helper.UtilsTest do
-  use MastaniServerWeb.ConnCase, async: true
+defmodule GroupherServer.Test.Helper.UtilsTest do
+  use GroupherServerWeb.ConnCase, async: true
 
   alias Helper.Utils
 

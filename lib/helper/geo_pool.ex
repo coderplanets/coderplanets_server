@@ -3,7 +3,7 @@ defmodule Helper.GeoPool do
   current supported city geo data
   """
 
-  alias MastaniServer.Statistics.UserGeoInfo
+  alias GroupherServer.Statistics.UserGeoInfo
   alias Helper.ORM
 
   def all do

@@ -1,13 +1,13 @@
-defmodule MastaniServer.Test.ConnSimulator do
+defmodule GroupherServer.Test.ConnSimulator do
   @moduledoc """
   mock user_conn, owner_conn, guest_conn
   """
-  import MastaniServer.Support.Factory
+  import GroupherServer.Support.Factory
   import Phoenix.ConnTest, only: [build_conn: 0]
   import Plug.Conn, only: [put_req_header: 3]
 
   alias Helper.{Guardian, ORM}
-  alias MastaniServer.{Accounts, CMS}
+  alias GroupherServer.{Accounts, CMS}
 
   def simu_conn(:guest) do
     build_conn()

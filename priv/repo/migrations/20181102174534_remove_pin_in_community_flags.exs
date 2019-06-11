@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.RemovePinInCommunityFlags do
+defmodule GroupherServer.Repo.Migrations.RemovePinInCommunityFlags do
   use Ecto.Migration
 
   def change do

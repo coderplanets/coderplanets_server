@@ -1,10 +1,10 @@
-defmodule MastaniServer.Test.Accounts do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Accounts do
+  use GroupherServer.TestTools
   # TODO import Service.Utils move both helper and github
   import Helper.Utils
 
   alias Helper.{Guardian, ORM}
-  alias MastaniServer.Accounts
+  alias GroupherServer.Accounts
 
   # @valid_user mock_attrs(:user)
   @valid_github_profile mock_attrs(:github_profile) |> map_key_stringify

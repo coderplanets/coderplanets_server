@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreatePinedVideos do
+defmodule GroupherServer.Repo.Migrations.CreatePinedVideos do
   use Ecto.Migration
 
   def change do

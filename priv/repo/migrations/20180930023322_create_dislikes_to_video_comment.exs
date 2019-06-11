@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreateDislikesToVideoComment do
+defmodule GroupherServer.Repo.Migrations.CreateDislikesToVideoComment do
   use Ecto.Migration
 
   def change do

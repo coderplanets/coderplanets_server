@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddCopyrightToPosts do
+defmodule GroupherServer.Repo.Migrations.AddCopyrightToPosts do
   use Ecto.Migration
 
   def change do

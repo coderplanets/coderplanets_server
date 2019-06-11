@@ -5,7 +5,7 @@
 ```sh
   env MIX_ENV=mock iex -S mix
 
-  mix test.watch test/mastani_server/cms/cms_passport_test.exs --only wip
+  mix test.watch test/groupher_server/cms/cms_passport_test.exs --only wip
 
   mix ecto.gen.migration add_xxx
 
@@ -29,7 +29,7 @@
 env MIX_ENV=test mix ecto.setup
 ```
 
-this cmd only preform on `mastani_server_test` databse
+this cmd only preform on `groupher_server_test` databse
 
 
 ## prod

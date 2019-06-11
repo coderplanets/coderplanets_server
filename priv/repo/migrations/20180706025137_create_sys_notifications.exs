@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreateSysNotifications do
+defmodule GroupherServer.Repo.Migrations.CreateSysNotifications do
   use Ecto.Migration
 
   def change do

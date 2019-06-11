@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddGeoInfoToCommunity do
+defmodule GroupherServer.Repo.Migrations.AddGeoInfoToCommunity do
   use Ecto.Migration
   alias Helper.GeoPool
 

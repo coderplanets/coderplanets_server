@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.Accounts.PublishedContents do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Accounts.PublishedContents do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.{Accounts, CMS}
+  alias GroupherServer.{Accounts, CMS}
 
   @publish_count 10
 

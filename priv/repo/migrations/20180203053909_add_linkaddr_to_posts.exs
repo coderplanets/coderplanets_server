@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddLinkaddrToPosts do
+defmodule GroupherServer.Repo.Migrations.AddLinkaddrToPosts do
   use Ecto.Migration
 
   def change do

@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.ReplaceCategoryUserByAuthor do
+defmodule GroupherServer.Repo.Migrations.ReplaceCategoryUserByAuthor do
   use Ecto.Migration
 
   def change do

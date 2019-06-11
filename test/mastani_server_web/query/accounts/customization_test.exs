@@ -1,5 +1,5 @@
-defmodule MastaniServer.Test.Query.Account.Customization do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Query.Account.Customization do
+  use GroupherServer.TestTools
   import Helper.Utils, only: [get_config: 2]
 
   @default_customization get_config(:customization, :all) |> Enum.into(%{})

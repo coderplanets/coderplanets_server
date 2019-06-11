@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.RemoveEducationCompanyInUsers do
+defmodule GroupherServer.Repo.Migrations.RemoveEducationCompanyInUsers do
   use Ecto.Migration
 
   def change do

@@ -1,9 +1,9 @@
-defmodule MastaniServer.Test.CMS.VideoComment do
+defmodule GroupherServer.Test.CMS.VideoComment do
   # currently only test comments for video type, rename and seprherate later
-  use MastaniServer.TestTools
+  use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   alias CMS.{VideoComment, VideoCommentReply}
 

@@ -1,7 +1,7 @@
-defmodule MastaniServer.Test.Mutation.VideoReaction do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.Mutation.VideoReaction do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   setup do
     {:ok, video} = db_insert(:video)

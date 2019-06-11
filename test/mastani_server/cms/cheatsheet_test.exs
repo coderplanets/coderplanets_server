@@ -1,8 +1,8 @@
-defmodule MastaniServer.Test.CMS.Cheatsheet do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.CMS.Cheatsheet do
+  use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias MastaniServer.CMS
+  alias GroupherServer.CMS
 
   alias CMS.{CommunityCheatsheet}
 
