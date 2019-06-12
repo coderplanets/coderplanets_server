@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreateCommonTag do
+defmodule GroupherServer.Repo.Migrations.CreateCommonTag do
   use Ecto.Migration
 
   def change do

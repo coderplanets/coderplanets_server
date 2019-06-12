@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddThumbnilToVideos do
+defmodule GroupherServer.Repo.Migrations.AddThumbnilToVideos do
   use Ecto.Migration
 
   def change do

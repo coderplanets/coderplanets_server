@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.RenameReposFiels do
+defmodule GroupherServer.Repo.Migrations.RenameReposFiels do
   use Ecto.Migration
 
   def change do

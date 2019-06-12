@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddMoreCustomization do
+defmodule GroupherServer.Repo.Migrations.AddMoreCustomization do
   use Ecto.Migration
 
   def change do

@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.RecreatePostsComments do
+defmodule GroupherServer.Repo.Migrations.RecreatePostsComments do
   use Ecto.Migration
 
   def change do

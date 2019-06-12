@@ -6,14 +6,14 @@
 use Mix.Config
 
 # General application configuration
-config :mastani_server, ecto_repos: [MastaniServer.Repo]
+config :groupher_server, ecto_repos: [GroupherServer.Repo]
 
 # Configures the endpoint
-config :mastani_server, MastaniServerWeb.Endpoint,
+config :groupher_server, GroupherServerWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "Ru3N3sehqeuFjBV2Z6k7FuyA59fH8bWm8D4aZWu2RifP3xKMBYo3YRILrnXAGezM",
-  render_errors: [view: MastaniServerWeb.ErrorView, accepts: ~w(json)],
-  pubsub: [name: MastaniServer.PubSub, adapter: Phoenix.PubSub.PG2]
+  render_errors: [view: GroupherServerWeb.ErrorView, accepts: ~w(json)],
+  pubsub: [name: GroupherServer.PubSub, adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -23,18 +23,18 @@ config :logger, :console,
 config :phoenix, :json_library, Jason
 
 # TODO move this config to secret later
-config :mastani_server, Helper.Guardian,
-  issuer: "mastani_server",
+config :groupher_server, Helper.Guardian,
+  issuer: "groupher_server",
   secret_key: "kSTPDbCUSRhiEmv86eYMUplL7xI5fDa/+6MWKzK2VYGxjwL0XGHHVJiSPNPe9hJe"
 
-config :mastani_server, :mix_test_watch, exclude: [~r/docs\/.*/, ~r/deps\/.*/, ~r/mix.exs/]
+config :groupher_server, :mix_test_watch, exclude: [~r/docs\/.*/, ~r/deps\/.*/, ~r/mix.exs/]
 # secret_key: {:system, "GUARDIAN_DEMO_SECRET_KEY"}
 
 config :pre_commit, commands: ["format"], verbose: false
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 
-config :mastani_server, :general,
+config :groupher_server, :general,
   page_size: 30,
   inner_page_size: 5,
   # today is not include
@@ -52,7 +52,7 @@ config :mastani_server, :general,
   user_achieve_favorite_weight: 2,
   user_achieve_follow_weight: 3
 
-config :mastani_server, :customization,
+config :groupher_server, :customization,
   theme: "cyan",
   community_chart: false,
   brainwash_free: false,
@@ -64,7 +64,7 @@ config :mastani_server, :customization,
   display_density: "20",
   sidebar_communities_index: %{}
 
-config :mastani_server, MastaniServerWeb.Gettext, default_locale: "zh_CN", locales: ~w(en zh_CN)
+config :groupher_server, GroupherServerWeb.Gettext, default_locale: "zh_CN", locales: ~w(en zh_CN)
 
 import_config "#{Mix.env()}.exs"
 

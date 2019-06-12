@@ -1,7 +1,7 @@
 
 ### 单元测试
 
-单元测试部分全部位于 `test/mastani_server/` 目录下, 按照接口的 Context 分为
+单元测试部分全部位于 `test/groupher_server/` 目录下, 按照接口的 Context 分为
 
 ```text
 accounts   billing    cms        delivery   logs       seeds      statistics
@@ -41,11 +41,11 @@ accounts   billing    cms        delivery   logs       seeds      statistics
 以一个实际例子作为说明: 
 
 ```elixir
-defmodule MastaniServer.Test.CMS do
-  use MastaniServer.TestTools
+defmodule GroupherServer.Test.CMS do
+  use GroupherServer.TestTools
 
-  alias MastaniServer.Accounts.User
-  alias MastaniServer.CMS
+  alias GroupherServer.Accounts.User
+  alias GroupherServer.CMS
   alias CMS.Community
 
   alias Helper.{Certification, ORM}
@@ -73,12 +73,12 @@ end
 1. 每个测试开头引入的 TestTools 包含常用的测试模块，函数等
 
 ```elixir
-use MastaniServer.TestTools
+use GroupherServer.TestTools
 ```
 
 2. setup 中可以存放所有文件中都需要初始化的一些数据
 
-3. 这里测试的都是 `lib/mastani_server` 下的模块，不涉及 Graphql
+3. 这里测试的都是 `lib/groupher_server` 下的模块，不涉及 Graphql
 
 4. 更多的技巧你可以参照文档或现有的测试用例，通常它们都浅显易懂。
 

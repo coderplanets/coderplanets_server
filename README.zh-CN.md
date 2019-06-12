@@ -1,12 +1,12 @@
 
-![CPS Brand](https://github.com/mydearxym/mastani_server/blob/dev/docs/snapshots/cps_logo_md.png)
+![CPS Brand](https://github.com/mydearxym/groupher_server/blob/dev/docs/snapshots/cps_logo_md.png)
 =========
 [![Build Status](https://travis-ci.org/coderplanets/coderplanets_server.svg?branch=dev)](https://travis-ci.org/coderplanets/coderplanets_server)
 [![codecov](https://codecov.io/gh/coderplanets/coderplanets_server/branch/dev/graph/badge.svg)](https://codecov.io/gh/coderplanets/coderplanets_server)
 [![Inline docs](http://inch-ci.org/github/coderplanets/coderplanets_server.svg)](http://inch-ci.org/github/coderplanets/coderplanets_server)
 [![Dev updates](https://badgen.net/badge/Dependabot/enabled/cyan)](https://dependabot.com/elixir.html)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](https://conventionalcommits.org/)
-[![Powerd by](https://badgen.now.sh/badge/mastani/powered/a871c1)](https://github.com/mastani-stack)
+[![Powerd by](https://badgen.now.sh/badge/groupher/powered/a871c1)](https://github.com/groupher-stack)
 [![cps badge](https://badgen.net/badge/join%20community/on%20coderplanets/9cb77b)](https://github.com/coderplanets/coderplanets_server)
 
 #### 插播广告: 项目作者正在找工作，如果您有合适的工作机会，欢迎与我联系 :)

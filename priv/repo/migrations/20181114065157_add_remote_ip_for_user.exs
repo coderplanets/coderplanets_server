@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddRemoteIpForUser do
+defmodule GroupherServer.Repo.Migrations.AddRemoteIpForUser do
   use Ecto.Migration
 
   def change do

@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreateLikesToPostComment do
+defmodule GroupherServer.Repo.Migrations.CreateLikesToPostComment do
   use Ecto.Migration
 
   def change do

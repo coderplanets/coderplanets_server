@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.RemovePinFromPosts do
+defmodule GroupherServer.Repo.Migrations.RemovePinFromPosts do
   use Ecto.Migration
 
   def change do

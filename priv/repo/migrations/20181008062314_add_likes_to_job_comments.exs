@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddLikesToJobComments do
+defmodule GroupherServer.Repo.Migrations.AddLikesToJobComments do
   use Ecto.Migration
 
   def change do

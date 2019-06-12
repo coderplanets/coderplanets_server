@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AlterTagCommunity do
+defmodule GroupherServer.Repo.Migrations.AlterTagCommunity do
   use Ecto.Migration
 
   def change do

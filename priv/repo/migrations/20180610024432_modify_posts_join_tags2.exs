@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.ModifyPostsJoinTags2 do
+defmodule GroupherServer.Repo.Migrations.ModifyPostsJoinTags2 do
   use Ecto.Migration
 
   def change do

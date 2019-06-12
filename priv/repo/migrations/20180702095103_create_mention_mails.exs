@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreateMentionMails do
+defmodule GroupherServer.Repo.Migrations.CreateMentionMails do
   use Ecto.Migration
 
   def change do

@@ -1,6 +1,6 @@
-defmodule MastaniServer.Mock.CMS.Comment do
-  # alias MastaniServer.Repo
-  # alias MastaniServer.CMS
+defmodule GroupherServer.Mock.CMS.Comment do
+  # alias GroupherServer.Repo
+  # alias GroupherServer.CMS
 
   # CMS.comment_post(post_id, body)
 

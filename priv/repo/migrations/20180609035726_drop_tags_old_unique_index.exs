@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.DropTagsOldUniqueIndex do
+defmodule GroupherServer.Repo.Migrations.DropTagsOldUniqueIndex do
   use Ecto.Migration
 
   def change do

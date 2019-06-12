@@ -1,5 +1,5 @@
 
-![CPS Brand](https://github.com/mydearxym/mastani_server/blob/dev/docs/snapshots/cps_logo_md.png?raw=true)
+![CPS Brand](https://github.com/mydearxym/groupher_server/blob/dev/docs/snapshots/cps_logo_md.png?raw=true)
 =========
 [![Build Status](https://travis-ci.org/coderplanets/coderplanets_server.svg?branch=dev)](https://travis-ci.org/coderplanets/coderplanets_server)
 [![codecov](https://codecov.io/gh/coderplanets/coderplanets_server/branch/dev/graph/badge.svg)](https://codecov.io/gh/coderplanets/coderplanets_server)
@@ -7,7 +7,7 @@
 [![Dev updates](https://badgen.net/badge/Dependabot/enabled/cyan)](https://dependabot.com/elixir.html)
 [![codebeat badge](https://codebeat.co/badges/865d4bcd-7e9e-4678-8770-b763de155235)](https://codebeat.co/projects/github-com-coderplanets-coderplanets_server-dev)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](https://conventionalcommits.org/)
-[![Powerd by](https://badgen.now.sh/badge/mastani/powered/a871c1)](https://github.com/mastani-stack)
+[![Powerd by](https://badgen.now.sh/badge/groupher/powered/a871c1)](https://github.com/groupher-stack)
 [![cps badge](https://badgen.net/badge/join%20community/on%20coderplanets/9cb77b)](https://github.com/coderplanets/coderplanets_server)
 
 ## As advertising: the author is looking for a job :)

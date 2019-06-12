@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddUniqueIndexToPublishThrottle do
+defmodule GroupherServer.Repo.Migrations.AddUniqueIndexToPublishThrottle do
   use Ecto.Migration
 
   def change do

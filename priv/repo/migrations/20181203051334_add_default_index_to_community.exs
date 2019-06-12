@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddDefaultIndexToCommunity do
+defmodule GroupherServer.Repo.Migrations.AddDefaultIndexToCommunity do
   use Ecto.Migration
 
   def change do

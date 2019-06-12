@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreateVideoCommentsReply do
+defmodule GroupherServer.Repo.Migrations.CreateVideoCommentsReply do
   use Ecto.Migration
 
   def change do

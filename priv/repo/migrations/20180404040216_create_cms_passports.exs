@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreateCmsPassports do
+defmodule GroupherServer.Repo.Migrations.CreateCmsPassports do
   use Ecto.Migration
 
   def change do

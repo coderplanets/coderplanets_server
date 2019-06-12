@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddCommunitiesTimestamp do
+defmodule GroupherServer.Repo.Migrations.AddCommunitiesTimestamp do
   use Ecto.Migration
 
   def change do

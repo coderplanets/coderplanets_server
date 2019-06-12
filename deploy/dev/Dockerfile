@@ -1,7 +1,7 @@
 From bitwalker/alpine-elixir-phoenix:1.6.6
 
 RUN mkdir /root/api_server
-# RUN mkdir /root/mastani_api_monitor
+# RUN mkdir /root/groupher_api_monitor
 
 # change timezone to +8
 

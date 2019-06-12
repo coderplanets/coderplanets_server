@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.RemoveQqInUser do
+defmodule GroupherServer.Repo.Migrations.RemoveQqInUser do
   use Ecto.Migration
 
   def change do

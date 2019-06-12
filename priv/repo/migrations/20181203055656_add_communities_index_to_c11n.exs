@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddCommunitiesIndexToC11n do
+defmodule GroupherServer.Repo.Migrations.AddCommunitiesIndexToC11n do
   use Ecto.Migration
 
   def change do

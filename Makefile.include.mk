@@ -8,7 +8,7 @@ REPO = "coderplanets_server"
 DASHBOARD_APOLLO_LINK = "https://engine.apollographql.com/account/gh.mydearxym/services"
 DASHBOARD_PM2_LINK = "https://app.pm2.io"
 DASHBOARD_ALIYUN_LINK = "https://home.console.aliyun.com/new"
-DASHBOARD_SENTRY_LINK = "https://sentry.io/mastani-stack/cps_server_prod"
+DASHBOARD_SENTRY_LINK = "https://sentry.io/groupher-stack/cps_server_prod"
 
 CI_BUILD_LINK = "https://travis-ci.org/$(BELONG)/$(REPO)"
 CI_COVERAGE_LINK = "https://coveralls.io/github/$(BELONG)/$(REPO)"

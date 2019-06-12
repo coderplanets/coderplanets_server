@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddPinStateToPost do
+defmodule GroupherServer.Repo.Migrations.AddPinStateToPost do
   use Ecto.Migration
 
   def change do
