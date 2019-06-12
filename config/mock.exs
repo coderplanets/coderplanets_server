@@ -16,6 +16,6 @@ config :groupher_server, GroupherServer.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "postgres",
   password: "postgres",
-  database: "groupher_server_mock",
+  database: "mastani_server_mock",
   hostname: "localhost",
   pool_size: 10
