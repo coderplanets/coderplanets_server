@@ -38,6 +38,37 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Repo do
       middleware(M.Statistics.MakeContribute, for: [:user, :community])
     end
 
+    @desc "update a cms/repo"
+    field :update_repo, :repo do
+      arg(:id, non_null(:id))
+      arg(:title, :string)
+      arg(:owner_name, :string)
+      arg(:owner_url, :string)
+      arg(:repo_url, :string)
+
+      arg(:desc, :string)
+      arg(:homepage_url, :string)
+      arg(:readme, :string)
+
+      arg(:star_count, :integer)
+      arg(:issues_count, :integer)
+      arg(:prs_count, :integer)
+      arg(:fork_count, :integer)
+      arg(:watch_count, :integer)
+
+      arg(:license, :string)
+      arg(:release_tag, :string)
+
+      arg(:contributors, list_of(:repo_contributor_input))
+      arg(:primary_language, :repo_lang_input)
+
+      middleware(M.Authorize, :login)
+      middleware(M.PassportLoader, source: :repo)
+      middleware(M.Passport, claim: "owner;cms->c?->repo.edit")
+
+      resolve(&R.CMS.update_content/3)
+    end
+
     @desc "pin a repo"
     field :pin_repo, :repo do
       arg(:id, non_null(:id))
@@ -97,27 +128,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Repo do
       middleware(M.Passport, claim: "owner;cms->c?->repo.delete")
 
       resolve(&R.CMS.delete_content/3)
-    end
-
-    @desc "update a cms/repo"
-    field :update_repo, :repo do
-      arg(:repo_name, non_null(:string))
-      arg(:desc, non_null(:string))
-      arg(:readme, non_null(:string))
-      arg(:language, non_null(:string))
-      arg(:repo_link, non_null(:string))
-      arg(:producer, non_null(:string))
-      arg(:producer_link, non_null(:string))
-
-      arg(:repo_star_count, non_null(:integer))
-      arg(:repo_fork_count, non_null(:integer))
-      arg(:repo_watch_count, non_null(:integer))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :repo)
-      middleware(M.Passport, claim: "owner;cms->c?->repo.edit")
-
-      resolve(&R.CMS.update_content/3)
     end
   end
 end
