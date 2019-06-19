@@ -87,11 +87,11 @@ defmodule GroupherServer.Test.AssertHelper do
   @doc """
   simulate the Graphiql murate operation
   """
-  def mutation_result(conn, query, variables, key) do
+  def mutation_result(conn, query, variables, key, flag \\ false) do
     conn
     |> post("/graphiql", query: query, variables: variables)
     |> json_response(200)
-    # |> IO.inspect(label: "debug")
+    |> log_debug_info(flag)
     |> Map.get("data")
     |> Map.get(key)
   end
@@ -99,12 +99,13 @@ defmodule GroupherServer.Test.AssertHelper do
   @doc """
   check if Graphiql murate get error
   """
-  def mutation_get_error?(conn, query, variables) do
+  def mutation_get_error?(conn, query, variables, flag \\ false)
+
+  def mutation_get_error?(conn, query, variables, flag) do
     conn
     |> post("/graphiql", query: query, variables: variables)
-    # |> IO.inspect(label: "debug status")
     |> json_response(200)
-    # |> IO.inspect(label: "debug")
+    |> log_debug_info(flag)
     |> Map.has_key?("errors")
   end
 
@@ -128,11 +129,11 @@ defmodule GroupherServer.Test.AssertHelper do
     end
   end
 
-  def query_result(conn, query, variables, key) do
+  def query_result(conn, query, variables, key, flag \\ false) do
     conn
     |> get("/graphiql", query: query, variables: variables)
     |> json_response(200)
-    # |> IO.inspect(label: "debug")
+    |> log_debug_info(flag)
     |> Map.get("data")
     |> Map.get(key)
   end
@@ -176,4 +177,11 @@ defmodule GroupherServer.Test.AssertHelper do
 
     [value_1, value_2, value_3, value_x]
   end
+
+  # log response info if need
+  # usage:
+  # user_conn |> mutation_result(@query, variables, "createRepo")
+  # user_conn |> mutation_result(@query, variables, "createRepo", :debug)
+  defp log_debug_info(res, :debug), do: IO.inspect(res, label: "debug")
+  defp log_debug_info(res, _), do: res
 end
