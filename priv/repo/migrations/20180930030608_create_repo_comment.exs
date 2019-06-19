@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreateRepoComment do
+defmodule GroupherServer.Repo.Migrations.CreateRepoComment do
   use Ecto.Migration
 
   def change do

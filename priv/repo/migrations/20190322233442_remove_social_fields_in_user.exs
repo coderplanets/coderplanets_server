@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.RemoveSocialFieldsInUser do
+defmodule GroupherServer.Repo.Migrations.RemoveSocialFieldsInUser do
   use Ecto.Migration
 
   def change do

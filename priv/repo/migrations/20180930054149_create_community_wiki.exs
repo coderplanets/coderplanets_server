@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreateCommunityWiki do
+defmodule GroupherServer.Repo.Migrations.CreateCommunityWiki do
   use Ecto.Migration
 
   def change do

@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddUsersInfo do
+defmodule GroupherServer.Repo.Migrations.AddUsersInfo do
   use Ecto.Migration
 
   def change do

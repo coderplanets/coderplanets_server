@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreateCommunityContribute do
+defmodule GroupherServer.Repo.Migrations.CreateCommunityContribute do
   use Ecto.Migration
 
   def change do

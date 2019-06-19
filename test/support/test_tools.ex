@@ -1,4 +1,4 @@
-defmodule MastaniServer.TestTools do
+defmodule GroupherServer.TestTools do
   @moduledoc """
   helper for reduce import mudules in test files
   """
@@ -6,11 +6,11 @@ defmodule MastaniServer.TestTools do
 
   using do
     quote do
-      use MastaniServerWeb.ConnCase, async: true
+      use GroupherServerWeb.ConnCase, async: true
 
-      import MastaniServer.Support.Factory
-      import MastaniServer.Test.ConnSimulator
-      import MastaniServer.Test.AssertHelper
+      import GroupherServer.Support.Factory
+      import GroupherServer.Test.ConnSimulator
+      import GroupherServer.Test.AssertHelper
       import Ecto.Query, warn: false
       import Helper.ErrorCode
       import Helper.Utils, only: [camelize_map_key: 1, camelize_map_key: 2]

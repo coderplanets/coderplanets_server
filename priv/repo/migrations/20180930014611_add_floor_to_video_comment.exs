@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddFloorToVideoComment do
+defmodule GroupherServer.Repo.Migrations.AddFloorToVideoComment do
   use Ecto.Migration
 
   def change do

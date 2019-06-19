@@ -1,9 +1,9 @@
-defmodule MastaniServer.Mixfile do
+defmodule GroupherServer.Mixfile do
   use Mix.Project
 
   def project do
     [
-      app: :mastani_server,
+      app: :groupher_server,
       version: "0.1.7",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -27,7 +27,7 @@ defmodule MastaniServer.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {MastaniServer.Application, []},
+      mod: {GroupherServer.Application, []},
       extra_applications: [
         :corsica,
         :ex_unit,
@@ -53,12 +53,12 @@ defmodule MastaniServer.Mixfile do
     [
       {:phoenix, "~> 1.4.1"},
       {:phoenix_pubsub, "~> 1.1.1"},
-      {:ecto_sql, "~> 3.0.5"},
+      {:ecto_sql, "~> 3.1.2"},
       {:phoenix_ecto, "~> 4.0"},
       {:postgrex, ">= 0.14.1"},
       {:gettext, "~> 0.16.1"},
       {:plug_cowboy, "~> 2.0"},
-      {:plug, "~> 1.7.2"},
+      {:plug, "~> 1.8.0"},
       # GraphQl tool
       {:absinthe, "~> 1.4.16"},
       {:absinthe_ecto, "~> 0.1.3"},
@@ -67,7 +67,7 @@ defmodule MastaniServer.Mixfile do
       # treat parse error as status "200"
       {:absinthe_plug, git: "https://github.com/mastani-stack/absinthe_plug", override: true},
       # Password hashing lib
-      {:comeonin, "~> 5.0.0"},
+      {:comeonin, "~> 5.1.1"},
       # Argon2 password hashing algorithm
       # {:argon2_elixir, "~> 1.2"},
       # CORS
@@ -93,7 +93,7 @@ defmodule MastaniServer.Mixfile do
       {:dialyxir, "~> 1.0.0-rc.2", only: [:dev, :mock], runtime: false},
       {:excoveralls, "~> 0.8", only: :test},
       {:sentry, "~> 6.4"},
-      {:recase, "~> 0.3.0"},
+      {:recase, "~> 0.4.0"},
       {:nanoid, "~> 2.0.0"}
     ]
   end

@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreateCommunityCheatsheets do
+defmodule GroupherServer.Repo.Migrations.CreateCommunityCheatsheets do
   use Ecto.Migration
 
   def change do

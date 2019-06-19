@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AlterVideoRepoDescToText do
+defmodule GroupherServer.Repo.Migrations.AlterVideoRepoDescToText do
   use Ecto.Migration
 
   def change do

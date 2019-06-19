@@ -3,7 +3,7 @@ defmodule Helper.ErrorHandler do
   This module defines some helper function used by
   handle/format changset errors
   """
-  alias MastaniServerWeb.Gettext, as: Translator
+  alias GroupherServerWeb.Gettext, as: Translator
 
   def not_found_formater(queryable, id) when is_integer(id) or is_binary(id) do
     modal = queryable |> to_string |> String.split(".") |> List.last()

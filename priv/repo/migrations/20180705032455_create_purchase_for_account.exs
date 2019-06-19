@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreatePurchaseForAccount do
+defmodule GroupherServer.Repo.Migrations.CreatePurchaseForAccount do
   use Ecto.Migration
 
   def change do

@@ -3,7 +3,7 @@ defmodule Helper.Guardian do
   This module defines some helper function used by
   encode/decode jwt
   """
-  use Guardian, otp_app: :mastani_server
+  use Guardian, otp_app: :groupher_server
 
   @token_expireation 24 * 14
 

@@ -1,5 +1,5 @@
 defmodule Helper.QueryBuilder do
-  # alias MastaniServer.Repo
+  # alias GroupherServer.Repo
   import Ecto.Query, warn: false
 
   @doc """

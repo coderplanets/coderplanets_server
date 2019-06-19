@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.ReplaceTagUserByAuthor do
+defmodule GroupherServer.Repo.Migrations.ReplaceTagUserByAuthor do
   use Ecto.Migration
 
   def change do

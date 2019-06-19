@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddMemberToAchievements do
+defmodule GroupherServer.Repo.Migrations.AddMemberToAchievements do
   use Ecto.Migration
 
   def change do

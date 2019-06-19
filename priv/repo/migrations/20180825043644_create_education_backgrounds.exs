@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreateEducationBackgrounds do
+defmodule GroupherServer.Repo.Migrations.CreateEducationBackgrounds do
   use Ecto.Migration
 
   def change do

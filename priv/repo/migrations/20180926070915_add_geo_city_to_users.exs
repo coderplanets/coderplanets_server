@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddGeoCityToUsers do
+defmodule GroupherServer.Repo.Migrations.AddGeoCityToUsers do
   use Ecto.Migration
 
   def change do

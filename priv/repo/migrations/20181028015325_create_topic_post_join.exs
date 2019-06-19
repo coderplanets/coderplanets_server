@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.CreateTopicPostJoin do
+defmodule GroupherServer.Repo.Migrations.CreateTopicPostJoin do
   use Ecto.Migration
 
   def change do

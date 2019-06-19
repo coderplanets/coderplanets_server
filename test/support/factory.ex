@@ -1,4 +1,4 @@
-defmodule MastaniServer.Support.Factory do
+defmodule GroupherServer.Support.Factory do
   @moduledoc """
   This module defines the mock data/func to be used by
   tests that require insert some mock data to db.
@@ -7,8 +7,8 @@ defmodule MastaniServer.Support.Factory do
   """
   import Helper.Utils, only: [done: 1]
 
-  alias MastaniServer.Repo
-  alias MastaniServer.{Accounts, CMS, Delivery}
+  alias GroupherServer.Repo
+  alias GroupherServer.{Accounts, CMS, Delivery}
 
   defp mock_meta(:post) do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
@@ -108,7 +108,6 @@ defmodule MastaniServer.Support.Factory do
     %{
       avatar: Faker.Avatar.image_url(),
       html_url: Faker.Avatar.image_url(),
-      htmlUrl: Faker.Avatar.image_url(),
       nickname: "mydearxym2"
     }
   end
@@ -369,7 +368,7 @@ defmodule MastaniServer.Support.Factory do
     results |> done
   end
 
-  alias MastaniServer.Accounts.User
+  alias GroupherServer.Accounts.User
 
   def mock_sys_notification(count \\ 3) do
     # {:ok, sys_notifications} = db_insert_multi(:sys_notification, count)

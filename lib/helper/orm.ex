@@ -8,7 +8,7 @@ defmodule Helper.ORM do
   import ShortMaps
 
   alias Helper.{QueryBuilder, SpecType}
-  alias MastaniServer.Repo
+  alias GroupherServer.Repo
 
   @doc """
   a wrap for paginate request

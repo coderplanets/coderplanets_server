@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddPayInfosToUsers do
+defmodule GroupherServer.Repo.Migrations.AddPayInfosToUsers do
   use Ecto.Migration
 
   def change do

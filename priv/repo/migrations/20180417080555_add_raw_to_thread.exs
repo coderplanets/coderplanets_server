@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.AddRawToThread do
+defmodule GroupherServer.Repo.Migrations.AddRawToThread do
   use Ecto.Migration
 
   def change do

@@ -1,7 +1,7 @@
-import MastaniServer.Support.Factory
+import GroupherServer.Support.Factory
 
 alias Helper.ORM
-alias MastaniServer.CMS
+alias GroupherServer.CMS
 
 # communities = ["js", "java", "nodejs", "elixir", "c", "python", "ruby", "lisp"]
 # communities = ["php", "julia", "rust", "cpp", "csharp", "clojure", "dart", "go", "kotlin"]

@@ -1,4 +1,4 @@
-defmodule MastaniServerWeb.ChannelCase do
+defmodule GroupherServerWeb.ChannelCase do
   @moduledoc """
   This module defines the test case to be used by
   channel tests.
@@ -21,15 +21,15 @@ defmodule MastaniServerWeb.ChannelCase do
       use Phoenix.ChannelTest
 
       # The default endpoint for testing
-      @endpoint MastaniServerWeb.Endpoint
+      @endpoint GroupherServerWeb.Endpoint
     end
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(MastaniServer.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(GroupherServer.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(MastaniServer.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(GroupherServer.Repo, {:shared, self()})
     end
 
     :ok

@@ -13,7 +13,7 @@ defmodule Helper.OAuth2.Github do
   # plug(Tesla.Middleware.BaseUrl, "https://www.github.com/login/oauth")
   # plug(Tesla.Middleware.BaseUrl, "https://api.github.com/login/oauth")
   plug(Tesla.Middleware.Headers, %{
-    "User-Agent" => "mastani server"
+    "User-Agent" => "groupher server"
     # "Accept" => "application/json"
     # "Accept" => "application/json;application/vnd.github.jean-grey-preview+json"
   })

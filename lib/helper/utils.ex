@@ -6,7 +6,7 @@ defmodule Helper.Utils do
   import Helper.ErrorHandler
   import Helper.ErrorCode
 
-  def get_config(section, key, app \\ :mastani_server)
+  def get_config(section, key, app \\ :groupher_server)
 
   def get_config(section, :all, app) do
     app

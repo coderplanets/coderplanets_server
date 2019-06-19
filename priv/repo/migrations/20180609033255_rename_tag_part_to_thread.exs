@@ -1,4 +1,4 @@
-defmodule MastaniServer.Repo.Migrations.RenameTagPartToThread do
+defmodule GroupherServer.Repo.Migrations.RenameTagPartToThread do
   use Ecto.Migration
 
   def change do
