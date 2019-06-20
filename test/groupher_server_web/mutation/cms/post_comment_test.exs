@@ -48,6 +48,17 @@ defmodule GroupherServer.Test.Mutation.PostComment do
       assert created["id"] == to_string(found.id)
     end
 
+    @tag :wip
+    test "xss comment should be escaped", ~m(user_conn community post)a do
+      variables = %{community: community.raw, thread: "POST", id: post.id, body: xss_string()}
+      created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
+
+      {:ok, found} = ORM.find(CMS.PostComment, created["id"])
+
+      assert created["id"] == to_string(found.id)
+      assert created["body"] == xss_safe_string()
+    end
+
     test "guest user create comment fails", ~m(guest_conn post community)a do
       variables = %{community: community.raw, thread: "POST", id: post.id, body: "this a comment"}
 
