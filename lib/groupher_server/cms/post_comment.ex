@@ -13,6 +13,8 @@ defmodule GroupherServer.CMS.PostComment do
     PostCommentReply
   }
 
+  alias Helper.HTML
+
   @required_fields ~w(body author_id post_id floor)a
   @optional_fields ~w(reply_id)a
 
@@ -51,13 +53,14 @@ defmodule GroupherServer.CMS.PostComment do
     |> foreign_key_constraint(:post_id)
     |> foreign_key_constraint(:author_id)
     |> validate_length(:body, min: 3, max: 2000)
+    |> HTML.safe_string(:body)
   end
 
-  @doc false
-  def update_changeset(%PostComment{} = post_comment, attrs) do
-    post_comment
-    |> cast(attrs, @required_fields ++ @optional_fields)
-    |> foreign_key_constraint(:post_id)
-    |> foreign_key_constraint(:author_id)
-  end
+  # @doc false
+  # def update_changeset(%PostComment{} = post_comment, attrs) do
+  # post_comment
+  # |> cast(attrs, @required_fields ++ @optional_fields)
+  # |> foreign_key_constraint(:post_id)
+  # |> foreign_key_constraint(:author_id)
+  # end
 end
