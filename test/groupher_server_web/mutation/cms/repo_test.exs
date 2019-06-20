@@ -160,13 +160,13 @@ defmodule GroupherServer.Test.Mutation.Repo do
       user_conn = simu_conn(:user, user)
 
       {:ok, community} = db_insert(:community)
-      repo_attr = mock_attrs(:repo, %{readme: xss_string()})
+      repo_attr = mock_attrs(:repo, %{readme: assert_v(:xss_string)})
 
       variables = repo_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
       created = user_conn |> mutation_result(@create_repo_query, variables, "createRepo")
       {:ok, repo} = ORM.find(CMS.Repo, created["id"])
 
-      assert repo.readme == xss_safe_string()
+      assert repo.readme == assert_v(:xss_safe_string)
     end
 
     test "unauth user update git-repo fails", ~m(user_conn guest_conn repo)a do

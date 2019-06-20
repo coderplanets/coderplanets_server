@@ -69,13 +69,13 @@ defmodule GroupherServer.Test.Mutation.Post do
       user_conn = simu_conn(:user, user)
 
       {:ok, community} = db_insert(:community)
-      post_attr = mock_attrs(:post, %{body: xss_string()})
+      post_attr = mock_attrs(:post, %{body: assert_v(:xss_string)})
 
       variables = post_attr |> Map.merge(%{communityId: community.id})
       created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
       {:ok, post} = ORM.find(CMS.Post, created["id"])
 
-      assert post.body == xss_safe_string()
+      assert post.body == assert_v(:xss_safe_string)
     end
 
     # NOTE: this test is IMPORTANT, cause json_codec: Jason in router will cause
