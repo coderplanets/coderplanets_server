@@ -7,6 +7,7 @@ defmodule GroupherServer.CMS.JobComment do
   alias GroupherServer.Accounts
 
   alias GroupherServer.CMS.{Job, JobCommentReply, JobCommentLike, JobCommentDislike}
+  alias Helper.HTML
 
   @required_fields ~w(body author_id job_id floor)a
   @optional_fields ~w(reply_id)a
@@ -46,13 +47,6 @@ defmodule GroupherServer.CMS.JobComment do
     |> foreign_key_constraint(:job_id)
     |> foreign_key_constraint(:author_id)
     |> validate_length(:body, min: 3, max: 2000)
-  end
-
-  @doc false
-  def update_changeset(%JobComment{} = job_comment, attrs) do
-    job_comment
-    |> cast(attrs, @required_fields ++ @optional_fields)
-    |> foreign_key_constraint(:job_id)
-    |> foreign_key_constraint(:author_id)
+    |> HTML.safe_string(:body)
   end
 end

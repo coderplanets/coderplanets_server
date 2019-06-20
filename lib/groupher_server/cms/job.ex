@@ -16,6 +16,8 @@ defmodule GroupherServer.CMS.Job do
     Tag
   }
 
+  alias Helper.HTML
+
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title company company_logo body digest length)a
   @optional_fields ~w(origial_community_id desc company_link link_addr copy_right salary exp education field finance scale)a
@@ -96,11 +98,6 @@ defmodule GroupherServer.CMS.Job do
     content
     |> validate_length(:title, min: 3, max: 50)
     |> validate_length(:body, min: 3, max: 10_000)
-  end
-
-  @doc false
-  def update_changeset(%Job{} = job, attrs) do
-    job
-    |> cast(attrs, @optional_fields ++ @required_fields)
+    |> HTML.safe_string(:body)
   end
 end
