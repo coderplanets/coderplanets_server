@@ -13,6 +13,8 @@ defmodule GroupherServer.CMS.VideoComment do
     VideoCommentReply
   }
 
+  alias Helper.HTML
+
   @required_fields ~w(body author_id video_id floor)a
   @optional_fields ~w(reply_id)a
 
@@ -51,14 +53,6 @@ defmodule GroupherServer.CMS.VideoComment do
     |> foreign_key_constraint(:video_id)
     |> foreign_key_constraint(:author_id)
     |> validate_length(:body, min: 3, max: 2000)
-  end
-
-  @doc false
-  def update_changeset(%VideoComment{} = video_comment, attrs) do
-    video_comment
-    |> cast(attrs, @required_fields ++ @optional_fields)
-    |> validate_length(:body, min: 1)
-    |> foreign_key_constraint(:video_id)
-    |> foreign_key_constraint(:author_id)
+    |> HTML.safe_string(:body)
   end
 end

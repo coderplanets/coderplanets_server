@@ -93,10 +93,4 @@ defmodule GroupherServer.CMS.Video do
     |> validate_length(:original_author_link, min: 5, max: 200)
     |> validate_length(:link, min: 5, max: 200)
   end
-
-  def update_changeset(%Video{} = video, attrs) do
-    video
-    |> cast(attrs, @optional_fields)
-    |> validate_length(:original_author, min: 3, max: 30)
-  end
 end
