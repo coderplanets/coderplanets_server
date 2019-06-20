@@ -186,7 +186,7 @@ defmodule GroupherServer.Test.Query.Account.Basic do
     """
     test "guest user can get subscrubed communities list and count", ~m(guest_conn user)a do
       variables = %{login: user.login}
-      {:ok, communities} = db_insert_multi(:community, page_size())
+      {:ok, communities} = db_insert_multi(:community, assert_v(:page_size))
 
       Enum.each(
         communities,
@@ -205,12 +205,12 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       assert subscribed_communities |> Enum.any?(&(&1["id"] == to_string(community_2.id)))
       assert subscribed_communities |> Enum.any?(&(&1["id"] == to_string(community_3.id)))
       assert subscribed_communities |> Enum.any?(&(&1["id"] == to_string(community_x.id)))
-      assert subscribed_communities_count == page_size()
+      assert subscribed_communities_count == assert_v(:page_size)
     end
 
     test "guest user can get subscrubed community list by index", ~m(guest_conn user)a do
       variables = %{login: user.login}
-      {:ok, communities} = db_insert_multi(:community, page_size())
+      {:ok, communities} = db_insert_multi(:community, assert_v(:page_size))
 
       Enum.each(
         communities,
@@ -247,7 +247,7 @@ defmodule GroupherServer.Test.Query.Account.Basic do
 
     test "guest user can get subscrubed communities count of 20 at most", ~m(guest_conn user)a do
       variables = %{login: user.login}
-      {:ok, communities} = db_insert_multi(:community, page_size() + 1)
+      {:ok, communities} = db_insert_multi(:community, assert_v(:page_size) + 1)
 
       Enum.each(
         communities,
@@ -257,8 +257,8 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       results = guest_conn |> query_result(@query, variables, "user")
       subscribed_communities = results["subscribedCommunities"]
 
-      assert subscribed_communities["totalCount"] == page_size() + 1
-      assert subscribed_communities["pageSize"] == page_size()
+      assert subscribed_communities["totalCount"] == assert_v(:page_size) + 1
+      assert subscribed_communities["pageSize"] == assert_v(:page_size)
     end
 
     @query """

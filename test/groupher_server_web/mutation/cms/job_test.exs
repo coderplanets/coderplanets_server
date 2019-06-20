@@ -92,6 +92,21 @@ defmodule GroupherServer.Test.Mutation.Job do
       assert created["id"] == to_string(found.id)
     end
 
+    @tag :wip
+    test "create job should excape xss attracts" do
+      {:ok, user} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      {:ok, community} = db_insert(:community)
+      job_attr = mock_attrs(:job, %{body: assert_v(:xss_string)})
+
+      variables = job_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
+      created = user_conn |> mutation_result(@create_job_query, variables, "createJob")
+      {:ok, job} = ORM.find(CMS.Job, created["id"])
+
+      assert job.body == assert_v(:xss_safe_string)
+    end
+
     test "can create job with tags" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)

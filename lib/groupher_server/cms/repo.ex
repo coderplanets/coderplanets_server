@@ -17,6 +17,8 @@ defmodule GroupherServer.CMS.Repo do
     Tag
   }
 
+  alias Helper.HTML
+
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title owner_name owner_url repo_url desc readme star_count issues_count prs_count fork_count watch_count)a
   @optional_fields ~w(origial_community_id last_sync homepage_url release_tag license)a
@@ -100,13 +102,6 @@ defmodule GroupherServer.CMS.Repo do
     |> validate_length(:title, min: 1, max: 80)
     |> cast_embed(:contributors, with: &RepoContributor.changeset/2)
     |> cast_embed(:primary_language, with: &RepoLang.changeset/2)
-  end
-
-  @doc false
-  def update_changeset(%Repo{} = repo, attrs) do
-    repo
-    |> cast(attrs, @optional_fields ++ @required_fields)
-    |> cast_embed(:contributors, with: &RepoContributor.changeset/2)
-    |> cast_embed(:primary_language, with: &RepoLang.changeset/2)
+    |> HTML.safe_string(:readme)
   end
 end

@@ -17,6 +17,8 @@ defmodule GroupherServer.CMS.Post do
     Topic
   }
 
+  alias Helper.HTML
+
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title body digest length)a
   @optional_fields ~w(origial_community_id link_addr copy_right link_addr link_icon)a
@@ -104,15 +106,7 @@ defmodule GroupherServer.CMS.Post do
     |> validate_length(:title, min: 3, max: 50)
     |> validate_length(:body, min: 3, max: 10_000)
     |> validate_length(:link_addr, min: 5, max: 400)
-
-    # |> foreign_key_constraint(:posts_tags, name: :posts_tags_tag_id_fkey)
-    # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)
-  end
-
-  @doc false
-  def update_changeset(%Post{} = post, attrs) do
-    post
-    |> cast(attrs, @optional_fields ++ @required_fields)
+    |> HTML.safe_string(:body)
 
     # |> foreign_key_constraint(:posts_tags, name: :posts_tags_tag_id_fkey)
     # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)

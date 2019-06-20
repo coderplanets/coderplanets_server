@@ -16,8 +16,15 @@ defmodule GroupherServer.Test.AssertHelper do
   used for non exsit id
   """
   def non_exsit_id, do: 15_982_398_614
-  def inner_page_size, do: @inner_page_size
-  def page_size, do: @page_size
+  # def page_size, do: @page_size
+
+  def assert_v(:inner_page_size), do: @inner_page_size
+  def assert_v(:page_size), do: @page_size
+
+  def assert_v(:xss_string), do: "<script>alert(\"hello,world\")</script>"
+
+  def assert_v(:xss_safe_string),
+    do: "&lt;script&gt;alert(&quot;hello,world&quot;)&lt;/script&gt;"
 
   def is_valid_kv?(obj, key, :list) when is_map(obj) do
     obj = map_key_stringify(obj)
