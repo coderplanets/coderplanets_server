@@ -5,7 +5,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Post do
   use Helper.GqlSchemaSuite
 
   object :cms_post_mutations do
-    @desc "create a user"
+    @desc "create a post"
     field :create_post, :post do
       arg(:title, non_null(:string))
       arg(:body, non_null(:string))

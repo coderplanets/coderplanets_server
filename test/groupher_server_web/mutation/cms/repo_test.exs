@@ -154,7 +154,6 @@ defmodule GroupherServer.Test.Mutation.Repo do
       assert updated["readme"] == "new readme"
     end
 
-    @tag :wip
     test "create repo should excape xss attracts" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
