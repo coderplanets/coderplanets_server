@@ -48,7 +48,6 @@ defmodule GroupherServer.Test.Mutation.PostComment do
       assert created["id"] == to_string(found.id)
     end
 
-    @tag :wip
     test "xss comment should be escaped", ~m(user_conn community post)a do
       variables = %{
         community: community.raw,
