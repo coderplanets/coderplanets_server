@@ -92,7 +92,6 @@ defmodule GroupherServer.Test.Mutation.Job do
       assert created["id"] == to_string(found.id)
     end
 
-    @tag :wip
     test "create job should excape xss attracts" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)

@@ -64,43 +64,33 @@ defmodule GroupherServer.Test.Mutation.Account.Customization do
     @paged_post_query """
     query($filter: PagedArticleFilter!) {
       pagedPosts(filter: $filter) {
+        entries { 
+          commentsCount
+          commentsParticipators(filter: { first: 5 }) {
+            id
+          }
+        }
         pageSize
         pageNumber
       }
     }
     """
-    test "PageSizeProof middleware should load items based on c11n settings", ~m(user)a do
+    @tag :wip
+    test "PageSizeProof middleware should lint c11n displayDensity size", ~m(user)a do
       user_conn = simu_conn(:user, user)
       db_insert_multi(:post, 50)
 
-      variables = %{filter: %{page: 1}}
-      results = user_conn |> query_result(@paged_post_query, variables, "pagedPosts")
-      assert results["pageSize"] == @max_page_size
-
       variables = %{
         customization: %{
-          displayDensity: "25"
+          displayDensity: "40"
         }
       }
 
-      user_conn |> mutation_result(@query, variables, "setCustomization")
+      hello = user_conn |> mutation_result(@query, variables, "setCustomization")
 
       variables = %{filter: %{page: 1}}
       results = user_conn |> query_result(@paged_post_query, variables, "pagedPosts")
-      assert results["pageSize"] == 25
-
-      variables = %{
-        customization: %{
-          displayDensity: "20"
-        }
-      }
-
-      user_conn |> mutation_result(@query, variables, "setCustomization")
-
-      variables = %{filter: %{page: 2}}
-      results = user_conn |> query_result(@paged_post_query, variables, "pagedPosts")
-      assert results["pageSize"] == 20
-      assert results["pageNumber"] == 2
+      assert results["pageSize"] == 30
     end
 
     test "set single customization should merge not overwright other settings", ~m(user_conn)a do

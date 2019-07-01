@@ -63,7 +63,6 @@ defmodule GroupherServer.Test.Mutation.Post do
       assert {:ok, _} = ORM.find_by(CMS.Author, user_id: user.id)
     end
 
-    @tag :wip
     test "create post should excape xss attracts" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
