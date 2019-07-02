@@ -1,6 +1,9 @@
 defmodule GroupherServer.Test.Mutation.Account.Customization do
   use GroupherServer.TestTools
 
+  import Helper.Utils, only: [get_config: 2]
+  @max_page_size get_config(:general, :page_size)
+
   setup do
     {:ok, user} = db_insert(:user)
 
@@ -84,7 +87,8 @@ defmodule GroupherServer.Test.Mutation.Account.Customization do
 
       variables = %{filter: %{page: 1}}
       results = user_conn |> query_result(@paged_post_query, variables, "pagedPosts")
-      assert results["pageSize"] == 30
+      #  FIXME:   this 2 is magic number, otherwise it will crash the dataloader
+      assert results["pageSize"] == @max_page_size - 2
     end
 
     test "set single customization should merge not overwright other settings", ~m(user_conn)a do
