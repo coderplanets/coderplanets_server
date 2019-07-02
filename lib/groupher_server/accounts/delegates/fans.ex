@@ -50,7 +50,7 @@ defmodule GroupherServer.Accounts.Delegate.Fans do
     User |> ORM.find(user_follower.user_id)
   end
 
-  defp follow_result({:error, :create_follower, %Ecto.Changeset{} = result, _steps}) do
+  defp follow_result({:error, :create_follower, %Ecto.Changeset{}, _steps}) do
     {:error, [message: "already followed", code: ecode(:already_did)]}
   end
 

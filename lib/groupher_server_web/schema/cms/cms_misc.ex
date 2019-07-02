@@ -263,7 +263,7 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     field(:sort, :repo_sort_enum)
   end
 
-  @doc """
+  @desc """
   cms github repo contribotor
   """
   input_object :repo_contributor_input do
@@ -272,7 +272,7 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     field(:nickname, :string)
   end
 
-  @doc """
+  @desc """
   cms github repo contribotor, detail version
   """
   input_object :github_contributor_input do
@@ -285,7 +285,7 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     field(:company, :string)
   end
 
-  @doc """
+  @desc """
   cms github repo lang
   """
   input_object :repo_lang_input do

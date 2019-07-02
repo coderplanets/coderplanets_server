@@ -182,11 +182,11 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     Accounts.list_editable_communities(cur_user, filter)
   end
 
-  def editable_communities(_root, ~m(filter)a, %{
-        context: %{cur_user: %{cur_passport: %{"cms" => %{"root" => true}}} = _cur_user}
-      }) do
-    CMS.Community |> ORM.find_all(filter)
-  end
+  # def editable_communities(_root, ~m(filter)a, %{
+  #       context: %{cur_user: %{cur_passport: %{"cms" => %{"root" => true}}} = _cur_user}
+  #     }) do
+  #   CMS.Community |> ORM.find_all(filter)
+  # end
 
   def editable_communities(root, ~m(filter)a, _info) do
     Accounts.list_editable_communities(%User{id: root.id}, filter)
@@ -292,8 +292,7 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
             _ -> %{}
           end
 
-        customization =
-          Map.merge(customization, %{sidebar_communities_index: sidebar_communities_index})
+        Map.merge(customization, %{sidebar_communities_index: sidebar_communities_index})
 
       false ->
         customization

@@ -104,14 +104,6 @@ defmodule GroupherServer.Support.Factory do
     mock_meta(:wiki)
   end
 
-  defp mock_meta(:repo_contributor) do
-    %{
-      avatar: Faker.Avatar.image_url(),
-      html_url: Faker.Avatar.image_url(),
-      nickname: "mydearxym2"
-    }
-  end
-
   defp mock_meta(:github_contributor) do
     unique_num = System.unique_integer([:positive, :monotonic])
 
@@ -256,7 +248,6 @@ defmodule GroupherServer.Support.Factory do
     %{
       avatar: Faker.Avatar.image_url(),
       html_url: Faker.Avatar.image_url(),
-      htmlUrl: Faker.Avatar.image_url(),
       nickname: "mydearxym2"
     }
   end

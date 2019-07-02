@@ -14,7 +14,7 @@ defmodule Helper.RemoteIP do
   def parse([proxy_ips]) do
     client_ip = proxy_ips |> String.split(",") |> List.first()
 
-    case client_ip not in slb_ips do
+    case client_ip not in slb_ips() do
       true ->
         {:ok, client_ip}
 

@@ -382,7 +382,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
         normal_entries = normal_contents |> Map.get(:entries)
 
-        pind_count = pined_content |> Map.get(:total_count)
+        # pind_count = pined_content |> Map.get(:total_count)
         normal_count = normal_contents |> Map.get(:total_count)
 
         # remote the pined content from normal_entries (if have)

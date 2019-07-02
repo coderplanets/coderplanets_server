@@ -1,12 +1,6 @@
 defmodule GroupherServer.Test.Mutation.Account.Customization do
   use GroupherServer.TestTools
 
-  # alias GroupherServer.{Accounts}
-  # alias Helper.ORM
-  import Helper.Utils, only: [get_config: 2]
-
-  @max_page_size get_config(:general, :page_size)
-
   setup do
     {:ok, user} = db_insert(:user)
 
@@ -86,7 +80,7 @@ defmodule GroupherServer.Test.Mutation.Account.Customization do
         }
       }
 
-      hello = user_conn |> mutation_result(@query, variables, "setCustomization")
+      user_conn |> mutation_result(@query, variables, "setCustomization")
 
       variables = %{filter: %{page: 1}}
       results = user_conn |> query_result(@paged_post_query, variables, "pagedPosts")
