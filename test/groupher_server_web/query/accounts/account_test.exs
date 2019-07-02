@@ -196,8 +196,6 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       results = guest_conn |> query_result(@query, variables, "user")
       subscribed_communities = results["subscribedCommunities"]["entries"]
 
-      # IO.inspect subscribed_communities, label: "hello subed"
-
       subscribed_communities_count = results["subscribedCommunitiesCount"]
       [community_1, community_2, community_3, community_x] = communities |> firstn_and_last(3)
 

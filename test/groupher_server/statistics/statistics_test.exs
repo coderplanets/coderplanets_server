@@ -58,9 +58,6 @@ defmodule GroupherServer.Test.Statistics do
 
       {:ok, contributes} = Statistics.list_contributes(%User{id: user.id})
       assert length(contributes.records) == 1
-
-      # hello = Statistics.list_contributes(%User{id: user.id})
-      # IO.inspect hello, label: "hello"
     end
 
     test "should inserted a contribute when the user not contribute before", ~m(user)a do

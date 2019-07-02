@@ -86,7 +86,7 @@ defmodule GroupherServer.Test.Mutation.Account.Customization do
         }
       }
 
-      hello = user_conn |> mutation_result(@query, variables, "setCustomization")
+      user_conn |> mutation_result(@query, variables, "setCustomization")
 
       variables = %{filter: %{page: 1}}
       results = user_conn |> query_result(@paged_post_query, variables, "pagedPosts")
