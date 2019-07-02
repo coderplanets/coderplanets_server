@@ -63,19 +63,18 @@ defmodule GroupherServer.Test.Mutation.Post do
       assert {:ok, _} = ORM.find_by(CMS.Author, user_id: user.id)
     end
 
-    @tag :wip
     test "create post should excape xss attracts" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
       {:ok, community} = db_insert(:community)
-      post_attr = mock_attrs(:post, %{body: "<script>alert(\"hello,world\")</script>"})
+      post_attr = mock_attrs(:post, %{body: assert_v(:xss_string)})
 
       variables = post_attr |> Map.merge(%{communityId: community.id})
       created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
       {:ok, post} = ORM.find(CMS.Post, created["id"])
 
-      assert post.body == "&lt;script&gt;alert(&quot;hello,world&quot;)&lt;/script&gt;"
+      assert post.body == assert_v(:xss_safe_string)
     end
 
     # NOTE: this test is IMPORTANT, cause json_codec: Jason in router will cause

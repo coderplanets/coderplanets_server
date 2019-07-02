@@ -73,9 +73,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
   @doc """
   Creates a comment for psot, job ...
   """
-  def update_comment(thread, id, %{body: body} = args, %Accounts.User{id: user_id}) do
-    {:ok, action} = match_action(thread, :comment)
-
+  def update_comment(thread, id, %{body: body}, %Accounts.User{id: user_id}) do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, content} <- ORM.find(action.reactor, id),
          true <- content.author_id == user_id do

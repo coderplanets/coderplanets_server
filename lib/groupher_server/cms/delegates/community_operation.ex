@@ -166,7 +166,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
   def unsubscribe_community(
         %Community{id: community_id},
         %User{id: user_id, geo_city: city},
-        remote_ip
+        _remote_ip
       ) do
     with {:ok, community} <- ORM.find(Community, community_id),
          true <- community.raw !== "home",

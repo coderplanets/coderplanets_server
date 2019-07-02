@@ -108,14 +108,6 @@ defmodule GroupherServer.Test.AssertHelper do
   """
   def mutation_get_error?(conn, query, variables, flag \\ false)
 
-  def mutation_get_error?(conn, query, variables, flag) do
-    conn
-    |> post("/graphiql", query: query, variables: variables)
-    |> json_response(200)
-    |> log_debug_info(flag)
-    |> Map.has_key?("errors")
-  end
-
   @doc """
   Graphiql murate error with code equal check
   """
@@ -134,6 +126,14 @@ defmodule GroupherServer.Test.AssertHelper do
       false ->
         false
     end
+  end
+
+  def mutation_get_error?(conn, query, variables, flag) do
+    conn
+    |> post("/graphiql", query: query, variables: variables)
+    |> json_response(200)
+    |> log_debug_info(flag)
+    |> Map.has_key?("errors")
   end
 
   def query_result(conn, query, variables, key, flag \\ false) do
