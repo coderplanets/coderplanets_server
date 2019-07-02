@@ -149,7 +149,6 @@ defmodule GroupherServer.Test.Mutation.Repo do
           "updateRepo"
         )
 
-      # IO.inspect(updated, label: "hello")
       assert updated["title"] == "new title"
       assert updated["readme"] == "new readme"
     end

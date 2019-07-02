@@ -127,7 +127,7 @@ defmodule GroupherServer.Test.Delivery.Mention do
 
       filter = %{page: 1, size: 20, read: true}
       {:ok, mentions} = Accounts.fetch_mentions(user, filter)
-      # IO.inspect mentions, label: "hello mentions"
+
       assert mentions.total_count == 3
     end
   end

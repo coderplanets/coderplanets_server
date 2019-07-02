@@ -22,8 +22,9 @@ defmodule GroupherServerWeb.Middleware.PageSizeProof do
         _info
       )
       when not is_nil(customization) do
-    size = String.to_integer(customization.display_density)
-    size = if size > @max_page_size, do: @max_page_size, else: size
+    # NOTE:  c11n display_density should also linted by page limit, 
+    # otherwise dataloader will crash for empty extra items
+    size = customization.display_density |> String.to_integer() |> min(@max_page_size)
 
     case Map.has_key?(arguments, :filter) do
       true ->

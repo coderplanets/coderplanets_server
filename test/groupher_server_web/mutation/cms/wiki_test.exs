@@ -29,7 +29,6 @@ defmodule GroupherServer.Test.Mutation.CMS.Wiki do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
 
-    # IO.inspect(mock_attrs(:wiki) |> camelize_map_key, label: "hello ...")
     wiki_attrs = mock_attrs(:wiki) |> camelize_map_key
 
     variables = wiki_attrs |> Map.merge(%{communityId: community.id})
