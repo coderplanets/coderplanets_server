@@ -87,8 +87,7 @@ defmodule GroupherServer.Test.Mutation.Account.Customization do
 
       variables = %{filter: %{page: 1}}
       results = user_conn |> query_result(@paged_post_query, variables, "pagedPosts")
-      #  FIXME:   this 2 is magic number, otherwise it will crash the dataloader
-      assert results["pageSize"] == @max_page_size - 2
+      assert results["pageSize"] == @max_page_size
     end
 
     test "set single customization should merge not overwright other settings", ~m(user_conn)a do

@@ -273,10 +273,10 @@ defmodule GroupherServerWeb.Schema.Utils.Helper do
         arg(:filter, :members_filter)
         arg(:unique, :unique_type, default_value: true)
 
-        middleware(M.ForceLoader)
+        # middleware(M.ForceLoader)
         middleware(M.PageSizeProof)
         resolve(dataloader(CMS, :comments))
-        # middleware(M.CutParticipators)
+        middleware(M.CutParticipators)
       end
 
       field(:paged_comments_participators, :paged_users) do
