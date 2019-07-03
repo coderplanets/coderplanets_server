@@ -143,52 +143,40 @@ defmodule GroupherServer.Test.Query.PostComment do
       }
     }
     """
-    @tag :pain_in_ass
-    test "top N per Group test", ~m(user guest_conn)a do
+    test "top N per Group test v2", ~m(user guest_conn)a do
       body = "this is a test comment"
 
       {:ok, community} = db_insert(:community)
       {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
       {:ok, post2} = CMS.create_content(community, :post, mock_attrs(:post), user)
-      # {:ok, users_list} = db_insert_multi(:user, 10)
+      {:ok, users_list} = db_insert_multi(:user, 10)
+      {:ok, users_list2} = db_insert_multi(:user, 10)
 
-      CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
-      CMS.create_comment(:post, post2.id, %{community: community.raw, body: body}, user)
+      post_last_comment_user_id = users_list |> List.last() |> Map.get(:id)
+      post2_last_comment_user_id = users_list2 |> List.last() |> Map.get(:id)
+
+      Enum.each(
+        users_list,
+        &CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, &1)
+      )
+
+      Enum.each(
+        users_list2,
+        &CMS.create_comment(:post, post2.id, %{community: community.raw, body: body}, &1)
+      )
 
       variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
-      # for test window function
-      _commentsParticipators = results["entries"]
-      # IO.inspect(commentsParticipators, label: "commentsParticipators->")
-    end
+      first_result = results["entries"] |> List.first() |> Map.get("commentsParticipators")
+      last_result = results["entries"] |> List.last() |> Map.get("commentsParticipators")
 
-    # ~m(user guest_conn)a do
-    test "top N per Group test v2" do
-      # body = "this is a test comment"
+      assert 5 == first_result |> length
+      assert 5 == last_result |> length
 
-      # {:ok, community} = db_insert(:community)
-      # {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
-      # {:ok, post2} = CMS.create_content(community, :post, mock_attrs(:post), user)
-      # {:ok, users_list} = db_insert_multi(:user, 10)
-      # {:ok, users_list2} = db_insert_multi(:user, 10)
-
-      # Enum.each(
-      # users_list,
-      # &CMS.create_comment(:post, post.id, %{body: body}, &1)
-      # )
-
-      # Enum.each(
-      # users_list2,
-      # &CMS.create_comment(:post, post2.id, body, &1)
-      # )
-
-      # variables = %{filter: %{community: community.raw}}
-      # results = guest_conn |> query_result(@query, variables, "pagedPosts")
-      # commentsParticipators =
-      # results["entries"] |> List.first() |> Map.get("commentsParticipators")
-
-      # IO.inspect(commentsParticipators, label: "commentsParticipators->")
+      # 默认显示最新评论的登陆用户
+      assert to_string(post_last_comment_user_id) == first_result |> List.first() |> Map.get("id")
+      assert to_string(post2_last_comment_user_id) == last_result |> List.first() |> Map.get("id")
     end
   end
 

@@ -179,21 +179,37 @@ defmodule GroupherServer.CMS.Utils.Loader do
   # should use WINDOW function
   # see https://github.com/coderplanets/coderplanets_server/issues/16
   def query({"posts_comments", PostComment}, %{filter: filter, unique: true}) do
+    PostComment
+    |> join(:inner, [c], a in assoc(c, :author))
+    |> distinct([c, a], a.id)
+    |> select([c, a], a)
+
+    # |> select([c, a], %{
+    #   rankid: rank() |> over(partition_by: c.inserted_at),
+    #   id: a.id,
+    #   nickname: a.nickname
+    # })
+    # |> windows([rankid: [partition_by: c.inserted_at]]) 
+    # |> where([c, a], a.no < 3)
+    # |> select([c, a], rank() |>  over(partition_by: c.inserted_at))
+    # |> select([c, a], %{
+    #     nickname: a.nickname,
+
+    # working raw sql
+    # select * from(
+    #     select rank() over(partition by cid order by pinserted_at desc) as r, * from(
+    #         select c.id as cid,
+    #  c.body as cbody, 
+    #  p.inserted_at as pinserted_at, 
+    #  u.* from "cms_posts" as c join "posts_comments" as p on c.id= p.post_id join "users" as u on p.author_id= u.id) as view
+    # ) as v where r<= 3;
+
+    # backup -> 
     # PostComment
     # |> QueryBuilder.filter_pack(filter)
     # |> join(:inner, [c], a in assoc(c, :author))
     # |> distinct([c, a], a.id)
-    # |> select([c, a], %{
-    # nickname: a.nickname,
-    # id: a.id,
-    # what_ever: row_number() |> over(partition_by: a.id)
-    # })
-
-    PostComment
-    |> QueryBuilder.filter_pack(filter)
-    |> join(:inner, [c], a in assoc(c, :author))
-    |> distinct([c, a], a.id)
-    |> select([c, a], a)
+    # |> select([c, a], a)
   end
 
   def query({"posts_comments", PostComment}, %{count: _, unique: true}) do
