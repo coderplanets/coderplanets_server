@@ -8,6 +8,8 @@ defmodule GroupherServerWeb.Middleware.CutParticipators do
   # should use WINDOW function
   # see https://github.com/coderplanets/coderplanets_server/issues/16
   #
+  # the Enum.uniq logic is a tmp sulution for distinct comments users, this should be 
+  # in dataloader logic, but the distinct is not working in production env
   """
 
   @behaviour Absinthe.Middleware
@@ -16,11 +18,14 @@ defmodule GroupherServerWeb.Middleware.CutParticipators do
   def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
 
   def call(%{value: value, arguments: %{filter: %{first: first}} = args} = resolution, _) do
-    %{resolution | value: value |> Enum.reverse() |> Enum.slice(0, first)}
+    %{resolution | value: value |> Enum.uniq() |> Enum.reverse() |> Enum.slice(0, first)}
   end
 
   def call(%{value: value} = resolution, _) do
-    %{resolution | value: value |> Enum.reverse() |> Enum.slice(0, @default_length)}
+    %{
+      resolution
+      | value: value |> Enum.uniq() |> Enum.reverse() |> Enum.slice(0, @default_length)
+    }
   end
 
   def call(resolution, _), do: resolution
