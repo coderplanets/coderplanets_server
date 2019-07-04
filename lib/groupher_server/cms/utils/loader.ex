@@ -181,7 +181,9 @@ defmodule GroupherServer.CMS.Utils.Loader do
   def query({"posts_comments", PostComment}, %{filter: filter, unique: true}) do
     PostComment
     |> join(:inner, [c], a in assoc(c, :author))
-    |> distinct([c, a], a.id)
+    # NOTE:  this distinct not working in production env, so the uniq logic is move to
+    # cut_participators.ex middleware, when the data is large, will cause performace issue
+    # |> distinct([c, a], a.id)
     |> select([c, a], a)
 
     # |> select([c, a], %{
