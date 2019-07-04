@@ -181,7 +181,7 @@ defmodule GroupherServer.CMS.Utils.Loader do
   def query({"posts_comments", PostComment}, %{filter: filter, unique: true}) do
     PostComment
     |> join(:inner, [c], a in assoc(c, :author))
-    |> distinct([c, a], a.id)
+    # |> distinct([c, a], a.id)
     |> select([c, a], a)
 
     # |> select([c, a], %{

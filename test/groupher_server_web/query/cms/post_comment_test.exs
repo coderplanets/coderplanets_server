@@ -143,6 +143,7 @@ defmodule GroupherServer.Test.Query.PostComment do
       }
     }
     """
+    @tag :wip
     test "top N per Group test v2", ~m(user guest_conn)a do
       body = "this is a test comment"
 
@@ -151,6 +152,13 @@ defmodule GroupherServer.Test.Query.PostComment do
       {:ok, post2} = CMS.create_content(community, :post, mock_attrs(:post), user)
       {:ok, users_list} = db_insert_multi(:user, 10)
       {:ok, users_list2} = db_insert_multi(:user, 10)
+
+      IO.inspect post.id, label: "post 1 id"
+      IO.inspect post2.id, label: "post 2 id"
+
+      Enum.reduce(1..20, [], fn _, acc ->
+        CMS.create_content(community, :post, mock_attrs(:post), user)
+      end)
 
       post_last_comment_user_id = users_list |> List.last() |> Map.get(:id)
       post2_last_comment_user_id = users_list2 |> List.last() |> Map.get(:id)
@@ -165,18 +173,20 @@ defmodule GroupherServer.Test.Query.PostComment do
         &CMS.create_comment(:post, post2.id, %{community: community.raw, body: body}, &1)
       )
 
-      variables = %{filter: %{community: community.raw}}
+      variables = %{filter: %{community: community.raw, page: 1, size: 30}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
-      first_result = results["entries"] |> List.first() |> Map.get("commentsParticipators")
-      last_result = results["entries"] |> List.last() |> Map.get("commentsParticipators")
+      IO.inspect results["entries"], label: "hello results"
 
-      assert 5 == first_result |> length
-      assert 5 == last_result |> length
+      # first_result = results["entries"] |> List.first() |> Map.get("commentsParticipators")
+      # last_result = results["entries"] |> List.last() |> Map.get("commentsParticipators")
+
+      # assert 5 == first_result |> length
+      # assert 5 == last_result |> length
 
       # 默认显示最新评论的登陆用户
-      assert to_string(post_last_comment_user_id) == first_result |> List.first() |> Map.get("id")
-      assert to_string(post2_last_comment_user_id) == last_result |> List.first() |> Map.get("id")
+      # assert to_string(post_last_comment_user_id) == first_result |> List.first() |> Map.get("id")
+      # assert to_string(post2_last_comment_user_id) == last_result |> List.first() |> Map.get("id")
     end
   end
 
