@@ -11,16 +11,19 @@ defmodule GroupherServerWeb.Middleware.CutParticipators do
   """
 
   @behaviour Absinthe.Middleware
-  @default_length 5
+  @default_length 10
 
   def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
 
   def call(%{value: value, arguments: %{filter: %{first: first}} = args} = resolution, _) do
-    %{resolution | value: value |> Enum.reverse() |> Enum.slice(0, first)}
+    %{resolution | value: value |> Enum.uniq() |> Enum.reverse() |> Enum.slice(0, first)}
   end
 
   def call(%{value: value} = resolution, _) do
-    %{resolution | value: value |> Enum.reverse() |> Enum.slice(0, @default_length)}
+    %{
+      resolution
+      | value: value |> Enum.uniq() |> Enum.reverse() |> Enum.slice(0, @default_length)
+    }
   end
 
   def call(resolution, _), do: resolution
