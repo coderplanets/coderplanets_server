@@ -153,8 +153,8 @@ defmodule GroupherServer.Test.Query.PostComment do
       {:ok, users_list} = db_insert_multi(:user, 10)
       {:ok, users_list2} = db_insert_multi(:user, 10)
 
-      IO.inspect post.id, label: "post 1 id"
-      IO.inspect post2.id, label: "post 2 id"
+      IO.inspect(post.id, label: "post 1 id")
+      IO.inspect(post2.id, label: "post 2 id")
 
       Enum.reduce(1..20, [], fn _, acc ->
         CMS.create_content(community, :post, mock_attrs(:post), user)
@@ -176,7 +176,7 @@ defmodule GroupherServer.Test.Query.PostComment do
       variables = %{filter: %{community: community.raw, page: 1, size: 30}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
-      IO.inspect results["entries"], label: "hello results"
+      IO.inspect(results["entries"], label: "hello results")
 
       # first_result = results["entries"] |> List.first() |> Map.get("commentsParticipators")
       # last_result = results["entries"] |> List.last() |> Map.get("commentsParticipators")
