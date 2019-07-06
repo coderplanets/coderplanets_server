@@ -17,7 +17,7 @@ defmodule GroupherServerWeb.Middleware.CutParticipators do
 
   def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
 
-  def call(%{value: value, arguments: %{filter: %{first: first}} = args} = resolution, _) do
+  def call(%{value: value, arguments: %{filter: %{first: first}}} = resolution, _) do
     %{resolution | value: value |> Enum.uniq() |> Enum.reverse() |> Enum.slice(0, first)}
   end
 

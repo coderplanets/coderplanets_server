@@ -1,4 +1,7 @@
 defmodule GroupherServer.Test.Mailer do
+  @moduledoc """
+  mailer test, see details: https://github.com/thoughtbot/bamboo 
+  """
   use GroupherServer.TestTools
   use Bamboo.Test
 
