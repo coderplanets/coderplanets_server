@@ -95,7 +95,8 @@ defmodule GroupherServer.Mixfile do
       {:excoveralls, "~> 0.8", only: :test},
       {:sentry, "~> 6.4"},
       {:recase, "~> 0.4.0"},
-      {:nanoid, "~> 2.0.0"}
+      {:nanoid, "~> 2.0.0"},
+      {:bamboo, "1.2.0"}
     ]
   end
 

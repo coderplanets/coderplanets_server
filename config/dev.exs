@@ -54,3 +54,6 @@ config :groupher_server, GroupherServer.Repo,
 config :groupher_server, :github_oauth,
   client_id: System.get_env("OAUTH_GITHUB_CLIENT_ID"),
   client_secret: System.get_env("OAUTH_GITHUB_CLIENT_SECRET")
+
+#  config email services
+config :groupher_server, GroupherServer.Mailer, api_key: System.get_env("MAILER_API_KEY")
