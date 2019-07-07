@@ -19,3 +19,6 @@ config :groupher_server, GroupherServer.Repo,
   database: "groupher_server_mock",
   hostname: "localhost",
   pool_size: 10
+
+#  config email services
+config :groupher_server, GroupherServer.Mailer, adapter: Bamboo.LocalAdapter

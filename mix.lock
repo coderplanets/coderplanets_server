@@ -4,6 +4,7 @@
   "absinthe_plug": {:git, "https://github.com/mastani-stack/absinthe_plug", "76dde0d99a0552e0557c1b147a4195e91168b261", []},
   "apollo_tracing": {:hex, :apollo_tracing, "0.4.1", "210d20693f88bd133a55b04dc1d990ce68ce620a804773731faf180b8b85aa4e", [:mix], [{:absinthe, "~> 1.4", [hex: :absinthe, repo: "hexpm", optional: false]}, {:absinthe_plug, "~> 1.4", [hex: :absinthe_plug, repo: "hexpm", optional: true]}], "hexpm"},
   "argon2_elixir": {:hex, :argon2_elixir, "1.2.14", "0fc4bfbc1b7e459954987d3d2f3836befd72d63f3a355e3978f5005dd6e80816", [], [{:elixir_make, "~> 0.4", [hex: :elixir_make, repo: "hexpm", optional: false]}], "hexpm"},
+  "bamboo": {:hex, :bamboo, "1.2.0", "8aebd24f7c606c32d0163c398004a11608ca1028182a169b2e527793bfab7561", [:mix], [{:hackney, ">= 1.13.0", [hex: :hackney, repo: "hexpm", optional: false]}, {:plug, "~> 1.0", [hex: :plug, repo: "hexpm", optional: false]}, {:poison, ">= 1.5.0", [hex: :poison, repo: "hexpm", optional: true]}], "hexpm"},
   "base64url": {:hex, :base64url, "0.0.1", "36a90125f5948e3afd7be97662a1504b934dd5dac78451ca6e9abf85a10286be", [:rebar], [], "hexpm"},
   "bunt": {:hex, :bunt, "0.2.0", "951c6e801e8b1d2cbe58ebbd3e616a869061ddadcc4863d0a2182541acae9a38", [:mix], [], "hexpm"},
   "certifi": {:hex, :certifi, "2.5.1", "867ce347f7c7d78563450a18a6a28a8090331e77fa02380b4a21962a65d36ee5", [:rebar3], [{:parse_trans, "~>3.3", [hex: :parse_trans, repo: "hexpm", optional: false]}], "hexpm"},
