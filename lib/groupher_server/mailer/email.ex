@@ -8,6 +8,8 @@ defmodule GroupherServer.Email do
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.Accounts.User
+  alias GroupherServer.Billing.BillRecord
+
   alias GroupherServer.Email.Templates
   alias GroupherServer.Mailer
 
@@ -32,8 +34,8 @@ defmodule GroupherServer.Email do
     base_mail()
     |> to(@admin_email)
     |> subject("新用户(#{user.nickname})注册")
-    |> html_body(Templates.AdminNewRegister.html(user))
-    |> text_body(Templates.AdminNewRegister.text())
+    |> html_body(Templates.NotifyAdminRegister.html(user))
+    |> text_body(Templates.NotifyAdminRegister.text())
     |> Mailer.deliver_later()
   end
 
@@ -41,7 +43,13 @@ defmodule GroupherServer.Email do
     {:ok, :pass}
   end
 
-  def notify_admin(:payment, _kind) do
+  def notify_admin(%BillRecord{} = record, :payment) do
+    base_mail()
+    |> to(@admin_email)
+    |> subject("打赏 #{record.amount} 元")
+    |> html_body(Templates.NotifyAdminPayment.html(record))
+    |> text_body(Templates.NotifyAdminPayment.text())
+    |> Mailer.deliver_later()
   end
 
   # some one comment to your post ..

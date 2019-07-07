@@ -12,6 +12,7 @@ defmodule GroupherServer.Billing.Delegate.CURD do
   alias GroupherServer.Billing.BillRecord
   alias GroupherServer.Billing.Delegate.Actions
   alias GroupherServer.Repo
+  alias GroupherServer.Email
 
   alias Ecto.Multi
 
@@ -87,6 +88,13 @@ defmodule GroupherServer.Billing.Delegate.CURD do
       |> Map.merge(~m(user_id hash_id state)a)
       |> map_atom_value(:string)
 
-    BillRecord |> ORM.create(attrs)
+    # {:ok, record} = BillRecord |> ORM.create(attrs)
+    #  TODO: 
+    {:ok, record} = BillRecord |> ORM.create(attrs)
+    # IO.inspect(record, label: "record ->")
+    Email.notify_admin(record, :payment)
+    # {:ok, record} = BillRecord |> ORM.create(attrs, {after_success: })
+    # i email to admin
+    {:ok, record}
   end
 end
