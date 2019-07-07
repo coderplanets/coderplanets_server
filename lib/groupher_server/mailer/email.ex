@@ -1,21 +1,54 @@
 defmodule GroupherServer.Email do
   @moduledoc """
-  the email staff for Groupher
+  the email dispatch system for Groupher
+
+  welcom_email -> send to new register
   """
   import Bamboo.Email
   import Helper.Utils, only: [get_config: 2]
 
+  alias GroupherServer.Accounts.User
   alias GroupherServer.Email.Templates
+  alias GroupherServer.Mailer
 
   @support_email get_config(:system_emails, :support)
+  @admin_email get_config(:system_emails, :admin)
 
-  def welcome_email do
+  def welcome(%User{email: email} = user) when not is_nil(email) do
     base_mail()
-    |> to("mydearxym@gmail.com")
-    |> subject("我是 coderplanets 的邮哥")
-    |> html_body(Templates.Welcome.html())
+    |> to(email)
+    |> subject("欢迎来到 coderplanets")
+    |> html_body(Templates.Welcome.html(user))
     |> text_body(Templates.Welcome.text())
+    |> Mailer.deliver_later()
   end
+
+  #  user has no email log to somewhere
+  def welcome(_user) do
+    {:ok, :pass}
+  end
+
+  def notify_admin(%User{from_github: true} = user, :new_register) do
+    base_mail()
+    |> to(@admin_email)
+    |> subject("新用户(#{user.nickname})注册")
+    |> html_body(Templates.AdminNewRegister.html(user))
+    |> text_body(Templates.AdminNewRegister.text())
+    |> Mailer.deliver_later()
+  end
+
+  def notify_admin(_user, :new_register) do
+    {:ok, :pass}
+  end
+
+  def notify_admin(:payment, _kind) do
+  end
+
+  # some one comment to your post ..
+  # the author's publish content being deleted ..
+  def notify_author, do: IO.inspect("notify_author")
+  def notify_publish, do: IO.inspect("notify_publish")
+  # ...
 
   defp base_mail do
     new_email()

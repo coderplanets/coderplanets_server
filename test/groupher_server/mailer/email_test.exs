@@ -10,16 +10,26 @@ defmodule GroupherServer.Test.Mailer do
 
   describe "basic email" do
     @tag :wip
-    test "welcome email" do
-      # user = {"Ralph", "ralph@example.com"}
-      expected_email = GroupherServer.Email.welcome_email()
-      # assert email.to == user
-      assert expected_email.from == @support_email
-      # assert email.html_body =~ "<strong>Thanks for joining!</strong>"
-      # assert email.text_body =~ "Thanks for joining!"
+    test "send welcome email when user has email addr" do
+      {:ok, user} = db_insert(:user, %{email: "fake@gmail.com"})
 
-      expected_email |> GroupherServer.Mailer.deliver_now()
+      expected_email = GroupherServer.Email.welcome(user)
+
+      {_, from_addr} = expected_email.from
+      [nil: to_addr] = expected_email.to
+
+      assert String.contains?(from_addr, @support_email)
+      assert String.contains?(to_addr, user.email)
+
       assert_delivered_email(expected_email)
+    end
+
+    @tag :wip
+    test "not send welcome email when user has no email addr" do
+      {:ok, user} = db_insert(:user)
+
+      expected_email = GroupherServer.Email.welcome(user)
+      assert {:ok, :pass} = expected_email
     end
   end
 end
