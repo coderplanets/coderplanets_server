@@ -5,14 +5,16 @@ defmodule GroupherServer.Email do
   import Bamboo.Email
   import Helper.Utils, only: [get_config: 2]
 
+  alias GroupherServer.Email.Templates
+
   @support_email get_config(:system_emails, :support)
 
   def welcome_email do
     base_mail()
     |> to("mydearxym@gmail.com")
     |> subject("我是 coderplanets 的邮哥")
-    |> html_body("<h2>欢迎你注册  cps support debug x</h2>")
-    |> text_body("欢迎你注册  cps")
+    |> html_body(Templates.Welcome.html())
+    |> text_body(Templates.Welcome.text())
   end
 
   defp base_mail do

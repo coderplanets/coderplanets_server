@@ -67,7 +67,7 @@ config :groupher_server, :customization,
 config :groupher_server, GroupherServerWeb.Gettext, default_locale: "zh_CN", locales: ~w(en zh_CN)
 
 #  config email services
-config :groupher_server, :system_emails, support: "coderplaents <support@group.coderplanets.com>"
+config :groupher_server, :system_emails, support: "coderplanets <support@group.coderplanets.com>"
 
 config :groupher_server, GroupherServer.Mailer,
   adapter: Bamboo.MailgunAdapter,
