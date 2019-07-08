@@ -69,7 +69,7 @@ defmodule GroupherServer.Email.Templates.NotifyAdminRegister do
     """
   end
 
-  def raw() do
+  defp raw() do
     """
     <mjml>
       <mj-head>

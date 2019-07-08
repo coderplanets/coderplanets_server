@@ -153,10 +153,12 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
   defp register_github_result({:ok, %{create_user: create_user}}) do
     {:ok, user} = ORM.find(User, create_user.id, preload: :github_profile)
 
-    Email.welcome(user)
-    Email.notify_admin(user, :new_register)
+    with {:ok, result} <- gen_token(user) do
+      Email.welcome(user)
+      Email.notify_admin(user, :new_register)
 
-    gen_token(user)
+      {:ok, result}
+    end
   end
 
   defp register_github_result({:error, :create_user, %Ecto.Changeset{} = result, _steps}),
