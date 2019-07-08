@@ -10,6 +10,7 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
   alias Helper.{Guardian, ORM, QueryBuilder, RadarSearch}
   alias GroupherServer.Accounts.{Achievement, GithubUser, User, Social}
   alias GroupherServer.{CMS, Repo}
+  alias GroupherServer.Email
 
   alias Ecto.Multi
 
@@ -149,7 +150,16 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
     |> register_github_result
   end
 
-  defp register_github_result({:ok, %{create_user: user}}), do: gen_token(user)
+  defp register_github_result({:ok, %{create_user: create_user}}) do
+    {:ok, user} = ORM.find(User, create_user.id, preload: :github_profile)
+
+    with {:ok, result} <- gen_token(user) do
+      Email.welcome(user)
+      Email.notify_admin(user, :new_register)
+
+      {:ok, result}
+    end
+  end
 
   defp register_github_result({:error, :create_user, %Ecto.Changeset{} = result, _steps}),
     do: {:error, result}

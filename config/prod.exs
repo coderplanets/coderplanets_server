@@ -95,3 +95,6 @@ config :sentry,
     env: "production"
   },
   included_environments: [:prod]
+
+#  config email services
+config :groupher_server, GroupherServer.Mailer, api_key: System.get_env("MAILER_API_KEY")

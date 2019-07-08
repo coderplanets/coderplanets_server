@@ -178,7 +178,7 @@ defmodule GroupherServer.CMS.Utils.Loader do
   # NOTE: this is NOT the right solution
   # should use WINDOW function
   # see https://github.com/coderplanets/coderplanets_server/issues/16
-  def query({"posts_comments", PostComment}, %{filter: filter, unique: true}) do
+  def query({"posts_comments", PostComment}, %{filter: _filter, unique: true}) do
     PostComment
     |> join(:inner, [c], a in assoc(c, :author))
     # NOTE:  this distinct not working in production env, so the uniq logic is move to

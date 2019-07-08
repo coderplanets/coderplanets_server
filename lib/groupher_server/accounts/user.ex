@@ -67,9 +67,9 @@ defmodule GroupherServer.Accounts.User do
 
     has_many(:favorite_categories, {"favorite_categories", FavoriteCategory})
 
-    field(:sponsor_member, :boolean)
-    field(:paid_member, :boolean)
-    field(:platinum_member, :boolean)
+    # field(:sponsor_member, :boolean)
+    # field(:paid_member, :boolean)
+    # field(:platinum_member, :boolean)
 
     has_one(:customization, Customization)
     has_one(:purchase, Purchase)

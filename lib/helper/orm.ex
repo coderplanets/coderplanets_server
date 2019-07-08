@@ -186,10 +186,10 @@ defmodule Helper.ORM do
   #   query |> Ecto.Query.where(^where) |> Repo.update_all(inc: changes)
   # end
 
-  def create(modal, attrs) do
-    modal
+  def create(model, attrs) do
+    model
     |> struct
-    |> modal.changeset(attrs)
+    |> model.changeset(attrs)
     |> Repo.insert()
   end
 

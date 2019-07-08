@@ -66,7 +66,7 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
   # Accounts.set_customization(%User{id: user_id}, customization)
   # end
 
-  def set_customization(_root, ~m(customization)a = args, %{context: %{cur_user: cur_user}}) do
+  def set_customization(_root, args, %{context: %{cur_user: cur_user}}) do
     customization = add_c11n_communities_index_ifneed(args)
     Accounts.set_customization(cur_user, customization)
   end
