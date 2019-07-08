@@ -88,13 +88,10 @@ defmodule GroupherServer.Billing.Delegate.CURD do
       |> Map.merge(~m(user_id hash_id state)a)
       |> map_atom_value(:string)
 
-    # {:ok, record} = BillRecord |> ORM.create(attrs)
-    #  TODO: 
-    {:ok, record} = BillRecord |> ORM.create(attrs)
-    # IO.inspect(record, label: "record ->")
-    Email.notify_admin(record, :payment)
-    # {:ok, record} = BillRecord |> ORM.create(attrs, {after_success: })
-    # i email to admin
-    {:ok, record}
+    with {:ok, record} <- ORM.create(BillRecord, attrs) do
+      Email.notify_admin(record, :payment)
+
+      {:ok, record}
+    end
   end
 end
