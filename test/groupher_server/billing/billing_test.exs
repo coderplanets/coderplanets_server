@@ -18,7 +18,7 @@ defmodule GroupherServer.Test.Billing do
   end
 
   describe "[billing curd]" do
-    @tag :wip2
+    @tag :wip
     test "create bill record with valid attrs", ~m(user valid_attrs)a do
       {:ok, record} = Billing.create_record(user, valid_attrs)
 

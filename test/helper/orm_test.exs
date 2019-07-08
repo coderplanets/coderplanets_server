@@ -19,6 +19,25 @@ defmodule GroupherServer.Test.Helper.ORMTest do
     {:ok, post: post}
   end
 
+  # def send_email(to \\ "someone") do 
+  #   IO.inspect "send email.. #{to}"
+  # end 
+
+  # describe "orm hooks" do
+  #   @tag :wip2
+  #   test "create hooks" do 
+  #     user_attrs = mock_attrs(:user)
+  #     user_attrs2 = mock_attrs(:user)
+
+  #     {:ok, _} = ORM.create(User, user_attrs, %{after_success: [&send_email/1, ["me"] ]})
+  #     {:ok, _} = ORM.create(User, user_attrs2, %{after_success: &send_email/0})
+
+  #     ORM.create(User, user_attrs, %{after_success: [&Email.notify_admin/2, [user, :new_register] ]  })
+
+  #     true
+  #   end 
+  # end
+
   describe "[find/x find_by]" do
     test "find/2 should work, and not preload fields", %{post: post} do
       {:ok, found} = ORM.find(Post, post.id)
