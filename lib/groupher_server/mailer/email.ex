@@ -30,6 +30,17 @@ defmodule GroupherServer.Email do
     {:ok, :pass}
   end
 
+  def thanks_donation(%User{email: email} = user, %BillRecord{} = record) do
+    # IO.inspect(email, label: "thanks_donation")
+
+    base_mail()
+    |> to(email)
+    |> subject("感谢你的打赏")
+    |> html_body(Templates.ThanksDonation.html(user, record))
+    |> text_body(Templates.ThanksDonation.text())
+    |> Mailer.deliver_later()
+  end
+
   def notify_admin(%User{from_github: true} = user, :new_register) do
     base_mail()
     |> to(@admin_email)

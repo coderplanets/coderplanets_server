@@ -240,7 +240,8 @@ defmodule GroupherServer.Support.Factory do
       login: "#{Faker.Name.first_name()}#{unique_num}" |> String.downcase(),
       nickname: "#{Faker.Name.first_name()}#{unique_num}",
       bio: Faker.Lorem.Shakespeare.romeo_and_juliet(),
-      avatar: Faker.Avatar.image_url()
+      avatar: Faker.Avatar.image_url(),
+      email: "faker@gmail.com"
     }
   end
 
