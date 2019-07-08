@@ -24,7 +24,7 @@ defmodule GroupherServer.Test.Mailer do
     end
 
     test "not send welcome email when user has no email addr" do
-      {:ok, user} = db_insert(:user)
+      {:ok, user} = db_insert(:user, %{email: nil})
 
       expected_email = GroupherServer.Email.welcome(user)
       assert {:ok, :pass} = expected_email
