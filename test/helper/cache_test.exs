@@ -22,6 +22,7 @@ defmodule GroupherServer.Test.Helper.Cache do
       assert {:ok, true} = Cache.put(:data, :value)
       assert {:ok, :value} = Cache.get(:data)
 
+      # complex data
       assert {:ok, true} = Cache.put("namespace.aaa.bbb", [1, %{a: "2"}])
       assert {:ok, [1, %{a: "2"}]} = Cache.get("namespace.aaa.bbb")
     end
