@@ -376,7 +376,7 @@ defmodule GroupherServer.Email.Templates.Welcome do
                                                         <td style="padding:4px;">
                                                           <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:#296C7D;border-radius:3px;width:30px;">
                                                             <tr>
-                                                              <td style="font-size:0;height:30px;vertical-align:middle;width:30px;"> <a href="https://mjml.io/" target="_blank">
+                                                              <td style="font-size:0;height:30px;vertical-align:middle;width:30px;"> <a href="https://github.com/coderplanets" target="_blank">
                         <img height="30" src="https://www.mailjet.com/images/theme/v1/icons/ico-social/github.png" style="border-radius:3px;" width="30">
                       </a> </td>
                                                             </tr>
