@@ -101,7 +101,7 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
     </head>
 
     <body style="background-color:#002B34;">
-    <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"> Pre-header Text </div>
+    <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">有人捐助</div>
     <div style="background-color:#002B34;">
     <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:#183a42;background-color:#183a42;width:100%;">
       <tbody>
