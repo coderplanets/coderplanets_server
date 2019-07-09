@@ -277,7 +277,8 @@ defmodule GroupherServer.Support.Factory do
     %{
       payment_usage: "donate",
       payment_method: "alipay",
-      amount: 51.2
+      amount: 51.2,
+      note: "thank you"
     }
   end
 
