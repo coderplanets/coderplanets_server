@@ -24,8 +24,7 @@ defmodule GroupherServer.Test.Helper.ORMTest do
   # end 
 
   # describe "orm hooks" do
-  #   @tag :wip2
-  #   test "create hooks" do 
+  #   test "create hooks" do
   #     user_attrs = mock_attrs(:user)
   #     user_attrs2 = mock_attrs(:user)
 

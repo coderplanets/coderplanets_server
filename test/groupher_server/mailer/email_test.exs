@@ -9,7 +9,6 @@ defmodule GroupherServer.Test.Mailer do
   @support_email get_config(:system_emails, :support)
 
   describe "basic email" do
-    @tag :wip
     test "send welcome email when user has email addr" do
       {:ok, user} = db_insert(:user, %{email: "fake@gmail.com"})
 
@@ -24,9 +23,8 @@ defmodule GroupherServer.Test.Mailer do
       assert_delivered_email(expected_email)
     end
 
-    @tag :wip
     test "not send welcome email when user has no email addr" do
-      {:ok, user} = db_insert(:user)
+      {:ok, user} = db_insert(:user, %{email: nil})
 
       expected_email = GroupherServer.Email.welcome(user)
       assert {:ok, :pass} = expected_email

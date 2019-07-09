@@ -24,11 +24,13 @@ defmodule GroupherServer.Test.Mutation.Billing.Basic do
       $paymentMethod: PaymentMethodEnum!
       $paymentUsage: PaymentUsageEnum!
       $amount: Float!
+      $note: String
     ) {
       createBill(
         paymentMethod: $paymentMethod
         paymentUsage: $paymentUsage
         amount: $amount
+        note: $note
       ) {
         id
         state
@@ -36,16 +38,17 @@ defmodule GroupherServer.Test.Mutation.Billing.Basic do
         hashId
         paymentUsage
         paymentMethod
+        note
       }
     }
     """
     test "auth user can create bill", ~m(user_conn valid_attrs)a do
       variables = valid_attrs |> camelize_map_key(:upcase)
-
       created = user_conn |> mutation_result(@create_query, variables, "createBill")
 
       assert created["amount"] == @senior_amount_threshold
       assert created["state"] == "pending"
+      assert created["note"] !== nil
     end
 
     @update_query """
