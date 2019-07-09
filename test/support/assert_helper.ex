@@ -24,7 +24,8 @@ defmodule GroupherServer.Test.AssertHelper do
   def assert_v(:xss_string), do: "<script>alert(\"hello,world\")</script>"
 
   def assert_v(:xss_safe_string),
-    do: "&lt;script&gt;alert(&quot;hello,world&quot;)&lt;/script&gt;"
+    # "&lt;script&gt;alert(&quot;hello,world&quot;)&lt;/script&gt;"
+    do: "<script>alert(\"hello,world\")</script>"
 
   def is_valid_kv?(obj, key, :list) when is_map(obj) do
     obj = map_key_stringify(obj)
