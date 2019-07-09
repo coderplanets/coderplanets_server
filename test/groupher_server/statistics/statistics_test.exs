@@ -20,14 +20,14 @@ defmodule GroupherServer.Test.Statistics do
     alias Statistics.UserContribute
 
     test "list_contributes return empty list when theres no records", ~m(user)a do
-      {:ok, contributes} = Statistics.list_contributes(%User{id: user.id})
+      {:ok, contributes} = Statistics.list_contributes_digest(%User{id: user.id})
       assert contributes.records == []
       assert contributes.total_count == 0
     end
 
     test "list_contributes return proper format ", ~m(user)a do
       Statistics.make_contribute(%User{id: user.id})
-      {:ok, contributes} = Statistics.list_contributes(%User{id: user.id})
+      {:ok, contributes} = Statistics.list_contributes_digest(%User{id: user.id})
       # contributes[0]
       assert contributes |> Map.has_key?(:start_date)
       assert contributes |> Map.has_key?(:end_date)
@@ -56,7 +56,7 @@ defmodule GroupherServer.Test.Statistics do
         }
       ])
 
-      {:ok, contributes} = Statistics.list_contributes(%User{id: user.id})
+      {:ok, contributes} = Statistics.list_contributes_digest(%User{id: user.id})
       assert length(contributes.records) == 1
     end
 
@@ -143,7 +143,7 @@ defmodule GroupherServer.Test.Statistics do
         }
       ])
 
-      {:ok, contributes} = Statistics.list_contributes(%Community{id: community.id})
+      {:ok, contributes} = Statistics.list_contributes_digest(%Community{id: community.id})
       assert length(contributes) == @community_contribute_days + 1
     end
   end

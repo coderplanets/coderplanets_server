@@ -9,7 +9,7 @@ defmodule GroupherServerWeb.Schema.Statistics.Queries do
     field :user_contributes, list_of(:user_contribute) do
       arg(:id, non_null(:id))
 
-      resolve(&R.Statistics.list_contributes/3)
+      resolve(&R.Statistics.list_contributes_digest/3)
     end
 
     @desc "list cities geo info"
