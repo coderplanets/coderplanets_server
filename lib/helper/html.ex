@@ -30,5 +30,8 @@ defmodule Helper.HTML do
   # end
   # end
 
-  defp escape_to_safe_string(v), do: v |> HTML.html_escape() |> HTML.safe_to_string()
+  # defp escape_to_safe_string(v), do: v |> HTML.html_escape() |> HTML.safe_to_string()
+  defp escape_to_safe_string(v), do: v
+
+  # defp escape_to_safe_string(v), do: v |> HTML.javascript_escape # HTML.html_escape() |> HTML.safe_to_string()
 end
