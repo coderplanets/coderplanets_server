@@ -19,3 +19,4 @@ _tuts/
 docs/draft.ex
 cover/excoveralls.html
 node_modules/
+.elixir_ls/

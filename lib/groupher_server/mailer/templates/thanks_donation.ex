@@ -97,9 +97,9 @@ defmodule GroupherServer.Email.Templates.ThanksDonation do
 
             <mj-column width="100%">
               <mj-text color="#6f8696" align="center" font-weight="bold" font-size="18px">
-                # #{user.nickname}, 感谢您的打赏 #
+                # xxx 感谢您的打赏 #
               </mj-text>
-      
+
               <mj-divider border-width="1px" border-style="dashed" border-color="#002F39" />
               <mj-table color="#6C8695" font-size="18px" line-height="40px">
                 <tr style="border-top:1px solid #6C8695;text-align:left;">
@@ -128,11 +128,11 @@ defmodule GroupherServer.Email.Templates.ThanksDonation do
                 </tr>
               </mj-table>
               <mj-divider border-width="1px" border-style="dashed" border-color="#617B8A" />
-        
+
               <mj-text color="#6f8696" align="left"  font-size="15px">
                 您的善举将全部被用于社区服务器的维护和运营，如有任何疑问，请将上述账单截图发送至 support@group.coderplanets.com, 我会第一时间为您处理。再次感谢, 祝生活愉快!
               </mj-text>
-          
+
             </mj-column>
           </mj-section>
 
