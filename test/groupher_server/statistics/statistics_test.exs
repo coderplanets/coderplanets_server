@@ -20,14 +20,14 @@ defmodule GroupherServer.Test.Statistics do
     alias Statistics.UserContribute
 
     test "list_contributes return empty list when theres no records", ~m(user)a do
-      {:ok, contributes} = Statistics.list_contributes(%User{id: user.id})
+      {:ok, contributes} = Statistics.list_contributes_digest(%User{id: user.id})
       assert contributes.records == []
       assert contributes.total_count == 0
     end
 
     test "list_contributes return proper format ", ~m(user)a do
       Statistics.make_contribute(%User{id: user.id})
-      {:ok, contributes} = Statistics.list_contributes(%User{id: user.id})
+      {:ok, contributes} = Statistics.list_contributes_digest(%User{id: user.id})
       # contributes[0]
       assert contributes |> Map.has_key?(:start_date)
       assert contributes |> Map.has_key?(:end_date)
@@ -56,7 +56,7 @@ defmodule GroupherServer.Test.Statistics do
         }
       ])
 
-      {:ok, contributes} = Statistics.list_contributes(%User{id: user.id})
+      {:ok, contributes} = Statistics.list_contributes_digest(%User{id: user.id})
       assert length(contributes.records) == 1
     end
 
@@ -121,6 +121,7 @@ defmodule GroupherServer.Test.Statistics do
       assert second.count == 2
     end
 
+    @tag :wip
     test "should return recent #{@community_contribute_days} days community contributes by default",
          ~m(community)a do
       seven_days_ago = Timex.shift(Timex.today(), days: -@community_contribute_days)
@@ -143,8 +144,29 @@ defmodule GroupherServer.Test.Statistics do
         }
       ])
 
-      {:ok, contributes} = Statistics.list_contributes(%Community{id: community.id})
+      {:ok, contributes} = Statistics.list_contributes_digest(%Community{id: community.id})
       assert length(contributes) == @community_contribute_days + 1
+    end
+
+    alias Helper.Cache
+    @tag :wip
+    test "the contributes data should be cached after first query", ~m(community)a do
+      scope = Cache.get_scope(:community_contributes, community.id)
+      assert {:error, nil} = Cache.get(scope)
+
+      {:ok, contributes} = Statistics.list_contributes_digest(%Community{id: community.id})
+
+      assert {:ok, contributes} = Cache.get(scope)
+    end
+
+    @tag :wip
+    test "cache should be update after make contributes", ~m(community)a do
+      scope = Cache.get_scope(:community_contributes, community.id)
+      assert {:error, nil} = Cache.get(scope)
+
+      Statistics.make_contribute(%Community{id: community.id})
+
+      assert {:ok, _} = Cache.get(scope)
     end
   end
 end

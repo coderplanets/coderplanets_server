@@ -4,7 +4,7 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
   just copy and paste raw string to: https://mjml.io/try-it-live
   """
 
-  alias GroupherServer.Billing.BillRecord
+  # alias GroupherServer.Billing.BillRecord
 
   def html(record) do
     """
@@ -121,9 +121,9 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
                     <td style="direction:ltr;font-size:0px;padding:20px 0;padding-bottom:0;text-align:center;vertical-align:top;">
                       <!--[if mso | IE]>
                   <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                
+
         <tr>
-      
+
             <td
                class="" style="vertical-align:top;width:600px;"
             >
@@ -144,9 +144,9 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
                       </div>
                       <!--[if mso | IE]>
             </td>
-          
+
         </tr>
-      
+
                   </table>
                 <![endif]-->
                     </td>
@@ -177,12 +177,12 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
             <td style="direction:ltr;font-size:0px;padding:20px 0;padding-bottom:0;padding-top:0;text-align:center;vertical-align:top;">
               <!--[if mso | IE]>
                   <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                
+
             <tr>
               <td
                  class="" width="600px"
               >
-          
+
       <table
          align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600"
       >
@@ -196,9 +196,9 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
                       <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;vertical-align:top;">
                         <!--[if mso | IE]>
                   <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                
+
         <tr>
-      
+
             <td
                class="" style="vertical-align:top;width:600px;"
             >
@@ -262,9 +262,9 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
                         </div>
                         <!--[if mso | IE]>
             </td>
-          
+
         </tr>
-      
+
                   </table>
                 <![endif]-->
                       </td>
@@ -276,10 +276,10 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
           </td>
         </tr>
       </table>
-      
+
               </td>
             </tr>
-          
+
                   </table>
                 <![endif]-->
             </td>
@@ -310,12 +310,12 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
                     <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;vertical-align:top;">
                       <!--[if mso | IE]>
                   <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                
+
             <tr>
               <td
                  class="" width="600px"
               >
-          
+
       <table
          align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600"
       >
@@ -329,9 +329,9 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
                               <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;vertical-align:top;">
                                 <!--[if mso | IE]>
                   <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                
+
         <tr>
-      
+
             <td
                class="" style="vertical-align:top;width:600px;"
             >
@@ -349,7 +349,7 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
          align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
       >
         <tr>
-      
+
               <td>
             <![endif]-->
                                                 <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="float:none;display:inline-table;">
@@ -367,7 +367,7 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
                                                 </table>
                                                 <!--[if mso | IE]>
               </td>
-            
+
           </tr>
         </table>
       <![endif]-->
@@ -386,9 +386,9 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
                                 </div>
                                 <!--[if mso | IE]>
             </td>
-          
+
         </tr>
-      
+
                   </table>
                 <![endif]-->
                               </td>
@@ -400,15 +400,15 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
           </td>
         </tr>
       </table>
-      
+
               </td>
             </tr>
-          
+
             <tr>
               <td
                  class="" width="600px"
               >
-          
+
       <table
          align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600"
       >
@@ -422,9 +422,9 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
                               <td style="direction:ltr;font-size:0px;padding:20px 0;padding-top:0;text-align:center;vertical-align:top;">
                                 <!--[if mso | IE]>
                   <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                
+
         <tr>
-      
+
             <td
                class="" style="width:600px;"
             >
@@ -433,7 +433,7 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
                                   <!--[if mso | IE]>
         <table  role="presentation" border="0" cellpadding="0" cellspacing="0">
           <tr>
-        
+
               <td
                  style="vertical-align:top;width:600px;"
               >
@@ -458,16 +458,16 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
                                   </div>
                                   <!--[if mso | IE]>
               </td>
-              
+
           </tr>
           </table>
         <![endif]-->
                                 </div>
                                 <!--[if mso | IE]>
             </td>
-          
+
         </tr>
-      
+
                   </table>
                 <![endif]-->
                               </td>
@@ -479,10 +479,10 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
           </td>
         </tr>
       </table>
-      
+
               </td>
             </tr>
-          
+
                   </table>
                 <![endif]-->
                     </td>
@@ -583,7 +583,7 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
                   <td style="padding: 0 0 0 15px;">2018/05/24 03:22</td>
                 </tr>
               </mj-table>
-          
+
             </mj-column>
           </mj-section>
 

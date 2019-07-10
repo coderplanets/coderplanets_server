@@ -7,40 +7,58 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
   alias GroupherServer.Accounts.User
   alias GroupherServer.CMS.Community
   alias GroupherServer.Statistics.{UserContribute, CommunityContribute}
-  alias Helper.{ORM, QueryBuilder}
+  alias Helper.{Cache, ORM, QueryBuilder}
 
   @community_contribute_days get_config(:general, :community_contribute_days)
   @user_contribute_months get_config(:general, :user_contribute_months)
 
-  def make_contribute(%Community{id: id}) do
-    today = Timex.today() |> Date.to_iso8601()
-
-    with {:ok, contribute} <- ORM.find_by(CommunityContribute, community_id: id, date: today) do
-      contribute |> inc_contribute_count(:community) |> done
-    else
-      {:error, _} ->
-        CommunityContribute |> ORM.create(%{community_id: id, date: today, count: 1})
-    end
-  end
-
+  @doc """
+  update user's contributes record
+  """
   def make_contribute(%User{id: id}) do
     today = Timex.today() |> Date.to_iso8601()
 
-    with {:ok, contribute} <- ORM.find_by(UserContribute, user_id: id, date: today) do
-      contribute |> inc_contribute_count(:user) |> done
-    else
+    case ORM.find_by(UserContribute, user_id: id, date: today) do
+      {:ok, contribute} ->
+        contribute |> inc_contribute_count(:user) |> done
+
       {:error, _} ->
         UserContribute |> ORM.create(%{user_id: id, date: today, count: 1})
     end
   end
 
   @doc """
-  Returns the list of user_contribute by latest 6 months.
+  update community's contributes record
   """
-  def list_contributes(%User{id: id}) do
+  def make_contribute(%Community{id: id}) do
+    today = Timex.today() |> Date.to_iso8601()
+
+    case ORM.find_by(CommunityContribute, community_id: id, date: today) do
+      {:ok, contribute} ->
+        result = contribute |> inc_contribute_count(:community) |> done
+
+        # TODO:  move to background job
+        list_contributes_digest(%Community{id: id})
+        result
+
+      {:error, _} ->
+        result =
+          CommunityContribute
+          |> ORM.create(%{community_id: id, date: today, count: 1})
+
+        # TODO:  move to background job
+        list_contributes_digest(%Community{id: id})
+        result
+    end
+  end
+
+  @doc """
+  Returns the list of user_contribute by latest 6 days.
+  """
+  def list_contributes_digest(%User{id: id}) do
     user_id = integerfy(id)
 
-    "user_contributes"
+    UserContribute
     |> where([c], c.user_id == ^user_id)
     |> QueryBuilder.recent_inserted(months: @user_contribute_months)
     |> select([c], %{date: c.date, count: c.count})
@@ -49,24 +67,40 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
     |> done
   end
 
-  def list_contributes(%Community{id: id}) do
-    %Community{id: id}
-    |> get_contributes()
-    |> to_counts_digest(days: @community_contribute_days)
-    |> done
+  @doc """
+  Returns the list of community_contribute by latest 6 days.
+  """
+  def list_contributes_digest(%Community{id: id}) do
+    scope = Cache.get_scope(:community_contributes, id)
+
+    case Cache.get(scope) do
+      {:ok, result} ->
+        {:ok, result}
+
+      {:error, _} ->
+        %Community{id: id}
+        |> get_contributes()
+        |> to_counts_digest(days: @community_contribute_days)
+        |> done
+        |> cache_result(scope)
+    end
   end
 
-  def list_contributes_digest(%Community{id: id}) do
-    %Community{id: id}
-    |> get_contributes()
-    |> to_counts_digest(days: @community_contribute_days)
-    |> done
+  # TODO:  mv to helper/cache, also 规范一下 scope
+  defp cache_result({:ok, result}, scope) do
+    Cache.put(scope, result)
+    {:ok, result}
+  end
+
+  # TODO:  mv to helper/cache, also 规范一下 scope
+  defp cache_result({:error, result}, _scope) do
+    {:error, result}
   end
 
   defp get_contributes(%Community{id: id}) do
     community_id = integerfy(id)
 
-    "community_contributes"
+    CommunityContribute
     |> where([c], c.community_id == ^community_id)
     |> QueryBuilder.recent_inserted(days: @community_contribute_days)
     |> select([c], %{date: c.date, count: c.count})

@@ -5,7 +5,7 @@ defmodule GroupherServer.Mixfile do
     [
       app: :groupher_server,
       version: "0.1.7",
-      elixir: "~> 1.4",
+      elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       dialyzer: [plt_add_deps: :transitive, ignore_warnings: ".dialyzer_ignore.exs"],
@@ -96,7 +96,8 @@ defmodule GroupherServer.Mixfile do
       {:sentry, "~> 6.4"},
       {:recase, "~> 0.4.0"},
       {:nanoid, "~> 2.0.0"},
-      {:bamboo, "1.2.0"}
+      {:bamboo, "1.2.0"},
+      {:cachex, "3.1.3"}
     ]
   end
 

@@ -5,15 +5,32 @@ defmodule GroupherServer.Application do
   # for more information on OTP Applications
   def start(_type, _args) do
     import Supervisor.Spec
+    import Cachex.Spec
 
     # Define workers and child supervisors to be supervised
     children = [
       # Start the Ecto repository
       supervisor(GroupherServer.Repo, []),
       # Start the endpoint when the application starts
-      supervisor(GroupherServerWeb.Endpoint, [])
+      supervisor(GroupherServerWeb.Endpoint, []),
       # Start your own worker by calling: GroupherServer.Worker.start_link(arg1, arg2, arg3)
       # worker(GroupherServer.Worker, [arg1, arg2, arg3]),
+      worker(Cachex, [
+        :site_cache,
+        [
+          limit:
+            limit(
+              # the limit provided
+              size: 5000,
+              # the policy to use for eviction
+              policy: Cachex.Policy.LRW,
+              # how much to reclaim on bound expiration
+              reclaim: 0.1,
+              # options to pass to the policy
+              options: []
+            )
+        ]
+      ])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
