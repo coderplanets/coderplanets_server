@@ -13,21 +13,6 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
   @user_contribute_months get_config(:general, :user_contribute_months)
 
   @doc """
-  update community's contributes record
-  """
-  def make_contribute(%Community{id: id}) do
-    today = Timex.today() |> Date.to_iso8601()
-
-    case ORM.find_by(CommunityContribute, community_id: id, date: today) do
-      {:ok, contribute} ->
-        contribute |> inc_contribute_count(:community) |> done
-
-      {:error, _} ->
-        CommunityContribute |> ORM.create(%{community_id: id, date: today, count: 1})
-    end
-  end
-
-  @doc """
   update user's contributes record
   """
   def make_contribute(%User{id: id}) do
@@ -39,6 +24,31 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
 
       {:error, _} ->
         UserContribute |> ORM.create(%{user_id: id, date: today, count: 1})
+    end
+  end
+
+  @doc """
+  update community's contributes record
+  """
+  def make_contribute(%Community{id: id}) do
+    today = Timex.today() |> Date.to_iso8601()
+
+    case ORM.find_by(CommunityContribute, community_id: id, date: today) do
+      {:ok, contribute} ->
+        result = contribute |> inc_contribute_count(:community) |> done
+
+        # TODO:  move to background job
+        list_contributes_digest(%Community{id: id})
+        result
+
+      {:error, _} ->
+        result =
+          CommunityContribute
+          |> ORM.create(%{community_id: id, date: today, count: 1})
+
+        # TODO:  move to background job
+        list_contributes_digest(%Community{id: id})
+        result
     end
   end
 
@@ -61,7 +71,7 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
   Returns the list of community_contribute by latest 6 days.
   """
   def list_contributes_digest(%Community{id: id}) do
-    scope = "community.contributes.#{id}"
+    scope = Cache.get_scope(:community_contributes, id)
 
     case Cache.get(scope) do
       {:ok, result} ->
@@ -76,12 +86,13 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
     end
   end
 
+  # TODO:  mv to helper/cache, also 规范一下 scope
   defp cache_result({:ok, result}, scope) do
-    IO.inspect scope, label: "put cashe"
     Cache.put(scope, result)
     {:ok, result}
   end
 
+  # TODO:  mv to helper/cache, also 规范一下 scope
   defp cache_result({:error, result}, _scope) do
     {:error, result}
   end
