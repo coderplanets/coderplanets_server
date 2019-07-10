@@ -7,13 +7,13 @@ defmodule GroupherServer.Test.Helper.Cache do
   describe "[cache test]" do
     @tag :wip
     test "cache get unexsit key should get nil" do
-      assert {:ok, nil} = Cache.get("no exsit")
-      assert {:ok, nil} = Cache.get(:no_exsit)
+      assert {:error, nil} = Cache.get("no exsit")
+      assert {:error, nil} = Cache.get(:no_exsit)
     end
 
     @tag :wip
     test "cache put should work" do
-      assert {:ok, nil} = Cache.get(:data)
+      assert {:error, nil} = Cache.get(:data)
 
       assert {:ok, true} = Cache.put(:data, "value")
       assert {:ok, "value"} = Cache.get(:data)

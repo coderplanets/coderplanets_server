@@ -9,7 +9,13 @@ defmodule Helper.Cache do
   {:ok, "b"}
   """
   def get(cache_key) do
-    Cachex.get(:site_cache, cache_key)
+    case Cachex.get(:site_cache, cache_key) do
+      {:ok, nil} ->
+        {:error, nil}
+
+      {:ok, result} ->
+        {:ok, result}
+    end
   end
 
   @doc """
@@ -20,4 +26,9 @@ defmodule Helper.Cache do
   def put(cache_key, cache_value) do
     Cachex.put(:site_cache, cache_key, cache_value)
   end
+
+  @doc """
+  cache scope of community contributes digest
+  """
+  def get_scope(:community_contributes, id), do: "community.contributes.#{id}"
 end

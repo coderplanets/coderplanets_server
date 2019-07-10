@@ -121,6 +121,7 @@ defmodule GroupherServer.Test.Statistics do
       assert second.count == 2
     end
 
+    @tag :wip
     test "should return recent #{@community_contribute_days} days community contributes by default",
          ~m(community)a do
       seven_days_ago = Timex.shift(Timex.today(), days: -@community_contribute_days)
@@ -145,6 +146,27 @@ defmodule GroupherServer.Test.Statistics do
 
       {:ok, contributes} = Statistics.list_contributes_digest(%Community{id: community.id})
       assert length(contributes) == @community_contribute_days + 1
+    end
+
+    alias Helper.Cache
+    @tag :wip
+    test "the contributes data should be cached after first query", ~m(community)a do
+      scope = Cache.get_scope(:community_contributes, community.id)
+      assert {:error, nil} = Cache.get(scope)
+
+      {:ok, contributes} = Statistics.list_contributes_digest(%Community{id: community.id})
+
+      assert {:ok, contributes} = Cache.get(scope)
+    end
+
+    @tag :wip
+    test "cache should be update after make contributes", ~m(community)a do
+      scope = Cache.get_scope(:community_contributes, community.id)
+      assert {:error, nil} = Cache.get(scope)
+
+      Statistics.make_contribute(%Community{id: community.id})
+
+      assert {:ok, _} = Cache.get(scope)
     end
   end
 end
