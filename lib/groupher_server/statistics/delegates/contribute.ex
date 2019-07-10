@@ -7,7 +7,7 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
   alias GroupherServer.Accounts.User
   alias GroupherServer.CMS.Community
   alias GroupherServer.Statistics.{UserContribute, CommunityContribute}
-  alias Helper.{ORM, QueryBuilder}
+  alias Helper.{Cache, ORM, QueryBuilder}
 
   @community_contribute_days get_config(:general, :community_contribute_days)
   @user_contribute_months get_config(:general, :user_contribute_months)
@@ -61,10 +61,29 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
   Returns the list of community_contribute by latest 6 days.
   """
   def list_contributes_digest(%Community{id: id}) do
-    %Community{id: id}
-    |> get_contributes()
-    |> to_counts_digest(days: @community_contribute_days)
-    |> done
+    scope = "community.contributes.#{id}"
+
+    case Cache.get(scope) do
+      {:ok, result} ->
+        {:ok, result}
+
+      {:error, _} ->
+        %Community{id: id}
+        |> get_contributes()
+        |> to_counts_digest(days: @community_contribute_days)
+        |> done
+        |> cache_result(scope)
+    end
+  end
+
+  defp cache_result({:ok, result}, scope) do
+    IO.inspect scope, label: "put cashe"
+    Cache.put(scope, result)
+    {:ok, result}
+  end
+
+  defp cache_result({:error, result}, _scope) do
+    {:error, result}
   end
 
   defp get_contributes(%Community{id: id}) do
