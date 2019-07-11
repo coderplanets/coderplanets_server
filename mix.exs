@@ -87,7 +87,7 @@ defmodule GroupherServer.Mixfile do
       {:ex_unit_notifier, "~> 0.1", only: :test},
       {:apollo_tracing, "~> 0.4.1"},
       {:pre_commit, "~> 0.3.4"},
-      {:inch_ex, "~> 1.0", only: [:dev, :test]},
+      {:inch_ex, "~> 2.0", only: [:dev, :test]},
       {:short_maps, "~> 0.1.1"},
       {:jason, "~> 1.1.1"},
       {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false},
