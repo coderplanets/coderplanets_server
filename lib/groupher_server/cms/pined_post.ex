@@ -4,7 +4,9 @@ defmodule GroupherServer.CMS.PinedPost do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.CMS.{Community, Post, Topic}
+
+  alias GroupherServer.CMS
+  alias CMS.{Community, Post, Topic}
 
   @required_fields ~w(post_id community_id)a
   @optional_fields ~w(topic_id)a

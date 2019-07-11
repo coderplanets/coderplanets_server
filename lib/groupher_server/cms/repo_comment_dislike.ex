@@ -4,8 +4,9 @@ defmodule GroupherServer.CMS.RepoCommentDislike do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.Accounts
-  alias GroupherServer.CMS.RepoComment
+
+  alias GroupherServer.{Accounts, CMS}
+  alias CMS.RepoComment
 
   @required_fields ~w(repo_comment_id user_id)a
 

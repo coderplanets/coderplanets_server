@@ -4,11 +4,13 @@ defmodule GroupherServer.Delivery.Delegate.Notifications do
   """
   import Helper.Utils, only: [done: 2]
 
-  alias GroupherServer.Accounts.User
-  alias GroupherServer.Delivery.{Notification, SysNotification}
-  alias Helper.ORM
+  alias GroupherServer.{Accounts, Delivery}
 
-  alias GroupherServer.Delivery.Delegate.Utils
+  alias Accounts.User
+  alias Delivery.{Delegate, Notification, SysNotification}
+  alias Delegate.Utils
+
+  alias Helper.ORM
 
   # TODO: audience
   def publish_system_notification(info) do

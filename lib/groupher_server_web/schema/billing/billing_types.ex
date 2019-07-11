@@ -5,7 +5,6 @@ defmodule GroupherServerWeb.Schema.Billing.Types do
   use Helper.GqlSchemaSuite
 
   import GroupherServerWeb.Schema.Utils.Helper
-  # import Absinthe.Resolution.Helpers
 
   enum :bill_state_enum do
     value(:pending)

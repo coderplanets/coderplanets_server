@@ -5,10 +5,12 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   import ShortMaps
   import Ecto.Query, warn: false
 
+  alias GroupherServer.{Accounts, CMS}
+
+  alias Accounts.User
+  alias CMS.{Post, Video, Repo, Job, Community, Category, Tag, Thread}
+
   alias Helper.ORM
-  alias GroupherServer.Accounts.User
-  alias GroupherServer.CMS
-  alias GroupherServer.CMS.{Post, Video, Repo, Job, Community, Category, Tag, Thread}
 
   # #######################
   # community ..

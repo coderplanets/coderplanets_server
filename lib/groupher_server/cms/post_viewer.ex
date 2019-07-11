@@ -4,8 +4,9 @@ defmodule GroupherServer.CMS.PostViewer do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.Accounts
-  alias GroupherServer.CMS.Post
+
+  alias GroupherServer.{Accounts, CMS}
+  alias CMS.Post
 
   @required_fields ~w(post_id user_id)a
 

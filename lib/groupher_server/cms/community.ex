@@ -1,10 +1,13 @@
 defmodule GroupherServer.CMS.Community do
+  @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias GroupherServer.CMS.{
+  alias GroupherServer.{Accounts, CMS}
+
+  alias CMS.{
     Category,
     Post,
     Video,
@@ -16,8 +19,6 @@ defmodule GroupherServer.CMS.Community do
     CommunityWiki,
     CommunityCheatsheet
   }
-
-  alias GroupherServer.Accounts
 
   @required_fields ~w(title desc user_id logo raw)a
   # @required_fields ~w(title desc user_id)a

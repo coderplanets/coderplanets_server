@@ -3,7 +3,9 @@ defmodule GroupherServer.Statistics do
   The Statistics context.
   """
 
-  alias GroupherServer.Statistics.Delegate.{
+  alias GroupherServer.Statistics.Delegate
+
+  alias Delegate.{
     Contribute,
     Geo,
     Status,

@@ -4,8 +4,9 @@ defmodule GroupherServer.CMS.JobFavorite do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.Accounts
-  alias GroupherServer.CMS.Job
+
+  alias GroupherServer.{Accounts, CMS}
+  alias CMS.Job
 
   @required_fields ~w(user_id job_id)a
   @optional_fields ~w(category_id)a

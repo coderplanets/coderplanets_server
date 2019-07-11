@@ -5,10 +5,10 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
   import ShortMaps
   import Helper.ErrorCode
 
-  alias Helper.{Certification, ORM, Utils}
   alias GroupherServer.{Accounts, CMS}
 
   alias Accounts.{MentionMail, NotificationMail, SysNotificationMail, User}
+  alias Helper.{Certification, ORM, Utils}
 
   # def user(_root, %{id: id}, _info), do: User |> ORM.read(id, inc: :views)
   def user(_root, %{login: login}, _info), do: User |> ORM.read_by(%{login: login}, inc: :views)

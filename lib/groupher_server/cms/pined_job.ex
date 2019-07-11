@@ -4,7 +4,9 @@ defmodule GroupherServer.CMS.PinedJob do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.CMS.{Community, Job}
+
+  alias GroupherServer.CMS
+  alias CMS.{Community, Job}
 
   @required_fields ~w(job_id community_id)a
 

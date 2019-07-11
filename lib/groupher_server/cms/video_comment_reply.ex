@@ -4,7 +4,9 @@ defmodule GroupherServer.CMS.VideoCommentReply do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.CMS.VideoComment
+
+  alias GroupherServer.CMS
+  alias CMS.VideoComment
 
   @required_fields ~w(video_comment_id reply_id)a
 
