@@ -6,8 +6,8 @@ defmodule GroupherServer.Statistics.Delegate.Geo do
   import Helper.Utils
   import ShortMaps
 
-  alias Helper.ORM
   alias GroupherServer.Statistics.UserGeoInfo
+  alias Helper.ORM
 
   def inc_count(city) do
     with {:ok, geo_info} <- UserGeoInfo |> ORM.find_by(~m(city)a) do

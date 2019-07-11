@@ -4,11 +4,12 @@ defmodule Helper.ORM do
   """
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1, done: 3, add: 1]
-  import Helper.ErrorHandler
   import ShortMaps
 
-  alias Helper.{QueryBuilder, SpecType}
+  import Helper.ErrorHandler
+
   alias GroupherServer.Repo
+  alias Helper.{QueryBuilder, SpecType}
 
   @doc """
   a wrap for paginate request

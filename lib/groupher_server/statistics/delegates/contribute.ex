@@ -92,17 +92,17 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
     contribute |> inc_contribute_count(:user) |> done
   end
 
+  defp update_contribute_record(%CommunityContribute{community_id: community_id} = contribute) do
+    with {:ok, result} <- inc_contribute_count(contribute, :community) |> done do
+      cache_contribute_later(%Community{id: community_id})
+      {:ok, result}
+    end
+  end
+
   defp insert_contribute_record(%User{id: id}) do
     today = Timex.today() |> Date.to_iso8601()
 
     UserContribute |> ORM.create(%{user_id: id, date: today, count: 1})
-  end
-
-  defp update_contribute_record(%CommunityContribute{community_id: community_id} = contribute) do
-    with {:ok, result} <- inc_contribute_count(contribute, :community) do
-      cache_contribute_later(%Community{id: community_id})
-      {:ok, result}
-    end
   end
 
   defp insert_contribute_record(%Community{id: id}) do

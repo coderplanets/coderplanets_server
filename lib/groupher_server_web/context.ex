@@ -1,6 +1,9 @@
 # a plug for router ...
 
 defmodule GroupherServerWeb.Context do
+  @moduledoc """
+  entry for all api
+  """
   @behaviour Plug
 
   import Plug.Conn

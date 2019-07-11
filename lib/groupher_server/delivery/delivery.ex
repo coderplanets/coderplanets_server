@@ -2,7 +2,9 @@ defmodule GroupherServer.Delivery do
   @moduledoc """
   The Delivery context.
   """
-  alias GroupherServer.Delivery.Delegate.{Mentions, Notifications, Utils}
+
+  alias GroupherServer.Delivery
+  alias Delivery.Delegate.{Mentions, Notifications, Utils}
 
   defdelegate mailbox_status(user), to: Utils
 

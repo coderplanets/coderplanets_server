@@ -7,10 +7,11 @@ defmodule GroupherServer.Delivery.Delegate.Utils do
   import Helper.Utils
   import ShortMaps
 
-  alias GroupherServer.Repo
+  alias GroupherServer.{Accounts, Delivery, Repo}
 
-  alias GroupherServer.Delivery.{Notification, SysNotification, Mention, Record}
-  alias GroupherServer.Accounts.User
+  alias Accounts.User
+  alias Delivery.{Notification, SysNotification, Mention, Record}
+
   alias Helper.ORM
 
   def mailbox_status(%User{} = user) do

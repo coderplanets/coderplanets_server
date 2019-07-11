@@ -4,7 +4,9 @@ defmodule GroupherServer.CMS.JobCommentReply do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.CMS.JobComment
+
+  alias GroupherServer.CMS
+  alias CMS.JobComment
 
   @required_fields ~w(job_comment_id reply_id)a
 

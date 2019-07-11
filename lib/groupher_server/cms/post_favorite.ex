@@ -4,8 +4,9 @@ defmodule GroupherServer.CMS.PostFavorite do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.Accounts
-  alias GroupherServer.CMS.Post
+
+  alias GroupherServer.{Accounts, CMS}
+  alias CMS.Post
 
   @required_fields ~w(user_id post_id)a
   @optional_fields ~w(category_id)a

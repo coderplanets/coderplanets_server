@@ -4,7 +4,9 @@ defmodule GroupherServer.CMS.RepoCommentReply do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.CMS.RepoComment
+
+  alias GroupherServer.CMS
+  alias CMS.RepoComment
 
   @required_fields ~w(repo_comment_id reply_id)a
 

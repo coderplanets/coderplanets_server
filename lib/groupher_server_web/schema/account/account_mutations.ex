@@ -5,16 +5,6 @@ defmodule GroupherServerWeb.Schema.Account.Mutations do
   use Helper.GqlSchemaSuite
 
   object :account_mutations do
-    # @desc "hehehef: create a user"
-    # field :create_user, :user do
-    # arg(:username, non_null(:string))
-    # arg(:nickname, non_null(:string))
-    # arg(:bio, non_null(:string))
-    # arg(:company, non_null(:string))
-
-    # resolve(&R.Accounts.create_user/3)
-    # end
-
     @desc "update user's profile"
     field :update_profile, :user do
       arg(:profile, non_null(:user_profile_input))

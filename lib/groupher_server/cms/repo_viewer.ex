@@ -4,8 +4,9 @@ defmodule GroupherServer.CMS.RepoViewer do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.Accounts
-  alias GroupherServer.CMS.Repo
+
+  alias GroupherServer.{Accounts, CMS}
+  alias CMS.Repo
 
   @required_fields ~w(repo_id user_id)a
 

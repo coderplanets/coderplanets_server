@@ -4,7 +4,10 @@ defmodule GroupherServer.CMS.CommunityCategory do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.CMS.{Category, Community}
+
+  alias GroupherServer.CMS
+
+  alias CMS.{Category, Community}
 
   @type t :: %CommunityCategory{}
 

@@ -1,4 +1,7 @@
 defmodule GroupherServerWeb.Schema.Account.Types do
+  @moduledoc """
+  accounts GraphQL commont types
+  """
   use Helper.GqlSchemaSuite
 
   import GroupherServerWeb.Schema.Utils.Helper
