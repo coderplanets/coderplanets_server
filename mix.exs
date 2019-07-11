@@ -51,8 +51,8 @@ defmodule GroupherServer.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.4.1"},
-      {:phoenix_pubsub, "~> 1.1.1"},
+      {:phoenix, "~> 1.4.9"},
+      {:phoenix_pubsub, "~> 1.1.2"},
       {:phoenix_html, "~> 2.13.3"},
       {:ecto_sql, "~> 3.1.2"},
       {:phoenix_ecto, "~> 4.0"},
