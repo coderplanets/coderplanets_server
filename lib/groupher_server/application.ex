@@ -30,7 +30,8 @@ defmodule GroupherServer.Application do
               options: []
             )
         ]
-      ])
+      ]),
+      {Rihanna.Supervisor, [postgrex: GroupherServer.Repo.config()]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
