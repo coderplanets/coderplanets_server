@@ -3,7 +3,7 @@ defmodule GroupherServer.Test.Statistics do
 
   import Helper.Utils, only: [get_config: 2]
 
-  alias Helper.ORM
+  alias Helper.{Cache, Later, ORM}
   alias GroupherServer.Accounts.User
   alias GroupherServer.{CMS, Repo, Statistics}
 
@@ -148,7 +148,6 @@ defmodule GroupherServer.Test.Statistics do
       assert length(contributes) == @community_contribute_days + 1
     end
 
-    alias Helper.Cache
     @tag :wip
     test "the contributes data should be cached after first query", ~m(community)a do
       scope = Cache.get_scope(:community_contributes, community.id)
@@ -159,14 +158,24 @@ defmodule GroupherServer.Test.Statistics do
       assert {:ok, contributes} = Cache.get(scope)
     end
 
-    @tag :wip
+    @tag :wip2
+    test "Rihanna should work in test sandbox", ~m(community)a do
+      res = Rihanna.enqueue({IO, :puts, ["Work, work, work, work, work."]})
+      Process.sleep(1000)
+      # IO.inspect(res, label: "res")
+    end
+
     test "cache should be update after make contributes", ~m(community)a do
       scope = Cache.get_scope(:community_contributes, community.id)
       assert {:error, nil} = Cache.get(scope)
 
       Statistics.make_contribute(%Community{id: community.id})
 
-      assert {:ok, _} = Cache.get(scope)
+      # res = Later.exec({IO, :puts, ["Work, work, work, work, work."]})
+      # Process.sleep(1000)
+      # IO.inspect(res, label: "res")
+
+      # assert {:ok, _} = Cache.get(scope)
     end
   end
 end

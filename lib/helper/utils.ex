@@ -6,6 +6,8 @@ defmodule Helper.Utils do
   import Helper.ErrorHandler
   import Helper.ErrorCode
 
+  alias Helper.Cache
+
   def get_config(section, key, app \\ :groupher_server)
 
   def get_config(section, :all, app) do
@@ -49,6 +51,13 @@ defmodule Helper.Utils do
 
   # def done({:error, error}), do: {:error, error}
   def done(result), do: {:ok, result}
+
+  def done_and_cache(result, scope) do
+    with {:ok, res} <- done(result) do
+      Cache.put(scope, res)
+      {:ok, res}
+    end
+  end
 
   @doc """
   see: https://hexdocs.pm/absinthe/errors.html#content for error format
