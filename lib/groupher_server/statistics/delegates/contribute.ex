@@ -1,13 +1,19 @@
 defmodule GroupherServer.Statistics.Delegate.Contribute do
+  @moduledoc """
+  contribute statistics for user and community, record how many content
+  has been add to it
+  """
   import Ecto.Query, warn: false
   import Helper.Utils
   import ShortMaps
 
-  alias GroupherServer.Repo
-  alias GroupherServer.Accounts.User
-  alias GroupherServer.CMS.Community
-  alias GroupherServer.Statistics.{UserContribute, CommunityContribute}
-  alias Helper.{Cache, ORM, QueryBuilder}
+  alias GroupherServer.{Accounts, CMS, Repo, Statistics}
+
+  alias Accounts.User
+  alias CMS.Community
+  alias Statistics.{CommunityContribute, UserContribute}
+
+  alias Helper.{Cache, Later, ORM, QueryBuilder}
 
   @community_contribute_days get_config(:general, :community_contribute_days)
   @user_contribute_months get_config(:general, :user_contribute_months)
@@ -15,15 +21,15 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
   @doc """
   update user's contributes record
   """
-  def make_contribute(%User{id: id}) do
+  def make_contribute(%User{id: id} = user) do
     today = Timex.today() |> Date.to_iso8601()
 
     case ORM.find_by(UserContribute, user_id: id, date: today) do
       {:ok, contribute} ->
-        contribute |> inc_contribute_count(:user) |> done
+        update_contribute_record(contribute)
 
       {:error, _} ->
-        UserContribute |> ORM.create(%{user_id: id, date: today, count: 1})
+        insert_contribute_record(user)
     end
   end
 
@@ -35,20 +41,10 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
 
     case ORM.find_by(CommunityContribute, community_id: id, date: today) do
       {:ok, contribute} ->
-        result = contribute |> inc_contribute_count(:community) |> done
-
-        # TODO:  move to background job
-        list_contributes_digest(%Community{id: id})
-        result
+        update_contribute_record(contribute)
 
       {:error, _} ->
-        result =
-          CommunityContribute
-          |> ORM.create(%{community_id: id, date: today, count: 1})
-
-        # TODO:  move to background job
-        list_contributes_digest(%Community{id: id})
-        result
+        insert_contribute_record(%Community{id: id})
     end
   end
 
@@ -78,26 +74,52 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
         {:ok, result}
 
       {:error, _} ->
-        %Community{id: id}
-        |> get_contributes()
-        |> to_counts_digest(days: @community_contribute_days)
-        |> done
-        |> cache_result(scope)
+        get_contributes_then_cache(%Community{id: id})
     end
   end
 
-  # TODO:  mv to helper/cache, also 规范一下 scope
-  defp cache_result({:ok, result}, scope) do
-    Cache.put(scope, result)
-    {:ok, result}
+  # NOTE*  must be public, cause it will be exec by background job
+  def get_contributes_then_cache(%Community{id: id}) do
+    scope = Cache.get_scope(:community_contributes, id)
+
+    %Community{id: id}
+    |> do_get_contributes()
+    |> to_counts_digest(days: @community_contribute_days)
+    |> done_and_cache(scope)
   end
 
-  # TODO:  mv to helper/cache, also 规范一下 scope
-  defp cache_result({:error, result}, _scope) do
-    {:error, result}
+  defp update_contribute_record(%UserContribute{} = contribute) do
+    contribute |> inc_contribute_count(:user) |> done
   end
 
-  defp get_contributes(%Community{id: id}) do
+  defp insert_contribute_record(%User{id: id}) do
+    today = Timex.today() |> Date.to_iso8601()
+
+    UserContribute |> ORM.create(%{user_id: id, date: today, count: 1})
+  end
+
+  defp update_contribute_record(%CommunityContribute{community_id: community_id} = contribute) do
+    with {:ok, result} <- inc_contribute_count(contribute, :community) do
+      cache_contribute_later(%Community{id: community_id})
+      {:ok, result}
+    end
+  end
+
+  defp insert_contribute_record(%Community{id: id}) do
+    today = Timex.today() |> Date.to_iso8601()
+
+    with {:ok, result} <-
+           ORM.create(CommunityContribute, %{community_id: id, date: today, count: 1}) do
+      cache_contribute_later(%Community{id: id})
+      {:ok, result}
+    end
+  end
+
+  defp cache_contribute_later(%Community{id: id}) do
+    Later.exec({__MODULE__, :get_contributes_then_cache, [%Community{id: id}]})
+  end
+
+  defp do_get_contributes(%Community{id: id}) do
     community_id = integerfy(id)
 
     CommunityContribute

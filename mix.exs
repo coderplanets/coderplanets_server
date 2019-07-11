@@ -97,7 +97,8 @@ defmodule GroupherServer.Mixfile do
       {:recase, "~> 0.4.0"},
       {:nanoid, "~> 2.0.0"},
       {:bamboo, "1.2.0"},
-      {:cachex, "3.1.3"}
+      {:cachex, "3.1.3"},
+      {:rihanna, "1.3.5"}
     ]
   end
 
