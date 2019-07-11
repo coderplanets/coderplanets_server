@@ -3,6 +3,10 @@
 # see https://hexdocs.pm/absinthe/Absinthe.Middleware.html#content
 # ---
 defmodule GroupherServerWeb.Middleware.PageSizeProof do
+  @moduledoc """
+  make sure size less than max limit
+  """
+
   @behaviour Absinthe.Middleware
 
   import Helper.Utils, only: [handle_absinthe_error: 3, get_config: 2]
@@ -22,7 +26,7 @@ defmodule GroupherServerWeb.Middleware.PageSizeProof do
         _info
       )
       when not is_nil(customization) do
-    # NOTE:  c11n display_density should also linted by page limit, 
+    # NOTE:  c11n display_density should also linted by page limit,
     # otherwise dataloader will crash for empty extra items
     size = customization.display_density |> String.to_integer() |> min(@max_page_size)
     # size = 28

@@ -4,7 +4,9 @@ defmodule GroupherServer.CMS.RepoCommunityFlag do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.CMS.{Community, Repo}
+
+  alias GroupherServer.CMS
+  alias CMS.{Community, Repo}
 
   @required_fields ~w(repo_id community_id)a
   @optional_fields ~w(trash)a

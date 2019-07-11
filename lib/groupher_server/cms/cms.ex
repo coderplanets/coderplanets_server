@@ -4,7 +4,10 @@ defmodule GroupherServer.CMS do
   [CMS]: post, job, ...
   [CURD]: create, update, delete ...
   """
-  alias GroupherServer.CMS.Delegate.{
+
+  alias GroupherServer.CMS.Delegate
+
+  alias Delegate.{
     ArticleCURD,
     ArticleOperation,
     ArticleReaction,

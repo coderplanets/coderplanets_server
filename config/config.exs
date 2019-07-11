@@ -75,6 +75,11 @@ config :groupher_server, GroupherServer.Mailer,
   adapter: Bamboo.MailgunAdapter,
   domain: "mailer.coderplanets.com"
 
+# handle background jobs
+config :rihanna,
+  jobs_table_name: "background_jobs",
+  producer_postgres_connection: {Ecto, GroupherServer.Repo}
+
 import_config "#{Mix.env()}.exs"
 
 if File.exists?("config/#{Mix.env()}.secret.exs") do

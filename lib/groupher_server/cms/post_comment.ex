@@ -4,9 +4,10 @@ defmodule GroupherServer.CMS.PostComment do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.Accounts
 
-  alias GroupherServer.CMS.{
+  alias GroupherServer.{Accounts, CMS}
+
+  alias CMS.{
     Post,
     PostCommentDislike,
     PostCommentLike,

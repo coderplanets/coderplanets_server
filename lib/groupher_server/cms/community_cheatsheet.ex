@@ -5,7 +5,9 @@ defmodule GroupherServer.CMS.CommunityCheatsheet do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias GroupherServer.CMS.{Community, GithubContributor}
+  alias GroupherServer.CMS
+
+  alias CMS.{Community, GithubContributor}
 
   @required_fields ~w(community_id last_sync)a
   @optional_fields ~w(readme)a

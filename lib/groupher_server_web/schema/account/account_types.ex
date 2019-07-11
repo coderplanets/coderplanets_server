@@ -1,4 +1,7 @@
 defmodule GroupherServerWeb.Schema.Account.Types do
+  @moduledoc """
+  accounts GraphQL commont types
+  """
   use Helper.GqlSchemaSuite
 
   import GroupherServerWeb.Schema.Utils.Helper
@@ -243,7 +246,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
     end
 
     field :contributes, :contribute_map do
-      resolve(&R.Statistics.list_contributes/3)
+      resolve(&R.Statistics.list_contributes_digest/3)
     end
 
     # TODO, for msg-bell UI

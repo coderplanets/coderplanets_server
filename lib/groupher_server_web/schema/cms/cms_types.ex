@@ -314,11 +314,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
       middleware(M.ConvertToInt)
     end
 
-    field :contributes, list_of(:contribute) do
-      # TODO add complex here to warning N+1 problem
-      resolve(&R.Statistics.list_contributes/3)
-    end
-
     field :threads_count, :integer do
       resolve(&R.CMS.threads_count/3)
     end

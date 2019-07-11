@@ -3,16 +3,17 @@ defmodule GroupherServer.Statistics do
   The Statistics context.
   """
 
-  alias GroupherServer.Statistics.Delegate.{
+  alias GroupherServer.Statistics.Delegate
+
+  alias Delegate.{
     Contribute,
-    Throttle,
     Geo,
-    Status
+    Status,
+    Throttle
   }
 
   # contributes
   defdelegate make_contribute(info), to: Contribute
-  defdelegate list_contributes(info), to: Contribute
   defdelegate list_contributes_digest(community), to: Contribute
 
   # publish Throttle

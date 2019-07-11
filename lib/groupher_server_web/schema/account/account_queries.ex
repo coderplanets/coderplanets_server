@@ -26,13 +26,6 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.session_state/3)
     end
 
-    # @desc "get login-user's info"
-    # field :account, :user do
-    #   middleware(M.Authorize, :login)
-
-    #   resolve(&R.Accounts.account/3)
-    # end
-
     @desc "anyone can get anyone's subscribed communities"
     field :subscribed_communities, :paged_communities do
       arg(:user_id, :id)

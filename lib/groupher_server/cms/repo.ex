@@ -5,7 +5,9 @@ defmodule GroupherServer.CMS.Repo do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias GroupherServer.CMS.{
+  alias GroupherServer.CMS
+
+  alias CMS.{
     Author,
     Community,
     RepoComment,
