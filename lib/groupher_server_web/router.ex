@@ -5,6 +5,11 @@ defmodule GroupherServerWeb.Router do
   use Plug.ErrorHandler
   use Sentry.Plug
 
+  # see https://github.com/sikanhe/apollo-tracing-elixir/issues/26
+  require Protocol
+  Protocol.derive(Jason.Encoder, ApolloTracing.Schema)
+  Protocol.derive(Jason.Encoder, ApolloTracing.Schema.Execution)
+
   pipeline :api do
     plug(:accepts, ["json"])
     plug(GroupherServerWeb.Context)
@@ -17,7 +22,7 @@ defmodule GroupherServerWeb.Router do
       "/",
       Absinthe.Plug.GraphiQL,
       schema: GroupherServerWeb.Schema,
-      # json_codec: Jason,
+      json_codec: Jason,
       pipeline: {ApolloTracing.Pipeline, :plug},
       interface: :playground,
       context: %{pubsub: GroupherServerWeb.Endpoint}
