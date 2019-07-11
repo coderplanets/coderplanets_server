@@ -4,9 +4,11 @@ defmodule GroupherServer.CMS.CommunityEditor do
 
   use Ecto.Schema
   import Ecto.Changeset
+
+  alias GroupherServer.{Accounts, CMS}
+
+  alias CMS.Community
   alias Helper.Certification
-  alias GroupherServer.Accounts
-  alias GroupherServer.CMS.Community
 
   @required_fields ~w(user_id community_id title)a
 

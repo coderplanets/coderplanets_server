@@ -1,9 +1,12 @@
 defmodule GroupherServerWeb.Middleware.PassportLoader do
+  @moduledoc """
+  load related passport from source
+  """
   @behaviour Absinthe.Middleware
+
   import GroupherServer.CMS.Utils.Matcher
   import Helper.Utils
   import Helper.ErrorCode
-
   import ShortMaps
 
   alias GroupherServer.CMS

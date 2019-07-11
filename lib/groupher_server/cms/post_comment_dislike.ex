@@ -4,8 +4,9 @@ defmodule GroupherServer.CMS.PostCommentDislike do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.Accounts
-  alias GroupherServer.CMS.PostComment
+
+  alias GroupherServer.{Accounts, CMS}
+  alias CMS.PostComment
 
   @required_fields ~w(post_comment_id user_id)a
 

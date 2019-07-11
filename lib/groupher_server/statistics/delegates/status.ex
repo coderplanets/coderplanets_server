@@ -6,10 +6,7 @@ defmodule GroupherServer.Statistics.Delegate.Status do
   import Ecto.Query, warn: false
   import ShortMaps
 
-  # alias GroupherServer.Repo
-  # alias GroupherServer.Accounts.User
   alias GroupherServer.CMS
-  # alias GroupherServer.Statistics.{UserContribute, CommunityContribute}
   alias Helper.ORM
 
   @count_filter %{page: 1, size: 1}

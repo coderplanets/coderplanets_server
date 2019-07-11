@@ -4,7 +4,6 @@ defmodule GroupherServer.Statistics.UserGeoInfo do
 
   use Ecto.Schema
   import Ecto.Changeset
-  # alias GroupherServer.Accounts.User
 
   @required_fields ~w(city long lant)a
   @optional_fields ~w(value)a

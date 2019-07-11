@@ -3,6 +3,10 @@
 # see https://hexdocs.pm/absinthe/Absinthe.Middleware.html#content
 # ---
 defmodule GroupherServerWeb.Middleware.AchievementProof do
+  @moduledoc """
+  add default achievement for user
+  """
+
   @behaviour Absinthe.Middleware
 
   def call(%{value: nil} = resolution, _) do

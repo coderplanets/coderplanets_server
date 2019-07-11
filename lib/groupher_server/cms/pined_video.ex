@@ -4,7 +4,9 @@ defmodule GroupherServer.CMS.PinedVideo do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.CMS.{Community, Video}
+
+  alias GroupherServer.CMS
+  alias CMS.{Community, Video}
 
   @required_fields ~w(video_id community_id)a
 

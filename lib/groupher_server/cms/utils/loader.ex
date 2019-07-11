@@ -4,12 +4,10 @@ defmodule GroupherServer.CMS.Utils.Loader do
   """
   import Ecto.Query, warn: false
 
-  alias Helper.QueryBuilder
-  alias GroupherServer.Repo
-  # alias GroupherServer.Accounts
-  alias GroupherServer.CMS.Repo, as: CMSRepo
+  alias GroupherServer.{CMS, Repo}
+  alias CMS.Repo, as: CMSRepo
 
-  alias GroupherServer.CMS.{
+  alias CMS.{
     Author,
     CommunityEditor,
     CommunitySubscriber,
@@ -49,6 +47,8 @@ defmodule GroupherServer.CMS.Utils.Loader do
     RepoCommentLike,
     RepoCommentDislike
   }
+
+  alias Helper.QueryBuilder
 
   def data, do: Dataloader.Ecto.new(Repo, query: &query/2, run_batch: &run_batch/5)
 
@@ -191,7 +191,7 @@ defmodule GroupherServer.CMS.Utils.Loader do
     #   id: a.id,
     #   nickname: a.nickname
     # })
-    # |> windows([rankid: [partition_by: c.inserted_at]]) 
+    # |> windows([rankid: [partition_by: c.inserted_at]])
     # |> where([c, a], a.no < 3)
     # |> select([c, a], rank() |>  over(partition_by: c.inserted_at))
     # |> select([c, a], %{
@@ -201,12 +201,12 @@ defmodule GroupherServer.CMS.Utils.Loader do
     # select * from(
     #     select rank() over(partition by cid order by pinserted_at desc) as r, * from(
     #         select c.id as cid,
-    #  c.body as cbody, 
-    #  p.inserted_at as pinserted_at, 
+    #  c.body as cbody,
+    #  p.inserted_at as pinserted_at,
     #  u.* from "cms_posts" as c join "posts_comments" as p on c.id= p.post_id join "users" as u on p.author_id= u.id) as view
     # ) as v where r<= 3;
 
-    # backup -> 
+    # backup ->
     # PostComment
     # |> QueryBuilder.filter_pack(filter)
     # |> join(:inner, [c], a in assoc(c, :author))

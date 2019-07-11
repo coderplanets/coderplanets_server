@@ -7,11 +7,12 @@ defmodule GroupherServer.Email do
   import Bamboo.Email
   import Helper.Utils, only: [get_config: 2]
 
-  alias GroupherServer.Accounts.User
-  alias GroupherServer.Billing.BillRecord
+  alias GroupherServer.{Accounts, Billing, Email, Mailer}
 
-  alias GroupherServer.Email.Templates
-  alias GroupherServer.Mailer
+  alias Accounts.User
+  alias Billing.BillRecord
+  alias Email.Templates
+  alias Mailer
 
   @support_email get_config(:system_emails, :support)
   @admin_email get_config(:system_emails, :admin)
@@ -65,8 +66,8 @@ defmodule GroupherServer.Email do
 
   # some one comment to your post ..
   # the author's publish content being deleted ..
-  def notify_author, do: IO.inspect("notify_author")
-  def notify_publish, do: IO.inspect("notify_publish")
+  # def notify_author, do: IO.inspect("notify_author")
+  # def notify_publish, do: IO.inspect("notify_publish")
   # ...
 
   defp base_mail do

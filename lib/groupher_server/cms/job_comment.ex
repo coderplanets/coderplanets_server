@@ -4,9 +4,10 @@ defmodule GroupherServer.CMS.JobComment do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.Accounts
 
-  alias GroupherServer.CMS.{Job, JobCommentReply, JobCommentLike, JobCommentDislike}
+  alias GroupherServer.{Accounts, CMS}
+
+  alias CMS.{Job, JobCommentReply, JobCommentLike, JobCommentDislike}
   alias Helper.HTML
 
   @required_fields ~w(body author_id job_id floor)a

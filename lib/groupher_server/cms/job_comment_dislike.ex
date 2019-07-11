@@ -4,8 +4,9 @@ defmodule GroupherServer.CMS.JobCommentDislike do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.Accounts
-  alias GroupherServer.CMS.JobComment
+
+  alias GroupherServer.{Accounts, CMS}
+  alias CMS.JobComment
 
   @required_fields ~w(job_comment_id user_id)a
 

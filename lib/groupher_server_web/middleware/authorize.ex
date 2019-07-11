@@ -2,7 +2,12 @@
 # Absinthe.Middleware behaviour
 # ---
 defmodule GroupherServerWeb.Middleware.Authorize do
+  @moduledoc """
+  authorize gateway, mainly for login check
+  """
+
   @behaviour Absinthe.Middleware
+
   import Helper.Utils, only: [handle_absinthe_error: 3]
   import Helper.ErrorCode
 

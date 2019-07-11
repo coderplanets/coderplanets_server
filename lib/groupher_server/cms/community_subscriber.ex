@@ -4,8 +4,10 @@ defmodule GroupherServer.CMS.CommunitySubscriber do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.Accounts
-  alias GroupherServer.CMS.Community
+
+  alias GroupherServer.{Accounts, CMS}
+
+  alias CMS.Community
 
   @required_fields ~w(user_id community_id)a
 

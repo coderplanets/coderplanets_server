@@ -1,8 +1,9 @@
 defmodule GroupherServerWeb.Resolvers.Delivery do
   @moduledoc false
 
-  alias GroupherServer.Accounts.User
-  alias GroupherServer.Delivery
+  alias GroupherServer.{Accounts, Delivery}
+
+  alias Accounts.User
 
   def mention_others(_root, args, %{context: %{cur_user: cur_user}}) do
     from_user_id = cur_user.id

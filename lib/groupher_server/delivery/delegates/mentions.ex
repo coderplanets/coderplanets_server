@@ -3,11 +3,12 @@ defmodule GroupherServer.Delivery.Delegate.Mentions do
   The Delivery context.
   """
   import Helper.Utils, only: [stringfy: 1, integerfy: 1]
-  alias GroupherServer.Repo
-  alias GroupherServer.Accounts.User
-  alias GroupherServer.Delivery.Mention
 
-  alias GroupherServer.Delivery.Delegate.Utils
+  alias GroupherServer.{Accounts, Delivery, Repo}
+
+  alias Accounts.User
+  alias Delivery.{Delegate, Mention}
+  alias Delegate.Utils
 
   # TODO: move mention logic to create contents
   # TODO: 同一篇文章不能 mention 同一个 user 多次？

@@ -1,10 +1,17 @@
 defmodule GroupherServer.Statistics.Delegate.Throttle do
+  @moduledoc """
+  limit rate for publish content
+  """
+
   import Ecto.Query, warn: false
   import ShortMaps
 
-  alias GroupherServer.Accounts.User
-  alias GroupherServer.Statistics.PublishThrottle
-  alias Helper.{ORM}
+  alias GroupherServer.{Accounts, Statistics}
+
+  alias Accounts.User
+  alias Statistics.PublishThrottle
+
+  alias Helper.ORM
 
   def log_publish_action(%User{id: user_id}) do
     cur_date = Timex.today() |> Date.to_iso8601()

@@ -3,7 +3,9 @@ defmodule Helper.GeoPool do
   current supported city geo data
   """
 
-  alias GroupherServer.Statistics.UserGeoInfo
+  alias GroupherServer.Statistics
+
+  alias Statistics.UserGeoInfo
   alias Helper.ORM
 
   def all do

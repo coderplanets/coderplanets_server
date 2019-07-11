@@ -3,8 +3,6 @@ defmodule GroupherServerWeb.Schema.Account.Misc do
 
   use Absinthe.Schema.Notation
   import GroupherServerWeb.Schema.Utils.Helper
-  # import Helper.Utils, only: [get_config: 2]
-  # @page_size get_config(:general, :page_size)
 
   @desc "article_filter doc"
   input_object :paged_users_filter do
