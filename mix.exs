@@ -64,13 +64,9 @@ defmodule GroupherServer.Mixfile do
       {:absinthe, "~> 1.4.16"},
       {:absinthe_ecto, "~> 0.1.3"},
       # Plug support for Absinthe
-      # {:absinthe_plug, "~> 1.4.4"},
-      # treat parse error as status "200"
-      {:absinthe_plug, git: "https://github.com/mastani-stack/absinthe_plug", override: true},
+      {:absinthe_plug, "~> 1.4.6"},
       # Password hashing lib
       {:comeonin, "~> 5.1.1"},
-      # Argon2 password hashing algorithm
-      # {:argon2_elixir, "~> 1.2"},
       # CORS
       {:corsica, "~> 1.1.2"},
       {:tesla, "~> 0.10.0"},
@@ -80,8 +76,7 @@ defmodule GroupherServer.Mixfile do
        git: "https://github.com/mastani-stack/scrivener_ecto", branch: "dev", override: true},
       # {:scrivener_ecto, "~> 2.0.0"},
       {:guardian, "~> 1.0"},
-      # {:timex, "~> 3.5.0"},
-      {:timex, git: "https://github.com/coderplanets/timex", branch: "master", override: true},
+      {:timex, "~> 3.6.1"},
       {:dataloader, "~> 1.0.2"},
       {:mix_test_watch, "~> 0.9", only: :dev, runtime: false},
       {:ex_unit_notifier, "~> 0.1", only: :test},
@@ -109,9 +104,7 @@ defmodule GroupherServer.Mixfile do
   #
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
-    # test.watch is powerd by: https://github.com/lpil/mix-test.watch
     [
-      # "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/mock/user_seeds.exs"],
       "ecto.setup": ["ecto.create", "ecto.migrate"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"],
