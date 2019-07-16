@@ -70,6 +70,8 @@ defmodule GroupherServer.Mixfile do
       # CORS
       {:corsica, "~> 1.1.2"},
       {:tesla, "~> 0.10.0"},
+      # only used for tesla's JSON-encoder
+      {:poison, "~> 3.1"},
       # for fake data in test env
       {:faker, "~> 0.9"},
       {:scrivener_ecto,
