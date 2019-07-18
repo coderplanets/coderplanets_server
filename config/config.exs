@@ -38,7 +38,7 @@ config :groupher_server, :general,
   page_size: 30,
   inner_page_size: 5,
   # today is not include
-  community_contribute_days: 7,
+  community_contribute_days: 30,
   user_contribute_months: 6,
   default_subscribed_communities: 20,
   publish_throttle_interval_minutes: 3,
