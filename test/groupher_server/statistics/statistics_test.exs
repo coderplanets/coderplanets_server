@@ -124,23 +124,23 @@ defmodule GroupherServer.Test.Statistics do
     @tag :wip
     test "should return recent #{@community_contribute_days} days community contributes by default",
          ~m(community)a do
-      seven_days_ago = Timex.shift(Timex.today(), days: -@community_contribute_days)
-      seven_more_days_ago = Timex.shift(seven_days_ago, days: -1)
+      days_ago = Timex.shift(Timex.today(), days: -@community_contribute_days)
+      more_days_ago = Timex.shift(days_ago, days: -1)
 
       Repo.insert_all(CommunityContribute, [
         %{
           community_id: community.id,
-          date: seven_days_ago,
+          date: days_ago,
           count: 1,
-          inserted_at: seven_days_ago |> Timex.to_datetime(),
-          updated_at: seven_days_ago |> Timex.to_datetime()
+          inserted_at: days_ago |> Timex.to_datetime(),
+          updated_at: days_ago |> Timex.to_datetime()
         },
         %{
           community_id: community.id,
-          date: seven_more_days_ago,
+          date: more_days_ago,
           count: 1,
-          inserted_at: seven_more_days_ago |> Timex.to_datetime(),
-          updated_at: seven_more_days_ago |> Timex.to_datetime()
+          inserted_at: more_days_ago |> Timex.to_datetime(),
+          updated_at: more_days_ago |> Timex.to_datetime()
         }
       ])
 
