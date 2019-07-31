@@ -128,9 +128,9 @@ defmodule GroupherServer.Email.Templates.Welcome do
                         <td style="direction:ltr;font-size:0px;padding:20px 0;padding-bottom:0;text-align:center;vertical-align:top;">
                           <!--[if mso | IE]>
                       <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                    
+
             <tr>
-          
+
                 <td
                   class="" style="vertical-align:top;width:600px;"
                 >
@@ -153,9 +153,9 @@ defmodule GroupherServer.Email.Templates.Welcome do
                                     <tbody>
                                       <tr>
                                         <td style="width:550px;"> <a href="https://coderplanets.com" target="_blank">
-              
+
           <img alt="" height="auto" src="https://user-images.githubusercontent.com/6184465/59546312-a1c0ac00-8f5d-11e9-85cc-db681a16ff13.jpg" style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;" width="550">
-        
+
             </a> </td>
                                       </tr>
                                     </tbody>
@@ -166,9 +166,9 @@ defmodule GroupherServer.Email.Templates.Welcome do
                           </div>
                           <!--[if mso | IE]>
                 </td>
-              
+
             </tr>
-          
+
                       </table>
                     <![endif]-->
                         </td>
@@ -199,12 +199,12 @@ defmodule GroupherServer.Email.Templates.Welcome do
                 <td style="direction:ltr;font-size:0px;padding:20px 0;padding-bottom:0;padding-top:0;text-align:center;vertical-align:top;">
                   <!--[if mso | IE]>
                       <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                    
+
                 <tr>
                   <td
                     class="" width="600px"
                   >
-              
+
           <table
             align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600"
           >
@@ -218,9 +218,9 @@ defmodule GroupherServer.Email.Templates.Welcome do
                           <td style="direction:ltr;font-size:0px;padding:20px 0;padding-left:6px;padding-right:6px;text-align:center;vertical-align:top;">
                             <!--[if mso | IE]>
                       <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                    
+
             <tr>
-          
+
                 <td
                   class="" style="vertical-align:top;width:588px;"
                 >
@@ -281,9 +281,9 @@ defmodule GroupherServer.Email.Templates.Welcome do
                             </div>
                             <!--[if mso | IE]>
                 </td>
-              
+
             </tr>
-          
+
                       </table>
                     <![endif]-->
                           </td>
@@ -295,10 +295,10 @@ defmodule GroupherServer.Email.Templates.Welcome do
               </td>
             </tr>
           </table>
-          
+
                   </td>
                 </tr>
-              
+
                       </table>
                     <![endif]-->
                 </td>
@@ -329,12 +329,12 @@ defmodule GroupherServer.Email.Templates.Welcome do
                         <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;vertical-align:top;">
                           <!--[if mso | IE]>
                       <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                    
+
                 <tr>
                   <td
                     class="" width="600px"
                   >
-              
+
           <table
             align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600"
           >
@@ -348,9 +348,9 @@ defmodule GroupherServer.Email.Templates.Welcome do
                                   <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;vertical-align:top;">
                                     <!--[if mso | IE]>
                       <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                    
+
             <tr>
-          
+
                 <td
                   class="" style="vertical-align:top;width:600px;"
                 >
@@ -368,7 +368,7 @@ defmodule GroupherServer.Email.Templates.Welcome do
             align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
           >
             <tr>
-          
+
                   <td>
                 <![endif]-->
                                                     <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="float:none;display:inline-table;">
@@ -386,7 +386,7 @@ defmodule GroupherServer.Email.Templates.Welcome do
                                                     </table>
                                                     <!--[if mso | IE]>
                   </td>
-                
+
               </tr>
             </table>
           <![endif]-->
@@ -405,9 +405,9 @@ defmodule GroupherServer.Email.Templates.Welcome do
                                     </div>
                                     <!--[if mso | IE]>
                 </td>
-              
+
             </tr>
-          
+
                       </table>
                     <![endif]-->
                                   </td>
@@ -419,15 +419,15 @@ defmodule GroupherServer.Email.Templates.Welcome do
               </td>
             </tr>
           </table>
-          
+
                   </td>
                 </tr>
-              
+
                 <tr>
                   <td
                     class="" width="600px"
                   >
-              
+
           <table
             align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600"
           >
@@ -441,9 +441,9 @@ defmodule GroupherServer.Email.Templates.Welcome do
                                   <td style="direction:ltr;font-size:0px;padding:20px 0;padding-top:0;text-align:center;vertical-align:top;">
                                     <!--[if mso | IE]>
                       <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                    
+
             <tr>
-          
+
                 <td
                   class="" style="width:600px;"
                 >
@@ -452,7 +452,7 @@ defmodule GroupherServer.Email.Templates.Welcome do
                                       <!--[if mso | IE]>
             <table  role="presentation" border="0" cellpadding="0" cellspacing="0">
               <tr>
-            
+
                   <td
                     style="vertical-align:top;width:600px;"
                   >
@@ -477,16 +477,16 @@ defmodule GroupherServer.Email.Templates.Welcome do
                                       </div>
                                       <!--[if mso | IE]>
                   </td>
-                  
+
               </tr>
               </table>
             <![endif]-->
                                     </div>
                                     <!--[if mso | IE]>
                 </td>
-              
+
             </tr>
-          
+
                       </table>
                     <![endif]-->
                                   </td>
@@ -498,10 +498,10 @@ defmodule GroupherServer.Email.Templates.Welcome do
               </td>
             </tr>
           </table>
-          
+
                   </td>
                 </tr>
-              
+
                       </table>
                     <![endif]-->
                         </td>
@@ -575,17 +575,17 @@ defmodule GroupherServer.Email.Templates.Welcome do
               <mj-text color="#637381" font-size="16px">
                 欢迎你成为 coderplanets 社区的一员。coderplanets 是一个由各个独立平等的子社区组成的、专注于小众编程语言和框架的 IT 社区平台，在这里，你可以不受打扰的关注你感兴趣的子社区以及找到和你志趣相投的人。
               </mj-text>
-        
+
               <mj-text color="#637381" font-size="16px">
                 祝你生活愉快!
               </mj-text>
-              
+
               <mj-divider border-width="1px" border-style="dashed" border-color="#113A41" />
-              
+
               <mj-button background-color="#2F8EA4" align="center" color="#ffffff" font-size="17px" font-weight="bold" href="https://coderplanets.com" width="300px">
                 去看看
               </mj-button>
-        
+
               <mj-text color="#637381" font-size="16px" padding-bottom="0">
                 coderplanets 的构建受益于世界范围内各种优秀的开源软件，本身的源代码也开放在 github 上，欢迎点击下方链接参与其中，任何 issue/pr/star 等等都是对我们莫大的鼓励。
               </mj-text>
@@ -598,11 +598,11 @@ defmodule GroupherServer.Email.Templates.Welcome do
           <mj-section>
             <mj-column width="100%" padding="0">
               <mj-social font-size="15px" icon-size="30px" mode="horizontal" padding="0" align="center">
-                <mj-social-element name="github" href="https://mjml.io/" background-color="#296C7D">
+                <mj-social-element name="github" href="https://github.com/coderplanets" background-color="#296C7D">
                 </mj-social-element>
               </mj-social>
-          
-          
+
+
               <mj-text color="#445566" font-size="11px" align="center" line-height="16px">
                 &copy; Coderplanets Inc., All Rights Reserved.
               </mj-text>
