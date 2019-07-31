@@ -68,8 +68,11 @@ config :groupher_server, GroupherServerWeb.Gettext, default_locale: "zh_CN", loc
 
 #  config email services
 config :groupher_server, :system_emails,
-  support: "coderplanets <support@group.coderplanets.com>",
-  admin: "mydearxym@qq.com"
+  support_email: "coderplanets <support@group.coderplanets.com>",
+  admin_email: "mydearxym@qq.com",
+  welcome_new_register: true,
+  notify_admin_on_new_user: true,
+  notify_admin_on_content_created: true
 
 config :groupher_server, GroupherServer.Mailer,
   adapter: Bamboo.MailgunAdapter,
