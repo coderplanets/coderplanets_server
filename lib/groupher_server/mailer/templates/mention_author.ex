@@ -1,11 +1,14 @@
-defmodule GroupherServer.Email.Templates.NotifyAdminOnContentCreated do
+defmodule GroupherServer.Email.Templates.MentionAuthor do
   @moduledoc """
-  template for notify admin when there is new content created, like but not limit
-  to: post, job, video, repo ...
+  template for mention author, like but not limit to:
+
+  post, job, video, repo ...
+  or mention in comment ..
 
   if you want change style or debug the template
   just copy and paste raw string to: https://mjml.io/try-it-live
   """
+
   def html(record) do
     """
     TODO
@@ -57,20 +60,18 @@ defmodule GroupherServer.Email.Templates.NotifyAdminOnContentCreated do
       <mj-section background-color="#042f3a" padding-left="6px" padding-right="6px">
         <mj-column width="100%">
           <mj-text color="#6f8696" font-weight="bold" font-size="18px">
-            这里是文章标题
+            <br/>
+            xxx 在文章/评论标题里提及/回复了你
           </mj-text>
           <mj-text color="#637381" font-size="16px">
-            这是文章的文字版，作者名字放在邮件标题就好
+            文章内容或评论内容摘要
           </mj-text>
 
           <mj-divider border-width="1px" border-style="dashed" border-color="#113A41" />
 
-          <mj-text color="#637381" font-size="16px" padding-top="30px" align="center">
-            <a class="text-link" href="https://github.com/coderplanets.com">社区地址 -></a>
-          </mj-text>
 
           <mj-text color="#637381" font-size="16px" padding-top="10px" align="center">
-            <a class="text-link" href="https://github.com/coderplanets.com">文章地址 -></a>
+            <a class="text-link" href="https://github.com/coderplanets.com">去看看 -></a>
           </mj-text>
 
         </mj-column>
