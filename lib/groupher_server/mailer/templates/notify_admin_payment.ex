@@ -593,7 +593,7 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
           <mj-section>
             <mj-column width="100%" padding="0">
               <mj-social font-size="15px" icon-size="30px" mode="horizontal" padding="0" align="center">
-                <mj-social-element name="github" href="https://mjml.io/" background-color="#296C7D">
+                <mj-social-element name="github" href="https://github.com/coderplanets" background-color="#296C7D">
                 </mj-social-element>
               </mj-social>
               <mj-text color="#445566" font-size="11px" align="center" line-height="16px">
