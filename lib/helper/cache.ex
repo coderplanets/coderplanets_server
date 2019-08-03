@@ -27,6 +27,19 @@ defmodule Helper.Cache do
     Cachex.put(:site_cache, cache_key, cache_value)
   end
 
+  def put(cache_key, cache_value, expire: expire_time) do
+    Cachex.put(:site_cache, cache_key, cache_value)
+    Cachex.expire(:site_cache, cache_key, expire_time)
+  end
+
+  @doc """
+  clear all the cache
+  ## Example
+  iex> Helper.Cache.clear()
+  {:ok, 1}
+  """
+  def clear_all(), do: Cachex.clear(:site_cache)
+
   @doc """
   cache scope of community contributes digest
   """
