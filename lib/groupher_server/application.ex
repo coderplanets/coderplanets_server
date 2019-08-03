@@ -32,6 +32,7 @@ defmodule GroupherServer.Application do
             )
         ]
       ]),
+      worker(Helper.Scheduler, []),
       {Rihanna.Supervisor, [postgrex: GroupherServer.Repo.config()]}
     ]
 

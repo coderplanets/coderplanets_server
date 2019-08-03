@@ -93,9 +93,14 @@ defmodule GroupherServer.Mixfile do
       {:sentry, "~> 7.1"},
       {:recase, "~> 0.4.0"},
       {:nanoid, "~> 2.0.0"},
+      # mailer
       {:bamboo, "1.2.0"},
+      # mem cache
       {:cachex, "3.1.3"},
-      {:rihanna, "1.3.5"}
+      # postgres-backed job queue
+      {:rihanna, "1.3.5"},
+      # cron-like scheduler job
+      {:quantum, "~> 2.3"}
     ]
   end
 
