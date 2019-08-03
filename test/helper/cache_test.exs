@@ -5,13 +5,11 @@ defmodule GroupherServer.Test.Helper.Cache do
   alias Helper.Cache
 
   describe "[cache test]" do
-    @tag :wip
     test "cache get unexsit key should get nil" do
       assert {:error, nil} = Cache.get("no exsit")
       assert {:error, nil} = Cache.get(:no_exsit)
     end
 
-    @tag :wip
     test "cache put should work" do
       assert {:error, nil} = Cache.get(:data)
 
@@ -27,7 +25,6 @@ defmodule GroupherServer.Test.Helper.Cache do
       assert {:ok, [1, %{a: "2"}]} = Cache.get("namespace.aaa.bbb")
     end
 
-    @tag :wip2
     test "cache can be clear" do
       assert {:ok, true} = Cache.put(:data, "value")
       assert {:ok, "value"} = Cache.get(:data)
@@ -36,7 +33,6 @@ defmodule GroupherServer.Test.Helper.Cache do
       assert {:error, nil} = Cache.get(:data)
     end
 
-    @tag :wip2
     test "cache expire should work" do
       assert {:ok, true} = Cache.put(:data, "value", expire: 1000)
       assert {:ok, "value"} = Cache.get(:data)
