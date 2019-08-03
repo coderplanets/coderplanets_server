@@ -83,6 +83,9 @@ config :rihanna,
   jobs_table_name: "background_jobs",
   producer_postgres_connection: {Ecto, GroupherServer.Repo}
 
+# cron-like job scheduler
+config :groupher_server, Helper.Scheduler, jobs: []
+
 import_config "#{Mix.env()}.exs"
 
 if File.exists?("config/#{Mix.env()}.secret.exs") do
