@@ -52,6 +52,13 @@ defmodule Helper.Utils do
   # def done({:error, error}), do: {:error, error}
   def done(result), do: {:ok, result}
 
+  def done_and_cache(result, scope, expire: expire_time) do
+    with {:ok, res} <- done(result) do
+      Cache.put(scope, res, expire: expire_time)
+      {:ok, res}
+    end
+  end
+
   def done_and_cache(result, scope) do
     with {:ok, res} <- done(result) do
       Cache.put(scope, res)

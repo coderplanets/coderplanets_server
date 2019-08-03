@@ -85,7 +85,7 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
     %Community{id: id}
     |> do_get_contributes()
     |> to_counts_digest(days: @community_contribute_days)
-    |> done_and_cache(scope)
+    |> done_and_cache(scope, expire: 60_000)
   end
 
   defp update_contribute_record(%UserContribute{} = contribute) do
