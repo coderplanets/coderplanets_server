@@ -121,7 +121,6 @@ defmodule GroupherServer.Test.Statistics do
       assert second.count == 2
     end
 
-    @tag :wip
     test "should return recent #{@community_contribute_days} days community contributes by default",
          ~m(community)a do
       days_ago = Timex.shift(Timex.today(), days: -@community_contribute_days)
@@ -148,7 +147,6 @@ defmodule GroupherServer.Test.Statistics do
       assert length(contributes) == @community_contribute_days + 1
     end
 
-    @tag :wip
     test "the contributes data should be cached after first query", ~m(community)a do
       scope = Cache.get_scope(:community_contributes, community.id)
       assert {:error, nil} = Cache.get(scope)
@@ -158,7 +156,6 @@ defmodule GroupherServer.Test.Statistics do
       assert {:ok, contributes} = Cache.get(scope)
     end
 
-    @tag :wip2
     test "Rihanna should work in test sandbox", ~m(community)a do
       res = Rihanna.enqueue({IO, :puts, ["Work, work, work, work, work."]})
       Process.sleep(1000)
