@@ -81,7 +81,11 @@ config :rihanna,
   producer_postgres_connection: {Ecto, GroupherServer.Repo}
 
 # cron-like job scheduler
-config :groupher_server, Helper.Scheduler, jobs: []
+config :groupher_server, Helper.Scheduler,
+  jobs: [
+    # Every midnight
+    {"@daily", {Helper.Scheduler, :clear_all_cache, []}}
+  ]
 
 import_config "#{Mix.env()}.exs"
 
