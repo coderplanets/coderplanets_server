@@ -7,10 +7,11 @@ defmodule GroupherServer.Email do
   import Bamboo.Email
   import Helper.Utils, only: [get_config: 2]
 
-  alias GroupherServer.{Accounts, Billing, Email, Mailer}
+  alias GroupherServer.{Accounts, Billing, CMS, Email, Mailer}
 
   alias Accounts.User
   alias Billing.BillRecord
+  alias CMS.{Post, Job, Repo, Video}
   alias Email.Templates
   alias Mailer
 
@@ -86,15 +87,16 @@ defmodule GroupherServer.Email do
   end
 
   #  notify admin when new post has created
-  def notify_admin(:create, _post) do
+  def notify_admin(%{type: type, title: title} = info, :new_content) do
     case @conf_notify_admin_on_content_created do
       true ->
-        base_mail()
-        |> to(@admin_email)
-        |> subject("新帖子: ... ")
-        # |> html_body(Templates.NotifyAdminRegister.html(user))
-        # |> text_body(Templates.NotifyAdminRegister.text())
-        |> Mailer.deliver_later()
+        hello =
+          base_mail()
+          |> to(@admin_email)
+          |> subject("new #{type}: #{title}")
+          |> html_body(Templates.NotifyAdminOnContentCreated.html(info))
+          |> text_body(Templates.NotifyAdminRegister.text())
+          |> Mailer.deliver_later()
 
       false ->
         {:ok, :pass}

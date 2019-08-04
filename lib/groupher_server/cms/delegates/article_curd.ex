@@ -8,15 +8,14 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   import Helper.ErrorCode
   import ShortMaps
 
-  alias GroupherServer.Repo
+  alias GroupherServer.{Accounts, CMS, Delivery, Email, Repo, Statistics}
 
-  alias GroupherServer.Accounts.User
-  alias GroupherServer.{CMS, Delivery, Statistics}
+  alias Accounts.User
+  alias CMS.{Author, Community, Delegate, Tag, Topic}
 
-  alias CMS.Delegate.ArticleOperation
-  alias Helper.{ORM, QueryBuilder}
+  alias Delegate.ArticleOperation
+  alias Helper.{Later, ORM, QueryBuilder}
 
-  alias CMS.{Author, Community, Tag, Topic}
   alias Ecto.Multi
 
   @doc """
@@ -398,7 +397,30 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  defp create_content_result({:ok, %{create_content: result}}), do: {:ok, result}
+  defp create_content_result({:ok, %{create_content: result}}) do
+    # Later.exec({__MODULE__, :nofify_admin_new_content, [result]})
+    nofify_admin_new_content(result)
+    {:ok, result}
+  end
+
+  def nofify_admin_new_content(%{id: id} = result) do
+    target = result.__struct__
+    preload = [:origial_community, author: :user]
+
+    with {:ok, content} <- ORM.find(target, id, preload: preload) do
+      info = %{
+        id: content.id,
+        title: content.title,
+        digest: content.digest,
+        author_name: content.author.user.nickname,
+        community_raw: content.origial_community.raw,
+        type:
+          result.__struct__ |> to_string |> String.split(".") |> List.last() |> String.downcase()
+      }
+
+      Email.notify_admin(info, :new_content)
+    end
+  end
 
   defp create_content_result({:error, :create_content, %Ecto.Changeset{} = result, _steps}) do
     {:error, result}
