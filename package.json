@@ -1,6 +1,6 @@
 {
   "name": "coderplanets_server_commitizen",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "main": "index.js",
   "directories": {
     "doc": "docs",
