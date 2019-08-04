@@ -1,12 +1,12 @@
 defmodule GroupherServer.Test.Mailer do
   @moduledoc """
-  mailer test, see details: https://github.com/thoughtbot/bamboo 
+  mailer test, see details: https://github.com/thoughtbot/bamboo
   """
   use GroupherServer.TestTools
   use Bamboo.Test
 
   import Helper.Utils, only: [get_config: 2]
-  @support_email get_config(:system_emails, :support)
+  @support_email get_config(:system_emails, :support_email)
 
   describe "basic email" do
     test "send welcome email when user has email addr" do
