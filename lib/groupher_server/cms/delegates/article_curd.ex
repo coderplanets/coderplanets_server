@@ -398,28 +398,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   end
 
   defp create_content_result({:ok, %{create_content: result}}) do
-    # Later.exec({__MODULE__, :nofify_admin_new_content, [result]})
-    nofify_admin_new_content(result)
+    Later.exec({__MODULE__, :nofify_admin_new_content, [result]})
     {:ok, result}
-  end
-
-  def nofify_admin_new_content(%{id: id} = result) do
-    target = result.__struct__
-    preload = [:origial_community, author: :user]
-
-    with {:ok, content} <- ORM.find(target, id, preload: preload) do
-      info = %{
-        id: content.id,
-        title: content.title,
-        digest: content.digest,
-        author_name: content.author.user.nickname,
-        community_raw: content.origial_community.raw,
-        type:
-          result.__struct__ |> to_string |> String.split(".") |> List.last() |> String.downcase()
-      }
-
-      Email.notify_admin(info, :new_content)
-    end
   end
 
   defp create_content_result({:error, :create_content, %Ecto.Changeset{} = result, _steps}) do
@@ -516,4 +496,23 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp content_id(:job, id), do: %{job_id: id}
   defp content_id(:repo, id), do: %{repo_id: id}
   defp content_id(:video, id), do: %{video_id: id}
+
+  defp nofify_admin_new_content(%{id: id} = result) do
+    target = result.__struct__
+    preload = [:origial_community, author: :user]
+
+    with {:ok, content} <- ORM.find(target, id, preload: preload) do
+      info = %{
+        id: content.id,
+        title: content.title,
+        digest: Map.get(content, :digest, content.title),
+        author_name: content.author.user.nickname,
+        community_raw: content.origial_community.raw,
+        type:
+          result.__struct__ |> to_string |> String.split(".") |> List.last() |> String.downcase()
+      }
+
+      Email.notify_admin(info, :new_content)
+    end
+  end
 end
