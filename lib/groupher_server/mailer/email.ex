@@ -90,13 +90,12 @@ defmodule GroupherServer.Email do
   def notify_admin(%{type: type, title: title} = info, :new_content) do
     case @conf_notify_admin_on_content_created do
       true ->
-        hello =
-          base_mail()
-          |> to(@admin_email)
-          |> subject("new #{type}: #{title}")
-          |> html_body(Templates.NotifyAdminOnContentCreated.html(info))
-          |> text_body(Templates.NotifyAdminRegister.text())
-          |> Mailer.deliver_later()
+        base_mail()
+        |> to(@admin_email)
+        |> subject("new #{type}: #{title}")
+        |> html_body(Templates.NotifyAdminOnContentCreated.html(info))
+        |> text_body(Templates.NotifyAdminOnContentCreated.text(info))
+        |> Mailer.deliver_later()
 
       false ->
         {:ok, :pass}
