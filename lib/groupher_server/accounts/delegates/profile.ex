@@ -6,11 +6,10 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
   import Helper.Utils, only: [done: 1, get_config: 2]
   import ShortMaps
 
-  alias GroupherServer.Accounts
+  alias GroupherServer.{Accounts, CMS, Email, Repo}
+
+  alias Accounts.{Achievement, GithubUser, User, Social}
   alias Helper.{Guardian, ORM, QueryBuilder, RadarSearch}
-  alias GroupherServer.Accounts.{Achievement, GithubUser, User, Social}
-  alias GroupherServer.{CMS, Repo}
-  alias GroupherServer.Email
 
   alias Ecto.Multi
 
