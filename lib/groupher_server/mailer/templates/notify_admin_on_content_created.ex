@@ -504,9 +504,9 @@ defmodule GroupherServer.Email.Templates.NotifyAdminOnContentCreated do
     """
   end
 
-  def text() do
+  def text(%{author_name: author_name, title: title}) do
     """
-    有人发帖了
+    #{author_name} 发布了 #{title}
     """
   end
 
