@@ -63,64 +63,95 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   {:error, %Ecto.Changeset{}}
 
   """
-  def create_content(
-        %Community{id: community_id},
-        thread,
-        attrs,
-        %User{id: user_id}
-      ) do
-    with {:ok, author} <- ensure_author_exists(%User{id: user_id}),
+  def create_content(%Community{id: cid}, thread, attrs, %User{id: uid}) do
+    with {:ok, author} <- ensure_author_exists(%User{id: uid}),
          {:ok, action} <- match_action(thread, :community),
-         {:ok, community} <- ORM.find(Community, community_id) do
+         {:ok, community} <- ORM.find(Community, cid) do
       Multi.new()
       |> Multi.run(:create_content, fn _, _ ->
-        action.target
-        |> struct()
-        |> action.target.changeset(attrs)
-        |> Ecto.Changeset.put_change(:author_id, author.id)
-        |> Ecto.Changeset.put_change(:origial_community_id, integerfy(community_id))
-        |> Repo.insert()
+        exec_create_content(action.target, attrs, author, community)
       end)
       |> Multi.run(:set_community, fn _, %{create_content: content} ->
         ArticleOperation.set_community(community, thread, content.id)
       end)
       |> Multi.run(:set_topic, fn _, %{create_content: content} ->
-        topic_title =
-          case attrs |> Map.has_key?(:topic) do
-            true -> attrs.topic
-            false -> "posts"
-          end
-
-        ArticleOperation.set_topic(%Topic{title: topic_title}, thread, content.id)
+        exec_set_topic(thread, content.id, attrs)
       end)
       |> Multi.run(:set_community_flag, fn _, %{create_content: content} ->
-        # TODO: remove this judge, as content should have a flag
-        case action |> Map.has_key?(:flag) do
-          true ->
-            ArticleOperation.set_community_flags(content, community.id, %{
-              trash: false
-            })
-
-          false ->
-            {:ok, :pass}
-        end
+        exec_set_community_flag(community, content, action)
       end)
       |> Multi.run(:set_tag, fn _, %{create_content: content} ->
-        case attrs |> Map.has_key?(:tags) do
-          true -> set_tags(thread, content.id, attrs.tags)
-          false -> {:ok, :pass}
-        end
+        exec_set_tag(thread, content.id, attrs)
       end)
       |> Multi.run(:mention_users, fn _, %{create_content: content} ->
-        Delivery.mention_from_content(community.raw, thread, content, attrs, %User{id: user_id})
+        Delivery.mention_from_content(community.raw, thread, content, attrs, %User{id: uid})
         {:ok, :pass}
       end)
       |> Multi.run(:log_action, fn _, _ ->
-        Statistics.log_publish_action(%User{id: user_id})
+        Statistics.log_publish_action(%User{id: uid})
       end)
       |> Repo.transaction()
       |> create_content_result()
     end
+  end
+
+  #  for create content step in Multi.new
+  defp exec_create_content(target, attrs, %Author{id: aid}, %Community{id: cid}) do
+    target
+    |> struct()
+    |> target.changeset(attrs)
+    |> Ecto.Changeset.put_change(:author_id, aid)
+    |> Ecto.Changeset.put_change(:origial_community_id, integerfy(cid))
+    |> Repo.insert()
+  end
+
+  defp exec_set_topic(thread, id, %{topic: topic}) do
+    ArticleOperation.set_topic(%Topic{title: topic}, thread, id)
+  end
+
+  # if topic is not provide, use posts as default
+  defp exec_set_topic(thread, id, _attrs) do
+    ArticleOperation.set_topic(%Topic{title: "posts"}, thread, id)
+  end
+
+  defp exec_set_tag(thread, id, %{tags: tags}) do
+    try do
+      Enum.each(tags, fn tag ->
+        {:ok, _} = ArticleOperation.set_tag(thread, %Tag{id: tag.id}, id)
+      end)
+
+      {:ok, "psss"}
+    rescue
+      _ -> {:error, [message: "set tag", code: ecode(:create_fails)]}
+    end
+  end
+
+  defp exec_set_tag(_thread, _id, _attrs), do: {:ok, :pass}
+
+  # TODO:  flag 逻辑似乎有问题
+  defp exec_set_community_flag(%Community{id: cid}, content, %{flag: _flag}) do
+    # TODO:  1. 参数改变一下顺序，把 community 放在前面
+    # TODO:  2. 直接传 community 下去，免去 set_community_flags 函数再在内部查 community
+    # TODO:  3. 该函数似乎逻辑似乎有点问题, 没有区分 action trash|..
+    # 要考虑第二条是否符合现实？
+    ArticleOperation.set_community_flags(content, cid, %{
+      trash: false
+    })
+
+    # TODO: remove this judge, as content should have a flag
+    # case action |> Map.has_key?(:flag) do
+    #   true ->
+    #     ArticleOperation.set_community_flags(content, community.id, %{
+    #       trash: false
+    #     })
+
+    #   false ->
+    #     {:ok, :pass}
+    # end
+  end
+
+  defp exec_set_community_flag(_community, _content, _action) do
+    {:ok, :pass}
   end
 
   @doc """
@@ -428,18 +459,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp create_content_result({:error, :log_action, _result, _steps}) do
     {:error, [message: "log action", code: ecode(:create_fails)]}
-  end
-
-  defp set_tags(thread, content_id, tags) do
-    try do
-      Enum.each(tags, fn tag ->
-        {:ok, _} = ArticleOperation.set_tag(thread, %Tag{id: tag.id}, content_id)
-      end)
-
-      {:ok, "psss"}
-    rescue
-      _ -> {:error, [message: "set tag", code: ecode(:create_fails)]}
-    end
   end
 
   defp update_tags(_content, tags_ids) when length(tags_ids) == 0, do: {:ok, :pass}
