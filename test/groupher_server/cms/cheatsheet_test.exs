@@ -58,8 +58,8 @@ defmodule GroupherServer.Test.CMS.Cheatsheet do
       assert length(update_contributors) == 1 + length(cur_contributors)
 
       # add some again
-      {:error, error} = CMS.add_contributor(cheatsheet, contributor_attrs)
-      assert error |> Keyword.get(:code) == ecode(:already_exsit)
+      {:error, reason} = CMS.add_contributor(cheatsheet, contributor_attrs)
+      assert reason |> Keyword.get(:code) == ecode(:already_exsit)
     end
   end
 end
