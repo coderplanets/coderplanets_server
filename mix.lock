@@ -63,7 +63,7 @@
   "pre_commit": {:hex, :pre_commit, "0.3.4", "e2850f80be8090d50ad8019ef2426039307ff5dfbe70c736ad0d4d401facf304", [:mix], [], "hexpm"},
   "quantum": {:hex, :quantum, "2.3.4", "72a0e8855e2adc101459eac8454787cb74ab4169de6ca50f670e72142d4960e9", [:mix], [{:calendar, "~> 0.17", [hex: :calendar, repo: "hexpm", optional: true]}, {:crontab, "~> 1.1", [hex: :crontab, repo: "hexpm", optional: false]}, {:gen_stage, "~> 0.12", [hex: :gen_stage, repo: "hexpm", optional: false]}, {:swarm, "~> 3.3", [hex: :swarm, repo: "hexpm", optional: false]}, {:timex, "~> 3.1", [hex: :timex, repo: "hexpm", optional: true]}], "hexpm"},
   "ranch": {:hex, :ranch, "1.7.1", "6b1fab51b49196860b733a49c07604465a47bdb78aa10c1c16a3d199f7f8c881", [:rebar3], [], "hexpm"},
-  "recase": {:hex, :recase, "0.4.0", "8fb52846f75948156385af2dfdc12f69e5ce27b022a9d1682c70a2fb3ed149c7", [:mix], [], "hexpm"},
+  "recase": {:hex, :recase, "0.6.0", "1dd2dd2f4e06603b74977630e739f08b7fedbb9420cc14de353666c2fc8b99f4", [:mix], [], "hexpm"},
   "rihanna": {:hex, :rihanna, "1.3.5", "5f5e6c5b1e514978a29a6791f338f4bb963401959fc212bd18d4a2c92d79a7a4", [:mix], [{:ecto, ">= 2.0.0", [hex: :ecto, repo: "hexpm", optional: true]}, {:ecto_sql, ">= 3.0.0", [hex: :ecto_sql, repo: "hexpm", optional: true]}, {:postgrex, ">= 0.13.3", [hex: :postgrex, repo: "hexpm", optional: false]}], "hexpm"},
   "scrivener": {:hex, :scrivener, "2.5.0", "e1f78c62b6806d91cc9c4778deef1ea4e80aa9fadfce2c16831afe0468cc8a2c", [:mix], [], "hexpm"},
   "scrivener_ecto": {:git, "https://github.com/mastani-stack/scrivener_ecto", "a6ebbbe9585e9829219ed0f73a3afcb4edde3558", [branch: "dev"]},
