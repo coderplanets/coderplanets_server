@@ -370,7 +370,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   end
 
   defp create_content_result({:ok, %{create_content: result}}) do
-    Later.exec({__MODULE__, :nofify_admin_new_content, [result]})
+    Later.exec({__MODULE__, :notify_admin_new_content, [result]})
     {:ok, result}
   end
 
@@ -482,7 +482,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  defp nofify_admin_new_content(%{id: id} = result) do
+  defp notify_admin_new_content(%{id: id} = result) do
     target = result.__struct__
     preload = [:origial_community, author: :user]
 
