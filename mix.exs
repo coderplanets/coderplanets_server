@@ -71,7 +71,7 @@ defmodule GroupherServer.Mixfile do
       {:corsica, "~> 1.1.2"},
       {:tesla, "~> 0.10.0"},
       # only used for tesla's JSON-encoder
-      {:poison, "~> 3.1"},
+      {:poison, "~> 4.0"},
       # for fake data in test env
       {:faker, "~> 0.9"},
       {:scrivener_ecto,
