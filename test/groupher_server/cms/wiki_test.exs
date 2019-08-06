@@ -56,8 +56,8 @@ defmodule GroupherServer.Test.Wiki do
       assert length(update_contributors) == 1 + length(cur_contributors)
 
       # add some again
-      {:error, error} = CMS.add_contributor(wiki, contributor_attrs)
-      assert error |> Keyword.get(:code) == ecode(:already_exsit)
+      {:error, reason} = CMS.add_contributor(wiki, contributor_attrs)
+      assert reason |> Keyword.get(:code) == ecode(:already_exsit)
     end
   end
 end

@@ -28,6 +28,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Manager do
       }
     }
     """
+    @tag :wip2
     test "root can trash a post", ~m(community user)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id})
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)

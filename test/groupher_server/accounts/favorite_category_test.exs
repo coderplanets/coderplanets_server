@@ -28,9 +28,9 @@ defmodule GroupherServer.Test.Accounts.FavoriteCategory do
 
     test "user create dup favorite category fails", ~m(user)a do
       {:ok, _category} = Accounts.create_favorite_category(user, %{title: "test category"})
-      {:error, error} = Accounts.create_favorite_category(user, %{title: "test category"})
+      {:error, reason} = Accounts.create_favorite_category(user, %{title: "test category"})
 
-      assert error |> Keyword.get(:code) == ecode(:already_exsit)
+      assert reason |> Keyword.get(:code) == ecode(:already_exsit)
     end
 
     test "user can get public categories list", ~m(user)a do
@@ -120,8 +120,8 @@ defmodule GroupherServer.Test.Accounts.FavoriteCategory do
       {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
       {:ok, _} = Accounts.set_favorites(user, :post, post.id, category.id)
 
-      {:error, error} = Accounts.set_favorites(user, :post, post.id, category.id)
-      assert error |> Keyword.get(:code) == ecode(:already_did)
+      {:error, reason} = Accounts.set_favorites(user, :post, post.id, category.id)
+      assert reason |> Keyword.get(:code) == ecode(:already_did)
     end
 
     test "user can unset category to a favorited post", ~m(user post)a do

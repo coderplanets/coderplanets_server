@@ -1,16 +1,14 @@
 defmodule GroupherServer.Test.CMS.ContentFlags do
+  @moduledoc false
+
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
 
   alias CMS.{
-    Post,
     PostCommunityFlag,
-    Repo,
     RepoCommunityFlag,
-    Job,
     JobCommunityFlag,
-    Video,
     VideoCommunityFlag
   }
 
@@ -35,7 +33,7 @@ defmodule GroupherServer.Test.CMS.ContentFlags do
       {:ok, found} = PostCommunityFlag |> ORM.find_by(~m(post_id community_id)a)
       assert found.trash == false
 
-      CMS.set_community_flags(%Post{id: post.id}, community.id, %{trash: true})
+      CMS.set_community_flags(community, post, %{trash: true})
 
       {:ok, found} = PostCommunityFlag |> ORM.find_by(~m(post_id community_id)a)
 
@@ -55,7 +53,7 @@ defmodule GroupherServer.Test.CMS.ContentFlags do
       {:ok, found} = JobCommunityFlag |> ORM.find_by(~m(job_id community_id)a)
       assert found.trash == false
 
-      CMS.set_community_flags(%Job{id: job.id}, community.id, %{trash: true})
+      CMS.set_community_flags(community, job, %{trash: true})
 
       {:ok, found} = JobCommunityFlag |> ORM.find_by(~m(job_id community_id)a)
 
@@ -73,7 +71,7 @@ defmodule GroupherServer.Test.CMS.ContentFlags do
       {:ok, found} = VideoCommunityFlag |> ORM.find_by(~m(video_id community_id)a)
       assert found.trash == false
 
-      CMS.set_community_flags(%Video{id: video.id}, community.id, %{trash: true})
+      CMS.set_community_flags(community, video, %{trash: true})
 
       {:ok, found} = VideoCommunityFlag |> ORM.find_by(~m(video_id community_id)a)
 
@@ -91,7 +89,7 @@ defmodule GroupherServer.Test.CMS.ContentFlags do
       {:ok, found} = RepoCommunityFlag |> ORM.find_by(~m(repo_id community_id)a)
       assert found.trash == false
 
-      CMS.set_community_flags(%Repo{id: repo.id}, community.id, %{trash: true})
+      CMS.set_community_flags(community, repo, %{trash: true})
 
       {:ok, found} = RepoCommunityFlag |> ORM.find_by(~m(repo_id community_id)a)
 

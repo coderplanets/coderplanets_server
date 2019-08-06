@@ -167,9 +167,9 @@ defmodule GroupherServerWeb.Resolvers.CMS do
 
   defp set_community_flags(community_id, thread, id, flag) do
     with {:ok, content} <- match_action(thread, :self) do
-      content.target
-      |> struct(%{id: id})
-      |> CMS.set_community_flags(community_id, flag)
+      queryable = content.target |> struct(%{id: id})
+
+      CMS.set_community_flags(community_id, queryable, flag)
     end
   end
 

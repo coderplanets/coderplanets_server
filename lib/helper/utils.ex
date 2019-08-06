@@ -35,7 +35,7 @@ defmodule Helper.Utils do
   def done(_, :boolean), do: {:ok, true}
   def done(nil, err_msg), do: {:error, err_msg}
   def done({:ok, _}, with: result), do: {:ok, result}
-  def done({:error, error}, with: _result), do: {:error, error}
+  def done({:error, reason}, with: _result), do: {:error, reason}
 
   def done({:ok, %{id: id}}, :status), do: {:ok, %{done: true, id: id}}
   def done({:error, _}, :status), do: {:ok, %{done: false}}
@@ -48,8 +48,6 @@ defmodule Helper.Utils do
   # for delete_all, update_all
   # see: https://groups.google.com/forum/#!topic/elixir-ecto/1g5Pp6ceqFE
   def done({n, nil}) when is_integer(n), do: {:ok, %{done: true}}
-
-  # def done({:error, error}), do: {:error, error}
   def done(result), do: {:ok, result}
 
   def done_and_cache(result, scope, expire: expire_time) do
