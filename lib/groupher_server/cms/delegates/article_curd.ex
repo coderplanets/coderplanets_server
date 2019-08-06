@@ -340,33 +340,29 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp should_add_pin?(_filter), do: {:error, :pass}
 
+  defp concat_contents(%{total_count: 0}, normal_contents), do: {:ok, normal_contents}
+
   defp concat_contents(pined_content, normal_contents) do
-    case pined_content |> Map.get(:total_count) do
-      0 ->
-        {:ok, normal_contents}
+    pind_entries =
+      pined_content
+      |> Map.get(:entries)
+      |> Enum.map(&struct(&1, %{pin: true}))
 
-      _ ->
-        pind_entries =
-          pined_content
-          |> Map.get(:entries)
-          |> Enum.map(&struct(&1, %{pin: true}))
+    normal_entries = normal_contents |> Map.get(:entries)
 
-        normal_entries = normal_contents |> Map.get(:entries)
+    # pind_count = pined_content |> Map.get(:total_count)
+    normal_count = normal_contents |> Map.get(:total_count)
 
-        # pind_count = pined_content |> Map.get(:total_count)
-        normal_count = normal_contents |> Map.get(:total_count)
+    # remote the pined content from normal_entries (if have)
+    pind_ids = pick_by(pind_entries, :id)
+    normal_entries = Enum.reject(normal_entries, &(&1.id in pind_ids))
 
-        # remote the pined content from normal_entries (if have)
-        pind_ids = pick_by(pind_entries, :id)
-        normal_entries = Enum.reject(normal_entries, &(&1.id in pind_ids))
-
-        normal_contents
-        |> Map.put(:entries, pind_entries ++ normal_entries)
-        # those two are equals
-        # |> Map.put(:total_count, pind_count + normal_count - pind_count)
-        |> Map.put(:total_count, normal_count)
-        |> done
-    end
+    normal_contents
+    |> Map.put(:entries, pind_entries ++ normal_entries)
+    # those two are equals
+    # |> Map.put(:total_count, pind_count + normal_count - pind_count)
+    |> Map.put(:total_count, normal_count)
+    |> done
   end
 
   defp create_content_result({:ok, %{create_content: result}}) do
