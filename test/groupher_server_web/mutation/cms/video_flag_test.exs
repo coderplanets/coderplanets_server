@@ -57,7 +57,7 @@ defmodule GroupherServer.Test.Mutation.VideoFlag do
     test "auth user can undo trash video", ~m(community video)a do
       variables = %{id: video.id, communityId: community.id}
 
-      {:ok, _} = CMS.set_community_flags(video, community.id, %{trash: true})
+      {:ok, _} = CMS.set_community_flags(community, video, %{trash: true})
 
       passport_rules = %{community.raw => %{"video.undo_trash" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)

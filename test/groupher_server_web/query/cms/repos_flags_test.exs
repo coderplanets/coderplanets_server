@@ -90,7 +90,7 @@ defmodule GroupherServer.Test.Query.ReposFlags do
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
 
       random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _} = CMS.set_community_flags(%Repo{id: random_id}, community.id, %{trash: true})
+      {:ok, _} = CMS.set_community_flags(community, %Repo{id: random_id}, %{trash: true})
 
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
 

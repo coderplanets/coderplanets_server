@@ -129,25 +129,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp exec_set_tag(_thread, _id, _attrs), do: {:ok, :pass}
 
   # TODO:  flag 逻辑似乎有问题
-  defp exec_set_community_flag(%Community{id: cid}, content, %{flag: _flag}) do
-    # TODO:  1. 参数改变一下顺序，把 community 放在前面
-    # TODO:  2. 直接传 community 下去，免去 set_community_flags 函数再在内部查 community
-    # TODO:  3. 该函数似乎逻辑似乎有点问题, 没有区分 action trash|..
-    # 要考虑第二条是否符合现实？
-    ArticleOperation.set_community_flags(content, cid, %{
+  defp exec_set_community_flag(%Community{} = community, content, %{flag: _flag}) do
+    ArticleOperation.set_community_flags(community, content, %{
       trash: false
     })
-
-    # TODO: remove this judge, as content should have a flag
-    # case action |> Map.has_key?(:flag) do
-    #   true ->
-    #     ArticleOperation.set_community_flags(content, community.id, %{
-    #       trash: false
-    #     })
-
-    #   false ->
-    #     {:ok, :pass}
-    # end
   end
 
   defp exec_set_community_flag(_community, _content, _action) do
