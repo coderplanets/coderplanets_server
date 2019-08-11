@@ -4,12 +4,14 @@ defmodule GroupherServer.CMS.Delegate.CommunitySync do
   """
   import Ecto.Query, warn: false
   import Helper.ErrorCode
-  import Helper.CommonTypes
   # import ShortMaps
 
-  alias Helper.ORM
+  alias GroupherServer.CMS
 
-  alias GroupherServer.CMS.{
+  alias Helper.ORM
+  alias Helper.SpecType, as: T
+
+  alias CMS.{
     Community,
     CommunityWiki,
     CommunityCheatsheet
@@ -46,7 +48,7 @@ defmodule GroupherServer.CMS.Delegate.CommunitySync do
   @doc """
   sync wiki
   """
-  @spec sync_github_content(Community.t(), atom) :: {:ok, CommunityWiki.t()}
+  @spec sync_github_content(Community.t(), atom(), any()) :: {:ok, CommunityWiki.t()}
   def sync_github_content(%Community{id: id}, :wiki, attrs) do
     with {:ok, community} <- ORM.find(Community, id) do
       attrs = Map.merge(attrs, %{community_id: community.id})
@@ -58,7 +60,7 @@ defmodule GroupherServer.CMS.Delegate.CommunitySync do
   @doc """
   sync cheatsheet
   """
-  @spec sync_github_content(Community.t(), atom()) :: {:ok, CommunityCheatsheet.t()}
+  @spec sync_github_content(Community.t(), atom(), any()) :: {:ok, CommunityCheatsheet.t()}
   def sync_github_content(%Community{id: id}, :cheatsheet, attrs) do
     with {:ok, community} <- ORM.find(Community, id) do
       attrs = Map.merge(attrs, %{community_id: community.id})
@@ -70,8 +72,8 @@ defmodule GroupherServer.CMS.Delegate.CommunitySync do
   @doc """
   add contributor to exsit wiki contributors list
   """
-  @spec add_contributor(Community.t(), github_contributor()) ::
-          {:ok, CommunityWiki} | custom_error()
+  @spec add_contributor(Community.t(), T.github_contributor()) ::
+          {:ok, CommunityWiki} | T.gq_error()
   def add_contributor(%CommunityWiki{id: id}, contributor_attrs) do
     do_add_contributor(CommunityWiki, id, contributor_attrs)
   end
@@ -79,8 +81,8 @@ defmodule GroupherServer.CMS.Delegate.CommunitySync do
   @doc """
   add contributor to exsit cheatsheet contributors list
   """
-  @spec add_contributor(Community.t(), github_contributor()) ::
-          {:ok, CommunityCheatsheet} | custom_error()
+  @spec add_contributor(Community.t(), T.github_contributor()) ::
+          {:ok, CommunityCheatsheet} | T.gq_error()
   def add_contributor(%CommunityCheatsheet{id: id}, contributor_attrs) do
     do_add_contributor(CommunityCheatsheet, id, contributor_attrs)
   end
