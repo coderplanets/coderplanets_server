@@ -130,6 +130,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end
   end
 
+  @spec ensure_author_exists(User.t()) :: {:ok, User.t()}
   def ensure_author_exists(%User{} = user) do
     # unique_constraint: avoid race conditions, make sure user_id unique
     # foreign_key_constraint: check foreign key: user_id exsit or not
