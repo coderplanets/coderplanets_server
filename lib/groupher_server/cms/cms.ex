@@ -84,7 +84,7 @@ defmodule GroupherServer.CMS do
   defdelegate favorited_category(thread, content_id, user), to: FavoritedContents
   # ArticleOperation
   # >> set flag on article, like: pin / unpin article
-  defdelegate set_community_flags(queryable, community_id, attrs), to: ArticleOperation
+  defdelegate set_community_flags(community_info, queryable, attrs), to: ArticleOperation
   defdelegate pin_content(queryable, community_id, topic), to: ArticleOperation
   defdelegate undo_pin_content(queryable, community_id, topic), to: ArticleOperation
   defdelegate pin_content(queryable, community_id), to: ArticleOperation

@@ -110,6 +110,7 @@ defmodule GroupherServer.Test.Query.Accounts.PublishedContents do
       }
     }
     """
+    @tag :wip
     test "user can get paged published videos", ~m(guest_conn user community)a do
       pub_videos =
         Enum.reduce(1..@publish_count, [], fn _, acc ->

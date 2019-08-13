@@ -57,7 +57,7 @@ defmodule GroupherServer.Test.Mutation.JobFlag do
     test "auth user can undo trash job", ~m(community job)a do
       variables = %{id: job.id, communityId: community.id}
 
-      {:ok, _} = CMS.set_community_flags(job, community.id, %{trash: true})
+      {:ok, _} = CMS.set_community_flags(community, job, %{trash: true})
 
       passport_rules = %{community.raw => %{"job.undo_trash" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)

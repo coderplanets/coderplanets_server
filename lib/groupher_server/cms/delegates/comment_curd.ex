@@ -92,15 +92,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
         ORM.delete(comment)
       end)
       |> Multi.run(:update_floor, fn _, _ ->
-        Repo.update_all(
-          from(p in action.reactor, where: p.id > ^comment.id),
-          inc: [floor: -1]
-        )
-        |> done()
-        |> case do
-          {:ok, _} -> {:ok, comment}
-          {:error, _} -> {:error, ""}
-        end
+        exec_update_floor(action.reactor, comment)
       end)
       |> Repo.transaction()
       |> delete_comment_result()
@@ -183,6 +175,18 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
 
   defp delete_comment_result({:error, :update_floor, _result, _steps}) do
     {:error, [message: "update follor fails", code: ecode(:delete_fails)]}
+  end
+
+  defp exec_update_floor(queryable, comment) do
+    Repo.update_all(
+      from(p in queryable, where: p.id > ^comment.id),
+      inc: [floor: -1]
+    )
+    |> done()
+    |> case do
+      {:ok, _} -> {:ok, comment}
+      {:error, _} -> {:error, ""}
+    end
   end
 
   # simulate a join connection

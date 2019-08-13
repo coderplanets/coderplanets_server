@@ -57,7 +57,7 @@ defmodule GroupherServer.Test.Mutation.RepoFlag do
     test "auth user can undo trash repo", ~m(community repo)a do
       variables = %{id: repo.id, communityId: community.id}
 
-      {:ok, _} = CMS.set_community_flags(repo, community.id, %{trash: true})
+      {:ok, _} = CMS.set_community_flags(community, repo, %{trash: true})
 
       passport_rules = %{community.raw => %{"repo.undo_trash" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)

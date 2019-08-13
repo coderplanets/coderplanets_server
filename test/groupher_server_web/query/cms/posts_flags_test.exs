@@ -81,7 +81,7 @@ defmodule GroupherServer.Test.Query.PostsFlags do
 
       {:ok, _pined_post} = CMS.pin_content(%Post{id: random_id}, community, "posts")
 
-      # {:ok, _} = CMS.set_community_flags(%Post{id: random_id}, community.id, %{pin: true})
+      # {:ok, _} = CMS.set_community_flags(community, %Post{id: random_id}, %{pin: true})
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
       assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))
@@ -93,7 +93,7 @@ defmodule GroupherServer.Test.Query.PostsFlags do
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
       random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _} = CMS.set_community_flags(%Post{id: random_id}, community.id, %{trash: true})
+      {:ok, _} = CMS.set_community_flags(community, %Post{id: random_id}, %{trash: true})
 
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 

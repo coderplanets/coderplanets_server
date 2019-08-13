@@ -97,7 +97,14 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   @doc """
   trash / untrash articles
   """
-  def set_community_flags(content, community_id, attrs) do
+  def set_community_flags(%Community{id: cid}, content, attrs) do
+    with {:ok, content} <- ORM.find(content.__struct__, content.id),
+         {:ok, record} <- insert_flag_record(content, cid, attrs) do
+      {:ok, struct(content, %{trash: record.trash})}
+    end
+  end
+
+  def set_community_flags(community_id, content, attrs) do
     with {:ok, content} <- ORM.find(content.__struct__, content.id),
          {:ok, community} <- ORM.find(Community, community_id),
          {:ok, record} <- insert_flag_record(content, community.id, attrs) do
