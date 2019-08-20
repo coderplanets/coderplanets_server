@@ -100,7 +100,8 @@ defmodule GroupherServer.Mixfile do
       # postgres-backed job queue
       {:rihanna, "1.3.5"},
       # cron-like scheduler job
-      {:quantum, "~> 2.3"}
+      {:quantum, "~> 2.3"},
+      {:html_sanitize_ex, "~> 1.3"}
     ]
   end
 

@@ -18,7 +18,7 @@ defmodule GroupherServer.Test.Helper.RichTextParserTest do
       true
     end
 
-    @tag :wip
+    @tag :wip2
     test "real data should work" do
       editor_json2 = ~S({
         "time": 1563816717958,
