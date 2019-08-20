@@ -4,4 +4,9 @@ defmodule Helper.RichTextParser do
 
   see https://editorjs.io/
   """
+
+
+  def string_to_json(string) do
+    Jason.decode!(string)
+  end
 end
