@@ -5,11 +5,6 @@ defmodule GroupherServerWeb.Router do
   use Plug.ErrorHandler
   use Sentry.Plug
 
-  # see https://github.com/sikanhe/apollo-tracing-elixir/issues/26
-  require Protocol
-  Protocol.derive(Jason.Encoder, ApolloTracing.Schema)
-  Protocol.derive(Jason.Encoder, ApolloTracing.Schema.Execution)
-
   pipeline :api do
     plug(:accepts, ["json"])
     plug(GroupherServerWeb.Context)

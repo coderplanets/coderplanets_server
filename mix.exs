@@ -82,7 +82,7 @@ defmodule GroupherServer.Mixfile do
       {:dataloader, "~> 1.0.2"},
       {:mix_test_watch, "~> 0.9", only: :dev, runtime: false},
       {:ex_unit_notifier, "~> 0.1", only: :test},
-      {:apollo_tracing, "~> 0.4.1"},
+      {:apollo_tracing, "~> 0.4.3"},
       {:pre_commit, "~> 0.3.4"},
       {:inch_ex, "~> 2.0", only: [:dev, :test]},
       {:short_maps, "~> 0.1.1"},
