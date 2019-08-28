@@ -28,7 +28,7 @@
   "erlex": {:hex, :erlex, "0.2.1", "cee02918660807cbba9a7229cae9b42d1c6143b768c781fa6cee1eaf03ad860b", [:mix], [], "hexpm"},
   "eternal": {:hex, :eternal, "1.2.1", "d5b6b2499ba876c57be2581b5b999ee9bdf861c647401066d3eeed111d096bc4", [:mix], [], "hexpm"},
   "ex_unit_notifier": {:hex, :ex_unit_notifier, "0.1.4", "36a2dcab829f506e01bf17816590680dd1474407926d43e64c1263e627c364b8", [:mix], [], "hexpm"},
-  "excoveralls": {:hex, :excoveralls, "0.11.1", "dd677fbdd49114fdbdbf445540ec735808250d56b011077798316505064edb2c", [:mix], [{:hackney, "~> 1.0", [hex: :hackney, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: false]}], "hexpm"},
+  "excoveralls": {:hex, :excoveralls, "0.11.2", "0c6f2c8db7683b0caa9d490fb8125709c54580b4255ffa7ad35f3264b075a643", [:mix], [{:hackney, "~> 1.0", [hex: :hackney, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: false]}], "hexpm"},
   "faker": {:hex, :faker, "0.10.0", "367c2ae47e7b4ac6410e1eaa880c07b5fe4194476f697d37ac1ce25f3058aae2", [:mix], [], "hexpm"},
   "file_system": {:hex, :file_system, "0.2.6", "fd4dc3af89b9ab1dc8ccbcc214a0e60c41f34be251d9307920748a14bf41f1d3", [:mix], [], "hexpm"},
   "fs": {:hex, :fs, "0.9.2", "ed17036c26c3f70ac49781ed9220a50c36775c6ca2cf8182d123b6566e49ec59", [:rebar], [], "hexpm"},
