@@ -96,6 +96,30 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   end
 
   @doc """
+  notify(email) admin about new content
+  NOTE:  this method should NOT be pravite, because this method
+  will be called outside this module
+  """
+  def notify_admin_new_content(%{id: id} = result) do
+    target = result.__struct__
+    preload = [:origial_community, author: :user]
+
+    with {:ok, content} <- ORM.find(target, id, preload: preload) do
+      info = %{
+        id: content.id,
+        title: content.title,
+        digest: Map.get(content, :digest, content.title),
+        author_name: content.author.user.nickname,
+        community_raw: content.origial_community.raw,
+        type:
+          result.__struct__ |> to_string |> String.split(".") |> List.last() |> String.downcase()
+      }
+
+      Email.notify_admin(info, :new_content)
+    end
+  end
+
+  @doc """
   update a content(post/job ...)
   """
   def update_content(content, args) do
@@ -476,25 +500,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Ecto.Changeset.change()
       |> Ecto.Changeset.put_assoc(:tags, tags)
       |> Repo.update()
-    end
-  end
-
-  defp notify_admin_new_content(%{id: id} = result) do
-    target = result.__struct__
-    preload = [:origial_community, author: :user]
-
-    with {:ok, content} <- ORM.find(target, id, preload: preload) do
-      info = %{
-        id: content.id,
-        title: content.title,
-        digest: Map.get(content, :digest, content.title),
-        author_name: content.author.user.nickname,
-        community_raw: content.origial_community.raw,
-        type:
-          result.__struct__ |> to_string |> String.split(".") |> List.last() |> String.downcase()
-      }
-
-      Email.notify_admin(info, :new_content)
     end
   end
 end
