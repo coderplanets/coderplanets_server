@@ -1,8 +1,7 @@
 defmodule GroupherServer.Test.Query.Account.Customization do
   use GroupherServer.TestTools
-  import Helper.Utils, only: [get_config: 2]
 
-  @default_customization get_config(:customization, :all) |> Enum.into(%{})
+  alias GroupherServer.Accounts.Customization
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -35,13 +34,14 @@ defmodule GroupherServer.Test.Query.Account.Customization do
       results = user_conn |> query_result(@query, %{}, "user")
 
       assert results["id"] == to_string(user.id)
-      assert results["customization"]["theme"] == @default_customization |> Map.get(:theme)
+      assert results["customization"]["theme"] == Customization.default() |> Map.get(:theme)
 
       assert results["customization"]["bannerLayout"] ==
-               @default_customization |> Map.get(:banner_layout)
+               Customization.default()
+               |> Map.get(:banner_layout)
 
       assert results["customization"]["contentsLayout"] ==
-               @default_customization |> Map.get(:contents_layout)
+               Customization.default() |> Map.get(:contents_layout)
     end
   end
 end

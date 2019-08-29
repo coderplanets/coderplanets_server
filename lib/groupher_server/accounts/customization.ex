@@ -2,13 +2,17 @@ defmodule GroupherServer.Accounts.Customization do
   @moduledoc false
 
   alias __MODULE__
-
   use Ecto.Schema
+
+  import Helper.Utils, only: [get_config: 2]
   import Ecto.Changeset
+
   alias GroupherServer.Accounts.User
 
   @required_fields ~w(user_id)a
   @optional_fields ~w(theme sidebar_layout sidebar_communities_index community_chart brainwash_free banner_layout contents_layout content_divider content_hover mark_viewed display_density)a
+
+  @default_customization get_config(:customization, :all)
 
   @type t :: %Customization{}
   schema "customizations" do
@@ -38,4 +42,6 @@ defmodule GroupherServer.Accounts.Customization do
     |> validate_required(@required_fields)
     |> foreign_key_constraint(:user_id)
   end
+
+  def default, do: @default_customization |> Enum.into(%{})
 end
