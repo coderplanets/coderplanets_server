@@ -16,9 +16,13 @@ defmodule Helper.Sanitizer do
     Meta.allow_tag_with_uri_attributes("a", ["href"], ["http", "https"])
     Meta.allow_tag_with_these_attributes("a", ["name", "title"])
 
-    Meta.allow_tag_with_these_attributes("strong", [])
-    Meta.allow_tag_with_these_attributes("em", [])
-    Meta.allow_tag_with_these_attributes("p", [])
+    # Meta.allow_tag_with_these_attributes("strong", [])
+    # Meta.allow_tag_with_these_attributes("em", [])
+    Meta.allow_tag_with_these_attributes("b", [])
+    Meta.allow_tag_with_these_attributes("i", [])
+    Meta.allow_tag_with_these_attributes("mark", ["class"])
+    Meta.allow_tag_with_these_attributes("code", ["class"])
+    # Meta.allow_tag_with_these_attributes("p", [])
 
     Meta.strip_everything_not_covered()
   end
