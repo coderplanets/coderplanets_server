@@ -6,6 +6,6 @@ defmodule Helper.RichTextParser do
   """
 
   def string_to_json(string) do
-    Jason.decode!(string)
+    Jason.decode(string)
   end
 end
