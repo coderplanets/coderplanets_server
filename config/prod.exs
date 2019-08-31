@@ -68,6 +68,10 @@ config :logger, :console, format: "[$level] $message\n"
 config :groupher_server, GroupherServerWeb.Endpoint,
   secret_key_base: System.get_env("SECRET_KEY_BASE")
 
+config :groupher_server, Helper.Guardian,
+  issuer: "groupher_server",
+  secret_key: System.get_env("GUARDIAN_KEY")
+
 # You can generate a new secret by running:
 # mix phx.gen.secret
 # should use RDS 内网地址

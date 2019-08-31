@@ -77,7 +77,7 @@ defmodule GroupherServer.Test.Query.VideosFlags do
       assert results |> is_valid_pagination?
 
       random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _} = CMS.set_community_flags(%Video{id: random_id}, community.id, %{pin: true})
+      {:ok, _} = CMS.set_community_flags(community, %Video{id: random_id}, %{pin: true})
       results = guest_conn |> query_result(@query, variables, "pagedVideos")
 
       assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))
@@ -89,7 +89,7 @@ defmodule GroupherServer.Test.Query.VideosFlags do
       results = guest_conn |> query_result(@query, variables, "pagedVideos")
 
       random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _} = CMS.set_community_flags(%Video{id: random_id}, community.id, %{trash: true})
+      {:ok, _} = CMS.set_community_flags(community, %Video{id: random_id}, %{trash: true})
 
       results = guest_conn |> query_result(@query, variables, "pagedVideos")
 

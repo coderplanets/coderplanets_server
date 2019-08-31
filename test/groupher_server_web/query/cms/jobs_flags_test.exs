@@ -79,7 +79,7 @@ defmodule GroupherServer.Test.Query.JobsFlags do
 
       random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
       {:ok, _pined_post} = CMS.pin_content(%Job{id: random_id}, community)
-      # {:ok, _} = CMS.set_community_flags(%Job{id: random_id}, community.id, %{pin: true})
+      # {:ok, _} = CMS.set_community_flags(community, %Job{id: random_id}, %{pin: true})
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
 
       assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))
@@ -91,7 +91,7 @@ defmodule GroupherServer.Test.Query.JobsFlags do
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
 
       random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _} = CMS.set_community_flags(%Job{id: random_id}, community.id, %{trash: true})
+      {:ok, _} = CMS.set_community_flags(community, %Job{id: random_id}, %{trash: true})
 
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
 

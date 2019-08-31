@@ -9,6 +9,10 @@ config :groupher_server, GroupherServerWeb.Endpoint,
 
 config :logger, :console, format: "[$level] $message\n"
 
+config :groupher_server, Helper.Guardian,
+  issuer: "groupher_server",
+  secret_key: "kSTPDbCUSRhiEmv86eYMUplL7xI5fDa/+6MWKzK2VYGxjwL0XGHHVJiSPNPe9hJe"
+
 config :phoenix, :stacktrace_depth, 20
 
 # Configure your database

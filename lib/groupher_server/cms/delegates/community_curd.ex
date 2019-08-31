@@ -174,8 +174,8 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
       {:ok, ret} ->
         {:ok, ret}
 
-      {:error, error} ->
-        {:error, error}
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 

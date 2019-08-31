@@ -77,12 +77,12 @@ defmodule GroupherServer.Mixfile do
       {:scrivener_ecto,
        git: "https://github.com/mastani-stack/scrivener_ecto", branch: "dev", override: true},
       # {:scrivener_ecto, "~> 2.0.0"},
-      {:guardian, "~> 1.0"},
+      {:guardian, "~> 2.0"},
       {:timex, "~> 3.6.1"},
       {:dataloader, "~> 1.0.2"},
       {:mix_test_watch, "~> 0.9", only: :dev, runtime: false},
       {:ex_unit_notifier, "~> 0.1", only: :test},
-      {:apollo_tracing, "~> 0.4.1"},
+      {:apollo_tracing, "~> 0.4.3"},
       {:pre_commit, "~> 0.3.4"},
       {:inch_ex, "~> 2.0", only: [:dev, :test]},
       {:short_maps, "~> 0.1.1"},
@@ -91,12 +91,12 @@ defmodule GroupherServer.Mixfile do
       {:dialyxir, "~> 1.0.0-rc.2", only: [:dev, :mock], runtime: false},
       {:excoveralls, "~> 0.8", only: :test},
       {:sentry, "~> 7.1"},
-      {:recase, "~> 0.4.0"},
+      {:recase, "~> 0.6.0"},
       {:nanoid, "~> 2.0.0"},
       # mailer
-      {:bamboo, "1.2.0"},
+      {:bamboo, "1.3.0"},
       # mem cache
-      {:cachex, "3.1.3"},
+      {:cachex, "3.2.0"},
       # postgres-backed job queue
       {:rihanna, "1.3.5"},
       # cron-like scheduler job

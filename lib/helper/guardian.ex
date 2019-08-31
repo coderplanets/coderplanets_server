@@ -2,6 +2,8 @@ defmodule Helper.Guardian do
   @moduledoc """
   This module defines some helper function used by
   encode/decode jwt
+  NOTE:  You can use `mix guardian.gen.secret` to get one
+  see: https://github.com/ueberauth/guardian
   """
   use Guardian, otp_app: :groupher_server
 

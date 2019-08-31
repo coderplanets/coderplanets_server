@@ -3,16 +3,14 @@ defmodule GroupherServer.Accounts.Delegate.Customization do
   customization for user
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [get_config: 2, map_atom_value: 2]
+  import Helper.Utils, only: [map_atom_value: 2]
   import ShortMaps
 
-  alias Helper.ORM
   alias GroupherServer.Accounts
+  alias Helper.ORM
 
-  alias Accounts.{User, Customization}
-  alias Accounts.Delegate.Achievements
-
-  @default_customization get_config(:customization, :all) |> Enum.into(%{})
+  alias Accounts.{Customization, Delegate, User}
+  alias Delegate.Achievements
 
   def upgrade_by_plan(%User{} = user, :donate) do
     Achievements.set_member(user, :donate)
@@ -37,10 +35,10 @@ defmodule GroupherServer.Accounts.Delegate.Customization do
     case ORM.find_by(Customization, user_id: user_id) do
       {:ok, customization} ->
         customization = customization |> Map.from_struct() |> filter_nil_value
-        {:ok, Map.merge(@default_customization, customization)}
+        {:ok, Map.merge(Customization.default(), customization)}
 
       {:error, _} ->
-        {:ok, @default_customization}
+        {:ok, Customization.default()}
     end
   end
 
@@ -96,12 +94,12 @@ defmodule GroupherServer.Accounts.Delegate.Customization do
     end
   end
 
-  defp extract_cur_c11n(nil), do: @default_customization
+  defp extract_cur_c11n(nil), do: Customization.default()
 
   defp extract_cur_c11n(%Customization{} = customization) do
     customization = customization |> Map.from_struct() |> filter_nil_value
 
-    Map.merge(@default_customization, customization)
+    Map.merge(Customization.default(), customization)
   end
 
   # defp c11n_item_setable?(:theme, %{

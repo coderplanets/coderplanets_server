@@ -63,63 +63,59 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   {:error, %Ecto.Changeset{}}
 
   """
-  def create_content(
-        %Community{id: community_id},
-        thread,
-        attrs,
-        %User{id: user_id}
-      ) do
-    with {:ok, author} <- ensure_author_exists(%User{id: user_id}),
+  def create_content(%Community{id: cid}, thread, attrs, %User{id: uid}) do
+    with {:ok, author} <- ensure_author_exists(%User{id: uid}),
          {:ok, action} <- match_action(thread, :community),
-         {:ok, community} <- ORM.find(Community, community_id) do
+         {:ok, community} <- ORM.find(Community, cid) do
       Multi.new()
       |> Multi.run(:create_content, fn _, _ ->
-        action.target
-        |> struct()
-        |> action.target.changeset(attrs)
-        |> Ecto.Changeset.put_change(:author_id, author.id)
-        |> Ecto.Changeset.put_change(:origial_community_id, integerfy(community_id))
-        |> Repo.insert()
+        exec_create_content(action.target, attrs, author, community)
       end)
       |> Multi.run(:set_community, fn _, %{create_content: content} ->
         ArticleOperation.set_community(community, thread, content.id)
       end)
       |> Multi.run(:set_topic, fn _, %{create_content: content} ->
-        topic_title =
-          case attrs |> Map.has_key?(:topic) do
-            true -> attrs.topic
-            false -> "posts"
-          end
-
-        ArticleOperation.set_topic(%Topic{title: topic_title}, thread, content.id)
+        exec_set_topic(thread, content.id, attrs)
       end)
       |> Multi.run(:set_community_flag, fn _, %{create_content: content} ->
-        # TODO: remove this judge, as content should have a flag
-        case action |> Map.has_key?(:flag) do
-          true ->
-            ArticleOperation.set_community_flags(content, community.id, %{
-              trash: false
-            })
-
-          false ->
-            {:ok, :pass}
-        end
+        exec_set_community_flag(community, content, action)
       end)
       |> Multi.run(:set_tag, fn _, %{create_content: content} ->
-        case attrs |> Map.has_key?(:tags) do
-          true -> set_tags(thread, content.id, attrs.tags)
-          false -> {:ok, :pass}
-        end
+        exec_set_tag(thread, content.id, attrs)
       end)
       |> Multi.run(:mention_users, fn _, %{create_content: content} ->
-        Delivery.mention_from_content(community.raw, thread, content, attrs, %User{id: user_id})
+        Delivery.mention_from_content(community.raw, thread, content, attrs, %User{id: uid})
         {:ok, :pass}
       end)
       |> Multi.run(:log_action, fn _, _ ->
-        Statistics.log_publish_action(%User{id: user_id})
+        Statistics.log_publish_action(%User{id: uid})
       end)
       |> Repo.transaction()
       |> create_content_result()
+    end
+  end
+
+  @doc """
+  notify(email) admin about new content
+  NOTE:  this method should NOT be pravite, because this method
+  will be called outside this module
+  """
+  def notify_admin_new_content(%{id: id} = result) do
+    target = result.__struct__
+    preload = [:origial_community, author: :user]
+
+    with {:ok, content} <- ORM.find(target, id, preload: preload) do
+      info = %{
+        id: content.id,
+        title: content.title,
+        digest: Map.get(content, :digest, content.title),
+        author_name: content.author.user.nickname,
+        community_raw: content.origial_community.raw,
+        type:
+          result.__struct__ |> to_string |> String.split(".") |> List.last() |> String.downcase()
+      }
+
+      Email.notify_admin(info, :new_content)
     end
   end
 
@@ -132,7 +128,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       ORM.update(content, args)
     end)
     |> Multi.run(:update_tag, fn _, _ ->
-      update_tags(content, args.tags)
+      exec_update_tags(content, args.tags)
     end)
     |> Repo.transaction()
     |> update_content_result()
@@ -158,6 +154,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end
   end
 
+  @spec ensure_author_exists(User.t()) :: {:ok, User.t()}
   def ensure_author_exists(%User{} = user) do
     # unique_constraint: avoid race conditions, make sure user_id unique
     # foreign_key_constraint: check foreign key: user_id exsit or not
@@ -368,58 +365,34 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp should_add_pin?(_filter), do: {:error, :pass}
 
+  defp concat_contents(%{total_count: 0}, normal_contents), do: {:ok, normal_contents}
+
   defp concat_contents(pined_content, normal_contents) do
-    case pined_content |> Map.get(:total_count) do
-      0 ->
-        {:ok, normal_contents}
+    pind_entries =
+      pined_content
+      |> Map.get(:entries)
+      |> Enum.map(&struct(&1, %{pin: true}))
 
-      _ ->
-        pind_entries =
-          pined_content
-          |> Map.get(:entries)
-          |> Enum.map(&struct(&1, %{pin: true}))
+    normal_entries = normal_contents |> Map.get(:entries)
 
-        normal_entries = normal_contents |> Map.get(:entries)
+    # pind_count = pined_content |> Map.get(:total_count)
+    normal_count = normal_contents |> Map.get(:total_count)
 
-        # pind_count = pined_content |> Map.get(:total_count)
-        normal_count = normal_contents |> Map.get(:total_count)
+    # remote the pined content from normal_entries (if have)
+    pind_ids = pick_by(pind_entries, :id)
+    normal_entries = Enum.reject(normal_entries, &(&1.id in pind_ids))
 
-        # remote the pined content from normal_entries (if have)
-        pind_ids = pick_by(pind_entries, :id)
-        normal_entries = Enum.reject(normal_entries, &(&1.id in pind_ids))
-
-        normal_contents
-        |> Map.put(:entries, pind_entries ++ normal_entries)
-        # those two are equals
-        # |> Map.put(:total_count, pind_count + normal_count - pind_count)
-        |> Map.put(:total_count, normal_count)
-        |> done
-    end
+    normal_contents
+    |> Map.put(:entries, pind_entries ++ normal_entries)
+    # those two are equals
+    # |> Map.put(:total_count, pind_count + normal_count - pind_count)
+    |> Map.put(:total_count, normal_count)
+    |> done
   end
 
   defp create_content_result({:ok, %{create_content: result}}) do
-    # Later.exec({__MODULE__, :nofify_admin_new_content, [result]})
-    nofify_admin_new_content(result)
+    Later.exec({__MODULE__, :notify_admin_new_content, [result]})
     {:ok, result}
-  end
-
-  def nofify_admin_new_content(%{id: id} = result) do
-    target = result.__struct__
-    preload = [:origial_community, author: :user]
-
-    with {:ok, content} <- ORM.find(target, id, preload: preload) do
-      info = %{
-        id: content.id,
-        title: content.title,
-        digest: content.digest,
-        author_name: content.author.user.nickname,
-        community_raw: content.origial_community.raw,
-        type:
-          result.__struct__ |> to_string |> String.split(".") |> List.last() |> String.downcase()
-      }
-
-      Email.notify_admin(info, :new_content)
-    end
   end
 
   defp create_content_result({:error, :create_content, %Ecto.Changeset{} = result, _steps}) do
@@ -450,63 +423,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     {:error, [message: "log action", code: ecode(:create_fails)]}
   end
 
-  defp set_tags(thread, content_id, tags) do
-    try do
-      Enum.each(tags, fn tag ->
-        {:ok, _} = ArticleOperation.set_tag(thread, %Tag{id: tag.id}, content_id)
-      end)
-
-      {:ok, "psss"}
-    rescue
-      _ -> {:error, [message: "set tag", code: ecode(:create_fails)]}
-    end
-  end
-
-  defp update_tags(_content, tags_ids) when length(tags_ids) == 0, do: {:ok, :pass}
-
-  # Job is special, the tags in job only represent city, so everytime update
-  # tags on job content, should be override the old ones, in this way, every
-  # communiies contains this job will have the same city info
-  defp update_tags(%CMS.Job{} = content, tags_ids) do
-    with {:ok, content} <- ORM.find(CMS.Job, content.id, preload: :tags) do
-      concat_tags(content, tags_ids)
-    end
-  end
-
-  defp update_tags(%CMS.Post{} = content, tags_ids) do
-    with {:ok, content} <- ORM.find(CMS.Post, content.id, preload: :tags) do
-      concat_tags(content, tags_ids)
-    end
-  end
-
-  defp update_tags(%CMS.Video{} = content, tags_ids) do
-    with {:ok, content} <- ORM.find(CMS.Video, content.id, preload: :tags) do
-      concat_tags(content, tags_ids)
-    end
-  end
-
   # except Job, other content will just pass, should use set_tag function instead
-  defp update_tags(_, _tags_ids), do: {:ok, :pass}
-
-  defp concat_tags(content, tags_ids) do
-    tags =
-      Enum.reduce(tags_ids, [], fn t, acc ->
-        {:ok, tag} = ORM.find(Tag, t.id)
-
-        case tag.title == "refined" do
-          true ->
-            acc
-
-          false ->
-            acc ++ [tag]
-        end
-      end)
-
-    content
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_assoc(:tags, tags)
-    |> Repo.update()
-  end
+  # defp exec_update_tags(_, _tags_ids), do: {:ok, :pass}
 
   defp update_content_result({:ok, %{update_content: result}}), do: {:ok, result}
   defp update_content_result({:error, :update_content, result, _steps}), do: {:error, result}
@@ -516,4 +434,72 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp content_id(:job, id), do: %{job_id: id}
   defp content_id(:repo, id), do: %{repo_id: id}
   defp content_id(:video, id), do: %{video_id: id}
+
+  #  for create content step in Multi.new
+  defp exec_create_content(target, attrs, %Author{id: aid}, %Community{id: cid}) do
+    target
+    |> struct()
+    |> target.changeset(attrs)
+    |> Ecto.Changeset.put_change(:author_id, aid)
+    |> Ecto.Changeset.put_change(:origial_community_id, integerfy(cid))
+    |> Repo.insert()
+  end
+
+  defp exec_set_topic(thread, id, %{topic: topic}) do
+    ArticleOperation.set_topic(%Topic{title: topic}, thread, id)
+  end
+
+  # if topic is not provide, use posts as default
+  defp exec_set_topic(thread, id, _attrs) do
+    ArticleOperation.set_topic(%Topic{title: "posts"}, thread, id)
+  end
+
+  defp exec_set_tag(thread, id, %{tags: tags}) do
+    try do
+      Enum.each(tags, fn tag ->
+        {:ok, _} = ArticleOperation.set_tag(thread, %Tag{id: tag.id}, id)
+      end)
+
+      {:ok, "psss"}
+    rescue
+      _ -> {:error, [message: "set tag", code: ecode(:create_fails)]}
+    end
+  end
+
+  defp exec_set_tag(_thread, _id, _attrs), do: {:ok, :pass}
+
+  # TODO:  flag 逻辑似乎有问题
+  defp exec_set_community_flag(%Community{} = community, content, %{flag: _flag}) do
+    ArticleOperation.set_community_flags(community, content, %{
+      trash: false
+    })
+  end
+
+  defp exec_set_community_flag(_community, _content, _action) do
+    {:ok, :pass}
+  end
+
+  defp exec_update_tags(_content, tags_ids) when length(tags_ids) == 0, do: {:ok, :pass}
+
+  defp exec_update_tags(content, tags_ids) do
+    with {:ok, content} <- ORM.find(content.__struct__, content.id, preload: :tags) do
+      tags =
+        Enum.reduce(tags_ids, [], fn t, acc ->
+          {:ok, tag} = ORM.find(Tag, t.id)
+
+          case tag.title == "refined" do
+            true ->
+              acc
+
+            false ->
+              acc ++ [tag]
+          end
+        end)
+
+      content
+      |> Ecto.Changeset.change()
+      |> Ecto.Changeset.put_assoc(:tags, tags)
+      |> Repo.update()
+    end
+  end
 end

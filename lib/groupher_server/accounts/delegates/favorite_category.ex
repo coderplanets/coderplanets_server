@@ -149,7 +149,7 @@ defmodule GroupherServer.Accounts.Delegate.FavoriteCategory do
           {:error, _} ->
             case CMS.reaction(thread, :favorite, content_id, user) do
               {:ok, _} -> find_content_favorite(thread, content_id, user.id)
-              {:error, error} -> {:error, error}
+              {:error, reason} -> {:error, reason}
             end
         end
       end)
@@ -160,7 +160,7 @@ defmodule GroupherServer.Accounts.Delegate.FavoriteCategory do
           |> ORM.update(%{total_count: max(old_category.total_count - 1, 0)})
         else
           true -> {:ok, ""}
-          error -> {:error, error}
+          reason -> {:error, reason}
         end
       end)
       |> Multi.run(:update_content_category_id, fn _, %{favorite_content: content_favorite} ->
