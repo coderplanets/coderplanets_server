@@ -22,13 +22,7 @@ config :logger, :console,
 
 config :phoenix, :json_library, Jason
 
-# TODO move this config to secret later
-config :groupher_server, Helper.Guardian,
-  issuer: "groupher_server",
-  secret_key: "kSTPDbCUSRhiEmv86eYMUplL7xI5fDa/+6MWKzK2VYGxjwL0XGHHVJiSPNPe9hJe"
-
 config :groupher_server, :mix_test_watch, exclude: [~r/docs\/.*/, ~r/deps\/.*/, ~r/mix.exs/]
-# secret_key: {:system, "GUARDIAN_DEMO_SECRET_KEY"}
 
 config :pre_commit, commands: ["format"], verbose: false
 # Import environment specific config. This must remain at the bottom

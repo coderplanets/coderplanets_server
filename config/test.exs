@@ -9,6 +9,10 @@ config :groupher_server, GroupherServerWeb.Endpoint,
 # Print only warnings and errors during test
 config :logger, level: :warn
 
+config :groupher_server, Helper.Guardian,
+  issuer: "groupher_server",
+  secret_key: "kSTPDbCUSRhiEmv86eYMUplL7xI5fDa/+6MWKzK2VYGxjwL0XGHHVJiSPNPe9hJe"
+
 config :groupher_server, :test,
   # 成都电信 ip, for test use
   remote_ip: "171.223.96.88"

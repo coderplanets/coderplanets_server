@@ -41,6 +41,10 @@ config :phoenix, :stacktrace_depth, 20
 config :groupher_server, GroupherServerWeb.Endpoint,
   secret_key_base: System.get_env("SECRET_KEY_BASE")
 
+config :groupher_server, Helper.Guardian,
+  issuer: "groupher_server",
+  secret_key: System.get_env("GUARDIAN_KEY")
+
 # should use RDS 内网地址
 config :groupher_server, GroupherServer.Repo,
   adapter: Ecto.Adapters.Postgres,
