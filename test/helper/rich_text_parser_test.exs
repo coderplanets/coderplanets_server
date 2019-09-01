@@ -42,6 +42,24 @@ defmodule GroupherServer.Test.Helper.RichTextParserTest do
         {
             "type" : "header",
             "data" : {
+                "text" : "Key features",
+                "level" : 3
+            }
+        },
+        {
+            "type" : "list",
+            "data" : {
+                "style" : "ordered",
+                "items" : [
+                    "It is a block-styled editor",
+                    "It returns clean data output in JSON",
+                    "Designed to be extendable and pluggable with a simple API"
+                ]
+            }
+        },
+        {
+            "type" : "header",
+            "data" : {
                 "text" : "What does it mean «block-styled editor»",
                 "level" : 3
             }
@@ -123,7 +141,7 @@ defmodule GroupherServer.Test.Helper.RichTextParserTest do
         {
             "type" : "quote",
             "data" : {
-                "text" : "hello world",
+                "text" : "quote demo text",
                 "caption" : "desc?",
                 "alignment" : "left"
             }
