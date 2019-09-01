@@ -4,6 +4,8 @@ defmodule Helper.RichTextParser do
 
   see https://editorjs.io/
   """
+  alias Helper.Sanitizer
+
   @html_class_prefix "cps-viewer"
 
   def convert_to_html(string) when is_binary(string) do
@@ -11,36 +13,37 @@ defmodule Helper.RichTextParser do
          true <- valid_editor_data?(parsed) do
       content =
         Enum.reduce(parsed["blocks"], "", fn block, acc ->
-          acc <> parse_block(block)
+          clean_html = block |> parse_block |> Sanitizer.sanitize()
+          acc <> clean_html
         end)
 
       "<div class=\"#{@html_class_prefix}\">#{content}<div>"
-      |> IO.inspect(label: "hello")
+      # |> IO.inspect(label: "hello")
     end
   end
 
   # IO.inspect(data, label: "parse header")
-  # defp parse_block(%{"type" => "header", "data" => data}) do
-  #   text = get_in(data, ["text"])
-  #   level = get_in(data, ["level"])
+  defp parse_block(%{"type" => "header", "data" => data}) do
+    text = get_in(data, ["text"])
+    level = get_in(data, ["level"])
 
-  #   "<h#{level}>#{text}</h#{level}>"
-  # end
+    "<h#{level}>#{text}</h#{level}>"
+  end
 
   # IO.inspect(data, label: "parse paragraph")
-  # defp parse_block(%{"type" => "paragraph", "data" => data}) do
-  #   text = get_in(data, ["text"])
+  defp parse_block(%{"type" => "paragraph", "data" => data}) do
+    text = get_in(data, ["text"])
 
-  #   "<p>#{text}</p>"
-  # end
+    "<p>#{text}</p>"
+  end
 
-  # defp parse_block(%{"type" => "image", "data" => data}) do
   # IO.inspect(data, label: "parse image")
-  # url = get_in(data, ["file", "url"])
+  defp parse_block(%{"type" => "image", "data" => data}) do
+    url = get_in(data, ["file", "url"])
 
-  # "<div class=\"#{@html_class_prefix}-image\"><img src=\"#{url}\"></div>"
-  # |> IO.inspect(label: "iamge ret")
-  # end
+    "<div class=\"#{@html_class_prefix}-image\"><img src=\"#{url}\"></div>"
+    # |> IO.inspect(label: "iamge ret")
+  end
 
   defp parse_block(%{"type" => "list", "data" => %{"style" => "unordered", "items" => items}}) do
     content =
@@ -81,10 +84,9 @@ defmodule Helper.RichTextParser do
     # |> IO.inspect(label: "quote ret")
   end
 
-  defp parse_block(block) do
-    IO.puts(".")
-    ""
-    # IO.inspect(block, label: "parse unknow")
+  defp parse_block(_block) do
+    # IO.puts("[unknow block]")
+    "[unknow block]"
   end
 
   def string_to_json(string), do: Jason.decode(string)
