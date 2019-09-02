@@ -65,6 +65,25 @@ defmodule GroupherServer.Test.Helper.RichTextParserTest do
             }
         },
         {
+          "type" : "checklist",
+          "data" : {
+              "items" : [
+                  {
+                    "text" : "This is a block-styled editor",
+                    "checked" : true
+                  },
+                  {
+                    "text" : "Clean output data",
+                    "checked" : false
+                  },
+                  {
+                    "text" : "Simple and powerful API",
+                    "checked" : true
+                  }
+              ]
+          }
+        },
+        {
             "type" : "paragraph",
             "data" : {
                 "text" : "Workspace in classic editors is made of a single contenteditable element, used to create different HTML markups. Editor.js <mark class=\"cdx-marker\">workspace consists of separate Blocks: paragraphs, headings, images, lists, quotes, etc</mark>. Each of them is an independent contenteditable element (or more complex structure\) provided by Plugin and united by Editor's Core."

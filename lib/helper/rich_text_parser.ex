@@ -63,6 +63,27 @@ defmodule Helper.RichTextParser do
     "<ol>#{content}</ol>"
   end
 
+  # IO.inspect(items, label: "checklist items")
+  # TODO:  add item class
+  defp parse_block(%{"type" => "checklist", "data" => %{"items" => items}}) do
+    content =
+      Enum.reduce(items, "", fn item, acc ->
+        text = Map.get(item, "text")
+        checked = Map.get(item, "checked")
+
+        case checked do
+          true ->
+            acc <> "<div><input type=\"checkbox\" checked />#{text}</div>"
+
+          false ->
+            acc <> "<div><input type=\"checkbox\" />#{text}</div>"
+        end
+      end)
+
+    "<div class=\"#{@html_class_prefix}-checklist\">#{content}</div>"
+    # |> IO.inspect(label: "jjj")
+  end
+
   defp parse_block(%{"type" => "delimiter"}) do
     "<div class=\"#{@html_class_prefix}-delimiter\" />"
   end
