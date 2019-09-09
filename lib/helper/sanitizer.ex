@@ -14,7 +14,7 @@ defmodule Helper.Sanitizer do
     Meta.strip_comments()
 
     Meta.allow_tag_with_uri_attributes("a", ["href"], ["http", "https"])
-    Meta.allow_tag_with_these_attributes("a", ["name", "title"])
+    Meta.allow_tag_with_these_attributes("a", ["name", "title", "class"])
 
     # Meta.allow_tag_with_these_attributes("strong", [])
     # Meta.allow_tag_with_these_attributes("em", [])
@@ -23,6 +23,18 @@ defmodule Helper.Sanitizer do
     Meta.allow_tag_with_these_attributes("mark", ["class"])
     Meta.allow_tag_with_these_attributes("code", ["class"])
     # Meta.allow_tag_with_these_attributes("p", [])
+    Meta.allow_tag_with_these_attributes("h1", ["class"])
+    Meta.allow_tag_with_these_attributes("h2", ["class"])
+    Meta.allow_tag_with_these_attributes("h3", ["class"])
+    Meta.allow_tag_with_these_attributes("h4", ["class"])
+    Meta.allow_tag_with_these_attributes("h5", ["class"])
+    Meta.allow_tag_with_these_attributes("h6", ["class"])
+    Meta.allow_tag_with_these_attributes("p", ["class"])
+    Meta.allow_tag_with_these_attributes("img", ["class", "src"])
+    Meta.allow_tag_with_these_attributes("div", ["class"])
+    Meta.allow_tag_with_these_attributes("ul", ["class"])
+    Meta.allow_tag_with_these_attributes("ol", ["class"])
+    Meta.allow_tag_with_these_attributes("li", ["class"])
 
     Meta.strip_everything_not_covered()
   end

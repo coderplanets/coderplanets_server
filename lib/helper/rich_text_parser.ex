@@ -18,7 +18,7 @@ defmodule Helper.RichTextParser do
         end)
 
       "<div class=\"#{@html_class_prefix}\">#{content}<div>"
-      # |> IO.inspect(label: "hello")
+      |> IO.inspect(label: "hello")
     end
   end
 
@@ -93,7 +93,7 @@ defmodule Helper.RichTextParser do
   defp parse_block(%{"type" => "linkTool", "data" => data}) do
     link = get_in(data, ["link"])
 
-    "<div class=\"#{@html_class_prefix}-linker\"><a src=\"#{link}\" target=\"_blank\" /></div>"
+    "<div class=\"#{@html_class_prefix}-linker\"><a href=\"#{link}\" target=\"_blank\">#{link}</a></div>"
     # |> IO.inspect(label: "linkTool ret")
   end
 
