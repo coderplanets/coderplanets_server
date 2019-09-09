@@ -27,14 +27,14 @@ defmodule Helper.RichTextParser do
     text = get_in(data, ["text"])
     level = get_in(data, ["level"])
 
-    "<h#{level}>#{text}</h#{level}>"
+    "<h#{level} class=\"#{@html_class_prefix}-header\">#{text}</h#{level}>"
   end
 
   # IO.inspect(data, label: "parse paragraph")
   defp parse_block(%{"type" => "paragraph", "data" => data}) do
     text = get_in(data, ["text"])
 
-    "<p>#{text}</p>"
+    "<p class=\"#{@html_class_prefix}-paragraph\">#{text}</p>"
   end
 
   # IO.inspect(data, label: "parse image")
