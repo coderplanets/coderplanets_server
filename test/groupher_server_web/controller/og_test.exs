@@ -4,28 +4,82 @@ defmodule GroupherServerWeb.Test.Controller.OG do
   """
   use GroupherServer.TestTools
 
-  @tag :wip2
-  test "basic should work" do
+  @tag :wip
+  test "should return valid structure when query url is valid" do
     conn = build_conn()
 
-    res = get(conn, "/api/og-info")
-    # res = conn(:get, "/api/og-info")
-    # |> put_private(:plug_skip_csrf_protection, true)
-    # |> GroupherServerWeb.Endpoint.call([])
+    res = get(conn, "/api/og-info", %{url: "https://github.com"})
+    res = json_response(res, 200)
 
-    IO.inspect(json_response(res, 200), label: "res")
-    # IO.inspect(text_response(res, 200), label: "res")
-    # conn = get conn, todo_path(conn, :index)
+    assert Map.has_key?(res, "success")
+    assert Map.has_key?(res, "meta")
 
-    # IO.inspect json_response(conn, 200), label: "lulu"
+    meta = res["meta"]
+    assert Map.has_key?(meta, "description")
+    assert Map.has_key?(meta, "image")
+    assert Map.has_key?(meta, "title")
 
-    # assert json_response(conn, 200) == %{
-    #   "todos" => [%{
-    #     "title" => todo.title,
-    #     "description" => todo.description,
-    #     "inserted_at" => Ecto.DateTime.to_iso8601(todo.inserted_at),
-    #     "updated_at" => Ecto.DateTime.to_iso8601(todo.updated_at)
-    #   }]
-    # }
+    image = get_in(res, ["meta", "image"])
+
+    assert Map.has_key?(image, "url")
+  end
+
+  @tag :wip2
+  test "should return valid structure & error msg when query domain is not exsit" do
+    conn = build_conn()
+
+    res = get(conn, "/api/og-info", %{url: "https://jfiel.com"})
+    res = json_response(res, 200)
+
+    assert Map.has_key?(res, "success")
+    assert Map.has_key?(res, "meta")
+
+    success = res["success"]
+    assert success == 0
+
+    meta = res["meta"]
+    assert Map.has_key?(meta, "description")
+    assert Map.has_key?(meta, "image")
+    assert Map.has_key?(meta, "title")
+
+    title = get_in(res, ["meta", "title"])
+    description = get_in(res, ["meta", "description"])
+    assert title == "domain-not-exsit"
+    assert description == "--"
+
+    image = get_in(res, ["meta", "image"])
+
+    assert Map.has_key?(image, "url")
+  end
+
+  @tag :wip2
+  test "return empty valid structure when url not follow open-graph" do
+    conn = build_conn()
+
+    url = "https://baidu.com"
+    res = get(conn, "/api/og-info", %{url: url})
+    res = json_response(res, 200)
+
+    # IO.inspect(res, label: "json res")
+    assert Map.has_key?(res, "success")
+    assert Map.has_key?(res, "meta")
+
+    success = res["success"]
+    assert success == 1
+
+    meta = res["meta"]
+    assert Map.has_key?(meta, "description")
+    assert Map.has_key?(meta, "image")
+    assert Map.has_key?(meta, "title")
+
+    title = get_in(res, ["meta", "title"])
+    assert title == url
+
+    description = get_in(res, ["meta", "description"])
+    assert description == url
+
+    image = get_in(res, ["meta", "image"])
+    assert Map.has_key?(image, "url")
+    assert image["url"] == nil
   end
 end
