@@ -1,9 +1,9 @@
-defmodule GroupherServer.Test.Helper.RichTextParserTest do
+defmodule GroupherServer.Test.Helper.Converter.EditorToHtml do
   @moduledoc false
 
   use GroupherServerWeb.ConnCase, async: true
 
-  alias Helper.RichTextParser, as: Parser
+  alias Helper.Converter.EditorToHtml, as: Parser
 
   @real_editor_data ~S({
     "time" : 1567250876713,

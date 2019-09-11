@@ -1,4 +1,4 @@
-defmodule Helper.Sanitizer do
+defmodule Helper.Converter.HtmlSanitizer do
   @moduledoc """
   Sanitizer user input from editor.js or other
   content contains html tags
@@ -26,9 +26,9 @@ defmodule Helper.Sanitizer do
     Meta.allow_tag_with_these_attributes("h1", ["class"])
     Meta.allow_tag_with_these_attributes("h2", ["class"])
     Meta.allow_tag_with_these_attributes("h3", ["class"])
-    Meta.allow_tag_with_these_attributes("h4", ["class"])
-    Meta.allow_tag_with_these_attributes("h5", ["class"])
-    Meta.allow_tag_with_these_attributes("h6", ["class"])
+    # Meta.allow_tag_with_these_attributes("h4", ["class"])
+    # Meta.allow_tag_with_these_attributes("h5", ["class"])
+    # Meta.allow_tag_with_these_attributes("h6", ["class"])
     Meta.allow_tag_with_these_attributes("p", ["class"])
     Meta.allow_tag_with_these_attributes("img", ["class", "src"])
     Meta.allow_tag_with_these_attributes("div", ["class"])

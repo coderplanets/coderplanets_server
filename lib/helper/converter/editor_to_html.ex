@@ -1,24 +1,25 @@
-defmodule Helper.RichTextParser do
+defmodule Helper.Converter.EditorToHtml do
   @moduledoc """
-  parse editor.js's json format to raw html and more
+  parse editor.js's json data to raw html and sanitize it
 
   see https://editorjs.io/
   """
-  alias Helper.Sanitizer
+  alias Helper.Converter.HtmlSanitizer
 
   @html_class_prefix "cps-viewer"
 
+  @spec convert_to_html(binary) :: binary
   def convert_to_html(string) when is_binary(string) do
     with {:ok, parsed} = string_to_json(string),
          true <- valid_editor_data?(parsed) do
       content =
         Enum.reduce(parsed["blocks"], "", fn block, acc ->
-          clean_html = block |> parse_block |> Sanitizer.sanitize()
+          clean_html = block |> parse_block |> HtmlSanitizer.sanitize()
           acc <> clean_html
         end)
 
       "<div class=\"#{@html_class_prefix}\">#{content}<div>"
-      |> IO.inspect(label: "hello")
+      # |> IO.inspect(label: "hello")
     end
   end
 

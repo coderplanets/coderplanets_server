@@ -1,16 +1,18 @@
-defmodule GroupherServer.Test.Helper.Sanitizer do
+defmodule GroupherServer.Test.Helper.Converter.HtmlSanitizer do
   @moduledoc false
 
   use GroupherServerWeb.ConnCase, async: true
 
   alias Helper.RichTextParser, as: Parser
-  alias Helper.Sanitizer
+  alias Helper.Converter.HtmlSanitizer, as: Sanitizer
 
   describe "[snaitizer test]" do
-    test "should strip p h1-6 etc tags" do
-      html = "<p>hello</p><h1>1</h1><h2>2</h2><h3>3</h3><h4>4</h4><h5>5</h5><h6>6</h6>world"
+    @tag :wip2
+    test "should strip p h4-6 etc tags" do
+      html =
+        "<form>hello</form><h4>1</h4><h5>2</h5><h6>3</h6><h4>4</h4><h5>5</h5><h6>6</h6><h1>world</h1><h2>world2</h2><h3>world3</h3>"
 
-      assert Sanitizer.sanitize(html) == "hello123456world"
+      assert Sanitizer.sanitize(html) == "hello123456<h1>world</h1><h2>world2</h2><h3>world3</h3>"
     end
 
     test "disallow ftp urls" do
@@ -27,23 +29,24 @@ defmodule GroupherServer.Test.Helper.Sanitizer do
                "This is <a href=\"http://coderplanets.com/post/1\" name=\"name\" title=\"title\">cps</a>"
     end
 
+    @tag :wip2
     test "allow mark tag with class attr" do
-      html = "This <p>is</p> <mark class=\"cool-look\" other=\"other\">mark text</mark>"
+      html = "This <form>is</form> <mark class=\"cool-look\" other=\"other\">mark text</mark>"
       assert Sanitizer.sanitize(html) == "This is <mark class=\"cool-look\">mark text</mark>"
     end
 
     test "allow code tag with class attr" do
-      html = "This <p>is</p> <code class=\"cool-look\" other=\"other\">code string</code>"
+      html = "This <form>is</form> <code class=\"cool-look\" other=\"other\">code string</code>"
       assert Sanitizer.sanitize(html) == "This is <code class=\"cool-look\">code string</code>"
     end
 
     test "allow b tag with no attr" do
-      html = "This <p>is</p> <b class=\"cool-look\" other=\"other\">text</b>"
+      html = "This <form>is</form> <b class=\"cool-look\" other=\"other\">text</b>"
       assert Sanitizer.sanitize(html) == "This is <b>text</b>"
     end
 
     test "allow i tag with no attr" do
-      html = "This <p>is</p> <i class=\"cool-look\" other=\"other\">text</i>"
+      html = "This <form>is</form> <i class=\"cool-look\" other=\"other\">text</i>"
       assert Sanitizer.sanitize(html) == "This is <i>text</i>"
     end
   end

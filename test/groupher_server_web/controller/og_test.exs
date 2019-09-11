@@ -24,7 +24,7 @@ defmodule GroupherServerWeb.Test.Controller.OG do
     assert Map.has_key?(image, "url")
   end
 
-  @tag :wip2
+  @tag :wip
   test "should return valid structure & error msg when query domain is not exsit" do
     conn = build_conn()
 
@@ -52,7 +52,7 @@ defmodule GroupherServerWeb.Test.Controller.OG do
     assert Map.has_key?(image, "url")
   end
 
-  @tag :wip2
+  @tag :wip
   test "return empty valid structure when url not follow open-graph" do
     conn = build_conn()
 
