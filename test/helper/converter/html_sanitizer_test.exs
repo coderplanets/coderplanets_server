@@ -7,7 +7,6 @@ defmodule GroupherServer.Test.Helper.Converter.HtmlSanitizer do
   alias Helper.Converter.HtmlSanitizer, as: Sanitizer
 
   describe "[snaitizer test]" do
-    @tag :wip2
     test "should strip p h4-6 etc tags" do
       html =
         "<form>hello</form><h4>1</h4><h5>2</h5><h6>3</h6><h4>4</h4><h5>5</h5><h6>6</h6><h1>world</h1><h2>world2</h2><h3>world3</h3>"
@@ -29,7 +28,6 @@ defmodule GroupherServer.Test.Helper.Converter.HtmlSanitizer do
                "This is <a href=\"http://coderplanets.com/post/1\" name=\"name\" title=\"title\">cps</a>"
     end
 
-    @tag :wip2
     test "allow mark tag with class attr" do
       html = "This <form>is</form> <mark class=\"cool-look\" other=\"other\">mark text</mark>"
       assert Sanitizer.sanitize(html) == "This is <mark class=\"cool-look\">mark text</mark>"

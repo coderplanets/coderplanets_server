@@ -183,7 +183,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHtml do
       assert {:error, converted} = Parser.string_to_json(string)
     end
 
-    @tag :wip
     test "real-world editor.js data should work" do
       {:ok, converted} = Parser.string_to_json(@real_editor_data)
 
@@ -193,7 +192,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHtml do
       assert converted["time"] |> is_integer
     end
 
-    @tag :wip
     test "todo" do
       #   IO.inspect(converted, label: "haha")
       Parser.convert_to_html(@real_editor_data)
