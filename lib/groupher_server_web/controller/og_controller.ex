@@ -22,11 +22,25 @@ defmodule GroupherServerWeb.Controller.OG do
     end
   end
 
-  defp ok_response(conn, url, %OpenGraph{title: nil}) do
+  defp ok_response(conn, url, %OpenGraph{title: nil, description: nil}) do
     error_response(conn, url)
   end
 
-  defp ok_response(conn, _url, info) do
+  defp ok_response(conn, url, %OpenGraph{title: nil, description: description} = info)
+       when not is_nil(description) do
+    json(conn, %{
+      success: 1,
+      meta: %{
+        title: info.description |> String.slice(0, 8),
+        description: info.description,
+        image: %{
+          url: nil
+        }
+      }
+    })
+  end
+
+  defp ok_response(conn, url, info) do
     json(conn, %{
       success: 1,
       meta: %{
@@ -70,6 +84,19 @@ defmodule GroupherServerWeb.Controller.OG do
       success: 0,
       meta: %{
         title: "timeout",
+        description: "--",
+        image: %{
+          url: nil
+        }
+      }
+    })
+  end
+
+  defp error_response(conn, url, "Not found :(") do
+    json(conn, %{
+      success: 1,
+      meta: %{
+        title: url,
         description: "--",
         image: %{
           url: nil
