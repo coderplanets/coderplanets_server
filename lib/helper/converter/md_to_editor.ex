@@ -5,7 +5,7 @@ defmodule Helper.Converter.MdToEditor do
   see https://editorjs.io/
   """
 
-  @supported_header ["h1", "h2", "h3"]
+  @supported_header ["h1", "h2", "h3", "h4", "h5", "h6"]
 
   @spec parse(binary | [any]) :: any
   def parse(mdstring) do
@@ -22,12 +22,12 @@ defmodule Helper.Converter.MdToEditor do
     editor_blocks
   end
 
-  # TODO:  parse h4-6 as h3
+  # parse markdown header to editor's header
   defp parse_block({type, _opt, content})
        when type in @supported_header do
     content_text =
       Enum.reduce(content, [], fn content_item, acc ->
-        parsed = parse_content(type, content_item)
+        parsed = parse_inline(type, content_item)
         acc ++ parsed
       end)
 
@@ -45,10 +45,11 @@ defmodule Helper.Converter.MdToEditor do
     }
   end
 
+  # parse markdown paragraph to editor's paragraph
   defp parse_block({"p", _opt, content}) do
     content_text =
       Enum.reduce(content, [], fn content_item, acc ->
-        parsed = parse_content("p", content_item)
+        parsed = parse_inline("p", content_item)
         acc ++ parsed
       end)
 
@@ -67,25 +68,25 @@ defmodule Helper.Converter.MdToEditor do
   end
 
   # 字符串直接返回，作为 editor.js 中的 text/data/code 等字段
-  defp parse_content(content) when is_binary(content) do
+  defp parse_inline(content) when is_binary(content) do
     content
   end
 
   #  TODO:  editor.js 暂时不支持 del 标签，所以直接返回字符串内容即可
-  defp parse_content({"del", [], [content]}) do
+  defp parse_inline({"del", [], [content]}) do
     content
   end
 
-  defp parse_content(_type, content) when is_binary(content) do
+  defp parse_inline(_type, content) when is_binary(content) do
     content
   end
 
-  defp parse_content(type, {_type, _opt, [content]})
+  defp parse_inline(type, {_type, _opt, [content]})
        when type in @supported_header do
-    parse_content(content)
+    parse_inline(content)
   end
 
-  # defp parse_content({type, _opt, content})
+  # defp parse_inline({type, _opt, content})
   #      when type == "h1" or type == "h2" or type == "h3" do
   #     content
   # end
