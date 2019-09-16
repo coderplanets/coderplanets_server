@@ -1,10 +1,12 @@
 defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
+  @moduledoc """
+  parse markdown string to editorjs's json format
+  """
   use GroupherServerWeb.ConnCase, async: true
 
   alias Helper.Converter.MdToEditor, as: Converter
 
   describe "[basic md test]" do
-    @tag :wip
     test "ast parser should work" do
       mdstring = """
       #  header one
@@ -126,7 +128,6 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
              ]
     end
 
-    @tag :wip2
     test "compose multi inline style in list-item should work" do
       mdstring = """
       - this is ul **list** item 1
@@ -149,7 +150,6 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
              ]
     end
 
-    @tag :wip2
     test "complex nested markdown rules should not raise error" do
       mdstring = """
       this is a paragraph with **_`inline-code-string`*__* in it
@@ -180,7 +180,6 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
              ]
     end
 
-    @tag :wip2
     test "nested inline code should parse right" do
       mdstring = """
       this is a paragraph with **`inline-code-string`** in it
@@ -229,7 +228,6 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
              ]
     end
 
-    @tag :wip2
     test "complex ast parser should work" do
       mdstring = """
 
