@@ -39,7 +39,10 @@ defmodule Helper.Converter.HtmlSanitizer do
     Meta.strip_everything_not_covered()
   end
 
-  def sanitize(html) do
+  # 跳过一些 sanitize 很麻烦的标签，比如 svg data
+  def sanitize({:skip_sanitize, html}), do: html
+
+  def sanitize(html) when is_binary(html) do
     html |> HtmlSanitizeEx.Scrubber.scrub(Scrubber)
   end
 end

@@ -5,6 +5,9 @@ defmodule Helper.Converter.EditorToHtml do
   see https://editorjs.io/
   """
   alias Helper.Converter.HtmlSanitizer
+  alias Helper.Converter.EditorToHtml.Assets
+
+  alias Assets.{DelimiterIcons}
 
   @html_class_prefix "cps-viewer"
 
@@ -18,8 +21,7 @@ defmodule Helper.Converter.EditorToHtml do
           acc <> clean_html
         end)
 
-      "<div class=\"#{@html_class_prefix}\">#{content}<div>"
-      # |> IO.inspect(label: "hello")
+      {:ok, "<div class=\"#{@html_class_prefix}\">#{content}<div>"}
     end
   end
 
@@ -85,8 +87,11 @@ defmodule Helper.Converter.EditorToHtml do
     # |> IO.inspect(label: "jjj")
   end
 
-  defp parse_block(%{"type" => "delimiter"}) do
-    "<div class=\"#{@html_class_prefix}-delimiter\" />"
+  defp parse_block(%{"type" => "delimiter", "data" => %{"type" => type}}) do
+    svg_icon = DelimiterIcons.svg(type)
+
+    # TODO:  left-wing, righ-wing staff
+    {:skip_sanitize, "<div class=\"#{@html_class_prefix}-delimiter\">#{svg_icon}</div>"}
   end
 
   # IO.inspect(data, label: "parse linkTool")
