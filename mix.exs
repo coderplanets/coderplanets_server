@@ -80,7 +80,7 @@ defmodule GroupherServer.Mixfile do
       {:guardian, "~> 2.0"},
       {:timex, "~> 3.6.1"},
       {:dataloader, "~> 1.0.2"},
-      {:mix_test_watch, "~> 0.9", only: :dev, runtime: false},
+      {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
       {:ex_unit_notifier, "~> 0.1", only: :test},
       {:apollo_tracing, "~> 0.4.3"},
       {:pre_commit, "~> 0.3.4"},
