@@ -36,6 +36,18 @@ defmodule Helper.Converter.HtmlSanitizer do
     Meta.allow_tag_with_these_attributes("ol", ["class"])
     Meta.allow_tag_with_these_attributes("li", ["class"])
 
+    Meta.allow_tag_with_these_attributes("iframe", [
+      "sandbox",
+      "allow-same-origin",
+      "allow-popups",
+      "allow-presentation",
+      "src",
+      "frameborder",
+      "allow",
+      "allowfullscreen",
+      "style"
+    ])
+
     Meta.strip_everything_not_covered()
   end
 

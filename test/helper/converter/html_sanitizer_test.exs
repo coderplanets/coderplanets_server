@@ -47,5 +47,15 @@ defmodule GroupherServer.Test.Helper.Converter.HtmlSanitizer do
       html = "This <form>is</form> <i class=\"cool-look\" other=\"other\">text</i>"
       assert Sanitizer.sanitize(html) == "This is <i>text</i>"
     end
+
+    @tag :wip2
+    test "allow iframe with valid attr" do
+      html = """
+      <iframe sandbox="allow-scripts allow-same-origin allow-presentation" src="addr" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen="" style="width: 100%; height: 300px;" invalidprops></iframe>
+      """
+
+      assert Sanitizer.sanitize(html) ==
+               "<iframe sandbox=\"allow-scripts allow-same-origin allow-presentation\" src=\"addr\" frameborder=\"0\" allow=\"autoplay; encrypted-media\" allowfullscreen=\"\" style=\"width: 100%; height: 300px;\"></iframe>\n"
+    end
   end
 end
