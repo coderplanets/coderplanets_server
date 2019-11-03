@@ -111,6 +111,15 @@ defmodule Helper.Converter.EditorToHtml do
     # |> IO.inspect(label: "quote ret")
   end
 
+  defp parse_block(%{"type" => "code", "data" => data}) do
+    text = get_in(data, ["text"])
+    code = text |> Phoenix.HTML.html_escape() |> Phoenix.HTML.safe_to_string()
+    lang = get_in(data, ["lang"])
+
+    "<pre><code class=\"lang-#{lang}\">#{code}</code></pre>"
+    # |> IO.inspect(label: "code ret")
+  end
+
   defp parse_block(_block) do
     # IO.puts("[unknow block]")
     "[unknow block]"

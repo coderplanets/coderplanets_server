@@ -22,6 +22,7 @@ defmodule Helper.Converter.HtmlSanitizer do
     Meta.allow_tag_with_these_attributes("i", [])
     Meta.allow_tag_with_these_attributes("mark", ["class"])
     Meta.allow_tag_with_these_attributes("code", ["class"])
+    Meta.allow_tag_with_these_attributes("pre", ["class"])
     # Meta.allow_tag_with_these_attributes("p", [])
     Meta.allow_tag_with_these_attributes("h1", ["class"])
     Meta.allow_tag_with_these_attributes("h2", ["class"])

@@ -170,6 +170,13 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHtml do
             "data" : {
                 "type" : "pen"
             }
+        },
+        {
+            "type" : "code",
+            "data" : {
+                "lang" : "js",
+                "text" : "<script>evil scripts</script>"
+            }
         }
     ],
     "version" : "2.15.0"
@@ -200,22 +207,14 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHtml do
   end
 
   describe "[block convert]" do
-    # @tag :wip2
-    # test "allow svg tag" do
-    #   html = """
-    #   <svg height="22px" width="22px" t="1572155354182" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="14479" width="200" height="200"><path d="M812.586667 331.306667h79.850666a71.338667 71.338667 0 0 1 71.317334 71.317333v86.784a158.122667 158.122667 0 0 1-158.101334 158.122667h-5.568c-38.890667 130.624-159.893333 225.877333-303.146666 225.877333h-120.469334c-174.656 0-316.224-141.589333-316.224-316.224V342.4a101.44 101.44 0 0 1 101.44-101.461333h550.037334a101.461333 101.461333 0 0 1 100.864 90.346666zM240.938667 60.224c16.64 0 30.122667 13.482667 30.122666 30.101333V150.613333a30.122667 30.122667 0 0 1-60.245333 0V90.346667c0-16.64 13.482667-30.101333 30.122667-30.101334z m180.693333 0c16.64 0 30.122667 13.482667 30.122667 30.101333V150.613333a30.122667 30.122667 0 0 1-60.224 0V90.346667c0-16.64 13.482667-30.101333 30.122666-30.101334z m180.714667 0c16.64 0 30.122667 13.482667 30.122666 30.101333V150.613333a30.122667 30.122667 0 0 1-60.224 0V90.346667c0-16.64 13.482667-30.101333 30.101334-30.101334zM161.706667 301.184a41.216 41.216 0 0 0-41.216 41.216v214.784c0 141.376 114.624 256 256 256h120.469333c141.397333 0 256-114.624 256-256V342.4a41.216 41.216 0 0 0-41.216-41.216H161.706667z m741.845333 188.224v-86.784a11.093333 11.093333 0 0 0-11.093333-11.093333h-79.253334v195.477333a97.898667 97.898667 0 0 0 90.346667-97.6z" p-id="14480"></path></svg>
-    #   """
-
-    #   IO.inspect(Sanitizer.sanitize(html), label: "hehe")
-    #   # assert Sanitizer.sanitize(html) == "This is <i>text</i>"
-    # end
     @tag :wip2
-    test "todo" do
-      #   IO.inspect(converted, label: "haha")
-      converted = Parser.convert_to_html(@real_editor_data)
-      #   blocks = converted["blocks"]
-      IO.inspect(converted, label: "converted ")
-      #   assert not Enum.empty?(converted["blocks"])
+    test "code block should avoid potential xss script attack" do
+      {:ok, converted} = Parser.convert_to_html(@real_editor_data)
+
+      safe_script =
+        "<pre><code class=\"lang-js\">&lt;script&gt;evil scripts&lt;/script&gt;</code></pre>"
+
+      assert converted |> String.contains?(safe_script)
     end
   end
 end
