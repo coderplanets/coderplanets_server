@@ -6,7 +6,7 @@ defmodule Helper.OAuth2.Github do
   @timeout_limit 5000
   # @client_id get_config(:github_oauth, :client_id)
   # @client_secret get_config(:github_oauth, :client_secret)
-  @redirect_uri "https://www.coderplanets.com/oauth"
+  @redirect_uri get_config(:github_oauth, :redirect_uri)
 
   # wired only this style works
   plug(Tesla.Middleware.BaseUrl, "https://github.com/login/oauth")

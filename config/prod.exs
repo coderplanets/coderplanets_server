@@ -86,7 +86,8 @@ config :groupher_server, GroupherServer.Repo,
 
 config :groupher_server, :github_oauth,
   client_id: System.get_env("OAUTH_GITHUB_CLIENT_ID"),
-  client_secret: System.get_env("OAUTH_GITHUB_CLIENT_SECRET")
+  client_secret: System.get_env("OAUTH_GITHUB_CLIENT_SECRET"),
+  redirect_uri: System.get_env("OAUTH_GITHUB_REDIRECT_URI")
 
 config :groupher_server, :radar_search, ip_service: System.get_env("IP_LOCATE_KEY")
 
