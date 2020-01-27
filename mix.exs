@@ -87,7 +87,7 @@ defmodule GroupherServer.Mixfile do
       {:inch_ex, "~> 2.0", only: [:dev, :test]},
       {:short_maps, "~> 0.1.1"},
       {:jason, "~> 1.1.1"},
-      {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.2.0", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.2", only: [:dev, :mock], runtime: false},
       {:excoveralls, "~> 0.8", only: :test},
       {:sentry, "~> 7.1"},
