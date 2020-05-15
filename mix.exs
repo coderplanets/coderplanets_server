@@ -57,7 +57,7 @@ defmodule GroupherServer.Mixfile do
       {:ecto_sql, "~> 3.2.0"},
       {:phoenix_ecto, "~> 4.0"},
       {:postgrex, ">= 0.14.1"},
-      {:gettext, "~> 0.17.0"},
+      {:gettext, "~> 0.18.0"},
       {:plug_cowboy, "~> 2.0"},
       {:plug, "~> 1.8.0"},
       # GraphQl tool
