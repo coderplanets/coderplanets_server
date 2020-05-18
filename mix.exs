@@ -53,7 +53,7 @@ defmodule GroupherServer.Mixfile do
     [
       {:phoenix, "~> 1.4.9"},
       {:phoenix_pubsub, "~> 1.1.2"},
-      {:phoenix_html, "~> 2.13.3"},
+      {:phoenix_html, "~> 2.14.2"},
       {:ecto_sql, "~> 3.2.0"},
       {:phoenix_ecto, "~> 4.0"},
       {:postgrex, ">= 0.14.1"},
