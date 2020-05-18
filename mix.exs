@@ -94,7 +94,7 @@ defmodule GroupherServer.Mixfile do
       {:recase, "~> 0.6.0"},
       {:nanoid, "~> 2.0.0"},
       # mailer
-      {:bamboo, "1.3.0"},
+      {:bamboo, "1.5.0"},
       # mem cache
       {:cachex, "3.2.0"},
       # postgres-backed job queue
