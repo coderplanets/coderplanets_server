@@ -59,7 +59,7 @@ defmodule GroupherServer.Mixfile do
       {:postgrex, ">= 0.14.1"},
       {:gettext, "~> 0.18.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:plug, "~> 1.8.0"},
+      {:plug, "~> 1.10.2"},
       # GraphQl tool
       {:absinthe, "~> 1.4.16"},
       {:absinthe_ecto, "~> 0.1.3"},
