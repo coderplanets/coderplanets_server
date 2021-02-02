@@ -166,8 +166,13 @@ test:
 test.watch:
 	mix test.watch
 test.watch.wip:
-	mix test.watch --only wip --file-events
+	# work around, see: https://elixirforum.com/t/mix-test-file-watch/12298/2
+	mix test --listen-on-stdin --stale --trace --only wip
+	# test.watch not work now, see: https://github.com/lpil/mix-test.watch/issues/116
+	# mix test.watch --only wip --stale
 test.watch.wip2:
+	mix test --listen-on-stdin --stale --trace --only wip2
+	# mix test.watch --only wip2
 	mix test.watch --only wip2
 test.watch.bug:
 	mix test.watch --only bug

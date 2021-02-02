@@ -22,7 +22,9 @@ config :logger, :console,
 
 config :phoenix, :json_library, Jason
 
-config :groupher_server, :mix_test_watch, exclude: [~r/docs\/.*/, ~r/deps\/.*/, ~r/mix.exs/]
+config :groupher_server, :mix_test_watch,
+  exclude: [~r/docs\/.*/, ~r/deps\/.*/, ~r/mix.exs/],
+  clear: true
 
 config :pre_commit, commands: ["format"], verbose: false
 # Import environment specific config. This must remain at the bottom
