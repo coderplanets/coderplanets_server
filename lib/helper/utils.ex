@@ -95,6 +95,23 @@ defmodule Helper.Utils do
   end
 
   @doc """
+  see https://stackoverflow.com/a/61559842/4050784
+  adjust it for map keys from atom to string
+  """
+  @spec keys_to_strings(map) :: map
+  def keys_to_strings(json) when is_map(json) do
+    Map.new(json, &reduce_keys_to_strings/1)
+  end
+
+  defp reduce_keys_to_strings({key, val}) when is_map(val),
+    do: {Atom.to_string(key), keys_to_strings(val)}
+
+  defp reduce_keys_to_strings({key, val}) when is_list(val),
+    do: {Atom.to_string(key), Enum.map(val, &keys_to_strings(&1))}
+
+  defp reduce_keys_to_strings({key, val}), do: {Atom.to_string(key), val}
+
+  @doc """
   Recursivly camelize the map keys
   usage: convert factory attrs to used for simu Graphql parmas
   """

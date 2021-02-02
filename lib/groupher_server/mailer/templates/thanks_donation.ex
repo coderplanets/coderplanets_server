@@ -3,6 +3,7 @@ defmodule GroupherServer.Email.Templates.ThanksDonation do
   template for thanks user's donation, if you want change style or debug the template
   just copy and paste raw string to: https://mjml.io/try-it-live
   """
+
   # alias GroupherServer.Billing.BillRecord
 
   def html(user, record) do

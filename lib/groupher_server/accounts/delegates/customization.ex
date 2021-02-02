@@ -45,6 +45,7 @@ defmodule GroupherServer.Accounts.Delegate.Customization do
   @doc """
   add custom setting to user
   """
+
   # for map_size
   # see https://stackoverflow.com/questions/33248816/pattern-match-function-against-empty-map
 

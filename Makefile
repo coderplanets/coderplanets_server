@@ -166,7 +166,7 @@ test:
 test.watch:
 	mix test.watch
 test.watch.wip:
-	mix test.watch --only wip
+	mix test.watch --only wip --file-events
 test.watch.wip2:
 	mix test.watch --only wip2
 test.watch.bug:

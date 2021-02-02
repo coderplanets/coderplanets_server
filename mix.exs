@@ -29,6 +29,7 @@ defmodule GroupherServer.Mixfile do
     [
       mod: {GroupherServer.Application, []},
       extra_applications: [
+        :open_graph,
         :corsica,
         :ex_unit,
         :logger,
@@ -80,7 +81,7 @@ defmodule GroupherServer.Mixfile do
       {:guardian, "~> 2.0"},
       {:timex, "~> 3.6.1"},
       {:dataloader, "~> 1.0.2"},
-      {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
+      {:mix_test_watch, "~> 1.0.2", only: :dev, runtime: false},
       {:ex_unit_notifier, "~> 0.1", only: :test},
       {:apollo_tracing, "~> 0.4.3"},
       {:pre_commit, "~> 0.3.4"},
@@ -100,7 +101,13 @@ defmodule GroupherServer.Mixfile do
       # postgres-backed job queue
       {:rihanna, "1.3.5"},
       # cron-like scheduler job
-      {:quantum, "~> 2.3"}
+      {:quantum, "~> 2.3"},
+      {:html_sanitize_ex, "~> 1.3"},
+      {:open_graph, "~> 0.0.3"},
+      {:earmark, "~> 1.4.13"},
+      # 遵循中文排版指南
+      # https://github.com/cataska/pangu.ex
+      {:pangu, "~> 0.1.0"}
     ]
   end
 

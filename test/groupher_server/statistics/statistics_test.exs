@@ -3,7 +3,8 @@ defmodule GroupherServer.Test.Statistics do
 
   import Helper.Utils, only: [get_config: 2]
 
-  alias Helper.{Cache, Later, ORM}
+  # alias Helper.{Cache, Later, ORM}
+  alias Helper.{Cache, ORM}
   alias GroupherServer.Accounts.User
   alias GroupherServer.{CMS, Repo, Statistics}
 

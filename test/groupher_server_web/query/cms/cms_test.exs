@@ -29,6 +29,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
+
     # @tag :cache
     # test "make sure apollo cache works", ~m(guest_conn)a do
     # {:ok, _community} = db_insert(:community, %{raw: "cacheme"})

@@ -179,6 +179,7 @@ defmodule Helper.ORM do
   @doc """
   see https://elixirforum.com/t/ecto-inc-dec-update-one-helpers/5564
   """
+
   # def update_one(queryable, where, changes) do
   # query |> Ecto.Query.where(^where) |> Repo.update_all(set: changes)
   # end

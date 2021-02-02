@@ -10,6 +10,16 @@ defmodule GroupherServerWeb.Router do
     plug(GroupherServerWeb.Context)
   end
 
+  alias GroupherServerWeb.Controller
+
+  scope "/api" do
+    pipe_through(:api)
+
+    # get "/og-info", TodoController, only: [:index]
+    # resources("/og-info", OG, only: [:index])
+    get("/og-info", Controller.OG, :index)
+  end
+
   scope "/graphiql" do
     pipe_through(:api)
 

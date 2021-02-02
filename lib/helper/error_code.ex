@@ -27,6 +27,7 @@ defmodule Helper.ErrorCode do
   def ecode(:exsit_pending_bill), do: @default_base + 11
   def ecode(:bill_state), do: @default_base + 12
   def ecode(:bill_action), do: @default_base + 13
+  def ecode(:editor_data_parse), do: @default_base + 14
   # throttle
   def ecode(:throttle_inverval), do: @throttle_base + 1
   def ecode(:throttle_hour), do: @throttle_base + 2
