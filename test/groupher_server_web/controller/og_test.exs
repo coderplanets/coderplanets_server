@@ -87,7 +87,6 @@ defmodule GroupherServerWeb.Test.Controller.OG do
     res = get(conn, "/api/og-info", %{url: url})
     res = json_response(res, 200)
 
-    # IO.inspect(res, label: "json res")
     assert Map.has_key?(res, "success")
     assert Map.has_key?(res, "meta")
 
@@ -103,7 +102,7 @@ defmodule GroupherServerWeb.Test.Controller.OG do
     assert title == url
 
     description = get_in(res, ["meta", "description"])
-    assert description == "--"
+    assert description == url
 
     image = get_in(res, ["meta", "image"])
     assert Map.has_key?(image, "url")
