@@ -31,6 +31,7 @@ defmodule GroupherServer.Test.Query.Accounts.FavritedVideos do
       }
     }
     """
+    @tag :wip2
     test "login user can get it's own favoritedVideos", ~m(user_conn user videos)a do
       Enum.each(videos, fn video ->
         {:ok, _} = CMS.reaction(:video, :favorite, video.id, user)
@@ -39,7 +40,9 @@ defmodule GroupherServer.Test.Query.Accounts.FavritedVideos do
       random_id = videos |> Enum.shuffle() |> List.first() |> Map.get(:id) |> to_string
 
       variables = %{filter: %{page: 1, size: 20}}
-      results = user_conn |> query_result(@query, variables, "user")
+      results = user_conn |> query_result(@query, variables, "user", :debug)
+      IO.inspect(results, label: "my fuck ")
+
       assert results["favoritedVideos"] |> Map.get("totalCount") == @total_count
       assert results["favoritedVideosCount"] == @total_count
 

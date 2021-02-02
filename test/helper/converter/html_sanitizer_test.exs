@@ -3,7 +3,7 @@ defmodule GroupherServer.Test.Helper.Converter.HtmlSanitizer do
 
   use GroupherServerWeb.ConnCase, async: true
 
-  alias Helper.RichTextParser, as: Parser
+  # alias Helper.RichTextParser, as: Parser
   alias Helper.Converter.HtmlSanitizer, as: Sanitizer
 
   describe "[snaitizer test]" do

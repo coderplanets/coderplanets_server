@@ -190,9 +190,7 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
       this is a paragraph with **`inline-code-string`** in it
       """
 
-      res = Converter.parse(markdown)
-
-      assert res = [
+      assert Converter.parse(markdown) == [
                %{
                  data: %{
                    text:
@@ -205,8 +203,6 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
       markdown = """
       this is a paragraph with **_`inline-code-string`_** in it
       """
-
-      res = Converter.parse(markdown)
 
       assert Converter.parse(markdown) == [
                %{
