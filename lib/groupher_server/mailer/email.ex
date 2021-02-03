@@ -11,7 +11,7 @@ defmodule GroupherServer.Email do
 
   alias Accounts.User
   alias Billing.BillRecord
-  alias CMS.{Post, Job, Repo, Video}
+  # alias CMS.{Post, Job, Repo, Video}
   alias Email.Templates
   alias Mailer
 
