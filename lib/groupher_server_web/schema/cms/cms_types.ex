@@ -267,16 +267,16 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:threads, list_of(:thread), resolve: dataloader(CMS, :threads))
     field(:categories, list_of(:category), resolve: dataloader(CMS, :categories))
 
-    @doc "total count of post contents"
+    @desc "total count of post contents"
     content_counts_field(:post, CMS.Post)
 
-    @doc "total count of job contents"
+    @desc "total count of job contents"
     content_counts_field(:job, CMS.Job)
 
-    @doc "total count of video contents"
+    @desc "total count of video contents"
     content_counts_field(:video, CMS.Video)
 
-    @doc "total count of repo contents"
+    @desc "total count of repo contents"
     content_counts_field(:repo, CMS.Repo)
 
     field :subscribers, list_of(:user) do

@@ -120,7 +120,7 @@ defmodule GroupherServer.Test.AssertHelper do
       |> post("/graphiql", query: query, variables: variables)
       |> json_response(200)
 
-    # |> IO.inspect(label: "debug")
+    # IO.inspect(resp, label: "debug")
 
     case resp |> Map.has_key?("errors") do
       true ->

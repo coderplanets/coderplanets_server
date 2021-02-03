@@ -62,10 +62,9 @@ defmodule GroupherServer.Mixfile do
       {:plug_cowboy, "~> 2.4.1"},
       {:plug, "~> 1.11.0"},
       # GraphQl tool
-      {:absinthe, "~> 1.4.16"},
-      {:absinthe_ecto, "~> 0.1.3"},
+      {:absinthe, "~> 1.6.1"},
       # Plug support for Absinthe
-      {:absinthe_plug, "~> 1.4.6"},
+      {:absinthe_plug, "~> 1.5.4"},
       # Password hashing lib
       {:comeonin, "~> 5.1.1"},
       # CORS
@@ -80,7 +79,7 @@ defmodule GroupherServer.Mixfile do
       # {:scrivener_ecto, "~> 2.0.0"},
       {:guardian, "~> 2.0"},
       {:timex, "~> 3.6.1"},
-      {:dataloader, "~> 1.0.2"},
+      {:dataloader, "~> 1.0.7"},
       {:mix_test_watch, "~> 1.0.2", only: :dev, runtime: false},
       {:ex_unit_notifier, "~> 0.1", only: :test},
       {:apollo_tracing, "~> 0.4.3"},

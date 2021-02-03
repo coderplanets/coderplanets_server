@@ -58,10 +58,10 @@ defmodule GroupherServer.Test.Mutation.Account.Customization do
       assert result["customization"]["displayDensity"] == "25"
     end
 
-    @paged_post_query """
-    query($filter: PagedArticleFilter!) {
+    @paged_posts_query """
+    query($filter: PagedPostsFilter!) {
       pagedPosts(filter: $filter) {
-        entries { 
+        entries {
           commentsCount
           commentsParticipators(filter: { first: 5 }) {
             id
@@ -85,7 +85,7 @@ defmodule GroupherServer.Test.Mutation.Account.Customization do
       user_conn |> mutation_result(@query, variables, "setCustomization")
 
       variables = %{filter: %{page: 1}}
-      results = user_conn |> query_result(@paged_post_query, variables, "pagedPosts")
+      results = user_conn |> query_result(@paged_posts_query, variables, "pagedPosts")
       assert results["pageSize"] == @max_page_size
     end
 

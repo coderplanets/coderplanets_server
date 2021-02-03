@@ -27,7 +27,7 @@ defmodule GroupherServer.Test.Mutation.Video do
       $link: String!,
       $originalAuthor: String!,
       $originalAuthorLink: String!,
-      $publishAt: String!,
+      $publishAt: DateTime!,
       $communityId: ID!,
       $tags: [Ids]
     ) {
@@ -86,7 +86,7 @@ defmodule GroupherServer.Test.Mutation.Video do
       $link: String
       $originalAuthor: String
       $originalAuthorLink: String
-      $publishAt: String
+      $publishAt: DateTime,
       $tags: [Ids]
     ) {
       updateVideo(
@@ -195,7 +195,7 @@ defmodule GroupherServer.Test.Mutation.Video do
 
   describe "[mutation video tag]" do
     @set_tag_query """
-    mutation($thread: String!, $id: ID!, $tagId: ID! $communityId: ID!) {
+    mutation($thread: CmsThread!, $id: ID!, $tagId: ID! $communityId: ID!) {
       setTag(thread: $thread, id: $id, tagId: $tagId, communityId: $communityId) {
         id
         title

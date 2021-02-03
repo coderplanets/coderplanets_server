@@ -131,7 +131,7 @@ defmodule GroupherServer.Test.Mutation.Statistics do
       $link: String!,
       $originalAuthor: String!,
       $originalAuthorLink: String!,
-      $publishAt: String!,
+      $publishAt: DateTime!,
       $communityId: ID!,
       $tags: [Ids]
     ) {

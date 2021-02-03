@@ -1,6 +1,5 @@
 defmodule GroupherServerWeb.Schema.Statistics.Types do
   use Absinthe.Schema.Notation
-  use Absinthe.Ecto, repo: GroupherServer.Repo
 
   # import GroupherServerWeb.Schema.Utils.Helper
 

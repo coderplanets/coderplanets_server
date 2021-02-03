@@ -62,7 +62,7 @@ defmodule GroupherServer.Test.Query.PostViewer do
   end
 
   @paged_query """
-  query($filter: PagedArticleFilter!) {
+  query($filter: PagedPostsFilter!) {
     pagedPosts(filter: $filter) {
       entries {
         id

@@ -15,7 +15,7 @@ defmodule GroupherServer.Test.Mutation.JobReaction do
 
   describe "[job star]" do
     @query """
-    mutation($id: ID!, $action: String!, $thread: CmsThread!) {
+    mutation($id: ID!, $action: ReactableAction!, $thread: ReactThread!) {
       reaction(id: $id, action: $action, thread: $thread) {
         id
       }
@@ -36,7 +36,7 @@ defmodule GroupherServer.Test.Mutation.JobReaction do
     end
 
     @query """
-    mutation($id: ID!, $action: String!, $thread: CmsThread!) {
+    mutation($id: ID!, $action: ReactableAction!, $thread: ReactThread!) {
       undoReaction(id: $id, action: $action, thread: $thread) {
         id
       }

@@ -71,7 +71,7 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.list_favorite_categories/3)
     end
 
-    @doc "paged stared posts"
+    @desc "paged stared posts"
     field :stared_posts, :paged_posts do
       arg(:user_id, non_null(:id))
       arg(:filter, non_null(:paged_filter))
@@ -81,7 +81,7 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.stared_contents/3)
     end
 
-    @doc "paged stared jobs"
+    @desc "paged stared jobs"
     field :stared_jobs, :paged_jobs do
       arg(:user_id, non_null(:id))
       arg(:filter, non_null(:paged_filter))
@@ -91,7 +91,7 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.stared_contents/3)
     end
 
-    @doc "paged stared videos"
+    @desc "paged stared videos"
     field :stared_videos, :paged_videos do
       arg(:user_id, non_null(:id))
       arg(:filter, non_null(:paged_filter))

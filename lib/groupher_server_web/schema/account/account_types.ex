@@ -100,7 +100,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       resolve(&R.Accounts.editable_communities/3)
     end
 
-    @doc "get follower users count"
+    @desc "get follower users count"
     field :followers_count, :integer do
       arg(:count, :count_type, default_value: :count)
 
@@ -108,7 +108,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       middleware(M.ConvertToInt)
     end
 
-    @doc "get following users count"
+    @desc "get following users count"
     field :followings_count, :integer do
       arg(:count, :count_type, default_value: :count)
 
@@ -116,7 +116,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       middleware(M.ConvertToInt)
     end
 
-    @doc "wether viewer has followed"
+    @desc "wether viewer has followed"
     field :viewer_has_followed, :boolean do
       arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
 
@@ -126,7 +126,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       middleware(M.ViewerDidConvert)
     end
 
-    @doc "paged stared posts"
+    @desc "paged stared posts"
     field :stared_posts, :paged_posts do
       arg(:filter, non_null(:paged_filter))
       arg(:thread, :post_thread, default_value: :post)
@@ -135,7 +135,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       resolve(&R.Accounts.stared_contents/3)
     end
 
-    @doc "paged stared jobs"
+    @desc "paged stared jobs"
     field :stared_jobs, :paged_jobs do
       arg(:filter, non_null(:paged_filter))
       arg(:thread, :job_thread, default_value: :job)
@@ -144,7 +144,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       resolve(&R.Accounts.stared_contents/3)
     end
 
-    @doc "paged stared videos"
+    @desc "paged stared videos"
     field :stared_videos, :paged_videos do
       arg(:filter, non_null(:paged_filter))
       arg(:thread, :video_thread, default_value: :video)
@@ -153,7 +153,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       resolve(&R.Accounts.stared_contents/3)
     end
 
-    @doc "paged favorited posts"
+    @desc "paged favorited posts"
     field :favorited_posts, :paged_posts do
       arg(:filter, non_null(:paged_filter))
       arg(:thread, :post_thread, default_value: :post)
@@ -162,7 +162,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       resolve(&R.Accounts.favorited_contents/3)
     end
 
-    @doc "paged favorited jobs"
+    @desc "paged favorited jobs"
     field :favorited_jobs, :paged_jobs do
       arg(:filter, non_null(:paged_filter))
       arg(:thread, :job_thread, default_value: :job)
@@ -171,7 +171,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       resolve(&R.Accounts.favorited_contents/3)
     end
 
-    @doc "paged favorited videos"
+    @desc "paged favorited videos"
     field :favorited_videos, :paged_videos do
       arg(:filter, non_null(:paged_filter))
       arg(:thread, :video_thread, default_value: :video)
@@ -180,7 +180,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       resolve(&R.Accounts.favorited_contents/3)
     end
 
-    @doc "paged favorited repos"
+    @desc "paged favorited repos"
     field :favorited_repos, :paged_repos do
       arg(:filter, non_null(:paged_filter))
       arg(:thread, :repo_thread, default_value: :repo)
@@ -189,7 +189,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       resolve(&R.Accounts.favorited_contents/3)
     end
 
-    @doc "total count of stared posts count"
+    @desc "total count of stared posts count"
     field :stared_posts_count, :integer do
       arg(:count, :count_type, default_value: :count)
 
@@ -197,7 +197,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       middleware(M.ConvertToInt)
     end
 
-    @doc "total count of stared jobs count"
+    @desc "total count of stared jobs count"
     field :stared_jobs_count, :integer do
       arg(:count, :count_type, default_value: :count)
 
@@ -205,7 +205,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       middleware(M.ConvertToInt)
     end
 
-    @doc "total count of stared videos count"
+    @desc "total count of stared videos count"
     field :stared_videos_count, :integer do
       arg(:count, :count_type, default_value: :count)
 
@@ -213,7 +213,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       middleware(M.ConvertToInt)
     end
 
-    @doc "total count of favorited posts count"
+    @desc "total count of favorited posts count"
     field :favorited_posts_count, :integer do
       arg(:count, :count_type, default_value: :count)
 
@@ -221,7 +221,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       middleware(M.ConvertToInt)
     end
 
-    @doc "total count of favorited jobs count"
+    @desc "total count of favorited jobs count"
     field :favorited_jobs_count, :integer do
       arg(:count, :count_type, default_value: :count)
 
@@ -229,7 +229,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       middleware(M.ConvertToInt)
     end
 
-    @doc "total count of favorited videos count"
+    @desc "total count of favorited videos count"
     field :favorited_videos_count, :integer do
       arg(:count, :count_type, default_value: :count)
 
@@ -237,7 +237,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       middleware(M.ConvertToInt)
     end
 
-    @doc "total count of favorited videos count"
+    @desc "total count of favorited videos count"
     field :favorited_repos_count, :integer do
       arg(:count, :count_type, default_value: :count)
 

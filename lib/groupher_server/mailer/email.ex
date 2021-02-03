@@ -7,11 +7,10 @@ defmodule GroupherServer.Email do
   import Bamboo.Email
   import Helper.Utils, only: [get_config: 2]
 
-  alias GroupherServer.{Accounts, Billing, CMS, Email, Mailer}
+  alias GroupherServer.{Accounts, Billing, Email, Mailer}
 
   alias Accounts.User
   alias Billing.BillRecord
-  # alias CMS.{Post, Job, Repo, Video}
   alias Email.Templates
   alias Mailer
 

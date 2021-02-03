@@ -18,7 +18,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Cheatsheet do
   end
 
   @sync_cheatsheet_query """
-  mutation($communityId: ID!, $readme: String!, $lastSync: String!){
+  mutation($communityId: ID!, $readme: String!, $lastSync: DateTime!){
     syncCheatsheet(communityId: $communityId, readme: $readme, lastSync: $lastSync) {
       id
       readme

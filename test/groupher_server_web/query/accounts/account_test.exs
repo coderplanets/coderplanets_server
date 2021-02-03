@@ -296,7 +296,7 @@ defmodule GroupherServer.Test.Query.Account.Basic do
     end
 
     @query """
-    query($userId: String, $filter: PagedFilter!) {
+    query($userId: ID, $filter: PagedFilter!) {
       subscribedCommunities(userId: $userId, filter: $filter) {
         entries {
           title

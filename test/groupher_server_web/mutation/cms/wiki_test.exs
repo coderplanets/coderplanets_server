@@ -18,7 +18,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Wiki do
   end
 
   @sync_wiki_query """
-  mutation($communityId: ID!, $readme: String!, $lastSync: String!){
+  mutation($communityId: ID!, $readme: String!, $lastSync: DateTime!){
     syncWiki(communityId: $communityId, readme: $readme, lastSync: $lastSync) {
       id
       readme

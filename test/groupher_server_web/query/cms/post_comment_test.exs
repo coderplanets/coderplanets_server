@@ -16,7 +16,7 @@ defmodule GroupherServer.Test.Query.PostComment do
 
   describe "[post dataloader comment]" do
     @query """
-    query($filter: PagedArticleFilter) {
+    query($filter: PagedPostsFilter) {
       pagedPosts(filter: $filter) {
         entries {
           id
@@ -131,7 +131,7 @@ defmodule GroupherServer.Test.Query.PostComment do
     end
 
     @query """
-    query($filter: PagedArticleFilter) {
+    query($filter: PagedPostsFilter) {
       pagedPosts(filter: $filter) {
         entries {
           id
@@ -358,7 +358,7 @@ defmodule GroupherServer.Test.Query.PostComment do
     end
 
     @query """
-    query($id: ID!, $filter: PagedFilter!) {
+    query($id: ID!, $filter: CommentsFilter!) {
       pagedComments(id: $id, filter: $filter) {
         entries {
           id
@@ -399,7 +399,7 @@ defmodule GroupherServer.Test.Query.PostComment do
     end
 
     @query """
-    query($id: ID!, $filter: PagedFilter!) {
+    query($id: ID!, $filter: CommentsFilter!) {
       pagedComments(id: $id, filter: $filter) {
         entries {
           id
@@ -440,7 +440,7 @@ defmodule GroupherServer.Test.Query.PostComment do
     end
 
     @query """
-    query($id: ID!, $filter: PagedFilter!) {
+    query($id: ID!, $filter: CommentsFilter!) {
       pagedComments(id: $id, filter: $filter) {
         entries {
           id
