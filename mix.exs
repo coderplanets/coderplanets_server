@@ -62,7 +62,7 @@ defmodule GroupherServer.Mixfile do
       {:plug_cowboy, "~> 2.4.1"},
       {:plug, "~> 1.11.0"},
       # GraphQl tool
-      {:absinthe, "~> 1.5.5"},
+      {:absinthe, "~> 1.6.1"},
       # Plug support for Absinthe
       {:absinthe_plug, "~> 1.5.4"},
       # Password hashing lib
