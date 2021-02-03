@@ -13,7 +13,7 @@ config :groupher_server, GroupherServerWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "Ru3N3sehqeuFjBV2Z6k7FuyA59fH8bWm8D4aZWu2RifP3xKMBYo3YRILrnXAGezM",
   render_errors: [view: GroupherServerWeb.ErrorView, accepts: ~w(json)],
-  pubsub: [name: GroupherServer.PubSub, adapter: Phoenix.PubSub.PG2]
+  pubsub_server: GroupherServer.PubSub
 
 # Configures Elixir's Logger
 config :logger, :console,

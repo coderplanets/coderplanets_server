@@ -11,6 +11,8 @@ defmodule GroupherServer.Application do
 
     # Define workers and child supervisors to be supervised
     children = [
+      # Start the PubSub system
+      {Phoenix.PubSub, name: MyApp.PubSub},
       # Start the Ecto repository
       supervisor(GroupherServer.Repo, []),
       # Start the endpoint when the application starts
