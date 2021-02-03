@@ -1,6 +1,5 @@
 defmodule GroupherServerWeb.Schema.Delivery.Types do
   use Absinthe.Schema.Notation
-  use Absinthe.Ecto, repo: GroupherServer.Repo
 
   import GroupherServerWeb.Schema.Utils.Helper
   import Helper.Utils, only: [get_config: 2]
@@ -34,16 +33,16 @@ defmodule GroupherServerWeb.Schema.Delivery.Types do
     field(:read, :boolean)
   end
 
-  object :sys_notification do
-    field(:id, :id)
+  # object :sys_notification do
+  #   field(:id, :id)
 
-    field(:source_id, :string)
-    field(:source_title, :string)
-    field(:source_preview, :string)
-    field(:source_type, :string)
+  #   field(:source_id, :string)
+  #   field(:source_title, :string)
+  #   field(:source_preview, :string)
+  #   field(:source_type, :string)
 
-    field(:read, :boolean)
-  end
+  #   field(:read, :boolean)
+  # end
 
   object :notification do
     field(:id, :id)

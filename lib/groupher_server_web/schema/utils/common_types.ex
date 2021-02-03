@@ -5,7 +5,6 @@ defmodule GroupherServerWeb.Schema.Utils.CommonTypes do
   import GroupherServerWeb.Schema.Utils.Helper
 
   use Absinthe.Schema.Notation
-  use Absinthe.Ecto, repo: GroupherServer.Repo
 
   object :status do
     field(:done, :boolean)
