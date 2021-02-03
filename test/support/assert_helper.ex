@@ -2,6 +2,8 @@ defmodule GroupherServer.Test.AssertHelper do
   @moduledoc """
   This module defines some helper function used by
   tests that require check from graphql response
+
+  NOTE: we use POST in query_get, see https://github.com/coderplanets/coderplanets_server/issues/259
   """
 
   import Phoenix.ConnTest
@@ -139,7 +141,7 @@ defmodule GroupherServer.Test.AssertHelper do
 
   def query_result(conn, query, variables, key, flag \\ false) do
     conn
-    |> get("/graphiql", query: query, variables: variables)
+    |> post("/graphiql", query: query, variables: variables)
     |> json_response(200)
     |> log_debug_info(flag)
     |> Map.get("data")
@@ -148,7 +150,7 @@ defmodule GroupherServer.Test.AssertHelper do
 
   def query_result(conn, query, key) do
     conn
-    |> get("/graphiql", query: query, variables: %{})
+    |> post("/graphiql", query: query, variables: %{})
     |> json_response(200)
     |> Map.get("data")
     |> Map.get(key)
@@ -156,7 +158,7 @@ defmodule GroupherServer.Test.AssertHelper do
 
   def query_get_error?(conn, query, variables) do
     conn
-    |> get("/graphiql", query: query, variables: variables)
+    |> post("/graphiql", query: query, variables: variables)
     |> json_response(200)
     |> Map.has_key?("errors")
   end
@@ -167,7 +169,7 @@ defmodule GroupherServer.Test.AssertHelper do
   def query_get_error?(conn, query, variables, code) when is_integer(code) do
     resp =
       conn
-      |> get("/graphiql", query: query, variables: variables)
+      |> post("/graphiql", query: query, variables: variables)
       |> json_response(200)
 
     case resp |> Map.has_key?("errors") do
