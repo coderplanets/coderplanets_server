@@ -329,7 +329,7 @@ defmodule GroupherServer.Test.Query.JobComment do
     end
 
     @query """
-    query($thread: CmsThread, $id: ID!, $filter: PagedFilter!) {
+    query($thread: CmsThread, $id: ID!, $filter: CommentsFilter!) {
       pagedComments(thread: $thread, id: $id, filter: $filter) {
         entries {
           id

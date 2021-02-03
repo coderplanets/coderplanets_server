@@ -35,7 +35,7 @@ defmodule GroupherServer.Test.Query.PostsFlags do
 
   describe "[query posts flags]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedPostsFilter!) {
       pagedPosts(filter: $filter) {
         entries {
           id

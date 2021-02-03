@@ -39,7 +39,7 @@ defmodule GroupherServer.Test.Query.PagedPosts do
 
   describe "[query paged_posts filter pagination]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedPostsFilter!) {
       pagedPosts(filter: $filter) {
         entries {
           id
@@ -87,7 +87,7 @@ defmodule GroupherServer.Test.Query.PagedPosts do
 
   describe "[query paged_posts filter sort]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedPostsFilter!) {
       pagedPosts(filter: $filter) {
         entries {
           id
@@ -133,7 +133,7 @@ defmodule GroupherServer.Test.Query.PagedPosts do
     end
 
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedPostsFilter!) {
       pagedPosts(filter: $filter) {
         entries {
           id
@@ -156,7 +156,7 @@ defmodule GroupherServer.Test.Query.PagedPosts do
 
   describe "[query paged_posts filter read]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedPostsFilter!) {
       pagedPosts(filter: $filter) {
         entries {
           id
@@ -233,7 +233,7 @@ defmodule GroupherServer.Test.Query.PagedPosts do
   """
   describe "[query paged_posts filter when]" do
     @query """
-    query($filter: PagedArticleFilter!) {
+    query($filter: PagedPostsFilter!) {
       pagedPosts(filter: $filter) {
         entries {
           id

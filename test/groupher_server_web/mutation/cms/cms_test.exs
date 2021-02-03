@@ -744,7 +744,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
 
   describe "[passport]" do
     @query """
-    mutation($userId: ID!, $rules: String!) {
+    mutation($userId: ID!, $rules: Json!) {
       stampCmsPassport(userId: $userId, rules: $rules) {
         id
       }

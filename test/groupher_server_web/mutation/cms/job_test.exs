@@ -302,7 +302,7 @@ defmodule GroupherServer.Test.Mutation.Job do
 
   describe "[mutation job tag]" do
     @set_tag_query """
-    mutation($thread: String!, $id: ID!, $tagId: ID! $communityId: ID!) {
+    mutation($thread: CmsThread!, $id: ID!, $tagId: ID! $communityId: ID!) {
       setTag(thread: $thread, id: $id, tagId: $tagId, communityId: $communityId) {
         id
         title
