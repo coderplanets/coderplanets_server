@@ -26,7 +26,7 @@ defmodule GroupherServerWeb.Controller.OG do
     error_response(conn, url)
   end
 
-  defp ok_response(conn, url, %OpenGraph{title: nil, description: description} = info)
+  defp ok_response(conn, _url, %OpenGraph{title: nil, description: description} = info)
        when not is_nil(description) do
     json(conn, %{
       success: 1,
@@ -40,7 +40,7 @@ defmodule GroupherServerWeb.Controller.OG do
     })
   end
 
-  defp ok_response(conn, url, info) do
+  defp ok_response(conn, _url, info) do
     json(conn, %{
       success: 1,
       meta: %{
