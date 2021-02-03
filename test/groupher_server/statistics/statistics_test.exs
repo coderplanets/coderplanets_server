@@ -3,7 +3,8 @@ defmodule GroupherServer.Test.Statistics do
 
   import Helper.Utils, only: [get_config: 2]
 
-  alias Helper.{Cache, Later, ORM}
+  # alias Helper.{Cache, Later, ORM}
+  alias Helper.{Cache, ORM}
   alias GroupherServer.Accounts.User
   alias GroupherServer.{CMS, Repo, Statistics}
 
@@ -152,12 +153,13 @@ defmodule GroupherServer.Test.Statistics do
       assert {:error, nil} = Cache.get(scope)
 
       {:ok, contributes} = Statistics.list_contributes_digest(%Community{id: community.id})
+      {:ok, cached_contributes} = Cache.get(scope)
 
-      assert {:ok, contributes} = Cache.get(scope)
+      assert contributes == cached_contributes
     end
 
-    test "Rihanna should work in test sandbox", ~m(community)a do
-      res = Rihanna.enqueue({IO, :puts, ["Work, work, work, work, work."]})
+    test "Rihanna should work in test sandbox" do
+      _res = Rihanna.enqueue({IO, :puts, ["Work, work, work, work, work."]})
       Process.sleep(1000)
       # IO.inspect(res, label: "res")
     end

@@ -40,6 +40,7 @@ defmodule GroupherServer.Test.Query.Accounts.FavritedVideos do
 
       variables = %{filter: %{page: 1, size: 20}}
       results = user_conn |> query_result(@query, variables, "user")
+
       assert results["favoritedVideos"] |> Map.get("totalCount") == @total_count
       assert results["favoritedVideosCount"] == @total_count
 

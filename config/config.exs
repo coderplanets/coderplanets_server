@@ -13,7 +13,7 @@ config :groupher_server, GroupherServerWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "Ru3N3sehqeuFjBV2Z6k7FuyA59fH8bWm8D4aZWu2RifP3xKMBYo3YRILrnXAGezM",
   render_errors: [view: GroupherServerWeb.ErrorView, accepts: ~w(json)],
-  pubsub: [name: GroupherServer.PubSub, adapter: Phoenix.PubSub.PG2]
+  pubsub_server: GroupherServer.PubSub
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -22,7 +22,9 @@ config :logger, :console,
 
 config :phoenix, :json_library, Jason
 
-config :groupher_server, :mix_test_watch, exclude: [~r/docs\/.*/, ~r/deps\/.*/, ~r/mix.exs/]
+config :groupher_server, :mix_test_watch,
+  exclude: [~r/docs\/.*/, ~r/deps\/.*/, ~r/mix.exs/],
+  clear: true
 
 config :pre_commit, commands: ["format"], verbose: false
 # Import environment specific config. This must remain at the bottom

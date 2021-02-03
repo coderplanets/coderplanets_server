@@ -3,6 +3,27 @@ defmodule GroupherServer.Test.Helper.UtilsTest do
 
   alias Helper.Utils
 
+  describe "map keys to string" do
+    @tag :wip
+    test "atom keys should covert to string keys on nested map" do
+      atom_map = %{
+        data: %{
+          text: "My in-line-code-content is <b>best</b>"
+        },
+        type: "paragraph"
+      }
+
+      string_map = %{
+        "data" => %{
+          "text" => "My in-line-code-content is <b>best</b>"
+        },
+        "type" => "paragraph"
+      }
+
+      assert Utils.keys_to_strings(atom_map) == string_map
+    end
+  end
+
   describe "[deep merge]" do
     test 'one level of maps without conflict' do
       result = Utils.deep_merge(%{a: 1}, %{b: 2})

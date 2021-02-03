@@ -4,12 +4,15 @@ defmodule GroupherServer.Application do
 
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
+  @spec start(any, any) :: {:error, any} | {:ok, pid}
   def start(_type, _args) do
     import Supervisor.Spec
     import Cachex.Spec
 
     # Define workers and child supervisors to be supervised
     children = [
+      # Start the PubSub system
+      {Phoenix.PubSub, name: MyApp.PubSub},
       # Start the Ecto repository
       supervisor(GroupherServer.Repo, []),
       # Start the endpoint when the application starts
