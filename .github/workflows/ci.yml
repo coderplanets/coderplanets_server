@@ -23,11 +23,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: wagoid/commitlint-github-action@v2
-        with:
-          configFile: .commitlintrc.js
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - uses: wagoid/commitlint-github-action@v2
+      #   with:
+      #     configFile: .commitlintrc.js
       - name: Set up Elixir and OTP
         uses: actions/setup-elixir@v1
         with:
