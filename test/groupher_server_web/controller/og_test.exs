@@ -53,7 +53,7 @@ defmodule GroupherServerWeb.Test.Controller.OG do
   test "return empty valid structure when url not follow open-graph" do
     conn = build_conn()
 
-    url = "https://baidu.com"
+    url = "https://github.com"
     res = get(conn, "/api/og-info", %{url: url})
     res = json_response(res, 200)
 
@@ -70,14 +70,15 @@ defmodule GroupherServerWeb.Test.Controller.OG do
     assert Map.has_key?(meta, "title")
 
     title = get_in(res, ["meta", "title"])
-    assert title == url
+    assert is_nil(title) == false
 
     description = get_in(res, ["meta", "description"])
-    assert description == url
+    assert is_nil(description) == false
 
     image = get_in(res, ["meta", "image"])
     assert Map.has_key?(image, "url")
-    assert image["url"] == nil
+
+    assert is_nil(image["url"]) == false
   end
 
   test "return empty valid structure when url not found" do
