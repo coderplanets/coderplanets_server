@@ -1,7 +1,6 @@
+# ![CPS Brand](https://github.com/mydearxym/groupher_server/blob/dev/docs/snapshots/cps_logo_md.png)
 
-![CPS Brand](https://github.com/mydearxym/groupher_server/blob/dev/docs/snapshots/cps_logo_md.png)
-=========
-[![Build Status](https://travis-ci.org/coderplanets/coderplanets_server.svg?branch=dev)](https://travis-ci.org/coderplanets/coderplanets_server)
+[![Build Status](https://github.com/coderplanets/coderplanets_server/workflows/CI/badge.svg)](https://github.com/coderplanets/coderplanets_server/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/coderplanets/coderplanets_server/branch/dev/graph/badge.svg)](https://codecov.io/gh/coderplanets/coderplanets_server)
 [![Inline docs](http://inch-ci.org/github/coderplanets/coderplanets_server.svg)](http://inch-ci.org/github/coderplanets/coderplanets_server)
 [![Dev updates](https://badgen.net/badge/Dependabot/enabled/cyan)](https://dependabot.com/elixir.html)
@@ -12,7 +11,6 @@
 #### 插播广告: 项目作者正在找工作，如果您有合适的工作机会，欢迎与我联系 :)
 
 [English](https://github.com/coderplanets/coderplanets_server) | 中文
-
 
 ## 简介
 
@@ -50,6 +48,7 @@ coderplanets.com 的后台
 - [故障排除](docs/troubleshooting.md)
 
 ## 支持一下 cps
+
 wip ...
 
 ## credit
@@ -61,4 +60,3 @@ wip ...
 ## License
 
 该项目获得 Apache License v2 许可。有关更多信息，请参阅 LICENSE.md
-

@@ -1,7 +1,6 @@
+# ![CPS Brand](https://github.com/mydearxym/groupher_server/blob/dev/docs/snapshots/cps_logo_md.png?raw=true)
 
-![CPS Brand](https://github.com/mydearxym/groupher_server/blob/dev/docs/snapshots/cps_logo_md.png?raw=true)
-=========
-[![Build Status](https://travis-ci.org/coderplanets/coderplanets_server.svg?branch=dev)](https://travis-ci.org/coderplanets/coderplanets_server)
+[![Build Status](https://github.com/coderplanets/coderplanets_server/workflows/CI/badge.svg)](https://github.com/coderplanets/coderplanets_server/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/coderplanets/coderplanets_server/branch/dev/graph/badge.svg)](https://codecov.io/gh/coderplanets/coderplanets_server)
 [![Inline docs](http://inch-ci.org/github/coderplanets/coderplanets_server.svg)](http://inch-ci.org/github/coderplanets/coderplanets_server)
 [![Dev updates](https://badgen.net/badge/Dependabot/enabled/cyan)](https://dependabot.com/elixir.html)
@@ -12,7 +11,7 @@
 
 ## As advertising: the author is looking for a job :)
 
-English | [中文](https://github.com/coderplanets/coderplanets_server/blob/dev/README.zh-CN.md) 
+English | [中文](https://github.com/coderplanets/coderplanets_server/blob/dev/README.zh-CN.md)
 
 ## Introduction
 
@@ -49,11 +48,11 @@ backend server of coderplanets.com
 - [Contributing](docs/contributing.md)
 - [Troubleshooting](docs/troubleshooting.md)
 
-
 ## support cps
+
 wip ...
 
-## credit 
+## credit
 
 [keyboard logo](https://www.flaticon.com/free-icon/keyboard_211884#term=keyboard&page=8&position=88) is made by
 [freepik](https://www.flaticon.com/authors/freepik) from
