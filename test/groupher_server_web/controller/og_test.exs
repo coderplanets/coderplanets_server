@@ -81,35 +81,6 @@ defmodule GroupherServerWeb.Test.Controller.OG do
     assert is_nil(image["url"]) == false
   end
 
-  test "return empty valid structure when url not found" do
-    conn = build_conn()
-
-    url = "https://zhihu.com"
-    res = get(conn, "/api/og-info", %{url: url})
-    res = json_response(res, 200)
-
-    assert Map.has_key?(res, "success")
-    assert Map.has_key?(res, "meta")
-
-    success = res["success"]
-    assert success == 1
-
-    meta = res["meta"]
-    assert Map.has_key?(meta, "description")
-    assert Map.has_key?(meta, "image")
-    assert Map.has_key?(meta, "title")
-
-    title = get_in(res, ["meta", "title"])
-    assert title == url
-
-    description = get_in(res, ["meta", "description"])
-    assert description == url
-
-    image = get_in(res, ["meta", "image"])
-    assert Map.has_key?(image, "url")
-    assert image["url"] == nil
-  end
-
   test "return empty valid structure when title nil but description not nil" do
     conn = build_conn()
 
