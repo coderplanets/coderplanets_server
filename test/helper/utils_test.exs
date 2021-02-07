@@ -4,7 +4,6 @@ defmodule GroupherServer.Test.Helper.UtilsTest do
   alias Helper.Utils
 
   describe "map keys to string" do
-    @tag :wip
     test "atom keys should covert to string keys on nested map" do
       atom_map = %{
         data: %{

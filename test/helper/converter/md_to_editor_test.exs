@@ -9,7 +9,6 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
   # alias Helper.Converter.HtmlSanitizer, as: Sanitizer
 
   describe "[basic md test]" do
-    @tag :wip
     test "basic markdown ast parser should work" do
       markdown = """
       #  header one
@@ -229,7 +228,6 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
              ]
     end
 
-    @tag :wip
     test "complex ast parser should work" do
       markdown = """
 
