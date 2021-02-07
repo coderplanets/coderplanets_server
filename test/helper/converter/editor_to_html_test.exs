@@ -1,24 +1,27 @@
 defmodule GroupherServer.Test.Helper.Converter.EditorToHtml do
   @moduledoc false
 
+  #   import Helper.Utils, only: [get_config: 2]
   use GroupherServerWeb.ConnCase, async: true
 
   alias Helper.Converter.EditorToHtml, as: Parser
+
+  #   @article_viewer_tag get_config(:general, :article_viewer_tag)
 
   @real_editor_data ~S({
     "time" : 1567250876713,
     "blocks" : [
         {
+            "type" : "paragraph",
+            "data" : {
+                "text" : "Hey. Meet the new Editor. On this page you can see it in action — try to edit this text."
+            }
+        },
+        {
             "type" : "header",
             "data" : {
                 "text" : "Editor.js",
                 "level" : 2
-            }
-        },
-        {
-            "type" : "paragraph",
-            "data" : {
-                "text" : "Hey. Meet the new Editor. On this page you can see it in action — try to edit this text."
             }
         },
         {
@@ -183,11 +186,10 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHtml do
   })
 
   describe "[basic convert]" do
-    test "basic string_json should work" do
+    test "basic string_json parse should work" do
       string = ~S({"time":1566184478687,"blocks":[{}],"version":"2.15.0"})
       {:ok, converted} = Parser.string_to_json(string)
 
-      assert converted["time"] == 1_566_184_478_687
       assert converted["version"] == "2.15.0"
     end
 
@@ -206,7 +208,61 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHtml do
     end
   end
 
-  describe "[block convert]" do
+  describe "[block unit parse]" do
+    @editor_data ~S({
+        "time" : 1567250876713,
+        "blocks" : [
+            {
+                "type" : "paragraph",
+                "data" : {
+                    "text" : "paragraph content"
+                }
+            }
+        ],
+        "version" : "2.15.0"
+      })
+    test "paragraph parse should work" do
+      {:ok, converted} = Parser.to_html(@editor_data)
+
+      assert converted == "<div class=\"article-viewer-wrapper\"><p>paragraph content</p><div>"
+    end
+
+    @editor_json %{
+      "time" => 1_567_250_876_713,
+      "blocks" => [
+        %{
+          "type" => "header",
+          "data" => %{
+            "text" => "header content",
+            "level" => 1
+          }
+        },
+        %{
+          "type" => "header",
+          "data" => %{
+            "text" => "header content",
+            "level" => 2
+          }
+        },
+        %{
+          "type" => "header",
+          "data" => %{
+            "text" => "header content",
+            "level" => 3
+          }
+        }
+      ],
+      "version" => "2.15.0"
+    }
+    @tag :wip
+    test "header parse should work" do
+      {:ok, editor_string} = Jason.encode(@editor_json)
+      {:ok, converted} = Parser.to_html(editor_string)
+
+      assert converted ==
+               "<div class=\"article-viewer-wrapper\"><h1>header content</h1><h2>header content</h2><h3>header content</h3><div>"
+    end
+
     test "code block should avoid potential xss script attack" do
       {:ok, converted} = Parser.to_html(@real_editor_data)
 

@@ -4,13 +4,15 @@ defmodule Helper.Converter.EditorToHtml do
 
   see https://editorjs.io/
   """
+  import Helper.Utils, only: [get_config: 2]
+
   alias Helper.Converter.HtmlSanitizer
   alias Helper.Converter.EditorToHtml.Assets
   alias Helper.Utils
 
   alias Assets.{DelimiterIcons}
 
-  @html_class_prefix "cps-viewer"
+  @article_viewer_tag get_config(:general, :article_viewer_tag)
 
   @spec to_html(binary | maybe_improper_list) :: false | {:ok, <<_::64, _::_*8>>}
   def to_html(string) when is_binary(string) do
@@ -22,10 +24,11 @@ defmodule Helper.Converter.EditorToHtml do
           acc <> clean_html
         end)
 
-      {:ok, "<div class=\"#{@html_class_prefix}\">#{content}<div>"}
+      {:ok, "<div class=\"#{@article_viewer_tag}\">#{content}<div>"}
     end
   end
 
+  @desc "used for markdown ast to editor"
   def to_html(editor_blocks) when is_list(editor_blocks) do
     content =
       Enum.reduce(editor_blocks, "", fn block, acc ->
@@ -33,7 +36,7 @@ defmodule Helper.Converter.EditorToHtml do
         acc <> clean_html
       end)
 
-    {:ok, "<div class=\"#{@html_class_prefix}\">#{content}<div>"}
+    {:ok, "<div class=\"#{@article_viewer_tag}\">#{content}<div>"}
   end
 
   # IO.inspect(data, label: "parse header")
@@ -41,21 +44,21 @@ defmodule Helper.Converter.EditorToHtml do
     text = get_in(data, ["text"])
     level = get_in(data, ["level"])
 
-    "<h#{level} class=\"#{@html_class_prefix}-header\">#{text}</h#{level}>"
+    "<h#{level}>#{text}</h#{level}>"
   end
 
   # IO.inspect(data, label: "parse paragraph")
   defp parse_block(%{"type" => "paragraph", "data" => data}) do
     text = get_in(data, ["text"])
 
-    "<p class=\"#{@html_class_prefix}-paragraph\">#{text}</p>"
+    "<p>#{text}</p>"
   end
 
   # IO.inspect(data, label: "parse image")
   defp parse_block(%{"type" => "image", "data" => data}) do
     url = get_in(data, ["file", "url"])
 
-    "<div class=\"#{@html_class_prefix}-image\"><img src=\"#{url}\"></div>"
+    "<div class=\"#{@article_viewer_tag}-image\"><img src=\"#{url}\"></div>"
     # |> IO.inspect(label: "iamge ret")
   end
 
@@ -94,7 +97,7 @@ defmodule Helper.Converter.EditorToHtml do
         end
       end)
 
-    "<div class=\"#{@html_class_prefix}-checklist\">#{content}</div>"
+    "<div class=\"#{@article_viewer_tag}-checklist\">#{content}</div>"
     # |> IO.inspect(label: "jjj")
   end
 
@@ -102,7 +105,7 @@ defmodule Helper.Converter.EditorToHtml do
     svg_icon = DelimiterIcons.svg(type)
 
     # TODO:  left-wing, righ-wing staff
-    {:skip_sanitize, "<div class=\"#{@html_class_prefix}-delimiter\">#{svg_icon}</div>"}
+    {:skip_sanitize, "<div class=\"#{@article_viewer_tag}-delimiter\">#{svg_icon}</div>"}
   end
 
   # IO.inspect(data, label: "parse linkTool")
@@ -110,7 +113,7 @@ defmodule Helper.Converter.EditorToHtml do
   defp parse_block(%{"type" => "linkTool", "data" => data}) do
     link = get_in(data, ["link"])
 
-    "<div class=\"#{@html_class_prefix}-linker\"><a href=\"#{link}\" target=\"_blank\">#{link}</a></div>"
+    "<div class=\"#{@article_viewer_tag}-linker\"><a href=\"#{link}\" target=\"_blank\">#{link}</a></div>"
     # |> IO.inspect(label: "linkTool ret")
   end
 
@@ -118,7 +121,7 @@ defmodule Helper.Converter.EditorToHtml do
   defp parse_block(%{"type" => "quote", "data" => data}) do
     text = get_in(data, ["text"])
 
-    "<div class=\"#{@html_class_prefix}-quote\">#{text}</div>"
+    "<div class=\"#{@article_viewer_tag}-quote\">#{text}</div>"
     # |> IO.inspect(label: "quote ret")
   end
 
