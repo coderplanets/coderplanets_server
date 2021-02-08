@@ -5,14 +5,15 @@ defmodule Helper.Converter.EditorToHtml do
   see https://editorjs.io/
   """
   import Helper.Utils, only: [get_config: 2]
+  import Helper.Converter.EditorGuards
+  # alias Helper.Converter.EditorGuards, as: Guards
 
-  alias Helper.Converter.HtmlSanitizer
-  alias Helper.Converter.EditorToHtml.Assets
-  alias Helper.Utils
+  alias Helper.Converter.{EditorToHtml, HtmlSanitizer}
+  alias Helper.{Metric, Utils}
 
-  alias Assets.{DelimiterIcons}
+  alias EditorToHtml.Assets.{DelimiterIcons}
 
-  @article_viewer_tag get_config(:general, :article_viewer_tag)
+  @clazz Metric.Article.class_names(:html)
 
   @spec to_html(binary | maybe_improper_list) :: false | {:ok, <<_::64, _::_*8>>}
   def to_html(string) when is_binary(string) do
@@ -24,7 +25,7 @@ defmodule Helper.Converter.EditorToHtml do
           acc <> clean_html
         end)
 
-      {:ok, "<div class=\"#{@article_viewer_tag}\">#{content}<div>"}
+      {:ok, "<div class=\"#{@clazz.viewer}\">#{content}<div>"}
     end
   end
 
@@ -36,29 +37,86 @@ defmodule Helper.Converter.EditorToHtml do
         acc <> clean_html
       end)
 
-    {:ok, "<div class=\"#{@article_viewer_tag}\">#{content}<div>"}
+    {:ok, "<div class=\"#{@clazz.viewer}\">#{content}<div>"}
   end
 
-  # IO.inspect(data, label: "parse header")
-  defp parse_block(%{"type" => "header", "data" => data}) do
-    text = get_in(data, ["text"])
-    level = get_in(data, ["level"])
+  defp parse_block(%{
+         "type" => "header",
+         "data" =>
+           %{
+             "text" => text,
+             "level" => level,
+             "eyebrowTitle" => eyebrowTitle,
+             "footerTitle" => footerTitle
+           } = data
+       })
+       when is_valid_header(text, level, eyebrowTitle, footerTitle) do
+    """
+    <div class="#{@clazz.header.wrapper}">
+      <div class="#{@clazz.header.eyebrow_title}">#{eyebrowTitle}</div>
+      <h#{level}>#{text}</h#{level}>
+      <div class="#{@clazz.header.footer_title}">#{footerTitle}</div>
+    </div>
+    """
+  end
 
+  defp parse_block(%{
+         "type" => "header",
+         "data" =>
+           %{
+             "text" => text,
+             "level" => level,
+             "eyebrowTitle" => eyebrowTitle
+           } = data
+       })
+       when is_valid_header(text, level, eyebrowTitle) do
+    """
+    <div class="#{@clazz.header.wrapper}">
+     <div class="#{@clazz.header.eyebrow_title}">#{eyebrowTitle}</div>
+     <h#{level}>#{text}</h#{level}>
+    </div>
+    """
+  end
+
+  defp parse_block(%{
+         "type" => "header",
+         "data" =>
+           %{
+             "text" => text,
+             "level" => level,
+             "footerTitle" => footerTitle
+           } = data
+       })
+       when is_valid_header(text, level, footerTitle) do
+    """
+    <div class="#{@clazz.header.wrapper}">
+      <h#{level}>#{text}</h#{level}>
+      <div class="#{@clazz.header.footer_title}">#{footerTitle}</div>
+    </div>
+    """
+  end
+
+  defp parse_block(%{
+         "type" => "header",
+         "data" => %{
+           "text" => text,
+           "level" => level
+         }
+       })
+       when is_valid_header(text, level) do
     "<h#{level}>#{text}</h#{level}>"
   end
 
-  # IO.inspect(data, label: "parse paragraph")
   defp parse_block(%{"type" => "paragraph", "data" => data}) do
     text = get_in(data, ["text"])
 
     "<p>#{text}</p>"
   end
 
-  # IO.inspect(data, label: "parse image")
   defp parse_block(%{"type" => "image", "data" => data}) do
     url = get_in(data, ["file", "url"])
 
-    "<div class=\"#{@article_viewer_tag}-image\"><img src=\"#{url}\"></div>"
+    "<div class=\"#{@clazz.viewer}-image\"><img src=\"#{url}\"></div>"
     # |> IO.inspect(label: "iamge ret")
   end
 
@@ -80,7 +138,6 @@ defmodule Helper.Converter.EditorToHtml do
     "<ol>#{content}</ol>"
   end
 
-  # IO.inspect(items, label: "checklist items")
   # TODO:  add item class
   defp parse_block(%{"type" => "checklist", "data" => %{"items" => items}}) do
     content =
@@ -97,7 +154,7 @@ defmodule Helper.Converter.EditorToHtml do
         end
       end)
 
-    "<div class=\"#{@article_viewer_tag}-checklist\">#{content}</div>"
+    "<div class=\"#{@clazz.viewer}-checklist\">#{content}</div>"
     # |> IO.inspect(label: "jjj")
   end
 
@@ -105,7 +162,7 @@ defmodule Helper.Converter.EditorToHtml do
     svg_icon = DelimiterIcons.svg(type)
 
     # TODO:  left-wing, righ-wing staff
-    {:skip_sanitize, "<div class=\"#{@article_viewer_tag}-delimiter\">#{svg_icon}</div>"}
+    {:skip_sanitize, "<div class=\"#{@clazz.viewer}-delimiter\">#{svg_icon}</div>"}
   end
 
   # IO.inspect(data, label: "parse linkTool")
@@ -113,7 +170,7 @@ defmodule Helper.Converter.EditorToHtml do
   defp parse_block(%{"type" => "linkTool", "data" => data}) do
     link = get_in(data, ["link"])
 
-    "<div class=\"#{@article_viewer_tag}-linker\"><a href=\"#{link}\" target=\"_blank\">#{link}</a></div>"
+    "<div class=\"#{@clazz.viewer}-linker\"><a href=\"#{link}\" target=\"_blank\">#{link}</a></div>"
     # |> IO.inspect(label: "linkTool ret")
   end
 
@@ -121,7 +178,7 @@ defmodule Helper.Converter.EditorToHtml do
   defp parse_block(%{"type" => "quote", "data" => data}) do
     text = get_in(data, ["text"])
 
-    "<div class=\"#{@article_viewer_tag}-quote\">#{text}</div>"
+    "<div class=\"#{@clazz.viewer}-quote\">#{text}</div>"
     # |> IO.inspect(label: "quote ret")
   end
 
@@ -135,8 +192,7 @@ defmodule Helper.Converter.EditorToHtml do
   end
 
   defp parse_block(_block) do
-    # IO.puts("[unknow block]")
-    "[unknow block]"
+    "<div class=\"#{@clazz.unknow_block}\">[unknow block]</div>"
   end
 
   def string_to_json(string), do: Jason.decode(string)

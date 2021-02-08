@@ -6,10 +6,11 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
 
   use GroupherServerWeb.ConnCase, async: true
 
+  alias Helper.Metric
   alias Helper.Converter.MdToEditor, as: Converter
   alias Helper.Converter.EditorToHtml
 
-  @article_viewer_tag get_config(:general, :article_viewer_tag)
+  @clazz Metric.Article.class_names(:html)
   # alias Helper.Converter.HtmlSanitizer, as: Sanitizer
 
   describe "[basic md test]" do
@@ -232,7 +233,6 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
              ]
     end
 
-    @tag :wip
     test "complex ast parser should work" do
       markdown = """
 
@@ -252,7 +252,7 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
       {:ok, html} = EditorToHtml.to_html(editor_blocks)
 
       assert html ==
-               "<div class=\"#{@article_viewer_tag}\"><h2>hello</h2><p>this is a basic <i>markdown</i> text</p><h3>delete me</h3><h3><i>italic me</i></h3><p>My <code class=\"inline-code\">in-line-code-content</code> is <b>best</b></p><div>"
+               "<div class=\"#{@clazz.viewer}\"><h2>hello</h2><p>this is a basic <i>markdown</i> text</p><h3>delete me</h3><h3><i>italic me</i></h3><p>My <code class=\"inline-code\">in-line-code-content</code> is <b>best</b></p><div>"
     end
   end
 end

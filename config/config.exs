@@ -46,10 +46,7 @@ config :groupher_server, :general,
   user_achieve_star_weight: 1,
   user_achieve_watch_weight: 1,
   user_achieve_favorite_weight: 2,
-  user_achieve_follow_weight: 3,
-  # the rich editor html tag wrapper
-  # NOTE: DONOT CHANGE ONCE SET, OTHERWISE IT WILL CAUSE INCOMPATIBILITY ISSUE
-  article_viewer_tag: "article-viewer-wrapper"
+  user_achieve_follow_weight: 3
 
 config :groupher_server, :customization,
   theme: "cyan",

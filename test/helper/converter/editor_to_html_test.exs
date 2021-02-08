@@ -1,12 +1,13 @@
 defmodule GroupherServer.Test.Helper.Converter.EditorToHtml do
   @moduledoc false
 
-  #   import Helper.Utils, only: [get_config: 2]
+  import Helper.Utils, only: [get_config: 2]
   use GroupherServerWeb.ConnCase, async: true
 
+  alias Helper.Metric
   alias Helper.Converter.EditorToHtml, as: Parser
 
-  #   @article_viewer_tag get_config(:general, :article_viewer_tag)
+  @clazz Metric.Article.class_names(:html)
 
   @real_editor_data ~S({
     "time" : 1567250876713,
@@ -209,22 +210,23 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHtml do
   end
 
   describe "[block unit parse]" do
-    @editor_data ~S({
-        "time" : 1567250876713,
-        "blocks" : [
-            {
-                "type" : "paragraph",
-                "data" : {
-                    "text" : "paragraph content"
-                }
-            }
-        ],
-        "version" : "2.15.0"
-      })
+    @editor_json %{
+      "time" => 1_567_250_876_713,
+      "blocks" => [
+        %{
+          "type" => "paragraph",
+          "data" => %{
+            "text" => "paragraph content"
+          }
+        }
+      ],
+      "version" => "2.15.0"
+    }
     test "paragraph parse should work" do
-      {:ok, converted} = Parser.to_html(@editor_data)
+      {:ok, editor_string} = Jason.encode(@editor_json)
+      {:ok, converted} = Parser.to_html(editor_string)
 
-      assert converted == "<div class=\"article-viewer-wrapper\"><p>paragraph content</p><div>"
+      assert converted == "<div class=\"#{@clazz.viewer}\"><p>paragraph content</p><div>"
     end
 
     @editor_json %{
@@ -260,7 +262,53 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHtml do
       {:ok, converted} = Parser.to_html(editor_string)
 
       assert converted ==
-               "<div class=\"article-viewer-wrapper\"><h1>header content</h1><h2>header content</h2><h3>header content</h3><div>"
+               "<div class=\"#{@clazz.viewer}\"><h1>header content</h1><h2>header content</h2><h3>header content</h3><div>"
+    end
+
+    @editor_json %{
+      "time" => 1_567_250_876_713,
+      "blocks" => [
+        %{
+          "type" => "header",
+          "data" => %{
+            "text" => "header content",
+            "level" => 1,
+            "eyebrowTitle" => "eyebrow title content",
+            "footerTitle" => "footer title content"
+          }
+        }
+      ],
+      "version" => "2.15.0"
+    }
+    @tag :wip
+    test "full header parse should work" do
+      {:ok, editor_string} = Jason.encode(@editor_json)
+      {:ok, converted} = Parser.to_html(editor_string)
+
+      assert converted ==
+               "<div class=\"article-viewer-wrapper\"><div class=\"header-wrapper\">\n  <div class=\"eyebrow-title\">eyebrow title content</div>\n  <h1>header content</h1>\n  <div class=\"footer-title\">footer title content</div>\n</div>\n<div>"
+    end
+
+    @editor_json %{
+      "time" => 1_567_250_876_713,
+      "blocks" => [
+        %{
+          "type" => "header",
+          "data" => %{
+            "text" => [],
+            "level" => 1
+          }
+        }
+      ],
+      "version" => "2.15.0"
+    }
+    @tag :wip
+    test "wrong header format data should have unknow hint" do
+      {:ok, editor_string} = Jason.encode(@editor_json)
+      {:ok, converted} = Parser.to_html(editor_string)
+
+      assert converted ==
+               "<div class=\"article-viewer-wrapper\"><div class=\"#{@clazz.unknow_block}\">[unknow block]</div><div>"
     end
 
     test "code block should avoid potential xss script attack" do
