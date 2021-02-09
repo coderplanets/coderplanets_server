@@ -1,7 +1,6 @@
 defmodule GroupherServer.Test.Helper.Converter.EditorToHtml do
   @moduledoc false
 
-  import Helper.Utils, only: [get_config: 2]
   use GroupherServerWeb.ConnCase, async: true
 
   alias Helper.Metric
@@ -286,29 +285,77 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHtml do
       {:ok, converted} = Parser.to_html(editor_string)
 
       assert converted ==
-               "<div class=\"article-viewer-wrapper\"><div class=\"header-wrapper\">\n  <div class=\"eyebrow-title\">eyebrow title content</div>\n  <h1>header content</h1>\n  <div class=\"footer-title\">footer title content</div>\n</div>\n<div>"
+               "<div class=\"#{@clazz.viewer}\"><div class=\"#{@clazz.header.wrapper}\">\n  <div class=\"#{
+                 @clazz.header.eyebrow_title
+               }\">eyebrow title content</div>\n  <h1>header content</h1>\n  <div class=\"#{
+                 @clazz.header.footer_title
+               }\">footer title content</div>\n</div>\n<div>"
     end
 
     @editor_json %{
       "time" => 1_567_250_876_713,
-      "blocks" => [
-        %{
-          "type" => "header",
-          "data" => %{
-            "text" => [],
-            "level" => 1
-          }
-        }
-      ],
       "version" => "2.15.0"
     }
     @tag :wip
-    test "wrong header format data should have unknow hint" do
-      {:ok, editor_string} = Jason.encode(@editor_json)
+    test "wrong header format data should have invalid hint" do
+      json =
+        Map.merge(@editor_json, %{
+          "blocks" => [
+            %{
+              "type" => "header",
+              "data" => %{
+                "text" => "header content",
+                "level" => 1,
+                "eyebrowTitle" => []
+              }
+            }
+          ]
+        })
+
+      {:ok, editor_string} = Jason.encode(json)
       {:ok, converted} = Parser.to_html(editor_string)
 
       assert converted ==
-               "<div class=\"article-viewer-wrapper\"><div class=\"#{@clazz.unknow_block}\">[unknow block]</div><div>"
+               "<div class=\"#{@clazz.viewer}\"><div class=\"#{@clazz.invalid_block}\">[invalid-block] header:eyebrowTitle</div><div>"
+
+      json =
+        Map.merge(@editor_json, %{
+          "blocks" => [
+            %{
+              "type" => "header",
+              "data" => %{
+                "text" => "header content",
+                "level" => 1,
+                "footerTitle" => []
+              }
+            }
+          ]
+        })
+
+      {:ok, editor_string} = Jason.encode(json)
+      {:ok, converted} = Parser.to_html(editor_string)
+
+      assert converted ==
+               "<div class=\"#{@clazz.viewer}\"><div class=\"#{@clazz.invalid_block}\">[invalid-block] header:footerTitle</div><div>"
+
+      json =
+        Map.merge(@editor_json, %{
+          "blocks" => [
+            %{
+              "type" => "header",
+              "data" => %{
+                "text" => "header content",
+                "level" => []
+              }
+            }
+          ]
+        })
+
+      {:ok, editor_string} = Jason.encode(json)
+      {:ok, converted} = Parser.to_html(editor_string)
+
+      assert converted ==
+               "<div class=\"#{@clazz.viewer}\"><div class=\"#{@clazz.invalid_block}\">[invalid-block] header:text or level</div><div>"
     end
 
     test "code block should avoid potential xss script attack" do

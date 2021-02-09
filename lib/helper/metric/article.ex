@@ -14,6 +14,7 @@ defmodule Helper.Metric.Article do
       # root wrapper
       viewer: "article-viewer-wrapper",
       unknow_block: "unknow-block",
+      invalid_block: "invalid-block",
       # header
       header: %{
         wrapper: "header-wrapper",
