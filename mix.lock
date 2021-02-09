@@ -53,7 +53,7 @@
   "mimerl": {:hex, :mimerl, "1.2.0", "67e2d3f571088d5cfd3e550c383094b47159f3eee8ffa08e64106cdf5e981be3", [:rebar3], [], "hexpm", "f278585650aa581986264638ebf698f8bb19df297f66ad91b18910dfc6e19323"},
   "mix_test_watch": {:hex, :mix_test_watch, "1.0.2", "34900184cbbbc6b6ed616ed3a8ea9b791f9fd2088419352a6d3200525637f785", [:mix], [{:file_system, "~> 0.2.1 or ~> 0.3", [hex: :file_system, repo: "hexpm", optional: false]}], "hexpm", "47ac558d8b06f684773972c6d04fcc15590abdb97aeb7666da19fcbfdc441a07"},
   "mochiweb": {:hex, :mochiweb, "2.20.1", "e4dbd0ed716f076366ecf62ada5755a844e1d95c781e8c77df1d4114be868cdf", [:rebar3], [], "hexpm", "d1aeee7870470d2fa9eae0b3d5ab6c33801aa2d82b10e9dade885c5c921b36aa"},
-  "nanoid": {:hex, :nanoid, "2.0.2", "f3f7b4bf103ab6667f22beb00b6315825ee3f30100dd2c93d534e5c02164e857", [:mix], [], "hexpm", "3095cb1fac7bbc78843a8ccd99f1af375d0da1d3ebaa8552e846b73438c0c44f"},
+  "nanoid": {:hex, :nanoid, "2.0.5", "1d2948d8967ef2d948a58c3fef02385040bd9823fc6394bd604b8d98e5516b22", [:mix], [], "hexpm", "956e8876321104da72aa48770539ff26b36b744cd26753ec8e7a8a37e53d5f58"},
   "nimble_parsec": {:hex, :nimble_parsec, "1.1.0", "3a6fca1550363552e54c216debb6a9e95bd8d32348938e13de5eda962c0d7f89", [:mix], [], "hexpm", "08eb32d66b706e913ff748f11694b17981c0b04a33ef470e33e11b3d3ac8f54b"},
   "open_graph": {:hex, :open_graph, "0.0.4", "0790882d5735286abc8391b37d2707613ecd74ebdc5340be664d3df345cd8cae", [:mix], [{:httpoison, "~> 1.5", [hex: :httpoison, repo: "hexpm", optional: false]}], "hexpm", "a22a8ddaf9f881af38d519ced463627c37a8dea49a35cc27efdb9f2b839b9049"},
   "pangu": {:hex, :pangu, "0.1.0", "9f9e06418212017bb076034865462e92effed4e5b18c063d4448c186f12a6f0a", [:mix], [], "hexpm", "2634cc2463421757aca0a76665de83940d4fda12f8ed316ae929bb29f64d06c5"},
