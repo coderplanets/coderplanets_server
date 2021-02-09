@@ -66,7 +66,7 @@ defmodule GroupherServer.Mixfile do
       # Plug support for Absinthe
       {:absinthe_plug, "~> 1.5.4"},
       # Password hashing lib
-      {:comeonin, "~> 5.1.1"},
+      {:comeonin, "~> 5.3.2"},
       # CORS
       {:corsica, "~> 1.1.2"},
       {:tesla, "~> 0.10.0"},
