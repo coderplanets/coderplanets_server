@@ -2,11 +2,10 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHtml do
   @moduledoc false
 
   use GroupherServerWeb.ConnCase, async: true
-
-  alias Helper.Metric
   alias Helper.Converter.EditorToHtml, as: Parser
 
-  @clazz Metric.Article.class_names(:html)
+  # alias Helper.Metric
+  # @clazz Metric.Article.class_names(:html)
 
   @real_editor_data ~S({
     "time" : 1567250876713,

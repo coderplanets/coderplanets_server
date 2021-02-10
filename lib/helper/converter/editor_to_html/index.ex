@@ -6,13 +6,12 @@ defmodule Helper.Converter.EditorToHtml do
   """
   require Helper.Converter.EditorToHTML.ErrorHint, as: ErrorHint
   require Helper.Converter.EditorToHtml.Header, as: Header
+  require Helper.Converter.EditorToHtml.Paragraph, as: Paragraph
 
   import Helper.Converter.EditorGuards
 
   alias Helper.Converter.{EditorToHtml, HtmlSanitizer}
   alias Helper.{Metric, Utils}
-
-  # alias EditorToHtml.{Header}
 
   alias EditorToHtml.Assets.{DelimiterIcons}
 
@@ -44,12 +43,7 @@ defmodule Helper.Converter.EditorToHtml do
   end
 
   Header.parse_block()
-
-  defp parse_block(%{"type" => "paragraph", "data" => data}) do
-    text = get_in(data, ["text"])
-
-    "<p>#{text}</p>"
-  end
+  Paragraph.parse_block()
 
   defp parse_block(%{"type" => "image", "data" => data}) do
     url = get_in(data, ["file", "url"])

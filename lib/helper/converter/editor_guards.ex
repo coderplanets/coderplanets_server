@@ -17,4 +17,6 @@ defmodule Helper.Converter.EditorGuards do
   defguard is_valid_header(text, level, eyebrow_title, footer_title)
            when is_binary(text) and level in @support_header_levels and is_binary(eyebrow_title) and
                   is_binary(footer_title)
+
+  defguard is_valid_paragraph(text) when is_binary(text)
 end

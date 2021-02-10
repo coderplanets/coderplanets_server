@@ -28,5 +28,26 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHtml.Paragraph do
 
       assert converted == "<div class=\"#{@clazz.viewer}\"><p>paragraph content</p><div>"
     end
+
+    @editor_json %{
+      "time" => 1_567_250_876_713,
+      "blocks" => [
+        %{
+          "type" => "paragraph",
+          "data" => %{
+            "text" => []
+          }
+        }
+      ],
+      "version" => "2.15.0"
+    }
+    @tag :wip
+    test "invalid paragraph should have invalid hint" do
+      {:ok, editor_string} = Jason.encode(@editor_json)
+      {:ok, converted} = Parser.to_html(editor_string)
+
+      assert converted ==
+               "<div class=\"#{@clazz.viewer}\"><div class=\"#{@clazz.invalid_block}\">[invalid-block] paragraph:text</div><div>"
+    end
   end
 end
