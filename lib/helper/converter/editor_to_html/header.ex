@@ -5,13 +5,8 @@ defmodule Helper.Converter.EditorToHtml.Header do
   see https://editorjs.io/
   """
   require Helper.Converter.EditorToHTML.ErrorHint, as: ErrorHint
-
   import Helper.Converter.EditorGuards
-
-  alias Helper.Converter.{EditorToHtml, HtmlSanitizer}
-  alias Helper.{Metric, Utils}
-
-  alias EditorToHtml.Assets.{DelimiterIcons}
+  alias Helper.Metric
 
   @clazz Metric.Article.class_names(:html)
 
