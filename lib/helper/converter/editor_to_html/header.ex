@@ -1,17 +1,21 @@
-defmodule Helper.Converter.EditorToHtml.Header do
+defmodule Helper.Converter.EditorToHTML.Header do
   @moduledoc """
-  parse editor.js's json data to raw html and sanitize it
+  parse editor.js's header block
 
   see https://editorjs.io/
   """
-  require Helper.Converter.EditorToHTML.ErrorHint, as: ErrorHint
-  import Helper.Converter.EditorGuards
-  alias Helper.Metric
 
-  @clazz Metric.Article.class_names(:html)
+  # @behaviour Helper.Converter.EditorToHTML.Parser
 
-  defmacro parse_block do
+  defmacro __using__(_opts) do
     quote do
+      require Helper.Converter.EditorToHTML.ErrorHint, as: ErrorHint
+      import Helper.Converter.EditorToHTML.Guards
+
+      alias Helper.Metric
+
+      @clazz Metric.Article.class_names(:html)
+
       defp parse_block(%{
              "type" => "header",
              "data" =>

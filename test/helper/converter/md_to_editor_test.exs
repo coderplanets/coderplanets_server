@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
 
   alias Helper.Metric
   alias Helper.Converter.MdToEditor, as: Converter
-  alias Helper.Converter.EditorToHtml
+  alias Helper.Converter.EditorToHTML
 
   @clazz Metric.Article.class_names(:html)
   # alias Helper.Converter.HtmlSanitizer, as: Sanitizer
@@ -247,7 +247,7 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
 
       editor_blocks = Converter.parse(markdown)
 
-      {:ok, html} = EditorToHtml.to_html(editor_blocks)
+      {:ok, html} = EditorToHTML.to_html(editor_blocks)
 
       assert html ==
                "<div class=\"#{@clazz.viewer}\"><h2>hello</h2><p>this is a basic <i>markdown</i> text</p><h3>delete me</h3><h3><i>italic me</i></h3><p>My <code class=\"inline-code\">in-line-code-content</code> is <b>best</b></p><div>"

@@ -1,19 +1,26 @@
-defmodule Helper.Converter.EditorToHtml do
+# defmodule Helper.Converter.EditorToHTML.Parser do
+#   @moduledoc false
+
+#   # TODO: map should be editor_block
+#   @callback parse_block(editor_json :: Map.t()) :: String.t()
+# end
+
+defmodule Helper.Converter.EditorToHTML do
   @moduledoc """
   parse editor.js's json data to raw html and sanitize it
 
   see https://editorjs.io/
   """
-  require Helper.Converter.EditorToHTML.ErrorHint, as: ErrorHint
-  require Helper.Converter.EditorToHtml.Header, as: Header
-  require Helper.Converter.EditorToHtml.Paragraph, as: Paragraph
 
-  import Helper.Converter.EditorGuards
+  use Helper.Converter.EditorToHTML.Header
+  use Helper.Converter.EditorToHTML.Paragraph
 
-  alias Helper.Converter.{EditorToHtml, HtmlSanitizer}
+  import Helper.Converter.EditorToHTML.Guards
+
+  alias Helper.Converter.{EditorToHTML, HtmlSanitizer}
   alias Helper.{Metric, Utils}
 
-  alias EditorToHtml.Assets.{DelimiterIcons}
+  alias EditorToHTML.Assets.{DelimiterIcons}
 
   @clazz Metric.Article.class_names(:html)
 
@@ -31,7 +38,7 @@ defmodule Helper.Converter.EditorToHtml do
     end
   end
 
-  @desc "used for markdown ast to editor"
+  @doc "used for markdown ast to editor"
   def to_html(editor_blocks) when is_list(editor_blocks) do
     content =
       Enum.reduce(editor_blocks, "", fn block, acc ->
@@ -41,9 +48,6 @@ defmodule Helper.Converter.EditorToHtml do
 
     {:ok, "<div class=\"#{@clazz.viewer}\">#{content}<div>"}
   end
-
-  Header.parse_block()
-  Paragraph.parse_block()
 
   defp parse_block(%{"type" => "image", "data" => data}) do
     url = get_in(data, ["file", "url"])

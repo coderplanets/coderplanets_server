@@ -1,8 +1,8 @@
-defmodule GroupherServer.Test.Helper.Converter.EditorToHtml do
+defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
   @moduledoc false
 
   use GroupherServerWeb.ConnCase, async: true
-  alias Helper.Converter.EditorToHtml, as: Parser
+  alias Helper.Converter.EditorToHTML, as: Parser
 
   # alias Helper.Metric
   # @clazz Metric.Article.class_names(:html)

@@ -6,7 +6,7 @@ defmodule Helper.Converter.EditorToHTML.ErrorHint do
 
   defmacro watch(type, field) do
     quote do
-      @doc "give error hint when #{unquote(field)} is invalid type"
+      # "give error hint when #{unquote(field)} is invalid type"
       defp parse_block(%{
              "type" => "#{unquote(type)}",
              "data" => %{
@@ -20,7 +20,7 @@ defmodule Helper.Converter.EditorToHTML.ErrorHint do
 
   defmacro watch(type, field1, field2) do
     quote do
-      @doc "give error hint when #{unquote(field1)} or #{unquote(field2)} is invalid type"
+      # "give error hint when #{unquote(field1)} or #{unquote(field2)} is invalid type"
       defp parse_block(%{
              "type" => "#{unquote(type)}",
              "data" => %{

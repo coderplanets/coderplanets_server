@@ -1,10 +1,10 @@
-defmodule GroupherServer.Test.Helper.Converter.EditorToHtml.Header do
+defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
   @moduledoc false
 
   use GroupherServerWeb.ConnCase, async: true
 
   alias Helper.Metric
-  alias Helper.Converter.EditorToHtml, as: Parser
+  alias Helper.Converter.EditorToHTML, as: Parser
 
   @clazz Metric.Article.class_names(:html)
 
@@ -137,15 +137,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHtml.Header do
 
       assert converted ==
                "<div class=\"#{@clazz.viewer}\"><div class=\"#{@clazz.invalid_block}\">[invalid-block] header:text or level</div><div>"
-    end
-
-    test "code block should avoid potential xss script attack" do
-      {:ok, converted} = Parser.to_html(@real_editor_data)
-
-      safe_script =
-        "<pre><code class=\"lang-js\">&lt;script&gt;evil scripts&lt;/script&gt;</code></pre>"
-
-      assert converted |> String.contains?(safe_script)
     end
   end
 end

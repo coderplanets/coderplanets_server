@@ -1,4 +1,4 @@
-defmodule Helper.Converter.EditorGuards do
+defmodule Helper.Converter.EditorToHTML.Guards do
   @moduledoc """
   guards for incoming editor json
 
