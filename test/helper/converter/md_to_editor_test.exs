@@ -2,8 +2,6 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
   @moduledoc """
   parse markdown string to editorjs's json format
   """
-  import Helper.Utils, only: [get_config: 2]
-
   use GroupherServerWeb.ConnCase, async: true
 
   alias Helper.Metric

@@ -1,53 +1,18 @@
-defmodule Helper.Converter.ErrorHint do
-  @moduledoc """
-
-  see https://stackoverflow.com/a/33052969/4050784
-  """
-
-  defmacro watch(type, field) do
-    quote do
-      @doc "give error hint when #{unquote(field)} is invalid type"
-      defp parse_block(%{
-             "type" => "#{unquote(type)}",
-             "data" => %{
-               "#{unquote(field)}" => _
-             }
-           }) do
-        invalid_hint("#{unquote(type)}", "#{unquote(field)}")
-      end
-    end
-  end
-
-  defmacro watch(type, field1, field2) do
-    quote do
-      @doc "give error hint when #{unquote(field1)} or #{unquote(field2)} is invalid type"
-      defp parse_block(%{
-             "type" => "#{unquote(type)}",
-             "data" => %{
-               "#{unquote(field1)}" => _,
-               "#{unquote(field2)}" => _
-             }
-           }) do
-        invalid_hint("#{unquote(type)}", "#{unquote(field1)} or #{unquote(field2)}")
-      end
-    end
-  end
-end
-
 defmodule Helper.Converter.EditorToHtml do
   @moduledoc """
   parse editor.js's json data to raw html and sanitize it
 
   see https://editorjs.io/
   """
-  require Helper.Converter.ErrorHint, as: ErrorHint
+  require Helper.Converter.EditorToHTML.ErrorHint, as: ErrorHint
+  require Helper.Converter.EditorToHtml.Header, as: Header
 
-  import Helper.Utils, only: [get_config: 2]
   import Helper.Converter.EditorGuards
-  # alias Helper.Converter.EditorGuards, as: Guards
 
   alias Helper.Converter.{EditorToHtml, HtmlSanitizer}
   alias Helper.{Metric, Utils}
+
+  # alias EditorToHtml.{Header}
 
   alias EditorToHtml.Assets.{DelimiterIcons}
 
@@ -78,78 +43,7 @@ defmodule Helper.Converter.EditorToHtml do
     {:ok, "<div class=\"#{@clazz.viewer}\">#{content}<div>"}
   end
 
-  defp parse_block(%{
-         "type" => "header",
-         "data" =>
-           %{
-             "text" => text,
-             "level" => level,
-             "eyebrowTitle" => eyebrow_title,
-             "footerTitle" => footer_title
-           } = data
-       })
-       when is_valid_header(text, level, eyebrow_title, footer_title) do
-    """
-    <div class="#{@clazz.header.wrapper}">
-      <div class="#{@clazz.header.eyebrow_title}">#{eyebrow_title}</div>
-      <h#{level}>#{text}</h#{level}>
-      <div class="#{@clazz.header.footer_title}">#{footer_title}</div>
-    </div>
-    """
-  end
-
-  defp parse_block(%{
-         "type" => "header",
-         "data" =>
-           %{
-             "text" => text,
-             "level" => level,
-             "eyebrowTitle" => eyebrow_title
-           } = data
-       })
-       when is_valid_header(text, level, eyebrow_title) do
-    """
-    <div class="#{@clazz.header.wrapper}">
-      <div class="#{@clazz.header.eyebrow_title}">#{eyebrow_title}</div>
-      <h#{level}>#{text}</h#{level}>
-    </div>
-    """
-  end
-
-  ErrorHint.watch("header", "eyebrowTitle")
-
-  defp parse_block(%{
-         "type" => "header",
-         "data" =>
-           %{
-             "text" => text,
-             "level" => level,
-             "footerTitle" => footer_title
-           } = data
-       })
-       when is_valid_header(text, level, footer_title) do
-    """
-    <div class="#{@clazz.header.wrapper}">
-      <h#{level}>#{text}</h#{level}>
-      <div class="#{@clazz.header.footer_title}">#{footer_title}</div>
-    </div>
-    """
-  end
-
-  ErrorHint.watch("header", "footerTitle")
-
-  defp parse_block(%{
-         "type" => "header",
-         "data" => %{
-           "text" => text,
-           "level" => level
-         }
-       })
-       when is_valid_header(text, level) do
-    "<h#{level}>#{text}</h#{level}>"
-  end
-
-  ErrorHint.watch("header", "text", "level")
+  Header.parse_block()
 
   defp parse_block(%{"type" => "paragraph", "data" => data}) do
     text = get_in(data, ["text"])
@@ -242,10 +136,6 @@ defmodule Helper.Converter.EditorToHtml do
   defp invalid_hint(part, message) do
     "<div class=\"#{@clazz.invalid_block}\">[invalid-block] #{part}:#{message}</div>"
   end
-
-  # defp invalid_hint(part, message) do
-  #   "<div class=\"#{@clazz.invalid_block}\">[invalid-block] #{part}:#{message}</div>"
-  # end
 
   def string_to_json(string), do: Jason.decode(string)
 
