@@ -102,6 +102,8 @@ defmodule Helper.Utils do
     Map.new(json, &reduce_keys_to_atoms/1)
   end
 
+  def keys_to_atoms(string) when is_binary(string), do: string
+
   def reduce_keys_to_atoms({key, val}) when is_map(val),
     do: {String.to_existing_atom(key), keys_to_atoms(val)}
 

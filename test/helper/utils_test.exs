@@ -26,6 +26,11 @@ defmodule GroupherServer.Test.Helper.UtilsTest do
   describe "map keys to atom" do
     test "string keys should covert to atom keys on nested map" do
       atom_map = %{
+        string_array: [
+          "line 1",
+          "line 2",
+          "line 3"
+        ],
         blocks: [
           %{
             data: %{
@@ -56,6 +61,11 @@ defmodule GroupherServer.Test.Helper.UtilsTest do
       _ = :labelType
 
       string_map = %{
+        "string_array" => [
+          "line 1",
+          "line 2",
+          "line 3"
+        ],
         "blocks" => [
           %{
             "data" => %{
