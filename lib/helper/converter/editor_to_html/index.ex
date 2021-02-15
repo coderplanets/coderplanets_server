@@ -14,9 +14,9 @@ defmodule Helper.Converter.EditorToHTML do
 
   use Helper.Converter.EditorToHTML.Header
   use Helper.Converter.EditorToHTML.Paragraph
+  use Helper.Converter.EditorToHTML.List
 
-  import Helper.Converter.EditorToHTML.Guards
-
+  alias Helper.Converter.EditorToHTML.Validator
   alias Helper.Converter.{EditorToHTML, HtmlSanitizer}
   alias Helper.{Metric, Utils}
 
@@ -27,7 +27,7 @@ defmodule Helper.Converter.EditorToHTML do
   @spec to_html(binary | maybe_improper_list) :: false | {:ok, <<_::64, _::_*8>>}
   def to_html(string) when is_binary(string) do
     with {:ok, parsed} = string_to_json(string),
-         true <- valid_editor_data?(parsed) do
+         {:ok, _} <- Validator.is_valid(parsed) do
       content =
         Enum.reduce(parsed["blocks"], "", fn block, acc ->
           clean_html = block |> parse_block |> HtmlSanitizer.sanitize()
@@ -136,13 +136,4 @@ defmodule Helper.Converter.EditorToHTML do
   end
 
   def string_to_json(string), do: Jason.decode(string)
-
-  defp valid_editor_data?(map) when is_map(map) do
-    Map.has_key?(map, "time") and
-      Map.has_key?(map, "version") and
-      Map.has_key?(map, "blocks") and
-      is_list(map["blocks"]) and
-      is_binary(map["version"]) and
-      is_integer(map["time"])
-  end
 end

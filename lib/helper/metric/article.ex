@@ -20,6 +20,10 @@ defmodule Helper.Metric.Article do
         wrapper: "header-wrapper",
         eyebrow_title: "eyebrow-title",
         footer_title: "footer-title"
+      },
+      # list
+      list: %{
+        wrapper: "list-wrapper"
       }
     }
   end

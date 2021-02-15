@@ -23,6 +23,63 @@ defmodule GroupherServer.Test.Helper.UtilsTest do
     end
   end
 
+  describe "map keys to atom" do
+    test "string keys should covert to atom keys on nested map" do
+      atom_map = %{
+        blocks: [
+          %{
+            data: %{
+              items: [
+                %{
+                  checked: true,
+                  hideLabel: true,
+                  indent: 0,
+                  label: "label",
+                  labelType: "success",
+                  text: "list item"
+                }
+              ],
+              mode: "checklist"
+            },
+            type: "list"
+          }
+        ]
+      }
+
+      # atoms dynamically and atoms are not
+      # garbage-collected. Therefore, string should not be an untrusted value, such as
+      # input received from a socket or during a web request. Consider using
+      # to_existing_atom/1 instead
+      # keys_to_atoms is using to_existing_atom under the hook
+
+      _ = :hideLabel
+      _ = :labelType
+
+      string_map = %{
+        "blocks" => [
+          %{
+            "data" => %{
+              "items" => [
+                %{
+                  "checked" => true,
+                  "hideLabel" => true,
+                  "indent" => 0,
+                  "label" => "label",
+                  "labelType" => "success",
+                  "text" => "list item"
+                }
+              ],
+              "mode" => "checklist"
+            },
+            "type" => "list"
+          }
+        ]
+      }
+
+      assert Utils.keys_to_atoms(string_map) == atom_map
+    end
+  end
+
   describe "[deep merge]" do
     test 'one level of maps without conflict' do
       result = Utils.deep_merge(%{a: 1}, %{b: 2})

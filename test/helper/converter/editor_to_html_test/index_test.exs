@@ -192,9 +192,38 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
       assert converted["version"] == "2.15.0"
     end
 
-    test "invalid string data should get error" do
-      string = ~S({"time":1566184478687,"blocks":[{}],"version":})
-      assert {:error, converted} = Parser.string_to_json(string)
+    @editor_json %{
+      "time" => 1_567_250_876_713,
+      "blocks" => [],
+      "version" => "2.15.0"
+    }
+    @tag :wip
+    test "valid editorjs json fmt should work" do
+      {:ok, editor_string} = Jason.encode(@editor_json)
+
+      assert {:ok, _} = Parser.to_html(editor_string)
+    end
+
+    @tag :wip
+    test "invalid editorjs json fmt should raise error" do
+      editor_json = %{
+        "invalid_time" => 1_567_250_876_713,
+        "blocks" => [],
+        "version" => "2.15.0"
+      }
+
+      {:ok, editor_string} = Jason.encode(editor_json)
+      assert {:error, "invalid editor json format"} = Parser.to_html(editor_string)
+
+      editor_json = %{
+        "time" => 1_567_250_876_713,
+        # invalid blocks type, should be list
+        "blocks" => "blocks",
+        "version" => "2.15.0"
+      }
+
+      {:ok, editor_string} = Jason.encode(editor_json)
+      assert {:error, "invalid editor json format"} = Parser.to_html(editor_string)
     end
 
     test "real-world editor.js data should work" do

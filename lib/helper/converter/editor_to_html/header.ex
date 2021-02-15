@@ -9,9 +9,6 @@ defmodule Helper.Converter.EditorToHTML.Header do
 
   defmacro __using__(_opts) do
     quote do
-      require Helper.Converter.EditorToHTML.ErrorHint, as: ErrorHint
-      import Helper.Converter.EditorToHTML.Guards
-
       alias Helper.Metric
 
       @clazz Metric.Article.class_names(:html)
@@ -25,8 +22,7 @@ defmodule Helper.Converter.EditorToHTML.Header do
                  "eyebrowTitle" => eyebrow_title,
                  "footerTitle" => footer_title
                } = data
-           })
-           when is_valid_header(text, level, eyebrow_title, footer_title) do
+           }) do
         """
         <div class="#{@clazz.header.wrapper}">
           <div class="#{@clazz.header.eyebrow_title}">#{eyebrow_title}</div>
@@ -44,8 +40,7 @@ defmodule Helper.Converter.EditorToHTML.Header do
                  "level" => level,
                  "eyebrowTitle" => eyebrow_title
                } = data
-           })
-           when is_valid_header(text, level, eyebrow_title) do
+           }) do
         """
         <div class="#{@clazz.header.wrapper}">
           <div class="#{@clazz.header.eyebrow_title}">#{eyebrow_title}</div>
@@ -53,8 +48,6 @@ defmodule Helper.Converter.EditorToHTML.Header do
         </div>
         """
       end
-
-      ErrorHint.watch("header", "eyebrowTitle")
 
       defp parse_block(%{
              "type" => "header",
@@ -64,8 +57,7 @@ defmodule Helper.Converter.EditorToHTML.Header do
                  "level" => level,
                  "footerTitle" => footer_title
                } = data
-           })
-           when is_valid_header(text, level, footer_title) do
+           }) do
         """
         <div class="#{@clazz.header.wrapper}">
           <h#{level}>#{text}</h#{level}>
@@ -74,20 +66,15 @@ defmodule Helper.Converter.EditorToHTML.Header do
         """
       end
 
-      ErrorHint.watch("header", "footerTitle")
-
       defp parse_block(%{
              "type" => "header",
              "data" => %{
                "text" => text,
                "level" => level
              }
-           })
-           when is_valid_header(text, level) do
+           }) do
         "<h#{level}>#{text}</h#{level}>"
       end
-
-      ErrorHint.watch("header", "text", "level")
     end
   end
 end

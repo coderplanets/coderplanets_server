@@ -77,7 +77,54 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       "time" => 1_567_250_876_713,
       "version" => "2.15.0"
     }
-    @tag :wip
+    @tag :wip2
+    test "optional field should valid properly" do
+      json =
+        Map.merge(@editor_json, %{
+          "blocks" => [
+            %{
+              "type" => "header",
+              "data" => %{
+                "text" => "header content",
+                "level" => 1,
+                "eyebrowTitle" => "eyebrow title content"
+              }
+            }
+          ]
+        })
+
+      {:ok, editor_string} = Jason.encode(json)
+      {:ok, converted} = Parser.to_html(editor_string)
+
+      assert converted ==
+               "<div class=\"#{@clazz.viewer}\"><div class=\"#{@clazz.header.wrapper}\">\n  <div class=\"#{
+                 @clazz.header.eyebrow_title
+               }\">eyebrow title content</div>\n  <h1>header content</h1>\n</div>\n<div>"
+
+      json =
+        Map.merge(@editor_json, %{
+          "blocks" => [
+            %{
+              "type" => "header",
+              "data" => %{
+                "text" => "header content",
+                "level" => 1,
+                "footerTitle" => "footer title content"
+              }
+            }
+          ]
+        })
+
+      {:ok, editor_string} = Jason.encode(json)
+      {:ok, converted} = Parser.to_html(editor_string)
+
+      assert converted ==
+               "<div class=\"#{@clazz.viewer}\"><div class=\"#{@clazz.header.wrapper}\">\n  <h1>header content</h1>\n  <div class=\"#{
+                 @clazz.header.footer_title
+               }\">footer title content</div>\n</div>\n<div>"
+    end
+
+    @tag :wip2
     test "wrong header format data should have invalid hint" do
       json =
         Map.merge(@editor_json, %{
@@ -87,37 +134,17 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
               "data" => %{
                 "text" => "header content",
                 "level" => 1,
-                "eyebrowTitle" => []
+                "eyebrowTitle" => [],
+                "footerTitle" => true
               }
             }
           ]
         })
 
       {:ok, editor_string} = Jason.encode(json)
-      {:ok, converted} = Parser.to_html(editor_string)
+      {:error, error} = Parser.to_html(editor_string)
 
-      assert converted ==
-               "<div class=\"#{@clazz.viewer}\"><div class=\"#{@clazz.invalid_block}\">[invalid-block] header:eyebrowTitle</div><div>"
-
-      json =
-        Map.merge(@editor_json, %{
-          "blocks" => [
-            %{
-              "type" => "header",
-              "data" => %{
-                "text" => "header content",
-                "level" => 1,
-                "footerTitle" => []
-              }
-            }
-          ]
-        })
-
-      {:ok, editor_string} = Jason.encode(json)
-      {:ok, converted} = Parser.to_html(editor_string)
-
-      assert converted ==
-               "<div class=\"#{@clazz.viewer}\"><div class=\"#{@clazz.invalid_block}\">[invalid-block] header:footerTitle</div><div>"
+      assert error == "eyebrowTitle should be: string ; footerTitle should be: string"
 
       json =
         Map.merge(@editor_json, %{
@@ -133,10 +160,8 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
         })
 
       {:ok, editor_string} = Jason.encode(json)
-      {:ok, converted} = Parser.to_html(editor_string)
-
-      assert converted ==
-               "<div class=\"#{@clazz.viewer}\"><div class=\"#{@clazz.invalid_block}\">[invalid-block] header:text or level</div><div>"
+      {:error, error} = Parser.to_html(editor_string)
+      assert error == "level should be: 1 | 2 | 3"
     end
   end
 end
