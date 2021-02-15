@@ -18,6 +18,7 @@ defmodule Helper.Converter.EditorToHTML.Validator do
   tursted_atoms = [
     # common
     :text,
+    :items,
     # header
     :level,
     :eyebrowTitle,
@@ -123,6 +124,20 @@ defmodule Helper.Converter.EditorToHTML.Validator do
           {:ok, :pass}
       end
     end)
+
+    {:ok, :pass}
+  end
+
+  defp validate_block(%{type: "code"}) do
+    # schema = %{text: [:string]}
+    # case ValidateBySchema.cast(schema, data) do
+    #   {:error, errors} ->
+    #     format_parse_error("paragraph", errors)
+
+    #   _ ->
+    #     {:ok, :pass}
+    # end
+    {:ok, :pass}
   end
 
   defp validate_block(%{type: type}), do: raise("undown #{type} block")

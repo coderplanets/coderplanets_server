@@ -36,8 +36,19 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       {:ok, editor_string} = Jason.encode(@editor_json)
       {:error, err_msg} = Parser.to_html(editor_string)
 
-      assert err_msg ==
-               "indent should be: 0 | 1 | 2 | 3 | 4 ; hideLabel should be: boolean"
+      assert err_msg == [
+               %{
+                 block: "list(checklist)",
+                 field: "hideLabel",
+                 message: "should be: boolean",
+                 value: "invalid"
+               },
+               %{
+                 block: "list(checklist)",
+                 field: "indent",
+                 message: "should be: 0 | 1 | 2 | 3 | 4"
+               }
+             ]
     end
 
     @editor_json %{
@@ -65,11 +76,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
     @tag :wip
     test "valid list parse should work" do
       {:ok, editor_string} = Jason.encode(@editor_json)
-      # {:ok, converted} = Parser.to_html(editor_string)
-      Parser.to_html(editor_string)
-
-      assert {:ok, converted} = Parser.to_html(editor_string)
-      # IO.inspect(converted, label: "->> converted")
+      assert {:ok, _} = Parser.to_html(editor_string)
     end
 
     @editor_json %{
@@ -94,7 +101,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       ],
       "version" => "2.15.0"
     }
-    @tag :wip2
+    @tag :wip
     test "invalid indent field should get error" do
       {:ok, editor_string} = Jason.encode(@editor_json)
       {:error, error} = Parser.to_html(editor_string)

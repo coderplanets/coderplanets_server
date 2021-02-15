@@ -41,7 +41,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Paragraph do
       ],
       "version" => "2.15.0"
     }
-    @tag :wip2
+    @tag :wip
     test "invalid paragraph should have invalid hint" do
       {:ok, editor_string} = Jason.encode(@editor_json)
       {:error, error} = Parser.to_html(editor_string)
