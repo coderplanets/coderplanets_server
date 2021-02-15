@@ -94,11 +94,18 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       ],
       "version" => "2.15.0"
     }
-    @tag :wip
+    @tag :wip2
     test "invalid indent field should get error" do
       {:ok, editor_string} = Jason.encode(@editor_json)
-      # {:ok, converted} = Parser.to_html(editor_string)
-      assert {:error, "indent field should be: 0 | 1 | 2 | 3 | 4"} = Parser.to_html(editor_string)
+      {:error, error} = Parser.to_html(editor_string)
+
+      assert error === [
+               %{
+                 block: "list(checklist)",
+                 field: "indent",
+                 message: "should be: 0 | 1 | 2 | 3 | 4"
+               }
+             ]
     end
   end
 end

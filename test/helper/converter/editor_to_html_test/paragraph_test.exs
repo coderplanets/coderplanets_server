@@ -41,13 +41,14 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Paragraph do
       ],
       "version" => "2.15.0"
     }
-    @tag :wip
+    @tag :wip2
     test "invalid paragraph should have invalid hint" do
       {:ok, editor_string} = Jason.encode(@editor_json)
-      {:ok, converted} = Parser.to_html(editor_string)
+      {:error, error} = Parser.to_html(editor_string)
 
-      assert converted ==
-               "<div class=\"#{@clazz.viewer}\"><div class=\"#{@clazz.invalid_block}\">[invalid-block] paragraph:text</div><div>"
+      assert error == [
+               %{block: "paragraph", field: "text", message: "should be: string", value: []}
+             ]
     end
   end
 end

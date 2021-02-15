@@ -91,8 +91,8 @@ defmodule Helper.ValidateBySchema do
       false ->
         {:error,
          %{
-           field: field,
-           message: "#{field} should be: #{enum |> Enum.join(" | ") |> to_string}"
+           field: "#{field |> to_string}",
+           message: "should be: #{enum |> Enum.join(" | ") |> to_string}"
          }}
     end
   end
@@ -100,6 +100,6 @@ defmodule Helper.ValidateBySchema do
   defp done(field, value), do: {:ok, %{field: field, value: value}}
 
   defp error(field, value, schema) do
-    {:error, %{field: field, value: value, message: "#{field} should be: #{schema}"}}
+    {:error, %{field: field |> to_string, value: value, message: "should be: #{schema}"}}
   end
 end

@@ -36,13 +36,19 @@ defmodule Helper.Converter.EditorToHTML.Validator do
     with atom_map <- Utils.keys_to_atoms(map),
          true <- is_valid_editorjs_fmt(atom_map) do
       blocks = atom_map.blocks
+      # validate_blocks(blocks)
 
       try do
         validate_blocks(blocks)
       rescue
-        e in MatchError -> format_parse_error(e)
-        e in RuntimeError -> format_parse_error(e)
-        e -> format_parse_error()
+        e in MatchError ->
+          format_parse_error(e)
+
+        e in RuntimeError ->
+          format_parse_error(e)
+
+        e ->
+          format_parse_error()
       end
     else
       false ->
@@ -57,30 +63,23 @@ defmodule Helper.Converter.EditorToHTML.Validator do
 
   defp validate_blocks(blocks) do
     Enum.each(blocks, fn block ->
+      # if error happened, will be rescued
       {:ok, _} = validate_block(block)
     end)
 
     {:ok, :pass}
   end
 
-  defp validate_block(%{type: "list", data: %{mode: mode, items: items} = data})
-       when mode in @valid_list_mode and is_list(items) do
-    # mode_schema = %{mode: [enum: @valid_list_mode]}
-    # {:ok, _} = ValidateBySchema.cast(mode_schema, data)
-    item_schema = %{
-      checked: [:boolean],
-      hideLabel: [:boolean],
-      label: [:string],
-      labelType: [enum: @valid_list_label_type],
-      indent: [enum: @valid_list_indent],
-      text: [:string]
-    }
+  defp validate_block(%{type: "paragraph", data: %{text: text} = data}) do
+    schema = %{text: [:string]}
 
-    Enum.each(items, fn item ->
-      {:ok, _} = ValidateBySchema.cast(item_schema, item)
-    end)
+    case ValidateBySchema.cast(schema, data) do
+      {:error, errors} ->
+        format_parse_error("paragraph", errors)
 
-    {:ok, :pass}
+      _ ->
+        {:ok, :pass}
+    end
   end
 
   defp validate_block(%{type: "header", data: %{text: text, level: level} = data}) do
@@ -91,10 +90,41 @@ defmodule Helper.Converter.EditorToHTML.Validator do
       footerTitle: [:string, required: false]
     }
 
-    {:ok, _} = ValidateBySchema.cast(schema, data)
+    case ValidateBySchema.cast(schema, data) do
+      {:error, errors} ->
+        format_parse_error("header", errors)
+
+      _ ->
+        {:ok, :pass}
+    end
   end
 
-  # defp validate_block(%{type: type, data: _}), do: raise("invalid data for #{type} block")
+  defp validate_block(%{type: "list", data: %{mode: mode, items: items} = data})
+       when mode in @valid_list_mode and is_list(items) do
+    # mode_schema = %{mode: [enum: @valid_list_mode]}
+    # {:ok, _} = ValidateBySchema.cast(mode_schema, data)
+
+    item_schema = %{
+      checked: [:boolean],
+      hideLabel: [:boolean],
+      label: [:string],
+      labelType: [enum: @valid_list_label_type],
+      indent: [enum: @valid_list_indent],
+      text: [:string]
+    }
+
+    Enum.each(items, fn item ->
+      case ValidateBySchema.cast(item_schema, item) do
+        {:error, errors} ->
+          {:error, message} = format_parse_error("list(#{mode})", errors)
+          raise %MatchError{term: {:error, message}}
+
+        _ ->
+          {:ok, :pass}
+      end
+    end)
+  end
+
   defp validate_block(%{type: type}), do: raise("undown #{type} block")
   defp validate_block(_), do: raise("undown block")
 
@@ -108,24 +138,20 @@ defmodule Helper.Converter.EditorToHTML.Validator do
       is_integer(map.time)
   end
 
-  # defp format_parse_error({:error, errors}) do
-  defp format_parse_error(%MatchError{term: {:error, errors}}) do
-    message =
-      Enum.reduce(errors, "", fn x, acc ->
-        case String.trim(acc) do
-          "" -> x.message
-          _ -> acc <> " ; " <> x.message
-        end
-      end)
-
-    {:error, message}
+  defp format_parse_error(type, error_list) when is_list(error_list) do
+    {:error,
+     Enum.map(error_list, fn error ->
+       Map.merge(error, %{block: type})
+     end)}
   end
 
-  # defp format_parse_error(%{message: message}), do: {:error, message}
+  defp format_parse_error(%MatchError{term: {:error, error}}) do
+    {:error, error}
+  end
+
   defp format_parse_error(%{message: message}) do
     {:error, message}
   end
 
-  # defp format_parse_error(e), do: IO.inspect(e, label: "e")
   defp format_parse_error(), do: {:error, "undown validate error"}
 end

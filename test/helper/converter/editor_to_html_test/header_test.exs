@@ -77,7 +77,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       "time" => 1_567_250_876_713,
       "version" => "2.15.0"
     }
-    @tag :wip2
+    @tag :wip
     test "optional field should valid properly" do
       json =
         Map.merge(@editor_json, %{
@@ -144,7 +144,21 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       {:ok, editor_string} = Jason.encode(json)
       {:error, error} = Parser.to_html(editor_string)
 
-      assert error == "eyebrowTitle should be: string ; footerTitle should be: string"
+      assert error ==
+               [
+                 %{
+                   block: "header",
+                   field: "eyebrowTitle",
+                   message: "should be: string",
+                   value: []
+                 },
+                 %{
+                   block: "header",
+                   field: "footerTitle",
+                   message: "should be: string",
+                   value: true
+                 }
+               ]
 
       json =
         Map.merge(@editor_json, %{
@@ -161,7 +175,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
 
       {:ok, editor_string} = Jason.encode(json)
       {:error, error} = Parser.to_html(editor_string)
-      assert error == "level should be: 1 | 2 | 3"
+      assert error == [%{block: "header", field: "level", message: "should be: 1 | 2 | 3"}]
     end
   end
 end
