@@ -91,8 +91,8 @@ defmodule Helper.ValidateBySchema do
       false ->
         {:error,
          %{
-           field: "#{field |> to_string}",
-           message: "should be: #{enum |> Enum.join(" | ") |> to_string}"
+           field: field,
+           message: "should be: #{enum |> Enum.join(" | ")}"
          }}
     end
   end

@@ -73,7 +73,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       ],
       "version" => "2.15.0"
     }
-    @tag :wip
+    @tag :wip2
     test "valid list parse should work" do
       {:ok, editor_string} = Jason.encode(@editor_json)
       assert {:ok, _} = Parser.to_html(editor_string)
@@ -101,7 +101,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       ],
       "version" => "2.15.0"
     }
-    @tag :wip
+    @tag :wip2
     test "invalid indent field should get error" do
       {:ok, editor_string} = Jason.encode(@editor_json)
       {:error, error} = Parser.to_html(editor_string)
