@@ -28,7 +28,9 @@ defmodule Helper.Converter.EditorToHTML.Validator do
     :labelType,
     :indent,
     :checked,
-    :label
+    :label,
+    # code
+    :lang
   ]
 
   Enum.each(tursted_atoms, fn atom -> _ = atom end)
