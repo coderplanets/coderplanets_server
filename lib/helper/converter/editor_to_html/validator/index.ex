@@ -7,6 +7,8 @@ defmodule Helper.Converter.EditorToHTML.Validator do
 
   # blocks with no children items
   @simple_blocks ["header", "paragraph"]
+  # blocks with "mode" and "items" fields
+  @complex_blocks ["list"]
 
   @valid_list_mode ["checklist", "order_list", "unorder_list"]
   @valid_list_label_type ["success", "done", "todo"]
@@ -53,32 +55,11 @@ defmodule Helper.Converter.EditorToHTML.Validator do
     validate_with(type, Schema.get(type), data)
   end
 
-  defp validate_block(%{"type" => "list", "data" => %{"mode" => mode, "items" => items} = data})
-       when mode in @valid_list_mode and is_list(items) do
-    # mode_schema = %{mode: [enum: @valid_list_mode]}
-    # {:ok, _} = ValidateBySchema.cast(mode_schema, data)
-
-    item_schema = %{
-      "checked" => [:boolean],
-      "hideLabel" => [:boolean],
-      "label" => [:string],
-      "labelType" => [enum: @valid_list_label_type],
-      "indent" => [enum: @valid_list_indent],
-      "text" => [:string]
-    }
-
-    Enum.each(items, fn item ->
-      case ValidateBySchema.cast(item_schema, item) do
-        {:error, errors} ->
-          {:error, message} = format_parse_error("list(#{mode})", errors)
-          raise %MatchError{term: {:error, message}}
-
-        _ ->
-          {:ok, :pass}
-      end
-    end)
-
-    {:ok, :pass}
+  # validate block which has mode and items
+  defp validate_block(%{"type" => type, "data" => %{"mode" => mode, "items" => items} = data})
+       when type in @complex_blocks do
+    [parent: parent_schema, item: item_schema] = Schema.get(type)
+    validate_with(type, parent_schema, item_schema, data)
   end
 
   defp validate_block(%{"type" => "code"}) do
@@ -105,6 +86,31 @@ defmodule Helper.Converter.EditorToHTML.Validator do
       _ ->
         {:ok, :pass}
     end
+  end
+
+  defp validate_with(block, parent_schema, item_schema, data) do
+    case ValidateBySchema.cast(parent_schema, data) do
+      {:error, errors} ->
+        format_parse_error(block, errors)
+
+      _ ->
+        {:ok, :pass}
+    end
+
+    %{"mode" => mode, "items" => items} = data
+
+    Enum.each(items, fn item ->
+      case ValidateBySchema.cast(item_schema, item) do
+        {:error, errors} ->
+          {:error, message} = format_parse_error("#{block}(#{mode})", errors)
+          raise %MatchError{term: {:error, message}}
+
+        _ ->
+          {:ok, :pass}
+      end
+    end)
+
+    {:ok, :pass}
   end
 
   #  check if the given map has the right key-value fmt of the editorjs structure
