@@ -3,7 +3,10 @@ defmodule Helper.Converter.EditorToHTML.Validator do
 
   alias Helper.{Utils, ValidateBySchema}
 
-  @valid_header_level [1, 2, 3]
+  alias Helper.Converter.EditorToHTML.Validator.Schema
+
+  # blocks with no children items
+  @simple_blocks ["header", "paragraph"]
 
   @valid_list_mode ["checklist", "order_list", "unorder_list"]
   @valid_list_label_type ["success", "done", "todo"]
@@ -45,33 +48,9 @@ defmodule Helper.Converter.EditorToHTML.Validator do
     {:ok, :pass}
   end
 
-  defp validate_block(%{"type" => "paragraph", "data" => %{"text" => text} = data}) do
-    schema = %{"text" => [:string]}
-
-    case ValidateBySchema.cast(schema, data) do
-      {:error, errors} ->
-        format_parse_error("paragraph", errors)
-
-      _ ->
-        {:ok, :pass}
-    end
-  end
-
-  defp validate_block(%{"type" => "header", "data" => %{"text" => text, "level" => level} = data}) do
-    schema = %{
-      "text" => [:string],
-      "level" => [enum: @valid_header_level],
-      "eyebrowTitle" => [:string, required: false],
-      "footerTitle" => [:string, required: false]
-    }
-
-    case ValidateBySchema.cast(schema, data) do
-      {:error, errors} ->
-        format_parse_error("header", errors)
-
-      _ ->
-        {:ok, :pass}
-    end
+  # validate block which have no nested items
+  defp validate_block(%{"type" => type, "data" => data}) when type in @simple_blocks do
+    validate_with(type, Schema.get(type), data)
   end
 
   defp validate_block(%{"type" => "list", "data" => %{"mode" => mode, "items" => items} = data})
@@ -116,6 +95,17 @@ defmodule Helper.Converter.EditorToHTML.Validator do
 
   defp validate_block(%{"type" => type}), do: raise("undown #{type} block")
   defp validate_block(_), do: raise("undown block")
+
+  # validate with given schema
+  defp validate_with(block, schema, data) do
+    case ValidateBySchema.cast(schema, data) do
+      {:error, errors} ->
+        format_parse_error(block, errors)
+
+      _ ->
+        {:ok, :pass}
+    end
+  end
 
   #  check if the given map has the right key-value fmt of the editorjs structure
   defp is_valid_editorjs_fmt(map) when is_map(map) do
