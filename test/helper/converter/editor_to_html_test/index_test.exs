@@ -41,7 +41,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
       assert {:ok, _} = Parser.to_html(editor_string)
     end
 
-    @tag :wip
+    @tag :wip2
     test "invalid editorjs json fmt should raise error" do
       editor_json = %{
         "invalid_time" => 1_567_250_876_713,
@@ -50,7 +50,29 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
       }
 
       {:ok, editor_string} = Jason.encode(editor_json)
-      assert {:error, "invalid editor json format"} = Parser.to_html(editor_string)
+      {:error, error} = Parser.to_html(editor_string)
+
+      assert error == [
+               %{block: "editor", field: "time", message: "should be: number", value: nil}
+             ]
+
+      editor_json = %{
+        "time" => "1_567_250_876_713",
+        "blocks" => [],
+        "version" => "2.15.0"
+      }
+
+      {:ok, editor_string} = Jason.encode(editor_json)
+      {:error, error} = Parser.to_html(editor_string)
+
+      assert error == [
+               %{
+                 block: "editor",
+                 field: "time",
+                 message: "should be: number",
+                 value: "1_567_250_876_713"
+               }
+             ]
 
       editor_json = %{
         "time" => 1_567_250_876_713,
@@ -60,7 +82,22 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
       }
 
       {:ok, editor_string} = Jason.encode(editor_json)
-      assert {:error, "invalid editor json format"} = Parser.to_html(editor_string)
+      {:error, error} = Parser.to_html(editor_string)
+
+      assert error == [
+               %{block: "editor", field: "blocks", message: "should be: list", value: "blocks"}
+             ]
+
+      editor_json = %{
+        "time" => 1_567_250_876_713,
+        "blocks" => [1, 2, 3],
+        "version" => "2.15.0"
+      }
+
+      {:ok, editor_string} = Jason.encode(editor_json)
+      {:error, error} = Parser.to_html(editor_string)
+
+      assert error == "undown block: 1"
     end
 
     test "real-world editor.js data should work" do

@@ -19,6 +19,36 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
             "items" => [
               %{
                 "checked" => true,
+                "hideLabel" => false,
+                "indent" => 0,
+                "label" => "label",
+                "labelType" => "success",
+                "text" => "list item"
+              }
+            ]
+          }
+        }
+      ],
+      "version" => "2.15.0"
+    }
+    @tag :wip
+    test "valid list parse should work" do
+      {:ok, editor_string} = Jason.encode(@editor_json)
+      # assert {:ok, converted} = Parser.to_html(editor_string)
+      {:ok, converted} = Parser.to_html(editor_string)
+      IO.inspect(converted, label: "list converted")
+    end
+
+    @editor_json %{
+      "time" => 1_567_250_876_713,
+      "blocks" => [
+        %{
+          "type" => "list",
+          "data" => %{
+            "mode" => "checklist",
+            "items" => [
+              %{
+                "checked" => true,
                 "hideLabel" => "invalid",
                 "indent" => 5,
                 "label" => "label",
@@ -49,34 +79,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
                  message: "should be: 0 | 1 | 2 | 3 | 4"
                }
              ]
-    end
-
-    @editor_json %{
-      "time" => 1_567_250_876_713,
-      "blocks" => [
-        %{
-          "type" => "list",
-          "data" => %{
-            "mode" => "checklist",
-            "items" => [
-              %{
-                "checked" => true,
-                "hideLabel" => false,
-                "indent" => 0,
-                "label" => "label",
-                "labelType" => "success",
-                "text" => "list item"
-              }
-            ]
-          }
-        }
-      ],
-      "version" => "2.15.0"
-    }
-    @tag :wip
-    test "valid list parse should work" do
-      {:ok, editor_string} = Jason.encode(@editor_json)
-      assert {:ok, _} = Parser.to_html(editor_string)
     end
 
     @editor_json %{

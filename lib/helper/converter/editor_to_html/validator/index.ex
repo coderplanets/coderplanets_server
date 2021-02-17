@@ -10,14 +10,9 @@ defmodule Helper.Converter.EditorToHTML.Validator do
   # blocks with "mode" and "items" fields
   @complex_blocks ["list"]
 
-  @valid_list_mode ["checklist", "order_list", "unorder_list"]
-  @valid_list_label_type ["success", "done", "todo"]
-  @valid_list_indent [0, 1, 2, 3, 4]
-
-  def is_valid(map) when is_map(map) do
-    with true <- is_valid_editorjs_fmt(map) do
-      blocks = map["blocks"]
-
+  def is_valid(data) when is_map(data) do
+    with {:ok, _} <- validate_editor_fmt(data),
+         blocks <- Map.get(data, "blocks") do
       try do
         validate_blocks(blocks)
       rescue
@@ -30,13 +25,11 @@ defmodule Helper.Converter.EditorToHTML.Validator do
         e ->
           format_parse_error()
       end
-    else
-      false ->
-        {:error, "invalid editor json format"}
-
-      _ ->
-        {:error, "invalid editor json"}
     end
+  end
+
+  defp validate_editor_fmt(data) do
+    validate_with("editor", Schema.get("editor"), data)
   end
 
   defp validate_blocks([]), do: {:ok, :pass}
@@ -75,7 +68,7 @@ defmodule Helper.Converter.EditorToHTML.Validator do
   end
 
   defp validate_block(%{"type" => type}), do: raise("undown #{type} block")
-  defp validate_block(_), do: raise("undown block")
+  defp validate_block(e), do: raise("undown block: #{e}")
 
   # validate with given schema
   defp validate_with(block, schema, data) do

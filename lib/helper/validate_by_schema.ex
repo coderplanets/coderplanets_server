@@ -8,7 +8,7 @@ defmodule Helper.ValidateBySchema do
   @doc """
   cast data by given schema
 
-  e.g:
+  ## example
   schema = %{
     checked: [:boolean],
     hideLabel: [:boolean],
@@ -22,27 +22,34 @@ defmodule Helper.ValidateBySchema do
   ValidateBySchema.cast(schema, data)
   """
   def cast(schema, data) do
-    schema_fields = Map.keys(schema)
-
-    errors_info =
-      Enum.reduce(schema_fields, [], fn field, acc ->
-        value = get_in(data, [field])
-        field_schema = get_in(schema, [field])
-
-        case match(field, value, field_schema) do
-          {:error, error} ->
-            acc ++ [error]
-
-          _ ->
-            acc
-        end
-      end)
+    errors_info = cast_errors(schema, data)
 
     case errors_info do
       [] -> {:ok, :pass}
       _ -> {:error, errors_info}
     end
   end
+
+  defp cast_errors(schema, data) do
+    schema_fields = Map.keys(schema)
+
+    Enum.reduce(schema_fields, [], fn field, acc ->
+      value = get_in(data, [field])
+      field_schema = get_in(schema, [field])
+
+      case match(field, value, field_schema) do
+        {:error, error} ->
+          acc ++ [error]
+
+        _ ->
+          acc
+      end
+    end)
+  end
+
+  # 这里试过用 macro 消除重复代码，但是不可行。
+  # macro 对于重复定义的 quote 只会覆盖掉，除非每个 quote 中定义的内容不一样
+  # 参考: https://elixirforum.com/t/define-multiple-modules-in-macro-only-last-one-gets-created/1654
 
   # boolean field
   defp match(field, nil, [:boolean, required: false]), do: done(field, nil)
@@ -66,7 +73,9 @@ defmodule Helper.ValidateBySchema do
   defp match(field, value, [:string, required: false]), do: error(field, value, :string)
   defp match(field, value, [:string]), do: error(field, value, :string)
 
-  # number field
+  defp match(field, nil, [:string, required: false]), do: done(field, nil)
+
+  # number
   defp match(field, nil, [:number, required: false]), do: done(field, nil)
 
   defp match(field, value, [:number, required: false]) when is_number(value) do
@@ -77,6 +86,18 @@ defmodule Helper.ValidateBySchema do
   defp match(field, value, [:number, required: false]), do: error(field, value, :number)
   defp match(field, value, [:number]), do: error(field, value, :number)
 
+  # list
+  defp match(field, nil, [:list, required: false]), do: done(field, nil)
+
+  defp match(field, value, [:list, required: false]) when is_list(value) do
+    done(field, value)
+  end
+
+  defp match(field, value, [:list]) when is_list(value), do: done(field, value)
+  defp match(field, value, [:list, required: false]), do: error(field, value, :list)
+  defp match(field, value, [:list]), do: error(field, value, :list)
+
+  # enum
   defp match(field, nil, enum: _, required: false), do: done(field, nil)
 
   defp match(field, value, enum: enum, required: false) do

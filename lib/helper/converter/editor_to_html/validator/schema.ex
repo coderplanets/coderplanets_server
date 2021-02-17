@@ -9,6 +9,14 @@ defmodule Helper.Converter.EditorToHTML.Validator.Schema do
   @valid_list_label_type ["success", "done", "todo"]
   @valid_list_indent [0, 1, 2, 3, 4]
 
+  def get("editor") do
+    %{
+      "time" => [:number],
+      "version" => [:string],
+      "blocks" => [:list]
+    }
+  end
+
   def get("header") do
     %{
       "text" => [:string],
