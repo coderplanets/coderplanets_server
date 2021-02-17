@@ -6,17 +6,17 @@ defmodule Helper.ValidateBySchema.Matchers do
   defmacro __using__(types) do
     # can not use Enum.each here, see https://elixirforum.com/t/define-multiple-modules-in-macro-only-last-one-gets-created/1654/4
     for type <- types do
-      guard_name = if type == :string, do: "binary", else: type |> to_string
+      guard_name = if type == :string, do: "is_binary", else: "is_#{to_string(type)}"
 
       quote do
         defp match(field, nil, [unquote(type), required: false]), do: done(field, nil)
 
         defp match(field, value, [unquote(type), required: false])
-             when unquote(:"is_#{guard_name}")(value) do
+             when unquote(:"#{guard_name}")(value) do
           done(field, value)
         end
 
-        defp match(field, value, [unquote(type)]) when unquote(:"is_#{guard_name}")(value),
+        defp match(field, value, [unquote(type)]) when unquote(:"#{guard_name}")(value),
           do: done(field, value)
 
         defp match(field, value, [unquote(type), required: false]),
