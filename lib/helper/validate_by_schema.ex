@@ -1,3 +1,33 @@
+defmodule Helper.ValidateBySchema.Matchers do
+  @moduledoc """
+  matchers for basic type, support required option
+  """
+
+  defmacro __using__(types) do
+    # can not use Enum.each here, see https://elixirforum.com/t/define-multiple-modules-in-macro-only-last-one-gets-created/1654/4
+    for type <- types do
+      guard_name = if type == :string, do: "binary", else: type |> to_string
+
+      quote do
+        defp match(field, nil, [unquote(type), required: false]), do: done(field, nil)
+
+        defp match(field, value, [unquote(type), required: false])
+             when unquote(:"is_#{guard_name}")(value) do
+          done(field, value)
+        end
+
+        defp match(field, value, [unquote(type)]) when unquote(:"is_#{guard_name}")(value),
+          do: done(field, value)
+
+        defp match(field, value, [unquote(type), required: false]),
+          do: error(field, value, unquote(type))
+
+        defp match(field, value, [unquote(type)]), do: error(field, value, unquote(type))
+      end
+    end
+  end
+end
+
 defmodule Helper.ValidateBySchema do
   @moduledoc """
   validate json data by given schema, mostly used in editorjs validator
@@ -21,6 +51,8 @@ defmodule Helper.ValidateBySchema do
   data = %{checked: true, label: "done"}
   ValidateBySchema.cast(schema, data)
   """
+  use Helper.ValidateBySchema.Matchers, [:string, :number, :list, :boolean]
+
   def cast(schema, data) do
     errors_info = cast_errors(schema, data)
 
@@ -46,56 +78,6 @@ defmodule Helper.ValidateBySchema do
       end
     end)
   end
-
-  # 这里试过用 macro 消除重复代码，但是不可行。
-  # macro 对于重复定义的 quote 只会覆盖掉，除非每个 quote 中定义的内容不一样
-  # 参考: https://elixirforum.com/t/define-multiple-modules-in-macro-only-last-one-gets-created/1654
-
-  # boolean field
-  defp match(field, nil, [:boolean, required: false]), do: done(field, nil)
-
-  defp match(field, value, [:boolean, required: false]) when is_boolean(value) do
-    done(field, value)
-  end
-
-  defp match(field, value, [:boolean]) when is_boolean(value), do: done(field, value)
-  defp match(field, value, [:boolean, required: false]), do: error(field, value, :boolean)
-  defp match(field, value, [:boolean]), do: error(field, value, :boolean)
-
-  # string field
-  defp match(field, nil, [:string, required: false]), do: done(field, nil)
-
-  defp match(field, value, [:string, required: false]) when is_binary(value) do
-    done(field, value)
-  end
-
-  defp match(field, value, [:string]) when is_binary(value), do: done(field, value)
-  defp match(field, value, [:string, required: false]), do: error(field, value, :string)
-  defp match(field, value, [:string]), do: error(field, value, :string)
-
-  defp match(field, nil, [:string, required: false]), do: done(field, nil)
-
-  # number
-  defp match(field, nil, [:number, required: false]), do: done(field, nil)
-
-  defp match(field, value, [:number, required: false]) when is_number(value) do
-    done(field, value)
-  end
-
-  defp match(field, value, [:number]) when is_number(value), do: done(field, value)
-  defp match(field, value, [:number, required: false]), do: error(field, value, :number)
-  defp match(field, value, [:number]), do: error(field, value, :number)
-
-  # list
-  defp match(field, nil, [:list, required: false]), do: done(field, nil)
-
-  defp match(field, value, [:list, required: false]) when is_list(value) do
-    done(field, value)
-  end
-
-  defp match(field, value, [:list]) when is_list(value), do: done(field, value)
-  defp match(field, value, [:list, required: false]), do: error(field, value, :list)
-  defp match(field, value, [:list]), do: error(field, value, :list)
 
   # enum
   defp match(field, nil, enum: _, required: false), do: done(field, nil)

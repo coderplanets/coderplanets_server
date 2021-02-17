@@ -61,7 +61,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       ],
       "version" => "2.15.0"
     }
-    @tag :wip
+    @tag :wip2
     test "invalid list data parse should raise error message" do
       {:ok, editor_string} = Jason.encode(@editor_json)
       {:error, err_msg} = Parser.to_html(editor_string)
