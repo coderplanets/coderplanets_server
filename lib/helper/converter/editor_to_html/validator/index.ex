@@ -64,18 +64,6 @@ defmodule Helper.Converter.EditorToHTML.Validator do
     validate_with(type, parent_schema, item_schema, data)
   end
 
-  defp validate_block(%{"type" => "code"}) do
-    # schema = %{text: [:string]}
-    # case Schema.cast(schema, data) do
-    #   {:error, errors} ->
-    #     format_parse_error("paragraph", errors)
-
-    #   _ ->
-    #     {:ok, :pass}
-    # end
-    {:ok, :pass}
-  end
-
   defp validate_block(%{"type" => type}), do: raise("undown #{type} block")
 
   defp validate_block(e), do: raise("undown block: #{e}")

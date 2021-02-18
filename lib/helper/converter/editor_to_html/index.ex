@@ -131,9 +131,5 @@ defmodule Helper.Converter.EditorToHTML do
     "<div class=\"#{@clazz.unknow_block}\">[unknow block]</div>"
   end
 
-  defp invalid_hint(part, message) do
-    "<div class=\"#{@clazz.invalid_block}\">[invalid-block] #{part}:#{message}</div>"
-  end
-
   def string_to_json(string), do: Jason.decode(string)
 end

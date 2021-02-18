@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
   alias Helper.Metric
   alias Helper.Converter.EditorToHTML, as: Parser
 
-  @clazz Metric.Article.class_names(:html)
+  # @clazz Metric.Article.class_names(:html)
 
   describe "[list block unit]" do
     @editor_json %{
@@ -31,7 +31,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       ],
       "version" => "2.15.0"
     }
-    @tag :wip2
+    @tag :wip
     test "valid list parse should work" do
       {:ok, editor_string} = Jason.encode(@editor_json)
       # assert {:ok, converted} = Parser.to_html(editor_string)

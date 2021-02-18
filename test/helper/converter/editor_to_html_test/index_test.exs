@@ -2,19 +2,25 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
   @moduledoc false
 
   use GroupherServerWeb.ConnCase, async: true
+
+  alias Helper.Metric
   alias Helper.Converter.EditorToHTML, as: Parser
 
   # alias Helper.Metric
   # @clazz Metric.Article.class_names(:html)
 
+  #   "<addr class="cdx-lock">hello</addr> Editor.js <mark class="cdx-marker">workspace</mark>. is an element &lt;script&gt;alert("hello")&lt;/script&gt;"
+
+  #   "text" : "<script>evil scripts</script>"
+  @clazz Metric.Article.class_names(:html)
+
   @real_editor_data ~S({
     "time" : 1567250876713,
     "blocks" : [
         {
-            "type" : "code",
+            "type" : "paragraph",
             "data" : {
-                "lang" : "js",
-                "text" : "<script>evil scripts</script>"
+                "text": "content"
             }
         }
     ],
@@ -113,12 +119,43 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
   describe "[secure issues]" do
     @tag :wip
     test "code block should avoid potential xss script attack" do
-      {:ok, converted} = Parser.to_html(@real_editor_data)
+      editor_json = %{
+        "time" => 1_567_250_876_713,
+        "blocks" => [
+          %{
+            "type" => "paragraph",
+            "data" => %{
+              "text" => "<script>evel script</script>"
+            }
+          }
+        ],
+        "version" => "2.15.0"
+      }
 
-      safe_script =
-        "<pre><code class=\"lang-js\">&lt;script&gt;evil scripts&lt;/script&gt;</code></pre>"
+      {:ok, editor_string} = Jason.encode(editor_json)
+      {:ok, converted} = Parser.to_html(editor_string)
 
-      assert converted |> String.contains?(safe_script)
+      assert converted ==
+               "<div class=\"#{@clazz.viewer}\"><p>evel script</p><div>"
+
+      editor_json = %{
+        "time" => 1_567_250_876_713,
+        "blocks" => [
+          %{
+            "type" => "paragraph",
+            "data" => %{
+              "text" => "Editor.js is an element &lt;script&gt;evel script&lt;/script&gt;"
+            }
+          }
+        ],
+        "version" => "2.15.0"
+      }
+
+      {:ok, editor_string} = Jason.encode(editor_json)
+      {:ok, converted} = Parser.to_html(editor_string)
+
+      assert converted ==
+               "<div class=\"#{@clazz.viewer}\"><p>Editor.js is an element &lt;script&gt;evel script&lt;/script&gt;</p><div>"
     end
   end
 end
