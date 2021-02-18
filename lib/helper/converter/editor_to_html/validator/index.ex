@@ -30,7 +30,15 @@ defmodule Helper.Converter.EditorToHTML.Validator do
   end
 
   defp validate_editor_fmt(data) do
-    validate_with("editor", EditorSchema.get("editor"), data)
+    try do
+      validate_with("editor", EditorSchema.get("editor"), data)
+    rescue
+      e in MatchError ->
+        format_parse_error(e)
+
+      _ ->
+        format_parse_error()
+    end
   end
 
   defp validate_blocks([]), do: {:ok, :pass}
@@ -69,21 +77,12 @@ defmodule Helper.Converter.EditorToHTML.Validator do
   end
 
   defp validate_block(%{"type" => type}), do: raise("undown #{type} block")
+
   defp validate_block(e), do: raise("undown block: #{e}")
 
   # validate with given schema
   defp validate_with(block, schema, data) do
     case Schema.cast(schema, data) do
-      {:error, errors} ->
-        format_parse_error(block, errors)
-
-      _ ->
-        {:ok, :pass}
-    end
-  end
-
-  defp validate_with(block, parent_schema, item_schema, data) do
-    case Schema.cast(parent_schema, data) do
       {:error, errors} ->
         {:error, message} = format_parse_error(block, errors)
         raise %MatchError{term: {:error, message}}
@@ -91,21 +90,17 @@ defmodule Helper.Converter.EditorToHTML.Validator do
       _ ->
         {:ok, :pass}
     end
+  end
 
-    %{"mode" => mode, "items" => items} = data
+  defp validate_with(block, parent_schema, item_schema, data) do
+    with {:ok, _} <- validate_with(block, parent_schema, data),
+         %{"mode" => mode, "items" => items} <- data do
+      Enum.each(items, fn item ->
+        validate_with("#{block}(#{mode})", item_schema, item)
+      end)
 
-    Enum.each(items, fn item ->
-      case Schema.cast(item_schema, item) do
-        {:error, errors} ->
-          {:error, message} = format_parse_error("#{block}(#{mode})", errors)
-          raise %MatchError{term: {:error, message}}
-
-        _ ->
-          {:ok, :pass}
-      end
-    end)
-
-    {:ok, :pass}
+      {:ok, :pass}
+    end
   end
 
   defp format_parse_error(type, error_list) when is_list(error_list) do
