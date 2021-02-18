@@ -50,7 +50,7 @@ defmodule Helper.Converter.EditorToHTML.Validator do
   end
 
   # validate block which has mode and items
-  defp validate_block(%{"type" => type, "data" => %{"mode" => _, "items" => _} = data})
+  defp validate_block(%{"type" => type, "data" => data})
        when type in @complex_blocks do
     [parent: parent_schema, item: item_schema] = EditorSchema.get(type)
     validate_with(type, parent_schema, item_schema, data)
@@ -85,7 +85,8 @@ defmodule Helper.Converter.EditorToHTML.Validator do
   defp validate_with(block, parent_schema, item_schema, data) do
     case Schema.cast(parent_schema, data) do
       {:error, errors} ->
-        format_parse_error(block, errors)
+        {:error, message} = format_parse_error(block, errors)
+        raise %MatchError{term: {:error, message}}
 
       _ ->
         {:ok, :pass}

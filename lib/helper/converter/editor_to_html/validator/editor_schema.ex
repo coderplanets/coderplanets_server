@@ -30,7 +30,7 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
 
   def get("list") do
     [
-      parent: %{"mode" => [enum: @valid_list_mode]},
+      parent: %{"mode" => [enum: @valid_list_mode], "items" => [:list]},
       item: %{
         "checked" => [:boolean],
         "hideLabel" => [:boolean],

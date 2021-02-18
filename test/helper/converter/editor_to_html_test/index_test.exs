@@ -41,7 +41,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
       assert {:ok, _} = Parser.to_html(editor_string)
     end
 
-    @tag :wip2
+    @tag :wip
     test "invalid editorjs json fmt should raise error" do
       editor_json = %{
         "invalid_time" => 1_567_250_876_713,

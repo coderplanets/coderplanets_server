@@ -45,6 +45,33 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
         %{
           "type" => "list",
           "data" => %{
+            "invalid-mode" => "",
+            "items" => []
+          }
+        }
+      ],
+      "version" => "2.15.0"
+    }
+    @tag :wip2
+    test "invalid list mode parse should raise error message" do
+      {:ok, editor_string} = Jason.encode(@editor_json)
+      {:error, err_msg} = Parser.to_html(editor_string)
+
+      assert err_msg == [
+               %{
+                 block: "list",
+                 field: "mode",
+                 message: "should be: checklist | order_list | unorder_list"
+               }
+             ]
+    end
+
+    @editor_json %{
+      "time" => 1_567_250_876_713,
+      "blocks" => [
+        %{
+          "type" => "list",
+          "data" => %{
             "mode" => "checklist",
             "items" => [
               %{
@@ -61,7 +88,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       ],
       "version" => "2.15.0"
     }
-    @tag :wip2
+    @tag :wip
     test "invalid list data parse should raise error message" do
       {:ok, editor_string} = Jason.encode(@editor_json)
       {:error, err_msg} = Parser.to_html(editor_string)

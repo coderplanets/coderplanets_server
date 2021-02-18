@@ -124,7 +124,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
                }\">footer title content</div>\n</div>\n<div>"
     end
 
-    @tag :wip2
+    @tag :wip
     test "wrong header format data should have invalid hint" do
       json =
         Map.merge(@editor_json, %{
