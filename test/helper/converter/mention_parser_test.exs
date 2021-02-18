@@ -13,21 +13,18 @@ defmodule GroupherServer.Test.Helper.Converter.MentionParser do
   this is a #test #message with #a few #test tags from +me @you2 and @中文我 xxx@email.com
   """
 
-  @tag :wip
   test "parse should return an empty for blank input" do
     ret = MentionParser.parse("", :mentions)
 
     assert ret == []
   end
 
-  @tag :wip
   test "mention should parsed in list" do
     ret = MentionParser.parse(@test_message, :mentions)
 
     assert ret == ["@you", "@you2"]
   end
 
-  @tag :wip
   test "email should not be parsed" do
     ret = MentionParser.parse(@test_message, :mentions)
 

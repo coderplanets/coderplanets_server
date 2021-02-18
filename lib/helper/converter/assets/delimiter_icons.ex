@@ -1,4 +1,4 @@
-defmodule Helper.Converter.EditorToHtml.Assets.DelimiterIcons do
+defmodule Helper.Converter.EditorToHTML.Assets.DelimiterIcons do
   @moduledoc """
   svg icons for delimiter block
   NOTE:  those svg should be sync with frontend svg
