@@ -1,9 +1,10 @@
 defmodule Helper.Converter.EditorToHTML.Validator do
   @moduledoc false
 
-  alias Helper.{Utils, ValidateBySchema}
+  alias Helper.{Converter, Validator}
 
-  alias Helper.Converter.EditorToHTML.Validator.Schema
+  alias Validator.Schema
+  alias Converter.EditorToHTML.Validator.EditorSchema
 
   # blocks with no children items
   @simple_blocks ["header", "paragraph"]
@@ -22,14 +23,14 @@ defmodule Helper.Converter.EditorToHTML.Validator do
         e in RuntimeError ->
           format_parse_error(e)
 
-        e ->
+        _ ->
           format_parse_error()
       end
     end
   end
 
   defp validate_editor_fmt(data) do
-    validate_with("editor", Schema.get("editor"), data)
+    validate_with("editor", EditorSchema.get("editor"), data)
   end
 
   defp validate_blocks([]), do: {:ok, :pass}
@@ -45,19 +46,19 @@ defmodule Helper.Converter.EditorToHTML.Validator do
 
   # validate block which have no nested items
   defp validate_block(%{"type" => type, "data" => data}) when type in @simple_blocks do
-    validate_with(type, Schema.get(type), data)
+    validate_with(type, EditorSchema.get(type), data)
   end
 
   # validate block which has mode and items
-  defp validate_block(%{"type" => type, "data" => %{"mode" => mode, "items" => items} = data})
+  defp validate_block(%{"type" => type, "data" => %{"mode" => _, "items" => _} = data})
        when type in @complex_blocks do
-    [parent: parent_schema, item: item_schema] = Schema.get(type)
+    [parent: parent_schema, item: item_schema] = EditorSchema.get(type)
     validate_with(type, parent_schema, item_schema, data)
   end
 
   defp validate_block(%{"type" => "code"}) do
     # schema = %{text: [:string]}
-    # case ValidateBySchema.cast(schema, data) do
+    # case Schema.cast(schema, data) do
     #   {:error, errors} ->
     #     format_parse_error("paragraph", errors)
 
@@ -72,7 +73,7 @@ defmodule Helper.Converter.EditorToHTML.Validator do
 
   # validate with given schema
   defp validate_with(block, schema, data) do
-    case ValidateBySchema.cast(schema, data) do
+    case Schema.cast(schema, data) do
       {:error, errors} ->
         format_parse_error(block, errors)
 
@@ -82,7 +83,7 @@ defmodule Helper.Converter.EditorToHTML.Validator do
   end
 
   defp validate_with(block, parent_schema, item_schema, data) do
-    case ValidateBySchema.cast(parent_schema, data) do
+    case Schema.cast(parent_schema, data) do
       {:error, errors} ->
         format_parse_error(block, errors)
 
@@ -93,7 +94,7 @@ defmodule Helper.Converter.EditorToHTML.Validator do
     %{"mode" => mode, "items" => items} = data
 
     Enum.each(items, fn item ->
-      case ValidateBySchema.cast(item_schema, item) do
+      case Schema.cast(item_schema, item) do
         {:error, errors} ->
           {:error, message} = format_parse_error("#{block}(#{mode})", errors)
           raise %MatchError{term: {:error, message}}
@@ -104,16 +105,6 @@ defmodule Helper.Converter.EditorToHTML.Validator do
     end)
 
     {:ok, :pass}
-  end
-
-  #  check if the given map has the right key-value fmt of the editorjs structure
-  defp is_valid_editorjs_fmt(map) when is_map(map) do
-    Map.has_key?(map, "time") and
-      Map.has_key?(map, "version") and
-      Map.has_key?(map, "blocks") and
-      is_list(map["blocks"]) and
-      is_binary(map["version"]) and
-      is_integer(map["time"])
   end
 
   defp format_parse_error(type, error_list) when is_list(error_list) do

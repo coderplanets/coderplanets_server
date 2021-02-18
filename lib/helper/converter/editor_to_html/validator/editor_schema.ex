@@ -1,4 +1,4 @@
-defmodule Helper.Converter.EditorToHTML.Validator.Schema do
+defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
   @moduledoc false
 
   # header

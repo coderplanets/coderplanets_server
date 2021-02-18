@@ -1,39 +1,11 @@
-defmodule Helper.ValidateBySchema.Matchers do
-  @moduledoc """
-  matchers for basic type, support required option
-  """
-
-  defmacro __using__(types) do
-    # can not use Enum.each here, see https://elixirforum.com/t/define-multiple-modules-in-macro-only-last-one-gets-created/1654/4
-    for type <- types do
-      guard_name = if type == :string, do: "is_binary", else: "is_#{to_string(type)}"
-
-      quote do
-        defp match(field, nil, [unquote(type), required: false]), do: done(field, nil)
-
-        defp match(field, value, [unquote(type), required: false])
-             when unquote(:"#{guard_name}")(value) do
-          done(field, value)
-        end
-
-        defp match(field, value, [unquote(type)]) when unquote(:"#{guard_name}")(value),
-          do: done(field, value)
-
-        defp match(field, value, [unquote(type), required: false]),
-          do: error(field, value, unquote(type))
-
-        defp match(field, value, [unquote(type)]), do: error(field, value, unquote(type))
-      end
-    end
-  end
-end
-
-defmodule Helper.ValidateBySchema do
+defmodule Helper.Validator.Schema do
   @moduledoc """
   validate json data by given schema, mostly used in editorjs validator
 
   currently support boolean / string / number / enum
   """
+
+  use Helper.Validator.Schema.Matchers, [:string, :number, :list, :boolean]
 
   @doc """
   cast data by given schema
@@ -49,10 +21,8 @@ defmodule Helper.ValidateBySchema do
   }
 
   data = %{checked: true, label: "done"}
-  ValidateBySchema.cast(schema, data)
+  Schema.cast(schema, data)
   """
-  use Helper.ValidateBySchema.Matchers, [:string, :number, :list, :boolean]
-
   def cast(schema, data) do
     errors_info = cast_errors(schema, data)
 
