@@ -10,70 +10,12 @@ defmodule Helper.Converter.EditorToHTML.Header do
   defmacro __using__(_opts) do
     quote do
       alias Helper.Metric
+      alias Helper.Converter.EditorToHTML.Frags
 
-      @clazz Metric.Article.class_names(:html)
+      @class get_in(Metric.Article.class_names(:html), ["header"])
 
-      defp parse_block(%{
-             "type" => "header",
-             "data" =>
-               %{
-                 "text" => text,
-                 "level" => level,
-                 "eyebrowTitle" => eyebrow_title,
-                 "footerTitle" => footer_title
-               } = data
-           }) do
-        """
-        <div class="#{@clazz.header.wrapper}">
-          <div class="#{@clazz.header.eyebrow_title}">#{eyebrow_title}</div>
-          <h#{level}>#{text}</h#{level}>
-          <div class="#{@clazz.header.footer_title}">#{footer_title}</div>
-        </div>
-        """
-      end
-
-      defp parse_block(%{
-             "type" => "header",
-             "data" =>
-               %{
-                 "text" => text,
-                 "level" => level,
-                 "eyebrowTitle" => eyebrow_title
-               } = data
-           }) do
-        """
-        <div class="#{@clazz.header.wrapper}">
-          <div class="#{@clazz.header.eyebrow_title}">#{eyebrow_title}</div>
-          <h#{level}>#{text}</h#{level}>
-        </div>
-        """
-      end
-
-      defp parse_block(%{
-             "type" => "header",
-             "data" =>
-               %{
-                 "text" => text,
-                 "level" => level,
-                 "footerTitle" => footer_title
-               } = data
-           }) do
-        """
-        <div class="#{@clazz.header.wrapper}">
-          <h#{level}>#{text}</h#{level}>
-          <div class="#{@clazz.header.footer_title}">#{footer_title}</div>
-        </div>
-        """
-      end
-
-      defp parse_block(%{
-             "type" => "header",
-             "data" => %{
-               "text" => text,
-               "level" => level
-             }
-           }) do
-        "<h#{level}>#{text}</h#{level}>"
+      defp parse_block(%{"type" => "header", "data" => data}) do
+        Frags.Header.get(data)
       end
     end
   end

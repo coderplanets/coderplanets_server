@@ -1,4 +1,4 @@
-defmodule Helper.SpecType do
+defmodule Helper.Types do
   @moduledoc """
   custom @types
   """
@@ -27,4 +27,19 @@ defmodule Helper.SpecType do
           location: nil | String.t(),
           company: nil | String.t()
         }
+
+  @typedoc """
+  editor.js's header tool data format
+  """
+  @type editor_header :: %{
+          required(:text) => String.t(),
+          required(:level) => String.t(),
+          eyebrowTitle: String.t(),
+          footerTitle: String.t()
+        }
+
+  @typedoc """
+  html fragment
+  """
+  @type html :: String.t()
 end

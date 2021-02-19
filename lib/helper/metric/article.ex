@@ -12,18 +12,27 @@ defmodule Helper.Metric.Article do
   def class_names(:html) do
     %{
       # root wrapper
-      viewer: "article-viewer-wrapper",
-      unknow_block: "unknow-block",
-      invalid_block: "invalid-block",
+      "viewer" => "article-viewer-wrapper",
+      "unknow_block" => "unknow-block",
+      "invalid_block" => "invalid-block",
       # header
-      header: %{
-        wrapper: "header-wrapper",
-        eyebrow_title: "eyebrow-title",
-        footer_title: "footer-title"
+      "header" => %{
+        "wrapper" => "header-wrapper",
+        "eyebrow_title" => "eyebrow-title",
+        "footer_title" => "footer-title"
       },
       # list
-      list: %{
-        wrapper: "list-wrapper"
+      "list" => %{
+        "wrapper" => "list-wrapper",
+        "item" => "list-item",
+        "checklist_item" => "list-checklist__item",
+        "label" => "list-label",
+        "label__default" => "list-label__default",
+        "label__red" => "list-label__red",
+        "label__green" => "list-label__green",
+        "label__warn" => "list-label__warn",
+        "text" => "list-item-text",
+        "checklist_text" => "list-checklist__item-text"
       }
     }
   end

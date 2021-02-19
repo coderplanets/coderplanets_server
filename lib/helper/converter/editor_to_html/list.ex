@@ -10,82 +10,24 @@ defmodule Helper.Converter.EditorToHTML.List do
   defmacro __using__(_opts) do
     quote do
       alias Helper.Metric
+      alias Helper.Converter.EditorToHTML.Frags
 
-      @clazz Metric.Article.class_names(:html)
+      # @class get_in(Metric.Article.class_names(:html), "list")
 
-      defp parse_block(%{
-             "type" => "list",
-             "data" =>
-               %{
-                 "mode" => "checklist",
-                 "items" => [
-                   %{
-                     "checked" => checked,
-                     "hideLabel" => hide_label,
-                     "indent" => indent,
-                     "label" => label,
-                     "labelType" => label_type,
-                     "text" => text
-                   }
-                 ]
-               } = data
-           }) do
-        """
-        <div class="#{@clazz.list.wrapper}">
-        hello list
-        </div>
-        """
+      defp parse_block(%{"type" => "list", "data" => data}) do
+        %{"items" => items} = data
 
-        # <div class="#{@clazz.list.wrapper}">
-        #   <div class="#{@clazz.list.eyebrow_title}">#{eyebrow_title}</div>
-        #   <h#{level}>#{text}</h#{level}>
-        #   <div class="#{@clazz.list.footer_title}">#{footer_title}</div>
-        # </div>
+        Frags.List.get_item(:checklist, Enum.at(items, 0))
       end
 
-      defp parse_block(%{
-             "type" => "list",
-             "data" =>
-               %{
-                 "text" => text,
-                 "level" => level,
-                 "eyebrowTitle" => eyebrow_title
-               } = data
-           }) do
-        """
-        <div class="#{@clazz.header.wrapper}">
-          <div class="#{@clazz.header.eyebrow_title}">#{eyebrow_title}</div>
-          <h#{level}>#{text}</h#{level}>
-        </div>
-        """
-      end
+      # defp parse_block(%{"type" => "list", "data" => %{"style" => "ordered", "items" => items}}) do
+      #   content =
+      #     Enum.reduce(items, "", fn item, acc ->
+      #       acc <> "<li>#{item}</li>"
+      #     end)
 
-      defp parse_block(%{
-             "type" => "list",
-             "data" =>
-               %{
-                 "text" => text,
-                 "level" => level,
-                 "footerTitle" => footer_title
-               } = data
-           }) do
-        """
-        <div class="#{@clazz.header.wrapper}">
-          <h#{level}>#{text}</h#{level}>
-          <div class="#{@clazz.header.footer_title}">#{footer_title}</div>
-        </div>
-        """
-      end
-
-      defp parse_block(%{
-             "type" => "list",
-             "data" => %{
-               "text" => text,
-               "level" => level
-             }
-           }) do
-        "<h#{level}>#{text}</h#{level}>"
-      end
+      #   "<ol>#{content}</ol>"
+      # end
     end
   end
 end

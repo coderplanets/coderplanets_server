@@ -5,8 +5,10 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
 
   alias Helper.Metric
   alias Helper.Converter.EditorToHTML, as: Parser
+  alias Helper.Converter.EditorToHTML.Frags
 
-  # @clazz Metric.Article.class_names(:html)
+  @root_class Metric.Article.class_names(:html)
+  # @class get_in(@root_class, ["list"])
 
   describe "[list block unit]" do
     @editor_json %{
@@ -22,7 +24,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
                 "hideLabel" => false,
                 "indent" => 0,
                 "label" => "label",
-                "labelType" => "success",
+                "labelType" => "default",
                 "text" => "list item"
               }
             ]
@@ -36,7 +38,20 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       {:ok, editor_string} = Jason.encode(@editor_json)
       # assert {:ok, converted} = Parser.to_html(editor_string)
       {:ok, converted} = Parser.to_html(editor_string)
-      IO.inspect(converted, label: "list converted")
+
+      real =
+        Frags.List.get_item(:checklist, %{
+          "checked" => true,
+          "hideLabel" => false,
+          "indent" => 0,
+          "label" => "label",
+          "labelType" => "default",
+          "text" => "list item"
+        })
+
+      viewer_class = @root_class["viewer"]
+      bb = ~s(<div class="#{viewer_class}">#{real}</div>)
+      assert converted == bb |> String.replace(" viewbox=\"", " viewBox=\"")
     end
 
     @editor_json %{
@@ -79,7 +94,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
                 "hideLabel" => "invalid",
                 "indent" => 5,
                 "label" => "label",
-                "labelType" => "success",
+                "labelType" => "default",
                 "text" => "list item"
               }
             ]
@@ -121,7 +136,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
                 "hideLabel" => true,
                 "indent" => 10,
                 "label" => "label",
-                "labelType" => "success",
+                "labelType" => "default",
                 "text" => "list item"
               }
             ]

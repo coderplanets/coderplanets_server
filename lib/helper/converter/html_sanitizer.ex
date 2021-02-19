@@ -20,6 +20,7 @@ defmodule Helper.Converter.HtmlSanitizer do
     # Meta.allow_tag_with_these_attributes("em", [])
     Meta.allow_tag_with_these_attributes("b", [])
     Meta.allow_tag_with_these_attributes("i", [])
+
     Meta.allow_tag_with_these_attributes("mark", ["class"])
     Meta.allow_tag_with_these_attributes("code", ["class"])
     Meta.allow_tag_with_these_attributes("pre", ["class"])
@@ -32,10 +33,30 @@ defmodule Helper.Converter.HtmlSanitizer do
     # Meta.allow_tag_with_these_attributes("h6", ["class"])
     Meta.allow_tag_with_these_attributes("p", ["class"])
     Meta.allow_tag_with_these_attributes("img", ["class", "src"])
-    Meta.allow_tag_with_these_attributes("div", ["class"])
+    Meta.allow_tag_with_these_attributes("div", ["class", "data-index"])
     Meta.allow_tag_with_these_attributes("ul", ["class"])
     Meta.allow_tag_with_these_attributes("ol", ["class"])
     Meta.allow_tag_with_these_attributes("li", ["class"])
+
+    Meta.allow_tag_with_these_attributes("svg", [
+      "t",
+      "p-id",
+      "class",
+      "version",
+      "xmlns",
+      # should be viewBox, see: https://github.com/rrrene/html_sanitize_ex/issues/48
+      "viewbox",
+      "width",
+      "height",
+      "x",
+      "y"
+      # "baseProfile",
+      # "contentScriptType",
+      # "contentStyleType",
+      # "preserveAspectRatio",
+    ])
+
+    Meta.allow_tag_with_these_attributes("path", ["d", "p-id"])
 
     Meta.allow_tag_with_these_attributes("iframe", [
       "sandbox",
@@ -56,6 +77,9 @@ defmodule Helper.Converter.HtmlSanitizer do
   def sanitize({:skip_sanitize, html}), do: html
 
   def sanitize(html) when is_binary(html) do
-    html |> HtmlSanitizeEx.Scrubber.scrub(Scrubber)
+    html
+    |> HtmlSanitizeEx.Scrubber.scrub(Scrubber)
+    # workarround for https://github.com/rrrene/html_sanitize_ex/issues/48
+    |> String.replace(" viewbox=\"", " viewBox=\"")
   end
 end
