@@ -9,7 +9,7 @@ defmodule GroupherServer.CMS.Delegate.CommunitySync do
   alias GroupherServer.CMS
 
   alias Helper.ORM
-  alias Helper.SpecType, as: T
+  alias Helper.Types, as: T
 
   alias CMS.{
     Community,
