@@ -3,13 +3,13 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
 
   use GroupherServerWeb.ConnCase, async: true
 
-  alias Helper.Metric
+  alias Helper.Converter.EditorToHTML.Class
   alias Helper.Converter.EditorToHTML, as: Parser
 
   #   "<addr class="cdx-lock">hello</addr> Editor.js <mark class="cdx-marker">workspace</mark>. is an element &lt;script&gt;alert("hello")&lt;/script&gt;"
 
   #   "text" : "<script>evil scripts</script>"
-  @root_class Metric.Article.class_names(:html)
+  @root_class Class.article()
 
   @real_editor_data ~S({
     "time" : 1567250876713,

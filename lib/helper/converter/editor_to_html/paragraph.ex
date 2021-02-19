@@ -6,8 +6,6 @@ defmodule Helper.Converter.EditorToHTML.Paragraph do
   """
   defmacro __using__(_opts) do
     quote do
-      # alias Helper.Metric
-
       defp parse_block(%{"type" => "paragraph", "data" => %{"text" => text}}) do
         "<p>#{text}</p>"
       end

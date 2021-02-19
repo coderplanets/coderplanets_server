@@ -4,11 +4,11 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
   """
   use GroupherServerWeb.ConnCase, async: true
 
-  alias Helper.Metric
   alias Helper.Converter.MdToEditor, as: Converter
   alias Helper.Converter.EditorToHTML
+  alias Helper.Converter.EditorToHTML.Class
 
-  @root_class Metric.Article.class_names(:html)
+  @root_class Class.article()
   # alias Helper.Converter.HtmlSanitizer, as: Sanitizer
 
   describe "[basic md test]" do

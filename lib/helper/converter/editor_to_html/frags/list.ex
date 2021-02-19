@@ -4,9 +4,9 @@ defmodule Helper.Converter.EditorToHTML.Frags.List do
 
   see https://editorjs.io/
   """
-  alias Helper.Metric
+  alias Helper.Converter.EditorToHTML.Class
 
-  @class get_in(Metric.Article.class_names(:html), ["list"])
+  @class get_in(Class.article(), ["list"])
 
   def get_item(:checklist, %{
         "checked" => checked,

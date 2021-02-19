@@ -3,10 +3,10 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Paragraph do
 
   use GroupherServerWeb.ConnCase, async: true
 
-  alias Helper.Metric
+  alias Helper.Converter.EditorToHTML.Class
   alias Helper.Converter.EditorToHTML, as: Parser
 
-  @root_class Metric.Article.class_names(:html)
+  @root_class Class.article()
 
   describe "[paragraph block]" do
     @editor_json %{

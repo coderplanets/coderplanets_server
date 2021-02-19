@@ -9,10 +9,9 @@ defmodule Helper.Converter.EditorToHTML.Header do
 
   defmacro __using__(_opts) do
     quote do
-      alias Helper.Metric
-      alias Helper.Converter.EditorToHTML.Frags
+      alias Helper.Converter.EditorToHTML.{Class, Frags}
 
-      @class get_in(Metric.Article.class_names(:html), ["header"])
+      @class get_in(Class.article(), ["header"])
 
       defp parse_block(%{"type" => "header", "data" => data}) do
         Frags.Header.get(data)

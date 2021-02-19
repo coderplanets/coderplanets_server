@@ -1,4 +1,4 @@
-defmodule Helper.Metric.Article do
+defmodule Helper.Converter.EditorToHTML.Class do
   @moduledoc """
   html article class names parsed from editor.js's json data
 
@@ -9,7 +9,7 @@ defmodule Helper.Metric.Article do
   @doc """
   get all the class names of the parsed editor.js's html parts
   """
-  def class_names(:html) do
+  def article() do
     %{
       # root wrapper
       "viewer" => "article-viewer-wrapper",

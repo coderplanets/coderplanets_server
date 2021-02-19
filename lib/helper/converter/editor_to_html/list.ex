@@ -9,10 +9,9 @@ defmodule Helper.Converter.EditorToHTML.List do
 
   defmacro __using__(_opts) do
     quote do
-      alias Helper.Metric
-      alias Helper.Converter.EditorToHTML.Frags
+      alias Helper.Converter.EditorToHTML.{Class, Frags}
 
-      # @class get_in(Metric.Article.class_names(:html), "list")
+      # @class get_in(Class.article(), ["list"])
 
       defp parse_block(%{"type" => "list", "data" => data}) do
         %{"items" => items} = data

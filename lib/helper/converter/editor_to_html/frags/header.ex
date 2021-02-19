@@ -4,10 +4,11 @@ defmodule Helper.Converter.EditorToHTML.Frags.Header do
 
   see https://editorjs.io/
   """
-  alias Helper.Metric
   alias Helper.Types, as: T
 
-  @class get_in(Metric.Article.class_names(:html), ["header"])
+  alias Helper.Converter.EditorToHTML.Class
+
+  @class get_in(Class.article(), ["header"])
 
   @spec get(T.editor_header()) :: T.html()
   def get(%{"eyebrowTitle" => eyebrow_title, "footerTitle" => footer_title} = data) do

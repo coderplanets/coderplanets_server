@@ -3,11 +3,10 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
 
   use GroupherServerWeb.ConnCase, async: true
 
-  alias Helper.Metric
   alias Helper.Converter.EditorToHTML, as: Parser
-  alias Helper.Converter.EditorToHTML.Frags
+  alias Helper.Converter.EditorToHTML.{Class, Frags}
 
-  @root_class Metric.Article.class_names(:html)
+  @root_class Class.article()
   # @class get_in(@root_class, ["list"])
 
   describe "[list block unit]" do

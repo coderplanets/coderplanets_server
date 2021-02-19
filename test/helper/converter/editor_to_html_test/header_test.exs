@@ -3,11 +3,10 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
 
   use GroupherServerWeb.ConnCase, async: true
 
-  alias Helper.Metric
   alias Helper.Converter.EditorToHTML, as: Parser
-  alias Helper.Converter.EditorToHTML.Frags
+  alias Helper.Converter.EditorToHTML.{Class, Frags}
 
-  @root_class Metric.Article.class_names(:html)
+  @root_class Class.article()
 
   describe "[header block unit]" do
     @editor_json %{

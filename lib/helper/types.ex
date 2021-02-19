@@ -42,4 +42,5 @@ defmodule Helper.Types do
   html fragment
   """
   @type html :: String.t()
+  @type ok_html :: {:ok, String.t()}
 end

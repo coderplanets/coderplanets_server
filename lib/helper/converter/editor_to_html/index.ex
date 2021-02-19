@@ -13,16 +13,16 @@ defmodule Helper.Converter.EditorToHTML do
   """
 
   use Helper.Converter.EditorToHTML.{Header, Paragraph, List}
+  alias Helper.Types, as: T
 
-  alias Helper.{Metric, Utils}
+  alias Helper.Utils
   alias Helper.Converter.{EditorToHTML, HtmlSanitizer}
-  alias EditorToHTML.Validator
+  alias EditorToHTML.{Class, Validator}
 
   # alias EditorToHTML.Assets.{DelimiterIcons}
+  @root_class Class.article()
 
-  @root_class Metric.Article.class_names(:html)
-
-  @spec to_html(binary | maybe_improper_list) :: false | {:ok, <<_::64, _::_*8>>}
+  @spec to_html(String.t()) :: T.ok_html()
   def to_html(string) when is_binary(string) do
     with {:ok, parsed} = string_to_json(string),
          {:ok, _} <- Validator.is_valid(parsed) do
