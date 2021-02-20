@@ -1,0 +1,22 @@
+body {
+  border: 1px solid #ececec;
+  min-height: 80vh;
+  margin: 20px 5vw;
+}
+
+.article-viewer-wrapper {
+  position: relative;
+  max-width: 650px;
+
+  box-sizing: border-box;
+  z-index: 1;
+  font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, PingFang SC,
+    Microsoft YaHei, Source Han Sans SC, Noto Sans CJK SC, WenQuanYi Micro Hei,
+    sans-serif;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+.article-viewer-wrapper .list-wrapper {
+  padding: 1.2em 0;
+}

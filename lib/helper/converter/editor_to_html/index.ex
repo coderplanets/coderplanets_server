@@ -55,9 +55,14 @@ defmodule Helper.Converter.EditorToHTML do
   defp parse_block(%{"type" => "list", "data" => data}) do
     %{"items" => items, "mode" => mode} = data
 
-    Enum.reduce(items, "", fn item, acc ->
-      acc <> Frags.List.get_item(mode |> String.to_atom(), item)
-    end)
+    list_wrapper_class = get_in(@root_class, ["list", "wrapper"])
+
+    items_content =
+      Enum.reduce(items, "", fn item, acc ->
+        acc <> Frags.List.get_item(mode |> String.to_atom(), item)
+      end)
+
+    ~s(<div class="#{list_wrapper_class}">#{items_content}</div>)
   end
 
   # defp parse_block(%{"type" => "image", "data" => data}) do

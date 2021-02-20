@@ -5,6 +5,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
 
   alias Helper.Converter.EditorToHTML, as: Parser
   alias Helper.Converter.EditorToHTML.Class
+  alias Helper.Utils
 
   @root_class Class.article()
   @class get_in(@root_class, ["list"])
@@ -46,8 +47,11 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       {:ok, editor_string} = Jason.encode(@editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
+      IO.inspect(converted, label: "the converted")
+
       checked_class = @class["checklist_checkbox_checked"]
-      assert converted |> String.split(checked_class) |> length() == 2
+
+      assert Utils.str_occurence(converted, checked_class) == 1
     end
 
     @editor_json %{
