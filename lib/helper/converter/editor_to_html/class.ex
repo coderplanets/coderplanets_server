@@ -25,12 +25,15 @@ defmodule Helper.Converter.EditorToHTML.Class do
       "list" => %{
         "wrapper" => "list-wrapper",
         "item" => "list-item",
-        "checklist_item" => "list-checklist__item",
         "label" => "list-label",
         "label__default" => "list-label__default",
         "label__red" => "list-label__red",
         "label__green" => "list-label__green",
         "label__warn" => "list-label__warn",
+        "checklist_item" => "list-checklist__item",
+        "checklist_checkbox" => "checklist__item-checkbox",
+        "checklist_checkbox_checked" => "checklist__item-check-sign-active",
+        "checklist_checksign" => "checklist__item-check-sign",
         "text" => "list-item-text",
         "checklist_text" => "list-checklist__item-text"
       }

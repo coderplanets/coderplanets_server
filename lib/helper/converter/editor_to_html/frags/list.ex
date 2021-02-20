@@ -5,6 +5,7 @@ defmodule Helper.Converter.EditorToHTML.Frags.List do
   see https://editorjs.io/
   """
   alias Helper.Converter.EditorToHTML.Class
+  alias Helper.Types, as: T
 
   @class get_in(Class.article(), ["list"])
 
@@ -39,12 +40,16 @@ defmodule Helper.Converter.EditorToHTML.Frags.List do
       </div>)
   end
 
-  @spec frag(:checkbox, Boolean.t()) :: String.t()
-  def frag(:checkbox, _checked) do
+  @spec frag(:checkbox, Boolean.t()) :: T.html()
+  def frag(:checkbox, checked) do
     checked_svg = svg(:checked)
 
-    ~s(<div class="checklist__item-checkbox checklist__item-check-sign-active">
-        <div class="checklist__item-check-sign">
+    checkbox_class = @class["checklist_checkbox"]
+    checkbox_checked_class = if checked, do: @class["checklist_checkbox_checked"], else: ""
+    checkbox_checksign_class = @class["checklist_checksign"]
+
+    ~s(<div class="#{checkbox_class} #{checkbox_checked_class}">
+        <div class="#{checkbox_checksign_class}">
         #{checked_svg}
         </div>
       </div>)

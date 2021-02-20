@@ -4,12 +4,30 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
   use GroupherServerWeb.ConnCase, async: true
 
   alias Helper.Converter.EditorToHTML, as: Parser
-  alias Helper.Converter.EditorToHTML.{Class, Frags}
+  alias Helper.Converter.EditorToHTML.Class
 
   @root_class Class.article()
-  # @class get_in(@root_class, ["list"])
+  @class get_in(@root_class, ["list"])
 
   describe "[list block unit]" do
+    @items [
+      %{
+        "checked" => true,
+        "hideLabel" => false,
+        "indent" => 0,
+        "label" => "label",
+        "labelType" => "default",
+        "text" => "list item"
+      },
+      %{
+        "checked" => false,
+        "hideLabel" => false,
+        "indent" => 0,
+        "label" => "label",
+        "labelType" => "default",
+        "text" => "list item"
+      }
+    ]
     @editor_json %{
       "time" => 1_567_250_876_713,
       "blocks" => [
@@ -17,40 +35,19 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
           "type" => "list",
           "data" => %{
             "mode" => "checklist",
-            "items" => [
-              %{
-                "checked" => true,
-                "hideLabel" => false,
-                "indent" => 0,
-                "label" => "label",
-                "labelType" => "default",
-                "text" => "list item"
-              }
-            ]
+            "items" => @items
           }
         }
       ],
       "version" => "2.15.0"
     }
-    @tag :wip
+    @tag :wip2
     test "valid list parse should work" do
       {:ok, editor_string} = Jason.encode(@editor_json)
-      # assert {:ok, converted} = Parser.to_html(editor_string)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      real =
-        Frags.List.get_item(:checklist, %{
-          "checked" => true,
-          "hideLabel" => false,
-          "indent" => 0,
-          "label" => "label",
-          "labelType" => "default",
-          "text" => "list item"
-        })
-
-      viewer_class = @root_class["viewer"]
-      bb = ~s(<div class="#{viewer_class}">#{real}</div>)
-      assert converted == bb |> String.replace(" viewbox=\"", " viewBox=\"")
+      checked_class = @class["checklist_checkbox_checked"]
+      assert converted |> String.split(checked_class) |> length() == 2
     end
 
     @editor_json %{

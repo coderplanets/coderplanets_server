@@ -12,17 +12,16 @@ defmodule Helper.Converter.EditorToHTML do
   see https://editorjs.io/
   """
 
-  use Helper.Converter.EditorToHTML.{Header, Paragraph, List}
   alias Helper.Types, as: T
-
   alias Helper.Utils
+
   alias Helper.Converter.{EditorToHTML, HtmlSanitizer}
-  alias EditorToHTML.{Class, Validator}
+  alias EditorToHTML.{Class, Frags, Validator}
 
   # alias EditorToHTML.Assets.{DelimiterIcons}
   @root_class Class.article()
 
-  @spec to_html(String.t()) :: T.ok_html()
+  @spec to_html(String.t()) :: {:ok, T.html()}
   def to_html(string) when is_binary(string) do
     with {:ok, parsed} = string_to_json(string),
          {:ok, _} <- Validator.is_valid(parsed) do
@@ -47,6 +46,18 @@ defmodule Helper.Converter.EditorToHTML do
 
     viewer_class = @root_class["viewer"]
     {:ok, ~s(<div class="#{viewer_class}">#{content}</div>)}
+  end
+
+  defp parse_block(%{"type" => "paragraph", "data" => %{"text" => text}}), do: "<p>#{text}</p>"
+
+  defp parse_block(%{"type" => "header", "data" => data}), do: Frags.Header.get(data)
+
+  defp parse_block(%{"type" => "list", "data" => data}) do
+    %{"items" => items, "mode" => mode} = data
+
+    Enum.reduce(items, "", fn item, acc ->
+      acc <> Frags.List.get_item(mode |> String.to_atom(), item)
+    end)
   end
 
   # defp parse_block(%{"type" => "image", "data" => data}) do
