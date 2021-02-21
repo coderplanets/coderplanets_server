@@ -32,10 +32,14 @@ defmodule Helper.Converter.EditorToHTML.Class do
         "label__warn" => "list-label__warn",
         "checklist_item" => "list-checklist__item",
         "checklist_checkbox" => "checklist__item-checkbox",
-        "checklist_checkbox_checked" => "checklist__item-check-sign-active",
+        "checklist_checkbox_checked" => "checklist__item-check-sign-checked",
         "checklist_checksign" => "checklist__item-check-sign",
         "text" => "list-item-text",
-        "checklist_text" => "list-checklist__item-text"
+        "checklist_text" => "list-checklist__item-text",
+        "indent_0" => "",
+        "indent_1" => "list-indent-1",
+        "indent_2" => "list-indent-2",
+        "indent_3" => "list-indent-3"
       }
     }
   end

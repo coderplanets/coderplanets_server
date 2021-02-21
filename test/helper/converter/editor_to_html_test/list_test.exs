@@ -27,6 +27,22 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
         "label" => "label",
         "labelType" => "default",
         "text" => "list item"
+      },
+      %{
+        "checked" => false,
+        "hideLabel" => false,
+        "indent" => 1,
+        "label" => "green",
+        "labelType" => "green",
+        "text" => "list item"
+      },
+      %{
+        "checked" => false,
+        "hideLabel" => false,
+        "indent" => 1,
+        "label" => "red",
+        "labelType" => "red",
+        "text" => "list item"
       }
     ]
     @editor_json %{

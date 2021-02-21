@@ -7,7 +7,7 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
   # list
   @valid_list_mode ["checklist", "order_list", "unorder_list"]
   @valid_list_label_type ["green", "red", "warn", "default"]
-  @valid_list_indent [0, 1, 2, 3, 4]
+  @valid_list_indent [0, 1, 2, 3]
 
   def get("editor") do
     %{

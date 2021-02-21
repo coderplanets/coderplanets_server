@@ -23,8 +23,9 @@ defmodule Helper.Converter.EditorToHTML.Frags.List do
     text_frag = frag(:checkbox, :text, text)
 
     item_class = @class["checklist_item"]
+    indent_class = @class["indent_#{indent}"]
 
-    ~s(<div class="#{item_class}">
+    ~s(<div class="#{item_class} #{indent_class}">
         #{checkbox_frag}
         #{label_frag}
         #{text_frag}
