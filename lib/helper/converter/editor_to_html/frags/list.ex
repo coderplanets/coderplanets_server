@@ -9,7 +9,7 @@ defmodule Helper.Converter.EditorToHTML.Frags.List do
 
   @class get_in(Class.article(), ["list"])
 
-  @spec get_item(:checklist | :unorder_list | :order_list, map) :: T.html()
+  @spec get_item(:checklist | :unorder_list | :order_list, T.editor_list_item()) :: T.html()
   def get_item(:unorder_list, %{
         "hideLabel" => hide_label,
         "indent" => indent,
@@ -76,6 +76,16 @@ defmodule Helper.Converter.EditorToHTML.Frags.List do
       </div>)
   end
 
+  @spec frag(:label, T.editor_list_label_type(), T.editor_list_indent(), String.t()) :: T.html()
+  def frag(:label, label_type, indent, label) do
+    label_class = @class["label"]
+    label_type_class = @class["label__#{label_type}"]
+
+    ~s(<div class="#{label_class} #{label_type_class}" data-index="#{indent}">
+        #{label}
+      </div>)
+  end
+
   @spec frag(:unorder_list_prefix) :: T.html()
   def frag(:unorder_list_prefix) do
     unorder_list_prefix_class = @class["unorder_list_prefix"]
@@ -88,15 +98,6 @@ defmodule Helper.Converter.EditorToHTML.Frags.List do
     order_list_prefix_class = @class["order_list_prefix"]
 
     ~s(<div class="#{order_list_prefix_class}">#{prefix_index}</div>)
-  end
-
-  def frag(:label, label_type, indent, label) do
-    label_class = @class["label"]
-    label_type_class = @class["label__#{label_type}"]
-
-    ~s(<div class="#{label_class} #{label_type_class}" data-index="#{indent}">
-        #{label}
-      </div>)
   end
 
   @spec frag(:checkbox, Boolean.t()) :: T.html()
@@ -123,6 +124,7 @@ defmodule Helper.Converter.EditorToHTML.Frags.List do
       </div>)
   end
 
+  @spec frag(:checkbox, :text, String.t()) :: T.html()
   def frag(:checkbox, :text, text) do
     text_class = @class["checklist_text"]
 

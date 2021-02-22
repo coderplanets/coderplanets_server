@@ -39,6 +39,27 @@ defmodule Helper.Types do
         }
 
   @typedoc """
+  valid editor.js's list item indent
+  """
+  @type editor_list_indent :: 0 | 1 | 2 | 3
+
+  @typedoc """
+  valid editor.js's list item label type
+  """
+  @type editor_list_label_type :: :default | :red | :green | :warn
+
+  @typedoc """
+  editor.js's list item for order_list | unorder_list | checklist
+  """
+  @type editor_list_item :: %{
+          required(:hideLabel) => String.t(),
+          required(:indent) => editor_list_indent,
+          required(:label) => String.t(),
+          required(:labelType) => editor_list_label_type,
+          required(:text) => String.t(),
+          prefixIndex: String.t()
+        }
+  @typedoc """
   html fragment
   """
   @type html :: String.t()

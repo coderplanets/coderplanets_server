@@ -27,7 +27,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       }
     end
 
-    @tag :wip2
     test "basic list parse should work" do
       editor_json =
         set_items("unorder_list", [
@@ -147,8 +146,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
 
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
-
-      IO.inspect(converted, label: "the converted")
 
       checked_class = @class["checklist_checkbox_checked"]
       assert Utils.str_occurence(converted, checked_class) == 1
