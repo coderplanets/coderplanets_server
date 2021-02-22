@@ -12,19 +12,16 @@ defmodule Helper.Converter.EditorToHTML do
   see https://editorjs.io/
   """
 
-  use Helper.Converter.EditorToHTML.Header
-  use Helper.Converter.EditorToHTML.Paragraph
-  use Helper.Converter.EditorToHTML.List
+  alias Helper.Types, as: T
+  alias Helper.Utils
 
-  alias Helper.Converter.EditorToHTML.Validator
   alias Helper.Converter.{EditorToHTML, HtmlSanitizer}
-  alias Helper.{Metric, Utils}
+  alias EditorToHTML.{Class, Frags, Validator}
 
-  alias EditorToHTML.Assets.{DelimiterIcons}
+  # alias EditorToHTML.Assets.{DelimiterIcons}
+  @root_class Class.article()
 
-  @clazz Metric.Article.class_names(:html)
-
-  @spec to_html(binary | maybe_improper_list) :: false | {:ok, <<_::64, _::_*8>>}
+  @spec to_html(String.t()) :: {:ok, T.html()}
   def to_html(string) when is_binary(string) do
     with {:ok, parsed} = string_to_json(string),
          {:ok, _} <- Validator.is_valid(parsed) do
@@ -34,7 +31,8 @@ defmodule Helper.Converter.EditorToHTML do
           acc <> clean_html
         end)
 
-      {:ok, "<div class=\"#{@clazz.viewer}\">#{content}<div>"}
+      viewer_class = @root_class["viewer"]
+      {:ok, ~s(<div class="#{viewer_class}">#{content}</div>)}
     end
   end
 
@@ -46,77 +44,56 @@ defmodule Helper.Converter.EditorToHTML do
         acc <> clean_html
       end)
 
-    {:ok, "<div class=\"#{@clazz.viewer}\">#{content}<div>"}
+    viewer_class = @root_class["viewer"]
+    {:ok, ~s(<div class="#{viewer_class}">#{content}</div>)}
   end
 
-  defp parse_block(%{"type" => "image", "data" => data}) do
-    url = get_in(data, ["file", "url"])
+  defp parse_block(%{"type" => "paragraph", "data" => %{"text" => text}}), do: "<p>#{text}</p>"
 
-    "<div class=\"#{@clazz.viewer}-image\"><img src=\"#{url}\"></div>"
-    # |> IO.inspect(label: "iamge ret")
-  end
+  defp parse_block(%{"type" => "header", "data" => data}), do: Frags.Header.get(data)
 
-  defp parse_block(%{"type" => "list", "data" => %{"style" => "unordered", "items" => items}}) do
-    content =
+  defp parse_block(%{"type" => "list", "data" => data}) do
+    %{"items" => items, "mode" => mode} = data
+
+    list_wrapper_class = get_in(@root_class, ["list", "wrapper"])
+
+    items_content =
       Enum.reduce(items, "", fn item, acc ->
-        acc <> "<li>#{item}</li>"
+        acc <> Frags.List.get_item(mode |> String.to_atom(), item)
       end)
 
-    "<ul>#{content}</ul>"
+    ~s(<div class="#{list_wrapper_class}">#{items_content}</div>)
   end
 
-  defp parse_block(%{"type" => "list", "data" => %{"style" => "ordered", "items" => items}}) do
-    content =
-      Enum.reduce(items, "", fn item, acc ->
-        acc <> "<li>#{item}</li>"
-      end)
+  # defp parse_block(%{"type" => "image", "data" => data}) do
+  #   url = get_in(data, ["file", "url"])
 
-    "<ol>#{content}</ol>"
-  end
+  #   "<div class=\"#{@.viewer}-image\"><img src=\"#{url}\"></div>"
+  # end
 
-  # TODO:  add item class
-  defp parse_block(%{"type" => "checklist", "data" => %{"items" => items}}) do
-    content =
-      Enum.reduce(items, "", fn item, acc ->
-        text = Map.get(item, "text")
-        checked = Map.get(item, "checked")
+  # defp parse_block(%{"type" => "delimiter", "data" => %{"type" => type}}) do
+  #   svg_icon = DelimiterIcons.svg(type)
 
-        case checked do
-          true ->
-            acc <> "<div><input type=\"checkbox\" checked />#{text}</div>"
-
-          false ->
-            acc <> "<div><input type=\"checkbox\" />#{text}</div>"
-        end
-      end)
-
-    "<div class=\"#{@clazz.viewer}-checklist\">#{content}</div>"
-    # |> IO.inspect(label: "jjj")
-  end
-
-  defp parse_block(%{"type" => "delimiter", "data" => %{"type" => type}}) do
-    svg_icon = DelimiterIcons.svg(type)
-
-    # TODO:  left-wing, righ-wing staff
-    {:skip_sanitize, "<div class=\"#{@clazz.viewer}-delimiter\">#{svg_icon}</div>"}
-  end
+  #   # TODO:  left-wing, righ-wing staff
+  #   {:skip_sanitize, "<div class=\"#{@.viewer}-delimiter\">#{svg_icon}</div>"}
+  # end
 
   # IO.inspect(data, label: "parse linkTool")
   # TODO: parse the link-card info
-  defp parse_block(%{"type" => "linkTool", "data" => data}) do
-    link = get_in(data, ["link"])
+  # defp parse_block(%{"type" => "linkTool", "data" => data}) do
+  #   link = get_in(data, ["link"])
 
-    "<div class=\"#{@clazz.viewer}-linker\"><a href=\"#{link}\" target=\"_blank\">#{link}</a></div>"
-    # |> IO.inspect(label: "linkTool ret")
-  end
+  #   "<div class=\"#{@.viewer}-linker\"><a href=\"#{link}\" target=\"_blank\">#{link}</a></div>"
+  #   # |> IO.inspect(label: "linkTool ret")
+  # end
 
   # IO.inspect(data, label: "parse quote")
-  defp parse_block(%{"type" => "quote", "data" => data}) do
-    text = get_in(data, ["text"])
+  # defp parse_block(%{"type" => "quote", "data" => data}) do
+  #   text = get_in(data, ["text"])
 
-    "<div class=\"#{@clazz.viewer}-quote\">#{text}</div>"
-    # |> IO.inspect(label: "quote ret")
-  end
+  #   "<div class=\"#{@.viewer}-quote\">#{text}</div>"
+  #   # |> IO.inspect(label: "quote ret")
+  # end
 
   defp parse_block(%{"type" => "code", "data" => data}) do
     text = get_in(data, ["text"])
@@ -128,7 +105,8 @@ defmodule Helper.Converter.EditorToHTML do
   end
 
   defp parse_block(_block) do
-    "<div class=\"#{@clazz.unknow_block}\">[unknow block]</div>"
+    undown_block_class = @root_class["unknow_block"]
+    ~s("<div class="#{undown_block_class}">[unknow block]</div>")
   end
 
   def string_to_json(string), do: Jason.decode(string)

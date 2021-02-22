@@ -3,16 +3,13 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
 
   use GroupherServerWeb.ConnCase, async: true
 
-  alias Helper.Metric
+  alias Helper.Converter.EditorToHTML.Class
   alias Helper.Converter.EditorToHTML, as: Parser
-
-  # alias Helper.Metric
-  # @clazz Metric.Article.class_names(:html)
 
   #   "<addr class="cdx-lock">hello</addr> Editor.js <mark class="cdx-marker">workspace</mark>. is an element &lt;script&gt;alert("hello")&lt;/script&gt;"
 
   #   "text" : "<script>evil scripts</script>"
-  @clazz Metric.Article.class_names(:html)
+  @root_class Class.article()
 
   @real_editor_data ~S({
     "time" : 1567250876713,
@@ -135,8 +132,10 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
+      viewer_class = @root_class["viewer"]
+
       assert converted ==
-               "<div class=\"#{@clazz.viewer}\"><p>evel script</p><div>"
+               ~s(<div class="#{viewer_class}"><p>evel script</p></div>)
 
       editor_json = %{
         "time" => 1_567_250_876_713,
@@ -154,8 +153,10 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
+      viewer_class = @root_class["viewer"]
+
       assert converted ==
-               "<div class=\"#{@clazz.viewer}\"><p>Editor.js is an element &lt;script&gt;evel script&lt;/script&gt;</p><div>"
+               ~s(<div class="#{viewer_class}"><p>Editor.js is an element &lt;script&gt;evel script&lt;/script&gt;</p></div>)
     end
   end
 end

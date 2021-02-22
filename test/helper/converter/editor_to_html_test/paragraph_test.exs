@@ -3,10 +3,10 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Paragraph do
 
   use GroupherServerWeb.ConnCase, async: true
 
-  alias Helper.Metric
+  alias Helper.Converter.EditorToHTML.Class
   alias Helper.Converter.EditorToHTML, as: Parser
 
-  @clazz Metric.Article.class_names(:html)
+  @root_class Class.article()
 
   describe "[paragraph block]" do
     @editor_json %{
@@ -26,7 +26,8 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Paragraph do
       {:ok, editor_string} = Jason.encode(@editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      assert converted == "<div class=\"#{@clazz.viewer}\"><p>paragraph content</p><div>"
+      viewer_class = @root_class["viewer"]
+      assert converted == ~s(<div class="#{viewer_class}"><p>paragraph content</p></div>)
     end
 
     @editor_json %{
