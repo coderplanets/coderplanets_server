@@ -27,6 +27,33 @@ body {
   padding: 1.2em 0;
 }
 
+.article-viewer-wrapper .list-wrapper .list-item {
+  display: flex;
+  align-items: baseline;
+  box-sizing: content-box;
+  position: relative;
+  width: 100%;
+}
+
+.article-viewer-wrapper .list-wrapper .list-item .list__item-unorder-prefix {
+  position: relative;
+  margin-right: 26px;
+}
+
+.article-viewer-wrapper
+  .list-wrapper
+  .list-item
+  .list__item-unorder-prefix::before {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #09aac1;
+  border-radius: 50%;
+  top: -8px;
+  left: 0;
+}
+
 .article-viewer-wrapper .list-wrapper .list-checklist__item {
   display: flex;
   align-items: baseline;
@@ -131,6 +158,7 @@ body {
   color: #eea564;
 }
 
+.article-viewer-wrapper .list-wrapper .list-item-text,
 .article-viewer-wrapper .list-wrapper .list-checklist__item-text {
   outline: none;
   flex-grow: 1;

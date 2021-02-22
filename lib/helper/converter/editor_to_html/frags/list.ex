@@ -9,6 +9,27 @@ defmodule Helper.Converter.EditorToHTML.Frags.List do
 
   @class get_in(Class.article(), ["list"])
 
+  def get_item(:unorder_list, %{
+        "hideLabel" => hide_label,
+        "indent" => indent,
+        "label" => label,
+        "labelType" => label_type,
+        "text" => text
+      }) do
+    prefix_frag = frag(:unorder_list_prefix)
+    label_frag = if hide_label, do: "", else: frag(:label, label_type, indent, label)
+    text_frag = frag(:text, text)
+
+    item_class = @class["list_item"]
+    indent_class = @class["indent_#{indent}"]
+
+    ~s(<div class="#{item_class} #{indent_class}">
+        #{prefix_frag}
+        #{label_frag}
+        #{text_frag}
+      </div>)
+  end
+
   def get_item(:checklist, %{
         "checked" => checked,
         "hideLabel" => hide_label,
@@ -32,6 +53,12 @@ defmodule Helper.Converter.EditorToHTML.Frags.List do
       </div>)
   end
 
+  def frag(:unorder_list_prefix) do
+    unorder_list_prefix_class = @class["unorder_list_prefix"]
+
+    ~s(<div class="#{unorder_list_prefix_class}"></div>)
+  end
+
   def frag(:label, label_type, indent, label) do
     label_class = @class["label"]
     label_type_class = @class["label__#{label_type}"]
@@ -42,7 +69,7 @@ defmodule Helper.Converter.EditorToHTML.Frags.List do
   end
 
   @spec frag(:checkbox, Boolean.t()) :: T.html()
-  def frag(:checkbox, checked) do
+  def frag(:checkbox, checked) when is_boolean(checked) do
     checked_svg = svg(:checked)
 
     checkbox_class = @class["checklist_checkbox"]
@@ -56,7 +83,8 @@ defmodule Helper.Converter.EditorToHTML.Frags.List do
       </div>)
   end
 
-  def frag(:text, text) do
+  @spec frag(:text, String.t()) :: T.html()
+  def frag(:text, text) when is_binary(text) do
     text_class = @class["text"]
 
     ~s(<div class="#{text_class}">
