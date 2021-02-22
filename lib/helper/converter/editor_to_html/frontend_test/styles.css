@@ -35,9 +35,11 @@ body {
   width: 100%;
 }
 
-.article-viewer-wrapper .list-wrapper .list-item .list__item-unorder-prefix {
+.article-viewer-wrapper .list-wrapper .list-item .list__item-order-prefix,
+.list__item-unorder-prefix {
   position: relative;
   margin-right: 26px;
+  color: #09aac1;
 }
 
 .article-viewer-wrapper

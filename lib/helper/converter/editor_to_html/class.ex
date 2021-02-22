@@ -30,6 +30,7 @@ defmodule Helper.Converter.EditorToHTML.Class do
         "label__green" => "list-label__green",
         "label__warn" => "list-label__warn",
         "unorder_list_prefix" => "list__item-unorder-prefix",
+        "order_list_prefix" => "list__item-order-prefix",
         "list_item" => "list-item",
         "checklist_item" => "list-checklist__item",
         "checklist_checkbox" => "checklist__item-checkbox",

@@ -36,6 +36,7 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
         "hideLabel" => [:boolean],
         "label" => [:string],
         "labelType" => [enum: @valid_list_label_type],
+        "prefixIndex" => [:string, required: false],
         "indent" => [enum: @valid_list_indent],
         "text" => [:string]
       }

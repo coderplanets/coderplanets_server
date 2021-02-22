@@ -61,10 +61,49 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      IO.inspect(converted, label: ">> ")
+      unorder_list_prefix_class = @class["unorder_list_prefix"]
+      assert Utils.str_occurence(converted, unorder_list_prefix_class) == 3
+    end
 
-      # checked_class = @class["checklist_checkbox_checked"]
-      # assert Utils.str_occurence(converted, checked_class) == 1
+    @tag :wip2
+    test "basic order list parse should work" do
+      editor_json =
+        set_items("order_list", [
+          %{
+            "checked" => true,
+            "hideLabel" => false,
+            "indent" => 0,
+            "label" => "label",
+            "labelType" => "default",
+            "prefixIndex" => "1.",
+            "text" =>
+              "一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。"
+          },
+          %{
+            "checked" => false,
+            "hideLabel" => false,
+            "indent" => 0,
+            "label" => "label",
+            "labelType" => "default",
+            "prefixIndex" => "2.",
+            "text" => "list item"
+          },
+          %{
+            "checked" => false,
+            "hideLabel" => false,
+            "indent" => 1,
+            "label" => "green",
+            "labelType" => "green",
+            "prefixIndex" => "2.1",
+            "text" => "list item"
+          }
+        ])
+
+      {:ok, editor_string} = Jason.encode(editor_json)
+      {:ok, converted} = Parser.to_html(editor_string)
+
+      order_list_prefix_class = @class["order_list_prefix"]
+      assert Utils.str_occurence(converted, order_list_prefix_class) == 3
     end
 
     @tag :wip
