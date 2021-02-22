@@ -18,6 +18,7 @@ defmodule Helper.Converter.EditorToHTML.Class do
       # header
       "header" => %{
         "wrapper" => "header-wrapper",
+        "header" => "header",
         "eyebrow_title" => "eyebrow-title",
         "footer_title" => "footer-title"
       },
