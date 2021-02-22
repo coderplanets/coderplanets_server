@@ -23,6 +23,40 @@ body {
   max-height: 100%;
 }
 
+/* header block */
+
+.article-viewer-wrapper .header-wrapper {
+}
+
+.article-viewer-wrapper .header {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.article-viewer-wrapper .header-wrapper h1 {
+  position: relative;
+  font-size: 28px;
+}
+
+.article-viewer-wrapper .eyebrow-title {
+  font-size: 16px;
+  margin-bottom: 5px;
+  margin-top: 20px;
+  line-height: 24px;
+  width: 100%;
+  color: grey;
+}
+
+.article-viewer-wrapper .footer-title {
+  font-size: 16px;
+  margin-top: 5px;
+  margin-bottom: 18px;
+  line-height: 24px;
+  width: 100%;
+  color: grey;
+}
+
+/* list block */
 .article-viewer-wrapper .list-wrapper {
   padding: 1.2em 0;
 }
@@ -168,3 +202,5 @@ body {
   color: #526c73;
   word-break: break-all;
 }
+
+/* list block end */

@@ -15,12 +15,13 @@ defmodule Helper.Converter.EditorToHTML.Frags.Header do
     %{"text" => text, "level" => level} = data
 
     wrapper_class = @class["wrapper"]
+    header_class = @class["header"]
     eyebrow_class = @class["eyebrow_title"]
     footer_class = @class["footer_title"]
 
     ~s(<div class="#{wrapper_class}">
         <div class="#{eyebrow_class}">#{eyebrow_title}</div>
-        <h#{level}>#{text}</h#{level}>
+        <h#{level} class="#{header_class}">#{text}</h#{level}>
         <div class="#{footer_class}">#{footer_title}</div>
       </div>)
   end
@@ -29,11 +30,12 @@ defmodule Helper.Converter.EditorToHTML.Frags.Header do
     %{"text" => text, "level" => level} = data
 
     wrapper_class = @class["wrapper"]
+    header_class = @class["header"]
     eyebrow_class = @class["eyebrow_title"]
 
     ~s(<div class="#{wrapper_class}">
         <div class="#{eyebrow_class}">#{eyebrow_title}</div>
-        <h#{level}>#{text}</h#{level}>
+        <h#{level} class="#{header_class}">#{text}</h#{level}>
       </div>)
   end
 
@@ -41,10 +43,11 @@ defmodule Helper.Converter.EditorToHTML.Frags.Header do
     %{"text" => text, "level" => level} = data
 
     wrapper_class = @class["wrapper"]
+    header_class = @class["header"]
     footer_class = @class["footer_title"]
 
     ~s(<div class="#{wrapper_class}">
-        <h#{level}>#{text}</h#{level}>
+        <h#{level} class="#{header_class}">#{text}</h#{level}>
         <div class="#{footer_class}">#{footer_title}</div>
       </div>)
   end

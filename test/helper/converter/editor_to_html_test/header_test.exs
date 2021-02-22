@@ -5,8 +5,13 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
 
   alias Helper.Converter.EditorToHTML, as: Parser
   alias Helper.Converter.EditorToHTML.{Class, Frags}
+  alias Helper.Utils
 
   @root_class Class.article()
+  @class get_in(@root_class, ["header"])
+
+  @eyebrow_class @class["eyebrow_title"]
+  @footer_class @class["footer_title"]
 
   describe "[header block unit]" do
     @editor_json %{
@@ -36,7 +41,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       ],
       "version" => "2.15.0"
     }
-    @tag :wip2
+    @tag :wip
     test "header parse should work" do
       {:ok, editor_string} = Jason.encode(@editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
@@ -71,18 +76,12 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       {:ok, editor_string} = Jason.encode(@editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      frag =
-        Frags.Header.get(%{
-          "text" => "header content",
-          "level" => 1,
-          "eyebrowTitle" => "eyebrow title content",
-          "footerTitle" => "footer title content"
-        })
+      # header_class = @class["header"]
 
-      viewer_class = @root_class["viewer"]
-
-      assert converted ==
-               ~s(<div class="#{viewer_class}">#{frag}</div>)
+      # IO.inspect(converted, label: "header converted")
+      # assert Utils.str_occurence(converted, header_class) == 1
+      assert Utils.str_occurence(converted, @eyebrow_class) == 1
+      assert Utils.str_occurence(converted, @footer_class) == 1
     end
 
     @editor_json %{
@@ -108,17 +107,8 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       {:ok, editor_string} = Jason.encode(json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      frag =
-        Frags.Header.get(%{
-          "text" => "header content",
-          "level" => 1,
-          "eyebrowTitle" => "eyebrow title content"
-        })
-
-      viewer_class = @root_class["viewer"]
-
-      assert converted ==
-               ~s(<div class="#{viewer_class}">#{frag}</div>)
+      assert Utils.str_occurence(converted, @eyebrow_class) == 1
+      assert Utils.str_occurence(converted, @footer_class) == 0
 
       json =
         Map.merge(@editor_json, %{
@@ -137,17 +127,10 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       {:ok, editor_string} = Jason.encode(json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      frag =
-        Frags.Header.get(%{
-          "text" => "header content",
-          "level" => 1,
-          "footerTitle" => "footer title content"
-        })
+      IO.inspect(converted, label: "converted --")
 
-      viewer_class = @root_class["viewer"]
-
-      assert converted ==
-               ~s(<div class="#{viewer_class}">#{frag}</div>)
+      assert Utils.str_occurence(converted, @eyebrow_class) == 0
+      assert Utils.str_occurence(converted, @footer_class) == 1
     end
 
     @tag :wip
