@@ -110,7 +110,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Table do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:error, err_msg} = Parser.to_html(editor_string)
 
-      assert err_msg = [
+      assert err_msg == [
                %{
                  block: "table",
                  field: "columnCount",
