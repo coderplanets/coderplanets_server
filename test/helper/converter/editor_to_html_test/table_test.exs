@@ -12,7 +12,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Table do
 
   describe "[table block unit]" do
     defp set_items(column_count, items) do
-      editor_json = %{
+      %{
         "time" => 1_567_250_876_713,
         "blocks" => [
           %{
@@ -27,7 +27,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Table do
       }
     end
 
-    @tag :wip2
+    @tag :wip
     test "basic table parse should work" do
       editor_json =
         set_items(4, [
@@ -104,7 +104,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Table do
       assert Utils.str_occurence(converted, td_stripe_class) == 3
     end
 
-    @tag :wip2
+    @tag :wip
     test "invalid table field parse should raise error message" do
       editor_json = set_items("aa", "bb")
       {:ok, editor_string} = Jason.encode(editor_json)
