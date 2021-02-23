@@ -9,6 +9,9 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
   @valid_list_label_type ["green", "red", "warn", "default"]
   @valid_list_indent [0, 1, 2, 3]
 
+  # table
+  @valid_table_align ["left", "center", "right"]
+
   def get("editor") do
     %{
       "time" => [:number],
@@ -39,6 +42,19 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
         "prefixIndex" => [:string, required: false],
         "indent" => [enum: @valid_list_indent],
         "text" => [:string]
+      }
+    ]
+  end
+
+  def get("table") do
+    [
+      parent: %{"columnCount" => [:number], "items" => [:list]},
+      item: %{
+        "text" => [:string],
+        "align" => [enum: @valid_table_align],
+        "isStripe" => [:boolean],
+        "isHeader" => [:boolean, required: false],
+        "width" => [:string, required: false]
       }
     ]
   end

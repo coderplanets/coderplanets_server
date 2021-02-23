@@ -59,6 +59,22 @@ defmodule Helper.Types do
           required(:text) => String.t(),
           prefixIndex: String.t()
         }
+
+  @typedoc """
+  editor.js's Table align type
+  """
+  @type editor_table_align :: :center | :left | :right
+
+  @typedoc """
+  editor.js's Table td type
+  """
+  @type editor_table_cell :: %{
+          required(:text) => String.t(),
+          required(:align) => editor_table_align,
+          isStripe: Boolean.t(),
+          isHeader: Boolean.t()
+        }
+
   @typedoc """
   html fragment
   """
