@@ -47,6 +47,8 @@ defmodule Helper.Converter.EditorToHTML.Class do
       "table" => %{
         "wrapper" => "table-wrapper",
         "cell" => "table-cell",
+        "th_header" => "th_header",
+        "td_stripe" => "td_stripe",
         "align_center" => "align-center",
         "align_left" => "align-left",
         "align_right" => "align-right"

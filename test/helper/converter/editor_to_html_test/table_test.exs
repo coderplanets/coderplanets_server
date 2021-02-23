@@ -33,38 +33,63 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Table do
         set_items(4, [
           %{
             "align" => "left",
-            "isZebraStripe" => false,
+            "isHeader" => true,
+            "isStripe" => false,
+            "text" => "title 0"
+          },
+          %{
+            "align" => "center",
+            "isHeader" => true,
+            "isStripe" => false,
+            "text" => "title 1",
+            "width" => "180px"
+          },
+          %{
+            "align" => "right",
+            "isHeader" => true,
+            "isStripe" => false,
+            "text" => "title 2"
+          },
+          %{
+            "align" => "left",
+            "isHeader" => true,
+            "isStripe" => false,
+            "text" => "title 3"
+          },
+          %{
+            "align" => "left",
+            "isStripe" => false,
             "text" => "cell 0"
           },
           %{
             "align" => "center",
-            "isZebraStripe" => false,
+            "isStripe" => false,
             "text" => "cell 1",
             "width" => "180px"
           },
           %{
             "align" => "right",
-            "isZebraStripe" => false,
+            "isStripe" => false,
             "text" => "cell 2"
           },
           %{
             "align" => "left",
-            "isZebraStripe" => false,
+            "isStripe" => false,
             "text" => "cell 3"
           },
           %{
             "align" => "left",
-            "isZebraStripe" => false,
+            "isStripe" => true,
             "text" => "cell 4"
           },
           %{
             "align" => "left",
-            "isZebraStripe" => false,
+            "isStripe" => true,
             "text" => "cell 5"
           },
           %{
             "align" => "left",
-            "isZebraStripe" => false,
+            "isStripe" => true,
             "text" => ""
           }
         ])

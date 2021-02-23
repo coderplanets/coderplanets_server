@@ -42,7 +42,8 @@ defmodule Helper.Converter.HtmlSanitizer do
     Meta.allow_tag_with_these_attributes("table", [])
     Meta.allow_tag_with_these_attributes("tbody", [])
     Meta.allow_tag_with_these_attributes("tr", [])
-    Meta.allow_tag_with_these_attributes("td", ["style"])
+    Meta.allow_tag_with_these_attributes("th", ["class"])
+    Meta.allow_tag_with_these_attributes("td", ["class", "style"])
 
     Meta.allow_tag_with_these_attributes("svg", [
       "t",

@@ -250,6 +250,17 @@ td {
   vertical-align: inherit;
 }
 
+.th_header {
+  padding-top: 18px;
+  font-weight: bold;
+  border-bottom: 2px solid #dbdbe2 !important;
+  display: table-cell;
+  vertical-align: inherit;
+}
+.td_stripe {
+  background: #f7f7f7;
+}
+
 .article-viewer-wrapper table .table-cell {
   padding: 12px 10px;
   vertical-align: top;

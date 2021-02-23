@@ -12,7 +12,8 @@ defmodule Helper.Converter.EditorToHTML.Frags.Table do
   def get_row(group_items) do
     tr_content =
       Enum.reduce(group_items, "", fn item, acc ->
-        acc <> frag(:td, item)
+        cell_type = if Map.has_key?(item, "isHeader"), do: :th, else: :td
+        acc <> frag(cell_type, item)
       end)
 
     ~s(<tr>#{tr_content}</tr>)
@@ -21,23 +22,35 @@ defmodule Helper.Converter.EditorToHTML.Frags.Table do
   def frag(:td, item) do
     %{
       "align" => align,
-      # "isZebraStripe" => isZebraStripe,
+      "isStripe" => is_stripe,
       "text" => text
     } = item
 
-    IO.inspect(Map.has_key?(item, "width"), label: "the width")
-
     cell_class = @class["cell"]
     align_class = get_align_class(align)
+    scripe_class = if is_stripe, do: @class["td_stripe"], else: ""
 
     case Map.has_key?(item, "width") do
       true ->
         style = ~s(width: #{Map.get(item, "width")})
-        ~s(<td style="#{style}"><div class="#{cell_class} #{align_class}">#{text}</div></td>)
+
+        ~s(<td class="#{scripe_class}" style="#{style}"><div class="#{cell_class} #{align_class}">#{
+          text
+        }</div></td>)
 
       false ->
-        ~s(<td><div class="#{cell_class} #{align_class}">#{text}</div></td>)
+        ~s(<td class="#{scripe_class}"><div class="#{cell_class} #{align_class}">#{text}</div></td>)
     end
+  end
+
+  def frag(:th, item) do
+    %{"align" => align, "text" => text} = item
+
+    cell_class = @class["cell"]
+    align_class = get_align_class(align)
+    header_class = @class["th_header"]
+
+    ~s(<th class="#{header_class}"><div class="#{cell_class} #{align_class}">#{text}</div></th>)
   end
 
   defp get_align_class("center"), do: @class["align_center"]

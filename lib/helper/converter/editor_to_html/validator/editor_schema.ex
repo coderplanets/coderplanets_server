@@ -52,7 +52,8 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
       item: %{
         "text" => [:string],
         "align" => [enum: @valid_table_align],
-        "isZebraStripe" => [:boolean],
+        "isStripe" => [:boolean],
+        "isHeader" => [:boolean, required: false],
         "width" => [:string, required: false]
       }
     ]
