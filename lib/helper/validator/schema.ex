@@ -49,11 +49,12 @@ defmodule Helper.Validator.Schema do
     end)
   end
 
-  defp match(field, nil, enum: _, required: false), do: done(field, nil)
+  defp option_valid?({:min, v}) when is_integer(v), do: true
+  defp option_valid?({:required, v}) when is_boolean(v), do: true
+  defp option_valid?(_), do: false
 
-  defp match(field, value, enum: enum, required: _) do
-    match(field, value, enum: enum)
-  end
+  defp match(field, nil, enum: _, required: false), do: done(field, nil)
+  defp match(field, value, enum: enum, required: _), do: match(field, value, enum: enum)
 
   defp match(field, value, enum: enum) do
     case value in enum do
@@ -69,13 +70,8 @@ defmodule Helper.Validator.Schema do
     end
   end
 
-  defp match(field, value, [type | options]) do
-    match(field, value, type, options)
-  end
-
-  defp match(field, nil, _type, [{:required, false} | _options]) do
-    done(field, nil)
-  end
+  defp match(field, value, [type | options]), do: match(field, value, type, options)
+  defp match(field, nil, _type, [{:required, false} | _options]), do: done(field, nil)
 
   defp match(field, value, type, [{:required, _} | options]) do
     match(field, value, type, options)
@@ -145,8 +141,4 @@ defmodule Helper.Validator.Schema do
   defp error(field, value, schema) do
     {:error, %{field: field |> to_string, value: value, message: "should be: #{schema}"}}
   end
-
-  defp option_valid?({:min, v}) when is_integer(v), do: true
-  defp option_valid?({:required, v}) when is_boolean(v), do: true
-  defp option_valid?(_), do: false
 end
