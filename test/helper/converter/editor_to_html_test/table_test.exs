@@ -8,7 +8,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Table do
   alias Helper.Utils
 
   @root_class Class.article()
-  @class get_in(@root_class, ["list"])
+  @class get_in(@root_class, ["table"])
 
   describe "[table block unit]" do
     defp set_items(column_count, items) do
@@ -97,25 +97,28 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Table do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      IO.inspect(converted, label: "table >>")
+      th_header_class = @class["th_header"]
+      td_stripe_class = @class["td_stripe"]
 
-      # unorder_list_prefix_class = @class["unorder_list_prefix"]
-      # assert Utils.str_occurence(converted, unorder_list_prefix_class) == 3
+      assert Utils.str_occurence(converted, th_header_class) == 4
+      assert Utils.str_occurence(converted, td_stripe_class) == 3
     end
 
-    # @tag :wip
-    # test "invalid list mode parse should raise error message" do
-    #   editor_json = set_items("invalid-mode", [])
-    #   {:ok, editor_string} = Jason.encode(editor_json)
-    #   {:error, err_msg} = Parser.to_html(editor_string)
+    @tag :wip2
+    test "invalid table field parse should raise error message" do
+      editor_json = set_items("aa", "bb")
+      {:ok, editor_string} = Jason.encode(editor_json)
+      {:error, err_msg} = Parser.to_html(editor_string)
 
-    #   assert err_msg == [
-    #            %{
-    #              block: "list",
-    #              field: "mode",
-    #              message: "should be: checklist | order_list | unorder_list"
-    #            }
-    #          ]
-    # end
+      assert err_msg = [
+               %{
+                 block: "table",
+                 field: "columnCount",
+                 message: "should be: number",
+                 value: "aa"
+               },
+               %{block: "table", field: "items", message: "should be: list", value: "bb"}
+             ]
+    end
   end
 end

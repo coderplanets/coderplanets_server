@@ -5,10 +5,11 @@ defmodule Helper.Converter.EditorToHTML.Frags.Table do
   see https://editorjs.io/
   """
   alias Helper.Converter.EditorToHTML.Class
-  # alias Helper.Types, as: T
+  alias Helper.Types, as: T
 
   @class get_in(Class.article(), ["table"])
 
+  @spec get_row([T.editor_table_cell()]) :: T.html()
   def get_row(group_items) do
     tr_content =
       Enum.reduce(group_items, "", fn item, acc ->
@@ -19,6 +20,7 @@ defmodule Helper.Converter.EditorToHTML.Frags.Table do
     ~s(<tr>#{tr_content}</tr>)
   end
 
+  @spec frag(:td, T.editor_table_cell()) :: T.html()
   def frag(:td, item) do
     %{
       "align" => align,
@@ -43,6 +45,7 @@ defmodule Helper.Converter.EditorToHTML.Frags.Table do
     end
   end
 
+  @spec frag(:th, T.editor_table_cell()) :: T.html()
   def frag(:th, item) do
     %{"align" => align, "text" => text} = item
 
