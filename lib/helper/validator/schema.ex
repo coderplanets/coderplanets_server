@@ -107,36 +107,26 @@ defmodule Helper.Validator.Schema do
   # custom validate logic end
 
   # main type
-  defp match(field, value, :string, []) when is_binary(value) do
-    done(field, value)
-  end
-
-  defp match(field, value, :number, []) when is_integer(value) do
-    done(field, value)
-  end
-
-  defp match(field, value, :list, []) when is_list(value) do
-    done(field, value)
-  end
-
-  defp match(field, value, :boolean, []) when is_boolean(value) do
-    done(field, value)
-  end
-
+  defp match(field, value, :string, []) when is_binary(value), do: done(field, value)
+  defp match(field, value, :number, []) when is_integer(value), do: done(field, value)
+  defp match(field, value, :list, []) when is_list(value), do: done(field, value)
+  defp match(field, value, :boolean, []) when is_boolean(value), do: done(field, value)
   # main type end
 
-  defp match(field, value, _type, [option]) when is_tuple(option) and not is_nil(value) do
-    {k, v} = option
-    error(field, value, option: "#{to_string(k)}: #{to_string(v)}")
+  # judge option
+  defp match(field, value, type, [option]) when is_tuple(option) do
+    # 如果这里不判断的话会和下面的 match 冲突，是否有更好的写法？
+    case option_valid?(option) do
+      true ->
+        error(field, value, type)
+
+      false ->
+        {k, v} = option
+        error(field, value, option: "#{to_string(k)}: #{to_string(v)}")
+    end
   end
 
-  defp match(field, value, _type, [_option]) when not is_nil(value) do
-    error(field, value, :option)
-  end
-
-  defp match(field, value, type, _) do
-    error(field, value, type)
-  end
+  defp match(field, value, type, _), do: error(field, value, type)
 
   defp done(field, value), do: {:ok, %{field: field, value: value}}
 
@@ -155,4 +145,8 @@ defmodule Helper.Validator.Schema do
   defp error(field, value, schema) do
     {:error, %{field: field |> to_string, value: value, message: "should be: #{schema}"}}
   end
+
+  defp option_valid?({:min, v}) when is_integer(v), do: true
+  defp option_valid?({:required, v}) when is_boolean(v), do: true
+  defp option_valid?(_), do: false
 end

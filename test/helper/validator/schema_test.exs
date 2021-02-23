@@ -83,13 +83,32 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       {:error, error} = Schema.cast(schema, data)
       assert error == [%{field: "text", message: "should be: number", value: nil}]
 
+      # IO.inspect(Schema.cast(schema, data), label: "schema result")
+      # hello world
+    end
+
+    @tag :wip
+    test "number with wrong option" do
       schema = %{"text" => [:number, required: true, min: "5"]}
       data = %{"text" => 1}
+
       {:error, error} = Schema.cast(schema, data)
       assert error == [%{field: "text", message: "unknow option: min: 5", value: 1}]
 
-      # IO.inspect(Schema.cast(schema, data), label: "schema result")
-      # hello world
+      schema = %{"text" => [:number, required: true, no_exsit_option: "xxx"]}
+      data = %{"text" => 1}
+
+      {:error, error} = Schema.cast(schema, data)
+      assert error == [%{field: "text", message: "unknow option: no_exsit_option: xxx", value: 1}]
+    end
+
+    @tag :wip
+    test "number with options edage case" do
+      schema = %{"text" => [:number, min: 2]}
+      data = %{"text" => "aa"}
+
+      {:error, error} = Schema.cast(schema, data)
+      assert error == [%{field: "text", message: "should be: number", value: "aa"}]
     end
 
     @tag :wip

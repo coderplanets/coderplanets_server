@@ -48,7 +48,7 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
 
   def get("table") do
     [
-      parent: %{"columnCount" => [:number], "items" => [:list]},
+      parent: %{"columnCount" => [:number, min: 2], "items" => [:list]},
       item: %{
         "text" => [:string],
         "align" => [enum: @valid_table_align],

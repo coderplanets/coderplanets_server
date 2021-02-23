@@ -12,7 +12,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
 
   describe "[list block unit]" do
     defp set_items(mode, items) do
-      editor_json = %{
+      %{
         "time" => 1_567_250_876_713,
         "blocks" => [
           %{

@@ -127,8 +127,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       {:ok, editor_string} = Jason.encode(json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      IO.inspect(converted, label: "converted --")
-
       assert Utils.str_occurence(converted, @eyebrow_class) == 0
       assert Utils.str_occurence(converted, @footer_class) == 1
     end
