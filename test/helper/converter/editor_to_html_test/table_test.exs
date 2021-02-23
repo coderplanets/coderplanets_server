@@ -119,6 +119,15 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Table do
                },
                %{block: "table", field: "items", message: "should be: list", value: "bb"}
              ]
+
+      editor_json = set_items(-2, "bb")
+      {:ok, editor_string} = Jason.encode(editor_json)
+      {:error, err_msg} = Parser.to_html(editor_string)
+
+      assert err_msg == [
+               %{block: "table", field: "columnCount", message: "min size: 2", value: -2},
+               %{block: "table", field: "items", message: "should be: list", value: "bb"}
+             ]
     end
   end
 end

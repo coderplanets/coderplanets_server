@@ -1,10 +1,3 @@
-# defmodule Helper.Converter.EditorToHTML.Parser do
-#   @moduledoc false
-
-#   # TODO: map should be editor_block
-#   @callback parse_block(editor_json :: Map.t()) :: String.t()
-# end
-
 defmodule Helper.Converter.EditorToHTML do
   @moduledoc """
   parse editor.js's json data to raw html and sanitize it
