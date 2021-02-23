@@ -8,9 +8,10 @@ defmodule Helper.Converter.EditorToHTML.Validator do
 
   # blocks with no children items
   @simple_blocks ["header", "paragraph"]
-  # blocks with "mode" and "items" fields
-  @complex_blocks ["list"]
+  # blocks with "items" fields
+  @complex_blocks ["list", "table"]
 
+  @spec is_valid(map) :: {:error, map} | {:ok, :pass}
   def is_valid(data) when is_map(data) do
     with {:ok, _} <- validate_editor_fmt(data),
          blocks <- Map.get(data, "blocks") do
@@ -82,7 +83,10 @@ defmodule Helper.Converter.EditorToHTML.Validator do
 
   defp validate_with(block, parent_schema, item_schema, data) do
     with {:ok, _} <- validate_with(block, parent_schema, data),
-         %{"mode" => mode, "items" => items} <- data do
+         %{"items" => items} <- data do
+      # most block with items will have mode field, if not, just ignore
+      mode = Map.get(data, "mode", "")
+
       Enum.each(items, fn item ->
         validate_with("#{block}(#{mode})", item_schema, item)
       end)

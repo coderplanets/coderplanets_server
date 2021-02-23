@@ -38,6 +38,12 @@ defmodule Helper.Converter.HtmlSanitizer do
     Meta.allow_tag_with_these_attributes("ol", ["class"])
     Meta.allow_tag_with_these_attributes("li", ["class"])
 
+    # table
+    Meta.allow_tag_with_these_attributes("table", [])
+    Meta.allow_tag_with_these_attributes("tbody", [])
+    Meta.allow_tag_with_these_attributes("tr", [])
+    Meta.allow_tag_with_these_attributes("td", ["style"])
+
     Meta.allow_tag_with_these_attributes("svg", [
       "t",
       "p-id",

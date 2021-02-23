@@ -71,7 +71,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       ],
       "version" => "2.15.0"
     }
-    @tag :wip2
+    @tag :wip
     test "full header parse should work" do
       {:ok, editor_string} = Jason.encode(@editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
@@ -88,7 +88,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       "time" => 1_567_250_876_713,
       "version" => "2.15.0"
     }
-    @tag :wip2
+    @tag :wip
     test "optional field should valid properly" do
       json =
         Map.merge(@editor_json, %{

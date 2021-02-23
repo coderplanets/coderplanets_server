@@ -43,6 +43,13 @@ defmodule Helper.Converter.EditorToHTML.Class do
         "indent_1" => "list-indent-1",
         "indent_2" => "list-indent-2",
         "indent_3" => "list-indent-3"
+      },
+      "table" => %{
+        "wrapper" => "table-wrapper",
+        "cell" => "table-cell",
+        "align_center" => "align-center",
+        "align_left" => "align-left",
+        "align_right" => "align-right"
       }
     }
   end

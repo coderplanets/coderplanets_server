@@ -65,6 +65,27 @@ defmodule Helper.Converter.EditorToHTML do
     ~s(<div class="#{list_wrapper_class}">#{items_content}</div>)
   end
 
+  defp parse_block(%{"type" => "table", "data" => data}) do
+    %{"items" => items, "columnCount" => column_count} = data
+
+    groupped_items = Enum.split(items, column_count) |> Tuple.to_list()
+
+    rows_content =
+      Enum.reduce(groupped_items, "", fn group, acc ->
+        acc <> Frags.Table.get_row(group)
+      end)
+
+    table_wrapper_class = get_in(@root_class, ["table", "wrapper"])
+
+    ~s(<div class="#{table_wrapper_class}">
+         <table>
+           <tbody>
+             #{rows_content}
+           </tbody>
+         </table>
+       </div>)
+  end
+
   # defp parse_block(%{"type" => "image", "data" => data}) do
   #   url = get_in(data, ["file", "url"])
 

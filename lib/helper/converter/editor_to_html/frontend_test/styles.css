@@ -204,3 +204,65 @@ body {
 }
 
 /* list block end */
+
+/* table block */
+.article-viewer-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  border-spacing: 0;
+  box-sizing: border-box;
+
+  display: table;
+  text-indent: initial;
+  white-space: normal;
+  line-height: normal;
+  font-weight: normal;
+  font-size: medium;
+  font-style: normal;
+  color: -internal-quirk-inherit;
+  text-align: start;
+  border-color: grey;
+  font-variant: normal;
+}
+
+.article-viewer-wrapper tbody {
+  display: table-row-group;
+  vertical-align: middle;
+  border-color: inherit;
+}
+
+.article-viewer-wrapper tr {
+  display: table-row;
+  vertical-align: inherit;
+  border-color: inherit;
+}
+
+.article-viewer-wrapper table tbody tr th,
+table td {
+  position: relative;
+  border: 1px solid #dbdbe2;
+  font-size: 15px;
+}
+
+td {
+  display: table-cell;
+  vertical-align: inherit;
+}
+
+.article-viewer-wrapper table .table-cell {
+  padding: 12px 10px;
+  vertical-align: top;
+}
+
+.article-viewer-wrapper table .align-left {
+  text-align: left;
+}
+.article-viewer-wrapper table .align-center {
+  text-align: center;
+}
+.article-viewer-wrapper table .align-right {
+  text-align: right;
+}
+
+/* table block end */
