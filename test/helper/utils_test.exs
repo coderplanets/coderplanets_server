@@ -128,4 +128,42 @@ defmodule GroupherServer.Test.Helper.UtilsTest do
       assert 0 == Utils.str_occurence("hello world", "foo")
     end
   end
+
+  describe "[basic compare]" do
+    @tag :wip2
+    test "large_than work for both number and string" do
+      assert true == Utils.large_than(10, 9)
+      assert false == Utils.large_than(8, 9)
+
+      assert true == Utils.large_than("lang", 3)
+      assert false == Utils.large_than("ok", 3)
+    end
+
+    @tag :wip2
+    test "large_than equal case" do
+      assert true == Utils.large_than(9, 9)
+      assert false == Utils.large_than(9, 9, :no_equal)
+
+      assert true == Utils.large_than("lang", 4)
+      assert false == Utils.large_than("lang", 4, :no_equal)
+    end
+
+    @tag :wip2
+    test "less_than work for both number and string" do
+      assert false == Utils.less_than(10, 9)
+      assert true == Utils.less_than(8, 9)
+
+      assert false == Utils.less_than("lang", 3)
+      assert true == Utils.less_than("ok", 3)
+    end
+
+    @tag :wip2
+    test "less_than equal case" do
+      assert true == Utils.less_than(9, 9)
+      assert false == Utils.less_than(9, 9, :no_equal)
+
+      assert true == Utils.less_than("lang", 4)
+      assert false == Utils.less_than("lang", 4, :no_equal)
+    end
+  end
 end
