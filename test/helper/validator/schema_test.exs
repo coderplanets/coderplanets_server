@@ -85,7 +85,6 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       # hello world
     end
 
-    @tag :wip2
     test "number with wrong option" do
       schema = %{"text" => [:number, required: true, min: "5"]}
       data = %{"text" => 1}

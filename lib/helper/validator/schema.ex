@@ -23,6 +23,13 @@ defmodule Helper.Validator.Schema do
   data = %{checked: true, label: "done"}
   Schema.cast(schema, data)
   """
+
+  alias Helper.Utils
+  import Helper.Validator.Guards, only: [g_pos_int: 1, g_not_nil: 1]
+
+  @support_min [:string, :number]
+
+  @spec cast(map, map) :: {:ok, :pass} | {:error, map}
   def cast(schema, data) do
     errors_info = cast_errors(schema, data)
 
@@ -62,11 +69,8 @@ defmodule Helper.Validator.Schema do
         {:ok, value}
 
       false ->
-        {:error,
-         %{
-           field: field,
-           message: "should be: #{enum |> Enum.join(" | ")}"
-         }}
+        msg = %{field: field, message: "should be: #{enum |> Enum.join(" | ")}"}
+        {:error, msg}
     end
   end
 
@@ -78,22 +82,11 @@ defmodule Helper.Validator.Schema do
   end
 
   # custom validate logic
-  defp match(field, value, :string, [{:min, min} | options])
-       when is_binary(value) and is_integer(min) do
-    case String.length(value) >= min do
+  defp match(field, value, type, [{:min, min} | options])
+       when type in @support_min and g_not_nil(value) and g_pos_int(min) do
+    case Utils.large_than(value, min) do
       true ->
-        match(field, value, :string, options)
-
-      false ->
-        error(field, value, :min, min)
-    end
-  end
-
-  defp match(field, value, :number, [{:min, min} | options])
-       when is_integer(value) and is_integer(min) do
-    case value >= min do
-      true ->
-        match(field, value, :number, options)
+        match(field, value, type, options)
 
       false ->
         error(field, value, :min, min)
@@ -109,13 +102,14 @@ defmodule Helper.Validator.Schema do
   defp match(field, value, :boolean, []) when is_boolean(value), do: done(field, value)
   # main type end
 
-  # judge option
+  # error for option
   defp match(field, value, type, [option]) when is_tuple(option) do
     # 如果这里不判断的话会和下面的 match 冲突，是否有更好的写法？
     case option_valid?(option) do
       true ->
         error(field, value, type)
 
+      # unknow option or option not valid
       false ->
         {k, v} = option
         error(field, value, option: "#{to_string(k)}: #{to_string(v)}")

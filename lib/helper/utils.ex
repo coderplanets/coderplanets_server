@@ -246,4 +246,40 @@ defmodule Helper.Utils do
   end
 
   def str_occurence(_, _), do: "must be strings"
+
+  @spec large_than(String.t() | Integer.t(), Integer.t()) :: true | false
+  def large_than(value, target) when is_binary(value) and is_integer(target) do
+    String.length(value) >= target
+  end
+
+  def large_than(value, target) when is_integer(value) and is_integer(target) do
+    value >= target
+  end
+
+  @spec large_than(String.t() | Integer.t(), Integer.t(), :no_equal) :: true | false
+  def large_than(value, target, :no_equal) when is_binary(value) and is_integer(target) do
+    String.length(value) > target
+  end
+
+  def large_than(value, target, :no_equal) when is_integer(value) and is_integer(target) do
+    value > target
+  end
+
+  @spec less_than(String.t() | Integer.t(), Integer.t()) :: true | false
+  def less_than(value, target) when is_binary(value) and is_integer(target) do
+    String.length(value) <= target
+  end
+
+  def less_than(value, target) when is_integer(value) and is_integer(target) do
+    value <= target
+  end
+
+  @spec less_than(String.t() | Integer.t(), Integer.t(), :no_equal) :: true | false
+  def less_than(value, target, :no_equal) when is_binary(value) and is_integer(target) do
+    String.length(value) < target
+  end
+
+  def less_than(value, target, :no_equal) when is_integer(value) and is_integer(target) do
+    value < target
+  end
 end
