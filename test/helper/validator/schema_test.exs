@@ -6,7 +6,6 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
   alias Helper.Validator.Schema
 
   describe "[basic schema]" do
-    @tag :wip
     test "string with options" do
       schema = %{"text" => [:string, required: false]}
       data = %{"no_exsit" => "text"}
@@ -48,7 +47,6 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       # IO.inspect(Schema.cast(schema, data), label: "schema result")
     end
 
-    @tag :wip
     test "number with options" do
       schema = %{"text" => [:number, required: false]}
       data = %{"no_exsit" => 1}
@@ -87,7 +85,6 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       # hello world
     end
 
-    @tag :wip
     test "number with wrong option" do
       schema = %{"text" => [:number, required: true, min: "5"]}
       data = %{"text" => 1}
@@ -102,7 +99,6 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       assert error == [%{field: "text", message: "unknow option: no_exsit_option: xxx", value: 1}]
     end
 
-    @tag :wip
     test "number with options edage case" do
       schema = %{"text" => [:number, min: 2]}
       data = %{"text" => "aa"}
