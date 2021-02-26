@@ -277,3 +277,92 @@ td {
 }
 
 /* table block end */
+
+/* quote block */
+
+.article-viewer-wrapper .quote-short {
+  margin-left: 15px;
+  min-height: 0;
+  border: none;
+  border-radius: 0;
+  border-left: 4px solid;
+  border-left-color: #388ae5;
+  color: grey;
+  box-shadow: none;
+}
+
+.article-viewer-wrapper .quote__text {
+  line-height: 1.8em;
+  min-height: 30px;
+  border: none;
+  border-radius: 0;
+  color: grey;
+  box-shadow: none;
+  padding: 10px 12px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.article-viewer-wrapper .quote-long {
+  position: relative;
+  border: 2px solid;
+  border-left: 1px solid;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+  border-color: lightgrey;
+  margin: 15px;
+  margin-left: 22px;
+  margin-right: 42px;
+  min-height: 140px;
+  padding: 6px 30px;
+  padding-bottom: 60px;
+  border-top-right-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+.article-viewer-wrapper .quote-long::before {
+  position: absolute;
+  content: "\201C";
+  font-size: 50px;
+  color: #e8e7e7;
+  left: -16px;
+  top: 9px;
+  height: 35px;
+  background: white;
+}
+
+.article-viewer-wrapper .quote-long::after {
+  position: absolute;
+  content: "\201D";
+  font-size: 42px;
+  color: #e8e7e7;
+  right: -13px;
+  bottom: 9px;
+  height: 28px;
+  background: white;
+}
+
+.article-viewer-wrapper .quote-caption {
+  position: absolute;
+  bottom: 10px;
+  right: 42px;
+  display: flex;
+  align-items: center;
+}
+
+.article-viewer-wrapper .quote-caption__line {
+  width: 30px;
+  height: 1px;
+  margin-right: 10px;
+  background: #bbb;
+}
+
+.article-viewer-wrapper .quote-caption__text {
+  cursor: text;
+  outline: none;
+  color: grey;
+  font-size: 14px;
+}
+
+/* quote block end */

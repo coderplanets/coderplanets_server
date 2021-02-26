@@ -7,7 +7,7 @@ defmodule Helper.Converter.EditorToHTML.Validator do
   alias Converter.EditorToHTML.Validator.EditorSchema
 
   # blocks with no children items
-  @simple_blocks ["header", "paragraph"]
+  @normal_blocks ["header", "paragraph", "quote"]
   # blocks with "items" fields
   @complex_blocks ["list", "table"]
 
@@ -54,7 +54,7 @@ defmodule Helper.Converter.EditorToHTML.Validator do
   end
 
   # validate block which have no nested items
-  defp validate_block(%{"type" => type, "data" => data}) when type in @simple_blocks do
+  defp validate_block(%{"type" => type, "data" => data}) when type in @normal_blocks do
     validate_with(type, EditorSchema.get(type), data)
   end
 

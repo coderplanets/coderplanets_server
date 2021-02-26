@@ -45,6 +45,8 @@ defmodule Helper.Converter.EditorToHTML do
 
   defp parse_block(%{"type" => "header", "data" => data}), do: Frags.Header.get(data)
 
+  defp parse_block(%{"type" => "quote", "data" => data}), do: Frags.Quote.get(data)
+
   defp parse_block(%{"type" => "list", "data" => data}) do
     %{"items" => items, "mode" => mode} = data
 

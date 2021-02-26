@@ -4,6 +4,9 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
   # header
   @valid_header_level [1, 2, 3]
 
+  # quote
+  @valid_quote_mode ["short", "long"]
+
   # list
   @valid_list_mode ["checklist", "order_list", "unorder_list"]
   @valid_list_label_type ["green", "red", "warn", "default"]
@@ -12,6 +15,7 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
   # table
   @valid_table_align ["left", "center", "right"]
 
+  @spec get(String.t()) :: map
   def get("editor") do
     %{
       "time" => [:number],
@@ -31,6 +35,15 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
 
   def get("paragraph"), do: %{"text" => [:string]}
 
+  def get("quote") do
+    %{
+      "text" => [:string],
+      "mode" => [enum: @valid_quote_mode],
+      "caption" => [:string, required: false]
+    }
+  end
+
+  @spec get(String.t()) :: [parent: map, item: map]
   def get("list") do
     [
       parent: %{"mode" => [enum: @valid_list_mode], "items" => [:list]},
