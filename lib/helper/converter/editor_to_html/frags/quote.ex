@@ -43,6 +43,7 @@ defmodule Helper.Converter.EditorToHTML.Frags.Quote do
       </blockquote>)
   end
 
+  @spec frag(:caption, String.t()) :: T.html()
   def frag(:caption, caption) do
     caption_class = @class["caption"]
     caption_line_class = @class["caption_line"]

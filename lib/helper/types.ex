@@ -38,14 +38,14 @@ defmodule Helper.Types do
           footerTitle: String.t()
         }
 
-  @type editor_quote_mode :: :short | :long
+  @typep editor_quote_mode :: :short | :long
   @typedoc """
   editor.js's quote tool data format
   """
   @type editor_quote :: %{
           required(:text) => String.t(),
           required(:mode) => editor_quote_mode,
-          caption: String.t(),
+          caption: String.t()
         }
 
   @typedoc """
