@@ -22,6 +22,15 @@ defmodule Helper.Converter.EditorToHTML.Class do
         "eyebrow_title" => "eyebrow-title",
         "footer_title" => "footer-title"
       },
+      # quote block
+      "quote" => %{
+        "short_wrapper" => "quote-short",
+        "long_wrapper" => "quote-long",
+        "text" => "quote__text",
+        "caption" => "quote-caption",
+        "caption_line" => "quote-caption__line",
+        "caption_text" => "quote-caption__text"
+      },
       # list
       "list" => %{
         "wrapper" => "list-wrapper",

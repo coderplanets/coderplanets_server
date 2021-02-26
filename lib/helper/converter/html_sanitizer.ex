@@ -45,6 +45,9 @@ defmodule Helper.Converter.HtmlSanitizer do
     Meta.allow_tag_with_these_attributes("th", ["class"])
     Meta.allow_tag_with_these_attributes("td", ["class", "style"])
 
+    # blockquote
+    Meta.allow_tag_with_these_attributes("blockquote", ["class"])
+
     Meta.allow_tag_with_these_attributes("svg", [
       "t",
       "p-id",
