@@ -92,7 +92,7 @@ defmodule GroupherServer.Mixfile do
       {:excoveralls, "~> 0.8", only: :test},
       {:sentry, "~> 7.1"},
       {:recase, "~> 0.7.0"},
-      {:nanoid, "~> 2.0.0"},
+      {:nanoid, "~> 2.0.5"},
       # mailer
       {:bamboo, "1.3.0"},
       # mem cache
