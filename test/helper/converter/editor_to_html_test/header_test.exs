@@ -4,7 +4,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
   use GroupherServerWeb.ConnCase, async: true
 
   alias Helper.Converter.EditorToHTML, as: Parser
-  alias Helper.Converter.EditorToHTML.{Class, Frags}
+  alias Helper.Converter.EditorToHTML.Class
   alias Helper.Utils
 
   @root_class Class.article()
@@ -33,40 +33,35 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
         %{
           "type" => "header",
           "data" => %{
-            "text" => "header content",
+            "text" => "header1 content",
             "level" => 1
           }
         },
         %{
           "type" => "header",
           "data" => %{
-            "text" => "header content",
+            "text" => "header2 content",
             "level" => 2
           }
         },
         %{
           "type" => "header",
           "data" => %{
-            "text" => "header content",
+            "text" => "header3 content",
             "level" => 3
           }
         }
       ],
       "version" => "2.15.0"
     }
-    @tag :wip
+    @tag :wip2
     test "header parse should work" do
       {:ok, editor_string} = Jason.encode(@editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      h1_frag = Frags.Header.get(%{"text" => "header content", "level" => 1})
-      h2_frag = Frags.Header.get(%{"text" => "header content", "level" => 2})
-      h3_frag = Frags.Header.get(%{"text" => "header content", "level" => 3})
-
-      viewer_class = @root_class["viewer"]
-
-      assert converted ==
-               ~s(<div class="#{viewer_class}">#{h1_frag}#{h2_frag}#{h3_frag}</div>)
+      assert Utils.str_occurence(converted, "header1 content") == 1
+      assert Utils.str_occurence(converted, "header2 content") == 1
+      assert Utils.str_occurence(converted, "header3 content") == 1
     end
 
     @tag :wip
