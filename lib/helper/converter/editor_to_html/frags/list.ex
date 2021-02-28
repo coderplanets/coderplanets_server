@@ -6,7 +6,6 @@ defmodule Helper.Converter.EditorToHTML.Frags.List do
   """
   alias Helper.Converter.EditorToHTML.Class
   alias Helper.Types, as: T
-  alias Helper.Utils
 
   @class get_in(Class.article(), ["list"])
 

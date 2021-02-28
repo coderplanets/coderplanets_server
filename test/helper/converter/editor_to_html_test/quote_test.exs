@@ -41,11 +41,13 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Quote do
       }
     end
 
-    @tag :wip
+    @tag :wip2
     test "short quote parse should work" do
       editor_json = set_data("short", "short quote")
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
+
+      assert Utils.str_occurence(converted, "id=") == 1
 
       short_wrapper_class = @class["short_wrapper"]
       caption_class = @class["caption"]
