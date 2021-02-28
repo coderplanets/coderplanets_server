@@ -6,10 +6,13 @@ defmodule Helper.Converter.EditorToHTML.Validator do
   alias Validator.Schema
   alias Converter.EditorToHTML.Validator.EditorSchema
 
-  # blocks with no children items
   @normal_blocks ["header", "paragraph", "quote"]
-  # blocks with "items" fields
-  @complex_blocks ["list", "table"]
+
+  # blocks with "items" fields (has many children item)
+  @children_blocks ["list", "table"]
+
+  # all the supported blocks
+  @supported_blocks @normal_blocks ++ @children_blocks
 
   @spec is_valid(map) :: {:error, map} | {:ok, :pass}
   def is_valid(data) when is_map(data) do
@@ -60,14 +63,18 @@ defmodule Helper.Converter.EditorToHTML.Validator do
 
   # validate block which has mode and items
   defp validate_block(%{"type" => type, "data" => data})
-       when type in @complex_blocks do
+       when type in @children_blocks do
     [parent: parent_schema, item: item_schema] = EditorSchema.get(type)
     validate_with(type, parent_schema, item_schema, data)
   end
 
-  defp validate_block(%{"type" => type}), do: raise("undown #{type} block")
+  defp validate_block(%{"type" => type}) do
+    raise("undown #{type} block, supported blocks: #{@supported_blocks |> Enum.join(" | ")}")
+  end
 
-  defp validate_block(e), do: raise("undown block: #{e}")
+  defp validate_block(e) do
+    raise("undown block: #{e}, supported blocks: #{@supported_blocks |> Enum.join(" | ")}")
+  end
 
   # validate with given schema
   defp validate_with(block, schema, data) do

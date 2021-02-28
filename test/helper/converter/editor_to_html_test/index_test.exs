@@ -44,7 +44,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
       assert {:ok, _} = Parser.to_html(editor_string)
     end
 
-    @tag :wip
+    @tag :wip2
     test "invalid editorjs json fmt should raise error" do
       editor_json = %{
         "invalid_time" => 1_567_250_876_713,
@@ -100,7 +100,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:error, error} = Parser.to_html(editor_string)
 
-      assert error == "undown block: 1"
+      assert String.contains?(error, "undown block: 1")
     end
 
     test "real-world editor.js data should work" do
