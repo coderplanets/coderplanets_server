@@ -6,29 +6,34 @@ defmodule Helper.Converter.EditorToHTML.Frags.Quote do
   """
   import Helper.Validator.Guards, only: [g_none_empty_str: 1]
 
-  alias Helper.Types, as: T
   alias Helper.Converter.EditorToHTML.Class
+  alias Helper.Types, as: T
+  alias Helper.Utils
 
   @class get_in(Class.article(), ["quote"])
 
   @spec get(T.editor_quote()) :: T.html()
-  def get(%{"mode" => "short", "text" => text}) do
+  def get(%{"mode" => "short", "text" => text} = data) do
     wrapper_class = @class["short_wrapper"]
     text_class = @class["text"]
 
-    ~s(<blockquote class="#{wrapper_class}">
+    anchor_id = Utils.uid(:html, data)
+
+    ~s(<blockquote id="#{anchor_id}" class="#{wrapper_class}">
         <div class="#{text_class}">#{text}</div>
       </blockquote>)
   end
 
-  def get(%{"mode" => "long", "text" => text, "caption" => caption})
+  def get(%{"mode" => "long", "text" => text, "caption" => caption} = data)
       when g_none_empty_str(caption) do
     wrapper_class = @class["long_wrapper"]
     text_class = @class["text"]
 
     caption = frag(:caption, caption)
 
-    ~s(<blockquote class="#{wrapper_class}">
+    anchor_id = Utils.uid(:html, data)
+
+    ~s(<blockquote id="#{anchor_id}" class="#{wrapper_class}">
         <div class="#{text_class}">#{text}</div>
         #{caption}
       </blockquote>)

@@ -162,4 +162,20 @@ defmodule GroupherServer.Test.Helper.UtilsTest do
       assert false == Utils.less_than("lang", 4, :no_equal)
     end
   end
+
+  describe "[uid generator]" do
+    test "should gen uniq id with lengh of 5" do
+      uid_str = Utils.uid(:html, "what_ever")
+      assert String.length(uid_str) == 5
+    end
+
+    test "should never contains number" do
+      uid_str = Utils.uid(:html, %{"id" => ""})
+      assert String.match?(uid_str, ~r/[0-9]/) == false
+    end
+
+    test "exsit id will stay the same" do
+      assert "exsit_id" == Utils.uid(:html, %{"id" => "exsit_id"})
+    end
+  end
 end

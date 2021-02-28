@@ -41,11 +41,13 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Quote do
       }
     end
 
-    @tag :wip2
+    @tag :wip
     test "short quote parse should work" do
       editor_json = set_data("short", "short quote")
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
+
+      assert Utils.str_occurence(converted, "id=") == 1
 
       short_wrapper_class = @class["short_wrapper"]
       caption_class = @class["caption"]
@@ -55,7 +57,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Quote do
       assert Utils.str_occurence(converted, caption_class) == 0
     end
 
-    @tag :wip2
+    @tag :wip
     test "long quote parse should work" do
       editor_json = set_data("long", "long quote", "caption")
       {:ok, editor_string} = Jason.encode(editor_json)
@@ -69,7 +71,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Quote do
       assert Utils.str_occurence(converted, caption_text_class) == 1
     end
 
-    @tag :wip2
+    @tag :wip
     test "long quote without caption parse should work" do
       editor_json = set_data("long", "long quote")
       {:ok, editor_string} = Jason.encode(editor_json)
@@ -84,7 +86,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Quote do
       assert Utils.str_occurence(converted, caption_text_class) == 0
     end
 
-    @tag :wip2
+    @tag :wip
     test "long quote without empty caption parse should work" do
       editor_json = set_data("long", "long quote", "")
       {:ok, editor_string} = Jason.encode(editor_json)
@@ -99,19 +101,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Quote do
       assert Utils.str_occurence(converted, caption_text_class) == 0
     end
 
-    # @editor_json %{
-    #   "time" => 1_567_250_876_713,
-    #   "blocks" => [
-    #     %{
-    #       "type" => "paragraph",
-    #       "data" => %{
-    #         "text" => []
-    #       }
-    #     }
-    #   ],
-    #   "version" => "2.15.0"
-    # }
-    @tag :wip2
+    @tag :wip
     test "invalid quote should have invalid hint" do
       editor_json = set_data("none_exsit", "long quote", "")
       {:ok, editor_string} = Jason.encode(editor_json)

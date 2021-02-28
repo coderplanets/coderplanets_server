@@ -33,7 +33,7 @@ defmodule Helper.Converter.HtmlSanitizer do
     # Meta.allow_tag_with_these_attributes("h6", ["class"])
     Meta.allow_tag_with_these_attributes("p", ["class"])
     Meta.allow_tag_with_these_attributes("img", ["class", "src"])
-    Meta.allow_tag_with_these_attributes("div", ["class", "data-index"])
+    Meta.allow_tag_with_these_attributes("div", ["id", "class", "data-index"])
     Meta.allow_tag_with_these_attributes("ul", ["class"])
     Meta.allow_tag_with_these_attributes("ol", ["class"])
     Meta.allow_tag_with_these_attributes("li", ["class"])
@@ -46,7 +46,7 @@ defmodule Helper.Converter.HtmlSanitizer do
     Meta.allow_tag_with_these_attributes("td", ["class", "style"])
 
     # blockquote
-    Meta.allow_tag_with_these_attributes("blockquote", ["class"])
+    Meta.allow_tag_with_these_attributes("blockquote", ["id", "class"])
 
     Meta.allow_tag_with_these_attributes("svg", [
       "t",

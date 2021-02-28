@@ -6,6 +6,8 @@ defmodule Helper.Utils do
   import Helper.ErrorHandler
   import Helper.ErrorCode
 
+  import Helper.Validator.Guards, only: [g_none_empty_str: 1]
+
   alias Helper.Cache
 
   def get_config(section, key, app \\ :groupher_server)
@@ -281,5 +283,14 @@ defmodule Helper.Utils do
 
   def less_than(value, target, :no_equal) when is_integer(value) and is_integer(target) do
     value < target
+  end
+
+  @doc "html uniq id generator for editorjs"
+  @spec uid(:html, map) :: String.t()
+  def uid(:html, %{"id" => id}) when g_none_empty_str(id), do: id
+
+  def uid(:html, _) do
+    # number is invalid for html id(if first letter)
+    Nanoid.generate(5, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
   end
 end

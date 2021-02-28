@@ -5,6 +5,7 @@ defmodule Helper.Converter.EditorToHTML.Frags.Header do
   see https://editorjs.io/
   """
   alias Helper.Types, as: T
+  alias Helper.Utils
 
   alias Helper.Converter.EditorToHTML.Class
 
@@ -19,7 +20,9 @@ defmodule Helper.Converter.EditorToHTML.Frags.Header do
     eyebrow_class = @class["eyebrow_title"]
     footer_class = @class["footer_title"]
 
-    ~s(<div class="#{wrapper_class}">
+    anchor_id = Utils.uid(:html, data)
+
+    ~s(<div id="#{anchor_id}" class="#{wrapper_class}">
         <div class="#{eyebrow_class}">#{eyebrow_title}</div>
         <h#{level} class="#{header_class}">#{text}</h#{level}>
         <div class="#{footer_class}">#{footer_title}</div>
@@ -33,7 +36,9 @@ defmodule Helper.Converter.EditorToHTML.Frags.Header do
     header_class = @class["header"]
     eyebrow_class = @class["eyebrow_title"]
 
-    ~s(<div class="#{wrapper_class}">
+    anchor_id = Utils.uid(:html, data)
+
+    ~s(<div id="#{anchor_id}" class="#{wrapper_class}">
         <div class="#{eyebrow_class}">#{eyebrow_title}</div>
         <h#{level} class="#{header_class}">#{text}</h#{level}>
       </div>)
@@ -46,13 +51,16 @@ defmodule Helper.Converter.EditorToHTML.Frags.Header do
     header_class = @class["header"]
     footer_class = @class["footer_title"]
 
-    ~s(<div class="#{wrapper_class}">
+    anchor_id = Utils.uid(:html, data)
+    ~s(<div id="#{anchor_id}" class="#{wrapper_class}">
         <h#{level} class="#{header_class}">#{text}</h#{level}>
         <div class="#{footer_class}">#{footer_title}</div>
       </div>)
   end
 
-  def get(%{"text" => text, "level" => level}) do
-    "<h#{level}>#{text}</h#{level}>"
+  def get(%{"text" => text, "level" => level} = data) do
+    anchor_id = Utils.uid(:html, data)
+
+    ~s(<h#{level} id="#{anchor_id}">#{text}</h#{level}>)
   end
 end

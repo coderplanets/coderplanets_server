@@ -57,7 +57,8 @@ defmodule Helper.Converter.EditorToHTML do
         acc <> Frags.List.get_item(mode |> String.to_atom(), item)
       end)
 
-    ~s(<div class="#{list_wrapper_class}">#{items_content}</div>)
+    anchor_id = Utils.uid(:html, data)
+    ~s(<div id="#{anchor_id}" class="#{list_wrapper_class}">#{items_content}</div>)
   end
 
   defp parse_block(%{"type" => "table", "data" => data}) do
@@ -74,7 +75,9 @@ defmodule Helper.Converter.EditorToHTML do
 
     table_wrapper_class = get_in(@root_class, ["table", "wrapper"])
 
-    ~s(<div class="#{table_wrapper_class}">
+    anchor_id = Utils.uid(:html, data)
+
+    ~s(<div id="#{anchor_id}" class="#{table_wrapper_class}">
          <table>
            <tbody>
              #{rows_content}
