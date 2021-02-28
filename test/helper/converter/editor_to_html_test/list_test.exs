@@ -11,13 +11,14 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
   @class get_in(@root_class, ["list"])
 
   describe "[list block unit]" do
-    defp set_items(mode, items) do
+    defp set_items(mode, items, id \\ "") do
       %{
         "time" => 1_567_250_876_713,
         "blocks" => [
           %{
             "type" => "list",
             "data" => %{
+              "id" => id,
               "mode" => mode,
               "items" => items
             }
@@ -64,7 +65,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       assert Utils.str_occurence(converted, unorder_list_prefix_class) == 3
     end
 
-    @tag :wip
+    @tag :wip2
     test "basic order list parse should work" do
       editor_json =
         set_items("order_list", [
@@ -101,8 +102,36 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
+      assert Utils.str_occurence(converted, "id=") == 1
+
       order_list_prefix_class = @class["order_list_prefix"]
       assert Utils.str_occurence(converted, order_list_prefix_class) == 3
+    end
+
+    @tag :wip2
+    test "edit exsit block will not change id value" do
+      editor_json =
+        set_items(
+          "order_list",
+          [
+            %{
+              "checked" => true,
+              "hideLabel" => false,
+              "indent" => 0,
+              "label" => "label",
+              "labelType" => "default",
+              "prefixIndex" => "1.",
+              "text" =>
+                "一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。"
+            }
+          ],
+          "exsit"
+        )
+
+      {:ok, editor_string} = Jason.encode(editor_json)
+      {:ok, converted} = Parser.to_html(editor_string)
+
+      assert Utils.str_occurence(converted, "id=\"exsit\"") == 1
     end
 
     @tag :wip

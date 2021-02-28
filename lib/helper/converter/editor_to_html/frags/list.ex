@@ -6,17 +6,21 @@ defmodule Helper.Converter.EditorToHTML.Frags.List do
   """
   alias Helper.Converter.EditorToHTML.Class
   alias Helper.Types, as: T
+  alias Helper.Utils
 
   @class get_in(Class.article(), ["list"])
 
   @spec get_item(:checklist | :unorder_list | :order_list, T.editor_list_item()) :: T.html()
-  def get_item(:unorder_list, %{
-        "hideLabel" => hide_label,
-        "indent" => indent,
-        "label" => label,
-        "labelType" => label_type,
-        "text" => text
-      }) do
+  def get_item(
+        :unorder_list,
+        %{
+          "hideLabel" => hide_label,
+          "indent" => indent,
+          "label" => label,
+          "labelType" => label_type,
+          "text" => text
+        }
+      ) do
     prefix_frag = frag(:unorder_list_prefix)
     label_frag = if hide_label, do: "", else: frag(:label, label_type, indent, label)
     text_frag = frag(:text, text)
@@ -31,14 +35,17 @@ defmodule Helper.Converter.EditorToHTML.Frags.List do
       </div>)
   end
 
-  def get_item(:order_list, %{
-        "hideLabel" => hide_label,
-        "indent" => indent,
-        "label" => label,
-        "labelType" => label_type,
-        "prefixIndex" => prefix_index,
-        "text" => text
-      }) do
+  def get_item(
+        :order_list,
+        %{
+          "hideLabel" => hide_label,
+          "indent" => indent,
+          "label" => label,
+          "labelType" => label_type,
+          "prefixIndex" => prefix_index,
+          "text" => text
+        }
+      ) do
     prefix_frag = frag(:order_list_prefix, prefix_index)
     label_frag = if hide_label, do: "", else: frag(:label, label_type, indent, label)
     text_frag = frag(:text, text)
@@ -53,14 +60,17 @@ defmodule Helper.Converter.EditorToHTML.Frags.List do
       </div>)
   end
 
-  def get_item(:checklist, %{
-        "checked" => checked,
-        "hideLabel" => hide_label,
-        "indent" => indent,
-        "label" => label,
-        "labelType" => label_type,
-        "text" => text
-      }) do
+  def get_item(
+        :checklist,
+        %{
+          "checked" => checked,
+          "hideLabel" => hide_label,
+          "indent" => indent,
+          "label" => label,
+          "labelType" => label_type,
+          "text" => text
+        }
+      ) do
     # local fragments
     checkbox_frag = frag(:checkbox, checked)
     label_frag = if hide_label, do: "", else: frag(:label, label_type, indent, label)

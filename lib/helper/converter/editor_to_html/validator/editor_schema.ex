@@ -52,7 +52,11 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
 
   def get("list") do
     [
-      parent: %{"mode" => [enum: @valid_list_mode], "items" => [:list]},
+      parent: %{
+        "id" => [:string, required: false],
+        "mode" => [enum: @valid_list_mode],
+        "items" => [:list]
+      },
       item: %{
         "checked" => [:boolean],
         "hideLabel" => [:boolean],
@@ -67,7 +71,11 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
 
   def get("table") do
     [
-      parent: %{"columnCount" => [:number, min: 2], "items" => [:list]},
+      parent: %{
+        "id" => [:string, required: false],
+        "columnCount" => [:number, min: 2],
+        "items" => [:list]
+      },
       item: %{
         "text" => [:string],
         "align" => [enum: @valid_table_align],
