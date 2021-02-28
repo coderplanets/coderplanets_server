@@ -75,7 +75,9 @@ defmodule Helper.Converter.EditorToHTML do
 
     table_wrapper_class = get_in(@root_class, ["table", "wrapper"])
 
-    ~s(<div class="#{table_wrapper_class}">
+    anchor_id = Utils.uid(:html, data)
+
+    ~s(<div id="#{anchor_id}" class="#{table_wrapper_class}">
          <table>
            <tbody>
              #{rows_content}

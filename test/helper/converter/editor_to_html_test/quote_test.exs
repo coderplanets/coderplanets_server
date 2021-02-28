@@ -99,18 +99,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Quote do
       assert Utils.str_occurence(converted, caption_text_class) == 0
     end
 
-    # @editor_json %{
-    #   "time" => 1_567_250_876_713,
-    #   "blocks" => [
-    #     %{
-    #       "type" => "paragraph",
-    #       "data" => %{
-    #         "text" => []
-    #       }
-    #     }
-    #   ],
-    #   "version" => "2.15.0"
-    # }
     @tag :wip
     test "invalid quote should have invalid hint" do
       editor_json = set_data("none_exsit", "long quote", "")
