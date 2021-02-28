@@ -69,7 +69,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
                ~s(<div class="#{viewer_class}">#{h1_frag}#{h2_frag}#{h3_frag}</div>)
     end
 
-    @tag :wip2
+    @tag :wip
     test "full header parse should work" do
       editor_json =
         set_data(%{
@@ -89,7 +89,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       assert Utils.str_occurence(converted, @footer_class) == 1
     end
 
-    @tag :wip2
+    @tag :wip
     test "edit exsit block will not change id value" do
       editor_json =
         set_data(%{
@@ -106,7 +106,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       assert Utils.str_occurence(converted, ~s(id="exist")) == 1
     end
 
-    @tag :wip2
+    @tag :wip
     test "optional field should valid properly" do
       editor_json =
         set_data(%{
@@ -135,7 +135,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       assert Utils.str_occurence(converted, @footer_class) == 1
     end
 
-    @tag :wip2
+    @tag :wip
     test "wrong header format data should have invalid hint" do
       editor_json =
         set_data(%{

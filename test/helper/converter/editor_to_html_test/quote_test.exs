@@ -41,7 +41,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Quote do
       }
     end
 
-    @tag :wip2
+    @tag :wip
     test "short quote parse should work" do
       editor_json = set_data("short", "short quote")
       {:ok, editor_string} = Jason.encode(editor_json)

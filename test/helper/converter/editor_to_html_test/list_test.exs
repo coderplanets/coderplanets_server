@@ -65,7 +65,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       assert Utils.str_occurence(converted, unorder_list_prefix_class) == 3
     end
 
-    @tag :wip2
+    @tag :wip
     test "basic order list parse should work" do
       editor_json =
         set_items("order_list", [
@@ -108,7 +108,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       assert Utils.str_occurence(converted, order_list_prefix_class) == 3
     end
 
-    @tag :wip2
+    @tag :wip
     test "edit exsit block will not change id value" do
       editor_json =
         set_items(

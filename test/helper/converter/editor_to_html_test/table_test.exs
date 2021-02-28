@@ -28,7 +28,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Table do
       }
     end
 
-    @tag :wip2
+    @tag :wip
     test "basic table parse should work" do
       editor_json =
         set_items(4, [
@@ -107,7 +107,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Table do
       assert Utils.str_occurence(converted, td_stripe_class) == 3
     end
 
-    @tag :wip2
+    @tag :wip
     test "edit exsit block will not change id value" do
       editor_json =
         set_items(
