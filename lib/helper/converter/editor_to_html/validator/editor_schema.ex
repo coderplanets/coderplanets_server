@@ -15,6 +15,9 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
   # table
   @valid_table_align ["left", "center", "right"]
 
+  # image
+  @valid_image_mode ["single", "jiugongge", "gallery"]
+
   @spec get(String.t()) :: map | [parent: map, item: map]
   def get("editor") do
     %{
@@ -90,6 +93,7 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
     [
       parent: %{
         "id" => [:string, required: false],
+        "mode" => [enum: @valid_image_mode],
         "items" => [:list]
       },
       item: %{

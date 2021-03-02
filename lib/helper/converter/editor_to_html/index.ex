@@ -133,8 +133,6 @@ defmodule Helper.Converter.EditorToHTML do
 
     minimap_content = Frags.Image.get_minimap(items)
 
-    IO.inspect(minimap_content, label: "mini map")
-
     anchor_id = Utils.uid(:html, data)
 
     ~s(<div id="#{anchor_id}" class="#{image_wrapper_class}">
