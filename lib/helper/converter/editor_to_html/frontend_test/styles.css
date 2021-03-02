@@ -496,6 +496,7 @@ td {
   margin-right: 6px;
   object-fit: contain;
   background: #f7f7f7;
+  cursor: pointer;
 }
 
 /* image block end */
