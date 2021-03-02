@@ -86,35 +86,64 @@ defmodule Helper.Converter.EditorToHTML do
        </div>)
   end
 
-  # defp parse_block(%{"type" => "image", "data" => data}) do
-  #   url = get_in(data, ["file", "url"])
+  defp parse_block(%{"type" => "image", "data" => %{"mode" => "single"} = data}) do
+    %{"items" => items} = data
 
-  #   "<div class=\"#{@.viewer}-image\"><img src=\"#{url}\"></div>"
-  # end
+    image_wrapper_class = get_in(@root_class, ["image", "wrapper"])
 
-  # defp parse_block(%{"type" => "delimiter", "data" => %{"type" => type}}) do
-  #   svg_icon = DelimiterIcons.svg(type)
+    items_content = Frags.Image.get_item(:single, List.first(items))
+    caption_content = Frags.Image.get_caption(:html, List.first(items))
 
-  #   # TODO:  left-wing, righ-wing staff
-  #   {:skip_sanitize, "<div class=\"#{@.viewer}-delimiter\">#{svg_icon}</div>"}
-  # end
+    anchor_id = Utils.uid(:html, data)
 
-  # IO.inspect(data, label: "parse linkTool")
-  # TODO: parse the link-card info
-  # defp parse_block(%{"type" => "linkTool", "data" => data}) do
-  #   link = get_in(data, ["link"])
+    ~s(<div id="#{anchor_id}" class="#{image_wrapper_class}">#{items_content}#{caption_content}</div>)
+  end
 
-  #   "<div class=\"#{@.viewer}-linker\"><a href=\"#{link}\" target=\"_blank\">#{link}</a></div>"
-  #   # |> IO.inspect(label: "linkTool ret")
-  # end
+  defp parse_block(%{"type" => "image", "data" => %{"mode" => "jiugongge"} = data}) do
+    %{"items" => items} = data
 
-  # IO.inspect(data, label: "parse quote")
-  # defp parse_block(%{"type" => "quote", "data" => data}) do
-  #   text = get_in(data, ["text"])
+    image_wrapper_class = get_in(@root_class, ["image", "wrapper"])
+    content_wrapper_class = get_in(@root_class, ["image", "jiugongge_image_wrapper"])
 
-  #   "<div class=\"#{@.viewer}-quote\">#{text}</div>"
-  #   # |> IO.inspect(label: "quote ret")
-  # end
+    items_content =
+      Enum.reduce(items, "", fn item, acc ->
+        acc <> Frags.Image.get_item(:jiugongge, item)
+      end)
+
+    anchor_id = Utils.uid(:html, data)
+
+    ~s(<div id="#{anchor_id}" class="#{image_wrapper_class}">
+      <div class="#{content_wrapper_class}">
+      #{items_content}
+      </div>
+    </div>)
+  end
+
+  defp parse_block(%{"type" => "image", "data" => %{"mode" => "gallery"} = data}) do
+    %{"items" => items} = data
+
+    image_wrapper_class = get_in(@root_class, ["image", "wrapper"])
+    content_wrapper_class = get_in(@root_class, ["image", "gallery_image_wrapper"])
+    inner_wrapper_class = get_in(@root_class, ["image", "gallery_image_inner"])
+
+    items_content =
+      Enum.reduce(items, "", fn item, acc ->
+        acc <> Frags.Image.get_item(:gallery, item)
+      end)
+
+    minimap_content = Frags.Image.get_minimap(items)
+
+    anchor_id = Utils.uid(:html, data)
+
+    ~s(<div id="#{anchor_id}" class="#{image_wrapper_class}">
+        <div class="#{content_wrapper_class}">
+          <div class="#{inner_wrapper_class}">
+          #{items_content}
+          </div>
+        </div>
+        #{minimap_content}
+      </div>)
+  end
 
   defp parse_block(%{"type" => "code", "data" => data}) do
     text = get_in(data, ["text"])

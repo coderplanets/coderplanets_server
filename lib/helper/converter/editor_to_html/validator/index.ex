@@ -9,7 +9,7 @@ defmodule Helper.Converter.EditorToHTML.Validator do
   @normal_blocks ["header", "paragraph", "quote"]
 
   # blocks with "items" fields (has many children item)
-  @children_blocks ["list", "table"]
+  @children_blocks ["list", "table", "image"]
 
   # all the supported blocks
   @supported_blocks @normal_blocks ++ @children_blocks

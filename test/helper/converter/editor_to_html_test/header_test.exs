@@ -54,7 +54,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       ],
       "version" => "2.15.0"
     }
-    @tag :wip2
+    @tag :wip
     test "header parse should work" do
       {:ok, editor_string} = Jason.encode(@editor_json)
       {:ok, converted} = Parser.to_html(editor_string)

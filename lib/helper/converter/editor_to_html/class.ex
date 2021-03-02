@@ -61,6 +61,25 @@ defmodule Helper.Converter.EditorToHTML.Class do
         "align_center" => "align-center",
         "align_left" => "align-left",
         "align_right" => "align-right"
+      },
+      "image" => %{
+        "wrapper" => "image-wrapper",
+        "single_image_wrapper" => "single-image",
+        "single_image" => "image-picture",
+        "image_caption" => "image-caption",
+        # "single_caption"
+        # jiugongge
+        "jiugongge_image_wrapper" => "jiugongge-image",
+        "jiugongge_image_block" => "jiugongge-block",
+        "jiugongge_image" => "jiugongge-block-image",
+        # gallery
+        "gallery_image_wrapper" => "gallery-image",
+        "gallery_image_inner" => "gallery-image-inner",
+        "gallery_image_block" => "gallery-block",
+        "gallery_image" => "gallery-block-image",
+        # minimap
+        "gallery_minimap" => "gallery-minimap",
+        "gallery_minimap_image" => "gallery-minimap-block-image"
       }
     }
   end
