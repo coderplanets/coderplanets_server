@@ -64,10 +64,14 @@ defmodule Helper.Converter.EditorToHTML.Class do
       },
       "image" => %{
         "wrapper" => "image-wrapper",
-        "single_image_block" => "single-image",
+        "single_image_wrapper" => "single-image",
         "single_image" => "image-picture",
-        "image_caption" => "image-caption"
+        "image_caption" => "image-caption",
         # "single_caption"
+        # jiugongge
+        "jiugongge_image_wrapper" => "jiugongge-image",
+        "jiugongge_image_block" => "jiugongge-block",
+        "jiugongge_image" => "jiugongge-block-image"
       }
     }
   end

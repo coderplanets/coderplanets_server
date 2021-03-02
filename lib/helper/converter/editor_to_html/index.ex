@@ -86,22 +86,37 @@ defmodule Helper.Converter.EditorToHTML do
        </div>)
   end
 
-  defp parse_block(%{"type" => "image", "data" => data}) do
-    %{"items" => items, "mode" => mode} = data
-    # %{"mode" => mode} = data
+  defp parse_block(%{"type" => "image", "data" => %{"mode" => "single"} = data}) do
+    %{"items" => items} = data
 
     image_wrapper_class = get_in(@root_class, ["image", "wrapper"])
 
-    items_content =
-      Enum.reduce(items, "", fn item, acc ->
-        acc <> Frags.Image.get_item(mode |> String.to_atom(), item)
-      end)
-
-    caption_content = Frags.Image.get_caption(List.first(items))
+    items_content = Frags.Image.get_item(:single, List.first(items))
+    caption_content = Frags.Image.get_caption(:html, List.first(items))
 
     anchor_id = Utils.uid(:html, data)
 
     ~s(<div id="#{anchor_id}" class="#{image_wrapper_class}">#{items_content}#{caption_content}</div>)
+  end
+
+  defp parse_block(%{"type" => "image", "data" => %{"mode" => "jiugongge"} = data}) do
+    %{"items" => items} = data
+
+    image_wrapper_class = get_in(@root_class, ["image", "wrapper"])
+    content_wrapper_class = get_in(@root_class, ["image", "jiugongge_image_wrapper"])
+
+    items_content =
+      Enum.reduce(items, "", fn item, acc ->
+        acc <> Frags.Image.get_item(:jiugongge, item)
+      end)
+
+    anchor_id = Utils.uid(:html, data)
+
+    ~s(<div id="#{anchor_id}" class="#{image_wrapper_class}">
+      <div class="#{content_wrapper_class}">
+      #{items_content}
+      </div>
+    </div>)
   end
 
   defp parse_block(%{"type" => "code", "data" => data}) do

@@ -12,7 +12,14 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
 
   @images [
     "https://images.unsplash.com/photo-1506034861661-ad49bbcf7198?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=1350&q=80",
-    "https://images.unsplash.com/photo-1614607206234-f7b56bdff6e7?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80"
+    "https://images.unsplash.com/photo-1614607206234-f7b56bdff6e7?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80",
+    "https://images.unsplash.com/photo-1614526261139-1e5ebbd5086c?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+    "https://images.unsplash.com/photo-1614366559478-edf9d1cc4719?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80",
+    "https://images.unsplash.com/photo-1614588108027-22a021c8d8e1?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1349&q=80"
+    # "https://images.unsplash.com/photo-1614522407266-ad3c5fa6bc24?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1352&q=80",
+    # "https://images.unsplash.com/photo-1601933470096-0e34634ffcde?ixid=MXwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+    # "https://images.unsplash.com/photo-1614598943918-3d0f1e65c22c?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+    # "https://images.unsplash.com/photo-1614542530265-7a46ededfd64?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80"
   ]
 
   describe "[image block unit]" do
@@ -33,7 +40,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
       }
     end
 
-    @tag :wip2
+    @tag :wip
     test "single image parse should work" do
       editor_json =
         set_items("single", [
@@ -53,8 +60,8 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
       assert Utils.str_occurence(converted, "width:368px") == 1
       assert Utils.str_occurence(converted, "height:552px") == 1
 
-      single_image_block_class = @class["single_image_block"]
-      assert Utils.str_occurence(converted, single_image_block_class) == 1
+      single_image_wrapper_class = @class["single_image_wrapper"]
+      assert Utils.str_occurence(converted, single_image_wrapper_class) == 1
 
       image_caption_class = @class["image_caption"]
       assert Utils.str_occurence(converted, image_caption_class) == 1
@@ -62,7 +69,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
       assert Utils.str_occurence(converted, "this is a caption") == 2
     end
 
-    @tag :wip2
+    @tag :wip
     test "single image parse should work without wight && height" do
       editor_json =
         set_items("single", [
@@ -81,11 +88,11 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
       assert Utils.str_occurence(converted, "width:") == 0
       assert Utils.str_occurence(converted, "height:") == 0
 
-      single_image_block_class = @class["single_image_block"]
-      assert Utils.str_occurence(converted, single_image_block_class) == 1
+      single_image_wrapper_class = @class["single_image_wrapper"]
+      assert Utils.str_occurence(converted, single_image_wrapper_class) == 1
     end
 
-    @tag :wip2
+    @tag :wip
     test "single image parse should work without caption" do
       editor_json =
         set_items("single", [
@@ -103,55 +110,35 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
       assert Utils.str_occurence(converted, "width:") == 0
       assert Utils.str_occurence(converted, "height:") == 0
 
-      single_image_block_class = @class["single_image_block"]
-      assert Utils.str_occurence(converted, single_image_block_class) == 1
+      single_image_wrapper_class = @class["single_image_wrapper"]
+      assert Utils.str_occurence(converted, single_image_wrapper_class) == 1
 
       image_caption_class = @class["image_caption"]
       assert Utils.str_occurence(converted, image_caption_class) == 0
     end
 
-    # @tag :wip
-    # test "basic order list parse should work" do
-    #   editor_json =
-    #     set_items("order_list", [
-    #       %{
-    #         "checked" => true,
-    #         "hideLabel" => false,
-    #         "indent" => 0,
-    #         "label" => "label",
-    #         "labelType" => "default",
-    #         "prefixIndex" => "1.",
-    #         "text" =>
-    #           "一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。一个带着中文的很长的句子。"
-    #       },
-    #       %{
-    #         "checked" => false,
-    #         "hideLabel" => false,
-    #         "indent" => 0,
-    #         "label" => "label",
-    #         "labelType" => "default",
-    #         "prefixIndex" => "2.",
-    #         "text" => "list item"
-    #       },
-    #       %{
-    #         "checked" => false,
-    #         "hideLabel" => false,
-    #         "indent" => 1,
-    #         "label" => "green",
-    #         "labelType" => "green",
-    #         "prefixIndex" => "2.1",
-    #         "text" => "list item"
-    #       }
-    #     ])
+    @tag :wip2
+    test "jiugongge image parse should work" do
+      editor_json =
+        set_items(
+          "jiugongge",
+          Enum.map(@images, fn src ->
+            %{
+              "src" => src,
+              "caption" => "this is a caption 1"
+            }
+          end)
+        )
 
-    #   {:ok, editor_string} = Jason.encode(editor_json)
-    #   {:ok, converted} = Parser.to_html(editor_string)
+      {:ok, editor_string} = Jason.encode(editor_json)
+      {:ok, converted} = Parser.to_html(editor_string)
 
-    #   assert Utils.str_occurence(converted, "id=") == 1
+      jiugongge_image_wrapper_class = @class["jiugongge_image_wrapper"]
+      jiugongge_image_class = @class["jiugongge_image"]
 
-    #   order_list_prefix_class = @class["order_list_prefix"]
-    #   assert Utils.str_occurence(converted, order_list_prefix_class) == 3
-    # end
+      assert Utils.str_occurence(converted, jiugongge_image_wrapper_class) == 1
+      assert Utils.str_occurence(converted, jiugongge_image_class) == length(@images)
+    end
 
     # @tag :wip
     # test "edit exsit block will not change id value" do

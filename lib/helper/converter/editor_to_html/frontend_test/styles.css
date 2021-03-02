@@ -411,4 +411,39 @@ td {
   color: grey;
   margin-top: 15px;
 }
+
+.article-viewer-wrapper .image-wrapper .jiugongge-image {
+  display: flex;
+  flex-wrap: wrap;
+  width: 489px;
+  max-height: 489px;
+  margin: 0 auto;
+  padding: 45px 0;
+}
+
+.article-viewer-wrapper .image-wrapper .jiugongge-block {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 160px;
+  height: 160px;
+  border-radius: 2px;
+  background: #efefef;
+  margin-right: 3px;
+  margin-bottom: 3px;
+}
+
+.article-viewer-wrapper .image-wrapper a {
+  width: 100%;
+  height: 100%;
+}
+
+.article-viewer-wrapper .image-wrapper .jiugongge-block-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all 0.25s;
+}
+
 /* image block end */

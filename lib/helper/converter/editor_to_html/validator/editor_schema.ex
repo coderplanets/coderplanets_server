@@ -94,7 +94,6 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
       },
       item: %{
         "src" => [:string],
-        "index" => [:number],
         "caption" => [:string, required: false],
         "height" => [:string, required: false],
         "width" => [:string, required: false]
