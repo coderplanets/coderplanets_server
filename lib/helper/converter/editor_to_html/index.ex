@@ -86,35 +86,23 @@ defmodule Helper.Converter.EditorToHTML do
        </div>)
   end
 
-  # defp parse_block(%{"type" => "image", "data" => data}) do
-  #   url = get_in(data, ["file", "url"])
+  defp parse_block(%{"type" => "image", "data" => data}) do
+    %{"items" => items, "mode" => mode} = data
+    # %{"mode" => mode} = data
 
-  #   "<div class=\"#{@.viewer}-image\"><img src=\"#{url}\"></div>"
-  # end
+    image_wrapper_class = get_in(@root_class, ["image", "wrapper"])
 
-  # defp parse_block(%{"type" => "delimiter", "data" => %{"type" => type}}) do
-  #   svg_icon = DelimiterIcons.svg(type)
+    items_content =
+      Enum.reduce(items, "", fn item, acc ->
+        acc <> Frags.Image.get_item(mode |> String.to_atom(), item)
+      end)
 
-  #   # TODO:  left-wing, righ-wing staff
-  #   {:skip_sanitize, "<div class=\"#{@.viewer}-delimiter\">#{svg_icon}</div>"}
-  # end
+    caption_content = Frags.Image.get_caption(List.first(items))
 
-  # IO.inspect(data, label: "parse linkTool")
-  # TODO: parse the link-card info
-  # defp parse_block(%{"type" => "linkTool", "data" => data}) do
-  #   link = get_in(data, ["link"])
+    anchor_id = Utils.uid(:html, data)
 
-  #   "<div class=\"#{@.viewer}-linker\"><a href=\"#{link}\" target=\"_blank\">#{link}</a></div>"
-  #   # |> IO.inspect(label: "linkTool ret")
-  # end
-
-  # IO.inspect(data, label: "parse quote")
-  # defp parse_block(%{"type" => "quote", "data" => data}) do
-  #   text = get_in(data, ["text"])
-
-  #   "<div class=\"#{@.viewer}-quote\">#{text}</div>"
-  #   # |> IO.inspect(label: "quote ret")
-  # end
+    ~s(<div id="#{anchor_id}" class="#{image_wrapper_class}">#{items_content}#{caption_content}</div>)
+  end
 
   defp parse_block(%{"type" => "code", "data" => data}) do
     text = get_in(data, ["text"])

@@ -61,6 +61,13 @@ defmodule Helper.Converter.EditorToHTML.Class do
         "align_center" => "align-center",
         "align_left" => "align-left",
         "align_right" => "align-right"
+      },
+      "image" => %{
+        "wrapper" => "image-wrapper",
+        "single_image_block" => "single-image",
+        "single_image" => "image-picture",
+        "image_caption" => "image-caption"
+        # "single_caption"
       }
     }
   end

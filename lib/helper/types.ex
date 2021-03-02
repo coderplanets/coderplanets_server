@@ -86,6 +86,23 @@ defmodule Helper.Types do
         }
 
   @typedoc """
+  valid editor.js's image mode
+  """
+
+  # @typep editor_image_mode :: :single | :jiugongge | :gallery
+
+  @typedoc """
+  editor.js's image item
+  """
+  @type editor_image_item :: %{
+          required(:src) => String.t(),
+          caption: String.t(),
+          index: Integer.t(),
+          width: String.t(),
+          height: String.t()
+        }
+
+  @typedoc """
   html fragment
   """
   @type html :: String.t()

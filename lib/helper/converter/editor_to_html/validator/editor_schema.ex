@@ -86,6 +86,22 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
     ]
   end
 
+  def get("image") do
+    [
+      parent: %{
+        "id" => [:string, required: false],
+        "items" => [:list]
+      },
+      item: %{
+        "src" => [:string],
+        "index" => [:number],
+        "caption" => [:string, required: false],
+        "height" => [:string, required: false],
+        "width" => [:string, required: false]
+      }
+    ]
+  end
+
   def get(_) do
     %{}
   end
