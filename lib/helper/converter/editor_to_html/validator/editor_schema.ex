@@ -97,7 +97,7 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
         "items" => [:list]
       },
       item: %{
-        "src" => [:string],
+        "src" => [:string, starts_with: "https://"],
         "index" => [:number],
         "caption" => [:string, required: false],
         "height" => [:string, required: false],

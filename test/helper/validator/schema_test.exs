@@ -6,6 +6,7 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
   alias Helper.Validator.Schema
 
   describe "[basic schema]" do
+    @tag :wip2
     test "string with options" do
       schema = %{"text" => [:string, required: false]}
       data = %{"no_exsit" => "text"}
@@ -44,9 +45,15 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       data = %{"text" => "text"}
       {:error, error} = Schema.cast(schema, data)
       assert error == [%{field: "text", message: "unknow option: min: 5", value: "text"}]
+
+      schema = %{"text" => [:string, starts_with: "https://"]}
+      data = %{"text" => "text"}
+      assert {:error, error} = Schema.cast(schema, data)
+      assert error == [%{field: "text", message: "should starts with: https://", value: "text"}]
       # IO.inspect(Schema.cast(schema, data), label: "schema result")
     end
 
+    @tag :wip2
     test "number with options" do
       schema = %{"text" => [:number, required: false]}
       data = %{"no_exsit" => 1}
@@ -85,6 +92,7 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       # hello world
     end
 
+    @tag :wip2
     test "number with wrong option" do
       schema = %{"text" => [:number, required: true, min: "5"]}
       data = %{"text" => 1}
@@ -99,6 +107,7 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       assert error == [%{field: "text", message: "unknow option: no_exsit_option: xxx", value: 1}]
     end
 
+    @tag :wip2
     test "number with options edage case" do
       schema = %{"text" => [:number, min: 2]}
       data = %{"text" => "aa"}
@@ -107,6 +116,7 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       assert error == [%{field: "text", message: "should be: number", value: "aa"}]
     end
 
+    @tag :wip2
     test "list with options" do
       schema = %{"text" => [:list, required: false]}
       data = %{"no_exsit" => []}
@@ -122,6 +132,7 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       assert {:ok, _} = Schema.cast(schema, data)
     end
 
+    @tag :wip2
     test "boolean with options" do
       schema = %{"text" => [:boolean, required: false]}
       data = %{"no_exsit" => false}
@@ -137,6 +148,7 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       assert {:ok, _} = Schema.cast(schema, data)
     end
 
+    @tag :wip2
     test "enum with options" do
       schema = %{"text" => [enum: [1, 2, 3], required: false]}
       data = %{"no_exsit" => false}

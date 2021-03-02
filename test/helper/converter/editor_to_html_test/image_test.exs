@@ -117,7 +117,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
       assert Utils.str_occurence(converted, image_caption_class) == 0
     end
 
-    @tag :wip2
+    @tag :wip
     test "jiugongge image parse should work" do
       editor_json =
         set_items(
@@ -143,7 +143,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
       assert Utils.str_occurence(converted, jiugongge_image_class) == length(@images)
     end
 
-    @tag :wip2
+    @tag :wip
     test "gallery image parse should work" do
       editor_json =
         set_items(
@@ -192,7 +192,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
       assert Utils.str_occurence(converted, "id=\"exsit\"") == 1
     end
 
-    @tag :wip2
+    @tag :wip
     test "invalid mode parse should raise error message" do
       editor_json = set_items("invalid-mode", [])
       {:ok, editor_string} = Jason.encode(editor_json)
@@ -213,7 +213,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
         set_items("single", [
           %{
             "index" => "invalid",
-            "src" => "src"
+            "src" => "https://xxx"
           }
         ])
 
@@ -230,28 +230,28 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
              ]
     end
 
-    # @tag :wip2
-    # test "invalid src parse should raise error message" do
-    #   editor_json =
-    #     set_items("single", [
-    #       %{
-    #         "index" => 0,
-    #         "src" => "src"
-    #       }
-    #     ])
+    @tag :wip2
+    test "src should starts with https://" do
+      editor_json =
+        set_items("single", [
+          %{
+            "index" => 0,
+            "src" => "src"
+          }
+        ])
 
-    #   {:ok, editor_string} = Jason.encode(editor_json)
-    #   {:error, err_msg} = Parser.to_html(editor_string)
-    #   IO.inspect(err_msg, label: "err_msg")
+      {:ok, editor_string} = Jason.encode(editor_json)
+      {:error, err_msg} = Parser.to_html(editor_string)
 
-    #   assert err_msg == [
-    #            %{
-    #              block: "image(single)",
-    #              field: "index",
-    #              message: "should be: number",
-    #              value: "invalid"
-    #            }
-    #          ]
-    # end
+      assert err_msg ==
+               [
+                 %{
+                   block: "image(single)",
+                   field: "src",
+                   message: "should starts with: https://",
+                   value: "src"
+                 }
+               ]
+    end
   end
 end

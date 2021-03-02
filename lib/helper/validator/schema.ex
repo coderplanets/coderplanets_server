@@ -58,6 +58,7 @@ defmodule Helper.Validator.Schema do
 
   defp option_valid?({:min, v}) when is_integer(v), do: true
   defp option_valid?({:required, v}) when is_boolean(v), do: true
+  defp option_valid?({:starts_with, v}) when is_binary(v), do: true
   defp option_valid?(_), do: false
 
   defp match(field, nil, enum: _, required: false), do: done(field, nil)
@@ -93,6 +94,16 @@ defmodule Helper.Validator.Schema do
     end
   end
 
+  defp match(field, value, type, [{:starts_with, starts} | options]) when is_binary(value) do
+    case String.starts_with?(value, starts) do
+      true ->
+        match(field, value, type, options)
+
+      false ->
+        error(field, value, :starts_with, starts)
+    end
+  end
+
   # custom validate logic end
 
   # main type
@@ -120,9 +131,16 @@ defmodule Helper.Validator.Schema do
 
   defp done(field, value), do: {:ok, %{field: field, value: value}}
 
-  defp error(field, value, :min, min) do
-    {:error, %{field: field |> to_string, value: value, message: "min size: #{min}"}}
+  # custom error hint
+  defp error(field, value, :min, expect) do
+    {:error, %{field: field |> to_string, value: value, message: "min size: #{expect}"}}
   end
+
+  defp error(field, value, :starts_with, expect) do
+    {:error, %{field: field |> to_string, value: value, message: "should starts with: #{expect}"}}
+  end
+
+  # custom error hint end
 
   defp error(field, value, option: option) do
     {:error, %{field: field |> to_string, value: value, message: "unknow option: #{option}"}}
