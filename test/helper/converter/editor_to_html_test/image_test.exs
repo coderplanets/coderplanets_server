@@ -198,13 +198,14 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:error, err_msg} = Parser.to_html(editor_string)
 
-      assert err_msg == [
+      assert [
+               %{block: "image", field: "items", message: "empty is not allowed", value: []},
                %{
                  block: "image",
                  field: "mode",
                  message: "should be: single | jiugongge | gallery"
                }
-             ]
+             ] == err_msg
     end
 
     @tag :wip2

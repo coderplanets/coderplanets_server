@@ -215,13 +215,14 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:error, err_msg} = Parser.to_html(editor_string)
 
-      assert err_msg == [
+      assert [
+               %{block: "list", field: "items", message: "empty is not allowed", value: []},
                %{
                  block: "list",
                  field: "mode",
                  message: "should be: checklist | order_list | unorder_list"
                }
-             ]
+             ] == err_msg
     end
 
     @tag :wip

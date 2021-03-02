@@ -130,6 +130,28 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       schema = %{"text" => [:list, required: true]}
       data = %{"text" => []}
       assert {:ok, _} = Schema.cast(schema, data)
+
+      schema = %{"text" => [:list]}
+      data = %{"text" => []}
+      assert {:ok, _} = Schema.cast(schema, data)
+
+      schema = %{"text" => [:list, allow_empty: true]}
+      data = %{"text" => []}
+      assert {:ok, _} = Schema.cast(schema, data)
+
+      schema = %{"text" => [:list, type: :map]}
+      data = %{"text" => [1, 2, 3]}
+      {:error, error} = Schema.cast(schema, data)
+
+      assert error ==
+               [%{field: "text", message: "item should be map", value: [1, 2, 3]}]
+
+      schema = %{"text" => [:list, allow_empty: false]}
+      data = %{"text" => []}
+      {:error, error} = Schema.cast(schema, data)
+      assert [%{field: "text", message: "empty is not allowed", value: []}] == error
+
+      # IO.inspect(Schema.cast(schema, data), label: "schema result")
     end
 
     @tag :wip2

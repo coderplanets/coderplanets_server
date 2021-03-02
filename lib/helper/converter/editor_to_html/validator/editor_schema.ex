@@ -58,7 +58,7 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
       parent: %{
         "id" => [:string, required: false],
         "mode" => [enum: @valid_list_mode],
-        "items" => [:list]
+        "items" => [:list, type: :map, allow_empty: false]
       },
       item: %{
         "checked" => [:boolean],
@@ -77,7 +77,7 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
       parent: %{
         "id" => [:string, required: false],
         "columnCount" => [:number, min: 2],
-        "items" => [:list]
+        "items" => [:list, type: :map, allow_empty: false]
       },
       item: %{
         "text" => [:string],
@@ -94,7 +94,7 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
       parent: %{
         "id" => [:string, required: false],
         "mode" => [enum: @valid_image_mode],
-        "items" => [:list]
+        "items" => [:list, type: :map, allow_empty: false]
       },
       item: %{
         "src" => [:string, starts_with: "https://"],
