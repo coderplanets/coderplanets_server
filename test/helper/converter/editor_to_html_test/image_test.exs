@@ -13,9 +13,9 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
   @images [
     "https://images.unsplash.com/photo-1506034861661-ad49bbcf7198?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=1350&q=80",
     "https://images.unsplash.com/photo-1614607206234-f7b56bdff6e7?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80",
-    "https://images.unsplash.com/photo-1614526261139-1e5ebbd5086c?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "https://images.unsplash.com/photo-1614366559478-edf9d1cc4719?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80",
-    "https://images.unsplash.com/photo-1614588108027-22a021c8d8e1?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1349&q=80"
+    "https://images.unsplash.com/photo-1614526261139-1e5ebbd5086c?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+    # "https://images.unsplash.com/photo-1614366559478-edf9d1cc4719?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80",
+    # "https://images.unsplash.com/photo-1614588108027-22a021c8d8e1?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1349&q=80"
     # "https://images.unsplash.com/photo-1614522407266-ad3c5fa6bc24?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1352&q=80",
     # "https://images.unsplash.com/photo-1601933470096-0e34634ffcde?ixid=MXwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
     # "https://images.unsplash.com/photo-1614598943918-3d0f1e65c22c?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
@@ -122,8 +122,11 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
       editor_json =
         set_items(
           "jiugongge",
-          Enum.map(@images, fn src ->
+          @images
+          |> Enum.with_index()
+          |> Enum.map(fn {src, index} ->
             %{
+              "index" => index,
               "src" => src,
               "caption" => "this is a caption 1"
             }
@@ -138,6 +141,32 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
 
       assert Utils.str_occurence(converted, jiugongge_image_wrapper_class) == 1
       assert Utils.str_occurence(converted, jiugongge_image_class) == length(@images)
+    end
+
+    @tag :wip2
+    test "gallery image parse should work" do
+      editor_json =
+        set_items(
+          "gallery",
+          @images
+          |> Enum.with_index()
+          |> Enum.map(fn {src, index} ->
+            %{
+              "index" => index,
+              "src" => src,
+              "caption" => "this is a caption 1"
+            }
+          end)
+        )
+
+      {:ok, editor_string} = Jason.encode(editor_json)
+      {:ok, converted} = Parser.to_html(editor_string)
+
+      gallery_image_class = @class["gallery_image"]
+      gallery_mini_image_class = @class["gallery_image"]
+
+      assert Utils.str_occurence(converted, gallery_image_class) == length(@images)
+      assert Utils.str_occurence(converted, gallery_mini_image_class) == length(@images)
     end
 
     # @tag :wip

@@ -60,6 +60,40 @@ defmodule Helper.Converter.EditorToHTML.Frags.Image do
       </div>)
   end
 
+  def get_item(:gallery, %{"src" => src, "index" => index} = data) do
+    caption = get_caption(data)
+
+    gallery_image_block_class = @class["gallery_image_block"]
+    image_class = @class["gallery_image"]
+
+    # IO.inspect(index, label: "index -> ")
+    ~s(<div class="#{gallery_image_block_class}">
+        <a href=#{src} class="glightbox" data-glightbox="type:image;description: #{caption}">
+          <img class="#{image_class}" src="#{src}" alt="image" data-index="#{index}" />
+        </a>
+      </div>)
+  end
+
+  @spec get_minimap([T.editor_image_item()]) :: T.html()
+  def get_minimap(items) do
+    wrapper_class = @class["gallery_minimap"]
+
+    items_content =
+      Enum.reduce(items, "", fn item, acc ->
+        acc <> frag(:minimap_image, item)
+      end)
+
+    ~s(<div class="#{wrapper_class}">
+        #{items_content}
+       </div>)
+  end
+
+  defp frag(:minimap_image, %{"src" => src, "index" => index}) do
+    image_class = @class["gallery_minimap_image"]
+
+    ~s(<img class="#{image_class}" src="#{src}" data-index="#{index}"/>)
+  end
+
   def get_caption(%{"caption" => caption}) when g_none_empty_str(caption), do: caption
   def get_caption(_), do: ""
 

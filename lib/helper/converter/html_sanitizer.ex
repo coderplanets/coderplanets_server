@@ -32,7 +32,7 @@ defmodule Helper.Converter.HtmlSanitizer do
     # Meta.allow_tag_with_these_attributes("h5", ["class"])
     # Meta.allow_tag_with_these_attributes("h6", ["class"])
     Meta.allow_tag_with_these_attributes("p", ["class"])
-    Meta.allow_tag_with_these_attributes("img", ["class", "src", "style", "alt"])
+    Meta.allow_tag_with_these_attributes("img", ["class", "src", "style", "alt", "data-index"])
     Meta.allow_tag_with_these_attributes("div", ["id", "class", "data-index"])
     Meta.allow_tag_with_these_attributes("ul", ["class"])
     Meta.allow_tag_with_these_attributes("ol", ["class"])

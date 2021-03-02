@@ -71,7 +71,15 @@ defmodule Helper.Converter.EditorToHTML.Class do
         # jiugongge
         "jiugongge_image_wrapper" => "jiugongge-image",
         "jiugongge_image_block" => "jiugongge-block",
-        "jiugongge_image" => "jiugongge-block-image"
+        "jiugongge_image" => "jiugongge-block-image",
+        # gallery
+        "gallery_image_wrapper" => "gallery-image",
+        "gallery_image_inner" => "gallery-image-inner",
+        "gallery_image_block" => "gallery-block",
+        "gallery_image" => "gallery-block-image",
+        # minimap
+        "gallery_minimap" => "gallery-minimap",
+        "gallery_minimap_image" => "gallery-minimap-block-image"
       }
     }
   end

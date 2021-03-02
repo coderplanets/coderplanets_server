@@ -119,6 +119,34 @@ defmodule Helper.Converter.EditorToHTML do
     </div>)
   end
 
+  defp parse_block(%{"type" => "image", "data" => %{"mode" => "gallery"} = data}) do
+    %{"items" => items} = data
+
+    image_wrapper_class = get_in(@root_class, ["image", "wrapper"])
+    content_wrapper_class = get_in(@root_class, ["image", "gallery_image_wrapper"])
+    inner_wrapper_class = get_in(@root_class, ["image", "gallery_image_inner"])
+
+    items_content =
+      Enum.reduce(items, "", fn item, acc ->
+        acc <> Frags.Image.get_item(:gallery, item)
+      end)
+
+    minimap_content = Frags.Image.get_minimap(items)
+
+    IO.inspect(minimap_content, label: "mini map")
+
+    anchor_id = Utils.uid(:html, data)
+
+    ~s(<div id="#{anchor_id}" class="#{image_wrapper_class}">
+        <div class="#{content_wrapper_class}">
+          <div class="#{inner_wrapper_class}">
+          #{items_content}
+          </div>
+        </div>
+        #{minimap_content}
+      </div>)
+  end
+
   defp parse_block(%{"type" => "code", "data" => data}) do
     text = get_in(data, ["text"])
     code = text |> Phoenix.HTML.html_escape() |> Phoenix.HTML.safe_to_string()
