@@ -58,6 +58,10 @@ defmodule Helper.Validator.Schema do
 
   defp option_valid?({:min, v}) when is_integer(v), do: true
   defp option_valid?({:required, v}) when is_boolean(v), do: true
+  defp option_valid?({:starts_with, v}) when is_binary(v), do: true
+  defp option_valid?({:type, :map}), do: true
+  defp option_valid?({:allow_empty, v}) when is_boolean(v), do: true
+
   defp option_valid?(_), do: false
 
   defp match(field, nil, enum: _, required: false), do: done(field, nil)
@@ -82,6 +86,7 @@ defmodule Helper.Validator.Schema do
   end
 
   # custom validate logic
+  # min option for @support_min types
   defp match(field, value, type, [{:min, min} | options])
        when type in @support_min and g_not_nil(value) and g_pos_int(min) do
     case Utils.large_than(value, min) do
@@ -91,6 +96,42 @@ defmodule Helper.Validator.Schema do
       false ->
         error(field, value, :min, min)
     end
+  end
+
+  # starts_with option for string
+  defp match(field, value, type, [{:starts_with, starts} | options]) when is_binary(value) do
+    case String.starts_with?(value, starts) do
+      true ->
+        match(field, value, type, options)
+
+      false ->
+        error(field, value, :starts_with, starts)
+    end
+  end
+
+  # item type for list
+  defp match(field, value, type, [{:type, :map} | options]) when is_list(value) do
+    case Enum.all?(value, &is_map(&1)) do
+      true ->
+        match(field, value, type, options)
+
+      false ->
+        error(field, value, :list_type_map)
+    end
+  end
+
+  defp match(field, value, type, [{:allow_empty, false} | options]) when is_list(value) do
+    case length(value) do
+      0 ->
+        error(field, value, :allow_empty)
+
+      _ ->
+        match(field, value, type, options)
+    end
+  end
+
+  defp match(field, value, type, [{:allow_empty, true} | options]) when is_list(value) do
+    match(field, value, type, options)
   end
 
   # custom validate logic end
@@ -120,9 +161,24 @@ defmodule Helper.Validator.Schema do
 
   defp done(field, value), do: {:ok, %{field: field, value: value}}
 
-  defp error(field, value, :min, min) do
-    {:error, %{field: field |> to_string, value: value, message: "min size: #{min}"}}
+  # custom error hint
+  defp error(field, value, :min, expect) do
+    {:error, %{field: field |> to_string, value: value, message: "min size: #{expect}"}}
   end
+
+  defp error(field, value, :starts_with, expect) do
+    {:error, %{field: field |> to_string, value: value, message: "should starts with: #{expect}"}}
+  end
+
+  defp error(field, value, :list_type_map) do
+    {:error, %{field: field |> to_string, value: value, message: "item should be map"}}
+  end
+
+  defp error(field, value, :allow_empty) do
+    {:error, %{field: field |> to_string, value: value, message: "empty is not allowed"}}
+  end
+
+  # custom error hint end
 
   defp error(field, value, option: option) do
     {:error, %{field: field |> to_string, value: value, message: "unknow option: #{option}"}}
