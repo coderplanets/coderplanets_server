@@ -56,13 +56,16 @@ defmodule Helper.Validator.Schema do
     end)
   end
 
-  defp option_valid?({:min, v}) when is_integer(v), do: true
-  defp option_valid?({:required, v}) when is_boolean(v), do: true
-  defp option_valid?({:starts_with, v}) when is_binary(v), do: true
-  defp option_valid?({:type, :map}), do: true
-  defp option_valid?({:allow_empty, v}) when is_boolean(v), do: true
+  defp option_valid?(:string, {:min, v}) when is_integer(v), do: true
+  defp option_valid?(:number, {:min, v}) when is_integer(v), do: true
 
-  defp option_valid?(_), do: false
+  defp option_valid?(_, {:required, v}) when is_boolean(v), do: true
+  defp option_valid?(:string, {:starts_with, v}) when is_binary(v), do: true
+  defp option_valid?(:list, {:type, :map}), do: true
+  defp option_valid?(:string, {:allow_empty, v}) when is_boolean(v), do: true
+  defp option_valid?(:list, {:allow_empty, v}) when is_boolean(v), do: true
+
+  defp option_valid?(_, _), do: false
 
   defp match(field, nil, enum: _, required: false), do: done(field, nil)
   defp match(field, value, enum: enum, required: _), do: match(field, value, enum: enum)
@@ -149,7 +152,7 @@ defmodule Helper.Validator.Schema do
   # error for option
   defp match(field, value, type, [option]) when is_tuple(option) do
     # 如果这里不判断的话会和下面的 match 冲突，是否有更好的写法？
-    case option_valid?(option) do
+    case option_valid?(type, option) do
       true ->
         error(field, value, type)
 
