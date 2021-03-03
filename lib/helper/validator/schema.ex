@@ -86,7 +86,7 @@ defmodule Helper.Validator.Schema do
   end
 
   # custom validate logic
-  # min option for @support_min types
+  ## min option for @support_min types
   defp match(field, value, type, [{:min, min} | options])
        when type in @support_min and g_not_nil(value) and g_pos_int(min) do
     case Utils.large_than(value, min) do
@@ -98,7 +98,7 @@ defmodule Helper.Validator.Schema do
     end
   end
 
-  # starts_with option for string
+  ## starts_with option for string
   defp match(field, value, type, [{:starts_with, starts} | options]) when is_binary(value) do
     case String.starts_with?(value, starts) do
       true ->
@@ -109,7 +109,7 @@ defmodule Helper.Validator.Schema do
     end
   end
 
-  # item type for list
+  ## item type for list
   defp match(field, value, type, [{:type, :map} | options]) when is_list(value) do
     case Enum.all?(value, &is_map(&1)) do
       true ->
@@ -120,17 +120,20 @@ defmodule Helper.Validator.Schema do
     end
   end
 
-  defp match(field, value, type, [{:allow_empty, false} | options]) when is_list(value) do
-    case length(value) do
-      0 ->
-        error(field, value, :allow_empty)
-
-      _ ->
-        match(field, value, type, options)
-    end
+  # allow empty for list
+  defp match(field, value, _type, [{:allow_empty, false} | _options])
+       when is_list(value) and value == [] do
+    error(field, value, :allow_empty)
   end
 
-  defp match(field, value, type, [{:allow_empty, true} | options]) when is_list(value) do
+  # allow empty for string
+  defp match(field, value, _type, [{:allow_empty, false} | _options])
+       when is_binary(value) and byte_size(value) == 0 do
+    error(field, value, :allow_empty)
+  end
+
+  defp match(field, value, type, [{:allow_empty, _} | options])
+       when is_binary(value) or is_list(value) do
     match(field, value, type, options)
   end
 

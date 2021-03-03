@@ -208,7 +208,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
              ] == err_msg
     end
 
-    @tag :wip2
+    @tag :wip
     test "invalid data parse should raise error message" do
       editor_json =
         set_items("single", [
@@ -231,7 +231,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
              ]
     end
 
-    @tag :wip2
+    @tag :wip
     test "src should starts with https://" do
       editor_json =
         set_items("single", [
