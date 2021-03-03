@@ -15,7 +15,7 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       schema = %{"text" => [:string, required: true]}
       data = %{"no_exsit" => "text"}
       {:error, error} = Schema.cast(schema, data)
-      assert error == [%{field: "text", message: "should be: string", value: nil}]
+      assert [%{field: "text", message: "should be: string", value: nil}] == error
 
       schema = %{"text" => [:string, required: true]}
       data = %{"text" => "text"}
@@ -24,36 +24,42 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       schema = %{"text" => [:string, min: 5]}
       data = %{"text" => "text"}
       {:error, error} = Schema.cast(schema, data)
-      assert error == [%{field: "text", message: "min size: 5", value: "text"}]
+      assert [%{field: "text", message: "min size: 5", value: "text"}] == error
 
       schema = %{"text" => [:string, required: false, min: 5]}
       data = %{"text" => "text"}
       {:error, error} = Schema.cast(schema, data)
-      assert error == [%{field: "text", message: "min size: 5", value: "text"}]
+      assert [%{field: "text", message: "min size: 5", value: "text"}] === error
 
       schema = %{"text" => [:string, min: 5]}
       data = %{"no_exsit" => "text"}
       {:error, error} = Schema.cast(schema, data)
-      assert error == [%{field: "text", message: "should be: string", value: nil}]
+      assert [%{field: "text", message: "should be: string", value: nil}] == error
 
       schema = %{"text" => [:string, required: true, min: 5]}
       data = %{"no_exsit" => "text"}
       {:error, error} = Schema.cast(schema, data)
-      assert error == [%{field: "text", message: "should be: string", value: nil}]
+      assert [%{field: "text", message: "should be: string", value: nil}] == error
 
       schema = %{"text" => [:string, required: true, min: "5"]}
       data = %{"text" => "text"}
       {:error, error} = Schema.cast(schema, data)
-      assert error == [%{field: "text", message: "unknow option: min: 5", value: "text"}]
+      assert [%{field: "text", message: "unknow option: min: 5", value: "text"}] == error
 
       schema = %{"text" => [:string, starts_with: "https://"]}
       data = %{"text" => "text"}
       assert {:error, error} = Schema.cast(schema, data)
-      assert error == [%{field: "text", message: "should starts with: https://", value: "text"}]
+      assert [%{field: "text", message: "should starts with: https://", value: "text"}] == error
+
+      schema = %{"text" => [:string, allow_empty: false]}
+      data = %{"text" => ""}
+      assert {:error, error} = Schema.cast(schema, data)
+      assert [%{field: "text", message: "empty is not allowed", value: ""}] == error
+
       # IO.inspect(Schema.cast(schema, data), label: "schema result")
     end
 
-    @tag :wip2
+    @tag :wip
     test "number with options" do
       schema = %{"text" => [:number, required: false]}
       data = %{"no_exsit" => 1}
@@ -92,7 +98,7 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       # hello world
     end
 
-    @tag :wip2
+    @tag :wip
     test "number with wrong option" do
       schema = %{"text" => [:number, required: true, min: "5"]}
       data = %{"text" => 1}
@@ -107,7 +113,7 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       assert error == [%{field: "text", message: "unknow option: no_exsit_option: xxx", value: 1}]
     end
 
-    @tag :wip2
+    @tag :wip
     test "number with options edage case" do
       schema = %{"text" => [:number, min: 2]}
       data = %{"text" => "aa"}
@@ -143,8 +149,7 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       data = %{"text" => [1, 2, 3]}
       {:error, error} = Schema.cast(schema, data)
 
-      assert error ==
-               [%{field: "text", message: "item should be map", value: [1, 2, 3]}]
+      assert [%{field: "text", message: "item should be map", value: [1, 2, 3]}] == error
 
       schema = %{"text" => [:list, allow_empty: false]}
       data = %{"text" => []}
@@ -154,7 +159,7 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       # IO.inspect(Schema.cast(schema, data), label: "schema result")
     end
 
-    @tag :wip2
+    @tag :wip
     test "boolean with options" do
       schema = %{"text" => [:boolean, required: false]}
       data = %{"no_exsit" => false}
@@ -163,14 +168,14 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       schema = %{"text" => [:boolean, required: true]}
       data = %{"no_exsit" => false}
       {:error, error} = Schema.cast(schema, data)
-      assert error == [%{field: "text", message: "should be: boolean", value: nil}]
+      assert [%{field: "text", message: "should be: boolean", value: nil}] == error
 
       schema = %{"text" => [:boolean, required: true]}
       data = %{"text" => false}
       assert {:ok, _} = Schema.cast(schema, data)
     end
 
-    @tag :wip2
+    @tag :wip
     test "enum with options" do
       schema = %{"text" => [enum: [1, 2, 3], required: false]}
       data = %{"no_exsit" => false}
@@ -179,7 +184,7 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       schema = %{"text" => [enum: [1, 2, 3], required: true]}
       data = %{"no_exsit" => false}
       {:error, error} = Schema.cast(schema, data)
-      assert error == [%{field: "text", message: "should be: 1 | 2 | 3"}]
+      assert [%{field: "text", message: "should be: 1 | 2 | 3"}] == error
 
       schema = %{"text" => [enum: [1, 2, 3]]}
       data = %{"text" => 1}
@@ -187,6 +192,16 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
 
       # IO.inspect(Schema.cast(schema, data), label: "schema result")
       # hello world
+    end
+
+    @tag :wip
+    test "schema invalid option should got error" do
+      schema = %{"text" => [:number, allow_empty: false]}
+      data = %{"text" => 1}
+
+      {:error, error} = Schema.cast(schema, data)
+
+      assert [%{field: "text", message: "unknow option: allow_empty: false", value: 1}] == error
     end
   end
 end
