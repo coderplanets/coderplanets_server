@@ -9,7 +9,7 @@ defmodule Helper.Converter.EditorToHTML.Frags.People do
   alias Helper.Converter.EditorToHTML.Class
   alias Helper.Types, as: T
 
-  @static_icon  get_config(:cloud_assets, :static_icon)
+  @static_icon get_config(:cloud_assets, :static_icon)
   @class get_in(Class.article(), ["people"])
 
   @spec get_card(:gallery, T.editor_people_item()) :: T.html()
