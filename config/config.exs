@@ -62,6 +62,9 @@ config :groupher_server, :customization,
 
 config :groupher_server, GroupherServerWeb.Gettext, default_locale: "zh_CN", locales: ~w(en zh_CN)
 
+config :groupher_server, :cloud_assets,
+  static_icon: "https://cps-oss.oss-cn-shanghai.aliyuncs.com/icons/static"
+
 #  config email services
 config :groupher_server, :system_emails,
   support_email: "coderplanets <support@group.coderplanets.com>",

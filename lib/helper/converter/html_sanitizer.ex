@@ -48,6 +48,8 @@ defmodule Helper.Converter.HtmlSanitizer do
     # blockquote
     Meta.allow_tag_with_these_attributes("blockquote", ["id", "class"])
 
+    Meta.allow_tag_with_these_attributes("image", ["xlink:href"])
+
     Meta.allow_tag_with_these_attributes("svg", [
       "t",
       "p-id",

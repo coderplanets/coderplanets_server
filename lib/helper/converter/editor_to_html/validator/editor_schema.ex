@@ -18,6 +18,9 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
   # image
   @valid_image_mode ["single", "jiugongge", "gallery"]
 
+  # people
+  @valid_people_mode ["gallery"]
+
   @spec get(String.t()) :: map | [parent: map, item: map]
   def get("editor") do
     %{
@@ -93,7 +96,7 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
     [
       parent: %{
         "id" => [:string, required: false],
-        "mode" => [enum: @valid_image_mode],
+        "mode" => [enum: @valid_people_mode],
         "items" => [:list, type: :map, allow_empty: false]
       },
       item: %{
@@ -102,6 +105,23 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
         "caption" => [:string, required: false],
         "height" => [:string, required: false],
         "width" => [:string, required: false]
+      }
+    ]
+  end
+
+  def get("people") do
+    [
+      parent: %{
+        "id" => [:string, required: false],
+        "mode" => [enum: @valid_image_mode],
+        "items" => [:list, type: :map, allow_empty: false]
+      },
+      item: %{
+        "avatar" => [:string, starts_with: "https://"],
+        "title" => [:string, required: false],
+        "bio" => [:string, required: false],
+        "desc" => [:string, required: false],
+        "socials" => [:list, type: :map]
       }
     ]
   end

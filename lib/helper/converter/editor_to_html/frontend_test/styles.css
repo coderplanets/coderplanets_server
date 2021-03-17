@@ -500,3 +500,129 @@ td {
 }
 
 /* image block end */
+
+/* people block */
+.article-viewer-wrapper .people-wrapper {
+  padding: 10px 0;
+}
+
+.article-viewer-wrapper .people-wrapper .gallery-card-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.article-viewer-wrapper .people-wrapper .gallery-card-wrapper .gallery-avatar {
+  width: 200px;
+  border-radius: 100%;
+  z-index: 1;
+}
+
+.article-viewer-wrapper
+  .people-wrapper
+  .gallery-card-wrapper
+  .gallery-avatar
+  img {
+  width: 120px;
+  height: 120px;
+  margin-top: 4px;
+  border-radius: 100%;
+}
+
+.article-viewer-wrapper .people-wrapper .gallery-card-wrapper .gallery-intro {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding-right: 15px;
+  border-radius: 20px;
+}
+
+.article-viewer-wrapper
+  .people-wrapper
+  .gallery-card-wrapper
+  .gallery-intro
+  .gallery-intro-title {
+  font-size: 18px;
+  background-color: transparent;
+  font-weight: bold;
+  color: #5f5f5f;
+  border: none;
+}
+
+.article-viewer-wrapper
+  .people-wrapper
+  .gallery-card-wrapper
+  .gallery-intro
+  .gallery-intro-bio {
+  font-size: 15px;
+  background-color: transparent;
+  color: #a2a2a2;
+  margin-top: 4px;
+  margin-bottom: 10px;
+}
+
+.article-viewer-wrapper
+  .people-wrapper
+  .gallery-card-wrapper
+  .gallery-intro
+  .gallery-intro-desc {
+  color: #5f5f5f;
+  font-size: 14px;
+  padding-left: 2px;
+}
+
+.article-viewer-wrapper
+  .people-wrapper
+  .gallery-card-wrapper
+  .gallery-social-wrapper {
+  display: flex;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.article-viewer-wrapper
+  .people-wrapper
+  .gallery-card-wrapper
+  .gallery-social-wrapper
+  .gallery-social-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+}
+.article-viewer-wrapper
+  .people-wrapper
+  .gallery-card-wrapper
+  .gallery-social-wrapper
+  .gallery-social-icon
+  a {
+  opacity: 0.8;
+  transition: all 0.25s;
+}
+
+.article-viewer-wrapper
+  .people-wrapper
+  .gallery-card-wrapper
+  .gallery-social-wrapper
+  .gallery-social-icon
+  a:hover {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.article-viewer-wrapper
+  .people-wrapper
+  .gallery-card-wrapper
+  .gallery-social-wrapper
+  .gallery-social-icon
+  svg,
+image {
+  fill: #4f575d;
+  width: 15px;
+  height: 15px;
+  transition: all 0.25s;
+}
+/* people block end */
