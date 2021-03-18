@@ -149,10 +149,13 @@ defmodule Helper.Converter.EditorToHTML do
     %{"items" => items} = data
     wrapper_class = get_in(@root_class, ["people", "wrapper"])
 
+    previewer_content = Frags.People.get_previewer(:gallery, items)
     card_content = Frags.People.get_card(:gallery, List.first(items))
+
     anchor_id = Utils.uid(:html, data)
 
     ~s(<div id="#{anchor_id}" class="#{wrapper_class}">
+        #{previewer_content}
         #{card_content}
       </div>)
   end

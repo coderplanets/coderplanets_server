@@ -12,6 +12,23 @@ defmodule Helper.Converter.EditorToHTML.Frags.People do
   @static_icon get_config(:cloud_assets, :static_icon)
   @class get_in(Class.article(), ["people"])
 
+  def get_previewer(:gallery, items) when length(items) > 1 do
+    gallery_previewer_wrapper_class = @class["gallery_previewer_wrapper"]
+
+    previewer_content =
+      Enum.reduce(items, "", fn item, acc ->
+        acc <> frag(:previewer_item, item)
+      end)
+
+    ~s(<div class="#{gallery_previewer_wrapper_class}">
+        #{previewer_content}
+      </div>
+    )
+  end
+
+  # if list item < 2 then return empty string, means no previewer
+  def get_previewer(:gallery, _items), do: ""
+
   @spec get_card(:gallery, T.editor_people_item()) :: T.html()
   def get_card(:gallery, %{
         # "id" => _id,
@@ -29,8 +46,12 @@ defmodule Helper.Converter.EditorToHTML.Frags.People do
     gallery_intro_bio_class = @class["gallery_intro_bio"]
     gallery_intro_desc_class = @class["gallery_intro_desc"]
 
-    social_wrapper_class = @class["gallery_social_wrapper"]
-    social_content = frag(socials)
+    gallery_social_wrapper_class = @class["gallery_social_wrapper"]
+
+    social_content =
+      Enum.reduce(socials, "", fn item, acc ->
+        acc <> frag(:social, item)
+      end)
 
     ~s(<div class="#{gallery_card_wrapper_class}">
          <div class="#{gallery_avatar_class}">
@@ -46,38 +67,33 @@ defmodule Helper.Converter.EditorToHTML.Frags.People do
           <div class="#{gallery_intro_desc_class}">
             #{desc}
           </div>
-          #{social_content}
+          <div class="#{gallery_social_wrapper_class}">
+            #{social_content}
+          </div>
          </div>
       </div>)
   end
 
-  defp frag(socials) do
-    icon_cdn = "#{@static_icon}/social/"
+  @spec frag(:previewer_item, T.editor_people_item()) :: T.html()
+  defp frag(:previewer_item, item) do
+    avatar = item["avatar"]
+    gallery_previewer_item_class = @class["gallery_previewer_item"]
 
-    gallery_social_wrapper_class = @class["gallery_social_wrapper"]
+    ~s(<div class="#{gallery_previewer_item_class}">
+        <img src="#{avatar}" />
+      </div>)
+  end
+
+  defp frag(:social, %{"name" => name, "link" => link}) do
+    icon_cdn = "#{@static_icon}/social/"
     gallery_social_icon_class = @class["gallery_social_icon"]
 
-    social_content =
-      Enum.reduce(socials, "", fn social, acc ->
-        link = social["link"]
-        name = social["name"]
-
-        icon_html = ~s(
-            <div class="#{gallery_social_icon_class}">
-              <a href="#{link}">
-                <svg>
-                  <image xlink:href="#{icon_cdn}#{name}.svg" />
-                </svg>
-              </a>
-            </div>
-          )
-        acc <> icon_html
-      end)
-
-    ~s(
-      <div class="#{gallery_social_wrapper_class}">
-         #{social_content}
-      </div>
-    )
+    ~s(<div class="#{gallery_social_icon_class}">
+        <a href="#{link}">
+          <svg>
+            <image xlink:href="#{icon_cdn}#{name}.svg" />
+          </svg>
+        </a>
+      </div>)
   end
 end

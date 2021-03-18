@@ -83,7 +83,9 @@ defmodule Helper.Converter.EditorToHTML.Class do
       },
       "people" => %{
         "wrapper" => "people-wrapper",
+        # gallery
         "gallery_previewer_wrapper" => "gallery-previewer-wrapper",
+        "gallery_previewer_item" => "gallery-previewer-item",
         "gallery_card_wrapper" => "gallery-card-wrapper",
         "gallery_avatar" => "gallery-avatar",
         "gallery_intro" => "gallery-intro",
@@ -92,6 +94,7 @@ defmodule Helper.Converter.EditorToHTML.Class do
         "gallery_intro_desc" => "gallery-intro-desc",
         "gallery_social_wrapper" => "gallery-social-wrapper",
         "gallery_social_icon" => "gallery-social-icon"
+        ## social
       }
     }
   end

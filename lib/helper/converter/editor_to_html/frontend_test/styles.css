@@ -506,6 +506,39 @@ td {
   padding: 10px 0;
 }
 
+.article-viewer-wrapper .people-wrapper .gallery-previewer-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 32px;
+}
+
+.article-viewer-wrapper
+  .people-wrapper
+  .gallery-previewer-wrapper
+  .gallery-previewer-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  cursor: pointer;
+  margin-left: 16px;
+  transition: opacity 0.25s;
+}
+.article-viewer-wrapper
+  .people-wrapper
+  .gallery-previewer-wrapper
+  .gallery-previewer-item
+  img {
+  height: 35px;
+  width: 35px;
+  border-radius: 50%;
+  display: block;
+}
+
 .article-viewer-wrapper .people-wrapper .gallery-card-wrapper {
   display: flex;
   justify-content: center;

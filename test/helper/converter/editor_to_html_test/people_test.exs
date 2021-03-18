@@ -53,6 +53,22 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.People do
                 "link" => "https://link"
               }
             ]
+          },
+          %{
+            "avatar" => mock_image(),
+            "title" => "title2",
+            "bio" => "this is a X man2",
+            "desc" => "hello world i am x man2",
+            "socials" => [
+              %{
+                "name" => "zhihu",
+                "link" => "https://link"
+              },
+              %{
+                "name" => "twitter",
+                "link" => "https://link"
+              }
+            ]
           }
         ])
 
