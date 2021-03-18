@@ -28,7 +28,6 @@ defmodule Helper.Converter.EditorToHTML.Frags.Table do
       "text" => text
     } = item
 
-    cell_class = @class["cell"]
     align_class = get_align_class(align)
     scripe_class = if is_stripe, do: @class["td_stripe"], else: ""
 
@@ -36,24 +35,21 @@ defmodule Helper.Converter.EditorToHTML.Frags.Table do
       true ->
         style = ~s(width: #{Map.get(item, "width")})
 
-        ~s(<td class="#{scripe_class}" style="#{style}"><div class="#{cell_class} #{align_class}">#{
-          text
-        }</div></td>)
+        ~s(<td class="#{scripe_class}" style="#{style}"><div class="#{@class["cell"]} #{
+          align_class
+        }">#{text}</div></td>)
 
       false ->
-        ~s(<td class="#{scripe_class}"><div class="#{cell_class} #{align_class}">#{text}</div></td>)
+        ~s(<td class="#{scripe_class}"><div class="#{@class["cell"]} #{align_class}">#{text}</div></td>)
     end
   end
 
   @spec frag(:th, T.editor_table_cell()) :: T.html()
   def frag(:th, item) do
     %{"align" => align, "text" => text} = item
-
-    cell_class = @class["cell"]
     align_class = get_align_class(align)
-    header_class = @class["th_header"]
 
-    ~s(<th class="#{header_class}"><div class="#{cell_class} #{align_class}">#{text}</div></th>)
+    ~s(<th class="#{@class["th_header"]}"><div class="#{@class["cell"]} #{align_class}">#{text}</div></th>)
   end
 
   defp get_align_class("center"), do: @class["align_center"]

@@ -14,49 +14,35 @@ defmodule Helper.Converter.EditorToHTML.Frags.Quote do
 
   @spec get(T.editor_quote()) :: T.html()
   def get(%{"mode" => "short", "text" => text} = data) do
-    wrapper_class = @class["short_wrapper"]
-    text_class = @class["text"]
-
     anchor_id = Utils.uid(:html, data)
 
-    ~s(<blockquote id="#{anchor_id}" class="#{wrapper_class}">
-        <div class="#{text_class}">#{text}</div>
+    ~s(<blockquote id="#{anchor_id}" class="#{@class["short_wrapper"]}">
+        <div class="#{@class["text"]}">#{text}</div>
       </blockquote>)
   end
 
   def get(%{"mode" => "long", "text" => text, "caption" => caption} = data)
       when g_none_empty_str(caption) do
-    wrapper_class = @class["long_wrapper"]
-    text_class = @class["text"]
-
-    caption = frag(:caption, caption)
-
+    caption_content = frag(:caption, caption)
     anchor_id = Utils.uid(:html, data)
 
-    ~s(<blockquote id="#{anchor_id}" class="#{wrapper_class}">
-        <div class="#{text_class}">#{text}</div>
-        #{caption}
+    ~s(<blockquote id="#{anchor_id}" class="#{@class["long_wrapper"]}">
+        <div class="#{@class["text"]}">#{text}</div>
+        #{caption_content}
       </blockquote>)
   end
 
   def get(%{"mode" => "long", "text" => text}) do
-    wrapper_class = @class["long_wrapper"]
-    text_class = @class["text"]
-
-    ~s(<blockquote class="#{wrapper_class}">
-        <div class="#{text_class}">#{text}</div>
+    ~s(<blockquote class="#{@class["long_wrapper"]}">
+        <div class="#{@class["text"]}">#{text}</div>
       </blockquote>)
   end
 
   @spec frag(:caption, String.t()) :: T.html()
   def frag(:caption, caption) do
-    caption_class = @class["caption"]
-    caption_line_class = @class["caption_line"]
-    caption_text_class = @class["caption_text"]
-
-    ~s(<div class="#{caption_class}">
-      <div class="#{caption_line_class}"/>
-      <div class="#{caption_text_class}">#{caption}</div>
+    ~s(<div class="#{@class["caption"]}">
+        <div class="#{@class["caption_line"]}"/>
+        <div class="#{@class["caption_text"]}">#{caption}</div>
       </div>)
   end
 end
