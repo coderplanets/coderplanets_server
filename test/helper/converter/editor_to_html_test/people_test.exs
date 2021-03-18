@@ -61,7 +61,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.People do
             "desc" => "hello world i am x man2",
             "socials" => [
               %{
-                "name" => "zhihu",
+                "name" => "github",
                 "link" => "https://link"
               },
               %{

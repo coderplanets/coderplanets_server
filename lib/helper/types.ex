@@ -110,6 +110,13 @@ defmodule Helper.Types do
         }
 
   @typedoc """
+  editor.js's social item for any block
+  """
+  @type editor_social_item :: %{
+          required(:name) => String.t(),
+          required(:link) => String.t()
+        }
+  @typedoc """
   html fragment
   """
   @type html :: String.t()

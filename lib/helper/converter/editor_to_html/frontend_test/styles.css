@@ -7,6 +7,11 @@ body {
 #article {
   width: 650px;
   border: 1px solid #ececec;
+  padding-top: 100px;
+}
+
+.hide {
+  display: none !important;
 }
 
 .glightbox-clean .gslide-description {
@@ -505,6 +510,15 @@ td {
 .article-viewer-wrapper .people-wrapper {
   padding: 10px 0;
 }
+.article-viewer-wrapper .people-wrapper .gallery-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: 20px;
+  padding-bottom: 25px;
+  margin: 0 60px;
+}
 
 .article-viewer-wrapper .people-wrapper .gallery-previewer-wrapper {
   display: flex;
@@ -528,6 +542,30 @@ td {
   margin-left: 16px;
   transition: opacity 0.25s;
 }
+
+.article-viewer-wrapper
+  .people-wrapper
+  .gallery-previewer-wrapper
+  .gallery-previewer-item-active {
+  opacity: 1;
+  cursor: default;
+  position: relative;
+}
+
+.article-viewer-wrapper
+  .people-wrapper
+  .gallery-previewer-wrapper
+  .gallery-previewer-item-active::before {
+  content: "";
+  width: 20px;
+  height: 3px;
+  background: #76c5e4;
+  position: absolute;
+  top: -12px;
+  left: 7px;
+  border-radius: 3px;
+}
+
 .article-viewer-wrapper
   .people-wrapper
   .gallery-previewer-wrapper

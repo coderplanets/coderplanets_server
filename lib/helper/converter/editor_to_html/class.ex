@@ -15,6 +15,7 @@ defmodule Helper.Converter.EditorToHTML.Class do
       "viewer" => "article-viewer-wrapper",
       "unknow_block" => "unknow-block",
       "invalid_block" => "invalid-block",
+      "hide" => "hide",
       # header
       "header" => %{
         "wrapper" => "header-wrapper",
@@ -84,8 +85,10 @@ defmodule Helper.Converter.EditorToHTML.Class do
       "people" => %{
         "wrapper" => "people-wrapper",
         # gallery
+        "gallery_wrapper" => "gallery-wrapper",
         "gallery_previewer_wrapper" => "gallery-previewer-wrapper",
         "gallery_previewer_item" => "gallery-previewer-item",
+        "gallery_previewer_active_item" => "gallery-previewer-item-active",
         "gallery_card_wrapper" => "gallery-card-wrapper",
         "gallery_avatar" => "gallery-avatar",
         "gallery_intro" => "gallery-intro",
