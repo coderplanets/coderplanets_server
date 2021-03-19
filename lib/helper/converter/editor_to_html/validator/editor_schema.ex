@@ -96,7 +96,7 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
     [
       parent: %{
         "id" => [:string, required: false],
-        "mode" => [enum: @valid_people_mode],
+        "mode" => [enum: @valid_image_mode],
         "items" => [:list, type: :map, allow_empty: false]
       },
       item: %{
@@ -113,7 +113,7 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
     [
       parent: %{
         "id" => [:string, required: false],
-        "mode" => [enum: @valid_image_mode],
+        "mode" => [enum: @valid_people_mode],
         "items" => [:list, type: :map, allow_empty: false]
       },
       item: %{
