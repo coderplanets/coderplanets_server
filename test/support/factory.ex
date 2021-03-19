@@ -403,4 +403,15 @@ defmodule GroupherServer.Support.Factory do
       {:ok, _} = Delivery.notify_someone(u, user, info)
     end)
   end
+
+  @doc "mock image"
+  @spec mock_image(Number.t()) :: String.t()
+  def mock_image(index \\ 0) do
+    images = [
+      "https://rmt.dogedoge.com/fetch/~/source/unsplash/photo-1557555187-23d685287bc3?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&amp;ixlib=rb-1.2.1&amp;auto=format&amp;fit=crop&amp;w=1000&amp;q=80",
+      "https://rmt.dogedoge.com/fetch/~/source/unsplash/photo-1484399172022-72a90b12e3c1?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&amp;ixlib=rb-1.2.1&amp;auto=format&amp;fit=crop&amp;w=1000&amp;q=80"
+    ]
+
+    Enum.at(images, index)
+  end
 end
