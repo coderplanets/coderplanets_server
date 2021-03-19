@@ -49,12 +49,9 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Quote do
 
       assert Utils.str_occurence(converted, "id=") == 1
 
-      short_wrapper_class = @class["short_wrapper"]
-      caption_class = @class["caption"]
-
-      assert Utils.str_occurence(converted, short_wrapper_class) == 1
+      assert Utils.str_occurence(converted, @class["short_wrapper"]) == 1
       assert Utils.str_occurence(converted, "</blockquote>") == 1
-      assert Utils.str_occurence(converted, caption_class) == 0
+      assert Utils.str_occurence(converted, @class["caption"]) == 0
     end
 
     @tag :wip
@@ -63,42 +60,31 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Quote do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      long_wrapper_class = @class["long_wrapper"]
-      caption_text_class = @class["caption_text"]
-
-      assert Utils.str_occurence(converted, long_wrapper_class) == 1
+      assert Utils.str_occurence(converted, @class["long_wrapper"]) == 1
       assert Utils.str_occurence(converted, "</blockquote>") == 1
-      assert Utils.str_occurence(converted, caption_text_class) == 1
+      assert Utils.str_occurence(converted, @class["caption_text"]) == 1
     end
 
     @tag :wip
     test "long quote without caption parse should work" do
       editor_json = set_data("long", "long quote")
       {:ok, editor_string} = Jason.encode(editor_json)
-
       {:ok, converted} = Parser.to_html(editor_string)
 
-      long_wrapper_class = @class["long_wrapper"]
-      caption_text_class = @class["caption_text"]
-
-      assert Utils.str_occurence(converted, long_wrapper_class) == 1
+      assert Utils.str_occurence(converted, @class["long_wrapper"]) == 1
       assert Utils.str_occurence(converted, "</blockquote>") == 1
-      assert Utils.str_occurence(converted, caption_text_class) == 0
+      assert Utils.str_occurence(converted, @class["caption_text"]) == 0
     end
 
     @tag :wip
     test "long quote without empty caption parse should work" do
       editor_json = set_data("long", "long quote", "")
       {:ok, editor_string} = Jason.encode(editor_json)
-
       {:ok, converted} = Parser.to_html(editor_string)
 
-      long_wrapper_class = @class["long_wrapper"]
-      caption_text_class = @class["caption_text"]
-
-      assert Utils.str_occurence(converted, long_wrapper_class) == 1
+      assert Utils.str_occurence(converted, @class["long_wrapper"]) == 1
       assert Utils.str_occurence(converted, "</blockquote>") == 1
-      assert Utils.str_occurence(converted, caption_text_class) == 0
+      assert Utils.str_occurence(converted, @class["caption_text"]) == 0
     end
 
     @tag :wip

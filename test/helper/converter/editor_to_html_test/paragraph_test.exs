@@ -26,8 +26,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Paragraph do
       {:ok, editor_string} = Jason.encode(@editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      viewer_class = @root_class["viewer"]
-      assert converted == ~s(<div class="#{viewer_class}"><p>paragraph content</p></div>)
+      assert converted == ~s(<div class="#{@root_class["viewer"]}"><p>paragraph content</p></div>)
     end
 
     @editor_json %{
