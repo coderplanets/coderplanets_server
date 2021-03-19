@@ -51,3 +51,7 @@ jobs:
         run: MIX_ENV=test mix inch.report
       - name: report to codecov.io
         run: bash <(curl -s -k https://codecov.io/bash)
+      - name: report to coveralls
+        run: mix coveralls.github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

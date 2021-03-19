@@ -89,7 +89,7 @@ defmodule GroupherServer.Mixfile do
       {:jason, "~> 1.1.1"},
       {:credo, "~> 1.5.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1.0", only: [:dev, :mock], runtime: false},
-      {:excoveralls, "~> 0.8", only: :test},
+      {:excoveralls, "~> 0.13.4", only: :test},
       {:sentry, "~> 7.1"},
       {:recase, "~> 0.7.0"},
       {:nanoid, "~> 2.0.5"},
