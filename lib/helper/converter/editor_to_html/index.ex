@@ -145,6 +145,28 @@ defmodule Helper.Converter.EditorToHTML do
       </div>)
   end
 
+  defp parse_block(%{"type" => "people", "data" => %{"mode" => "gallery"} = data}) do
+    %{"items" => items} = data
+
+    # set id to each people for switch them
+    items = Enum.map(items, fn item -> Map.merge(item, %{"id" => Utils.uid(:html, item)}) end)
+
+    wrapper_class = get_in(@root_class, ["people", "wrapper"])
+    gallery_wrapper_class = get_in(@root_class, ["people", "gallery_wrapper"])
+
+    previewer_content = Frags.People.get_previewer(:gallery, items)
+    card_content = Frags.People.get_card(:gallery, items)
+
+    anchor_id = Utils.uid(:html, data)
+
+    ~s(<div id="#{anchor_id}" class="#{wrapper_class}">
+        <div class="#{gallery_wrapper_class}">
+          #{previewer_content}
+          #{card_content}
+        </div>
+      </div>)
+  end
+
   defp parse_block(%{"type" => "code", "data" => data}) do
     text = get_in(data, ["text"])
     code = text |> Phoenix.HTML.html_escape() |> Phoenix.HTML.safe_to_string()

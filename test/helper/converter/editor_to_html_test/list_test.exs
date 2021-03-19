@@ -61,8 +61,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      unorder_list_prefix_class = @class["unorder_list_prefix"]
-      assert Utils.str_occurence(converted, unorder_list_prefix_class) == 3
+      assert Utils.str_occurence(converted, @class["unorder_list_prefix"]) == 3
     end
 
     @tag :wip
@@ -104,8 +103,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
 
       assert Utils.str_occurence(converted, "id=") == 1
 
-      order_list_prefix_class = @class["order_list_prefix"]
-      assert Utils.str_occurence(converted, order_list_prefix_class) == 3
+      assert Utils.str_occurence(converted, @class["order_list_prefix"]) == 3
     end
 
     @tag :wip
@@ -176,8 +174,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      checked_class = @class["checklist_checkbox_checked"]
-      assert Utils.str_occurence(converted, checked_class) == 1
+      assert Utils.str_occurence(converted, @class["checklist_checkbox_checked"]) == 1
     end
 
     @tag :wip
@@ -205,8 +202,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      label_class = @class["label"]
-      assert Utils.str_occurence(converted, label_class) == 0
+      assert Utils.str_occurence(converted, @class["label"]) == 0
     end
 
     @tag :wip

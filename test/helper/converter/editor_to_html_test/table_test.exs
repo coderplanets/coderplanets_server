@@ -100,11 +100,8 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Table do
 
       assert Utils.str_occurence(converted, "id=") == 1
 
-      th_header_class = @class["th_header"]
-      td_stripe_class = @class["td_stripe"]
-
-      assert Utils.str_occurence(converted, th_header_class) == 4
-      assert Utils.str_occurence(converted, td_stripe_class) == 3
+      assert Utils.str_occurence(converted, @class["th_header"]) == 4
+      assert Utils.str_occurence(converted, @class["td_stripe"]) == 3
     end
 
     @tag :wip

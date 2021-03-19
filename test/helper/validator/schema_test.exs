@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
   alias Helper.Validator.Schema
 
   describe "[basic schema]" do
-    @tag :wip2
+    @tag :wip
     test "string with options" do
       schema = %{"text" => [:string, required: false]}
       data = %{"no_exsit" => "text"}
@@ -122,7 +122,7 @@ defmodule GroupherServer.Test.Helper.Validator.Schema do
       assert error == [%{field: "text", message: "should be: number", value: "aa"}]
     end
 
-    @tag :wip2
+    @tag :wip
     test "list with options" do
       schema = %{"text" => [:list, required: false]}
       data = %{"no_exsit" => []}

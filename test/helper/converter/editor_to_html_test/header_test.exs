@@ -10,9 +10,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
   @root_class Class.article()
   @class get_in(@root_class, ["header"])
 
-  @eyebrow_class @class["eyebrow_title"]
-  @footer_class @class["footer_title"]
-
   describe "[header block unit]" do
     defp set_data(data) do
       %{
@@ -80,8 +77,8 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       # header_class = @class["header"]
       assert Utils.str_occurence(converted, "id=") == 1
       # assert Utils.str_occurence(converted, header_class) == 1
-      assert Utils.str_occurence(converted, @eyebrow_class) == 1
-      assert Utils.str_occurence(converted, @footer_class) == 1
+      assert Utils.str_occurence(converted, @class["eyebrow_title"]) == 1
+      assert Utils.str_occurence(converted, @class["footer_title"]) == 1
     end
 
     @tag :wip
@@ -113,8 +110,8 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      assert Utils.str_occurence(converted, @eyebrow_class) == 1
-      assert Utils.str_occurence(converted, @footer_class) == 0
+      assert Utils.str_occurence(converted, @class["eyebrow_title"]) == 1
+      assert Utils.str_occurence(converted, @class["footer_title"]) == 0
 
       editor_json =
         set_data(%{
@@ -126,8 +123,8 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      assert Utils.str_occurence(converted, @eyebrow_class) == 0
-      assert Utils.str_occurence(converted, @footer_class) == 1
+      assert Utils.str_occurence(converted, @class["eyebrow_title"]) == 0
+      assert Utils.str_occurence(converted, @class["footer_title"]) == 1
     end
 
     @tag :wip

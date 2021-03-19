@@ -15,6 +15,7 @@ defmodule Helper.Converter.EditorToHTML.Class do
       "viewer" => "article-viewer-wrapper",
       "unknow_block" => "unknow-block",
       "invalid_block" => "invalid-block",
+      "hide" => "hide",
       # header
       "header" => %{
         "wrapper" => "header-wrapper",
@@ -80,6 +81,23 @@ defmodule Helper.Converter.EditorToHTML.Class do
         # minimap
         "gallery_minimap" => "gallery-minimap",
         "gallery_minimap_image" => "gallery-minimap-block-image"
+      },
+      "people" => %{
+        "wrapper" => "people-wrapper",
+        # gallery
+        "gallery_wrapper" => "gallery-wrapper",
+        "gallery_previewer_wrapper" => "gallery-previewer-wrapper",
+        "gallery_previewer_item" => "gallery-previewer-item",
+        "gallery_previewer_active_item" => "gallery-previewer-item-active",
+        "gallery_card_wrapper" => "gallery-card-wrapper",
+        "gallery_avatar" => "gallery-avatar",
+        "gallery_intro" => "gallery-intro",
+        "gallery_intro_title" => "gallery-intro-title",
+        "gallery_intro_bio" => "gallery-intro-bio",
+        "gallery_intro_desc" => "gallery-intro-desc",
+        "gallery_social_wrapper" => "gallery-social-wrapper",
+        "gallery_social_icon" => "gallery-social-icon"
+        ## social
       }
     }
   end

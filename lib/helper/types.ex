@@ -85,10 +85,6 @@ defmodule Helper.Types do
           isHeader: Boolean.t()
         }
 
-  @typedoc """
-  valid editor.js's image mode
-  """
-
   # @typep editor_image_mode :: :single | :jiugongge | :gallery
 
   @typedoc """
@@ -102,6 +98,24 @@ defmodule Helper.Types do
           height: String.t()
         }
 
+  @typedoc """
+  editor.js's people item
+  """
+  @type editor_people_item :: %{
+          required(:id) => String.t(),
+          required(:avatar) => String.t(),
+          required(:title) => String.t(),
+          required(:bio) => String.t(),
+          required(:desc) => String.t()
+        }
+
+  @typedoc """
+  editor.js's social item for any block
+  """
+  @type editor_social_item :: %{
+          required(:name) => String.t(),
+          required(:link) => String.t()
+        }
   @typedoc """
   html fragment
   """
