@@ -130,8 +130,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     |> Multi.run(:update_content, fn _, _ ->
       ORM.update(content, args)
     end)
+    |> Multi.run(:update_meta, fn _, _ ->
+      ArticleOperation.update_meta(content, :is_edited)
+    end)
     |> Multi.run(:update_tag, fn _, _ ->
-      exec_update_tags(content, args.tags)
+      # TODO: move it to ArticleOperation moudel
+      exec_update_tags(content, args)
     end)
     |> Repo.transaction()
     |> update_content_result()
@@ -430,9 +434,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     {:error, [message: "log action", code: ecode(:create_fails)]}
   end
 
-  # except Job, other content will just pass, should use set_tag function instead
-  # defp exec_update_tags(_, _tags_ids), do: {:ok, :pass}
-
   defp update_content_result({:ok, %{update_content: result}}), do: {:ok, result}
   defp update_content_result({:error, :update_content, result, _steps}), do: {:error, result}
   defp update_content_result({:error, :update_tag, result, _steps}), do: {:error, result}
@@ -486,9 +487,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     {:ok, :pass}
   end
 
-  defp exec_update_tags(_content, tags_ids) when length(tags_ids) == 0, do: {:ok, :pass}
+  # except Job, other content will just pass, should use set_tag function instead
+  # defp exec_update_tags(_, _tags_ids), do: {:ok, :pass}
 
-  defp exec_update_tags(content, tags_ids) do
+  defp exec_update_tags(_content, %{tags: tags_ids}) when tags_ids == [], do: {:ok, :pass}
+
+  defp exec_update_tags(content, %{tags: tags_ids}) do
     with {:ok, content} <- ORM.find(content.__struct__, content.id, preload: :tags) do
       tags =
         Enum.reduce(tags_ids, [], fn t, acc ->
@@ -509,4 +513,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Repo.update()
     end
   end
+
+  defp exec_update_tags(_content, _), do: {:ok, :pass}
 end

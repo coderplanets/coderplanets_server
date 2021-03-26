@@ -66,7 +66,7 @@ defmodule GroupherServer.Test.CMS.Post do
       assert author.user_id == user.id
     end
 
-    test "create post with an exsit community fails", ~m(user)a do
+    test "create post with an non-exsit community fails", ~m(user)a do
       invalid_attrs = mock_attrs(:post, %{community_id: non_exsit_id()})
       ivalid_community = %Community{id: non_exsit_id()}
 

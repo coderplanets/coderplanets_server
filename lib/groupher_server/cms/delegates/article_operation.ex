@@ -300,6 +300,17 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
 
   def set_meta(_, _), do: {:ok, :pass}
 
+  @doc "update isEdited meta label if needed"
+  def update_meta(%Post{meta: %{"isEdited" => false} = meta} = content, :is_edited) do
+    ORM.update(content, %{meta: Map.merge(meta, %{"isEdited" => true})})
+  end
+
+  def update_meta(%Post{meta: nil} = content, :is_edited) do
+    ORM.update(content, %{meta: Map.merge(@default_article_meta, %{"isEdited" => true})})
+  end
+
+  def update_meta(_, _), do: {:ok, :pass}
+
   # make sure the reuest tag is in the current community thread
   # example: you can't set a other thread tag to this thread's article
 
