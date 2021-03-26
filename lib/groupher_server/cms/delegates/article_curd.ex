@@ -74,6 +74,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Multi.run(:set_community, fn _, %{create_content: content} ->
         ArticleOperation.set_community(community, thread, content.id)
       end)
+      |> Multi.run(:set_meta, fn _, %{create_content: content} ->
+        ArticleOperation.set_meta(thread, content.id)
+      end)
       |> Multi.run(:set_topic, fn _, %{create_content: content} ->
         exec_set_topic(thread, content.id, attrs)
       end)
@@ -405,6 +408,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp create_content_result({:error, :set_community, _result, _steps}) do
     {:error, [message: "set community", code: ecode(:create_fails)]}
+  end
+
+  defp create_content_result({:error, :set_meta, _result, _steps}) do
+    {:error, [message: "set meta info", code: ecode(:create_fails)]}
   end
 
   defp create_content_result({:error, :set_community_flag, _result, _steps}) do

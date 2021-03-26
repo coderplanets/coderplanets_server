@@ -23,7 +23,7 @@ defmodule GroupherServer.CMS.Post do
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title body digest length)a
-  @optional_fields ~w(origial_community_id link_addr copy_right link_addr link_icon)a
+  @optional_fields ~w(origial_community_id link_addr copy_right link_addr link_icon meta)a
 
   @type t :: %Post{}
   schema "cms_posts" do
@@ -35,6 +35,8 @@ defmodule GroupherServer.CMS.Post do
     field(:copy_right, :string)
     field(:length, :integer)
     field(:views, :integer, default: 0)
+
+    field(:meta, :map)
 
     has_many(:community_flags, {"posts_communities_flags", PostCommunityFlag})
 

@@ -29,6 +29,22 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   alias GroupherServer.CMS.Repo, as: CMSRepo
   alias GroupherServer.Repo
 
+  @default_article_meta %{
+    isEdited: false,
+    forbidComment: false,
+    isReported: false
+    # linkedPostsCount: 0,
+    # linkedJobsCount: 0,
+    # linkedWorksCount: 0,
+    # reaction: %{
+    #   rocketCount: 0,
+    #   heartCount: 0,
+    # }
+  }
+
+  @doc "for test usage"
+  def default_article_meta(), do: @default_article_meta
+
   def pin_content(%Post{id: post_id}, %Community{id: community_id}, topic) do
     with {:ok, %{id: topic_id}} <- ORM.find_by(Topic, %{raw: topic}),
          {:ok, pined} <-
@@ -276,6 +292,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   end
 
   def set_topic(_topic, _thread, _content_id), do: {:ok, :pass}
+
+  @doc "set meta info"
+  def set_meta(:post, content_id) do
+    ORM.update_by(Post, [id: content_id], %{meta: @default_article_meta})
+  end
+
+  def set_meta(_, _), do: {:ok, :pass}
 
   # make sure the reuest tag is in the current community thread
   # example: you can't set a other thread tag to this thread's article
