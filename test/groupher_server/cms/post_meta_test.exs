@@ -18,7 +18,7 @@ defmodule GroupherServer.Test.CMS.PostMeta do
   end
 
   describe "[cms post meta info]" do
-    alias CMS.{Author, Community, Post}
+    alias CMS.{Author, Post}
 
     @tag :wip
     test "can get default meta info", ~m(user community post_attrs)a do

@@ -309,7 +309,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
     ORM.update(content, %{meta: Map.merge(@default_article_meta, %{"isEdited" => true})})
   end
 
-  def update_meta(_, _), do: {:ok, :pass}
+  def update_meta(content, _), do: {:ok, content}
 
   # make sure the reuest tag is in the current community thread
   # example: you can't set a other thread tag to this thread's article

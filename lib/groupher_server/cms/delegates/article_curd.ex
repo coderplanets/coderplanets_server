@@ -130,8 +130,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     |> Multi.run(:update_content, fn _, _ ->
       ORM.update(content, args)
     end)
-    |> Multi.run(:update_meta, fn _, _ ->
-      ArticleOperation.update_meta(content, :is_edited)
+    |> Multi.run(:update_meta, fn _, %{update_content: update_content} ->
+      ArticleOperation.update_meta(update_content, :is_edited)
     end)
     |> Multi.run(:update_tag, fn _, _ ->
       # TODO: move it to ArticleOperation moudel

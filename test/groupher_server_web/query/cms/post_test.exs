@@ -1,7 +1,6 @@
 defmodule GroupherServer.Test.Query.Post do
   use GroupherServer.TestTools
 
-  alias Helper.ORM
   alias GroupherServer.CMS
 
   setup do

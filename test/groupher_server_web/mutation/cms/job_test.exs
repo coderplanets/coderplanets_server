@@ -170,6 +170,7 @@ defmodule GroupherServer.Test.Mutation.Job do
       }
     }
     """
+    @tag :wip2
     test "update a job without login user fails", ~m(guest_conn job)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
@@ -218,6 +219,7 @@ defmodule GroupherServer.Test.Mutation.Job do
       assert updated["tags"] |> Enum.any?(&(&1["id"] == to_string(tag.id)))
     end
 
+    @tag :wip2
     test "update job tags will replace old city-tags", ~m(owner_conn user job)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
