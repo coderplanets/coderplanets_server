@@ -434,7 +434,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     {:error, [message: "log action", code: ecode(:create_fails)]}
   end
 
-  defp update_content_result({:ok, %{update_content: result}}), do: {:ok, result}
+  defp update_content_result({:ok, %{update_meta: result}}), do: {:ok, result}
   defp update_content_result({:error, :update_content, result, _steps}), do: {:error, result}
   defp update_content_result({:error, :update_tag, result, _steps}), do: {:error, result}
 

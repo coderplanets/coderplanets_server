@@ -193,6 +193,9 @@ defmodule GroupherServer.Test.Mutation.Post do
         title
         body
         copyRight
+        meta {
+          isEdited
+        }
       }
     }
     """
@@ -263,6 +266,22 @@ defmodule GroupherServer.Test.Mutation.Post do
       assert updated_post["title"] == variables.title
       assert updated_post["body"] == variables.body
       assert updated_post["copyRight"] == variables.copyRight
+    end
+
+    @tag :wip2
+    test "update post with valid attrs should have isEdited meta info update",
+         ~m(owner_conn post)a do
+      unique_num = System.unique_integer([:positive, :monotonic])
+
+      variables = %{
+        id: post.id,
+        title: "updated title #{unique_num}",
+        body: "updated body #{unique_num}"
+      }
+
+      updated_post = owner_conn |> mutation_result(@query, variables, "updatePost")
+
+      assert true == updated_post["meta"]["isEdited"]
     end
 
     test "login user with auth passport update a post", ~m(post)a do

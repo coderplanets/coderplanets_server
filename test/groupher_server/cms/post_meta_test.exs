@@ -20,20 +20,17 @@ defmodule GroupherServer.Test.CMS.PostMeta do
   describe "[cms post meta info]" do
     alias CMS.{Author, Community, Post}
 
-    @tag :wip2
+    @tag :wip
     test "can get default meta info", ~m(user community post_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
 
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
       {:ok, post} = ORM.find_by(Post, id: post.id)
 
-      # IO.inspect(Utils.keys_to_atoms(post.meta), label: "get post")
-      # IO.inspect(@default_article_meta, label: "the fuck")
-
       assert @default_article_meta == Utils.keys_to_atoms(post.meta)
     end
 
-    @tag :wip2
+    @tag :wip
     test "isEdited flag should set to true after post updated", ~m(user community post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
       {:ok, post} = ORM.find_by(Post, id: post.id)
@@ -45,5 +42,11 @@ defmodule GroupherServer.Test.CMS.PostMeta do
 
       assert post.meta["isEdited"] == true
     end
+
+    # test "post with image should have imageCount in meta" do
+    # end
+
+    # test "post with video should have imageCount in meta" do
+    # end
   end
 end
