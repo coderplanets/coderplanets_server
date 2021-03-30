@@ -10,6 +10,7 @@ defmodule Helper.Utils do
 
   alias Helper.{Cache, Utils}
 
+  # Map utils
   defdelegate map_key_stringify(map), to: Utils.Map
   defdelegate keys_to_atoms(map), to: Utils.Map
   defdelegate keys_to_strings(map), to: Utils.Map
@@ -18,6 +19,11 @@ defmodule Helper.Utils do
   defdelegate snake_map_key(map), to: Utils.Map
   defdelegate deep_merge(left, right), to: Utils.Map
   defdelegate map_atom_value(attrs, opt), to: Utils.Map
+
+  # String Utils
+  defdelegate stringfy(str), to: Utils.String
+  defdelegate count_words(str), to: Utils.String
+  defdelegate str_occurence(string, substr), to: Utils.String
 
   def get_config(section, key, app \\ :groupher_server)
 
@@ -99,11 +105,6 @@ defmodule Helper.Utils do
   def integerfy(id) when is_binary(id), do: String.to_integer(id)
   def integerfy(id), do: id
 
-  def stringfy(v) when is_binary(v), do: v
-  def stringfy(v) when is_integer(v), do: to_string(v)
-  def stringfy(v) when is_atom(v), do: to_string(v)
-  def stringfy(v), do: v
-
   # TODO: enhance, doc
   def repeat(times, [x]) when is_integer(x), do: to_string(for _ <- 1..times, do: x)
   def repeat(times, x), do: for(_ <- 1..times, do: x)
@@ -121,26 +122,6 @@ defmodule Helper.Utils do
   def empty_pagi_data do
     %{entries: [], total_count: 0, page_size: 0, total_pages: 1, page_number: 1}
   end
-
-  @doc """
-  ["a", "b", "c", "c"] => %{"a" => 1, "b" => 1, "c" => 2}
-  """
-  def count_words(words) when is_list(words) do
-    Enum.reduce(words, %{}, &update_word_count/2)
-  end
-
-  defp update_word_count(word, acc) do
-    Map.update(acc, to_string(word), 1, &(&1 + 1))
-  end
-
-  # see https://stackoverflow.com/a/49558074/4050784
-  @spec str_occurence(String.t(), String.t()) :: Integer.t()
-  def str_occurence(string, substr) when is_binary(string) and is_binary(substr) do
-    len = string |> String.split(substr) |> length()
-    len - 1
-  end
-
-  def str_occurence(_, _), do: "must be strings"
 
   @spec large_than(String.t() | Integer.t(), Integer.t()) :: true | false
   def large_than(value, target) when is_binary(value) and is_integer(target) do

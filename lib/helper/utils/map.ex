@@ -2,14 +2,6 @@ defmodule Helper.Utils.Map do
   @moduledoc """
   unitil functions
   """
-  import Ecto.Query, warn: false
-  import Helper.ErrorHandler
-  import Helper.ErrorCode
-
-  import Helper.Validator.Guards, only: [g_none_empty_str: 1]
-
-  alias Helper.Cache
-
   def map_key_stringify(%{__struct__: _} = map) when is_map(map) do
     map = Map.from_struct(map)
     map |> Enum.reduce(%{}, fn {key, val}, acc -> Map.put(acc, to_string(key), val) end)
