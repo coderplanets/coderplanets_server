@@ -13,6 +13,8 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   alias Helper.ORM
   alias Helper.Utils
 
+  @default_article_meta CMS.Delegate.ArticleOperation.default_article_meta()
+
   # #######################
   # community ..
   # #######################
@@ -449,11 +451,14 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   %{"exampleKey" => false }  -> %{example_key: false }
   """
   def get_article_meta(root, _, _) do
-    meta_info =
-      root.meta
+    # if meta is nil , means exsit article or test env (like: db_insert)
+    meta = if is_nil(root.meta), do: @default_article_meta, else: root.meta
+
+    fmt_meta =
+      meta
       |> Utils.snake_map_key()
       |> Utils.keys_to_atoms()
 
-    {:ok, meta_info}
+    {:ok, fmt_meta}
   end
 end
