@@ -107,12 +107,13 @@ defmodule Helper.Utils do
   def keys_to_atoms(string) when is_binary(string), do: string
 
   def reduce_keys_to_atoms({key, val}) when is_map(val),
-    do: {String.to_existing_atom(key), keys_to_atoms(val)}
+    # do: {String.to_existing_atom(key), keys_to_atoms(val)}
+    do: {String.to_atom(key), keys_to_atoms(val)}
 
   def reduce_keys_to_atoms({key, val}) when is_list(val),
-    do: {String.to_existing_atom(key), Enum.map(val, &keys_to_atoms(&1))}
+    do: {String.to_atom(key), Enum.map(val, &keys_to_atoms(&1))}
 
-  def reduce_keys_to_atoms({key, val}), do: {String.to_existing_atom(key), val}
+  def reduce_keys_to_atoms({key, val}), do: {String.to_atom(key), val}
 
   @doc """
   see https://stackoverflow.com/a/61559842/4050784
@@ -167,6 +168,28 @@ defmodule Helper.Utils do
   defp safe_map(map), do: map
 
   defp map_to_camel({k, v}), do: {Recase.to_camel(to_string(k)), v}
+
+  @spec snake_map_key(map) :: map
+  def snake_map_key(map) do
+    map_list =
+      Enum.map(map, fn {k, v} ->
+        v =
+          cond do
+            is_datetime?(v) ->
+              DateTime.to_iso8601(v)
+
+            is_map(v) ->
+              snake_map_key(safe_map(v))
+
+            true ->
+              v
+          end
+
+        {Recase.to_snake(to_string(k)), v}
+      end)
+
+    Enum.into(map_list, %{})
+  end
 
   def is_datetime?(%DateTime{}), do: true
   def is_datetime?(_), do: false

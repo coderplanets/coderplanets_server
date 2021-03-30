@@ -39,6 +39,16 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
     # field(:topic)
 
+    # article meta info
+    field(:meta, :article_meta) do
+      # NOTE: absinthe has issue with :map resolving, do it mannulay
+      resolve(&R.CMS.get_article_meta/3)
+    end
+
+    # field :meta, :article_meta do
+    #   resolve(&R.CMS.get_meta/3)
+    # end
+
     field :comments, list_of(:comment) do
       arg(:filter, :members_filter)
 
@@ -447,5 +457,20 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   object :paged_threads do
     field(:entries, list_of(:thread))
     pagination_fields()
+  end
+
+  @desc "article meta info"
+  object :article_meta do
+    field(:is_edited, :boolean)
+    field(:forbid_comment, :boolean)
+    # field(:isReported, :boolean)
+    # field(:linked_posts_count, :integer)
+    # field(:linked_jobs_count, :integer)
+    # field(:linked_works_count, :integer)
+
+    # reaction: %{
+    #   rocketCount: 0,
+    #   heartCount: 0,
+    # }
   end
 end

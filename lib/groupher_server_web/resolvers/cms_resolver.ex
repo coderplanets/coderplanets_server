@@ -11,6 +11,9 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   alias CMS.{Post, Video, Repo, Job, Community, Category, Tag, Thread}
 
   alias Helper.ORM
+  alias Helper.Utils
+
+  @default_article_meta CMS.Delegate.ArticleOperation.default_article_meta()
 
   # #######################
   # community ..
@@ -102,12 +105,8 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.create_content(%Community{id: community_id}, thread, args, user)
   end
 
-  def update_content(_root, %{passport_source: content, tags: _tags} = args, _info) do
-    CMS.update_content(content, args)
-  end
-
   def update_content(_root, %{passport_source: content} = args, _info) do
-    ORM.update(content, args)
+    CMS.update_content(content, args)
   end
 
   def delete_content(_root, %{passport_source: content}, _info), do: ORM.delete(content)
@@ -444,5 +443,22 @@ defmodule GroupherServerWeb.Resolvers.CMS do
 
   def tags_count(root, _, _) do
     CMS.count(%Community{id: root.id}, :tags)
+  end
+
+  @doc """
+  covert normal map to absinthe fmt
+  e.g:
+  %{"exampleKey" => false }  -> %{example_key: false }
+  """
+  def get_article_meta(root, _, _) do
+    # if meta is nil , means exsit article or test env (like: db_insert)
+    meta = if is_nil(root.meta), do: @default_article_meta, else: root.meta
+
+    fmt_meta =
+      meta
+      |> Utils.snake_map_key()
+      |> Utils.keys_to_atoms()
+
+    {:ok, fmt_meta}
   end
 end
