@@ -8,6 +8,7 @@ defmodule GroupherServer.CMS.Post do
   alias GroupherServer.CMS
 
   alias CMS.{
+    ArticleMeta,
     Author,
     Community,
     PostComment,
@@ -23,7 +24,8 @@ defmodule GroupherServer.CMS.Post do
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title body digest length)a
-  @optional_fields ~w(origial_community_id link_addr copy_right link_addr link_icon meta)a
+  @optional_fields ~w(origial_community_id link_addr copy_right link_addr link_icon)a
+  @embed_fileds ~w(meta)a
 
   @type t :: %Post{}
   schema "cms_posts" do
@@ -36,7 +38,9 @@ defmodule GroupherServer.CMS.Post do
     field(:length, :integer)
     field(:views, :integer, default: 0)
 
-    field(:meta, :map)
+    embeds_one(:meta, ArticleMeta, on_replace: :update)
+
+    # field(:meta, :map)
 
     has_many(:community_flags, {"posts_communities_flags", PostCommunityFlag})
 

@@ -10,6 +10,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   alias Helper.ORM
 
   alias GroupherServer.CMS.{
+    ArticleMeta,
     Community,
     Post,
     PostCommunityFlag,
@@ -28,22 +29,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
 
   alias GroupherServer.CMS.Repo, as: CMSRepo
   alias GroupherServer.Repo
-
-  @default_article_meta %{
-    isEdited: false,
-    forbidComment: false,
-    isReported: false
-    # linkedPostsCount: 0,
-    # linkedJobsCount: 0,
-    # linkedWorksCount: 0,
-    # reaction: %{
-    #   rocketCount: 0,
-    #   heartCount: 0,
-    # }
-  }
-
-  @doc "for test usage"
-  def default_article_meta(), do: @default_article_meta
 
   def pin_content(%Post{id: post_id}, %Community{id: community_id}, topic) do
     with {:ok, %{id: topic_id}} <- ORM.find_by(Topic, %{raw: topic}),
@@ -294,19 +279,32 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   def set_topic(_topic, _thread, _content_id), do: {:ok, :pass}
 
   @doc "set meta info"
+  # embeds_one do not have default option, so we init it with empty map mannully
+  # see: https://github.com/elixir-ecto/ecto/issues/2634
   def set_meta(:post, content_id) do
-    ORM.update_by(Post, [id: content_id], %{meta: @default_article_meta})
+    ORM.update_by(Post, [id: content_id], %{meta: %{}})
   end
 
   def set_meta(_, _), do: {:ok, :pass}
 
   @doc "update isEdited meta label if needed"
-  def update_meta(%Post{meta: %{"isEdited" => false} = meta} = content, :is_edited) do
-    ORM.update(content, %{meta: Map.merge(meta, %{"isEdited" => true})})
+  def update_meta(%Post{meta: %ArticleMeta{is_edited: false} = meta} = content, :is_edited) do
+    new_meta = meta |> Map.from_struct() |> Map.delete(:id) |> Map.merge(%{is_edited: true})
+
+    content
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_embed(:meta, new_meta)
+    |> Repo.update()
   end
 
+  # for test or exsiting articles
   def update_meta(%Post{meta: nil} = content, :is_edited) do
-    ORM.update(content, %{meta: Map.merge(@default_article_meta, %{"isEdited" => true})})
+    new_meta = ArticleMeta.default_meta() |> Map.merge(%{is_edited: true})
+
+    content
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_embed(:meta, new_meta)
+    |> Repo.update()
   end
 
   def update_meta(content, _), do: {:ok, content}

@@ -1,11 +1,13 @@
 defmodule GroupherServer.Test.CMS.PostMeta do
+  @moduledoc false
   use GroupherServer.TestTools
 
   alias Helper.ORM
   alias GroupherServer.CMS
-  alias Helper.Utils
 
-  @default_article_meta CMS.Delegate.ArticleOperation.default_article_meta()
+  alias CMS.{ArticleMeta, Author, Post}
+
+  @default_article_meta ArticleMeta.default_meta()
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -18,29 +20,28 @@ defmodule GroupherServer.Test.CMS.PostMeta do
   end
 
   describe "[cms post meta info]" do
-    alias CMS.{Author, Post}
-
-    @tag :wip
+    @tag :wip2
     test "can get default meta info", ~m(user community post_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
 
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
       {:ok, post} = ORM.find_by(Post, id: post.id)
+      meta = post.meta |> Map.from_struct() |> Map.delete(:id)
 
-      assert @default_article_meta == Utils.keys_to_atoms(post.meta)
+      assert @default_article_meta == meta
     end
 
-    @tag :wip
-    test "isEdited flag should set to true after post updated", ~m(user community post_attrs)a do
+    @tag :wip2
+    test "is_edited flag should set to true after post updated", ~m(user community post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
       {:ok, post} = ORM.find_by(Post, id: post.id)
 
-      assert post.meta["isEdited"] == false
+      assert post.meta.is_edited == false
 
       {:ok, _} = CMS.update_content(post, %{"title" => "new title"})
       {:ok, post} = ORM.find_by(Post, id: post.id)
 
-      assert post.meta["isEdited"] == true
+      assert post.meta.is_edited == true
     end
 
     # test "post with image should have imageCount in meta" do
