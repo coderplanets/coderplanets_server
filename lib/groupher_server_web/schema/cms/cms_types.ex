@@ -39,11 +39,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
     # field(:topic)
 
-    # article meta info
-    field(:meta, :article_meta) do
-      # NOTE: absinthe has issue with :map resolving, do it mannulay
-      resolve(&R.CMS.get_article_meta/3)
-    end
+    field(:meta, :article_meta)
 
     # field :meta, :article_meta do
     #   resolve(&R.CMS.get_meta/3)
