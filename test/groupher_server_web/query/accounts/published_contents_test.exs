@@ -93,45 +93,6 @@ defmodule GroupherServer.Test.Query.Accounts.PublishedContents do
     end
   end
 
-  describe "[account published videos]" do
-    @query """
-    query($userId: ID!, $filter: PagedFilter!) {
-      publishedVideos(userId: $userId, filter: $filter) {
-        entries {
-          id
-          author {
-            id
-          }
-        }
-        totalPages
-        totalCount
-        pageSize
-        pageNumber
-      }
-    }
-    """
-    test "user can get paged published videos", ~m(guest_conn user community)a do
-      pub_videos =
-        Enum.reduce(1..@publish_count, [], fn _, acc ->
-          video_attrs = mock_attrs(:video, %{community_id: community.id})
-          {:ok, video} = CMS.create_content(community, :video, video_attrs, user)
-
-          acc ++ [video]
-        end)
-
-      random_video_id = pub_videos |> Enum.random() |> Map.get(:id) |> to_string
-
-      variables = %{userId: user.id, filter: %{page: 1, size: 20}}
-      results = guest_conn |> query_result(@query, variables, "publishedVideos")
-
-      assert results |> is_valid_pagination?
-      assert results["totalCount"] == @publish_count
-
-      assert results["entries"] |> Enum.all?(&(&1["author"]["id"] == to_string(user.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == random_video_id))
-    end
-  end
-
   describe "[account published repos]" do
     @query """
     query($userId: ID!, $filter: PagedFilter!) {

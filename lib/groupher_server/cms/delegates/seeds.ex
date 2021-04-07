@@ -435,8 +435,6 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     end)
   end
 
-  # tagfy only post job repo and video
-
   defp tagfy_threads(communities, _threads, bot, :city) when is_list(communities) do
     Enum.each(communities, fn community ->
       create_tags(community, :post, bot, :city)

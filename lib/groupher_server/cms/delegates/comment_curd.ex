@@ -15,7 +15,6 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
   alias GroupherServer.CMS.{
     PostCommentReply,
     JobCommentReply,
-    VideoCommentReply,
     RepoCommentReply
   }
 
@@ -213,17 +212,6 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
     end
   end
 
-  defp bridge_reply(:video, queryable, comment, attrs) do
-    with {:ok, reply} <- ORM.create(queryable, attrs) do
-      ORM.update(reply, %{reply_id: comment.id})
-
-      {:ok, _} =
-        VideoCommentReply |> ORM.create(%{video_comment_id: comment.id, reply_id: reply.id})
-
-      queryable |> ORM.find(reply.id)
-    end
-  end
-
   defp bridge_reply(:repo, queryable, comment, attrs) do
     with {:ok, reply} <- ORM.create(queryable, attrs) do
       ORM.update(reply, %{reply_id: comment.id})
@@ -256,7 +244,6 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
   # merge_comment_attrs when create comemnt
   defp merge_comment_attrs(:post, attrs, id), do: attrs |> Map.merge(%{post_id: id})
   defp merge_comment_attrs(:job, attrs, id), do: attrs |> Map.merge(%{job_id: id})
-  defp merge_comment_attrs(:video, attrs, id), do: attrs |> Map.merge(%{video_id: id})
   defp merge_comment_attrs(:repo, attrs, id), do: attrs |> Map.merge(%{repo_id: id})
 
   defp merge_reply_attrs(:post, attrs, comment),
@@ -264,19 +251,14 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
 
   defp merge_reply_attrs(:job, attrs, comment), do: attrs |> Map.merge(%{job_id: comment.job_id})
 
-  defp merge_reply_attrs(:video, attrs, comment),
-    do: attrs |> Map.merge(%{video_id: comment.video_id})
-
   defp merge_reply_attrs(:repo, attrs, comment),
     do: attrs |> Map.merge(%{repo_id: comment.repo_id})
 
   defp dynamic_comment_where(:post, id), do: dynamic([c], c.post_id == ^id)
   defp dynamic_comment_where(:job, id), do: dynamic([c], c.job_id == ^id)
-  defp dynamic_comment_where(:video, id), do: dynamic([c], c.video_id == ^id)
   defp dynamic_comment_where(:repo, id), do: dynamic([c], c.repo_id == ^id)
 
   defp dynamic_reply_where(:post, comment), do: dynamic([c], c.post_id == ^comment.post_id)
   defp dynamic_reply_where(:job, comment), do: dynamic([c], c.job_id == ^comment.job_id)
-  defp dynamic_reply_where(:video, comment), do: dynamic([c], c.video_id == ^comment.video_id)
   defp dynamic_reply_where(:repo, comment), do: dynamic([c], c.repo_id == ^comment.repo_id)
 end

@@ -17,10 +17,9 @@ defmodule GroupherServer.Test.CMS.ContentsPin do
 
     {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
     {:ok, job} = CMS.create_content(community, :job, mock_attrs(:job), user)
-    {:ok, video} = CMS.create_content(community, :video, mock_attrs(:video), user)
     {:ok, repo} = CMS.create_content(community, :repo, mock_attrs(:repo), user)
 
-    {:ok, ~m(user community post job video repo)a}
+    {:ok, ~m(user community post job repo)a}
   end
 
   describe "[cms post pin]" do
@@ -52,22 +51,6 @@ defmodule GroupherServer.Test.CMS.ContentsPin do
 
       assert {:ok, unpined} = CMS.undo_pin_content(job, community)
       assert unpined.id == job.id
-    end
-  end
-
-  describe "[cms video pin]" do
-    test "can pin a video", ~m(community video)a do
-      {:ok, pined_video} = CMS.pin_content(video, community)
-
-      assert pined_video.id == video.id
-    end
-
-    test "can undo pin to a video", ~m(community video)a do
-      {:ok, pined_video} = CMS.pin_content(video, community)
-      assert pined_video.id == video.id
-
-      assert {:ok, unpined} = CMS.undo_pin_content(video, community)
-      assert unpined.id == video.id
     end
   end
 

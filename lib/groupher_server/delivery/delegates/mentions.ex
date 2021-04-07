@@ -107,7 +107,6 @@ defmodule GroupherServer.Delivery.Delegate.Mentions do
 
   defp get_reply_content_id(:post, comment), do: comment.post_id
   defp get_reply_content_id(:job, comment), do: comment.job_id
-  defp get_reply_content_id(:video, comment), do: comment.video_id
   defp get_reply_content_id(:repo, comment), do: comment.repo_id
 
   def mention_from_comment_reply(community, thread, comment, args, %User{} = from_user) do

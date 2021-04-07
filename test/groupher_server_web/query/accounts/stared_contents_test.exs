@@ -9,12 +9,11 @@ defmodule GroupherServer.Test.Query.Accounts.StaredContents do
     {:ok, user} = db_insert(:user)
     {:ok, posts} = db_insert_multi(:post, @total_count)
     {:ok, jobs} = db_insert_multi(:job, @total_count)
-    {:ok, videos} = db_insert_multi(:video, @total_count)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user, user)
 
-    {:ok, ~m(guest_conn user_conn user posts jobs videos)a}
+    {:ok, ~m(guest_conn user_conn user posts jobs)a}
   end
 
   describe "[accounts stared posts]" do
@@ -129,65 +128,6 @@ defmodule GroupherServer.Test.Query.Accounts.StaredContents do
       variables = %{userId: user.id, filter: %{page: 1, size: 20}}
       results = user_conn |> query_result(@query, variables, "staredJobs")
       results2 = guest_conn |> query_result(@query, variables, "staredJobs")
-
-      assert results["totalCount"] == @total_count
-      assert results2["totalCount"] == @total_count
-    end
-  end
-
-  describe "[accounts stared videos]" do
-    @query """
-    query($filter: PagedFilter!) {
-      user {
-        id
-        staredVideos(filter: $filter) {
-          entries {
-            id
-          }
-          totalCount
-        }
-        staredVideosCount
-      }
-    }
-    """
-    test "login user can get it's own staredVideos", ~m(user_conn user videos)a do
-      Enum.each(videos, fn video ->
-        {:ok, _} = CMS.reaction(:video, :star, video.id, user)
-      end)
-
-      random_id = videos |> Enum.shuffle() |> List.first() |> Map.get(:id) |> to_string
-
-      variables = %{filter: %{page: 1, size: 20}}
-      results = user_conn |> query_result(@query, variables, "user")
-      assert results["staredVideos"] |> Map.get("totalCount") == @total_count
-      assert results["staredVideosCount"] == @total_count
-
-      assert results["staredVideos"]
-             |> Map.get("entries")
-             |> Enum.any?(&(&1["id"] == random_id))
-    end
-
-    @query """
-    query($userId: ID, $filter: PagedFilter!) {
-      staredVideos(userId: $userId,  filter: $filter) {
-        entries {
-          id
-        }
-        totalCount
-      }
-    }
-    """
-    test "other user can get other user's paged staredVideos",
-         ~m(user_conn guest_conn videos)a do
-      {:ok, user} = db_insert(:user)
-
-      Enum.each(videos, fn video ->
-        {:ok, _} = CMS.reaction(:video, :star, video.id, user)
-      end)
-
-      variables = %{userId: user.id, filter: %{page: 1, size: 20}}
-      results = user_conn |> query_result(@query, variables, "staredVideos")
-      results2 = guest_conn |> query_result(@query, variables, "staredVideos")
 
       assert results["totalCount"] == @total_count
       assert results2["totalCount"] == @total_count

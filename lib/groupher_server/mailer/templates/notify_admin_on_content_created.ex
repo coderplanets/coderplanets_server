@@ -1,7 +1,7 @@
 defmodule GroupherServer.Email.Templates.NotifyAdminOnContentCreated do
   @moduledoc """
   template for notify admin when there is new content created, like but not limit
-  to: post, job, video, repo ...
+  to: post, job, repo ...
 
   if you want change style or debug the template
   just copy and paste raw string to: https://mjml.io/try-it-live

@@ -10,7 +10,7 @@ defmodule Helper.QueryBuilder do
   3. is viewer reacted?
 
   bewteen [THREAD] and [REACT]
-  [THREAD]: cms thread, include: Post, Job, Video, Repo ...
+  [THREAD]: cms thread, include: Post, Job, Repo ...
   [REACT]; favorites, stars, watchs ...
   """
   def members_pack(queryable, %{filter: filter}) do
@@ -30,12 +30,6 @@ defmodule Helper.QueryBuilder do
   def members_pack(queryable, %{count: _, type: :job}) do
     queryable
     |> group_by([f], f.job_id)
-    |> select([f], count(f.id))
-  end
-
-  def members_pack(queryable, %{count: _, type: :video}) do
-    queryable
-    |> group_by([f], f.video_id)
     |> select([f], count(f.id))
   end
 

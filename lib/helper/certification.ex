@@ -64,10 +64,6 @@ defmodule Helper.Certification do
         "job.undo_pin",
         "job.trash",
         "job.undo_trash",
-        "video.pin",
-        "video.undo_pin",
-        "video.trash",
-        "video.undo_trash",
         "repo.pin",
         "repo.undo_pin",
         "repo.trash",
@@ -107,18 +103,6 @@ defmodule Helper.Certification do
         "job.undo_pin",
         "job.trash",
         "job.undo_trash",
-        # video tag
-        "video.tag.create",
-        "video.tag.update",
-        "video.tag.delete",
-        "video.tag.set",
-        "video.refinedtag.set",
-        "video.tag.unset",
-        # video flag
-        "video.pin",
-        "video.undo_pin",
-        "video.trash",
-        "video.undo_trash",
         # repo tag
         "repo.tag.create",
         "repo.tag.update",
@@ -172,8 +156,6 @@ end
 # 可以给某个社区的某个版块添加/删除管理员, 实际上就是在给其他成员分配上面的权限,同时该用户会被添加到相应的管理员中
 # middleware(M.Passport, claim: "cms->c?->posts.managers.add")
 # middleware(M.Passport, claim: "cms->c?->jobs.managers.add")
-# middleware(M.Passport, claim: "cms->c?->videos.managers.add")
-# middleware(M.Passport, claim: "cms->c?->videos.managers.delete")
 
 # 可以给社区的版块设置审核后发布
 # middleware(M.Passport, claim: "cms->c?->settings.posts.needReview")

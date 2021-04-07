@@ -72,33 +72,6 @@ defmodule GroupherServer.Test.Query.CMS.ContentCounts do
       community(id: $id) {
         id
         title
-        videosCount
-      }
-    }
-    """
-    test "community have valid videos_count", ~m(guest_conn community user)a do
-      variables = %{id: community.id}
-      results = guest_conn |> query_result(@query, variables, "community")
-      assert results["videosCount"] == 0
-
-      count = Enum.random(1..20)
-
-      Enum.reduce(1..count, [], fn _, acc ->
-        video_attrs = mock_attrs(:video, %{community_id: community.id})
-        {:ok, video} = CMS.create_content(community, :video, video_attrs, user)
-
-        acc ++ [video]
-      end)
-
-      results = guest_conn |> query_result(@query, variables, "community")
-      assert results["videosCount"] == count
-    end
-
-    @query """
-    query($id: ID) {
-      community(id: $id) {
-        id
-        title
         reposCount
       }
     }

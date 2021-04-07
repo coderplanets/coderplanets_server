@@ -41,21 +41,20 @@ defmodule GroupherServer.Accounts.Delegate.FavoriteCategory do
     with {:ok, category} <- FavoriteCategory |> ORM.find_by(~m(id user_id)a) do
       Multi.new()
       |> Multi.run(:downgrade_achievement, fn _, _ ->
-        # find user favvoried-contents(posts & jobs & videos) 's author,
+        # find user favvoried-contents(posts & jobs) 's author,
         # and downgrade their's acieveents
         # NOTE: this is too fucking violent and should be refactor later
-        # we find favroted posts/jobs/videos author_ids then doengrade their achievement
+        # we find favroted posts/jobs author_ids then doengrade their achievement
         # this implentment is limited, if the user have lots contents in a favoreted-category
         # ant those contents have diffenert author each, it may be fucked
         # should be in a queue job or sth
         {:ok, post_author_ids} = affected_author_ids(:post, CMS.PostFavorite, category)
         {:ok, job_author_ids} = affected_author_ids(:job, CMS.JobFavorite, category)
-        {:ok, video_author_ids} = affected_author_ids(:video, CMS.VideoFavorite, category)
         {:ok, repo_author_ids} = affected_author_ids(:repo, CMS.RepoFavorite, category)
 
         # author_ids_list = count_words(total_author_ids) |> Map.to_list
         author_ids_list =
-          (post_author_ids ++ job_author_ids ++ video_author_ids ++ repo_author_ids)
+          (post_author_ids ++ job_author_ids ++ repo_author_ids)
           |> count_words
           |> Map.to_list()
 
@@ -76,7 +75,7 @@ defmodule GroupherServer.Accounts.Delegate.FavoriteCategory do
   end
 
   # NOTE: this is too fucking violent and should be refactor later
-  # we find favroted posts/jobs/videos author_ids then doengrade their achievement
+  # we find favroted posts/jobs author_ids then doengrade their achievement
   # this implentment is limited, if the user have lots contents in a favoreted-category
   # ant those contents have diffenert author each, it may be fucked
   defp affected_author_ids(thread, queryable, category) do
@@ -136,7 +135,7 @@ defmodule GroupherServer.Accounts.Delegate.FavoriteCategory do
   end
 
   @doc """
-  set category for favorited content (post, job, video ...)
+  set category for favorited content (post, job ...)
   """
   def set_favorites(%User{} = user, thread, content_id, category_id) do
     with {:ok, favorite_category} <-
@@ -237,9 +236,6 @@ defmodule GroupherServer.Accounts.Delegate.FavoriteCategory do
 
   defp find_content_favorite(:job, content_id, user_id),
     do: JobFavorite |> ORM.find_by(%{job_id: content_id, user_id: user_id})
-
-  defp find_content_favorite(:video, content_id, user_id),
-    do: VideoFavorite |> ORM.find_by(%{video_id: content_id, user_id: user_id})
 
   defp find_content_favorite(:repo, content_id, user_id),
     do: RepoFavorite |> ORM.find_by(%{repo_id: content_id, user_id: user_id})

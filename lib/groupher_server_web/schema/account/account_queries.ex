@@ -91,16 +91,6 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.stared_contents/3)
     end
 
-    @desc "paged stared videos"
-    field :stared_videos, :paged_videos do
-      arg(:user_id, non_null(:id))
-      arg(:filter, non_null(:paged_filter))
-      arg(:thread, :video_thread, default_value: :video)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.stared_contents/3)
-    end
-
     @desc "get favorited posts"
     field :favorited_posts, :paged_posts do
       arg(:user_id, non_null(:id))
@@ -118,17 +108,6 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
       arg(:filter, non_null(:paged_filter))
       arg(:category_id, :id)
       arg(:thread, :job_thread, default_value: :job)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.favorited_contents/3)
-    end
-
-    @desc "get favorited videos"
-    field :favorited_videos, :paged_videos do
-      arg(:user_id, non_null(:id))
-      arg(:filter, non_null(:paged_filter))
-      arg(:category_id, :id)
-      arg(:thread, :video_thread, default_value: :video)
 
       middleware(M.PageSizeProof)
       resolve(&R.Accounts.favorited_contents/3)
@@ -165,16 +144,6 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.published_contents/3)
     end
 
-    @desc "get paged published videos"
-    field :published_videos, :paged_videos do
-      arg(:user_id, non_null(:id))
-      arg(:filter, non_null(:paged_filter))
-      arg(:thread, :video_thread, default_value: :video)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.published_contents/3)
-    end
-
     @desc "get paged published repos"
     field :published_repos, :paged_repos do
       arg(:user_id, non_null(:id))
@@ -200,16 +169,6 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
       arg(:user_id, non_null(:id))
       arg(:filter, non_null(:paged_filter))
       arg(:thread, :job_thread, default_value: :job)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.published_comments/3)
-    end
-
-    @desc "get paged published comments on video"
-    field :published_video_comments, :paged_video_comments do
-      arg(:user_id, non_null(:id))
-      arg(:filter, non_null(:paged_filter))
-      arg(:thread, :video_thread, default_value: :video)
 
       middleware(M.PageSizeProof)
       resolve(&R.Accounts.published_comments/3)

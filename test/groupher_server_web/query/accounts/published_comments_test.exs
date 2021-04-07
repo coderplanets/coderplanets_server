@@ -113,55 +113,6 @@ defmodule GroupherServer.Test.Query.Accounts.PublishedComments do
     end
   end
 
-  describe "[account published comments on video]" do
-    @query """
-    query($userId: ID!, $filter: PagedFilter!) {
-      publishedVideoComments(userId: $userId, filter: $filter) {
-        entries {
-          id
-          body
-          author {
-            id
-          }
-          video {
-            id
-            title
-          }
-        }
-        totalPages
-        totalCount
-        pageSize
-        pageNumber
-      }
-    }
-    """
-    test "user can get paged published comments on video", ~m(guest_conn user community)a do
-      {:ok, video} = db_insert(:video)
-
-      pub_comments =
-        Enum.reduce(1..@publish_count, [], fn _, acc ->
-          body = "this is a test comment"
-
-          {:ok, comment} =
-            CMS.create_comment(:video, video.id, %{community: community.raw, body: body}, user)
-
-          acc ++ [comment]
-        end)
-
-      random_comment_id = pub_comments |> Enum.random() |> Map.get(:id) |> to_string
-
-      variables = %{userId: user.id, filter: %{page: 1, size: 20}}
-      results = guest_conn |> query_result(@query, variables, "publishedVideoComments")
-
-      assert results |> is_valid_pagination?
-      assert results["totalCount"] == @publish_count
-
-      assert results["entries"] |> Enum.all?(&(&1["video"]["id"] == to_string(video.id)))
-      assert results["entries"] |> Enum.all?(&(&1["author"]["id"] == to_string(user.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == random_comment_id))
-    end
-  end
-
   describe "[account published comments on repo]" do
     @query """
     query($userId: ID!, $filter: PagedFilter!) {

@@ -1,6 +1,6 @@
 defmodule GroupherServer.CMS.Delegate.FavoritedContents do
   @moduledoc """
-  CURD operation on post/job/video ...
+  CURD operation on post/job ...
   """
   alias Helper.ORM
 
@@ -17,12 +17,6 @@ defmodule GroupherServer.CMS.Delegate.FavoritedContents do
   def favorited_category(:job, id, %User{id: user_id}) do
     CMS.JobFavorite
     |> ORM.find_by(job_id: id, user_id: user_id)
-    |> handle_reault
-  end
-
-  def favorited_category(:video, id, %User{id: user_id}) do
-    CMS.VideoFavorite
-    |> ORM.find_by(video_id: id, user_id: user_id)
     |> handle_reault
   end
 

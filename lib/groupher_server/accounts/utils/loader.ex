@@ -50,10 +50,6 @@ defmodule GroupherServer.Accounts.Utils.Loader do
     CMS.JobStar |> count_contents
   end
 
-  def query({"videos_stars", CMS.VideoStar}, %{count: _}) do
-    CMS.VideoStar |> count_contents
-  end
-
   # favorited contents count
   def query({"posts_favorites", CMS.PostFavorite}, %{count: _}) do
     CMS.PostFavorite |> count_contents
@@ -61,10 +57,6 @@ defmodule GroupherServer.Accounts.Utils.Loader do
 
   def query({"jobs_favorites", CMS.JobFavorite}, %{count: _}) do
     CMS.JobFavorite |> count_contents
-  end
-
-  def query({"videos_favorites", CMS.VideoFavorite}, %{count: _}) do
-    CMS.VideoFavorite |> count_contents
   end
 
   def query({"repos_favorites", CMS.RepoFavorite}, %{count: _}) do

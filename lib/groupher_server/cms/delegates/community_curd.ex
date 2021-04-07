@@ -57,7 +57,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   end
 
   @doc """
-  create a Tag base on type: post / tuts / videos ...
+  create a Tag base on type: post / tuts ...
   """
   # TODO: change to create_tag(community, thread, attrs, ....)
   def create_tag(%Community{id: community_id}, thread, attrs, %Accounts.User{id: user_id}) do
