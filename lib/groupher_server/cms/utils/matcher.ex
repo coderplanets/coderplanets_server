@@ -37,7 +37,7 @@ defmodule GroupherServer.CMS.Utils.Matcher do
     # flags
     PostCommunityFlag,
     JobCommunityFlag,
-    RepoCommunityFlag,
+    RepoCommunityFlag
   }
 
   #########################################

@@ -8,7 +8,7 @@ defmodule GroupherServer.Test.CMS.ContentFlags do
   alias CMS.{
     PostCommunityFlag,
     RepoCommunityFlag,
-    JobCommunityFlag,
+    JobCommunityFlag
   }
 
   alias Helper.ORM
