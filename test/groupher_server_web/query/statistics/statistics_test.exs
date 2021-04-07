@@ -72,7 +72,6 @@ defmodule GroupherServer.Test.Query.Statistics do
         communitiesCount
         postsCount
         jobsCount
-        videosCount
         reposCount
         categoriesCount
         tagsCount

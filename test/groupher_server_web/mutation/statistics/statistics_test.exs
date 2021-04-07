@@ -119,53 +119,6 @@ defmodule GroupherServer.Test.Mutation.Statistics do
       assert contributes.count == 1
     end
 
-    @create_video_query """
-    mutation(
-      $title: String!,
-      $poster: String!,
-      $thumbnil: String!,
-      $desc: String!,
-      $duration: String!,
-      $durationSec: Int!,
-      $source: String!,
-      $link: String!,
-      $originalAuthor: String!,
-      $originalAuthorLink: String!,
-      $publishAt: DateTime!,
-      $communityId: ID!,
-      $tags: [Ids]
-    ) {
-      createVideo(
-        title: $title,
-        poster: $poster,
-        thumbnil: $thumbnil,
-        desc: $desc,
-        duration: $duration,
-        durationSec: $durationSec,
-        source: $source,
-        link: $link,
-        originalAuthor:$originalAuthor,
-        originalAuthorLink: $originalAuthorLink,
-        publishAt: $publishAt,
-        communityId: $communityId,
-        tags: $tags
-      ) {
-        id
-        title
-        desc
-      }
-    }
-    """
-    test "user should have contribute list after create a video", ~m(user_conn user community)a do
-      video_attr = mock_attrs(:video)
-      variables = video_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
-
-      user_conn |> mutation_result(@create_video_query, variables, "createVideo")
-
-      {:ok, contributes} = ORM.find_by(Statistics.UserContribute, user_id: user.id)
-      assert contributes.count == 1
-    end
-
     @create_repo_query """
     mutation(
       $title: String!,

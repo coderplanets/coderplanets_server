@@ -8,7 +8,7 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   alias GroupherServer.{Accounts, CMS}
 
   alias Accounts.User
-  alias CMS.{Post, Video, Repo, Job, Community, Category, Tag, Thread}
+  alias CMS.{Post, Repo, Job, Community, Category, Tag, Thread}
 
   alias Helper.ORM
   alias Helper.Utils
@@ -60,12 +60,6 @@ defmodule GroupherServerWeb.Resolvers.CMS do
 
   def job(_root, %{id: id}, _info), do: Job |> ORM.read(id, inc: :views)
 
-  def video(_root, %{id: id}, %{context: %{cur_user: user}}) do
-    CMS.read_content(:video, id, user)
-  end
-
-  def video(_root, %{id: id}, _info), do: Video |> ORM.read(id, inc: :views)
-
   def repo(_root, %{id: id}, %{context: %{cur_user: user}}) do
     CMS.read_content(:repo, id, user)
   end
@@ -80,12 +74,6 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   end
 
   def paged_posts(_root, ~m(filter)a, _info), do: Post |> CMS.paged_contents(filter)
-
-  def paged_videos(_root, ~m(filter)a, %{context: %{cur_user: user}}) do
-    Video |> CMS.paged_contents(filter, user)
-  end
-
-  def paged_videos(_root, ~m(filter)a, _info), do: Video |> CMS.paged_contents(filter)
 
   def paged_repos(_root, ~m(filter)a, %{context: %{cur_user: user}}) do
     Repo |> CMS.paged_contents(filter, user)
@@ -131,18 +119,11 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   def do_pin_content(id, community_id, :job),
     do: CMS.pin_content(%CMS.Job{id: id}, %Community{id: community_id})
 
-  def do_pin_content(id, community_id, :video),
-    do: CMS.pin_content(%CMS.Video{id: id}, %Community{id: community_id})
-
   def do_pin_content(id, community_id, :repo),
     do: CMS.pin_content(%CMS.Repo{id: id}, %Community{id: community_id})
 
   def do_undo_pin_content(id, community_id, :job) do
     CMS.undo_pin_content(%CMS.Job{id: id}, %Community{id: community_id})
-  end
-
-  def do_undo_pin_content(id, community_id, :video) do
-    CMS.undo_pin_content(%CMS.Video{id: id}, %Community{id: community_id})
   end
 
   def do_undo_pin_content(id, community_id, :repo) do

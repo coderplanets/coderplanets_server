@@ -1,6 +1,6 @@
 defmodule GroupherServer.CMS.Delegate.ArticleReaction do
   @moduledoc """
-  reaction[favorite, star, watch ...] on article [post, job, video...]
+  reaction[favorite, star, watch ...] on article [post, job...]
   """
   import Helper.Utils, only: [done: 1, done: 2]
   import GroupherServer.CMS.Utils.Matcher
@@ -14,7 +14,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
   alias Ecto.Multi
 
   @doc """
-  favorite / star / watch CMS contents like post / tuts / video ...
+  favorite / star / watch CMS contents like post / tuts ...
   """
   def reaction(thread, react, content_id, %User{id: user_id}) do
     with {:ok, action} <- match_action(thread, react),
@@ -56,7 +56,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
 
   # ------
   @doc """
-  unfavorite / unstar / unwatch CMS contents like post / tuts / video ...
+  unfavorite / unstar / unwatch CMS contents like post / tuts ...
   """
   def undo_reaction(thread, react, content_id, %User{id: user_id}) do
     with {:ok, action} <- match_action(thread, react),
@@ -106,10 +106,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
 
   defp dynamic_reaction_where(:job, id, user_where) do
     dynamic([p], p.job_id == ^id and ^user_where)
-  end
-
-  defp dynamic_reaction_where(:video, id, user_where) do
-    dynamic([p], p.video_id == ^id and ^user_where)
   end
 
   defp dynamic_reaction_where(:repo, id, user_where) do

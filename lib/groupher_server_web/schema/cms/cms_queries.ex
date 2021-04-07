@@ -79,27 +79,13 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.paged_posts/3)
     end
 
-    @desc "get video by id"
-    field :video, non_null(:video) do
-      arg(:id, non_null(:id))
-      resolve(&R.CMS.video/3)
-    end
-
-    @desc "get paged videos"
-    field :paged_videos, :paged_videos do
-      arg(:filter, non_null(:paged_videos_filter))
-
-      middleware(M.PageSizeProof)
-      resolve(&R.CMS.paged_videos/3)
-    end
-
     @desc "get repo by id"
     field :repo, non_null(:repo) do
       arg(:id, non_null(:id))
       resolve(&R.CMS.repo/3)
     end
 
-    @desc "get paged videos"
+    @desc "get paged repos"
     field :paged_repos, :paged_repos do
       arg(:filter, non_null(:paged_repos_filter))
 
@@ -225,14 +211,6 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
     field :search_jobs, :paged_jobs do
       arg(:title, non_null(:string))
       arg(:part, :job_thread, default_value: :job)
-
-      resolve(&R.CMS.search_items/3)
-    end
-
-    @desc "search video by title"
-    field :search_videos, :paged_videos do
-      arg(:title, non_null(:string))
-      arg(:part, :video_thread, default_value: :video)
 
       resolve(&R.CMS.search_items/3)
     end

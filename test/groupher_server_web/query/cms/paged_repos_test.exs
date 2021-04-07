@@ -202,7 +202,7 @@ defmodule GroupherServer.Test.Query.PagedRepos do
     end
   end
 
-  describe "[query paged_videos filter extra]" do
+  describe "[query paged_repos filter extra]" do
     @query """
     query($filter: PagedReposFilter!) {
       pagedRepos(filter: $filter) {

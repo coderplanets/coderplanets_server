@@ -42,16 +42,6 @@ defmodule GroupherServer.CMS.Delegate.Search do
   end
 
   @doc """
-  search video by title
-  """
-  def search_items(:video, %{title: title} = _args) do
-    Video
-    |> where([c], ilike(c.title, ^"%#{title}%") or ilike(c.desc, ^"%#{title}%"))
-    |> ORM.paginater(page: 1, size: @search_items_count)
-    |> done()
-  end
-
-  @doc """
   search repo by title
   """
   def search_items(:repo, %{title: title} = _args) do

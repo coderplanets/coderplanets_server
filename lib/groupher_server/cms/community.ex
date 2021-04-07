@@ -62,13 +62,6 @@ defmodule GroupherServer.CMS.Community do
     )
 
     many_to_many(
-      :videos,
-      Video,
-      join_through: "communities_videos",
-      join_keys: [community_id: :id, video_id: :id]
-    )
-
-    many_to_many(
       :repos,
       Repo,
       join_through: "communities_repos",
@@ -85,10 +78,8 @@ defmodule GroupherServer.CMS.Community do
     # posts_managers
     # jobs_managers
     # tuts_managers
-    # videos_managers
     #
     # posts_block_list ...
-    # videos_block_list ...
     timestamps(type: :utc_datetime)
   end
 

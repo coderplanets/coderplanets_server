@@ -22,7 +22,6 @@ defmodule GroupherServer.CMS.Delegate.CommentReaction do
 
   defp merge_thread_comment_id(:post_comment, comment_id), do: %{post_comment_id: comment_id}
   defp merge_thread_comment_id(:job_comment, comment_id), do: %{job_comment_id: comment_id}
-  defp merge_thread_comment_id(:video_comment, comment_id), do: %{video_comment_id: comment_id}
   defp merge_thread_comment_id(:repo_comment, comment_id), do: %{repo_comment_id: comment_id}
 
   defp feel_comment(thread, comment_id, user_id, feeling) do

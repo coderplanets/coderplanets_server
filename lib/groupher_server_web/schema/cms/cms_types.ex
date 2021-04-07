@@ -115,41 +115,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     timestamp_fields()
   end
 
-  object :video do
-    interface(:article)
-    field(:id, :id)
-    field(:title, :string)
-    field(:poster, :string)
-    field(:thumbnil, :string)
-    field(:desc, :string)
-    field(:duration, :string)
-    field(:author, :user, resolve: dataloader(CMS, :author))
-
-    field(:source, :string)
-    field(:publish_at, :string)
-    field(:link, :string)
-    field(:original_author, :string)
-    field(:original_author_link, :string)
-    field(:views, :integer)
-
-    field(:pin, :boolean)
-    field(:trash, :boolean)
-
-    field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
-    field(:origial_community, :community, resolve: dataloader(CMS, :origial_community))
-    field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
-
-    # comments_count
-    # comments_participators
-    comments_counter_fields(:video)
-
-    has_viewed_field()
-    # fields for: favorite count, favorited_users, viewer_did_favorite..
-    favorite_fields(:video)
-    star_fields(:video)
-    timestamp_fields()
-  end
-
   object :repo do
     # interface(:article)
     field(:id, :id)
@@ -279,9 +244,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     @desc "total count of job contents"
     content_counts_field(:job, CMS.Job)
 
-    @desc "total count of video contents"
-    content_counts_field(:video, CMS.Video)
-
     @desc "total count of repo contents"
     content_counts_field(:repo, CMS.Repo)
 
@@ -379,11 +341,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:job, :job, resolve: dataloader(CMS, :job))
   end
 
-  object :video_comment do
-    comments_fields()
-    field(:video, :video, resolve: dataloader(CMS, :video))
-  end
-
   object :repo_comment do
     comments_fields()
     field(:repo, :repo, resolve: dataloader(CMS, :repo))
@@ -397,11 +354,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   object :paged_posts do
     meta(:cache, max_age: 30)
     field(:entries, list_of(:post))
-    pagination_fields()
-  end
-
-  object :paged_videos do
-    field(:entries, list_of(:video))
     pagination_fields()
   end
 
@@ -427,11 +379,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
   object :paged_job_comments do
     field(:entries, list_of(:job_comment))
-    pagination_fields()
-  end
-
-  object :paged_video_comments do
-    field(:entries, list_of(:video_comment))
     pagination_fields()
   end
 

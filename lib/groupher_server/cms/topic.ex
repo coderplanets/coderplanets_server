@@ -23,13 +23,6 @@ defmodule GroupherServer.CMS.Topic do
     # )
 
     # many_to_many(
-    # :videos,
-    # Video,
-    # join_through: "videos_tags",
-    # join_keys: [video_id: :id, tag_id: :id]
-    # )
-
-    # many_to_many(
     # :jobs,
     # Job,
     # join_through: "jobs_tags",

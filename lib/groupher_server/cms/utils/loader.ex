@@ -30,15 +30,6 @@ defmodule GroupherServer.CMS.Utils.Loader do
     JobCommentReply,
     JobCommentDislike,
     JobCommentLike,
-    # Video
-    Video,
-    VideoViewer,
-    VideoFavorite,
-    VideoStar,
-    VideoComment,
-    VideoCommentReply,
-    VideoCommentDislike,
-    VideoCommentLike,
     # Repo,
     RepoViewer,
     RepoFavorite,
@@ -59,10 +50,6 @@ defmodule GroupherServer.CMS.Utils.Loader do
   end
 
   def run_batch(Job, content_query, :jobs_count, community_ids, repo_opts) do
-    query_content_counts(content_query, community_ids, repo_opts)
-  end
-
-  def run_batch(Video, content_query, :videos_count, community_ids, repo_opts) do
     query_content_counts(content_query, community_ids, repo_opts)
   end
 
@@ -125,10 +112,6 @@ defmodule GroupherServer.CMS.Utils.Loader do
     JobViewer |> where([pv], pv.user_id == ^cur_user.id)
   end
 
-  def query({"videos_viewers", VideoViewer}, %{cur_user: cur_user}) do
-    VideoViewer |> where([pv], pv.user_id == ^cur_user.id)
-  end
-
   def query({"repos_viewers", RepoViewer}, %{cur_user: cur_user}) do
     RepoViewer |> where([pv], pv.user_id == ^cur_user.id)
   end
@@ -153,14 +136,6 @@ defmodule GroupherServer.CMS.Utils.Loader do
 
   def query({"repos_favorites", RepoFavorite}, args) do
     RepoFavorite |> QueryBuilder.members_pack(args)
-  end
-
-  def query({"videos_favorites", VideoFavorite}, args) do
-    VideoFavorite |> QueryBuilder.members_pack(args)
-  end
-
-  def query({"videos_stars", VideoStar}, args) do
-    VideoStar |> QueryBuilder.members_pack(args)
   end
 
   def query({"communities_subscribers", CommunitySubscriber}, args) do
@@ -355,82 +330,6 @@ defmodule GroupherServer.CMS.Utils.Loader do
   end
 
   # ---- job comments end------
-
-  # ---- video comments ------
-  def query({"videos_comments", VideoComment}, %{filter: _filter, unique: true}) do
-    VideoComment
-    # |> QueryBuilder.filter_pack(filter)
-    |> join(:inner, [c], a in assoc(c, :author))
-    |> distinct([c, a], a.id)
-    |> select([c, a], a)
-  end
-
-  def query({"videos_comments", VideoComment}, %{count: _, unique: true}) do
-    VideoComment
-    |> join(:inner, [c], a in assoc(c, :author))
-    |> distinct([c, a], a.id)
-    |> group_by([c, a], a.id)
-    |> group_by([c, a], c.video_id)
-    |> select([c, a], count(c.id))
-  end
-
-  def query({"videos_comments", VideoComment}, %{count: _}) do
-    VideoComment
-    |> group_by([c], c.video_id)
-    |> select([c], count(c.id))
-  end
-
-  def query({"videos_comments_replies", VideoCommentReply}, %{count: _}) do
-    VideoCommentReply
-    |> group_by([c], c.video_comment_id)
-    |> select([c], count(c.id))
-  end
-
-  def query({"videos_comments_replies", VideoCommentReply}, %{filter: filter}) do
-    VideoCommentReply |> QueryBuilder.load_inner_replies(filter)
-  end
-
-  def query({"videos_comments_replies", VideoCommentReply}, %{reply_to: _}) do
-    VideoCommentReply
-    |> join(:inner, [c], r in assoc(c, :video_comment))
-    |> select([c, r], r)
-  end
-
-  def query({"videos_comments_likes", VideoCommentLike}, %{count: _}) do
-    VideoCommentLike
-    |> group_by([f], f.video_comment_id)
-    |> select([f], count(f.id))
-  end
-
-  def query({"videos_comments_likes", VideoCommentLike}, %{viewer_did: _, cur_user: cur_user}) do
-    VideoCommentLike |> where([f], f.user_id == ^cur_user.id)
-  end
-
-  def query({"videos_comments_likes", VideoCommentLike}, %{filter: _filter} = args) do
-    VideoCommentLike
-    |> QueryBuilder.members_pack(args)
-  end
-
-  def query({"videos_comments_dislikes", VideoCommentDislike}, %{count: _}) do
-    VideoCommentDislike
-    |> group_by([f], f.video_comment_id)
-    |> select([f], count(f.id))
-  end
-
-  # component dislikes
-  def query({"videos_comments_dislikes", VideoCommentDislike}, %{
-        viewer_did: _,
-        cur_user: cur_user
-      }) do
-    VideoCommentDislike |> where([f], f.user_id == ^cur_user.id)
-  end
-
-  def query({"videos_comments_dislikes", VideoCommentDislike}, %{filter: _filter} = args) do
-    VideoCommentDislike
-    |> QueryBuilder.members_pack(args)
-  end
-
-  # ---- video ------
 
   # --- repo comments ------
   def query({"repos_comments", RepoComment}, %{filter: _filter, unique: true}) do

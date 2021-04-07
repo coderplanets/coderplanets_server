@@ -22,7 +22,7 @@ defmodule GroupherServer.Test.Seeds.Communities do
       radom_community = results.entries |> Enum.random()
 
       {:ok, found} = ORM.find(CMS.Community, radom_community.id, preload: :threads)
-      assert length(found.threads) == 7
+      assert length(found.threads) == 6
 
       {:ok, found} = ORM.find(CMS.Community, radom_community.id, preload: :categories)
       assert length(found.categories) !== 0
@@ -71,13 +71,6 @@ defmodule GroupherServer.Test.Seeds.Communities do
       {:ok, tags} = CMS.get_tags(random_community, :job)
       found_tags = tags |> Utils.pick_by(:title)
       config_tags = SeedsConfig.tags(:job) |> Utils.pick_by(:title)
-      assert found_tags |> Enum.sort() == config_tags |> Enum.sort()
-
-      # test video threads
-      {:ok, random_community} = ORM.find(CMS.Community, radom_community.id)
-      {:ok, tags} = CMS.get_tags(random_community, :video)
-      found_tags = tags |> Utils.pick_by(:title)
-      config_tags = SeedsConfig.tags(:video) |> Utils.pick_by(:title)
       assert found_tags |> Enum.sort() == config_tags |> Enum.sort()
 
       # test repo threads

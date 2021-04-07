@@ -214,11 +214,6 @@ defmodule GroupherServer.CMS.Delegate.SeedsConfig do
         index: 0
       },
       %{
-        title: "video",
-        raw: "video",
-        index: 5
-      },
-      %{
         title: "repo",
         raw: "repo",
         index: 10
@@ -262,7 +257,7 @@ defmodule GroupherServer.CMS.Delegate.SeedsConfig do
 
   @doc """
   default tags for general communities
-  currently only support post, job, video, repo
+  currently only support post, job, repo
   """
   def tags(:post) do
     [
@@ -349,32 +344,6 @@ defmodule GroupherServer.CMS.Delegate.SeedsConfig do
       }
     ]
     |> Enum.map(fn attr -> Map.merge(%{thread: :repo, topic: "repos"}, attr) end)
-  end
-
-  def tags(:video) do
-    [
-      %{
-        title: "refined",
-        color: :red
-      },
-      %{
-        title: "conf",
-        color: :orange
-      },
-      %{
-        title: "tuts",
-        color: :yellow
-      },
-      %{
-        title: "safe",
-        color: :green
-      },
-      %{
-        title: "other",
-        color: :grey
-      }
-    ]
-    |> Enum.map(fn attr -> Map.merge(%{thread: :video, topic: "videos"}, attr) end)
   end
 
   def tags(_), do: []

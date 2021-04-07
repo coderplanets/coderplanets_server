@@ -1,6 +1,6 @@
 defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   @moduledoc """
-  CURD operation on post/job/video ...
+  CURD operation on post/job ...
   """
   import Ecto.Query, warn: false
   import GroupherServer.CMS.Utils.Matcher
@@ -243,16 +243,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end)
   end
 
-  defp domain_filter_query(CMS.Video = queryable, filter) do
-    Enum.reduce(filter, queryable, fn
-      {:source, source}, queryable ->
-        queryable |> where([content], content.source == ^source)
-
-      {_, _}, queryable ->
-        queryable
-    end)
-  end
-
   defp domain_filter_query(CMS.Repo = queryable, filter) do
     Enum.reduce(filter, queryable, fn
       {:sort, :most_github_star}, queryable ->
@@ -325,10 +315,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp add_pin_contents_ifneed(contents, CMS.Job, %{community: _community} = filter) do
     merge_pin_contents(contents, :job, CMS.PinedJob, filter)
-  end
-
-  defp add_pin_contents_ifneed(contents, CMS.Video, %{community: _community} = filter) do
-    merge_pin_contents(contents, :video, CMS.PinedVideo, filter)
   end
 
   defp add_pin_contents_ifneed(contents, CMS.Repo, %{community: _community} = filter) do
@@ -441,7 +427,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp content_id(:post, id), do: %{post_id: id}
   defp content_id(:job, id), do: %{job_id: id}
   defp content_id(:repo, id), do: %{repo_id: id}
-  defp content_id(:video, id), do: %{video_id: id}
 
   #  for create content step in Multi.new
   defp exec_create_content(target, attrs, %Author{id: aid}, %Community{id: cid}) do

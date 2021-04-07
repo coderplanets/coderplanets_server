@@ -6,7 +6,7 @@ defmodule GroupherServer.CMS.Tag do
   import Ecto.Changeset
 
   alias GroupherServer.CMS
-  alias CMS.{Author, Community, Topic, Job, Post, Video}
+  alias CMS.{Author, Community, Topic, Job, Post}
 
   @required_fields ~w(thread title color author_id topic_id community_id)a
   # @required_fields ~w(thread title color author_id  community_id)a
@@ -28,13 +28,6 @@ defmodule GroupherServer.CMS.Tag do
       # :delete_all will only remove data from the join source
       on_delete: :delete_all
       # on_replace: :delete
-    )
-
-    many_to_many(
-      :videos,
-      Video,
-      join_through: "videos_tags",
-      join_keys: [video_id: :id, tag_id: :id]
     )
 
     many_to_many(

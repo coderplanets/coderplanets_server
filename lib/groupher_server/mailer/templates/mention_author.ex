@@ -2,7 +2,7 @@ defmodule GroupherServer.Email.Templates.MentionAuthor do
   @moduledoc """
   template for mention author, like but not limit to:
 
-  post, job, video, repo ...
+  post, job, repo ...
   or mention in comment ..
 
   if you want change style or debug the template

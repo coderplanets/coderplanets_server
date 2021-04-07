@@ -17,13 +17,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
     Job,
     JobCommunityFlag,
     RepoCommunityFlag,
-    Video,
-    VideoCommunityFlag,
     Tag,
     Topic,
     PinedPost,
     PinedJob,
-    PinedVideo,
     PinedRepo
   }
 
@@ -50,14 +47,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
     end
   end
 
-  def pin_content(%Video{id: video_id}, %Community{id: community_id}) do
-    attrs = ~m(video_id community_id)a
-
-    with {:ok, pined} <- ORM.findby_or_insert(PinedVideo, attrs, attrs) do
-      Video |> ORM.find(pined.video_id)
-    end
-  end
-
   def pin_content(%CMSRepo{id: repo_id}, %Community{id: community_id}) do
     attrs = ~m(repo_id community_id)a
 
@@ -78,13 +67,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
     with {:ok, pined} <- ORM.find_by(PinedJob, ~m(job_id community_id)a),
          {:ok, deleted} <- ORM.delete(pined) do
       Job |> ORM.find(deleted.job_id)
-    end
-  end
-
-  def undo_pin_content(%Video{id: video_id}, %Community{id: community_id}) do
-    with {:ok, pined} <- ORM.find_by(PinedVideo, ~m(video_id community_id)a),
-         {:ok, deleted} <- ORM.delete(pined) do
-      Video |> ORM.find(deleted.video_id)
     end
   end
 
@@ -128,11 +110,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
     RepoCommunityFlag |> ORM.upsert_by(clauses, Map.merge(attrs, clauses))
   end
 
-  defp insert_flag_record(%Video{id: video_id}, community_id, attrs) do
-    clauses = ~m(video_id community_id)a
-    VideoCommunityFlag |> ORM.upsert_by(clauses, Map.merge(attrs, clauses))
-  end
-
   @doc """
   set content to diffent community
   """
@@ -159,7 +136,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   end
 
   @doc """
-  set general tag for post / tuts / videos ...
+  set general tag for post / tuts ...
   refined tag can't set by this func, use set_refined_tag instead
   """
   # check community first

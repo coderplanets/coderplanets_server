@@ -8,8 +8,7 @@ defmodule GroupherServer.Test.CMS.ContentFlags do
   alias CMS.{
     PostCommunityFlag,
     RepoCommunityFlag,
-    JobCommunityFlag,
-    VideoCommunityFlag
+    JobCommunityFlag
   }
 
   alias Helper.ORM
@@ -20,10 +19,9 @@ defmodule GroupherServer.Test.CMS.ContentFlags do
 
     {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
     {:ok, job} = CMS.create_content(community, :job, mock_attrs(:job), user)
-    {:ok, video} = CMS.create_content(community, :video, mock_attrs(:video), user)
     {:ok, repo} = CMS.create_content(community, :repo, mock_attrs(:repo), user)
 
-    {:ok, ~m(user community post job video repo)a}
+    {:ok, ~m(user community post job repo)a}
   end
 
   describe "[cms post flag]" do
@@ -59,24 +57,6 @@ defmodule GroupherServer.Test.CMS.ContentFlags do
 
       assert found.trash == true
       assert found.job_id == job.id
-      assert found.community_id == community.id
-    end
-  end
-
-  describe "[cms video flag]" do
-    test "user can set trash flag on a video", ~m(community video)a do
-      community_id = community.id
-      video_id = video.id
-
-      {:ok, found} = VideoCommunityFlag |> ORM.find_by(~m(video_id community_id)a)
-      assert found.trash == false
-
-      CMS.set_community_flags(community, video, %{trash: true})
-
-      {:ok, found} = VideoCommunityFlag |> ORM.find_by(~m(video_id community_id)a)
-
-      assert found.trash == true
-      assert found.video_id == video.id
       assert found.community_id == community.id
     end
   end

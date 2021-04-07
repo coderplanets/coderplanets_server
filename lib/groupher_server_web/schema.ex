@@ -40,7 +40,6 @@ defmodule GroupherServerWeb.Schema do
   import_types(CMS.Mutations.Operation)
   import_types(CMS.Mutations.Post)
   import_types(CMS.Mutations.Job)
-  import_types(CMS.Mutations.Video)
   import_types(CMS.Mutations.Repo)
   import_types(CMS.Mutations.Comment)
 
@@ -66,7 +65,6 @@ defmodule GroupherServerWeb.Schema do
     import_fields(:cms_opertion_mutations)
     import_fields(:cms_post_mutations)
     import_fields(:cms_job_mutations)
-    import_fields(:cms_video_mutations)
     import_fields(:cms_repo_mutations)
 
     import_fields(:cms_comment_mutations)

@@ -144,15 +144,6 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       resolve(&R.Accounts.stared_contents/3)
     end
 
-    @desc "paged stared videos"
-    field :stared_videos, :paged_videos do
-      arg(:filter, non_null(:paged_filter))
-      arg(:thread, :video_thread, default_value: :video)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.stared_contents/3)
-    end
-
     @desc "paged favorited posts"
     field :favorited_posts, :paged_posts do
       arg(:filter, non_null(:paged_filter))
@@ -166,15 +157,6 @@ defmodule GroupherServerWeb.Schema.Account.Types do
     field :favorited_jobs, :paged_jobs do
       arg(:filter, non_null(:paged_filter))
       arg(:thread, :job_thread, default_value: :job)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.favorited_contents/3)
-    end
-
-    @desc "paged favorited videos"
-    field :favorited_videos, :paged_videos do
-      arg(:filter, non_null(:paged_filter))
-      arg(:thread, :video_thread, default_value: :video)
 
       middleware(M.PageSizeProof)
       resolve(&R.Accounts.favorited_contents/3)
@@ -205,14 +187,6 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       middleware(M.ConvertToInt)
     end
 
-    @desc "total count of stared videos count"
-    field :stared_videos_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-
-      resolve(dataloader(Accounts, :stared_videos))
-      middleware(M.ConvertToInt)
-    end
-
     @desc "total count of favorited posts count"
     field :favorited_posts_count, :integer do
       arg(:count, :count_type, default_value: :count)
@@ -226,14 +200,6 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       arg(:count, :count_type, default_value: :count)
 
       resolve(dataloader(Accounts, :favorited_jobs))
-      middleware(M.ConvertToInt)
-    end
-
-    @desc "total count of favorited videos count"
-    field :favorited_videos_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-
-      resolve(dataloader(Accounts, :favorited_videos))
       middleware(M.ConvertToInt)
     end
 

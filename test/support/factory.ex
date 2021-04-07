@@ -27,31 +27,6 @@ defmodule GroupherServer.Support.Factory do
     }
   end
 
-  defp mock_meta(:video) do
-    desc = Faker.Lorem.sentence(%Range{first: 15, last: 60})
-    source_enum = ["youtube", "bilibil", "vimeo", "other"]
-
-    %{
-      title: String.slice(desc, 1, 49),
-      poster: Faker.Avatar.image_url(),
-      thumbnil: Faker.Avatar.image_url(),
-      desc: String.slice(desc, 1, 49),
-      duration: "03:30",
-      duration_sec: Enum.random(300..12_000),
-      source: source_enum |> Enum.at(Enum.random(0..(length(source_enum) - 1))),
-      link: "http://www.youtube.com/video/1",
-      original_author: "mydearxym",
-      original_author_link: "http://www.youtube.com/user/1",
-      author: mock(:author),
-      views: Enum.random(0..2000),
-      publish_at: Timex.today() |> Timex.to_datetime(),
-      communities: [
-        mock(:community),
-        mock(:community)
-      ]
-    }
-  end
-
   defp mock_meta(:repo) do
     desc = Faker.Lorem.sentence(%Range{first: 15, last: 60})
 
@@ -286,7 +261,6 @@ defmodule GroupherServer.Support.Factory do
   def mock_attrs(:user, attrs), do: mock_meta(:user) |> Map.merge(attrs)
   def mock_attrs(:author, attrs), do: mock_meta(:author) |> Map.merge(attrs)
   def mock_attrs(:post, attrs), do: mock_meta(:post) |> Map.merge(attrs)
-  def mock_attrs(:video, attrs), do: mock_meta(:video) |> Map.merge(attrs)
   def mock_attrs(:repo, attrs), do: mock_meta(:repo) |> Map.merge(attrs)
   def mock_attrs(:job, attrs), do: mock_meta(:job) |> Map.merge(attrs)
   def mock_attrs(:community, attrs), do: mock_meta(:community) |> Map.merge(attrs)
@@ -318,7 +292,6 @@ defmodule GroupherServer.Support.Factory do
   # this line of code will cause SERIOUS Recursive problem
 
   defp mock(:post), do: CMS.Post |> struct(mock_meta(:post))
-  defp mock(:video), do: CMS.Video |> struct(mock_meta(:video))
   defp mock(:repo), do: CMS.Repo |> struct(mock_meta(:repo))
   defp mock(:job), do: CMS.Job |> struct(mock_meta(:job))
   defp mock(:wiki), do: CMS.CommunityWiki |> struct(mock_meta(:wiki))

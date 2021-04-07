@@ -9,7 +9,6 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
 
   enum(:post_thread, do: value(:post))
   enum(:job_thread, do: value(:job))
-  enum(:video_thread, do: value(:video))
   enum(:repo_thread, do: value(:repo))
 
   enum(:community_type, do: value(:community))
@@ -42,7 +41,6 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
   enum :react_thread do
     value(:post)
     value(:job)
-    value(:video)
     value(:repo)
     # home community
     value(:tech)
@@ -54,14 +52,12 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
   enum :cms_comment do
     value(:post_comment)
     value(:job_comment)
-    value(:video_comment)
     value(:repo_comment)
   end
 
   enum :commentable_thread do
     value(:post)
     value(:job)
-    value(:video)
     value(:repo)
     # home community
     value(:tech)
@@ -74,7 +70,6 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     value(:post)
     value(:job)
     value(:user)
-    value(:video)
     value(:repo)
     value(:wiki)
     value(:cheatsheet)
@@ -245,16 +240,6 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
   end
 
   @desc "article_filter doc"
-  input_object :paged_videos_filter do
-    @desc "limit of records (default 20), if first > 30, only return 30 at most"
-    pagination_args()
-    article_filter_fields()
-    field(:sort, :sort_enum)
-
-    field(:source, :string)
-  end
-
-  @desc "article_filter doc"
   input_object :paged_repos_filter do
     @desc "limit of records (default 20), if first > 30, only return 30 at most"
     pagination_args()
@@ -297,7 +282,6 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     value(:community)
     value(:post)
     value(:job)
-    value(:video)
     value(:repo)
   end
 
@@ -311,7 +295,6 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     resolve_type(fn
       %CMS.Post{}, _ -> :post
       %CMS.Job{}, _ -> :job
-      %CMS.Video{}, _ -> :video
       %CMS.Repo{}, _ -> :repo
       _, _ -> nil
     end)
