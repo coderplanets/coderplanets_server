@@ -9,6 +9,7 @@ defmodule GroupherServer.CMS.Job do
 
   alias CMS.{
     Author,
+    ArticleComment,
     Community,
     JobComment,
     JobFavorite,
@@ -54,6 +55,8 @@ defmodule GroupherServer.CMS.Job do
     field(:trash, :boolean, default_value: false, virtual: true)
 
     has_many(:comments, {"jobs_comments", JobComment})
+    has_many(:article_comments, {"articles_comments", ArticleComment})
+
     has_many(:favorites, {"jobs_favorites", JobFavorite})
     has_many(:stars, {"jobs_stars", JobStar})
     has_many(:viewers, {"jobs_viewers", JobViewer})

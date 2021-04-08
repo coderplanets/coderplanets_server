@@ -10,6 +10,7 @@ defmodule GroupherServer.CMS.Post do
   alias CMS.{
     ArticleMeta,
     Author,
+    ArticleComment,
     Community,
     PostComment,
     PostCommunityFlag,
@@ -54,6 +55,9 @@ defmodule GroupherServer.CMS.Post do
     # 相关文章
     # has_may(:related_post, ...)
     has_many(:comments, {"posts_comments", PostComment})
+
+    has_many(:article_comments, {"articles_comments", ArticleComment})
+
     has_many(:favorites, {"posts_favorites", PostFavorite})
     has_many(:stars, {"posts_stars", PostStar})
     has_many(:viewers, {"posts_viewers", PostViewer})

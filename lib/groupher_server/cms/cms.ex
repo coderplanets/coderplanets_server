@@ -12,6 +12,7 @@ defmodule GroupherServer.CMS do
     ArticleOperation,
     ArticleReaction,
     FavoritedContents,
+    ArticleComment,
     CommentCURD,
     CommunitySync,
     CommentReaction,
@@ -108,6 +109,9 @@ defmodule GroupherServer.CMS do
   # Comment CURD
   defdelegate list_comments(thread, content_id, filters), to: CommentCURD
   defdelegate list_comments_participators(thread, content_id, filters), to: CommentCURD
+
+  defdelegate write_comment(thread, content_id, args, user), to: ArticleComment
+  defdelegate upvote_comment(comment_id, user), to: ArticleComment
 
   defdelegate create_comment(thread, content_id, args, user), to: CommentCURD
   defdelegate update_comment(thread, id, args, user), to: CommentCURD
