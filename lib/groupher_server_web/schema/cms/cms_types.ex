@@ -327,6 +327,26 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     timestamp_fields()
   end
 
+  object :article_comment do
+    field(:id, :id)
+    field(:body_html, :string)
+    field(:author, :user, resolve: dataloader(CMS, :author))
+
+    # field :upvote_users, list_of(:user) do
+    #   arg(:filter, :members_filter)
+
+    #   middleware(M.PageSizeProof)
+    #   resolve(dataloader(CMS, :likes))
+    # end
+
+    # field :upvotes_count, :integer do
+    #   arg(:count, :count_type, default_value: :count)
+
+    #   resolve(dataloader(CMS, :likes))
+    #   middleware(M.ConvertToInt)
+    # end
+  end
+
   object :comment do
     comments_fields()
   end
@@ -369,6 +389,12 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
   object :paged_comments do
     field(:entries, list_of(:comment))
+    pagination_fields()
+  end
+
+  object :paged_article_comments do
+    # field(:id, :string)
+    field(:entries, list_of(:article_comment))
     pagination_fields()
   end
 

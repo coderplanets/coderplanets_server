@@ -2,12 +2,36 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   @moduledoc """
   CURD and operations for article comments
   """
+  import Ecto.Query, warn: false
+  import Helper.Utils, only: [done: 1]
 
-  alias Helper.ORM
+  import ShortMaps
+
+  alias Helper.{ORM, QueryBuilder}
   alias GroupherServer.{Accounts, CMS}
 
   alias Accounts.User
   alias CMS.{ArticleComment, ArticleCommentUpvote, Post, Job}
+
+  @doc """
+  list paged article comments
+  """
+  def list_article_comments(thread, article_id, %{page: page, size: size} = filters) do
+    IO.inspect(thread, label: "the thread")
+
+    with {:ok, thread_query} <- match(thread, :query, article_id) do
+      IO.inspect(thread_query, label: "thread_query")
+
+      ArticleComment
+      |> where(^thread_query)
+      |> QueryBuilder.filter_pack(filters)
+      |> ORM.paginater(~m(page size)a)
+      |> done()
+    end
+  end
+
+  defp match(:post, :query, id), do: {:ok, dynamic([c], c.post_id == ^id)}
+  defp match(:job, :query, id), do: {:ok, dynamic([c], c.job_id == ^id)}
 
   @doc """
   Creates a comment for psot, job ...

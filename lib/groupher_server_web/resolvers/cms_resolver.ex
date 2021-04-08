@@ -342,6 +342,10 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   # #######################
   # comemnts ..
   # #######################
+  def paged_article_comments(_root, ~m(id thread filter)a, _info) do
+    CMS.list_article_comments(thread, id, filter)
+  end
+
   def paged_comments(_root, ~m(id thread filter)a, _info) do
     CMS.list_comments(thread, id, filter)
   end

@@ -107,10 +107,11 @@ defmodule GroupherServer.CMS do
   defdelegate unset_community(community, thread, content_id), to: ArticleOperation
 
   # Comment CURD
+  defdelegate list_article_comments(thread, article_id, filters), to: ArticleComment
   defdelegate list_comments(thread, content_id, filters), to: CommentCURD
   defdelegate list_comments_participators(thread, content_id, filters), to: CommentCURD
 
-  defdelegate write_comment(thread, content_id, args, user), to: ArticleComment
+  defdelegate write_comment(thread, article_id, args, user), to: ArticleComment
   defdelegate upvote_comment(comment_id, user), to: ArticleComment
 
   defdelegate create_comment(thread, content_id, args, user), to: CommentCURD

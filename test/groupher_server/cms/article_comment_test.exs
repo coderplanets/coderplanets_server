@@ -17,7 +17,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[basic article comment]" do
-    @tag :wip2
+    @tag :wip3
     test "post, job are supported by article comment", ~m(user post job)a do
       post_comment_1 = "post_comment 1"
       post_comment_2 = "post_comment 2"
@@ -39,7 +39,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[article comment upvotes]" do
-    @tag :wip2
+    @tag :wip3
     test "user can upvote a post comment", ~m(user post)a do
       comment = "post_comment"
       {:ok, comment} = CMS.write_comment(:post, post.id, comment, user)
@@ -52,7 +52,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert List.first(comment.upvotes).user_id == user.id
     end
 
-    @tag :wip2
+    @tag :wip3
     test "user can upvote a job comment", ~m(user job)a do
       comment = "job_comment"
       {:ok, comment} = CMS.write_comment(:job, job.id, comment, user)
@@ -65,7 +65,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert List.first(comment.upvotes).user_id == user.id
     end
 
-    @tag :wip2
+    @tag :wip3
     test "user upvote a already-upvoted comment fails", ~m(user post)a do
       comment = "post_comment"
       {:ok, comment} = CMS.write_comment(:post, post.id, comment, user)
@@ -73,5 +73,25 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       CMS.upvote_comment(comment.id, user)
       {:error, _} = CMS.upvote_comment(comment.id, user)
     end
+  end
+
+  @tag :wip
+  test "paged article comments", ~m(user post)a do
+    total_count = 30
+    page_number = 1
+    page_size = 10
+
+    Enum.reduce(1..total_count, [], fn _, acc ->
+      {:ok, value} = CMS.write_comment(:post, post.id, "commment", user)
+
+      acc ++ [value]
+    end)
+
+    {:ok, paged_comments} =
+      CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size})
+
+    assert page_number == paged_comments.page_number
+    assert page_size == paged_comments.page_size
+    assert total_count == paged_comments.total_count
   end
 end
