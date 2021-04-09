@@ -5,12 +5,13 @@ defmodule GroupherServer.CMS.Post do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias GroupherServer.CMS
+  alias GroupherServer.{CMS, Accounts}
 
   alias CMS.{
     ArticleMeta,
     Author,
     ArticleComment,
+    ArticleCommentParticipator,
     Community,
     PostComment,
     PostCommunityFlag,
@@ -40,6 +41,9 @@ defmodule GroupherServer.CMS.Post do
     field(:views, :integer, default: 0)
 
     embeds_one(:meta, ArticleMeta, on_replace: :update)
+    # 评论参与者，只保留最近 5 个
+    # embeds_many(:comment_participators, ArticleCommentParticipator, on_replace: :delete)
+    embeds_many(:comment_participators, Accounts.User, on_replace: :delete)
 
     # field(:meta, :map)
 

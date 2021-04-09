@@ -40,6 +40,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     # field(:topic)
 
     field(:meta, :article_meta)
+    field(:comment_participators, list_of(:user))
 
     # field :meta, :article_meta do
     #   resolve(&R.CMS.get_meta/3)

@@ -199,6 +199,10 @@ defmodule GroupherServer.Test.Mutation.Post do
             id
           }
         }
+        commentParticipators {
+          id
+          nickname
+        }
       }
     }
     """
@@ -282,7 +286,7 @@ defmodule GroupherServer.Test.Mutation.Post do
         body: "updated body #{unique_num}"
       }
 
-      updated_post = owner_conn |> mutation_result(@query, variables, "updatePost")
+      updated_post = owner_conn |> mutation_result(@query, variables, "updatePost", :debug)
       IO.inspect(updated_post, label: "test")
 
       assert true == updated_post["meta"]["isEdited"]
