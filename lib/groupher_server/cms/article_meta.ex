@@ -4,6 +4,8 @@ defmodule GroupherServer.CMS.ArticleMeta do
   """
   use Ecto.Schema
 
+  alias GroupherServer.Accounts.User
+
   @default_meta %{
     is_edited: false,
     forbid_comment: false,
@@ -24,5 +26,7 @@ defmodule GroupherServer.CMS.ArticleMeta do
     field(:is_edited, :boolean, default: false)
     field(:forbid_comment, :boolean, default: false)
     field(:is_reported, :boolean, default: false)
+
+    belongs_to(:user, User)
   end
 end

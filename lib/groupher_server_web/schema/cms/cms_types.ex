@@ -8,7 +8,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   import Ecto.Query, warn: false
   import Absinthe.Resolution.Helpers, only: [dataloader: 2, on_load: 2]
 
-  alias GroupherServer.CMS
+  alias GroupherServer.{CMS, Accounts}
   alias GroupherServerWeb.Schema
 
   import_types(Schema.CMS.Misc)
@@ -432,6 +432,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   object :article_meta do
     field(:is_edited, :boolean)
     field(:forbid_comment, :boolean)
+    field(:user, :user, resolve: dataloader(Accounts, :user))
     # field(:isReported, :boolean)
     # field(:linked_posts_count, :integer)
     # field(:linked_jobs_count, :integer)

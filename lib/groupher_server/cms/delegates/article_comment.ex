@@ -17,11 +17,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   list paged article comments
   """
   def list_article_comments(thread, article_id, %{page: page, size: size} = filters) do
-    IO.inspect(thread, label: "the thread")
-
     with {:ok, thread_query} <- match(thread, :query, article_id) do
-      IO.inspect(thread_query, label: "thread_query")
-
       ArticleComment
       |> where(^thread_query)
       |> QueryBuilder.filter_pack(filters)

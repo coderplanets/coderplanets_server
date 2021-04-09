@@ -31,6 +31,7 @@ defmodule GroupherServer.Test.CMS.PostMeta do
       assert @default_article_meta == meta
     end
 
+    alias GroupherServer.Repo
     @tag :wip
     test "is_edited flag should set to true after post updated", ~m(user community post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
@@ -41,6 +42,7 @@ defmodule GroupherServer.Test.CMS.PostMeta do
       {:ok, _} = CMS.update_content(post, %{"title" => "new title"})
       {:ok, post} = ORM.find_by(Post, id: post.id)
 
+      IO.inspect(post.meta |> Repo.preload(:user), label: "deceng")
       assert post.meta.is_edited == true
     end
 

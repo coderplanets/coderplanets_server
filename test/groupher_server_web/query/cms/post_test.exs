@@ -28,7 +28,6 @@ defmodule GroupherServer.Test.Query.Post do
     }
   }
   """
-  @tag :wip
   test "basic graphql query on post with logined user",
        ~m(user_conn community user post_attrs)a do
     {:ok, post} = CMS.create_content(community, :post, post_attrs, user)

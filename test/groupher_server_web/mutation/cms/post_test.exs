@@ -195,6 +195,9 @@ defmodule GroupherServer.Test.Mutation.Post do
         copyRight
         meta {
           isEdited
+          user {
+            id
+          }
         }
       }
     }
@@ -268,7 +271,7 @@ defmodule GroupherServer.Test.Mutation.Post do
       assert updated_post["copyRight"] == variables.copyRight
     end
 
-    @tag :wip
+    @tag :wip2
     test "update post with valid attrs should have is_edited meta info update",
          ~m(owner_conn post)a do
       unique_num = System.unique_integer([:positive, :monotonic])
@@ -280,6 +283,7 @@ defmodule GroupherServer.Test.Mutation.Post do
       }
 
       updated_post = owner_conn |> mutation_result(@query, variables, "updatePost")
+      IO.inspect(updated_post, label: "test")
 
       assert true == updated_post["meta"]["isEdited"]
     end

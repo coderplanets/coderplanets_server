@@ -9,6 +9,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
 
   alias Helper.ORM
 
+  alias GroupherServer.Accounts.User
+
   alias GroupherServer.CMS.{
     ArticleMeta,
     Community,
@@ -266,9 +268,17 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
 
   @doc "update isEdited meta label if needed"
   def update_meta(%Post{meta: %ArticleMeta{is_edited: false} = meta} = content, :is_edited) do
-    new_meta = meta |> Map.from_struct() |> Map.delete(:id) |> Map.merge(%{is_edited: true})
+    {:ok, %{entries: users}} = ORM.find_all(User, %{page: 1, size: 10})
+    tmp_user = List.first(users)
+
+    new_meta =
+      meta
+      |> Map.from_struct()
+      |> Map.delete(:id)
+      |> Map.merge(%{is_edited: true, user: tmp_user, user_id: tmp_user.id})
 
     content
+    |> Map.merge(%{meta: Repo.preload(content.meta, :user)})
     |> Ecto.Changeset.change()
     |> Ecto.Changeset.put_embed(:meta, new_meta)
     |> Repo.update()
@@ -278,7 +288,23 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   def update_meta(%Post{meta: nil} = content, :is_edited) do
     new_meta = ArticleMeta.default_meta() |> Map.merge(%{is_edited: true})
 
-    content
+    {:ok, content_with_meta} =
+      content
+      |> Ecto.Changeset.change()
+      |> Ecto.Changeset.put_embed(:meta, new_meta)
+      |> Repo.update()
+
+    {:ok, %{entries: users}} = ORM.find_all(User, %{page: 1, size: 10})
+    tmp_user = List.first(users)
+
+    new_meta =
+      content_with_meta.meta
+      |> Map.from_struct()
+      |> Map.delete(:id)
+      |> Map.merge(%{user: tmp_user, user_id: tmp_user.id})
+
+    content_with_meta
+    |> Map.merge(%{meta: Repo.preload(content_with_meta.meta, :user)})
     |> Ecto.Changeset.change()
     |> Ecto.Changeset.put_embed(:meta, new_meta)
     |> Repo.update()

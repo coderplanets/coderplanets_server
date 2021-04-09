@@ -35,13 +35,13 @@ defmodule GroupherServer.Test.Query.ArticleComment do
         }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "guest user can get paged comment for post", ~m(guest_conn post user)a do
       comment = "test comment"
-      totalCount = 30
+      total_count = 30
       thread = :post
 
-      Enum.reduce(1..totalCount, [], fn _, acc ->
+      Enum.reduce(1..total_count, [], fn _, acc ->
         {:ok, value} = CMS.write_comment(thread, post.id, comment, user)
 
         acc ++ [value]
@@ -51,16 +51,16 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
 
       assert results |> is_valid_pagination?
-      assert results["totalCount"] == totalCount
+      assert results["totalCount"] == total_count
     end
 
-    @tag :wip2
+    @tag :wip
     test "guest user can get paged comment for job", ~m(guest_conn job user)a do
       comment = "test comment"
-      totalCount = 30
+      total_count = 30
       thread = :job
 
-      Enum.reduce(1..totalCount, [], fn _, acc ->
+      Enum.reduce(1..total_count, [], fn _, acc ->
         {:ok, value} = CMS.write_comment(thread, job.id, comment, user)
 
         acc ++ [value]
@@ -69,10 +69,10 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       variables = %{id: job.id, thread: "JOB", filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
 
-      IO.inspect(results, label: "results-")
+      # IO.inspect(results, label: "results-")
 
-      # assert results |> is_valid_pagination?
-      # assert results["totalCount"] == totalCount
+      assert results |> is_valid_pagination?
+      assert results["totalCount"] == total_count
     end
   end
 end
