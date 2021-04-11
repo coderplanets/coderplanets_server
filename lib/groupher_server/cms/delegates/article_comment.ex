@@ -8,10 +8,14 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   import ShortMaps
 
   alias Helper.{ORM, QueryBuilder}
-  alias GroupherServer.{Accounts, CMS}
+  alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.User
   alias CMS.{ArticleComment, ArticleCommentUpvote, Post, Job}
+  alias Ecto.Multi
+
+  # the limit of latest participators stored in article's comment_participator
+  @max_participator_count 10
 
   @doc """
   list paged article comments
@@ -36,27 +40,37 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
         thread,
         article_id,
         content,
-        %User{id: author_id}
+        %User{id: user_id} = user
       ) do
     with {:ok, info} <- match(thread),
          # make sure the article exsit
          # author is passed by middleware, it's exsit for sure
          {:ok, article} <- ORM.find(info.model, article_id) do
-      args = %{author_id: author_id, body_html: content} |> Map.put(info.foreign_key, article.id)
-
-      ArticleComment |> ORM.create(args)
-
-      # Multi.new()
-      # |> Multi.run(:create_comment, fn _, _ ->
-      #   do_create_comment(thread, action, content, body, user)
-      # end)
+      Multi.new()
+      |> Multi.run(:write_comment, fn _, _ ->
+        args = %{author_id: user_id, body_html: content} |> Map.put(info.foreign_key, article.id)
+        ArticleComment |> ORM.create(args)
+      end)
+      |> Multi.run(:add_participator, fn _, _ ->
+        add_participator_to_article(article, user)
+      end)
       # |> Multi.run(:mention_users, fn _, %{create_comment: comment} ->
       #   Delivery.mention_from_comment(community, thread, content, comment, args, user)
       #   {:ok, :pass}
       # end)
-      # |> Repo.transaction()
-      # |> create_comment_result()
+      |> Repo.transaction()
+      |> write_comment_result()
     end
+  end
+
+  defp write_comment_result({:ok, %{write_comment: result}}), do: {:ok, result}
+
+  defp write_comment_result({:error, :create_comment, result, _steps}) do
+    {:error, result}
+  end
+
+  defp write_comment_result({:error, :add_participator, result, _steps}) do
+    {:error, result}
   end
 
   def upvote_comment(comment_id, %User{id: user_id}) do
@@ -66,6 +80,20 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       args = %{article_comment_id: comment.id, user_id: user_id}
       ArticleCommentUpvote |> ORM.create(args)
     end
+  end
+
+  # add participator to article-like content (Post, Job ...)
+  defp add_participator_to_article(%Post{} = article, %User{} = user) do
+    new_comment_participators =
+      article.comment_participators
+      |> List.insert_at(0, user)
+      |> Enum.uniq()
+      |> Enum.slice(0, @max_participator_count)
+
+    article
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_embed(:comment_participators, new_comment_participators)
+    |> Repo.update()
   end
 
   defp match(:post) do

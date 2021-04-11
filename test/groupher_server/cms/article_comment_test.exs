@@ -10,10 +10,11 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
   setup do
     {:ok, user} = db_insert(:user)
+    {:ok, user2} = db_insert(:user)
     {:ok, post} = db_insert(:post)
     {:ok, job} = db_insert(:job)
 
-    {:ok, ~m(user post job)a}
+    {:ok, ~m(user user2 post job)a}
   end
 
   describe "[basic article comment]" do
@@ -35,6 +36,47 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
       assert List.first(post.article_comments).body_html == post_comment_1
       assert List.first(job.article_comments).body_html == job_comment_1
+    end
+  end
+
+  describe "[article comment participator]" do
+    @tag :wip2
+    test "post will have participator after comment created", ~m(user post)a do
+      post_comment_1 = "post_comment 1"
+
+      {:ok, _} = CMS.write_comment(:post, post.id, post_comment_1, user)
+
+      {:ok, post} = ORM.find(Post, post.id)
+
+      participator = List.first(post.comment_participators)
+      assert participator.id == user.id
+    end
+
+    @tag :wip2
+    test "psot participator will not contains same user", ~m(user post)a do
+      post_comment_1 = "post_comment 1"
+
+      {:ok, _} = CMS.write_comment(:post, post.id, post_comment_1, user)
+      {:ok, _} = CMS.write_comment(:post, post.id, post_comment_1, user)
+
+      {:ok, post} = ORM.find(Post, post.id)
+
+      assert 1 == length(post.comment_participators)
+    end
+
+    @tag :wip2
+    test "recent comment user should appear at first of the psot participators",
+         ~m(user user2 post)a do
+      post_comment_1 = "post_comment 1"
+
+      {:ok, _} = CMS.write_comment(:post, post.id, post_comment_1, user)
+      {:ok, _} = CMS.write_comment(:post, post.id, post_comment_1, user2)
+
+      {:ok, post} = ORM.find(Post, post.id)
+
+      participator = List.first(post.comment_participators)
+
+      assert participator.id == user2.id
     end
   end
 
