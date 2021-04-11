@@ -21,6 +21,21 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
       middleware(M.Statistics.MakeContribute, for: :user)
     end
 
+    @desc "write a comment"
+    field :write_comment, :article_comment do
+      # TODO use thread and force community pass-in
+      arg(:thread, :cms_thread, default_value: :post)
+      arg(:id, non_null(:id))
+      arg(:content, non_null(:string))
+      # arg(:mention_users, list_of(:ids))
+
+      # TDOO: use a comment resolver
+      middleware(M.Authorize, :login)
+      # TODO: 文章作者可以删除评论，文章可以设置禁止评论
+      resolve(&R.CMS.write_comment/3)
+      middleware(M.Statistics.MakeContribute, for: :user)
+    end
+
     @desc "update a comment"
     field :update_comment, :comment do
       arg(:id, non_null(:id))

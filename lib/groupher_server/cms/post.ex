@@ -42,10 +42,7 @@ defmodule GroupherServer.CMS.Post do
 
     embeds_one(:meta, ArticleMeta, on_replace: :update)
     # 评论参与者，只保留最近 5 个
-    # embeds_many(:comment_participators, ArticleCommentParticipator, on_replace: :delete)
     embeds_many(:comment_participators, Accounts.User, on_replace: :delete)
-
-    # field(:meta, :map)
 
     has_many(:community_flags, {"posts_communities_flags", PostCommunityFlag})
 

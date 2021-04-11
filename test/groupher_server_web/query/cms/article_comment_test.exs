@@ -16,7 +16,43 @@ defmodule GroupherServer.Test.Query.ArticleComment do
     {:ok, ~m(user_conn guest_conn post job user)a}
   end
 
-  describe "[post comment]" do
+  describe "[article post comment]" do
+    @query """
+    query($id: ID!) {
+      post(id: $id) {
+        id
+        title
+        body
+        commentParticipators{
+          id
+          nickname
+        }
+      }
+    }
+    """
+    @tag :wip2
+    test "guest user can get comment participators after comment created",
+         ~m(guest_conn post user)a do
+      comment = "test comment"
+      total_count = 3
+      thread = :post
+
+      Enum.reduce(1..total_count, [], fn _, acc ->
+        {:ok, value} = CMS.write_comment(thread, post.id, comment, user)
+
+        acc ++ [value]
+      end)
+
+      variables = %{id: post.id}
+      results = guest_conn |> query_result(@query, variables, "post")
+
+      comment_participators = results["commentParticipators"]
+      participator = List.first(comment_participators)
+
+      assert is_list(comment_participators)
+      # assert participator["id"] == user.id
+    end
+
     @query """
       query($id: ID!, $thread: CmsThread, $filter: CommentsFilter!) {
         pagedArticleComments(id: $id, thread: $thread, filter: $filter) {

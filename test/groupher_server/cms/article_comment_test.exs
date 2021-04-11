@@ -81,7 +81,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[article comment upvotes]" do
-    @tag :wip3
+    @tag :wip
     test "user can upvote a post comment", ~m(user post)a do
       comment = "post_comment"
       {:ok, comment} = CMS.write_comment(:post, post.id, comment, user)
@@ -94,7 +94,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert List.first(comment.upvotes).user_id == user.id
     end
 
-    @tag :wip3
+    @tag :wip
     test "user can upvote a job comment", ~m(user job)a do
       comment = "job_comment"
       {:ok, comment} = CMS.write_comment(:job, job.id, comment, user)
@@ -107,7 +107,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert List.first(comment.upvotes).user_id == user.id
     end
 
-    @tag :wip3
+    @tag :wip
     test "user upvote a already-upvoted comment fails", ~m(user post)a do
       comment = "post_comment"
       {:ok, comment} = CMS.write_comment(:post, post.id, comment, user)
