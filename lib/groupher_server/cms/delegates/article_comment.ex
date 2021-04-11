@@ -96,6 +96,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     |> Repo.update()
   end
 
+  defp add_participator_to_article(_, _), do: {:ok, :pass}
+
   defp match(:post) do
     {:ok, %{model: Post, foreign_key: :post_id}}
   end

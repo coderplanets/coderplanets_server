@@ -18,8 +18,8 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[basic article comment]" do
-    @tag :wip3
-    test "post, job are supported by article comment", ~m(user post job)a do
+    @tag :wip2
+    test "post, job are supported by article comment.", ~m(user post job)a do
       post_comment_1 = "post_comment 1"
       post_comment_2 = "post_comment 2"
       job_comment_1 = "job_comment 1"
@@ -94,7 +94,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert List.first(comment.upvotes).user_id == user.id
     end
 
-    @tag :wip
+    @tag :wip2
     test "user can upvote a job comment", ~m(user job)a do
       comment = "job_comment"
       {:ok, comment} = CMS.write_comment(:job, job.id, comment, user)

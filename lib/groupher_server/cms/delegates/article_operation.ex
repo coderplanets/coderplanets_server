@@ -286,10 +286,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
     new_meta = ArticleMeta.default_meta() |> Map.merge(%{is_edited: true})
 
     # {:ok, content_with_meta} =
-      content
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_embed(:meta, new_meta)
-      |> Repo.update()
+    content
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_embed(:meta, new_meta)
+    |> Repo.update()
 
     # new_meta =
     #   content_with_meta.meta
