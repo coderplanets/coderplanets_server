@@ -269,17 +269,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
 
   @doc "update isEdited meta label if needed"
   def update_meta(%Post{meta: %ArticleMeta{is_edited: false} = meta} = content, :is_edited) do
-    {:ok, %{entries: users}} = ORM.find_all(User, %{page: 1, size: 10})
-    tmp_user = List.first(users)
-
     new_meta =
       meta
       |> Map.from_struct()
       |> Map.delete(:id)
-      |> Map.merge(%{is_edited: true, user: tmp_user, user_id: tmp_user.id})
+      |> Map.merge(%{is_edited: true})
 
     content
-    |> Map.merge(%{meta: Repo.preload(content.meta, :user)})
     |> Ecto.Changeset.change()
     |> Ecto.Changeset.put_embed(:meta, new_meta)
     |> Repo.update()
@@ -289,37 +285,22 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   def update_meta(%Post{meta: nil} = content, :is_edited) do
     new_meta = ArticleMeta.default_meta() |> Map.merge(%{is_edited: true})
 
-    # IO.inspect(content, label: "the fucking content")
-
-    {:ok, content_with_meta} =
+    # {:ok, content_with_meta} =
       content
       |> Ecto.Changeset.change()
       |> Ecto.Changeset.put_embed(:meta, new_meta)
       |> Repo.update()
 
-    {:ok, %{entries: users}} = ORM.find_all(User, %{page: 1, size: 10})
-    tmp_user = List.first(users)
-    tmp_user2 = List.last(users)
+    # new_meta =
+    #   content_with_meta.meta
+    #   |> Map.from_struct()
+    #   |> Map.delete(:id)
 
-    new_meta =
-      content_with_meta.meta
-      |> Map.from_struct()
-      |> Map.delete(:id)
-      |> Map.merge(%{user: tmp_user, user_id: tmp_user.id})
-
-    # comment_participators
-
-    content_with_meta
-    |> Map.merge(%{meta: Repo.preload(content_with_meta.meta, :user)})
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_embed(:meta, new_meta)
-    |> Ecto.Changeset.put_embed(:comment_participators, [
-      tmp_user,
-      tmp_user2
-      # %ArticleCommentParticipator{user: tmp_user},
-      # %ArticleCommentParticipator{user: tmp_user2}
-    ])
-    |> Repo.update()
+    # content_with_meta
+    # |> Map.merge(%{meta: Repo.preload(content_with_meta.meta, :user)})
+    # |> Ecto.Changeset.change()
+    # |> Ecto.Changeset.put_embed(:meta, new_meta)
+    # |> Repo.update()
   end
 
   def update_meta(content, _), do: {:ok, content}

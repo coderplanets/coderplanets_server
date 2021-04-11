@@ -30,7 +30,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "guest user can get comment participators after comment created",
          ~m(guest_conn post user)a do
       comment = "test comment"
@@ -47,7 +47,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       results = guest_conn |> query_result(@query, variables, "post")
 
       comment_participators = results["commentParticipators"]
-      participator = List.first(comment_participators)
+      # participator = List.first(comment_participators)
 
       assert is_list(comment_participators)
       # assert participator["id"] == user.id

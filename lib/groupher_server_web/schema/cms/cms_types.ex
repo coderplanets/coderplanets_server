@@ -42,10 +42,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:meta, :article_meta)
     field(:comment_participators, list_of(:user))
 
-    # field :meta, :article_meta do
-    #   resolve(&R.CMS.get_meta/3)
-    # end
-
     field :comments, list_of(:comment) do
       arg(:filter, :members_filter)
 
@@ -433,7 +429,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   object :article_meta do
     field(:is_edited, :boolean)
     field(:forbid_comment, :boolean)
-    field(:user, :user, resolve: dataloader(Accounts, :user))
     # field(:isReported, :boolean)
     # field(:linked_posts_count, :integer)
     # field(:linked_jobs_count, :integer)

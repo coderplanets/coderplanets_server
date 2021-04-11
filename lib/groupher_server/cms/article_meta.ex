@@ -26,7 +26,5 @@ defmodule GroupherServer.CMS.ArticleMeta do
     field(:is_edited, :boolean, default: false)
     field(:forbid_comment, :boolean, default: false)
     field(:is_reported, :boolean, default: false)
-
-    belongs_to(:user, User)
   end
 end

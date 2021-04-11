@@ -42,7 +42,6 @@ defmodule GroupherServer.Test.CMS.PostMeta do
       {:ok, _} = CMS.update_content(post, %{"title" => "new title"})
       {:ok, post} = ORM.find_by(Post, id: post.id)
 
-      IO.inspect(post.meta |> Repo.preload(:user), label: "deceng")
       assert post.meta.is_edited == true
     end
 

@@ -40,7 +40,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[article comment participator]" do
-    @tag :wip2
+    @tag :wip
     test "post will have participator after comment created", ~m(user post)a do
       post_comment_1 = "post_comment 1"
 
@@ -52,7 +52,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert participator.id == user.id
     end
 
-    @tag :wip2
+    @tag :wip
     test "psot participator will not contains same user", ~m(user post)a do
       post_comment_1 = "post_comment 1"
 
@@ -64,7 +64,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert 1 == length(post.comment_participators)
     end
 
-    @tag :wip2
+    @tag :wip
     test "recent comment user should appear at first of the psot participators",
          ~m(user user2 post)a do
       post_comment_1 = "post_comment 1"

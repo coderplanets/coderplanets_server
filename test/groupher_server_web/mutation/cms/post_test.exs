@@ -630,7 +630,7 @@ defmodule GroupherServer.Test.Mutation.Post do
       }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "write comment to a exsit post", ~m(post user_conn community)a do
       comment = "a test comment"
       variables = %{thread: "POST", id: post.id, content: comment}
