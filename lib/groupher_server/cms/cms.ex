@@ -113,6 +113,7 @@ defmodule GroupherServer.CMS do
 
   defdelegate write_comment(thread, article_id, args, user), to: ArticleComment
   defdelegate upvote_comment(comment_id, user), to: ArticleComment
+  defdelegate reply_article_comment(comment_id, args, user), to: ArticleComment
 
   defdelegate create_comment(thread, content_id, args, user), to: CommentCURD
   defdelegate update_comment(thread, id, args, user), to: CommentCURD

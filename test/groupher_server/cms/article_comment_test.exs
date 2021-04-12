@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{ArticleComment, Post, Job}
+  alias CMS.{ArticleComment, ArticleCommentReply, Post, Job}
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -18,7 +18,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[basic article comment]" do
-    @tag :wip2
+    @tag :wip
     test "post, job are supported by article comment.", ~m(user post job)a do
       post_comment_1 = "post_comment 1"
       post_comment_2 = "post_comment 2"
@@ -94,7 +94,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert List.first(comment.upvotes).user_id == user.id
     end
 
-    @tag :wip2
+    @tag :wip
     test "user can upvote a job comment", ~m(user job)a do
       comment = "job_comment"
       {:ok, comment} = CMS.write_comment(:job, job.id, comment, user)
@@ -135,5 +135,70 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
     assert page_number == paged_comments.page_number
     assert page_size == paged_comments.page_size
     assert total_count == paged_comments.total_count
+  end
+
+  describe "[basic article comment replies]" do
+    @tag :wip
+    test "exsit comment can be reply", ~m(post user user2)a do
+      parent_content = "parent comment"
+      reply_content = "reply comment"
+
+      {:ok, parent_comment} = CMS.write_comment(:post, post.id, parent_content, user)
+      {:ok, replyed_comment} = CMS.reply_article_comment(parent_comment.id, reply_content, user2)
+      assert replyed_comment.reply_to.id == parent_comment.id
+
+      {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
+
+      assert exist_in?(replyed_comment, parent_comment.replies)
+    end
+
+    @tag :wip
+    test "multi reply should belong to one parent comment", ~m(post user user2)a do
+      parent_content = "parent comment"
+      reply_content_1 = "reply comment 1"
+      reply_content_2 = "reply comment 2"
+
+      {:ok, parent_comment} = CMS.write_comment(:post, post.id, parent_content, user)
+
+      {:ok, replyed_comment_1} =
+        CMS.reply_article_comment(parent_comment.id, reply_content_1, user2)
+
+      {:ok, replyed_comment_2} =
+        CMS.reply_article_comment(parent_comment.id, reply_content_2, user2)
+
+      {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
+
+      assert exist_in?(replyed_comment_1, parent_comment.replies)
+      assert exist_in?(replyed_comment_2, parent_comment.replies)
+    end
+
+    @tag :wip2
+    test "reply to reply inside a comment should belong same parent comment",
+         ~m(post user user2)a do
+      parent_content = "parent comment"
+      reply_content_1 = "reply comment 1"
+      reply_content_2 = "reply comment 2"
+
+      {:ok, parent_comment} = CMS.write_comment(:post, post.id, parent_content, user)
+
+      {:ok, replyed_comment_1} =
+        CMS.reply_article_comment(parent_comment.id, reply_content_1, user2)
+
+      {:ok, replyed_comment_2} =
+        CMS.reply_article_comment(replyed_comment_1.id, reply_content_2, user2)
+
+      IO.inspect(replyed_comment_2, label: "replyed_comment_2")
+
+      {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
+
+      IO.inspect(parent_comment, label: "parent_comment")
+
+      assert exist_in?(replyed_comment_1, parent_comment.replies)
+      assert exist_in?(replyed_comment_2, parent_comment.replies)
+    end
+
+    # test "comment replies only contains @max_replies_count replies" do
+
+    # end
   end
 end

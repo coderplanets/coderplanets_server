@@ -10,22 +10,26 @@ defmodule GroupherServer.CMS.ArticleComment do
   alias CMS.{
     Post,
     Job,
-    ArticleCommentUpvote
+    ArticleCommentUpvote,
+    ArticleCommentReply
   }
 
   # alias Helper.HTML
 
   @required_fields ~w(body_html author_id)a
-  @optional_fields ~w(post_id job_id)a
+  @optional_fields ~w(post_id job_id reply_to_id)a
 
   @type t :: %ArticleComment{}
   schema "articles_comments" do
     field(:body_html, :string)
     # field(:floor, :integer)
-
     belongs_to(:author, Accounts.User, foreign_key: :author_id)
     belongs_to(:post, Post, foreign_key: :post_id)
     belongs_to(:job, Job, foreign_key: :job_id)
+    belongs_to(:reply_to, ArticleComment, foreign_key: :reply_to_id)
+
+    # has_many(:replies, {"articles_comments_replies", ArticleCommentReply})
+    embeds_many(:replies, ArticleComment, on_replace: :delete)
 
     has_many(:upvotes, {"articles_comments_upvotes", ArticleCommentUpvote})
 
