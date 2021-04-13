@@ -14,9 +14,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   alias CMS.{ArticleComment, ArticleCommentUpvote, ArticleCommentReply, Post, Job}
   alias Ecto.Multi
 
-  # the limit of latest participators stored in article's comment_participator
-  @max_participator_count 5
-  @max_replies_count 5
+  @max_participator_count CMS.ArticleComment.max_participator_count()
+  @max_replies_count CMS.ArticleComment.max_replies_count()
 
   @doc """
   list paged article comments
@@ -76,7 +75,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   def reply_article_comment(
         comment_id,
         content,
-        %User{id: user_id}
+        %User{id: user_id} = user
       ) do
     with {:ok, replying_comment} <- ORM.find(ArticleComment, comment_id, preload: :reply_to),
          reply_args <-
@@ -90,14 +89,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       # IO.inspect(replying_comment, label: "hello replying_comment")
       # 只有一个缩进层级
       parent_comment = get_parent_comment(replying_comment)
-      # IO.inspect(parent_comment, label: "after")
-      # if is_nil(replying_comment.reply_to),
-      #   do: replying_comment,
-      #   else: replying_comment.reply_to
-
-      # IO.inspect(parent_comment, label: ">> parent_comment")
 
       add_replies_ifneed(parent_comment, replyed_comment)
+
+      {:ok, article} = ORM.find(Post, replying_comment.post_id)
+      add_participator_to_article(article, user)
 
       replyed_comment
       |> Repo.preload(:reply_to)
@@ -117,6 +113,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     # get_parent_comment(Repo.preload(comment, :reply_to))
   end
 
+  # 如果 replies 没有达到 @max_replies_count, 则添加
+  # "加载更多" 的逻辑使用另外的 paged 接口从 ArticleCommentReply 表中查询
   defp add_replies_ifneed(
          %ArticleComment{replies: replies} = parent_comment,
          %ArticleComment{} = replyed_comment

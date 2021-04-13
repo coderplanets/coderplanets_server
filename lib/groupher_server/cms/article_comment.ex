@@ -19,6 +19,14 @@ defmodule GroupherServer.CMS.ArticleComment do
   @required_fields ~w(body_html author_id)a
   @optional_fields ~w(post_id job_id reply_to_id)a
 
+  @max_participator_count 5
+  @max_replies_count 3
+
+  @doc "latest participators stores in article comment_participators field"
+  def max_participator_count(), do: @max_participator_count
+  @doc "latest replies stores in article_comment replies field, used for frontend display"
+  def max_replies_count(), do: @max_replies_count
+
   @type t :: %ArticleComment{}
   schema "articles_comments" do
     field(:body_html, :string)
