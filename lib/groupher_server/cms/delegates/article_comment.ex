@@ -31,10 +31,35 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
-  def make_emotion(comment_id, _args, %User{} = _user) do
-    with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
-      # IO.inspect(comment, label: "emotion")
-      {:ok, :pass}
+  def make_emotion(comment_id, _args, %User{} = user) do
+    with {:ok, comment} <-
+           ORM.find(ArticleComment, comment_id) do
+      # updated_emotions =
+      #   Map.merge(current_emotions, %{
+      #     downvote_count: current_emotions.downvote_count + Enum.random([1, 2, 3]),
+      #     tada_count: current_emotions.tada_count + Enum.random([1, 2, 3])
+      #   })
+
+      # [emotions: :downvote_users]
+      # IO.inspect(Repo.preload(comment.emotions, :downvote_users), label: "comment -> ")
+
+      updated_emotions = %{
+        downvote_count: comment.emotions.downvote_count + Enum.random([1, 2, 3]),
+        tada_count: comment.emotions.tada_count + Enum.random([1, 2, 3]),
+        downvote_users: [%{login: user.login}]
+        # downvote_users: [user]
+        # downvote_users: [%User{id: user.id}]
+      }
+
+      # updated_emotions = Map.merge(comment.emotions, %{downvote_count: 2, tada_count: 2})
+
+      IO.inspect(updated_emotions, label: "updated_emotions")
+
+      comment
+      |> Ecto.Changeset.change()
+      |> Ecto.Changeset.put_embed(:emotions, updated_emotions)
+      # |> Ecto.Changeset.put_change(:emotions, updated_emotions)
+      |> Repo.update()
     end
   end
 
@@ -134,6 +159,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   # set default emotions
   defp do_create_comment(content, foreign_key, article_id, %User{id: user_id}) do
     # @default_emotions
+    # %{author_id: user_id, body_html: content, emotions: @default_emotions}
     args =
       %{author_id: user_id, body_html: content, emotions: @default_emotions}
       |> Map.put(
@@ -220,7 +246,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   end
 
   defp upsert_comment_result({:ok, %{write_comment: result}}), do: {:ok, result}
-  defp upsert_comment_result({:ok, %{create_reply_comment: result}}), do: {:ok, result}
+  defp upsert_comment_result({:ok, %{add_reply_to: result}}), do: {:ok, result}
 
   defp upsert_comment_result({:error, :create_comment, result, _steps}) do
     {:error, result}

@@ -5,9 +5,9 @@ defmodule GroupherServer.Test.CMS.PostMeta do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{ArticleMeta, Author, Post}
+  alias CMS.{Embeds, Author, Post}
 
-  @default_article_meta ArticleMeta.default_meta()
+  @default_article_meta Embeds.ArticleMeta.default_meta()
 
   setup do
     {:ok, user} = db_insert(:user)

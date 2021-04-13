@@ -8,7 +8,7 @@ defmodule GroupherServer.CMS.Post do
   alias GroupherServer.{CMS, Accounts}
 
   alias CMS.{
-    ArticleMeta,
+    Embeds,
     Author,
     ArticleComment,
     ArticleCommentParticipator,
@@ -27,7 +27,6 @@ defmodule GroupherServer.CMS.Post do
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title body digest length)a
   @optional_fields ~w(origial_community_id link_addr copy_right link_addr link_icon)a
-  @embed_fileds ~w(meta)a
 
   @type t :: %Post{}
   schema "cms_posts" do
@@ -40,7 +39,7 @@ defmodule GroupherServer.CMS.Post do
     field(:length, :integer)
     field(:views, :integer, default: 0)
 
-    embeds_one(:meta, ArticleMeta, on_replace: :update)
+    embeds_one(:meta, Embeds.ArticleMeta, on_replace: :update)
     # 评论参与者，只保留最近 5 个
     embeds_many(:comment_participators, Accounts.User, on_replace: :delete)
 

@@ -21,22 +21,28 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
   end
 
   describe "[basic article comment emotion]" do
-    @tag :wip2
-    test "comment as default emotions after created", ~m(post user user2)a do
+    @tag :wip
+    test "comment has default emotions after created", ~m(post user user2)a do
       parent_content = "parent comment"
-      reply_content = "reply comment"
 
       {:ok, parent_comment} = CMS.write_comment(:post, post.id, parent_content, user)
-      {:ok, _} = CMS.make_emotion(parent_comment.id, "", user)
-
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
-      # IO.inspect(parent_comment, label: "parent_comment")
 
       emotions = parent_comment.emotions |> Map.from_struct() |> Map.delete(:id)
       assert @default_emotions == emotions
     end
 
+    @tag :wip2
     test "can make emotion to comment", ~m(post user user2)a do
+      parent_content = "parent comment-"
+      {:ok, parent_comment} = CMS.write_comment(:post, post.id, parent_content, user)
+
+      {:ok, _} = CMS.make_emotion(parent_comment.id, "", user)
+      # {:ok, _} = CMS.make_emotion(parent_comment.id, "", user)
+      # {:ok, _} = CMS.make_emotion(parent_comment.id, "", user)
+
+      {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
+      IO.inspect(parent_comment.emotions, label: "the parent_comment")
     end
   end
 end

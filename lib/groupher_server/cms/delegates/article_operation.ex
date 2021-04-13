@@ -12,7 +12,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   alias GroupherServer.Accounts.User
 
   alias GroupherServer.CMS.{
-    ArticleMeta,
+    Embeds,
     ArticleCommentParticipator,
     Community,
     Post,
@@ -268,7 +268,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   def set_meta(_, _), do: {:ok, :pass}
 
   @doc "update isEdited meta label if needed"
-  def update_meta(%Post{meta: %ArticleMeta{is_edited: false} = meta} = content, :is_edited) do
+  def update_meta(%Post{meta: %Embeds.ArticleMeta{is_edited: false} = meta} = content, :is_edited) do
     new_meta =
       meta
       |> Map.from_struct()
@@ -283,7 +283,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
 
   # for test or exsiting articles
   def update_meta(%Post{meta: nil} = content, :is_edited) do
-    new_meta = ArticleMeta.default_meta() |> Map.merge(%{is_edited: true})
+    new_meta = Embeds.ArticleMeta.default_meta() |> Map.merge(%{is_edited: true})
 
     # {:ok, content_with_meta} =
     content

@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.ArticleMeta do
+defmodule GroupherServer.CMS.Embeds.ArticleMeta do
   @moduledoc """
   general article meta info for article-like content, like post, job, works ...
   """
