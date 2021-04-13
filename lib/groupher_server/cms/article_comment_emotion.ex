@@ -29,19 +29,13 @@ defmodule GroupherServer.CMS.ArticleCommentEmotion do
 
   def changeset(struct, params) do
     struct
+    |> IO.inspect(label: "the changeset")
     |> cast(params, [:downvote_count, :tada_count])
     # |> cast_embed(:downvote_users, required: false, with: &User.changeset/2)
-    |> cast_embed(:downvote_users, required: false, with: &user_changeset/2)
+    |> cast_embed(:downvote_users, required: false, with: &Embeds.User.changeset/2)
 
     # |> cast_embed(:downvote_users, required: false, with: &User.changeset/2)
-
     # |> cast_embed(:tada_users, required: false, with: &User.changeset/2)
-
     # |> validate_required([:downvote_count, :tada_count])
-  end
-
-  defp user_changeset(struct, params) do
-    struct
-    |> cast(params, [:id, :nickname])
   end
 end

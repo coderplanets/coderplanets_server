@@ -4,10 +4,16 @@ defmodule GroupherServer.CMS.Embeds.User do
   """
 
   use Ecto.Schema
-  # import Ecto.Changeset
+  import Ecto.Changeset
 
   embedded_schema do
     field(:login, :string)
     field(:nickname, :string)
+    # field(:is_article_author, :boolean)
+  end
+
+  def changeset(struct, params) do
+    struct
+    |> cast(params, [:login, :nickname])
   end
 end

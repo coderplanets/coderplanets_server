@@ -42,7 +42,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       # {:ok, _} = CMS.make_emotion(parent_comment.id, "", user)
 
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
-      IO.inspect(parent_comment.emotions, label: "the parent_comment")
+      # IO.inspect(parent_comment.emotions, label: "the parent_comment")
     end
   end
 end
