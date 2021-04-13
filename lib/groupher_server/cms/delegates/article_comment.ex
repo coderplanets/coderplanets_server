@@ -31,6 +31,17 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   end
 
   @doc """
+  list paged comment replies
+  """
+  def list_comment_replies(comment_id, %{page: page, size: size} = filters) do
+    ArticleComment
+    |> where([c], c.reply_to_id == ^comment_id)
+    |> QueryBuilder.filter_pack(filters)
+    |> ORM.paginater(~m(page size)a)
+    |> done()
+  end
+
+  @doc """
   Creates a comment for psot, job ...
   """
   def write_comment(

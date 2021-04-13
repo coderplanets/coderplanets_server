@@ -117,7 +117,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       assert exist_in?(user2, article.comment_participators)
     end
 
-    @tag :wip2
+    @tag :wip
     test "replies count should inc by 1 after got replyed", ~m(post user user2)a do
       {:ok, parent_comment} = CMS.write_comment(:post, post.id, "parent_conent", user)
       assert parent_comment.replies_count === 0
@@ -129,6 +129,35 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user2)
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
       assert parent_comment.replies_count === 2
+    end
+  end
+
+  describe "[paged article comment replies]" do
+    @tag :wip2
+    test "can get paged replies of a parent comment", ~m(post user user2)a do
+      {:ok, parent_comment} = CMS.write_comment(:post, post.id, "parent_conent", user)
+      {:ok, paged_replies} = CMS.list_comment_replies(parent_comment.id, %{page: 1, size: 20})
+      assert is_valid_pagination?(paged_replies, :raw, :empty)
+
+      total_reply_count = 30
+
+      reply_comment_list =
+        Enum.reduce(1..total_reply_count, [], fn n, acc ->
+          {:ok, replyed_comment} =
+            CMS.reply_article_comment(parent_comment.id, "reply_content_#{n}", user)
+
+          acc ++ [replyed_comment]
+        end)
+
+      {:ok, paged_replies} = CMS.list_comment_replies(parent_comment.id, %{page: 1, size: 20})
+
+      assert total_reply_count == paged_replies.total_count
+      assert is_valid_pagination?(paged_replies, :raw)
+
+      assert exist_in?(Enum.at(reply_comment_list, 0), paged_replies.entries)
+      assert exist_in?(Enum.at(reply_comment_list, 1), paged_replies.entries)
+      assert exist_in?(Enum.at(reply_comment_list, 2), paged_replies.entries)
+      assert exist_in?(Enum.at(reply_comment_list, 3), paged_replies.entries)
     end
   end
 end
