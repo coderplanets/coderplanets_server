@@ -106,7 +106,8 @@ defmodule GroupherServer.Mixfile do
       {:earmark, "~> 1.4.13"},
       # 遵循中文排版指南
       # https://github.com/cataska/pangu.ex
-      {:pangu, "~> 0.1.0"}
+      {:pangu, "~> 0.1.0"},
+      {:accessible, "~> 0.3.0"}
     ]
   end
 

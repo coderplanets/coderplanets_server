@@ -30,9 +30,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
-  defp match(:post, :query, id), do: {:ok, dynamic([c], c.post_id == ^id)}
-  defp match(:job, :query, id), do: {:ok, dynamic([c], c.job_id == ^id)}
-
   @doc """
   Creates a comment for psot, job ...
   """
@@ -48,8 +45,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
          {:ok, article} <- ORM.find(info.model, article_id) do
       Multi.new()
       |> Multi.run(:write_comment, fn _, _ ->
-        args = %{author_id: user_id, body_html: content} |> Map.put(info.foreign_key, article.id)
-        ArticleComment |> ORM.create(args)
+        do_create_comment(content, info.foreign_key, article.id, user)
       end)
       |> Multi.run(:add_participator, fn _, _ ->
         add_participator_to_article(article, user)
@@ -59,10 +55,48 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       #   {:ok, :pass}
       # end)
       |> Repo.transaction()
-      |> write_comment_result()
+      |> upsert_comment_result()
     end
   end
 
+  @doc "reply to exsiting comment"
+  def reply_article_comment(
+        comment_id,
+        content,
+        %User{id: user_id} = user
+      ) do
+    with {:ok, replying_comment} <- ORM.find(ArticleComment, comment_id, preload: :reply_to),
+         {thread, article} <- get_article(replying_comment),
+         {:ok, info} <- match(thread),
+         parent_comment <- get_parent_comment(replying_comment) do
+      Multi.new()
+      |> Multi.run(:create_reply_comment, fn _, _ ->
+        do_create_comment(content, info.foreign_key, replying_comment[info.foreign_key], user)
+      end)
+      |> Multi.run(:create_article_comment_reply, fn _,
+                                                     %{create_reply_comment: replyed_comment} ->
+        ArticleCommentReply
+        |> ORM.create(%{article_comment_id: replyed_comment.id, reply_to_id: replying_comment.id})
+      end)
+      |> Multi.run(:add_replies_ifneed, fn _, %{create_reply_comment: replyed_comment} ->
+        add_replies_ifneed(parent_comment, replyed_comment)
+      end)
+      |> Multi.run(:add_participator, fn _, _ ->
+        add_participator_to_article(article, user)
+      end)
+      |> Multi.run(:add_reply_to, fn _, %{create_reply_comment: replyed_comment} ->
+        replyed_comment
+        |> Repo.preload(:reply_to)
+        |> Ecto.Changeset.change()
+        |> Ecto.Changeset.put_assoc(:reply_to, replying_comment)
+        |> Repo.update()
+      end)
+      |> Repo.transaction()
+      |> upsert_comment_result()
+    end
+  end
+
+  # TODO: should put totol upvote count in meta info
   def upvote_comment(comment_id, %User{id: user_id}) do
     # make sure the comment exsit
     # TODO: make sure the comment is not deleted yet
@@ -72,38 +106,22 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
-  def reply_article_comment(
-        comment_id,
-        content,
-        %User{id: user_id} = user
-      ) do
-    with {:ok, replying_comment} <- ORM.find(ArticleComment, comment_id, preload: :reply_to),
-         reply_args <-
-           Map.put(%{author_id: user_id, body_html: content}, :post_id, replying_comment.post_id) do
-      # create reply
-      {:ok, replyed_comment} = ORM.create(ArticleComment, reply_args)
+  # creat article comment for parent or reply
+  # set floor
+  # TODO: parse editor-json
+  # parse mention staff
+  defp do_create_comment(content, foreign_key, article_id, %User{id: user_id}) do
+    args =
+      %{author_id: user_id, body_html: content}
+      |> Map.put(
+        foreign_key,
+        article_id
+      )
 
-      ArticleCommentReply
-      |> ORM.create(%{article_comment_id: replyed_comment.id, reply_to_id: replying_comment.id})
-
-      # IO.inspect(replying_comment, label: "hello replying_comment")
-      # 只有一个缩进层级
-      parent_comment = get_parent_comment(replying_comment)
-
-      add_replies_ifneed(parent_comment, replyed_comment)
-
-      {:ok, article} = ORM.find(Post, replying_comment.post_id)
-      add_participator_to_article(article, user)
-
-      replyed_comment
-      |> Repo.preload(:reply_to)
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:reply_to, replying_comment)
-      |> Repo.update()
-    end
+    ORM.create(ArticleComment, args)
   end
 
-  # 设计盖楼只有一层，回复楼中的评论都会被放到顶楼的 replies 中
+  # 设计盖楼只保留一个层级，回复楼中的评论都会被放到顶楼的 replies 中
   defp get_parent_comment(%ArticleComment{reply_to_id: nil} = comment) do
     comment
   end
@@ -131,18 +149,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     |> Repo.update()
   end
 
+  # 如果已经有 @max_replies_count 以上的回复了，直接忽略即可
   defp add_replies_ifneed(%ArticleComment{} = parent_comment, _) do
     {:ok, parent_comment}
-  end
-
-  defp write_comment_result({:ok, %{write_comment: result}}), do: {:ok, result}
-
-  defp write_comment_result({:error, :create_comment, result, _steps}) do
-    {:error, result}
-  end
-
-  defp write_comment_result({:error, :add_participator, result, _steps}) do
-    {:error, result}
   end
 
   # add participator to article-like content (Post, Job ...)
@@ -161,6 +170,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   defp add_participator_to_article(_, _), do: {:ok, :pass}
 
+  # TODO: move to new matcher
   defp match(:post) do
     {:ok, %{model: Post, foreign_key: :post_id}}
   end
@@ -169,17 +179,34 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     {:ok, %{model: Job, foreign_key: :job_id}}
   end
 
-  # defp do_create_comment(thread, action, content, body, user) do
-  #   next_floor = get_next_floor(thread, action.reactor, content.id)
+  defp match(:post, :query, id), do: {:ok, dynamic([c], c.post_id == ^id)}
+  defp match(:job, :query, id), do: {:ok, dynamic([c], c.job_id == ^id)}
+  # matcher end
 
-  #   attrs = %{
-  #     author_id: user.id,
-  #     body: body,
-  #     floor: next_floor
-  #   }
+  defp get_article(%ArticleComment{post_id: post_id} = comment) when not is_nil(post_id) do
+    with {:ok, article} <- ORM.find(Post, comment.post_id) do
+      {:post, article}
+    end
+  end
 
-  #   attrs = merge_comment_attrs(thread, attrs, content.id)
+  defp get_article(%ArticleComment{job_id: job_id} = comment) when not is_nil(job_id) do
+    with {:ok, article} <- ORM.find(Job, comment.job_id) do
+      {:job, article}
+    end
+  end
 
-  #   action.reactor |> ORM.create(attrs)
-  # end
+  defp upsert_comment_result({:ok, %{write_comment: result}}), do: {:ok, result}
+  defp upsert_comment_result({:ok, %{create_reply_comment: result}}), do: {:ok, result}
+
+  defp upsert_comment_result({:error, :create_comment, result, _steps}) do
+    {:error, result}
+  end
+
+  defp upsert_comment_result({:error, :add_participator, result, _steps}) do
+    {:error, result}
+  end
+
+  defp upsert_comment_result({:error, _, result, _steps}) do
+    {:error, result}
+  end
 end

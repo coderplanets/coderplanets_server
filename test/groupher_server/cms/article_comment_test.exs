@@ -18,7 +18,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[basic article comment]" do
-    @tag :wip
+    @tag :wip2
     test "post, job are supported by article comment.", ~m(user post job)a do
       post_comment_1 = "post_comment 1"
       post_comment_2 = "post_comment 2"

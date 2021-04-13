@@ -54,7 +54,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       assert exist_in?(replyed_comment_2, parent_comment.replies)
     end
 
-    @tag :wip2
+    @tag :wip
     test "reply to reply inside a comment should belong same parent comment",
          ~m(post user user2)a do
       parent_content = "parent comment"
@@ -83,7 +83,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       assert replyed_comment_2.reply_to_id == replyed_comment_1.id
     end
 
-    @tag :wip2
+    @tag :wip
     test "comment replies only contains @max_replies_count replies", ~m(post user)a do
       total_reply_count = @max_replies_count + 1
 
