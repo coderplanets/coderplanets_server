@@ -13,7 +13,8 @@ defmodule GroupherServer.CMS.ArticleComment do
     Post,
     Job,
     ArticleCommentUpvote,
-    ArticleCommentReply
+    ArticleCommentReply,
+    ArticleCommentEmotion
   }
 
   # alias Helper.HTML
@@ -41,6 +42,7 @@ defmodule GroupherServer.CMS.ArticleComment do
     belongs_to(:reply_to, ArticleComment, foreign_key: :reply_to_id)
 
     embeds_many(:replies, ArticleComment, on_replace: :delete)
+    embeds_one(:emotions, ArticleCommentEmotion, on_replace: :delete)
 
     has_many(:upvotes, {"articles_comments_upvotes", ArticleCommentUpvote})
 
@@ -55,6 +57,7 @@ defmodule GroupherServer.CMS.ArticleComment do
   def changeset(%ArticleComment{} = article_comment, attrs) do
     article_comment
     |> cast(attrs, @required_fields ++ @optional_fields)
+    |> cast_embed(:emotions, required: true, with: &ArticleCommentEmotion.changeset/2)
     |> validate_required(@required_fields)
     |> generl_changeset
   end

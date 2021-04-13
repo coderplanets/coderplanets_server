@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{ArticleComment, ArticleCommentReply, Post, Job}
+  alias CMS.{ArticleComment, Post}
 
   @max_replies_count CMS.ArticleComment.max_replies_count()
 
@@ -133,7 +133,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
   end
 
   describe "[paged article comment replies]" do
-    @tag :wip2
+    @tag :wip
     test "can get paged replies of a parent comment", ~m(post user user2)a do
       {:ok, parent_comment} = CMS.write_comment(:post, post.id, "parent_conent", user)
       {:ok, paged_replies} = CMS.list_comment_replies(parent_comment.id, %{page: 1, size: 20})

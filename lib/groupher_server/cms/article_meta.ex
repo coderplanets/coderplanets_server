@@ -4,8 +4,6 @@ defmodule GroupherServer.CMS.ArticleMeta do
   """
   use Ecto.Schema
 
-  alias GroupherServer.Accounts.User
-
   @default_meta %{
     is_edited: false,
     forbid_comment: false,

@@ -16,6 +16,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   @max_participator_count CMS.ArticleComment.max_participator_count()
   @max_replies_count CMS.ArticleComment.max_replies_count()
+  @default_emotions CMS.ArticleCommentEmotion.default_emotions()
 
   @doc """
   list paged article comments
@@ -27,6 +28,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> QueryBuilder.filter_pack(filters)
       |> ORM.paginater(~m(page size)a)
       |> done()
+    end
+  end
+
+  def make_emotion(comment_id, _args, %User{} = _user) do
+    with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
+      # IO.inspect(comment, label: "emotion")
+      {:ok, :pass}
     end
   end
 
@@ -123,15 +131,17 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   # creat article comment for parent or reply
   # set floor
   # TODO: parse editor-json
-  # parse mention staff
+  # set default emotions
   defp do_create_comment(content, foreign_key, article_id, %User{id: user_id}) do
+    # @default_emotions
     args =
-      %{author_id: user_id, body_html: content}
+      %{author_id: user_id, body_html: content, emotions: @default_emotions}
       |> Map.put(
         foreign_key,
         article_id
       )
 
+    # IO.inspect(args, label: "the args")
     ORM.create(ArticleComment, args)
   end
 
