@@ -106,7 +106,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       assert not exist_in?(List.last(reply_comment_list), parent_comment.replies)
     end
 
-    @tag :wip2
+    @tag :wip
     test "replyed user should appear in article comment participators", ~m(post user user2)a do
       {:ok, parent_comment} = CMS.write_comment(:post, post.id, "parent_conent", user)
       {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user2)
@@ -117,8 +117,18 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       assert exist_in?(user2, article.comment_participators)
     end
 
-    # test "total replies count for parent comment" do
+    @tag :wip2
+    test "replies count should inc by 1 after got replyed", ~m(post user user2)a do
+      {:ok, parent_comment} = CMS.write_comment(:post, post.id, "parent_conent", user)
+      assert parent_comment.replies_count === 0
 
-    # end
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user2)
+      {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
+      assert parent_comment.replies_count === 1
+
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user2)
+      {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
+      assert parent_comment.replies_count === 2
+    end
   end
 end

@@ -78,6 +78,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
         ArticleCommentReply
         |> ORM.create(%{article_comment_id: replyed_comment.id, reply_to_id: replying_comment.id})
       end)
+      |> Multi.run(:inc_replies_count, fn _, _ ->
+        ORM.inc_field(ArticleComment, replying_comment, :replies_count)
+      end)
       |> Multi.run(:add_replies_ifneed, fn _, %{create_reply_comment: replyed_comment} ->
         add_replies_ifneed(parent_comment, replyed_comment)
       end)

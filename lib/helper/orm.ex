@@ -101,6 +101,20 @@ defmodule Helper.ORM do
     put_in(content.views, result)
   end
 
+  @doc "safe increase field(must be integer) by 1"
+  def inc_field(queryable, content, field) do
+    {1, [updated_count]} =
+      Repo.update_all(
+        from(c in queryable,
+          where: c.id == ^content.id,
+          select: field(c, ^field)
+        ),
+        inc: ["#{field}": 1]
+      )
+
+    put_in(content[field], updated_count) |> done
+  end
+
   @doc """
   NOTICE: this should be use together with Authorize/OwnerCheck etc Middleware
   DO NOT use it directly
