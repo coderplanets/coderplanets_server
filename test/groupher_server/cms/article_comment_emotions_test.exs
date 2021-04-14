@@ -22,8 +22,34 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
     {:ok, ~m(user user2 user3 post job)a}
   end
 
-  describe "[basic article comment emotion]" do
+  describe "[emotion in paged article comment]" do
     @tag :wip2
+    test "login user should got viewer has emotioned status", ~m(post user user2)a do
+      total_count = 10
+      page_number = 1
+      page_size = 10
+
+      {:ok, first_comment} = CMS.write_comment(:post, post.id, "commment", user)
+
+      Enum.reduce(2..total_count, [], fn _, acc ->
+        {:ok, value} = CMS.write_comment(:post, post.id, "commment", user)
+
+        acc ++ [value]
+      end)
+
+      {:ok, _} = CMS.make_emotion(first_comment.id, :downvote, user)
+      # IO.inspect(first_comment, label: "first_comment")
+      {:ok, paged_comments} =
+        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size}, user)
+
+      # {:ok, %{emotions: emotions}} = ORM.find(ArticleComment, parent_comment.id)
+
+      # IO.inspect(emotions, label: "the emotions")
+    end
+  end
+
+  describe "[basic article comment emotion]" do
+    @tag :wip
     test "comment has default emotions after created", ~m(post user user2)a do
       parent_content = "parent comment"
 
@@ -34,7 +60,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       assert @default_emotions == emotions
     end
 
-    @tag :wip2
+    @tag :wip
     test "can make emotion to comment", ~m(post user user2)a do
       parent_content = "parent comment"
       {:ok, parent_comment} = CMS.write_comment(:post, post.id, parent_content, user)
@@ -42,14 +68,14 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       {:ok, _} = CMS.make_emotion(parent_comment.id, :downvote, user)
       {:ok, _} = CMS.make_emotion(parent_comment.id, :downvote, user2)
 
-      {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
+      {:ok, %{emotions: emotions}} = ORM.find(ArticleComment, parent_comment.id)
 
-      assert parent_comment.emotions.downvote_count == 2
-      assert user_exist_in?(user, parent_comment.emotions.latest_downvote_users)
-      assert user_exist_in?(user2, parent_comment.emotions.latest_downvote_users)
+      assert emotions.downvote_count == 2
+      assert user_exist_in?(user, emotions.latest_downvote_users)
+      assert user_exist_in?(user2, emotions.latest_downvote_users)
     end
 
-    @tag :wip2
+    @tag :wip
     test "same user make same emotion to same comment", ~m(post user)a do
       parent_content = "parent comment"
       {:ok, parent_comment} = CMS.write_comment(:post, post.id, parent_content, user)
@@ -63,7 +89,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       assert user_exist_in?(user, parent_comment.emotions.latest_downvote_users)
     end
 
-    @tag :wip2
+    @tag :wip
     test "different user can make same emotions on same comment", ~m(post user user2 user3)a do
       {:ok, parent_comment} = CMS.write_comment(:post, post.id, "parent comment", user)
 
@@ -80,7 +106,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       assert user_exist_in?(user3, emotions.latest_beer_users)
     end
 
-    @tag :wip2
+    @tag :wip
     test "same user can make differcent emotions on same comment", ~m(post user)a do
       parent_content = "parent comment"
       {:ok, parent_comment} = CMS.write_comment(:post, post.id, parent_content, user)

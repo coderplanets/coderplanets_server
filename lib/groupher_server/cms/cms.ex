@@ -108,6 +108,7 @@ defmodule GroupherServer.CMS do
 
   # Comment CURD
   defdelegate list_article_comments(thread, article_id, filters), to: ArticleComment
+  defdelegate list_article_comments(thread, article_id, filters, user), to: ArticleComment
   defdelegate list_comment_replies(comment_id, filters), to: ArticleComment
 
   defdelegate list_comments(thread, content_id, filters), to: CommentCURD

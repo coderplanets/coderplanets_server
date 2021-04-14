@@ -43,6 +43,41 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
+  def list_article_comments(
+        thread,
+        article_id,
+        %{page: page, size: size} = filters,
+        %User{} = user
+      ) do
+    with {:ok, thread_query} <- match(thread, :query, article_id) do
+      ArticleComment
+      |> where(^thread_query)
+      |> QueryBuilder.filter_pack(filters)
+      |> ORM.paginater(~m(page size)a)
+      |> check_viewer_has_emotioned(user)
+      |> done()
+    end
+  end
+
+  defp check_viewer_has_emotioned(%{entries: entries} = paged_comments, %User{} = user) do
+    new_entries =
+      Enum.map(entries, fn comment ->
+        Map.put(comment, :emotions, %{
+          comment.emotions
+          | viewer_has_downvoted: user_in_it?(comment.emotions.downvote_user_ids, user)
+        })
+      end)
+
+    %{paged_comments | entries: new_entries}
+  end
+
+  defp user_in_it?(nil, _), do: false
+
+  defp user_in_it?(ids_str, %User{login: login}) do
+    ids_list = ids_str |> String.split(",")
+    login in ids_list
+  end
+
   def make_emotion(comment_id, action, %User{} = user) do
     with {:ok, comment} <-
            ORM.find(ArticleComment, comment_id) do
@@ -83,6 +118,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
         updated_emotions =
           %{}
           |> Map.put(:"#{action}_count", status.user_count)
+          |> Map.put(
+            :"#{action}_user_ids",
+            status.user_list |> Enum.map(& &1.login) |> Enum.join(",")
+          )
           |> Map.put(
             :"latest_#{action}_users",
             Enum.slice(status.user_list, 0, @max_emotion_action_users_count)
