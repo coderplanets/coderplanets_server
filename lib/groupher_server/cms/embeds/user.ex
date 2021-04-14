@@ -9,11 +9,12 @@ defmodule GroupherServer.CMS.Embeds.User do
   embedded_schema do
     field(:login, :string)
     field(:nickname, :string)
-    # field(:is_article_author, :boolean)
+    # TODO: field(:is_article_author, :boolean)
   end
 
   def changeset(struct, params) do
     struct
     |> cast(params, [:login, :nickname])
+    |> validate_required([:login, :nickname])
   end
 end

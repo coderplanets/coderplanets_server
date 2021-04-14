@@ -11,12 +11,24 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.User
-  alias CMS.{ArticleComment, ArticleCommentUpvote, ArticleCommentReply, Post, Job}
+
+  alias CMS.{
+    ArticleComment,
+    ArticleCommentUpvote,
+    ArticleCommentReply,
+    ArticleCommentUserEmotion,
+    Post,
+    Job
+  }
+
   alias Ecto.Multi
+
+  # TODO:  move to embeds
+  @max_emotion_action_users_count 5
 
   @max_participator_count CMS.ArticleComment.max_participator_count()
   @max_replies_count CMS.ArticleComment.max_replies_count()
-  @default_emotions CMS.ArticleCommentEmotion.default_emotions()
+  @default_emotions CMS.Embeds.ArticleCommentEmotion.default_emotions()
 
   @doc """
   list paged article comments
@@ -31,30 +43,72 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
-  def make_emotion(comment_id, _args, %User{} = user) do
+  def make_emotion(comment_id, action, %User{} = user) do
     with {:ok, comment} <-
            ORM.find(ArticleComment, comment_id) do
+      Multi.new()
+      |> Multi.run(:create_user_emotion, fn _, _ ->
+        args =
+          Map.put(
+            %{
+              article_comment_id: comment.id,
+              recived_user_id: comment.author_id,
+              user_id: user.id
+            },
+            :"#{action}",
+            true
+          )
+
+        {:ok, _} = ArticleCommentUserEmotion |> ORM.create(args)
+      end)
+      |> Multi.run(:query_emotion_status, fn _, _ ->
+        # 每次被 emotion 动作触发后重新查询，主要原因
+        # 1.并发下保证数据准确，类似 views 阅读数的统计
+        # 2. 前端使用 nickname 而非 login 展示，如果用户改了 nickname, 可以"自动纠正"
+        query =
+          from(a in ArticleCommentUserEmotion,
+            join: user in User,
+            on: a.user_id == user.id,
+            where: a.article_comment_id == ^comment.id,
+            where: field(a, ^action) == true,
+            select: %{login: user.login, nickname: user.nickname}
+          )
+
+        emotioned_user_info_list = Repo.all(query) |> Enum.uniq()
+        emotioned_user_count = length(emotioned_user_info_list)
+
+        {:ok, %{user_list: emotioned_user_info_list, user_count: emotioned_user_count}}
+      end)
+      |> Multi.run(:update_comment_emotion, fn _, %{query_emotion_status: status} ->
+        updated_emotions =
+          %{}
+          |> Map.put(:"#{action}_count", status.user_count)
+          |> Map.put(
+            :"latest_#{action}_users",
+            Enum.slice(status.user_list, 0, @max_emotion_action_users_count)
+          )
+
+        comment
+        |> Ecto.Changeset.change()
+        |> Ecto.Changeset.put_embed(:emotions, updated_emotions)
+        |> Repo.update()
+      end)
+      |> Repo.transaction()
+      |> emotion_comment_result()
+
       # is not work this way, why?
       # updated_emotions =
       #   Map.merge(comment.emotions, %{
       #     downvote_count: comment.emotions.downvote_count + Enum.random([1, 2, 3]),
       #     tada_count: comment.emotions.tada_count + Enum.random([1, 2, 3])
       #   })
-
-      updated_emotions = %{
-        downvote_count: comment.emotions.downvote_count + Enum.random([1, 2, 3]),
-        tada_count: comment.emotions.tada_count + Enum.random([1, 2, 3])
-        # downvote_users: [%{login: user.login}]
-        # downvote_users: [user]
-      }
-
-      IO.inspect(updated_emotions, label: "updated_emotions")
-
-      comment
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_embed(:emotions, updated_emotions)
-      |> Repo.update()
     end
+  end
+
+  defp emotion_comment_result({:ok, %{update_comment_emotion: result}}), do: {:ok, result}
+
+  defp emotion_comment_result({:error, _, result, _steps}) do
+    {:error, result}
   end
 
   @doc """
@@ -75,7 +129,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
         thread,
         article_id,
         content,
-        %User{id: user_id} = user
+        %User{} = user
       ) do
     with {:ok, info} <- match(thread),
          # make sure the article exsit

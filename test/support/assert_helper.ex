@@ -203,4 +203,12 @@ defmodule GroupherServer.Test.AssertHelper do
     |> length
     |> Kernel.==(occur_count)
   end
+
+  # for embed user situation
+  def user_exist_in?(%{login: login}, list) when is_list(list) do
+    list
+    |> Enum.filter(fn item -> item.login == login end)
+    |> length
+    |> Kernel.==(1)
+  end
 end
