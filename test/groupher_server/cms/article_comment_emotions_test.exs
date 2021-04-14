@@ -8,7 +8,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
 
   alias CMS.{ArticleComment, Embeds, Post}
 
-  @max_replies_count ArticleComment.max_replies_count()
+  @max_parent_replies_count ArticleComment.max_parent_replies_count()
   @default_emotions Embeds.ArticleCommentEmotion.default_emotions()
 
   setup do

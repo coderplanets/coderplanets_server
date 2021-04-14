@@ -23,14 +23,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   alias Ecto.Multi
 
-  # TODO:  move to embeds
-  @max_emotion_action_users_count 5
-
+  @max_latest_emotion_users_count CMS.ArticleComment.max_latest_emotion_users_count()
   @max_participator_count CMS.ArticleComment.max_participator_count()
-  @max_replies_count CMS.ArticleComment.max_replies_count()
+  @max_parent_replies_count CMS.ArticleComment.max_parent_replies_count()
   @default_emotions CMS.Embeds.ArticleCommentEmotion.default_emotions()
-
-  @supported_emotions CMS.Embeds.ArticleCommentEmotion.supported_emotions()
+  @supported_emotions CMS.ArticleComment.supported_emotions()
   @doc """
   list paged article comments
   """
@@ -134,7 +131,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
           )
           |> Map.put(
             :"latest_#{emotion}_users",
-            Enum.slice(status.user_list, 0, @max_emotion_action_users_count)
+            Enum.slice(status.user_list, 0, @max_latest_emotion_users_count)
           )
 
         comment
@@ -278,17 +275,17 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     # get_parent_comment(Repo.preload(comment, :reply_to))
   end
 
-  # 如果 replies 没有达到 @max_replies_count, 则添加
+  # 如果 replies 没有达到 @max_parent_replies_count, 则添加
   # "加载更多" 的逻辑使用另外的 paged 接口从 ArticleCommentReply 表中查询
   defp add_replies_ifneed(
          %ArticleComment{replies: replies} = parent_comment,
          %ArticleComment{} = replyed_comment
        )
-       when length(replies) < @max_replies_count do
+       when length(replies) < @max_parent_replies_count do
     new_replies =
       replies
       |> List.insert_at(length(replies), replyed_comment)
-      |> Enum.slice(0, @max_replies_count)
+      |> Enum.slice(0, @max_parent_replies_count)
 
     parent_comment
     |> Ecto.Changeset.change()
@@ -296,7 +293,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     |> Repo.update()
   end
 
-  # 如果已经有 @max_replies_count 以上的回复了，直接忽略即可
+  # 如果已经有 @max_parent_replies_count 以上的回复了，直接忽略即可
   defp add_replies_ifneed(%ArticleComment{} = parent_comment, _) do
     {:ok, parent_comment}
   end

@@ -58,8 +58,6 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentEmotion do
     |> Enum.into(%{})
   end
 
-  def supported_emotions(), do: @supported_emotions
-
   embedded_schema do
     emotion_fields()
   end

@@ -8,7 +8,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
 
   alias CMS.{ArticleComment, Post}
 
-  @max_replies_count CMS.ArticleComment.max_replies_count()
+  @max_parent_replies_count CMS.ArticleComment.max_parent_replies_count()
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -84,8 +84,8 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
     end
 
     @tag :wip
-    test "comment replies only contains @max_replies_count replies", ~m(post user)a do
-      total_reply_count = @max_replies_count + 1
+    test "comment replies only contains @max_parent_replies_count replies", ~m(post user)a do
+      total_reply_count = @max_parent_replies_count + 1
 
       {:ok, parent_comment} = CMS.write_comment(:post, post.id, "parent_conent", user)
 
@@ -99,7 +99,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
 
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
 
-      assert length(parent_comment.replies) == @max_replies_count
+      assert length(parent_comment.replies) == @max_parent_replies_count
       assert exist_in?(Enum.at(reply_comment_list, 0), parent_comment.replies)
       assert exist_in?(Enum.at(reply_comment_list, 1), parent_comment.replies)
       assert exist_in?(Enum.at(reply_comment_list, 2), parent_comment.replies)

@@ -23,14 +23,18 @@ defmodule GroupherServer.CMS.ArticleComment do
   @optional_fields ~w(post_id job_id reply_to_id replies_count)a
 
   @max_participator_count 5
-  @max_replies_count 3
+  @max_parent_replies_count 3
 
   @supported_emotions [:downvote, :beer, :heart, :biceps, :orz, :confused, :pill]
+  @max_latest_emotion_users_count 5
 
   @doc "latest participators stores in article comment_participators field"
   def max_participator_count(), do: @max_participator_count
   @doc "latest replies stores in article_comment replies field, used for frontend display"
-  def max_replies_count(), do: @max_replies_count
+  def max_parent_replies_count(), do: @max_parent_replies_count
+
+  @doc "操作某 emotion 的最近用户"
+  def max_latest_emotion_users_count(), do: @max_latest_emotion_users_count
 
   def supported_emotions(), do: @supported_emotions
 
