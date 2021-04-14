@@ -30,6 +30,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   @max_replies_count CMS.ArticleComment.max_replies_count()
   @default_emotions CMS.Embeds.ArticleCommentEmotion.default_emotions()
 
+  @supported_emotions CMS.Embeds.ArticleCommentEmotion.supported_emotions()
   @doc """
   list paged article comments
   """
@@ -62,23 +63,33 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   defp check_viewer_has_emotioned(%{entries: entries} = paged_comments, %User{} = user) do
     new_entries =
       Enum.map(entries, fn comment ->
-        Map.put(comment, :emotions, %{
-          comment.emotions
-          | viewer_has_downvoted: user_in_it?(comment.emotions.downvote_user_ids, user)
-        })
+        update_viewed_status =
+          @supported_emotions
+          |> Enum.reduce([], fn emotion, acc ->
+            acc ++
+              [
+                "viewer_has_#{emotion}ed":
+                  user_in_logins?(comment.emotions[:"#{emotion}_user_logins"], user)
+              ]
+          end)
+          |> Enum.into(%{})
+
+        updated_emotions = Map.merge(comment.emotions, update_viewed_status)
+        # IO.inspect(updated_emotions, label: "updated_emotions")
+        Map.put(comment, :emotions, updated_emotions)
       end)
 
     %{paged_comments | entries: new_entries}
   end
 
-  defp user_in_it?(nil, _), do: false
+  defp user_in_logins?(nil, _), do: false
 
-  defp user_in_it?(ids_str, %User{login: login}) do
+  defp user_in_logins?(ids_str, %User{login: login}) do
     ids_list = ids_str |> String.split(",")
     login in ids_list
   end
 
-  def make_emotion(comment_id, action, %User{} = user) do
+  def make_emotion(comment_id, emotion, %User{} = user) do
     with {:ok, comment} <-
            ORM.find(ArticleComment, comment_id) do
       Multi.new()
@@ -90,7 +101,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
               recived_user_id: comment.author_id,
               user_id: user.id
             },
-            :"#{action}",
+            :"#{emotion}",
             true
           )
 
@@ -105,7 +116,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
             join: user in User,
             on: a.user_id == user.id,
             where: a.article_comment_id == ^comment.id,
-            where: field(a, ^action) == true,
+            where: field(a, ^emotion) == true,
             select: %{login: user.login, nickname: user.nickname}
           )
 
@@ -117,13 +128,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> Multi.run(:update_comment_emotion, fn _, %{query_emotion_status: status} ->
         updated_emotions =
           %{}
-          |> Map.put(:"#{action}_count", status.user_count)
+          |> Map.put(:"#{emotion}_count", status.user_count)
           |> Map.put(
-            :"#{action}_user_ids",
+            :"#{emotion}_user_logins",
             status.user_list |> Enum.map(& &1.login) |> Enum.join(",")
           )
           |> Map.put(
-            :"latest_#{action}_users",
+            :"latest_#{emotion}_users",
             Enum.slice(status.user_list, 0, @max_emotion_action_users_count)
           )
 

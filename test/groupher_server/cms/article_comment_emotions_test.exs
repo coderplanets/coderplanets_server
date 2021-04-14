@@ -25,26 +25,35 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
   describe "[emotion in paged article comment]" do
     @tag :wip2
     test "login user should got viewer has emotioned status", ~m(post user user2)a do
-      total_count = 10
-      page_number = 1
-      page_size = 10
+      total_count = 0
+      page_number = 10
+      page_size = 20
 
-      {:ok, first_comment} = CMS.write_comment(:post, post.id, "commment", user)
+      all_comment =
+        Enum.reduce(0..total_count, [], fn _, acc ->
+          {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
+          acc ++ [comment]
+        end)
 
-      Enum.reduce(2..total_count, [], fn _, acc ->
-        {:ok, value} = CMS.write_comment(:post, post.id, "commment", user)
-
-        acc ++ [value]
-      end)
+      first_comment = List.first(all_comment)
 
       {:ok, _} = CMS.make_emotion(first_comment.id, :downvote, user)
-      # IO.inspect(first_comment, label: "first_comment")
+      {:ok, _} = CMS.make_emotion(first_comment.id, :beer, user)
+
       {:ok, paged_comments} =
         CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size}, user)
 
-      # {:ok, %{emotions: emotions}} = ORM.find(ArticleComment, parent_comment.id)
+      target = Enum.find(paged_comments.entries, &(&1.id == first_comment.id))
 
-      # IO.inspect(emotions, label: "the emotions")
+      IO.inspect(target, label: "the target")
+
+      assert target.emotions.downvote_count == 1
+      assert user_exist_in?(user, target.emotions.latest_downvote_users)
+      assert target.emotions.viewer_has_downvoteed
+
+      assert target.emotions.beer_count == 1
+      assert user_exist_in?(user, target.emotions.latest_beer_users)
+      assert target.emotions.viewer_has_beered
     end
   end
 
