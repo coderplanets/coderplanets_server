@@ -45,7 +45,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
 
       target = Enum.find(paged_comments.entries, &(&1.id == first_comment.id))
 
-      IO.inspect(target, label: "the target")
+      # IO.inspect(target, label: "the target")
 
       assert target.emotions.downvote_count == 1
       assert user_exist_in?(user, target.emotions.latest_downvote_users)

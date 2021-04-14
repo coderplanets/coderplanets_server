@@ -60,17 +60,16 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
+  defp check_viewer_has_emotioned(%{entries: []} = paged_comments, _), do: paged_comments
+
   defp check_viewer_has_emotioned(%{entries: entries} = paged_comments, %User{} = user) do
     new_entries =
       Enum.map(entries, fn comment ->
         update_viewed_status =
           @supported_emotions
           |> Enum.reduce([], fn emotion, acc ->
-            acc ++
-              [
-                "viewer_has_#{emotion}ed":
-                  user_in_logins?(comment.emotions[:"#{emotion}_user_logins"], user)
-              ]
+            already_emotioned = user_in_logins?(comment.emotions[:"#{emotion}_user_logins"], user)
+            acc ++ ["viewer_has_#{emotion}ed": already_emotioned]
           end)
           |> Enum.into(%{})
 
