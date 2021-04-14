@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{ArticleComment, ArticleCommentReply, Post, Job}
+  alias CMS.{ArticleComment, Post, Job}
 
   setup do
     {:ok, user} = db_insert(:user)
