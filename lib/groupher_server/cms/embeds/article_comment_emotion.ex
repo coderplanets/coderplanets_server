@@ -1,3 +1,31 @@
+defmodule GroupherServer.CMS.Embeds.ArticleCommentEmotion.Macros do
+  @moduledoc """
+  general fields for each emotion
+
+  e.g:
+    field(:beer_count, :integer, default: 0)
+    field(:beer_user_logins, :string)
+    field(:viewer_has_beered, :boolean, default: false, virtual: true)
+    embeds_many(:latest_beer_users, Embeds.User, on_replace: :delete)
+  """
+  alias GroupherServer.CMS
+  alias CMS.{ArticleComment, Embeds}
+
+  @supported_emotions ArticleComment.supported_emotions()
+
+  defmacro emotion_fields() do
+    @supported_emotions
+    |> Enum.map(fn emotion ->
+      quote do
+        field(unquote(:"#{emotion}_count"), :integer, default: 0)
+        field(unquote(:"#{emotion}_user_logins"), :string)
+        field(unquote(:"viewer_has_#{emotion}ed"), :boolean, default: false, virtual: true)
+        embeds_many(unquote(:"latest_#{emotion}_users"), Embeds.User, on_replace: :delete)
+      end
+    end)
+  end
+end
+
 defmodule GroupherServer.CMS.Embeds.ArticleCommentEmotion do
   @moduledoc """
   general article meta info for article-like content, like post, job, works ...
@@ -6,10 +34,11 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentEmotion do
   use Accessible
 
   import Ecto.Changeset
+  import GroupherServer.CMS.Embeds.ArticleCommentEmotion.Macros
 
-  alias GroupherServer.CMS.Embeds
+  alias GroupherServer.CMS.{ArticleComment, Embeds}
 
-  @supported_emotions [:downvote, :beer, :heart, :biceps, :orz, :confused, :pill]
+  @supported_emotions ArticleComment.supported_emotions()
 
   @optional_fields Enum.map(@supported_emotions, &:"#{&1}_count") ++
                      Enum.map(@supported_emotions, &:"#{&1}_user_logins")
@@ -32,42 +61,7 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentEmotion do
   def supported_emotions(), do: @supported_emotions
 
   embedded_schema do
-    # downvote
-    field(:downvote_count, :integer, default: 0)
-    embeds_many(:latest_downvote_users, Embeds.User, on_replace: :delete)
-    field(:downvote_user_logins, :string)
-    field(:viewer_has_downvoteed, :boolean, default: false, virtual: true)
-
-    # beer
-    field(:beer_count, :integer, default: 0)
-    embeds_many(:latest_beer_users, Embeds.User, on_replace: :delete)
-    field(:beer_user_logins, :string)
-    field(:viewer_has_beered, :boolean, default: false, virtual: true)
-    # heart
-    field(:heart_count, :integer, default: 0)
-    embeds_many(:latest_heart_users, Embeds.User, on_replace: :delete)
-    field(:heart_user_logins, :string)
-    field(:viewer_has_hearted, :boolean, default: false, virtual: true)
-    # biceps
-    field(:biceps_count, :integer, default: 0)
-    embeds_many(:latest_biceps_users, Embeds.User, on_replace: :delete)
-    field(:biceps_user_logins, :string)
-    field(:viewer_has_bicepsed, :boolean, default: false, virtual: true)
-    # orz
-    field(:orz_count, :integer, default: 0)
-    embeds_many(:latest_orz_users, Embeds.User, on_replace: :delete)
-    field(:orz_user_logins, :string)
-    field(:viewer_has_orzed, :boolean, default: false, virtual: true)
-    # confused
-    field(:confused_count, :integer, default: 0)
-    embeds_many(:latest_confused_users, Embeds.User, on_replace: :delete)
-    field(:confused_user_logins, :string)
-    field(:viewer_has_confuseded, :boolean, default: false, virtual: true)
-    # pill
-    field(:pill_count, :integer, default: 0)
-    embeds_many(:latest_pill_users, Embeds.User, on_replace: :delete)
-    field(:pill_user_logins, :string)
-    field(:viewer_has_pilled, :boolean, default: false, virtual: true)
+    emotion_fields()
   end
 
   def changeset(struct, params) do

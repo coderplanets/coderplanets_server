@@ -25,10 +25,14 @@ defmodule GroupherServer.CMS.ArticleComment do
   @max_participator_count 5
   @max_replies_count 3
 
+  @supported_emotions [:downvote, :beer, :heart, :biceps, :orz, :confused, :pill]
+
   @doc "latest participators stores in article comment_participators field"
   def max_participator_count(), do: @max_participator_count
   @doc "latest replies stores in article_comment replies field, used for frontend display"
   def max_replies_count(), do: @max_replies_count
+
+  def supported_emotions(), do: @supported_emotions
 
   @type t :: %ArticleComment{}
   schema "articles_comments" do
