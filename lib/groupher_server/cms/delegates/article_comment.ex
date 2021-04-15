@@ -36,6 +36,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     with {:ok, thread_query} <- match(thread, :query, article_id) do
       ArticleComment
       |> where(^thread_query)
+      |> where([c], c.is_folded == false)
       |> QueryBuilder.filter_pack(filters)
       |> ORM.paginater(~m(page size)a)
       |> done()
@@ -51,6 +52,35 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     with {:ok, thread_query} <- match(thread, :query, article_id) do
       ArticleComment
       |> where(^thread_query)
+      |> where([c], c.is_folded == false)
+      |> QueryBuilder.filter_pack(filters)
+      |> ORM.paginater(~m(page size)a)
+      |> check_viewer_has_emotioned(user)
+      |> done()
+    end
+  end
+
+  def list_folded_article_comments(thread, article_id, %{page: page, size: size} = filters) do
+    with {:ok, thread_query} <- match(thread, :query, article_id) do
+      ArticleComment
+      |> where(^thread_query)
+      |> where([c], c.is_folded == true)
+      |> QueryBuilder.filter_pack(filters)
+      |> ORM.paginater(~m(page size)a)
+      |> done()
+    end
+  end
+
+  def list_folded_article_comments(
+        thread,
+        article_id,
+        %{page: page, size: size} = filters,
+        %User{} = user
+      ) do
+    with {:ok, thread_query} <- match(thread, :query, article_id) do
+      ArticleComment
+      |> where(^thread_query)
+      |> where([c], c.is_folded == true)
       |> QueryBuilder.filter_pack(filters)
       |> ORM.paginater(~m(page size)a)
       |> check_viewer_has_emotioned(user)

@@ -117,26 +117,6 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
     end
   end
 
-  @tag :wip
-  test "paged article comments", ~m(user post)a do
-    total_count = 30
-    page_number = 1
-    page_size = 10
-
-    Enum.reduce(1..total_count, [], fn _, acc ->
-      {:ok, value} = CMS.write_comment(:post, post.id, "commment", user)
-
-      acc ++ [value]
-    end)
-
-    {:ok, paged_comments} =
-      CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size})
-
-    assert page_number == paged_comments.page_number
-    assert page_size == paged_comments.page_size
-    assert total_count == paged_comments.total_count
-  end
-
   describe "[article comment fold/unfold]" do
     @tag :wip2
     test "user can fold a comment", ~m(user post)a do
@@ -161,6 +141,96 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       {:ok, _comment} = CMS.unfold_article_comment(comment.id, user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
       assert not comment.is_folded
+    end
+  end
+
+  describe "paged article comments" do
+    @tag :wip2
+    test "paged article comments folded flag should be false", ~m(user post)a do
+      total_count = 30
+      page_number = 1
+      page_size = 10
+
+      all_comments =
+        Enum.reduce(1..total_count, [], fn _, acc ->
+          {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
+
+          acc ++ [comment]
+        end)
+
+      {:ok, paged_comments} =
+        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size})
+
+      random_comment = all_comments |> Enum.at(Enum.random(0..total_count))
+
+      assert not random_comment.is_folded
+
+      assert page_number == paged_comments.page_number
+      assert page_size == paged_comments.page_size
+      assert total_count == paged_comments.total_count
+    end
+
+    @tag :wip2
+    test "paged article comments should not contains folded comments", ~m(user post)a do
+      total_count = 15
+      page_number = 1
+      page_size = 20
+
+      all_comments =
+        Enum.reduce(1..total_count, [], fn _, acc ->
+          {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
+
+          acc ++ [comment]
+        end)
+
+      random_comment_1 = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
+      random_comment_2 = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
+      random_comment_3 = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
+
+      {:ok, _comment} = CMS.fold_article_comment(random_comment_1.id, user)
+      {:ok, _comment} = CMS.fold_article_comment(random_comment_2.id, user)
+      {:ok, _comment} = CMS.fold_article_comment(random_comment_3.id, user)
+
+      {:ok, paged_comments} =
+        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size})
+
+      assert not exist_in?(random_comment_1, paged_comments.entries)
+      assert not exist_in?(random_comment_2, paged_comments.entries)
+      assert not exist_in?(random_comment_3, paged_comments.entries)
+
+      assert page_number == paged_comments.page_number
+      assert page_size == paged_comments.page_size
+      assert total_count - 3 == paged_comments.total_count
+    end
+
+    @tag :wip2
+    test "can loaded paged folded comment", ~m(user post)a do
+      total_count = 10
+      page_number = 1
+      page_size = 20
+
+      all_folded_comments =
+        Enum.reduce(1..total_count, [], fn _, acc ->
+          {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
+          CMS.fold_article_comment(comment.id, user)
+
+          acc ++ [comment]
+        end)
+
+      random_comment_1 = all_folded_comments |> Enum.at(Enum.random(0..(total_count - 1)))
+      random_comment_2 = all_folded_comments |> Enum.at(Enum.random(0..(total_count - 1)))
+      random_comment_3 = all_folded_comments |> Enum.at(Enum.random(0..(total_count - 1)))
+
+      {:ok, paged_comments} =
+        CMS.list_folded_article_comments(:post, post.id, %{page: page_number, size: page_size})
+
+      assert exist_in?(random_comment_1, paged_comments.entries)
+      assert exist_in?(random_comment_2, paged_comments.entries)
+      assert exist_in?(random_comment_3, paged_comments.entries)
+
+      assert page_number == paged_comments.page_number
+      assert page_size == paged_comments.page_size
+      assert total_count == paged_comments.total_count
     end
   end
 end
