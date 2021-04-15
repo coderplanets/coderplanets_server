@@ -8,6 +8,8 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
   alias CMS.{ArticleComment, Post, Job}
 
+  @delete_hint CMS.ArticleComment.delete_hint()
+
   setup do
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
@@ -316,6 +318,33 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert page_number == paged_comments.page_number
       assert page_size == paged_comments.page_size
       assert total_count == paged_comments.total_count
+    end
+  end
+
+  describe "[article comment delete]" do
+    @tag :wip2
+    test "delete comment still exsit in paged list and content is gone", ~m(user post job)a do
+      total_count = 10
+      page_number = 1
+      page_size = 20
+
+      all_comments =
+        Enum.reduce(1..total_count, [], fn _, acc ->
+          {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+
+          acc ++ [comment]
+        end)
+
+      random_comment = all_comments |> Enum.at(1)
+
+      {:ok, deleted_comment} = CMS.delete_article_comment(random_comment.id, user)
+
+      {:ok, paged_comments} =
+        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size})
+
+      assert exist_in?(deleted_comment, paged_comments.entries)
+      assert deleted_comment.is_deleted
+      assert deleted_comment.body_html == @delete_hint
     end
   end
 end

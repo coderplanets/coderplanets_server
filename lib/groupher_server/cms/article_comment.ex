@@ -19,14 +19,16 @@ defmodule GroupherServer.CMS.ArticleComment do
   # alias Helper.HTML
 
   @required_fields ~w(body_html author_id)a
-  @optional_fields ~w(post_id job_id reply_to_id replies_count is_folded is_reported floor)a
-  @updatable_fields ~w(is_folded is_reported floor)a
+  @optional_fields ~w(post_id job_id reply_to_id replies_count is_folded is_reported is_deleted floor)a
+  @updatable_fields ~w(is_folded is_reported is_deleted floor)a
 
   @max_participator_count 5
   @max_parent_replies_count 3
 
   @supported_emotions [:downvote, :beer, :heart, :biceps, :orz, :confused, :pill]
   @max_latest_emotion_users_count 5
+
+  @delete_hint "this comment is deleted"
 
   @doc "latest participators stores in article comment_participators field"
   def max_participator_count(), do: @max_participator_count
@@ -37,16 +39,20 @@ defmodule GroupherServer.CMS.ArticleComment do
   def max_latest_emotion_users_count(), do: @max_latest_emotion_users_count
 
   def supported_emotions(), do: @supported_emotions
+  def delete_hint(), do: @delete_hint
 
   @type t :: %ArticleComment{}
   schema "articles_comments" do
     field(:body_html, :string)
     field(:replies_count, :integer, default: 0)
 
-    # 评论是否被折叠
+    # 是否被折叠
     field(:is_folded, :boolean, default: false)
+    # 是否被举报
     field(:is_reported, :boolean, default: false)
-    # field(:is_deleted, :boolean, default: false)
+    # 是否被删除
+    field(:is_deleted, :boolean, default: false)
+    # 楼层
     field(:floor, :integer, default: 0)
 
     # field(:floor, :integer)

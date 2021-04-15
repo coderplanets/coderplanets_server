@@ -28,6 +28,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   @max_parent_replies_count CMS.ArticleComment.max_parent_replies_count()
   @default_emotions CMS.Embeds.ArticleCommentEmotion.default_emotions()
   @supported_emotions CMS.ArticleComment.supported_emotions()
+  @delete_hint CMS.ArticleComment.delete_hint()
 
   @doc """
   list paged article comments
@@ -127,6 +128,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     |> QueryBuilder.filter_pack(filters)
     |> ORM.paginater(~m(page size)a)
     |> done()
+  end
+
+  def delete_article_comment(comment_id, %User{} = _user) do
+    with {:ok, comment} <-
+           ORM.find(ArticleComment, comment_id) do
+      comment |> ORM.update(%{body_html: @delete_hint, is_deleted: true})
+    end
   end
 
   @doc "fold a comment"
