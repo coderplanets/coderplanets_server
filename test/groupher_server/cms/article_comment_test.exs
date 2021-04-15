@@ -136,4 +136,31 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
     assert page_size == paged_comments.page_size
     assert total_count == paged_comments.total_count
   end
+
+  describe "[article comment fold/unfold]" do
+    @tag :wip2
+    test "user can fold a comment", ~m(user post)a do
+      {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
+      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+
+      assert not comment.is_folded
+
+      {:ok, comment} = CMS.fold_article_comment(comment.id, user)
+      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+      assert comment.is_folded
+    end
+
+    @tag :wip2
+    test "user can unfold a comment", ~m(user post)a do
+      {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
+      {:ok, _comment} = CMS.fold_article_comment(comment.id, user)
+      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+
+      assert comment.is_folded
+
+      {:ok, _comment} = CMS.unfold_article_comment(comment.id, user)
+      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+      assert not comment.is_folded
+    end
+  end
 end

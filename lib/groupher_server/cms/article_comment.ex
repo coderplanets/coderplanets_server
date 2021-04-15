@@ -13,14 +13,13 @@ defmodule GroupherServer.CMS.ArticleComment do
     Post,
     Job,
     Embeds,
-    ArticleCommentUpvote,
-    ArticleCommentReply
+    ArticleCommentUpvote
   }
 
   # alias Helper.HTML
 
   @required_fields ~w(body_html author_id)a
-  @optional_fields ~w(post_id job_id reply_to_id replies_count)a
+  @optional_fields ~w(post_id job_id reply_to_id replies_count is_folded)a
 
   @max_participator_count 5
   @max_parent_replies_count 3
@@ -42,6 +41,12 @@ defmodule GroupherServer.CMS.ArticleComment do
   schema "articles_comments" do
     field(:body_html, :string)
     field(:replies_count, :integer, default: 0)
+
+    # 评论是否被折叠
+    field(:is_folded, :boolean, default: false)
+    # field(:is_reported, :boolean, default: false)
+    # field(:is_deleted, :boolean, default: false)
+    # field(:floor, :integer, default: 0)
 
     # field(:floor, :integer)
     belongs_to(:author, Accounts.User, foreign_key: :author_id)

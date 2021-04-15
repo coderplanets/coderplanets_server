@@ -28,6 +28,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   @max_parent_replies_count CMS.ArticleComment.max_parent_replies_count()
   @default_emotions CMS.Embeds.ArticleCommentEmotion.default_emotions()
   @supported_emotions CMS.ArticleComment.supported_emotions()
+
   @doc """
   list paged article comments
   """
@@ -57,34 +58,23 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
-  defp check_viewer_has_emotioned(%{entries: []} = paged_comments, _), do: paged_comments
-
-  defp check_viewer_has_emotioned(%{entries: entries} = paged_comments, %User{} = user) do
-    new_entries =
-      Enum.map(entries, fn comment ->
-        update_viewed_status =
-          @supported_emotions
-          |> Enum.reduce([], fn emotion, acc ->
-            already_emotioned = user_in_logins?(comment.emotions[:"#{emotion}_user_logins"], user)
-            acc ++ ["viewer_has_#{emotion}ed": already_emotioned]
-          end)
-          |> Enum.into(%{})
-
-        updated_emotions = Map.merge(comment.emotions, update_viewed_status)
-        # IO.inspect(updated_emotions, label: "updated_emotions")
-        Map.put(comment, :emotions, updated_emotions)
-      end)
-
-    %{paged_comments | entries: new_entries}
+  @doc "fold a comment"
+  def fold_article_comment(comment_id, %User{} = _user) do
+    with {:ok, comment} <-
+           ORM.find(ArticleComment, comment_id) do
+      comment |> ORM.update(%{is_folded: true})
+    end
   end
 
-  defp user_in_logins?(nil, _), do: false
-
-  defp user_in_logins?(ids_str, %User{login: login}) do
-    ids_list = ids_str |> String.split(",")
-    login in ids_list
+  @doc "fold a comment"
+  def unfold_article_comment(comment_id, %User{} = _user) do
+    with {:ok, comment} <-
+           ORM.find(ArticleComment, comment_id) do
+      comment |> ORM.update(%{is_folded: false})
+    end
   end
 
+  @doc "make emotion to a comment"
   def make_emotion(comment_id, emotion, %User{} = user) do
     with {:ok, comment} <-
            ORM.find(ArticleComment, comment_id) do
@@ -151,12 +141,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
-  defp emotion_comment_result({:ok, %{update_comment_emotion: result}}), do: {:ok, result}
-
-  defp emotion_comment_result({:error, _, result, _steps}) do
-    {:error, result}
-  end
-
   @doc """
   list paged comment replies
   """
@@ -171,12 +155,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   @doc """
   Creates a comment for psot, job ...
   """
-  def write_comment(
-        thread,
-        article_id,
-        content,
-        %User{} = user
-      ) do
+  def write_comment(thread, article_id, content, %User{} = user) do
     with {:ok, info} <- match(thread),
          # make sure the article exsit
          # author is passed by middleware, it's exsit for sure
@@ -198,11 +177,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   end
 
   @doc "reply to exsiting comment"
-  def reply_article_comment(
-        comment_id,
-        content,
-        %User{id: user_id} = user
-      ) do
+  def reply_article_comment(comment_id, content, %User{} = user) do
     with {:ok, replying_comment} <- ORM.find(ArticleComment, comment_id, preload: :reply_to),
          {thread, article} <- get_article(replying_comment),
          {:ok, info} <- match(thread),
@@ -336,6 +311,33 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
+  defp user_in_logins?(nil, _), do: false
+
+  defp user_in_logins?(ids_str, %User{login: login}) do
+    ids_list = ids_str |> String.split(",")
+    login in ids_list
+  end
+
+  defp check_viewer_has_emotioned(%{entries: []} = paged_comments, _), do: paged_comments
+
+  defp check_viewer_has_emotioned(%{entries: entries} = paged_comments, %User{} = user) do
+    new_entries =
+      Enum.map(entries, fn comment ->
+        update_viewed_status =
+          @supported_emotions
+          |> Enum.reduce([], fn emotion, acc ->
+            already_emotioned = user_in_logins?(comment.emotions[:"#{emotion}_user_logins"], user)
+            acc ++ ["viewer_has_#{emotion}ed": already_emotioned]
+          end)
+          |> Enum.into(%{})
+
+        updated_emotions = Map.merge(comment.emotions, update_viewed_status)
+        Map.put(comment, :emotions, updated_emotions)
+      end)
+
+    %{paged_comments | entries: new_entries}
+  end
+
   defp upsert_comment_result({:ok, %{write_comment: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{add_reply_to: result}}), do: {:ok, result}
 
@@ -348,6 +350,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   end
 
   defp upsert_comment_result({:error, _, result, _steps}) do
+    {:error, result}
+  end
+
+  defp emotion_comment_result({:ok, %{update_comment_emotion: result}}), do: {:ok, result}
+
+  defp emotion_comment_result({:error, _, result, _steps}) do
     {:error, result}
   end
 end
