@@ -19,7 +19,7 @@ defmodule GroupherServer.CMS.ArticleComment do
   # alias Helper.HTML
 
   @required_fields ~w(body_html author_id)a
-  @optional_fields ~w(post_id job_id reply_to_id replies_count is_folded)a
+  @optional_fields ~w(post_id job_id reply_to_id replies_count is_folded is_reported)a
 
   @max_participator_count 5
   @max_parent_replies_count 3
@@ -44,7 +44,7 @@ defmodule GroupherServer.CMS.ArticleComment do
 
     # 评论是否被折叠
     field(:is_folded, :boolean, default: false)
-    # field(:is_reported, :boolean, default: false)
+    field(:is_reported, :boolean, default: false)
     # field(:is_deleted, :boolean, default: false)
     # field(:floor, :integer, default: 0)
 

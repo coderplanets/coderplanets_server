@@ -144,6 +144,33 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
     end
   end
 
+  describe "[article comment report/unreport]" do
+    @tag :wip2
+    test "user can report a comment", ~m(user post)a do
+      {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
+      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+
+      assert not comment.is_reported
+
+      {:ok, comment} = CMS.report_article_comment(comment.id, user)
+      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+      assert comment.is_reported
+    end
+
+    @tag :wip2
+    test "user can unreport a comment", ~m(user post)a do
+      {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
+      {:ok, _comment} = CMS.report_article_comment(comment.id, user)
+      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+
+      assert comment.is_reported
+
+      {:ok, _comment} = CMS.unreport_article_comment(comment.id, user)
+      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+      assert not comment.is_reported
+    end
+  end
+
   describe "paged article comments" do
     @tag :wip2
     test "paged article comments folded flag should be false", ~m(user post)a do
@@ -171,7 +198,8 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
     end
 
     @tag :wip2
-    test "paged article comments should not contains folded comments", ~m(user post)a do
+    test "paged article comments should not contains folded and repoted comments",
+         ~m(user post)a do
       total_count = 15
       page_number = 1
       page_size = 20
@@ -183,13 +211,21 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
           acc ++ [comment]
         end)
 
-      random_comment_1 = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
-      random_comment_2 = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
-      random_comment_3 = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
+      random_comment_1 = all_comments |> Enum.at(0)
+      random_comment_2 = all_comments |> Enum.at(1)
+      random_comment_3 = all_comments |> Enum.at(3)
+
+      random_comment_4 = all_comments |> Enum.at(2)
+      random_comment_5 = all_comments |> Enum.at(4)
+      random_comment_6 = all_comments |> Enum.at(8)
 
       {:ok, _comment} = CMS.fold_article_comment(random_comment_1.id, user)
       {:ok, _comment} = CMS.fold_article_comment(random_comment_2.id, user)
       {:ok, _comment} = CMS.fold_article_comment(random_comment_3.id, user)
+
+      {:ok, _comment} = CMS.report_article_comment(random_comment_4.id, user)
+      {:ok, _comment} = CMS.report_article_comment(random_comment_5.id, user)
+      {:ok, _comment} = CMS.report_article_comment(random_comment_6.id, user)
 
       {:ok, paged_comments} =
         CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size})
@@ -198,9 +234,13 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert not exist_in?(random_comment_2, paged_comments.entries)
       assert not exist_in?(random_comment_3, paged_comments.entries)
 
+      assert not exist_in?(random_comment_4, paged_comments.entries)
+      assert not exist_in?(random_comment_5, paged_comments.entries)
+      assert not exist_in?(random_comment_6, paged_comments.entries)
+
       assert page_number == paged_comments.page_number
       assert page_size == paged_comments.page_size
-      assert total_count - 3 == paged_comments.total_count
+      assert total_count - 6 == paged_comments.total_count
     end
 
     @tag :wip2
@@ -217,12 +257,42 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
           acc ++ [comment]
         end)
 
-      random_comment_1 = all_folded_comments |> Enum.at(Enum.random(0..(total_count - 1)))
-      random_comment_2 = all_folded_comments |> Enum.at(Enum.random(0..(total_count - 1)))
-      random_comment_3 = all_folded_comments |> Enum.at(Enum.random(0..(total_count - 1)))
+      random_comment_1 = all_folded_comments |> Enum.at(1)
+      random_comment_2 = all_folded_comments |> Enum.at(3)
+      random_comment_3 = all_folded_comments |> Enum.at(5)
 
       {:ok, paged_comments} =
         CMS.list_folded_article_comments(:post, post.id, %{page: page_number, size: page_size})
+
+      assert exist_in?(random_comment_1, paged_comments.entries)
+      assert exist_in?(random_comment_2, paged_comments.entries)
+      assert exist_in?(random_comment_3, paged_comments.entries)
+
+      assert page_number == paged_comments.page_number
+      assert page_size == paged_comments.page_size
+      assert total_count == paged_comments.total_count
+    end
+
+    @tag :wip2
+    test "can loaded paged reported comment", ~m(user post)a do
+      total_count = 10
+      page_number = 1
+      page_size = 20
+
+      all_reported_comments =
+        Enum.reduce(1..total_count, [], fn _, acc ->
+          {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
+          CMS.report_article_comment(comment.id, user)
+
+          acc ++ [comment]
+        end)
+
+      random_comment_1 = all_reported_comments |> Enum.at(1)
+      random_comment_2 = all_reported_comments |> Enum.at(3)
+      random_comment_3 = all_reported_comments |> Enum.at(5)
+
+      {:ok, paged_comments} =
+        CMS.list_reported_article_comments(:post, post.id, %{page: page_number, size: page_size})
 
       assert exist_in?(random_comment_1, paged_comments.entries)
       assert exist_in?(random_comment_2, paged_comments.entries)

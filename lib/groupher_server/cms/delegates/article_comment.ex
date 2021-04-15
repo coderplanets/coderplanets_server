@@ -36,7 +36,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     with {:ok, thread_query} <- match(thread, :query, article_id) do
       ArticleComment
       |> where(^thread_query)
-      |> where([c], c.is_folded == false)
+      |> where([c], c.is_folded == false and c.is_reported == false)
       |> QueryBuilder.filter_pack(filters)
       |> ORM.paginater(~m(page size)a)
       |> done()
@@ -52,7 +52,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     with {:ok, thread_query} <- match(thread, :query, article_id) do
       ArticleComment
       |> where(^thread_query)
-      |> where([c], c.is_folded == false)
+      |> where([c], c.is_folded == false and c.is_reported == false)
       |> QueryBuilder.filter_pack(filters)
       |> ORM.paginater(~m(page size)a)
       |> check_viewer_has_emotioned(user)
@@ -64,7 +64,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     with {:ok, thread_query} <- match(thread, :query, article_id) do
       ArticleComment
       |> where(^thread_query)
-      |> where([c], c.is_folded == true)
+      |> where([c], c.is_folded == true and c.is_reported == false)
       |> QueryBuilder.filter_pack(filters)
       |> ORM.paginater(~m(page size)a)
       |> done()
@@ -80,12 +80,53 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     with {:ok, thread_query} <- match(thread, :query, article_id) do
       ArticleComment
       |> where(^thread_query)
-      |> where([c], c.is_folded == true)
+      |> where([c], c.is_folded == true and c.is_reported == false)
       |> QueryBuilder.filter_pack(filters)
       |> ORM.paginater(~m(page size)a)
       |> check_viewer_has_emotioned(user)
       |> done()
     end
+  end
+
+  def list_reported_article_comments(thread, article_id, %{page: page, size: size} = filters) do
+    with {:ok, thread_query} <- match(thread, :query, article_id) do
+      ArticleComment
+      |> where(^thread_query)
+      |> where([c], c.is_reported == true)
+      |> QueryBuilder.filter_pack(filters)
+      |> ORM.paginater(~m(page size)a)
+      |> done()
+    end
+  end
+
+  def list_reported_article_comments(
+        thread,
+        article_id,
+        %{page: page, size: size} = filters,
+        %User{} = user
+      ) do
+    with {:ok, thread_query} <- match(thread, :query, article_id) do
+      ArticleComment
+      |> where(^thread_query)
+      |> where([c], c.is_reported == true)
+      |> QueryBuilder.filter_pack(filters)
+      |> ORM.paginater(~m(page size)a)
+      |> check_viewer_has_emotioned(user)
+      |> done()
+    end
+  end
+
+  @doc """
+  list paged comment replies
+  """
+  def list_comment_replies(comment_id, %{page: page, size: size} = filters) do
+    ArticleComment
+    |> where([c], c.reply_to_id == ^comment_id)
+    # TODO: test reported and folded status
+    |> where([c], c.is_folded == false and c.is_reported == false)
+    |> QueryBuilder.filter_pack(filters)
+    |> ORM.paginater(~m(page size)a)
+    |> done()
   end
 
   @doc "fold a comment"
@@ -101,6 +142,22 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     with {:ok, comment} <-
            ORM.find(ArticleComment, comment_id) do
       comment |> ORM.update(%{is_folded: false})
+    end
+  end
+
+  @doc "fold a comment"
+  def report_article_comment(comment_id, %User{} = _user) do
+    with {:ok, comment} <-
+           ORM.find(ArticleComment, comment_id) do
+      comment |> ORM.update(%{is_reported: true})
+    end
+  end
+
+  @doc "fold a comment"
+  def unreport_article_comment(comment_id, %User{} = _user) do
+    with {:ok, comment} <-
+           ORM.find(ArticleComment, comment_id) do
+      comment |> ORM.update(%{is_reported: false})
     end
   end
 
@@ -169,17 +226,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       #     tada_count: comment.emotions.tada_count + Enum.random([1, 2, 3])
       #   })
     end
-  end
-
-  @doc """
-  list paged comment replies
-  """
-  def list_comment_replies(comment_id, %{page: page, size: size} = filters) do
-    ArticleComment
-    |> where([c], c.reply_to_id == ^comment_id)
-    |> QueryBuilder.filter_pack(filters)
-    |> ORM.paginater(~m(page size)a)
-    |> done()
   end
 
   @doc """

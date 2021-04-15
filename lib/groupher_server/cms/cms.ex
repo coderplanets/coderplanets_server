@@ -111,6 +111,11 @@ defmodule GroupherServer.CMS do
   defdelegate list_article_comments(thread, article_id, filters, user), to: ArticleComment
   defdelegate list_folded_article_comments(thread, article_id, filters), to: ArticleComment
   defdelegate list_folded_article_comments(thread, article_id, filters, user), to: ArticleComment
+  defdelegate list_reported_article_comments(thread, article_id, filters), to: ArticleComment
+
+  defdelegate list_reported_article_comments(thread, article_id, filters, user),
+    to: ArticleComment
+
   defdelegate list_comment_replies(comment_id, filters), to: ArticleComment
 
   defdelegate list_comments(thread, content_id, filters), to: CommentCURD
@@ -123,6 +128,8 @@ defmodule GroupherServer.CMS do
   defdelegate make_emotion(comment_id, args, user), to: ArticleComment
   defdelegate fold_article_comment(comment_id, user), to: ArticleComment
   defdelegate unfold_article_comment(comment_id, user), to: ArticleComment
+  defdelegate report_article_comment(comment_id, user), to: ArticleComment
+  defdelegate unreport_article_comment(comment_id, user), to: ArticleComment
 
   defdelegate create_comment(thread, content_id, args, user), to: CommentCURD
   defdelegate update_comment(thread, id, args, user), to: CommentCURD
