@@ -12,10 +12,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
   alias Helper.{ORM, QueryBuilder}
   alias GroupherServer.{Accounts, Delivery, Repo}
 
-  alias GroupherServer.CMS.{
-    PostCommentReply,
-    RepoCommentReply
-  }
+  alias GroupherServer.CMS.PostCommentReply
 
   alias Ecto.Multi
 
@@ -196,17 +193,6 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
 
       {:ok, _} =
         PostCommentReply |> ORM.create(%{post_comment_id: comment.id, reply_id: reply.id})
-
-      queryable |> ORM.find(reply.id)
-    end
-  end
-
-  defp bridge_reply(:repo, queryable, comment, attrs) do
-    with {:ok, reply} <- ORM.create(queryable, attrs) do
-      ORM.update(reply, %{reply_id: comment.id})
-
-      {:ok, _} =
-        RepoCommentReply |> ORM.create(%{repo_comment_id: comment.id, reply_id: reply.id})
 
       queryable |> ORM.find(reply.id)
     end
