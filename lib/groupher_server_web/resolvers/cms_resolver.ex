@@ -362,8 +362,8 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.create_comment(thread, id, args, user)
   end
 
-  def write_comment(_root, ~m(thread id content)a, %{context: %{cur_user: user}}) do
-    CMS.write_comment(thread, id, content, user)
+  def create_article_comment(_root, ~m(thread id content)a, %{context: %{cur_user: user}}) do
+    CMS.create_article_comment(thread, id, content, user)
   end
 
   def update_comment(_root, ~m(thread id)a = args, %{context: %{cur_user: user}}) do

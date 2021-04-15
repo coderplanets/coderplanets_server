@@ -25,7 +25,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       parent_content = "parent comment"
       reply_content = "reply comment"
 
-      {:ok, parent_comment} = CMS.write_comment(:post, post.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
       {:ok, replyed_comment} = CMS.reply_article_comment(parent_comment.id, reply_content, user2)
       assert replyed_comment.reply_to.id == parent_comment.id
 
@@ -40,7 +40,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       reply_content_1 = "reply comment 1"
       reply_content_2 = "reply comment 2"
 
-      {:ok, parent_comment} = CMS.write_comment(:post, post.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
 
       {:ok, replyed_comment_1} =
         CMS.reply_article_comment(parent_comment.id, reply_content_1, user2)
@@ -61,7 +61,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       reply_content_1 = "reply comment 1"
       reply_content_2 = "reply comment 2"
 
-      {:ok, parent_comment} = CMS.write_comment(:post, post.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
 
       {:ok, replyed_comment_1} =
         CMS.reply_article_comment(parent_comment.id, reply_content_1, user2)
@@ -87,7 +87,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
     test "comment replies only contains @max_parent_replies_count replies", ~m(post user)a do
       total_reply_count = @max_parent_replies_count + 1
 
-      {:ok, parent_comment} = CMS.write_comment(:post, post.id, "parent_conent", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
 
       reply_comment_list =
         Enum.reduce(1..total_reply_count, [], fn n, acc ->
@@ -108,7 +108,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
 
     @tag :wip
     test "replyed user should appear in article comment participators", ~m(post user user2)a do
-      {:ok, parent_comment} = CMS.write_comment(:post, post.id, "parent_conent", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
       {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user2)
 
       {:ok, article} = ORM.find(Post, post.id)
@@ -119,7 +119,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
 
     @tag :wip
     test "replies count should inc by 1 after got replyed", ~m(post user user2)a do
-      {:ok, parent_comment} = CMS.write_comment(:post, post.id, "parent_conent", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
       assert parent_comment.replies_count === 0
 
       {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user2)
@@ -135,7 +135,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
   describe "[paged article comment replies]" do
     @tag :wip
     test "can get paged replies of a parent comment", ~m(post user user2)a do
-      {:ok, parent_comment} = CMS.write_comment(:post, post.id, "parent_conent", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
       {:ok, paged_replies} = CMS.list_comment_replies(parent_comment.id, %{page: 1, size: 20})
       assert is_valid_pagination?(paged_replies, :raw, :empty)
 

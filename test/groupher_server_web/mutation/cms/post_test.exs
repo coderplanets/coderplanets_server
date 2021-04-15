@@ -624,7 +624,7 @@ defmodule GroupherServer.Test.Mutation.Post do
   describe "[mutation post comment]" do
     @write_comment_query """
     mutation($thread: CmsThread!, $id: ID!, $content: String!) {
-      writeComment(thread: $thread,id: $id, content: $content) {
+      createArticleComment(thread: $thread,id: $id, content: $content) {
         id
         bodyHtml
       }
@@ -635,7 +635,8 @@ defmodule GroupherServer.Test.Mutation.Post do
       comment = "a test comment"
       variables = %{thread: "POST", id: post.id, content: comment}
 
-      result = user_conn |> mutation_result(@write_comment_query, variables, "writeComment")
+      result =
+        user_conn |> mutation_result(@write_comment_query, variables, "createArticleComment")
 
       assert result["bodyHtml"] == comment
     end

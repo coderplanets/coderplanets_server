@@ -25,11 +25,11 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       job_comment_1 = "job_comment 1"
       job_comment_2 = "job_comment 2"
 
-      {:ok, _} = CMS.write_comment(:post, post.id, post_comment_1, user)
-      {:ok, _} = CMS.write_comment(:post, post.id, post_comment_2, user)
+      {:ok, _} = CMS.create_article_comment(:post, post.id, post_comment_1, user)
+      {:ok, _} = CMS.create_article_comment(:post, post.id, post_comment_2, user)
 
-      {:ok, _} = CMS.write_comment(:job, job.id, job_comment_1, user)
-      {:ok, _} = CMS.write_comment(:job, job.id, job_comment_2, user)
+      {:ok, _} = CMS.create_article_comment(:job, job.id, job_comment_1, user)
+      {:ok, _} = CMS.create_article_comment(:job, job.id, job_comment_2, user)
 
       {:ok, post} = ORM.find(Post, post.id, preload: :article_comments)
       {:ok, job} = ORM.find(Job, job.id, preload: :article_comments)
@@ -42,9 +42,9 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   describe "[article comment floor]" do
     @tag :wip2
     test "comment will have a floor number after created", ~m(user post job)a do
-      {:ok, _comment} = CMS.write_comment(:job, job.id, "comment", user)
-      {:ok, job_comment} = CMS.write_comment(:job, job.id, "comment", user)
-      {:ok, post_comment} = CMS.write_comment(:post, post.id, "comment", user)
+      {:ok, _comment} = CMS.create_article_comment(:job, job.id, "comment", user)
+      {:ok, job_comment} = CMS.create_article_comment(:job, job.id, "comment", user)
+      {:ok, post_comment} = CMS.create_article_comment(:post, post.id, "comment", user)
 
       {:ok, post_comment} = ORM.find(ArticleComment, post_comment.id)
       {:ok, job_comment} = ORM.find(ArticleComment, job_comment.id)
@@ -59,7 +59,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
     test "post will have participator after comment created", ~m(user post)a do
       post_comment_1 = "post_comment 1"
 
-      {:ok, _} = CMS.write_comment(:post, post.id, post_comment_1, user)
+      {:ok, _} = CMS.create_article_comment(:post, post.id, post_comment_1, user)
 
       {:ok, post} = ORM.find(Post, post.id)
 
@@ -71,8 +71,8 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
     test "psot participator will not contains same user", ~m(user post)a do
       post_comment_1 = "post_comment 1"
 
-      {:ok, _} = CMS.write_comment(:post, post.id, post_comment_1, user)
-      {:ok, _} = CMS.write_comment(:post, post.id, post_comment_1, user)
+      {:ok, _} = CMS.create_article_comment(:post, post.id, post_comment_1, user)
+      {:ok, _} = CMS.create_article_comment(:post, post.id, post_comment_1, user)
 
       {:ok, post} = ORM.find(Post, post.id)
 
@@ -84,8 +84,8 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
          ~m(user user2 post)a do
       post_comment_1 = "post_comment 1"
 
-      {:ok, _} = CMS.write_comment(:post, post.id, post_comment_1, user)
-      {:ok, _} = CMS.write_comment(:post, post.id, post_comment_1, user2)
+      {:ok, _} = CMS.create_article_comment(:post, post.id, post_comment_1, user)
+      {:ok, _} = CMS.create_article_comment(:post, post.id, post_comment_1, user2)
 
       {:ok, post} = ORM.find(Post, post.id)
 
@@ -99,7 +99,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
     @tag :wip
     test "user can upvote a post comment", ~m(user post)a do
       comment = "post_comment"
-      {:ok, comment} = CMS.write_comment(:post, post.id, comment, user)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
 
       CMS.upvote_comment(comment.id, user)
 
@@ -112,7 +112,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
     @tag :wip
     test "user can upvote a job comment", ~m(user job)a do
       comment = "job_comment"
-      {:ok, comment} = CMS.write_comment(:job, job.id, comment, user)
+      {:ok, comment} = CMS.create_article_comment(:job, job.id, comment, user)
 
       CMS.upvote_comment(comment.id, user)
 
@@ -125,7 +125,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
     @tag :wip
     test "user upvote a already-upvoted comment fails", ~m(user post)a do
       comment = "post_comment"
-      {:ok, comment} = CMS.write_comment(:post, post.id, comment, user)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
 
       CMS.upvote_comment(comment.id, user)
       {:error, _} = CMS.upvote_comment(comment.id, user)
@@ -135,7 +135,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   describe "[article comment fold/unfold]" do
     @tag :wip
     test "user can fold a comment", ~m(user post)a do
-      {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
 
       assert not comment.is_folded
@@ -147,7 +147,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
     @tag :wip
     test "user can unfold a comment", ~m(user post)a do
-      {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       {:ok, _comment} = CMS.fold_article_comment(comment.id, user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
 
@@ -162,7 +162,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   describe "[article comment report/unreport]" do
     @tag :wip
     test "user can report a comment", ~m(user post)a do
-      {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
 
       assert not comment.is_reported
@@ -174,7 +174,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
     @tag :wip
     test "user can unreport a comment", ~m(user post)a do
-      {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       {:ok, _comment} = CMS.report_article_comment(comment.id, user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
 
@@ -195,7 +195,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
       all_comments =
         Enum.reduce(1..total_count, [], fn _, acc ->
-          {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
+          {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
 
           acc ++ [comment]
         end)
@@ -221,7 +221,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
       all_comments =
         Enum.reduce(1..total_count, [], fn _, acc ->
-          {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
+          {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
 
           acc ++ [comment]
         end)
@@ -266,7 +266,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
       all_folded_comments =
         Enum.reduce(1..total_count, [], fn _, acc ->
-          {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
+          {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
           CMS.fold_article_comment(comment.id, user)
 
           acc ++ [comment]
@@ -296,7 +296,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
       all_reported_comments =
         Enum.reduce(1..total_count, [], fn _, acc ->
-          {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
+          {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
           CMS.report_article_comment(comment.id, user)
 
           acc ++ [comment]

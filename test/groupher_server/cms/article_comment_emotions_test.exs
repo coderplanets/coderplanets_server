@@ -30,7 +30,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
 
       all_comment =
         Enum.reduce(0..total_count, [], fn _, acc ->
-          {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
+          {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
           acc ++ [comment]
         end)
 
@@ -61,7 +61,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
     test "comment has default emotions after created", ~m(post user user2)a do
       parent_content = "parent comment"
 
-      {:ok, parent_comment} = CMS.write_comment(:post, post.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
 
       emotions = parent_comment.emotions |> Map.from_struct() |> Map.delete(:id)
@@ -71,7 +71,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
     @tag :wip
     test "can make emotion to comment", ~m(post user user2)a do
       parent_content = "parent comment"
-      {:ok, parent_comment} = CMS.write_comment(:post, post.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
 
       {:ok, _} = CMS.make_emotion(parent_comment.id, :downvote, user)
       {:ok, _} = CMS.make_emotion(parent_comment.id, :downvote, user2)
@@ -86,7 +86,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
     @tag :wip
     test "same user make same emotion to same comment", ~m(post user)a do
       parent_content = "parent comment"
-      {:ok, parent_comment} = CMS.write_comment(:post, post.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
 
       {:ok, _} = CMS.make_emotion(parent_comment.id, :downvote, user)
       {:ok, _} = CMS.make_emotion(parent_comment.id, :downvote, user)
@@ -99,7 +99,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
 
     @tag :wip
     test "different user can make same emotions on same comment", ~m(post user user2 user3)a do
-      {:ok, parent_comment} = CMS.write_comment(:post, post.id, "parent comment", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent comment", user)
 
       {:ok, _} = CMS.make_emotion(parent_comment.id, :beer, user)
       {:ok, _} = CMS.make_emotion(parent_comment.id, :beer, user2)
@@ -117,7 +117,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
     @tag :wip
     test "same user can make differcent emotions on same comment", ~m(post user)a do
       parent_content = "parent comment"
-      {:ok, parent_comment} = CMS.write_comment(:post, post.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
 
       {:ok, _} = CMS.make_emotion(parent_comment.id, :downvote, user)
       {:ok, _} = CMS.make_emotion(parent_comment.id, :downvote, user)

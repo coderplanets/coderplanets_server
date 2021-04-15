@@ -231,13 +231,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   @doc """
   Creates a comment for psot, job ...
   """
-  def write_comment(thread, article_id, content, %User{} = user) do
+  def create_article_comment(thread, article_id, content, %User{} = user) do
     with {:ok, info} <- match(thread),
          # make sure the article exsit
          # author is passed by middleware, it's exsit for sure
          {:ok, article} <- ORM.find(info.model, article_id) do
       Multi.new()
-      |> Multi.run(:write_comment, fn _, _ ->
+      |> Multi.run(:create_article_comment, fn _, _ ->
         do_create_comment(content, info.foreign_key, article.id, user)
       end)
       |> Multi.run(:add_participator, fn _, _ ->
@@ -417,7 +417,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     %{paged_comments | entries: new_entries}
   end
 
-  defp upsert_comment_result({:ok, %{write_comment: result}}), do: {:ok, result}
+  defp upsert_comment_result({:ok, %{create_article_comment: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{add_reply_to: result}}), do: {:ok, result}
 
   defp upsert_comment_result({:error, :create_comment, result, _steps}) do
