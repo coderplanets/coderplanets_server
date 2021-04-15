@@ -9,7 +9,6 @@ defmodule GroupherServer.CMS.PostComment do
 
   alias CMS.{
     Post,
-    PostCommentDislike,
     PostCommentLike,
     PostCommentReply
   }
@@ -29,7 +28,6 @@ defmodule GroupherServer.CMS.PostComment do
 
     has_many(:replies, {"posts_comments_replies", PostCommentReply})
     has_many(:likes, {"posts_comments_likes", PostCommentLike})
-    has_many(:dislikes, {"posts_comments_dislikes", PostCommentDislike})
 
     timestamps(type: :utc_datetime)
   end

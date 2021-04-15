@@ -16,7 +16,6 @@ defmodule GroupherServer.CMS.Utils.Loader do
     Post,
     PostViewer,
     PostComment,
-    PostCommentDislike,
     PostCommentLike,
     PostCommentReply,
     PostFavorite,
@@ -230,22 +229,6 @@ defmodule GroupherServer.CMS.Utils.Loader do
 
   def query({"posts_comments_likes", PostCommentLike}, %{filter: _filter} = args) do
     PostCommentLike
-    |> QueryBuilder.members_pack(args)
-  end
-
-  def query({"posts_comments_dislikes", PostCommentDislike}, %{count: _}) do
-    PostCommentDislike
-    |> group_by([f], f.post_comment_id)
-    |> select([f], count(f.id))
-  end
-
-  # component dislikes
-  def query({"posts_comments_dislikes", PostCommentDislike}, %{viewer_did: _, cur_user: cur_user}) do
-    PostCommentDislike |> where([f], f.user_id == ^cur_user.id)
-  end
-
-  def query({"posts_comments_dislikes", PostCommentDislike}, %{filter: _filter} = args) do
-    PostCommentDislike
     |> QueryBuilder.members_pack(args)
   end
 

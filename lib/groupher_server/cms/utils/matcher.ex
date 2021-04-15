@@ -24,7 +24,6 @@ defmodule GroupherServer.CMS.Utils.Matcher do
     PostComment,
     # commtnes reaction
     PostCommentLike,
-    PostCommentDislike,
     #
     Tag,
     Community,
@@ -59,9 +58,6 @@ defmodule GroupherServer.CMS.Utils.Matcher do
 
   def match_action(:post_comment, :like),
     do: {:ok, %{target: PostComment, reactor: PostCommentLike}}
-
-  def match_action(:post_comment, :dislike),
-    do: {:ok, %{target: PostComment, reactor: PostCommentDislike}}
 
   #########################################
   ## jobs ...
