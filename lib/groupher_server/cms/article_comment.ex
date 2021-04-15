@@ -20,7 +20,7 @@ defmodule GroupherServer.CMS.ArticleComment do
 
   @required_fields ~w(body_html author_id)a
   @optional_fields ~w(post_id job_id reply_to_id replies_count is_folded is_reported is_deleted floor is_article_author)a
-  @updatable_fields ~w(is_folded is_reported is_deleted floor)a
+  @updatable_fields ~w(is_folded is_reported is_deleted floor upvotes_count)a
 
   @max_participator_count 5
   @max_parent_replies_count 3
@@ -57,8 +57,8 @@ defmodule GroupherServer.CMS.ArticleComment do
 
     # 是否是评论文章的作者
     field(:is_article_author, :boolean, default: false)
+    field(:upvotes_count, :integer, default: 0)
 
-    # field(:floor, :integer)
     belongs_to(:author, Accounts.User, foreign_key: :author_id)
     belongs_to(:post, Post, foreign_key: :post_id)
     belongs_to(:job, Job, foreign_key: :job_id)

@@ -296,13 +296,22 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
-  # TODO: should put totol upvote count in meta info
+  @doc "upvote a comment"
+  # TODO: user has upvoted logic, move to GraphQL
   def upvote_article_comment(comment_id, %User{id: user_id}) do
-    # make sure the comment exsit
-    # TODO: make sure the comment is not deleted yet
-    with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
-      args = %{article_comment_id: comment.id, user_id: user_id}
-      ArticleCommentUpvote |> ORM.create(args)
+    with {:ok, comment} <- ORM.find(ArticleComment, comment_id),
+         false <- comment.is_deleted do
+      Multi.new()
+      |> Multi.run(:create_comment_upvote, fn _, _ ->
+        ORM.create(ArticleCommentUpvote, %{article_comment_id: comment.id, user_id: user_id})
+      end)
+      |> Multi.run(:inc_upvotes_count, fn _, _ ->
+        count_query = from(c in ArticleCommentUpvote, where: c.article_comment_id == ^comment_id)
+        upvotes_count = Repo.aggregate(count_query, :count)
+        ORM.update(comment, %{upvotes_count: upvotes_count})
+      end)
+      |> Repo.transaction()
+      |> upsert_comment_result()
     end
   end
 
@@ -440,6 +449,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   defp upsert_comment_result({:ok, %{create_article_comment: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{add_reply_to: result}}), do: {:ok, result}
+  defp upsert_comment_result({:ok, %{inc_upvotes_count: result}}), do: {:ok, result}
 
   defp upsert_comment_result({:error, :create_comment, result, _steps}) do
     {:error, result}

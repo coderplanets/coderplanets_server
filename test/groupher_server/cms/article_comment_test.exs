@@ -132,6 +132,20 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       CMS.upvote_article_comment(comment.id, user)
       {:error, _} = CMS.upvote_article_comment(comment.id, user)
     end
+
+    @tag :wip2
+    test "upvote comment should inc the comment's upvotes_count", ~m(user user2 post)a do
+      comment = "post_comment"
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
+      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+      assert comment.upvotes_count == 0
+
+      {:ok, _} = CMS.upvote_article_comment(comment.id, user)
+      {:ok, _} = CMS.upvote_article_comment(comment.id, user2)
+
+      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+      assert comment.upvotes_count == 2
+    end
   end
 
   describe "[article comment fold/unfold]" do
