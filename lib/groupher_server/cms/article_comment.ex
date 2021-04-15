@@ -66,6 +66,7 @@ defmodule GroupherServer.CMS.ArticleComment do
 
     embeds_many(:replies, ArticleComment, on_replace: :delete)
     embeds_one(:emotions, Embeds.ArticleCommentEmotion, on_replace: :update)
+    embeds_one(:meta, Embeds.ArticleCommentMeta, on_replace: :update)
 
     has_many(:upvotes, {"articles_comments_upvotes", ArticleCommentUpvote})
 
