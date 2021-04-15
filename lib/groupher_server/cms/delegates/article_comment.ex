@@ -289,7 +289,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   end
 
   # TODO: should put totol upvote count in meta info
-  def upvote_comment(comment_id, %User{id: user_id}) do
+  def upvote_article_comment(comment_id, %User{id: user_id}) do
     # make sure the comment exsit
     # TODO: make sure the comment is not deleted yet
     with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do

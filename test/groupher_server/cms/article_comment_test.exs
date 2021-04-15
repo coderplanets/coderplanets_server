@@ -101,7 +101,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       comment = "post_comment"
       {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
 
-      CMS.upvote_comment(comment.id, user)
+      CMS.upvote_article_comment(comment.id, user)
 
       {:ok, comment} = ORM.find(ArticleComment, comment.id, preload: :upvotes)
 
@@ -114,7 +114,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       comment = "job_comment"
       {:ok, comment} = CMS.create_article_comment(:job, job.id, comment, user)
 
-      CMS.upvote_comment(comment.id, user)
+      CMS.upvote_article_comment(comment.id, user)
 
       {:ok, comment} = ORM.find(ArticleComment, comment.id, preload: :upvotes)
 
@@ -127,8 +127,8 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       comment = "post_comment"
       {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
 
-      CMS.upvote_comment(comment.id, user)
-      {:error, _} = CMS.upvote_comment(comment.id, user)
+      CMS.upvote_article_comment(comment.id, user)
+      {:error, _} = CMS.upvote_article_comment(comment.id, user)
     end
   end
 
