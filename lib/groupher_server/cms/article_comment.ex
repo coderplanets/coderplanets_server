@@ -19,7 +19,8 @@ defmodule GroupherServer.CMS.ArticleComment do
   # alias Helper.HTML
 
   @required_fields ~w(body_html author_id)a
-  @optional_fields ~w(post_id job_id reply_to_id replies_count is_folded is_reported)a
+  @optional_fields ~w(post_id job_id reply_to_id replies_count is_folded is_reported floor)a
+  @updatable_fields ~w(is_folded is_reported floor)a
 
   @max_participator_count 5
   @max_parent_replies_count 3
@@ -46,7 +47,7 @@ defmodule GroupherServer.CMS.ArticleComment do
     field(:is_folded, :boolean, default: false)
     field(:is_reported, :boolean, default: false)
     # field(:is_deleted, :boolean, default: false)
-    # field(:floor, :integer, default: 0)
+    field(:floor, :integer, default: 0)
 
     # field(:floor, :integer)
     belongs_to(:author, Accounts.User, foreign_key: :author_id)
@@ -78,14 +79,13 @@ defmodule GroupherServer.CMS.ArticleComment do
   # @doc false
   def update_changeset(%ArticleComment{} = article_comment, attrs) do
     article_comment
-    |> cast(attrs, @required_fields ++ @optional_fields)
+    |> cast(attrs, @required_fields ++ @updatable_fields)
     # |> cast_embed(:emotions, required: false, with: &Embeds.ArticleCommentEmotion.changeset/2)
     |> generl_changeset
   end
 
   defp generl_changeset(content) do
     content
-    # |> foreign_key_constraint(:post_id)
     |> foreign_key_constraint(:author_id)
 
     # |> validate_length(:body_html, min: 3, max: 2000)

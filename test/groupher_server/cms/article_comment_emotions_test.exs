@@ -57,7 +57,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
   end
 
   describe "[basic article comment emotion]" do
-    @tag :wip2
+    @tag :wip
     test "comment has default emotions after created", ~m(post user user2)a do
       parent_content = "parent comment"
 

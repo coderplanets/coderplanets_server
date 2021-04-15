@@ -39,6 +39,21 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
     end
   end
 
+  describe "[article comment floor]" do
+    @tag :wip2
+    test "comment will have a floor number after created", ~m(user post job)a do
+      {:ok, _comment} = CMS.write_comment(:job, job.id, "comment", user)
+      {:ok, job_comment} = CMS.write_comment(:job, job.id, "comment", user)
+      {:ok, post_comment} = CMS.write_comment(:post, post.id, "comment", user)
+
+      {:ok, post_comment} = ORM.find(ArticleComment, post_comment.id)
+      {:ok, job_comment} = ORM.find(ArticleComment, job_comment.id)
+
+      assert post_comment.floor == 1
+      assert job_comment.floor == 2
+    end
+  end
+
   describe "[article comment participator]" do
     @tag :wip
     test "post will have participator after comment created", ~m(user post)a do
@@ -118,7 +133,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[article comment fold/unfold]" do
-    @tag :wip2
+    @tag :wip
     test "user can fold a comment", ~m(user post)a do
       {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
@@ -130,7 +145,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert comment.is_folded
     end
 
-    @tag :wip2
+    @tag :wip
     test "user can unfold a comment", ~m(user post)a do
       {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
       {:ok, _comment} = CMS.fold_article_comment(comment.id, user)
@@ -145,7 +160,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[article comment report/unreport]" do
-    @tag :wip2
+    @tag :wip
     test "user can report a comment", ~m(user post)a do
       {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
@@ -157,7 +172,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert comment.is_reported
     end
 
-    @tag :wip2
+    @tag :wip
     test "user can unreport a comment", ~m(user post)a do
       {:ok, comment} = CMS.write_comment(:post, post.id, "commment", user)
       {:ok, _comment} = CMS.report_article_comment(comment.id, user)
@@ -172,7 +187,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "paged article comments" do
-    @tag :wip2
+    @tag :wip
     test "paged article comments folded flag should be false", ~m(user post)a do
       total_count = 30
       page_number = 1
@@ -197,7 +212,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert total_count == paged_comments.total_count
     end
 
-    @tag :wip2
+    @tag :wip
     test "paged article comments should not contains folded and repoted comments",
          ~m(user post)a do
       total_count = 15
@@ -243,7 +258,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert total_count - 6 == paged_comments.total_count
     end
 
-    @tag :wip2
+    @tag :wip
     test "can loaded paged folded comment", ~m(user post)a do
       total_count = 10
       page_number = 1
@@ -273,7 +288,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert total_count == paged_comments.total_count
     end
 
-    @tag :wip2
+    @tag :wip
     test "can loaded paged reported comment", ~m(user post)a do
       total_count = 10
       page_number = 1

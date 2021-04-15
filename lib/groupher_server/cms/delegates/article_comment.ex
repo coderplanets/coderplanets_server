@@ -303,14 +303,17 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   # TODO: parse editor-json
   # set default emotions
   defp do_create_comment(content, foreign_key, article_id, %User{id: user_id}) do
-    args =
-      %{author_id: user_id, body_html: content, emotions: @default_emotions}
-      |> Map.put(
+    count_query = from(c in ArticleComment, where: field(c, ^foreign_key) == ^article_id)
+    floor = Repo.aggregate(count_query, :count) + 1
+
+    ArticleComment
+    |> ORM.create(
+      Map.put(
+        %{author_id: user_id, body_html: content, emotions: @default_emotions, floor: floor},
         foreign_key,
         article_id
       )
-
-    ORM.create(ArticleComment, args)
+    )
   end
 
   # 设计盖楼只保留一个层级，回复楼中的评论都会被放到顶楼的 replies 中
