@@ -11,7 +11,6 @@ defmodule GroupherServer.CMS.Job do
     Author,
     ArticleComment,
     Community,
-    JobComment,
     JobFavorite,
     JobStar,
     JobViewer,
@@ -54,7 +53,6 @@ defmodule GroupherServer.CMS.Job do
     field(:pin, :boolean, default_value: false, virtual: true)
     field(:trash, :boolean, default_value: false, virtual: true)
 
-    has_many(:comments, {"jobs_comments", JobComment})
     has_many(:article_comments, {"articles_comments", ArticleComment})
 
     has_many(:favorites, {"jobs_favorites", JobFavorite})

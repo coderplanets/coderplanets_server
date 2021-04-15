@@ -26,10 +26,6 @@ defmodule GroupherServer.CMS.Utils.Loader do
     JobViewer,
     JobFavorite,
     # JobStar,
-    JobComment,
-    JobCommentReply,
-    JobCommentDislike,
-    JobCommentLike,
     # Repo,
     RepoViewer,
     RepoFavorite,
@@ -256,80 +252,6 @@ defmodule GroupherServer.CMS.Utils.Loader do
     PostCommentDislike
     |> QueryBuilder.members_pack(args)
   end
-
-  # ---- job comments ------
-  def query({"jobs_comments", JobComment}, %{filter: _filter, unique: true}) do
-    JobComment
-    # |> QueryBuilder.filter_pack(filter)
-    |> join(:inner, [c], a in assoc(c, :author))
-    |> distinct([c, a], a.id)
-    |> select([c, a], a)
-  end
-
-  def query({"jobs_comments", JobComment}, %{count: _, unique: true}) do
-    JobComment
-    |> join(:inner, [c], a in assoc(c, :author))
-    |> distinct([c, a], a.id)
-    |> group_by([c, a], a.id)
-    |> group_by([c, a], c.job_id)
-    |> select([c, a], count(c.id))
-  end
-
-  def query({"jobs_comments", JobComment}, %{count: _}) do
-    JobComment
-    |> group_by([c], c.job_id)
-    |> select([c], count(c.id))
-  end
-
-  def query({"jobs_comments_replies", JobCommentReply}, %{count: _}) do
-    JobCommentReply
-    |> group_by([c], c.job_comment_id)
-    |> select([c], count(c.id))
-  end
-
-  def query({"jobs_comments_replies", JobCommentReply}, %{filter: filter}) do
-    JobCommentReply
-    |> QueryBuilder.load_inner_replies(filter)
-  end
-
-  def query({"jobs_comments_replies", JobCommentReply}, %{reply_to: _}) do
-    JobCommentReply
-    |> join(:inner, [c], r in assoc(c, :job_comment))
-    |> select([c, r], r)
-  end
-
-  def query({"jobs_comments_likes", JobCommentLike}, %{count: _}) do
-    JobCommentLike
-    |> group_by([f], f.job_comment_id)
-    |> select([f], count(f.id))
-  end
-
-  def query({"jobs_comments_likes", JobCommentLike}, %{viewer_did: _, cur_user: cur_user}) do
-    JobCommentLike |> where([f], f.user_id == ^cur_user.id)
-  end
-
-  def query({"jobs_comments_likes", JobCommentLike}, %{filter: _filter} = args) do
-    JobCommentLike |> QueryBuilder.members_pack(args)
-  end
-
-  def query({"jobs_comments_dislikes", JobCommentDislike}, %{count: _}) do
-    JobCommentDislike
-    |> group_by([f], f.job_comment_id)
-    |> select([f], count(f.id))
-  end
-
-  def query({"jobs_comments_dislikes", JobCommentDislike}, %{
-        viewer_did: _,
-        cur_user: cur_user
-      }) do
-    JobCommentDislike |> where([f], f.user_id == ^cur_user.id)
-  end
-
-  def query({"jobs_comments_dislikes", JobCommentDislike}, %{filter: _filter} = args) do
-    JobCommentDislike |> QueryBuilder.members_pack(args)
-  end
-
-  # ---- job comments end------
 
   # --- repo comments ------
   def query({"repos_comments", RepoComment}, %{filter: _filter, unique: true}) do

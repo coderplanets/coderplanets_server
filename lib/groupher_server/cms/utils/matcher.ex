@@ -22,13 +22,10 @@ defmodule GroupherServer.CMS.Utils.Matcher do
     JobStar,
     # comments
     PostComment,
-    JobComment,
     RepoComment,
     # commtnes reaction
     PostCommentLike,
     PostCommentDislike,
-    JobCommentLike,
-    JobCommentDislike,
     RepoCommentLike,
     RepoCommentDislike,
     #
@@ -83,15 +80,6 @@ defmodule GroupherServer.CMS.Utils.Matcher do
 
   def match_action(:job, :star), do: {:ok, %{target: Job, reactor: JobStar, preload: :user}}
   def match_action(:job, :tag), do: {:ok, %{target: Job, reactor: Tag}}
-
-  def match_action(:job, :comment),
-    do: {:ok, %{target: Job, reactor: JobComment, preload: :author}}
-
-  def match_action(:job_comment, :like),
-    do: {:ok, %{target: JobComment, reactor: JobCommentLike}}
-
-  def match_action(:job_comment, :dislike),
-    do: {:ok, %{target: JobComment, reactor: JobCommentDislike}}
 
   #########################################
   ## repos ...
