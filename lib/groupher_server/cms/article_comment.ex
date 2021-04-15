@@ -19,7 +19,7 @@ defmodule GroupherServer.CMS.ArticleComment do
   # alias Helper.HTML
 
   @required_fields ~w(body_html author_id)a
-  @optional_fields ~w(post_id job_id reply_to_id replies_count is_folded is_reported is_deleted floor)a
+  @optional_fields ~w(post_id job_id reply_to_id replies_count is_folded is_reported is_deleted floor is_article_author)a
   @updatable_fields ~w(is_folded is_reported is_deleted floor)a
 
   @max_participator_count 5
@@ -54,6 +54,9 @@ defmodule GroupherServer.CMS.ArticleComment do
     field(:is_deleted, :boolean, default: false)
     # 楼层
     field(:floor, :integer, default: 0)
+
+    # 是否是评论文章的作者
+    field(:is_article_author, :boolean, default: false)
 
     # field(:floor, :integer)
     belongs_to(:author, Accounts.User, foreign_key: :author_id)

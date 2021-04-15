@@ -347,4 +347,16 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert deleted_comment.body_html == @delete_hint
     end
   end
+
+  describe "[article comment info]" do
+    @tag :wip2
+    test "author of the article comment a comment should have flag", ~m(user post job)a do
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+      assert not comment.is_article_author
+
+      {:ok, author_user} = db_insert(:user, %{id: post.author_id})
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", author_user)
+      assert comment.is_article_author
+    end
+  end
 end

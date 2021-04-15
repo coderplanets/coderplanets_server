@@ -246,7 +246,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
          {:ok, article} <- ORM.find(info.model, article_id) do
       Multi.new()
       |> Multi.run(:create_article_comment, fn _, _ ->
-        do_create_comment(content, info.foreign_key, article.id, user)
+        do_create_comment(content, info.foreign_key, article, user)
       end)
       |> Multi.run(:add_participator, fn _, _ ->
         add_participator_to_article(article, user)
@@ -268,7 +268,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
          parent_comment <- get_parent_comment(replying_comment) do
       Multi.new()
       |> Multi.run(:create_reply_comment, fn _, _ ->
-        do_create_comment(content, info.foreign_key, replying_comment[info.foreign_key], user)
+        do_create_comment(content, info.foreign_key, article, user)
       end)
       |> Multi.run(:create_article_comment_reply, fn _,
                                                      %{create_reply_comment: replyed_comment} ->
@@ -310,14 +310,27 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   # set floor
   # TODO: parse editor-json
   # set default emotions
-  defp do_create_comment(content, foreign_key, article_id, %User{id: user_id}) do
+  defp do_create_comment(
+         content,
+         foreign_key,
+         %{id: article_id, author_id: article_author_id},
+         %User{
+           id: user_id
+         }
+       ) do
     count_query = from(c in ArticleComment, where: field(c, ^foreign_key) == ^article_id)
     floor = Repo.aggregate(count_query, :count) + 1
 
     ArticleComment
     |> ORM.create(
       Map.put(
-        %{author_id: user_id, body_html: content, emotions: @default_emotions, floor: floor},
+        %{
+          author_id: user_id,
+          body_html: content,
+          emotions: @default_emotions,
+          floor: floor,
+          is_article_author: user_id == article_author_id
+        },
         foreign_key,
         article_id
       )
