@@ -157,7 +157,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   def report_article_comment(comment_id, %User{} = _user) do
     with {:ok, comment} <-
            ORM.find(ArticleComment, comment_id) do
+      # TODO: update meta
       comment |> ORM.update(%{is_reported: true})
+      # comment
+      # |> Ecto.Changeset.change()
+      # |> Ecto.Changeset.put_embed(:emotions, updated_emotions)
+      # |> Repo.update()
     end
   end
 
