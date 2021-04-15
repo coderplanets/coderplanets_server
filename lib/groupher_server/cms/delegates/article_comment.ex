@@ -252,8 +252,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   # TODO: parse editor-json
   # set default emotions
   defp do_create_comment(content, foreign_key, article_id, %User{id: user_id}) do
-    # @default_emotions
-    # %{author_id: user_id, body_html: content, emotions: @default_emotions}
     args =
       %{author_id: user_id, body_html: content, emotions: @default_emotions}
       |> Map.put(
@@ -261,7 +259,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
         article_id
       )
 
-    # IO.inspect(args, label: "the args")
     ORM.create(ArticleComment, args)
   end
 
@@ -270,7 +267,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     comment
   end
 
-  defp get_parent_comment(%ArticleComment{reply_to_id: reply_to_id} = comment) do
+  defp get_parent_comment(%ArticleComment{reply_to_id: _} = comment) do
     Repo.preload(comment, :reply_to) |> Map.get(:reply_to)
     # get_parent_comment(Repo.preload(comment, :reply_to))
   end

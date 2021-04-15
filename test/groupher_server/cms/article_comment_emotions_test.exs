@@ -22,7 +22,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
   end
 
   describe "[emotion in paged article comment]" do
-    @tag :wip2
+    @tag :wip
     test "login user should got viewer has emotioned status", ~m(post user user2)a do
       total_count = 0
       page_number = 10
@@ -57,7 +57,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
   end
 
   describe "[basic article comment emotion]" do
-    @tag :wip
+    @tag :wip2
     test "comment has default emotions after created", ~m(post user user2)a do
       parent_content = "parent comment"
 
@@ -83,7 +83,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       assert user_exist_in?(user2, emotions.latest_downvote_users)
     end
 
-    @tag :wip2
+    @tag :wip
     test "same user make same emotion to same comment", ~m(post user)a do
       parent_content = "parent comment"
       {:ok, parent_comment} = CMS.write_comment(:post, post.id, parent_content, user)
@@ -97,7 +97,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       assert user_exist_in?(user, parent_comment.emotions.latest_downvote_users)
     end
 
-    @tag :wip2
+    @tag :wip
     test "different user can make same emotions on same comment", ~m(post user user2 user3)a do
       {:ok, parent_comment} = CMS.write_comment(:post, post.id, "parent comment", user)
 
@@ -114,7 +114,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       assert user_exist_in?(user3, emotions.latest_beer_users)
     end
 
-    @tag :wip2
+    @tag :wip
     test "same user can make differcent emotions on same comment", ~m(post user)a do
       parent_content = "parent comment"
       {:ok, parent_comment} = CMS.write_comment(:post, post.id, parent_content, user)

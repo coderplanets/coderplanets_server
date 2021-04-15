@@ -18,7 +18,7 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentEmotion.Macros do
     |> Enum.map(fn emotion ->
       quote do
         field(unquote(:"#{emotion}_count"), :integer, default: 0)
-        field(unquote(:"#{emotion}_user_logins"), :string)
+        field(unquote(:"#{emotion}_user_logins"), :string, default: "")
         field(unquote(:"viewer_has_#{emotion}ed"), :boolean, default: false, virtual: true)
         embeds_many(unquote(:"latest_#{emotion}_users"), Embeds.User, on_replace: :delete)
       end
@@ -36,14 +36,15 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentEmotion do
   import Ecto.Changeset
   import GroupherServer.CMS.Embeds.ArticleCommentEmotion.Macros
 
-  alias GroupherServer.CMS.{ArticleComment, Embeds}
+  alias GroupherServer.CMS.ArticleComment
 
   @supported_emotions ArticleComment.supported_emotions()
 
   @optional_fields Enum.map(@supported_emotions, &:"#{&1}_count") ++
                      Enum.map(@supported_emotions, &:"#{&1}_user_logins")
 
-  @doc "for test usage"
+  @doc "default emotion status for article comment"
+  # for create comment and test usage
   def default_emotions() do
     @supported_emotions
     |> Enum.reduce([], fn emotion, acc ->
@@ -65,12 +66,8 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentEmotion do
   def changeset(struct, params) do
     struct
     |> cast(params, @optional_fields)
-    |> cast_embed(:latest_downvote_users, required: false, with: &Embeds.User.changeset/2)
-    |> cast_embed(:latest_beer_users, required: false, with: &Embeds.User.changeset/2)
-    |> cast_embed(:latest_heart_users, required: false, with: &Embeds.User.changeset/2)
-    |> cast_embed(:latest_biceps_users, required: false, with: &Embeds.User.changeset/2)
-    |> cast_embed(:latest_orz_users, required: false, with: &Embeds.User.changeset/2)
-    |> cast_embed(:latest_confused_users, required: false, with: &Embeds.User.changeset/2)
-    |> cast_embed(:latest_pill_users, required: false, with: &Embeds.User.changeset/2)
+
+    # |> cast_embed(:latest_downvote_users, required: false, with: &Embeds.User.changeset/2)
+    # |> ...
   end
 end
