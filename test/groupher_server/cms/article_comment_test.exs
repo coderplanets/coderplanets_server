@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{ArticleComment, Post, Job}
+  alias CMS.{AbuseReport, ArticleComment, Post, Job}
 
   @delete_hint CMS.ArticleComment.delete_hint()
 
@@ -42,7 +42,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[article comment floor]" do
-    @tag :wip2
+    @tag :wip
     test "comment will have a floor number after created", ~m(user post job)a do
       {:ok, _comment} = CMS.create_article_comment(:job, job.id, "comment", user)
       {:ok, job_comment} = CMS.create_article_comment(:job, job.id, "comment", user)
@@ -133,7 +133,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       {:error, _} = CMS.upvote_article_comment(comment.id, user)
     end
 
-    @tag :wip2
+    @tag :wip
     test "upvote comment should inc the comment's upvotes_count", ~m(user user2 post)a do
       comment = "post_comment"
       {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
@@ -199,6 +199,22 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       {:ok, _comment} = CMS.unreport_article_comment(comment.id, user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
       assert not comment.is_reported
+    end
+
+    @tag :wip2
+    test "report a comment should have a abuse report record", ~m(user user2 post)a do
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+      {:ok, comment} = CMS.report_article_comment(comment.id, user)
+      # {:ok, comment} = CMS.report_article_comment(comment.id, user)
+      # {:ok, comment} = CMS.report_article_comment(comment.id, user2)
+
+      # IO.inspect(comment, label: "after report")
+
+      {:ok, all_reports} = ORM.find_all(AbuseReport, %{page: 1, size: 10})
+      report_cases = List.first(all_reports.entries).report_cases
+
+      assert all_reports.total_count == 1
+      assert List.first(report_cases).user.login == user.login
     end
   end
 
@@ -336,7 +352,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[article comment delete]" do
-    @tag :wip2
+    @tag :wip
     test "delete comment still exsit in paged list and content is gone", ~m(user post job)a do
       total_count = 10
       page_number = 1
@@ -363,7 +379,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[article comment info]" do
-    @tag :wip2
+    @tag :wip
     test "author of the article comment a comment should have flag", ~m(user post job)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       assert not comment.is_article_author

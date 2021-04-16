@@ -8,6 +8,7 @@ defmodule GroupherServer.CMS do
   alias GroupherServer.CMS.Delegate
 
   alias Delegate.{
+    AbuseReport,
     ArticleCURD,
     ArticleOperation,
     ArticleReaction,
@@ -137,6 +138,9 @@ defmodule GroupherServer.CMS do
   defdelegate delete_comment(thread, content_id), to: CommentCURD
   defdelegate list_replies(thread, comment, user), to: CommentCURD
   defdelegate reply_comment(thread, comment, args, user), to: CommentCURD
+
+  # report
+  defdelegate create_report(type, content_id, args, user), to: AbuseReport
 
   # Comment Reaction
   # >> like / undo like

@@ -9,7 +9,6 @@ defmodule GroupherServer.CMS.Embeds.User do
   embedded_schema do
     field(:login, :string)
     field(:nickname, :string)
-    # TODO: field(:is_article_author, :boolean)
   end
 
   def changeset(struct, params) do

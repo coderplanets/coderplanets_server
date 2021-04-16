@@ -6,7 +6,7 @@ defmodule GroupherServer.CMS.AbuseReport do
   import Ecto.Changeset
 
   alias GroupherServer.{Accounts, CMS}
-  alias CMS.{ArticleComment, Post, Job}
+  alias CMS.{ArticleComment, Embeds, Post, Job}
 
   # @required_fields ~w(article_comment_id user_id recived_user_id)a
   @optional_fields ~w(article_comment_id post_id job_id account_id operate_user_id deal_with is_closed)a
@@ -18,8 +18,8 @@ defmodule GroupherServer.CMS.AbuseReport do
     belongs_to(:job, Job, foreign_key: :job_id)
     belongs_to(:account, Accounts.User, foreign_key: :account_id)
 
-    embeds_many(:report_users, Embeds.AbuseReportUser, on_replace: :delete)
-    field(:report_users_count, :integer, default: 0)
+    embeds_many(:report_cases, Embeds.AbuseReportCase, on_replace: :delete)
+    field(:report_cases_count, :integer, default: 0)
 
     belongs_to(:operate_user, Accounts.User, foreign_key: :operate_user_id)
 
@@ -33,9 +33,6 @@ defmodule GroupherServer.CMS.AbuseReport do
   def changeset(%AbuseReport{} = struct, attrs) do
     struct
     |> cast(attrs, @optional_fields)
-
-    # |> foreign_key_constraint(:article_comment_id)
-    # |> foreign_key_constraint(:user_id)
-    # |> foreign_key_constraint(:recived_user_id)
+    |> cast_embed(:report_cases, required: true, with: &Embeds.AbuseReportCase.changeset/2)
   end
 end

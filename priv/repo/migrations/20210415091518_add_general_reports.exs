@@ -4,7 +4,7 @@ defmodule GroupherServer.Repo.Migrations.AddGeneralReports do
   def change do
     create table(:abuse_reports) do
       # 举报人们
-      add(:report_users, :map)
+      add(:report_cases, :map)
       # has many
       # [
       #   %{
@@ -16,7 +16,7 @@ defmodule GroupherServer.Repo.Migrations.AddGeneralReports do
       # ]
 
       # 举报用户人次
-      add(:report_users_count, :integer, default: 0)
+      add(:report_cases_count, :integer, default: 0)
 
       # 举报账户
       add(:account_id, references(:users, on_delete: :delete_all))

@@ -73,10 +73,6 @@ defmodule GroupherServer.CMS.ArticleComment do
     timestamps(type: :utc_datetime)
   end
 
-  @spec changeset(
-          GroupherServer.CMS.ArticleComment.t(),
-          :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
-        ) :: Ecto.Changeset.t()
   @doc false
   def changeset(%ArticleComment{} = article_comment, attrs) do
     article_comment

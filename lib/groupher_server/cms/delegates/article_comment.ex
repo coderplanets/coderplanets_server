@@ -5,6 +5,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1]
 
+  import GroupherServer.CMS.Utils.Matcher2
   import ShortMaps
 
   alias Helper.{ORM, QueryBuilder}
@@ -17,18 +18,19 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     ArticleCommentUpvote,
     ArticleCommentReply,
     ArticleCommentUserEmotion,
+    Embeds,
     Post,
     Job
   }
 
   alias Ecto.Multi
 
-  @max_latest_emotion_users_count CMS.ArticleComment.max_latest_emotion_users_count()
-  @max_participator_count CMS.ArticleComment.max_participator_count()
-  @max_parent_replies_count CMS.ArticleComment.max_parent_replies_count()
-  @default_emotions CMS.Embeds.ArticleCommentEmotion.default_emotions()
-  @supported_emotions CMS.ArticleComment.supported_emotions()
-  @delete_hint CMS.ArticleComment.delete_hint()
+  @max_latest_emotion_users_count ArticleComment.max_latest_emotion_users_count()
+  @max_participator_count ArticleComment.max_participator_count()
+  @max_parent_replies_count ArticleComment.max_parent_replies_count()
+  @default_emotions Embeds.ArticleCommentEmotion.default_emotions()
+  @supported_emotions ArticleComment.supported_emotions()
+  @delete_hint ArticleComment.delete_hint()
 
   @doc """
   list paged article comments
@@ -154,15 +156,18 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   end
 
   @doc "fold a comment"
-  def report_article_comment(comment_id, %User{} = _user) do
+  def report_article_comment(comment_id, %User{} = user) do
     with {:ok, comment} <-
            ORM.find(ArticleComment, comment_id) do
-      # TODO: update meta
-      comment |> ORM.update(%{is_reported: true})
-      # comment
-      # |> Ecto.Changeset.change()
-      # |> Ecto.Changeset.put_embed(:emotions, updated_emotions)
-      # |> Repo.update()
+      Multi.new()
+      |> Multi.run(:create_abuse_report, fn _, _ ->
+        CMS.create_report(:article_comment, comment_id, %{reason: "todo fucked"}, user)
+      end)
+      |> Multi.run(:update_report_flag, fn _, _ ->
+        ORM.update(comment, %{is_reported: true})
+      end)
+      |> Repo.transaction()
+      |> upsert_comment_result()
     end
   end
 
@@ -400,19 +405,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   defp add_participator_to_article(_, _), do: {:ok, :pass}
 
-  # TODO: move to new matcher
-  defp match(:post) do
-    {:ok, %{model: Post, foreign_key: :post_id}}
-  end
-
-  defp match(:job) do
-    {:ok, %{model: Job, foreign_key: :job_id}}
-  end
-
-  defp match(:post, :query, id), do: {:ok, dynamic([c], c.post_id == ^id)}
-  defp match(:job, :query, id), do: {:ok, dynamic([c], c.job_id == ^id)}
-  # matcher end
-
   defp get_article(%ArticleComment{post_id: post_id} = comment) when not is_nil(post_id) do
     with {:ok, article} <- ORM.find(Post, comment.post_id) do
       {:post, article}
@@ -455,12 +447,17 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   defp upsert_comment_result({:ok, %{create_article_comment: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{add_reply_to: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{inc_upvotes_count: result}}), do: {:ok, result}
+  defp upsert_comment_result({:ok, %{update_report_flag: result}}), do: {:ok, result}
 
   defp upsert_comment_result({:error, :create_comment, result, _steps}) do
     {:error, result}
   end
 
   defp upsert_comment_result({:error, :add_participator, result, _steps}) do
+    {:error, result}
+  end
+
+  defp upsert_comment_result({:error, :create_abuse_report, result, _steps}) do
     {:error, result}
   end
 
