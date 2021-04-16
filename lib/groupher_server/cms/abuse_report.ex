@@ -9,7 +9,8 @@ defmodule GroupherServer.CMS.AbuseReport do
   alias CMS.{ArticleComment, Embeds, Post, Job}
 
   # @required_fields ~w(article_comment_id user_id recived_user_id)a
-  @optional_fields ~w(article_comment_id post_id job_id account_id operate_user_id deal_with is_closed)a
+  @optional_fields ~w(article_comment_id post_id job_id account_id operate_user_id deal_with is_closed report_cases_count)a
+  @update_fields ~w(operate_user_id deal_with is_closed report_cases_count)a
 
   @type t :: %AbuseReport{}
   schema "abuse_reports" do
@@ -33,6 +34,12 @@ defmodule GroupherServer.CMS.AbuseReport do
   def changeset(%AbuseReport{} = struct, attrs) do
     struct
     |> cast(attrs, @optional_fields)
+    |> cast_embed(:report_cases, required: true, with: &Embeds.AbuseReportCase.changeset/2)
+  end
+
+  def update_changeset(%AbuseReport{} = struct, attrs) do
+    struct
+    |> cast(attrs, @update_fields)
     |> cast_embed(:report_cases, required: true, with: &Embeds.AbuseReportCase.changeset/2)
   end
 end

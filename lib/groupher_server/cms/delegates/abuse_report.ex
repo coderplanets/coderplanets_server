@@ -29,7 +29,10 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
             }
           ]
 
-          args = %{report_cases: updated_report_cases} |> Map.put(info.foreign_key, content_id)
+          args =
+            %{report_cases_count: 1, report_cases: updated_report_cases}
+            |> Map.put(info.foreign_key, content_id)
+
           AbuseReport |> ORM.create(args)
 
         _ ->
@@ -45,7 +48,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
             )
 
           report
-          |> Ecto.Changeset.change()
+          |> Ecto.Changeset.change(%{report_cases_count: length(updated_report_cases)})
           |> Ecto.Changeset.put_embed(:report_cases, updated_report_cases)
           |> Repo.update()
       end
