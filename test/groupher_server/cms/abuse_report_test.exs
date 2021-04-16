@@ -18,7 +18,7 @@ defmodule GroupherServer.Test.CMS.AbuseReport do
   end
 
   describe "[article comment report/unreport]" do
-    @tag :wip2
+    @tag :wip
     test "report a comment should have a abuse report record", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       {:ok, _comment} = CMS.report_article_comment(comment.id, user)
@@ -32,7 +32,7 @@ defmodule GroupherServer.Test.CMS.AbuseReport do
       assert List.first(report_cases).user.login == user.login
     end
 
-    @tag :wip2
+    @tag :wip
     test "different user report a comment should have same report with different report cases",
          ~m(user user2 post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
@@ -52,7 +52,7 @@ defmodule GroupherServer.Test.CMS.AbuseReport do
       assert List.last(report_cases).user.login == user2.login
     end
 
-    @tag :wip2
+    @tag :wip
     test "same user can not report a comment twice", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       {:ok, comment} = CMS.report_article_comment(comment.id, user)

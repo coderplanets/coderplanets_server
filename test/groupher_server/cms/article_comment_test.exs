@@ -202,7 +202,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert not comment.is_reported
     end
 
-    @tag :wip2
+    @tag :wip
     test "report user < @report_threshold_for_fold will not fold comment", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
 
@@ -219,7 +219,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert not comment.is_folded
     end
 
-    @tag :wip2
+    @tag :wip
     test "report user > @report_threshold_for_fold will cause comment fold", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
 

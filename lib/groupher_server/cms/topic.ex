@@ -4,7 +4,6 @@ defmodule GroupherServer.CMS.Topic do
 
   use Ecto.Schema
   import Ecto.Changeset
-  # alias GroupherServer.CMS.{Author, Community, Job, Post, Video}
 
   @required_fields ~w(thread title raw)a
 

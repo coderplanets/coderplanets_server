@@ -9,11 +9,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
 
   alias Helper.ORM
 
-  alias GroupherServer.Accounts.User
-
   alias GroupherServer.CMS.{
     Embeds,
-    ArticleCommentParticipator,
     Community,
     Post,
     PostCommunityFlag,
@@ -275,35 +272,25 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
       |> Map.delete(:id)
       |> Map.merge(%{is_edited: true})
 
-    content
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_embed(:meta, new_meta)
-    |> Repo.update()
+    do_update_meta(content, new_meta)
   end
 
   # for test or exsiting articles
   def update_meta(%Post{meta: nil} = content, :is_edited) do
     new_meta = Embeds.ArticleMeta.default_meta() |> Map.merge(%{is_edited: true})
 
-    # {:ok, content_with_meta} =
-    content
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_embed(:meta, new_meta)
-    |> Repo.update()
-
-    # new_meta =
-    #   content_with_meta.meta
-    #   |> Map.from_struct()
-    #   |> Map.delete(:id)
-
-    # content_with_meta
-    # |> Map.merge(%{meta: Repo.preload(content_with_meta.meta, :user)})
-    # |> Ecto.Changeset.change()
-    # |> Ecto.Changeset.put_embed(:meta, new_meta)
-    # |> Repo.update()
+    do_update_meta(content, new_meta)
   end
 
   def update_meta(content, _), do: {:ok, content}
+
+  # TODO: put it into ORM helper
+  defp do_update_meta(%{meta: _} = content, meta_params) do
+    content
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_embed(:meta, meta_params)
+    |> Repo.update()
+  end
 
   # make sure the reuest tag is in the current community thread
   # example: you can't set a other thread tag to this thread's article
