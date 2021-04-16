@@ -23,7 +23,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
 
   describe "[emotion in paged article comment]" do
     @tag :wip
-    test "login user should got viewer has emotioned status", ~m(post user user2)a do
+    test "login user should got viewer has emotioned status", ~m(post user)a do
       total_count = 0
       page_number = 10
       page_size = 20
@@ -58,7 +58,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
 
   describe "[basic article comment emotion]" do
     @tag :wip
-    test "comment has default emotions after created", ~m(post user user2)a do
+    test "comment has default emotions after created", ~m(post user)a do
       parent_content = "parent comment"
 
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)

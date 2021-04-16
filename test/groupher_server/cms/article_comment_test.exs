@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{ArticleComment, Post, Job}
+  alias CMS.{ArticleComment, Post}
 
   @delete_hint CMS.ArticleComment.delete_hint()
 
@@ -337,7 +337,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
   describe "[article comment delete]" do
     @tag :wip
-    test "delete comment still exsit in paged list and content is gone", ~m(user post job)a do
+    test "delete comment still exsit in paged list and content is gone", ~m(user post)a do
       total_count = 10
       page_number = 1
       page_size = 20
@@ -364,7 +364,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
   describe "[article comment info]" do
     @tag :wip
-    test "author of the article comment a comment should have flag", ~m(user post job)a do
+    test "author of the article comment a comment should have flag", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       assert not comment.is_article_author
 

@@ -21,7 +21,7 @@ defmodule GroupherServer.Test.CMS.AbuseReport do
     @tag :wip2
     test "report a comment should have a abuse report record", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
-      {:ok, comment} = CMS.report_article_comment(comment.id, user)
+      {:ok, _comment} = CMS.report_article_comment(comment.id, user)
 
       {:ok, all_reports} = ORM.find_all(AbuseReport, %{page: 1, size: 10})
       report = List.first(all_reports.entries)
@@ -36,8 +36,8 @@ defmodule GroupherServer.Test.CMS.AbuseReport do
     test "different user report a comment should have same report with different report cases",
          ~m(user user2 post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
-      {:ok, comment} = CMS.report_article_comment(comment.id, user)
-      {:ok, comment} = CMS.report_article_comment(comment.id, user2)
+      {:ok, _} = CMS.report_article_comment(comment.id, user)
+      {:ok, _} = CMS.report_article_comment(comment.id, user2)
 
       {:ok, all_reports} = ORM.find_all(AbuseReport, %{page: 1, size: 10})
 
