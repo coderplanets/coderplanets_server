@@ -31,6 +31,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   @default_emotions Embeds.ArticleCommentEmotion.default_emotions()
   @supported_emotions ArticleComment.supported_emotions()
   @delete_hint ArticleComment.delete_hint()
+  @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
 
   @doc """
   list paged article comments
@@ -139,6 +140,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
+  def fold_article_comment(%ArticleComment{} = comment, %User{} = _user) do
+    comment |> ORM.update(%{is_folded: true})
+  end
+
   @doc "fold a comment"
   def fold_article_comment(comment_id, %User{} = _user) do
     with {:ok, comment} <-
@@ -165,6 +170,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       end)
       |> Multi.run(:update_report_flag, fn _, _ ->
         ORM.update(comment, %{is_reported: true})
+      end)
+      |> Multi.run(:fold_comment_report_too_many, fn _, %{create_abuse_report: abuse_report} ->
+        if abuse_report.report_cases_count >= @report_threshold_for_fold,
+          do: fold_article_comment(comment, user),
+          else: {:ok, comment}
       end)
       |> Repo.transaction()
       |> upsert_comment_result()
@@ -235,7 +245,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
         |> Repo.update()
       end)
       |> Repo.transaction()
-      |> emotion_comment_result()
+      |> upsert_comment_result
 
       # is not work this way, why?
       # updated_emotions =
@@ -462,12 +472,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   end
 
   defp upsert_comment_result({:error, _, result, _steps}) do
-    {:error, result}
-  end
-
-  defp emotion_comment_result({:ok, %{update_comment_emotion: result}}), do: {:ok, result}
-
-  defp emotion_comment_result({:error, _, result, _steps}) do
     {:error, result}
   end
 end

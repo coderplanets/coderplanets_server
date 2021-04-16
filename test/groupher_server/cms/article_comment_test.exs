@@ -9,6 +9,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   alias CMS.{ArticleComment, Post}
 
   @delete_hint CMS.ArticleComment.delete_hint()
+  @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -199,6 +200,40 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       {:ok, _comment} = CMS.unreport_article_comment(comment.id, user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
       assert not comment.is_reported
+    end
+
+    @tag :wip2
+    test "report user < @report_threshold_for_fold will not fold comment", ~m(user post)a do
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+
+      assert not comment.is_reported
+      assert not comment.is_folded
+
+      Enum.reduce(1..(@report_threshold_for_fold - 1), [], fn _, acc ->
+        {:ok, user} = db_insert(:user)
+        {:ok, _comment} = CMS.report_article_comment(comment.id, user)
+      end)
+
+      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+      assert comment.is_reported
+      assert not comment.is_folded
+    end
+
+    @tag :wip2
+    test "report user > @report_threshold_for_fold will cause comment fold", ~m(user post)a do
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+
+      assert not comment.is_reported
+      assert not comment.is_folded
+
+      Enum.reduce(1..(@report_threshold_for_fold + 1), [], fn _, acc ->
+        {:ok, user} = db_insert(:user)
+        {:ok, _comment} = CMS.report_article_comment(comment.id, user)
+      end)
+
+      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+      assert comment.is_reported
+      assert comment.is_folded
     end
   end
 

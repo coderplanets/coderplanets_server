@@ -29,6 +29,8 @@ defmodule GroupherServer.CMS.ArticleComment do
   @max_latest_emotion_users_count 5
 
   @delete_hint "this comment is deleted"
+  # 举报超过此数评论会被自动折叠
+  @report_threshold_for_fold 5
 
   @doc "latest participators stores in article comment_participators field"
   def max_participator_count(), do: @max_participator_count
@@ -40,6 +42,8 @@ defmodule GroupherServer.CMS.ArticleComment do
 
   def supported_emotions(), do: @supported_emotions
   def delete_hint(), do: @delete_hint
+
+  def report_threshold_for_fold, do: @report_threshold_for_fold
 
   @type t :: %ArticleComment{}
   schema "articles_comments" do
