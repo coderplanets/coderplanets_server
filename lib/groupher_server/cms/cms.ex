@@ -124,6 +124,7 @@ defmodule GroupherServer.CMS do
 
   defdelegate create_article_comment(thread, article_id, args, user), to: ArticleComment
   defdelegate upvote_article_comment(comment_id, user), to: ArticleComment
+  defdelegate undo_upvote_article_comment(comment_id, user), to: ArticleComment
   defdelegate delete_article_comment(comment_id, user), to: ArticleComment
   defdelegate reply_article_comment(comment_id, args, user), to: ArticleComment
 

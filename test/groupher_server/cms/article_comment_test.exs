@@ -165,6 +165,30 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
       assert comment.upvotes_count == 2
     end
+
+    @tag :wip2
+    test "user can undo upvote a post comment", ~m(user post)a do
+      content = "post_comment"
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, content, user)
+      CMS.upvote_article_comment(comment.id, user)
+
+      {:ok, comment} = ORM.find(ArticleComment, comment.id, preload: :upvotes)
+      assert 1 == length(comment.upvotes)
+
+      {:ok, comment} = CMS.undo_upvote_article_comment(comment.id, user)
+      assert 0 == comment.upvotes_count
+    end
+
+    @tag :wip2
+    test "user can undo upvote a post comment with no upvote", ~m(user post)a do
+      content = "post_comment"
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, content, user)
+      {:ok, comment} = CMS.undo_upvote_article_comment(comment.id, user)
+      assert 0 == comment.upvotes_count
+
+      {:ok, comment} = CMS.undo_upvote_article_comment(comment.id, user)
+      assert 0 == comment.upvotes_count
+    end
   end
 
   describe "[article comment fold/unfold]" do
