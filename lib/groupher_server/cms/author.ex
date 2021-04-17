@@ -3,10 +3,11 @@ defmodule GroupherServer.CMS.Author do
   alias __MODULE__
 
   use Ecto.Schema
+  use Accessible
+
   import Ecto.Changeset
 
   alias GroupherServer.{Accounts, CMS}
-
   alias CMS.Post
 
   @type t :: %Author{}

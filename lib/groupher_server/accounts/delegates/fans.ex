@@ -75,10 +75,10 @@ defmodule GroupherServer.Accounts.Delegate.Fans do
          {:ok, _follow_user} <- ORM.find(User, follower_id) do
       Multi.new()
       |> Multi.run(:delete_follower, fn _, _ ->
-        ORM.findby_delete(UserFollower, %{user_id: follower_id, follower_id: user_id})
+        ORM.findby_delete!(UserFollower, %{user_id: follower_id, follower_id: user_id})
       end)
       |> Multi.run(:delete_following, fn _, _ ->
-        ORM.findby_delete(UserFollowing, %{user_id: user_id, following_id: follower_id})
+        ORM.findby_delete!(UserFollowing, %{user_id: user_id, following_id: follower_id})
       end)
       |> Multi.run(:minus_achievement, fn _, _ ->
         Accounts.achieve(%User{id: follower_id}, :minus, :follow)

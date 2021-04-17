@@ -41,7 +41,7 @@ defmodule GroupherServerWeb.Resolvers.CMS do
 
   def update_community(_root, args, _info), do: Community |> ORM.find_update(args)
 
-  def delete_community(_root, %{id: id}, _info), do: Community |> ORM.find_delete(id)
+  def delete_community(_root, %{id: id}, _info), do: Community |> ORM.find_delete!(id)
 
   # #######################
   # community thread (post, job), login user should be logged
@@ -178,7 +178,7 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.create_category(%{title: title, raw: raw}, user)
   end
 
-  def delete_category(_root, %{id: id}, _info), do: Category |> ORM.find_delete(id)
+  def delete_category(_root, %{id: id}, _info), do: Category |> ORM.find_delete!(id)
 
   def update_category(_root, ~m(id title)a, %{context: %{cur_user: _}}) do
     CMS.update_category(~m(%Category id title)a)
@@ -243,7 +243,7 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.create_tag(%Community{id: community_id}, thread, args, user)
   end
 
-  def delete_tag(_root, %{id: id}, _info), do: Tag |> ORM.find_delete(id)
+  def delete_tag(_root, %{id: id}, _info), do: Tag |> ORM.find_delete!(id)
 
   def update_tag(_root, args, _info), do: CMS.update_tag(args)
 

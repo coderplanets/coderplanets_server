@@ -8,6 +8,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   import GroupherServer.CMS.Utils.Matcher2
   import ShortMaps
 
+  alias Helper.Types, as: T
   alias Helper.{ORM, QueryBuilder}
   alias GroupherServer.{Accounts, CMS, Repo}
 
@@ -32,6 +33,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   @supported_emotions ArticleComment.supported_emotions()
   @delete_hint ArticleComment.delete_hint()
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
+
+  @default_comment_meta Embeds.ArticleCommentMeta.default_meta()
 
   @doc """
   list paged article comments
@@ -263,7 +266,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     with {:ok, info} <- match(thread),
          # make sure the article exsit
          # author is passed by middleware, it's exsit for sure
-         {:ok, article} <- ORM.find(info.model, article_id) do
+         {:ok, article} <- ORM.find(info.model, article_id, preload: [author: :user]) do
       Multi.new()
       |> Multi.run(:create_article_comment, fn _, _ ->
         do_create_comment(content, info.foreign_key, article, user)
@@ -317,10 +320,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   end
 
   @doc "upvote a comment"
-  # TODO: user has upvoted logic, move to GraphQL
   def upvote_article_comment(comment_id, %User{id: user_id}) do
     with {:ok, comment} <- ORM.find(ArticleComment, comment_id),
          false <- comment.is_deleted do
+      # IO.inspect(comment, label: "the comment")
       Multi.new()
       |> Multi.run(:create_comment_upvote, fn _, _ ->
         ORM.create(ArticleCommentUpvote, %{article_comment_id: comment.id, user_id: user_id})
@@ -330,8 +333,49 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
         upvotes_count = Repo.aggregate(count_query, :count)
         ORM.update(comment, %{upvotes_count: upvotes_count})
       end)
+      |> Multi.run(:check_article_author_upvoted, fn _, _ ->
+        update_article_author_upvoted_info(comment, user_id)
+      end)
       |> Repo.transaction()
       |> upsert_comment_result()
+    end
+  end
+
+  @doc "upvote a comment"
+  def undo_upvote_article_comment(comment_id, %User{id: user_id}) do
+    with {:ok, comment} <- ORM.find(ArticleComment, comment_id),
+         false <- comment.is_deleted do
+      Multi.new()
+      |> Multi.run(:delete_comment_upvote, fn _, _ ->
+        ORM.findby_delete(ArticleCommentUpvote, %{
+          article_comment_id: comment.id,
+          user_id: user_id
+        })
+      end)
+      |> Multi.run(:desc_upvotes_count, fn _, _ ->
+        count_query = from(c in ArticleCommentUpvote, where: c.article_comment_id == ^comment_id)
+        upvotes_count = Repo.aggregate(count_query, :count)
+
+        ORM.update(comment, %{upvotes_count: Enum.max([upvotes_count - 1, 0])})
+      end)
+      |> Multi.run(:check_article_author_upvoted, fn _, %{desc_upvotes_count: updated_comment} ->
+        update_article_author_upvoted_info(updated_comment, user_id)
+      end)
+      |> Repo.transaction()
+      |> upsert_comment_result()
+    end
+  end
+
+  defp update_article_author_upvoted_info(%ArticleComment{} = comment, user_id) do
+    with {:ok, article} = get_full_comment(comment.id) do
+      is_article_author_upvoted = article.author.id == user_id
+
+      new_meta =
+        comment.meta
+        |> Map.from_struct()
+        |> Map.merge(%{is_article_author_upvoted: is_article_author_upvoted})
+
+      comment |> ORM.update(%{meta: new_meta})
     end
   end
 
@@ -339,15 +383,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   # set floor
   # TODO: parse editor-json
   # set default emotions
-  defp do_create_comment(
-         content,
-         foreign_key,
-         %{id: article_id, author_id: article_author_id},
-         %User{
-           id: user_id
-         }
-       ) do
-    count_query = from(c in ArticleComment, where: field(c, ^foreign_key) == ^article_id)
+  defp do_create_comment(content, foreign_key, article, %User{id: user_id}) do
+    count_query = from(c in ArticleComment, where: field(c, ^foreign_key) == ^article.id)
     floor = Repo.aggregate(count_query, :count) + 1
 
     ArticleComment
@@ -358,10 +395,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
           body_html: content,
           emotions: @default_emotions,
           floor: floor,
-          is_article_author: user_id == article_author_id
+          is_article_author: user_id == article.author.user.id,
+          meta: @default_comment_meta
         },
         foreign_key,
-        article_id
+        article.id
       )
     )
   end
@@ -416,13 +454,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   defp add_participator_to_article(_, _), do: {:ok, :pass}
 
   defp get_article(%ArticleComment{post_id: post_id} = comment) when not is_nil(post_id) do
-    with {:ok, article} <- ORM.find(Post, comment.post_id) do
+    with {:ok, article} <- ORM.find(Post, comment.post_id, preload: [author: :user]) do
       {:post, article}
     end
   end
 
   defp get_article(%ArticleComment{job_id: job_id} = comment) when not is_nil(job_id) do
-    with {:ok, article} <- ORM.find(Job, comment.job_id) do
+    with {:ok, article} <- ORM.find(Job, comment.job_id, preload: [author: :user]) do
       {:job, article}
     end
   end
@@ -454,9 +492,43 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     %{paged_comments | entries: new_entries}
   end
 
+  @spec get_full_comment(String.t()) :: {:ok, T.article_info()} | {:error, nil}
+  defp get_full_comment(comment_id) do
+    query = from(c in ArticleComment, where: c.id == ^comment_id, preload: :post, preload: :job)
+
+    with {:ok, comment} <- Repo.one(query) |> done() do
+      extract_article_info(comment)
+    end
+  end
+
+  defp extract_article_info(%ArticleComment{post: %Post{} = post}) when not is_nil(post) do
+    do_extract_article_info(:post, post)
+  end
+
+  defp extract_article_info(%ArticleComment{job: %Job{} = job}) when not is_nil(job) do
+    do_extract_article_info(:job, job)
+  end
+
+  @spec do_extract_article_info(T.article_thread(), T.article_common()) :: {:ok, T.article_info()}
+  defp do_extract_article_info(thread, article) do
+    with {:ok, article_with_author} <- Repo.preload(article, author: :user) |> done(),
+         article_author <- get_in(article_with_author, [:author, :user]) do
+      #
+      article_info = %{title: article.title}
+
+      author_info = %{
+        id: article_author.id,
+        login: article_author.login,
+        nickname: article_author.nickname
+      }
+
+      {:ok, %{thread: thread, article: article_info, author: author_info}}
+    end
+  end
+
   defp upsert_comment_result({:ok, %{create_article_comment: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{add_reply_to: result}}), do: {:ok, result}
-  defp upsert_comment_result({:ok, %{inc_upvotes_count: result}}), do: {:ok, result}
+  defp upsert_comment_result({:ok, %{check_article_author_upvoted: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{update_report_flag: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{update_comment_emotion: result}}), do: {:ok, result}
 

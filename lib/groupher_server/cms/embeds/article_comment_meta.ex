@@ -3,14 +3,14 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentMeta do
   general article comment meta info
   """
   use Ecto.Schema
+  import Ecto.Changeset
 
-  alias CMS.Embeds
+  @optional_fields ~w(is_article_author_upvoted is_solution report_count)a
 
   @default_meta %{
     is_article_author_upvoted: false,
     is_solution: false,
-    report_count: 0,
-    report_users: []
+    report_count: 0
   }
 
   @doc "for test usage"
@@ -21,6 +21,10 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentMeta do
     field(:is_solution, :boolean, default: false)
 
     field(:report_count, :integer, default: 0)
-    embeds_many(:report_users, Embeds.User, on_replace: :delete)
+  end
+
+  def changeset(struct, params) do
+    struct
+    |> cast(params, @optional_fields)
   end
 end

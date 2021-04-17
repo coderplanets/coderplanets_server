@@ -35,7 +35,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
   """
   def unset_category(%Community{id: community_id}, %Category{id: category_id}) do
     with {:ok, community_category} <-
-           CommunityCategory |> ORM.findby_delete(~m(community_id category_id)a) do
+           CommunityCategory |> ORM.findby_delete!(~m(community_id category_id)a) do
       Community |> ORM.find(community_category.community_id)
     end
   end
@@ -54,7 +54,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
   """
   def unset_thread(%Community{id: community_id}, %Thread{id: thread_id}) do
     with {:ok, community_thread} <-
-           CommunityThread |> ORM.findby_delete(~m(community_id thread_id)a) do
+           CommunityThread |> ORM.findby_delete!(~m(community_id thread_id)a) do
       Community |> ORM.find(community_thread.community_id)
     end
   end
@@ -80,7 +80,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
   unset a community editor
   """
   def unset_editor(%Community{id: community_id}, %User{id: user_id}) do
-    with {:ok, _} <- ORM.findby_delete(CommunityEditor, ~m(user_id community_id)a),
+    with {:ok, _} <- ORM.findby_delete!(CommunityEditor, ~m(user_id community_id)a),
          {:ok, _} <- PassportCURD.delete_passport(%User{id: user_id}) do
       User |> ORM.find(user_id)
     end
@@ -132,7 +132,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
     with {:ok, community} <- ORM.find(Community, community_id),
          true <- community.raw !== "home",
          {:ok, record} <-
-           ORM.findby_delete(CommunitySubscriber, community_id: community.id, user_id: user_id) do
+           ORM.findby_delete!(CommunitySubscriber, community_id: community.id, user_id: user_id) do
       Community |> ORM.find(record.community_id)
     else
       false ->
@@ -151,7 +151,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
     with {:ok, community} <- ORM.find(Community, community_id),
          true <- community.raw !== "home",
          {:ok, record} <-
-           CommunitySubscriber |> ORM.findby_delete(community_id: community.id, user_id: user_id) do
+           CommunitySubscriber |> ORM.findby_delete!(community_id: community.id, user_id: user_id) do
       update_community_geo(community_id, user_id, remote_ip, :dec)
       Community |> ORM.find(record.community_id)
     else
@@ -171,7 +171,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
     with {:ok, community} <- ORM.find(Community, community_id),
          true <- community.raw !== "home",
          {:ok, record} <-
-           CommunitySubscriber |> ORM.findby_delete(community_id: community.id, user_id: user_id) do
+           CommunitySubscriber |> ORM.findby_delete!(community_id: community.id, user_id: user_id) do
       update_community_geo_map(community.id, city, :dec)
       Community |> ORM.find(record.community_id)
     else
