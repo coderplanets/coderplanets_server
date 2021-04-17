@@ -7,6 +7,8 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentMeta do
   alias CMS.Embeds
 
   @default_meta %{
+    is_article_author_upvoted: false,
+    is_solution: false,
     report_count: 0,
     report_users: []
   }
@@ -15,6 +17,9 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentMeta do
   def default_meta(), do: @default_meta
 
   embedded_schema do
+    field(:is_article_author_upvoted, :boolean, default: false)
+    field(:is_solution, :boolean, default: false)
+
     field(:report_count, :integer, default: 0)
     embeds_many(:report_users, Embeds.User, on_replace: :delete)
   end

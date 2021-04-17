@@ -386,14 +386,6 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.undo_like_comment(thread, id, user)
   end
 
-  def dislike_comment(_root, ~m(thread id)a, %{context: %{cur_user: user}}) do
-    CMS.dislike_comment(thread, id, user)
-  end
-
-  def undo_dislike_comment(_root, ~m(thread id)a, %{context: %{cur_user: user}}) do
-    CMS.undo_dislike_comment(thread, id, user)
-  end
-
   def stamp_passport(_root, ~m(user_id rules)a, %{context: %{cur_user: _user}}) do
     CMS.stamp_passport(rules, %User{id: user_id})
   end

@@ -94,21 +94,5 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
       middleware(M.Authorize, :login)
       resolve(&R.CMS.undo_like_comment/3)
     end
-
-    field :dislike_comment, :comment do
-      arg(:thread, non_null(:cms_comment), default_value: :post_comment)
-      arg(:id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      resolve(&R.CMS.dislike_comment/3)
-    end
-
-    field :undo_dislike_comment, :comment do
-      arg(:thread, non_null(:cms_comment), default_value: :post_comment)
-      arg(:id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      resolve(&R.CMS.undo_dislike_comment/3)
-    end
   end
 end

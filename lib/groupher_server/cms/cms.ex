@@ -146,9 +146,6 @@ defmodule GroupherServer.CMS do
   # >> like / undo like
   defdelegate like_comment(thread, comment, user), to: CommentReaction
   defdelegate undo_like_comment(thread, comment, user), to: CommentReaction
-  # >> dislike / undo dislike
-  defdelegate dislike_comment(thread, comment, user), to: CommentReaction
-  defdelegate undo_dislike_comment(thread, comment, user), to: CommentReaction
 
   # Passport CURD
   defdelegate stamp_passport(rules, user), to: PassportCURD
