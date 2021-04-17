@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{ArticleComment, Post}
+  alias CMS.{ArticleComment, Post, Job}
 
   @delete_hint CMS.ArticleComment.delete_hint()
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
@@ -21,7 +21,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[basic article comment]" do
-    @tag :wip
+    @tag :wip2
     test "post, job are supported by article comment.", ~m(user post job)a do
       post_comment_1 = "post_comment 1"
       post_comment_2 = "post_comment 2"
@@ -209,7 +209,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert not comment.is_reported
       assert not comment.is_folded
 
-      Enum.reduce(1..(@report_threshold_for_fold - 1), [], fn _, acc ->
+      Enum.reduce(1..(@report_threshold_for_fold - 1), [], fn _, _acc ->
         {:ok, user} = db_insert(:user)
         {:ok, _comment} = CMS.report_article_comment(comment.id, user)
       end)
@@ -226,7 +226,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert not comment.is_reported
       assert not comment.is_folded
 
-      Enum.reduce(1..(@report_threshold_for_fold + 1), [], fn _, acc ->
+      Enum.reduce(1..(@report_threshold_for_fold + 1), [], fn _, _acc ->
         {:ok, user} = db_insert(:user)
         {:ok, _comment} = CMS.report_article_comment(comment.id, user)
       end)

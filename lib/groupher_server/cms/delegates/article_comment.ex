@@ -458,6 +458,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   defp upsert_comment_result({:ok, %{add_reply_to: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{inc_upvotes_count: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{update_report_flag: result}}), do: {:ok, result}
+  defp upsert_comment_result({:ok, %{update_comment_emotion: result}}), do: {:ok, result}
 
   defp upsert_comment_result({:error, :create_comment, result, _steps}) do
     {:error, result}

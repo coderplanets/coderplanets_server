@@ -134,7 +134,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
 
   describe "[paged article comment replies]" do
     @tag :wip
-    test "can get paged replies of a parent comment", ~m(post user user2)a do
+    test "can get paged replies of a parent comment", ~m(post user)a do
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
       {:ok, paged_replies} = CMS.list_comment_replies(parent_comment.id, %{page: 1, size: 20})
       assert is_valid_pagination?(paged_replies, :raw, :empty)

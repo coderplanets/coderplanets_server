@@ -631,7 +631,7 @@ defmodule GroupherServer.Test.Mutation.Post do
     }
     """
     @tag :wip
-    test "write comment to a exsit post", ~m(post user_conn community)a do
+    test "write comment to a exsit post", ~m(post user_conn)a do
       comment = "a test comment"
       variables = %{thread: "POST", id: post.id, content: comment}
 

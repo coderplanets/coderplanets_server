@@ -133,9 +133,6 @@ defmodule Helper.QueryBuilder do
       {:sort, :most_likes}, queryable ->
         queryable |> sort_by_count(:likes, :desc)
 
-      {:sort, :most_dislikes}, queryable ->
-        queryable |> sort_by_count(:dislikes, :desc)
-
       {:length, :most_words}, queryable ->
         queryable |> order_by(desc: :length)
 

@@ -11,7 +11,6 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   alias CMS.{Post, Repo, Job, Community, Category, Tag, Thread}
 
   alias Helper.ORM
-  alias Helper.Utils
 
   # #######################
   # community ..
