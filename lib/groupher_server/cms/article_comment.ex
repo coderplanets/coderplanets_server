@@ -82,6 +82,7 @@ defmodule GroupherServer.CMS.ArticleComment do
     article_comment
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> cast_embed(:emotions, required: true, with: &Embeds.ArticleCommentEmotion.changeset/2)
+    |> cast_embed(:meta, required: true, with: &Embeds.ArticleCommentMeta.changeset/2)
     |> validate_required(@required_fields)
     |> generl_changeset
   end
@@ -90,7 +91,7 @@ defmodule GroupherServer.CMS.ArticleComment do
   def update_changeset(%ArticleComment{} = article_comment, attrs) do
     article_comment
     |> cast(attrs, @required_fields ++ @updatable_fields)
-    # |> cast_embed(:emotions, required: false, with: &Embeds.ArticleCommentEmotion.changeset/2)
+    |> cast_embed(:meta, required: true, with: &Embeds.ArticleCommentMeta.changeset/2)
     |> generl_changeset
   end
 

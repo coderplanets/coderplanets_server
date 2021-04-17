@@ -28,6 +28,19 @@ defmodule Helper.Types do
           company: nil | String.t()
         }
 
+  @type article_thread :: :post | :job
+  @type article_info :: %{
+          thread: article_thread,
+          article: %{
+            title: String.t()
+          },
+          author: %{
+            id: Integer.t(),
+            login: String.t(),
+            nickname: String.t()
+          }
+        }
+
   @typedoc """
   editor.js's header tool data format
   """

@@ -4,12 +4,13 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias GroupherServer.CMS
+  alias GroupherServer.{Accounts, CMS}
 
-  alias CMS.{ArticleComment, Post, Job}
+  alias CMS.{ArticleComment, Embeds, Post, Job}
 
   @delete_hint CMS.ArticleComment.delete_hint()
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
+  @default_comment_meta Embeds.ArticleCommentMeta.default_meta()
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -21,7 +22,6 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[basic article comment]" do
-    @tag :wip2
     test "post, job are supported by article comment.", ~m(user post job)a do
       post_comment_1 = "post_comment 1"
       post_comment_2 = "post_comment 2"
@@ -39,6 +39,12 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
       assert List.first(post.article_comments).body_html == post_comment_1
       assert List.first(job.article_comments).body_html == job_comment_1
+    end
+
+    @tag :wip2
+    test "comment should have default meta after create", ~m(user post)a do
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
+      assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
     end
   end
 
@@ -110,6 +116,18 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
       assert 1 == length(comment.upvotes)
       assert List.first(comment.upvotes).user_id == user.id
+    end
+
+    @tag :wip2
+    test "article author upvote post comment will have flag", ~m(post user)a do
+      comment = "post_comment"
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
+      {:ok, author_user} = ORM.find(Accounts.User, post.author.user.id)
+
+      CMS.upvote_article_comment(comment.id, author_user)
+
+      {:ok, comment} = ORM.find(ArticleComment, comment.id, preload: :upvotes)
+      assert comment.meta.is_article_author_upvoted
     end
 
     @tag :wip
@@ -403,7 +421,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       assert not comment.is_article_author
 
-      {:ok, author_user} = db_insert(:user, %{id: post.author_id})
+      {:ok, author_user} = db_insert(:user, %{id: post.author.user.id})
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", author_user)
       assert comment.is_article_author
     end

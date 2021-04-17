@@ -3,6 +3,8 @@ defmodule GroupherServer.CMS.Post do
   alias __MODULE__
 
   use Ecto.Schema
+  use Accessible
+
   import Ecto.Changeset
 
   alias GroupherServer.{CMS, Accounts}
