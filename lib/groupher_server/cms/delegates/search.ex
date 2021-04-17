@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.Delegate.Search do
   import Ecto.Query, warn: false
 
   alias Helper.ORM
-  alias GroupherServer.CMS.{Community, Post, Job, Video, Repo}
+  alias GroupherServer.CMS.{Community, Post, Job, Repo}
 
   @search_items_count 15
 

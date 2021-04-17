@@ -10,7 +10,6 @@ defmodule GroupherServer.CMS.Repo do
   alias CMS.{
     Author,
     Community,
-    RepoComment,
     RepoContributor,
     RepoFavorite,
     RepoViewer,
@@ -58,7 +57,6 @@ defmodule GroupherServer.CMS.Repo do
 
     field(:last_sync, :utc_datetime)
 
-    has_many(:comments, {"repos_comments", RepoComment})
     has_many(:favorites, {"repos_favorites", RepoFavorite})
     has_many(:viewers, {"repos_viewers", RepoViewer})
 

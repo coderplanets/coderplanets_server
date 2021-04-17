@@ -5,9 +5,9 @@ defmodule GroupherServer.Test.CMS.PostMeta do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{ArticleMeta, Author, Post}
+  alias CMS.{Embeds, Author, Post}
 
-  @default_article_meta ArticleMeta.default_meta()
+  @default_article_meta Embeds.ArticleMeta.default_meta()
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -20,7 +20,7 @@ defmodule GroupherServer.Test.CMS.PostMeta do
   end
 
   describe "[cms post meta info]" do
-    @tag :wip2
+    @tag :wip
     test "can get default meta info", ~m(user community post_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
 
@@ -31,7 +31,7 @@ defmodule GroupherServer.Test.CMS.PostMeta do
       assert @default_article_meta == meta
     end
 
-    @tag :wip2
+    @tag :wip
     test "is_edited flag should set to true after post updated", ~m(user community post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
       {:ok, post} = ORM.find_by(Post, id: post.id)

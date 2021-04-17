@@ -211,23 +211,6 @@ defmodule GroupherServer.Test.PostComment do
       assert false == comment_preload.likes |> Enum.any?(&(&1.id == like.id))
     end
 
-    test "user can dislike a comment", ~m(comment user)a do
-      # {:ok, like} = CMS.reaction(:post_comment, :like, comment.id, user.id)
-      {:ok, disliked_comment} = CMS.dislike_comment(:post_comment, comment.id, user)
-
-      {:ok, comment_preload} = ORM.find(PostComment, disliked_comment.id, preload: :dislikes)
-
-      assert comment_preload.dislikes |> Enum.any?(&(&1.post_comment_id == comment.id))
-    end
-
-    test "user can undo a dislike action", ~m(comment user)a do
-      {:ok, dislike} = CMS.dislike_comment(:post_comment, comment.id, user)
-      {:ok, _} = CMS.undo_dislike_comment(:post_comment, comment.id, user)
-
-      {:ok, comment_preload} = ORM.find(PostComment, comment.id, preload: :dislikes)
-      assert false == comment_preload.dislikes |> Enum.any?(&(&1.id == dislike.id))
-    end
-
     test "user can get paged likes of a post comment", ~m(comment)a do
       {:ok, user1} = db_insert(:user)
       {:ok, user2} = db_insert(:user)

@@ -5,11 +5,13 @@ defmodule GroupherServer.CMS.Post do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias GroupherServer.CMS
+  alias GroupherServer.{CMS, Accounts}
 
   alias CMS.{
-    ArticleMeta,
+    Embeds,
     Author,
+    ArticleComment,
+    ArticleCommentParticipator,
     Community,
     PostComment,
     PostCommunityFlag,
@@ -25,7 +27,6 @@ defmodule GroupherServer.CMS.Post do
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title body digest length)a
   @optional_fields ~w(origial_community_id link_addr copy_right link_addr link_icon)a
-  @embed_fileds ~w(meta)a
 
   @type t :: %Post{}
   schema "cms_posts" do
@@ -38,9 +39,9 @@ defmodule GroupherServer.CMS.Post do
     field(:length, :integer)
     field(:views, :integer, default: 0)
 
-    embeds_one(:meta, ArticleMeta, on_replace: :update)
-
-    # field(:meta, :map)
+    embeds_one(:meta, Embeds.ArticleMeta, on_replace: :update)
+    # 评论参与者，只保留最近 5 个
+    embeds_many(:comment_participators, Accounts.User, on_replace: :delete)
 
     has_many(:community_flags, {"posts_communities_flags", PostCommunityFlag})
 
@@ -54,6 +55,9 @@ defmodule GroupherServer.CMS.Post do
     # 相关文章
     # has_may(:related_post, ...)
     has_many(:comments, {"posts_comments", PostComment})
+
+    has_many(:article_comments, {"articles_comments", ArticleComment})
+
     has_many(:favorites, {"posts_favorites", PostFavorite})
     has_many(:stars, {"posts_stars", PostStar})
     has_many(:viewers, {"posts_viewers", PostViewer})

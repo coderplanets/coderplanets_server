@@ -21,6 +21,21 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
       middleware(M.Statistics.MakeContribute, for: :user)
     end
 
+    @desc "write a comment"
+    field :create_article_comment, :article_comment do
+      # TODO use thread and force community pass-in
+      arg(:thread, :cms_thread, default_value: :post)
+      arg(:id, non_null(:id))
+      arg(:content, non_null(:string))
+      # arg(:mention_users, list_of(:ids))
+
+      # TDOO: use a comment resolver
+      middleware(M.Authorize, :login)
+      # TODO: 文章作者可以删除评论，文章可以设置禁止评论
+      resolve(&R.CMS.create_article_comment/3)
+      middleware(M.Statistics.MakeContribute, for: :user)
+    end
+
     @desc "update a comment"
     field :update_comment, :comment do
       arg(:id, non_null(:id))
@@ -78,22 +93,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
 
       middleware(M.Authorize, :login)
       resolve(&R.CMS.undo_like_comment/3)
-    end
-
-    field :dislike_comment, :comment do
-      arg(:thread, non_null(:cms_comment), default_value: :post_comment)
-      arg(:id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      resolve(&R.CMS.dislike_comment/3)
-    end
-
-    field :undo_dislike_comment, :comment do
-      arg(:thread, non_null(:cms_comment), default_value: :post_comment)
-      arg(:id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      resolve(&R.CMS.undo_dislike_comment/3)
     end
   end
 end

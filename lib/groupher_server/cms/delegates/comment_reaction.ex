@@ -12,14 +12,6 @@ defmodule GroupherServer.CMS.Delegate.CommentReaction do
     undo_feel_comment(thread, comment_id, user_id, :like)
   end
 
-  def dislike_comment(thread, comment_id, %Accounts.User{id: user_id}) do
-    feel_comment(thread, comment_id, user_id, :dislike)
-  end
-
-  def undo_dislike_comment(thread, comment_id, %Accounts.User{id: user_id}) do
-    undo_feel_comment(thread, comment_id, user_id, :dislike)
-  end
-
   defp merge_thread_comment_id(:post_comment, comment_id), do: %{post_comment_id: comment_id}
   defp merge_thread_comment_id(:job_comment, comment_id), do: %{job_comment_id: comment_id}
   defp merge_thread_comment_id(:repo_comment, comment_id), do: %{repo_comment_id: comment_id}

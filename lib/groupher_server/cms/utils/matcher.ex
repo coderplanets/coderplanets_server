@@ -22,15 +22,8 @@ defmodule GroupherServer.CMS.Utils.Matcher do
     JobStar,
     # comments
     PostComment,
-    JobComment,
-    RepoComment,
     # commtnes reaction
     PostCommentLike,
-    PostCommentDislike,
-    JobCommentLike,
-    JobCommentDislike,
-    RepoCommentLike,
-    RepoCommentDislike,
     #
     Tag,
     Community,
@@ -66,9 +59,6 @@ defmodule GroupherServer.CMS.Utils.Matcher do
   def match_action(:post_comment, :like),
     do: {:ok, %{target: PostComment, reactor: PostCommentLike}}
 
-  def match_action(:post_comment, :dislike),
-    do: {:ok, %{target: PostComment, reactor: PostCommentDislike}}
-
   #########################################
   ## jobs ...
   #########################################
@@ -84,15 +74,6 @@ defmodule GroupherServer.CMS.Utils.Matcher do
   def match_action(:job, :star), do: {:ok, %{target: Job, reactor: JobStar, preload: :user}}
   def match_action(:job, :tag), do: {:ok, %{target: Job, reactor: Tag}}
 
-  def match_action(:job, :comment),
-    do: {:ok, %{target: Job, reactor: JobComment, preload: :author}}
-
-  def match_action(:job_comment, :like),
-    do: {:ok, %{target: JobComment, reactor: JobCommentLike}}
-
-  def match_action(:job_comment, :dislike),
-    do: {:ok, %{target: JobComment, reactor: JobCommentDislike}}
-
   #########################################
   ## repos ...
   #########################################
@@ -106,15 +87,6 @@ defmodule GroupherServer.CMS.Utils.Matcher do
 
   def match_action(:repo, :favorite),
     do: {:ok, %{target: Repo, reactor: RepoFavorite, preload: :user}}
-
-  def match_action(:repo, :comment),
-    do: {:ok, %{target: Repo, reactor: RepoComment, preload: :author}}
-
-  def match_action(:repo_comment, :like),
-    do: {:ok, %{target: RepoComment, reactor: RepoCommentLike}}
-
-  def match_action(:repo_comment, :dislike),
-    do: {:ok, %{target: RepoComment, reactor: RepoCommentDislike}}
 
   # dynamic where query match
   def dynamic_where(thread, id) do

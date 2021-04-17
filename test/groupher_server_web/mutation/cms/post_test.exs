@@ -196,6 +196,10 @@ defmodule GroupherServer.Test.Mutation.Post do
         meta {
           isEdited
         }
+        commentParticipators {
+          id
+          nickname
+        }
       }
     }
     """
@@ -268,7 +272,7 @@ defmodule GroupherServer.Test.Mutation.Post do
       assert updated_post["copyRight"] == variables.copyRight
     end
 
-    @tag :wip2
+    @tag :wip
     test "update post with valid attrs should have is_edited meta info update",
          ~m(owner_conn post)a do
       unique_num = System.unique_integer([:positive, :monotonic])
@@ -618,6 +622,25 @@ defmodule GroupherServer.Test.Mutation.Post do
   end
 
   describe "[mutation post comment]" do
+    @write_comment_query """
+    mutation($thread: CmsThread!, $id: ID!, $content: String!) {
+      createArticleComment(thread: $thread,id: $id, content: $content) {
+        id
+        bodyHtml
+      }
+    }
+    """
+    @tag :wip
+    test "write comment to a exsit post", ~m(post user_conn)a do
+      comment = "a test comment"
+      variables = %{thread: "POST", id: post.id, content: comment}
+
+      result =
+        user_conn |> mutation_result(@write_comment_query, variables, "createArticleComment")
+
+      assert result["bodyHtml"] == comment
+    end
+
     @create_comment_query """
     mutation($community: String!, $thread: CmsThread!, $id: ID!, $body: String!) {
       createComment(community: $community, thread: $thread,id: $id, body: $body) {

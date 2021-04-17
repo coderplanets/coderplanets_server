@@ -8,10 +8,12 @@ defmodule GroupherServer.CMS do
   alias GroupherServer.CMS.Delegate
 
   alias Delegate.{
+    AbuseReport,
     ArticleCURD,
     ArticleOperation,
     ArticleReaction,
     FavoritedContents,
+    ArticleComment,
     CommentCURD,
     CommunitySync,
     CommentReaction,
@@ -106,8 +108,30 @@ defmodule GroupherServer.CMS do
   defdelegate unset_community(community, thread, content_id), to: ArticleOperation
 
   # Comment CURD
+  defdelegate list_article_comments(thread, article_id, filters), to: ArticleComment
+  defdelegate list_article_comments(thread, article_id, filters, user), to: ArticleComment
+  defdelegate list_folded_article_comments(thread, article_id, filters), to: ArticleComment
+  defdelegate list_folded_article_comments(thread, article_id, filters, user), to: ArticleComment
+  defdelegate list_reported_article_comments(thread, article_id, filters), to: ArticleComment
+
+  defdelegate list_reported_article_comments(thread, article_id, filters, user),
+    to: ArticleComment
+
+  defdelegate list_comment_replies(comment_id, filters), to: ArticleComment
+
   defdelegate list_comments(thread, content_id, filters), to: CommentCURD
   defdelegate list_comments_participators(thread, content_id, filters), to: CommentCURD
+
+  defdelegate create_article_comment(thread, article_id, args, user), to: ArticleComment
+  defdelegate upvote_article_comment(comment_id, user), to: ArticleComment
+  defdelegate delete_article_comment(comment_id, user), to: ArticleComment
+  defdelegate reply_article_comment(comment_id, args, user), to: ArticleComment
+
+  defdelegate make_emotion(comment_id, args, user), to: ArticleComment
+  defdelegate fold_article_comment(comment_id, user), to: ArticleComment
+  defdelegate unfold_article_comment(comment_id, user), to: ArticleComment
+  defdelegate report_article_comment(comment_id, user), to: ArticleComment
+  defdelegate unreport_article_comment(comment_id, user), to: ArticleComment
 
   defdelegate create_comment(thread, content_id, args, user), to: CommentCURD
   defdelegate update_comment(thread, id, args, user), to: CommentCURD
@@ -115,13 +139,13 @@ defmodule GroupherServer.CMS do
   defdelegate list_replies(thread, comment, user), to: CommentCURD
   defdelegate reply_comment(thread, comment, args, user), to: CommentCURD
 
+  # report
+  defdelegate create_report(type, content_id, args, user), to: AbuseReport
+
   # Comment Reaction
   # >> like / undo like
   defdelegate like_comment(thread, comment, user), to: CommentReaction
   defdelegate undo_like_comment(thread, comment, user), to: CommentReaction
-  # >> dislike / undo dislike
-  defdelegate dislike_comment(thread, comment, user), to: CommentReaction
-  defdelegate undo_dislike_comment(thread, comment, user), to: CommentReaction
 
   # Passport CURD
   defdelegate stamp_passport(rules, user), to: PassportCURD

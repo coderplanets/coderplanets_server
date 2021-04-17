@@ -194,4 +194,21 @@ defmodule GroupherServer.Test.AssertHelper do
   # user_conn |> mutation_result(@query, variables, "createRepo", :debug)
   defp log_debug_info(res, :debug), do: IO.inspect(res, label: "debug")
   defp log_debug_info(res, _), do: res
+
+  @doc "check id is exsit in list of Map<id: xxx> structure"
+  @spec exist_in?(Map.t(), [Map.t()], Integer.t()) :: boolean
+  def exist_in?(%{id: id}, list, occur_count \\ 1) when is_list(list) do
+    list
+    |> Enum.filter(fn item -> item.id == id end)
+    |> length
+    |> Kernel.==(occur_count)
+  end
+
+  # for embed user situation
+  def user_exist_in?(%{login: login}, list) when is_list(list) do
+    list
+    |> Enum.filter(fn item -> item.login == login end)
+    |> length
+    |> Kernel.==(1)
+  end
 end

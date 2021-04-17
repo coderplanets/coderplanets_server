@@ -11,7 +11,6 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   alias CMS.{Post, Repo, Job, Community, Category, Tag, Thread}
 
   alias Helper.ORM
-  alias Helper.Utils
 
   # #######################
   # community ..
@@ -342,6 +341,10 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   # #######################
   # comemnts ..
   # #######################
+  def paged_article_comments(_root, ~m(id thread filter)a, _info) do
+    CMS.list_article_comments(thread, id, filter)
+  end
+
   def paged_comments(_root, ~m(id thread filter)a, _info) do
     CMS.list_comments(thread, id, filter)
   end
@@ -356,6 +359,10 @@ defmodule GroupherServerWeb.Resolvers.CMS do
 
   def create_comment(_root, ~m(thread id)a = args, %{context: %{cur_user: user}}) do
     CMS.create_comment(thread, id, args, user)
+  end
+
+  def create_article_comment(_root, ~m(thread id content)a, %{context: %{cur_user: user}}) do
+    CMS.create_article_comment(thread, id, content, user)
   end
 
   def update_comment(_root, ~m(thread id)a = args, %{context: %{cur_user: user}}) do
@@ -376,14 +383,6 @@ defmodule GroupherServerWeb.Resolvers.CMS do
 
   def undo_like_comment(_root, ~m(thread id)a, %{context: %{cur_user: user}}) do
     CMS.undo_like_comment(thread, id, user)
-  end
-
-  def dislike_comment(_root, ~m(thread id)a, %{context: %{cur_user: user}}) do
-    CMS.dislike_comment(thread, id, user)
-  end
-
-  def undo_dislike_comment(_root, ~m(thread id)a, %{context: %{cur_user: user}}) do
-    CMS.undo_dislike_comment(thread, id, user)
   end
 
   def stamp_passport(_root, ~m(user_id rules)a, %{context: %{cur_user: _user}}) do

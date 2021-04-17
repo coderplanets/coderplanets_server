@@ -10,7 +10,6 @@ defmodule GroupherServer.CMS.Community do
   alias CMS.{
     Category,
     Post,
-    Video,
     Repo,
     Job,
     CommunityThread,
