@@ -22,6 +22,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[basic article comment]" do
+    @tag :wip2
     test "post, job are supported by article comment.", ~m(user post job)a do
       post_comment_1 = "post_comment 1"
       post_comment_2 = "post_comment 2"
@@ -41,7 +42,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert List.first(job.article_comments).body_html == job_comment_1
     end
 
-    @tag :wip2
+    @tag :wip
     test "comment should have default meta after create", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
       assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
@@ -118,7 +119,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert List.first(comment.upvotes).user_id == user.id
     end
 
-    @tag :wip2
+    @tag :wip
     test "article author upvote post comment will have flag", ~m(post user)a do
       comment = "post_comment"
       {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
@@ -166,7 +167,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert comment.upvotes_count == 2
     end
 
-    @tag :wip2
+    @tag :wip
     test "user can undo upvote a post comment", ~m(user post)a do
       content = "post_comment"
       {:ok, comment} = CMS.create_article_comment(:post, post.id, content, user)
@@ -179,7 +180,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert 0 == comment.upvotes_count
     end
 
-    @tag :wip2
+    @tag :wip
     test "user can undo upvote a post comment with no upvote", ~m(user post)a do
       content = "post_comment"
       {:ok, comment} = CMS.create_article_comment(:post, post.id, content, user)
@@ -440,12 +441,12 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[article comment info]" do
-    @tag :wip
+    @tag :wip2
     test "author of the article comment a comment should have flag", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       assert not comment.is_article_author
 
-      {:ok, author_user} = db_insert(:user, %{id: post.author.user.id})
+      author_user = post.author.user
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", author_user)
       assert comment.is_article_author
     end

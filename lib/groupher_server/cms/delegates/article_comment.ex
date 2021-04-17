@@ -266,7 +266,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     with {:ok, info} <- match(thread),
          # make sure the article exsit
          # author is passed by middleware, it's exsit for sure
-         {:ok, article} <- ORM.find(info.model, article_id) do
+         {:ok, article} <- ORM.find(info.model, article_id, preload: [author: :user]) do
       Multi.new()
       |> Multi.run(:create_article_comment, fn _, _ ->
         do_create_comment(content, info.foreign_key, article, user)
@@ -351,6 +351,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
           article_comment_id: comment.id,
           user_id: user_id
         })
+
+        {:ok, :pass}
       end)
       |> Multi.run(:desc_upvotes_count, fn _, _ ->
         count_query = from(c in ArticleCommentUpvote, where: c.article_comment_id == ^comment_id)
@@ -383,15 +385,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   # set floor
   # TODO: parse editor-json
   # set default emotions
-  defp do_create_comment(
-         content,
-         foreign_key,
-         %{id: article_id, author_id: article_author_id},
-         %User{
-           id: user_id
-         }
-       ) do
-    count_query = from(c in ArticleComment, where: field(c, ^foreign_key) == ^article_id)
+  defp do_create_comment(content, foreign_key, article, %User{id: user_id}) do
+    count_query = from(c in ArticleComment, where: field(c, ^foreign_key) == ^article.id)
     floor = Repo.aggregate(count_query, :count) + 1
 
     ArticleComment
@@ -402,11 +397,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
           body_html: content,
           emotions: @default_emotions,
           floor: floor,
-          is_article_author: user_id == article_author_id,
+          is_article_author: user_id == article.author.user.id,
           meta: @default_comment_meta
         },
         foreign_key,
-        article_id
+        article.id
       )
     )
   end
@@ -461,13 +456,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   defp add_participator_to_article(_, _), do: {:ok, :pass}
 
   defp get_article(%ArticleComment{post_id: post_id} = comment) when not is_nil(post_id) do
-    with {:ok, article} <- ORM.find(Post, comment.post_id) do
+    with {:ok, article} <- ORM.find(Post, comment.post_id, preload: [author: :user]) do
       {:post, article}
     end
   end
 
   defp get_article(%ArticleComment{job_id: job_id} = comment) when not is_nil(job_id) do
-    with {:ok, article} <- ORM.find(Job, comment.job_id) do
+    with {:ok, article} <- ORM.find(Job, comment.job_id, preload: [author: :user]) do
       {:job, article}
     end
   end

@@ -128,9 +128,8 @@ defmodule Helper.ORM do
   end
 
   def findby_delete(queryable, clauses) do
-    case find_by(queryable, clauses) do
-      {:ok, content} -> delete(content)
-      {:error, _} -> {:ok, :pass}
+    with {:ok, content} <- find_by(queryable, clauses) do
+      delete(content)
     end
   end
 

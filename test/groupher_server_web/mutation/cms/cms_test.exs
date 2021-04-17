@@ -705,6 +705,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       assert false == cur_subscribers.entries |> Enum.any?(&(&1.id == user.id))
     end
 
+    @tag :wip2
     test "other login user unsubscribe community fails", ~m(user_conn community)a do
       variables = %{communityId: community.id}
 
