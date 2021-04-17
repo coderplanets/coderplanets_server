@@ -65,7 +65,7 @@ defmodule GroupherServer.CMS.Delegate.PassportCURD do
   end
 
   def delete_passport(%Accounts.User{id: user_id}) do
-    ORM.findby_delete(UserPasport, ~m(user_id)a)
+    ORM.findby_delete!(UserPasport, ~m(user_id)a)
   end
 
   defp reject_invalid_rules(rules) when is_map(rules) do

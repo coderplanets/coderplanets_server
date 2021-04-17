@@ -351,8 +351,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
           article_comment_id: comment.id,
           user_id: user_id
         })
-
-        {:ok, :pass}
       end)
       |> Multi.run(:desc_upvotes_count, fn _, _ ->
         count_query = from(c in ArticleCommentUpvote, where: c.article_comment_id == ^comment_id)

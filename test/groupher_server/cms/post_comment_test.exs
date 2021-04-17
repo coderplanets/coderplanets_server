@@ -124,7 +124,7 @@ defmodule GroupherServer.Test.PostComment do
       {:ok, reply} =
         CMS.reply_comment(:post, comment.id, %{community: community.raw, body: reply_body}, user)
 
-      PostComment |> ORM.find_delete(comment.id)
+      PostComment |> ORM.find_delete!(comment.id)
 
       {:error, _} = ORM.find(PostComment, comment.id)
       {:error, _} = ORM.find(PostComment, reply.id)

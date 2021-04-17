@@ -37,7 +37,7 @@ defmodule GroupherServer.CMS.Delegate.CommentReaction do
     with {:ok, action} <- match_action(thread, feeling) do
       clause = Map.merge(%{user_id: user_id}, merge_thread_comment_id(thread, comment_id))
       # clause = %{post_comment_id: comment_id, user_id: user_id}
-      ORM.findby_delete(action.reactor, clause)
+      ORM.findby_delete!(action.reactor, clause)
       ORM.find(action.target, comment_id)
     end
   end

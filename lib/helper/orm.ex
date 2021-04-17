@@ -121,15 +121,22 @@ defmodule Helper.ORM do
   """
   def delete(content), do: Repo.delete(content)
 
-  def find_delete(queryable, id) do
+  def find_delete!(queryable, id) do
     with {:ok, content} <- find(queryable, id) do
       delete(content)
     end
   end
 
-  def findby_delete(queryable, clauses) do
+  def findby_delete!(queryable, clauses) do
     with {:ok, content} <- find_by(queryable, clauses) do
       delete(content)
+    end
+  end
+
+  def findby_delete(queryable, clauses) do
+    case find_by(queryable, clauses) do
+      {:ok, content} -> delete(content)
+      _ -> {:ok, :pass}
     end
   end
 
