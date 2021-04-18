@@ -18,11 +18,10 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
     {:ok, post} = db_insert(:post)
     {:ok, job} = db_insert(:job)
 
-    {:ok, ~m(user user2 post job)a}
+    {:ok, ~m(user user2 post job post_attrs)a}
   end
 
   describe "[basic article comment]" do
-    @tag :wip2
     test "post, job are supported by article comment.", ~m(user post job)a do
       post_comment_1 = "post_comment 1"
       post_comment_2 = "post_comment 2"
@@ -441,7 +440,6 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[article comment info]" do
-    @tag :wip2
     test "author of the article comment a comment should have flag", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       assert not comment.is_article_author

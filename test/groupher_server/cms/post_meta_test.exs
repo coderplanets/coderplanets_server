@@ -20,7 +20,7 @@ defmodule GroupherServer.Test.CMS.PostMeta do
   end
 
   describe "[cms post meta info]" do
-    @tag :wip
+    @tag :wip2
     test "can get default meta info", ~m(user community post_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
 
@@ -36,12 +36,23 @@ defmodule GroupherServer.Test.CMS.PostMeta do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
       {:ok, post} = ORM.find_by(Post, id: post.id)
 
-      assert post.meta.is_edited == false
+      assert not post.meta.is_edited
 
       {:ok, _} = CMS.update_content(post, %{"title" => "new title"})
       {:ok, post} = ORM.find_by(Post, id: post.id)
 
-      assert post.meta.is_edited == true
+      assert post.meta.is_edited
+    end
+
+    @tag :wip2
+    test "post 's lock article should work", ~m(user community post_attrs)a do
+      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      assert not post.meta.is_comment_locked
+
+      {:ok, _} = CMS.lock_article_comment(post)
+      {:ok, post} = ORM.find_by(Post, id: post.id)
+
+      assert post.meta.is_comment_locked
     end
 
     # test "post with image should have imageCount in meta" do

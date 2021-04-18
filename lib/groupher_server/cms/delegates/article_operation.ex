@@ -255,17 +255,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
 
   def set_topic(_topic, _thread, _content_id), do: {:ok, :pass}
 
-  @doc "set meta info"
-  # embeds_one do not have default option, so we init it with empty map mannully
-  # see: https://github.com/elixir-ecto/ecto/issues/2634
-  def set_meta(:post, content_id) do
-    ORM.update_by(Post, [id: content_id], %{meta: %{}})
-  end
-
-  def set_meta(_, _), do: {:ok, :pass}
-
   @doc "update isEdited meta label if needed"
-  def update_meta(%Post{meta: %Embeds.ArticleMeta{is_edited: false} = meta} = content, :is_edited) do
+  # TODO: diff history
+  def update_edit_status(%Post{meta: %Embeds.ArticleMeta{is_edited: false} = meta} = content) do
     new_meta =
       meta
       |> Map.from_struct()
@@ -276,13 +268,29 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   end
 
   # for test or exsiting articles
-  def update_meta(%Post{meta: nil} = content, :is_edited) do
+  def update_edit_status(%Post{meta: nil} = content) do
     new_meta = Embeds.ArticleMeta.default_meta() |> Map.merge(%{is_edited: true})
 
     do_update_meta(content, new_meta)
   end
 
-  def update_meta(content, _), do: {:ok, content}
+  def update_edit_status(content, _), do: {:ok, content}
+
+  @doc "lock comment of a article"
+  # TODO: record it to ArticleLog
+  def lock_article_comment(
+        %{meta: %Embeds.ArticleMeta{is_comment_locked: false} = meta} = content
+      ) do
+    new_meta =
+      meta
+      |> Map.from_struct()
+      |> Map.delete(:id)
+      |> Map.merge(%{is_comment_locked: true})
+
+    do_update_meta(content, new_meta)
+  end
+
+  def lock_article_comment(content), do: {:ok, content}
 
   # TODO: put it into ORM helper
   defp do_update_meta(%{meta: _} = content, meta_params) do
