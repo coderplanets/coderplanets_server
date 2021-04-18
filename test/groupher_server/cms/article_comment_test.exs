@@ -18,7 +18,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
     {:ok, post} = db_insert(:post)
     {:ok, job} = db_insert(:job)
 
-    {:ok, ~m(user user2 post job post_attrs)a}
+    {:ok, ~m(user user2 post job)a}
   end
 
   describe "[basic article comment]" do

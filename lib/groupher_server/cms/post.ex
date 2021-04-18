@@ -112,7 +112,6 @@ defmodule GroupherServer.CMS.Post do
   def update_changeset(%Post{} = post, attrs) do
     post
     |> cast(attrs, @optional_fields ++ @required_fields)
-    |> cast_embed(:meta, required: true, with: &Embeds.ArticleMeta.changeset/2)
     |> generl_changeset
   end
 

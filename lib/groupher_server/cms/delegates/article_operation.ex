@@ -257,7 +257,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
 
   @doc "update isEdited meta label if needed"
   # TODO: diff history
-  def update_edit_status(%Post{meta: %Embeds.ArticleMeta{is_edited: false} = meta} = content) do
+  def update_edit_status(%{meta: %Embeds.ArticleMeta{is_edited: false} = meta} = content) do
     new_meta =
       meta
       |> Map.from_struct()
@@ -268,7 +268,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   end
 
   # for test or exsiting articles
-  def update_edit_status(%Post{meta: nil} = content) do
+  def update_edit_status(%{meta: nil} = content) do
     new_meta = Embeds.ArticleMeta.default_meta() |> Map.merge(%{is_edited: true})
 
     do_update_meta(content, new_meta)
