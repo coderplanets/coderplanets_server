@@ -67,6 +67,7 @@ defmodule GroupherServer.Test.Accounts.PublishedContents do
       assert results.total_count == 0
     end
 
+    @tag :wip
     test "user can get paged published jobs", ~m(user user2 community community2)a do
       pub_jobs =
         Enum.reduce(1..@publish_count, [], fn _, acc ->

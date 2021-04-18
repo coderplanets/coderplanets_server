@@ -428,7 +428,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   @desc "article meta info"
   object :article_meta do
     field(:is_edited, :boolean)
-    field(:forbid_comment, :boolean)
+    field(:is_comment_locked, :boolean)
     # field(:isReported, :boolean)
     # field(:linked_posts_count, :integer)
     # field(:linked_jobs_count, :integer)

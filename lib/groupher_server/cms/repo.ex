@@ -9,6 +9,7 @@ defmodule GroupherServer.CMS.Repo do
 
   alias CMS.{
     Author,
+    Embeds,
     Community,
     RepoContributor,
     RepoFavorite,
@@ -48,6 +49,9 @@ defmodule GroupherServer.CMS.Repo do
     embeds_many(:contributors, RepoContributor, on_replace: :delete)
 
     field(:views, :integer, default: 0)
+
+    embeds_one(:meta, Embeds.ArticleMeta, on_replace: :update)
+
     belongs_to(:author, Author)
     has_many(:community_flags, {"repos_communities_flags", RepoCommunityFlag})
 
@@ -87,6 +91,7 @@ defmodule GroupherServer.CMS.Repo do
     repo
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
+    |> cast_embed(:meta, required: false, with: &Embeds.ArticleMeta.changeset/2)
     |> generl_changeset
   end
 
@@ -94,6 +99,7 @@ defmodule GroupherServer.CMS.Repo do
   def update_changeset(%Repo{} = repo, attrs) do
     repo
     |> cast(attrs, @optional_fields ++ @required_fields)
+    # |> cast_embed(:meta, required: false, with: &Embeds.ArticleMeta.changeset/2)
     |> generl_changeset
   end
 

@@ -11,12 +11,14 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   alias GroupherServer.{Accounts, CMS, Delivery, Email, Repo, Statistics}
 
   alias Accounts.User
-  alias CMS.{Author, Community, Delegate, Tag, Topic}
+  alias CMS.{Author, Community, Embeds, Delegate, Tag, Topic}
 
   alias Delegate.ArticleOperation
   alias Helper.{Later, ORM, QueryBuilder}
 
   alias Ecto.Multi
+
+  @default_article_meta Embeds.ArticleMeta.default_meta()
 
   @doc """
   login user read cms content by add views count and viewer record
@@ -69,13 +71,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
          {:ok, community} <- ORM.find(Community, cid) do
       Multi.new()
       |> Multi.run(:create_content, fn _, _ ->
-        exec_create_content(action.target, attrs, author, community)
+        do_create_content(action.target, attrs, author, community)
       end)
       |> Multi.run(:set_community, fn _, %{create_content: content} ->
         ArticleOperation.set_community(community, thread, content.id)
-      end)
-      |> Multi.run(:set_meta, fn _, %{create_content: content} ->
-        ArticleOperation.set_meta(thread, content.id)
       end)
       |> Multi.run(:set_topic, fn _, %{create_content: content} ->
         exec_set_topic(thread, content.id, attrs)
@@ -130,8 +129,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     |> Multi.run(:update_content, fn _, _ ->
       ORM.update(content, args)
     end)
-    |> Multi.run(:update_meta, fn _, %{update_content: update_content} ->
-      ArticleOperation.update_meta(update_content, :is_edited)
+    |> Multi.run(:update_edit_status, fn _, %{update_content: update_content} ->
+      ArticleOperation.update_edit_status(update_content)
     end)
     |> Multi.run(:update_tag, fn _, _ ->
       # TODO: move it to ArticleOperation moudel
@@ -400,10 +399,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     {:error, [message: "set community", code: ecode(:create_fails)]}
   end
 
-  defp create_content_result({:error, :set_meta, _result, _steps}) do
-    {:error, [message: "set meta info", code: ecode(:create_fails)]}
-  end
-
   defp create_content_result({:error, :set_community_flag, _result, _steps}) do
     {:error, [message: "set community flag", code: ecode(:create_fails)]}
   end
@@ -420,7 +415,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     {:error, [message: "log action", code: ecode(:create_fails)]}
   end
 
-  defp update_content_result({:ok, %{update_meta: result}}), do: {:ok, result}
+  defp update_content_result({:ok, %{update_edit_status: result}}), do: {:ok, result}
   defp update_content_result({:error, :update_content, result, _steps}), do: {:error, result}
   defp update_content_result({:error, :update_tag, result, _steps}), do: {:error, result}
 
@@ -429,12 +424,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp content_id(:repo, id), do: %{repo_id: id}
 
   #  for create content step in Multi.new
-  defp exec_create_content(target, attrs, %Author{id: aid}, %Community{id: cid}) do
+  defp do_create_content(target, attrs, %Author{id: aid}, %Community{id: cid}) do
     target
     |> struct()
     |> target.changeset(attrs)
     |> Ecto.Changeset.put_change(:author_id, aid)
     |> Ecto.Changeset.put_change(:origial_community_id, integerfy(cid))
+    |> Ecto.Changeset.put_embed(:meta, @default_article_meta)
     |> Repo.insert()
   end
 

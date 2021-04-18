@@ -11,6 +11,7 @@ defmodule GroupherServer.CMS.Job do
 
   alias CMS.{
     Author,
+    Embeds,
     ArticleComment,
     Community,
     JobFavorite,
@@ -36,6 +37,9 @@ defmodule GroupherServer.CMS.Job do
     field(:body, :string)
     belongs_to(:author, Author)
     field(:views, :integer, default: 0)
+
+    embeds_one(:meta, Embeds.ArticleMeta, on_replace: :update)
+
     field(:link_addr, :string)
     field(:copy_right, :string)
 
@@ -89,6 +93,7 @@ defmodule GroupherServer.CMS.Job do
     job
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
+    |> cast_embed(:meta, required: false, with: &Embeds.ArticleMeta.changeset/2)
     |> generl_changeset
   end
 
@@ -96,6 +101,7 @@ defmodule GroupherServer.CMS.Job do
   def update_changeset(%Job{} = job, attrs) do
     job
     |> cast(attrs, @optional_fields ++ @required_fields)
+    # |> cast_embed(:meta, required: false, with: &Embeds.ArticleMeta.changeset/2)
     |> generl_changeset
   end
 
