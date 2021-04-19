@@ -129,6 +129,9 @@ defmodule GroupherServer.CMS do
   defdelegate delete_article_comment(comment_id, user), to: ArticleComment
   defdelegate reply_article_comment(comment_id, args, user), to: ArticleComment
 
+  defdelegate pin_article_comment(comment_id), to: ArticleComment
+  defdelegate undo_pin_article_comment(comment_id), to: ArticleComment
+
   defdelegate make_emotion(comment_id, args, user), to: ArticleComment
   defdelegate fold_article_comment(comment_id, user), to: ArticleComment
   defdelegate unfold_article_comment(comment_id, user), to: ArticleComment

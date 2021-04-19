@@ -6,11 +6,12 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS}
 
-  alias CMS.{ArticleComment, Embeds, Post, Job}
+  alias CMS.{ArticleComment, ArticlePinedComment, Embeds, Post, Job}
 
   @delete_hint CMS.ArticleComment.delete_hint()
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
   @default_comment_meta Embeds.ArticleCommentMeta.default_meta()
+  @pined_comment_limit ArticleComment.pined_comment_limit()
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -22,23 +23,27 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[basic article comment]" do
+    @tag :wip2
     test "post, job are supported by article comment.", ~m(user post job)a do
       post_comment_1 = "post_comment 1"
       post_comment_2 = "post_comment 2"
       job_comment_1 = "job_comment 1"
       job_comment_2 = "job_comment 2"
 
-      {:ok, _} = CMS.create_article_comment(:post, post.id, post_comment_1, user)
-      {:ok, _} = CMS.create_article_comment(:post, post.id, post_comment_2, user)
+      {:ok, post_comment_1} = CMS.create_article_comment(:post, post.id, "post_comment 1", user)
+      {:ok, post_comment_2} = CMS.create_article_comment(:post, post.id, "post_comment 2", user)
 
-      {:ok, _} = CMS.create_article_comment(:job, job.id, job_comment_1, user)
-      {:ok, _} = CMS.create_article_comment(:job, job.id, job_comment_2, user)
+      {:ok, job_comment_1} = CMS.create_article_comment(:job, job.id, "job_comment 1", user)
+      {:ok, job_comment_2} = CMS.create_article_comment(:job, job.id, "job_comment 2", user)
 
       {:ok, post} = ORM.find(Post, post.id, preload: :article_comments)
       {:ok, job} = ORM.find(Job, job.id, preload: :article_comments)
 
-      assert List.first(post.article_comments).body_html == post_comment_1
-      assert List.first(job.article_comments).body_html == job_comment_1
+      assert exist_in?(post_comment_1, post.article_comments)
+      assert exist_in?(post_comment_2, post.article_comments)
+
+      assert exist_in?(job_comment_1, job.article_comments)
+      assert exist_in?(job_comment_2, job.article_comments)
     end
 
     @tag :wip
@@ -218,6 +223,47 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
     end
   end
 
+  describe "[article comment pin/unpin]" do
+    test "user can pin a comment", ~m(user post)a do
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+
+      assert not comment.is_pined
+
+      {:ok, comment} = CMS.pin_article_comment(comment.id)
+      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+
+      assert comment.is_pined
+
+      {:ok, pined_record} = ArticlePinedComment |> ORM.find_by(%{post_id: post.id})
+      assert pined_record.post_id == post.id
+
+      {:ok, pined_record} =
+        ORM.find(ArticlePinedComment, pined_record.id, preload: :article_comment)
+    end
+
+    test "user can unpin a comment", ~m(user post)a do
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+
+      {:ok, _comment} = CMS.pin_article_comment(comment.id)
+      {:ok, comment} = CMS.undo_pin_article_comment(comment.id)
+
+      assert not comment.is_pined
+      assert {:error, _} = ArticlePinedComment |> ORM.find_by(%{article_comment_id: comment.id})
+    end
+
+    @tag :wip2
+    test "pined comments has a limit for each article", ~m(user post)a do
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+
+      Enum.reduce(0..(@pined_comment_limit - 1), [], fn _, _acc ->
+        {:ok, _comment} = CMS.pin_article_comment(comment.id)
+      end)
+
+      assert {:error, _} = CMS.pin_article_comment(comment.id)
+    end
+  end
+
   describe "[article comment report/unreport]" do
     @tag :wip
     test "user can report a comment", ~m(user post)a do
@@ -303,6 +349,64 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert page_number == paged_comments.page_number
       assert page_size == paged_comments.page_size
       assert total_count == paged_comments.total_count
+    end
+
+    @tag :wip2
+    test "paged article comments should contains pined comments at top position",
+         ~m(user post)a do
+      total_count = 20
+      page_number = 1
+      page_size = 5
+
+      all_comments =
+        Enum.reduce(1..total_count, [], fn _, acc ->
+          {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+
+          acc ++ [comment]
+        end)
+
+      {:ok, random_comment_1} = CMS.create_article_comment(:post, post.id, "pin commment", user)
+      {:ok, random_comment_2} = CMS.create_article_comment(:post, post.id, "pin commment2", user)
+
+      {:ok, pined_comment_1} = CMS.pin_article_comment(random_comment_1.id)
+      {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)
+
+      {:ok, paged_comments} =
+        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size})
+
+      assert pined_comment_1.id == List.first(paged_comments.entries) |> Map.get(:id)
+      assert pined_comment_2.id == Enum.at(paged_comments.entries, 1) |> Map.get(:id)
+
+      assert paged_comments.total_count == total_count + 2
+    end
+
+    @tag :wip2
+    test "only page 1 have pined coments",
+         ~m(user post)a do
+      total_count = 20
+      page_number = 2
+      page_size = 5
+
+      all_comments =
+        Enum.reduce(1..total_count, [], fn _, acc ->
+          {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+
+          acc ++ [comment]
+        end)
+
+      {:ok, random_comment_1} = CMS.create_article_comment(:post, post.id, "pin commment", user)
+      {:ok, random_comment_2} = CMS.create_article_comment(:post, post.id, "pin commment2", user)
+
+      {:ok, pined_comment_1} = CMS.pin_article_comment(random_comment_1.id)
+      {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)
+
+      {:ok, paged_comments} =
+        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size})
+
+      assert not exist_in?(pined_comment_1, paged_comments.entries)
+      assert not exist_in?(pined_comment_2, paged_comments.entries)
+
+      assert paged_comments.total_count == total_count
     end
 
     @tag :wip

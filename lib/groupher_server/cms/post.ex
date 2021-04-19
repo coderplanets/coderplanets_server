@@ -13,6 +13,7 @@ defmodule GroupherServer.CMS.Post do
     Embeds,
     Author,
     ArticleComment,
+    ArticlePinedComment,
     Community,
     PostComment,
     PostCommunityFlag,
@@ -58,6 +59,7 @@ defmodule GroupherServer.CMS.Post do
     has_many(:comments, {"posts_comments", PostComment})
 
     has_many(:article_comments, {"articles_comments", ArticleComment})
+    has_many(:article_pined_comments, {"articles_pined_comments", ArticlePinedComment})
 
     has_many(:favorites, {"posts_favorites", PostFavorite})
     has_many(:stars, {"posts_stars", PostStar})

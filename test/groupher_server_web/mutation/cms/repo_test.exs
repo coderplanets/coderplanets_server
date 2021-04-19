@@ -132,7 +132,6 @@ defmodule GroupherServer.Test.Mutation.Repo do
       }
     }
     """
-    @tag :wip2
     test "update git-repo with valid attrs" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)

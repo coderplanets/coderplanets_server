@@ -20,7 +20,7 @@ defmodule GroupherServer.CMS.ArticleComment do
 
   @required_fields ~w(body_html author_id)a
   @optional_fields ~w(post_id job_id reply_to_id replies_count is_folded is_reported is_deleted floor is_article_author)a
-  @updatable_fields ~w(is_folded is_reported is_deleted floor upvotes_count)a
+  @updatable_fields ~w(is_folded is_reported is_deleted floor upvotes_count is_pined)a
 
   @max_participator_count 5
   @max_parent_replies_count 3
@@ -31,6 +31,9 @@ defmodule GroupherServer.CMS.ArticleComment do
   @delete_hint "this comment is deleted"
   # 举报超过此数评论会被自动折叠
   @report_threshold_for_fold 5
+
+  # 每篇文章最多含有置顶评论的条数
+  @pined_comment_limit 10
 
   @doc "latest participators stores in article comment_participators field"
   def max_participator_count(), do: @max_participator_count
@@ -44,6 +47,7 @@ defmodule GroupherServer.CMS.ArticleComment do
   def delete_hint(), do: @delete_hint
 
   def report_threshold_for_fold, do: @report_threshold_for_fold
+  def pined_comment_limit, do: @pined_comment_limit
 
   @type t :: %ArticleComment{}
   schema "articles_comments" do
@@ -62,6 +66,9 @@ defmodule GroupherServer.CMS.ArticleComment do
     # 是否是评论文章的作者
     field(:is_article_author, :boolean, default: false)
     field(:upvotes_count, :integer, default: 0)
+
+    # 是否置顶
+    field(:is_pined, :boolean, default: false)
 
     belongs_to(:author, Accounts.User, foreign_key: :author_id)
     belongs_to(:post, Post, foreign_key: :post_id)
