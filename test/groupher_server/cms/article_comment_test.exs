@@ -23,23 +23,27 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[basic article comment]" do
+    @tag :wip2
     test "post, job are supported by article comment.", ~m(user post job)a do
       post_comment_1 = "post_comment 1"
       post_comment_2 = "post_comment 2"
       job_comment_1 = "job_comment 1"
       job_comment_2 = "job_comment 2"
 
-      {:ok, _} = CMS.create_article_comment(:post, post.id, post_comment_1, user)
-      {:ok, _} = CMS.create_article_comment(:post, post.id, post_comment_2, user)
+      {:ok, post_comment_1} = CMS.create_article_comment(:post, post.id, "post_comment 1", user)
+      {:ok, post_comment_2} = CMS.create_article_comment(:post, post.id, "post_comment 2", user)
 
-      {:ok, _} = CMS.create_article_comment(:job, job.id, job_comment_1, user)
-      {:ok, _} = CMS.create_article_comment(:job, job.id, job_comment_2, user)
+      {:ok, job_comment_1} = CMS.create_article_comment(:job, job.id, "job_comment 1", user)
+      {:ok, job_comment_2} = CMS.create_article_comment(:job, job.id, "job_comment 2", user)
 
       {:ok, post} = ORM.find(Post, post.id, preload: :article_comments)
       {:ok, job} = ORM.find(Job, job.id, preload: :article_comments)
 
-      assert List.first(post.article_comments).body_html == post_comment_1
-      assert List.first(job.article_comments).body_html == job_comment_1
+      assert exist_in?(post_comment_1, post.article_comments)
+      assert exist_in?(post_comment_2, post.article_comments)
+
+      assert exist_in?(job_comment_1, job.article_comments)
+      assert exist_in?(job_comment_2, job.article_comments)
     end
 
     @tag :wip
