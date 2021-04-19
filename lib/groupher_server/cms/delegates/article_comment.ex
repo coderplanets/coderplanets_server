@@ -16,6 +16,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   alias CMS.{
     ArticleComment,
+    ArticlePinedComment,
     ArticleCommentUpvote,
     ArticleCommentReply,
     ArticleCommentUserEmotion,
@@ -136,6 +137,42 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     |> done()
   end
 
+  @doc "pin a comment"
+  def pin_article_comment(comment_id) do
+    with {:ok, comment} <- ORM.find(ArticleComment, comment_id),
+         {:ok, full_comment} <- get_full_comment(comment.id),
+         {:ok, info} <- match(full_comment.thread) do
+      Multi.new()
+      |> Multi.run(:update_comment_flag, fn _, _ ->
+        ORM.update(comment, %{is_pined: true})
+      end)
+      |> Multi.run(:add_pined_comment, fn _, _ ->
+        ArticlePinedComment
+        |> ORM.create(
+          %{article_comment_id: comment.id}
+          |> Map.put(info.foreign_key, full_comment.article.id)
+        )
+      end)
+      |> Repo.transaction()
+      |> upsert_comment_result()
+    end
+  end
+
+  def undo_pin_article_comment(comment_id) do
+    with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
+      Multi.new()
+      |> Multi.run(:update_comment_flag, fn _, _ ->
+        ORM.update(comment, %{is_pined: false})
+      end)
+      |> Multi.run(:remove_pined_comment, fn _, _ ->
+        ORM.findby_delete(ArticlePinedComment, %{article_comment_id: comment.id})
+      end)
+      |> Repo.transaction()
+      |> upsert_comment_result()
+    end
+  end
+
+  # TODO: remove pined record if need
   def delete_article_comment(comment_id, %User{} = _user) do
     with {:ok, comment} <-
            ORM.find(ArticleComment, comment_id) do
@@ -514,7 +551,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     with {:ok, article_with_author} <- Repo.preload(article, author: :user) |> done(),
          article_author <- get_in(article_with_author, [:author, :user]) do
       #
-      article_info = %{title: article.title}
+      article_info = %{title: article.title, id: article.id}
 
       author_info = %{
         id: article_author.id,
@@ -531,6 +568,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   defp upsert_comment_result({:ok, %{check_article_author_upvoted: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{update_report_flag: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{update_comment_emotion: result}}), do: {:ok, result}
+  defp upsert_comment_result({:ok, %{update_comment_flag: result}}), do: {:ok, result}
 
   defp upsert_comment_result({:error, :create_comment, result, _steps}) do
     {:error, result}

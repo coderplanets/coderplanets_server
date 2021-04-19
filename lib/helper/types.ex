@@ -29,6 +29,9 @@ defmodule Helper.Types do
         }
 
   @type article_thread :: :post | :job
+  @type article_common :: %{
+          title: String.t()
+        }
   @type article_info :: %{
           thread: article_thread,
           article: %{

@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS}
 
-  alias CMS.{ArticleComment, Embeds, Post, Job}
+  alias CMS.{ArticleComment, ArticlePinedComment, Embeds, Post, Job}
 
   @delete_hint CMS.ArticleComment.delete_hint()
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
@@ -215,6 +215,38 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       {:ok, _comment} = CMS.unfold_article_comment(comment.id, user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
       assert not comment.is_folded
+    end
+  end
+
+  describe "[article comment pin/unpin]" do
+    @tag :wip2
+    test "user can pin a comment", ~m(user post)a do
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+
+      assert not comment.is_pined
+
+      {:ok, comment} = CMS.pin_article_comment(comment.id)
+      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+
+      assert comment.is_pined
+
+      {:ok, pined_record} = ArticlePinedComment |> ORM.find_by(%{post_id: post.id})
+      assert pined_record.post_id == post.id
+
+      {:ok, pined_record} =
+        ORM.find(ArticlePinedComment, pined_record.id, preload: :article_comment)
+    end
+
+    @tag :wip2
+    test "user can unpin a comment", ~m(user post)a do
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+
+      {:ok, _comment} = CMS.pin_article_comment(comment.id)
+      {:ok, comment} = CMS.undo_pin_article_comment(comment.id)
+
+      assert not comment.is_pined
+      assert {:error, _} = ArticlePinedComment |> ORM.find_by(%{article_comment_id: comment.id})
     end
   end
 
