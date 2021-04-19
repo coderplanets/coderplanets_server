@@ -36,6 +36,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
 
   @default_comment_meta Embeds.ArticleCommentMeta.default_meta()
+  @pined_comment_limit ArticleComment.pined_comment_limit()
 
   @doc """
   list paged article comments
@@ -44,9 +45,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     with {:ok, thread_query} <- match(thread, :query, article_id) do
       ArticleComment
       |> where(^thread_query)
-      |> where([c], c.is_folded == false and c.is_reported == false)
+      |> where([c], c.is_folded == false and c.is_reported == false and c.is_pined == false)
       |> QueryBuilder.filter_pack(filters)
       |> ORM.paginater(~m(page size)a)
+      |> add_pined_comments_ifneed(thread, article_id, filters)
       |> done()
     end
   end
@@ -60,19 +62,53 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     with {:ok, thread_query} <- match(thread, :query, article_id) do
       ArticleComment
       |> where(^thread_query)
-      |> where([c], c.is_folded == false and c.is_reported == false)
+      |> where([c], c.is_folded == false and c.is_reported == false and c.is_pined == false)
       |> QueryBuilder.filter_pack(filters)
       |> ORM.paginater(~m(page size)a)
       |> check_viewer_has_emotioned(user)
+      |> add_pined_comments_ifneed(thread, article_id, filters)
       |> done()
     end
   end
+
+  # TODO: @pined_comment_limit 10
+  defp add_pined_comments_ifneed(%{entries: entries} = paged_comments, thread, article_id, %{
+         page: 1
+       }) do
+    with {:ok, info} <- match(thread),
+         query <-
+           from(p in ArticlePinedComment,
+             join: c in ArticleComment,
+             on: p.article_comment_id == c.id,
+             where: field(p, ^info.foreign_key) == ^article_id,
+             select: c
+           ),
+         {:ok, pined_comments} <- query |> Repo.all() |> done() do
+      case pined_comments do
+        [] ->
+          paged_comments
+
+        _ ->
+          updated_entries =
+            Enum.concat(Enum.slice(pined_comments, 0, @pined_comment_limit), entries)
+
+          pined_comment_count = length(pined_comments)
+
+          Map.merge(paged_comments, %{
+            entries: updated_entries,
+            total_count: paged_comments.total_count + pined_comment_count
+          })
+      end
+    end
+  end
+
+  defp add_pined_comments_ifneed(paged_comments, _thread, _article_id, _), do: paged_comments
 
   def list_folded_article_comments(thread, article_id, %{page: page, size: size} = filters) do
     with {:ok, thread_query} <- match(thread, :query, article_id) do
       ArticleComment
       |> where(^thread_query)
-      |> where([c], c.is_folded == true and c.is_reported == false)
+      |> where([c], c.is_folded == true and c.is_reported == false and c.is_pined == false)
       |> QueryBuilder.filter_pack(filters)
       |> ORM.paginater(~m(page size)a)
       |> done()
@@ -88,7 +124,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     with {:ok, thread_query} <- match(thread, :query, article_id) do
       ArticleComment
       |> where(^thread_query)
-      |> where([c], c.is_folded == true and c.is_reported == false)
+      |> where([c], c.is_folded == true and c.is_reported == false and c.is_pined == false)
       |> QueryBuilder.filter_pack(filters)
       |> ORM.paginater(~m(page size)a)
       |> check_viewer_has_emotioned(user)
@@ -143,6 +179,19 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
          {:ok, full_comment} <- get_full_comment(comment.id),
          {:ok, info} <- match(full_comment.thread) do
       Multi.new()
+      |> Multi.run(:checked_pined_comments_count, fn _, _ ->
+        count_query =
+          from(p in ArticlePinedComment,
+            where: field(p, ^info.foreign_key) == ^full_comment.article.id
+          )
+
+        pined_comments_count = Repo.aggregate(count_query, :count)
+
+        case pined_comments_count >= @pined_comment_limit do
+          true -> {:error, "only support #{@pined_comment_limit} pined comment for each article"}
+          false -> {:ok, :pass}
+        end
+      end)
       |> Multi.run(:update_comment_flag, fn _, _ ->
         ORM.update(comment, %{is_pined: true})
       end)
