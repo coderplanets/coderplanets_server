@@ -12,7 +12,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
     {:ok, user2} = db_insert(:user)
 
     guest_conn = simu_conn(:guest)
-    user_conn = simu_conn(:user)
+    user_conn = simu_conn(:user, user)
 
     {:ok, ~m(user_conn guest_conn post job user user2)a}
   end
@@ -70,8 +70,15 @@ defmodule GroupherServer.Test.Query.ArticleComment do
             isPined
             floor
             upvotesCount
-            insertedAt
-            updatedAt
+
+            emotions {
+              downvoteCount
+              latestDownvoteUsers {
+                login
+                nickname
+              }
+              viewerHasDownvoteed
+            }
           }
           totalPages
           totalCount
@@ -164,7 +171,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       assert results["entries"] |> List.last() |> Map.get("floor") == 10
     end
 
-    @tag :wip2
+    @tag :wip
     test "the comments is loaded in asc order", ~m(guest_conn post user)a do
       page_size = 10
       thread = :post
@@ -182,7 +189,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       assert List.last(results["entries"]) |> Map.get("id") == to_string(comment3.id)
     end
 
-    @tag :wip2
+    @tag :wip
     test "guest user can get paged comment with upvotes_count", ~m(guest_conn post user user2)a do
       total_count = 10
       page_size = 10
@@ -208,6 +215,84 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       assert results["entries"] |> Enum.at(4) |> Map.get("upvotesCount") == 2
       assert results["entries"] |> List.first() |> Map.get("upvotesCount") == 0
       assert results["entries"] |> List.last() |> Map.get("upvotesCount") == 0
+    end
+
+    @tag :wip2
+    test "guest user can get paged comment with emotions info",
+         ~m(guest_conn user_conn post user user2)a do
+      total_count = 2
+      page_size = 10
+      thread = :post
+
+      all_comment =
+        Enum.reduce(1..total_count, [], fn i, acc ->
+          {:ok, comment} = CMS.create_article_comment(thread, post.id, "test comment #{i}", user)
+          Process.sleep(1000)
+          acc ++ [comment]
+        end)
+
+      comment = all_comment |> Enum.at(0)
+      comment2 = all_comment |> Enum.at(1)
+
+      {:ok, _} = CMS.make_emotion(comment.id, :downvote, user)
+      {:ok, _} = CMS.make_emotion(comment.id, :downvote, user2)
+      {:ok, _} = CMS.make_emotion(comment2.id, :downvote, user2)
+
+      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
+      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+
+      comment_emotion =
+        Enum.find(results["entries"], &(&1["id"] == to_string(comment.id))) |> Map.get("emotions")
+
+      assert comment_emotion["downvoteCount"] == 2
+      assert comment_emotion["latestDownvoteUsers"] |> length == 2
+      assert not comment_emotion["viewerHasDownvoteed"]
+
+      latest_downvote_users_logins =
+        Enum.map(comment_emotion["latestDownvoteUsers"], & &1["login"])
+
+      assert user.login in latest_downvote_users_logins
+      assert user2.login in latest_downvote_users_logins
+
+      comment2_emotion =
+        Enum.find(results["entries"], &(&1["id"] == to_string(comment2.id)))
+        |> Map.get("emotions")
+
+      assert comment2_emotion["downvoteCount"] == 1
+      assert comment2_emotion["latestDownvoteUsers"] |> length == 1
+      assert not comment2_emotion["viewerHasDownvoteed"]
+
+      latest_downvote_users_logins =
+        Enum.map(comment_emotion["latestDownvoteUsers"], & &1["login"])
+
+      assert user2.login in latest_downvote_users_logins
+    end
+
+    @tag :wip2
+    test "user can get paged comment with emotions has_motioned field",
+         ~m(guest_conn user_conn post user user2)a do
+      total_count = 2
+      page_size = 10
+      thread = :post
+
+      all_comment =
+        Enum.reduce(1..total_count, [], fn i, acc ->
+          {:ok, comment} = CMS.create_article_comment(thread, post.id, "test comment #{i}", user)
+          Process.sleep(1000)
+          acc ++ [comment]
+        end)
+
+      comment = all_comment |> Enum.at(0)
+      comment2 = all_comment |> Enum.at(1)
+
+      {:ok, _} = CMS.make_emotion(comment.id, :downvote, user)
+      {:ok, _} = CMS.make_emotion(comment2.id, :downvote, user2)
+
+      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
+      results = user_conn |> query_result(@query, variables, "pagedArticleComments")
+
+      assert Enum.find(results["entries"], &(&1["id"] == to_string(comment.id)))
+             |> get_in(["emotions", "viewerHasDownvoteed"])
     end
   end
 end

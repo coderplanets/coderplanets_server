@@ -17,6 +17,11 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:id, :id)
   end
 
+  object :simple_user do
+    field(:login, :string)
+    field(:nickname, :string)
+  end
+
   object :post do
     meta(:cache, max_age: 30)
     interface(:article)
@@ -324,6 +329,13 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     timestamp_fields()
   end
 
+  # TODO: use macro to generate those templates for each comment emotion
+  object :article_comment_emotions do
+    field(:downvote_count, :integer)
+    field(:latest_downvote_users, list_of(:simple_user))
+    field(:viewer_has_downvoteed, :boolean)
+  end
+
   object :article_comment do
     field(:id, :id)
     field(:body_html, :string)
@@ -331,9 +343,12 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:is_pined, :boolean)
     field(:floor, :integer)
     field(:upvotes_count, :integer)
+    field(:emotions, :article_comment_emotions)
     # emotion
     # meta
     # reply to ...
+    # is_article_author_upvoted
+    # is_solution
     timestamp_fields()
   end
 
