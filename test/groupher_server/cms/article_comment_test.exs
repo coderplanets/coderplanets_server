@@ -23,7 +23,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[basic article comment]" do
-    @tag :wip2
+    @tag :wip
     test "post, job are supported by article comment.", ~m(user post job)a do
       {:ok, post_comment_1} = CMS.create_article_comment(:post, post.id, "post_comment 1", user)
       {:ok, post_comment_2} = CMS.create_article_comment(:post, post.id, "post_comment 2", user)
@@ -244,7 +244,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert {:error, _} = ArticlePinedComment |> ORM.find_by(%{article_comment_id: comment.id})
     end
 
-    @tag :wip2
+    @tag :wip
     test "pined comments has a limit for each article", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
 
@@ -343,7 +343,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert total_count == paged_comments.total_count
     end
 
-    @tag :wip2
+    @tag :wip
     test "paged article comments should contains pined comments at top position",
          ~m(user post)a do
       total_count = 20
@@ -371,7 +371,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert paged_comments.total_count == total_count + 2
     end
 
-    @tag :wip2
+    @tag :wip
     test "only page 1 have pined coments",
          ~m(user post)a do
       total_count = 20
