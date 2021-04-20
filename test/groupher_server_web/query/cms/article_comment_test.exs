@@ -30,7 +30,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       }
     }
     """
-    @tag :wip
+    @tag :wip2
     test "guest user can get comment participators after comment created",
          ~m(guest_conn post user)a do
       comment = "test comment"

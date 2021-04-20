@@ -25,11 +25,6 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   describe "[basic article comment]" do
     @tag :wip2
     test "post, job are supported by article comment.", ~m(user post job)a do
-      post_comment_1 = "post_comment 1"
-      post_comment_2 = "post_comment 2"
-      job_comment_1 = "job_comment 1"
-      job_comment_2 = "job_comment 2"
-
       {:ok, post_comment_1} = CMS.create_article_comment(:post, post.id, "post_comment 1", user)
       {:ok, post_comment_2} = CMS.create_article_comment(:post, post.id, "post_comment 2", user)
 
@@ -237,9 +232,6 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
       {:ok, pined_record} = ArticlePinedComment |> ORM.find_by(%{post_id: post.id})
       assert pined_record.post_id == post.id
-
-      {:ok, pined_record} =
-        ORM.find(ArticlePinedComment, pined_record.id, preload: :article_comment)
     end
 
     test "user can unpin a comment", ~m(user post)a do
@@ -358,12 +350,11 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       page_number = 1
       page_size = 5
 
-      all_comments =
-        Enum.reduce(1..total_count, [], fn _, acc ->
-          {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+      Enum.reduce(1..total_count, [], fn _, acc ->
+        {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
 
-          acc ++ [comment]
-        end)
+        acc ++ [comment]
+      end)
 
       {:ok, random_comment_1} = CMS.create_article_comment(:post, post.id, "pin commment", user)
       {:ok, random_comment_2} = CMS.create_article_comment(:post, post.id, "pin commment2", user)
@@ -387,12 +378,11 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       page_number = 2
       page_size = 5
 
-      all_comments =
-        Enum.reduce(1..total_count, [], fn _, acc ->
-          {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+      Enum.reduce(1..total_count, [], fn _, acc ->
+        {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
 
-          acc ++ [comment]
-        end)
+        acc ++ [comment]
+      end)
 
       {:ok, random_comment_1} = CMS.create_article_comment(:post, post.id, "pin commment", user)
       {:ok, random_comment_2} = CMS.create_article_comment(:post, post.id, "pin commment2", user)
