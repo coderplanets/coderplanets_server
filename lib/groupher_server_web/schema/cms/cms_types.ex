@@ -330,10 +330,11 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:is_pined, :boolean)
     field(:floor, :integer)
+    field(:upvotes_count, :integer)
     # emotion
     # meta
     # reply to ...
-    # upvotes_count ...
+    timestamp_fields()
   end
 
   object :comment do

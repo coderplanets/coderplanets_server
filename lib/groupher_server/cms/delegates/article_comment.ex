@@ -46,7 +46,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       ArticleComment
       |> where(^thread_query)
       |> where([c], c.is_folded == false and c.is_reported == false and c.is_pined == false)
-      |> QueryBuilder.filter_pack(filters)
+      |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :asc_inserted}))
       |> ORM.paginater(~m(page size)a)
       |> add_pined_comments_ifneed(thread, article_id, filters)
       |> done()
@@ -63,7 +63,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       ArticleComment
       |> where(^thread_query)
       |> where([c], c.is_folded == false and c.is_reported == false and c.is_pined == false)
-      |> QueryBuilder.filter_pack(filters)
+      |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :asc_inserted}))
       |> ORM.paginater(~m(page size)a)
       |> check_viewer_has_emotioned(user)
       |> add_pined_comments_ifneed(thread, article_id, filters)
@@ -415,11 +415,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
         ORM.create(ArticleCommentUpvote, %{article_comment_id: comment.id, user_id: user_id})
       end)
       |> Multi.run(:inc_upvotes_count, fn _, _ ->
-        count_query = from(c in ArticleCommentUpvote, where: c.article_comment_id == ^comment_id)
+        count_query = from(c in ArticleCommentUpvote, where: c.article_comment_id == ^comment.id)
         upvotes_count = Repo.aggregate(count_query, :count)
         ORM.update(comment, %{upvotes_count: upvotes_count})
       end)
-      |> Multi.run(:check_article_author_upvoted, fn _, _ ->
+      |> Multi.run(:check_article_author_upvoted, fn _, %{inc_upvotes_count: comment} ->
         update_article_author_upvoted_info(comment, user_id)
       end)
       |> Repo.transaction()
