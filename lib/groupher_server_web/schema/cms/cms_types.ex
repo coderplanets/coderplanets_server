@@ -333,6 +333,12 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     emotion_fields()
   end
 
+  object :article_comment_meta do
+    field(:is_article_author_upvoted, :boolean)
+    # field(:report_count, :boolean)
+    # field(:is_solution, :boolean)
+  end
+
   object :article_comment do
     field(:id, :id)
     field(:body_html, :string)
@@ -341,10 +347,9 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:floor, :integer)
     field(:upvotes_count, :integer)
     field(:emotions, :article_comment_emotions)
-    # meta
+    field(:is_article_author, :boolean)
+    field(:meta, :article_comment_meta)
     # reply to ...
-    # is_article_author_upvoted
-    # is_solution
     timestamp_fields()
   end
 

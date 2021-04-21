@@ -78,13 +78,16 @@ defmodule GroupherServer.Test.Query.ArticleComment do
                 nickname
               }
               viewerHasDownvoteed
-
               beerCount
               latestBeerUsers {
                 login
                 nickname
               }
               viewerHasBeered
+            }
+            isArticleAuthor
+            meta {
+              isArticleAuthorUpvoted
             }
           }
           totalPages
@@ -225,6 +228,45 @@ defmodule GroupherServer.Test.Query.ArticleComment do
     end
 
     @tag :wip2
+    test "article author upvote a comment can get is_article_author and/or is_article_author_upvoted flag",
+         ~m(guest_conn post user)a do
+      total_count = 5
+      page_size = 12
+      thread = :post
+
+      author_user = post.author.user
+
+      all_comments =
+        Enum.reduce(0..total_count, [], fn i, acc ->
+          {:ok, comment} = CMS.create_article_comment(thread, post.id, "test comment #{i}", user)
+          acc ++ [comment]
+        end)
+
+      random_comment = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
+      {:ok, _} = CMS.upvote_article_comment(random_comment.id, author_user)
+
+      {:ok, author_comment} =
+        CMS.create_article_comment(thread, post.id, "test comment", author_user)
+
+      {:ok, _} = CMS.upvote_article_comment(author_comment.id, author_user)
+
+      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
+      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+
+      the_author_comment =
+        Enum.find(results["entries"], &(&1["id"] == to_string(author_comment.id)))
+
+      assert the_author_comment["isArticleAuthor"]
+      assert the_author_comment |> get_in(["meta", "isArticleAuthorUpvoted"])
+
+      the_random_comment =
+        Enum.find(results["entries"], &(&1["id"] == to_string(random_comment.id)))
+
+      assert not the_random_comment["isArticleAuthor"]
+      assert the_random_comment |> get_in(["meta", "isArticleAuthorUpvoted"])
+    end
+
+    @tag :wip
     test "guest user can get paged comment with emotions info",
          ~m(guest_conn post user user2)a do
       total_count = 2
@@ -273,7 +315,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       assert user2.login in latest_beer_users_logins
     end
 
-    @tag :wip2
+    @tag :wip
     test "user make emotion can get paged comment with emotions has_motioned field",
          ~m(user_conn post user user2)a do
       total_count = 10
