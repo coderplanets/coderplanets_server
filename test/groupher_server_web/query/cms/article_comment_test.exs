@@ -101,7 +101,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
         }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "comment should have reply_to content if need", ~m(guest_conn post user user2)a do
       total_count = 2
       thread = :post

@@ -160,7 +160,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       assert exist_in?(Enum.at(reply_comment_list, 3), paged_replies.entries)
     end
 
-    @tag :wip2
+    @tag :wip
     test "can get reply_to info of a parent comment", ~m(post user)a do
       page_number = 1
       page_size = 10

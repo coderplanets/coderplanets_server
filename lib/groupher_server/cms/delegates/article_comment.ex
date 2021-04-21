@@ -325,7 +325,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
           |> Map.put(:"#{emotion}_count", status.user_count)
           |> Map.put(
             :"#{emotion}_user_logins",
-            status.user_list |> Enum.map(& &1.login) |> Enum.join(",")
+            status.user_list |> Enum.map(& &1.login)
           )
           |> Map.put(
             :"latest_#{emotion}_users",
@@ -555,12 +555,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
-  defp user_in_logins?(nil, _), do: false
-
-  defp user_in_logins?(ids_str, %User{login: login}) do
-    ids_list = ids_str |> String.split(",")
-    login in ids_list
-  end
+  defp user_in_logins?([], _), do: false
+  defp user_in_logins?(ids_list, %User{login: login}), do: Enum.member?(ids_list, login)
 
   defp check_viewer_has_emotioned(%{entries: []} = paged_comments, _), do: paged_comments
 

@@ -18,7 +18,7 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentEmotion.Macros do
     |> Enum.map(fn emotion ->
       quote do
         field(unquote(:"#{emotion}_count"), :integer, default: 0)
-        field(unquote(:"#{emotion}_user_logins"), :string, default: "")
+        field(unquote(:"#{emotion}_user_logins"), {:array, :string}, default: [])
         field(unquote(:"viewer_has_#{emotion}ed"), :boolean, default: false, virtual: true)
         embeds_many(unquote(:"latest_#{emotion}_users"), Embeds.User, on_replace: :delete)
       end

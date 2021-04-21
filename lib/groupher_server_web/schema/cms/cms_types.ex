@@ -358,7 +358,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:is_article_author, :boolean)
     field(:meta, :article_comment_meta)
     field(:reply_to, :article_comment_reply)
-    # reply to ...
     # replies ...
 
     timestamp_fields()
