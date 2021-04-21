@@ -93,6 +93,8 @@ defmodule GroupherServer.Test.Query.ArticleComment do
                 login
               }
             }
+
+            viewerHasUpvoted
           }
           totalPages
           totalCount
@@ -379,6 +381,30 @@ defmodule GroupherServer.Test.Query.ArticleComment do
 
       assert Enum.find(results["entries"], &(&1["id"] == to_string(comment.id)))
              |> get_in(["emotions", "viewerHasDownvoteed"])
+    end
+
+    @tag :wip2
+    test "comment should have viewer has upvoted flag", ~m(user_conn post user user2)a do
+      total_count = 10
+      page_size = 12
+      thread = :post
+
+      all_comments =
+        Enum.reduce(0..total_count, [], fn i, acc ->
+          {:ok, comment} = CMS.create_article_comment(thread, post.id, "comment #{i}", user)
+          acc ++ [comment]
+        end)
+
+      random_comment = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
+
+      {:ok, _} = CMS.upvote_article_comment(random_comment.id, user)
+
+      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
+      results = user_conn |> query_result(@query, variables, "pagedArticleComments")
+
+      upvoted_comment = Enum.find(results["entries"], &(&1["id"] == to_string(random_comment.id)))
+
+      assert upvoted_comment["viewerHasUpvoted"]
     end
   end
 end
