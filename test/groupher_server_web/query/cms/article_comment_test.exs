@@ -78,6 +78,13 @@ defmodule GroupherServer.Test.Query.ArticleComment do
                 nickname
               }
               viewerHasDownvoteed
+
+              beerCount
+              latestBeerUsers {
+                login
+                nickname
+              }
+              viewerHasBeered
             }
           }
           totalPages
@@ -219,7 +226,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
 
     @tag :wip2
     test "guest user can get paged comment with emotions info",
-         ~m(guest_conn user_conn post user user2)a do
+         ~m(guest_conn post user user2)a do
       total_count = 2
       page_size = 10
       thread = :post
@@ -236,7 +243,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
 
       {:ok, _} = CMS.make_emotion(comment.id, :downvote, user)
       {:ok, _} = CMS.make_emotion(comment.id, :downvote, user2)
-      {:ok, _} = CMS.make_emotion(comment2.id, :downvote, user2)
+      {:ok, _} = CMS.make_emotion(comment2.id, :beer, user2)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
@@ -258,21 +265,19 @@ defmodule GroupherServer.Test.Query.ArticleComment do
         Enum.find(results["entries"], &(&1["id"] == to_string(comment2.id)))
         |> Map.get("emotions")
 
-      assert comment2_emotion["downvoteCount"] == 1
-      assert comment2_emotion["latestDownvoteUsers"] |> length == 1
-      assert not comment2_emotion["viewerHasDownvoteed"]
+      assert comment2_emotion["beerCount"] == 1
+      assert comment2_emotion["latestBeerUsers"] |> length == 1
+      assert not comment2_emotion["viewerHasBeered"]
 
-      latest_downvote_users_logins =
-        Enum.map(comment_emotion["latestDownvoteUsers"], & &1["login"])
-
-      assert user2.login in latest_downvote_users_logins
+      latest_beer_users_logins = Enum.map(comment2_emotion["latestBeerUsers"], & &1["login"])
+      assert user2.login in latest_beer_users_logins
     end
 
     @tag :wip2
-    test "user can get paged comment with emotions has_motioned field",
-         ~m(guest_conn user_conn post user user2)a do
-      total_count = 2
-      page_size = 10
+    test "user make emotion can get paged comment with emotions has_motioned field",
+         ~m(user_conn post user user2)a do
+      total_count = 10
+      page_size = 12
       thread = :post
 
       all_comment =

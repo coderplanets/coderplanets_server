@@ -329,11 +329,8 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     timestamp_fields()
   end
 
-  # TODO: use macro to generate those templates for each comment emotion
   object :article_comment_emotions do
-    field(:downvote_count, :integer)
-    field(:latest_downvote_users, list_of(:simple_user))
-    field(:viewer_has_downvoteed, :boolean)
+    emotion_fields()
   end
 
   object :article_comment do
@@ -344,7 +341,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:floor, :integer)
     field(:upvotes_count, :integer)
     field(:emotions, :article_comment_emotions)
-    # emotion
     # meta
     # reply to ...
     # is_article_author_upvoted

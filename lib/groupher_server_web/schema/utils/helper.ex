@@ -3,8 +3,12 @@ defmodule GroupherServerWeb.Schema.Utils.Helper do
   common fields
   """
   import Helper.Utils, only: [get_config: 2]
+
+  alias GroupherServer.CMS
+  alias CMS.{ArticleComment}
+
   @page_size get_config(:general, :page_size)
-  # @default_inner_page_size 5
+  @supported_emotions ArticleComment.supported_emotions()
 
   defmacro timestamp_fields do
     quote do
@@ -265,5 +269,18 @@ defmodule GroupherServerWeb.Schema.Utils.Helper do
         resolve(&R.CMS.paged_comments_participators/3)
       end
     end
+  end
+
+  # general emotions for comments
+  # NOTE: xxx_user_logins field is not support for gq-endpoint
+  defmacro emotion_fields() do
+    @supported_emotions
+    |> Enum.map(fn emotion ->
+      quote do
+        field(unquote(:"#{emotion}_count"), :integer)
+        field(unquote(:"viewer_has_#{emotion}ed"), :boolean)
+        field(unquote(:"latest_#{emotion}_users"), list_of(:simple_user))
+      end
+    end)
   end
 end
