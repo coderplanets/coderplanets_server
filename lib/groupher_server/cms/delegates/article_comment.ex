@@ -43,7 +43,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   """
   def list_article_comments(thread, article_id, %{page: page, size: size} = filters) do
     with {:ok, thread_query} <- match(thread, :query, article_id) do
-      ArticleComment
+      query = from(c in ArticleComment, preload: [reply_to: :author])
+
+      query
       |> where(^thread_query)
       |> where([c], c.is_folded == false and c.is_reported == false and c.is_pined == false)
       |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :asc_inserted}))
@@ -60,7 +62,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
         %User{} = user
       ) do
     with {:ok, thread_query} <- match(thread, :query, article_id) do
-      ArticleComment
+      query = from(c in ArticleComment, preload: [reply_to: :author])
+
+      query
       |> where(^thread_query)
       |> where([c], c.is_folded == false and c.is_reported == false and c.is_pined == false)
       |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :asc_inserted}))

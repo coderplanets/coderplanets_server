@@ -17,12 +17,6 @@ defmodule GroupherServer.Test.Query.ArticleComment do
     {:ok, ~m(user_conn guest_conn post job user user2)a}
   end
 
-  # describe "[article post comment operation]" do
-  #   @tag :wip
-  #   test "only author of the article can fold comment under the article" do
-  #   end
-  # end
-
   describe "[baisc article post comment]" do
     @query """
     query($id: ID!) {
@@ -89,6 +83,16 @@ defmodule GroupherServer.Test.Query.ArticleComment do
             meta {
               isArticleAuthorUpvoted
             }
+            replyTo {
+              id
+              bodyHtml
+              floor
+              isArticleAuthor
+              author {
+                id
+                login
+              }
+            }
           }
           totalPages
           totalCount
@@ -97,6 +101,41 @@ defmodule GroupherServer.Test.Query.ArticleComment do
         }
     }
     """
+    @tag :wip2
+    test "comment should have reply_to content if need", ~m(guest_conn post user user2)a do
+      total_count = 2
+      thread = :post
+
+      Enum.reduce(0..total_count, [], fn i, acc ->
+        {:ok, comment} = CMS.create_article_comment(thread, post.id, "comment #{i}", user)
+        acc ++ [comment]
+      end)
+
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_content", user)
+
+      {:ok, replyed_comment_1} = CMS.reply_article_comment(parent_comment.id, "reply 1", user2)
+      {:ok, replyed_comment_2} = CMS.reply_article_comment(parent_comment.id, "reply 2", user2)
+
+      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: 10}}
+      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+
+      replyed_comment_1 =
+        Enum.find(results["entries"], &(&1["id"] == to_string(replyed_comment_1.id)))
+
+      assert replyed_comment_1 |> get_in(["replyTo", "id"]) == to_string(parent_comment.id)
+
+      assert replyed_comment_1 |> get_in(["replyTo", "author", "id"]) ==
+               to_string(parent_comment.author_id)
+
+      replyed_comment_2 =
+        Enum.find(results["entries"], &(&1["id"] == to_string(replyed_comment_2.id)))
+
+      assert replyed_comment_2 |> get_in(["replyTo", "id"]) == to_string(parent_comment.id)
+
+      assert replyed_comment_2 |> get_in(["replyTo", "author", "id"]) ==
+               to_string(parent_comment.author_id)
+    end
+
     @tag :wip
     test "guest user can get paged comment for post", ~m(guest_conn post user)a do
       comment = "test comment"
@@ -227,7 +266,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       assert results["entries"] |> List.last() |> Map.get("upvotesCount") == 0
     end
 
-    @tag :wip2
+    @tag :wip
     test "article author upvote a comment can get is_article_author and/or is_article_author_upvoted flag",
          ~m(guest_conn post user)a do
       total_count = 5

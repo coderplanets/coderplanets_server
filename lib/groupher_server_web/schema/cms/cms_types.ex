@@ -339,6 +339,14 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     # field(:is_solution, :boolean)
   end
 
+  object :article_comment_reply do
+    field(:id, :id)
+    field(:body_html, :string)
+    field(:author, :user, resolve: dataloader(CMS, :author))
+    field(:floor, :integer)
+    field(:is_article_author, :boolean)
+  end
+
   object :article_comment do
     field(:id, :id)
     field(:body_html, :string)
@@ -349,7 +357,10 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:emotions, :article_comment_emotions)
     field(:is_article_author, :boolean)
     field(:meta, :article_comment_meta)
+    field(:reply_to, :article_comment_reply)
     # reply to ...
+    # replies ...
+
     timestamp_fields()
   end
 

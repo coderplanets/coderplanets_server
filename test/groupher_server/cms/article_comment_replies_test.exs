@@ -159,5 +159,33 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       assert exist_in?(Enum.at(reply_comment_list, 2), paged_replies.entries)
       assert exist_in?(Enum.at(reply_comment_list, 3), paged_replies.entries)
     end
+
+    @tag :wip2
+    test "can get reply_to info of a parent comment", ~m(post user)a do
+      page_number = 1
+      page_size = 10
+
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
+
+      {:ok, reply_comment} = CMS.reply_article_comment(parent_comment.id, "reply_content_1", user)
+
+      {:ok, reply_comment2} =
+        CMS.reply_article_comment(parent_comment.id, "reply_content_2", user)
+
+      {:ok, paged_comments} =
+        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size})
+
+      reply_comment = Enum.find(paged_comments.entries, &(&1.id == reply_comment.id))
+
+      assert reply_comment.reply_to.id == parent_comment.id
+      assert reply_comment.reply_to.body_html == parent_comment.body_html
+      assert reply_comment.reply_to.author.id == parent_comment.author_id
+
+      reply_comment2 = Enum.find(paged_comments.entries, &(&1.id == reply_comment2.id))
+
+      assert reply_comment2.reply_to.id == parent_comment.id
+      assert reply_comment2.reply_to.body_html == parent_comment.body_html
+      assert reply_comment2.reply_to.author.id == parent_comment.author_id
+    end
   end
 end
