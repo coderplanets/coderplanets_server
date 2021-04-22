@@ -124,8 +124,8 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
 
       {:ok, article} = ORM.find(Post, post.id)
 
-      assert exist_in?(user, article.comment_participators)
-      assert exist_in?(user2, article.comment_participators)
+      assert exist_in?(user, article.article_comments_participators)
+      assert exist_in?(user2, article.article_comments_participators)
     end
 
     @tag :wip

@@ -75,7 +75,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
-  # TODO: @pined_comment_limit 10
   defp add_pined_comments_ifneed(%{entries: entries} = paged_comments, thread, article_id, %{
          page: 1
        }) do
@@ -87,14 +86,17 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
              where: field(p, ^info.foreign_key) == ^article_id,
              select: c
            ),
-         {:ok, pined_comments} <- query |> Repo.all() |> done() do
+         {:ok, pined_comments} <- Repo.all(query) |> done() do
       case pined_comments do
         [] ->
           paged_comments
 
         _ ->
-          updated_entries =
-            Enum.concat(Enum.slice(pined_comments, 0, @pined_comment_limit), entries)
+          preloaded_pined_comments =
+            Enum.slice(pined_comments, 0, @pined_comment_limit)
+            |> Repo.preload(reply_to: :author)
+
+          updated_entries = Enum.concat(preloaded_pined_comments, entries)
 
           pined_comment_count = length(pined_comments)
 
@@ -568,14 +570,14 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   # add participator to article-like content (Post, Job ...)
   defp add_participator_to_article(%Post{} = article, %User{} = user) do
     new_comment_participators =
-      article.comment_participators
+      article.article_comments_participators
       |> List.insert_at(0, user)
       |> Enum.uniq()
       |> Enum.slice(0, @max_participator_count)
 
     article
     |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_embed(:comment_participators, new_comment_participators)
+    |> Ecto.Changeset.put_embed(:article_comments_participators, new_comment_participators)
     |> Repo.update()
   end
 

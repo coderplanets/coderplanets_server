@@ -72,7 +72,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
       {:ok, post} = ORM.find(Post, post.id)
 
-      participator = List.first(post.comment_participators)
+      participator = List.first(post.article_comments_participators)
       assert participator.id == user.id
     end
 
@@ -85,7 +85,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
       {:ok, post} = ORM.find(Post, post.id)
 
-      assert 1 == length(post.comment_participators)
+      assert 1 == length(post.article_comments_participators)
     end
 
     @tag :wip
@@ -98,7 +98,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
       {:ok, post} = ORM.find(Post, post.id)
 
-      participator = List.first(post.comment_participators)
+      participator = List.first(post.article_comments_participators)
 
       assert participator.id == user2.id
     end

@@ -60,7 +60,7 @@ defmodule GroupherServer.CMS.Post do
     has_many(:article_pined_comments, {"articles_pined_comments", ArticlePinedComment})
     field(:article_comments_count, :integer, default: 0)
     # 评论参与者，只保留最近 5 个
-    embeds_many(:comment_participators, Accounts.User, on_replace: :delete)
+    embeds_many(:article_comments_participators, Accounts.User, on_replace: :delete)
 
     has_many(:favorites, {"posts_favorites", PostFavorite})
     has_many(:stars, {"posts_stars", PostStar})

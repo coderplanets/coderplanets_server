@@ -24,7 +24,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
         id
         title
         body
-        commentParticipators{
+        articleCommentsParticipators{
           id
           nickname
         }
@@ -47,8 +47,8 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       variables = %{id: post.id}
       results = guest_conn |> query_result(@query, variables, "post")
 
-      comment_participators = results["commentParticipators"]
-      assert is_list(comment_participators)
+      article_comments_participators = results["articleCommentsParticipators"]
+      assert is_list(article_comments_participators)
     end
 
     @query """
@@ -178,7 +178,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       assert results["totalCount"] == total_count
     end
 
-    @tag :wip
+    @tag :wip2
     test "guest user can get paged comment with pined comment in it", ~m(guest_conn post user)a do
       total_count = 20
       thread = :post
@@ -384,7 +384,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
     end
 
     @tag :wip2
-    test "comment should have viewer has upvoted flag", ~m(user_conn post user user2)a do
+    test "comment should have viewer has upvoted flag", ~m(user_conn post user)a do
       total_count = 10
       page_size = 12
       thread = :post

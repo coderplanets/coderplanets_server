@@ -60,6 +60,7 @@ defmodule GroupherServer.CMS.Job do
     field(:trash, :boolean, default_value: false, virtual: true)
 
     has_many(:article_comments, {"articles_comments", ArticleComment})
+    field(:article_comments_count, :integer, default: 0)
 
     has_many(:favorites, {"jobs_favorites", JobFavorite})
     has_many(:stars, {"jobs_stars", JobStar})

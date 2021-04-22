@@ -52,7 +52,7 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentEmotion do
         [
           "#{emotion}_count": 0,
           "latest_#{emotion}_users": [],
-          "#{emotion}_user_logins": "",
+          "#{emotion}_user_logins": [],
           "viewer_has_#{emotion}ed": false
         ]
     end)
