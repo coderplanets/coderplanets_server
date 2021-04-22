@@ -225,11 +225,21 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
-  # TODO: remove pined record if need
+  @doc "delete article comment"
   def delete_article_comment(comment_id, %User{} = _user) do
-    with {:ok, comment} <-
-           ORM.find(ArticleComment, comment_id) do
-      comment |> ORM.update(%{body_html: @delete_hint, is_deleted: true})
+    with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
+      Multi.new()
+      |> Multi.run(:update_article_comemnts_count, fn _, _ ->
+        update_article_comments_count(comment, :dec)
+      end)
+      |> Multi.run(:remove_pined_comment, fn _, _ ->
+        ORM.findby_delete(ArticlePinedComment, %{article_comment_id: comment.id})
+      end)
+      |> Multi.run(:delete_article_comment, fn _, _ ->
+        ORM.update(comment, %{body_html: @delete_hint, is_deleted: true})
+      end)
+      |> Repo.transaction()
+      |> upsert_comment_result()
     end
   end
 
@@ -361,6 +371,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> Multi.run(:create_article_comment, fn _, _ ->
         do_create_comment(content, info.foreign_key, article, user)
       end)
+      |> Multi.run(:update_article_comemnts_count, fn _, %{create_article_comment: comment} ->
+        update_article_comments_count(comment, :inc)
+      end)
       |> Multi.run(:add_participator, fn _, _ ->
         add_participator_to_article(article, user)
       end)
@@ -375,13 +388,19 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   @doc "reply to exsiting comment"
   def reply_article_comment(comment_id, content, %User{} = user) do
-    with {:ok, replying_comment} <- ORM.find(ArticleComment, comment_id, preload: :reply_to),
+    with {:ok, target_comment} <-
+           ORM.find_by(ArticleComment, %{id: comment_id, is_deleted: false}),
+         replying_comment <- Repo.preload(target_comment, :reply_to),
          {thread, article} <- get_article(replying_comment),
          {:ok, info} <- match(thread),
          parent_comment <- get_parent_comment(replying_comment) do
       Multi.new()
       |> Multi.run(:create_reply_comment, fn _, _ ->
         do_create_comment(content, info.foreign_key, article, user)
+      end)
+      |> Multi.run(:update_article_comemnts_count, fn _,
+                                                      %{create_reply_comment: replyed_comment} ->
+        update_article_comments_count(replyed_comment, :inc)
       end)
       |> Multi.run(:create_article_comment_reply, fn _,
                                                      %{create_reply_comment: replyed_comment} ->
@@ -466,6 +485,25 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
         |> Map.merge(%{is_article_author_upvoted: is_article_author_upvoted})
 
       comment |> ORM.update(%{meta: new_meta})
+    end
+  end
+
+  # update comment's parent article's comments total count
+  defp update_article_comments_count(%ArticleComment{} = comment, opt \\ :inc) do
+    with {:ok, article_info} <- match(:comment_article, comment),
+         {:ok, article} <- ORM.find(article_info.model, article_info.id) do
+      count_query =
+        from(c in ArticleComment, where: field(c, ^article_info.foreign_key) == ^article_info.id)
+
+      cur_count = Repo.aggregate(count_query, :count)
+
+      case opt do
+        :inc ->
+          ORM.update(article, %{article_comments_count: cur_count - 1 + 1})
+
+        _ ->
+          ORM.update(article, %{article_comments_count: Enum.max([0, cur_count - 1])})
+      end
     end
   end
 
@@ -618,6 +656,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   defp upsert_comment_result({:ok, %{update_report_flag: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{update_comment_emotion: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{update_comment_flag: result}}), do: {:ok, result}
+  defp upsert_comment_result({:ok, %{delete_article_comment: result}}), do: {:ok, result}
 
   defp upsert_comment_result({:error, :create_comment, result, _steps}) do
     {:error, result}

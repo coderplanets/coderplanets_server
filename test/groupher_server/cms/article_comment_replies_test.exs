@@ -35,6 +35,17 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
     end
 
     @tag :wip
+    test "deleted comment can not be reply", ~m(post user user2)a do
+      parent_content = "parent comment"
+      reply_content = "reply comment"
+
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
+      {:ok, _} = CMS.delete_article_comment(parent_comment.id, user)
+
+      {:error, _} = CMS.reply_article_comment(parent_comment.id, reply_content, user2)
+    end
+
+    @tag :wip
     test "multi reply should belong to one parent comment", ~m(post user user2)a do
       parent_content = "parent comment"
       reply_content_1 = "reply comment 1"

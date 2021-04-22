@@ -531,6 +531,47 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert deleted_comment.is_deleted
       assert deleted_comment.body_html == @delete_hint
     end
+
+    @tag :wip
+    test "delete comment still update article's comments_count field", ~m(user post)a do
+      total_count = 10
+
+      all_comments =
+        Enum.reduce(1..total_count, [], fn _, acc ->
+          {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+
+          acc ++ [comment]
+        end)
+
+      {:ok, post} = ORM.find(Post, post.id)
+      assert post.article_comments_count == total_count
+
+      random_comment = all_comments |> Enum.at(1)
+      {:ok, _} = CMS.delete_article_comment(random_comment.id, user)
+
+      {:ok, post} = ORM.find(Post, post.id)
+      assert post.article_comments_count == total_count - 1
+    end
+
+    @tag :wip
+    test "delete comment still delete pined record if needed", ~m(user post)a do
+      total_count = 10
+
+      all_comments =
+        Enum.reduce(1..total_count, [], fn _, acc ->
+          {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+
+          acc ++ [comment]
+        end)
+
+      random_comment = all_comments |> Enum.at(1)
+
+      {:ok, _comment} = CMS.pin_article_comment(random_comment.id)
+      {:ok, _comment} = ORM.find(ArticleComment, random_comment.id)
+
+      {:ok, _} = CMS.delete_article_comment(random_comment.id, user)
+      assert {:error, _comment} = ORM.find(ArticlePinedComment, random_comment.id)
+    end
   end
 
   describe "[article comment info]" do
