@@ -46,6 +46,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
     field(:meta, :article_meta)
     field(:article_comments_participators, list_of(:user))
+    field(:article_comments_participators_count, :integer)
 
     field :comments, list_of(:comment) do
       arg(:filter, :members_filter)

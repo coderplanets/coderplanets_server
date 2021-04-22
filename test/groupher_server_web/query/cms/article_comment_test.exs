@@ -24,31 +24,38 @@ defmodule GroupherServer.Test.Query.ArticleComment do
         id
         title
         body
-        articleCommentsParticipators{
+        articleCommentsParticipators {
           id
           nickname
         }
+        articleCommentsParticipatorsCount
       }
     }
     """
-    @tag :wip
+    @tag :wip2
     test "guest user can get comment participators after comment created",
-         ~m(guest_conn post user)a do
+         ~m(guest_conn post user user2)a do
       comment = "test comment"
-      total_count = 3
+      total_count = 5
       thread = :post
 
       Enum.reduce(1..total_count, [], fn _, acc ->
-        {:ok, value} = CMS.create_article_comment(thread, post.id, comment, user)
+        {:ok, comment} = CMS.create_article_comment(thread, post.id, comment, user)
 
-        acc ++ [value]
+        acc ++ [comment]
       end)
+
+      {:ok, _} = CMS.create_article_comment(thread, post.id, comment, user2)
 
       variables = %{id: post.id}
       results = guest_conn |> query_result(@query, variables, "post")
 
       article_comments_participators = results["articleCommentsParticipators"]
+      article_comments_participators_count = results["articleCommentsParticipatorsCount"]
+
       assert is_list(article_comments_participators)
+      assert length(article_comments_participators) == 2
+      assert article_comments_participators_count == 2
     end
 
     @query """

@@ -231,7 +231,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   def delete_article_comment(comment_id, %User{} = _user) do
     with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
       Multi.new()
-      |> Multi.run(:update_article_comemnts_count, fn _, _ ->
+      |> Multi.run(:update_article_comments_count, fn _, _ ->
         update_article_comments_count(comment, :dec)
       end)
       |> Multi.run(:remove_pined_comment, fn _, _ ->
@@ -373,7 +373,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> Multi.run(:create_article_comment, fn _, _ ->
         do_create_comment(content, info.foreign_key, article, user)
       end)
-      |> Multi.run(:update_article_comemnts_count, fn _, %{create_article_comment: comment} ->
+      |> Multi.run(:update_article_comments_count, fn _, %{create_article_comment: comment} ->
         update_article_comments_count(comment, :inc)
       end)
       |> Multi.run(:add_participator, fn _, _ ->
@@ -400,7 +400,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> Multi.run(:create_reply_comment, fn _, _ ->
         do_create_comment(content, info.foreign_key, article, user)
       end)
-      |> Multi.run(:update_article_comemnts_count, fn _,
+      |> Multi.run(:update_article_comments_count, fn _,
                                                       %{create_reply_comment: replyed_comment} ->
         update_article_comments_count(replyed_comment, :inc)
       end)
@@ -567,16 +567,20 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     {:ok, parent_comment}
   end
 
-  # add participator to article-like content (Post, Job ...)
+  # add participator to article-like content (Post, Job ...) and update count
   defp add_participator_to_article(%Post{} = article, %User{} = user) do
-    new_comment_participators =
+    total_participators =
       article.article_comments_participators
       |> List.insert_at(0, user)
       |> Enum.uniq()
-      |> Enum.slice(0, @max_participator_count)
+
+    new_comment_participators = total_participators |> Enum.slice(0, @max_participator_count)
+
+    total_participators_count = length(total_participators)
 
     article
     |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_change(:article_comments_participators_count, total_participators_count)
     |> Ecto.Changeset.put_embed(:article_comments_participators, new_comment_participators)
     |> Repo.update()
   end

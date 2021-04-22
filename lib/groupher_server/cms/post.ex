@@ -28,7 +28,7 @@ defmodule GroupherServer.CMS.Post do
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title body digest length)a
-  @optional_fields ~w(origial_community_id link_addr copy_right link_addr link_icon article_comments_count)a
+  @optional_fields ~w(origial_community_id link_addr copy_right link_addr link_icon article_comments_count article_comments_participators_count)a
 
   @type t :: %Post{}
   schema "cms_posts" do
@@ -59,6 +59,7 @@ defmodule GroupherServer.CMS.Post do
     has_many(:article_comments, {"articles_comments", ArticleComment})
     has_many(:article_pined_comments, {"articles_pined_comments", ArticlePinedComment})
     field(:article_comments_count, :integer, default: 0)
+    field(:article_comments_participators_count, :integer, default: 0)
     # 评论参与者，只保留最近 5 个
     embeds_many(:article_comments_participators, Accounts.User, on_replace: :delete)
 

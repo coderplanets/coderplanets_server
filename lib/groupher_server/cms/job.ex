@@ -25,7 +25,7 @@ defmodule GroupherServer.CMS.Job do
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title company company_logo body digest length)a
-  @optional_fields ~w(origial_community_id desc company_link link_addr copy_right salary exp education field finance scale article_comments_count)a
+  @optional_fields ~w(origial_community_id desc company_link link_addr copy_right salary exp education field finance scale article_comments_count article_comments_participators_count)a
 
   @type t :: %Job{}
   schema "cms_jobs" do
@@ -61,6 +61,7 @@ defmodule GroupherServer.CMS.Job do
 
     has_many(:article_comments, {"articles_comments", ArticleComment})
     field(:article_comments_count, :integer, default: 0)
+    field(:article_comments_participators_count, :integer, default: 0)
 
     has_many(:favorites, {"jobs_favorites", JobFavorite})
     has_many(:stars, {"jobs_stars", JobStar})
