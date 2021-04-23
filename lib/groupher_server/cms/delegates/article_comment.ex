@@ -107,11 +107,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   defp do_list_comment_replies(comment_id, filters, user) do
     %{page: page, size: size} = filters
+    query = from(c in ArticleComment, preload: [reply_to: :author])
 
     where_query =
       dynamic([c], not c.is_reported and not c.is_folded and c.reply_to_id == ^comment_id)
 
-    ArticleComment
+    query
     |> where(^where_query)
     |> QueryBuilder.filter_pack(filters)
     |> ORM.paginater(~m(page size)a)
