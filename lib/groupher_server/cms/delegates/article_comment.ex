@@ -39,34 +39,31 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   @pined_comment_limit ArticleComment.pined_comment_limit()
 
   @doc """
-  [replies-mode] list paged article comments
+  [timeline-mode] list paged article comments
   """
-  def list_article_comments(thread, article_id, %{page: _, size: _} = filters) do
-    where_query =
-      dynamic(
-        [c],
-        is_nil(c.reply_to_id) and c.is_folded == false and c.is_reported == false and
-          c.is_pined == false
-      )
 
-    do_list_article_comment(thread, article_id, filters, where_query)
+  def list_article_comments(thread, article_id, filters, mode, user \\ nil)
+
+  def list_article_comments(thread, article_id, filters, :timeline, user) do
+    where_query = dynamic([c], not c.is_folded and not c.is_reported and not c.is_pined)
+
+    do_list_article_comment(thread, article_id, filters, where_query, user)
   end
 
   @doc """
-  [timeline-mode] list paged article comments
+  [replies-mode] list paged article comments
   """
-  def list_article_comments(thread, article_id, %{page: _, size: _} = filters, :timeline) do
+  def list_article_comments(thread, article_id, filters, :replies, user) do
     where_query =
       dynamic(
         [c],
-        c.is_folded == false and c.is_reported == false and
-          c.is_pined == false
+        is_nil(c.reply_to_id) and not c.is_folded and not c.is_reported and not c.is_pined
       )
 
-    do_list_article_comment(thread, article_id, filters, where_query)
+    do_list_article_comment(thread, article_id, filters, where_query, user)
   end
 
-  defp do_list_article_comment(thread, article_id, filters, where_query) do
+  defp do_list_article_comment(thread, article_id, filters, where_query, user) do
     %{page: page, size: size} = filters
 
     with {:ok, thread_query} <- match(thread, :query, article_id) do
@@ -77,26 +74,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> where(^where_query)
       |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :asc_inserted}))
       |> ORM.paginater(~m(page size)a)
-      |> add_pined_comments_ifneed(thread, article_id, filters)
-      |> done()
-    end
-  end
-
-  def list_article_comments(
-        thread,
-        article_id,
-        %{page: page, size: size} = filters,
-        %User{} = user
-      ) do
-    with {:ok, thread_query} <- match(thread, :query, article_id) do
-      query = from(c in ArticleComment, preload: [reply_to: :author])
-
-      query
-      |> where(^thread_query)
-      |> where([c], c.is_folded == false and c.is_reported == false and c.is_pined == false)
-      |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :asc_inserted}))
-      |> ORM.paginater(~m(page size)a)
-      |> check_viewer_has_emotioned(user)
+      |> set_viewer_emotion_ifneed(user)
       |> add_pined_comments_ifneed(thread, article_id, filters)
       |> done()
     end
@@ -160,7 +138,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> where([c], c.is_folded == true and c.is_reported == false and c.is_pined == false)
       |> QueryBuilder.filter_pack(filters)
       |> ORM.paginater(~m(page size)a)
-      |> check_viewer_has_emotioned(user)
+      |> set_viewer_emotion_ifneed(user)
       |> done()
     end
   end
@@ -188,7 +166,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> where([c], c.is_reported == true)
       |> QueryBuilder.filter_pack(filters)
       |> ORM.paginater(~m(page size)a)
-      |> check_viewer_has_emotioned(user)
+      |> set_viewer_emotion_ifneed(user)
       |> done()
     end
   end
@@ -629,9 +607,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   defp user_in_logins?([], _), do: false
   defp user_in_logins?(ids_list, %User{login: login}), do: Enum.member?(ids_list, login)
 
-  defp check_viewer_has_emotioned(%{entries: []} = paged_comments, _), do: paged_comments
+  defp set_viewer_emotion_ifneed(paged_comments, nil), do: paged_comments
+  defp set_viewer_emotion_ifneed(%{entries: []} = paged_comments, _), do: paged_comments
 
-  defp check_viewer_has_emotioned(%{entries: entries} = paged_comments, %User{} = user) do
+  defp set_viewer_emotion_ifneed(%{entries: entries} = paged_comments, %User{} = user) do
     new_entries =
       Enum.map(entries, fn comment ->
         update_viewed_status =

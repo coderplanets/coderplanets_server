@@ -40,11 +40,15 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       {:ok, _} = CMS.make_emotion(first_comment.id, :beer, user)
 
       {:ok, paged_comments} =
-        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size}, user)
+        CMS.list_article_comments(
+          :post,
+          post.id,
+          %{page: page_number, size: page_size},
+          :replies,
+          user
+        )
 
       target = Enum.find(paged_comments.entries, &(&1.id == first_comment.id))
-
-      # IO.inspect(target, label: "the target")
 
       assert target.emotions.downvote_count == 1
       assert user_exist_in?(user, target.emotions.latest_downvote_users)

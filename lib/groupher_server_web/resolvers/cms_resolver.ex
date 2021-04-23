@@ -341,14 +341,20 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   # #######################
   # comemnts ..
   # #######################
-  def paged_article_comments(_root, ~m(id thread filter)a, %{context: %{cur_user: user}}) do
-    CMS.list_article_comments(thread, id, filter, user)
+  def paged_article_comments(_root, ~m(id thread filter mode)a, %{context: %{cur_user: user}}) do
+    case mode do
+      :replies ->
+        CMS.list_article_comments(thread, id, filter, :replies, user)
+
+      :timeline ->
+        CMS.list_article_comments(thread, id, filter, :timeline, user)
+    end
   end
 
   def paged_article_comments(_root, ~m(id thread filter mode)a, _info) do
     case mode do
       :replies ->
-        CMS.list_article_comments(thread, id, filter)
+        CMS.list_article_comments(thread, id, filter, :replies)
 
       :timeline ->
         CMS.list_article_comments(thread, id, filter, :timeline)

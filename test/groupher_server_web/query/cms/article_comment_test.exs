@@ -118,7 +118,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
         }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "list comments with default replies-mode", ~m(guest_conn post user user2)a do
       total_count = 10
       page_size = 20
@@ -152,7 +152,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
                to_string(replyed_comment_2.id)
     end
 
-    @tag :wip2
+    @tag :wip
     test "timeline-mode paged comments", ~m(guest_conn post user user2)a do
       total_count = 3
       page_size = 20
@@ -187,7 +187,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       assert random_comment["repliesCount"] == 2
     end
 
-    @tag :wip
+    @tag :wip2
     test "comment should have reply_to content if need", ~m(guest_conn post user user2)a do
       total_count = 2
       thread = :post
@@ -202,7 +202,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       {:ok, replyed_comment_1} = CMS.reply_article_comment(parent_comment.id, "reply 1", user2)
       {:ok, replyed_comment_2} = CMS.reply_article_comment(parent_comment.id, "reply 2", user2)
 
-      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: 10}}
+      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: 10}, mode: "TIMELINE"}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
 
       replyed_comment_1 =
@@ -290,16 +290,18 @@ defmodule GroupherServer.Test.Query.ArticleComment do
 
     @tag :wip
     test "guest user can get paged comment with floor it", ~m(guest_conn post user)a do
-      total_count = 20
+      total_count = 10
       thread = :post
+      page_size = 10
 
       Enum.reduce(1..total_count, [], fn _, acc ->
         {:ok, comment} = CMS.create_article_comment(thread, post.id, "test comment", user)
+        Process.sleep(500)
 
         acc ++ [comment]
       end)
 
-      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: 10}}
+      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
 
       assert results["entries"] |> List.first() |> Map.get("floor") == 1
