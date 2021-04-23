@@ -59,8 +59,8 @@ defmodule GroupherServer.Test.Query.ArticleComment do
     end
 
     @query """
-      query($id: ID!, $thread: CmsThread, $filter: CommentsFilter!) {
-        pagedArticleComments(id: $id, thread: $thread, filter: $filter) {
+      query($id: ID!, $thread: CmsThread, $mode: ArticleCommentsMode, $filter: CommentsFilter!) {
+        pagedArticleComments(id: $id, thread: $thread, mode: $mode, filter: $filter) {
           entries {
             id
             bodyHtml
@@ -119,7 +119,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
     }
     """
     @tag :wip2
-    test "replies mode paged comments", ~m(guest_conn post user user2)a do
+    test "list comments with default replies-mode", ~m(guest_conn post user user2)a do
       total_count = 10
       page_size = 20
       thread = :post
@@ -152,10 +152,40 @@ defmodule GroupherServer.Test.Query.ArticleComment do
                to_string(replyed_comment_2.id)
     end
 
-    # @tag :wip
-    # test "timeline-mode paged comments", ~m(guest_conn post user user2)a do
+    @tag :wip2
+    test "timeline-mode paged comments", ~m(guest_conn post user user2)a do
+      total_count = 3
+      page_size = 20
+      thread = :post
 
-    # end
+      all_comments =
+        Enum.reduce(1..total_count, [], fn i, acc ->
+          {:ok, comment} = CMS.create_article_comment(thread, post.id, "comment #{i}", user)
+          acc ++ [comment]
+        end)
+
+      random_comment = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
+
+      {:ok, replyed_comment_1} = CMS.reply_article_comment(random_comment.id, "reply 1", user2)
+      {:ok, replyed_comment_2} = CMS.reply_article_comment(random_comment.id, "reply 2", user2)
+
+      variables = %{
+        id: post.id,
+        thread: "POST",
+        mode: "TIMELINE",
+        filter: %{page: 1, size: page_size}
+      }
+
+      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+      assert results["entries"] |> length == total_count + 2
+
+      assert exist_in?(replyed_comment_1, results["entries"], :string_key)
+      assert exist_in?(replyed_comment_2, results["entries"], :string_key)
+
+      random_comment = Enum.find(results["entries"], &(&1["id"] == to_string(random_comment.id)))
+      assert random_comment["replies"] |> length == 2
+      assert random_comment["repliesCount"] == 2
+    end
 
     @tag :wip
     test "comment should have reply_to content if need", ~m(guest_conn post user user2)a do

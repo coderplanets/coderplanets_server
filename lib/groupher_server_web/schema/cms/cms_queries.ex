@@ -163,6 +163,7 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
     @desc "get paged article comments"
     field :paged_article_comments, :paged_article_comments do
       arg(:id, non_null(:id))
+      arg(:mode, :article_comments_mode, default_value: :replies)
       arg(:thread, :cms_thread, default_value: :post)
       arg(:filter, :comments_filter)
 

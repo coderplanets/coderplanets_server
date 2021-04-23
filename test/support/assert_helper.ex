@@ -199,7 +199,7 @@ defmodule GroupherServer.Test.AssertHelper do
   @spec exist_in?(Map.t(), [Map.t()]) :: boolean
   def exist_in?(%{id: id}, list, :string_key) when is_list(list) do
     list
-    |> Enum.filter(fn item -> item["id"] == id end)
+    |> Enum.filter(fn item -> item["id"] == to_string(id) end)
     |> length
     |> Kernel.==(1)
   end
