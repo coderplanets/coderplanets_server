@@ -39,15 +39,42 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   @pined_comment_limit ArticleComment.pined_comment_limit()
 
   @doc """
-  list paged article comments
+  [replies-mode] list paged article comments
   """
-  def list_article_comments(thread, article_id, %{page: page, size: size} = filters) do
+  def list_article_comments(thread, article_id, %{page: _, size: _} = filters) do
+    where_query =
+      dynamic(
+        [c],
+        is_nil(c.reply_to_id) and c.is_folded == false and c.is_reported == false and
+          c.is_pined == false
+      )
+
+    do_list_article_comment(thread, article_id, filters, where_query)
+  end
+
+  @doc """
+  [timeline-mode] list paged article comments
+  """
+  def list_article_comments(thread, article_id, %{page: _, size: _} = filters, :timeline) do
+    where_query =
+      dynamic(
+        [c],
+        c.is_folded == false and c.is_reported == false and
+          c.is_pined == false
+      )
+
+    do_list_article_comment(thread, article_id, filters, where_query)
+  end
+
+  defp do_list_article_comment(thread, article_id, filters, where_query) do
+    %{page: page, size: size} = filters
+
     with {:ok, thread_query} <- match(thread, :query, article_id) do
       query = from(c in ArticleComment, preload: [reply_to: :author])
 
       query
       |> where(^thread_query)
-      |> where([c], c.is_folded == false and c.is_reported == false and c.is_pined == false)
+      |> where(^where_query)
       |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :asc_inserted}))
       |> ORM.paginater(~m(page size)a)
       |> add_pined_comments_ifneed(thread, article_id, filters)

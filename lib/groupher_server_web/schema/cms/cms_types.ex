@@ -359,6 +359,8 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:is_article_author, :boolean)
     field(:meta, :article_comment_meta)
     field(:reply_to, :article_comment_reply)
+    field(:replies, list_of(:article_comment_reply))
+    field(:replies_count, :integer)
     # field(:viewer_has_upvoted, :boolean, resolve: dataloader(CMS, :))
     field :viewer_has_upvoted, :boolean do
       arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)

@@ -52,8 +52,6 @@ defmodule GroupherServer.CMS.ArticleComment do
   @type t :: %ArticleComment{}
   schema "articles_comments" do
     field(:body_html, :string)
-    field(:replies_count, :integer, default: 0)
-
     # 是否被折叠
     field(:is_folded, :boolean, default: false)
     # 是否被举报
@@ -76,6 +74,8 @@ defmodule GroupherServer.CMS.ArticleComment do
     belongs_to(:reply_to, ArticleComment, foreign_key: :reply_to_id)
 
     embeds_many(:replies, ArticleComment, on_replace: :delete)
+    field(:replies_count, :integer, default: 0)
+
     embeds_one(:emotions, Embeds.ArticleCommentEmotion, on_replace: :update)
     embeds_one(:meta, Embeds.ArticleCommentMeta, on_replace: :update)
 

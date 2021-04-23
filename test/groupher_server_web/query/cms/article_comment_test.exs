@@ -32,7 +32,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "guest user can get comment participators after comment created",
          ~m(guest_conn post user user2)a do
       comment = "test comment"
@@ -100,8 +100,16 @@ defmodule GroupherServer.Test.Query.ArticleComment do
                 login
               }
             }
-
             viewerHasUpvoted
+            replies {
+              id
+              bodyHtml
+              author {
+                id
+                login
+              }
+            }
+            repliesCount
           }
           totalPages
           totalCount
@@ -110,6 +118,45 @@ defmodule GroupherServer.Test.Query.ArticleComment do
         }
     }
     """
+    @tag :wip2
+    test "replies mode paged comments", ~m(guest_conn post user user2)a do
+      total_count = 10
+      page_size = 20
+      thread = :post
+
+      all_comments =
+        Enum.reduce(1..total_count, [], fn i, acc ->
+          {:ok, comment} = CMS.create_article_comment(thread, post.id, "comment #{i}", user)
+          acc ++ [comment]
+        end)
+
+      random_comment = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
+      {:ok, replyed_comment_1} = CMS.reply_article_comment(random_comment.id, "reply 1", user2)
+      {:ok, replyed_comment_2} = CMS.reply_article_comment(random_comment.id, "reply 2", user2)
+
+      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
+      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+      assert results["entries"] |> length == total_count
+
+      assert not exist_in?(replyed_comment_1, results["entries"], :string_key)
+      assert not exist_in?(replyed_comment_2, results["entries"], :string_key)
+
+      random_comment = Enum.find(results["entries"], &(&1["id"] == to_string(random_comment.id)))
+      assert random_comment["replies"] |> length == 2
+      assert random_comment["repliesCount"] == 2
+
+      assert random_comment["replies"] |> List.first() |> Map.get("id") ==
+               to_string(replyed_comment_1.id)
+
+      assert random_comment["replies"] |> List.last() |> Map.get("id") ==
+               to_string(replyed_comment_2.id)
+    end
+
+    # @tag :wip
+    # test "timeline-mode paged comments", ~m(guest_conn post user user2)a do
+
+    # end
+
     @tag :wip
     test "comment should have reply_to content if need", ~m(guest_conn post user user2)a do
       total_count = 2
@@ -185,7 +232,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       assert results["totalCount"] == total_count
     end
 
-    @tag :wip2
+    @tag :wip
     test "guest user can get paged comment with pined comment in it", ~m(guest_conn post user)a do
       total_count = 20
       thread = :post
@@ -390,7 +437,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
              |> get_in(["emotions", "viewerHasDownvoteed"])
     end
 
-    @tag :wip2
+    @tag :wip
     test "comment should have viewer has upvoted flag", ~m(user_conn post user)a do
       total_count = 10
       page_size = 12
