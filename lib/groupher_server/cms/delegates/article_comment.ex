@@ -46,7 +46,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   def list_article_comments(thread, article_id, filters, :timeline, user) do
     where_query = dynamic([c], not c.is_folded and not c.is_reported and not c.is_pined)
-
     do_list_article_comment(thread, article_id, filters, where_query, user)
   end
 
@@ -61,6 +60,32 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       )
 
     do_list_article_comment(thread, article_id, filters, where_query, user)
+  end
+
+  def list_folded_article_comments(thread, article_id, filters) do
+    where_query = dynamic([c], c.is_folded and not c.is_reported and not c.is_pined)
+    do_list_article_comment(thread, article_id, filters, where_query, nil)
+  end
+
+  def list_folded_article_comments(thread, article_id, filters, user) do
+    where_query = dynamic([c], c.is_folded and not c.is_reported and not c.is_pined)
+    do_list_article_comment(thread, article_id, filters, where_query, user)
+  end
+
+  def list_reported_article_comments(thread, article_id, filters, user \\ nil)
+
+  def list_reported_article_comments(thread, article_id, filters, user) do
+    where_query = dynamic([c], c.is_reported)
+    do_list_article_comment(thread, article_id, filters, where_query, user)
+  end
+
+  @doc """
+  list paged comment replies
+  """
+  def list_comment_replies(comment_id, filters, user \\ nil)
+
+  def list_comment_replies(comment_id, filters, user) do
+    do_list_comment_replies(comment_id, filters, user)
   end
 
   defp do_list_article_comment(thread, article_id, filters, where_query, user) do
@@ -78,6 +103,20 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> add_pined_comments_ifneed(thread, article_id, filters)
       |> done()
     end
+  end
+
+  defp do_list_comment_replies(comment_id, filters, user) do
+    %{page: page, size: size} = filters
+
+    where_query =
+      dynamic([c], not c.is_reported and not c.is_folded and c.reply_to_id == ^comment_id)
+
+    ArticleComment
+    |> where(^where_query)
+    |> QueryBuilder.filter_pack(filters)
+    |> ORM.paginater(~m(page size)a)
+    |> set_viewer_emotion_ifneed(user)
+    |> done()
   end
 
   defp add_pined_comments_ifneed(%{entries: entries} = paged_comments, thread, article_id, %{
@@ -114,75 +153,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   end
 
   defp add_pined_comments_ifneed(paged_comments, _thread, _article_id, _), do: paged_comments
-
-  def list_folded_article_comments(thread, article_id, %{page: page, size: size} = filters) do
-    with {:ok, thread_query} <- match(thread, :query, article_id) do
-      ArticleComment
-      |> where(^thread_query)
-      |> where([c], c.is_folded == true and c.is_reported == false and c.is_pined == false)
-      |> QueryBuilder.filter_pack(filters)
-      |> ORM.paginater(~m(page size)a)
-      |> done()
-    end
-  end
-
-  def list_folded_article_comments(
-        thread,
-        article_id,
-        %{page: page, size: size} = filters,
-        %User{} = user
-      ) do
-    with {:ok, thread_query} <- match(thread, :query, article_id) do
-      ArticleComment
-      |> where(^thread_query)
-      |> where([c], c.is_folded == true and c.is_reported == false and c.is_pined == false)
-      |> QueryBuilder.filter_pack(filters)
-      |> ORM.paginater(~m(page size)a)
-      |> set_viewer_emotion_ifneed(user)
-      |> done()
-    end
-  end
-
-  def list_reported_article_comments(thread, article_id, %{page: page, size: size} = filters) do
-    with {:ok, thread_query} <- match(thread, :query, article_id) do
-      ArticleComment
-      |> where(^thread_query)
-      |> where([c], c.is_reported == true)
-      |> QueryBuilder.filter_pack(filters)
-      |> ORM.paginater(~m(page size)a)
-      |> done()
-    end
-  end
-
-  def list_reported_article_comments(
-        thread,
-        article_id,
-        %{page: page, size: size} = filters,
-        %User{} = user
-      ) do
-    with {:ok, thread_query} <- match(thread, :query, article_id) do
-      ArticleComment
-      |> where(^thread_query)
-      |> where([c], c.is_reported == true)
-      |> QueryBuilder.filter_pack(filters)
-      |> ORM.paginater(~m(page size)a)
-      |> set_viewer_emotion_ifneed(user)
-      |> done()
-    end
-  end
-
-  @doc """
-  list paged comment replies
-  """
-  def list_comment_replies(comment_id, %{page: page, size: size} = filters) do
-    ArticleComment
-    |> where([c], c.reply_to_id == ^comment_id)
-    # TODO: test reported and folded status
-    |> where([c], c.is_folded == false and c.is_reported == false)
-    |> QueryBuilder.filter_pack(filters)
-    |> ORM.paginater(~m(page size)a)
-    |> done()
-  end
 
   @doc "pin a comment"
   def pin_article_comment(comment_id) do
