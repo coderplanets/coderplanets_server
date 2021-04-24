@@ -318,6 +318,30 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "paged article comments" do
+    @tag :wip2
+    test "can load paged comments participators of a article", ~m(user post)a do
+      total_count = 30
+      page_number = 1
+      page_size = 10
+      thread = :post
+
+      Enum.reduce(1..total_count, [], fn _, acc ->
+        {:ok, new_user} = db_insert(:user)
+        {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", new_user)
+
+        acc ++ [comment]
+      end)
+
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+
+      {:ok, results} =
+        CMS.list_article_comments_participators(thread, post.id, %{page: 1, size: page_size})
+
+      assert results |> is_valid_pagination?(:raw)
+      assert results.total_count == total_count + 1
+    end
+
     @tag :wip
     test "paged article comments folded flag should be false", ~m(user post)a do
       total_count = 30

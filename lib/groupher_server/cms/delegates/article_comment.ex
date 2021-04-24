@@ -88,73 +88,26 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     do_list_comment_replies(comment_id, filters, user)
   end
 
-  defp do_list_article_comment(thread, article_id, filters, where_query, user) do
+  @spec list_article_comments_participators(T.comment_thread(), Integer.t(), T.paged_filter()) ::
+          {:ok, T.paged_users()}
+  def list_article_comments_participators(thread, article_id, filters) do
     %{page: page, size: size} = filters
 
     with {:ok, thread_query} <- match(thread, :query, article_id) do
-      query = from(c in ArticleComment, preload: [reply_to: :author])
-
-      query
+      ArticleComment
       |> where(^thread_query)
-      |> where(^where_query)
-      |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :asc_inserted}))
+      |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :desc_inserted}))
+      |> join(:inner, [c], a in assoc(c, :author))
+      |> distinct([c, a], a.id)
+      |> group_by([c, a], a.id)
+      |> group_by([c, a], c.inserted_at)
+      |> select([c, a], a)
       |> ORM.paginater(~m(page size)a)
-      |> set_viewer_emotion_ifneed(user)
-      |> add_pined_comments_ifneed(thread, article_id, filters)
       |> done()
     end
   end
 
-  defp do_list_comment_replies(comment_id, filters, user) do
-    %{page: page, size: size} = filters
-    query = from(c in ArticleComment, preload: [reply_to: :author])
-
-    where_query =
-      dynamic([c], not c.is_reported and not c.is_folded and c.reply_to_id == ^comment_id)
-
-    query
-    |> where(^where_query)
-    |> QueryBuilder.filter_pack(filters)
-    |> ORM.paginater(~m(page size)a)
-    |> set_viewer_emotion_ifneed(user)
-    |> done()
-  end
-
-  defp add_pined_comments_ifneed(%{entries: entries} = paged_comments, thread, article_id, %{
-         page: 1
-       }) do
-    with {:ok, info} <- match(thread),
-         query <-
-           from(p in ArticlePinedComment,
-             join: c in ArticleComment,
-             on: p.article_comment_id == c.id,
-             where: field(p, ^info.foreign_key) == ^article_id,
-             select: c
-           ),
-         {:ok, pined_comments} <- Repo.all(query) |> done() do
-      case pined_comments do
-        [] ->
-          paged_comments
-
-        _ ->
-          preloaded_pined_comments =
-            Enum.slice(pined_comments, 0, @pined_comment_limit)
-            |> Repo.preload(reply_to: :author)
-
-          updated_entries = Enum.concat(preloaded_pined_comments, entries)
-
-          pined_comment_count = length(pined_comments)
-
-          Map.merge(paged_comments, %{
-            entries: updated_entries,
-            total_count: paged_comments.total_count + pined_comment_count
-          })
-      end
-    end
-  end
-
-  defp add_pined_comments_ifneed(paged_comments, _thread, _article_id, _), do: paged_comments
-
+  @spec pin_article_comment(Integer.t()) :: {:ok, ArticleComment.t()}
   @doc "pin a comment"
   def pin_article_comment(comment_id) do
     with {:ok, comment} <- ORM.find(ArticleComment, comment_id),
@@ -451,6 +404,73 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> upsert_comment_result()
     end
   end
+
+  defp do_list_article_comment(thread, article_id, filters, where_query, user) do
+    %{page: page, size: size} = filters
+
+    with {:ok, thread_query} <- match(thread, :query, article_id) do
+      query = from(c in ArticleComment, preload: [reply_to: :author])
+
+      query
+      |> where(^thread_query)
+      |> where(^where_query)
+      |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :asc_inserted}))
+      |> ORM.paginater(~m(page size)a)
+      |> set_viewer_emotion_ifneed(user)
+      |> add_pined_comments_ifneed(thread, article_id, filters)
+      |> done()
+    end
+  end
+
+  defp do_list_comment_replies(comment_id, filters, user) do
+    %{page: page, size: size} = filters
+    query = from(c in ArticleComment, preload: [reply_to: :author])
+
+    where_query =
+      dynamic([c], not c.is_reported and not c.is_folded and c.reply_to_id == ^comment_id)
+
+    query
+    |> where(^where_query)
+    |> QueryBuilder.filter_pack(filters)
+    |> ORM.paginater(~m(page size)a)
+    |> set_viewer_emotion_ifneed(user)
+    |> done()
+  end
+
+  defp add_pined_comments_ifneed(%{entries: entries} = paged_comments, thread, article_id, %{
+         page: 1
+       }) do
+    with {:ok, info} <- match(thread),
+         query <-
+           from(p in ArticlePinedComment,
+             join: c in ArticleComment,
+             on: p.article_comment_id == c.id,
+             where: field(p, ^info.foreign_key) == ^article_id,
+             select: c
+           ),
+         {:ok, pined_comments} <- Repo.all(query) |> done() do
+      case pined_comments do
+        [] ->
+          paged_comments
+
+        _ ->
+          preloaded_pined_comments =
+            Enum.slice(pined_comments, 0, @pined_comment_limit)
+            |> Repo.preload(reply_to: :author)
+
+          updated_entries = Enum.concat(preloaded_pined_comments, entries)
+
+          pined_comment_count = length(pined_comments)
+
+          Map.merge(paged_comments, %{
+            entries: updated_entries,
+            total_count: paged_comments.total_count + pined_comment_count
+          })
+      end
+    end
+  end
+
+  defp add_pined_comments_ifneed(paged_comments, _thread, _article_id, _), do: paged_comments
 
   defp update_article_author_upvoted_info(%ArticleComment{} = comment, user_id) do
     with {:ok, article} = get_full_comment(comment.id) do

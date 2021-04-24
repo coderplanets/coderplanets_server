@@ -361,6 +361,10 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     end
   end
 
+  def paged_article_comments_participators(_root, ~m(id thread filter)a, _info) do
+    CMS.list_article_comments_participators(thread, id, filter)
+  end
+
   def paged_comment_replies(_root, ~m(id filter)a, %{context: %{cur_user: user}}) do
     CMS.list_comment_replies(id, filter, user)
   end

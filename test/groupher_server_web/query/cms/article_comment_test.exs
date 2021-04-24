@@ -494,6 +494,46 @@ defmodule GroupherServer.Test.Query.ArticleComment do
     end
   end
 
+  describe "paged paticipators" do
+    @query """
+      query($id: ID!, $filter: PagedFilter!) {
+        pagedArticleCommentsParticipators(id: $id, filter: $filter) {
+          entries {
+            id
+            nickname
+          }
+          totalPages
+          totalCount
+          pageSize
+          pageNumber
+        }
+    }
+    """
+    @tag :wip2
+    test "guest user can get paged participators", ~m(guest_conn post user)a do
+      total_count = 30
+      page_size = 10
+      thread = "POST"
+
+      Enum.reduce(1..total_count, [], fn _, acc ->
+        {:ok, new_user} = db_insert(:user)
+        {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", new_user)
+
+        acc ++ [comment]
+      end)
+
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+
+      variables = %{id: post.id, thread: thread, filter: %{page: 1, size: page_size}}
+
+      results = guest_conn |> query_result(@query, variables, "pagedArticleCommentsParticipators")
+
+      assert results |> is_valid_pagination?
+      assert results["totalCount"] == total_count + 1
+    end
+  end
+
   describe "paged replies" do
     @query """
       query($id: ID!, $filter: CommentsFilter!) {

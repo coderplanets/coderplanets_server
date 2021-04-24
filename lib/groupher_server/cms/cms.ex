@@ -121,9 +121,7 @@ defmodule GroupherServer.CMS do
 
   defdelegate list_comment_replies(comment_id, filters), to: ArticleComment
   defdelegate list_comment_replies(comment_id, filters, user), to: ArticleComment
-
-  defdelegate list_comments(thread, content_id, filters), to: CommentCURD
-  defdelegate list_comments_participators(thread, content_id, filters), to: CommentCURD
+  defdelegate list_article_comments_participators(thread, content_id, filters), to: ArticleComment
 
   defdelegate create_article_comment(thread, article_id, args, user), to: ArticleComment
   defdelegate upvote_article_comment(comment_id, user), to: ArticleComment
@@ -145,6 +143,9 @@ defmodule GroupherServer.CMS do
   defdelegate delete_comment(thread, content_id), to: CommentCURD
   defdelegate list_replies(thread, comment, user), to: CommentCURD
   defdelegate reply_comment(thread, comment, args, user), to: CommentCURD
+
+  defdelegate list_comments(thread, content_id, filters), to: CommentCURD
+  defdelegate list_comments_participators(thread, content_id, filters), to: CommentCURD
 
   # report
   defdelegate create_report(type, content_id, args, user), to: AbuseReport
