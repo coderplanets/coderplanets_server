@@ -288,16 +288,15 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       assert results["totalCount"] == total_count + 2
     end
 
-    @tag :wip
+    @tag :wip2
     test "guest user can get paged comment with floor it", ~m(guest_conn post user)a do
-      total_count = 10
+      total_count = 5
       thread = :post
       page_size = 10
 
       Enum.reduce(1..total_count, [], fn _, acc ->
         {:ok, comment} = CMS.create_article_comment(thread, post.id, "test comment", user)
-        Process.sleep(500)
-
+        Process.sleep(1000)
         acc ++ [comment]
       end)
 
@@ -305,7 +304,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
 
       assert results["entries"] |> List.first() |> Map.get("floor") == 1
-      assert results["entries"] |> List.last() |> Map.get("floor") == 10
+      assert results["entries"] |> List.last() |> Map.get("floor") == 5
     end
 
     @tag :wip
@@ -522,8 +521,8 @@ defmodule GroupherServer.Test.Query.ArticleComment do
         acc ++ [comment]
       end)
 
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+      {:ok, _comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+      {:ok, _comment} = CMS.create_article_comment(:post, post.id, "commment", user)
 
       variables = %{id: post.id, thread: thread, filter: %{page: 1, size: page_size}}
 
