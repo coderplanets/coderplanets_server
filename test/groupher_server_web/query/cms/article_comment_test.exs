@@ -509,7 +509,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
         }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "guest user can get paged participators", ~m(guest_conn post user)a do
       total_count = 30
       page_size = 10

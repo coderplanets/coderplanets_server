@@ -318,7 +318,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "paged article comments" do
-    @tag :wip2
+    @tag :wip
     test "can load paged comments participators of a article", ~m(user post)a do
       total_count = 30
       page_number = 1

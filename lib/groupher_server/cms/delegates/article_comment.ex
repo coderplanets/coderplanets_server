@@ -4,6 +4,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   """
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1]
+  import Helper.ErrorCode
 
   import GroupherServer.CMS.Utils.Matcher2
   import ShortMaps
@@ -682,8 +683,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   defp upsert_comment_result({:ok, %{update_comment_flag: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{delete_article_comment: result}}), do: {:ok, result}
 
-  defp upsert_comment_result({:error, :create_comment, result, _steps}) do
-    {:error, result}
+  defp upsert_comment_result({:error, :create_article_comment, result, _steps}) do
+    raise_error(:create_comment, result)
   end
 
   defp upsert_comment_result({:error, :add_participator, result, _steps}) do
