@@ -355,10 +355,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> Multi.run(:add_participator, fn _, _ ->
         add_participator_to_article(article, user)
       end)
-      # |> Multi.run(:mention_users, fn _, %{create_comment: comment} ->
-      #   Delivery.mention_from_comment(community, thread, content, comment, args, user)
-      #   {:ok, :pass}
-      # end)
       |> Repo.transaction()
       |> upsert_comment_result()
     end
@@ -368,7 +364,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   def reply_article_comment(comment_id, content, %User{} = user) do
     with {:ok, target_comment} <-
            ORM.find_by(ArticleComment, %{id: comment_id, is_deleted: false}),
-         replying_comment <- Repo.preload(target_comment, :reply_to),
+         replying_comment <- Repo.preload(target_comment, reply_to: :author),
          {thread, article} <- get_article(replying_comment),
          {:ok, info} <- match(thread),
          parent_comment <- get_parent_comment(replying_comment) do
@@ -393,6 +389,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       end)
       |> Multi.run(:add_participator, fn _, _ ->
         add_participator_to_article(article, user)
+      end)
+      |> Multi.run(:set_meta_flag, fn _, %{create_reply_comment: replyed_comment} ->
+        update_reply_to_others_state(parent_comment, replying_comment, replyed_comment)
       end)
       |> Multi.run(:add_reply_to, fn _, %{create_reply_comment: replyed_comment} ->
         replyed_comment
@@ -467,7 +466,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   end
 
   # update comment's parent article's comments total count
-  defp update_article_comments_count(%ArticleComment{} = comment, opt \\ :inc) do
+  @spec update_article_comments_count(ArticleComment.t(), :inc | :dec) :: ArticleComment.t()
+  defp update_article_comments_count(%ArticleComment{} = comment, opt) do
     with {:ok, article_info} <- match(:comment_article, comment),
          {:ok, article} <- ORM.find(article_info.model, article_info.id) do
       count_query =
@@ -479,7 +479,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
         :inc ->
           ORM.update(article, %{article_comments_count: cur_count - 1 + 1})
 
-        _ ->
+        :dec ->
           ORM.update(article, %{article_comments_count: Enum.max([0, cur_count - 1])})
       end
     end
@@ -515,9 +515,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     comment
   end
 
-  defp get_parent_comment(%ArticleComment{reply_to_id: _} = comment) do
-    Repo.preload(comment, :reply_to) |> Map.get(:reply_to)
-    # get_parent_comment(Repo.preload(comment, :reply_to))
+  defp get_parent_comment(%ArticleComment{reply_to_id: reply_to_id} = comment)
+       when not is_nil(reply_to_id) do
+    get_parent_comment(Repo.preload(comment.reply_to, reply_to: :author))
   end
 
   # 如果 replies 没有达到 @max_parent_replies_count, 则添加
@@ -563,18 +563,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   defp add_participator_to_article(_, _), do: {:ok, :pass}
 
-  defp get_article(%ArticleComment{post_id: post_id} = comment) when not is_nil(post_id) do
-    with {:ok, article} <- ORM.find(Post, comment.post_id, preload: [author: :user]) do
-      {:post, article}
-    end
-  end
-
-  defp get_article(%ArticleComment{job_id: job_id} = comment) when not is_nil(job_id) do
-    with {:ok, article} <- ORM.find(Job, comment.job_id, preload: [author: :user]) do
-      {:job, article}
-    end
-  end
-
   defp user_in_logins?([], _), do: false
   defp user_in_logins?(ids_list, %User{login: login}), do: Enum.member?(ids_list, login)
 
@@ -597,6 +585,18 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       end)
 
     %{paged_comments | entries: new_entries}
+  end
+
+  defp get_article(%ArticleComment{post_id: post_id} = comment) when not is_nil(post_id) do
+    with {:ok, article} <- ORM.find(Post, comment.post_id, preload: [author: :user]) do
+      {:post, article}
+    end
+  end
+
+  defp get_article(%ArticleComment{job_id: job_id} = comment) when not is_nil(job_id) do
+    with {:ok, article} <- ORM.find(Job, comment.job_id, preload: [author: :user]) do
+      {:job, article}
+    end
   end
 
   @spec get_full_comment(String.t()) :: {:ok, T.article_info()} | {:error, nil}
@@ -630,6 +630,27 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       }
 
       {:ok, %{thread: thread, article: article_info, author: author_info}}
+    end
+  end
+
+  # used in replies mode, for those reply to other user in replies box (for frontend)
+  # 用于回复模式，指代这条回复是回复“回复列表其他人的” （方便前端展示）
+  defp update_reply_to_others_state(parent_comment, replying_comment, replyed_comment) do
+    replying_comment = replying_comment |> Repo.preload(:author)
+    parent_comment = parent_comment |> Repo.preload(:author)
+    is_reply_to_others = parent_comment.author.id !== replying_comment.author.id
+
+    case is_reply_to_others do
+      true ->
+        new_meta =
+          replyed_comment.meta
+          |> Map.from_struct()
+          |> Map.merge(%{is_reply_to_others: is_reply_to_others})
+
+        ORM.update(replyed_comment, %{meta: new_meta})
+
+      false ->
+        {:ok, :pass}
     end
   end
 

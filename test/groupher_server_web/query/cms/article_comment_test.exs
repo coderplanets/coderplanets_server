@@ -17,86 +17,6 @@ defmodule GroupherServer.Test.Query.ArticleComment do
     {:ok, ~m(user_conn guest_conn post job user user2)a}
   end
 
-  describe "paged replies" do
-    @query """
-      query($id: ID!, $filter: CommentsFilter!) {
-        pagedCommentReplies(id: $id, filter: $filter) {
-          entries {
-            id
-            bodyHtml
-            author {
-              id
-              nickname
-            }
-            upvotesCount
-            emotions {
-              downvoteCount
-              latestDownvoteUsers {
-                login
-                nickname
-              }
-              viewerHasDownvoteed
-              beerCount
-              latestBeerUsers {
-                login
-                nickname
-              }
-              viewerHasBeered
-            }
-            isArticleAuthor
-            meta {
-              isArticleAuthorUpvoted
-            }
-            replyTo {
-              id
-              bodyHtml
-              floor
-              isArticleAuthor
-              author {
-                id
-                login
-              }
-            }
-            repliesCount
-            viewerHasUpvoted
-          }
-          totalPages
-          totalCount
-          pageSize
-          pageNumber
-        }
-    }
-    """
-    @tag :wip2
-    test "guest user can get paged replies", ~m(guest_conn post user user2)a do
-      comment = "test comment"
-      total_count = 2
-      page_size = 10
-      thread = :post
-
-      author_user = post.author.user
-      {:ok, parent_comment} = CMS.create_article_comment(thread, post.id, comment, user)
-
-      Enum.reduce(1..total_count, [], fn i, acc ->
-        {:ok, reply_comment} = CMS.reply_article_comment(parent_comment.id, "reply #{i}", user2)
-
-        acc ++ [reply_comment]
-      end)
-
-      {:ok, author_reply_comment} =
-        CMS.reply_article_comment(parent_comment.id, "author reply", author_user)
-
-      variables = %{id: parent_comment.id, filter: %{page: 1, size: page_size}}
-      results = guest_conn |> query_result(@query, variables, "pagedCommentReplies")
-
-      author_reply_comment =
-        Enum.find(results["entries"], &(&1["id"] == to_string(author_reply_comment.id)))
-
-      assert author_reply_comment["isArticleAuthor"]
-      assert results["entries"] |> length == total_count + 1
-    end
-  end
-
   describe "[baisc article post comment]" do
     @query """
     query($id: ID!) {
@@ -571,6 +491,86 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       upvoted_comment = Enum.find(results["entries"], &(&1["id"] == to_string(random_comment.id)))
 
       assert upvoted_comment["viewerHasUpvoted"]
+    end
+  end
+
+  describe "paged replies" do
+    @query """
+      query($id: ID!, $filter: CommentsFilter!) {
+        pagedCommentReplies(id: $id, filter: $filter) {
+          entries {
+            id
+            bodyHtml
+            author {
+              id
+              nickname
+            }
+            upvotesCount
+            emotions {
+              downvoteCount
+              latestDownvoteUsers {
+                login
+                nickname
+              }
+              viewerHasDownvoteed
+              beerCount
+              latestBeerUsers {
+                login
+                nickname
+              }
+              viewerHasBeered
+            }
+            isArticleAuthor
+            meta {
+              isArticleAuthorUpvoted
+            }
+            replyTo {
+              id
+              bodyHtml
+              floor
+              isArticleAuthor
+              author {
+                id
+                login
+              }
+            }
+            repliesCount
+            viewerHasUpvoted
+          }
+          totalPages
+          totalCount
+          pageSize
+          pageNumber
+        }
+    }
+    """
+    @tag :wip
+    test "guest user can get paged replies", ~m(guest_conn post user user2)a do
+      comment = "test comment"
+      total_count = 2
+      page_size = 10
+      thread = :post
+
+      author_user = post.author.user
+      {:ok, parent_comment} = CMS.create_article_comment(thread, post.id, comment, user)
+
+      Enum.reduce(1..total_count, [], fn i, acc ->
+        {:ok, reply_comment} = CMS.reply_article_comment(parent_comment.id, "reply #{i}", user2)
+
+        acc ++ [reply_comment]
+      end)
+
+      {:ok, author_reply_comment} =
+        CMS.reply_article_comment(parent_comment.id, "author reply", author_user)
+
+      variables = %{id: parent_comment.id, filter: %{page: 1, size: page_size}}
+      results = guest_conn |> query_result(@query, variables, "pagedCommentReplies")
+
+      author_reply_comment =
+        Enum.find(results["entries"], &(&1["id"] == to_string(author_reply_comment.id)))
+
+      assert author_reply_comment["isArticleAuthor"]
+      assert results["entries"] |> length == total_count + 1
     end
   end
 end

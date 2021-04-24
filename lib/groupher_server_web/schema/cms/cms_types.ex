@@ -336,6 +336,8 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
   object :article_comment_meta do
     field(:is_article_author_upvoted, :boolean)
+    field(:is_reply_to_others, :boolean)
+
     # field(:report_count, :boolean)
     # field(:is_solution, :boolean)
   end

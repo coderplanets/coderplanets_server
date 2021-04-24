@@ -65,33 +65,50 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       assert exist_in?(replyed_comment_2, parent_comment.replies)
     end
 
-    @tag :wip
+    @tag :wip2
     test "reply to reply inside a comment should belong same parent comment",
          ~m(post user user2)a do
-      parent_content = "parent comment"
-      reply_content_1 = "reply comment 1"
-      reply_content_2 = "reply comment 2"
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent comment", user)
 
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
-
-      {:ok, replyed_comment_1} =
-        CMS.reply_article_comment(parent_comment.id, reply_content_1, user2)
-
-      {:ok, replyed_comment_2} =
-        CMS.reply_article_comment(replyed_comment_1.id, reply_content_2, user2)
-
-      # IO.inspect(replyed_comment_2, label: "replyed_comment_2")
+      {:ok, replyed_comment_1} = CMS.reply_article_comment(parent_comment.id, "reply 1", user2)
+      {:ok, replyed_comment_2} = CMS.reply_article_comment(replyed_comment_1.id, "reply 2", user2)
+      {:ok, replyed_comment_3} = CMS.reply_article_comment(replyed_comment_2.id, "reply 3", user)
 
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
 
+      # IO.inspect(parent_comment.replies, label: "parent_comment.replies")
+
       assert exist_in?(replyed_comment_1, parent_comment.replies)
       assert exist_in?(replyed_comment_2, parent_comment.replies)
+      assert exist_in?(replyed_comment_3, parent_comment.replies)
 
       {:ok, replyed_comment_1} = ORM.find(ArticleComment, replyed_comment_1.id)
       {:ok, replyed_comment_2} = ORM.find(ArticleComment, replyed_comment_2.id)
+      {:ok, replyed_comment_3} = ORM.find(ArticleComment, replyed_comment_3.id)
 
       assert replyed_comment_1.reply_to_id == parent_comment.id
       assert replyed_comment_2.reply_to_id == replyed_comment_1.id
+      assert replyed_comment_3.reply_to_id == replyed_comment_2.id
+    end
+
+    @tag :wip2
+    test "reply to reply inside a comment should have is_reply_to_others flag in meta",
+         ~m(post user user2)a do
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent comment", user)
+
+      {:ok, replyed_comment_1} = CMS.reply_article_comment(parent_comment.id, "reply 1", user2)
+      {:ok, replyed_comment_2} = CMS.reply_article_comment(replyed_comment_1.id, "reply 2", user2)
+      {:ok, replyed_comment_3} = CMS.reply_article_comment(replyed_comment_2.id, "reply 3", user)
+
+      {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
+
+      {:ok, replyed_comment_1} = ORM.find(ArticleComment, replyed_comment_1.id)
+      {:ok, replyed_comment_2} = ORM.find(ArticleComment, replyed_comment_2.id)
+      {:ok, replyed_comment_3} = ORM.find(ArticleComment, replyed_comment_3.id)
+
+      assert not replyed_comment_1.meta.is_reply_to_others
+      assert replyed_comment_2.meta.is_reply_to_others
+      assert replyed_comment_3.meta.is_reply_to_others
     end
 
     @tag :wip
