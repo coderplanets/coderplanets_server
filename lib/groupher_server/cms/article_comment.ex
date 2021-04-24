@@ -35,7 +35,7 @@ defmodule GroupherServer.CMS.ArticleComment do
   # 每篇文章最多含有置顶评论的条数
   @pined_comment_limit 10
 
-  @doc "latest participators stores in article comment_participators field"
+  @doc "latest participators stores in article article_comment_participators field"
   def max_participator_count(), do: @max_participator_count
   @doc "latest replies stores in article_comment replies field, used for frontend display"
   def max_parent_replies_count(), do: @max_parent_replies_count
@@ -52,8 +52,6 @@ defmodule GroupherServer.CMS.ArticleComment do
   @type t :: %ArticleComment{}
   schema "articles_comments" do
     field(:body_html, :string)
-    field(:replies_count, :integer, default: 0)
-
     # 是否被折叠
     field(:is_folded, :boolean, default: false)
     # 是否被举报
@@ -76,6 +74,8 @@ defmodule GroupherServer.CMS.ArticleComment do
     belongs_to(:reply_to, ArticleComment, foreign_key: :reply_to_id)
 
     embeds_many(:replies, ArticleComment, on_replace: :delete)
+    field(:replies_count, :integer, default: 0)
+
     embeds_one(:emotions, Embeds.ArticleCommentEmotion, on_replace: :update)
     embeds_one(:meta, Embeds.ArticleCommentMeta, on_replace: :update)
 

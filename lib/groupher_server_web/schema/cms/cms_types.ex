@@ -17,6 +17,11 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:id, :id)
   end
 
+  object :simple_user do
+    field(:login, :string)
+    field(:nickname, :string)
+  end
+
   object :post do
     meta(:cache, max_age: 30)
     interface(:article)
@@ -40,7 +45,8 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     # field(:topic)
 
     field(:meta, :article_meta)
-    field(:comment_participators, list_of(:user))
+    field(:article_comments_participators, list_of(:user))
+    field(:article_comments_participators_count, :integer)
 
     field :comments, list_of(:comment) do
       arg(:filter, :members_filter)
@@ -324,24 +330,66 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     timestamp_fields()
   end
 
+  object :article_comment_emotions do
+    emotion_fields()
+  end
+
+  object :article_comment_meta do
+    field(:is_article_author_upvoted, :boolean)
+    field(:is_reply_to_others, :boolean)
+
+    # field(:report_count, :boolean)
+    # field(:is_solution, :boolean)
+  end
+
+  object :article_comment_reply do
+    field(:id, :id)
+    field(:body_html, :string)
+    field(:author, :user, resolve: dataloader(CMS, :author))
+    field(:floor, :integer)
+    field(:upvotes_count, :integer)
+    field(:is_article_author, :boolean)
+    field(:emotions, :article_comment_emotions)
+    field(:meta, :article_comment_meta)
+    field(:replies_count, :integer)
+    field(:reply_to, :article_comment_reply)
+
+    field :viewer_has_upvoted, :boolean do
+      arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
+
+      middleware(M.Authorize, :login)
+      middleware(M.PutCurrentUser)
+      resolve(dataloader(CMS, :upvotes))
+      middleware(M.ViewerDidConvert)
+    end
+
+    timestamp_fields()
+  end
+
   object :article_comment do
     field(:id, :id)
     field(:body_html, :string)
     field(:author, :user, resolve: dataloader(CMS, :author))
+    field(:is_pined, :boolean)
+    field(:floor, :integer)
+    field(:upvotes_count, :integer)
+    field(:emotions, :article_comment_emotions)
+    field(:is_article_author, :boolean)
+    field(:meta, :article_comment_meta)
+    field(:reply_to, :article_comment_reply)
+    field(:replies, list_of(:article_comment_reply))
+    field(:replies_count, :integer)
+    # field(:viewer_has_upvoted, :boolean, resolve: dataloader(CMS, :))
+    field :viewer_has_upvoted, :boolean do
+      arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
 
-    # field :upvote_users, list_of(:user) do
-    #   arg(:filter, :members_filter)
+      middleware(M.Authorize, :login)
+      middleware(M.PutCurrentUser)
+      resolve(dataloader(CMS, :upvotes))
+      middleware(M.ViewerDidConvert)
+    end
 
-    #   middleware(M.PageSizeProof)
-    #   resolve(dataloader(CMS, :likes))
-    # end
-
-    # field :upvotes_count, :integer do
-    #   arg(:count, :count_type, default_value: :count)
-
-    #   resolve(dataloader(CMS, :likes))
-    #   middleware(M.ConvertToInt)
-    # end
+    timestamp_fields()
   end
 
   object :comment do
@@ -390,8 +438,12 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   end
 
   object :paged_article_comments do
-    # field(:id, :string)
     field(:entries, list_of(:article_comment))
+    pagination_fields()
+  end
+
+  object :paged_article_replies do
+    field(:entries, list_of(:article_comment_reply))
     pagination_fields()
   end
 

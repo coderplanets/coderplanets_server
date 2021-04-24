@@ -9,6 +9,7 @@ defmodule GroupherServer.CMS.Utils.Loader do
 
   alias CMS.{
     Author,
+    ArticleCommentUpvote,
     CommunityEditor,
     CommunitySubscriber,
     CommunityThread,
@@ -151,33 +152,6 @@ defmodule GroupherServer.CMS.Utils.Loader do
     # cut_participators.ex middleware, when the data is large, will cause performace issue
     # |> distinct([c, a], a.id)
     |> select([c, a], a)
-
-    # |> select([c, a], %{
-    #   rankid: rank() |> over(partition_by: c.inserted_at),
-    #   id: a.id,
-    #   nickname: a.nickname
-    # })
-    # |> windows([rankid: [partition_by: c.inserted_at]])
-    # |> where([c, a], a.no < 3)
-    # |> select([c, a], rank() |>  over(partition_by: c.inserted_at))
-    # |> select([c, a], %{
-    #     nickname: a.nickname,
-
-    # working raw sql
-    # select * from(
-    #     select rank() over(partition by cid order by pinserted_at desc) as r, * from(
-    #         select c.id as cid,
-    #  c.body as cbody,
-    #  p.inserted_at as pinserted_at,
-    #  u.* from "cms_posts" as c join "posts_comments" as p on c.id= p.post_id join "users" as u on p.author_id= u.id) as view
-    # ) as v where r<= 3;
-
-    # backup ->
-    # PostComment
-    # |> QueryBuilder.filter_pack(filter)
-    # |> join(:inner, [c], a in assoc(c, :author))
-    # |> distinct([c, a], a.id)
-    # |> select([c, a], a)
   end
 
   def query({"posts_comments", PostComment}, %{count: _, unique: true}) do
@@ -232,6 +206,15 @@ defmodule GroupherServer.CMS.Utils.Loader do
     |> QueryBuilder.members_pack(args)
   end
 
+  def query({"articles_comments_upvotes", ArticleCommentUpvote}, %{
+        viewer_did: _,
+        cur_user: cur_user
+      }) do
+    ArticleCommentUpvote |> where([f], f.user_id == ^cur_user.id)
+  end
+
   # default loader
-  def query(queryable, _args), do: queryable
+  def query(queryable, _args) do
+    queryable
+  end
 end

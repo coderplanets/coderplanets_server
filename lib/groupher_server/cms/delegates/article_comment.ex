@@ -4,6 +4,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   """
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1]
+  import Helper.ErrorCode
 
   import GroupherServer.CMS.Utils.Matcher2
   import ShortMaps
@@ -39,140 +40,75 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   @pined_comment_limit ArticleComment.pined_comment_limit()
 
   @doc """
-  list paged article comments
+  [timeline-mode] list paged article comments
   """
-  def list_article_comments(thread, article_id, %{page: page, size: size} = filters) do
-    with {:ok, thread_query} <- match(thread, :query, article_id) do
-      ArticleComment
-      |> where(^thread_query)
-      |> where([c], c.is_folded == false and c.is_reported == false and c.is_pined == false)
-      |> QueryBuilder.filter_pack(filters)
-      |> ORM.paginater(~m(page size)a)
-      |> add_pined_comments_ifneed(thread, article_id, filters)
-      |> done()
-    end
+
+  def list_article_comments(thread, article_id, filters, mode, user \\ nil)
+
+  def list_article_comments(thread, article_id, filters, :timeline, user) do
+    where_query = dynamic([c], not c.is_folded and not c.is_reported and not c.is_pined)
+    do_list_article_comment(thread, article_id, filters, where_query, user)
   end
 
-  def list_article_comments(
-        thread,
-        article_id,
-        %{page: page, size: size} = filters,
-        %User{} = user
-      ) do
-    with {:ok, thread_query} <- match(thread, :query, article_id) do
-      ArticleComment
-      |> where(^thread_query)
-      |> where([c], c.is_folded == false and c.is_reported == false and c.is_pined == false)
-      |> QueryBuilder.filter_pack(filters)
-      |> ORM.paginater(~m(page size)a)
-      |> check_viewer_has_emotioned(user)
-      |> add_pined_comments_ifneed(thread, article_id, filters)
-      |> done()
-    end
+  @doc """
+  [replies-mode] list paged article comments
+  """
+  def list_article_comments(thread, article_id, filters, :replies, user) do
+    where_query =
+      dynamic(
+        [c],
+        is_nil(c.reply_to_id) and not c.is_folded and not c.is_reported and not c.is_pined
+      )
+
+    do_list_article_comment(thread, article_id, filters, where_query, user)
   end
 
-  # TODO: @pined_comment_limit 10
-  defp add_pined_comments_ifneed(%{entries: entries} = paged_comments, thread, article_id, %{
-         page: 1
-       }) do
-    with {:ok, info} <- match(thread),
-         query <-
-           from(p in ArticlePinedComment,
-             join: c in ArticleComment,
-             on: p.article_comment_id == c.id,
-             where: field(p, ^info.foreign_key) == ^article_id,
-             select: c
-           ),
-         {:ok, pined_comments} <- query |> Repo.all() |> done() do
-      case pined_comments do
-        [] ->
-          paged_comments
-
-        _ ->
-          updated_entries =
-            Enum.concat(Enum.slice(pined_comments, 0, @pined_comment_limit), entries)
-
-          pined_comment_count = length(pined_comments)
-
-          Map.merge(paged_comments, %{
-            entries: updated_entries,
-            total_count: paged_comments.total_count + pined_comment_count
-          })
-      end
-    end
+  def list_folded_article_comments(thread, article_id, filters) do
+    where_query = dynamic([c], c.is_folded and not c.is_reported and not c.is_pined)
+    do_list_article_comment(thread, article_id, filters, where_query, nil)
   end
 
-  defp add_pined_comments_ifneed(paged_comments, _thread, _article_id, _), do: paged_comments
-
-  def list_folded_article_comments(thread, article_id, %{page: page, size: size} = filters) do
-    with {:ok, thread_query} <- match(thread, :query, article_id) do
-      ArticleComment
-      |> where(^thread_query)
-      |> where([c], c.is_folded == true and c.is_reported == false and c.is_pined == false)
-      |> QueryBuilder.filter_pack(filters)
-      |> ORM.paginater(~m(page size)a)
-      |> done()
-    end
+  def list_folded_article_comments(thread, article_id, filters, user) do
+    where_query = dynamic([c], c.is_folded and not c.is_reported and not c.is_pined)
+    do_list_article_comment(thread, article_id, filters, where_query, user)
   end
 
-  def list_folded_article_comments(
-        thread,
-        article_id,
-        %{page: page, size: size} = filters,
-        %User{} = user
-      ) do
-    with {:ok, thread_query} <- match(thread, :query, article_id) do
-      ArticleComment
-      |> where(^thread_query)
-      |> where([c], c.is_folded == true and c.is_reported == false and c.is_pined == false)
-      |> QueryBuilder.filter_pack(filters)
-      |> ORM.paginater(~m(page size)a)
-      |> check_viewer_has_emotioned(user)
-      |> done()
-    end
-  end
+  def list_reported_article_comments(thread, article_id, filters, user \\ nil)
 
-  def list_reported_article_comments(thread, article_id, %{page: page, size: size} = filters) do
-    with {:ok, thread_query} <- match(thread, :query, article_id) do
-      ArticleComment
-      |> where(^thread_query)
-      |> where([c], c.is_reported == true)
-      |> QueryBuilder.filter_pack(filters)
-      |> ORM.paginater(~m(page size)a)
-      |> done()
-    end
-  end
-
-  def list_reported_article_comments(
-        thread,
-        article_id,
-        %{page: page, size: size} = filters,
-        %User{} = user
-      ) do
-    with {:ok, thread_query} <- match(thread, :query, article_id) do
-      ArticleComment
-      |> where(^thread_query)
-      |> where([c], c.is_reported == true)
-      |> QueryBuilder.filter_pack(filters)
-      |> ORM.paginater(~m(page size)a)
-      |> check_viewer_has_emotioned(user)
-      |> done()
-    end
+  def list_reported_article_comments(thread, article_id, filters, user) do
+    where_query = dynamic([c], c.is_reported)
+    do_list_article_comment(thread, article_id, filters, where_query, user)
   end
 
   @doc """
   list paged comment replies
   """
-  def list_comment_replies(comment_id, %{page: page, size: size} = filters) do
-    ArticleComment
-    |> where([c], c.reply_to_id == ^comment_id)
-    # TODO: test reported and folded status
-    |> where([c], c.is_folded == false and c.is_reported == false)
-    |> QueryBuilder.filter_pack(filters)
-    |> ORM.paginater(~m(page size)a)
-    |> done()
+  def list_comment_replies(comment_id, filters, user \\ nil)
+
+  def list_comment_replies(comment_id, filters, user) do
+    do_list_comment_replies(comment_id, filters, user)
   end
 
+  @spec list_article_comments_participators(T.comment_thread(), Integer.t(), T.paged_filter()) ::
+          {:ok, T.paged_users()}
+  def list_article_comments_participators(thread, article_id, filters) do
+    %{page: page, size: size} = filters
+
+    with {:ok, thread_query} <- match(thread, :query, article_id) do
+      ArticleComment
+      |> where(^thread_query)
+      |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :desc_inserted}))
+      |> join(:inner, [c], a in assoc(c, :author))
+      |> distinct([c, a], a.id)
+      |> group_by([c, a], a.id)
+      |> group_by([c, a], c.inserted_at)
+      |> select([c, a], a)
+      |> ORM.paginater(~m(page size)a)
+      |> done()
+    end
+  end
+
+  @spec pin_article_comment(Integer.t()) :: {:ok, ArticleComment.t()}
   @doc "pin a comment"
   def pin_article_comment(comment_id) do
     with {:ok, comment} <- ORM.find(ArticleComment, comment_id),
@@ -221,11 +157,21 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
-  # TODO: remove pined record if need
+  @doc "delete article comment"
   def delete_article_comment(comment_id, %User{} = _user) do
-    with {:ok, comment} <-
-           ORM.find(ArticleComment, comment_id) do
-      comment |> ORM.update(%{body_html: @delete_hint, is_deleted: true})
+    with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
+      Multi.new()
+      |> Multi.run(:update_article_comments_count, fn _, _ ->
+        update_article_comments_count(comment, :dec)
+      end)
+      |> Multi.run(:remove_pined_comment, fn _, _ ->
+        ORM.findby_delete(ArticlePinedComment, %{article_comment_id: comment.id})
+      end)
+      |> Multi.run(:delete_article_comment, fn _, _ ->
+        ORM.update(comment, %{body_html: @delete_hint, is_deleted: true})
+      end)
+      |> Repo.transaction()
+      |> upsert_comment_result()
     end
   end
 
@@ -321,7 +267,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
           |> Map.put(:"#{emotion}_count", status.user_count)
           |> Map.put(
             :"#{emotion}_user_logins",
-            status.user_list |> Enum.map(& &1.login) |> Enum.join(",")
+            status.user_list |> Enum.map(& &1.login)
           )
           |> Map.put(
             :"latest_#{emotion}_users",
@@ -357,13 +303,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> Multi.run(:create_article_comment, fn _, _ ->
         do_create_comment(content, info.foreign_key, article, user)
       end)
+      |> Multi.run(:update_article_comments_count, fn _, %{create_article_comment: comment} ->
+        update_article_comments_count(comment, :inc)
+      end)
       |> Multi.run(:add_participator, fn _, _ ->
         add_participator_to_article(article, user)
       end)
-      # |> Multi.run(:mention_users, fn _, %{create_comment: comment} ->
-      #   Delivery.mention_from_comment(community, thread, content, comment, args, user)
-      #   {:ok, :pass}
-      # end)
       |> Repo.transaction()
       |> upsert_comment_result()
     end
@@ -371,13 +316,19 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   @doc "reply to exsiting comment"
   def reply_article_comment(comment_id, content, %User{} = user) do
-    with {:ok, replying_comment} <- ORM.find(ArticleComment, comment_id, preload: :reply_to),
+    with {:ok, target_comment} <-
+           ORM.find_by(ArticleComment, %{id: comment_id, is_deleted: false}),
+         replying_comment <- Repo.preload(target_comment, reply_to: :author),
          {thread, article} <- get_article(replying_comment),
          {:ok, info} <- match(thread),
          parent_comment <- get_parent_comment(replying_comment) do
       Multi.new()
       |> Multi.run(:create_reply_comment, fn _, _ ->
         do_create_comment(content, info.foreign_key, article, user)
+      end)
+      |> Multi.run(:update_article_comments_count, fn _,
+                                                      %{create_reply_comment: replyed_comment} ->
+        update_article_comments_count(replyed_comment, :inc)
       end)
       |> Multi.run(:create_article_comment_reply, fn _,
                                                      %{create_reply_comment: replyed_comment} ->
@@ -392,6 +343,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       end)
       |> Multi.run(:add_participator, fn _, _ ->
         add_participator_to_article(article, user)
+      end)
+      |> Multi.run(:set_meta_flag, fn _, %{create_reply_comment: replyed_comment} ->
+        update_reply_to_others_state(parent_comment, replying_comment, replyed_comment)
       end)
       |> Multi.run(:add_reply_to, fn _, %{create_reply_comment: replyed_comment} ->
         replyed_comment
@@ -415,11 +369,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
         ORM.create(ArticleCommentUpvote, %{article_comment_id: comment.id, user_id: user_id})
       end)
       |> Multi.run(:inc_upvotes_count, fn _, _ ->
-        count_query = from(c in ArticleCommentUpvote, where: c.article_comment_id == ^comment_id)
+        count_query = from(c in ArticleCommentUpvote, where: c.article_comment_id == ^comment.id)
         upvotes_count = Repo.aggregate(count_query, :count)
         ORM.update(comment, %{upvotes_count: upvotes_count})
       end)
-      |> Multi.run(:check_article_author_upvoted, fn _, _ ->
+      |> Multi.run(:check_article_author_upvoted, fn _, %{inc_upvotes_count: comment} ->
         update_article_author_upvoted_info(comment, user_id)
       end)
       |> Repo.transaction()
@@ -452,6 +406,73 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
+  defp do_list_article_comment(thread, article_id, filters, where_query, user) do
+    %{page: page, size: size} = filters
+
+    with {:ok, thread_query} <- match(thread, :query, article_id) do
+      query = from(c in ArticleComment, preload: [reply_to: :author])
+
+      query
+      |> where(^thread_query)
+      |> where(^where_query)
+      |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :asc_inserted}))
+      |> ORM.paginater(~m(page size)a)
+      |> set_viewer_emotion_ifneed(user)
+      |> add_pined_comments_ifneed(thread, article_id, filters)
+      |> done()
+    end
+  end
+
+  defp do_list_comment_replies(comment_id, filters, user) do
+    %{page: page, size: size} = filters
+    query = from(c in ArticleComment, preload: [reply_to: :author])
+
+    where_query =
+      dynamic([c], not c.is_reported and not c.is_folded and c.reply_to_id == ^comment_id)
+
+    query
+    |> where(^where_query)
+    |> QueryBuilder.filter_pack(filters)
+    |> ORM.paginater(~m(page size)a)
+    |> set_viewer_emotion_ifneed(user)
+    |> done()
+  end
+
+  defp add_pined_comments_ifneed(%{entries: entries} = paged_comments, thread, article_id, %{
+         page: 1
+       }) do
+    with {:ok, info} <- match(thread),
+         query <-
+           from(p in ArticlePinedComment,
+             join: c in ArticleComment,
+             on: p.article_comment_id == c.id,
+             where: field(p, ^info.foreign_key) == ^article_id,
+             select: c
+           ),
+         {:ok, pined_comments} <- Repo.all(query) |> done() do
+      case pined_comments do
+        [] ->
+          paged_comments
+
+        _ ->
+          preloaded_pined_comments =
+            Enum.slice(pined_comments, 0, @pined_comment_limit)
+            |> Repo.preload(reply_to: :author)
+
+          updated_entries = Enum.concat(preloaded_pined_comments, entries)
+
+          pined_comment_count = length(pined_comments)
+
+          Map.merge(paged_comments, %{
+            entries: updated_entries,
+            total_count: paged_comments.total_count + pined_comment_count
+          })
+      end
+    end
+  end
+
+  defp add_pined_comments_ifneed(paged_comments, _thread, _article_id, _), do: paged_comments
+
   defp update_article_author_upvoted_info(%ArticleComment{} = comment, user_id) do
     with {:ok, article} = get_full_comment(comment.id) do
       is_article_author_upvoted = article.author.id == user_id
@@ -462,6 +483,26 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
         |> Map.merge(%{is_article_author_upvoted: is_article_author_upvoted})
 
       comment |> ORM.update(%{meta: new_meta})
+    end
+  end
+
+  # update comment's parent article's comments total count
+  @spec update_article_comments_count(ArticleComment.t(), :inc | :dec) :: ArticleComment.t()
+  defp update_article_comments_count(%ArticleComment{} = comment, opt) do
+    with {:ok, article_info} <- match(:comment_article, comment),
+         {:ok, article} <- ORM.find(article_info.model, article_info.id) do
+      count_query =
+        from(c in ArticleComment, where: field(c, ^article_info.foreign_key) == ^article_info.id)
+
+      cur_count = Repo.aggregate(count_query, :count)
+
+      case opt do
+        :inc ->
+          ORM.update(article, %{article_comments_count: cur_count - 1 + 1})
+
+        :dec ->
+          ORM.update(article, %{article_comments_count: Enum.max([0, cur_count - 1])})
+      end
     end
   end
 
@@ -495,9 +536,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     comment
   end
 
-  defp get_parent_comment(%ArticleComment{reply_to_id: _} = comment) do
-    Repo.preload(comment, :reply_to) |> Map.get(:reply_to)
-    # get_parent_comment(Repo.preload(comment, :reply_to))
+  defp get_parent_comment(%ArticleComment{reply_to_id: reply_to_id} = comment)
+       when not is_nil(reply_to_id) do
+    get_parent_comment(Repo.preload(comment.reply_to, reply_to: :author))
   end
 
   # 如果 replies 没有达到 @max_parent_replies_count, 则添加
@@ -523,44 +564,33 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     {:ok, parent_comment}
   end
 
-  # add participator to article-like content (Post, Job ...)
+  # add participator to article-like content (Post, Job ...) and update count
   defp add_participator_to_article(%Post{} = article, %User{} = user) do
-    new_comment_participators =
-      article.comment_participators
+    total_participators =
+      article.article_comments_participators
       |> List.insert_at(0, user)
       |> Enum.uniq()
-      |> Enum.slice(0, @max_participator_count)
+
+    new_comment_participators = total_participators |> Enum.slice(0, @max_participator_count)
+
+    total_participators_count = length(total_participators)
 
     article
     |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_embed(:comment_participators, new_comment_participators)
+    |> Ecto.Changeset.put_change(:article_comments_participators_count, total_participators_count)
+    |> Ecto.Changeset.put_embed(:article_comments_participators, new_comment_participators)
     |> Repo.update()
   end
 
   defp add_participator_to_article(_, _), do: {:ok, :pass}
 
-  defp get_article(%ArticleComment{post_id: post_id} = comment) when not is_nil(post_id) do
-    with {:ok, article} <- ORM.find(Post, comment.post_id, preload: [author: :user]) do
-      {:post, article}
-    end
-  end
+  defp user_in_logins?([], _), do: false
+  defp user_in_logins?(ids_list, %User{login: login}), do: Enum.member?(ids_list, login)
 
-  defp get_article(%ArticleComment{job_id: job_id} = comment) when not is_nil(job_id) do
-    with {:ok, article} <- ORM.find(Job, comment.job_id, preload: [author: :user]) do
-      {:job, article}
-    end
-  end
+  defp set_viewer_emotion_ifneed(paged_comments, nil), do: paged_comments
+  defp set_viewer_emotion_ifneed(%{entries: []} = paged_comments, _), do: paged_comments
 
-  defp user_in_logins?(nil, _), do: false
-
-  defp user_in_logins?(ids_str, %User{login: login}) do
-    ids_list = ids_str |> String.split(",")
-    login in ids_list
-  end
-
-  defp check_viewer_has_emotioned(%{entries: []} = paged_comments, _), do: paged_comments
-
-  defp check_viewer_has_emotioned(%{entries: entries} = paged_comments, %User{} = user) do
+  defp set_viewer_emotion_ifneed(%{entries: entries} = paged_comments, %User{} = user) do
     new_entries =
       Enum.map(entries, fn comment ->
         update_viewed_status =
@@ -576,6 +606,18 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       end)
 
     %{paged_comments | entries: new_entries}
+  end
+
+  defp get_article(%ArticleComment{post_id: post_id} = comment) when not is_nil(post_id) do
+    with {:ok, article} <- ORM.find(Post, comment.post_id, preload: [author: :user]) do
+      {:post, article}
+    end
+  end
+
+  defp get_article(%ArticleComment{job_id: job_id} = comment) when not is_nil(job_id) do
+    with {:ok, article} <- ORM.find(Job, comment.job_id, preload: [author: :user]) do
+      {:job, article}
+    end
   end
 
   @spec get_full_comment(String.t()) :: {:ok, T.article_info()} | {:error, nil}
@@ -612,15 +654,37 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
+  # used in replies mode, for those reply to other user in replies box (for frontend)
+  # 用于回复模式，指代这条回复是回复“回复列表其他人的” （方便前端展示）
+  defp update_reply_to_others_state(parent_comment, replying_comment, replyed_comment) do
+    replying_comment = replying_comment |> Repo.preload(:author)
+    parent_comment = parent_comment |> Repo.preload(:author)
+    is_reply_to_others = parent_comment.author.id !== replying_comment.author.id
+
+    case is_reply_to_others do
+      true ->
+        new_meta =
+          replyed_comment.meta
+          |> Map.from_struct()
+          |> Map.merge(%{is_reply_to_others: is_reply_to_others})
+
+        ORM.update(replyed_comment, %{meta: new_meta})
+
+      false ->
+        {:ok, :pass}
+    end
+  end
+
   defp upsert_comment_result({:ok, %{create_article_comment: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{add_reply_to: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{check_article_author_upvoted: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{update_report_flag: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{update_comment_emotion: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{update_comment_flag: result}}), do: {:ok, result}
+  defp upsert_comment_result({:ok, %{delete_article_comment: result}}), do: {:ok, result}
 
-  defp upsert_comment_result({:error, :create_comment, result, _steps}) do
-    {:error, result}
+  defp upsert_comment_result({:error, :create_article_comment, result, _steps}) do
+    raise_error(:create_comment, result)
   end
 
   defp upsert_comment_result({:error, :add_participator, result, _steps}) do

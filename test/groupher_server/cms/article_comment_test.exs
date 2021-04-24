@@ -23,13 +23,8 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[basic article comment]" do
-    @tag :wip2
+    @tag :wip
     test "post, job are supported by article comment.", ~m(user post job)a do
-      post_comment_1 = "post_comment 1"
-      post_comment_2 = "post_comment 2"
-      job_comment_1 = "job_comment 1"
-      job_comment_2 = "job_comment 2"
-
       {:ok, post_comment_1} = CMS.create_article_comment(:post, post.id, "post_comment 1", user)
       {:ok, post_comment_2} = CMS.create_article_comment(:post, post.id, "post_comment 2", user)
 
@@ -77,7 +72,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
       {:ok, post} = ORM.find(Post, post.id)
 
-      participator = List.first(post.comment_participators)
+      participator = List.first(post.article_comments_participators)
       assert participator.id == user.id
     end
 
@@ -90,7 +85,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
       {:ok, post} = ORM.find(Post, post.id)
 
-      assert 1 == length(post.comment_participators)
+      assert 1 == length(post.article_comments_participators)
     end
 
     @tag :wip
@@ -103,7 +98,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
       {:ok, post} = ORM.find(Post, post.id)
 
-      participator = List.first(post.comment_participators)
+      participator = List.first(post.article_comments_participators)
 
       assert participator.id == user2.id
     end
@@ -237,9 +232,6 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
       {:ok, pined_record} = ArticlePinedComment |> ORM.find_by(%{post_id: post.id})
       assert pined_record.post_id == post.id
-
-      {:ok, pined_record} =
-        ORM.find(ArticlePinedComment, pined_record.id, preload: :article_comment)
     end
 
     test "user can unpin a comment", ~m(user post)a do
@@ -252,7 +244,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert {:error, _} = ArticlePinedComment |> ORM.find_by(%{article_comment_id: comment.id})
     end
 
-    @tag :wip2
+    @tag :wip
     test "pined comments has a limit for each article", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
 
@@ -327,6 +319,30 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
   describe "paged article comments" do
     @tag :wip
+    test "can load paged comments participators of a article", ~m(user post)a do
+      total_count = 30
+      page_number = 1
+      page_size = 10
+      thread = :post
+
+      Enum.reduce(1..total_count, [], fn _, acc ->
+        {:ok, new_user} = db_insert(:user)
+        {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", new_user)
+
+        acc ++ [comment]
+      end)
+
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+
+      {:ok, results} =
+        CMS.list_article_comments_participators(thread, post.id, %{page: 1, size: page_size})
+
+      assert results |> is_valid_pagination?(:raw)
+      assert results.total_count == total_count + 1
+    end
+
+    @tag :wip
     test "paged article comments folded flag should be false", ~m(user post)a do
       total_count = 30
       page_number = 1
@@ -340,7 +356,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
         end)
 
       {:ok, paged_comments} =
-        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size})
+        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size}, :replies)
 
       random_comment = all_comments |> Enum.at(Enum.random(0..total_count))
 
@@ -351,19 +367,18 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert total_count == paged_comments.total_count
     end
 
-    @tag :wip2
+    @tag :wip
     test "paged article comments should contains pined comments at top position",
          ~m(user post)a do
       total_count = 20
       page_number = 1
       page_size = 5
 
-      all_comments =
-        Enum.reduce(1..total_count, [], fn _, acc ->
-          {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+      Enum.reduce(1..total_count, [], fn _, acc ->
+        {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
 
-          acc ++ [comment]
-        end)
+        acc ++ [comment]
+      end)
 
       {:ok, random_comment_1} = CMS.create_article_comment(:post, post.id, "pin commment", user)
       {:ok, random_comment_2} = CMS.create_article_comment(:post, post.id, "pin commment2", user)
@@ -372,7 +387,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)
 
       {:ok, paged_comments} =
-        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size})
+        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size}, :replies)
 
       assert pined_comment_1.id == List.first(paged_comments.entries) |> Map.get(:id)
       assert pined_comment_2.id == Enum.at(paged_comments.entries, 1) |> Map.get(:id)
@@ -380,19 +395,18 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert paged_comments.total_count == total_count + 2
     end
 
-    @tag :wip2
+    @tag :wip
     test "only page 1 have pined coments",
          ~m(user post)a do
       total_count = 20
       page_number = 2
       page_size = 5
 
-      all_comments =
-        Enum.reduce(1..total_count, [], fn _, acc ->
-          {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+      Enum.reduce(1..total_count, [], fn _, acc ->
+        {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
 
-          acc ++ [comment]
-        end)
+        acc ++ [comment]
+      end)
 
       {:ok, random_comment_1} = CMS.create_article_comment(:post, post.id, "pin commment", user)
       {:ok, random_comment_2} = CMS.create_article_comment(:post, post.id, "pin commment2", user)
@@ -401,7 +415,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)
 
       {:ok, paged_comments} =
-        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size})
+        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size}, :replies)
 
       assert not exist_in?(pined_comment_1, paged_comments.entries)
       assert not exist_in?(pined_comment_2, paged_comments.entries)
@@ -440,7 +454,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       {:ok, _comment} = CMS.report_article_comment(random_comment_6.id, user)
 
       {:ok, paged_comments} =
-        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size})
+        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size}, :replies)
 
       assert not exist_in?(random_comment_1, paged_comments.entries)
       assert not exist_in?(random_comment_2, paged_comments.entries)
@@ -535,11 +549,52 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       {:ok, deleted_comment} = CMS.delete_article_comment(random_comment.id, user)
 
       {:ok, paged_comments} =
-        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size})
+        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size}, :replies)
 
       assert exist_in?(deleted_comment, paged_comments.entries)
       assert deleted_comment.is_deleted
       assert deleted_comment.body_html == @delete_hint
+    end
+
+    @tag :wip
+    test "delete comment still update article's comments_count field", ~m(user post)a do
+      total_count = 10
+
+      all_comments =
+        Enum.reduce(1..total_count, [], fn _, acc ->
+          {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+
+          acc ++ [comment]
+        end)
+
+      {:ok, post} = ORM.find(Post, post.id)
+      assert post.article_comments_count == total_count
+
+      random_comment = all_comments |> Enum.at(1)
+      {:ok, _} = CMS.delete_article_comment(random_comment.id, user)
+
+      {:ok, post} = ORM.find(Post, post.id)
+      assert post.article_comments_count == total_count - 1
+    end
+
+    @tag :wip
+    test "delete comment still delete pined record if needed", ~m(user post)a do
+      total_count = 10
+
+      all_comments =
+        Enum.reduce(1..total_count, [], fn _, acc ->
+          {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+
+          acc ++ [comment]
+        end)
+
+      random_comment = all_comments |> Enum.at(1)
+
+      {:ok, _comment} = CMS.pin_article_comment(random_comment.id)
+      {:ok, _comment} = ORM.find(ArticleComment, random_comment.id)
+
+      {:ok, _} = CMS.delete_article_comment(random_comment.id, user)
+      assert {:error, _comment} = ORM.find(ArticlePinedComment, random_comment.id)
     end
   end
 

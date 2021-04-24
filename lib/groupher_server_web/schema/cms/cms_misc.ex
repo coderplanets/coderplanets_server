@@ -161,6 +161,12 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     value(:grey)
   end
 
+  @desc "the filter mode for list comments"
+  enum :article_comments_mode do
+    value(:replies)
+    value(:timeline)
+  end
+
   @desc "inline members-like filter for dataloader usage"
   input_object :members_filter do
     field(:first, :integer, default_value: @default_inner_page_size)

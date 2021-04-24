@@ -196,12 +196,19 @@ defmodule GroupherServer.Test.AssertHelper do
   defp log_debug_info(res, _), do: res
 
   @doc "check id is exsit in list of Map<id: xxx> structure"
-  @spec exist_in?(Map.t(), [Map.t()], Integer.t()) :: boolean
-  def exist_in?(%{id: id}, list, occur_count \\ 1) when is_list(list) do
+  @spec exist_in?(Map.t(), [Map.t()]) :: boolean
+  def exist_in?(%{id: id}, list, :string_key) when is_list(list) do
+    list
+    |> Enum.filter(fn item -> item["id"] == to_string(id) end)
+    |> length
+    |> Kernel.==(1)
+  end
+
+  def exist_in?(%{id: id}, list) when is_list(list) do
     list
     |> Enum.filter(fn item -> item.id == id end)
     |> length
-    |> Kernel.==(occur_count)
+    |> Kernel.==(1)
   end
 
   # for embed user situation

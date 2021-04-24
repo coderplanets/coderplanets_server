@@ -3,6 +3,9 @@ defmodule Helper.Types do
   custom @types
   """
 
+  alias GroupherServer.{Accounts}
+  alias Accounts.User
+
   @typedoc """
   Type GraphQL flavor the error format
   """
@@ -29,6 +32,22 @@ defmodule Helper.Types do
         }
 
   @type article_thread :: :post | :job
+  @type comment_thread :: :post | :job
+
+  @type paged_filter :: %{
+          page: Integer.t(),
+          size: Integer.t(),
+          sort: :desc_inserted | :asc_inserted
+        }
+
+  @type paged_users :: %{
+          entries: [User.t()],
+          page_number: Integer.t(),
+          page_size: Integer.t(),
+          total_count: Integer.t(),
+          total_pages: Integer.t()
+        }
+
   @type article_common :: %{
           title: String.t()
         }

@@ -196,7 +196,7 @@ defmodule GroupherServer.Test.Mutation.Post do
         meta {
           isEdited
         }
-        commentParticipators {
+        articleCommentsParticipators {
           id
           nickname
         }
