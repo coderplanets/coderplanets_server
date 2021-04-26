@@ -154,7 +154,6 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
       arg(:community_id, :id)
       arg(:community, :string)
       arg(:thread, :cms_thread, default_value: :post)
-      arg(:topic, :string)
       arg(:all, :boolean, default_value: false)
 
       resolve(&R.CMS.get_tags/3)

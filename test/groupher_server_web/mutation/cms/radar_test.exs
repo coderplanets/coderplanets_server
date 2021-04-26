@@ -24,7 +24,6 @@ defmodule GroupherServer.Test.Mutation.Radar do
       $tags: [Ids]
       $mentionUsers: [Ids]
       $linkAddr: String
-      $topic: String
     ) {
       createPost(
         title: $title
@@ -35,7 +34,6 @@ defmodule GroupherServer.Test.Mutation.Radar do
         tags: $tags
         mentionUsers: $mentionUsers
         linkAddr: $linkAddr
-        topic: $topic
       ) {
         title
         id
@@ -59,8 +57,7 @@ defmodule GroupherServer.Test.Mutation.Radar do
         post_attr
         |> Map.merge(%{
           communityId: community.id,
-          linkAddr: "https://wanqu.co/a/7237/",
-          topic: "radar"
+          linkAddr: "https://wanqu.co/a/7237/"
         })
 
       created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
@@ -79,8 +76,7 @@ defmodule GroupherServer.Test.Mutation.Radar do
         post_attr
         |> Map.merge(%{
           communityId: community.id,
-          linkAddr: "https://unknown.com",
-          topic: "radar"
+          linkAddr: "https://unknown.com"
         })
 
       created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
@@ -99,8 +95,7 @@ defmodule GroupherServer.Test.Mutation.Radar do
         post_attr
         |> Map.merge(%{
           communityId: community.id,
-          linkAddr: "watdjfiefejife",
-          topic: "radar"
+          linkAddr: "watdjfiefejife"
         })
 
       created = user_conn |> mutation_result(@create_post_query, variables, "createPost")

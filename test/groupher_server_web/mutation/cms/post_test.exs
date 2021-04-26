@@ -25,7 +25,6 @@ defmodule GroupherServer.Test.Mutation.Post do
       $communityId: ID!
       $tags: [Ids]
       $mentionUsers: [Ids]
-      $topic: String
     ) {
       createPost(
         title: $title
@@ -35,7 +34,6 @@ defmodule GroupherServer.Test.Mutation.Post do
         communityId: $communityId
         tags: $tags
         mentionUsers: $mentionUsers
-        topic: $topic
       ) {
         title
         body
@@ -335,8 +333,8 @@ defmodule GroupherServer.Test.Mutation.Post do
     }
     """
     @set_refined_tag_query """
-    mutation($communityId: ID!, $thread: CmsThread, $topic: String, $id: ID!) {
-      setRefinedTag(communityId: $communityId, thread: $thread, topic: $topic, id: $id) {
+    mutation($communityId: ID!, $thread: CmsThread, $id: ID!) {
+      setRefinedTag(communityId: $communityId, thread: $thread, id: $id) {
         id
         title
       }
@@ -377,26 +375,6 @@ defmodule GroupherServer.Test.Mutation.Post do
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       variables = %{id: post.id, communityId: community.id}
-      rule_conn |> mutation_result(@set_refined_tag_query, variables, "setRefinedTag")
-      {:ok, found} = ORM.find(CMS.Post, post.id, preload: :tags)
-
-      assoc_tags = found.tags |> Enum.map(& &1.id)
-      assert tag.id in assoc_tags
-    end
-
-    test "auth user can set refined tag to post of spec topic", ~m(post)a do
-      {:ok, community} = db_insert(:community)
-      {:ok, user} = db_insert(:user)
-
-      tag_attrs =
-        mock_attrs(:tag, %{thread: "post", community: community, title: "refined", topic: "tech"})
-
-      {:ok, tag} = CMS.create_tag(community, :post, tag_attrs, user)
-
-      passport_rules = %{community.title => %{"post.refinedtag.set" => true}}
-      rule_conn = simu_conn(:user, cms: passport_rules)
-
-      variables = %{id: post.id, communityId: community.id, topic: "tech"}
       rule_conn |> mutation_result(@set_refined_tag_query, variables, "setRefinedTag")
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :tags)
 
@@ -446,8 +424,8 @@ defmodule GroupherServer.Test.Mutation.Post do
     }
     """
     @unset_refined_tag_query """
-    mutation($communityId: ID!, $thread: CmsThread, $topic: String, $id: ID!) {
-      unsetRefinedTag(communityId: $communityId, thread: $thread, topic: $topic, id: $id) {
+    mutation($communityId: ID!, $thread: CmsThread, $id: ID!) {
+      unsetRefinedTag(communityId: $communityId, thread: $thread, id: $id) {
         id
         title
       }
@@ -497,30 +475,6 @@ defmodule GroupherServer.Test.Mutation.Post do
       rule_conn |> mutation_result(@set_refined_tag_query, variables, "setRefinedTag")
 
       variables = %{id: post.id, communityId: community.id}
-      rule_conn |> mutation_result(@unset_refined_tag_query, variables, "unsetRefinedTag")
-
-      {:ok, found} = ORM.find(CMS.Post, post.id, preload: :tags)
-
-      assoc_tags = found.tags |> Enum.map(& &1.id)
-      assert tag.id not in assoc_tags
-    end
-
-    test "can unset refined tag to a post of spec topic", ~m(post)a do
-      {:ok, community} = db_insert(:community)
-      {:ok, user} = db_insert(:user)
-
-      tag_attrs =
-        mock_attrs(:tag, %{thread: "post", community: community, title: "refined", topic: "tech"})
-
-      {:ok, tag} = CMS.create_tag(community, :post, tag_attrs, user)
-
-      passport_rules = %{community.title => %{"post.refinedtag.set" => true}}
-      rule_conn = simu_conn(:user, cms: passport_rules)
-
-      variables = %{id: post.id, communityId: community.id, topic: "tech"}
-      rule_conn |> mutation_result(@set_refined_tag_query, variables, "setRefinedTag")
-
-      variables = %{id: post.id, communityId: community.id, topic: "tech"}
       rule_conn |> mutation_result(@unset_refined_tag_query, variables, "unsetRefinedTag")
 
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :tags)

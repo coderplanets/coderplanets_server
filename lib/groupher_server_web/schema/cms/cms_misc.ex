@@ -226,8 +226,6 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     pagination_args()
     article_filter_fields()
     field(:sort, :sort_enum)
-
-    field(:topic, :string)
   end
 
   @desc "job_filter doc"

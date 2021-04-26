@@ -294,7 +294,7 @@ defmodule GroupherServer.CMS.Delegate.SeedsConfig do
         color: :grey
       }
     ]
-    |> Enum.map(fn attr -> Map.merge(%{thread: :post, topic: "posts"}, attr) end)
+    |> Enum.map(fn attr -> Map.merge(%{thread: :post}, attr) end)
   end
 
   def tags(:job) do
@@ -305,7 +305,7 @@ defmodule GroupherServer.CMS.Delegate.SeedsConfig do
         color: :cadetblue
       }
     ])
-    |> Enum.map(fn attr -> Map.merge(%{thread: :job, topic: "jobs"}, attr) end)
+    |> Enum.map(fn attr -> Map.merge(%{thread: :job}, attr) end)
   end
 
   def tags(:repo) do
@@ -343,7 +343,7 @@ defmodule GroupherServer.CMS.Delegate.SeedsConfig do
         color: :grey
       }
     ]
-    |> Enum.map(fn attr -> Map.merge(%{thread: :repo, topic: "repos"}, attr) end)
+    |> Enum.map(fn attr -> Map.merge(%{thread: :repo}, attr) end)
   end
 
   def tags(_), do: []
@@ -383,7 +383,7 @@ defmodule GroupherServer.CMS.Delegate.SeedsConfig do
         color: :grey
       }
     ]
-    |> Enum.map(fn attr -> Map.merge(%{thread: :post, topic: "posts"}, attr) end)
+    |> Enum.map(fn attr -> Map.merge(%{thread: :post}, attr) end)
   end
 
   # home posts
@@ -422,7 +422,7 @@ defmodule GroupherServer.CMS.Delegate.SeedsConfig do
         color: :grey
       }
     ]
-    |> Enum.map(fn attr -> Map.merge(%{thread: :post, topic: "posts"}, attr) end)
+    |> Enum.map(fn attr -> Map.merge(%{thread: :post}, attr) end)
   end
 
   def tags(:home, :tech) do
@@ -460,7 +460,7 @@ defmodule GroupherServer.CMS.Delegate.SeedsConfig do
         color: :grey
       }
     ]
-    |> Enum.map(fn attr -> Map.merge(%{thread: :tech, topic: "tech"}, attr) end)
+    |> Enum.map(fn attr -> Map.merge(%{thread: :tech}, attr) end)
   end
 
   def tags(:home, :share) do
@@ -498,7 +498,7 @@ defmodule GroupherServer.CMS.Delegate.SeedsConfig do
         color: :grey
       }
     ]
-    |> Enum.map(fn attr -> Map.merge(%{thread: :share, topic: "share"}, attr) end)
+    |> Enum.map(fn attr -> Map.merge(%{thread: :share}, attr) end)
   end
 
   def tags(:home, :radar) do
@@ -537,12 +537,12 @@ defmodule GroupherServer.CMS.Delegate.SeedsConfig do
         color: :grey
       }
     ]
-    |> Enum.map(fn attr -> Map.merge(%{thread: :radar, topic: "radar"}, attr) end)
+    |> Enum.map(fn attr -> Map.merge(%{thread: :radar}, attr) end)
   end
 
   def tags(:home, :city) do
     city_tags()
-    |> Enum.map(fn attr -> Map.merge(%{thread: :city, topic: "city"}, attr) end)
+    |> Enum.map(fn attr -> Map.merge(%{thread: :city}, attr) end)
   end
 
   def tags(:home, :job) do
@@ -553,7 +553,7 @@ defmodule GroupherServer.CMS.Delegate.SeedsConfig do
         color: :cadetblue
       }
     ])
-    |> Enum.map(fn attr -> Map.merge(%{thread: :job, topic: "jobs"}, attr) end)
+    |> Enum.map(fn attr -> Map.merge(%{thread: :job}, attr) end)
   end
 
   def tags(:home, _), do: []

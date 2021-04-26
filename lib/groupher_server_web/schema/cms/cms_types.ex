@@ -42,7 +42,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:origial_community, :community, resolve: dataloader(CMS, :origial_community))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
-    # field(:topic)
 
     field(:meta, :article_meta)
     field(:article_comments_participators, list_of(:user))
@@ -312,12 +311,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     timestamp_fields()
   end
 
-  object :topic do
-    field(:id, :id)
-    field(:title, :string)
-    field(:raw, :string)
-  end
-
   object :tag do
     field(:id, :id)
     field(:title, :string)
@@ -325,7 +318,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:thread, :string)
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:community, :community, resolve: dataloader(CMS, :community))
-    field(:topic, :topic, resolve: dataloader(CMS, :topic))
 
     timestamp_fields()
   end

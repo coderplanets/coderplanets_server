@@ -15,13 +15,11 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Post do
       arg(:copy_right, :string)
       arg(:community_id, non_null(:id))
       arg(:thread, :cms_thread, default_value: :post)
-      arg(:topic, :string, default_value: "posts")
       arg(:tags, list_of(:ids))
       arg(:mention_users, list_of(:ids))
 
       middleware(M.Authorize, :login)
       # middleware(M.PublishThrottle)
-      middleware(M.AddSourceIcon)
       middleware(M.PublishThrottle, interval: 3, hour_limit: 15, day_limit: 30)
       resolve(&R.CMS.create_content/3)
       middleware(M.Statistics.MakeContribute, for: [:user, :community])
@@ -32,7 +30,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Post do
       arg(:id, non_null(:id))
       arg(:community_id, non_null(:id))
       arg(:thread, :post_thread, default_value: :post)
-      arg(:topic, :string, default_value: "posts")
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
@@ -45,7 +42,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Post do
       arg(:id, non_null(:id))
       arg(:thread, :post_thread, default_value: :post)
       arg(:community_id, non_null(:id))
-      arg(:topic, :string, default_value: "posts")
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)

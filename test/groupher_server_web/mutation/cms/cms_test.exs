@@ -185,15 +185,12 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
 
   describe "[mutation cms tag]" do
     @create_tag_query """
-    mutation($thread: CmsThread!, $title: String!, $color: RainbowColorEnum!, $communityId: ID!, $topic: String) {
-      createTag(thread: $thread, title: $title, color: $color, communityId: $communityId, topic: $topic) {
+    mutation($thread: CmsThread!, $title: String!, $color: RainbowColorEnum!, $communityId: ID!) {
+      createTag(thread: $thread, title: $title, color: $color, communityId: $communityId) {
         id
         title
         color
         thread
-        topic {
-          title
-        }
         community {
           id
           logo
@@ -202,7 +199,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       }
     }
     """
-    test "create tag with valid attrs, has default POST thread and default posts topic",
+    test "create tag with valid attrs, has default POST thread and default posts",
          ~m(community)a do
       variables = mock_attrs(:tag, %{communityId: community.id})
 
@@ -216,27 +213,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
 
       assert created["id"] == to_string(found.id)
       assert found.thread == "post"
-      assert created["topic"]["title"] == "posts"
       assert belong_community["id"] == to_string(community.id)
-    end
-
-    test "can create some tag on different topic", ~m(community)a do
-      variables = mock_attrs(:tag, %{communityId: community.id, topic: "city"})
-
-      passport_rules = %{community.title => %{"post.tag.create" => true}}
-      rule_conn = simu_conn(:user, cms: passport_rules)
-
-      created = rule_conn |> mutation_result(@create_tag_query, variables, "createTag")
-      assert created["title"] == variables.title
-      assert created["topic"]["title"] == "city"
-
-      assert rule_conn
-             |> mutation_get_error?(@create_tag_query, variables)
-
-      variables = variables |> Map.merge(%{topic: "radar"})
-      created = rule_conn |> mutation_result(@create_tag_query, variables, "createTag")
-      assert created["title"] == variables.title
-      assert created["topic"]["title"] == "radar"
     end
 
     test "auth user create duplicate tag fails", ~m(community)a do

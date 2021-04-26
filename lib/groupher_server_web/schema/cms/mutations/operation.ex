@@ -98,7 +98,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Operation do
       arg(:id, non_null(:id))
       arg(:community_id, non_null(:id))
       arg(:thread, :cms_thread, default_value: :post)
-      arg(:topic, :string)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
@@ -127,7 +126,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Operation do
       arg(:id, non_null(:id))
       arg(:community_id, non_null(:id))
       arg(:thread, :cms_thread, default_value: :post)
-      arg(:topic, :string)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
