@@ -6,9 +6,9 @@ defmodule GroupherServer.CMS.Tag do
   import Ecto.Changeset
 
   alias GroupherServer.CMS
-  alias CMS.{Author, Community, Topic, Job, Post}
+  alias CMS.{Author, Community, Job, Post}
 
-  @required_fields ~w(thread title color author_id topic_id community_id)a
+  @required_fields ~w(thread title color author_id community_id)a
   # @required_fields ~w(thread title color author_id  community_id)a
 
   @type t :: %Tag{}
@@ -17,7 +17,6 @@ defmodule GroupherServer.CMS.Tag do
     field(:color, :string)
     field(:thread, :string)
     belongs_to(:community, Community)
-    belongs_to(:topic, Topic)
     belongs_to(:author, Author)
 
     many_to_many(
@@ -46,7 +45,7 @@ defmodule GroupherServer.CMS.Tag do
     |> validate_required(@required_fields)
     |> foreign_key_constraint(:user_id)
     |> foreign_key_constraint(:community_id)
-    |> unique_constraint(:tag_duplicate, name: :tags_community_id_thread_topic_id_title_index)
+    |> unique_constraint(:tag_duplicate, name: :tags_community_id_thread_title_index)
 
     # |> foreign_key_constraint(name: :posts_tags_tag_id_fkey)
   end
