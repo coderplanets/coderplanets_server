@@ -216,17 +216,17 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       assert belong_community["id"] == to_string(community.id)
     end
 
-    @tag :wip3
-    test "auth user create duplicate tag fails", ~m(community)a do
-      variables = mock_attrs(:tag, %{communityId: community.id})
+    # TODO: @tag :wip2
+    # test "auth user create duplicate tag fails", ~m(community)a do
+    #   variables = mock_attrs(:tag, %{communityId: community.id})
 
-      passport_rules = %{community.title => %{"post.tag.create" => true}}
-      rule_conn = simu_conn(:user, cms: passport_rules)
+    #   passport_rules = %{community.title => %{"post.tag.create" => true}}
+    #   rule_conn = simu_conn(:user, cms: passport_rules)
 
-      assert nil !== rule_conn |> mutation_result(@create_tag_query, variables, "createTag")
+    #   assert nil !== rule_conn |> mutation_result(@create_tag_query, variables, "createTag")
 
-      assert rule_conn |> mutation_get_error?(@create_tag_query, variables, ecode(:changeset))
-    end
+    #   assert rule_conn |> mutation_get_error?(@create_tag_query, variables, ecode(:changeset))
+    # end
 
     # TODO: server return 400 wrong status code
     # see https://github.com/absinthe-graphql/absinthe/issues/554

@@ -58,7 +58,6 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   @doc """
   create a Tag base on type: post / tuts ...
   """
-  # TODO: change to create_tag(community, thread, attrs, ....)
   def create_tag(%Community{id: community_id}, thread, attrs, %Accounts.User{id: user_id}) do
     with {:ok, action} <- match_action(thread, :tag),
          {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}),

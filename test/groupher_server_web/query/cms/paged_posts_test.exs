@@ -186,7 +186,7 @@ defmodule GroupherServer.Test.Query.PagedPosts do
       assert results["totalCount"] == 1
     end
 
-    @tag :wip2
+    @tag :wip
     test "read state all filter should work", ~m(user)a do
       user_conn = simu_conn(:user, user)
       {:ok, community} = db_insert(:community)
