@@ -321,7 +321,6 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
     @tag :wip
     test "can load paged comments participators of a article", ~m(user post)a do
       total_count = 30
-      page_number = 1
       page_size = 10
       thread = :post
 
@@ -332,8 +331,8 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
         acc ++ [comment]
       end)
 
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+      {:ok, _comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+      {:ok, _comment} = CMS.create_article_comment(:post, post.id, "commment", user)
 
       {:ok, results} =
         CMS.list_article_comments_participators(thread, post.id, %{page: 1, size: page_size})

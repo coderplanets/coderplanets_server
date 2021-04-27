@@ -292,8 +292,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
         CMS.PinedPost
         |> join(:inner, [p], c in assoc(p, :community))
         |> join(:inner, [p], content in assoc(p, :post))
-        |> where([p, c, t, content], c.raw == ^community)
-        |> select([p, c, t, content], content)
+        |> where([p, c, content], c.raw == ^community)
+        |> select([p, c, content], content)
         # 10 pined contents per community/thread, at most
         |> ORM.paginater(%{page: 1, size: 10})
         |> done()

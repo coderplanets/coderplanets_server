@@ -141,7 +141,7 @@ defmodule GroupherServer.Test.Mutation.Repo do
       created = user_conn |> mutation_result(@create_repo_query, variables, "createRepo")
       {:ok, repo} = ORM.find(CMS.Repo, created["id"])
 
-      updated =
+      _updated =
         user_conn
         |> mutation_result(
           @update_repo_query,

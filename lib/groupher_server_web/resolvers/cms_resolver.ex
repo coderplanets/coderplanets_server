@@ -99,27 +99,29 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   # #######################
   # content flag ..
   # #######################
-  def pin_content(_root, ~m(id community_id)a, _info) do
-    CMS.pin_content(%CMS.Post{id: id}, %Community{id: community_id})
-  end
-
   def pin_content(_root, ~m(id community_id thread)a, _info) do
     do_pin_content(id, community_id, thread)
   end
 
-  def undo_pin_content(_root, ~m(id community_id)a, _info) do
-    CMS.undo_pin_content(%CMS.Post{id: id}, %Community{id: community_id})
+  def pin_content(_root, ~m(id community_id)a, _info) do
+    CMS.pin_content(%CMS.Post{id: id}, %Community{id: community_id})
   end
 
   def undo_pin_content(_root, ~m(id community_id thread)a, _info) do
     do_undo_pin_content(id, community_id, thread)
   end
 
-  def do_pin_content(id, community_id, :job),
-    do: CMS.pin_content(%CMS.Job{id: id}, %Community{id: community_id})
+  def undo_pin_content(_root, ~m(id community_id)a, _info) do
+    CMS.undo_pin_content(%CMS.Post{id: id}, %Community{id: community_id})
+  end
 
-  def do_pin_content(id, community_id, :repo),
-    do: CMS.pin_content(%CMS.Repo{id: id}, %Community{id: community_id})
+  def do_pin_content(id, community_id, :job) do
+    CMS.pin_content(%CMS.Job{id: id}, %Community{id: community_id})
+  end
+
+  def do_pin_content(id, community_id, :repo) do
+    CMS.pin_content(%CMS.Repo{id: id}, %Community{id: community_id})
+  end
 
   def do_undo_pin_content(id, community_id, :job) do
     CMS.undo_pin_content(%CMS.Job{id: id}, %Community{id: community_id})
@@ -129,11 +131,13 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.undo_pin_content(%CMS.Repo{id: id}, %Community{id: community_id})
   end
 
-  def trash_content(_root, ~m(id thread community_id)a, _info),
-    do: set_community_flags(community_id, thread, id, %{trash: true})
+  def trash_content(_root, ~m(id thread community_id)a, _info) do
+    set_community_flags(community_id, thread, id, %{trash: true})
+  end
 
-  def undo_trash_content(_root, ~m(id thread community_id)a, _info),
-    do: set_community_flags(community_id, thread, id, %{trash: false})
+  def undo_trash_content(_root, ~m(id thread community_id)a, _info) do
+    set_community_flags(community_id, thread, id, %{trash: false})
+  end
 
   # TODO: report contents
   # def report_content(_root, ~m(id thread community_id)a, _info),

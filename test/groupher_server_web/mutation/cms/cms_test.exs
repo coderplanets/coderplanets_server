@@ -216,6 +216,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       assert belong_community["id"] == to_string(community.id)
     end
 
+    @tag :wip3
     test "auth user create duplicate tag fails", ~m(community)a do
       variables = mock_attrs(:tag, %{communityId: community.id})
 

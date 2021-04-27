@@ -62,7 +62,7 @@ defmodule GroupherServer.Test.Query.PostsFlags do
       assert results["pageSize"] == @page_size
       assert results["totalCount"] == @total_count
 
-      {:ok, _pined_post} = CMS.pin_content(post_m, community, "posts")
+      {:ok, _pined_post} = CMS.pin_content(post_m, community)
 
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
       entries_first = results["entries"] |> List.first()
@@ -79,7 +79,7 @@ defmodule GroupherServer.Test.Query.PostsFlags do
 
       random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
 
-      {:ok, _pined_post} = CMS.pin_content(%Post{id: random_id}, community, "posts")
+      {:ok, _pined_post} = CMS.pin_content(%Post{id: random_id}, community)
 
       # {:ok, _} = CMS.set_community_flags(community, %Post{id: random_id}, %{pin: true})
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
