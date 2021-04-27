@@ -17,14 +17,12 @@ patch_tags = [
   %{
     title: "docs",
     color: :blue,
-    thread: :repo,
-    topic: "repos"
+    thread: :repo
   },
   %{
     title: "tuts",
     color: :purple,
-    thread: :repo,
-    topic: "repos"
+    thread: :repo
   }
 ]
 

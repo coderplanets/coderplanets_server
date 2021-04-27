@@ -6,16 +6,14 @@ defmodule GroupherServer.CMS.PinedPost do
   import Ecto.Changeset
 
   alias GroupherServer.CMS
-  alias CMS.{Community, Post, Topic}
+  alias CMS.{Community, Post}
 
   @required_fields ~w(post_id community_id)a
-  @optional_fields ~w(topic_id)a
 
   @type t :: %PinedPost{}
   schema "pined_posts" do
     belongs_to(:post, Post, foreign_key: :post_id)
     belongs_to(:community, Community, foreign_key: :community_id)
-    belongs_to(:topic, Topic, foreign_key: :topic_id)
 
     timestamps(type: :utc_datetime)
   end
@@ -23,10 +21,10 @@ defmodule GroupherServer.CMS.PinedPost do
   @doc false
   def changeset(%PinedPost{} = pined_post, attrs) do
     pined_post
-    |> cast(attrs, @optional_fields ++ @required_fields)
+    |> cast(attrs, @required_fields)
     |> validate_required(@required_fields)
     |> foreign_key_constraint(:post_id)
     |> foreign_key_constraint(:community_id)
-    |> unique_constraint(:pined_posts, name: :pined_posts_post_id_community_id_topic_id_index)
+    |> unique_constraint(:pined_posts, name: :pined_posts_post_id_community_id_index)
   end
 end

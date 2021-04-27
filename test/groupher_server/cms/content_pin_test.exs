@@ -24,16 +24,16 @@ defmodule GroupherServer.Test.CMS.ContentsPin do
 
   describe "[cms post pin]" do
     test "can pin a post", ~m(community post)a do
-      {:ok, pined_post} = CMS.pin_content(post, community, "posts")
+      {:ok, pined_post} = CMS.pin_content(post, community)
 
       assert pined_post.id == post.id
     end
 
     test "can undo pin to a post", ~m(community post)a do
-      {:ok, pined_post} = CMS.pin_content(post, community, "posts")
+      {:ok, pined_post} = CMS.pin_content(post, community)
       assert pined_post.id == post.id
 
-      assert {:ok, unpined} = CMS.undo_pin_content(post, community, "posts")
+      assert {:ok, unpined} = CMS.undo_pin_content(post, community)
       assert unpined.id == post.id
     end
   end

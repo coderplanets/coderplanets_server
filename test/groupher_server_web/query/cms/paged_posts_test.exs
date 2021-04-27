@@ -186,26 +186,7 @@ defmodule GroupherServer.Test.Query.PagedPosts do
       assert results["totalCount"] == 1
     end
 
-    # test "read state false filter should work", ~m(user)a do
-    # user_conn = simu_conn(:user, user)
-    # {:ok, community} = db_insert(:community)
-
-    # {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
-    # {:ok, _post2} = CMS.create_content(community, :post, mock_attrs(:post), user)
-    # {:ok, _post3} = CMS.create_content(community, :post, mock_attrs(:post), user)
-
-    # variables = %{filter: %{community: community.raw}}
-    # results = user_conn |> query_result(@query, variables, "pagedPosts")
-    # assert results["totalCount"] == 3
-
-    # {:ok, _} = CMS.read_content(:post, post.id, user)
-
-    # variables = %{filter: %{community: community.raw, read: "FALSE"}}
-    # results = user_conn |> query_result(@query, variables, "pagedPosts")
-
-    # assert results["totalCount"] == 2
-    # end
-
+    @tag :wip
     test "read state all filter should work", ~m(user)a do
       user_conn = simu_conn(:user, user)
       {:ok, community} = db_insert(:community)

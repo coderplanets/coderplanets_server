@@ -11,7 +11,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   alias GroupherServer.{Accounts, CMS, Delivery, Email, Repo, Statistics}
 
   alias Accounts.User
-  alias CMS.{Author, Community, Embeds, Delegate, Tag, Topic}
+  alias CMS.{Author, Community, Embeds, Delegate, Tag}
 
   alias Delegate.ArticleOperation
   alias Helper.{Later, ORM, QueryBuilder}
@@ -75,9 +75,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       end)
       |> Multi.run(:set_community, fn _, %{create_content: content} ->
         ArticleOperation.set_community(community, thread, content.id)
-      end)
-      |> Multi.run(:set_topic, fn _, %{create_content: content} ->
-        exec_set_topic(thread, content.id, attrs)
       end)
       |> Multi.run(:set_community_flag, fn _, %{create_content: content} ->
         exec_set_community_flag(community, content, action)
@@ -294,13 +291,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       {:ok, pined_content} =
         CMS.PinedPost
         |> join(:inner, [p], c in assoc(p, :community))
-        |> join(:inner, [p], t in assoc(p, :topic))
         |> join(:inner, [p], content in assoc(p, :post))
-        |> where(
-          [p, c, t, content],
-          c.raw == ^community and t.raw == ^Map.get(filter, :topic, "posts")
-        )
-        |> select([p, c, t, content], content)
+        |> where([p, c, content], c.raw == ^community)
+        |> select([p, c, content], content)
         # 10 pined contents per community/thread, at most
         |> ORM.paginater(%{page: 1, size: 10})
         |> done()
@@ -348,7 +341,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp should_add_pin?(%{page: 1, tag: :all, sort: :desc_inserted, read: :all} = filter) do
     filter
     |> Map.keys()
-    |> Enum.reject(fn x -> x in [:community, :tag, :sort, :read, :topic, :page, :size] end)
+    |> Enum.reject(fn x -> x in [:community, :tag, :sort, :read, :page, :size] end)
     |> case do
       [] -> {:ok, :pass}
       _ -> {:error, :pass}
@@ -403,10 +396,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     {:error, [message: "set community flag", code: ecode(:create_fails)]}
   end
 
-  defp create_content_result({:error, :set_topic, _result, _steps}) do
-    {:error, [message: "set topic", code: ecode(:create_fails)]}
-  end
-
   defp create_content_result({:error, :set_tag, result, _steps}) do
     {:error, result}
   end
@@ -432,15 +421,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     |> Ecto.Changeset.put_change(:origial_community_id, integerfy(cid))
     |> Ecto.Changeset.put_embed(:meta, @default_article_meta)
     |> Repo.insert()
-  end
-
-  defp exec_set_topic(thread, id, %{topic: topic}) do
-    ArticleOperation.set_topic(%Topic{title: topic}, thread, id)
-  end
-
-  # if topic is not provide, use posts as default
-  defp exec_set_topic(thread, id, _attrs) do
-    ArticleOperation.set_topic(%Topic{title: "posts"}, thread, id)
   end
 
   defp exec_set_tag(thread, id, %{tags: tags}) do

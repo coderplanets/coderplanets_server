@@ -99,27 +99,29 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   # #######################
   # content flag ..
   # #######################
-  def pin_content(_root, ~m(id community_id topic)a, _info) do
-    CMS.pin_content(%CMS.Post{id: id}, %Community{id: community_id}, topic)
-  end
-
   def pin_content(_root, ~m(id community_id thread)a, _info) do
     do_pin_content(id, community_id, thread)
-  end
-
-  def undo_pin_content(_root, ~m(id community_id topic)a, _info) do
-    CMS.undo_pin_content(%CMS.Post{id: id}, %Community{id: community_id}, topic)
   end
 
   def undo_pin_content(_root, ~m(id community_id thread)a, _info) do
     do_undo_pin_content(id, community_id, thread)
   end
 
-  def do_pin_content(id, community_id, :job),
-    do: CMS.pin_content(%CMS.Job{id: id}, %Community{id: community_id})
+  def do_pin_content(id, community_id, :post) do
+    CMS.pin_content(%CMS.Post{id: id}, %Community{id: community_id})
+  end
 
-  def do_pin_content(id, community_id, :repo),
-    do: CMS.pin_content(%CMS.Repo{id: id}, %Community{id: community_id})
+  def do_pin_content(id, community_id, :job) do
+    CMS.pin_content(%CMS.Job{id: id}, %Community{id: community_id})
+  end
+
+  def do_pin_content(id, community_id, :repo) do
+    CMS.pin_content(%CMS.Repo{id: id}, %Community{id: community_id})
+  end
+
+  def do_undo_pin_content(id, community_id, :post) do
+    CMS.undo_pin_content(%CMS.Post{id: id}, %Community{id: community_id})
+  end
 
   def do_undo_pin_content(id, community_id, :job) do
     CMS.undo_pin_content(%CMS.Job{id: id}, %Community{id: community_id})
@@ -129,11 +131,13 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.undo_pin_content(%CMS.Repo{id: id}, %Community{id: community_id})
   end
 
-  def trash_content(_root, ~m(id thread community_id)a, _info),
-    do: set_community_flags(community_id, thread, id, %{trash: true})
+  def trash_content(_root, ~m(id thread community_id)a, _info) do
+    set_community_flags(community_id, thread, id, %{trash: true})
+  end
 
-  def undo_trash_content(_root, ~m(id thread community_id)a, _info),
-    do: set_community_flags(community_id, thread, id, %{trash: false})
+  def undo_trash_content(_root, ~m(id thread community_id)a, _info) do
+    set_community_flags(community_id, thread, id, %{trash: false})
+  end
 
   # TODO: report contents
   # def report_content(_root, ~m(id thread community_id)a, _info),
@@ -251,20 +255,12 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.set_tag(thread, %Tag{id: tag_id}, id)
   end
 
-  def set_refined_tag(_root, ~m(community_id thread id topic)a, _info) do
-    CMS.set_refined_tag(%Community{id: community_id}, thread, topic, id)
-  end
-
   def set_refined_tag(_root, ~m(community_id thread id)a, _info) do
     CMS.set_refined_tag(%Community{id: community_id}, thread, id)
   end
 
   def unset_tag(_root, ~m(id thread tag_id)a, _info) do
     CMS.unset_tag(thread, %Tag{id: tag_id}, id)
-  end
-
-  def unset_refined_tag(_root, ~m(community_id thread id topic)a, _info) do
-    CMS.unset_refined_tag(%Community{id: community_id}, thread, topic, id)
   end
 
   def unset_refined_tag(_root, ~m(community_id thread id)a, _info) do
@@ -279,20 +275,16 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.get_tags(%Community{raw: community})
   end
 
-  def get_tags(_root, ~m(community_id thread topic)a, _info) do
-    CMS.get_tags(%Community{id: community_id}, thread, topic)
-  end
-
-  def get_tags(_root, ~m(community thread topic)a, _info) do
-    CMS.get_tags(%Community{raw: community}, thread, topic)
-  end
-
   def get_tags(_root, ~m(community_id thread)a, _info) do
     CMS.get_tags(%Community{id: community_id}, thread)
   end
 
   def get_tags(_root, ~m(community thread)a, _info) do
     CMS.get_tags(%Community{raw: community}, thread)
+  end
+
+  def get_tags(_root, ~m(community_id thread)a, _info) do
+    CMS.get_tags(%Community{id: community_id}, thread)
   end
 
   def get_tags(_root, %{thread: _thread}, _info) do

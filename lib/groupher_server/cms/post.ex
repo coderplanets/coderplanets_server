@@ -20,8 +20,7 @@ defmodule GroupherServer.CMS.Post do
     PostFavorite,
     PostStar,
     PostViewer,
-    Tag,
-    Topic
+    Tag
   }
 
   alias Helper.HTML
@@ -73,16 +72,6 @@ defmodule GroupherServer.CMS.Post do
       Tag,
       join_through: "posts_tags",
       join_keys: [post_id: :id, tag_id: :id],
-      # :delete_all will only remove data from the join source
-      on_delete: :delete_all,
-      on_replace: :delete
-    )
-
-    many_to_many(
-      :topics,
-      Topic,
-      join_through: "posts_topics",
-      join_keys: [post_id: :id, topic_id: :id],
       # :delete_all will only remove data from the join source
       on_delete: :delete_all,
       on_replace: :delete

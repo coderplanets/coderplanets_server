@@ -288,7 +288,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       assert results["totalCount"] == total_count + 2
     end
 
-    @tag :wip2
+    @tag :wip
     test "guest user can get paged comment with floor it", ~m(guest_conn post user)a do
       total_count = 5
       thread = :post

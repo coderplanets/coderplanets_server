@@ -44,7 +44,6 @@ defmodule GroupherServer.CMS do
   defdelegate create_tag(community, thread, attrs, user), to: CommunityCURD
   defdelegate update_tag(attrs), to: CommunityCURD
   defdelegate get_tags(community, thread), to: CommunityCURD
-  defdelegate get_tags(community, thread, topic), to: CommunityCURD
   defdelegate get_tags(filter), to: CommunityCURD
   # >> wiki & cheatsheet (sync with github)
   defdelegate get_wiki(community), to: CommunitySync
@@ -87,22 +86,15 @@ defmodule GroupherServer.CMS do
   # ArticleOperation
   # >> set flag on article, like: pin / unpin article
   defdelegate set_community_flags(community_info, queryable, attrs), to: ArticleOperation
-  defdelegate pin_content(queryable, community_id, topic), to: ArticleOperation
-  defdelegate undo_pin_content(queryable, community_id, topic), to: ArticleOperation
   defdelegate pin_content(queryable, community_id), to: ArticleOperation
   defdelegate undo_pin_content(queryable, community_id), to: ArticleOperation
 
   defdelegate lock_article_comment(content), to: ArticleOperation
-  # defdelegate pin_content(queryable, community_id, thread), to: ArticleOperation
-  # defdelegate undo_pin_content(queryable, community_id, thread, topic), to: ArticleOperation
-  # defdelegate undo_pin_content(queryable, community_id, thread), to: ArticleOperation
 
   # >> tag: set / unset
   defdelegate set_tag(thread, tag, content_id), to: ArticleOperation
   defdelegate unset_tag(thread, tag, content_id), to: ArticleOperation
-  defdelegate set_refined_tag(community, thread, topic, content_id), to: ArticleOperation
   defdelegate set_refined_tag(community, thread, content_id), to: ArticleOperation
-  defdelegate unset_refined_tag(community, thread, topic, content_id), to: ArticleOperation
   defdelegate unset_refined_tag(community, thread, content_id), to: ArticleOperation
   # >> community: set / unset
   defdelegate set_community(community, thread, content_id), to: ArticleOperation

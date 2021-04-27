@@ -18,7 +18,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
     JobCommunityFlag,
     RepoCommunityFlag,
     Tag,
-    Topic,
     PinedPost,
     PinedJob,
     PinedRepo
@@ -27,13 +26,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   alias GroupherServer.CMS.Repo, as: CMSRepo
   alias GroupherServer.Repo
 
-  def pin_content(%Post{id: post_id}, %Community{id: community_id}, topic) do
-    with {:ok, %{id: topic_id}} <- ORM.find_by(Topic, %{raw: topic}),
-         {:ok, pined} <-
+  def pin_content(%Post{id: post_id}, %Community{id: community_id}) do
+    with {:ok, pined} <-
            ORM.findby_or_insert(
              PinedPost,
-             ~m(post_id community_id topic_id)a,
-             ~m(post_id community_id topic_id)a
+             ~m(post_id community_id)a,
+             ~m(post_id community_id)a
            ) do
       Post |> ORM.find(pined.post_id)
     end
@@ -55,9 +53,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
     end
   end
 
-  def undo_pin_content(%Post{id: post_id}, %Community{id: community_id}, topic) do
-    with {:ok, %{id: topic_id}} <- ORM.find_by(Topic, %{raw: topic}),
-         {:ok, pined} <- ORM.find_by(PinedPost, ~m(post_id community_id topic_id)a),
+  def undo_pin_content(%Post{id: post_id}, %Community{id: community_id}) do
+    with {:ok, pined} <- ORM.find_by(PinedPost, ~m(post_id community_id)a),
          {:ok, deleted} <- ORM.delete(pined) do
       Post |> ORM.find(deleted.post_id)
     end
@@ -177,25 +174,14 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   @doc """
   set refined_tag to common content
   """
-  def set_refined_tag(%Community{id: community_id}, thread, topic_raw, content_id) do
-    with {:ok, action} <- match_action(thread, :tag),
-         {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
-         {:ok, topic} <- ORM.find_by(Topic, %{raw: topic_raw}),
-         {:ok, tag} <-
-           ORM.find_by(action.reactor, %{
-             title: "refined",
-             community_id: community_id,
-             topic_id: topic.id
-           }) do
-      update_content_tag(content, tag)
-    end
-  end
-
   def set_refined_tag(%Community{id: community_id}, thread, content_id) do
     with {:ok, action} <- match_action(thread, :tag),
          {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
          {:ok, tag} <-
-           ORM.find_by(action.reactor, %{title: "refined", community_id: community_id}) do
+           ORM.find_by(action.reactor, %{
+             title: "refined",
+             community_id: community_id
+           }) do
       update_content_tag(content, tag)
     end
   end
@@ -203,25 +189,14 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   @doc """
   unset refined_tag to common content
   """
-  def unset_refined_tag(%Community{id: community_id}, thread, topic_raw, content_id) do
-    with {:ok, action} <- match_action(thread, :tag),
-         {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
-         {:ok, topic} <- ORM.find_by(Topic, %{raw: topic_raw}),
-         {:ok, tag} <-
-           ORM.find_by(action.reactor, %{
-             title: "refined",
-             community_id: community_id,
-             topic_id: topic.id
-           }) do
-      update_content_tag(content, tag, :drop)
-    end
-  end
-
   def unset_refined_tag(%Community{id: community_id}, thread, content_id) do
     with {:ok, action} <- match_action(thread, :tag),
          {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
          {:ok, tag} <-
-           ORM.find_by(action.reactor, %{title: "refined", community_id: community_id}) do
+           ORM.find_by(action.reactor, %{
+             title: "refined",
+             community_id: community_id
+           }) do
       update_content_tag(content, tag, :drop)
     end
   end
@@ -234,26 +209,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
     |> Ecto.Changeset.put_assoc(:tags, new_tags)
     |> Repo.update()
   end
-
-  @doc """
-  set topic only for post
-  """
-  def set_topic(%Topic{title: title}, :post, content_id) do
-    with {:ok, content} <- ORM.find(Post, content_id, preload: :topics),
-         {:ok, topic} <-
-           ORM.findby_or_insert(Topic, %{title: title}, %{
-             title: title,
-             thread: "post",
-             raw: title
-           }) do
-      content
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:topics, content.topics ++ [topic])
-      |> Repo.update()
-    end
-  end
-
-  def set_topic(_topic, _thread, _content_id), do: {:ok, :pass}
 
   @doc "update isEdited meta label if needed"
   # TODO: diff history

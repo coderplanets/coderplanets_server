@@ -24,7 +24,6 @@ defmodule GroupherServer.Test.Mutation.Statistics do
       $length: Int!
       $communityId: ID!
       $tags: [Ids]
-      $topic: String
     ) {
       createPost(
         title: $title
@@ -33,7 +32,6 @@ defmodule GroupherServer.Test.Mutation.Statistics do
         length: $length
         communityId: $communityId
         tags: $tags
-        topic: $topic
       ) {
         title
         body

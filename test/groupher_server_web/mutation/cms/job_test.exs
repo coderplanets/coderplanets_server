@@ -310,8 +310,8 @@ defmodule GroupherServer.Test.Mutation.Job do
     }
     """
     @set_refined_tag_query """
-    mutation($communityId: ID!, $thread: CmsThread, $topic: String, $id: ID!) {
-      setRefinedTag(communityId: $communityId, thread: $thread, topic: $topic, id: $id) {
+    mutation($communityId: ID!, $thread: CmsThread, $id: ID!) {
+      setRefinedTag(communityId: $communityId, thread: $thread, id: $id) {
         id
         title
       }
@@ -393,8 +393,8 @@ defmodule GroupherServer.Test.Mutation.Job do
     end
 
     @unset_refined_tag_query """
-    mutation($communityId: ID!, $thread: CmsThread, $topic: String, $id: ID!) {
-      unsetRefinedTag(communityId: $communityId, thread: $thread, topic: $topic, id: $id) {
+    mutation($communityId: ID!, $thread: CmsThread, $id: ID!) {
+      unsetRefinedTag(communityId: $communityId, thread: $thread, id: $id) {
         id
         title
       }

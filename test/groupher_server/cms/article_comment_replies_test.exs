@@ -100,7 +100,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       {:ok, replyed_comment_2} = CMS.reply_article_comment(replyed_comment_1.id, "reply 2", user2)
       {:ok, replyed_comment_3} = CMS.reply_article_comment(replyed_comment_2.id, "reply 3", user)
 
-      {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
+      {:ok, _parent_comment} = ORM.find(ArticleComment, parent_comment.id)
 
       {:ok, replyed_comment_1} = ORM.find(ArticleComment, replyed_comment_1.id)
       {:ok, replyed_comment_2} = ORM.find(ArticleComment, replyed_comment_2.id)

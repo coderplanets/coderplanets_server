@@ -18,7 +18,6 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     CommunityEditor,
     CommunitySubscriber,
     Tag,
-    Topic,
     Thread
   }
 
@@ -59,15 +58,13 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   @doc """
   create a Tag base on type: post / tuts ...
   """
-  # TODO: change to create_tag(community, thread, attrs, ....)
   def create_tag(%Community{id: community_id}, thread, attrs, %Accounts.User{id: user_id}) do
     with {:ok, action} <- match_action(thread, :tag),
          {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}),
-         {:ok, _community} <- ORM.find(Community, community_id),
-         {:ok, topic} = find_or_insert_topic(attrs) do
+         {:ok, _community} <- ORM.find(Community, community_id) do
       attrs =
         attrs
-        |> Map.merge(%{author_id: author.id, topic_id: topic.id, community_id: community_id})
+        |> Map.merge(%{author_id: author.id, community_id: community_id})
         |> map_atom_value(:string)
         |> Map.merge(%{thread: thread |> to_string |> String.downcase()})
 
@@ -78,10 +75,8 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   def update_tag(%{id: _id} = attrs) do
     ~m(id title color)a = attrs |> map_atom_value(:string)
 
-    with {:ok, %{id: topic_id}} = find_or_insert_topic(attrs) do
-      Tag
-      |> ORM.find_update(~m(id title color topic_id)a)
-    end
+    Tag
+    |> ORM.find_update(~m(id title color)a)
   end
 
   @doc """
@@ -116,31 +111,12 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   @doc """
   get tags belongs to a community / thread
   """
-  def get_tags(%Community{id: community_id}, thread, topic) when not is_nil(community_id) do
-    # thread = thread |> to_string |> String.upcase()
-    # topic = topic |> to_string |> String.upcase()
+  def get_tags(%Community{raw: community_raw}, thread) when not is_nil(community_raw) do
     thread = thread |> to_string |> String.downcase()
-    topic = topic |> to_string |> String.downcase()
 
     Tag
     |> join(:inner, [t], c in assoc(t, :community))
-    |> join(:inner, [t], cp in assoc(t, :topic))
-    |> where([t, c, cp], c.id == ^community_id and t.thread == ^thread and cp.title == ^topic)
-    |> distinct([t], t.title)
-    |> Repo.all()
-    |> done()
-  end
-
-  def get_tags(%Community{raw: community_raw}, thread, topic) when not is_nil(community_raw) do
-    # thread = thread |> to_string |> String.upcase()
-    # topic = topic |> to_string |> String.upcase()
-    thread = thread |> to_string |> String.downcase()
-    topic = topic |> to_string |> String.downcase()
-
-    Tag
-    |> join(:inner, [t], c in assoc(t, :community))
-    |> join(:inner, [t], cp in assoc(t, :topic))
-    |> where([t, c, cp], c.raw == ^community_raw and t.thread == ^thread and cp.title == ^topic)
+    |> where([t, c], c.raw == ^community_raw and t.thread == ^thread)
     |> distinct([t], t.title)
     |> Repo.all()
     |> done()
@@ -246,25 +222,6 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
 
       {:ok, result.total_count}
     end
-  end
-
-  defp find_or_insert_topic(%{topic: title} = attrs) when is_binary(title) do
-    title = title |> to_string() |> String.downcase()
-    thread = attrs.thread |> to_string() |> String.downcase()
-
-    ORM.findby_or_insert(Topic, %{title: title}, %{
-      title: title,
-      thread: thread,
-      raw: title
-    })
-  end
-
-  defp find_or_insert_topic(%{thread: thread}) do
-    find_or_insert_topic(%{topic: "posts", thread: thread})
-  end
-
-  defp find_or_insert_topic(_attrs) do
-    find_or_insert_topic(%{topic: "posts", thread: :post})
   end
 
   defp load_community_members(%Community{id: id}, queryable, %{page: page, size: size} = filters)

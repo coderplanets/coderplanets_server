@@ -306,8 +306,8 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
     end
 
     @query """
-    query($communityId: ID, $community: String, $thread: CmsThread, $topic: String, $all: Boolean ) {
-      partialTags(communityId: $communityId, community: $community, thread: $thread, topic: $topic, all: $all) {
+    query($communityId: ID, $community: String, $thread: CmsThread, $all: Boolean ) {
+      partialTags(communityId: $communityId, community: $community, thread: $thread, all: $all) {
         id
         title
         color
@@ -348,11 +348,11 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       assert results |> Enum.any?(&(&1["id"] != to_string(tag2.id)))
     end
 
-    test "user can get partial tags by default index topic", ~m(guest_conn community user)a do
+    test "user can get partial tags by default", ~m(guest_conn community user)a do
       valid_attrs = mock_attrs(:tag)
       {:ok, _tag} = CMS.create_tag(community, :post, valid_attrs, user)
 
-      variables = %{thread: "POST", communityId: community.id, topic: "posts"}
+      variables = %{thread: "POST", communityId: community.id}
       results = guest_conn |> query_result(@query, variables, "partialTags")
 
       assert results |> length == 1
