@@ -45,7 +45,8 @@ defmodule GroupherServer.CMS.Post do
     has_many(:community_flags, {"posts_communities_flags", PostCommunityFlag})
 
     # NOTE: this one is tricky, pin is dynamic changed when return by func: add_pin_contents_ifneed
-    field(:pin, :boolean, default_value: false, virtual: true)
+    # field(:pin, :boolean, default_value: false, virtual: true)
+    field(:is_pinned, :boolean, default: false, virtual: true)
     field(:trash, :boolean, default_value: false, virtual: true)
 
     belongs_to(:author, Author)

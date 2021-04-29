@@ -46,7 +46,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   def list_article_comments(thread, article_id, filters, mode, user \\ nil)
 
   def list_article_comments(thread, article_id, filters, :timeline, user) do
-    where_query = dynamic([c], not c.is_folded and not c.is_reported and not c.is_pined)
+    where_query = dynamic([c], not c.is_folded and not c.is_reported and not c.is_pinned)
     do_list_article_comment(thread, article_id, filters, where_query, user)
   end
 
@@ -57,19 +57,19 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     where_query =
       dynamic(
         [c],
-        is_nil(c.reply_to_id) and not c.is_folded and not c.is_reported and not c.is_pined
+        is_nil(c.reply_to_id) and not c.is_folded and not c.is_reported and not c.is_pinned
       )
 
     do_list_article_comment(thread, article_id, filters, where_query, user)
   end
 
   def list_folded_article_comments(thread, article_id, filters) do
-    where_query = dynamic([c], c.is_folded and not c.is_reported and not c.is_pined)
+    where_query = dynamic([c], c.is_folded and not c.is_reported and not c.is_pinned)
     do_list_article_comment(thread, article_id, filters, where_query, nil)
   end
 
   def list_folded_article_comments(thread, article_id, filters, user) do
-    where_query = dynamic([c], c.is_folded and not c.is_reported and not c.is_pined)
+    where_query = dynamic([c], c.is_folded and not c.is_reported and not c.is_pinned)
     do_list_article_comment(thread, article_id, filters, where_query, user)
   end
 
@@ -129,7 +129,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
         end
       end)
       |> Multi.run(:update_comment_flag, fn _, _ ->
-        ORM.update(comment, %{is_pined: true})
+        ORM.update(comment, %{is_pinned: true})
       end)
       |> Multi.run(:add_pined_comment, fn _, _ ->
         ArticlePinedComment
@@ -147,7 +147,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
       Multi.new()
       |> Multi.run(:update_comment_flag, fn _, _ ->
-        ORM.update(comment, %{is_pined: false})
+        ORM.update(comment, %{is_pinned: false})
       end)
       |> Multi.run(:remove_pined_comment, fn _, _ ->
         ORM.findby_delete(ArticlePinedComment, %{article_comment_id: comment.id})

@@ -20,7 +20,7 @@ defmodule GroupherServer.CMS.ArticleComment do
 
   @required_fields ~w(body_html author_id)a
   @optional_fields ~w(post_id job_id reply_to_id replies_count is_folded is_reported is_deleted floor is_article_author)a
-  @updatable_fields ~w(is_folded is_reported is_deleted floor upvotes_count is_pined)a
+  @updatable_fields ~w(is_folded is_reported is_deleted floor upvotes_count is_pinned)a
 
   @max_participator_count 5
   @max_parent_replies_count 3
@@ -66,7 +66,7 @@ defmodule GroupherServer.CMS.ArticleComment do
     field(:upvotes_count, :integer, default: 0)
 
     # 是否置顶
-    field(:is_pined, :boolean, default: false)
+    field(:is_pinned, :boolean, default: false)
 
     belongs_to(:author, Accounts.User, foreign_key: :author_id)
     belongs_to(:post, Post, foreign_key: :post_id)

@@ -108,17 +108,18 @@ defmodule GroupherServer.Test.Mutation.RepoFlag do
     mutation($id: ID!, $communityId: ID!){
       undoPinRepo(id: $id, communityId: $communityId) {
         id
-        pin
+        isPinned
       }
     }
     """
+    @tag :wip
     test "auth user can undo pin repo", ~m(community repo)a do
       variables = %{id: repo.id, communityId: community.id}
 
       passport_rules = %{community.raw => %{"repo.undo_pin" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      CMS.pin_content(repo, community)
+      CMS.pin_article(:repo, repo.id, community.id)
       updated = rule_conn |> mutation_result(@query, variables, "undoPinRepo")
 
       assert updated["id"] == to_string(repo.id)

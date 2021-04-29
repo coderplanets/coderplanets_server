@@ -38,7 +38,7 @@ defmodule GroupherServer.Test.Query.ReposFlags do
       pagedRepos(filter: $filter) {
         entries {
           id
-          pin
+          isPinned
           communities {
             raw
           }
@@ -61,16 +61,17 @@ defmodule GroupherServer.Test.Query.ReposFlags do
       assert results["pageSize"] == @page_size
       assert results["totalCount"] == @total_count
 
-      {:ok, _pined_post} = CMS.pin_content(repo_m, community)
+      {:ok, _pined_post} = CMS.pin_article(:repo, repo_m.id, community.id)
 
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
       entries_first = results["entries"] |> List.first()
 
       assert results["totalCount"] == @total_count
       assert entries_first["id"] == to_string(repo_m.id)
-      assert entries_first["pin"] == true
+      assert entries_first["isPinned"] == true
     end
 
+    @tag :wip
     test "pind repos should not appear when page > 1", ~m(guest_conn community)a do
       variables = %{filter: %{page: 2, size: 20}}
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
@@ -78,7 +79,7 @@ defmodule GroupherServer.Test.Query.ReposFlags do
 
       random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
 
-      {:ok, _pined_post} = CMS.pin_content(%Repo{id: random_id}, community)
+      {:ok, _pined_post} = CMS.pin_article(:repo, random_id, community.id)
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
 
       assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))

@@ -39,7 +39,7 @@ defmodule GroupherServer.Test.Query.PostsFlags do
       pagedPosts(filter: $filter) {
         entries {
           id
-          pin
+          isPinned
           communities {
             raw
           }
@@ -51,6 +51,7 @@ defmodule GroupherServer.Test.Query.PostsFlags do
       }
     }
     """
+    @tag :wip
     test "if have pined posts, the pined posts should at the top of entries",
          ~m(guest_conn community post_m)a do
       variables = %{filter: %{community: community.raw}}
@@ -62,16 +63,17 @@ defmodule GroupherServer.Test.Query.PostsFlags do
       assert results["pageSize"] == @page_size
       assert results["totalCount"] == @total_count
 
-      {:ok, _pined_post} = CMS.pin_content(post_m, community)
+      {:ok, _pined_post} = CMS.pin_article(:post, post_m.id, community.id)
 
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
       entries_first = results["entries"] |> List.first()
 
       assert results["totalCount"] == @total_count
       assert entries_first["id"] == to_string(post_m.id)
-      assert entries_first["pin"] == true
+      assert entries_first["isPinned"] == true
     end
 
+    @tag :wip
     test "pind posts should not appear when page > 1", ~m(guest_conn community)a do
       variables = %{filter: %{page: 2, size: 20}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
@@ -79,7 +81,7 @@ defmodule GroupherServer.Test.Query.PostsFlags do
 
       random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
 
-      {:ok, _pined_post} = CMS.pin_content(%Post{id: random_id}, community)
+      {:ok, _pined_post} = CMS.pin_article(:post, random_id, community.id)
 
       # {:ok, _} = CMS.set_community_flags(community, %Post{id: random_id}, %{pin: true})
       results = guest_conn |> query_result(@query, variables, "pagedPosts")

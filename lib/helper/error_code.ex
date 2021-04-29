@@ -7,6 +7,7 @@ defmodule Helper.ErrorCode do
   @throttle_base 4200
   @account_base 4300
   @comment_base 4400
+  @article_base 4500
 
   @spec raise_error(Atom.t(), String.t()) :: {:error, [message: String.t(), code: Integer.t()]}
   def raise_error(code_atom, msg) do
@@ -38,8 +39,10 @@ defmodule Helper.ErrorCode do
   def ecode(:throttle_inverval), do: @throttle_base + 1
   def ecode(:throttle_hour), do: @throttle_base + 2
   def ecode(:throttle_day), do: @throttle_base + 3
-  #
+  # comment
   def ecode(:create_comment), do: @comment_base + 1
+  # article
+  def ecode(:too_much_pinned_article), do: @article_base + 1
 
   def ecode, do: @default_base
   # def ecode(_), do: @default_base

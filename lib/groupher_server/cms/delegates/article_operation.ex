@@ -4,9 +4,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   """
   import GroupherServer.CMS.Utils.Matcher
   import Ecto.Query, warn: false
-  # import Helper.ErrorCode
-  import ShortMaps
 
+  import Helper.ErrorCode
+  import ShortMaps
+  import GroupherServer.CMS.Utils.Matcher2
+
+  alias Helper.Types, as: T
   alias Helper.ORM
 
   alias GroupherServer.CMS.{
@@ -18,59 +21,43 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
     JobCommunityFlag,
     RepoCommunityFlag,
     Tag,
-    PinedPost,
-    PinedJob,
-    PinedRepo
+    PinnedArticle
   }
 
   alias GroupherServer.CMS.Repo, as: CMSRepo
   alias GroupherServer.Repo
 
-  def pin_content(%Post{id: post_id}, %Community{id: community_id}) do
-    with {:ok, pined} <-
-           ORM.findby_or_insert(
-             PinedPost,
-             ~m(post_id community_id)a,
-             ~m(post_id community_id)a
-           ) do
-      Post |> ORM.find(pined.post_id)
+  @max_pinned_article_count_per_thread Community.max_pinned_article_count_per_thread()
+
+  @spec pin_article(T.article_thread(), Integer.t(), Integer.t()) :: {:ok, PinnedArticle.t()}
+  def pin_article(thread, article_id, community_id) do
+    with {:ok, info} <- match(thread),
+         args <- pack_pin_args(thread, article_id, community_id),
+         {:ok, _} <- check_pinned_article_count(args.community_id, thread),
+         {:ok, _} <- ORM.create(PinnedArticle, args) do
+      ORM.find(info.model, article_id)
     end
   end
 
-  def pin_content(%Job{id: job_id}, %Community{id: community_id}) do
-    attrs = ~m(job_id community_id)a
-
-    with {:ok, pined} <- ORM.findby_or_insert(PinedJob, attrs, attrs) do
-      Job |> ORM.find(pined.job_id)
+  @spec undo_pin_article(T.article_thread(), Integer.t(), Integer.t()) :: {:ok, PinnedArticle.t()}
+  def undo_pin_article(thread, article_id, community_id) do
+    with {:ok, info} <- match(thread),
+         args <- pack_pin_args(thread, article_id, community_id) do
+      ORM.findby_delete(PinnedArticle, args)
+      ORM.find(info.model, article_id)
     end
   end
 
-  def pin_content(%CMSRepo{id: repo_id}, %Community{id: community_id}) do
-    attrs = ~m(repo_id community_id)a
+  defp pack_pin_args(thread, article_id, community_id) do
+    with {:ok, info} <- match(thread),
+         {:ok, community} <- ORM.find(Community, community_id) do
+      thread_upcase = thread |> to_string |> String.upcase()
 
-    with {:ok, pined} <- ORM.findby_or_insert(PinedRepo, attrs, attrs) do
-      CMSRepo |> ORM.find(pined.repo_id)
-    end
-  end
-
-  def undo_pin_content(%Post{id: post_id}, %Community{id: community_id}) do
-    with {:ok, pined} <- ORM.find_by(PinedPost, ~m(post_id community_id)a),
-         {:ok, deleted} <- ORM.delete(pined) do
-      Post |> ORM.find(deleted.post_id)
-    end
-  end
-
-  def undo_pin_content(%Job{id: job_id}, %Community{id: community_id}) do
-    with {:ok, pined} <- ORM.find_by(PinedJob, ~m(job_id community_id)a),
-         {:ok, deleted} <- ORM.delete(pined) do
-      Job |> ORM.find(deleted.job_id)
-    end
-  end
-
-  def undo_pin_content(%CMSRepo{id: repo_id}, %Community{id: community_id}) do
-    with {:ok, pined} <- ORM.find_by(PinedRepo, ~m(repo_id community_id)a),
-         {:ok, deleted} <- ORM.delete(pined) do
-      CMSRepo |> ORM.find(deleted.repo_id)
+      Map.put(
+        %{community_id: community.id, thread: thread_upcase},
+        info.foreign_key,
+        article_id
+      )
     end
   end
 
@@ -255,18 +242,20 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
     |> Repo.update()
   end
 
-  # make sure the reuest tag is in the current community thread
-  # example: you can't set a other thread tag to this thread's article
+  # check if the thread has aready enough pined articles
+  defp check_pinned_article_count(community_id, thread) do
+    thread_upcase = thread |> to_string |> String.upcase()
 
-  # defp tag_in_community_thread?(%Community{id: communityId}, thread, tag) do
-  # with {:ok, community} <- ORM.find(Community, communityId) do
-  # matched_tags =
-  # Tag
-  # |> where([t], t.community_id == ^community.id)
-  # |> where([t], t.thread == ^to_string(thread))
-  # |> Repo.all()
+    query =
+      from(p in PinnedArticle,
+        where: p.community_id == ^community_id and p.thread == ^thread_upcase
+      )
 
-  # tag in matched_tags
-  # end
-  # end
+    pinned_articles = query |> Repo.all()
+
+    case length(pinned_articles) >= @max_pinned_article_count_per_thread do
+      true -> raise_error(:too_much_pinned_article, "too much pinned article")
+      _ -> {:ok, :pass}
+    end
+  end
 end

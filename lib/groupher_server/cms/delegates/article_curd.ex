@@ -3,7 +3,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   CURD operation on post/job ...
   """
   import Ecto.Query, warn: false
-  import GroupherServer.CMS.Utils.Matcher
+
+  import GroupherServer.CMS.Utils.Matcher2
+
+  import GroupherServer.CMS.Utils.Matcher, only: [match_action: 2, dynamic_where: 2]
   import Helper.Utils, only: [done: 1, pick_by: 2, integerfy: 1]
   import Helper.ErrorCode
   import ShortMaps
@@ -11,7 +14,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   alias GroupherServer.{Accounts, CMS, Delivery, Email, Repo, Statistics}
 
   alias Accounts.User
-  alias CMS.{Author, Community, Embeds, Delegate, Tag}
+  alias CMS.{Author, Community, PinnedArticle, Embeds, Delegate, Tag}
 
   alias Delegate.ArticleOperation
   alias Helper.{Later, ORM, QueryBuilder}
@@ -271,59 +274,21 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   end
 
   defp read_state_query(queryable, %{read: false} = _filter, _user) do
-    # queryable
-    # |> join(:left, [content, f, c], viewers in assoc(content, :viewers))
-    # |> where([content, f, c, viewers], viewers.user_id != ^user.id)
-    # |> where([content, f, c, viewers], content.id != viewers.post_id)
-    # |> IO.inspect(label: "query")
     queryable
   end
 
   defp read_state_query(queryable, _, _), do: queryable
 
-  # only first page need pin contents
-  # TODO: use seperate pined table, which is much more smaller
-  defp add_pin_contents_ifneed(contents, CMS.Post, %{community: community} = filter) do
+  defp add_pin_contents_ifneed(contents, querable, %{community: _community} = filter) do
     with {:ok, _} <- should_add_pin?(filter),
+         {:ok, info} <- match(querable),
          {:ok, normal_contents} <- contents,
          true <- Map.has_key?(filter, :community),
          true <- 1 == Map.get(normal_contents, :page_number) do
       {:ok, pined_content} =
-        CMS.PinedPost
+        PinnedArticle
         |> join(:inner, [p], c in assoc(p, :community))
-        |> join(:inner, [p], content in assoc(p, :post))
-        |> where([p, c, content], c.raw == ^community)
-        |> select([p, c, content], content)
-        # 10 pined contents per community/thread, at most
-        |> ORM.paginater(%{page: 1, size: 10})
-        |> done()
-
-      concat_contents(pined_content, normal_contents)
-    else
-      _error ->
-        contents
-    end
-  end
-
-  defp add_pin_contents_ifneed(contents, CMS.Job, %{community: _community} = filter) do
-    merge_pin_contents(contents, :job, CMS.PinedJob, filter)
-  end
-
-  defp add_pin_contents_ifneed(contents, CMS.Repo, %{community: _community} = filter) do
-    merge_pin_contents(contents, :repo, CMS.PinedRepo, filter)
-  end
-
-  defp add_pin_contents_ifneed(contents, _querable, _filter), do: contents
-
-  defp merge_pin_contents(contents, thread, pin_schema, %{community: _community} = filter) do
-    with {:ok, _} <- should_add_pin?(filter),
-         {:ok, normal_contents} <- contents,
-         true <- Map.has_key?(filter, :community),
-         true <- 1 == Map.get(normal_contents, :page_number) do
-      {:ok, pined_content} =
-        pin_schema
-        |> join(:inner, [p], c in assoc(p, :community))
-        |> join(:inner, [p], content in assoc(p, ^thread))
+        |> join(:inner, [p], content in assoc(p, ^info.thread))
         |> where([p, c, content], c.raw == ^filter.community)
         |> select([p, c, content], content)
         # 10 pined contents per community/thread, at most
@@ -336,6 +301,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
         contents
     end
   end
+
+  defp add_pin_contents_ifneed(contents, _querable, _filter), do: contents
 
   # if filter contains like: tags, sort.., then don't add pin content
   defp should_add_pin?(%{page: 1, tag: :all, sort: :desc_inserted, read: :all} = filter) do
@@ -356,7 +323,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     pind_entries =
       pined_content
       |> Map.get(:entries)
-      |> Enum.map(&struct(&1, %{pin: true}))
+      |> Enum.map(&struct(&1, %{is_pinned: true}))
 
     normal_entries = normal_contents |> Map.get(:entries)
 

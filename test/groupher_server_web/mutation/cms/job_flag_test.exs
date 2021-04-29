@@ -108,21 +108,22 @@ defmodule GroupherServer.Test.Mutation.JobFlag do
     mutation($id: ID!, $communityId: ID!){
       undoPinJob(id: $id, communityId: $communityId) {
         id
-        pin
+        isPinned
       }
     }
     """
+    @tag :wip
     test "auth user can undo pin job", ~m(community job)a do
       variables = %{id: job.id, communityId: community.id}
 
       passport_rules = %{community.raw => %{"job.undo_pin" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      CMS.pin_content(job, community)
+      CMS.pin_article(:job, job.id, community.id)
       updated = rule_conn |> mutation_result(@query, variables, "undoPinJob")
 
       assert updated["id"] == to_string(job.id)
-      # assert updated["pin"] == false
+      assert updated["isPinned"] == false
     end
 
     test "unauth user undo pin job fails", ~m(user_conn guest_conn community job)a do
