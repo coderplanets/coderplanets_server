@@ -46,7 +46,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Job do
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
       middleware(M.Passport, claim: "cms->c?->job.pin")
-      resolve(&R.CMS.pin_content/3)
+      resolve(&R.CMS.pin_article/3)
     end
 
     @desc "unpin a job"
@@ -58,7 +58,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Job do
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
       middleware(M.Passport, claim: "cms->c?->job.undo_pin")
-      resolve(&R.CMS.undo_pin_content/3)
+      resolve(&R.CMS.undo_pin_article/3)
     end
 
     @desc "trash a job, not delete"

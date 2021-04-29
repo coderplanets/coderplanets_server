@@ -323,7 +323,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     pind_entries =
       pined_content
       |> Map.get(:entries)
-      |> Enum.map(&struct(&1, %{pin: true}))
+      |> Enum.map(&struct(&1, %{is_pinned: true}))
 
     normal_entries = normal_contents |> Map.get(:entries)
 

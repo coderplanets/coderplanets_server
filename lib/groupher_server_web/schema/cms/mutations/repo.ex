@@ -78,7 +78,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Repo do
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
       middleware(M.Passport, claim: "cms->c?->repo.pin")
-      resolve(&R.CMS.pin_content/3)
+      resolve(&R.CMS.pin_article/3)
     end
 
     @desc "unpin a repo"
@@ -90,7 +90,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Repo do
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
       middleware(M.Passport, claim: "cms->c?->repo.undo_pin")
-      resolve(&R.CMS.undo_pin_content/3)
+      resolve(&R.CMS.undo_pin_article/3)
     end
 
     @desc "trash a repo, not delete"

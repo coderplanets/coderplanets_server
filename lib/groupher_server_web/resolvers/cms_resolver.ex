@@ -99,36 +99,12 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   # #######################
   # content flag ..
   # #######################
-  def pin_content(_root, ~m(id community_id thread)a, _info) do
-    do_pin_content(id, community_id, thread)
+  def pin_article(_root, ~m(id community_id thread)a, _info) do
+    CMS.pin_article(thread, id, community_id)
   end
 
-  def undo_pin_content(_root, ~m(id community_id thread)a, _info) do
-    do_undo_pin_content(id, community_id, thread)
-  end
-
-  def do_pin_content(id, community_id, :post) do
-    CMS.pin_content(%CMS.Post{id: id}, %Community{id: community_id})
-  end
-
-  def do_pin_content(id, community_id, :job) do
-    CMS.pin_content(%CMS.Job{id: id}, %Community{id: community_id})
-  end
-
-  def do_pin_content(id, community_id, :repo) do
-    CMS.pin_content(%CMS.Repo{id: id}, %Community{id: community_id})
-  end
-
-  def do_undo_pin_content(id, community_id, :post) do
-    CMS.undo_pin_content(%CMS.Post{id: id}, %Community{id: community_id})
-  end
-
-  def do_undo_pin_content(id, community_id, :job) do
-    CMS.undo_pin_content(%CMS.Job{id: id}, %Community{id: community_id})
-  end
-
-  def do_undo_pin_content(id, community_id, :repo) do
-    CMS.undo_pin_content(%CMS.Repo{id: id}, %Community{id: community_id})
+  def undo_pin_article(_root, ~m(id community_id thread)a, _info) do
+    CMS.undo_pin_article(thread, id, community_id)
   end
 
   def trash_content(_root, ~m(id thread community_id)a, _info) do

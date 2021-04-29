@@ -21,10 +21,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
     JobCommunityFlag,
     RepoCommunityFlag,
     Tag,
-    PinnedArticle,
-    PinedPost,
-    PinedJob,
-    PinedRepo
+    PinnedArticle
   }
 
   alias GroupherServer.CMS.Repo, as: CMSRepo
@@ -63,54 +60,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
         )
 
       ORM.findby_delete(PinnedArticle, args)
-    end
-  end
-
-  def pin_content(%Post{id: post_id}, %Community{id: community_id}) do
-    with {:ok, pined} <-
-           ORM.findby_or_insert(
-             PinedPost,
-             ~m(post_id community_id)a,
-             ~m(post_id community_id)a
-           ) do
-      Post |> ORM.find(pined.post_id)
-    end
-  end
-
-  def pin_content(%Job{id: job_id}, %Community{id: community_id}) do
-    attrs = ~m(job_id community_id)a
-
-    with {:ok, pined} <- ORM.findby_or_insert(PinedJob, attrs, attrs) do
-      Job |> ORM.find(pined.job_id)
-    end
-  end
-
-  def pin_content(%CMSRepo{id: repo_id}, %Community{id: community_id}) do
-    attrs = ~m(repo_id community_id)a
-
-    with {:ok, pined} <- ORM.findby_or_insert(PinedRepo, attrs, attrs) do
-      CMSRepo |> ORM.find(pined.repo_id)
-    end
-  end
-
-  def undo_pin_content(%Post{id: post_id}, %Community{id: community_id}) do
-    with {:ok, pined} <- ORM.find_by(PinedPost, ~m(post_id community_id)a),
-         {:ok, deleted} <- ORM.delete(pined) do
-      Post |> ORM.find(deleted.post_id)
-    end
-  end
-
-  def undo_pin_content(%Job{id: job_id}, %Community{id: community_id}) do
-    with {:ok, pined} <- ORM.find_by(PinedJob, ~m(job_id community_id)a),
-         {:ok, deleted} <- ORM.delete(pined) do
-      Job |> ORM.find(deleted.job_id)
-    end
-  end
-
-  def undo_pin_content(%CMSRepo{id: repo_id}, %Community{id: community_id}) do
-    with {:ok, pined} <- ORM.find_by(PinedRepo, ~m(repo_id community_id)a),
-         {:ok, deleted} <- ORM.delete(pined) do
-      CMSRepo |> ORM.find(deleted.repo_id)
+      ORM.find(info.model, article_id)
     end
   end
 

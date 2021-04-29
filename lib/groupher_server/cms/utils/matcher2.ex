@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.Utils.Matcher2 do
 
   alias GroupherServer.CMS
 
-  alias CMS.{ArticleComment, Post, Job}
+  alias CMS.{ArticleComment, Post, Job, Repo}
 
   def match(:article_comment) do
     {:ok, %{model: ArticleComment, foreign_key: :article_comment_id}}
@@ -40,6 +40,14 @@ defmodule GroupherServer.CMS.Utils.Matcher2 do
 
   def match(:job) do
     {:ok, %{model: Job, foreign_key: :job_id}}
+  end
+
+  def match(Repo) do
+    {:ok, %{thread: :repo}}
+  end
+
+  def match(:repo) do
+    {:ok, %{model: Repo, foreign_key: :repo_id}}
   end
 
   def match(:post, :query, id), do: {:ok, dynamic([c], c.post_id == ^id)}

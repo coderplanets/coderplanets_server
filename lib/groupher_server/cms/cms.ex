@@ -88,8 +88,6 @@ defmodule GroupherServer.CMS do
   defdelegate set_community_flags(community_info, queryable, attrs), to: ArticleOperation
   defdelegate pin_article(thread, id, community_id), to: ArticleOperation
   defdelegate undo_pin_article(thread, id, community_id), to: ArticleOperation
-  defdelegate pin_content(queryable, community_id), to: ArticleOperation
-  defdelegate undo_pin_content(queryable, community_id), to: ArticleOperation
 
   defdelegate lock_article_comment(content), to: ArticleOperation
 
