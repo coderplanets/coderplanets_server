@@ -30,34 +30,39 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   alias GroupherServer.CMS.Repo, as: CMSRepo
   alias GroupherServer.Repo
 
-  alias Ecto.Multi
-
   @max_pinned_article_count_per_thread Community.max_pinned_article_count_per_thread()
 
   @spec pin_article(T.article_thread(), Integer.t(), Integer.t()) :: {:ok, PinnedArticle.t()}
   def pin_article(thread, article_id, community_id) do
     with {:ok, info} <- match(thread),
          {:ok, community} <- ORM.find(Community, community_id),
-         {:ok, _} <- check_pinned_article_count(community_id, thread) do
-      Multi.new()
-      |> Multi.run(:update_article_pinned_flag, fn _, _ ->
-        # ORM.update(comment, %{is_pinned: true})
-        {:ok, :pass}
-      end)
-      |> Multi.run(:create_pinned_article, fn _, _ ->
-        thread_upcase = thread |> to_string |> String.upcase()
+         {:ok, _} <- check_pinned_article_count(community.id, thread) do
+      thread_upcase = thread |> to_string |> String.upcase()
 
-        args =
-          Map.put(
-            %{community_id: community.id, thread: thread_upcase},
-            info.foreign_key,
-            article_id
-          )
+      args =
+        Map.put(
+          %{community_id: community.id, thread: thread_upcase},
+          info.foreign_key,
+          article_id
+        )
 
-        PinnedArticle |> ORM.create(args)
-      end)
-      |> Repo.transaction()
-      |> create_pinned_article_result()
+      PinnedArticle |> ORM.create(args)
+    end
+  end
+
+  @spec undo_pin_article(T.article_thread(), Integer.t(), Integer.t()) :: {:ok, PinnedArticle.t()}
+  def undo_pin_article(thread, article_id, community_id) do
+    with {:ok, info} <- match(thread) do
+      thread_upcase = thread |> to_string |> String.upcase()
+
+      args =
+        Map.put(
+          %{community_id: community_id, thread: thread_upcase},
+          info.foreign_key,
+          article_id
+        )
+
+      ORM.findby_delete(PinnedArticle, args)
     end
   end
 
@@ -305,11 +310,5 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
       true -> raise_error(:too_much_pinned_article, "too much pinned article")
       _ -> {:ok, :pass}
     end
-  end
-
-  defp create_pinned_article_result({:ok, %{create_pinned_article: result}}), do: {:ok, result}
-
-  defp create_pinned_article_result({:error, _, result, _steps}) do
-    {:error, result}
   end
 end

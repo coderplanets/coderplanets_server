@@ -1,4 +1,6 @@
 defmodule GroupherServer.Test.CMS.ArticlePin do
+  @moduledoc false
+
   use GroupherServer.TestTools
 
   alias Helper.ORM
@@ -52,13 +54,15 @@ defmodule GroupherServer.Test.CMS.ArticlePin do
       assert {:error, _} = CMS.pin_article(:post, 8848, community.id)
     end
 
-    # test "can undo pin to a post", ~m(community post)a do
-    #   {:ok, pined_post} = CMS.pin_content(post, community)
-    #   assert pined_post.id == post.id
+    @tag :wip2
+    test "can undo pin to a post", ~m(community post)a do
+      {:ok, _} = CMS.pin_article(:post, post.id, community.id)
 
-    #   assert {:ok, unpined} = CMS.undo_pin_content(post, community)
-    #   assert unpined.id == post.id
-    # end
+      assert {:ok, unpinned} = CMS.undo_pin_article(:post, post.id, community.id)
+      assert unpinned.post_id == post.id
+
+      assert {:error, _} = ORM.find_by(PinnedArticle, %{post_id: post.id})
+    end
   end
 
   # describe "[cms job pin]" do
