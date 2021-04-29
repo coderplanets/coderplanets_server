@@ -41,7 +41,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
          {:ok, _} <- check_pinned_article_count(community_id, thread) do
       Multi.new()
       |> Multi.run(:update_article_pinned_flag, fn _, _ ->
-        # ORM.update(comment, %{is_pined: true})
+        # ORM.update(comment, %{is_pinned: true})
         {:ok, :pass}
       end)
       |> Multi.run(:create_pinned_article, fn _, _ ->

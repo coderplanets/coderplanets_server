@@ -68,7 +68,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
               id
               nickname
             }
-            isPined
+            isPinned
             floor
             upvotesCount
 

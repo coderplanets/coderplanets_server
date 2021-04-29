@@ -362,7 +362,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:id, :id)
     field(:body_html, :string)
     field(:author, :user, resolve: dataloader(CMS, :author))
-    field(:is_pined, :boolean)
+    field(:is_pinned, :boolean)
     field(:floor, :integer)
     field(:upvotes_count, :integer)
     field(:emotions, :article_comment_emotions)

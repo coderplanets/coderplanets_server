@@ -223,12 +223,12 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
 
-      assert not comment.is_pined
+      assert not comment.is_pinned
 
       {:ok, comment} = CMS.pin_article_comment(comment.id)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
 
-      assert comment.is_pined
+      assert comment.is_pinned
 
       {:ok, pined_record} = ArticlePinedComment |> ORM.find_by(%{post_id: post.id})
       assert pined_record.post_id == post.id
@@ -240,7 +240,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       {:ok, _comment} = CMS.pin_article_comment(comment.id)
       {:ok, comment} = CMS.undo_pin_article_comment(comment.id)
 
-      assert not comment.is_pined
+      assert not comment.is_pinned
       assert {:error, _} = ArticlePinedComment |> ORM.find_by(%{article_comment_id: comment.id})
     end
 
