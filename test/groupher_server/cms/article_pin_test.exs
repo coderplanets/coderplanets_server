@@ -8,9 +8,9 @@ defmodule GroupherServer.Test.CMS.ArticlePin do
 
   alias CMS.{
     Community,
-    PinnedArticle,
-    Post,
-    Job
+    PinnedArticle
+    # Post,
+    # Job
   }
 
   @max_pinned_article_count_per_thread Community.max_pinned_article_count_per_thread()
@@ -35,7 +35,7 @@ defmodule GroupherServer.Test.CMS.ArticlePin do
       assert pind_article.post_id == post.id
     end
 
-    @tag :wip2
+    @tag :wip
     test "one community & thread can only pin certern count of post", ~m(community post user)a do
       {:ok, post2} = CMS.create_content(community, :post, mock_attrs(:post), user)
       {:ok, post3} = CMS.create_content(community, :post, mock_attrs(:post), user)
@@ -54,7 +54,7 @@ defmodule GroupherServer.Test.CMS.ArticlePin do
       assert {:error, _} = CMS.pin_article(:post, 8848, community.id)
     end
 
-    @tag :wip2
+    @tag :wip
     test "can undo pin to a post", ~m(community post)a do
       {:ok, _} = CMS.pin_article(:post, post.id, community.id)
 
@@ -65,35 +65,5 @@ defmodule GroupherServer.Test.CMS.ArticlePin do
     end
   end
 
-  # describe "[cms job pin]" do
-  #   test "can pin a job", ~m(community job)a do
-  #     {:ok, pined_job} = CMS.pin_content(job, community)
-
-  #     assert pined_job.id == job.id
-  #   end
-
-  #   test "can undo pin to a job", ~m(community job)a do
-  #     {:ok, pined_job} = CMS.pin_content(job, community)
-  #     assert pined_job.id == job.id
-
-  #     assert {:ok, unpined} = CMS.undo_pin_content(job, community)
-  #     assert unpined.id == job.id
-  #   end
-  # end
-
-  # describe "[cms repo pin]" do
-  #   test "can pin a repo", ~m(community repo)a do
-  #     {:ok, pined_repo} = CMS.pin_content(repo, community)
-
-  #     assert pined_repo.id == repo.id
-  #   end
-
-  #   test "can undo pin to a repo", ~m(community repo)a do
-  #     {:ok, pined_repo} = CMS.pin_content(repo, community)
-  #     assert pined_repo.id == repo.id
-
-  #     assert {:ok, unpined} = CMS.undo_pin_content(repo, community)
-  #     assert unpined.id == repo.id
-  #   end
-  # end
+  # TODO: Job, Repo
 end

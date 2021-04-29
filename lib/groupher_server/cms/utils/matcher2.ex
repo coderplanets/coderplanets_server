@@ -25,8 +25,17 @@ defmodule GroupherServer.CMS.Utils.Matcher2 do
     {:error, "not supported"}
   end
 
+  # used for paged pin articles
+  def match(Post) do
+    {:ok, %{thread: :post}}
+  end
+
   def match(:post) do
     {:ok, %{model: Post, foreign_key: :post_id}}
+  end
+
+  def match(Job) do
+    {:ok, %{thread: :job}}
   end
 
   def match(:job) do

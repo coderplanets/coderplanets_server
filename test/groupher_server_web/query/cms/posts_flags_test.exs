@@ -51,6 +51,7 @@ defmodule GroupherServer.Test.Query.PostsFlags do
       }
     }
     """
+    @tag :wip2
     test "if have pined posts, the pined posts should at the top of entries",
          ~m(guest_conn community post_m)a do
       variables = %{filter: %{community: community.raw}}
@@ -62,7 +63,7 @@ defmodule GroupherServer.Test.Query.PostsFlags do
       assert results["pageSize"] == @page_size
       assert results["totalCount"] == @total_count
 
-      {:ok, _pined_post} = CMS.pin_content(post_m, community)
+      {:ok, _pined_post} = CMS.pin_article(:post, post_m.id, community.id)
 
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
       entries_first = results["entries"] |> List.first()
