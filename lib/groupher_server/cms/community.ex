@@ -19,9 +19,13 @@ defmodule GroupherServer.CMS.Community do
     CommunityCheatsheet
   }
 
+  @max_pinned_article_count_per_thread 2
+
   @required_fields ~w(title desc user_id logo raw)a
   # @required_fields ~w(title desc user_id)a
   @optional_fields ~w(label geo_info index aka)a
+
+  def max_pinned_article_count_per_thread, do: @max_pinned_article_count_per_thread
 
   schema "communities" do
     field(:title, :string)

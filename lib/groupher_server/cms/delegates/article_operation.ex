@@ -4,7 +4,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   """
   import GroupherServer.CMS.Utils.Matcher
   import Ecto.Query, warn: false
-  # import Helper.ErrorCode
+
+  import Helper.ErrorCode
   import ShortMaps
   import GroupherServer.CMS.Utils.Matcher2
 
@@ -20,7 +21,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
     JobCommunityFlag,
     RepoCommunityFlag,
     Tag,
-    PinedArticle,
+    PinnedArticle,
     PinedPost,
     PinedJob,
     PinedRepo
@@ -29,12 +30,34 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   alias GroupherServer.CMS.Repo, as: CMSRepo
   alias GroupherServer.Repo
 
-  @spec pin_article(T.article_thread(), Integer.t(), Integer.t()) :: {:ok, PinedArticle.t()}
+  alias Ecto.Multi
+
+  @max_pinned_article_count_per_thread Community.max_pinned_article_count_per_thread()
+
+  @spec pin_article(T.article_thread(), Integer.t(), Integer.t()) :: {:ok, PinnedArticle.t()}
   def pin_article(thread, article_id, community_id) do
     with {:ok, info} <- match(thread),
-         {:ok, community} <- ORM.find(Community, community_id) do
-      args = Map.put(%{community_id: community.id}, info.foreign_key, article_id)
-      PinedArticle |> ORM.create(args)
+         {:ok, community} <- ORM.find(Community, community_id),
+         {:ok, _} <- check_pinned_article_count(community_id, thread) do
+      Multi.new()
+      |> Multi.run(:update_article_pinned_flag, fn _, _ ->
+        # ORM.update(comment, %{is_pined: true})
+        {:ok, :pass}
+      end)
+      |> Multi.run(:create_pinned_article, fn _, _ ->
+        thread_upcase = thread |> to_string |> String.upcase()
+
+        args =
+          Map.put(
+            %{community_id: community.id, thread: thread_upcase},
+            info.foreign_key,
+            article_id
+          )
+
+        PinnedArticle |> ORM.create(args)
+      end)
+      |> Repo.transaction()
+      |> create_pinned_article_result()
     end
   end
 
@@ -267,18 +290,26 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
     |> Repo.update()
   end
 
-  # make sure the reuest tag is in the current community thread
-  # example: you can't set a other thread tag to this thread's article
+  # check if the thread has aready enough pined articles
+  defp check_pinned_article_count(community_id, thread) do
+    thread_upcase = thread |> to_string |> String.upcase()
 
-  # defp tag_in_community_thread?(%Community{id: communityId}, thread, tag) do
-  # with {:ok, community} <- ORM.find(Community, communityId) do
-  # matched_tags =
-  # Tag
-  # |> where([t], t.community_id == ^community.id)
-  # |> where([t], t.thread == ^to_string(thread))
-  # |> Repo.all()
+    query =
+      from(p in PinnedArticle,
+        where: p.community_id == ^community_id and p.thread == ^thread_upcase
+      )
 
-  # tag in matched_tags
-  # end
-  # end
+    pinned_articles = query |> Repo.all()
+
+    case length(pinned_articles) >= @max_pinned_article_count_per_thread do
+      true -> raise_error(:too_much_pinned_article, "too much pinned article")
+      _ -> {:ok, :pass}
+    end
+  end
+
+  defp create_pinned_article_result({:ok, %{create_pinned_article: result}}), do: {:ok, result}
+
+  defp create_pinned_article_result({:error, _, result, _steps}) do
+    {:error, result}
+  end
 end

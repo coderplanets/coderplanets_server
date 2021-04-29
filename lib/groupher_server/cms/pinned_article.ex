@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.PinedArticle do
+defmodule GroupherServer.CMS.PinnedArticle do
   @moduledoc false
   alias __MODULE__
 
@@ -8,21 +8,23 @@ defmodule GroupherServer.CMS.PinedArticle do
   alias GroupherServer.CMS
   alias CMS.{Community, Post, Job}
 
-  @required_fields ~w(community_id)a
+  @required_fields ~w(community_id thread)a
   @optional_fields ~w(post_id job_id)a
 
-  @type t :: %PinedArticle{}
-  schema "pined_articles" do
+  @type t :: %PinnedArticle{}
+  schema "pinned_articles" do
     belongs_to(:post, Post, foreign_key: :post_id)
     belongs_to(:job, Job, foreign_key: :job_id)
     belongs_to(:community, Community, foreign_key: :community_id)
+
+    field(:thread, :string)
 
     timestamps(type: :utc_datetime)
   end
 
   @doc false
-  def changeset(%PinedArticle{} = pined_article, attrs) do
-    pined_article
+  def changeset(%PinnedArticle{} = pinned_article, attrs) do
+    pinned_article
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
     |> foreign_key_constraint(:post_id)
