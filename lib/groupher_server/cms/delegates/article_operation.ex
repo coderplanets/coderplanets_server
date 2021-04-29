@@ -6,7 +6,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   import Ecto.Query, warn: false
   # import Helper.ErrorCode
   import ShortMaps
+  import GroupherServer.CMS.Utils.Matcher2
 
+  alias Helper.Types, as: T
   alias Helper.ORM
 
   alias GroupherServer.CMS.{
@@ -18,6 +20,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
     JobCommunityFlag,
     RepoCommunityFlag,
     Tag,
+    PinedArticle,
     PinedPost,
     PinedJob,
     PinedRepo
@@ -25,6 +28,15 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
 
   alias GroupherServer.CMS.Repo, as: CMSRepo
   alias GroupherServer.Repo
+
+  @spec pin_article(T.article_thread(), Integer.t(), Integer.t()) :: {:ok, PinedArticle.t()}
+  def pin_article(thread, article_id, community_id) do
+    with {:ok, info} <- match(thread),
+         {:ok, community} <- ORM.find(Community, community_id) do
+      args = Map.put(%{community_id: community.id}, info.foreign_key, article_id)
+      PinedArticle |> ORM.create(args)
+    end
+  end
 
   def pin_content(%Post{id: post_id}, %Community{id: community_id}) do
     with {:ok, pined} <-
