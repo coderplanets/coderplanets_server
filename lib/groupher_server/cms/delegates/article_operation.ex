@@ -32,35 +32,32 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   @spec pin_article(T.article_thread(), Integer.t(), Integer.t()) :: {:ok, PinnedArticle.t()}
   def pin_article(thread, article_id, community_id) do
     with {:ok, info} <- match(thread),
-         {:ok, community} <- ORM.find(Community, community_id),
-         {:ok, _} <- check_pinned_article_count(community.id, thread) do
-      thread_upcase = thread |> to_string |> String.upcase()
-
-      args =
-        Map.put(
-          %{community_id: community.id, thread: thread_upcase},
-          info.foreign_key,
-          article_id
-        )
-
-      PinnedArticle |> ORM.create(args)
+         args <- pack_pin_args(thread, article_id, community_id),
+         {:ok, _} <- check_pinned_article_count(args.community_id, thread),
+         {:ok, _} <- ORM.create(PinnedArticle, args) do
+      ORM.find(info.model, article_id)
     end
   end
 
   @spec undo_pin_article(T.article_thread(), Integer.t(), Integer.t()) :: {:ok, PinnedArticle.t()}
   def undo_pin_article(thread, article_id, community_id) do
-    with {:ok, info} <- match(thread) do
-      thread_upcase = thread |> to_string |> String.upcase()
-
-      args =
-        Map.put(
-          %{community_id: community_id, thread: thread_upcase},
-          info.foreign_key,
-          article_id
-        )
-
+    with {:ok, info} <- match(thread),
+         args <- pack_pin_args(thread, article_id, community_id) do
       ORM.findby_delete(PinnedArticle, args)
       ORM.find(info.model, article_id)
+    end
+  end
+
+  defp pack_pin_args(thread, article_id, community_id) do
+    with {:ok, info} <- match(thread),
+         {:ok, community} <- ORM.find(Community, community_id) do
+      thread_upcase = thread |> to_string |> String.upcase()
+
+      Map.put(
+        %{community_id: community.id, thread: thread_upcase},
+        info.foreign_key,
+        article_id
+      )
     end
   end
 

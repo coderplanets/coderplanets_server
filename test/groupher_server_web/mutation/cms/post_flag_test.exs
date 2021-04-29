@@ -84,6 +84,7 @@ defmodule GroupherServer.Test.Mutation.PostFlag do
       }
     }
     """
+    @tag :wip2
     test "auth user can pin post", ~m(community post)a do
       variables = %{id: post.id, communityId: community.id}
 
