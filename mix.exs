@@ -78,7 +78,7 @@ defmodule GroupherServer.Mixfile do
        git: "https://github.com/mastani-stack/scrivener_ecto", branch: "dev", override: true},
       # {:scrivener_ecto, "~> 2.0.0"},
       {:guardian, "~> 2.0"},
-      {:timex, "~> 3.6.1"},
+      {:timex, "~> 3.7.5"},
       {:dataloader, "~> 1.0.7"},
       {:mix_test_watch, "~> 1.0.2", only: :dev, runtime: false},
       {:ex_unit_notifier, "~> 1.0", only: :test},
