@@ -112,7 +112,7 @@ defmodule GroupherServer.Test.Mutation.JobFlag do
       }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "auth user can undo pin job", ~m(community job)a do
       variables = %{id: job.id, communityId: community.id}
 

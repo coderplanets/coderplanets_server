@@ -84,7 +84,7 @@ defmodule GroupherServer.Test.Mutation.PostFlag do
       }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "auth user can pin post", ~m(community post)a do
       variables = %{id: post.id, communityId: community.id}
 
@@ -113,7 +113,7 @@ defmodule GroupherServer.Test.Mutation.PostFlag do
       }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "auth user can undo pin post", ~m(community post)a do
       variables = %{id: post.id, communityId: community.id}
 

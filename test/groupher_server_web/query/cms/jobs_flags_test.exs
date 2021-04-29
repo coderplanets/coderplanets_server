@@ -51,7 +51,7 @@ defmodule GroupherServer.Test.Query.JobsFlags do
       }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "if have pined jobs, the pined jobs should at the top of entries",
          ~m(guest_conn community job_m)a do
       variables = %{filter: %{community: community.raw}}
@@ -73,7 +73,7 @@ defmodule GroupherServer.Test.Query.JobsFlags do
       assert entries_first["isPinned"] == true
     end
 
-    @tag :wip2
+    @tag :wip
     test "pind jobs should not appear when page > 1", ~m(guest_conn community)a do
       variables = %{filter: %{page: 2, size: 20}}
       results = guest_conn |> query_result(@query, variables, "pagedJobs")

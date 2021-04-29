@@ -35,17 +35,16 @@ defmodule GroupherServer.Test.CMS.ArticlePin do
       assert pind_article.post_id == post.id
     end
 
-    @tag :wip
+    @tag :wip2
     test "one community & thread can only pin certern count of post", ~m(community post user)a do
-      {:ok, _post2} = CMS.create_content(community, :post, mock_attrs(:post), user)
-      {:ok, post3} = CMS.create_content(community, :post, mock_attrs(:post), user)
-
       Enum.reduce(1..@max_pinned_article_count_per_thread, [], fn _, acc ->
-        {:ok, _} = CMS.pin_article(:post, post.id, community.id)
+        {:ok, new_post} = CMS.create_content(community, :post, mock_attrs(:post), user)
+        {:ok, _} = CMS.pin_article(:post, new_post.id, community.id)
         acc
       end)
 
-      {:error, reason} = CMS.pin_article(:post, post3.id, community.id)
+      {:ok, new_post} = CMS.create_content(community, :post, mock_attrs(:post), user)
+      {:error, reason} = CMS.pin_article(:post, new_post.id, community.id)
       assert reason |> Keyword.get(:code) == ecode(:too_much_pinned_article)
     end
 
@@ -54,12 +53,11 @@ defmodule GroupherServer.Test.CMS.ArticlePin do
       assert {:error, _} = CMS.pin_article(:post, 8848, community.id)
     end
 
-    @tag :wip
+    @tag :wip2
     test "can undo pin to a post", ~m(community post)a do
       {:ok, _} = CMS.pin_article(:post, post.id, community.id)
 
       assert {:ok, unpinned} = CMS.undo_pin_article(:post, post.id, community.id)
-      assert unpinned.post_id == post.id
 
       assert {:error, _} = ORM.find_by(PinnedArticle, %{post_id: post.id})
     end

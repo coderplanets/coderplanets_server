@@ -112,7 +112,7 @@ defmodule GroupherServer.Test.Mutation.RepoFlag do
       }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "auth user can undo pin repo", ~m(community repo)a do
       variables = %{id: repo.id, communityId: community.id}
 
