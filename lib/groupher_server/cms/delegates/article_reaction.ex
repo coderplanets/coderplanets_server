@@ -3,15 +3,31 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
   reaction[favorite, star, watch ...] on article [post, job...]
   """
   import Helper.Utils, only: [done: 1, done: 2]
-  import GroupherServer.CMS.Utils.Matcher
+
+  import GroupherServer.CMS.Utils.Matcher2
+  import GroupherServer.CMS.Utils.Matcher, only: [match_action: 2]
   import Ecto.Query, warn: false
   import Helper.ErrorCode
 
   alias Helper.ORM
-  alias GroupherServer.{Accounts, Repo}
+  alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.User
+  alias CMS.{ArticleUpvote}
+
   alias Ecto.Multi
+
+  def upvote_article(thread, article_id, %User{id: user_id}) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, article_id) do
+      IO.inspect(info, label: "the info")
+      thread_upcase = thread |> to_string |> String.upcase()
+
+      args = Map.put(%{user_id: user_id, thread: thread_upcase}, info.foreign_key, article.id)
+
+      ORM.create(ArticleUpvote, args)
+    end
+  end
 
   @doc """
   favorite / star / watch CMS contents like post / tuts ...

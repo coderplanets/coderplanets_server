@@ -20,7 +20,8 @@ defmodule GroupherServer.CMS.Post do
     PostFavorite,
     PostStar,
     PostViewer,
-    Tag
+    Tag,
+    ArticleUpvote
   }
 
   alias Helper.HTML
@@ -62,6 +63,8 @@ defmodule GroupherServer.CMS.Post do
     field(:article_comments_participators_count, :integer, default: 0)
     # 评论参与者，只保留最近 5 个
     embeds_many(:article_comments_participators, Accounts.User, on_replace: :delete)
+
+    has_many(:upvotes, {"article_upvotes", ArticleUpvote})
 
     has_many(:favorites, {"posts_favorites", PostFavorite})
     has_many(:stars, {"posts_stars", PostStar})
