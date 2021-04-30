@@ -83,7 +83,7 @@ defmodule GroupherServer.CMS do
   defdelegate undo_reaction(thread, react, content_id, user), to: ArticleReaction
 
   defdelegate upvote_article(thread, article_id, user), to: ArticleReaction
-  # defdelegate undo_upvote_article(thread, content_id, user), to: ArticleReaction
+  defdelegate undo_upvote_article(thread, article_id, user), to: ArticleReaction
 
   defdelegate favorited_category(thread, content_id, user), to: FavoritedContents
   # ArticleOperation

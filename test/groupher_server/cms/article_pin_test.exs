@@ -36,7 +36,7 @@ defmodule GroupherServer.Test.CMS.ArticlePin do
     end
 
     @tag :wip
-    test "one community & thread can only pin certern count of post", ~m(community post user)a do
+    test "one community & thread can only pin certern count of post", ~m(community user)a do
       Enum.reduce(1..@max_pinned_article_count_per_thread, [], fn _, acc ->
         {:ok, new_post} = CMS.create_content(community, :post, mock_attrs(:post), user)
         {:ok, _} = CMS.pin_article(:post, new_post.id, community.id)
