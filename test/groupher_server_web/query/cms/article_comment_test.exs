@@ -118,7 +118,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
         }
     }
     """
-    @tag :wip
+    @tag :wip2
     test "list comments with default replies-mode", ~m(guest_conn post user user2)a do
       total_count = 10
       page_size = 20

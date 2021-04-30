@@ -22,7 +22,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCollect do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "login user can collect a post", ~m(user_conn post)a do
       variables = %{id: post.id, thread: "POST"}
       created = user_conn |> mutation_result(@query, variables, "collectArticle")
@@ -30,7 +30,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCollect do
       assert created["id"] == to_string(post.id)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "unauth user collect a post fails", ~m(guest_conn post)a do
       variables = %{id: post.id, thread: "POST"}
 
@@ -45,7 +45,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCollect do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "login user can undo collect to a post", ~m(user_conn post user)a do
       {:ok, _} = CMS.collect_article(:post, post.id, user)
 
@@ -55,7 +55,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCollect do
       assert updated["id"] == to_string(post.id)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "unauth user undo collect a post fails", ~m(guest_conn post)a do
       variables = %{id: post.id, thread: "POST"}
 
@@ -72,7 +72,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCollect do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "login user can collect a job", ~m(user_conn job)a do
       variables = %{id: job.id, thread: "JOB"}
       created = user_conn |> mutation_result(@query, variables, "collectArticle")
@@ -80,7 +80,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCollect do
       assert created["id"] == to_string(job.id)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "unauth user collect a job fails", ~m(guest_conn job)a do
       variables = %{id: job.id, thread: "JOB"}
 
@@ -95,7 +95,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCollect do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "login user can undo collect to a job", ~m(user_conn job user)a do
       {:ok, _} = CMS.collect_article(:job, job.id, user)
 
@@ -105,7 +105,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCollect do
       assert updated["id"] == to_string(job.id)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "unauth user undo collect a job fails", ~m(guest_conn job)a do
       variables = %{id: job.id, thread: "JOB"}
 

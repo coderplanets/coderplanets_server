@@ -1,4 +1,5 @@
 defmodule GroupherServer.Test.Mutation.ArticleUpvote do
+  @moduledoc false
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
@@ -22,7 +23,7 @@ defmodule GroupherServer.Test.Mutation.ArticleUpvote do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "login user can upvote a post", ~m(user_conn post)a do
       variables = %{id: post.id, thread: "POST"}
       created = user_conn |> mutation_result(@query, variables, "upvoteArticle")
@@ -30,7 +31,7 @@ defmodule GroupherServer.Test.Mutation.ArticleUpvote do
       assert created["id"] == to_string(post.id)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "unauth user upvote a post fails", ~m(guest_conn post)a do
       variables = %{id: post.id, thread: "POST"}
 
@@ -45,7 +46,7 @@ defmodule GroupherServer.Test.Mutation.ArticleUpvote do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "login user can undo upvote to a post", ~m(user_conn post user)a do
       {:ok, _} = CMS.upvote_article(:post, post.id, user)
 
@@ -55,7 +56,7 @@ defmodule GroupherServer.Test.Mutation.ArticleUpvote do
       assert updated["id"] == to_string(post.id)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "unauth user undo upvote a post fails", ~m(guest_conn post)a do
       variables = %{id: post.id, thread: "POST"}
 
@@ -72,7 +73,7 @@ defmodule GroupherServer.Test.Mutation.ArticleUpvote do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "login user can upvote a job", ~m(user_conn job)a do
       variables = %{id: job.id, thread: "JOB"}
       created = user_conn |> mutation_result(@query, variables, "upvoteArticle")
@@ -80,7 +81,7 @@ defmodule GroupherServer.Test.Mutation.ArticleUpvote do
       assert created["id"] == to_string(job.id)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "unauth user upvote a job fails", ~m(guest_conn job)a do
       variables = %{id: job.id, thread: "JOB"}
 
@@ -95,7 +96,7 @@ defmodule GroupherServer.Test.Mutation.ArticleUpvote do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "login user can undo upvote to a job", ~m(user_conn job user)a do
       {:ok, _} = CMS.upvote_article(:job, job.id, user)
 
@@ -105,7 +106,7 @@ defmodule GroupherServer.Test.Mutation.ArticleUpvote do
       assert updated["id"] == to_string(job.id)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "unauth user undo upvote a job fails", ~m(guest_conn job)a do
       variables = %{id: job.id, thread: "JOB"}
 
