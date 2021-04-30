@@ -9,8 +9,9 @@ defmodule GroupherServer.Test.ArticleCollect do
     {:ok, community} = db_insert(:community)
 
     post_attrs = mock_attrs(:post, %{community_id: community.id})
+    job_attrs = mock_attrs(:job, %{community_id: community.id})
 
-    {:ok, ~m(user user2 community post_attrs)a}
+    {:ok, ~m(user user2 community post_attrs job_attrs)a}
   end
 
   describe "[cms post collect]" do
@@ -37,6 +38,34 @@ defmodule GroupherServer.Test.ArticleCollect do
       assert article.collects_count == 1
 
       {:ok, article} = CMS.undo_collect_article(:post, post.id, user2)
+      assert article.collects_count == 0
+    end
+  end
+
+  describe "[cms job collect]" do
+    @tag :wip2
+    test "job can be collect && collects_count should inc by 1",
+         ~m(user user2 community job_attrs)a do
+      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+
+      {:ok, article} = CMS.collect_article(:job, job.id, user)
+      assert article.id == job.id
+      assert article.collects_count == 1
+
+      {:ok, article} = CMS.collect_article(:job, job.id, user2)
+      assert article.collects_count == 2
+    end
+
+    @tag :wip
+    test "job can be undo collect && collects_count should dec by 1",
+         ~m(user user2 community job_attrs)a do
+      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+
+      {:ok, article} = CMS.collect_article(:job, job.id, user)
+      assert article.id == job.id
+      assert article.collects_count == 1
+
+      {:ok, article} = CMS.undo_collect_article(:job, job.id, user2)
       assert article.collects_count == 0
     end
   end

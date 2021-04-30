@@ -255,10 +255,6 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.unset_tag(thread, %Tag{id: tag_id}, id)
   end
 
-  def unset_refined_tag(_root, ~m(community_id thread id)a, _info) do
-    CMS.unset_refined_tag(%Community{id: community_id}, thread, id)
-  end
-
   def get_tags(_root, %{community_id: community_id, all: true}, _info) do
     CMS.get_tags(%Community{id: community_id})
   end
