@@ -17,16 +17,46 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
 
   alias Ecto.Multi
 
+  @doc "upvote to a article-like content"
   def upvote_article(thread, article_id, %User{id: user_id}) do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, article_id) do
-      IO.inspect(info, label: "the info")
-      thread_upcase = thread |> to_string |> String.upcase()
+      Multi.new()
+      |> Multi.run(:inc_article_upvotes_count, fn _, _ ->
+        update_article_upvotes_count(info, article, :inc)
+      end)
+      |> Multi.run(:create_upvote, fn _, _ ->
+        thread_upcase = thread |> to_string |> String.upcase()
+        args = Map.put(%{user_id: user_id, thread: thread_upcase}, info.foreign_key, article.id)
 
-      args = Map.put(%{user_id: user_id, thread: thread_upcase}, info.foreign_key, article.id)
-
-      ORM.create(ArticleUpvote, args)
+        with {:ok, _} <- ORM.create(ArticleUpvote, args) do
+          ORM.find(info.model, article.id)
+        end
+      end)
+      |> Repo.transaction()
+      |> upvote_result()
     end
+  end
+
+  defp update_article_upvotes_count(info, article, opt) do
+    count_query = from(u in ArticleUpvote, where: field(u, ^info.foreign_key) == ^article.id)
+    cur_count = Repo.aggregate(count_query, :count)
+
+    case opt do
+      :inc ->
+        upvotes_count = Enum.max([0, cur_count])
+        ORM.update(article, %{upvotes_count: upvotes_count + 1})
+
+      :dec ->
+        upvotes_count = Enum.max([1, cur_count])
+        ORM.update(article, %{upvotes_count: upvotes_count - 1})
+    end
+  end
+
+  defp upvote_result({:ok, %{create_upvote: result}}), do: result |> done()
+
+  defp upvote_result({:error, _, result, _steps}) do
+    {:error, result}
   end
 
   @doc """

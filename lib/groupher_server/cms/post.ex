@@ -28,7 +28,7 @@ defmodule GroupherServer.CMS.Post do
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title body digest length)a
-  @optional_fields ~w(origial_community_id link_addr copy_right link_addr link_icon article_comments_count article_comments_participators_count)a
+  @optional_fields ~w(origial_community_id link_addr copy_right link_addr link_icon article_comments_count article_comments_participators_count upvotes_count)a
 
   @type t :: %Post{}
   schema "cms_posts" do
@@ -65,6 +65,7 @@ defmodule GroupherServer.CMS.Post do
     embeds_many(:article_comments_participators, Accounts.User, on_replace: :delete)
 
     has_many(:upvotes, {"article_upvotes", ArticleUpvote})
+    field(:upvotes_count, :integer, default: 0)
 
     has_many(:favorites, {"posts_favorites", PostFavorite})
     has_many(:stars, {"posts_stars", PostStar})

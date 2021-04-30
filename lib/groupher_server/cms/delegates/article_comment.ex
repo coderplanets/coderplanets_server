@@ -497,11 +497,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       cur_count = Repo.aggregate(count_query, :count)
 
       case opt do
-        :inc ->
-          ORM.update(article, %{article_comments_count: cur_count - 1 + 1})
-
-        :dec ->
-          ORM.update(article, %{article_comments_count: Enum.max([0, cur_count - 1])})
+        :inc -> ORM.update(article, %{article_comments_count: cur_count - 1 + 1})
+        :dec -> ORM.update(article, %{article_comments_count: Enum.max([0, cur_count - 1])})
       end
     end
   end
