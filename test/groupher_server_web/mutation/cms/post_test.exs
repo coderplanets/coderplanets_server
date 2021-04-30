@@ -233,26 +233,6 @@ defmodule GroupherServer.Test.Mutation.Post do
       assert tag2.id in tag_ids
     end
 
-    test "can update post with refined tag", ~m(owner_conn post)a do
-      {:ok, tag_refined} = db_insert(:tag, %{title: "refined"})
-      {:ok, tag2} = db_insert(:tag)
-
-      unique_num = System.unique_integer([:positive, :monotonic])
-
-      variables = %{
-        id: post.id,
-        title: "updated title #{unique_num}",
-        tags: [%{id: tag_refined.id}, %{id: tag2.id}]
-      }
-
-      updated = owner_conn |> mutation_result(@query, variables, "updatePost")
-      {:ok, post} = ORM.find(CMS.Post, updated["id"], preload: :tags)
-      tag_ids = post.tags |> Utils.pick_by(:id)
-
-      assert tag_refined.id not in tag_ids
-      assert tag2.id in tag_ids
-    end
-
     test "post can be update by owner", ~m(owner_conn post)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
@@ -332,14 +312,6 @@ defmodule GroupherServer.Test.Mutation.Post do
       }
     }
     """
-    @set_refined_tag_query """
-    mutation($communityId: ID!, $thread: CmsThread, $id: ID!) {
-      setRefinedTag(communityId: $communityId, thread: $thread, id: $id) {
-        id
-        title
-      }
-    }
-    """
     test "auth user can set a valid tag to post", ~m(post)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
@@ -349,33 +321,6 @@ defmodule GroupherServer.Test.Mutation.Post do
 
       variables = %{id: post.id, tagId: tag.id, communityId: community.id}
       rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
-      {:ok, found} = ORM.find(CMS.Post, post.id, preload: :tags)
-
-      assoc_tags = found.tags |> Enum.map(& &1.id)
-      assert tag.id in assoc_tags
-    end
-
-    test "can not set refined tag to post", ~m(post)a do
-      {:ok, community} = db_insert(:community)
-      {:ok, tag} = db_insert(:tag, %{thread: "post", community: community, title: "refined"})
-
-      passport_rules = %{community.title => %{"post.tag.set" => true}}
-      rule_conn = simu_conn(:user, cms: passport_rules)
-
-      variables = %{id: post.id, tagId: tag.id}
-
-      assert rule_conn |> mutation_get_error?(@set_tag_query, variables)
-    end
-
-    test "auth user can set refined tag to post", ~m(post)a do
-      {:ok, community} = db_insert(:community)
-      {:ok, tag} = db_insert(:tag, %{thread: "post", community: community, title: "refined"})
-
-      passport_rules = %{community.title => %{"post.refinedtag.set" => true}}
-      rule_conn = simu_conn(:user, cms: passport_rules)
-
-      variables = %{id: post.id, communityId: community.id}
-      rule_conn |> mutation_result(@set_refined_tag_query, variables, "setRefinedTag")
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :tags)
 
       assoc_tags = found.tags |> Enum.map(& &1.id)
@@ -423,14 +368,6 @@ defmodule GroupherServer.Test.Mutation.Post do
       }
     }
     """
-    @unset_refined_tag_query """
-    mutation($communityId: ID!, $thread: CmsThread, $id: ID!) {
-      unsetRefinedTag(communityId: $communityId, thread: $thread, id: $id) {
-        id
-        title
-      }
-    }
-    """
     test "can unset tag to a post", ~m(post)a do
       {:ok, community} = db_insert(:community)
 
@@ -462,25 +399,6 @@ defmodule GroupherServer.Test.Mutation.Post do
 
       assert tag.id not in assoc_tags
       assert tag2.id in assoc_tags
-    end
-
-    test "can unset refined tag to a post", ~m(post)a do
-      {:ok, community} = db_insert(:community)
-      {:ok, tag} = db_insert(:tag, %{thread: "post", community: community, title: "refined"})
-
-      passport_rules = %{community.title => %{"post.refinedtag.set" => true}}
-      rule_conn = simu_conn(:user, cms: passport_rules)
-
-      variables = %{id: post.id, communityId: community.id}
-      rule_conn |> mutation_result(@set_refined_tag_query, variables, "setRefinedTag")
-
-      variables = %{id: post.id, communityId: community.id}
-      rule_conn |> mutation_result(@unset_refined_tag_query, variables, "unsetRefinedTag")
-
-      {:ok, found} = ORM.find(CMS.Post, post.id, preload: :tags)
-
-      assoc_tags = found.tags |> Enum.map(& &1.id)
-      assert tag.id not in assoc_tags
     end
   end
 
