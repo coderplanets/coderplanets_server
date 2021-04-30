@@ -121,20 +121,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
 
   @doc """
   set general tag for post / tuts ...
-  refined tag can't set by this func, use set_refined_tag instead
   """
   # check community first
   def set_tag(thread, %Tag{id: tag_id}, content_id) do
     with {:ok, action} <- match_action(thread, :tag),
          {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
          {:ok, tag} <- ORM.find(action.reactor, tag_id) do
-      case tag.title != "refined" do
-        true ->
-          update_content_tag(content, tag)
-
-        false ->
-          {:error, "use set_refined_tag instead"}
-      end
+      update_content_tag(content, tag)
 
       # NOTE: this should be control by Middleware
       # case tag_in_community_thread?(%Community{id: communitId}, thread, tag) do
@@ -154,36 +147,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
     with {:ok, action} <- match_action(thread, :tag),
          {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
          {:ok, tag} <- ORM.find(action.reactor, tag_id) do
-      update_content_tag(content, tag, :drop)
-    end
-  end
-
-  @doc """
-  set refined_tag to common content
-  """
-  def set_refined_tag(%Community{id: community_id}, thread, content_id) do
-    with {:ok, action} <- match_action(thread, :tag),
-         {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
-         {:ok, tag} <-
-           ORM.find_by(action.reactor, %{
-             title: "refined",
-             community_id: community_id
-           }) do
-      update_content_tag(content, tag)
-    end
-  end
-
-  @doc """
-  unset refined_tag to common content
-  """
-  def unset_refined_tag(%Community{id: community_id}, thread, content_id) do
-    with {:ok, action} <- match_action(thread, :tag),
-         {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
-         {:ok, tag} <-
-           ORM.find_by(action.reactor, %{
-             title: "refined",
-             community_id: community_id
-           }) do
       update_content_tag(content, tag, :drop)
     end
   end

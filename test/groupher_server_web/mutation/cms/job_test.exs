@@ -309,14 +309,6 @@ defmodule GroupherServer.Test.Mutation.Job do
       }
     }
     """
-    @set_refined_tag_query """
-    mutation($communityId: ID!, $thread: CmsThread, $id: ID!) {
-      setRefinedTag(communityId: $communityId, thread: $thread, id: $id) {
-        id
-        title
-      }
-    }
-    """
     test "auth user can set a valid tag to job", ~m(job)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "job", community: community})
@@ -326,33 +318,6 @@ defmodule GroupherServer.Test.Mutation.Job do
 
       variables = %{thread: "JOB", id: job.id, tagId: tag.id, communityId: community.id}
       rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
-      {:ok, found} = ORM.find(CMS.Job, job.id, preload: :tags)
-
-      assoc_tags = found.tags |> Enum.map(& &1.id)
-      assert tag.id in assoc_tags
-    end
-
-    test "can not set refined tag to job", ~m(job)a do
-      {:ok, community} = db_insert(:community)
-      {:ok, tag} = db_insert(:tag, %{thread: "job", community: community, title: "refined"})
-
-      passport_rules = %{community.title => %{"job.tag.set" => true}}
-      rule_conn = simu_conn(:user, cms: passport_rules)
-
-      variables = %{id: job.id, tagId: tag.id, communityId: community.id}
-
-      assert rule_conn |> mutation_get_error?(@set_tag_query, variables)
-    end
-
-    test "auth user can set refined tag to job", ~m(job)a do
-      {:ok, community} = db_insert(:community)
-      {:ok, tag} = db_insert(:tag, %{thread: "job", community: community, title: "refined"})
-
-      passport_rules = %{community.title => %{"job.refinedtag.set" => true}}
-      rule_conn = simu_conn(:user, cms: passport_rules)
-
-      variables = %{id: job.id, communityId: community.id, thread: "JOB"}
-      rule_conn |> mutation_result(@set_refined_tag_query, variables, "setRefinedTag")
       {:ok, found} = ORM.find(CMS.Job, job.id, preload: :tags)
 
       assoc_tags = found.tags |> Enum.map(& &1.id)
@@ -390,33 +355,6 @@ defmodule GroupherServer.Test.Mutation.Job do
       assoc_tags = found.tags |> Enum.map(& &1.id)
       assert tag.id in assoc_tags
       assert tag2.id in assoc_tags
-    end
-
-    @unset_refined_tag_query """
-    mutation($communityId: ID!, $thread: CmsThread, $id: ID!) {
-      unsetRefinedTag(communityId: $communityId, thread: $thread, id: $id) {
-        id
-        title
-      }
-    }
-    """
-    test "can unset refined tag to a job", ~m(job)a do
-      {:ok, community} = db_insert(:community)
-      {:ok, tag} = db_insert(:tag, %{thread: "job", community: community, title: "refined"})
-
-      passport_rules = %{community.title => %{"job.refinedtag.set" => true}}
-      rule_conn = simu_conn(:user, cms: passport_rules)
-
-      variables = %{id: job.id, communityId: community.id, thread: "JOB"}
-      rule_conn |> mutation_result(@set_refined_tag_query, variables, "setRefinedTag")
-
-      variables = %{id: job.id, communityId: community.id, thread: "JOB"}
-      rule_conn |> mutation_result(@unset_refined_tag_query, variables, "unsetRefinedTag")
-
-      {:ok, found} = ORM.find(CMS.Job, job.id, preload: :tags)
-
-      assoc_tags = found.tags |> Enum.map(& &1.id)
-      assert tag.id not in assoc_tags
     end
   end
 end

@@ -93,19 +93,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Operation do
       resolve(&R.CMS.set_tag/3)
     end
 
-    @desc "set a refined tag to content"
-    field :set_refined_tag, :tag do
-      arg(:id, non_null(:id))
-      arg(:community_id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->t?.refinedtag.set")
-
-      resolve(&R.CMS.set_refined_tag/3)
-    end
-
     @desc "unset a tag to content"
     field :unset_tag, :tag do
       # thread id
@@ -119,19 +106,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Operation do
       middleware(M.Passport, claim: "cms->c?->t?.tag.unset")
 
       resolve(&R.CMS.unset_tag/3)
-    end
-
-    @desc "unset a refined tag to content"
-    field :unset_refined_tag, :tag do
-      arg(:id, non_null(:id))
-      arg(:community_id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->t?.refinedtag.set")
-
-      resolve(&R.CMS.unset_refined_tag/3)
     end
 
     # TODO: use community loader

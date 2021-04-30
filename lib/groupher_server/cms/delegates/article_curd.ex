@@ -133,7 +133,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       ArticleOperation.update_edit_status(update_content)
     end)
     |> Multi.run(:update_tag, fn _, _ ->
-      # TODO: move it to ArticleOperation moudel
+      # TODO: move it to ArticleOperation module
       exec_update_tags(content, args)
     end)
     |> Repo.transaction()
@@ -426,13 +426,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
         Enum.reduce(tags_ids, [], fn t, acc ->
           {:ok, tag} = ORM.find(Tag, t.id)
 
-          case tag.title == "refined" do
-            true ->
-              acc
-
-            false ->
-              acc ++ [tag]
-          end
+          acc ++ [tag]
         end)
 
       content
