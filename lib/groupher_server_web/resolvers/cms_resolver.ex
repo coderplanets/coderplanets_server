@@ -141,6 +141,14 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.undo_upvote_article(thread, id, user)
   end
 
+  def collect_article(_root, ~m(id thread)a, %{context: %{cur_user: user}}) do
+    CMS.collect_article(thread, id, user)
+  end
+
+  def undo_collect_article(_root, ~m(id thread)a, %{context: %{cur_user: user}}) do
+    CMS.undo_collect_article(thread, id, user)
+  end
+
   def reaction(_root, ~m(id thread action)a, %{context: %{cur_user: user}}) do
     CMS.reaction(thread, action, id, user)
   end

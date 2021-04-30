@@ -13,9 +13,47 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.User
-  alias CMS.{ArticleUpvote}
+  alias CMS.{ArticleUpvote, ArticleCollect}
 
   alias Ecto.Multi
+
+  def collect_article(thread, article_id, %User{id: user_id}) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, article_id) do
+      Multi.new()
+      |> Multi.run(:inc_article_collects_count, fn _, _ ->
+        update_article_upvotes_count(info, article, :collects_count, :inc)
+      end)
+      |> Multi.run(:create_collect, fn _, _ ->
+        thread_upcase = thread |> to_string |> String.upcase()
+        args = Map.put(%{user_id: user_id, thread: thread_upcase}, info.foreign_key, article.id)
+
+        with {:ok, _} <- ORM.create(ArticleCollect, args) do
+          ORM.find(info.model, article.id)
+        end
+      end)
+      |> Repo.transaction()
+      |> reaction_result()
+    end
+  end
+
+  def undo_collect_article(thread, article_id, %User{id: user_id}) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, article_id) do
+      Multi.new()
+      |> Multi.run(:inc_article_collects_count, fn _, _ ->
+        update_article_upvotes_count(info, article, :collects_count, :dec)
+      end)
+      |> Multi.run(:undo_collect, fn _, _ ->
+        args = Map.put(%{user_id: user_id}, info.foreign_key, article.id)
+
+        ORM.findby_delete(ArticleCollect, args)
+        ORM.find(info.model, article.id)
+      end)
+      |> Repo.transaction()
+      |> reaction_result()
+    end
+  end
 
   @doc "upvote to a article-like content"
   def upvote_article(thread, article_id, %User{id: user_id}) do
@@ -23,7 +61,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
          {:ok, article} <- ORM.find(info.model, article_id) do
       Multi.new()
       |> Multi.run(:inc_article_upvotes_count, fn _, _ ->
-        update_article_upvotes_count(info, article, :inc)
+        update_article_upvotes_count(info, article, :upvotes_count, :inc)
       end)
       |> Multi.run(:create_upvote, fn _, _ ->
         args = Map.put(%{user_id: user_id}, info.foreign_key, article.id)
@@ -33,7 +71,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
         end
       end)
       |> Repo.transaction()
-      |> upvote_result()
+      |> reaction_result()
     end
   end
 
@@ -43,38 +81,47 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
          {:ok, article} <- ORM.find(info.model, article_id) do
       Multi.new()
       |> Multi.run(:inc_article_upvotes_count, fn _, _ ->
-        update_article_upvotes_count(info, article, :dec)
+        update_article_upvotes_count(info, article, :upvotes_count, :dec)
       end)
-      |> Multi.run(:delete_upvote, fn _, _ ->
+      |> Multi.run(:undo_upvote, fn _, _ ->
         args = Map.put(%{user_id: user_id}, info.foreign_key, article.id)
 
         ORM.findby_delete(ArticleUpvote, args)
         ORM.find(info.model, article.id)
       end)
       |> Repo.transaction()
-      |> upvote_result()
+      |> reaction_result()
     end
   end
 
-  defp update_article_upvotes_count(info, article, opt) do
-    count_query = from(u in ArticleUpvote, where: field(u, ^info.foreign_key) == ^article.id)
+  defp update_article_upvotes_count(info, article, field, opt) do
+    schema =
+      case field do
+        :upvotes_count -> ArticleUpvote
+        :collects_count -> ArticleCollect
+      end
+
+    count_query = from(u in schema, where: field(u, ^info.foreign_key) == ^article.id)
     cur_count = Repo.aggregate(count_query, :count)
 
     case opt do
       :inc ->
         new_count = Enum.max([0, cur_count])
-        ORM.update(article, %{upvotes_count: new_count + 1})
+        ORM.update(article, Map.put(%{}, field, new_count + 1))
 
       :dec ->
         new_count = Enum.max([1, cur_count])
-        ORM.update(article, %{upvotes_count: new_count - 1})
+        ORM.update(article, Map.put(%{}, field, new_count - 1))
     end
   end
 
-  defp upvote_result({:ok, %{create_upvote: result}}), do: result |> done()
-  defp upvote_result({:ok, %{delete_upvote: result}}), do: result |> done()
+  defp reaction_result({:ok, %{create_upvote: result}}), do: result |> done()
+  defp reaction_result({:ok, %{undo_upvote: result}}), do: result |> done()
 
-  defp upvote_result({:error, _, result, _steps}) do
+  defp reaction_result({:ok, %{create_collect: result}}), do: result |> done()
+  defp reaction_result({:ok, %{undo_collect: result}}), do: result |> done()
+
+  defp reaction_result({:error, _, result, _steps}) do
     {:error, result}
   end
 
@@ -94,21 +141,21 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
         Accounts.achieve(%User{id: achiever_id}, :add, react)
       end)
       |> Repo.transaction()
-      |> reaction_result()
+      |> old_reaction_result()
     end
   end
 
-  defp reaction_result({:ok, %{create_reaction_record: result}}), do: result |> done()
+  defp old_reaction_result({:ok, %{create_reaction_record: result}}), do: result |> done()
 
-  defp reaction_result({:error, :create_reaction_record, %Ecto.Changeset{} = result, _steps}) do
+  defp old_reaction_result({:error, :create_reaction_record, %Ecto.Changeset{} = result, _steps}) do
     {:error, result}
   end
 
-  defp reaction_result({:error, :create_reaction_record, _result, _steps}) do
+  defp old_reaction_result({:error, :create_reaction_record, _result, _steps}) do
     {:error, [message: "create reaction fails", code: ecode(:react_fails)]}
   end
 
-  defp reaction_result({:error, :add_achievement, _result, _steps}),
+  defp old_reaction_result({:error, :add_achievement, _result, _steps}),
     do: {:error, [message: "achieve fails", code: ecode(:react_fails)]}
 
   defp create_reaction_record(action, %User{id: user_id}, thread, content) do

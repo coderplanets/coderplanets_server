@@ -85,6 +85,9 @@ defmodule GroupherServer.CMS do
   defdelegate upvote_article(thread, article_id, user), to: ArticleReaction
   defdelegate undo_upvote_article(thread, article_id, user), to: ArticleReaction
 
+  defdelegate collect_article(thread, article_id, user), to: ArticleReaction
+  defdelegate undo_collect_article(thread, article_id, user), to: ArticleReaction
+
   defdelegate favorited_category(thread, content_id, user), to: FavoritedContents
   # ArticleOperation
   # >> set flag on article, like: pin / unpin article
@@ -97,8 +100,6 @@ defmodule GroupherServer.CMS do
   # >> tag: set / unset
   defdelegate set_tag(thread, tag, content_id), to: ArticleOperation
   defdelegate unset_tag(thread, tag, content_id), to: ArticleOperation
-  defdelegate set_refined_tag(community, thread, content_id), to: ArticleOperation
-  defdelegate unset_refined_tag(community, thread, content_id), to: ArticleOperation
   # >> community: set / unset
   defdelegate set_community(community, thread, content_id), to: ArticleOperation
   defdelegate unset_community(community, thread, content_id), to: ArticleOperation
