@@ -41,6 +41,20 @@ defmodule GroupherServer.Test.ArticleUpvote do
       {:ok, article} = CMS.undo_upvote_article(:post, post.id, user2)
       assert article.upvotes_count == 0
     end
+
+    @tag :wip2
+    test "can get upvotes_users", ~m(user user2 community post_attrs)a do
+      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+
+      {:ok, _article} = CMS.upvote_article(:post, post.id, user)
+      {:ok, _article} = CMS.upvote_article(:post, post.id, user2)
+
+      {:ok, users} = CMS.upvoted_users(:post, post.id, %{page: 1, size: 2})
+
+      assert users |> is_valid_pagination?(:raw)
+      assert user_exist_in?(user, users.entries)
+      assert user_exist_in?(user2, users.entries)
+    end
   end
 
   describe "[cms job upvote]" do
@@ -68,6 +82,20 @@ defmodule GroupherServer.Test.ArticleUpvote do
 
       {:ok, article} = CMS.undo_upvote_article(:job, job.id, user2)
       assert article.upvotes_count == 0
+    end
+
+    @tag :wip2
+    test "can get upvotes_users", ~m(user user2 community job_attrs)a do
+      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+
+      {:ok, _article} = CMS.upvote_article(:job, job.id, user)
+      {:ok, _article} = CMS.upvote_article(:job, job.id, user2)
+
+      {:ok, users} = CMS.upvoted_users(:job, job.id, %{page: 1, size: 2})
+
+      assert users |> is_valid_pagination?(:raw)
+      assert user_exist_in?(user, users.entries)
+      assert user_exist_in?(user2, users.entries)
     end
   end
 end

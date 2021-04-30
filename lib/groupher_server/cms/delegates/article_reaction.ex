@@ -8,14 +8,33 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
   import GroupherServer.CMS.Utils.Matcher, only: [match_action: 2]
   import Ecto.Query, warn: false
   import Helper.ErrorCode
+  import ShortMaps
 
-  alias Helper.ORM
+  alias Helper.{ORM, QueryBuilder}
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.User
   alias CMS.{ArticleUpvote, ArticleCollect}
 
   alias Ecto.Multi
+
+  def upvoted_users(thread, article_id, filter) do
+    load_reaction_users(ArticleUpvote, thread, article_id, filter)
+  end
+
+  def collected_users(thread, article_id, filter) do
+    load_reaction_users(ArticleCollect, thread, article_id, filter)
+  end
+
+  defp load_reaction_users(schema, thread, article_id, %{page: page, size: size} = filter) do
+    with {:ok, info} <- match(thread) do
+      schema
+      |> where([u], field(u, ^info.foreign_key) == ^article_id)
+      |> QueryBuilder.load_inner_users(filter)
+      |> ORM.paginater(~m(page size)a)
+      |> done()
+    end
+  end
 
   def collect_article(thread, article_id, %User{id: user_id}) do
     with {:ok, info} <- match(thread),
