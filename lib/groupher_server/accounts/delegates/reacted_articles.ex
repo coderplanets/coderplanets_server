@@ -13,27 +13,29 @@ defmodule GroupherServer.Accounts.Delegate.ReactedArticles do
   alias Accounts.User
   alias CMS.{ArticleUpvote}
 
-  @supported_uovoted_thread [:post, :job]
+  @supported_uovoted_threads [:post, :job]
 
-  def upvoted_articles(_thread, filter, %User{id: user_id}) do
-    %{page: page, size: size} = filter
+  def upvoted_articles(thread, filter, %User{id: user_id}) do
+    thread_upcase = thread |> to_string |> String.upcase()
+    where_query = dynamic([a], a.user_id == ^user_id and a.thread == ^thread_upcase)
 
-    ArticleUpvote
-    |> where([a], a.user_id == ^user_id)
-    |> QueryBuilder.filter_pack(filter)
-    |> ORM.paginater(~m(page size)a)
-    # 根据 thread 筛选出对应的 [article]
-    |> done()
+    load_upvoted_articles(where_query, filter)
   end
 
-  def upvoted_articles(%{page: page, size: size} = filter, %User{id: user_id}) do
-    query = from(a in ArticleUpvote, preload: [:post, :job])
+  def upvoted_articles(filter, %User{id: user_id}) do
+    where_query = dynamic([a], a.user_id == ^user_id)
+
+    load_upvoted_articles(where_query, filter)
+  end
+
+  defp load_upvoted_articles(where_query, %{page: page, size: size} = filter) do
+    query = from(a in ArticleUpvote, preload: ^@supported_uovoted_threads)
 
     query
-    |> where([a], a.user_id == ^user_id)
+    |> where(^where_query)
     |> QueryBuilder.filter_pack(filter)
     |> ORM.paginater(~m(page size)a)
-    |> extract_articles(@supported_uovoted_thread)
+    |> extract_articles(@supported_uovoted_threads)
     |> done()
   end
 
@@ -85,7 +87,8 @@ defmodule GroupherServer.Accounts.Delegate.ReactedArticles do
     %{
       thread: thread,
       id: article.id,
-      title: article.title
+      title: article.title,
+      upvotes_count: Map.get(article, :upvotes_count)
     }
   end
 end
