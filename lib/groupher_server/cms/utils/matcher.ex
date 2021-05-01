@@ -100,14 +100,8 @@ defmodule GroupherServer.CMS.Utils.Matcher do
       :job ->
         {:ok, dynamic([p], p.job_id == ^id)}
 
-      :job_comment ->
-        {:ok, dynamic([p], p.job_comment_id == ^id)}
-
       :repo ->
         {:ok, dynamic([p], p.repo_id == ^id)}
-
-      :repo_comment ->
-        {:ok, dynamic([p], p.repo_comment_id == ^id)}
 
       _ ->
         {:error, 'where is not match'}

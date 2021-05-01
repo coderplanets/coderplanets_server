@@ -51,8 +51,6 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
 
   enum :cms_comment do
     value(:post_comment)
-    value(:job_comment)
-    value(:repo_comment)
   end
 
   enum :commentable_thread do

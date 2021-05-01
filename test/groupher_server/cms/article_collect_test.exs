@@ -41,7 +41,7 @@ defmodule GroupherServer.Test.ArticleCollect do
       assert article.collects_count == 0
     end
 
-    @tag :wip2
+    @tag :wip
     test "can get collect_users", ~m(user user2 community post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 

@@ -20,7 +20,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
   end
 
   describe "[basic article comment replies]" do
-    @tag :wip2
+    @tag :wip
     test "exsit comment can be reply", ~m(post user user2)a do
       parent_content = "parent comment"
       reply_content = "reply comment"

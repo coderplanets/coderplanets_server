@@ -11,14 +11,18 @@ defmodule GroupherServer.Test.Accounts.ReactedContents do
     {:ok, ~m(user post job)a}
   end
 
-  describe "[user favorited  contents]" do
-    test "user can get paged favorited_posts", ~m(user post)a do
-      {:ok, _} = CMS.reaction(:post, :favorite, post.id, user)
+  describe "[user upvoted articles]" do
+    @tag :wip2
+    test "user can get paged upvoted posts", ~m(user post job)a do
+      {:ok, _} = CMS.upvote_article(:post, post.id, user)
+      {:ok, _} = CMS.upvote_article(:job, job.id, user)
 
       filter = %{page: 1, size: 20}
-      {:ok, posts} = Accounts.reacted_contents(:post, :favorite, filter, user)
-      assert posts |> is_valid_pagination?(:raw)
-      assert post.id == posts |> Map.get(:entries) |> List.first() |> Map.get(:id)
+      {:ok, articles} = Accounts.upvoted_articles(filter, user)
+      IO.inspect(articles, label: "hello")
+
+      # assert posts |> is_valid_pagination?(:raw)
+      # assert post.id == posts |> Map.get(:entries) |> List.first() |> Map.get(:id)
     end
 
     test "user can get paged favorited_jobs", ~m(user job)a do

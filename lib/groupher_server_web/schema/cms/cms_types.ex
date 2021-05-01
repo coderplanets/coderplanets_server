@@ -387,14 +387,17 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     comments_fields()
   end
 
+  object :common_article do
+    field(:thread, :string)
+    field(:id, :id)
+    # field(:body_html, :string)
+    field(:title, :string)
+    field(:author, :user, resolve: dataloader(CMS, :author))
+  end
+
   object :post_comment do
     comments_fields()
     field(:post, :post, resolve: dataloader(CMS, :post))
-  end
-
-  object :job_comment do
-    comments_fields()
-    field(:job, :job, resolve: dataloader(CMS, :job))
   end
 
   object :repo_comment do
@@ -443,16 +446,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     pagination_fields()
   end
 
-  object :paged_job_comments do
-    field(:entries, list_of(:job_comment))
-    pagination_fields()
-  end
-
-  object :paged_repo_comments do
-    field(:entries, list_of(:repo_comment))
-    pagination_fields()
-  end
-
   object :paged_communities do
     field(:entries, list_of(:community))
     pagination_fields()
@@ -465,6 +458,11 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
   object :paged_threads do
     field(:entries, list_of(:thread))
+    pagination_fields()
+  end
+
+  object :paged_articles do
+    field(:entries, list_of(:common_article))
     pagination_fields()
   end
 

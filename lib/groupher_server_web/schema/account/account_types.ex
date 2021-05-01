@@ -126,24 +126,6 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       middleware(M.ViewerDidConvert)
     end
 
-    @desc "paged stared posts"
-    field :stared_posts, :paged_posts do
-      arg(:filter, non_null(:paged_filter))
-      arg(:thread, :post_thread, default_value: :post)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.stared_contents/3)
-    end
-
-    @desc "paged stared jobs"
-    field :stared_jobs, :paged_jobs do
-      arg(:filter, non_null(:paged_filter))
-      arg(:thread, :job_thread, default_value: :job)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.stared_contents/3)
-    end
-
     @desc "paged favorited posts"
     field :favorited_posts, :paged_posts do
       arg(:filter, non_null(:paged_filter))

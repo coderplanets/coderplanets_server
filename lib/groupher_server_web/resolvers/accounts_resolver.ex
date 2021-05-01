@@ -147,6 +147,10 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
   end
 
   # gst stared contents
+  def upvoted_articles(_root, ~m(user_id filter thread)a, _info) do
+    Accounts.upvoted_articles(thread, filter, %User{id: user_id})
+  end
+
   def stared_contents(_root, ~m(user_id filter thread)a, _info) do
     Accounts.reacted_contents(thread, :star, filter, %User{id: user_id})
   end

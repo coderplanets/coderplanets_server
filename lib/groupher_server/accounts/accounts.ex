@@ -10,6 +10,7 @@ defmodule GroupherServer.Accounts do
     Mails,
     Profile,
     ReactedContents,
+    ReactedArticles,
     Search
   }
 
@@ -47,6 +48,10 @@ defmodule GroupherServer.Accounts do
   # reacted contents
   defdelegate reacted_contents(thread, react, filter, user), to: ReactedContents
   defdelegate reacted_contents(thread, react, category_id, filter, user), to: ReactedContents
+
+  # upvoted articles
+  defdelegate upvoted_articles(filter, user), to: ReactedArticles
+  defdelegate upvoted_articles(thread, filter, user), to: ReactedArticles
 
   # mentions
   defdelegate fetch_mentions(user, filter), to: Mails
