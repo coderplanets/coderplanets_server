@@ -83,7 +83,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
         update_article_upvotes_count(info, article, :upvotes_count, :inc)
       end)
       |> Multi.run(:create_upvote, fn _, _ ->
-        args = Map.put(%{user_id: user_id}, info.foreign_key, article.id)
+        thread_upcase = thread |> to_string |> String.upcase()
+        args = Map.put(%{user_id: user_id, thread: thread_upcase}, info.foreign_key, article.id)
 
         with {:ok, _} <- ORM.create(ArticleUpvote, args) do
           ORM.find(info.model, article.id)

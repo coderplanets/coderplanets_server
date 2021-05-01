@@ -13,6 +13,8 @@ defmodule GroupherServer.Accounts.Delegate.ReactedArticles do
   alias Accounts.User
   alias CMS.{ArticleUpvote}
 
+  @supported_uovoted_thread [:post, :job]
+
   def upvoted_articles(_thread, filter, %User{id: user_id}) do
     %{page: page, size: size} = filter
 
@@ -31,7 +33,7 @@ defmodule GroupherServer.Accounts.Delegate.ReactedArticles do
     |> where([a], a.user_id == ^user_id)
     |> QueryBuilder.filter_pack(filter)
     |> ORM.paginater(~m(page size)a)
-    |> extract_articles
+    |> extract_articles(@supported_uovoted_thread)
     |> done()
   end
 
@@ -67,16 +69,16 @@ defmodule GroupherServer.Accounts.Delegate.ReactedArticles do
     end
   end
 
-  defp extract_articles(%{entries: entries} = paged_articles) do
-    Map.put(paged_articles, :entries, Enum.map(entries, &extract_article_info(&1)))
+  defp extract_articles(%{entries: entries} = paged_articles, supported_threads) do
+    paged_articles
+    |> Map.put(:entries, Enum.map(entries, &extract_article_info(&1, supported_threads)))
   end
 
-  defp extract_article_info(%{post: post}) when not is_nil(post) do
-    export_article_info(:post, post)
-  end
+  defp extract_article_info(reaction, supported_threads) do
+    thread = Enum.find(supported_threads, &(not is_nil(Map.get(reaction, &1))))
+    article = Map.get(reaction, thread)
 
-  defp extract_article_info(%{job: job}) when not is_nil(job) do
-    export_article_info(:job, job)
+    export_article_info(thread, article)
   end
 
   defp export_article_info(thread, article) do

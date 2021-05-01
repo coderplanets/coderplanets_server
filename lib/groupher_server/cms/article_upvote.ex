@@ -11,10 +11,13 @@ defmodule GroupherServer.CMS.ArticleUpvote do
   alias CMS.{Post, Job, Repo}
 
   @required_fields ~w(user_id)a
-  @optional_fields ~w(post_id job_id repo_id)a
+  @optional_fields ~w(thread post_id job_id repo_id)a
 
   @type t :: %ArticleUpvote{}
   schema "article_upvotes" do
+    # for user-center to filter
+    field(:thread, :string)
+
     belongs_to(:user, User, foreign_key: :user_id)
     belongs_to(:post, Post, foreign_key: :post_id)
     belongs_to(:job, Job, foreign_key: :job_id)
