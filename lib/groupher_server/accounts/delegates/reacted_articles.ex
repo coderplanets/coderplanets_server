@@ -11,7 +11,7 @@ defmodule GroupherServer.Accounts.Delegate.ReactedArticles do
 
   alias GroupherServer.{Accounts, CMS}
   alias Accounts.User
-  alias CMS.{ArticleUpvote}
+  alias CMS.{ArticleUpvote, ArticleCollect}
 
   @supported_uovoted_threads [:post, :job]
 

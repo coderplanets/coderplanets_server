@@ -12,6 +12,7 @@ defmodule GroupherServer.Accounts.User do
     Customization,
     EducationBackground,
     FavoriteCategory,
+    CollectFolder,
     GithubUser,
     Purchase,
     UserFollower,
@@ -64,6 +65,8 @@ defmodule GroupherServer.Accounts.User do
     has_many(:favorited_repos, {"repos_favorites", CMS.RepoFavorite})
 
     has_many(:favorite_categories, {"favorite_categories", FavoriteCategory})
+
+    has_many(:collect_folder, {"collect_folders", CollectFolder})
 
     # field(:sponsor_member, :boolean)
     # field(:paid_member, :boolean)
