@@ -22,6 +22,23 @@ defmodule Helper.ORM do
     queryable |> Repo.paginate(page: page, page_size: size)
   end
 
+  # NOTE: should have limit length for list, otherwise it will cause mem issues
+  @doc "simu paginator in normal list, used for embeds_many etc"
+  def embeds_paginater(list, %{page: page, size: size} = _filter) when is_list(list) do
+    chunked_list = Enum.chunk_every(list, size)
+
+    entries = chunked_list |> Enum.at(page - 1)
+    total_count = list |> length
+
+    %{
+      entries: entries,
+      page_number: page,
+      page_size: size,
+      total_count: total_count,
+      total_pages: chunked_list |> length
+    }
+  end
+
   @doc """
   wrap Repo.get with preload and result/errer format handle
   """

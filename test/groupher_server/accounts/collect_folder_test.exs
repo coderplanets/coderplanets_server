@@ -116,6 +116,14 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert folder.collects |> length == 1
       assert folder.collects |> List.first() |> Map.get(:post_id) == post.id
     end
+
+    @tag :wip2
+    test "can get articles of a collect folder", ~m(user post post2)a do
+      {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
+      {:ok, folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
+
+      Accounts.list_collect_folder_articles(folder.id, %{page: 1, size: 10}, user)
+    end
   end
 
   describe "[favorite category set/unset]" do
