@@ -308,8 +308,8 @@ defmodule GroupherServerWeb.Schema.Account.Types do
   object :achievement do
     field(:reputation, :integer)
     # field(:followers_count, :integer)
-    field(:contents_stared_count, :integer)
-    field(:contents_favorited_count, :integer)
+    field(:articles_upvotes_count, :integer)
+    field(:articles_collects_count, :integer)
     # field(:contents_watched_count, :integer)
 
     field(:source_contribute, :source_contribute)

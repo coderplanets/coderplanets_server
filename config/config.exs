@@ -43,9 +43,9 @@ config :groupher_server, :general,
   # membership
   senior_amount_threshold: 51.2,
   # user achievements
-  user_achieve_star_weight: 1,
+  user_achieve_upvote_weight: 1,
   user_achieve_watch_weight: 1,
-  user_achieve_favorite_weight: 2,
+  user_achieve_collect_weight: 2,
   user_achieve_follow_weight: 3
 
 config :groupher_server, :customization,

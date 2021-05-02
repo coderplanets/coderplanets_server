@@ -74,10 +74,14 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
   @doc "upvote to a article-like content"
   def upvote_article(thread, article_id, %User{id: user_id}) do
     with {:ok, info} <- match(thread),
-         {:ok, article} <- ORM.find(info.model, article_id) do
+         {:ok, article} <- ORM.find(info.model, article_id, preload: [author: :user]) do
       Multi.new()
       |> Multi.run(:inc_article_upvotes_count, fn _, _ ->
         update_article_upvotes_count(info, article, :upvotes_count, :inc)
+      end)
+      |> Multi.run(:add_achievement, fn _, _ ->
+        achiever_id = article.author.user_id
+        Accounts.achieve(%User{id: achiever_id}, :inc, :upvote)
       end)
       |> Multi.run(:create_upvote, fn _, _ ->
         thread_upcase = thread |> to_string |> String.upcase()
@@ -155,7 +159,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
       end)
       |> Multi.run(:add_achievement, fn _, _ ->
         achiever_id = content.author.user_id
-        Accounts.achieve(%User{id: achiever_id}, :add, react)
+        Accounts.achieve(%User{id: achiever_id}, :inc, react)
       end)
       |> Repo.transaction()
       |> old_reaction_result()
@@ -197,7 +201,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
       end)
       |> Multi.run(:minus_achievement, fn _, _ ->
         achiever_id = content.author.user_id
-        Accounts.achieve(%User{id: achiever_id}, :minus, react)
+        Accounts.achieve(%User{id: achiever_id}, :dec, react)
       end)
       |> Repo.transaction()
       |> undo_reaction_result()

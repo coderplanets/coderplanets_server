@@ -8,14 +8,14 @@ defmodule GroupherServer.Accounts.Achievement do
   alias GroupherServer.Accounts.{User, SourceContribute}
 
   @required_fields ~w(user_id)a
-  @optional_fields ~w(contents_stared_count contents_favorited_count contents_watched_count followers_count reputation donate_member senior_member sponsor_member)a
+  @optional_fields ~w(articles_upvotes_count articles_collects_count contents_watched_count followers_count reputation donate_member senior_member sponsor_member)a
 
   @type t :: %Achievement{}
   schema "user_achievements" do
     belongs_to(:user, User)
 
-    field(:contents_stared_count, :integer, default: 0)
-    field(:contents_favorited_count, :integer, default: 0)
+    field(:articles_upvotes_count, :integer, default: 0)
+    field(:articles_collects_count, :integer, default: 0)
     field(:contents_watched_count, :integer, default: 0)
     field(:followers_count, :integer, default: 0)
     field(:reputation, :integer, default: 0)

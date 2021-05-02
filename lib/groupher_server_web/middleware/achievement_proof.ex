@@ -12,8 +12,8 @@ defmodule GroupherServerWeb.Middleware.AchievementProof do
   def call(%{value: nil} = resolution, _) do
     value = %{
       reputation: 0,
-      contents_stared_count: 0,
-      contents_favorited_count: 0,
+      articles_upvotes_count: 0,
+      articles_collects_count: 0,
       donate_member: false,
       senior_member: false,
       sponsor_member: false,

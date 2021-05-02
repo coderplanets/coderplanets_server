@@ -6,8 +6,8 @@ defmodule GroupherServer.Test.Query.Account.Achievement do
   alias Helper.ORM
 
   @follow_weight get_config(:general, :user_achieve_follow_weight)
-  @favorite_weight get_config(:general, :user_achieve_favorite_weight)
-  # @star_weight get_config(:general, :user_achieve_star_weight)
+  @collect_weight get_config(:general, :user_achieve_collect_weight)
+  # @upvote_weight get_config(:general, :user_achieve_upvote_weight)
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -193,7 +193,7 @@ defmodule GroupherServer.Test.Query.Account.Achievement do
       results = guest_conn |> query_result(@query, variables, "user")
 
       assert results["achievement"] |> Map.get("contentsFavoritedCount") == 1
-      assert results["achievement"] |> Map.get("reputation") == @favorite_weight
+      assert results["achievement"] |> Map.get("reputation") == @collect_weight
     end
 
     test "minus user's acheiveements after user's post get cancle favorited", ~m(guest_conn)a do
@@ -217,7 +217,7 @@ defmodule GroupherServer.Test.Query.Account.Achievement do
       assert results["achievement"] |> Map.get("contentsFavoritedCount") == total_count - 1
 
       assert results["achievement"] |> Map.get("reputation") ==
-               @favorite_weight * total_count - @favorite_weight
+               @collect_weight * total_count - @collect_weight
     end
   end
 end

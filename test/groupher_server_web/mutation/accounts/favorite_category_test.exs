@@ -134,7 +134,7 @@ defmodule GroupherServer.Test.Mutation.Accounts.FavoriteCategory do
       # author.id
       {:ok, achievement} = ORM.find_by(Accounts.Achievement, user_id: author.user.id)
 
-      assert achievement.contents_favorited_count == 2
+      assert achievement.articles_collects_count == 2
       assert achievement.reputation == 4
 
       variables = %{id: category.id}
@@ -142,7 +142,7 @@ defmodule GroupherServer.Test.Mutation.Accounts.FavoriteCategory do
 
       {:ok, achievement} = ORM.find_by(Accounts.Achievement, user_id: author.user.id)
 
-      assert achievement.contents_favorited_count == 1
+      assert achievement.articles_collects_count == 1
       assert achievement.reputation == 2
     end
   end
