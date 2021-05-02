@@ -129,9 +129,9 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
 
       {:ok, result} = Accounts.list_collect_folder_articles(folder.id, %{page: 1, size: 10}, user)
 
-      assert folder.total_count == 1
-      assert folder.collects |> length == 1
-      assert folder.collects |> List.first() |> Map.get(:post_id) == post2.id
+      assert result.total_count == 1
+      assert result.entries |> length == 1
+      assert result.entries |> List.first() |> Map.get(:id) == post2.id
     end
 
     @tag :wip2
