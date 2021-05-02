@@ -5,6 +5,7 @@ defmodule GroupherServer.Accounts do
     Achievements,
     Customization,
     Fans,
+    CollectFolder,
     FavoriteCategory,
     Publish,
     Mails,
@@ -23,9 +24,14 @@ defmodule GroupherServer.Accounts do
 
   # favorite category
   defdelegate list_favorite_categories(user, opt, filter), to: FavoriteCategory
+  defdelegate list_collect_folders(filter, user), to: CollectFolder
+  defdelegate list_collect_folders(filter, user, cur_user), to: CollectFolder
   defdelegate create_favorite_category(user, attrs), to: FavoriteCategory
+  defdelegate create_collect_folder(attrs, user), to: CollectFolder
   defdelegate update_favorite_category(user, attrs), to: FavoriteCategory
+  defdelegate update_collect_folder(user, attrs), to: CollectFolder
   defdelegate delete_favorite_category(user, id), to: FavoriteCategory
+  defdelegate delete_collect_folder(id), to: CollectFolder
   defdelegate set_favorites(user, thread, content_id, category_id), to: FavoriteCategory
   defdelegate unset_favorites(user, thread, content_id, category_id), to: FavoriteCategory
 

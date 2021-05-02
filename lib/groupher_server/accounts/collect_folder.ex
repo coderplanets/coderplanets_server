@@ -13,7 +13,7 @@ defmodule GroupherServer.Accounts.CollectFolder do
   @optional_fields ~w(index total_count private desc last_updated)a
 
   @type t :: %CollectFolder{}
-  schema "favorite_categories" do
+  schema "collect_folders" do
     belongs_to(:user, User, foreign_key: :user_id)
     # has_many(:posts, ...)
 
@@ -43,6 +43,7 @@ defmodule GroupherServer.Accounts.CollectFolder do
   def update_changeset(%CollectFolder{} = collect_folder, attrs) do
     collect_folder
     |> cast(attrs, @optional_fields ++ @required_fields)
+    |> cast_embed(:collects, with: &ArticleCollect.changeset/2)
     |> validate_length(:title, min: 1)
     |> foreign_key_constraint(:user_id)
   end
