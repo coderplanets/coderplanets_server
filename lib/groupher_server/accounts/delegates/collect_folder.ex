@@ -106,8 +106,41 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
     end
   end
 
+  def remove_from_collect(thread, article_id, folder_id, %User{id: cur_user_id} = user) do
+    with {:ok, folder} <- ORM.find(CollectFolder, folder_id),
+         # 是否是该 folder 的 owner ?
+         true <- cur_user_id == folder.user_id do
+      Multi.new()
+      |> Multi.run(:downgrade_achievement, fn _, _ ->
+        # TODO:
+        {:ok, :pass}
+      end)
+      |> Multi.run(:delete_article_collect, fn _, _ ->
+        CMS.undo_collect_article(thread, article_id, user)
+      end)
+      |> Multi.run(:remove_from_collect_folder, fn _,
+                                                   %{delete_article_collect: article_collect} ->
+        # 不能用 -- 语法，因为两个结构体的 meta 信息不同，摔。
+        collects = Enum.reject(folder.collects, &(&1.id == article_collect.id))
+        total_count = length(collects)
+        last_updated = Timex.today() |> Timex.to_datetime()
+
+        folder
+        |> Ecto.Changeset.change(%{total_count: total_count, last_updated: last_updated})
+        |> Ecto.Changeset.put_embed(:collects, collects)
+        |> Repo.update()
+      end)
+      |> Repo.transaction()
+      |> upsert_collect_folder_result()
+    end
+  end
+
   # @spec unset_favorites_result({:ok, map()}) :: {:ok, FavoriteCategory.t() }
   defp upsert_collect_folder_result({:ok, %{add_to_collect_folder: result}}), do: {:ok, result}
+
+  defp upsert_collect_folder_result({:ok, %{remove_from_collect_folder: result}}) do
+    {:ok, result}
+  end
 
   defp upsert_collect_folder_result({:error, _, result, _steps}) do
     {:error, result}

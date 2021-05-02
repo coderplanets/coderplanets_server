@@ -65,7 +65,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
         args = Map.put(%{user_id: user_id}, info.foreign_key, article.id)
 
         ORM.findby_delete(ArticleCollect, args)
-        ORM.find(info.model, article.id)
       end)
       |> Repo.transaction()
       |> reaction_result()

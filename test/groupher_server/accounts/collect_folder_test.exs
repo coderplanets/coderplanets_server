@@ -120,6 +120,21 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
     end
 
     @tag :wip2
+    test "can remove post to exsit colect-folder", ~m(user post post2)a do
+      {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
+      {:ok, folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
+      {:ok, folder} = Accounts.add_to_collect(:post, post2.id, folder.id, user)
+
+      {:ok, _} = Accounts.remove_from_collect(:post, post.id, folder.id, user)
+
+      {:ok, result} = Accounts.list_collect_folder_articles(folder.id, %{page: 1, size: 10}, user)
+
+      assert folder.total_count == 1
+      assert folder.collects |> length == 1
+      assert folder.collects |> List.first() |> Map.get(:post_id) == post2.id
+    end
+
+    @tag :wip2
     test "can get articles of a collect folder", ~m(user post job)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)

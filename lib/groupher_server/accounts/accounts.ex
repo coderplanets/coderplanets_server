@@ -35,6 +35,7 @@ defmodule GroupherServer.Accounts do
   defdelegate delete_favorite_category(user, id), to: FavoriteCategory
   defdelegate delete_collect_folder(id), to: CollectFolder
   defdelegate add_to_collect(thread, article_id, folder_id, user), to: CollectFolder
+  defdelegate remove_from_collect(thread, article_id, folder_id, user), to: CollectFolder
 
   defdelegate set_favorites(user, thread, content_id, category_id), to: FavoriteCategory
   defdelegate unset_favorites(user, thread, content_id, category_id), to: FavoriteCategory
