@@ -74,15 +74,17 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert result.total_count == 2
     end
 
-    test "user can update a favorite category", ~m(user)a do
-      {:ok, category} = Accounts.create_favorite_category(user, %{title: "test category"})
+    @tag :wip2
+    test "user can update a collect folder", ~m(user)a do
+      {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder", private: true}, user)
 
-      {:ok, updated} =
-        Accounts.update_favorite_category(user, %{id: category.id, desc: "new desc"})
+      args = %{id: folder.id, title: "new title", desc: "new desc"}
+      {:ok, updated} = Accounts.update_collect_folder(args, user)
 
       assert updated.desc == "new desc"
+      assert updated.title == "new title"
 
-      {:ok, updated} = Accounts.update_favorite_category(user, %{id: category.id, private: true})
+      {:ok, updated} = Accounts.update_collect_folder(%{id: folder.id, private: true}, user)
       assert updated.private == true
     end
 
@@ -100,6 +102,19 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
                |> ORM.find_by(%{category_id: category.id, user_id: user.id})
 
       assert {:error, _} = FavoriteCategory |> ORM.find(category.id)
+    end
+  end
+
+  describe "[add/remove from collect]" do
+    @tag :wip2
+    test "can add post to exsit colect-folder", ~m(user post post2)a do
+      {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
+
+      {:ok, folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
+
+      assert folder.total_count == 1
+      assert folder.collects |> length == 1
+      assert folder.collects |> List.first() |> Map.get(:post_id) == post.id
     end
   end
 

@@ -47,9 +47,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
         thread_upcase = thread |> to_string |> String.upcase()
         args = Map.put(%{user_id: user_id, thread: thread_upcase}, info.foreign_key, article.id)
 
-        with {:ok, _} <- ORM.create(ArticleCollect, args) do
-          ORM.find(info.model, article.id)
-        end
+        ORM.create(ArticleCollect, args)
       end)
       |> Repo.transaction()
       |> reaction_result()

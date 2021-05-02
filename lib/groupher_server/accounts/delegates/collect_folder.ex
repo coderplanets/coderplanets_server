@@ -35,7 +35,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
     do_list_collect_folders(filter, query)
   end
 
-  def do_list_collect_folders(filter, query) do
+  defp do_list_collect_folders(filter, query) do
     %{page: page, size: size} = filter
 
     query
@@ -62,8 +62,49 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
   end
 
   def delete_collect_folder(id) do
-    # TODO:
+    # 1. downgrade_achievment
+    # 2. delete collect-folder
+    CollectFolder |> ORM.find_delete!(id)
   end
+
+  def add_to_collect(thread, article_id, folder_id, %User{id: cur_user_id} = user) do
+    with {:ok, folder} <- ORM.find(CollectFolder, folder_id),
+         # 是否是该 folder 的 owner ?
+         true <- cur_user_id == folder.user_id do
+      Multi.new()
+      |> Multi.run(:downgrade_achievement, fn _, _ ->
+        # TODO:
+        {:ok, :pass}
+      end)
+      |> Multi.run(:create_article_collect, fn _, _ ->
+        CMS.collect_article(thread, article_id, user)
+      end)
+      |> Multi.run(:add_to_collect_folder, fn _, %{create_article_collect: article_collect} ->
+        collects = [article_collect] ++ folder.collects
+        total_count = length(collects)
+        last_updated = Timex.today() |> Timex.to_datetime()
+
+        folder
+        |> Ecto.Changeset.change(%{total_count: total_count, last_updated: last_updated})
+        |> Ecto.Changeset.put_embed(:collects, collects)
+        |> Repo.update()
+      end)
+      |> Repo.transaction()
+      |> upsert_collect_folder_result()
+    end
+  end
+
+  # @spec unset_favorites_result({:ok, map()}) :: {:ok, FavoriteCategory.t() }
+  defp upsert_collect_folder_result({:ok, %{add_to_collect_folder: result}}), do: {:ok, result}
+
+  defp upsert_collect_folder_result({:error, _, result, _steps}) do
+    {:error, result}
+  end
+
+  ######## ####### ####### ####### ####### ######
+  ######## ####### ####### ####### ####### ######
+  ######## ####### ####### ####### ####### ######
+  ######## ####### ####### ####### ####### ######
 
   def delete_favorite_category(%User{id: user_id}, id) do
     with {:ok, category} <- FavoriteCategory |> ORM.find_by(~m(id user_id)a) do
