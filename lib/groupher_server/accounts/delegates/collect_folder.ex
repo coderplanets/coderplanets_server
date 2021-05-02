@@ -21,14 +21,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
   alias Ecto.Multi
 
   @max_article_count_per_collect_folder 300
-
-  def list_collect_folder_articles(folder_id, filter, %User{id: user_id}) do
-    with {:ok, folder} <- ORM.find_by(CollectFolder, %{id: folder_id, user_id: user_id}) do
-      folder.collects
-      |> ORM.embeds_paginater(filter)
-      |> done()
-    end
-  end
+  @supported_collect_threads [:post, :job]
 
   def list_collect_folders(filter, %User{id: user_id}) do
     query = CollectFolder |> where([c], c.user_id == ^user_id and not c.private)
@@ -43,6 +36,15 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
         else: CollectFolder |> where([c], c.user_id == ^user_id and not c.private)
 
     do_list_collect_folders(filter, query)
+  end
+
+  def list_collect_folder_articles(folder_id, filter, %User{id: user_id}) do
+    with {:ok, folder} <- ORM.find_by(CollectFolder, %{id: folder_id, user_id: user_id}) do
+      Repo.preload(folder.collects, @supported_collect_threads)
+      |> ORM.embeds_paginater(filter)
+      |> ORM.extract_articles(@supported_collect_threads)
+      |> done()
+    end
   end
 
   defp do_list_collect_folders(filter, query) do

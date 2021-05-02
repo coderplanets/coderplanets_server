@@ -48,9 +48,29 @@ defmodule Helper.Types do
           total_pages: Integer.t()
         }
 
-  @type article_common :: %{
-          title: String.t()
+  @type paged_data :: %{
+          entries: [Map.t()],
+          page_number: Integer.t(),
+          page_size: Integer.t(),
+          total_count: Integer.t(),
+          total_pages: Integer.t()
         }
+
+  @type article_common :: %{
+          id: Integer.t(),
+          thread: Atom.t(),
+          title: String.t(),
+          upvotes_count: Integer.t()
+        }
+
+  @type paged_article_common :: %{
+          entries: [article_common],
+          page_number: Integer.t(),
+          page_size: Integer.t(),
+          total_count: Integer.t(),
+          total_pages: Integer.t()
+        }
+
   @type article_info :: %{
           thread: article_thread,
           article: %{

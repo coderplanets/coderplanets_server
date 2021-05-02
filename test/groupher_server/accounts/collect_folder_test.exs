@@ -14,7 +14,9 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
     {:ok, post} = db_insert(:post)
     {:ok, post2} = db_insert(:post)
 
-    {:ok, ~m(user user2 post post2)a}
+    {:ok, job} = db_insert(:job)
+
+    {:ok, ~m(user user2 post post2 job)a}
   end
 
   describe "[collect folder curd]" do
@@ -107,7 +109,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
 
   describe "[add/remove from collect]" do
     @tag :wip3
-    test "can add post to exsit colect-folder", ~m(user post post2)a do
+    test "can add post to exsit colect-folder", ~m(user post)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
 
       {:ok, folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
@@ -118,13 +120,22 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
     end
 
     @tag :wip2
-    test "can get articles of a collect folder", ~m(user post post2)a do
+    test "can get articles of a collect folder", ~m(user post job)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
-      {:ok, folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
+      {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
+      {:ok, _folder} = Accounts.add_to_collect(:job, job.id, folder.id, user)
 
       {:ok, result} = Accounts.list_collect_folder_articles(folder.id, %{page: 1, size: 10}, user)
-      IO.inspect(result, label: "result")
       assert result |> is_valid_pagination?(:raw)
+
+      collect_job = result.entries |> List.first()
+      collect_post = result.entries |> List.last()
+
+      assert collect_job.id == job.id
+      assert collect_job.title == job.title
+
+      assert collect_post.id == post.id
+      assert collect_post.title == post.title
     end
   end
 

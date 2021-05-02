@@ -35,7 +35,7 @@ defmodule GroupherServer.Accounts.Delegate.ReactedArticles do
     |> where(^where_query)
     |> QueryBuilder.filter_pack(filter)
     |> ORM.paginater(~m(page size)a)
-    |> extract_articles(@supported_uovoted_threads)
+    |> ORM.extract_articles(@supported_uovoted_threads)
     |> done()
   end
 
@@ -69,26 +69,5 @@ defmodule GroupherServer.Accounts.Delegate.ReactedArticles do
       |> ORM.paginater(~m(page size)a)
       |> done()
     end
-  end
-
-  defp extract_articles(%{entries: entries} = paged_articles, supported_threads) do
-    paged_articles
-    |> Map.put(:entries, Enum.map(entries, &extract_article_info(&1, supported_threads)))
-  end
-
-  defp extract_article_info(reaction, supported_threads) do
-    thread = Enum.find(supported_threads, &(not is_nil(Map.get(reaction, &1))))
-    article = Map.get(reaction, thread)
-
-    export_article_info(thread, article)
-  end
-
-  defp export_article_info(thread, article) do
-    %{
-      thread: thread,
-      id: article.id,
-      title: article.title,
-      upvotes_count: Map.get(article, :upvotes_count)
-    }
   end
 end

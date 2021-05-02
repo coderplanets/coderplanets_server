@@ -8,6 +8,7 @@ defmodule Helper.ORM do
 
   import Helper.ErrorHandler
 
+  alias Helper.Types, as: T
   alias GroupherServer.Repo
   alias Helper.{QueryBuilder, SpecType}
 
@@ -259,5 +260,28 @@ defmodule Helper.ORM do
 
   def next_count(queryable) do
     queryable |> count() |> add()
+  end
+
+  @doc "extract common articles info"
+  @spec extract_articles(T.paged_data(), [Atom.t()]) :: T.paged_article_common()
+  def extract_articles(%{entries: entries} = paged_articles, supported_threads) do
+    paged_articles
+    |> Map.put(:entries, Enum.map(entries, &extract_article_info(&1, supported_threads)))
+  end
+
+  defp extract_article_info(reaction, supported_threads) do
+    thread = Enum.find(supported_threads, &(not is_nil(Map.get(reaction, &1))))
+    article = Map.get(reaction, thread)
+
+    export_article_info(thread, article)
+  end
+
+  defp export_article_info(thread, article) do
+    %{
+      thread: thread,
+      id: article.id,
+      title: article.title,
+      upvotes_count: Map.get(article, :upvotes_count)
+    }
   end
 end
