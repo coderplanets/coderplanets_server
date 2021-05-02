@@ -18,7 +18,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
   end
 
   describe "[collect folder curd]" do
-    @tag :wip2
+    @tag :wip3
     test "user can create collect folder", ~m(user)a do
       folder_title = "test folder"
 
@@ -30,7 +30,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert folder.private == true
     end
 
-    @tag :wip2
+    @tag :wip3
     test "user create dup collect folder fails", ~m(user)a do
       {:ok, _category} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:error, reason} = Accounts.create_collect_folder(%{title: "test folder"}, user)
@@ -38,7 +38,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert reason |> Keyword.get(:code) == ecode(:already_exsit)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "user can get public collect-folder list", ~m(user)a do
       {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder2"}, user)
@@ -49,7 +49,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert result.total_count == 2
     end
 
-    @tag :wip2
+    @tag :wip3
     test "user can not get private folder list of other user", ~m(user user2)a do
       {:ok, _folder} =
         Accounts.create_collect_folder(%{title: "test folder", private: true}, user2)
@@ -62,7 +62,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert result.total_count == 1
     end
 
-    @tag :wip2
+    @tag :wip3
     test "collect creator can get both public and private folder list", ~m(user)a do
       {:ok, _folder} =
         Accounts.create_collect_folder(%{title: "test folder", private: true}, user)
@@ -74,7 +74,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert result.total_count == 2
     end
 
-    @tag :wip2
+    @tag :wip3
     test "user can update a collect folder", ~m(user)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder", private: true}, user)
 
@@ -106,7 +106,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
   end
 
   describe "[add/remove from collect]" do
-    @tag :wip2
+    @tag :wip3
     test "can add post to exsit colect-folder", ~m(user post post2)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
 
@@ -122,7 +122,9 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:ok, folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
 
-      Accounts.list_collect_folder_articles(folder.id, %{page: 1, size: 10}, user)
+      {:ok, result} = Accounts.list_collect_folder_articles(folder.id, %{page: 1, size: 10}, user)
+      IO.inspect(result, label: "result")
+      assert result |> is_valid_pagination?(:raw)
     end
   end
 
