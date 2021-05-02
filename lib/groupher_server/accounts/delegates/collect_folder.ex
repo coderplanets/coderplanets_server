@@ -12,15 +12,16 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
   import ShortMaps
 
   alias Helper.ORM
-  alias GroupherServer.Accounts
-  alias GroupherServer.{CMS, Repo}
+  alias GroupherServer.{Accounts, CMS, Repo}
 
-  alias GroupherServer.Accounts.{CollectFolder, FavoriteCategory, User}
+  alias Accounts.{CollectFolder, Embeds, FavoriteCategory, User}
   alias CMS.{PostFavorite, JobFavorite, RepoFavorite}
 
   alias Ecto.Multi
 
-  @max_article_count_per_collect_folder 300
+  # @max_article_count_per_collect_folder 300
+
+  @default_meta Embeds.CollectFolderMeta.default_meta()
   @supported_collect_threads [:post, :job]
 
   def list_collect_folders(filter, %User{id: user_id}) do
@@ -60,7 +61,17 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
     with {:error, _} <- ORM.find_by(CollectFolder, ~m(user_id title)a) do
       last_updated = Timex.today() |> Timex.to_datetime()
 
-      CollectFolder |> ORM.create(Map.merge(~m(user_id last_updated)a, attrs))
+      args =
+        Map.merge(
+          %{
+            user_id: user_id,
+            last_updated: last_updated,
+            meta: @default_meta
+          },
+          attrs
+        )
+
+      CollectFolder |> ORM.create(args)
     else
       {:ok, folder} -> raise_error(:already_exsit, "#{folder.title} already exsits")
     end

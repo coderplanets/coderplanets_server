@@ -6,7 +6,10 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS}
 
+  alias Accounts.{Embeds}
   alias Accounts.FavoriteCategory
+
+  @default_meta Embeds.CollectFolderMeta.default_meta()
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -20,7 +23,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
   end
 
   describe "[collect folder curd]" do
-    @tag :wip3
+    @tag :wip2
     test "user can create collect folder", ~m(user)a do
       folder_title = "test folder"
 
@@ -30,6 +33,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert folder.title == folder_title
       assert folder.user_id == user.id
       assert folder.private == true
+      assert folder.meta |> Map.from_struct() |> Map.delete(:id) == @default_meta
     end
 
     @tag :wip3

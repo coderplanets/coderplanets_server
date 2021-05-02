@@ -6,7 +6,7 @@ defmodule GroupherServer.Accounts.CollectFolder do
   import Ecto.Changeset
 
   alias GroupherServer.{Accounts, CMS}
-  alias Accounts.User
+  alias Accounts.{User, Embeds}
   alias CMS.ArticleCollect
 
   @required_fields ~w(user_id title)a
@@ -25,6 +25,9 @@ defmodule GroupherServer.Accounts.CollectFolder do
     # last time when add/delete items in category
     field(:last_updated, :utc_datetime)
 
+    # 可以参照 fragment 查询语法啊
+    # 2. article truple [{:post, 1}, [:job, 2]] ... 便于在计算 "成就" 的时候对比
+    embeds_one(:meta, Embeds.CollectFolderMeta, on_replace: :update)
     embeds_many(:collects, ArticleCollect, on_replace: :delete)
 
     timestamps(type: :utc_datetime)
@@ -35,6 +38,7 @@ defmodule GroupherServer.Accounts.CollectFolder do
     collect_folder
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
+    |> cast_embed(:meta, required: true, with: &Embeds.CollectFolderMeta.changeset/2)
     |> validate_length(:title, min: 1)
     |> foreign_key_constraint(:user_id)
   end
@@ -44,6 +48,7 @@ defmodule GroupherServer.Accounts.CollectFolder do
     collect_folder
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> cast_embed(:collects, with: &ArticleCollect.changeset/2)
+    |> cast_embed(:meta, with: &Embeds.CollectFolderMeta.changeset/2)
     |> validate_length(:title, min: 1)
     |> foreign_key_constraint(:user_id)
   end
