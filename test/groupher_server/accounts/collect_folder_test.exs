@@ -23,7 +23,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
   end
 
   describe "[collect folder curd]" do
-    @tag :wip2
+    @tag :wip3
     test "user can create collect folder", ~m(user)a do
       folder_title = "test folder"
 
@@ -53,6 +53,20 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
 
       assert result |> is_valid_pagination?(:raw)
       assert result.total_count == 2
+    end
+
+    @tag :wip2
+    test "user can get public collect-folder list by thread", ~m(user post)a do
+      {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
+      {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder2"}, user)
+
+      {:ok, folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
+      {:ok, result} = Accounts.list_collect_folders(%{page: 1, size: 20, thread: :post}, user)
+
+      assert result |> is_valid_pagination?(:raw)
+      assert result.total_count == 1
+
+      assert result.entries |> List.first() |> Map.get(:id) == folder.id
     end
 
     @tag :wip3

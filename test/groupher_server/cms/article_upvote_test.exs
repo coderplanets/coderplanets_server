@@ -16,7 +16,7 @@ defmodule GroupherServer.Test.ArticleUpvote do
   end
 
   describe "[cms post upvote]" do
-    @tag :wip2
+    @tag :wip3
     test "post can be upvote && upvotes_count should inc by 1",
          ~m(user user2 community post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)

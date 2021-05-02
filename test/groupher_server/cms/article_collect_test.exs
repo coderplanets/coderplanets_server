@@ -17,7 +17,7 @@ defmodule GroupherServer.Test.ArticleCollect do
   end
 
   describe "[cms post collect]" do
-    @tag :wip2
+    @tag :wip3
     test "post can be collect && collects_count should inc by 1",
          ~m(user user2 community post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
@@ -34,9 +34,9 @@ defmodule GroupherServer.Test.ArticleCollect do
       assert article.collects_count == 2
     end
 
-    @tag :wip2
+    @tag :wip3
     test "post can be undo collect && collects_count should dec by 1",
-         ~m(user user2 community post_attrs)a do
+         ~m(user community post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 
       {:ok, article_collect} = CMS.collect_article(:post, post.id, user)
@@ -65,7 +65,7 @@ defmodule GroupherServer.Test.ArticleCollect do
   end
 
   describe "[cms job collect]" do
-    @tag :wip2
+    @tag :wip3
     test "job can be collect && collects_count should inc by 1",
          ~m(user user2 community job_attrs)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
@@ -81,7 +81,7 @@ defmodule GroupherServer.Test.ArticleCollect do
       assert article.collects_count == 2
     end
 
-    @tag :wip2
+    @tag :wip3
     test "job can be undo collect && collects_count should dec by 1",
          ~m(user community job_attrs)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)

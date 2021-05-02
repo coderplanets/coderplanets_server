@@ -5,7 +5,7 @@ defmodule GroupherServer.Accounts.Embeds.CollectFolderMeta do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @optional_fields ~w(has_post has_job has_repo)a
+  @optional_fields ~w(id has_post has_job has_repo)a
 
   @default_meta %{
     has_post: false,
@@ -24,13 +24,9 @@ defmodule GroupherServer.Accounts.Embeds.CollectFolderMeta do
     # field(:has_works, :boolean, default: false)
     # field(:has_cool_guide, :boolean, default: false)
     # field(:has_meetup, :boolean, default: false)
-    # field(:has_post, :boolean, default: false)
-    # field(:is_comment_locked, :boolean, default: false)
-    # field(:is_reported, :boolean, default: false)
   end
 
   def changeset(struct, params) do
-    struct
-    |> cast(params, @optional_fields)
+    struct |> cast(params, @optional_fields)
   end
 end

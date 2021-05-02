@@ -52,10 +52,22 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
     %{page: page, size: size} = filter
 
     query
+    |> filter_thread_ifneed(filter)
     |> QueryBuilder.filter_pack(filter)
     |> ORM.paginater(page: page, size: size)
     |> done()
   end
+
+  defp filter_thread_ifneed(query, %{thread: thread}) do
+    field_name = "has_#{thread}"
+    field_value = true
+
+    # see https://stackoverflow.com/a/55922528/4050784
+    query
+    |> where([f], fragment("(?->>?)::boolean = ?", f.meta, ^field_name, ^field_value))
+  end
+
+  defp filter_thread_ifneed(query, _), do: query
 
   def create_collect_folder(%{title: title} = attrs, %User{id: user_id}) do
     with {:error, _} <- ORM.find_by(CollectFolder, ~m(user_id title)a) do
@@ -107,9 +119,16 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
         total_count = length(collects)
         last_updated = Timex.today() |> Timex.to_datetime()
 
+        meta =
+          Map.merge(folder.meta, %{"has_#{thread}": true}) |> Map.from_struct() |> Map.delete(:id)
+
         folder
-        |> Ecto.Changeset.change(%{total_count: total_count, last_updated: last_updated})
+        |> Ecto.Changeset.change(%{
+          total_count: total_count,
+          last_updated: last_updated
+        })
         |> Ecto.Changeset.put_embed(:collects, collects)
+        |> Ecto.Changeset.put_embed(:meta, meta)
         |> Repo.update()
       end)
       |> Repo.transaction()
