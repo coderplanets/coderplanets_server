@@ -119,7 +119,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert folder.collects |> List.first() |> Map.get(:post_id) == post.id
     end
 
-    @tag :wip2
+    @tag :wip3
     test "can remove post to exsit colect-folder", ~m(user post post2)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:ok, folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
@@ -134,7 +134,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert result.entries |> List.first() |> Map.get(:id) == post2.id
     end
 
-    @tag :wip2
+    @tag :wip3
     test "can get articles of a collect folder", ~m(user post job)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)

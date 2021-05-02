@@ -145,14 +145,6 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.upvoted_users(thread, id, filter)
   end
 
-  def collect_article(_root, ~m(id thread)a, %{context: %{cur_user: user}}) do
-    CMS.collect_article(thread, id, user)
-  end
-
-  def undo_collect_article(_root, ~m(id thread)a, %{context: %{cur_user: user}}) do
-    CMS.undo_collect_article(thread, id, user)
-  end
-
   def collected_users(_root, ~m(id thread filter)a, _info) do
     CMS.collected_users(thread, id, filter)
   end

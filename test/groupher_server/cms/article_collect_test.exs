@@ -1,7 +1,9 @@
 defmodule GroupherServer.Test.ArticleCollect do
   use GroupherServer.TestTools
 
+  alias Helper.ORM
   alias GroupherServer.CMS
+  alias CMS.{Post, Job}
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -15,29 +17,35 @@ defmodule GroupherServer.Test.ArticleCollect do
   end
 
   describe "[cms post collect]" do
-    @tag :wip3
+    @tag :wip2
     test "post can be collect && collects_count should inc by 1",
          ~m(user user2 community post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 
-      {:ok, article} = CMS.collect_article(:post, post.id, user)
+      {:ok, article_collect} = CMS.collect_article(:post, post.id, user)
+      {:ok, article} = ORM.find(Post, article_collect.post_id)
+
       assert article.id == post.id
       assert article.collects_count == 1
 
-      {:ok, article} = CMS.collect_article(:post, post.id, user2)
+      {:ok, article_collect} = CMS.collect_article(:post, post.id, user2)
+      {:ok, article} = ORM.find(Post, article_collect.post_id)
+
       assert article.collects_count == 2
     end
 
-    @tag :wip
+    @tag :wip2
     test "post can be undo collect && collects_count should dec by 1",
          ~m(user user2 community post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 
-      {:ok, article} = CMS.collect_article(:post, post.id, user)
+      {:ok, article_collect} = CMS.collect_article(:post, post.id, user)
+      {:ok, article} = ORM.find(Post, article_collect.post_id)
       assert article.id == post.id
       assert article.collects_count == 1
 
-      {:ok, article} = CMS.undo_collect_article(:post, post.id, user2)
+      {:ok, article_collect} = CMS.undo_collect_article(:post, post.id, user)
+      {:ok, article} = ORM.find(Post, article_collect.post_id)
       assert article.collects_count == 0
     end
 
@@ -57,29 +65,35 @@ defmodule GroupherServer.Test.ArticleCollect do
   end
 
   describe "[cms job collect]" do
-    @tag :wip3
+    @tag :wip2
     test "job can be collect && collects_count should inc by 1",
          ~m(user user2 community job_attrs)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
 
-      {:ok, article} = CMS.collect_article(:job, job.id, user)
+      {:ok, article_collect} = CMS.collect_article(:job, job.id, user)
+      {:ok, article} = ORM.find(Job, article_collect.job_id)
+
       assert article.id == job.id
       assert article.collects_count == 1
 
-      {:ok, article} = CMS.collect_article(:job, job.id, user2)
+      {:ok, article_collect} = CMS.collect_article(:job, job.id, user2)
+      {:ok, article} = ORM.find(Job, article_collect.job_id)
       assert article.collects_count == 2
     end
 
-    @tag :wip
+    @tag :wip2
     test "job can be undo collect && collects_count should dec by 1",
-         ~m(user user2 community job_attrs)a do
+         ~m(user community job_attrs)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
 
-      {:ok, article} = CMS.collect_article(:job, job.id, user)
+      {:ok, article_collect} = CMS.collect_article(:job, job.id, user)
+      {:ok, article} = ORM.find(Job, article_collect.job_id)
+
       assert article.id == job.id
       assert article.collects_count == 1
 
-      {:ok, article} = CMS.undo_collect_article(:job, job.id, user2)
+      {:ok, article_collect} = CMS.undo_collect_article(:job, job.id, user)
+      {:ok, article} = ORM.find(Job, article_collect.job_id)
       assert article.collects_count == 0
     end
 

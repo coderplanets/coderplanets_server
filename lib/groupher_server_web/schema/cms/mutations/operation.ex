@@ -148,24 +148,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Operation do
       resolve(&R.CMS.undo_upvote_article/3)
     end
 
-    @desc "collect an article"
-    field :collect_article, :article do
-      arg(:id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
-
-      middleware(M.Authorize, :login)
-      resolve(&R.CMS.collect_article/3)
-    end
-
-    @desc "undo collect an article"
-    field :undo_collect_article, :article do
-      arg(:id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
-
-      middleware(M.Authorize, :login)
-      resolve(&R.CMS.undo_collect_article/3)
-    end
-
     @desc "react on a cms content, except favorite"
     field :reaction, :article do
       arg(:id, non_null(:id))
