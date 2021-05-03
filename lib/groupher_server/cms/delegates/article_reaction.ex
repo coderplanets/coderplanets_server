@@ -54,6 +54,26 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
     end
   end
 
+  # 用于在收藏时，用户添加文章到不同的收藏夹中的情况
+  # 如果是同一篇文章，只创建一次，collect_article 不创建记录，只是后续设置不同的收藏夹即可
+  # 如果是第一次收藏，那么才创建文章收藏记录
+  # 避免因为同一篇文章在不同收藏夹内造成的统计和用户成就系统的混乱
+  def collect_article_ifneed(thread, article_id, %User{id: user_id} = user) do
+    with {:ok, info} <- match(thread) do
+      thread_upcase = thread |> to_string |> String.upcase()
+
+      query_args =
+        %{thread: thread_upcase, user_id: user_id} |> Map.put(info.foreign_key, article_id)
+
+      already_collected = ORM.find_by(ArticleCollect, query_args)
+
+      case already_collected do
+        {:ok, article_collect} -> {:ok, article_collect}
+        {:error, _} -> collect_article(thread, article_id, user)
+      end
+    end
+  end
+
   def undo_collect_article(thread, article_id, %User{id: user_id}) do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, article_id) do

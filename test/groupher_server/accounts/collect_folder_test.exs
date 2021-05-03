@@ -36,7 +36,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert folder.meta |> Map.from_struct() |> Map.delete(:id) == @default_meta
     end
 
-    @tag :wip2
+    @tag :wip3
     test "user create dup collect folder fails", ~m(user)a do
       {:ok, _category} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:error, reason} = Accounts.create_collect_folder(%{title: "test folder"}, user)
@@ -137,7 +137,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert folder.collects |> List.first() |> Map.get(:post_id) == post.id
     end
 
-    @tag :wip2
+    @tag :wip3
     test "can not collect some article in one collect-folder", ~m(user post)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:ok, folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
@@ -158,11 +158,22 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
     end
 
     @tag :wip2
-    test "one article collect in different collect-folder should only have one article-collect record" do
-      #
+    test "one article collected in different collect-folder should only have one article-collect record",
+         ~m(user post)a do
+      {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
+      {:ok, folder2} = Accounts.create_collect_folder(%{title: "test folder2"}, user)
+
+      {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
+      {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder2.id, user)
+
+      {:ok, result} = ORM.find_all(CMS.ArticleCollect, %{page: 1, size: 10})
+      article_collect = result.entries |> List.first()
+
+      assert article_collect.post_id == post.id
+      assert result.total_count == 1
     end
 
-    @tag :wip3
+    @tag :wip2
     test "can remove post to exsit colect-folder", ~m(user post post2)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:ok, folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)

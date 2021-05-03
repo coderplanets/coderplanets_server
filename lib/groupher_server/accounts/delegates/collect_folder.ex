@@ -115,9 +115,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
         {:ok, :pass}
       end)
       |> Multi.run(:create_article_collect, fn _, _ ->
-        # 应该是是否创建要看是否已经有这条记录，如果有的话就只是设置 folder 即可, 否侧 article 那边的 collect_count 也会乱加
-        # 应该调用 CMS.collect_article_ifnot(...)
-        CMS.collect_article(thread, article_id, user)
+        CMS.collect_article_ifneed(thread, article_id, user)
       end)
       |> Multi.run(:set_article_collect_folder, fn _,
                                                    %{create_article_collect: article_collect} ->
@@ -155,6 +153,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
         {:ok, :pass}
       end)
       |> Multi.run(:delete_article_collect, fn _, _ ->
+        # CMS.undo_collect_article_ifneed(thread, article_id, user)
         CMS.undo_collect_article(thread, article_id, user)
       end)
       |> Multi.run(:remove_from_collect_folder, fn _,

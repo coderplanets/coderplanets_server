@@ -88,6 +88,8 @@ defmodule GroupherServer.CMS do
   defdelegate upvoted_users(thread, article_id, filter), to: ArticleReaction
 
   defdelegate collect_article(thread, article_id, user), to: ArticleReaction
+  defdelegate collect_article_ifneed(thread, article_id, user), to: ArticleReaction
+
   defdelegate undo_collect_article(thread, article_id, user), to: ArticleReaction
   defdelegate collected_users(thread, article_id, filter), to: ArticleReaction
 
