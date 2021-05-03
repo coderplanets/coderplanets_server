@@ -146,7 +146,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert reason |> is_error?(:already_collected_in_folder)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "colect-folder should in article_collect's meta info too", ~m(user post)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:ok, folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
@@ -157,7 +157,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert article_collect_folder.id == folder.id
     end
 
-    @tag :wip2
+    @tag :wip3
     test "one article collected in different collect-folder should only have one article-collect record",
          ~m(user post)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
@@ -173,11 +173,11 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert result.total_count == 1
     end
 
-    @tag :wip2
+    @tag :wip3
     test "can remove post to exsit colect-folder", ~m(user post post2)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
-      {:ok, folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
-      {:ok, folder} = Accounts.add_to_collect(:post, post2.id, folder.id, user)
+      {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
+      {:ok, _folder} = Accounts.add_to_collect(:post, post2.id, folder.id, user)
 
       {:ok, _} = Accounts.remove_from_collect(:post, post.id, folder.id, user)
 
@@ -186,6 +186,46 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert result.total_count == 1
       assert result.entries |> length == 1
       assert result.entries |> List.first() |> Map.get(:id) == post2.id
+    end
+
+    @tag :wip2
+    test "can remove post to exsit colect-folder should update article collect meta",
+         ~m(user post)a do
+      {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
+      {:ok, folder2} = Accounts.create_collect_folder(%{title: "test folder2"}, user)
+
+      {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
+      {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder2.id, user)
+
+      {:ok, _} = Accounts.remove_from_collect(:post, post.id, folder.id, user)
+
+      {:ok, result} = ORM.find_all(CMS.ArticleCollect, %{page: 1, size: 10})
+
+      article_collect =
+        result.entries |> List.first() |> Map.get(:collect_folders) |> List.first()
+
+      assert article_collect.id == folder2.id
+    end
+
+    @tag :wip2
+    test "post belongs to other folder should keep article collect record",
+         ~m(user post)a do
+      {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
+      {:ok, folder2} = Accounts.create_collect_folder(%{title: "test folder2"}, user)
+
+      {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
+      {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder2.id, user)
+
+      {:ok, _} = Accounts.remove_from_collect(:post, post.id, folder.id, user)
+
+      {:ok, result} = ORM.find_all(CMS.ArticleCollect, %{page: 1, size: 10})
+      article_collect = result.entries |> List.first()
+
+      assert article_collect.collect_folders |> length == 1
+
+      {:ok, _} = Accounts.remove_from_collect(:post, post.id, folder.id, user)
+      {:ok, result} = ORM.find_all(CMS.ArticleCollect, %{page: 1, size: 10})
+      assert result.total_count == 0
     end
 
     @tag :wip3

@@ -91,9 +91,11 @@ defmodule GroupherServer.CMS do
   defdelegate collect_article_ifneed(thread, article_id, user), to: ArticleReaction
 
   defdelegate undo_collect_article(thread, article_id, user), to: ArticleReaction
+  defdelegate undo_collect_article_ifneed(thread, article_id, user), to: ArticleReaction
   defdelegate collected_users(thread, article_id, filter), to: ArticleReaction
 
   defdelegate set_collect_folder(collect, folder), to: ArticleReaction
+  defdelegate undo_set_collect_folder(collect, folder), to: ArticleReaction
 
   defdelegate favorited_category(thread, content_id, user), to: FavoritedContents
   # ArticleOperation

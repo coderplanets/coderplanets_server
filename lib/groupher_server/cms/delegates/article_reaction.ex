@@ -59,13 +59,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
   # 如果是第一次收藏，那么才创建文章收藏记录
   # 避免因为同一篇文章在不同收藏夹内造成的统计和用户成就系统的混乱
   def collect_article_ifneed(thread, article_id, %User{id: user_id} = user) do
-    with {:ok, info} <- match(thread) do
-      thread_upcase = thread |> to_string |> String.upcase()
-
-      query_args =
-        %{thread: thread_upcase, user_id: user_id} |> Map.put(info.foreign_key, article_id)
-
-      already_collected = ORM.find_by(ArticleCollect, query_args)
+    with findby_args <- collection_findby_args(thread, article_id, user_id) do
+      already_collected = ORM.find_by(ArticleCollect, findby_args)
 
       case already_collected do
         {:ok, article_collect} -> {:ok, article_collect}
@@ -91,8 +86,34 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
     end
   end
 
+  def undo_collect_article_ifneed(thread, article_id, %User{id: user_id} = user) do
+    with findby_args <- collection_findby_args(thread, article_id, user_id),
+         {:ok, article_collect} = ORM.find_by(ArticleCollect, findby_args) do
+      case article_collect.collect_folders |> length <= 1 do
+        true -> undo_collect_article(thread, article_id, user)
+        false -> {:ok, article_collect}
+      end
+    end
+  end
+
+  defp collection_findby_args(thread, article_id, user_id) do
+    with {:ok, info} <- match(thread) do
+      thread_upcase = thread |> to_string |> String.upcase()
+      %{thread: thread_upcase, user_id: user_id} |> Map.put(info.foreign_key, article_id)
+    end
+  end
+
   def set_collect_folder(%ArticleCollect{} = collect, folder) do
     collect_folders = (collect.collect_folders ++ [folder]) |> Enum.uniq()
+
+    collect
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_embed(:collect_folders, collect_folders)
+    |> Repo.update()
+  end
+
+  def undo_set_collect_folder(%ArticleCollect{} = collect, folder) do
+    collect_folders = Enum.reject(collect.collect_folders, &(&1.id == folder.id))
 
     collect
     |> Ecto.Changeset.change()

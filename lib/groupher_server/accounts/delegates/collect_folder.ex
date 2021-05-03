@@ -110,10 +110,10 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
          # 是否是该 folder 的 owner ?
          true <- cur_user_id == folder.user_id do
       Multi.new()
-      |> Multi.run(:downgrade_achievement, fn _, _ ->
-        # TODO:
-        {:ok, :pass}
-      end)
+      # |> Multi.run(:downgrade_achievement, fn _, _ ->
+      #   # TODO: move to CMS
+      #   {:ok, :pass}
+      # end)
       |> Multi.run(:create_article_collect, fn _, _ ->
         CMS.collect_article_ifneed(thread, article_id, user)
       end)
@@ -148,13 +148,17 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
          # 是否是该 folder 的 owner ?
          true <- cur_user_id == folder.user_id do
       Multi.new()
-      |> Multi.run(:downgrade_achievement, fn _, _ ->
-        # TODO:
-        {:ok, :pass}
-      end)
+      # |> Multi.run(:downgrade_achievement, fn _, _ ->
+      #   # TODO:
+      #   {:ok, :pass}
+      # end)
       |> Multi.run(:delete_article_collect, fn _, _ ->
         # CMS.undo_collect_article_ifneed(thread, article_id, user)
-        CMS.undo_collect_article(thread, article_id, user)
+        CMS.undo_collect_article_ifneed(thread, article_id, user)
+      end)
+      |> Multi.run(:undo_set_article_collect_folder, fn _,
+                                                        %{delete_article_collect: article_collect} ->
+        CMS.undo_set_collect_folder(article_collect, folder)
       end)
       |> Multi.run(:remove_from_collect_folder, fn _,
                                                    %{delete_article_collect: article_collect} ->
