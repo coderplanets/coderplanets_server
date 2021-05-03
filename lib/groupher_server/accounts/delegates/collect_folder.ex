@@ -22,7 +22,6 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
 
   # @max_article_count_per_collect_folder 300
 
-  @default_threads_flags Embeds.CollectFolderMeta.default_threads_flags()
   @default_meta Embeds.CollectFolderMeta.default_meta()
   @supported_collect_threads [:post, :job]
 
@@ -114,35 +113,15 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
       #   # TODO: move to CMS
       #   {:ok, :pass}
       # end)
-      |> Multi.run(:create_article_collect, fn _, _ ->
+      |> Multi.run(:add_article_collect, fn _, _ ->
         CMS.collect_article_ifneed(thread, article_id, user)
       end)
-      |> Multi.run(:set_article_collect_folder, fn _,
-                                                   %{create_article_collect: article_collect} ->
+      |> Multi.run(:set_article_collect_folder, fn _, %{add_article_collect: article_collect} ->
         CMS.set_collect_folder(article_collect, folder)
       end)
-      |> Multi.run(:add_to_collect_folder, fn _, %{create_article_collect: article_collect} ->
+      |> Multi.run(:add_to_collect_folder, fn _, %{add_article_collect: article_collect} ->
         collects = [article_collect] ++ folder.collects
-        total_count = length(collects)
-        last_updated = Timex.today() |> Timex.to_datetime()
-
-        thread_count =
-          Enum.filter(collects, &(not is_nil(Map.get(&1, :"#{thread}_id")))) |> length
-
-        thread_count_map = %{"#{thread}_count": thread_count}
-
-        meta =
-          folder.meta
-          |> Map.merge(%{"has_#{thread}": true})
-          |> Map.merge(thread_count_map)
-          |> Map.from_struct()
-          |> Map.delete(:id)
-
-        folder
-        |> Ecto.Changeset.change(%{total_count: total_count, last_updated: last_updated})
-        |> Ecto.Changeset.put_embed(:collects, collects)
-        |> Ecto.Changeset.put_embed(:meta, meta)
-        |> Repo.update()
+        update_folder_meta(thread, collects, folder)
       end)
       |> Repo.transaction()
       |> upsert_collect_folder_result()
@@ -154,47 +133,43 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
          # 是否是该 folder 的 owner ?
          true <- cur_user_id == folder.user_id do
       Multi.new()
-      |> Multi.run(:delete_article_collect, fn _, _ ->
+      |> Multi.run(:del_article_collect, fn _, _ ->
         CMS.undo_collect_article_ifneed(thread, article_id, user)
       end)
-      |> Multi.run(:undo_set_article_collect_folder, fn _,
-                                                        %{delete_article_collect: article_collect} ->
+      |> Multi.run(:unset_article_collect_folder, fn _, %{del_article_collect: article_collect} ->
         CMS.undo_set_collect_folder(article_collect, folder)
       end)
-      |> Multi.run(:remove_from_collect_folder, fn _,
-                                                   %{delete_article_collect: article_collect} ->
+      |> Multi.run(:rm_from_collect_folder, fn _, %{del_article_collect: article_collect} ->
         # 不能用 -- 语法，因为两个结构体的 meta 信息不同，摔。
         collects = Enum.reject(folder.collects, &(&1.id == article_collect.id))
-        total_count = length(collects)
-        last_updated = Timex.today() |> Timex.to_datetime()
-
-        # covert [:post, :job] into -> %{has_post: boolean, has_job: boolean}
-        threads = collects |> Enum.map(&thread_to_atom(&1.thread)) |> Enum.uniq()
-
-        thread_count =
-          Enum.filter(collects, &(not is_nil(Map.get(&1, :"#{thread}_id")))) |> length
-
-        threads_flag_map =
-          Map.merge(@default_threads_flags, Map.new(threads, &{:"has_#{&1}", true}))
-
-        thread_count_map = %{"#{thread}_count": thread_count}
-
-        meta =
-          folder.meta
-          |> Map.merge(threads_flag_map)
-          |> Map.merge(thread_count_map)
-          |> Map.from_struct()
-          |> Map.delete(:id)
-
-        folder
-        |> Ecto.Changeset.change(%{total_count: total_count, last_updated: last_updated})
-        |> Ecto.Changeset.put_embed(:collects, collects)
-        |> Ecto.Changeset.put_embed(:meta, meta)
-        |> Repo.update()
+        update_folder_meta(thread, collects, folder)
       end)
       |> Repo.transaction()
       |> upsert_collect_folder_result()
     end
+  end
+
+  defp update_folder_meta(thread, collects, folder) do
+    total_count = length(collects)
+    last_updated = Timex.today() |> Timex.to_datetime()
+
+    thread_count = Enum.filter(collects, &(not is_nil(Map.get(&1, :"#{thread}_id")))) |> length
+
+    threads_flag_map = %{"has_#{thread}": thread_count > 0}
+    thread_count_map = %{"#{thread}_count": thread_count}
+
+    meta =
+      folder.meta
+      |> Map.merge(threads_flag_map)
+      |> Map.merge(thread_count_map)
+      |> Map.from_struct()
+      |> Map.delete(:id)
+
+    folder
+    |> Ecto.Changeset.change(%{total_count: total_count, last_updated: last_updated})
+    |> Ecto.Changeset.put_embed(:collects, collects)
+    |> Ecto.Changeset.put_embed(:meta, meta)
+    |> Repo.update()
   end
 
   defp article_not_collect_in_folder(thread, article_id, collects) do
@@ -214,7 +189,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
   # @spec unset_favorites_result({:ok, map()}) :: {:ok, FavoriteCategory.t() }
   defp upsert_collect_folder_result({:ok, %{add_to_collect_folder: result}}), do: {:ok, result}
 
-  defp upsert_collect_folder_result({:ok, %{remove_from_collect_folder: result}}) do
+  defp upsert_collect_folder_result({:ok, %{rm_from_collect_folder: result}}) do
     {:ok, result}
   end
 

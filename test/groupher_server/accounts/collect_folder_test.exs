@@ -245,7 +245,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert folder.meta.job_count == 1
     end
 
-    @tag :wip3
+    @tag :wip2
     test "remove post to exsit colect-folder should update meta", ~m(user post post2 job)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
