@@ -152,6 +152,28 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert result.entries |> List.first() |> Map.get(:id) == post2.id
     end
 
+    @tag :wip2
+    test "remove post to exsit colect-folder should update meta", ~m(user post post2 job)a do
+      {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
+      {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
+      {:ok, _folder} = Accounts.add_to_collect(:post, post2.id, folder.id, user)
+      {:ok, _folder} = Accounts.add_to_collect(:job, job.id, folder.id, user)
+
+      {:ok, folder} = Accounts.remove_from_collect(:post, post.id, folder.id, user)
+      assert folder.meta.has_post
+      assert folder.meta.has_job
+
+      {:ok, folder} = Accounts.remove_from_collect(:post, post2.id, folder.id, user)
+
+      assert not folder.meta.has_post
+      assert folder.meta.has_job
+
+      {:ok, folder} = Accounts.remove_from_collect(:job, job.id, folder.id, user)
+
+      assert not folder.meta.has_post
+      assert not folder.meta.has_job
+    end
+
     @tag :wip3
     test "can get articles of a collect folder", ~m(user post job)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)

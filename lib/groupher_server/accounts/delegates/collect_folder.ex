@@ -21,6 +21,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
 
   # @max_article_count_per_collect_folder 300
 
+  @default_threads_flags Embeds.CollectFolderMeta.default_threads_flags()
   @default_meta Embeds.CollectFolderMeta.default_meta()
   @supported_collect_threads [:post, :job]
 
@@ -155,9 +156,18 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
         total_count = length(collects)
         last_updated = Timex.today() |> Timex.to_datetime()
 
+        # covert [:post, :job] into -> %{has_post: boolean, has_job: boolean}
+        threads = collects |> Enum.map(&thread_to_atom(&1.thread)) |> Enum.uniq()
+
+        threads_flag_map =
+          Map.merge(@default_threads_flags, Map.new(threads, &{:"has_#{&1}", true}))
+
+        meta = Map.merge(folder.meta, threads_flag_map) |> Map.from_struct() |> Map.delete(:id)
+
         folder
         |> Ecto.Changeset.change(%{total_count: total_count, last_updated: last_updated})
         |> Ecto.Changeset.put_embed(:collects, collects)
+        |> Ecto.Changeset.put_embed(:meta, meta)
         |> Repo.update()
       end)
       |> Repo.transaction()
@@ -389,5 +399,9 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
       true -> {:ok, content}
       false -> {:error, [message: "viewer has already categoried", code: ecode(:already_did)]}
     end
+  end
+
+  defp thread_to_atom(thread) when is_binary(thread) do
+    thread |> String.downcase() |> String.to_atom()
   end
 end
