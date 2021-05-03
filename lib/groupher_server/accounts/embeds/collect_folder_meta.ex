@@ -7,7 +7,17 @@ defmodule GroupherServer.Accounts.Embeds.CollectFolderMeta do
 
   @optional_fields ~w(id has_post has_job has_repo post_count job_count repo_count)a
 
+  @default_meta %{
+    post_count: 0,
+    job_count: 0,
+    repo_count: 0,
+    has_post: false,
+    has_job: false,
+    has_repo: false
+  }
+
   @doc "for test usage"
+  def default_meta(), do: @default_meta
 
   embedded_schema do
     field(:has_post, :boolean, default: false)
