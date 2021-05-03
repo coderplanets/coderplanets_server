@@ -115,10 +115,17 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
   def undo_set_collect_folder(%ArticleCollect{} = collect, folder) do
     collect_folders = Enum.reject(collect.collect_folders, &(&1.id == folder.id))
 
-    collect
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_embed(:collect_folders, collect_folders)
-    |> Repo.update()
+    case collect_folders do
+      # means collect already delete
+      [] ->
+        {:ok, :pass}
+
+      _ ->
+        collect
+        |> Ecto.Changeset.change()
+        |> Ecto.Changeset.put_embed(:collect_folders, collect_folders)
+        |> Repo.update()
+    end
   end
 
   @doc "upvote to a article-like content"

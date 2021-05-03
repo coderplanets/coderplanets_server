@@ -188,7 +188,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert result.entries |> List.first() |> Map.get(:id) == post2.id
     end
 
-    @tag :wip2
+    @tag :wip3
     test "can remove post to exsit colect-folder should update article collect meta",
          ~m(user post)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
@@ -207,7 +207,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert article_collect.id == folder2.id
     end
 
-    @tag :wip2
+    @tag :wip3
     test "post belongs to other folder should keep article collect record",
          ~m(user post)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
@@ -226,6 +226,23 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       {:ok, _} = Accounts.remove_from_collect(:post, post.id, folder.id, user)
       {:ok, result} = ORM.find_all(CMS.ArticleCollect, %{page: 1, size: 10})
       assert result.total_count == 0
+    end
+
+    @tag :wip2
+    test "add post to exsit colect-folder should update meta", ~m(user post post2 job)a do
+      {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
+
+      {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
+      {:ok, _folder} = Accounts.add_to_collect(:post, post2.id, folder.id, user)
+      {:ok, _folder} = Accounts.add_to_collect(:job, job.id, folder.id, user)
+
+      {:ok, folder} = Accounts.remove_from_collect(:post, post.id, folder.id, user)
+
+      assert folder.meta.has_post
+      assert folder.meta.has_job
+
+      assert folder.meta.post_count == 1
+      assert folder.meta.job_count == 1
     end
 
     @tag :wip3

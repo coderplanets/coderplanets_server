@@ -126,14 +126,20 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
         total_count = length(collects)
         last_updated = Timex.today() |> Timex.to_datetime()
 
+        thread_count =
+          Enum.filter(collects, &(not is_nil(Map.get(&1, :"#{thread}_id")))) |> length
+
+        thread_count_map = %{"#{thread}_count": thread_count}
+
         meta =
-          Map.merge(folder.meta, %{"has_#{thread}": true}) |> Map.from_struct() |> Map.delete(:id)
+          folder.meta
+          |> Map.merge(%{"has_#{thread}": true})
+          |> Map.merge(thread_count_map)
+          |> Map.from_struct()
+          |> Map.delete(:id)
 
         folder
-        |> Ecto.Changeset.change(%{
-          total_count: total_count,
-          last_updated: last_updated
-        })
+        |> Ecto.Changeset.change(%{total_count: total_count, last_updated: last_updated})
         |> Ecto.Changeset.put_embed(:collects, collects)
         |> Ecto.Changeset.put_embed(:meta, meta)
         |> Repo.update()
@@ -148,12 +154,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
          # 是否是该 folder 的 owner ?
          true <- cur_user_id == folder.user_id do
       Multi.new()
-      # |> Multi.run(:downgrade_achievement, fn _, _ ->
-      #   # TODO:
-      #   {:ok, :pass}
-      # end)
       |> Multi.run(:delete_article_collect, fn _, _ ->
-        # CMS.undo_collect_article_ifneed(thread, article_id, user)
         CMS.undo_collect_article_ifneed(thread, article_id, user)
       end)
       |> Multi.run(:undo_set_article_collect_folder, fn _,
@@ -170,10 +171,20 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
         # covert [:post, :job] into -> %{has_post: boolean, has_job: boolean}
         threads = collects |> Enum.map(&thread_to_atom(&1.thread)) |> Enum.uniq()
 
+        thread_count =
+          Enum.filter(collects, &(not is_nil(Map.get(&1, :"#{thread}_id")))) |> length
+
         threads_flag_map =
           Map.merge(@default_threads_flags, Map.new(threads, &{:"has_#{&1}", true}))
 
-        meta = Map.merge(folder.meta, threads_flag_map) |> Map.from_struct() |> Map.delete(:id)
+        thread_count_map = %{"#{thread}_count": thread_count}
+
+        meta =
+          folder.meta
+          |> Map.merge(threads_flag_map)
+          |> Map.merge(thread_count_map)
+          |> Map.from_struct()
+          |> Map.delete(:id)
 
         folder
         |> Ecto.Changeset.change(%{total_count: total_count, last_updated: last_updated})
