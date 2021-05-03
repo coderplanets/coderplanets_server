@@ -71,6 +71,15 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
     end
   end
 
+  def set_collect_folder(%ArticleCollect{} = collect, folder) do
+    collect_folders = (collect.collect_folders ++ [folder]) |> Enum.uniq()
+
+    collect
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_embed(:collect_folders, collect_folders)
+    |> Repo.update()
+  end
+
   @doc "upvote to a article-like content"
   def upvote_article(thread, article_id, %User{id: user_id}) do
     with {:ok, info} <- match(thread),
@@ -145,6 +154,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
   defp reaction_result({:error, _, result, _steps}) do
     {:error, result}
   end
+
+  ##### #########################
+  ##### #########################
+  ##### #########################
+  ##### #########################
+  ##### #########################
 
   @doc """
   favorite / star / watch CMS contents like post / tuts ...

@@ -6,6 +6,7 @@ defmodule GroupherServer.Test.AssertHelper do
   NOTE: we use POST in query_get, see https://github.com/coderplanets/coderplanets_server/issues/259
   """
 
+  import Helper.ErrorCode, only: [ecode: 1]
   import Phoenix.ConnTest
   import Helper.Utils, only: [map_key_stringify: 1, get_config: 2]
 
@@ -19,6 +20,10 @@ defmodule GroupherServer.Test.AssertHelper do
   """
   def non_exsit_id, do: 15_982_398_614
   # def page_size, do: @page_size
+
+  def is_error?(reason, code) when is_list(reason) and is_atom(code) do
+    reason |> Keyword.get(:code) == ecode(code)
+  end
 
   def assert_v(:inner_page_size), do: @inner_page_size
   def assert_v(:page_size), do: @page_size

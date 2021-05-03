@@ -3,6 +3,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
   user FavoriteCategory related
   """
   import Ecto.Query, warn: false
+  import GroupherServer.CMS.Utils.Matcher2
 
   alias Helper.QueryBuilder
 
@@ -105,6 +106,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
 
   def add_to_collect(thread, article_id, folder_id, %User{id: cur_user_id} = user) do
     with {:ok, folder} <- ORM.find(CollectFolder, folder_id),
+         {:ok, _} <- article_not_collect_in_folder(thread, article_id, folder.collects),
          # 是否是该 folder 的 owner ?
          true <- cur_user_id == folder.user_id do
       Multi.new()
@@ -113,7 +115,13 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
         {:ok, :pass}
       end)
       |> Multi.run(:create_article_collect, fn _, _ ->
+        # 应该是是否创建要看是否已经有这条记录，如果有的话就只是设置 folder 即可, 否侧 article 那边的 collect_count 也会乱加
+        # 应该调用 CMS.collect_article_ifnot(...)
         CMS.collect_article(thread, article_id, user)
+      end)
+      |> Multi.run(:set_article_collect_folder, fn _,
+                                                   %{create_article_collect: article_collect} ->
+        CMS.set_collect_folder(article_collect, folder)
       end)
       |> Multi.run(:add_to_collect_folder, fn _, %{create_article_collect: article_collect} ->
         collects = [article_collect] ++ folder.collects
@@ -172,6 +180,20 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
       end)
       |> Repo.transaction()
       |> upsert_collect_folder_result()
+    end
+  end
+
+  defp article_not_collect_in_folder(thread, article_id, collects) do
+    with {:ok, info} <- match(thread) do
+      already_collected =
+        Enum.any?(collects, fn c ->
+          article_id == Map.get(c, info.foreign_key)
+        end)
+
+      case already_collected do
+        true -> raise_error(:already_collected_in_folder, "already collected in this folder")
+        false -> {:ok, :pass}
+      end
     end
   end
 

@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.ArticleCollect do
 
   alias GroupherServer.{Accounts, CMS}
 
-  alias Accounts.User
+  alias Accounts.{User, CollectFolder}
   alias CMS.{Post, Job, Repo}
 
   @required_fields ~w(user_id)a
@@ -22,6 +22,8 @@ defmodule GroupherServer.CMS.ArticleCollect do
     belongs_to(:job, Job, foreign_key: :job_id)
     belongs_to(:repo, Repo, foreign_key: :repo_id)
 
+    embeds_many(:collect_folders, CollectFolder, on_replace: :delete)
+
     timestamps(type: :utc_datetime)
   end
 
@@ -30,6 +32,7 @@ defmodule GroupherServer.CMS.ArticleCollect do
     article_collect
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
+    |> cast_embed(:collect_folders, with: &CollectFolder.changeset/2)
     |> foreign_key_constraint(:user_id)
     |> foreign_key_constraint(:post_id)
     |> foreign_key_constraint(:job_id)
