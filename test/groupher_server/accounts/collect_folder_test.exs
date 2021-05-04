@@ -38,10 +38,28 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
 
     @tag :wip3
     test "user create dup collect folder fails", ~m(user)a do
-      {:ok, _category} = Accounts.create_collect_folder(%{title: "test folder"}, user)
+      {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:error, reason} = Accounts.create_collect_folder(%{title: "test folder"}, user)
 
       assert reason |> is_error?(:already_exsit)
+    end
+
+    @tag :wip2
+    test "user can delete a empty collect folder", ~m(user)a do
+      {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
+      {:ok, _} = Accounts.delete_collect_folder(folder.id)
+
+      assert {:error, _} = ORM.find(CMS.ArticleCollect, folder.id)
+    end
+
+    @tag :wip2
+    test "user can not delete a non-empty collect folder", ~m(post user)a do
+      {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
+      {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
+
+      {:error, reason} = Accounts.delete_collect_folder(folder.id)
+
+      assert reason |> is_error?(:delete_no_empty_collect_folder)
     end
 
     @tag :wip3

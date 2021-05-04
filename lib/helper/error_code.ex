@@ -44,6 +44,7 @@ defmodule Helper.ErrorCode do
   # article
   def ecode(:too_much_pinned_article), do: @article_base + 1
   def ecode(:already_collected_in_folder), do: @article_base + 2
+  def ecode(:delete_no_empty_collect_folder), do: @article_base + 3
 
   def ecode, do: @default_base
   # def ecode(_), do: @default_base

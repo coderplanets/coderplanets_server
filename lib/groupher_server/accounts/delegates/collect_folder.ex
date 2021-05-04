@@ -98,11 +98,19 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
     end
   end
 
+  @doc """
+  delete empty collect folder
+  """
   @spec delete_collect_folder(T.id()) :: {:ok, CollectFolder.t()}
   def delete_collect_folder(id) do
-    # 1. downgrade_achievment
-    # 2. delete collect-folder
-    CollectFolder |> ORM.find_delete!(id)
+    with {:ok, folder} <- ORM.find(CollectFolder, id) do
+      is_folder_empty = Enum.empty?(folder.collects)
+
+      case is_folder_empty do
+        true -> CollectFolder |> ORM.find_delete!(id)
+        false -> raise_error(:delete_no_empty_collect_folder, "#{folder.title} is not empty")
+      end
+    end
   end
 
   @doc """
