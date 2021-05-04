@@ -49,6 +49,20 @@ defmodule GroupherServer.Test.Query.Accounts.CollectedArticles do
     assert results2 |> is_valid_pagination?()
   end
 
+  @tag :wip2
+  test "owner can get it's paged collect folders with private folders",
+       ~m(user user_conn guest_conn posts)a do
+    {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder", private: true}, user)
+    {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder2"}, user)
+
+    variables = %{filter: %{user_login: user.login, page: 1, size: 20}}
+    results = user_conn |> query_result(@query, variables, "pagedCollectFolders")
+    results2 = guest_conn |> query_result(@query, variables, "pagedCollectFolders")
+
+    assert results["totalCount"] == 2
+    assert results2["totalCount"] == 1
+  end
+
   test "can get paged favoritedPosts on a spec category", ~m(user_conn guest_conn posts)a do
     {:ok, user} = db_insert(:user)
 

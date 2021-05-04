@@ -146,6 +146,13 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     Accounts.reacted_contents(thread, :favorite, filter, cur_user)
   end
 
+  def paged_collect_folders(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(filter.user_login) do
+      filter = Map.merge(filter, %{user_id: user_id})
+      Accounts.list_collect_folders(filter, cur_user)
+    end
+  end
+
   def paged_collect_folders(_root, ~m(filter)a, _info) do
     with {:ok, user_id} <- Accounts.get_userid_and_cache(filter.user_login) do
       filter = Map.merge(filter, %{user_id: user_id})
