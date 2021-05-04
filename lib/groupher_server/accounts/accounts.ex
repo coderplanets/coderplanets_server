@@ -48,7 +48,7 @@ defmodule GroupherServer.Accounts do
   defdelegate fetch_followings(user, filter), to: Fans
 
   # upvoted articles
-  defdelegate upvoted_articles(filter), to: UpvotedArticles
+  defdelegate list_upvoted_articles(filter), to: UpvotedArticles
 
   # mentions
   defdelegate fetch_mentions(user, filter), to: Mails

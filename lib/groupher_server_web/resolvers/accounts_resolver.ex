@@ -146,8 +146,18 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     Accounts.reacted_contents(thread, :favorite, filter, cur_user)
   end
 
+  def paged_upvoted_articles(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
+    with {:ok, user} <- get_request_user_id(filter.user_login, cur_user) do
+      filter = Map.merge(filter, %{user_id: user.id})
+      Accounts.list_upvoted_articles(filter)
+    end
+  end
+
   def paged_upvoted_articles(_root, ~m(filter)a, _info) do
-    Accounts.upvoted_articles(filter)
+    with {:ok, user} <- get_request_user_id(filter.user_login) do
+      filter = Map.merge(filter, %{user_id: user.id})
+      Accounts.list_upvoted_articles(filter)
+    end
   end
 
   # published contents
@@ -291,6 +301,17 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
 
       false ->
         customization
+    end
+  end
+
+  # 为了不对外暴露 user.id, 需要使用 login 间接查询
+  # TODO: 用 cache 模块优化一下
+  defp get_request_user_id(login), do: ORM.find_by(User, %{login: login})
+
+  defp get_request_user_id(login, %User{id: id, login: cur_login}) do
+    case login == cur_login do
+      true -> {:ok, id}
+      false -> ORM.find_by(User, %{login: login})
     end
   end
 end

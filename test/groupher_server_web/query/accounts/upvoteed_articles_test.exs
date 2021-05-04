@@ -39,8 +39,7 @@ defmodule GroupherServer.Test.Query.Accounts.UpvotedArticles do
       end)
 
       variables = %{
-        userId: user.id,
-        filter: %{user_id: user.id, thread: "POST", page: 1, size: 20}
+        filter: %{user_login: user.login, thread: "POST", page: 1, size: 20}
       }
 
       results = user_conn |> query_result(@query, variables, "pagedUpvotedArticles")
@@ -64,8 +63,7 @@ defmodule GroupherServer.Test.Query.Accounts.UpvotedArticles do
       end)
 
       variables = %{
-        userId: user.id,
-        filter: %{user_id: user.id, page: 1, size: 20}
+        filter: %{user_login: user.login, page: 1, size: 20}
       }
 
       results = guest_conn |> query_result(@query, variables, "pagedUpvotedArticles")
