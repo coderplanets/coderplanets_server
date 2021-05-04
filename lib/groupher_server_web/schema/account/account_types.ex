@@ -51,14 +51,6 @@ defmodule GroupherServerWeb.Schema.Account.Types do
     field(:education_backgrounds, list_of(:education_background))
     field(:work_backgrounds, list_of(:work_background))
 
-    # field(:favorites_categories, :paged_favorites_category) do
-    # arg(:filter, non_null(:common_paged_filter))
-
-    # middleware(M.Authorize, :login)
-    # middleware(M.PageSizeProof)
-    # resolve(&R.Accounts.list_favorite_categories/3)
-    # end
-
     field(:cms_passport_string, :string) do
       middleware(M.Authorize, :login)
       resolve(&R.Accounts.get_passport_string/3)
@@ -124,73 +116,6 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       middleware(M.PutCurrentUser)
       resolve(dataloader(Accounts, :followers))
       middleware(M.ViewerDidConvert)
-    end
-
-    @desc "paged favorited posts"
-    field :favorited_posts, :paged_posts do
-      arg(:filter, non_null(:paged_filter))
-      arg(:thread, :post_thread, default_value: :post)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.favorited_contents/3)
-    end
-
-    @desc "paged favorited jobs"
-    field :favorited_jobs, :paged_jobs do
-      arg(:filter, non_null(:paged_filter))
-      arg(:thread, :job_thread, default_value: :job)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.favorited_contents/3)
-    end
-
-    @desc "paged favorited repos"
-    field :favorited_repos, :paged_repos do
-      arg(:filter, non_null(:paged_filter))
-      arg(:thread, :repo_thread, default_value: :repo)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.favorited_contents/3)
-    end
-
-    @desc "total count of stared posts count"
-    field :stared_posts_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-
-      resolve(dataloader(Accounts, :stared_posts))
-      middleware(M.ConvertToInt)
-    end
-
-    @desc "total count of stared jobs count"
-    field :stared_jobs_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-
-      resolve(dataloader(Accounts, :stared_jobs))
-      middleware(M.ConvertToInt)
-    end
-
-    @desc "total count of favorited posts count"
-    field :favorited_posts_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-
-      resolve(dataloader(Accounts, :favorited_posts))
-      middleware(M.ConvertToInt)
-    end
-
-    @desc "total count of favorited jobs count"
-    field :favorited_jobs_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-
-      resolve(dataloader(Accounts, :favorited_jobs))
-      middleware(M.ConvertToInt)
-    end
-
-    @desc "total count of favorited videos count"
-    field :favorited_repos_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-
-      resolve(dataloader(Accounts, :favorited_repos))
-      middleware(M.ConvertToInt)
     end
 
     field :contributes, :contribute_map do

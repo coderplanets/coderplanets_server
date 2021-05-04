@@ -9,8 +9,7 @@ defmodule GroupherServer.Accounts do
     Publish,
     Mails,
     Profile,
-    ReactedContents,
-    ReactedArticles,
+    UpvotedArticles,
     Search
   }
 
@@ -48,13 +47,8 @@ defmodule GroupherServer.Accounts do
   defdelegate fetch_followers(user, filter), to: Fans
   defdelegate fetch_followings(user, filter), to: Fans
 
-  # reacted contents
-  defdelegate reacted_contents(thread, react, filter, user), to: ReactedContents
-  defdelegate reacted_contents(thread, react, category_id, filter, user), to: ReactedContents
-
   # upvoted articles
-  defdelegate upvoted_articles(filter, user), to: ReactedArticles
-  defdelegate upvoted_articles(thread, filter, user), to: ReactedArticles
+  defdelegate upvoted_articles(filter), to: UpvotedArticles
 
   # mentions
   defdelegate fetch_mentions(user, filter), to: Mails

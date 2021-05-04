@@ -146,17 +146,8 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     Accounts.reacted_contents(thread, :favorite, filter, cur_user)
   end
 
-  # gst stared contents
-  def upvoted_articles(_root, ~m(user_id filter thread)a, _info) do
-    Accounts.upvoted_articles(thread, filter, %User{id: user_id})
-  end
-
-  def stared_contents(_root, ~m(user_id filter thread)a, _info) do
-    Accounts.reacted_contents(thread, :star, filter, %User{id: user_id})
-  end
-
-  def stared_contents(_root, ~m(filter thread)a, %{context: %{cur_user: cur_user}}) do
-    Accounts.reacted_contents(thread, :star, filter, cur_user)
+  def paged_upvoted_articles(_root, ~m(filter)a, _info) do
+    Accounts.upvoted_articles(filter)
   end
 
   # published contents

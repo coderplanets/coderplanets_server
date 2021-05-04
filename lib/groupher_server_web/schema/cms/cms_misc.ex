@@ -250,6 +250,13 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     field(:sort, :repo_sort_enum)
   end
 
+  @desc "common filter for upvoted articles"
+  input_object :upvoted_articles_filter do
+    field(:user_id, non_null(:id))
+    field(:thread, :cms_thread)
+    pagination_args()
+  end
+
   @desc """
   cms github repo contribotor
   """

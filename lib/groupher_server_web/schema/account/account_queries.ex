@@ -71,11 +71,11 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.list_favorite_categories/3)
     end
 
-    field :upvoted_articles, :paged_articles do
-      arg(:thread, :cms_thread, default_value: :post)
-      # arg(:thread, :cms_thread)
+    @desc "get paged upvoted articles"
+    field :paged_upvoted_articles, :paged_articles do
+      arg(:filter, :upvoted_articles_filter)
 
-      resolve(&R.Accounts.upvoted_articles/3)
+      resolve(&R.Accounts.paged_upvoted_articles/3)
     end
 
     @desc "get favorited posts"

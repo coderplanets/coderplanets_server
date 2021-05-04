@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Query.Accounts.StaredContents do
+defmodule GroupherServer.Test.Query.Accounts.UpvotedArticles do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
@@ -16,62 +16,61 @@ defmodule GroupherServer.Test.Query.Accounts.StaredContents do
     {:ok, ~m(guest_conn user_conn user posts jobs)a}
   end
 
-  describe "[accounts stared posts]" do
+  describe "[accounts upvoted posts]" do
     @query """
-    query($filter: PagedFilter!) {
-      user {
-        id
-        staredPosts(filter: $filter) {
-          entries {
-            id
-          }
-          totalCount
-        }
-        staredPostsCount
-      }
-    }
-    """
-    test "login user can get it's own staredPosts", ~m(user_conn user posts)a do
-      Enum.each(posts, fn post ->
-        {:ok, _} = CMS.reaction(:post, :star, post.id, user)
-      end)
-
-      random_id = posts |> Enum.shuffle() |> List.first() |> Map.get(:id) |> to_string
-
-      variables = %{filter: %{page: 1, size: 20}}
-      results = user_conn |> query_result(@query, variables, "user")
-      assert results["staredPosts"] |> Map.get("totalCount") == @total_count
-      assert results["staredPostsCount"] == @total_count
-
-      assert results["staredPosts"]
-             |> Map.get("entries")
-             |> Enum.any?(&(&1["id"] == random_id))
-    end
-
-    @query """
-    query($userId: ID, $filter: PagedFilter!) {
-      staredPosts(userId: $userId,  filter: $filter) {
+    query($filter: UpvotedArticlesFilter!) {
+      pagedUpvotedArticles(filter: $filter) {
         entries {
           id
+          title
+          thread
         }
         totalCount
       }
     }
     """
-    test "other user can get other user's paged staredPosts",
+    @tag :wip2
+    test "both login and unlogin user can get one's paged upvoteded posts",
          ~m(user_conn guest_conn posts)a do
       {:ok, user} = db_insert(:user)
 
       Enum.each(posts, fn post ->
-        {:ok, _} = CMS.reaction(:post, :star, post.id, user)
+        {:ok, _} = CMS.upvote_article(:post, post.id, user)
       end)
 
-      variables = %{userId: user.id, filter: %{page: 1, size: 20}}
-      results = user_conn |> query_result(@query, variables, "staredPosts")
-      results2 = guest_conn |> query_result(@query, variables, "staredPosts")
+      variables = %{
+        userId: user.id,
+        filter: %{user_id: user.id, thread: "POST", page: 1, size: 20}
+      }
+
+      results = user_conn |> query_result(@query, variables, "pagedUpvotedArticles")
+      results2 = guest_conn |> query_result(@query, variables, "pagedUpvotedArticles")
 
       assert results["totalCount"] == @total_count
       assert results2["totalCount"] == @total_count
+    end
+
+    @tag :wip2
+    test "if no thread filter will get alll paged upvoteded articles",
+         ~m(guest_conn posts jobs)a do
+      {:ok, user} = db_insert(:user)
+
+      Enum.each(posts, fn post ->
+        {:ok, _} = CMS.upvote_article(:post, post.id, user)
+      end)
+
+      Enum.each(jobs, fn job ->
+        {:ok, _} = CMS.upvote_article(:job, job.id, user)
+      end)
+
+      variables = %{
+        userId: user.id,
+        filter: %{user_id: user.id, page: 1, size: 20}
+      }
+
+      results = guest_conn |> query_result(@query, variables, "pagedUpvotedArticles")
+
+      assert results["totalCount"] == @total_count + @total_count
     end
   end
 
