@@ -10,7 +10,8 @@ defmodule GroupherServer.Accounts do
     Mails,
     Profile,
     UpvotedArticles,
-    Search
+    Search,
+    Utils
   }
 
   # profile
@@ -69,4 +70,6 @@ defmodule GroupherServer.Accounts do
   defdelegate upgrade_by_plan(user, plan), to: Customization
 
   defdelegate search_users(args), to: Search
+
+  defdelegate get_userid_and_cache(login), to: Utils
 end

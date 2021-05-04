@@ -69,7 +69,7 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
   def list_contributes_digest(%Community{id: id}) do
     scope = Cache.get_scope(:community_contributes, id)
 
-    case Cache.get(scope) do
+    case Cache.get(:common, scope) do
       {:ok, result} ->
         {:ok, result}
 

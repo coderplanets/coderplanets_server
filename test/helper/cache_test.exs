@@ -42,9 +42,9 @@ defmodule GroupherServer.Test.Helper.Cache do
     test "cache expire should work" do
       assert {:ok, true} = Cache.put(@pool, :data, "value", expire_sec: 1)
       assert {:ok, "value"} = Cache.get(@pool, :data)
-      Process.sleep(900)
+      Process.sleep(800)
       assert {:ok, "value"} = Cache.get(@pool, :data)
-      Process.sleep(1200)
+      Process.sleep(500)
       assert {:error, nil} = Cache.get(@pool, :data)
     end
   end
