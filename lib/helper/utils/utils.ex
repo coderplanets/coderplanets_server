@@ -67,16 +67,16 @@ defmodule Helper.Utils do
   def done({n, nil}) when is_integer(n), do: {:ok, %{done: true}}
   def done(result), do: {:ok, result}
 
-  def done_and_cache(result, scope, expire: expire_time) do
+  def done_and_cache(pool, result, scope, expire: expire_time) do
     with {:ok, res} <- done(result) do
-      Cache.put(scope, res, expire: expire_time)
+      Cache.put(pool, scope, res, expire: expire_time)
       {:ok, res}
     end
   end
 
-  def done_and_cache(result, scope) do
+  def done_and_cache(pool, result, scope) do
     with {:ok, res} <- done(result) do
-      Cache.put(scope, res)
+      Cache.put(pool, scope, res)
       {:ok, res}
     end
   end

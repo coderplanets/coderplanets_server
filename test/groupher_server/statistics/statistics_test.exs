@@ -150,10 +150,10 @@ defmodule GroupherServer.Test.Statistics do
 
     test "the contributes data should be cached after first query", ~m(community)a do
       scope = Cache.get_scope(:community_contributes, community.id)
-      assert {:error, nil} = Cache.get(scope)
+      assert {:error, nil} = Cache.get(:common, scope)
 
       {:ok, contributes} = Statistics.list_contributes_digest(%Community{id: community.id})
-      {:ok, cached_contributes} = Cache.get(scope)
+      {:ok, cached_contributes} = Cache.get(:common, scope)
 
       assert contributes == cached_contributes
     end
@@ -166,7 +166,7 @@ defmodule GroupherServer.Test.Statistics do
 
     test "cache should be update after make contributes", ~m(community)a do
       scope = Cache.get_scope(:community_contributes, community.id)
-      assert {:error, nil} = Cache.get(scope)
+      assert {:error, nil} = Cache.get(:common, scope)
 
       Statistics.make_contribute(%Community{id: community.id})
 
@@ -174,7 +174,7 @@ defmodule GroupherServer.Test.Statistics do
       # Process.sleep(1000)
       # IO.inspect(res, label: "res")
 
-      # assert {:ok, _} = Cache.get(scope)
+      # assert {:ok, _} = Cache.get(:common, scope)
     end
   end
 end
