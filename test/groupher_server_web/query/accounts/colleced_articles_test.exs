@@ -50,6 +50,30 @@ defmodule GroupherServer.Test.Query.Accounts.CollectedArticles do
   end
 
   @tag :wip2
+  test "other user can get other user's paged collect folders filter by thread",
+       ~m(user_conn guest_conn posts)a do
+    {:ok, user} = db_insert(:user)
+    {:ok, post} = db_insert(:post)
+    {:ok, job} = db_insert(:job)
+    {:ok, job2} = db_insert(:job)
+
+    {:ok, folder_post} = Accounts.create_collect_folder(%{title: "test folder2"}, user)
+    {:ok, folder_job} = Accounts.create_collect_folder(%{title: "test folder"}, user)
+
+    {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder_post.id, user)
+    {:ok, _folder} = Accounts.add_to_collect(:job, job.id, folder_post.id, user)
+    {:ok, _folder} = Accounts.add_to_collect(:job, job2.id, folder_job.id, user)
+
+    variables = %{filter: %{user_login: user.login, thread: "JOB", page: 1, size: 20}}
+    results = guest_conn |> query_result(@query, variables, "pagedCollectFolders")
+    assert results["totalCount"] == 2
+
+    variables = %{filter: %{user_login: user.login, thread: "POST", page: 1, size: 20}}
+    results = guest_conn |> query_result(@query, variables, "pagedCollectFolders")
+    assert results["totalCount"] == 1
+  end
+
+  @tag :wip2
   test "owner can get it's paged collect folders with private folders",
        ~m(user user_conn guest_conn posts)a do
     {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder", private: true}, user)

@@ -126,10 +126,6 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
          # 是否是该 folder 的 owner ?
          true <- cur_user_id == folder.user_id do
       Multi.new()
-      # |> Multi.run(:downgrade_achievement, fn _, _ ->
-      #   # TODO: move to CMS
-      #   {:ok, :pass}
-      # end)
       |> Multi.run(:add_article_collect, fn _, _ ->
         CMS.collect_article_ifneed(thread, article_id, user)
       end)
