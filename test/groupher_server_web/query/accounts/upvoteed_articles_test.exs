@@ -1,4 +1,5 @@
 defmodule GroupherServer.Test.Query.Accounts.UpvotedArticles do
+  @moduledoc false
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
@@ -69,65 +70,6 @@ defmodule GroupherServer.Test.Query.Accounts.UpvotedArticles do
       results = guest_conn |> query_result(@query, variables, "pagedUpvotedArticles")
 
       assert results["totalCount"] == @total_count + @total_count
-    end
-  end
-
-  describe "[accounts stared jobs]" do
-    @query """
-    query($filter: PagedFilter!) {
-      user {
-        id
-        staredJobs(filter: $filter) {
-          entries {
-            id
-          }
-          totalCount
-        }
-        staredJobsCount
-      }
-    }
-    """
-    test "login user can get it's own staredJobs", ~m(user_conn user jobs)a do
-      Enum.each(jobs, fn job ->
-        {:ok, _} = CMS.reaction(:job, :star, job.id, user)
-      end)
-
-      random_id = jobs |> Enum.shuffle() |> List.first() |> Map.get(:id) |> to_string
-
-      variables = %{filter: %{page: 1, size: 20}}
-      results = user_conn |> query_result(@query, variables, "user")
-      assert results["staredJobs"] |> Map.get("totalCount") == @total_count
-      assert results["staredJobsCount"] == @total_count
-
-      assert results["staredJobs"]
-             |> Map.get("entries")
-             |> Enum.any?(&(&1["id"] == random_id))
-    end
-
-    @query """
-    query($userId: ID, $filter: PagedFilter!) {
-      staredJobs(userId: $userId,  filter: $filter) {
-        entries {
-          id
-        }
-        totalCount
-      }
-    }
-    """
-    test "other user can get other user's paged staredJobs",
-         ~m(user_conn guest_conn jobs)a do
-      {:ok, user} = db_insert(:user)
-
-      Enum.each(jobs, fn job ->
-        {:ok, _} = CMS.reaction(:job, :star, job.id, user)
-      end)
-
-      variables = %{userId: user.id, filter: %{page: 1, size: 20}}
-      results = user_conn |> query_result(@query, variables, "staredJobs")
-      results2 = guest_conn |> query_result(@query, variables, "staredJobs")
-
-      assert results["totalCount"] == @total_count
-      assert results2["totalCount"] == @total_count
     end
   end
 end

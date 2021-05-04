@@ -222,6 +222,23 @@ defmodule GroupherServerWeb.Schema.Account.Types do
     pagination_fields()
   end
 
+  object :collect_folder do
+    field(:id, :id)
+    field(:title, :string)
+    field(:desc, :string)
+    field(:index, :integer)
+    field(:total_count, :integer)
+    field(:private, :boolean)
+    field(:last_updated, :datetime)
+    field(:inserted_at, :datetime)
+    field(:updated_at, :datetime)
+  end
+
+  object :paged_collect_folders do
+    field(:entries, list_of(:collect_folder))
+    pagination_fields()
+  end
+
   object :source_contribute do
     field(:web, :boolean)
     field(:server, :boolean)

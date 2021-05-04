@@ -62,6 +62,29 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.paged_followings/3)
     end
 
+    @desc "get paged upvoted articles"
+    field :paged_upvoted_articles, :paged_articles do
+      arg(:filter, :upvoted_articles_filter)
+
+      resolve(&R.Accounts.paged_upvoted_articles/3)
+    end
+
+    @desc "get paged collect folders of a user"
+    field :paged_collect_folders, :paged_collect_folders do
+      arg(:filter, non_null(:collect_folders_filter))
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.paged_collect_folders/3)
+    end
+
+    @desc "get paged collected articles"
+    field :paged_collected_articles, :paged_articles do
+      arg(:filter, non_null(:collected_articles_filter))
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.list_favorite_categories/3)
+    end
+
     @desc "get favorites categoories"
     field :favorite_categories, :paged_favorites_categories do
       arg(:user_id, :id)
@@ -69,13 +92,6 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
 
       middleware(M.PageSizeProof)
       resolve(&R.Accounts.list_favorite_categories/3)
-    end
-
-    @desc "get paged upvoted articles"
-    field :paged_upvoted_articles, :paged_articles do
-      arg(:filter, :upvoted_articles_filter)
-
-      resolve(&R.Accounts.paged_upvoted_articles/3)
     end
 
     @desc "get favorited posts"

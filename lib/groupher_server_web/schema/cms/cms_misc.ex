@@ -257,6 +257,20 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     pagination_args()
   end
 
+  @desc "common filter for collect folders"
+  input_object :collect_folders_filter do
+    field(:user_login, non_null(:string))
+    field(:thread, :cms_thread)
+    pagination_args()
+  end
+
+  @desc "common filter for collect articles"
+  input_object :collected_articles_filter do
+    field(:user_login, non_null(:string))
+    field(:thread, :cms_thread)
+    pagination_args()
+  end
+
   @desc """
   cms github repo contribotor
   """

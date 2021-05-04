@@ -62,12 +62,12 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert reason |> is_error?(:delete_no_empty_collect_folder)
     end
 
-    @tag :wip3
+    @tag :wip2
     test "user can get public collect-folder list", ~m(user)a do
       {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder2"}, user)
 
-      {:ok, result} = Accounts.list_collect_folders(%{page: 1, size: 20}, user)
+      {:ok, result} = Accounts.list_collect_folders(%{user_id: user.id, page: 1, size: 20})
 
       assert result |> is_valid_pagination?(:raw)
       assert result.total_count == 2
@@ -79,7 +79,9 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder2"}, user)
 
       {:ok, folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
-      {:ok, result} = Accounts.list_collect_folders(%{page: 1, size: 20, thread: :post}, user)
+
+      {:ok, result} =
+        Accounts.list_collect_folders(%{user_id: user.id, thread: :post, page: 1, size: 20})
 
       assert result |> is_valid_pagination?(:raw)
       assert result.total_count == 1
@@ -94,7 +96,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
 
       {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder2"}, user2)
 
-      {:ok, result} = Accounts.list_collect_folders(%{page: 1, size: 20}, user2, user)
+      {:ok, result} = Accounts.list_collect_folders(%{user_id: user2.id, page: 1, size: 20}, user)
 
       assert result |> is_valid_pagination?(:raw)
       assert result.total_count == 1
@@ -106,7 +108,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
         Accounts.create_collect_folder(%{title: "test folder", private: true}, user)
 
       {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder2"}, user)
-      {:ok, result} = Accounts.list_collect_folders(%{page: 1, size: 20}, user, user)
+      {:ok, result} = Accounts.list_collect_folders(%{user_id: user.id, page: 1, size: 20}, user)
 
       assert result |> is_valid_pagination?(:raw)
       assert result.total_count == 2
