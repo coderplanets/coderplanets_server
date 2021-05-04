@@ -25,6 +25,7 @@ defmodule GroupherServer.Accounts do
   defdelegate list_collect_folders(filter), to: CollectFolder
   defdelegate list_collect_folders(filter, owner), to: CollectFolder
   defdelegate list_collect_folder_articles(folder_id, filter, user), to: CollectFolder
+  defdelegate list_collect_folder_articles(folder_id, filter), to: CollectFolder
 
   defdelegate create_collect_folder(attrs, user), to: CollectFolder
   defdelegate update_collect_folder(attrs, user), to: CollectFolder

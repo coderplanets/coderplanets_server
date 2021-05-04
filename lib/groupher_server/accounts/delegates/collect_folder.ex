@@ -50,6 +50,15 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
   @doc """
   list article inside a collect folder
   """
+  def list_collect_folder_articles(folder_id, filter) do
+    with {:ok, folder} <- ORM.find(CollectFolder, folder_id) do
+      case folder.private do
+        true -> raise_error(:private_collect_folder, "#{folder.title} is private")
+        false -> do_list_collect_folder_articles(folder, filter)
+      end
+    end
+  end
+
   def list_collect_folder_articles(folder_id, filter, %User{id: cur_user_id}) do
     with {:ok, folder} <- ORM.find(CollectFolder, folder_id) do
       is_valid_request =
@@ -59,16 +68,17 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
         end
 
       case is_valid_request do
-        true ->
-          Repo.preload(folder.collects, @supported_collect_threads)
-          |> ORM.embeds_paginater(filter)
-          |> ORM.extract_articles(@supported_collect_threads)
-          |> done()
-
-        false ->
-          raise_error(:private_collect_folder, "#{folder.title} is private")
+        false -> raise_error(:private_collect_folder, "#{folder.title} is private")
+        true -> do_list_collect_folder_articles(folder, filter)
       end
     end
+  end
+
+  defp do_list_collect_folder_articles(folder, filter) do
+    Repo.preload(folder.collects, @supported_collect_threads)
+    |> ORM.embeds_paginater(filter)
+    |> ORM.extract_articles(@supported_collect_threads)
+    |> done()
   end
 
   @doc """

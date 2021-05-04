@@ -133,19 +133,6 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     Accounts.fetch_followings(cur_user, filter)
   end
 
-  # get favorited contents
-  def favorited_contents(_root, ~m(user_id category_id filter thread)a, _info) do
-    Accounts.reacted_contents(thread, :favorite, category_id, filter, %User{id: user_id})
-  end
-
-  def favorited_contents(_root, ~m(user_id filter thread)a, _info) do
-    Accounts.reacted_contents(thread, :favorite, filter, %User{id: user_id})
-  end
-
-  def favorited_contents(_root, ~m(filter thread)a, %{context: %{cur_user: cur_user}}) do
-    Accounts.reacted_contents(thread, :favorite, filter, cur_user)
-  end
-
   def paged_collect_folders(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
     with {:ok, user_id} <- Accounts.get_userid_and_cache(filter.user_login) do
       filter = Map.merge(filter, %{user_id: user_id})
@@ -160,8 +147,13 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     end
   end
 
-  # def paged_collected_articles(_root, ~m(filter)a, _info) do
-  # end
+  def paged_collected_articles(_root, ~m(folder_id filter)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.list_collect_folder_articles(folder_id, filter, cur_user)
+  end
+
+  def paged_collected_articles(_root, ~m(folder_id filter)a, _info) do
+    Accounts.list_collect_folder_articles(folder_id, filter)
+  end
 
   def paged_upvoted_articles(_root, ~m(filter)a, _info) do
     with {:ok, user_id} <- Accounts.get_userid_and_cache(filter.user_login) do
