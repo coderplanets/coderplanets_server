@@ -7,14 +7,16 @@ defmodule Helper.Types do
   alias Accounts.User
 
   @typedoc """
+  general response conventions
+  """
+
+  @type done ::
+          {:ok, :pass} | {:ok, Map} | {:error, List.t()} | {:error, String} | {:error, Map.t()}
+
+  @typedoc """
   Type GraphQL flavor the error format
   """
   @type gq_error :: {:error, [message: String.t(), code: non_neg_integer()]}
-
-  @typedoc """
-  general response conventions
-  """
-  @type done :: {:ok, map} | {:error, map}
 
   @type id :: non_neg_integer() | String.t()
 
@@ -31,7 +33,7 @@ defmodule Helper.Types do
           company: nil | String.t()
         }
 
-  @type article_thread :: :post | :job
+  @type article_thread :: :post | :job | :repo
   @type comment_thread :: :post | :job
 
   @type paged_filter :: %{

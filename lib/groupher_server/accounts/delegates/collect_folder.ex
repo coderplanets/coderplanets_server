@@ -5,6 +5,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
   import Ecto.Query, warn: false
   import GroupherServer.CMS.Utils.Matcher2
 
+  alias Helper.Types, as: T
   alias Helper.QueryBuilder
 
   import Helper.ErrorCode
@@ -16,7 +17,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.{CollectFolder, Embeds, FavoriteCategory, User}
-  alias CMS.{PostFavorite, JobFavorite, RepoFavorite}
+  alias CMS.{ArticleCollect, PostFavorite, JobFavorite, RepoFavorite}
 
   alias Ecto.Multi
 
@@ -97,12 +98,17 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
     end
   end
 
+  @spec delete_collect_folder(T.id()) :: {:ok, CollectFolder.t()}
   def delete_collect_folder(id) do
     # 1. downgrade_achievment
     # 2. delete collect-folder
     CollectFolder |> ORM.find_delete!(id)
   end
 
+  @doc """
+  add article from collect folder
+  """
+  @spec add_to_collect(T.article_thread(), T.id(), T.id(), User.t()) :: {:ok, CollectFolder.t()}
   def add_to_collect(thread, article_id, folder_id, %User{id: cur_user_id} = user) do
     with {:ok, folder} <- ORM.find(CollectFolder, folder_id),
          {:ok, _} <- article_not_collect_in_folder(thread, article_id, folder.collects),
@@ -128,6 +134,11 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
     end
   end
 
+  @doc """
+  remove article from collect folder
+  """
+  @spec remove_from_collect(T.article_thread(), T.id(), T.id(), User.t()) ::
+          {:ok, CollectFolder.t()}
   def remove_from_collect(thread, article_id, folder_id, %User{id: cur_user_id} = user) do
     with {:ok, folder} <- ORM.find(CollectFolder, folder_id),
          # 是否是该 folder 的 owner ?
@@ -149,6 +160,8 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
     end
   end
 
+  @spec update_folder_meta(T.article_thread(), [ArticleCollect.t()], CollectFolder.t()) ::
+          CollectFolder.t()
   defp update_folder_meta(thread, collects, folder) do
     total_count = length(collects)
     last_updated = Timex.today() |> Timex.to_datetime()
@@ -172,6 +185,9 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
     |> Repo.update()
   end
 
+  # check if the article is already in this folder
+  @spec article_not_collect_in_folder(T.article_thread(), T.id(), [ArticleCollect.t()]) ::
+          T.done()
   defp article_not_collect_in_folder(thread, article_id, collects) do
     with {:ok, info} <- match(thread) do
       already_collected =
