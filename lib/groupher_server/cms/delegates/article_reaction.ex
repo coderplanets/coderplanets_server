@@ -38,8 +38,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
 
   def collect_article(thread, article_id, %User{id: user_id}) do
     with {:ok, info} <- match(thread),
-         {:ok, article} <- ORM.find(info.model, article_id) do
+         {:ok, article} <- ORM.find(info.model, article_id, preload: [author: :user]) do
       Multi.new()
+      |> Multi.run(:inc_author_achieve, fn _, _ ->
+        Accounts.achieve(article.author.user, :inc, :collect)
+      end)
       |> Multi.run(:inc_article_collects_count, fn _, _ ->
         update_article_upvotes_count(info, article, :collects_count, :inc)
       end)
@@ -71,8 +74,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
 
   def undo_collect_article(thread, article_id, %User{id: user_id}) do
     with {:ok, info} <- match(thread),
-         {:ok, article} <- ORM.find(info.model, article_id) do
+         {:ok, article} <- ORM.find(info.model, article_id, preload: [author: :user]) do
       Multi.new()
+      |> Multi.run(:dec_author_achieve, fn _, _ ->
+        Accounts.achieve(article.author.user, :dec, :collect)
+      end)
       |> Multi.run(:inc_article_collects_count, fn _, _ ->
         update_article_upvotes_count(info, article, :collects_count, :dec)
       end)

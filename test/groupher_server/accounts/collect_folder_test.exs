@@ -285,7 +285,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert not folder.meta.has_job
     end
 
-    @tag :wip3
+    @tag :wip2
     test "can get articles of a collect folder", ~m(user post job)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
@@ -302,6 +302,22 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
 
       assert collect_post.id == post.id
       assert collect_post.title == post.title
+    end
+
+    @tag :wip2
+    test "can not get articles of a private collect folder if not owner",
+         ~m(user user2 post job)a do
+      {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder", private: true}, user)
+      {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
+      {:ok, _folder} = Accounts.add_to_collect(:job, job.id, folder.id, user)
+
+      {:ok, result} = Accounts.list_collect_folder_articles(folder.id, %{page: 1, size: 10}, user)
+      assert result |> is_valid_pagination?(:raw)
+
+      {:error, reason} =
+        Accounts.list_collect_folder_articles(folder.id, %{page: 1, size: 10}, user2)
+
+      assert reason |> is_error?(:private_collect_folder)
     end
   end
 

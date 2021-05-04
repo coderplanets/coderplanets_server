@@ -26,12 +26,18 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
   @default_meta Embeds.CollectFolderMeta.default_meta()
   @supported_collect_threads [:post, :job]
 
+  @doc """
+  list a user's not-private collect folders
+  """
   def list_collect_folders(filter, %User{id: user_id}) do
     query = CollectFolder |> where([c], c.user_id == ^user_id and not c.private)
 
     do_list_collect_folders(filter, query)
   end
 
+  @doc """
+  list a owner's collect folders
+  """
   def list_collect_folders(filter, %User{id: user_id}, %User{id: cur_user_id}) do
     query =
       if cur_user_id == user_id,
@@ -41,12 +47,27 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
     do_list_collect_folders(filter, query)
   end
 
-  def list_collect_folder_articles(folder_id, filter, %User{id: user_id}) do
-    with {:ok, folder} <- ORM.find_by(CollectFolder, %{id: folder_id, user_id: user_id}) do
-      Repo.preload(folder.collects, @supported_collect_threads)
-      |> ORM.embeds_paginater(filter)
-      |> ORM.extract_articles(@supported_collect_threads)
-      |> done()
+  @doc """
+  list article inside a collect folder
+  """
+  def list_collect_folder_articles(folder_id, filter, %User{id: cur_user_id}) do
+    with {:ok, folder} <- ORM.find(CollectFolder, folder_id) do
+      is_valid_request =
+        case folder.private do
+          true -> folder.user_id == cur_user_id
+          false -> true
+        end
+
+      case is_valid_request do
+        true ->
+          Repo.preload(folder.collects, @supported_collect_threads)
+          |> ORM.embeds_paginater(filter)
+          |> ORM.extract_articles(@supported_collect_threads)
+          |> done()
+
+        false ->
+          raise_error(:private_collect_folder, "#{folder.title} is private")
+      end
     end
   end
 
@@ -71,6 +92,9 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
 
   defp filter_thread_ifneed(query, _), do: query
 
+  @doc """
+  create a collect folder for articles
+  """
   def create_collect_folder(%{title: title} = attrs, %User{id: user_id}) do
     with {:error, _} <- ORM.find_by(CollectFolder, ~m(user_id title)a) do
       last_updated = Timex.today() |> Timex.to_datetime()
