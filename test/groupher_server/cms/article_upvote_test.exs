@@ -42,7 +42,7 @@ defmodule GroupherServer.Test.ArticleUpvote do
       assert article.upvotes_count == 0
     end
 
-    @tag :wip3
+    @tag :wip2
     test "can get upvotes_users", ~m(user user2 community post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 

@@ -11,7 +11,6 @@ defmodule GroupherServer.Accounts.User do
     Achievement,
     Customization,
     EducationBackground,
-    FavoriteCategory,
     CollectFolder,
     GithubUser,
     Purchase,
@@ -54,17 +53,6 @@ defmodule GroupherServer.Accounts.User do
     has_many(:followings, {"users_followings", UserFollowing})
 
     has_many(:subscribed_communities, {"communities_subscribers", CMS.CommunitySubscriber})
-
-    # stared contents
-    has_many(:stared_posts, {"posts_stars", CMS.PostStar})
-    has_many(:stared_jobs, {"jobs_stars", CMS.JobStar})
-
-    # favorited contents
-    has_many(:favorited_posts, {"posts_favorites", CMS.PostFavorite})
-    has_many(:favorited_jobs, {"jobs_favorites", CMS.JobFavorite})
-    has_many(:favorited_repos, {"repos_favorites", CMS.RepoFavorite})
-
-    has_many(:favorite_categories, {"favorite_categories", FavoriteCategory})
 
     has_many(:collect_folder, {"collect_folders", CollectFolder})
 

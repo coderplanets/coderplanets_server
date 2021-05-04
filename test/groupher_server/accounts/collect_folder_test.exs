@@ -44,7 +44,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert reason |> is_error?(:already_exsit)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "user can delete a empty collect folder", ~m(user)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:ok, _} = Accounts.delete_collect_folder(folder.id)
@@ -52,7 +52,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert {:error, _} = ORM.find(CMS.ArticleCollect, folder.id)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "user can not delete a non-empty collect folder", ~m(post user)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
@@ -246,7 +246,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert result.total_count == 0
     end
 
-    @tag :wip2
+    @tag :wip3
     test "add post to exsit colect-folder should update meta", ~m(user post post2 job)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
 
@@ -263,7 +263,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert folder.meta.job_count == 1
     end
 
-    @tag :wip2
+    @tag :wip3
     test "remove post to exsit colect-folder should update meta", ~m(user post post2 job)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
@@ -285,7 +285,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert not folder.meta.has_job
     end
 
-    @tag :wip2
+    @tag :wip3
     test "can get articles of a collect folder", ~m(user post job)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
@@ -304,7 +304,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert collect_post.title == post.title
     end
 
-    @tag :wip2
+    @tag :wip3
     test "can not get articles of a private collect folder if not owner",
          ~m(user user2 post job)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder", private: true}, user)
@@ -318,115 +318,6 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
         Accounts.list_collect_folder_articles(folder.id, %{page: 1, size: 10}, user2)
 
       assert reason |> is_error?(:private_collect_folder)
-    end
-  end
-
-  describe "[favorite category set/unset]" do
-    test "user can set category to a favorited post", ~m(user post)a do
-      test_category = "test category"
-      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
-      {:ok, _favorites_category} = Accounts.set_favorites(user, :post, post.id, category.id)
-
-      {:ok, post_favorite} =
-        CMS.PostFavorite |> ORM.find_by(%{post_id: post.id, user_id: user.id})
-
-      assert post_favorite.category_id == category.id
-    end
-
-    test "user can change category to a categoried favorited post", ~m(user post)a do
-      test_category = "test category"
-      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
-
-      {:ok, _} = CMS.reaction(:post, :favorite, post.id, user)
-      {:ok, _favorite_category} = Accounts.set_favorites(user, :post, post.id, category.id)
-
-      {:ok, post_favorite} =
-        CMS.PostFavorite |> ORM.find_by(%{post_id: post.id, user_id: user.id})
-
-      assert post_favorite.category_id == category.id
-
-      test_category2 = "test category2"
-      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category2})
-      {:ok, _favorite_category} = Accounts.set_favorites(user, :post, post.id, category.id)
-
-      {:ok, post_favorite} =
-        CMS.PostFavorite |> ORM.find_by(%{post_id: post.id, user_id: user.id})
-
-      assert post_favorite.category_id == category.id
-    end
-
-    test "user set a un-created user's category fails", ~m(user post)a do
-      {:ok, user2} = db_insert(:user)
-      test_category = "test category"
-      {:ok, category} = Accounts.create_favorite_category(user2, %{title: test_category})
-
-      assert {:error, _} = Accounts.set_favorites(user, :post, post.id, category.id)
-    end
-
-    test "user set to a already categoried post fails", ~m(user post)a do
-      test_category = "test category"
-      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
-      {:ok, _} = Accounts.set_favorites(user, :post, post.id, category.id)
-
-      {:error, reason} = Accounts.set_favorites(user, :post, post.id, category.id)
-      assert reason |> Keyword.get(:code) == ecode(:already_did)
-    end
-
-    test "user can unset category to a favorited post", ~m(user post)a do
-      test_category = "test category"
-      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
-      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post.id, category.id)
-      assert {:ok, _} = CMS.PostFavorite |> ORM.find_by(%{post_id: post.id, user_id: user.id})
-
-      {:ok, _category} = Accounts.unset_favorites(user, :post, post.id, category.id)
-
-      assert {:error, _} = CMS.PostFavorite |> ORM.find_by(%{post_id: post.id, user_id: user.id})
-    end
-
-    test "after unset category the old category count should -1", ~m(user post)a do
-      test_category = "test category"
-      test_category2 = "test category2"
-      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
-      {:ok, category2} = Accounts.create_favorite_category(user, %{title: test_category2})
-
-      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post.id, category.id)
-      {:ok, favorete_cat} = Accounts.FavoriteCategory |> ORM.find(category.id)
-      assert favorete_cat.total_count == 1
-
-      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post.id, category2.id)
-      {:ok, favorete_cat} = Accounts.FavoriteCategory |> ORM.find(category2.id)
-      assert favorete_cat.total_count == 1
-
-      {:ok, favorete_cat} = Accounts.FavoriteCategory |> ORM.find(category.id)
-      assert favorete_cat.total_count == 0
-    end
-  end
-
-  describe "[favorite category total_count]" do
-    test "total_count + 1 after set category to a favorited post", ~m(user post post2)a do
-      test_category = "test category"
-      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
-      assert category.total_count == 0
-
-      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post.id, category.id)
-
-      {:ok, category} = FavoriteCategory |> ORM.find(category.id)
-      assert category.total_count == 1
-
-      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post2.id, category.id)
-      {:ok, category} = FavoriteCategory |> ORM.find(category.id)
-
-      assert category.total_count == 2
-    end
-
-    test "total_count - 1 after unset category to a favorited post", ~m(user post)a do
-      test_category = "test category"
-      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
-      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post.id, category.id)
-
-      {:ok, category} = Accounts.unset_favorites(user, :post, post.id, category.id)
-
-      assert category.total_count == 0
     end
   end
 end

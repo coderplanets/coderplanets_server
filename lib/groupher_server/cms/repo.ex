@@ -12,7 +12,6 @@ defmodule GroupherServer.CMS.Repo do
     Embeds,
     Community,
     RepoContributor,
-    RepoFavorite,
     RepoViewer,
     RepoLang,
     RepoCommunityFlag,
@@ -69,7 +68,6 @@ defmodule GroupherServer.CMS.Repo do
 
     field(:last_sync, :utc_datetime)
 
-    has_many(:favorites, {"repos_favorites", RepoFavorite})
     has_many(:viewers, {"repos_viewers", RepoViewer})
 
     many_to_many(

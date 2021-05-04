@@ -14,8 +14,6 @@ defmodule GroupherServer.CMS.Job do
     Embeds,
     ArticleComment,
     Community,
-    JobFavorite,
-    JobStar,
     JobViewer,
     JobCommunityFlag,
     Tag,
@@ -71,8 +69,6 @@ defmodule GroupherServer.CMS.Job do
     field(:article_comments_count, :integer, default: 0)
     field(:article_comments_participators_count, :integer, default: 0)
 
-    has_many(:favorites, {"jobs_favorites", JobFavorite})
-    has_many(:stars, {"jobs_stars", JobStar})
     has_many(:viewers, {"jobs_viewers", JobViewer})
 
     many_to_many(

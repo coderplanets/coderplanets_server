@@ -19,16 +19,12 @@ defmodule GroupherServer.CMS.Utils.Loader do
     PostComment,
     PostCommentLike,
     PostCommentReply,
-    PostFavorite,
-    PostStar,
     # JOB
     Job,
     JobViewer,
-    JobFavorite,
     # JobStar,
     # Repo,
-    RepoViewer,
-    RepoFavorite
+    RepoViewer
   }
 
   alias Helper.QueryBuilder
@@ -106,28 +102,6 @@ defmodule GroupherServer.CMS.Utils.Loader do
 
   def query({"repos_viewers", RepoViewer}, %{cur_user: cur_user}) do
     RepoViewer |> where([pv], pv.user_id == ^cur_user.id)
-  end
-
-  @doc """
-  handle query:
-  1. bacic filter of pagi,when,sort ...
-  2. count of the reactions
-  3. check is viewer reacted
-  """
-  def query({"posts_favorites", PostFavorite}, args) do
-    PostFavorite |> QueryBuilder.members_pack(args)
-  end
-
-  def query({"posts_stars", PostStar}, args) do
-    PostStar |> QueryBuilder.members_pack(args)
-  end
-
-  def query({"jobs_favorites", JobFavorite}, args) do
-    JobFavorite |> QueryBuilder.members_pack(args)
-  end
-
-  def query({"repos_favorites", RepoFavorite}, args) do
-    RepoFavorite |> QueryBuilder.members_pack(args)
   end
 
   def query({"communities_subscribers", CommunitySubscriber}, args) do

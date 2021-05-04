@@ -17,8 +17,6 @@ defmodule GroupherServer.CMS.Post do
     Community,
     PostComment,
     PostCommunityFlag,
-    PostFavorite,
-    PostStar,
     PostViewer,
     Tag,
     ArticleUpvote,
@@ -71,8 +69,6 @@ defmodule GroupherServer.CMS.Post do
     has_many(:collects, {"article_collects", ArticleCollect})
     field(:collects_count, :integer, default: 0)
 
-    has_many(:favorites, {"posts_favorites", PostFavorite})
-    has_many(:stars, {"posts_stars", PostStar})
     has_many(:viewers, {"posts_viewers", PostViewer})
     # The keys are inflected from the schema names!
     # see https://hexdocs.pm/ecto/Ecto.Schema.html
