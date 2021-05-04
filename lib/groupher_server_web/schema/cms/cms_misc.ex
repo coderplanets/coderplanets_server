@@ -252,14 +252,12 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
 
   @desc "common filter for upvoted articles"
   input_object :upvoted_articles_filter do
-    field(:user_login, non_null(:string))
     field(:thread, :cms_thread)
     pagination_args()
   end
 
   @desc "common filter for collect folders"
   input_object :collect_folders_filter do
-    field(:user_login, non_null(:string))
     field(:thread, :cms_thread)
     pagination_args()
   end

@@ -133,17 +133,15 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     Accounts.fetch_followings(cur_user, filter)
   end
 
-  def paged_collect_folders(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
-    with {:ok, user_id} <- Accounts.get_userid_and_cache(filter.user_login) do
-      filter = Map.merge(filter, %{user_id: user_id})
-      Accounts.list_collect_folders(filter, cur_user)
+  def paged_collect_folders(_root, ~m(user_login filter)a, %{context: %{cur_user: cur_user}}) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(user_login) do
+      Accounts.list_collect_folders(user_id, filter, cur_user)
     end
   end
 
-  def paged_collect_folders(_root, ~m(filter)a, _info) do
-    with {:ok, user_id} <- Accounts.get_userid_and_cache(filter.user_login) do
-      filter = Map.merge(filter, %{user_id: user_id})
-      Accounts.list_collect_folders(filter)
+  def paged_collect_folders(_root, ~m(user_login filter)a, _info) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(user_login) do
+      Accounts.list_collect_folders(user_id, filter)
     end
   end
 
@@ -155,10 +153,9 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     Accounts.list_collect_folder_articles(folder_id, filter)
   end
 
-  def paged_upvoted_articles(_root, ~m(filter)a, _info) do
-    with {:ok, user_id} <- Accounts.get_userid_and_cache(filter.user_login) do
-      filter = Map.merge(filter, %{user_id: user_id})
-      Accounts.list_upvoted_articles(filter)
+  def paged_upvoted_articles(_root, ~m(user_login filter)a, _info) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(user_login) do
+      Accounts.list_upvoted_articles(user_id, filter)
     end
   end
 

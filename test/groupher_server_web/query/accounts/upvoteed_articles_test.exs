@@ -19,8 +19,8 @@ defmodule GroupherServer.Test.Query.Accounts.UpvotedArticles do
 
   describe "[accounts upvoted posts]" do
     @query """
-    query($filter: UpvotedArticlesFilter!) {
-      pagedUpvotedArticles(filter: $filter) {
+    query($userLogin: String!, $filter: UpvotedArticlesFilter!) {
+      pagedUpvotedArticles(userLogin: $userLogin, filter: $filter) {
         entries {
           id
           title
@@ -40,7 +40,8 @@ defmodule GroupherServer.Test.Query.Accounts.UpvotedArticles do
       end)
 
       variables = %{
-        filter: %{user_login: user.login, thread: "POST", page: 1, size: 20}
+        userLogin: user.login,
+        filter: %{thread: "POST", page: 1, size: 20}
       }
 
       results = user_conn |> query_result(@query, variables, "pagedUpvotedArticles")
@@ -64,7 +65,8 @@ defmodule GroupherServer.Test.Query.Accounts.UpvotedArticles do
       end)
 
       variables = %{
-        filter: %{user_login: user.login, page: 1, size: 20}
+        userLogin: user.login,
+        filter: %{page: 1, size: 20}
       }
 
       results = guest_conn |> query_result(@query, variables, "pagedUpvotedArticles")

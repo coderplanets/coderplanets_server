@@ -1,7 +1,7 @@
 defmodule GroupherServer.Test.Query.Accounts.CollectedArticles do
   use GroupherServer.TestTools
 
-  alias GroupherServer.{Accounts, CMS}
+  alias GroupherServer.Accounts
 
   @total_count 20
 
@@ -17,8 +17,8 @@ defmodule GroupherServer.Test.Query.Accounts.CollectedArticles do
   end
 
   @query """
-  query($filter: CollectFoldersFilter!) {
-    pagedCollectFolders(filter: $filter) {
+  query($userLogin: String!, $filter: CollectFoldersFilter!) {
+    pagedCollectFolders(userLogin: $userLogin, filter: $filter) {
       entries {
         id
         title
@@ -38,7 +38,7 @@ defmodule GroupherServer.Test.Query.Accounts.CollectedArticles do
     {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
     {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder2"}, user)
 
-    variables = %{filter: %{user_login: user.login, page: 1, size: 20}}
+    variables = %{userLogin: user.login, filter: %{page: 1, size: 20}}
     results = user_conn |> query_result(@query, variables, "pagedCollectFolders")
     results2 = guest_conn |> query_result(@query, variables, "pagedCollectFolders")
 
@@ -64,11 +64,11 @@ defmodule GroupherServer.Test.Query.Accounts.CollectedArticles do
     {:ok, _folder} = Accounts.add_to_collect(:job, job.id, folder_post.id, user)
     {:ok, _folder} = Accounts.add_to_collect(:job, job2.id, folder_job.id, user)
 
-    variables = %{filter: %{user_login: user.login, thread: "JOB", page: 1, size: 20}}
+    variables = %{userLogin: user.login, filter: %{thread: "JOB", page: 1, size: 20}}
     results = guest_conn |> query_result(@query, variables, "pagedCollectFolders")
     assert results["totalCount"] == 2
 
-    variables = %{filter: %{user_login: user.login, thread: "POST", page: 1, size: 20}}
+    variables = %{userLogin: user.login, filter: %{thread: "POST", page: 1, size: 20}}
     results = guest_conn |> query_result(@query, variables, "pagedCollectFolders")
     assert results["totalCount"] == 1
   end
@@ -79,7 +79,7 @@ defmodule GroupherServer.Test.Query.Accounts.CollectedArticles do
     {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder", private: true}, user)
     {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder2"}, user)
 
-    variables = %{filter: %{user_login: user.login, page: 1, size: 20}}
+    variables = %{userLogin: user.login, filter: %{page: 1, size: 20}}
     results = user_conn |> query_result(@query, variables, "pagedCollectFolders")
     results2 = guest_conn |> query_result(@query, variables, "pagedCollectFolders")
 
@@ -124,5 +124,35 @@ defmodule GroupherServer.Test.Query.Accounts.CollectedArticles do
     assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(post3.id)))
 
     assert results == results2
+  end
+
+  @tag :wip2
+  test "can not get collect-folder articles when folder is private", ~m(guest_conn posts)a do
+    {:ok, user2} = db_insert(:user)
+    {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder", private: true}, user2)
+
+    Enum.each(posts, fn post ->
+      {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user2)
+    end)
+
+    variables = %{folderId: folder.id, filter: %{page: 1, size: 20}}
+
+    assert guest_conn |> query_get_error?(@query, variables, ecode(:private_collect_folder))
+  end
+
+  @tag :wip2
+  test "owner can get collect-folder articles when folder is private",
+       ~m(user_conn user posts)a do
+    {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder", private: true}, user)
+
+    Enum.each(posts, fn post ->
+      {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
+    end)
+
+    variables = %{folderId: folder.id, filter: %{page: 1, size: 20}}
+
+    results = user_conn |> query_result(@query, variables, "pagedCollectedArticles")
+
+    assert results["totalCount"] == @total_count
   end
 end

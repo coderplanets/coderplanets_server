@@ -22,8 +22,8 @@ defmodule GroupherServer.Accounts do
   defdelegate subscribed_communities(user, filter), to: Profile
 
   # favorite category
-  defdelegate list_collect_folders(filter), to: CollectFolder
-  defdelegate list_collect_folders(filter, owner), to: CollectFolder
+  defdelegate list_collect_folders(user_id, filter), to: CollectFolder
+  defdelegate list_collect_folders(user_id, filter, owner), to: CollectFolder
   defdelegate list_collect_folder_articles(folder_id, filter, user), to: CollectFolder
   defdelegate list_collect_folder_articles(folder_id, filter), to: CollectFolder
 
@@ -50,7 +50,7 @@ defmodule GroupherServer.Accounts do
   defdelegate fetch_followings(user, filter), to: Fans
 
   # upvoted articles
-  defdelegate list_upvoted_articles(filter), to: UpvotedArticles
+  defdelegate list_upvoted_articles(user_id, filter), to: UpvotedArticles
 
   # mentions
   defdelegate fetch_mentions(user, filter), to: Mails

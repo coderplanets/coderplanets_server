@@ -18,14 +18,14 @@ defmodule GroupherServer.Accounts.Delegate.UpvotedArticles do
   @doc """
   get paged upvoted articles
   """
-  def list_upvoted_articles(%{thread: thread, user_id: user_id} = filter) do
+  def list_upvoted_articles(user_id, %{thread: thread} = filter) do
     thread_upcase = thread |> to_string |> String.upcase()
     where_query = dynamic([a], a.user_id == ^user_id and a.thread == ^thread_upcase)
 
     load_upvoted_articles(where_query, filter)
   end
 
-  def list_upvoted_articles(%{user_id: user_id} = filter) do
+  def list_upvoted_articles(user_id, filter) do
     where_query = dynamic([a], a.user_id == ^user_id)
 
     load_upvoted_articles(where_query, filter)
