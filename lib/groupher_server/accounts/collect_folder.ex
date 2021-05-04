@@ -12,6 +12,10 @@ defmodule GroupherServer.Accounts.CollectFolder do
   @required_fields ~w(user_id title)a
   @optional_fields ~w(index total_count private desc last_updated)a
 
+  @supported_threads [:post, :job, :repo]
+
+  def supported_threads, do: @supported_threads
+
   @type t :: %CollectFolder{}
   schema "collect_folders" do
     belongs_to(:user, User, foreign_key: :user_id)
