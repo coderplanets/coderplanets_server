@@ -222,6 +222,10 @@ defmodule GroupherServerWeb.Schema.Account.Types do
     pagination_fields()
   end
 
+  object :collect_folder_meta do
+    collect_folder_meta_fields()
+  end
+
   object :collect_folder do
     field(:id, :id)
     field(:title, :string)
@@ -232,6 +236,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
     field(:last_updated, :datetime)
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
+    field(:meta, :collect_folder_meta)
   end
 
   object :paged_collect_folders do

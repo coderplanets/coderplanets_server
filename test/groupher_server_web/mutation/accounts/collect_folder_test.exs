@@ -1,4 +1,5 @@
 defmodule GroupherServer.Test.Mutation.Accounts.CollectFolder do
+  @moduledoc false
   use GroupherServer.TestTools
 
   alias Helper.ORM
@@ -20,34 +21,44 @@ defmodule GroupherServer.Test.Mutation.Accounts.CollectFolder do
 
   describe "[Accounts CollectFolder CURD]" do
     @query """
-    mutation($title: String!, $private: Boolean) {
-      createFavoriteCategory(title: $title, private: $private) {
+    mutation($title: String!, $desc: String, $private: Boolean) {
+      createCollectFolder(title: $title, desc: $desc, private: $private) {
         id
         title
+        private
         lastUpdated
       }
     }
     """
-    test "login user can create favorite category", ~m(user_conn)a do
-      # test_category = "test category"
-      # variables = %{title: test_category}
-      # created = user_conn |> mutation_result(@query, variables, "createFavoriteCategory")
-      # {:ok, found} = FavoriteCategory |> ORM.find(created |> Map.get("id"))
+    @tag :wip2
+    test "login user can create collect folder", ~m(user_conn)a do
+      variables = %{title: "test folder", desc: "cool folder"}
+      created = user_conn |> mutation_result(@query, variables, "createCollectFolder")
+      {:ok, found} = CollectFolder |> ORM.find(created |> Map.get("id"))
 
-      # assert created |> Map.get("id") == to_string(found.id)
-      # assert created["lastUpdated"] != nil
+      assert created |> Map.get("id") == to_string(found.id)
+      assert created["lastUpdated"] != nil
     end
 
-    test "unauth user create category fails", ~m(guest_conn)a do
-      # test_category = "test category"
-      # variables = %{title: test_category}
+    @tag :wip2
+    test "login user can create private collect folder", ~m(user_conn)a do
+      variables = %{title: "test folder", desc: "cool folder", private: true}
+      created = user_conn |> mutation_result(@query, variables, "createCollectFolder")
+      {:ok, found} = CollectFolder |> ORM.find(created |> Map.get("id"))
 
-      # assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
+      assert created |> Map.get("id") == to_string(found.id)
+      assert created |> Map.get("private")
+    end
+
+    @tag :wip2
+    test "unauth user create category fails", ~m(guest_conn)a do
+      variables = %{title: "test folder"}
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
     end
 
     @query """
     mutation($id: ID!, $title: String, $desc: String, $private: Boolean) {
-      updateFavoriteCategory(
+      updateCollectFolder(
         id: $id
         title: $title
         desc: $desc
@@ -61,18 +72,13 @@ defmodule GroupherServer.Test.Mutation.Accounts.CollectFolder do
       }
     }
     """
-    test "login user can update own favorite category", ~m(user_conn user)a do
-      test_category = "test category"
+    @tag :wip2
+    test "login user can update own collect folder", ~m(user_conn user)a do
+      args = %{title: "folder_title", private: false}
+      {:ok, folder} = Accounts.create_collect_folder(args, user)
 
-      {:ok, category} =
-        Accounts.create_favorite_category(user, %{
-          title: test_category,
-          desc: "old desc",
-          private: false
-        })
-
-      variables = %{id: category.id, title: "new title", desc: "new desc", private: true}
-      updated = user_conn |> mutation_result(@query, variables, "updateFavoriteCategory")
+      variables = %{id: folder.id, title: "new title", desc: "new desc", private: true}
+      updated = user_conn |> mutation_result(@query, variables, "updateCollectFolder")
 
       assert updated["desc"] == "new desc"
       assert updated["private"] == true
@@ -82,189 +88,109 @@ defmodule GroupherServer.Test.Mutation.Accounts.CollectFolder do
 
     @query """
     mutation($id: ID!) {
-      deleteFavoriteCategory(id: $id) {
-        done
+      deleteCollectFolder(id: $id) {
+        id
       }
     }
     """
+    @tag :wip2
     test "login user can delete own favorite category", ~m(user_conn user)a do
-      # test_category = "test category"
-      # {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
+      args = %{title: "folder_title", private: false}
+      {:ok, folder} = Accounts.create_collect_folder(args, user)
 
-      # variables = %{id: category.id}
-      # deleted = user_conn |> mutation_result(@query, variables, "deleteFavoriteCategory")
-
-      # assert deleted["done"] == true
-      # assert {:error, _} = FavoriteCategory |> ORM.find(category.id)
-    end
-
-    test "after favorite deleted, the favroted action also be deleted ",
-         ~m(user_conn user post)a do
-      test_category = "test category"
-      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
-
-      {:ok, _favorite_category} = Accounts.set_favorites(user, :post, post.id, category.id)
-
-      assert {:ok, _} =
-               CMS.PostFavorite |> ORM.find_by(%{user_id: user.id, category_id: category.id})
-
-      variables = %{id: category.id}
-      user_conn |> mutation_result(@query, variables, "deleteFavoriteCategory")
-
-      assert {:error, _} =
-               CMS.PostFavorite |> ORM.find_by(%{user_id: user.id, category_id: category.id})
-    end
-
-    test "after favorite deleted, the related author's reputation should be downgrade",
-         ~m(user_conn user post job)a do
-      {:ok, author} = db_insert(:author)
-      {:ok, post2} = db_insert(:post, %{author: author})
-      {:ok, job2} = db_insert(:job, %{author: author})
-      test_category = "test category"
-      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
-
-      test_category2 = "test category2"
-      {:ok, category2} = Accounts.create_favorite_category(user, %{title: test_category2})
-
-      {:ok, _} = Accounts.set_favorites(user, :post, post.id, category.id)
-      {:ok, _} = Accounts.set_favorites(user, :post, post2.id, category.id)
-      {:ok, _} = Accounts.set_favorites(user, :job, job.id, category.id)
-      {:ok, _} = Accounts.set_favorites(user, :job, job2.id, category2.id)
-
-      # author.id
-      {:ok, achievement} = ORM.find_by(Accounts.Achievement, user_id: author.user.id)
-
-      assert achievement.articles_collects_count == 2
-      assert achievement.reputation == 4
-
-      variables = %{id: category.id}
-      user_conn |> mutation_result(@query, variables, "deleteFavoriteCategory")
-
-      {:ok, achievement} = ORM.find_by(Accounts.Achievement, user_id: author.user.id)
-
-      assert achievement.articles_collects_count == 1
-      assert achievement.reputation == 2
+      variables = %{id: folder.id}
+      user_conn |> mutation_result(@query, variables, "deleteCollectFolder")
+      assert {:error, _} = CollectFolder |> ORM.find(folder.id)
     end
   end
 
-  describe "[Accounts FavoriteCategory set/unset]" do
+  describe "[Accounts CollectFolder add/remove]" do
     @query """
-    mutation($id: ID!, $thread: CmsThread, $categoryId: ID!) {
-      setFavorites(id: $id, thread: $thread, categoryId: $categoryId) {
+    mutation($articleId: ID!, $folderId: ID!, $thread: CmsThread) {
+      addToCollect(articleId: $articleId, folderId: $folderId, thread: $thread) {
         id
         title
         totalCount
         lastUpdated
+
+        meta {
+          hasPost
+          hasJob
+          hasRepo
+          postCount
+          jobCount
+          repoCount
+        }
       }
     }
     """
-    test "user can put a post to favorites category", ~m(user user_conn post)a do
-      test_category = "test category"
-      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
+    @tag :wip2
+    test "user can add a post to collect folder", ~m(user user_conn post)a do
+      args = %{title: "folder_title", private: false}
+      {:ok, folder} = Accounts.create_collect_folder(args, user)
 
-      variables = %{id: post.id, thread: "POST", categoryId: category.id}
-      created = user_conn |> mutation_result(@query, variables, "setFavorites")
-      {:ok, found} = CMS.PostFavorite |> ORM.find_by(%{post_id: post.id, user_id: user.id})
+      variables = %{articleId: post.id, folderId: folder.id, thread: "POST"}
+      folder = user_conn |> mutation_result(@query, variables, "addToCollect")
 
-      assert created["totalCount"] == 1
-      assert created["lastUpdated"] != nil
+      assert folder["totalCount"] == 1
+      assert folder["lastUpdated"] != nil
 
-      assert found.category_id == category.id
-      assert found.user_id == user.id
-      assert found.post_id == post.id
-    end
+      assert folder["meta"] == %{
+               "hasJob" => false,
+               "hasPost" => true,
+               "hasRepo" => false,
+               "jobCount" => 0,
+               "postCount" => 1,
+               "repoCount" => 0
+             }
 
-    test "user can put a job to favorites category", ~m(user user_conn job)a do
-      test_category = "test category"
-      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
+      {:ok, article_collect} =
+        CMS.ArticleCollect |> ORM.find_by(%{post_id: post.id, user_id: user.id})
 
-      variables = %{id: job.id, thread: "JOB", categoryId: category.id}
-      created = user_conn |> mutation_result(@query, variables, "setFavorites")
-      {:ok, found} = CMS.JobFavorite |> ORM.find_by(%{job_id: job.id, user_id: user.id})
+      folder_in_article_collect = article_collect.collect_folders |> List.first()
 
-      assert created["totalCount"] == 1
-      assert created["lastUpdated"] != nil
-
-      assert found.category_id == category.id
-      assert found.user_id == user.id
-      assert found.job_id == job.id
-    end
-
-    test "user can put a repo to favorites category", ~m(user user_conn repo)a do
-      test_category = "test category"
-      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
-
-      variables = %{id: repo.id, thread: "REPO", categoryId: category.id}
-      created = user_conn |> mutation_result(@query, variables, "setFavorites")
-      {:ok, found} = CMS.RepoFavorite |> ORM.find_by(%{repo_id: repo.id, user_id: user.id})
-
-      assert created["totalCount"] == 1
-      assert created["lastUpdated"] != nil
-
-      assert found.category_id == category.id
-      assert found.user_id == user.id
-      assert found.repo_id == repo.id
+      assert folder_in_article_collect.meta.has_post
+      assert folder_in_article_collect.meta.post_count == 1
     end
 
     @query """
-    mutation($id: ID!, $thread: CmsThread, $categoryId: ID!) {
-      unsetFavorites(id: $id, thread: $thread, categoryId: $categoryId) {
+    mutation($articleId: ID!, $folderId: ID!, $thread: CmsThread) {
+      removeFromCollect(articleId: $articleId, folderId: $folderId, thread: $thread) {
         id
         title
         totalCount
         lastUpdated
+
+        meta {
+          hasPost
+          hasJob
+          hasRepo
+          postCount
+          jobCount
+          repoCount
+        }
       }
     }
     """
-    test "user can unset a post to favorites category", ~m(user user_conn post)a do
-      # test_category = "test category"
-      # {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
-      # {:ok, _favorite_category} = Accounts.set_favorites(user, :post, post.id, category.id)
+    @tag :wip2
+    test "user can remove a post from collect folder", ~m(user user_conn post)a do
+      args = %{title: "folder_title", private: false}
+      {:ok, folder} = Accounts.create_collect_folder(args, user)
+      {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
 
-      # {:ok, category} = Accounts.FavoriteCategory |> ORM.find(category.id)
-      # assert category.total_count == 1
-      # assert category.last_updated != nil
+      variables = %{articleId: post.id, folderId: folder.id, thread: "POST"}
+      result = user_conn |> mutation_result(@query, variables, "removeFromCollect")
 
-      # variables = %{id: post.id, thread: "POST", categoryId: category.id}
-      # user_conn |> mutation_result(@query, variables, "unsetFavorites")
+      assert result["meta"] == %{
+               "hasJob" => false,
+               "hasPost" => false,
+               "hasRepo" => false,
+               "jobCount" => 0,
+               "postCount" => 0,
+               "repoCount" => 0
+             }
 
-      # {:ok, category} = Accounts.FavoriteCategory |> ORM.find(category.id)
-      # assert category.total_count == 0
-      # assert {:error, _} = CMS.PostFavorite |> ORM.find_by(%{post_id: post.id, user_id: user.id})
-    end
-
-    test "user can unset a job to favorites category", ~m(user user_conn job)a do
-      # test_category = "test category"
-      # {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
-      # {:ok, _favorite_category} = Accounts.set_favorites(user, :job, job.id, category.id)
-
-      # {:ok, category} = Accounts.FavoriteCategory |> ORM.find(category.id)
-      # assert category.total_count == 1
-      # assert category.last_updated != nil
-
-      # variables = %{id: job.id, thread: "JOB", categoryId: category.id}
-      # user_conn |> mutation_result(@query, variables, "unsetFavorites")
-
-      # {:ok, category} = Accounts.FavoriteCategory |> ORM.find(category.id)
-      # assert category.total_count == 0
-      # assert {:error, _} = CMS.JobFavorite |> ORM.find_by(%{job_id: job.id, user_id: user.id})
-    end
-
-    test "user can unset a repo to favorites category", ~m(user user_conn repo)a do
-      # test_category = "test category"
-      # {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
-      # {:ok, _favorite_category} = Accounts.set_favorites(user, :repo, repo.id, category.id)
-
-      # {:ok, category} = Accounts.FavoriteCategory |> ORM.find(category.id)
-      # assert category.total_count == 1
-      # assert category.last_updated != nil
-
-      # variables = %{id: repo.id, thread: "REPO", categoryId: category.id}
-      # user_conn |> mutation_result(@query, variables, "unsetFavorites")
-
-      # {:ok, category} = Accounts.FavoriteCategory |> ORM.find(category.id)
-      # assert category.total_count == 0
-      # assert {:error, _} = CMS.RepoFavorite |> ORM.find_by(%{repo_id: repo.id, user_id: user.id})
+      assert result["totalCount"] == 0
     end
   end
 end

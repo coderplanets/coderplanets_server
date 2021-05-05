@@ -4,11 +4,12 @@ defmodule GroupherServerWeb.Schema.Utils.Helper do
   """
   import Helper.Utils, only: [get_config: 2]
 
-  alias GroupherServer.CMS
+  alias GroupherServer.{Accounts, CMS}
   alias CMS.{ArticleComment}
 
   @page_size get_config(:general, :page_size)
   @supported_emotions ArticleComment.supported_emotions()
+  @supported_collect_folder_threads Accounts.CollectFolder.supported_threads()
 
   defmacro timestamp_fields do
     quote do
@@ -271,8 +272,10 @@ defmodule GroupherServerWeb.Schema.Utils.Helper do
     end
   end
 
-  # general emotions for comments
-  # NOTE: xxx_user_logins field is not support for gq-endpoint
+  @doc """
+  general emotions for comments
+  #NOTE: xxx_user_logins field is not support for gq-endpoint
+  """
   defmacro emotion_fields() do
     @supported_emotions
     |> Enum.map(fn emotion ->
@@ -280,6 +283,19 @@ defmodule GroupherServerWeb.Schema.Utils.Helper do
         field(unquote(:"#{emotion}_count"), :integer)
         field(unquote(:"viewer_has_#{emotion}ed"), :boolean)
         field(unquote(:"latest_#{emotion}_users"), list_of(:simple_user))
+      end
+    end)
+  end
+
+  @doc """
+  general collect folder meta info
+  """
+  defmacro collect_folder_meta_fields() do
+    @supported_collect_folder_threads
+    |> Enum.map(fn thread ->
+      quote do
+        field(unquote(:"has_#{thread}"), :boolean)
+        field(unquote(:"#{thread}_count"), :integer)
       end
     end)
   end

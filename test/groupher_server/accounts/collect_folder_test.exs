@@ -7,7 +7,6 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
   alias GroupherServer.{Accounts, CMS}
 
   alias Accounts.{Embeds}
-  alias Accounts.FavoriteCategory
 
   @default_meta Embeds.CollectFolderMeta.default_meta()
 
@@ -125,22 +124,6 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
 
       {:ok, updated} = Accounts.update_collect_folder(folder.id, %{private: true})
       assert updated.private == true
-    end
-
-    test "user can delete a favorite category", ~m(user post post2)a do
-      test_category = "test category"
-      {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
-
-      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post.id, category.id)
-      {:ok, _post_favorite} = Accounts.set_favorites(user, :post, post2.id, category.id)
-
-      assert {:ok, _} = Accounts.delete_favorite_category(user, category.id)
-
-      assert {:error, _} =
-               CMS.PostFavorite
-               |> ORM.find_by(%{category_id: category.id, user_id: user.id})
-
-      assert {:error, _} = FavoriteCategory |> ORM.find(category.id)
     end
   end
 

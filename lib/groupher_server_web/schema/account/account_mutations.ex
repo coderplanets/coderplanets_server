@@ -60,32 +60,32 @@ defmodule GroupherServerWeb.Schema.Account.Mutations do
       resolve(&R.Accounts.update_collect_folder/3)
     end
 
-    @desc "delete a favorites category"
-    field :delete_favorite_category, :done do
+    @desc "delete a collect folder"
+    field :delete_collect_folder, :collect_folder do
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      resolve(&R.Accounts.delete_favorite_category/3)
+      resolve(&R.Accounts.delete_collect_folder/3)
     end
 
-    @desc "put content to favorites with category"
-    field :set_favorites, :favorites_category do
-      arg(:id, non_null(:id))
-      arg(:category_id, non_null(:id))
+    @desc "add article into a collect folder"
+    field :add_to_collect, :collect_folder do
+      arg(:article_id, non_null(:id))
+      arg(:folder_id, non_null(:id))
       arg(:thread, :cms_thread, default_value: :post)
 
       middleware(M.Authorize, :login)
-      resolve(&R.Accounts.set_favorites/3)
+      resolve(&R.Accounts.add_to_collect/3)
     end
 
-    @desc "take out content from favorites category"
-    field :unset_favorites, :favorites_category do
-      arg(:id, non_null(:id))
-      arg(:category_id, non_null(:id))
+    @desc "remove article from a collect folder"
+    field :remove_from_collect, :collect_folder do
+      arg(:article_id, non_null(:id))
+      arg(:folder_id, non_null(:id))
       arg(:thread, :cms_thread, default_value: :post)
 
       middleware(M.Authorize, :login)
-      resolve(&R.Accounts.unset_favorites/3)
+      resolve(&R.Accounts.remove_from_collect/3)
     end
 
     @desc "set user's customization"

@@ -1,6 +1,6 @@
 defmodule GroupherServer.Accounts.Delegate.CollectFolder do
   @moduledoc """
-  user FavoriteCategory related
+  user collect folder related
   """
   import Ecto.Query, warn: false
   import GroupherServer.CMS.Utils.Matcher2
@@ -139,12 +139,17 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
       |> Multi.run(:add_article_collect, fn _, _ ->
         CMS.collect_article_ifneed(thread, article_id, user)
       end)
-      |> Multi.run(:set_article_collect_folder, fn _, %{add_article_collect: article_collect} ->
-        CMS.set_collect_folder(article_collect, folder)
-      end)
       |> Multi.run(:add_to_collect_folder, fn _, %{add_article_collect: article_collect} ->
         collects = [article_collect] ++ folder.collects
         update_folder_meta(thread, collects, folder)
+      end)
+      # order is important, otherwise the foler in article_collect is not the latest
+      |> Multi.run(:set_article_collect_folder, fn _,
+                                                   %{
+                                                     add_article_collect: article_collect,
+                                                     add_to_collect_folder: folder
+                                                   } ->
+        CMS.set_collect_folder(article_collect, folder)
       end)
       |> Repo.transaction()
       |> upsert_collect_folder_result()
@@ -164,13 +169,18 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
       |> Multi.run(:del_article_collect, fn _, _ ->
         CMS.undo_collect_article_ifneed(thread, article_id, user)
       end)
-      |> Multi.run(:unset_article_collect_folder, fn _, %{del_article_collect: article_collect} ->
-        CMS.undo_set_collect_folder(article_collect, folder)
-      end)
       |> Multi.run(:rm_from_collect_folder, fn _, %{del_article_collect: article_collect} ->
         # 不能用 -- 语法，因为两个结构体的 meta 信息不同，摔。
         collects = Enum.reject(folder.collects, &(&1.id == article_collect.id))
         update_folder_meta(thread, collects, folder)
+      end)
+      # order is important, otherwise the foler in article_collect is not the latest
+      |> Multi.run(:unset_article_collect_folder, fn _,
+                                                     %{
+                                                       del_article_collect: article_collect,
+                                                       rm_from_collect_folder: folder
+                                                     } ->
+        CMS.undo_set_collect_folder(article_collect, folder)
       end)
       |> Repo.transaction()
       |> upsert_collect_folder_result()

@@ -119,13 +119,15 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     Accounts.delete_collect_folder(id)
   end
 
-  # def set_favorites(_root, ~m(id thread category_id)a, %{context: %{cur_user: cur_user}}) do
-  #   Accounts.set_favorites(cur_user, thread, id, category_id)
-  # end
+  def add_to_collect(_root, ~m(thread article_id folder_id)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.add_to_collect(thread, article_id, folder_id, cur_user)
+  end
 
-  # def unset_favorites(_root, ~m(id thread category_id)a, %{context: %{cur_user: cur_user}}) do
-  #   Accounts.unset_favorites(cur_user, thread, id, category_id)
-  # end
+  def remove_from_collect(_root, ~m(thread article_id folder_id)a, %{
+        context: %{cur_user: cur_user}
+      }) do
+    Accounts.remove_from_collect(thread, article_id, folder_id, cur_user)
+  end
 
   def paged_collect_folders(_root, ~m(user_login filter)a, %{context: %{cur_user: cur_user}}) do
     with {:ok, user_id} <- Accounts.get_userid_and_cache(user_login) do

@@ -32,7 +32,7 @@ defmodule GroupherServer.Test.Query.Accounts.CollectedArticles do
   }
   """
   @tag :wip2
-  test "other user can get other user's paged collect folders", ~m(user_conn guest_conn posts)a do
+  test "other user can get other user's paged collect folders", ~m(user_conn guest_conn)a do
     {:ok, user} = db_insert(:user)
 
     {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
@@ -51,7 +51,7 @@ defmodule GroupherServer.Test.Query.Accounts.CollectedArticles do
 
   @tag :wip2
   test "other user can get other user's paged collect folders filter by thread",
-       ~m(user_conn guest_conn posts)a do
+       ~m(guest_conn)a do
     {:ok, user} = db_insert(:user)
     {:ok, post} = db_insert(:post)
     {:ok, job} = db_insert(:job)
@@ -75,7 +75,7 @@ defmodule GroupherServer.Test.Query.Accounts.CollectedArticles do
 
   @tag :wip2
   test "owner can get it's paged collect folders with private folders",
-       ~m(user user_conn guest_conn posts)a do
+       ~m(user user_conn guest_conn)a do
     {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder", private: true}, user)
     {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder2"}, user)
 
