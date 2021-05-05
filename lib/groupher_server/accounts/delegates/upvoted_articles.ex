@@ -1,6 +1,6 @@
 defmodule GroupherServer.Accounts.Delegate.UpvotedArticles do
   @moduledoc """
-  get contents(posts, jobs ...) that user reacted (star, favorite ..)
+  get contents(posts, jobs ...) that user upvotes
   """
   # import GroupherServer.CMS.Utils.Matcher
   import Ecto.Query, warn: false

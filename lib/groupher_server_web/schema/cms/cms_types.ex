@@ -70,9 +70,10 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     end
 
     has_viewed_field()
-    # fields for: favorite count, favorited_users, viewer_did_favorite..
-    favorite_fields(:post)
-    star_fields(:post)
+    # viewer_has_upvoted
+    # viewer_has_collected
+    # upvoted_count
+    # collected_count
 
     timestamp_fields()
   end
@@ -112,8 +113,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     comments_counter_fields(:job)
 
     has_viewed_field()
-    # fields for: favorite count, favorited_users, viewer_did_favorite..
-    favorite_fields(:job)
     timestamp_fields()
   end
 
@@ -158,8 +157,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     # comments_count
     # comments_participators
     comments_counter_fields(:repo)
-    # fields for: favorite count, favorited_users, viewer_did_favorite..
-    favorite_fields(:repo)
 
     timestamp_fields()
   end

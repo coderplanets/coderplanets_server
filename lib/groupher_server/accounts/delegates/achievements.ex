@@ -20,7 +20,7 @@ defmodule GroupherServer.Accounts.Delegate.Achievements do
   @follow_weight get_config(:general, :user_achieve_follow_weight)
 
   @doc """
-  inc user's achievement by inc followers_count of favorite_weight
+  inc user's achievement by inc followers_count of collect_weight
   """
   @spec achieve(User.t(), atom, atom) :: SpecType.done()
   def achieve(%User{id: user_id}, :inc, :follow) do
@@ -34,7 +34,7 @@ defmodule GroupherServer.Accounts.Delegate.Achievements do
   end
 
   @doc """
-  dec user's achievement by inc followers_count of favorite_weight
+  dec user's achievement by inc followers_count of collect_weight
   """
   def achieve(%User{id: user_id}, :dec, :follow) do
     with {:ok, achievement} <- ORM.findby_or_insert(Achievement, ~m(user_id)a, ~m(user_id)a) do
@@ -73,7 +73,7 @@ defmodule GroupherServer.Accounts.Delegate.Achievements do
   end
 
   @doc """
-  dec user's achievement by articles_collects_count of favorite_weight
+  dec user's achievement by articles_collects_count of collect_weight
   """
   def achieve(%User{id: user_id} = _user, :inc, :collect) do
     with {:ok, achievement} <- ORM.findby_or_insert(Achievement, ~m(user_id)a, ~m(user_id)a) do
@@ -86,7 +86,7 @@ defmodule GroupherServer.Accounts.Delegate.Achievements do
   end
 
   @doc """
-  inc user's achievement by articles_collects_count of favorite_weight
+  inc user's achievement by articles_collects_count of collect_weight
   """
   def achieve(%User{id: user_id} = _user, :dec, :collect) do
     with {:ok, achievement} <- ORM.findby_or_insert(Achievement, ~m(user_id)a, ~m(user_id)a) do

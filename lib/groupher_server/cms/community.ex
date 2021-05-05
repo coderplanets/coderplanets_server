@@ -99,7 +99,6 @@ defmodule GroupherServer.CMS.Community do
     |> unique_constraint(:aka, name: :communities_aka_index)
 
     # |> foreign_key_constraint(:communities_author_fkey)
-    # |> unique_constraint(:user_id, name: :posts_favorites_user_id_post_id_index)
   end
 
   @doc false
@@ -114,6 +113,5 @@ defmodule GroupherServer.CMS.Community do
     |> unique_constraint(:aka, name: :communities_aka_index)
 
     # |> foreign_key_constraint(:communities_author_fkey)
-    # |> unique_constraint(:user_id, name: :posts_favorites_user_id_post_id_index)
   end
 end

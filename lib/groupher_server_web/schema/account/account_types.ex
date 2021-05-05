@@ -205,23 +205,6 @@ defmodule GroupherServerWeb.Schema.Account.Types do
     social_fields()
   end
 
-  object :favorites_category do
-    field(:id, :id)
-    field(:title, :string)
-    field(:desc, :string)
-    field(:index, :integer)
-    field(:total_count, :integer)
-    field(:private, :boolean)
-    field(:last_updated, :datetime)
-    field(:inserted_at, :datetime)
-    field(:updated_at, :datetime)
-  end
-
-  object :paged_favorites_categories do
-    field(:entries, list_of(:favorites_category))
-    pagination_fields()
-  end
-
   object :collect_folder_meta do
     collect_folder_meta_fields()
   end

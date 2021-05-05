@@ -39,7 +39,7 @@ defmodule GroupherServerWeb.Schema.Account.Mutations do
       resolve(&R.Accounts.undo_follow/3)
     end
 
-    @desc "create a favorites category"
+    @desc "create a collect folder"
     field :create_collect_folder, :collect_folder do
       arg(:title, non_null(:string))
       arg(:private, :boolean)
@@ -49,7 +49,7 @@ defmodule GroupherServerWeb.Schema.Account.Mutations do
       resolve(&R.Accounts.create_collect_folder/3)
     end
 
-    @desc "update a favorites category"
+    @desc "update a collect folder"
     field :update_collect_folder, :collect_folder do
       arg(:id, non_null(:id))
       arg(:title, :string)

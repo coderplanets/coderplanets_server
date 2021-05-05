@@ -149,22 +149,6 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.collected_users(thread, id, filter)
   end
 
-  def reaction(_root, ~m(id thread action)a, %{context: %{cur_user: user}}) do
-    CMS.reaction(thread, action, id, user)
-  end
-
-  def undo_reaction(_root, ~m(id thread action)a, %{context: %{cur_user: user}}) do
-    CMS.undo_reaction(thread, action, id, user)
-  end
-
-  def reaction_users(_root, ~m(id action thread filter)a, _info) do
-    CMS.reaction_users(thread, action, id, filter)
-  end
-
-  def favorited_category(root, ~m(thread)a, %{context: %{cur_user: user}}) do
-    CMS.favorited_category(thread, root.id, user)
-  end
-
   # #######################
   # category ..
   # #######################
@@ -383,14 +367,6 @@ defmodule GroupherServerWeb.Resolvers.CMS do
 
   def reply_comment(_root, ~m(thread id)a = args, %{context: %{cur_user: user}}) do
     CMS.reply_comment(thread, id, args, user)
-  end
-
-  def like_comment(_root, ~m(thread id)a, %{context: %{cur_user: user}}) do
-    CMS.like_comment(thread, id, user)
-  end
-
-  def undo_like_comment(_root, ~m(thread id)a, %{context: %{cur_user: user}}) do
-    CMS.undo_like_comment(thread, id, user)
   end
 
   def stamp_passport(_root, ~m(user_id rules)a, %{context: %{cur_user: _user}}) do

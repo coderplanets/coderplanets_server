@@ -169,7 +169,7 @@ defmodule GroupherServer.Test.Query.Account.Achievement do
     end
   end
 
-  describe "[account favorite achieveMent]" do
+  describe "[account collect achieveMent]" do
     alias GroupherServer.CMS
 
     @query """

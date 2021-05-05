@@ -140,26 +140,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     |> update_content_result()
   end
 
-  @doc """
-  get CMS contents
-  post's favorites/stars/comments ...
-  ...
-  jobs's favorites/stars/comments ...
-
-  with or without page info
-  """
-  def reaction_users(thread, react, id, %{page: page, size: size} = filters) do
-    with {:ok, action} <- match_action(thread, react),
-         {:ok, where} <- dynamic_where(thread, id) do
-      # common_filter(action.reactor)
-      action.reactor
-      |> where(^where)
-      |> QueryBuilder.load_inner_users(filters)
-      |> ORM.paginater(~m(page size)a)
-      |> done()
-    end
-  end
-
   @spec ensure_author_exists(User.t()) :: {:ok, User.t()}
   def ensure_author_exists(%User{} = user) do
     # unique_constraint: avoid race conditions, make sure user_id unique

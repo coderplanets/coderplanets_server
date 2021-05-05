@@ -250,22 +250,4 @@ defmodule GroupherServer.Test.Mutation.PostComment do
     test "TODO owner can NOT delete comment when comment has created after 3 hours" do
     end
   end
-
-  describe "[post comment reactions]" do
-    @like_comment_query """
-    mutation($thread: CmsComment!, $id: ID!) {
-      likeComment(thread: $thread, id: $id) {
-        id
-      }
-    }
-    """
-    test "login user can like a comment", ~m(user_conn comment)a do
-      variables = %{thread: "POST_COMMENT", id: comment.id}
-      user_conn |> mutation_result(@like_comment_query, variables, "likeComment")
-
-      {:ok, found} = CMS.PostComment |> ORM.find(comment.id, preload: :likes)
-
-      assert found.likes |> Enum.any?(&(&1.post_comment_id == comment.id))
-    end
-  end
 end

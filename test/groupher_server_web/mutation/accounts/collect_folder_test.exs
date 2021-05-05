@@ -94,7 +94,7 @@ defmodule GroupherServer.Test.Mutation.Accounts.CollectFolder do
     }
     """
     @tag :wip
-    test "login user can delete own favorite category", ~m(user_conn user)a do
+    test "login user can delete own collect folder", ~m(user_conn user)a do
       args = %{title: "folder_title", private: false}
       {:ok, folder} = Accounts.create_collect_folder(args, user)
 

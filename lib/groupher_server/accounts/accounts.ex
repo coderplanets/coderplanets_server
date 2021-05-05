@@ -21,7 +21,7 @@ defmodule GroupherServer.Accounts do
   defdelegate default_subscribed_communities(filter), to: Profile
   defdelegate subscribed_communities(user, filter), to: Profile
 
-  # favorite category
+  # collect folder
   defdelegate list_collect_folders(user_id, filter), to: CollectFolder
   defdelegate list_collect_folders(user_id, filter, owner), to: CollectFolder
   defdelegate list_collect_folder_articles(folder_id, filter, user), to: CollectFolder
