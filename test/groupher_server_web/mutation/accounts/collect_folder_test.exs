@@ -30,7 +30,7 @@ defmodule GroupherServer.Test.Mutation.Accounts.CollectFolder do
       }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "login user can create collect folder", ~m(user_conn)a do
       variables = %{title: "test folder", desc: "cool folder"}
       created = user_conn |> mutation_result(@query, variables, "createCollectFolder")
@@ -40,7 +40,7 @@ defmodule GroupherServer.Test.Mutation.Accounts.CollectFolder do
       assert created["lastUpdated"] != nil
     end
 
-    @tag :wip2
+    @tag :wip
     test "login user can create private collect folder", ~m(user_conn)a do
       variables = %{title: "test folder", desc: "cool folder", private: true}
       created = user_conn |> mutation_result(@query, variables, "createCollectFolder")
@@ -50,7 +50,7 @@ defmodule GroupherServer.Test.Mutation.Accounts.CollectFolder do
       assert created |> Map.get("private")
     end
 
-    @tag :wip2
+    @tag :wip
     test "unauth user create category fails", ~m(guest_conn)a do
       variables = %{title: "test folder"}
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
@@ -72,7 +72,7 @@ defmodule GroupherServer.Test.Mutation.Accounts.CollectFolder do
       }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "login user can update own collect folder", ~m(user_conn user)a do
       args = %{title: "folder_title", private: false}
       {:ok, folder} = Accounts.create_collect_folder(args, user)
@@ -93,7 +93,7 @@ defmodule GroupherServer.Test.Mutation.Accounts.CollectFolder do
       }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "login user can delete own favorite category", ~m(user_conn user)a do
       args = %{title: "folder_title", private: false}
       {:ok, folder} = Accounts.create_collect_folder(args, user)
@@ -124,7 +124,7 @@ defmodule GroupherServer.Test.Mutation.Accounts.CollectFolder do
       }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "user can add a post to collect folder", ~m(user user_conn post)a do
       args = %{title: "folder_title", private: false}
       {:ok, folder} = Accounts.create_collect_folder(args, user)
@@ -172,7 +172,7 @@ defmodule GroupherServer.Test.Mutation.Accounts.CollectFolder do
       }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "user can remove a post from collect folder", ~m(user user_conn post)a do
       args = %{title: "folder_title", private: false}
       {:ok, folder} = Accounts.create_collect_folder(args, user)

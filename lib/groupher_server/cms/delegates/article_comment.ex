@@ -496,14 +496,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
       cur_count = Repo.aggregate(count_query, :count)
 
+      # dec 是 comment 还没有删除的时候的操作，和 inc 不同
+      # 因为 dec 操作如果放在 delete 后面，那么 update 会失败
       case opt do
-        :inc ->
-          new_count = Enum.max([0, cur_count])
-          ORM.update(article, %{article_comments_count: new_count + 1})
-
-        :dec ->
-          new_count = Enum.max([1, cur_count])
-          ORM.update(article, %{article_comments_count: new_count - 1})
+        :inc -> ORM.update(article, %{article_comments_count: cur_count})
+        :dec -> ORM.update(article, %{article_comments_count: Enum.max([1, cur_count]) - 1})
       end
     end
   end

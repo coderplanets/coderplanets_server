@@ -51,10 +51,11 @@ defmodule GroupherServer.Test.Accounts.Achievement do
   describe "[Accounts Achievement funtion]" do
     alias Accounts.Achievement
 
+    @tag :wip
     test "Accounts.achieve should inc / dec achievement by parts", ~m(user)a do
       user |> Accounts.achieve(:inc, :follow)
-      user |> Accounts.achieve(:inc, :star)
-      user |> Accounts.achieve(:inc, :favorite)
+      user |> Accounts.achieve(:inc, :upvote)
+      user |> Accounts.achieve(:inc, :collect)
       {:ok, achievement} = Achievement |> ORM.find_by(user_id: user.id)
 
       assert achievement.followers_count == 1
@@ -65,8 +66,8 @@ defmodule GroupherServer.Test.Accounts.Achievement do
       assert achievement.reputation == reputation
 
       user |> Accounts.achieve(:dec, :follow)
-      user |> Accounts.achieve(:dec, :star)
-      user |> Accounts.achieve(:dec, :favorite)
+      user |> Accounts.achieve(:dec, :upvote)
+      user |> Accounts.achieve(:dec, :collect)
 
       {:ok, achievement} = Achievement |> ORM.find_by(user_id: user.id)
       assert achievement.followers_count == 0
@@ -75,10 +76,11 @@ defmodule GroupherServer.Test.Accounts.Achievement do
       assert achievement.reputation == 0
     end
 
+    @tag :wip
     test "Accounts.achieve can not minus count < 0", ~m(user)a do
       user |> Accounts.achieve(:dec, :follow)
-      user |> Accounts.achieve(:dec, :star)
-      user |> Accounts.achieve(:dec, :favorite)
+      user |> Accounts.achieve(:dec, :upvote)
+      user |> Accounts.achieve(:dec, :collect)
 
       {:ok, achievement} = Achievement |> ORM.find_by(user_id: user.id)
       assert achievement.followers_count == 0

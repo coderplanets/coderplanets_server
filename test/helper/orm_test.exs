@@ -43,8 +43,6 @@ defmodule GroupherServer.Test.Helper.ORM do
 
       assert found.id == post.id
       assert %Ecto.Association.NotLoaded{} = found.author
-      assert %Ecto.Association.NotLoaded{} = found.comments
-      assert %Ecto.Association.NotLoaded{} = found.favorites
     end
 
     test "find/2 fails with {:error, reason} style" do

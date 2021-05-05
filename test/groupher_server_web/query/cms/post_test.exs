@@ -51,102 +51,83 @@ defmodule GroupherServer.Test.Query.Post do
     assert is_valid_kv?(results, "body", :string)
   end
 
-  @query """
-  query($id: ID!) {
-    post(id: $id) {
-      id
-      favoritedUsers {
-        nickname
-        id
-      }
-    }
-  }
-  """
-  test "post have favoritedUsers query field", ~m(user_conn post)a do
-    variables = %{id: post.id}
-    results = user_conn |> query_result(@query, variables, "post")
+  # @query """
+  # query($id: ID!) {
+  #   post(id: $id) {
+  #     id
+  #     title
+  #     body
+  #     viewerHasFavorited
+  #   }
+  # }
+  # """
+  # test "logged user can query viewerHasFavorited field", ~m(user_conn post)a do
+  #   variables = %{id: post.id}
 
-    assert results["id"] == to_string(post.id)
-    assert is_valid_kv?(results, "favoritedUsers", :list)
-  end
+  #   assert user_conn
+  #          |> query_result(@query, variables, "post")
+  #          |> has_boolen_value?("viewerHasFavorited")
+  # end
 
-  @query """
-  query($id: ID!) {
-    post(id: $id) {
-      id
-      title
-      body
-      viewerHasFavorited
-    }
-  }
-  """
-  test "logged user can query viewerHasFavorited field", ~m(user_conn post)a do
-    variables = %{id: post.id}
+  # test "unlogged user can not query viewerHasFavorited field", ~m(guest_conn post)a do
+  #   variables = %{id: post.id}
 
-    assert user_conn
-           |> query_result(@query, variables, "post")
-           |> has_boolen_value?("viewerHasFavorited")
-  end
+  #   assert guest_conn |> query_get_error?(@query, variables, ecode(:account_login))
+  # end
 
-  test "unlogged user can not query viewerHasFavorited field", ~m(guest_conn post)a do
-    variables = %{id: post.id}
+  # @query """
+  # query($id: ID!) {
+  #   post(id: $id) {
+  #     id
+  #     title
+  #     body
+  #     viewerHasStarred
+  #   }
+  # }
+  # """
+  # test "logged user can query viewerHasStarred field", ~m(user_conn post)a do
+  #   variables = %{id: post.id}
 
-    assert guest_conn |> query_get_error?(@query, variables, ecode(:account_login))
-  end
+  #   assert user_conn
+  #          |> query_result(@query, variables, "post")
+  #          |> has_boolen_value?("viewerHasStarred")
+  # end
 
-  @query """
-  query($id: ID!) {
-    post(id: $id) {
-      id
-      title
-      body
-      viewerHasStarred
-    }
-  }
-  """
-  test "logged user can query viewerHasStarred field", ~m(user_conn post)a do
-    variables = %{id: post.id}
+  # test "unlogged user can not query viewerHasStarred field", ~m(guest_conn post)a do
+  #   variables = %{id: post.id}
+  #   assert guest_conn |> query_get_error?(@query, variables, ecode(:account_login))
+  # end
 
-    assert user_conn
-           |> query_result(@query, variables, "post")
-           |> has_boolen_value?("viewerHasStarred")
-  end
+  # alias GroupherServer.Accounts
 
-  test "unlogged user can not query viewerHasStarred field", ~m(guest_conn post)a do
-    variables = %{id: post.id}
-    assert guest_conn |> query_get_error?(@query, variables, ecode(:account_login))
-  end
+  # @query """
+  # query($id: ID!) {
+  #   post(id: $id) {
+  #     id
+  #     favoritedCategoryId
+  #   }
+  # }
+  # """
+  # test "login user can get nil post favorited category id", ~m(post)a do
+  #   {:ok, user} = db_insert(:user)
+  #   user_conn = simu_conn(:user, user)
 
-  alias GroupherServer.Accounts
+  #   variables = %{id: post.id}
+  #   result = user_conn |> query_result(@query, variables, "post")
+  #   assert result["favoritedCategoryId"] == nil
+  # end
 
-  @query """
-  query($id: ID!) {
-    post(id: $id) {
-      id
-      favoritedCategoryId
-    }
-  }
-  """
-  test "login user can get nil post favorited category id", ~m(post)a do
-    {:ok, user} = db_insert(:user)
-    user_conn = simu_conn(:user, user)
+  # test "login user can get post favorited category id after favorited", ~m(post)a do
+  #   {:ok, user} = db_insert(:user)
+  #   user_conn = simu_conn(:user, user)
 
-    variables = %{id: post.id}
-    result = user_conn |> query_result(@query, variables, "post")
-    assert result["favoritedCategoryId"] == nil
-  end
+  #   test_category = "test category"
+  #   {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
+  #   {:ok, _favorite_category} = Accounts.set_favorites(user, :post, post.id, category.id)
 
-  test "login user can get post favorited category id after favorited", ~m(post)a do
-    {:ok, user} = db_insert(:user)
-    user_conn = simu_conn(:user, user)
+  #   variables = %{id: post.id}
+  #   result = user_conn |> query_result(@query, variables, "post")
 
-    test_category = "test category"
-    {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
-    {:ok, _favorite_category} = Accounts.set_favorites(user, :post, post.id, category.id)
-
-    variables = %{id: post.id}
-    result = user_conn |> query_result(@query, variables, "post")
-
-    assert result["favoritedCategoryId"] == to_string(category.id)
-  end
+  #   assert result["favoritedCategoryId"] == to_string(category.id)
+  # end
 end

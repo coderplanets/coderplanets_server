@@ -38,79 +38,60 @@ defmodule GroupherServer.Test.Query.Repo do
     assert is_valid_kv?(results, "readme", :string)
   end
 
-  @query """
-  query($id: ID!) {
-    repo(id: $id) {
-      id
-      favoritedUsers {
-        nickname
-        id
-      }
-    }
-  }
-  """
-  test "repo have favoritedUsers query field", ~m(user_conn repo)a do
-    variables = %{id: repo.id}
-    results = user_conn |> query_result(@query, variables, "repo")
+  # @query """
+  # query($id: ID!) {
+  #   repo(id: $id) {
+  #     id
+  #     title
+  #     viewerHasFavorited
+  #     favoritedCount
+  #   }
+  # }
+  # """
+  # test "logged user can query viewerHasFavorited field", ~m(user_conn repo)a do
+  #   variables = %{id: repo.id}
 
-    assert results["id"] == to_string(repo.id)
-    assert is_valid_kv?(results, "favoritedUsers", :list)
-  end
+  #   assert user_conn
+  #          |> query_result(@query, variables, "repo")
+  #          |> has_boolen_value?("viewerHasFavorited")
+  # end
 
-  @query """
-  query($id: ID!) {
-    repo(id: $id) {
-      id
-      title
-      viewerHasFavorited
-      favoritedCount
-    }
-  }
-  """
-  test "logged user can query viewerHasFavorited field", ~m(user_conn repo)a do
-    variables = %{id: repo.id}
+  # test "unlogged user can not query viewerHasFavorited field", ~m(guest_conn repo)a do
+  #   variables = %{id: repo.id}
 
-    assert user_conn
-           |> query_result(@query, variables, "repo")
-           |> has_boolen_value?("viewerHasFavorited")
-  end
+  #   assert guest_conn |> query_get_error?(@query, variables)
+  # end
 
-  test "unlogged user can not query viewerHasFavorited field", ~m(guest_conn repo)a do
-    variables = %{id: repo.id}
+  # alias GroupherServer.Accounts
 
-    assert guest_conn |> query_get_error?(@query, variables)
-  end
+  # @query """
+  # query($id: ID!) {
+  #   repo(id: $id) {
+  #     id
+  #     favoritedCategoryId
+  #   }
+  # }
+  # """
+  # test "login user can get nil repo favorited category id", ~m(repo)a do
+  #   {:ok, user} = db_insert(:user)
+  #   user_conn = simu_conn(:user, user)
 
-  alias GroupherServer.Accounts
+  #   variables = %{id: repo.id}
+  #   result = user_conn |> query_result(@query, variables, "repo")
+  #   assert result["favoritedCategoryId"] == nil
+  # end
 
-  @query """
-  query($id: ID!) {
-    repo(id: $id) {
-      id
-      favoritedCategoryId
-    }
-  }
-  """
-  test "login user can get nil repo favorited category id", ~m(repo)a do
-    {:ok, user} = db_insert(:user)
-    user_conn = simu_conn(:user, user)
+  # test "login user can get repo favorited category id after favorited", ~m(repo)a do
+  #   {:ok, user} = db_insert(:user)
+  #   user_conn = simu_conn(:user, user)
 
-    variables = %{id: repo.id}
-    result = user_conn |> query_result(@query, variables, "repo")
-    assert result["favoritedCategoryId"] == nil
-  end
+  #   test_category = "test category"
+  #   {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
+  #   {:ok, _favorite_category} = Accounts.set_favorites(user, :repo, repo.id, category.id)
 
-  test "login user can get repo favorited category id after favorited", ~m(repo)a do
-    {:ok, user} = db_insert(:user)
-    user_conn = simu_conn(:user, user)
+  #   variables = %{id: repo.id}
+  #   result = user_conn |> query_result(@query, variables, "repo")
 
-    test_category = "test category"
-    {:ok, category} = Accounts.create_favorite_category(user, %{title: test_category})
-    {:ok, _favorite_category} = Accounts.set_favorites(user, :repo, repo.id, category.id)
-
-    variables = %{id: repo.id}
-    result = user_conn |> query_result(@query, variables, "repo")
-
-    assert result["favoritedCategoryId"] == to_string(category.id)
-  end
+  #   assert result["favoritedCategoryId"] == to_string(category.id)
+  # end
 end
