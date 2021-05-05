@@ -41,28 +41,6 @@ defmodule GroupherServer.Accounts.Utils.Loader do
     UserFollower |> where([f], f.follower_id == ^cur_user.id)
   end
 
-  # stared contents count
-  def query({"posts_stars", CMS.PostStar}, %{count: _}) do
-    CMS.PostStar |> count_contents
-  end
-
-  def query({"jobs_stars", CMS.JobStar}, %{count: _}) do
-    CMS.JobStar |> count_contents
-  end
-
-  # favorited contents count
-  def query({"posts_favorites", CMS.PostFavorite}, %{count: _}) do
-    CMS.PostFavorite |> count_contents
-  end
-
-  def query({"jobs_favorites", CMS.JobFavorite}, %{count: _}) do
-    CMS.JobFavorite |> count_contents
-  end
-
-  def query({"repos_favorites", CMS.RepoFavorite}, %{count: _}) do
-    CMS.RepoFavorite |> count_contents
-  end
-
   def query(queryable, _args), do: queryable
 
   defp count_contents(queryable) do

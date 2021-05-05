@@ -12,7 +12,6 @@ defmodule GroupherServer.CMS do
     ArticleCURD,
     ArticleOperation,
     ArticleReaction,
-    FavoritedContents,
     ArticleComment,
     CommentCURD,
     CommunitySync,
@@ -82,7 +81,21 @@ defmodule GroupherServer.CMS do
   defdelegate reaction(thread, react, content_id, user), to: ArticleReaction
   defdelegate undo_reaction(thread, react, content_id, user), to: ArticleReaction
 
-  defdelegate favorited_category(thread, content_id, user), to: FavoritedContents
+  defdelegate upvote_article(thread, article_id, user), to: ArticleReaction
+  defdelegate undo_upvote_article(thread, article_id, user), to: ArticleReaction
+
+  defdelegate upvoted_users(thread, article_id, filter), to: ArticleReaction
+
+  defdelegate collect_article(thread, article_id, user), to: ArticleReaction
+  defdelegate collect_article_ifneed(thread, article_id, user), to: ArticleReaction
+
+  defdelegate undo_collect_article(thread, article_id, user), to: ArticleReaction
+  defdelegate undo_collect_article_ifneed(thread, article_id, user), to: ArticleReaction
+  defdelegate collected_users(thread, article_id, filter), to: ArticleReaction
+
+  defdelegate set_collect_folder(collect, folder), to: ArticleReaction
+  defdelegate undo_set_collect_folder(collect, folder), to: ArticleReaction
+
   # ArticleOperation
   # >> set flag on article, like: pin / unpin article
   defdelegate set_community_flags(community_info, queryable, attrs), to: ArticleOperation
@@ -94,8 +107,6 @@ defmodule GroupherServer.CMS do
   # >> tag: set / unset
   defdelegate set_tag(thread, tag, content_id), to: ArticleOperation
   defdelegate unset_tag(thread, tag, content_id), to: ArticleOperation
-  defdelegate set_refined_tag(community, thread, content_id), to: ArticleOperation
-  defdelegate unset_refined_tag(community, thread, content_id), to: ArticleOperation
   # >> community: set / unset
   defdelegate set_community(community, thread, content_id), to: ArticleOperation
   defdelegate unset_community(community, thread, content_id), to: ArticleOperation
@@ -141,11 +152,6 @@ defmodule GroupherServer.CMS do
 
   # report
   defdelegate create_report(type, content_id, args, user), to: AbuseReport
-
-  # Comment Reaction
-  # >> like / undo like
-  defdelegate like_comment(thread, comment, user), to: CommentReaction
-  defdelegate undo_like_comment(thread, comment, user), to: CommentReaction
 
   # Passport CURD
   defdelegate stamp_passport(rules, user), to: PassportCURD

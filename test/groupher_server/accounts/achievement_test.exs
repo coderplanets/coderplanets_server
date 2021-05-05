@@ -7,8 +7,8 @@ defmodule GroupherServer.Test.Accounts.Achievement do
   alias GroupherServer.Accounts.User
 
   @follow_weight get_config(:general, :user_achieve_follow_weight)
-  @favorite_weight get_config(:general, :user_achieve_favorite_weight)
-  @star_weight get_config(:general, :user_achieve_star_weight)
+  @collect_weight get_config(:general, :user_achieve_collect_weight)
+  @upvote_weight get_config(:general, :user_achieve_upvote_weight)
   # @watch_weight get_config(:general, :user_achieve_watch_weight)
 
   setup do
@@ -51,22 +51,23 @@ defmodule GroupherServer.Test.Accounts.Achievement do
   describe "[Accounts Achievement funtion]" do
     alias Accounts.Achievement
 
-    test "Accounts.achieve should inc / minus achievement by parts", ~m(user)a do
-      user |> Accounts.achieve(:add, :follow)
-      user |> Accounts.achieve(:add, :star)
-      user |> Accounts.achieve(:add, :favorite)
+    @tag :wip
+    test "Accounts.achieve should inc / dec achievement by parts", ~m(user)a do
+      user |> Accounts.achieve(:inc, :follow)
+      user |> Accounts.achieve(:inc, :upvote)
+      user |> Accounts.achieve(:inc, :collect)
       {:ok, achievement} = Achievement |> ORM.find_by(user_id: user.id)
 
       assert achievement.followers_count == 1
-      assert achievement.contents_stared_count == 1
-      assert achievement.contents_favorited_count == 1
+      assert achievement.articles_upvotes_count == 1
+      assert achievement.articles_collects_count == 1
 
-      reputation = @follow_weight + @star_weight + @favorite_weight
+      reputation = @follow_weight + @upvote_weight + @collect_weight
       assert achievement.reputation == reputation
 
-      user |> Accounts.achieve(:minus, :follow)
-      user |> Accounts.achieve(:minus, :star)
-      user |> Accounts.achieve(:minus, :favorite)
+      user |> Accounts.achieve(:dec, :follow)
+      user |> Accounts.achieve(:dec, :upvote)
+      user |> Accounts.achieve(:dec, :collect)
 
       {:ok, achievement} = Achievement |> ORM.find_by(user_id: user.id)
       assert achievement.followers_count == 0
@@ -75,10 +76,11 @@ defmodule GroupherServer.Test.Accounts.Achievement do
       assert achievement.reputation == 0
     end
 
+    @tag :wip
     test "Accounts.achieve can not minus count < 0", ~m(user)a do
-      user |> Accounts.achieve(:minus, :follow)
-      user |> Accounts.achieve(:minus, :star)
-      user |> Accounts.achieve(:minus, :favorite)
+      user |> Accounts.achieve(:dec, :follow)
+      user |> Accounts.achieve(:dec, :upvote)
+      user |> Accounts.achieve(:dec, :collect)
 
       {:ok, achievement} = Achievement |> ORM.find_by(user_id: user.id)
       assert achievement.followers_count == 0

@@ -43,6 +43,9 @@ defmodule Helper.ErrorCode do
   def ecode(:create_comment), do: @comment_base + 1
   # article
   def ecode(:too_much_pinned_article), do: @article_base + 1
+  def ecode(:already_collected_in_folder), do: @article_base + 2
+  def ecode(:delete_no_empty_collect_folder), do: @article_base + 3
+  def ecode(:private_collect_folder), do: @article_base + 4
 
   def ecode, do: @default_base
   # def ecode(_), do: @default_base

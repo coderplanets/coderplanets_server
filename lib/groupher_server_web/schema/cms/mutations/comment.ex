@@ -75,24 +75,5 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
       resolve(&R.CMS.reply_comment/3)
       middleware(M.Statistics.MakeContribute, for: :user)
     end
-
-    @desc "like a comment"
-    field :like_comment, :comment do
-      arg(:thread, non_null(:cms_comment), default_value: :post_comment)
-      arg(:id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      resolve(&R.CMS.like_comment/3)
-    end
-
-    @desc "undo like comment"
-    # field :undo_like_comment, :idlike do
-    field :undo_like_comment, :comment do
-      arg(:thread, non_null(:cms_comment), default_value: :post_comment)
-      arg(:id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      resolve(&R.CMS.undo_like_comment/3)
-    end
   end
 end

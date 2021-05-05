@@ -119,6 +119,26 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.paged_jobs/3)
     end
 
+    @desc "get paged upvoted users of an article"
+    field :upvoted_users, :paged_users do
+      arg(:id, non_null(:id))
+      arg(:thread, :cms_thread, default_value: :post)
+      arg(:filter, non_null(:paged_filter))
+
+      middleware(M.PageSizeProof)
+      resolve(&R.CMS.upvoted_users/3)
+    end
+
+    @desc "get paged upvoted users of an article"
+    field :collected_users, :paged_users do
+      arg(:id, non_null(:id))
+      arg(:thread, :cms_thread, default_value: :post)
+      arg(:filter, non_null(:paged_filter))
+
+      middleware(M.PageSizeProof)
+      resolve(&R.CMS.collected_users/3)
+    end
+
     @desc "get paged users of a reaction related to cms content"
     field :reaction_users, :paged_users do
       arg(:id, non_null(:id))

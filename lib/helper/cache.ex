@@ -2,19 +2,37 @@ defmodule Helper.Cache do
   @moduledoc """
   memory cache using cachex https://github.com/whitfin/cachex
   """
+  import Cachex.Spec
+
+  def config(:common) do
+    [
+      limit: limit(size: 5000, policy: Cachex.Policy.LRW, reclaim: 0.1),
+      expiration: expiration(default: :timer.minutes(10))
+    ]
+  end
+
+  @doc """
+  cache config for user.login -> user.id, used in accounts resolver
+  user.id is a linearly increasing integer, kind sensitive, so use user.login instead
+  """
+  def config(:user_login) do
+    [
+      limit: limit(size: 10_000, policy: Cachex.Policy.LRW, reclaim: 0.1),
+      # expired in one week, it's fine, since user's login and id will never change
+      expiration: expiration(default: :timer.minutes(10_080))
+    ]
+  end
 
   @doc """
   ## Example
-  iex> Helper.Cache.get(a)
+  iex> Helper.Cache.get(:common, :a)
   {:ok, "b"}
   """
-  def get(cache_key) do
-    case Cachex.get(:site_cache, cache_key) do
-      {:ok, nil} ->
-        {:error, nil}
-
-      {:ok, result} ->
-        {:ok, result}
+  @spec get(Atom.t(), String.t()) :: {:error, nil} | {:ok, any}
+  def get(pool, key) do
+    case Cachex.get(pool, key) do
+      {:ok, nil} -> {:error, nil}
+      {:ok, result} -> {:ok, result}
     end
   end
 
@@ -23,13 +41,18 @@ defmodule Helper.Cache do
   iex> Helper.Cache.put(a, "x")
   {:ok, "x"}
   """
-  def put(cache_key, cache_value) do
-    Cachex.put(:site_cache, cache_key, cache_value)
+  def put(pool, key, value) do
+    Cachex.put(pool, key, value)
   end
 
-  def put(cache_key, cache_value, expire: expire_time) do
-    Cachex.put(:site_cache, cache_key, cache_value)
-    Cachex.expire(:site_cache, cache_key, expire_time)
+  def put(pool, key, value, expire_sec: expire_sec) do
+    Cachex.put(pool, key, value)
+    Cachex.expire(pool, key, :timer.seconds(expire_sec))
+  end
+
+  def put(pool, key, value, expire_min: expire_min) do
+    Cachex.put(pool, key, value)
+    Cachex.expire(pool, key, :timer.minutes(expire_min))
   end
 
   @doc """
@@ -38,7 +61,7 @@ defmodule Helper.Cache do
   iex> Helper.Cache.clear()
   {:ok, 1}
   """
-  def clear_all(), do: Cachex.clear(:site_cache)
+  def clear(pool), do: Cachex.clear(pool)
 
   @doc """
   cache scope of community contributes digest

@@ -1,5 +1,5 @@
-defmodule GroupherServer.Test.Helper.ORMTest do
-  use GroupherServerWeb.ConnCase, async: true
+defmodule GroupherServer.Test.Helper.ORM do
+  use GroupherServer.TestTools
 
   # TODO import Service.Utils move both helper and github
   import GroupherServer.Support.Factory
@@ -19,9 +19,9 @@ defmodule GroupherServer.Test.Helper.ORMTest do
     {:ok, post: post}
   end
 
-  # def send_email(to \\ "someone") do 
+  # def send_email(to \\ "someone") do
   #   IO.inspect "send email.. #{to}"
-  # end 
+  # end
 
   # describe "orm hooks" do
   #   test "create hooks" do
@@ -34,7 +34,7 @@ defmodule GroupherServer.Test.Helper.ORMTest do
   #     ORM.create(User, user_attrs, %{after_success: [&Email.notify_admin/2, [user, :new_register] ]  })
 
   #     true
-  #   end 
+  #   end
   # end
 
   describe "[find/x find_by]" do
@@ -43,8 +43,6 @@ defmodule GroupherServer.Test.Helper.ORMTest do
 
       assert found.id == post.id
       assert %Ecto.Association.NotLoaded{} = found.author
-      assert %Ecto.Association.NotLoaded{} = found.comments
-      assert %Ecto.Association.NotLoaded{} = found.favorites
     end
 
     test "find/2 fails with {:error, reason} style" do
@@ -84,5 +82,33 @@ defmodule GroupherServer.Test.Helper.ORMTest do
 
   test "count should work" do
     assert @posts_count + 1 == ORM.count(Post)
+  end
+
+  describe "[embeds paginator]" do
+    test "filter should work" do
+      total_count = 100
+
+      list =
+        Enum.reduce(1..total_count, [], fn i, acc ->
+          acc ++ ["i-#{i}"]
+        end)
+
+      filter = %{page: 1, size: 30}
+      result = ORM.embeds_paginater(list, filter)
+
+      assert result |> is_valid_pagination?(:raw)
+      assert result.total_count == length(list)
+      assert result.page_number == 1
+      assert is_list(result.entries)
+      assert result.entries |> List.first() == "i-1"
+      assert result.entries |> List.last() == "i-30"
+
+      filter = %{page: 4, size: 30}
+      result = ORM.embeds_paginater(list, filter)
+
+      assert result.page_number == 4
+      assert result.entries |> List.first() == "i-91"
+      assert result.entries |> List.last() == "i-100"
+    end
   end
 end

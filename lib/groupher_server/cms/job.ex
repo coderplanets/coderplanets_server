@@ -14,18 +14,18 @@ defmodule GroupherServer.CMS.Job do
     Embeds,
     ArticleComment,
     Community,
-    JobFavorite,
-    JobStar,
     JobViewer,
     JobCommunityFlag,
-    Tag
+    Tag,
+    ArticleUpvote,
+    ArticleCollect
   }
 
   alias Helper.HTML
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title company company_logo body digest length)a
-  @optional_fields ~w(origial_community_id desc company_link link_addr copy_right salary exp education field finance scale article_comments_count article_comments_participators_count)a
+  @optional_fields ~w(origial_community_id desc company_link link_addr copy_right salary exp education field finance scale article_comments_count article_comments_participators_count upvotes_count collects_count)a
 
   @type t :: %Job{}
   schema "cms_jobs" do
@@ -59,12 +59,16 @@ defmodule GroupherServer.CMS.Job do
     field(:is_pinned, :boolean, default: false, virtual: true)
     field(:trash, :boolean, default_value: false, virtual: true)
 
+    has_many(:upvotes, {"article_upvotes", ArticleUpvote})
+    field(:upvotes_count, :integer, default: 0)
+
+    has_many(:collects, {"article_collects", ArticleCollect})
+    field(:collects_count, :integer, default: 0)
+
     has_many(:article_comments, {"articles_comments", ArticleComment})
     field(:article_comments_count, :integer, default: 0)
     field(:article_comments_participators_count, :integer, default: 0)
 
-    has_many(:favorites, {"jobs_favorites", JobFavorite})
-    has_many(:stars, {"jobs_stars", JobStar})
     has_many(:viewers, {"jobs_viewers", JobViewer})
 
     many_to_many(

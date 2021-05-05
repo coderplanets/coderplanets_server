@@ -9,6 +9,8 @@ defmodule GroupherServer.Application do
     import Supervisor.Spec
     import Cachex.Spec
 
+    alias Helper.Cache
+
     # Define workers and child supervisors to be supervised
     children = [
       # Start the PubSub system
@@ -19,22 +21,9 @@ defmodule GroupherServer.Application do
       supervisor(GroupherServerWeb.Endpoint, []),
       # Start your own worker by calling: GroupherServer.Worker.start_link(arg1, arg2, arg3)
       # worker(GroupherServer.Worker, [arg1, arg2, arg3]),
-      worker(Cachex, [
-        :site_cache,
-        [
-          limit:
-            limit(
-              # the limit provided
-              size: 5000,
-              # the policy to use for eviction
-              policy: Cachex.Policy.LRW,
-              # how much to reclaim on bound expiration
-              reclaim: 0.1,
-              # options to pass to the policy
-              options: []
-            )
-        ]
-      ]),
+      worker(Cachex, [:common, Cache.config(:common)], id: :common),
+      worker(Cachex, [:user_login, Cache.config(:user_login)], id: :user_login),
+      #
       worker(Helper.Scheduler, []),
       {Rihanna.Supervisor, [postgrex: GroupherServer.Repo.config()]}
     ]

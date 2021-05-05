@@ -6,8 +6,8 @@ defmodule GroupherServer.Test.Query.Account.Achievement do
   alias Helper.ORM
 
   @follow_weight get_config(:general, :user_achieve_follow_weight)
-  @favorite_weight get_config(:general, :user_achieve_favorite_weight)
-  # @star_weight get_config(:general, :user_achieve_star_weight)
+  @collect_weight get_config(:general, :user_achieve_collect_weight)
+  # @upvote_weight get_config(:general, :user_achieve_upvote_weight)
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -24,8 +24,8 @@ defmodule GroupherServer.Test.Query.Account.Achievement do
         id
         achievement {
           reputation
-          contentsStaredCount
-          contentsFavoritedCount
+          articlesUpvotesCount
+          articlesCollectsCount
           sourceContribute {
             web
             server
@@ -34,6 +34,7 @@ defmodule GroupherServer.Test.Query.Account.Achievement do
       }
     }
     """
+    @tag :wip
     test "empty user should get empty achievement", ~m(guest_conn user)a do
       variables = %{login: user.login}
 
@@ -168,7 +169,7 @@ defmodule GroupherServer.Test.Query.Account.Achievement do
     end
   end
 
-  describe "[account favorite achieveMent]" do
+  describe "[account collect achieveMent]" do
     alias GroupherServer.CMS
 
     @query """
@@ -177,14 +178,15 @@ defmodule GroupherServer.Test.Query.Account.Achievement do
         id
         achievement {
           reputation
-          contentsFavoritedCount
+          articlesCollectsCount
         }
       }
     }
     """
-    test "inc user's achievement after user's post got favorited", ~m(guest_conn user)a do
+    @tag :wip
+    test "inc user's achievement after user's post got collected", ~m(guest_conn user)a do
       {:ok, post} = db_insert(:post)
-      {:ok, _} = CMS.reaction(:post, :favorite, post.id, user)
+      {:ok, _article_collect} = CMS.collect_article(:post, post.id, user)
 
       {:ok, post} = CMS.Post |> ORM.find(post.id, preload: [author: :user])
       author_user_login = post.author.user.login
@@ -192,32 +194,33 @@ defmodule GroupherServer.Test.Query.Account.Achievement do
       variables = %{login: author_user_login}
       results = guest_conn |> query_result(@query, variables, "user")
 
-      assert results["achievement"] |> Map.get("contentsFavoritedCount") == 1
-      assert results["achievement"] |> Map.get("reputation") == @favorite_weight
+      assert results["achievement"] |> Map.get("articlesCollectsCount") == 1
+      assert results["achievement"] |> Map.get("reputation") == @collect_weight
     end
 
-    test "minus user's acheiveements after user's post get cancle favorited", ~m(guest_conn)a do
+    @tag :wip
+    test "minus user's acheiveements after user's post's collect cancled", ~m(guest_conn)a do
       total_count = 10
       {:ok, post} = db_insert(:post)
       {:ok, users} = db_insert_multi(:user, total_count)
 
       Enum.each(users, fn user ->
-        {:ok, _} = CMS.reaction(:post, :favorite, post.id, user)
+        {:ok, _article_collect} = CMS.collect_article(:post, post.id, user)
       end)
 
       {:ok, post} = CMS.Post |> ORM.find(post.id, preload: [author: :user])
       author_user_login = post.author.user.login
 
       user = users |> Enum.shuffle() |> List.first()
-      {:ok, _} = CMS.undo_reaction(:post, :favorite, post.id, user)
+      {:ok, _article_collect} = CMS.undo_collect_article(:post, post.id, user)
 
       variables = %{login: author_user_login}
       results = guest_conn |> query_result(@query, variables, "user")
 
-      assert results["achievement"] |> Map.get("contentsFavoritedCount") == total_count - 1
+      assert results["achievement"] |> Map.get("articlesCollectsCount") == total_count - 1
 
       assert results["achievement"] |> Map.get("reputation") ==
-               @favorite_weight * total_count - @favorite_weight
+               @collect_weight * total_count - @collect_weight
     end
   end
 end

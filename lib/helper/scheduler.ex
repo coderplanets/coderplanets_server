@@ -11,6 +11,6 @@ defmodule Helper.Scheduler do
   just in case the cache system broken
   """
   def clear_all_cache do
-    Cache.clear_all()
+    # Cache.clear_all()
   end
 end

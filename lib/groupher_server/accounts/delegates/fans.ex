@@ -32,7 +32,7 @@ defmodule GroupherServer.Accounts.Delegate.Fans do
         UserFollowing.changeset(%UserFollowing{}, %{user_id: user_id, following_id: follower_id})
       )
       |> Multi.run(:add_achievement, fn _, _ ->
-        Accounts.achieve(%User{id: follower_id}, :add, :follow)
+        Accounts.achieve(%User{id: follower_id}, :inc, :follow)
       end)
       |> Repo.transaction()
       |> follow_result()
@@ -81,7 +81,7 @@ defmodule GroupherServer.Accounts.Delegate.Fans do
         ORM.findby_delete!(UserFollowing, %{user_id: user_id, following_id: follower_id})
       end)
       |> Multi.run(:minus_achievement, fn _, _ ->
-        Accounts.achieve(%User{id: follower_id}, :minus, :follow)
+        Accounts.achieve(%User{id: follower_id}, :dec, :follow)
       end)
       |> Repo.transaction()
       |> undo_follow_result()

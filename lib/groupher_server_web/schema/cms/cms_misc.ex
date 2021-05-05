@@ -16,7 +16,6 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
 
   enum(:count_type, do: value(:count))
   enum(:viewer_did_type, do: value(:viewer_did))
-  # enum(:favorite_action, do: value(:favorite))
 
   enum(:star_action, do: value(:star))
   enum(:comment_action, do: value(:comment))
@@ -27,14 +26,14 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
   end
 
   enum :react_action do
-    value(:favorite)
-    value(:star)
+    value(:collect)
+    value(:upvote)
     # value(:watch)
   end
 
   enum :reactable_action do
-    value(:star)
-    # value(:favorite)
+    value(:upvote)
+    # value(:collect)
     # value(:watch)
   end
 
@@ -51,8 +50,6 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
 
   enum :cms_comment do
     value(:post_comment)
-    value(:job_comment)
-    value(:repo_comment)
   end
 
   enum :commentable_thread do
@@ -112,12 +109,12 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
   enum :sort_enum do
     value(:most_views)
     value(:most_updated)
-    value(:most_favorites)
+    value(:most_upvotes)
     value(:most_stars)
     value(:most_comments)
     value(:least_views)
     value(:least_updated)
-    value(:least_favorites)
+    value(:least_upvotes)
     value(:least_stars)
     value(:least_watched)
     value(:least_comments)
@@ -133,7 +130,7 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     value(:most_views)
     value(:most_comments)
     value(:recent_updated)
-    value(:most_favorites)
+    value(:most_upvotes)
   end
 
   enum :length_enum do
@@ -252,6 +249,24 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     field(:sort, :repo_sort_enum)
   end
 
+  @desc "common filter for upvoted articles"
+  input_object :upvoted_articles_filter do
+    field(:thread, :cms_thread)
+    pagination_args()
+  end
+
+  @desc "common filter for collect folders"
+  input_object :collect_folders_filter do
+    field(:thread, :cms_thread)
+    pagination_args()
+  end
+
+  @desc "common filter for collect articles"
+  input_object :collected_articles_filter do
+    field(:thread, :cms_thread)
+    pagination_args()
+  end
+
   @desc """
   cms github repo contribotor
   """
@@ -290,7 +305,7 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
   end
 
   @doc """
-  only used for reaction result, like: favorite/star/watch ...
+  only used for reaction result, like: upvote/collect/watch ...
   """
   interface :article do
     field(:id, :id)

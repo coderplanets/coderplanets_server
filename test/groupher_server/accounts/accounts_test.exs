@@ -141,8 +141,8 @@ defmodule GroupherServer.Test.Accounts do
       achievement = created_user.achievement
       assert achievement.user_id == created_user.id
       assert achievement.reputation == 0
-      assert achievement.contents_favorited_count == 0
-      assert achievement.contents_stared_count == 0
+      assert achievement.articles_collects_count == 0
+      assert achievement.articles_upvotes_count == 0
       assert achievement.source_contribute.h5 == false
       assert achievement.source_contribute.web == false
       assert achievement.source_contribute.we_app == false

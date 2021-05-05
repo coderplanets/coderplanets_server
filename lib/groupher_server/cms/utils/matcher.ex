@@ -15,11 +15,6 @@ defmodule GroupherServer.CMS.Utils.Matcher do
     JobViewer,
     RepoViewer,
     # reactions
-    PostFavorite,
-    JobFavorite,
-    RepoFavorite,
-    PostStar,
-    JobStar,
     # comments
     PostComment,
     # commtnes reaction
@@ -39,10 +34,6 @@ defmodule GroupherServer.CMS.Utils.Matcher do
   def match_action(:post, :self),
     do: {:ok, %{target: Post, reactor: Post, preload: :author, viewer: PostViewer}}
 
-  def match_action(:post, :favorite),
-    do: {:ok, %{target: Post, reactor: PostFavorite, preload: :user, preload_right: :post}}
-
-  def match_action(:post, :star), do: {:ok, %{target: Post, reactor: PostStar, preload: :user}}
   def match_action(:post, :tag), do: {:ok, %{target: Post, reactor: Tag}}
   # NOTE: the tech, radar, share, city thread also use common tag
   def match_action(:radar, :tag), do: {:ok, %{target: Post, reactor: Tag}}
@@ -68,10 +59,6 @@ defmodule GroupherServer.CMS.Utils.Matcher do
   def match_action(:job, :community),
     do: {:ok, %{target: Job, reactor: Community, flag: JobCommunityFlag}}
 
-  def match_action(:job, :favorite),
-    do: {:ok, %{target: Job, reactor: JobFavorite, preload: :user}}
-
-  def match_action(:job, :star), do: {:ok, %{target: Job, reactor: JobStar, preload: :user}}
   def match_action(:job, :tag), do: {:ok, %{target: Job, reactor: Tag}}
 
   #########################################
@@ -85,9 +72,6 @@ defmodule GroupherServer.CMS.Utils.Matcher do
 
   def match_action(:repo, :tag), do: {:ok, %{target: Repo, reactor: Tag}}
 
-  def match_action(:repo, :favorite),
-    do: {:ok, %{target: Repo, reactor: RepoFavorite, preload: :user}}
-
   # dynamic where query match
   def dynamic_where(thread, id) do
     case thread do
@@ -100,14 +84,8 @@ defmodule GroupherServer.CMS.Utils.Matcher do
       :job ->
         {:ok, dynamic([p], p.job_id == ^id)}
 
-      :job_comment ->
-        {:ok, dynamic([p], p.job_comment_id == ^id)}
-
       :repo ->
         {:ok, dynamic([p], p.repo_id == ^id)}
-
-      :repo_comment ->
-        {:ok, dynamic([p], p.repo_comment_id == ^id)}
 
       _ ->
         {:error, 'where is not match'}

@@ -17,17 +17,17 @@ defmodule GroupherServer.CMS.Post do
     Community,
     PostComment,
     PostCommunityFlag,
-    PostFavorite,
-    PostStar,
     PostViewer,
-    Tag
+    Tag,
+    ArticleUpvote,
+    ArticleCollect
   }
 
   alias Helper.HTML
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title body digest length)a
-  @optional_fields ~w(origial_community_id link_addr copy_right link_addr link_icon article_comments_count article_comments_participators_count)a
+  @optional_fields ~w(origial_community_id link_addr copy_right link_addr link_icon article_comments_count article_comments_participators_count upvotes_count collects_count)a
 
   @type t :: %Post{}
   schema "cms_posts" do
@@ -63,8 +63,12 @@ defmodule GroupherServer.CMS.Post do
     # 评论参与者，只保留最近 5 个
     embeds_many(:article_comments_participators, Accounts.User, on_replace: :delete)
 
-    has_many(:favorites, {"posts_favorites", PostFavorite})
-    has_many(:stars, {"posts_stars", PostStar})
+    has_many(:upvotes, {"article_upvotes", ArticleUpvote})
+    field(:upvotes_count, :integer, default: 0)
+
+    has_many(:collects, {"article_collects", ArticleCollect})
+    field(:collects_count, :integer, default: 0)
+
     has_many(:viewers, {"posts_viewers", PostViewer})
     # The keys are inflected from the schema names!
     # see https://hexdocs.pm/ecto/Ecto.Schema.html

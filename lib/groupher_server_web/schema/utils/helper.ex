@@ -4,11 +4,12 @@ defmodule GroupherServerWeb.Schema.Utils.Helper do
   """
   import Helper.Utils, only: [get_config: 2]
 
-  alias GroupherServer.CMS
+  alias GroupherServer.{Accounts, CMS}
   alias CMS.{ArticleComment}
 
   @page_size get_config(:general, :page_size)
   @supported_emotions ArticleComment.supported_emotions()
+  @supported_collect_folder_threads Accounts.CollectFolder.supported_threads()
 
   defmacro timestamp_fields do
     quote do
@@ -101,89 +102,6 @@ defmodule GroupherServerWeb.Schema.Utils.Helper do
     end
   end
 
-  # fields for: favorite count, favorited_users, viewer_did_favorite..
-  defmacro favorite_fields(thread) do
-    quote do
-      @doc "if viewer has favroted of this #{unquote(thread)}"
-      field :viewer_has_favorited, :boolean do
-        arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
-
-        middleware(M.Authorize, :login)
-        middleware(M.PutCurrentUser)
-        resolve(dataloader(CMS, :favorites))
-        middleware(M.ViewerDidConvert)
-      end
-
-      @doc "favroted count of this #{unquote(thread)}"
-      field :favorited_count, :integer do
-        arg(:count, :count_type, default_value: :count)
-
-        arg(
-          :type,
-          unquote(String.to_atom("#{to_string(thread)}_thread")),
-          default_value: unquote(thread)
-        )
-
-        resolve(dataloader(CMS, :favorites))
-        middleware(M.ConvertToInt)
-      end
-
-      @doc "list of user who has favroted this #{unquote(thread)}"
-      field :favorited_users, list_of(:user) do
-        arg(:filter, :members_filter)
-
-        middleware(M.PageSizeProof)
-        resolve(dataloader(CMS, :favorites))
-      end
-
-      @doc "get viewer's favroted category if seted"
-      field :favorited_category_id, :id do
-        arg(
-          :thread,
-          unquote(String.to_atom("#{to_string(thread)}_thread")),
-          default_value: unquote(thread)
-        )
-
-        middleware(M.Authorize, :login)
-        resolve(&R.CMS.favorited_category/3)
-      end
-    end
-  end
-
-  # fields for: star count, users, viewer_did_starred..
-  defmacro star_fields(thread) do
-    quote do
-      field :viewer_has_starred, :boolean do
-        arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
-
-        middleware(M.Authorize, :login)
-        middleware(M.PutCurrentUser)
-        resolve(dataloader(CMS, :stars))
-        middleware(M.ViewerDidConvert)
-      end
-
-      field :starred_count, :integer do
-        arg(:count, :count_type, default_value: :count)
-
-        arg(
-          :type,
-          unquote(String.to_atom("#{to_string(thread)}_thread")),
-          default_value: unquote(thread)
-        )
-
-        resolve(dataloader(CMS, :stars))
-        middleware(M.ConvertToInt)
-      end
-
-      field :starred_users, list_of(:user) do
-        arg(:filter, :members_filter)
-
-        middleware(M.PageSizeProof)
-        resolve(dataloader(CMS, :stars))
-      end
-    end
-  end
-
   defmacro comments_fields do
     quote do
       field(:id, :id)
@@ -271,8 +189,10 @@ defmodule GroupherServerWeb.Schema.Utils.Helper do
     end
   end
 
-  # general emotions for comments
-  # NOTE: xxx_user_logins field is not support for gq-endpoint
+  @doc """
+  general emotions for comments
+  #NOTE: xxx_user_logins field is not support for gq-endpoint
+  """
   defmacro emotion_fields() do
     @supported_emotions
     |> Enum.map(fn emotion ->
@@ -280,6 +200,19 @@ defmodule GroupherServerWeb.Schema.Utils.Helper do
         field(unquote(:"#{emotion}_count"), :integer)
         field(unquote(:"viewer_has_#{emotion}ed"), :boolean)
         field(unquote(:"latest_#{emotion}_users"), list_of(:simple_user))
+      end
+    end)
+  end
+
+  @doc """
+  general collect folder meta info
+  """
+  defmacro collect_folder_meta_fields() do
+    @supported_collect_folder_threads
+    |> Enum.map(fn thread ->
+      quote do
+        field(unquote(:"has_#{thread}"), :boolean)
+        field(unquote(:"#{thread}_count"), :integer)
       end
     end)
   end

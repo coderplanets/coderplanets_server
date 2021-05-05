@@ -12,17 +12,18 @@ defmodule GroupherServer.CMS.Repo do
     Embeds,
     Community,
     RepoContributor,
-    RepoFavorite,
     RepoViewer,
     RepoLang,
     RepoCommunityFlag,
-    Tag
+    Tag,
+    ArticleUpvote,
+    ArticleCollect
   }
 
   alias Helper.HTML
 
   @timestamps_opts [type: :utc_datetime_usec]
-  @required_fields ~w(title owner_name owner_url repo_url desc readme star_count issues_count prs_count fork_count watch_count)a
+  @required_fields ~w(title owner_name owner_url repo_url desc readme star_count issues_count prs_count fork_count watch_count upvotes_count collects_count)a
   @optional_fields ~w(origial_community_id last_sync homepage_url release_tag license)a
 
   @type t :: %Repo{}
@@ -59,9 +60,14 @@ defmodule GroupherServer.CMS.Repo do
     field(:is_pinned, :boolean, default: false, virtual: true)
     field(:trash, :boolean, default_value: false)
 
+    has_many(:upvotes, {"article_upvotes", ArticleUpvote})
+    field(:upvotes_count, :integer, default: 0)
+
+    has_many(:collects, {"article_collects", ArticleCollect})
+    field(:collects_count, :integer, default: 0)
+
     field(:last_sync, :utc_datetime)
 
-    has_many(:favorites, {"repos_favorites", RepoFavorite})
     has_many(:viewers, {"repos_viewers", RepoViewer})
 
     many_to_many(

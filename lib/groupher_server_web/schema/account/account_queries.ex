@@ -62,66 +62,30 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.paged_followings/3)
     end
 
-    @desc "get favorites categoories"
-    field :favorite_categories, :paged_favorites_categories do
-      arg(:user_id, :id)
-      arg(:filter, non_null(:common_paged_filter))
+    @desc "get paged upvoted articles"
+    field :paged_upvoted_articles, :paged_articles do
+      arg(:user_login, non_null(:string))
+      arg(:filter, :upvoted_articles_filter)
 
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.list_favorite_categories/3)
+      resolve(&R.Accounts.paged_upvoted_articles/3)
     end
 
-    @desc "paged stared posts"
-    field :stared_posts, :paged_posts do
-      arg(:user_id, non_null(:id))
-      arg(:filter, non_null(:paged_filter))
-      arg(:thread, :post_thread, default_value: :post)
+    @desc "get paged collect folders of a user"
+    field :paged_collect_folders, :paged_collect_folders do
+      arg(:user_login, non_null(:string))
+      arg(:filter, non_null(:collect_folders_filter))
 
       middleware(M.PageSizeProof)
-      resolve(&R.Accounts.stared_contents/3)
+      resolve(&R.Accounts.paged_collect_folders/3)
     end
 
-    @desc "paged stared jobs"
-    field :stared_jobs, :paged_jobs do
-      arg(:user_id, non_null(:id))
-      arg(:filter, non_null(:paged_filter))
-      arg(:thread, :job_thread, default_value: :job)
+    @desc "get paged collected articles"
+    field :paged_collected_articles, :paged_articles do
+      arg(:folder_id, non_null(:id))
+      arg(:filter, non_null(:collected_articles_filter))
 
       middleware(M.PageSizeProof)
-      resolve(&R.Accounts.stared_contents/3)
-    end
-
-    @desc "get favorited posts"
-    field :favorited_posts, :paged_posts do
-      arg(:user_id, non_null(:id))
-      arg(:filter, non_null(:paged_filter))
-      arg(:category_id, :id)
-      arg(:thread, :post_thread, default_value: :post)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.favorited_contents/3)
-    end
-
-    @desc "get favorited jobs"
-    field :favorited_jobs, :paged_jobs do
-      arg(:user_id, non_null(:id))
-      arg(:filter, non_null(:paged_filter))
-      arg(:category_id, :id)
-      arg(:thread, :job_thread, default_value: :job)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.favorited_contents/3)
-    end
-
-    @desc "get favorited repos"
-    field :favorited_repos, :paged_repos do
-      arg(:user_id, non_null(:id))
-      arg(:filter, non_null(:paged_filter))
-      arg(:category_id, :id)
-      arg(:thread, :repo_thread, default_value: :repo)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.favorited_contents/3)
+      resolve(&R.Accounts.paged_collected_articles/3)
     end
 
     @desc "get paged published posts"
@@ -159,26 +123,6 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
       arg(:user_id, non_null(:id))
       arg(:filter, non_null(:paged_filter))
       arg(:thread, :post_thread, default_value: :post)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.published_comments/3)
-    end
-
-    @desc "get paged published comments on job"
-    field :published_job_comments, :paged_job_comments do
-      arg(:user_id, non_null(:id))
-      arg(:filter, non_null(:paged_filter))
-      arg(:thread, :job_thread, default_value: :job)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.published_comments/3)
-    end
-
-    @desc "get paged published comments on repo"
-    field :published_repo_comments, :paged_repo_comments do
-      arg(:user_id, non_null(:id))
-      arg(:filter, non_null(:paged_filter))
-      arg(:thread, :repo_thread, default_value: :repo)
 
       middleware(M.PageSizeProof)
       resolve(&R.Accounts.published_comments/3)

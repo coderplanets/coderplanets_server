@@ -69,12 +69,9 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
   def list_contributes_digest(%Community{id: id}) do
     scope = Cache.get_scope(:community_contributes, id)
 
-    case Cache.get(scope) do
-      {:ok, result} ->
-        {:ok, result}
-
-      {:error, _} ->
-        get_contributes_then_cache(%Community{id: id})
+    case Cache.get(:common, scope) do
+      {:ok, result} -> {:ok, result}
+      {:error, _} -> get_contributes_then_cache(%Community{id: id})
     end
   end
 
@@ -85,7 +82,7 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
     %Community{id: id}
     |> do_get_contributes()
     |> to_counts_digest(days: @community_contribute_days)
-    |> done_and_cache(scope, expire: 60_000)
+    |> done_and_cache(:common, scope, expire_min: 10)
   end
 
   defp update_contribute_record(%UserContribute{} = contribute) do

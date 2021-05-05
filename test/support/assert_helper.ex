@@ -6,6 +6,7 @@ defmodule GroupherServer.Test.AssertHelper do
   NOTE: we use POST in query_get, see https://github.com/coderplanets/coderplanets_server/issues/259
   """
 
+  import Helper.ErrorCode, only: [ecode: 1]
   import Phoenix.ConnTest
   import Helper.Utils, only: [map_key_stringify: 1, get_config: 2]
 
@@ -19,6 +20,10 @@ defmodule GroupherServer.Test.AssertHelper do
   """
   def non_exsit_id, do: 15_982_398_614
   # def page_size, do: @page_size
+
+  def is_error?(reason, code) when is_list(reason) and is_atom(code) do
+    reason |> Keyword.get(:code) == ecode(code)
+  end
 
   def assert_v(:inner_page_size), do: @inner_page_size
   def assert_v(:page_size), do: @page_size
@@ -198,24 +203,19 @@ defmodule GroupherServer.Test.AssertHelper do
   @doc "check id is exsit in list of Map<id: xxx> structure"
   @spec exist_in?(Map.t(), [Map.t()]) :: boolean
   def exist_in?(%{id: id}, list, :string_key) when is_list(list) do
-    list
-    |> Enum.filter(fn item -> item["id"] == to_string(id) end)
-    |> length
-    |> Kernel.==(1)
+    list |> Enum.any?(&(&1["id"] == to_string(id)))
   end
 
   def exist_in?(%{id: id}, list) when is_list(list) do
-    list
-    |> Enum.filter(fn item -> item.id == id end)
-    |> length
-    |> Kernel.==(1)
+    list |> Enum.any?(&(&1.id == id))
+  end
+
+  def user_exist_in?(%{id: id}, list, :string_key) when is_list(list) do
+    list |> Enum.any?(&(&1["id"] == to_string(id)))
   end
 
   # for embed user situation
   def user_exist_in?(%{login: login}, list) when is_list(list) do
-    list
-    |> Enum.filter(fn item -> item.login == login end)
-    |> length
-    |> Kernel.==(1)
+    list |> Enum.any?(&(&1.login == login))
   end
 end

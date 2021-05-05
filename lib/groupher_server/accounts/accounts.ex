@@ -5,12 +5,13 @@ defmodule GroupherServer.Accounts do
     Achievements,
     Customization,
     Fans,
-    FavoriteCategory,
+    CollectFolder,
     Publish,
     Mails,
     Profile,
-    ReactedContents,
-    Search
+    UpvotedArticles,
+    Search,
+    Utils
   }
 
   # profile
@@ -20,13 +21,17 @@ defmodule GroupherServer.Accounts do
   defdelegate default_subscribed_communities(filter), to: Profile
   defdelegate subscribed_communities(user, filter), to: Profile
 
-  # favorite category
-  defdelegate list_favorite_categories(user, opt, filter), to: FavoriteCategory
-  defdelegate create_favorite_category(user, attrs), to: FavoriteCategory
-  defdelegate update_favorite_category(user, attrs), to: FavoriteCategory
-  defdelegate delete_favorite_category(user, id), to: FavoriteCategory
-  defdelegate set_favorites(user, thread, content_id, category_id), to: FavoriteCategory
-  defdelegate unset_favorites(user, thread, content_id, category_id), to: FavoriteCategory
+  # collect folder
+  defdelegate list_collect_folders(user_id, filter), to: CollectFolder
+  defdelegate list_collect_folders(user_id, filter, owner), to: CollectFolder
+  defdelegate list_collect_folder_articles(folder_id, filter, user), to: CollectFolder
+  defdelegate list_collect_folder_articles(folder_id, filter), to: CollectFolder
+
+  defdelegate create_collect_folder(attrs, user), to: CollectFolder
+  defdelegate update_collect_folder(id, attrs), to: CollectFolder
+  defdelegate delete_collect_folder(id), to: CollectFolder
+  defdelegate add_to_collect(thread, article_id, folder_id, user), to: CollectFolder
+  defdelegate remove_from_collect(thread, article_id, folder_id, user), to: CollectFolder
 
   # achievement
   defdelegate achieve(user, operation, key), to: Achievements
@@ -44,9 +49,8 @@ defmodule GroupherServer.Accounts do
   defdelegate fetch_followers(user, filter), to: Fans
   defdelegate fetch_followings(user, filter), to: Fans
 
-  # reacted contents
-  defdelegate reacted_contents(thread, react, filter, user), to: ReactedContents
-  defdelegate reacted_contents(thread, react, category_id, filter, user), to: ReactedContents
+  # upvoted articles
+  defdelegate list_upvoted_articles(user_id, filter), to: UpvotedArticles
 
   # mentions
   defdelegate fetch_mentions(user, filter), to: Mails
@@ -67,4 +71,6 @@ defmodule GroupherServer.Accounts do
   defdelegate upgrade_by_plan(user, plan), to: Customization
 
   defdelegate search_users(args), to: Search
+
+  defdelegate get_userid_and_cache(login), to: Utils
 end

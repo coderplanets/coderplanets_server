@@ -133,20 +133,20 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   # #######################
   # thread reaction ..
   # #######################
-  def reaction(_root, ~m(id thread action)a, %{context: %{cur_user: user}}) do
-    CMS.reaction(thread, action, id, user)
+  def upvote_article(_root, ~m(id thread)a, %{context: %{cur_user: user}}) do
+    CMS.upvote_article(thread, id, user)
   end
 
-  def undo_reaction(_root, ~m(id thread action)a, %{context: %{cur_user: user}}) do
-    CMS.undo_reaction(thread, action, id, user)
+  def undo_upvote_article(_root, ~m(id thread)a, %{context: %{cur_user: user}}) do
+    CMS.undo_upvote_article(thread, id, user)
   end
 
-  def reaction_users(_root, ~m(id action thread filter)a, _info) do
-    CMS.reaction_users(thread, action, id, filter)
+  def upvoted_users(_root, ~m(id thread filter)a, _info) do
+    CMS.upvoted_users(thread, id, filter)
   end
 
-  def favorited_category(root, ~m(thread)a, %{context: %{cur_user: user}}) do
-    CMS.favorited_category(thread, root.id, user)
+  def collected_users(_root, ~m(id thread filter)a, _info) do
+    CMS.collected_users(thread, id, filter)
   end
 
   # #######################
@@ -237,10 +237,6 @@ defmodule GroupherServerWeb.Resolvers.CMS do
 
   def unset_tag(_root, ~m(id thread tag_id)a, _info) do
     CMS.unset_tag(thread, %Tag{id: tag_id}, id)
-  end
-
-  def unset_refined_tag(_root, ~m(community_id thread id)a, _info) do
-    CMS.unset_refined_tag(%Community{id: community_id}, thread, id)
   end
 
   def get_tags(_root, %{community_id: community_id, all: true}, _info) do
@@ -371,14 +367,6 @@ defmodule GroupherServerWeb.Resolvers.CMS do
 
   def reply_comment(_root, ~m(thread id)a = args, %{context: %{cur_user: user}}) do
     CMS.reply_comment(thread, id, args, user)
-  end
-
-  def like_comment(_root, ~m(thread id)a, %{context: %{cur_user: user}}) do
-    CMS.like_comment(thread, id, user)
-  end
-
-  def undo_like_comment(_root, ~m(thread id)a, %{context: %{cur_user: user}}) do
-    CMS.undo_like_comment(thread, id, user)
   end
 
   def stamp_passport(_root, ~m(user_id rules)a, %{context: %{cur_user: _user}}) do
