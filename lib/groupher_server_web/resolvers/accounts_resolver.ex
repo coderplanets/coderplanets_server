@@ -75,40 +75,6 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     {:error, [message: "need login", code: ecode(:account_login)]}
   end
 
-  def list_favorite_categories(_root, %{filter: filter}, %{context: %{cur_user: cur_user}}) do
-    Accounts.list_favorite_categories(cur_user, %{private: true}, filter)
-  end
-
-  def list_favorite_categories(_root, %{user_id: user_id, filter: filter}, _info)
-      when not is_nil(user_id) do
-    Accounts.list_favorite_categories(%User{id: user_id}, %{private: false}, filter)
-  end
-
-  # guest user
-  def list_favorite_categories(_root, _args, _info) do
-    {:ok, Utils.empty_pagi_data()}
-  end
-
-  def create_favorite_category(_root, attrs, %{context: %{cur_user: cur_user}}) do
-    Accounts.create_favorite_category(cur_user, attrs)
-  end
-
-  def update_favorite_category(_root, %{id: _id} = args, %{context: %{cur_user: cur_user}}) do
-    Accounts.update_favorite_category(cur_user, args)
-  end
-
-  def delete_favorite_category(_root, %{id: id}, %{context: %{cur_user: cur_user}}) do
-    Accounts.delete_favorite_category(cur_user, id)
-  end
-
-  def set_favorites(_root, ~m(id thread category_id)a, %{context: %{cur_user: cur_user}}) do
-    Accounts.set_favorites(cur_user, thread, id, category_id)
-  end
-
-  def unset_favorites(_root, ~m(id thread category_id)a, %{context: %{cur_user: cur_user}}) do
-    Accounts.unset_favorites(cur_user, thread, id, category_id)
-  end
-
   def follow(_root, ~m(user_id)a, %{context: %{cur_user: cur_user}}) do
     Accounts.follow(cur_user, %User{id: user_id})
   end
@@ -122,6 +88,7 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
   end
 
   def paged_followers(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
+    # TODO: rename to list_follower_users
     Accounts.fetch_followers(cur_user, filter)
   end
 
@@ -130,8 +97,35 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
   end
 
   def paged_followings(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
+    # TODO: rename to list_following_users
     Accounts.fetch_followings(cur_user, filter)
   end
+
+  def paged_upvoted_articles(_root, ~m(user_login filter)a, _info) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(user_login) do
+      Accounts.list_upvoted_articles(user_id, filter)
+    end
+  end
+
+  def create_collect_folder(_root, attrs, %{context: %{cur_user: cur_user}}) do
+    Accounts.create_collect_folder(attrs, cur_user)
+  end
+
+  def update_collect_folder(_root, %{id: id} = attrs, _) do
+    Accounts.update_collect_folder(id, attrs)
+  end
+
+  def delete_collect_folder(_root, %{id: id}, _) do
+    Accounts.delete_collect_folder(id)
+  end
+
+  # def set_favorites(_root, ~m(id thread category_id)a, %{context: %{cur_user: cur_user}}) do
+  #   Accounts.set_favorites(cur_user, thread, id, category_id)
+  # end
+
+  # def unset_favorites(_root, ~m(id thread category_id)a, %{context: %{cur_user: cur_user}}) do
+  #   Accounts.unset_favorites(cur_user, thread, id, category_id)
+  # end
 
   def paged_collect_folders(_root, ~m(user_login filter)a, %{context: %{cur_user: cur_user}}) do
     with {:ok, user_id} <- Accounts.get_userid_and_cache(user_login) do
@@ -151,12 +145,6 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
 
   def paged_collected_articles(_root, ~m(folder_id filter)a, _info) do
     Accounts.list_collect_folder_articles(folder_id, filter)
-  end
-
-  def paged_upvoted_articles(_root, ~m(user_login filter)a, _info) do
-    with {:ok, user_id} <- Accounts.get_userid_and_cache(user_login) do
-      Accounts.list_upvoted_articles(user_id, filter)
-    end
   end
 
   # published contents

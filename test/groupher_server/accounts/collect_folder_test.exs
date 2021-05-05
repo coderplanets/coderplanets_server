@@ -113,17 +113,17 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       assert result.total_count == 2
     end
 
-    @tag :wip3
+    @tag :wip2
     test "user can update a collect folder", ~m(user)a do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder", private: true}, user)
 
-      args = %{id: folder.id, title: "new title", desc: "new desc"}
-      {:ok, updated} = Accounts.update_collect_folder(args, user)
+      args = %{title: "new title", desc: "new desc"}
+      {:ok, updated} = Accounts.update_collect_folder(folder.id, args)
 
       assert updated.desc == "new desc"
       assert updated.title == "new title"
 
-      {:ok, updated} = Accounts.update_collect_folder(%{id: folder.id, private: true}, user)
+      {:ok, updated} = Accounts.update_collect_folder(folder.id, %{private: true})
       assert updated.private == true
     end
 

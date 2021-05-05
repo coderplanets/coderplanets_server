@@ -104,8 +104,8 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
     end
   end
 
-  def update_collect_folder(%{id: id} = attrs, %User{id: user_id}) do
-    with {:ok, folder} <- ORM.find_by(CollectFolder, ~m(id user_id)a) do
+  def update_collect_folder(folder_id, attrs) do
+    with {:ok, folder} <- ORM.find(CollectFolder, folder_id) do
       last_updated = Timex.today() |> Timex.to_datetime()
       folder |> ORM.update(Map.merge(~m(last_updated)a, attrs))
     end

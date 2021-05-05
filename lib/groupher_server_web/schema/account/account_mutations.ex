@@ -40,24 +40,24 @@ defmodule GroupherServerWeb.Schema.Account.Mutations do
     end
 
     @desc "create a favorites category"
-    field :create_favorite_category, :favorites_category do
+    field :create_collect_folder, :collect_folder do
       arg(:title, non_null(:string))
       arg(:private, :boolean)
       arg(:desc, :string)
 
       middleware(M.Authorize, :login)
-      resolve(&R.Accounts.create_favorite_category/3)
+      resolve(&R.Accounts.create_collect_folder/3)
     end
 
     @desc "update a favorites category"
-    field :update_favorite_category, :favorites_category do
+    field :update_collect_folder, :collect_folder do
       arg(:id, non_null(:id))
       arg(:title, :string)
       arg(:private, :boolean)
       arg(:desc, :string)
 
       middleware(M.Authorize, :login)
-      resolve(&R.Accounts.update_favorite_category/3)
+      resolve(&R.Accounts.update_collect_folder/3)
     end
 
     @desc "delete a favorites category"
