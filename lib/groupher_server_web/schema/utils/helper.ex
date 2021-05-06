@@ -39,7 +39,6 @@ defmodule GroupherServerWeb.Schema.Utils.Helper do
     quote do
       field(:when, :when_enum)
       field(:length, :length_enum)
-      field(:read, :read_enum, default_value: :all)
       field(:tag, :string, default_value: :all)
       field(:community, :string)
     end
@@ -89,16 +88,12 @@ defmodule GroupherServerWeb.Schema.Utils.Helper do
     end
   end
 
-  defmacro has_viewed_field do
+  defmacro viewer_has_state_fields do
     quote do
-      # @desc "if user has viewed this content"
-      field :viewer_has_viewed, :boolean do
-        middleware(M.Authorize, :login)
-        middleware(M.PutCurrentUser)
-
-        resolve(dataloader(CMS, :viewers))
-        middleware(M.ViewerDidConvert)
-      end
+      field(:viewer_has_collected, :boolean)
+      field(:viewer_has_upvoted, :boolean)
+      field(:viewer_has_viewed, :boolean)
+      field(:viewer_has_reported, :boolean)
     end
   end
 

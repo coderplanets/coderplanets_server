@@ -72,6 +72,10 @@ defmodule GroupherServer.CMS do
   # ArticleCURD
   defdelegate read_article(thread, id), to: ArticleCURD
   defdelegate read_article(thread, id, user), to: ArticleCURD
+
+  defdelegate paged_articles(queryable, filter), to: ArticleCURD
+  defdelegate paged_articles(queryable, filter, user), to: ArticleCURD
+
   defdelegate paged_contents(queryable, filter, user), to: ArticleCURD
   defdelegate paged_contents(queryable, filter), to: ArticleCURD
   defdelegate create_content(community, thread, attrs, user), to: ArticleCURD

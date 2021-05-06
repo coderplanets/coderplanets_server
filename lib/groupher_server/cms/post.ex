@@ -40,6 +40,7 @@ defmodule GroupherServer.CMS.Post do
     field(:length, :integer)
     field(:views, :integer, default: 0)
 
+    belongs_to(:author, Author)
     embeds_one(:meta, Embeds.ArticleMeta, on_replace: :update)
 
     has_many(:community_flags, {"posts_communities_flags", PostCommunityFlag})
@@ -49,7 +50,10 @@ defmodule GroupherServer.CMS.Post do
     field(:is_pinned, :boolean, default: false, virtual: true)
     field(:trash, :boolean, default_value: false, virtual: true)
 
-    belongs_to(:author, Author)
+    field(:viewer_has_viewed, :boolean, default: false, virtual: true)
+    field(:viewer_has_upvoted, :boolean, default: false, virtual: true)
+    field(:viewer_has_collected, :boolean, default: false, virtual: true)
+    field(:viewer_has_reported, :boolean, default: false, virtual: true)
 
     # TODO
     # 相关文章

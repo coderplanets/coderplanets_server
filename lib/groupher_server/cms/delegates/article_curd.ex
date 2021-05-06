@@ -48,6 +48,47 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end
   end
 
+  def paged_articles(thread, filter) do
+    with {:ok, info} <- match(thread) do
+      info.model
+      |> domain_filter_query(filter)
+      |> community_with_flag_query(filter)
+      |> ORM.find_all(filter)
+      |> add_pin_contents_ifneed(info.model, filter)
+    end
+  end
+
+  def paged_articles(thread, filter, %User{} = user) do
+    with {:ok, info} <- match(thread) do
+      info.model
+      |> domain_filter_query(filter)
+      |> community_with_flag_query(filter)
+      |> ORM.find_all(filter)
+      |> add_pin_contents_ifneed(info.model, filter)
+      |> mark_viewer_has_states(user)
+    end
+  end
+
+  defp mark_viewer_has_states({:ok, %{entries: []} = contents}, _), do: {:ok, contents}
+
+  defp mark_viewer_has_states({:ok, %{entries: entries} = contents}, user) do
+    entries = Enum.map(entries, &Map.merge(&1, do_mark_viewer_has_states(&1.meta, user)))
+    {:ok, Map.merge(contents, %{entries: entries})}
+  end
+
+  defp mark_viewer_has_states({:error, reason}, _), do: {:error, reason}
+
+  defp do_mark_viewer_has_states(meta, %User{id: user_id}) do
+    # TODO: 根据是否付费进一步判断
+    # user_is_member = true
+    %{
+      viewer_has_collected: Enum.member?(meta.collected_user_ids, user_id),
+      viewer_has_upvoted: Enum.member?(meta.upvoted_user_ids, user_id),
+      viewer_has_viewed: Enum.member?(meta.viewed_user_ids, user_id),
+      viewer_has_reported: Enum.member?(meta.reported_user_ids, user_id)
+    }
+  end
+
   @doc """
   get paged post / job ...
   """

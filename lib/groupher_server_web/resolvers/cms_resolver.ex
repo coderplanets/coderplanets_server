@@ -8,7 +8,7 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   alias GroupherServer.{Accounts, CMS}
 
   alias Accounts.User
-  alias CMS.{Post, Repo, Job, Community, Category, Tag, Thread}
+  alias CMS.{Community, Category, Tag, Thread}
 
   alias Helper.ORM
 
@@ -54,26 +54,16 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.read_article(thread, id)
   end
 
+  def paged_articles(_root, ~m(thread filter)a, %{context: %{cur_user: user}}) do
+    CMS.paged_articles(thread, filter, user)
+  end
+
+  def paged_articles(_root, ~m(thread filter)a, _info) do
+    CMS.paged_articles(thread, filter)
+  end
+
   def wiki(_root, ~m(community)a, _info), do: CMS.get_wiki(%Community{raw: community})
   def cheatsheet(_root, ~m(community)a, _info), do: CMS.get_cheatsheet(%Community{raw: community})
-
-  def paged_posts(_root, ~m(filter)a, %{context: %{cur_user: user}}) do
-    Post |> CMS.paged_contents(filter, user)
-  end
-
-  def paged_posts(_root, ~m(filter)a, _info), do: Post |> CMS.paged_contents(filter)
-
-  def paged_repos(_root, ~m(filter)a, %{context: %{cur_user: user}}) do
-    Repo |> CMS.paged_contents(filter, user)
-  end
-
-  def paged_repos(_root, ~m(filter)a, _info), do: Repo |> CMS.paged_contents(filter)
-
-  def paged_jobs(_root, ~m(filter)a, %{context: %{cur_user: user}}) do
-    Job |> CMS.paged_contents(filter, user)
-  end
-
-  def paged_jobs(_root, ~m(filter)a, _info), do: Job |> CMS.paged_contents(filter)
 
   def create_content(_root, ~m(community_id thread)a = args, %{context: %{cur_user: user}}) do
     CMS.create_content(%Community{id: community_id}, thread, args, user)

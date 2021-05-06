@@ -1,4 +1,6 @@
 defmodule GroupherServer.Test.Query.PagedPosts do
+  @moduledoc false
+
   use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
@@ -154,19 +156,22 @@ defmodule GroupherServer.Test.Query.PagedPosts do
     end
   end
 
-  describe "[query paged_posts filter read]" do
+  describe "[query paged_posts filter has_xxx]" do
     @query """
     query($filter: PagedPostsFilter!) {
       pagedPosts(filter: $filter) {
         entries {
           id
+          viewerHasCollected
+          viewerHasUpvoted
           viewerHasViewed
         }
         totalCount
       }
     }
     """
-    test "read state true filter should work", ~m(user)a do
+    @tag :wip3
+    test "has_xxx state should work", ~m(user)a do
       user_conn = simu_conn(:user, user)
       {:ok, community} = db_insert(:community)
 
@@ -178,33 +183,20 @@ defmodule GroupherServer.Test.Query.PagedPosts do
       results = user_conn |> query_result(@query, variables, "pagedPosts")
       assert results["totalCount"] == 3
 
-      {:ok, _} = CMS.read_content(:post, post.id, user)
+      the_post = Enum.find(results["entries"], &(&1["id"] == to_string(post.id)))
+      assert not the_post["viewerHasViewed"]
+      assert not the_post["viewerHasUpvoted"]
+      assert not the_post["viewerHasCollected"]
 
-      variables = %{filter: %{community: community.raw, read: "TRUE"}}
+      {:ok, _} = CMS.read_article(:post, post.id, user)
+      {:ok, _} = CMS.upvote_article(:post, post.id, user)
+      {:ok, _} = CMS.collect_article(:post, post.id, user)
+
       results = user_conn |> query_result(@query, variables, "pagedPosts")
-
-      assert results["totalCount"] == 1
-    end
-
-    @tag :wip
-    test "read state all filter should work", ~m(user)a do
-      user_conn = simu_conn(:user, user)
-      {:ok, community} = db_insert(:community)
-
-      {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
-      {:ok, _post2} = CMS.create_content(community, :post, mock_attrs(:post), user)
-      {:ok, _post3} = CMS.create_content(community, :post, mock_attrs(:post), user)
-
-      variables = %{filter: %{community: community.raw}}
-      results = user_conn |> query_result(@query, variables, "pagedPosts")
-      assert results["totalCount"] == 3
-
-      {:ok, _} = CMS.read_content(:post, post.id, user)
-
-      variables = %{filter: %{community: community.raw, read: "ALL"}}
-      results = user_conn |> query_result(@query, variables, "pagedPosts")
-
-      assert results["totalCount"] == 3
+      the_post = Enum.find(results["entries"], &(&1["id"] == to_string(post.id)))
+      assert the_post["viewerHasViewed"]
+      assert the_post["viewerHasUpvoted"]
+      assert the_post["viewerHasCollected"]
     end
   end
 
