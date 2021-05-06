@@ -6,12 +6,13 @@ defmodule GroupherServer.Test.CMS.Post do
 
   setup do
     {:ok, user} = db_insert(:user)
-    # {:ok, post} = db_insert(:post)
+    {:ok, user2} = db_insert(:user)
+    {:ok, post} = db_insert(:post)
     {:ok, community} = db_insert(:community)
 
     post_attrs = mock_attrs(:post, %{community_id: community.id})
 
-    {:ok, ~m(user community post_attrs)a}
+    {:ok, ~m(user user2 community post post_attrs)a}
   end
 
   describe "[cms post curd]" do
@@ -23,6 +24,28 @@ defmodule GroupherServer.Test.CMS.Post do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 
       assert post.title == post_attrs.title
+    end
+
+    @tag :wip2
+    test "read post should update views and meta viewed_user_list",
+         ~m(post_attrs community user user2)a do
+      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, _} = CMS.read_article(:post, post.id, user)
+      {:ok, _created} = ORM.find(CMS.Post, post.id)
+
+      # same user duplicate case
+      {:ok, _} = CMS.read_article(:post, post.id, user)
+      {:ok, created} = ORM.find(CMS.Post, post.id)
+
+      assert created.meta.viewed_user_ids |> length == 1
+      assert user.id in created.meta.viewed_user_ids
+
+      {:ok, _} = CMS.read_article(:post, post.id, user2)
+      {:ok, created} = ORM.find(CMS.Post, post.id)
+
+      assert created.meta.viewed_user_ids |> length == 2
+      assert user.id in created.meta.viewed_user_ids
+      assert user2.id in created.meta.viewed_user_ids
     end
 
     test "created post has origial community info", ~m(user community post_attrs)a do

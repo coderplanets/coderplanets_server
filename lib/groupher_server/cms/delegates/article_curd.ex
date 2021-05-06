@@ -5,33 +5,46 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   import Ecto.Query, warn: false
 
   import GroupherServer.CMS.Utils.Matcher2
+  import GroupherServer.CMS.Utils.Matcher, only: [match_action: 2]
 
-  import GroupherServer.CMS.Utils.Matcher, only: [match_action: 2, dynamic_where: 2]
   import Helper.Utils, only: [done: 1, pick_by: 2, integerfy: 1]
   import Helper.ErrorCode
-  import ShortMaps
 
+  alias Helper.{Later, ORM}
   alias GroupherServer.{Accounts, CMS, Delivery, Email, Repo, Statistics}
 
   alias Accounts.User
   alias CMS.{Author, Community, PinnedArticle, Embeds, Delegate, Tag}
 
   alias Delegate.ArticleOperation
-  alias Helper.{Later, ORM, QueryBuilder}
 
   alias Ecto.Multi
 
   @default_article_meta Embeds.ArticleMeta.default_meta()
 
   @doc """
-  login user read cms content by add views count and viewer record
+  read articles for un-logined user
   """
-  def read_content(thread, id, %User{id: user_id}) do
-    condition = %{user_id: user_id} |> Map.merge(content_id(thread, id))
+  def read_article(thread, id) do
+    with {:ok, info} <- match(thread) do
+      ORM.read(info.model, id, inc: :views)
+    end
+  end
 
-    with {:ok, action} <- match_action(thread, :self),
-         {:ok, _viewer} <- action.viewer |> ORM.findby_or_insert(condition, condition) do
-      action.target |> ORM.read(id, inc: :views)
+  @doc """
+  read articles for logined user
+  """
+  def read_article(thread, id, %User{id: user_id}) do
+    with {:ok, info} <- match(thread) do
+      Multi.new()
+      |> Multi.run(:inc_views, fn _, _ ->
+        ORM.read(info.model, id, inc: :views)
+      end)
+      |> Multi.run(:add_viewed_user, fn _, %{inc_views: article} ->
+        update_viewed_user_list(article, user_id)
+      end)
+      |> Repo.transaction()
+      |> read_result()
     end
   end
 
@@ -417,4 +430,32 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   end
 
   defp exec_update_tags(_content, _), do: {:ok, :pass}
+
+  defp update_viewed_user_list(%{meta: nil} = article, user_id) do
+    new_ids = Enum.uniq([user_id] ++ @default_article_meta.viewed_user_ids)
+    updated_meta = @default_article_meta |> Map.merge(%{viewed_user_ids: new_ids})
+
+    article
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_embed(:meta, updated_meta)
+    |> Repo.update()
+  end
+
+  defp update_viewed_user_list(%{meta: meta} = article, user_id) do
+    new_ids = Enum.uniq([user_id] ++ meta.viewed_user_ids)
+
+    updated_meta =
+      meta |> Map.merge(%{viewed_user_ids: new_ids}) |> Map.from_struct() |> Map.delete(:id)
+
+    article
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_embed(:meta, updated_meta)
+    |> Repo.update()
+  end
+
+  defp read_result({:ok, %{inc_views: result}}), do: result |> done()
+
+  defp read_result({:error, _, result, _steps}) do
+    {:error, result}
+  end
 end

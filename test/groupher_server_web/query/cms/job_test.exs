@@ -19,6 +19,7 @@ defmodule GroupherServer.Test.Query.Job do
     }
   }
   """
+  @tag :wip2
   test "basic graphql query on job with logined user", ~m(user_conn job)a do
     variables = %{id: job.id}
     results = user_conn |> query_result(@query, variables, "job")
@@ -29,6 +30,7 @@ defmodule GroupherServer.Test.Query.Job do
     assert length(Map.keys(results)) == 3
   end
 
+  @tag :wip2
   test "basic graphql query on job with stranger(unloged user)", ~m(guest_conn job)a do
     variables = %{id: job.id}
     results = guest_conn |> query_result(@query, variables, "job")

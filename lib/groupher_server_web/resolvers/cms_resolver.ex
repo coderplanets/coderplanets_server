@@ -46,24 +46,13 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   # #######################
   # community thread (post, job), login user should be logged
   # #######################
-  def post(_root, %{id: id}, %{context: %{cur_user: user}}) do
-    CMS.read_content(:post, id, user)
+  def read_article(_root, %{thread: thread, id: id}, %{context: %{cur_user: user}}) do
+    CMS.read_article(thread, id, user)
   end
 
-  def post(_root, %{id: id}, _info),
-    do: Post |> ORM.read(id, inc: :views)
-
-  def job(_root, %{id: id}, %{context: %{cur_user: user}}) do
-    CMS.read_content(:job, id, user)
+  def read_article(_root, %{thread: thread, id: id}, _info) do
+    CMS.read_article(thread, id)
   end
-
-  def job(_root, %{id: id}, _info), do: Job |> ORM.read(id, inc: :views)
-
-  def repo(_root, %{id: id}, %{context: %{cur_user: user}}) do
-    CMS.read_content(:repo, id, user)
-  end
-
-  def repo(_root, %{id: id}, _info), do: Repo |> ORM.read(id, inc: :views)
 
   def wiki(_root, ~m(community)a, _info), do: CMS.get_wiki(%Community{raw: community})
   def cheatsheet(_root, ~m(community)a, _info), do: CMS.get_cheatsheet(%Community{raw: community})

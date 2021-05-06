@@ -56,7 +56,6 @@ defmodule GroupherServer.Test.ArticleUpvote do
       assert user_exist_in?(user2, users.entries)
     end
 
-    @tag :wip2
     test "post meta history should be updated after upvote",
          ~m(user user2 community post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
@@ -68,7 +67,6 @@ defmodule GroupherServer.Test.ArticleUpvote do
       assert user2.id in article.meta.upvoted_user_ids
     end
 
-    @tag :wip2
     test "post meta history should be updated after undo upvote",
          ~m(user user2 community post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
@@ -128,7 +126,6 @@ defmodule GroupherServer.Test.ArticleUpvote do
       assert user_exist_in?(user2, users.entries)
     end
 
-    @tag :wip2
     test "job meta history should be updated", ~m(user user2 community job_attrs)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
       {:ok, article} = CMS.upvote_article(:job, job.id, user)
@@ -139,7 +136,6 @@ defmodule GroupherServer.Test.ArticleUpvote do
       assert user2.id in article.meta.upvoted_user_ids
     end
 
-    @tag :wip2
     test "job meta history should be updated after undo upvote",
          ~m(user user2 community job_attrs)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
