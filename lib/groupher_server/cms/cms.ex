@@ -75,12 +75,8 @@ defmodule GroupherServer.CMS do
   defdelegate paged_contents(queryable, filter), to: ArticleCURD
   defdelegate create_content(community, thread, attrs, user), to: ArticleCURD
   defdelegate update_content(content, attrs), to: ArticleCURD
-  defdelegate reaction_users(thread, react, id, filters), to: ArticleCURD
 
   # ArticleReaction
-  defdelegate reaction(thread, react, content_id, user), to: ArticleReaction
-  defdelegate undo_reaction(thread, react, content_id, user), to: ArticleReaction
-
   defdelegate upvote_article(thread, article_id, user), to: ArticleReaction
   defdelegate undo_upvote_article(thread, article_id, user), to: ArticleReaction
 

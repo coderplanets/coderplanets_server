@@ -1,4 +1,5 @@
 defmodule GroupherServer.Test.ArticleCollect do
+  @moduledoc false
   use GroupherServer.TestTools
 
   alias Helper.ORM
@@ -62,6 +63,42 @@ defmodule GroupherServer.Test.ArticleCollect do
       assert user_exist_in?(user, users.entries)
       assert user_exist_in?(user2, users.entries)
     end
+
+    @tag :wip2
+    test "post meta history should be updated", ~m(user user2 community post_attrs)a do
+      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, _} = CMS.collect_article(:post, post.id, user)
+
+      {:ok, article} = ORM.find(Post, post.id)
+      assert user.id in article.meta.collected_user_ids
+
+      {:ok, _} = CMS.collect_article(:post, post.id, user2)
+      {:ok, article} = ORM.find(Post, post.id)
+
+      assert user.id in article.meta.collected_user_ids
+      assert user2.id in article.meta.collected_user_ids
+    end
+
+    @tag :wip2
+    test "post meta history should be updated after undo collect",
+         ~m(user user2 community post_attrs)a do
+      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, _} = CMS.collect_article(:post, post.id, user)
+      {:ok, _} = CMS.collect_article(:post, post.id, user2)
+
+      {:ok, article} = ORM.find(Post, post.id)
+      assert user.id in article.meta.collected_user_ids
+      assert user2.id in article.meta.collected_user_ids
+
+      {:ok, _} = CMS.undo_collect_article(:post, post.id, user2)
+      {:ok, article} = ORM.find(Post, post.id)
+      assert user2.id not in article.meta.collected_user_ids
+
+      {:ok, _} = CMS.undo_collect_article(:post, post.id, user)
+      {:ok, article} = ORM.find(Post, post.id)
+      assert user.id not in article.meta.collected_user_ids
+      assert user2.id not in article.meta.collected_user_ids
+    end
   end
 
   describe "[cms job collect]" do
@@ -109,6 +146,41 @@ defmodule GroupherServer.Test.ArticleCollect do
       assert users |> is_valid_pagination?(:raw)
       assert user_exist_in?(user, users.entries)
       assert user_exist_in?(user2, users.entries)
+    end
+
+    @tag :wip2
+    test "job meta history should be updated", ~m(user user2 community job_attrs)a do
+      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, _} = CMS.collect_article(:job, job.id, user)
+
+      {:ok, article} = ORM.find(Job, job.id)
+      assert user.id in article.meta.collected_user_ids
+
+      {:ok, _} = CMS.collect_article(:job, job.id, user2)
+      {:ok, article} = ORM.find(Job, job.id)
+      assert user.id in article.meta.collected_user_ids
+      assert user2.id in article.meta.collected_user_ids
+    end
+
+    @tag :wip2
+    test "job meta history should be updated after undo collect",
+         ~m(user user2 community job_attrs)a do
+      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, _} = CMS.collect_article(:job, job.id, user)
+      {:ok, _} = CMS.collect_article(:job, job.id, user2)
+
+      {:ok, article} = ORM.find(Job, job.id)
+      assert user.id in article.meta.collected_user_ids
+      assert user2.id in article.meta.collected_user_ids
+
+      {:ok, _} = CMS.undo_collect_article(:job, job.id, user2)
+      {:ok, article} = ORM.find(Job, job.id)
+      assert user2.id not in article.meta.collected_user_ids
+
+      {:ok, _} = CMS.undo_collect_article(:job, job.id, user)
+      {:ok, article} = ORM.find(Job, job.id)
+      assert user.id not in article.meta.collected_user_ids
+      assert user2.id not in article.meta.collected_user_ids
     end
   end
 end

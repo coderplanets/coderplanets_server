@@ -555,7 +555,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert deleted_comment.body_html == @delete_hint
     end
 
-    @tag :wip2
+    @tag :wip
     test "delete comment still update article's comments_count field", ~m(user post)a do
       {:ok, _comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       {:ok, _comment} = CMS.create_article_comment(:post, post.id, "commment", user)
