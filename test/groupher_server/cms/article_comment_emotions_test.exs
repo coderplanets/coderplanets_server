@@ -22,7 +22,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
   end
 
   describe "[emotion in paged article comment]" do
-    @tag :wip2
+    @tag :wip3
     test "login user should got viewer has emotioned status", ~m(post user)a do
       total_count = 0
       page_number = 10

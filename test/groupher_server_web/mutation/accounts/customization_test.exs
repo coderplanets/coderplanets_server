@@ -72,7 +72,7 @@ defmodule GroupherServer.Test.Mutation.Account.Customization do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "PageSizeProof middleware should lint c11n displayDensity size", ~m(user)a do
       user_conn = simu_conn(:user, user)
       db_insert_multi(:post, 50)

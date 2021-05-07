@@ -395,7 +395,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       assert the_random_comment |> get_in(["meta", "isArticleAuthorUpvoted"])
     end
 
-    @tag :wip2
+    @tag :wip3
     test "guest user can get paged comment with emotions info",
          ~m(guest_conn post user user2)a do
       total_count = 2
