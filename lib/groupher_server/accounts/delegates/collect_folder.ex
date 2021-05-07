@@ -208,8 +208,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
     folder
     |> Ecto.Changeset.change(%{total_count: total_count, last_updated: last_updated})
     |> Ecto.Changeset.put_embed(:collects, collects)
-    |> Ecto.Changeset.put_embed(:meta, meta)
-    |> Repo.update()
+    |> ORM.update_meta(meta)
   end
 
   # check if the article is already in this folder

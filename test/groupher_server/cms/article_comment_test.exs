@@ -130,6 +130,14 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert comment.meta.is_article_author_upvoted
     end
 
+    @tag :wip2
+    test "article author upvote post comment will update upvoted_user_ids", ~m(post user)a do
+      comment = "post_comment"
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
+      CMS.upvote_article_comment(comment.id, user)
+      # IO.inspect(hello, label: "the hello")
+    end
+
     @tag :wip
     test "user can upvote a job comment", ~m(user job)a do
       comment = "job_comment"

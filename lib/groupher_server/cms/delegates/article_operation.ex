@@ -7,6 +7,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
 
   import Helper.ErrorCode
   import ShortMaps
+  import Helper.Utils, only: [strip_struct: 1]
   import GroupherServer.CMS.Utils.Matcher2
 
   alias Helper.Types, as: T
@@ -163,20 +164,15 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   @doc "update isEdited meta label if needed"
   # TODO: diff history
   def update_edit_status(%{meta: %Embeds.ArticleMeta{is_edited: false} = meta} = content) do
-    new_meta =
-      meta
-      |> Map.from_struct()
-      |> Map.delete(:id)
-      |> Map.merge(%{is_edited: true})
-
-    do_update_meta(content, new_meta)
+    meta = meta |> strip_struct |> Map.merge(%{is_edited: true})
+    ORM.update_meta(content, meta)
   end
 
   # for test or exsiting articles
   def update_edit_status(%{meta: nil} = content) do
-    new_meta = Embeds.ArticleMeta.default_meta() |> Map.merge(%{is_edited: true})
+    meta = Embeds.ArticleMeta.default_meta() |> Map.merge(%{is_edited: true})
 
-    do_update_meta(content, new_meta)
+    ORM.update_meta(content, meta)
   end
 
   def update_edit_status(content, _), do: {:ok, content}
@@ -186,24 +182,16 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   def lock_article_comment(
         %{meta: %Embeds.ArticleMeta{is_comment_locked: false} = meta} = content
       ) do
-    new_meta =
+    meta =
       meta
       |> Map.from_struct()
       |> Map.delete(:id)
       |> Map.merge(%{is_comment_locked: true})
 
-    do_update_meta(content, new_meta)
+    ORM.update_meta(content, meta)
   end
 
   def lock_article_comment(content), do: {:ok, content}
-
-  # TODO: put it into ORM helper
-  defp do_update_meta(%{meta: _} = content, meta_params) do
-    content
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_embed(:meta, meta_params)
-    |> Repo.update()
-  end
 
   # check if the thread has aready enough pined articles
   defp check_pinned_article_count(community_id, thread) do

@@ -3,7 +3,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   CURD and operations for article comments
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1]
+  import Helper.Utils, only: [done: 1, strip_struct: 1]
   import Helper.ErrorCode
 
   import GroupherServer.CMS.Utils.Matcher2
@@ -363,10 +363,14 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   def upvote_article_comment(comment_id, %User{id: user_id}) do
     with {:ok, comment} <- ORM.find(ArticleComment, comment_id),
          false <- comment.is_deleted do
+      # TODO: is user upvoted before?
       # IO.inspect(comment, label: "the comment")
       Multi.new()
       |> Multi.run(:create_comment_upvote, fn _, _ ->
         ORM.create(ArticleCommentUpvote, %{article_comment_id: comment.id, user_id: user_id})
+      end)
+      |> Multi.run(:add_upvoted_user, fn _, _ ->
+        update_upvoted_user_list(comment, user_id, :add)
       end)
       |> Multi.run(:inc_upvotes_count, fn _, _ ->
         count_query = from(c in ArticleCommentUpvote, where: c.article_comment_id == ^comment.id)
@@ -379,6 +383,20 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> Repo.transaction()
       |> upsert_comment_result()
     end
+  end
+
+  defp update_upvoted_user_list(comment, user_id, opt) do
+    IO.inspect(comment.meta, label: "update_upvoted_user_list meta")
+    cur_user_ids = get_in(comment, [:meta, :upvoted_user_ids])
+
+    user_ids =
+      case opt do
+        :add -> [user_id] ++ cur_user_ids
+        :remove -> cur_user_ids -- [user_id]
+      end
+
+    meta = comment.meta |> Map.merge(%{upvoted_user_ids: user_ids}) |> strip_struct
+    ORM.update_meta(comment, meta)
   end
 
   @doc "upvote a comment"
