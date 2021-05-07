@@ -3,6 +3,8 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentMeta do
   general article comment meta info
   """
   use Ecto.Schema
+  use Accessible
+
   import Ecto.Changeset
 
   @optional_fields ~w(is_article_author_upvoted is_solution report_count is_reply_to_others)a

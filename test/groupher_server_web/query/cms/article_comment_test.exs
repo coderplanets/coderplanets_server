@@ -473,7 +473,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
              |> get_in(["emotions", "viewerHasDownvoteed"])
     end
 
-    @tag :wip
+    @tag :wip2
     test "comment should have viewer has upvoted flag", ~m(user_conn post user)a do
       total_count = 10
       page_size = 12

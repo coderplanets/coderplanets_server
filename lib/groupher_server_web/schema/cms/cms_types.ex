@@ -339,15 +339,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:meta, :article_comment_meta)
     field(:replies_count, :integer)
     field(:reply_to, :article_comment_reply)
-
-    field :viewer_has_upvoted, :boolean do
-      arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
-
-      middleware(M.Authorize, :login)
-      middleware(M.PutCurrentUser)
-      resolve(dataloader(CMS, :upvotes))
-      middleware(M.ViewerDidConvert)
-    end
+    field(:viewer_has_upvoted, :boolean)
 
     timestamp_fields()
   end
@@ -365,15 +357,8 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:reply_to, :article_comment_reply)
     field(:replies, list_of(:article_comment_reply))
     field(:replies_count, :integer)
-    # field(:viewer_has_upvoted, :boolean, resolve: dataloader(CMS, :))
-    field :viewer_has_upvoted, :boolean do
-      arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
 
-      middleware(M.Authorize, :login)
-      middleware(M.PutCurrentUser)
-      resolve(dataloader(CMS, :upvotes))
-      middleware(M.ViewerDidConvert)
-    end
+    field(:viewer_has_upvoted, :boolean)
 
     timestamp_fields()
   end

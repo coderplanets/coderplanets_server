@@ -364,7 +364,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     with {:ok, comment} <- ORM.find(ArticleComment, comment_id),
          false <- comment.is_deleted do
       # TODO: is user upvoted before?
-      # IO.inspect(comment, label: "the comment")
       Multi.new()
       |> Multi.run(:create_comment_upvote, fn _, _ ->
         ORM.create(ArticleCommentUpvote, %{article_comment_id: comment.id, user_id: user_id})
@@ -372,7 +371,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> Multi.run(:add_upvoted_user, fn _, _ ->
         update_upvoted_user_list(comment, user_id, :add)
       end)
-      |> Multi.run(:inc_upvotes_count, fn _, _ ->
+      |> Multi.run(:inc_upvotes_count, fn _, %{add_upvoted_user: comment} ->
         count_query = from(c in ArticleCommentUpvote, where: c.article_comment_id == ^comment.id)
         upvotes_count = Repo.aggregate(count_query, :count)
         ORM.update(comment, %{upvotes_count: upvotes_count})
@@ -383,20 +382,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> Repo.transaction()
       |> upsert_comment_result()
     end
-  end
-
-  defp update_upvoted_user_list(comment, user_id, opt) do
-    IO.inspect(comment.meta, label: "update_upvoted_user_list meta")
-    cur_user_ids = get_in(comment, [:meta, :upvoted_user_ids])
-
-    user_ids =
-      case opt do
-        :add -> [user_id] ++ cur_user_ids
-        :remove -> cur_user_ids -- [user_id]
-      end
-
-    meta = comment.meta |> Map.merge(%{upvoted_user_ids: user_ids}) |> strip_struct
-    ORM.update_meta(comment, meta)
   end
 
   @doc "upvote a comment"
@@ -410,7 +395,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
           user_id: user_id
         })
       end)
-      |> Multi.run(:desc_upvotes_count, fn _, _ ->
+      |> Multi.run(:remove_upvoted_user, fn _, _ ->
+        update_upvoted_user_list(comment, user_id, :remove)
+      end)
+      |> Multi.run(:desc_upvotes_count, fn _, %{remove_upvoted_user: comment} ->
         count_query = from(c in ArticleCommentUpvote, where: c.article_comment_id == ^comment_id)
         upvotes_count = Repo.aggregate(count_query, :count)
 
@@ -437,6 +425,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> ORM.paginater(~m(page size)a)
       |> set_viewer_emotion_ifneed(user)
       |> add_pined_comments_ifneed(thread, article_id, filters)
+      |> mark_viewer_has_upvoted(user)
       |> done()
     end
   end
@@ -453,6 +442,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     |> QueryBuilder.filter_pack(filters)
     |> ORM.paginater(~m(page size)a)
     |> set_viewer_emotion_ifneed(user)
+    |> mark_viewer_has_upvoted(user)
     |> done()
   end
 
@@ -625,6 +615,18 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     %{paged_comments | entries: new_entries}
   end
 
+  defp mark_viewer_has_upvoted(paged_comments, nil), do: paged_comments
+
+  defp mark_viewer_has_upvoted(%{entries: entries} = paged_comments, %User{} = user) do
+    entries =
+      Enum.map(
+        entries,
+        &Map.merge(&1, %{viewer_has_upvoted: Enum.member?(&1.meta.upvoted_user_ids, user.id)})
+      )
+
+    Map.merge(paged_comments, %{entries: entries})
+  end
+
   defp get_article(%ArticleComment{post_id: post_id} = comment) when not is_nil(post_id) do
     with {:ok, article} <- ORM.find(Post, comment.post_id, preload: [author: :user]) do
       {:post, article}
@@ -690,6 +692,19 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       false ->
         {:ok, :pass}
     end
+  end
+
+  defp update_upvoted_user_list(comment, user_id, opt) do
+    cur_user_ids = get_in(comment, [:meta, :upvoted_user_ids])
+
+    user_ids =
+      case opt do
+        :add -> [user_id] ++ cur_user_ids
+        :remove -> cur_user_ids -- [user_id]
+      end
+
+    meta = comment.meta |> Map.merge(%{upvoted_user_ids: user_ids}) |> strip_struct
+    ORM.update_meta(comment, meta)
   end
 
   defp upsert_comment_result({:ok, %{create_article_comment: result}}), do: {:ok, result}

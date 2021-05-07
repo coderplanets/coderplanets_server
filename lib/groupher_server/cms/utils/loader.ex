@@ -9,7 +9,6 @@ defmodule GroupherServer.CMS.Utils.Loader do
 
   alias CMS.{
     Author,
-    ArticleCommentUpvote,
     CommunityEditor,
     CommunitySubscriber,
     CommunityThread,
@@ -165,12 +164,12 @@ defmodule GroupherServer.CMS.Utils.Loader do
     |> QueryBuilder.members_pack(args)
   end
 
-  def query({"articles_comments_upvotes", ArticleCommentUpvote}, %{
-        viewer_did: _,
-        cur_user: cur_user
-      }) do
-    ArticleCommentUpvote |> where([f], f.user_id == ^cur_user.id)
-  end
+  # def query({"articles_comments_upvotes", ArticleCommentUpvote}, %{
+  #       viewer_did: _,
+  #       cur_user: cur_user
+  #     }) do
+  #   ArticleCommentUpvote |> where([f], f.user_id == ^cur_user.id)
+  # end
 
   # default loader
   def query(queryable, _args) do
