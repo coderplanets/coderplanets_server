@@ -78,6 +78,15 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp mark_viewer_has_states({:error, reason}, _), do: {:error, reason}
 
+  defp do_mark_viewer_has_states(nil, _) do
+    %{
+      viewer_has_collected: false,
+      viewer_has_upvoted: false,
+      viewer_has_viewed: false,
+      viewer_has_reported: false
+    }
+  end
+
   defp do_mark_viewer_has_states(meta, %User{id: user_id}) do
     # TODO: 根据是否付费进一步判断
     # user_is_member = true
@@ -374,10 +383,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp update_content_result({:ok, %{update_edit_status: result}}), do: {:ok, result}
   defp update_content_result({:error, :update_content, result, _steps}), do: {:error, result}
   defp update_content_result({:error, :update_tag, result, _steps}), do: {:error, result}
-
-  defp content_id(:post, id), do: %{post_id: id}
-  defp content_id(:job, id), do: %{job_id: id}
-  defp content_id(:repo, id), do: %{repo_id: id}
 
   #  for create content step in Multi.new
   defp do_create_content(target, attrs, %Author{id: aid}, %Community{id: cid}) do
