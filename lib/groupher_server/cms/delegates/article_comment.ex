@@ -225,7 +225,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   end
 
   @doc "make emotion to a comment"
-  def make_emotion(comment_id, emotion, %User{} = user) do
+  def emotion_to_comment(comment_id, emotion, %User{} = user) do
     with {:ok, comment} <-
            ORM.find(ArticleComment, comment_id) do
       Multi.new()

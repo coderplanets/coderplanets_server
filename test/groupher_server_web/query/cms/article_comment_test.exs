@@ -412,9 +412,9 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       comment = all_comment |> Enum.at(0)
       comment2 = all_comment |> Enum.at(1)
 
-      {:ok, _} = CMS.make_emotion(comment.id, :downvote, user)
-      {:ok, _} = CMS.make_emotion(comment.id, :downvote, user2)
-      {:ok, _} = CMS.make_emotion(comment2.id, :beer, user2)
+      {:ok, _} = CMS.emotion_to_comment(comment.id, :downvote, user)
+      {:ok, _} = CMS.emotion_to_comment(comment.id, :downvote, user2)
+      {:ok, _} = CMS.emotion_to_comment(comment2.id, :beer, user2)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
@@ -463,8 +463,8 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       comment = all_comment |> Enum.at(0)
       comment2 = all_comment |> Enum.at(1)
 
-      {:ok, _} = CMS.make_emotion(comment.id, :downvote, user)
-      {:ok, _} = CMS.make_emotion(comment2.id, :downvote, user2)
+      {:ok, _} = CMS.emotion_to_comment(comment.id, :downvote, user)
+      {:ok, _} = CMS.emotion_to_comment(comment2.id, :downvote, user2)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
       results = user_conn |> query_result(@query, variables, "pagedArticleComments")
