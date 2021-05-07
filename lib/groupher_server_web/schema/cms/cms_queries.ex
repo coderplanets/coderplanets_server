@@ -2,6 +2,8 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
   @moduledoc """
   CMS queries
   """
+  import GroupherServerWeb.Schema.Utils.Helper
+
   use Helper.GqlSchemaSuite
 
   object :cms_queries do
@@ -65,56 +67,9 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.paged_threads/3)
     end
 
-    @desc "get post by id"
-    field :post, non_null(:post) do
-      arg(:id, non_null(:id))
-      arg(:thread, :post_thread, default_value: :post)
-
-      resolve(&R.CMS.read_article/3)
-    end
-
-    @desc "get paged posts"
-    field :paged_posts, :paged_posts do
-      arg(:thread, :post_thread, default_value: :post)
-      arg(:filter, non_null(:paged_posts_filter))
-
-      middleware(M.PageSizeProof)
-      resolve(&R.CMS.paged_articles/3)
-    end
-
-    @desc "get job by id"
-    field :job, non_null(:job) do
-      arg(:id, non_null(:id))
-      arg(:thread, :job_thread, default_value: :job)
-
-      resolve(&R.CMS.read_article/3)
-    end
-
-    @desc "get paged jobs"
-    field :paged_jobs, :paged_jobs do
-      arg(:thread, :job_thread, default_value: :job)
-      arg(:filter, non_null(:paged_jobs_filter))
-
-      middleware(M.PageSizeProof)
-      resolve(&R.CMS.paged_articles/3)
-    end
-
-    @desc "get repo by id"
-    field :repo, non_null(:repo) do
-      arg(:id, non_null(:id))
-      arg(:thread, :repo_thread, default_value: :repo)
-
-      resolve(&R.CMS.read_article/3)
-    end
-
-    @desc "get paged repos"
-    field :paged_repos, :paged_repos do
-      arg(:thread, :repo_thread, default_value: :repo)
-      arg(:filter, non_null(:paged_repos_filter))
-
-      middleware(M.PageSizeProof)
-      resolve(&R.CMS.paged_articles/3)
-    end
+    article_queries(:post)
+    article_queries(:job)
+    article_queries(:repo)
 
     @desc "get wiki by community raw name"
     field :wiki, non_null(:wiki) do
