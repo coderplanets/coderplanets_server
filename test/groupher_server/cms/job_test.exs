@@ -6,11 +6,12 @@ defmodule GroupherServer.Test.Job do
 
   setup do
     {:ok, user} = db_insert(:user)
+    {:ok, user2} = db_insert(:user)
     {:ok, community} = db_insert(:community)
 
     job_attrs = mock_attrs(:job, %{community_id: community.id})
 
-    {:ok, ~m(user community job_attrs)a}
+    {:ok, ~m(user user2 community job_attrs)a}
   end
 
   describe "[cms jobs curd]" do
@@ -22,6 +23,28 @@ defmodule GroupherServer.Test.Job do
       {:ok, found} = ORM.find(CMS.Job, job.id)
       assert found.id == job.id
       assert found.title == job.title
+    end
+
+    @tag :wip2
+    test "read job should update views and meta viewed_user_list",
+         ~m(job_attrs community user user2)a do
+      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, _} = CMS.read_article(:job, job.id, user)
+      {:ok, _created} = ORM.find(CMS.Job, job.id)
+
+      # same user duplicate case
+      {:ok, _} = CMS.read_article(:job, job.id, user)
+      {:ok, created} = ORM.find(CMS.Job, job.id)
+
+      assert created.meta.viewed_user_ids |> length == 1
+      assert user.id in created.meta.viewed_user_ids
+
+      {:ok, _} = CMS.read_article(:job, job.id, user2)
+      {:ok, created} = ORM.find(CMS.Job, job.id)
+
+      assert created.meta.viewed_user_ids |> length == 2
+      assert user.id in created.meta.viewed_user_ids
+      assert user2.id in created.meta.viewed_user_ids
     end
 
     test "created job has origial community info", ~m(user community job_attrs)a do

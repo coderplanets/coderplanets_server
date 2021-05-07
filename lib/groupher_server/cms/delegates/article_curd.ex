@@ -443,25 +443,36 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp exec_update_tags(_content, _), do: {:ok, :pass}
 
+  # TODO: move to utils
+  defp strip_struct(struct) do
+    struct |> Map.from_struct() |> Map.delete(:id)
+  end
+
   defp update_viewed_user_list(%{meta: nil} = article, user_id) do
     new_ids = Enum.uniq([user_id] ++ @default_article_meta.viewed_user_ids)
-    updated_meta = @default_article_meta |> Map.merge(%{viewed_user_ids: new_ids})
+    meta = @default_article_meta |> Map.merge(%{viewed_user_ids: new_ids})
 
-    article
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_embed(:meta, updated_meta)
-    |> Repo.update()
+    do_update_viewed_user_list(article, meta)
   end
 
   defp update_viewed_user_list(%{meta: meta} = article, user_id) do
-    new_ids = Enum.uniq([user_id] ++ meta.viewed_user_ids)
+    user_not_viewed = not Enum.member?(meta.viewed_user_ids, user_id)
 
-    updated_meta =
-      meta |> Map.merge(%{viewed_user_ids: new_ids}) |> Map.from_struct() |> Map.delete(:id)
+    case Enum.empty?(meta.viewed_user_ids) or user_not_viewed do
+      true ->
+        new_ids = Enum.uniq([user_id] ++ meta.viewed_user_ids)
+        meta = meta |> Map.merge(%{viewed_user_ids: new_ids}) |> strip_struct
+        do_update_viewed_user_list(article, meta)
 
+      false ->
+        {:ok, :pass}
+    end
+  end
+
+  defp do_update_viewed_user_list(article, meta) do
     article
     |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_embed(:meta, updated_meta)
+    |> Ecto.Changeset.put_embed(:meta, meta)
     |> Repo.update()
   end
 

@@ -6,12 +6,13 @@ defmodule GroupherServer.Test.Repo do
 
   setup do
     {:ok, user} = db_insert(:user)
+    {:ok, user2} = db_insert(:user)
     # {:ok, post} = db_insert(:post)
     {:ok, community} = db_insert(:community)
 
     repo_attrs = mock_attrs(:repo, %{community_id: community.id})
 
-    {:ok, ~m(user community repo_attrs)a}
+    {:ok, ~m(user user2 community repo_attrs)a}
   end
 
   describe "[cms repo curd]" do
@@ -24,6 +25,28 @@ defmodule GroupherServer.Test.Repo do
 
       assert repo.title == repo_attrs.title
       assert repo.contributors |> length !== 0
+    end
+
+    @tag :wip2
+    test "read repo should update views and meta viewed_user_list",
+         ~m(repo_attrs community user user2)a do
+      {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
+      {:ok, _} = CMS.read_article(:repo, repo.id, user)
+      {:ok, _created} = ORM.find(CMS.Repo, repo.id)
+
+      # same user duplicate case
+      {:ok, _} = CMS.read_article(:repo, repo.id, user)
+      {:ok, created} = ORM.find(CMS.Repo, repo.id)
+
+      assert created.meta.viewed_user_ids |> length == 1
+      assert user.id in created.meta.viewed_user_ids
+
+      {:ok, _} = CMS.read_article(:repo, repo.id, user2)
+      {:ok, created} = ORM.find(CMS.Repo, repo.id)
+
+      assert created.meta.viewed_user_ids |> length == 2
+      assert user.id in created.meta.viewed_user_ids
+      assert user2.id in created.meta.viewed_user_ids
     end
 
     test "created repo has origial community info", ~m(user community repo_attrs)a do
