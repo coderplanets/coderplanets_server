@@ -85,6 +85,9 @@ defmodule GroupherServer.Test.Query.ArticleComment do
                 nickname
               }
               viewerHasBeered
+
+              popcornCount
+              viewerHasPopcorned
             }
             isArticleAuthor
             meta {
@@ -392,7 +395,7 @@ defmodule GroupherServer.Test.Query.ArticleComment do
       assert the_random_comment |> get_in(["meta", "isArticleAuthorUpvoted"])
     end
 
-    @tag :wip
+    @tag :wip2
     test "guest user can get paged comment with emotions info",
          ~m(guest_conn post user user2)a do
       total_count = 2
@@ -418,6 +421,8 @@ defmodule GroupherServer.Test.Query.ArticleComment do
 
       comment_emotion =
         Enum.find(results["entries"], &(&1["id"] == to_string(comment.id))) |> Map.get("emotions")
+
+      assert comment_emotion["popcornCount"] == 0
 
       assert comment_emotion["downvoteCount"] == 2
       assert comment_emotion["latestDownvoteUsers"] |> length == 2

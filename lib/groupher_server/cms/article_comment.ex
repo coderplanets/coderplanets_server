@@ -25,7 +25,7 @@ defmodule GroupherServer.CMS.ArticleComment do
   @max_participator_count 5
   @max_parent_replies_count 3
 
-  @supported_emotions [:downvote, :beer, :heart, :biceps, :orz, :confused, :pill]
+  @supported_emotions [:downvote, :beer, :heart, :biceps, :orz, :confused, :pill, :popcorn]
   @max_latest_emotion_users_count 5
 
   @delete_hint "this comment is deleted"
