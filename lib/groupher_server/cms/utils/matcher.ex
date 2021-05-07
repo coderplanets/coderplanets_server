@@ -11,9 +11,6 @@ defmodule GroupherServer.CMS.Utils.Matcher do
     Repo,
     Job,
     # viewer
-    PostViewer,
-    JobViewer,
-    RepoViewer,
     # reactions
     # comments
     PostComment,
@@ -32,7 +29,7 @@ defmodule GroupherServer.CMS.Utils.Matcher do
   ##  posts ...
   #########################################
   def match_action(:post, :self),
-    do: {:ok, %{target: Post, reactor: Post, preload: :author, viewer: PostViewer}}
+    do: {:ok, %{target: Post, reactor: Post, preload: :author}}
 
   def match_action(:post, :tag), do: {:ok, %{target: Post, reactor: Tag}}
   # NOTE: the tech, radar, share, city thread also use common tag
@@ -54,7 +51,7 @@ defmodule GroupherServer.CMS.Utils.Matcher do
   ## jobs ...
   #########################################
   def match_action(:job, :self),
-    do: {:ok, %{target: Job, reactor: Job, preload: :author, viewer: JobViewer}}
+    do: {:ok, %{target: Job, reactor: Job, preload: :author}}
 
   def match_action(:job, :community),
     do: {:ok, %{target: Job, reactor: Community, flag: JobCommunityFlag}}
@@ -65,7 +62,7 @@ defmodule GroupherServer.CMS.Utils.Matcher do
   ## repos ...
   #########################################
   def match_action(:repo, :self),
-    do: {:ok, %{target: Repo, reactor: Repo, preload: :author, viewer: RepoViewer}}
+    do: {:ok, %{target: Repo, reactor: Repo, preload: :author}}
 
   def match_action(:repo, :community),
     do: {:ok, %{target: Repo, reactor: Community, flag: RepoCommunityFlag}}

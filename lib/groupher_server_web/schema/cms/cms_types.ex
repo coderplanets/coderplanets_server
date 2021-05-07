@@ -69,9 +69,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
       end)
     end
 
-    has_viewed_field()
-    # viewer_has_upvoted
-    # viewer_has_collected
+    viewer_has_state_fields()
     # upvoted_count
     # collected_count
 
@@ -112,7 +110,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     # comments_participators
     comments_counter_fields(:job)
 
-    has_viewed_field()
+    viewer_has_state_fields()
     timestamp_fields()
   end
 
@@ -153,7 +151,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:origial_community, :community, resolve: dataloader(CMS, :origial_community))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
-    has_viewed_field()
+    viewer_has_state_fields()
     # comments_count
     # comments_participators
     comments_counter_fields(:repo)

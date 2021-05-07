@@ -62,7 +62,13 @@ defmodule Helper.Types do
           id: Integer.t(),
           thread: Atom.t(),
           title: String.t(),
-          upvotes_count: Integer.t()
+          upvotes_count: Integer.t(),
+          meta: %{
+            upvoted_user_ids: [Integer.t()],
+            collected_user_ids: [Integer.t()],
+            viewed_user_ids: [Integer.t()],
+            reported_user_ids: [Integer.t()]
+          }
         }
 
   @type paged_article_common :: %{

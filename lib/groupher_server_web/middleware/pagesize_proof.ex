@@ -29,7 +29,6 @@ defmodule GroupherServerWeb.Middleware.PageSizeProof do
     # NOTE:  c11n display_density should also linted by page limit,
     # otherwise dataloader will crash for empty extra items
     size = customization.display_density |> String.to_integer() |> min(@max_page_size)
-    # size = 28
 
     case Map.has_key?(arguments, :filter) do
       true ->

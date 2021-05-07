@@ -70,17 +70,16 @@ defmodule GroupherServer.CMS do
   defdelegate subscribe_default_community_ifnot(user), to: CommunityOperation
 
   # ArticleCURD
-  defdelegate read_content(thread, id, user), to: ArticleCURD
-  defdelegate paged_contents(queryable, filter, user), to: ArticleCURD
-  defdelegate paged_contents(queryable, filter), to: ArticleCURD
+  defdelegate read_article(thread, id), to: ArticleCURD
+  defdelegate read_article(thread, id, user), to: ArticleCURD
+
+  defdelegate paged_articles(queryable, filter), to: ArticleCURD
+  defdelegate paged_articles(queryable, filter, user), to: ArticleCURD
+
   defdelegate create_content(community, thread, attrs, user), to: ArticleCURD
   defdelegate update_content(content, attrs), to: ArticleCURD
-  defdelegate reaction_users(thread, react, id, filters), to: ArticleCURD
 
   # ArticleReaction
-  defdelegate reaction(thread, react, content_id, user), to: ArticleReaction
-  defdelegate undo_reaction(thread, react, content_id, user), to: ArticleReaction
-
   defdelegate upvote_article(thread, article_id, user), to: ArticleReaction
   defdelegate undo_upvote_article(thread, article_id, user), to: ArticleReaction
 

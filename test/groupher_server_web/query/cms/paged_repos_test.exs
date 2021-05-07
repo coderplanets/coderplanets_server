@@ -79,6 +79,50 @@ defmodule GroupherServer.Test.Query.PagedRepos do
     end
   end
 
+  describe "[query paged_repos filter has_xxx]" do
+    @query """
+    query($filter: PagedReposFilter!) {
+      pagedRepos(filter: $filter) {
+        entries {
+          id
+          viewerHasCollected
+          viewerHasUpvoted
+          viewerHasViewed
+        }
+        totalCount
+      }
+    }
+    """
+    @tag :wip3
+    test "has_xxx state should work", ~m(user)a do
+      user_conn = simu_conn(:user, user)
+      {:ok, community} = db_insert(:community)
+
+      {:ok, repo} = CMS.create_content(community, :repo, mock_attrs(:repo), user)
+      {:ok, _repo} = CMS.create_content(community, :repo, mock_attrs(:repo), user)
+      {:ok, _repo3} = CMS.create_content(community, :repo, mock_attrs(:repo), user)
+
+      variables = %{filter: %{community: community.raw}}
+      results = user_conn |> query_result(@query, variables, "pagedRepos")
+      assert results["totalCount"] == 3
+
+      the_repo = Enum.find(results["entries"], &(&1["id"] == to_string(repo.id)))
+      assert not the_repo["viewerHasViewed"]
+      assert not the_repo["viewerHasUpvoted"]
+      assert not the_repo["viewerHasCollected"]
+
+      {:ok, _} = CMS.read_article(:repo, repo.id, user)
+      {:ok, _} = CMS.upvote_article(:repo, repo.id, user)
+      {:ok, _} = CMS.collect_article(:repo, repo.id, user)
+
+      results = user_conn |> query_result(@query, variables, "pagedRepos")
+      the_repo = Enum.find(results["entries"], &(&1["id"] == to_string(repo.id)))
+      assert the_repo["viewerHasViewed"]
+      assert the_repo["viewerHasUpvoted"]
+      assert the_repo["viewerHasCollected"]
+    end
+  end
+
   describe "[query paged_repos filter sort]" do
     @query """
     query($filter: PagedReposFilter!) {

@@ -39,7 +39,6 @@ defmodule GroupherServerWeb.Schema.Utils.Helper do
     quote do
       field(:when, :when_enum)
       field(:length, :length_enum)
-      field(:read, :read_enum, default_value: :all)
       field(:tag, :string, default_value: :all)
       field(:community, :string)
     end
@@ -89,15 +88,51 @@ defmodule GroupherServerWeb.Schema.Utils.Helper do
     end
   end
 
-  defmacro has_viewed_field do
+  defmacro viewer_has_state_fields do
     quote do
-      # @desc "if user has viewed this content"
-      field :viewer_has_viewed, :boolean do
-        middleware(M.Authorize, :login)
-        middleware(M.PutCurrentUser)
+      field(:viewer_has_collected, :boolean)
+      field(:viewer_has_upvoted, :boolean)
+      field(:viewer_has_viewed, :boolean)
+      field(:viewer_has_reported, :boolean)
+    end
+  end
 
-        resolve(dataloader(CMS, :viewers))
-        middleware(M.ViewerDidConvert)
+  @doc """
+  query generator for threads, like:
+
+  post, page_posts ...
+  """
+  defmacro article_queries(thread) do
+    quote do
+      @desc unquote("get #{thread} by id")
+      field unquote(thread), non_null(unquote(thread)) do
+        arg(:id, non_null(:id))
+        arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
+
+        resolve(&R.CMS.read_article/3)
+      end
+
+      @desc unquote("get paged #{thread}s")
+      field unquote(:"paged_#{thread}s"), unquote(:"paged_#{thread}s") do
+        arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
+        arg(:filter, non_null(unquote(:"paged_#{thread}s_filter")))
+
+        middleware(M.PageSizeProof)
+        resolve(&R.CMS.paged_articles/3)
+      end
+    end
+  end
+
+  defmacro article_reacted_users_query(action, resolver) do
+    quote do
+      @desc unquote("get paged #{action}ed users of an article")
+      field unquote(:"#{action}ed_users"), :paged_users do
+        arg(:id, non_null(:id))
+        arg(:thread, :cms_thread, default_value: :post)
+        arg(:filter, non_null(:paged_filter))
+
+        middleware(M.PageSizeProof)
+        resolve(unquote(resolver))
       end
     end
   end

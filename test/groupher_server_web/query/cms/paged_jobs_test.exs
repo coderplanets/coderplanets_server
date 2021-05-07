@@ -1,4 +1,5 @@
 defmodule GroupherServer.Test.Query.PagedJobs do
+  @moduledoc false
   use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
@@ -79,6 +80,50 @@ defmodule GroupherServer.Test.Query.PagedJobs do
       assert results |> is_valid_pagination?
       assert results["pageSize"] == @page_size
       assert results["totalCount"] == @total_count
+    end
+  end
+
+  describe "[query paged_jobs filter has_xxx]" do
+    @query """
+    query($filter: PagedJobsFilter!) {
+      pagedJobs(filter: $filter) {
+        entries {
+          id
+          viewerHasCollected
+          viewerHasUpvoted
+          viewerHasViewed
+        }
+        totalCount
+      }
+    }
+    """
+    @tag :wip3
+    test "has_xxx state should work", ~m(user)a do
+      user_conn = simu_conn(:user, user)
+      {:ok, community} = db_insert(:community)
+
+      {:ok, job} = CMS.create_content(community, :job, mock_attrs(:job), user)
+      {:ok, _job} = CMS.create_content(community, :job, mock_attrs(:job), user)
+      {:ok, _job3} = CMS.create_content(community, :job, mock_attrs(:job), user)
+
+      variables = %{filter: %{community: community.raw}}
+      results = user_conn |> query_result(@query, variables, "pagedJobs")
+      assert results["totalCount"] == 3
+
+      the_job = Enum.find(results["entries"], &(&1["id"] == to_string(job.id)))
+      assert not the_job["viewerHasViewed"]
+      assert not the_job["viewerHasUpvoted"]
+      assert not the_job["viewerHasCollected"]
+
+      {:ok, _} = CMS.read_article(:job, job.id, user)
+      {:ok, _} = CMS.upvote_article(:job, job.id, user)
+      {:ok, _} = CMS.collect_article(:job, job.id, user)
+
+      results = user_conn |> query_result(@query, variables, "pagedJobs")
+      the_job = Enum.find(results["entries"], &(&1["id"] == to_string(job.id)))
+      assert the_job["viewerHasViewed"]
+      assert the_job["viewerHasUpvoted"]
+      assert the_job["viewerHasCollected"]
     end
   end
 

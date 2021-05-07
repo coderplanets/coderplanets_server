@@ -15,16 +15,13 @@ defmodule GroupherServer.CMS.Utils.Loader do
     CommunityThread,
     # POST
     Post,
-    PostViewer,
     PostComment,
     PostCommentLike,
     PostCommentReply,
     # JOB
-    Job,
-    JobViewer,
+    Job
     # JobStar,
     # Repo,
-    RepoViewer
   }
 
   alias Helper.QueryBuilder
@@ -90,18 +87,6 @@ defmodule GroupherServer.CMS.Utils.Loader do
       order_by: [asc: t.index],
       select: t
     )
-  end
-
-  def query({"posts_viewers", PostViewer}, %{cur_user: cur_user}) do
-    PostViewer |> where([pv], pv.user_id == ^cur_user.id)
-  end
-
-  def query({"jobs_viewers", JobViewer}, %{cur_user: cur_user}) do
-    JobViewer |> where([pv], pv.user_id == ^cur_user.id)
-  end
-
-  def query({"repos_viewers", RepoViewer}, %{cur_user: cur_user}) do
-    RepoViewer |> where([pv], pv.user_id == ^cur_user.id)
   end
 
   def query({"communities_subscribers", CommunitySubscriber}, args) do

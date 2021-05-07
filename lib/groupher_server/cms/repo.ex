@@ -3,6 +3,8 @@ defmodule GroupherServer.CMS.Repo do
   alias __MODULE__
 
   use Ecto.Schema
+  use Accessible
+
   import Ecto.Changeset
 
   alias GroupherServer.CMS
@@ -12,7 +14,6 @@ defmodule GroupherServer.CMS.Repo do
     Embeds,
     Community,
     RepoContributor,
-    RepoViewer,
     RepoLang,
     RepoCommunityFlag,
     Tag,
@@ -67,8 +68,6 @@ defmodule GroupherServer.CMS.Repo do
     field(:collects_count, :integer, default: 0)
 
     field(:last_sync, :utc_datetime)
-
-    has_many(:viewers, {"repos_viewers", RepoViewer})
 
     many_to_many(
       :tags,

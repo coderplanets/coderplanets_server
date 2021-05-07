@@ -55,6 +55,34 @@ defmodule GroupherServer.Test.ArticleUpvote do
       assert user_exist_in?(user, users.entries)
       assert user_exist_in?(user2, users.entries)
     end
+
+    test "post meta history should be updated after upvote",
+         ~m(user user2 community post_attrs)a do
+      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, article} = CMS.upvote_article(:post, post.id, user)
+      assert user.id in article.meta.upvoted_user_ids
+
+      {:ok, article} = CMS.upvote_article(:post, post.id, user2)
+      assert user.id in article.meta.upvoted_user_ids
+      assert user2.id in article.meta.upvoted_user_ids
+    end
+
+    test "post meta history should be updated after undo upvote",
+         ~m(user user2 community post_attrs)a do
+      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+
+      {:ok, _article} = CMS.upvote_article(:post, post.id, user)
+      {:ok, article} = CMS.upvote_article(:post, post.id, user2)
+
+      assert user.id in article.meta.upvoted_user_ids
+      assert user2.id in article.meta.upvoted_user_ids
+
+      {:ok, article} = CMS.undo_upvote_article(:post, post.id, user2)
+      assert user2.id not in article.meta.upvoted_user_ids
+
+      {:ok, article} = CMS.undo_upvote_article(:post, post.id, user)
+      assert user.id not in article.meta.upvoted_user_ids
+    end
   end
 
   describe "[cms job upvote]" do
@@ -96,6 +124,33 @@ defmodule GroupherServer.Test.ArticleUpvote do
       assert users |> is_valid_pagination?(:raw)
       assert user_exist_in?(user, users.entries)
       assert user_exist_in?(user2, users.entries)
+    end
+
+    test "job meta history should be updated", ~m(user user2 community job_attrs)a do
+      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, article} = CMS.upvote_article(:job, job.id, user)
+      assert user.id in article.meta.upvoted_user_ids
+
+      {:ok, article} = CMS.upvote_article(:job, job.id, user2)
+      assert user.id in article.meta.upvoted_user_ids
+      assert user2.id in article.meta.upvoted_user_ids
+    end
+
+    test "job meta history should be updated after undo upvote",
+         ~m(user user2 community job_attrs)a do
+      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+
+      {:ok, _article} = CMS.upvote_article(:job, job.id, user)
+      {:ok, article} = CMS.upvote_article(:job, job.id, user2)
+
+      assert user.id in article.meta.upvoted_user_ids
+      assert user2.id in article.meta.upvoted_user_ids
+
+      {:ok, article} = CMS.undo_upvote_article(:job, job.id, user2)
+      assert user2.id not in article.meta.upvoted_user_ids
+
+      {:ok, article} = CMS.undo_upvote_article(:job, job.id, user)
+      assert user.id not in article.meta.upvoted_user_ids
     end
   end
 end

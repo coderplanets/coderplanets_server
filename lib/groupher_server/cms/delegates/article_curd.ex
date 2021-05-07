@@ -5,55 +5,97 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   import Ecto.Query, warn: false
 
   import GroupherServer.CMS.Utils.Matcher2
+  import GroupherServer.CMS.Utils.Matcher, only: [match_action: 2]
 
-  import GroupherServer.CMS.Utils.Matcher, only: [match_action: 2, dynamic_where: 2]
   import Helper.Utils, only: [done: 1, pick_by: 2, integerfy: 1]
   import Helper.ErrorCode
-  import ShortMaps
 
+  alias Helper.{Later, ORM}
   alias GroupherServer.{Accounts, CMS, Delivery, Email, Repo, Statistics}
 
   alias Accounts.User
   alias CMS.{Author, Community, PinnedArticle, Embeds, Delegate, Tag}
 
   alias Delegate.ArticleOperation
-  alias Helper.{Later, ORM, QueryBuilder}
 
   alias Ecto.Multi
 
   @default_article_meta Embeds.ArticleMeta.default_meta()
 
   @doc """
-  login user read cms content by add views count and viewer record
+  read articles for un-logined user
   """
-  def read_content(thread, id, %User{id: user_id}) do
-    condition = %{user_id: user_id} |> Map.merge(content_id(thread, id))
-
-    with {:ok, action} <- match_action(thread, :self),
-         {:ok, _viewer} <- action.viewer |> ORM.findby_or_insert(condition, condition) do
-      action.target |> ORM.read(id, inc: :views)
+  def read_article(thread, id) do
+    with {:ok, info} <- match(thread) do
+      ORM.read(info.model, id, inc: :views)
     end
   end
 
   @doc """
-  get paged post / job ...
+  read articles for logined user
   """
-  def paged_contents(queryable, filter, user) do
-    queryable
-    |> domain_filter_query(filter)
-    |> community_with_flag_query(filter)
-    |> read_state_query(filter, user)
-    |> ORM.find_all(filter)
-    |> add_pin_contents_ifneed(queryable, filter)
+  def read_article(thread, id, %User{id: user_id}) do
+    with {:ok, info} <- match(thread) do
+      Multi.new()
+      |> Multi.run(:inc_views, fn _, _ ->
+        ORM.read(info.model, id, inc: :views)
+      end)
+      |> Multi.run(:add_viewed_user, fn _, %{inc_views: article} ->
+        update_viewed_user_list(article, user_id)
+      end)
+      |> Repo.transaction()
+      |> read_result()
+    end
   end
 
-  def paged_contents(queryable, filter) do
-    queryable
-    |> domain_filter_query(filter)
-    |> community_with_flag_query(filter)
-    |> ORM.find_all(filter)
-    # TODO: if filter has when/sort/length/job... then don't
-    |> add_pin_contents_ifneed(queryable, filter)
+  def paged_articles(thread, filter) do
+    with {:ok, info} <- match(thread) do
+      info.model
+      |> domain_filter_query(filter)
+      |> community_with_flag_query(filter)
+      |> ORM.find_all(filter)
+      |> add_pin_contents_ifneed(info.model, filter)
+    end
+  end
+
+  def paged_articles(thread, filter, %User{} = user) do
+    with {:ok, info} <- match(thread) do
+      info.model
+      |> domain_filter_query(filter)
+      |> community_with_flag_query(filter)
+      |> ORM.find_all(filter)
+      |> add_pin_contents_ifneed(info.model, filter)
+      |> mark_viewer_has_states(user)
+    end
+  end
+
+  defp mark_viewer_has_states({:ok, %{entries: []} = contents}, _), do: {:ok, contents}
+
+  defp mark_viewer_has_states({:ok, %{entries: entries} = contents}, user) do
+    entries = Enum.map(entries, &Map.merge(&1, do_mark_viewer_has_states(&1.meta, user)))
+    {:ok, Map.merge(contents, %{entries: entries})}
+  end
+
+  defp mark_viewer_has_states({:error, reason}, _), do: {:error, reason}
+
+  defp do_mark_viewer_has_states(nil, _) do
+    %{
+      viewer_has_collected: false,
+      viewer_has_upvoted: false,
+      viewer_has_viewed: false,
+      viewer_has_reported: false
+    }
+  end
+
+  defp do_mark_viewer_has_states(meta, %User{id: user_id}) do
+    # TODO: 根据是否付费进一步判断
+    # user_is_member = true
+    %{
+      viewer_has_collected: Enum.member?(meta.collected_user_ids, user_id),
+      viewer_has_upvoted: Enum.member?(meta.upvoted_user_ids, user_id),
+      viewer_has_viewed: Enum.member?(meta.viewed_user_ids, user_id),
+      viewer_has_reported: Enum.member?(meta.reported_user_ids, user_id)
+    }
   end
 
   @doc """
@@ -246,19 +288,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp domain_filter_query(queryable, _filter), do: queryable
 
-  # query if user has viewed before
-  defp read_state_query(queryable, %{read: true} = _filter, user) do
-    queryable
-    |> join(:inner, [content, f, c], viewers in assoc(content, :viewers))
-    |> where([content, f, c, viewers], viewers.user_id == ^user.id)
-  end
-
-  defp read_state_query(queryable, %{read: false} = _filter, _user) do
-    queryable
-  end
-
-  defp read_state_query(queryable, _, _), do: queryable
-
   defp add_pin_contents_ifneed(contents, querable, %{community: _community} = filter) do
     with {:ok, _} <- should_add_pin?(filter),
          {:ok, info} <- match(querable),
@@ -285,10 +314,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp add_pin_contents_ifneed(contents, _querable, _filter), do: contents
 
   # if filter contains like: tags, sort.., then don't add pin content
-  defp should_add_pin?(%{page: 1, tag: :all, sort: :desc_inserted, read: :all} = filter) do
+  defp should_add_pin?(%{page: 1, tag: :all, sort: :desc_inserted} = filter) do
     filter
     |> Map.keys()
-    |> Enum.reject(fn x -> x in [:community, :tag, :sort, :read, :page, :size] end)
+    |> Enum.reject(fn x -> x in [:community, :tag, :sort, :page, :size] end)
     |> case do
       [] -> {:ok, :pass}
       _ -> {:error, :pass}
@@ -355,10 +384,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp update_content_result({:error, :update_content, result, _steps}), do: {:error, result}
   defp update_content_result({:error, :update_tag, result, _steps}), do: {:error, result}
 
-  defp content_id(:post, id), do: %{post_id: id}
-  defp content_id(:job, id), do: %{job_id: id}
-  defp content_id(:repo, id), do: %{repo_id: id}
-
   #  for create content step in Multi.new
   defp do_create_content(target, attrs, %Author{id: aid}, %Community{id: cid}) do
     target
@@ -417,4 +442,32 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   end
 
   defp exec_update_tags(_content, _), do: {:ok, :pass}
+
+  defp update_viewed_user_list(%{meta: nil} = article, user_id) do
+    new_ids = Enum.uniq([user_id] ++ @default_article_meta.viewed_user_ids)
+    updated_meta = @default_article_meta |> Map.merge(%{viewed_user_ids: new_ids})
+
+    article
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_embed(:meta, updated_meta)
+    |> Repo.update()
+  end
+
+  defp update_viewed_user_list(%{meta: meta} = article, user_id) do
+    new_ids = Enum.uniq([user_id] ++ meta.viewed_user_ids)
+
+    updated_meta =
+      meta |> Map.merge(%{viewed_user_ids: new_ids}) |> Map.from_struct() |> Map.delete(:id)
+
+    article
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_embed(:meta, updated_meta)
+    |> Repo.update()
+  end
+
+  defp read_result({:ok, %{inc_views: result}}), do: result |> done()
+
+  defp read_result({:error, _, result, _steps}) do
+    {:error, result}
+  end
 end

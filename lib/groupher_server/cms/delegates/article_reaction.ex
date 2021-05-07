@@ -2,21 +2,22 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
   @moduledoc """
   reaction[upvote, collect, watch ...] on article [post, job...]
   """
-  import Helper.Utils, only: [done: 1, done: 2]
+  import Helper.Utils, only: [done: 1]
 
   import GroupherServer.CMS.Utils.Matcher2
-  import GroupherServer.CMS.Utils.Matcher, only: [match_action: 2]
   import Ecto.Query, warn: false
-  import Helper.ErrorCode
+  # import Helper.ErrorCode
   import ShortMaps
 
   alias Helper.{ORM, QueryBuilder}
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.User
-  alias CMS.{ArticleUpvote, ArticleCollect}
+  alias CMS.{ArticleUpvote, ArticleCollect, Embeds}
 
   alias Ecto.Multi
+
+  @default_article_meta Embeds.ArticleMeta.default_meta()
 
   def upvoted_users(thread, article_id, filter) do
     load_reaction_users(ArticleUpvote, thread, article_id, filter)
@@ -45,6 +46,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
       end)
       |> Multi.run(:inc_article_collects_count, fn _, _ ->
         update_article_upvotes_count(info, article, :collects_count, :inc)
+      end)
+      |> Multi.run(:update_article_reaction_user_list, fn _, _ ->
+        update_article_reaction_user_list(:collect, article, user_id, :add)
       end)
       |> Multi.run(:create_collect, fn _, _ ->
         thread_upcase = thread |> to_string |> String.upcase()
@@ -81,6 +85,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
       end)
       |> Multi.run(:inc_article_collects_count, fn _, _ ->
         update_article_upvotes_count(info, article, :collects_count, :dec)
+      end)
+      |> Multi.run(:update_article_reaction_user_list, fn _, _ ->
+        update_article_reaction_user_list(:collect, article, user_id, :remove)
       end)
       |> Multi.run(:undo_collect, fn _, _ ->
         args = Map.put(%{user_id: user_id}, info.foreign_key, article.id)
@@ -142,6 +149,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
       |> Multi.run(:inc_article_upvotes_count, fn _, _ ->
         update_article_upvotes_count(info, article, :upvotes_count, :inc)
       end)
+      |> Multi.run(:update_article_reaction_user_list, fn _, _ ->
+        update_article_reaction_user_list(:upvot, article, user_id, :add)
+      end)
       |> Multi.run(:add_achievement, fn _, _ ->
         achiever_id = article.author.user_id
         Accounts.achieve(%User{id: achiever_id}, :inc, :upvote)
@@ -166,6 +176,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
       Multi.new()
       |> Multi.run(:inc_article_upvotes_count, fn _, _ ->
         update_article_upvotes_count(info, article, :upvotes_count, :dec)
+      end)
+      |> Multi.run(:update_article_reaction_user_list, fn _, _ ->
+        update_article_reaction_user_list(:upvot, article, user_id, :remove)
       end)
       |> Multi.run(:undo_upvote, fn _, _ ->
         args = Map.put(%{user_id: user_id}, info.foreign_key, article.id)
@@ -197,6 +210,56 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
         new_count = Enum.max([1, cur_count])
         ORM.update(article, Map.put(%{}, field, new_count - 1))
     end
+  end
+
+  @doc """
+  add or remove artilce's reaction users is list history
+  e.g:
+  add/remove user_id to upvoted_user_ids in article meta
+  """
+  @spec update_article_reaction_user_list(
+          :upvot | :collect,
+          T.article_common(),
+          String.t(),
+          :add | :remove
+        ) :: T.article_common()
+  defp update_article_reaction_user_list(action, %{meta: nil} = article, user_id, opt) do
+    cur_user_ids = []
+
+    updated_user_ids =
+      case opt do
+        :add -> [user_id] ++ cur_user_ids
+        :remove -> cur_user_ids -- [user_id]
+      end
+
+    updated_meta = @default_article_meta |> Map.merge(%{"#{action}ed_user_ids": updated_user_ids})
+
+    do_update_article_meta(article, updated_meta)
+  end
+
+  defp update_article_reaction_user_list(action, article, user_id, opt) do
+    cur_user_ids = get_in(article, [:meta, :"#{action}ed_user_ids"])
+
+    updated_user_ids =
+      case opt do
+        :add -> [user_id] ++ cur_user_ids
+        :remove -> cur_user_ids -- [user_id]
+      end
+
+    meta =
+      article.meta
+      |> Map.merge(%{"#{action}ed_user_ids": updated_user_ids})
+      |> Map.from_struct()
+      |> Map.delete(:id)
+
+    do_update_article_meta(article, meta)
+  end
+
+  defp do_update_article_meta(article, meta) do
+    article
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_embed(:meta, meta)
+    |> Repo.update()
   end
 
   defp reaction_result({:ok, %{create_upvote: result}}), do: result |> done()

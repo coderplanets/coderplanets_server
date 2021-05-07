@@ -17,7 +17,6 @@ defmodule GroupherServer.CMS.Post do
     Community,
     PostComment,
     PostCommunityFlag,
-    PostViewer,
     Tag,
     ArticleUpvote,
     ArticleCollect
@@ -40,6 +39,7 @@ defmodule GroupherServer.CMS.Post do
     field(:length, :integer)
     field(:views, :integer, default: 0)
 
+    belongs_to(:author, Author)
     embeds_one(:meta, Embeds.ArticleMeta, on_replace: :update)
 
     has_many(:community_flags, {"posts_communities_flags", PostCommunityFlag})
@@ -49,7 +49,16 @@ defmodule GroupherServer.CMS.Post do
     field(:is_pinned, :boolean, default: false, virtual: true)
     field(:trash, :boolean, default_value: false, virtual: true)
 
-    belongs_to(:author, Author)
+    field(:viewer_has_viewed, :boolean, default: false, virtual: true)
+    field(:viewer_has_upvoted, :boolean, default: false, virtual: true)
+    field(:viewer_has_collected, :boolean, default: false, virtual: true)
+    field(:viewer_has_reported, :boolean, default: false, virtual: true)
+
+    has_many(:upvotes, {"article_upvotes", ArticleUpvote})
+    field(:upvotes_count, :integer, default: 0)
+
+    has_many(:collects, {"article_collects", ArticleCollect})
+    field(:collects_count, :integer, default: 0)
 
     # TODO
     # 相关文章
@@ -63,13 +72,6 @@ defmodule GroupherServer.CMS.Post do
     # 评论参与者，只保留最近 5 个
     embeds_many(:article_comments_participators, Accounts.User, on_replace: :delete)
 
-    has_many(:upvotes, {"article_upvotes", ArticleUpvote})
-    field(:upvotes_count, :integer, default: 0)
-
-    has_many(:collects, {"article_collects", ArticleCollect})
-    field(:collects_count, :integer, default: 0)
-
-    has_many(:viewers, {"posts_viewers", PostViewer})
     # The keys are inflected from the schema names!
     # see https://hexdocs.pm/ecto/Ecto.Schema.html
     many_to_many(

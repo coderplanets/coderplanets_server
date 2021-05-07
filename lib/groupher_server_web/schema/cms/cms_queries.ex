@@ -2,6 +2,8 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
   @moduledoc """
   CMS queries
   """
+  import GroupherServerWeb.Schema.Utils.Helper
+
   use Helper.GqlSchemaSuite
 
   object :cms_queries do
@@ -65,34 +67,6 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.paged_threads/3)
     end
 
-    @desc "get post by id"
-    field :post, non_null(:post) do
-      arg(:id, non_null(:id))
-      resolve(&R.CMS.post/3)
-    end
-
-    @desc "get paged posts"
-    field :paged_posts, :paged_posts do
-      arg(:filter, non_null(:paged_posts_filter))
-
-      middleware(M.PageSizeProof)
-      resolve(&R.CMS.paged_posts/3)
-    end
-
-    @desc "get repo by id"
-    field :repo, non_null(:repo) do
-      arg(:id, non_null(:id))
-      resolve(&R.CMS.repo/3)
-    end
-
-    @desc "get paged repos"
-    field :paged_repos, :paged_repos do
-      arg(:filter, non_null(:paged_repos_filter))
-
-      middleware(M.PageSizeProof)
-      resolve(&R.CMS.paged_repos/3)
-    end
-
     @desc "get wiki by community raw name"
     field :wiki, non_null(:wiki) do
       arg(:community, :string)
@@ -105,50 +79,12 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.cheatsheet/3)
     end
 
-    @desc "get job by id"
-    field :job, non_null(:job) do
-      arg(:id, non_null(:id))
-      resolve(&R.CMS.job/3)
-    end
+    article_queries(:post)
+    article_queries(:job)
+    article_queries(:repo)
 
-    @desc "get paged jobs"
-    field :paged_jobs, :paged_jobs do
-      arg(:filter, non_null(:paged_jobs_filter))
-
-      middleware(M.PageSizeProof)
-      resolve(&R.CMS.paged_jobs/3)
-    end
-
-    @desc "get paged upvoted users of an article"
-    field :upvoted_users, :paged_users do
-      arg(:id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
-      arg(:filter, non_null(:paged_filter))
-
-      middleware(M.PageSizeProof)
-      resolve(&R.CMS.upvoted_users/3)
-    end
-
-    @desc "get paged upvoted users of an article"
-    field :collected_users, :paged_users do
-      arg(:id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
-      arg(:filter, non_null(:paged_filter))
-
-      middleware(M.PageSizeProof)
-      resolve(&R.CMS.collected_users/3)
-    end
-
-    @desc "get paged users of a reaction related to cms content"
-    field :reaction_users, :paged_users do
-      arg(:id, non_null(:id))
-      arg(:thread, :react_thread, default_value: :post)
-      arg(:action, non_null(:react_action))
-      arg(:filter, non_null(:paged_filter))
-
-      middleware(M.PageSizeProof)
-      resolve(&R.CMS.reaction_users/3)
-    end
+    article_reacted_users_query(:upvot, &R.CMS.upvoted_users/3)
+    article_reacted_users_query(:collect, &R.CMS.collected_users/3)
 
     # get all tags
     @desc "get paged tags"
