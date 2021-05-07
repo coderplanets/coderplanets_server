@@ -97,7 +97,7 @@ defmodule GroupherServer.Test.Query.PagedJobs do
       }
     }
     """
-    @tag :wip3
+    @tag :wip2
     test "has_xxx state should work", ~m(user)a do
       user_conn = simu_conn(:user, user)
       {:ok, community} = db_insert(:community)

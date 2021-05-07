@@ -36,7 +36,7 @@ defmodule GroupherServer.Test.Query.ArticleReactionUsers do
       }
     }
     """
-    @tag :wip3
+    @tag :wip2
     test "guest can get upvoted users list after upvote to a post",
          ~m(guest_conn post user user2)a do
       {:ok, _} = CMS.upvote_article(:post, post.id, user)
@@ -52,7 +52,7 @@ defmodule GroupherServer.Test.Query.ArticleReactionUsers do
       assert user_exist_in?(user2, results["entries"], :string_key)
     end
 
-    @tag :wip3
+    @tag :wip2
     test "guest can get upvoted users list after upvote to a job",
          ~m(guest_conn job user user2)a do
       {:ok, _} = CMS.upvote_article(:job, job.id, user)
@@ -89,7 +89,7 @@ defmodule GroupherServer.Test.Query.ArticleReactionUsers do
       }
     }
     """
-    @tag :wip3
+    @tag :wip2
     test "guest can get collected users list after collect a post",
          ~m(guest_conn post user user2)a do
       {:ok, _} = CMS.collect_article(:post, post.id, user)
@@ -105,7 +105,7 @@ defmodule GroupherServer.Test.Query.ArticleReactionUsers do
       assert user_exist_in?(user2, results["entries"], :string_key)
     end
 
-    @tag :wip3
+    @tag :wip2
     test "guest can get collected users list after collect a job",
          ~m(guest_conn job user user2)a do
       {:ok, _} = CMS.collect_article(:job, job.id, user)

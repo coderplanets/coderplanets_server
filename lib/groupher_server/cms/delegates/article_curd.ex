@@ -279,19 +279,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp domain_filter_query(queryable, _filter), do: queryable
 
-  # query if user has viewed before
-  defp read_state_query(queryable, %{read: true} = _filter, user) do
-    queryable
-    |> join(:inner, [content, f, c], viewers in assoc(content, :viewers))
-    |> where([content, f, c, viewers], viewers.user_id == ^user.id)
-  end
-
-  defp read_state_query(queryable, %{read: false} = _filter, _user) do
-    queryable
-  end
-
-  defp read_state_query(queryable, _, _), do: queryable
-
   defp add_pin_contents_ifneed(contents, querable, %{community: _community} = filter) do
     with {:ok, _} <- should_add_pin?(filter),
          {:ok, info} <- match(querable),
@@ -318,10 +305,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp add_pin_contents_ifneed(contents, _querable, _filter), do: contents
 
   # if filter contains like: tags, sort.., then don't add pin content
-  defp should_add_pin?(%{page: 1, tag: :all, sort: :desc_inserted, read: :all} = filter) do
+  defp should_add_pin?(%{page: 1, tag: :all, sort: :desc_inserted} = filter) do
     filter
     |> Map.keys()
-    |> Enum.reject(fn x -> x in [:community, :tag, :sort, :read, :page, :size] end)
+    |> Enum.reject(fn x -> x in [:community, :tag, :sort, :page, :size] end)
     |> case do
       [] -> {:ok, :pass}
       _ -> {:error, :pass}
