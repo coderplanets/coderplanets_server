@@ -90,27 +90,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   end
 
   @doc """
-  get paged post / job ...
-  """
-  def paged_contents(queryable, filter, user) do
-    queryable
-    |> domain_filter_query(filter)
-    |> community_with_flag_query(filter)
-    |> read_state_query(filter, user)
-    |> ORM.find_all(filter)
-    |> add_pin_contents_ifneed(queryable, filter)
-  end
-
-  def paged_contents(queryable, filter) do
-    queryable
-    |> domain_filter_query(filter)
-    |> community_with_flag_query(filter)
-    |> ORM.find_all(filter)
-    # TODO: if filter has when/sort/length/job... then don't
-    |> add_pin_contents_ifneed(queryable, filter)
-  end
-
-  @doc """
   Creates a content(post/job ...), and set community.
 
   ## Examples

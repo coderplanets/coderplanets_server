@@ -17,7 +17,6 @@ defmodule GroupherServer.CMS.Post do
     Community,
     PostComment,
     PostCommunityFlag,
-    PostViewer,
     Tag,
     ArticleUpvote,
     ArticleCollect
@@ -73,7 +72,6 @@ defmodule GroupherServer.CMS.Post do
     # 评论参与者，只保留最近 5 个
     embeds_many(:article_comments_participators, Accounts.User, on_replace: :delete)
 
-    has_many(:viewers, {"posts_viewers", PostViewer})
     # The keys are inflected from the schema names!
     # see https://hexdocs.pm/ecto/Ecto.Schema.html
     many_to_many(
