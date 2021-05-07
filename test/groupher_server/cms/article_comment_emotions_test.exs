@@ -36,9 +36,9 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
 
       first_comment = List.first(all_comment)
 
-      {:ok, _} = CMS.make_emotion(first_comment.id, :downvote, user)
-      {:ok, _} = CMS.make_emotion(first_comment.id, :beer, user)
-      {:ok, _} = CMS.make_emotion(first_comment.id, :popcorn, user)
+      {:ok, _} = CMS.emotion_to_comment(first_comment.id, :downvote, user)
+      {:ok, _} = CMS.emotion_to_comment(first_comment.id, :beer, user)
+      {:ok, _} = CMS.emotion_to_comment(first_comment.id, :popcorn, user)
 
       {:ok, paged_comments} =
         CMS.list_article_comments(
@@ -82,8 +82,8 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       parent_content = "parent comment"
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
 
-      {:ok, _} = CMS.make_emotion(parent_comment.id, :downvote, user)
-      {:ok, _} = CMS.make_emotion(parent_comment.id, :downvote, user2)
+      {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
+      {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user2)
 
       {:ok, %{emotions: emotions}} = ORM.find(ArticleComment, parent_comment.id)
 
@@ -97,8 +97,8 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       parent_content = "parent comment"
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
 
-      {:ok, _} = CMS.make_emotion(parent_comment.id, :downvote, user)
-      {:ok, _} = CMS.make_emotion(parent_comment.id, :downvote, user)
+      {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
+      {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
 
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
 
@@ -110,9 +110,9 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
     test "different user can make same emotions on same comment", ~m(post user user2 user3)a do
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent comment", user)
 
-      {:ok, _} = CMS.make_emotion(parent_comment.id, :beer, user)
-      {:ok, _} = CMS.make_emotion(parent_comment.id, :beer, user2)
-      {:ok, _} = CMS.make_emotion(parent_comment.id, :beer, user3)
+      {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :beer, user)
+      {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :beer, user2)
+      {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :beer, user3)
 
       {:ok, %{emotions: emotions}} = ORM.find(ArticleComment, parent_comment.id)
       # IO.inspect(emotions, label: "the parent_comment")
@@ -128,11 +128,11 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       parent_content = "parent comment"
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
 
-      {:ok, _} = CMS.make_emotion(parent_comment.id, :downvote, user)
-      {:ok, _} = CMS.make_emotion(parent_comment.id, :downvote, user)
-      {:ok, _} = CMS.make_emotion(parent_comment.id, :beer, user)
-      {:ok, _} = CMS.make_emotion(parent_comment.id, :heart, user)
-      {:ok, _} = CMS.make_emotion(parent_comment.id, :orz, user)
+      {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
+      {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
+      {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :beer, user)
+      {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :heart, user)
+      {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :orz, user)
 
       {:ok, %{emotions: emotions}} = ORM.find(ArticleComment, parent_comment.id)
 
