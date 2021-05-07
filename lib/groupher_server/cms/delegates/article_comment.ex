@@ -281,13 +281,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       end)
       |> Repo.transaction()
       |> upsert_comment_result
-
-      # is not work this way, why?
-      # updated_emotions =
-      #   Map.merge(comment.emotions, %{
-      #     downvote_count: comment.emotions.downvote_count + Enum.random([1, 2, 3]),
-      #     tada_count: comment.emotions.tada_count + Enum.random([1, 2, 3])
-      #   })
     end
   end
 
