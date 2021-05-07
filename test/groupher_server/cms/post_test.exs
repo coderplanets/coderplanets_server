@@ -26,7 +26,7 @@ defmodule GroupherServer.Test.CMS.Post do
       assert post.title == post_attrs.title
     end
 
-    @tag :wip3
+    @tag :wip2
     test "read post should update views and meta viewed_user_list",
          ~m(post_attrs community user user2)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
