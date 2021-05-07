@@ -69,6 +69,7 @@ defmodule GroupherServer.CMS.ArticleComment do
 
     # 是否置顶
     field(:is_pinned, :boolean, default: false)
+    field(:viewer_has_upvoted, :boolean, default: false, virtual: true)
 
     belongs_to(:author, Accounts.User, foreign_key: :author_id)
     belongs_to(:post, Post, foreign_key: :post_id)

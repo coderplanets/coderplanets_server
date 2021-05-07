@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   import GroupherServer.CMS.Utils.Matcher2
   import GroupherServer.CMS.Utils.Matcher, only: [match_action: 2]
 
-  import Helper.Utils, only: [done: 1, pick_by: 2, integerfy: 1]
+  import Helper.Utils, only: [done: 1, pick_by: 2, integerfy: 1, strip_struct: 1]
   import Helper.ErrorCode
 
   alias Helper.{Later, ORM}
@@ -443,16 +443,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp exec_update_tags(_content, _), do: {:ok, :pass}
 
-  # TODO: move to utils
-  defp strip_struct(struct) do
-    struct |> Map.from_struct() |> Map.delete(:id)
-  end
-
   defp update_viewed_user_list(%{meta: nil} = article, user_id) do
     new_ids = Enum.uniq([user_id] ++ @default_article_meta.viewed_user_ids)
     meta = @default_article_meta |> Map.merge(%{viewed_user_ids: new_ids})
 
-    do_update_viewed_user_list(article, meta)
+    ORM.update_meta(article, meta)
   end
 
   defp update_viewed_user_list(%{meta: meta} = article, user_id) do
@@ -462,18 +457,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       true ->
         new_ids = Enum.uniq([user_id] ++ meta.viewed_user_ids)
         meta = meta |> Map.merge(%{viewed_user_ids: new_ids}) |> strip_struct
-        do_update_viewed_user_list(article, meta)
+        ORM.update_meta(article, meta)
 
       false ->
         {:ok, :pass}
     end
-  end
-
-  defp do_update_viewed_user_list(article, meta) do
-    article
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_embed(:meta, meta)
-    |> Repo.update()
   end
 
   defp read_result({:ok, %{inc_views: result}}), do: result |> done()

@@ -262,6 +262,16 @@ defmodule Helper.ORM do
     queryable |> count() |> add()
   end
 
+  @doc """
+  update meta info for article / comment
+  """
+  def update_meta(queryable, meta) do
+    queryable
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_embed(:meta, meta)
+    |> Repo.update()
+  end
+
   @doc "extract common articles info"
   @spec extract_articles(T.paged_data(), [Atom.t()]) :: T.paged_article_common()
   def extract_articles(%{entries: entries} = paged_articles, supported_threads) do

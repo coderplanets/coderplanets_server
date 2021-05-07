@@ -130,6 +130,32 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert comment.meta.is_article_author_upvoted
     end
 
+    @tag :wip2
+    test "user upvote post comment will add id to upvoted_user_ids", ~m(post user)a do
+      comment = "post_comment"
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
+      {:ok, comment} = CMS.upvote_article_comment(comment.id, user)
+
+      assert user.id in comment.meta.upvoted_user_ids
+    end
+
+    @tag :wip2
+    test "user undo upvote post comment will remove id from upvoted_user_ids",
+         ~m(post user user2)a do
+      comment = "post_comment"
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
+      {:ok, _comment} = CMS.upvote_article_comment(comment.id, user)
+      {:ok, comment} = CMS.upvote_article_comment(comment.id, user2)
+
+      assert user2.id in comment.meta.upvoted_user_ids
+      assert user.id in comment.meta.upvoted_user_ids
+
+      {:ok, comment} = CMS.undo_upvote_article_comment(comment.id, user2)
+
+      assert user.id in comment.meta.upvoted_user_ids
+      assert user2.id not in comment.meta.upvoted_user_ids
+    end
+
     @tag :wip
     test "user can upvote a job comment", ~m(user job)a do
       comment = "job_comment"

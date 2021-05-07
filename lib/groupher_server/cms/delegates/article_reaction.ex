@@ -2,10 +2,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
   @moduledoc """
   reaction[upvote, collect, watch ...] on article [post, job...]
   """
-  import Helper.Utils, only: [done: 1]
-
   import GroupherServer.CMS.Utils.Matcher2
   import Ecto.Query, warn: false
+  import Helper.Utils, only: [done: 1, strip_struct: 1]
   # import Helper.ErrorCode
   import ShortMaps
 
@@ -232,9 +231,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
         :remove -> cur_user_ids -- [user_id]
       end
 
-    updated_meta = @default_article_meta |> Map.merge(%{"#{action}ed_user_ids": updated_user_ids})
-
-    do_update_article_meta(article, updated_meta)
+    meta = @default_article_meta |> Map.merge(%{"#{action}ed_user_ids": updated_user_ids})
+    ORM.update_meta(article, meta)
   end
 
   defp update_article_reaction_user_list(action, article, user_id, opt) do
@@ -246,20 +244,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
         :remove -> cur_user_ids -- [user_id]
       end
 
-    meta =
-      article.meta
-      |> Map.merge(%{"#{action}ed_user_ids": updated_user_ids})
-      |> Map.from_struct()
-      |> Map.delete(:id)
-
-    do_update_article_meta(article, meta)
-  end
-
-  defp do_update_article_meta(article, meta) do
-    article
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_embed(:meta, meta)
-    |> Repo.update()
+    meta = article.meta |> Map.merge(%{"#{action}ed_user_ids": updated_user_ids}) |> strip_struct
+    ORM.update_meta(article, meta)
   end
 
   defp reaction_result({:ok, %{create_upvote: result}}), do: result |> done()
