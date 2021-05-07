@@ -25,7 +25,9 @@ defmodule GroupherServer.CMS.ArticleComment do
   @max_participator_count 5
   @max_parent_replies_count 3
 
-  @supported_emotions [:downvote, :beer, :heart, :biceps, :orz, :confused, :pill]
+  # NOTE: if you want to add/remove emotion, just edit the list below
+  # and migrate the field to table "articles_comments_users_emotions"
+  @supported_emotions [:downvote, :beer, :heart, :biceps, :orz, :confused, :pill, :popcorn]
   @max_latest_emotion_users_count 5
 
   @delete_hint "this comment is deleted"

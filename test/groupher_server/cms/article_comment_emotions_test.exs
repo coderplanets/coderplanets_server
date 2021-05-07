@@ -22,7 +22,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
   end
 
   describe "[emotion in paged article comment]" do
-    @tag :wip
+    @tag :wip2
     test "login user should got viewer has emotioned status", ~m(post user)a do
       total_count = 0
       page_number = 10
@@ -38,6 +38,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
 
       {:ok, _} = CMS.make_emotion(first_comment.id, :downvote, user)
       {:ok, _} = CMS.make_emotion(first_comment.id, :beer, user)
+      {:ok, _} = CMS.make_emotion(first_comment.id, :popcorn, user)
 
       {:ok, paged_comments} =
         CMS.list_article_comments(
@@ -57,6 +58,10 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       assert target.emotions.beer_count == 1
       assert user_exist_in?(user, target.emotions.latest_beer_users)
       assert target.emotions.viewer_has_beered
+
+      assert target.emotions.popcorn_count == 1
+      assert user_exist_in?(user, target.emotions.latest_popcorn_users)
+      assert target.emotions.viewer_has_popcorned
     end
   end
 
