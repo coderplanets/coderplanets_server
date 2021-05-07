@@ -67,10 +67,6 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.paged_threads/3)
     end
 
-    article_queries(:post)
-    article_queries(:job)
-    article_queries(:repo)
-
     @desc "get wiki by community raw name"
     field :wiki, non_null(:wiki) do
       arg(:community, :string)
@@ -83,25 +79,12 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.cheatsheet/3)
     end
 
-    @desc "get paged upvoted users of an article"
-    field :upvoted_users, :paged_users do
-      arg(:id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
-      arg(:filter, non_null(:paged_filter))
+    article_queries(:post)
+    article_queries(:job)
+    article_queries(:repo)
 
-      middleware(M.PageSizeProof)
-      resolve(&R.CMS.upvoted_users/3)
-    end
-
-    @desc "get paged upvoted users of an article"
-    field :collected_users, :paged_users do
-      arg(:id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
-      arg(:filter, non_null(:paged_filter))
-
-      middleware(M.PageSizeProof)
-      resolve(&R.CMS.collected_users/3)
-    end
+    article_reacted_users_query(:upvot, &R.CMS.upvoted_users/3)
+    article_reacted_users_query(:collect, &R.CMS.collected_users/3)
 
     # get all tags
     @desc "get paged tags"

@@ -13,9 +13,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.User
-  alias CMS.{ArticleUpvote, ArticleCollect}
+  alias CMS.{ArticleUpvote, ArticleCollect, Embeds}
 
   alias Ecto.Multi
+
+  @default_article_meta Embeds.ArticleMeta.default_meta()
 
   def upvoted_users(thread, article_id, filter) do
     load_reaction_users(ArticleUpvote, thread, article_id, filter)
@@ -221,6 +223,20 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
           String.t(),
           :add | :remove
         ) :: T.article_common()
+  defp update_article_reaction_user_list(action, %{meta: nil} = article, user_id, opt) do
+    cur_user_ids = []
+
+    updated_user_ids =
+      case opt do
+        :add -> [user_id] ++ cur_user_ids
+        :remove -> cur_user_ids -- [user_id]
+      end
+
+    updated_meta = @default_article_meta |> Map.merge(%{"#{action}ed_user_ids": updated_user_ids})
+
+    do_update_article_meta(article, updated_meta)
+  end
+
   defp update_article_reaction_user_list(action, article, user_id, opt) do
     cur_user_ids = get_in(article, [:meta, :"#{action}ed_user_ids"])
 
@@ -230,15 +246,19 @@ defmodule GroupherServer.CMS.Delegate.ArticleReaction do
         :remove -> cur_user_ids -- [user_id]
       end
 
-    updated_meta =
+    meta =
       article.meta
       |> Map.merge(%{"#{action}ed_user_ids": updated_user_ids})
       |> Map.from_struct()
       |> Map.delete(:id)
 
+    do_update_article_meta(article, meta)
+  end
+
+  defp do_update_article_meta(article, meta) do
     article
     |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_embed(:meta, updated_meta)
+    |> Ecto.Changeset.put_embed(:meta, meta)
     |> Repo.update()
   end
 

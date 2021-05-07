@@ -55,6 +55,12 @@ defmodule GroupherServer.CMS.Post do
     field(:viewer_has_collected, :boolean, default: false, virtual: true)
     field(:viewer_has_reported, :boolean, default: false, virtual: true)
 
+    has_many(:upvotes, {"article_upvotes", ArticleUpvote})
+    field(:upvotes_count, :integer, default: 0)
+
+    has_many(:collects, {"article_collects", ArticleCollect})
+    field(:collects_count, :integer, default: 0)
+
     # TODO
     # 相关文章
     # has_may(:related_post, ...)
@@ -66,12 +72,6 @@ defmodule GroupherServer.CMS.Post do
     field(:article_comments_participators_count, :integer, default: 0)
     # 评论参与者，只保留最近 5 个
     embeds_many(:article_comments_participators, Accounts.User, on_replace: :delete)
-
-    has_many(:upvotes, {"article_upvotes", ArticleUpvote})
-    field(:upvotes_count, :integer, default: 0)
-
-    has_many(:collects, {"article_collects", ArticleCollect})
-    field(:collects_count, :integer, default: 0)
 
     has_many(:viewers, {"posts_viewers", PostViewer})
     # The keys are inflected from the schema names!
