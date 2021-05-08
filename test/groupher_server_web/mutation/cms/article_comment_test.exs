@@ -114,5 +114,34 @@ defmodule GroupherServer.Test.Mutation.ArticleComment do
       assert comment |> get_in(["emotions", "beerCount"]) == 1
       assert get_in(comment, ["emotions", "viewerHasBeered"])
     end
+
+    @emotion_comment_query """
+    mutation($id: ID!, $emotion: ArticleCommentEmotion!) {
+      undoEmotionToComment(id: $id, emotion: $emotion) {
+        id
+        emotions {
+          beerCount
+          viewerHasBeered
+          latestBeerUsers {
+            login
+            nickname
+          }
+        }
+      }
+    }
+    """
+    @tag :wip2
+    test "login user can undo emotion to a comment", ~m(post user owner_conn)a do
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
+      {:ok, _} = CMS.emotion_to_comment(comment.id, :beer, user)
+
+      variables = %{id: comment.id, emotion: "BEER"}
+
+      comment =
+        owner_conn |> mutation_result(@emotion_comment_query, variables, "undoEmotionToComment")
+
+      assert comment |> get_in(["emotions", "beerCount"]) == 0
+      assert not get_in(comment, ["emotions", "viewerHasBeered"])
+    end
   end
 end

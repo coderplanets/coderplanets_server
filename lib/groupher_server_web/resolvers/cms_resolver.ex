@@ -326,6 +326,10 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.emotion_to_comment(id, emotion, user)
   end
 
+  def undo_emotion_to_comment(_root, ~m(id emotion)a, %{context: %{cur_user: user}}) do
+    CMS.undo_emotion_to_comment(id, emotion, user)
+  end
+
   ############
   ############
   ############

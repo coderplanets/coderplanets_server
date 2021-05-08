@@ -53,6 +53,15 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
       resolve(&R.CMS.emotion_to_comment/3)
     end
 
+    @desc "undo emotion to a comment"
+    field :undo_emotion_to_comment, :article_comment do
+      arg(:id, non_null(:id))
+      arg(:emotion, non_null(:article_comment_emotion))
+
+      middleware(M.Authorize, :login)
+      resolve(&R.CMS.undo_emotion_to_comment/3)
+    end
+
     ############################
     ############################
     ############################
