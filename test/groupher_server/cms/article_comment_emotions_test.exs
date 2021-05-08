@@ -77,7 +77,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       assert @default_emotions == emotions
     end
 
-    @tag :wip
+    @tag :wip2
     test "can make emotion to comment", ~m(post user user2)a do
       parent_content = "parent comment"
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
@@ -92,7 +92,30 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       assert user_exist_in?(user2, emotions.latest_downvote_users)
     end
 
-    @tag :wip
+    @tag :wip2
+    test "can undo emotion to comment", ~m(post user user2)a do
+      parent_content = "parent comment"
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
+
+      {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
+      {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user2)
+
+      {:ok, %{emotions: emotions}} = ORM.find(ArticleComment, parent_comment.id)
+
+      assert emotions.downvote_count == 2
+      assert user_exist_in?(user, emotions.latest_downvote_users)
+      assert user_exist_in?(user2, emotions.latest_downvote_users)
+
+      {:ok, _} = CMS.undo_emotion_to_comment(parent_comment.id, :downvote, user)
+      {:ok, _} = CMS.undo_emotion_to_comment(parent_comment.id, :downvote, user2)
+
+      {:ok, %{emotions: emotions}} = ORM.find(ArticleComment, parent_comment.id)
+      assert emotions.downvote_count == 0
+      assert not user_exist_in?(user, emotions.latest_downvote_users)
+      assert not user_exist_in?(user2, emotions.latest_downvote_users)
+    end
+
+    @tag :wip3
     test "same user make same emotion to same comment", ~m(post user)a do
       parent_content = "parent comment"
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)

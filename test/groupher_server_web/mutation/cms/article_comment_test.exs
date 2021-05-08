@@ -24,7 +24,7 @@ defmodule GroupherServer.Test.Mutation.ArticleComment do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "write article comment to a exsit post", ~m(post user_conn)a do
       comment = "a test comment"
       variables = %{thread: "POST", id: post.id, content: comment}
@@ -43,7 +43,7 @@ defmodule GroupherServer.Test.Mutation.ArticleComment do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "only owner can update a exsit comment",
          ~m(post user guest_conn user_conn owner_conn)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
@@ -68,7 +68,7 @@ defmodule GroupherServer.Test.Mutation.ArticleComment do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "only owner can delete a exsit comment",
          ~m(post user guest_conn user_conn owner_conn)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
@@ -103,8 +103,8 @@ defmodule GroupherServer.Test.Mutation.ArticleComment do
       }
     }
     """
-    @tag :wip2
-    test "login user can emotion to a comment", ~m(post user guest_conn user_conn owner_conn)a do
+    @tag :wip3
+    test "login user can emotion to a comment", ~m(post user user_conn)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
       variables = %{id: comment.id, emotion: "BEER"}
 

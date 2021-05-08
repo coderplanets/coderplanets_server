@@ -47,7 +47,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
     end
 
-    @tag :wip2
+    @tag :wip3
     test "comment can be updated", ~m(post user)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
 
@@ -565,7 +565,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[article comment delete]" do
-    @tag :wip2
+    @tag :wip3
     test "delete comment still exsit in paged list and content is gone", ~m(user post)a do
       total_count = 10
       page_number = 1
@@ -590,7 +590,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert deleted_comment.body_html == @delete_hint
     end
 
-    @tag :wip2
+    @tag :wip3
     test "delete comment still update article's comments_count field", ~m(user post)a do
       {:ok, _comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       {:ok, _comment} = CMS.create_article_comment(:post, post.id, "commment", user)
@@ -608,7 +608,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert post.article_comments_count == 4
     end
 
-    @tag :wip2
+    @tag :wip3
     test "delete comment still delete pined record if needed", ~m(user post)a do
       total_count = 10
 
