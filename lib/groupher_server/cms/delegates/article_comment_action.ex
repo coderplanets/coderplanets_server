@@ -6,6 +6,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   import Helper.Utils, only: [done: 1, strip_struct: 1]
   import Helper.ErrorCode
 
+  import GroupherServer.CMS.Delegate.ArticleComment,
+    only: [add_participator_to_article: 2, do_create_comment: 4, update_article_comments_count: 2]
+
   import GroupherServer.CMS.Utils.Matcher2
 
   alias Helper.Types, as: T
@@ -26,12 +29,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
 
   alias Ecto.Multi
 
-  @max_participator_count ArticleComment.max_participator_count()
   @max_parent_replies_count ArticleComment.max_parent_replies_count()
-  @default_emotions Embeds.ArticleCommentEmotion.default_emotions()
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
-
-  @default_comment_meta Embeds.ArticleCommentMeta.default_meta()
   @pined_comment_limit ArticleComment.pined_comment_limit()
 
   @spec pin_article_comment(Integer.t()) :: {:ok, ArticleComment.t()}
@@ -241,50 +240,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
     end
   end
 
-  # update comment's parent article's comments total count
-  @spec update_article_comments_count(ArticleComment.t(), :inc | :dec) :: ArticleComment.t()
-  defp update_article_comments_count(%ArticleComment{} = comment, opt) do
-    with {:ok, article_info} <- match(:comment_article, comment),
-         {:ok, article} <- ORM.find(article_info.model, article_info.id) do
-      count_query =
-        from(c in ArticleComment, where: field(c, ^article_info.foreign_key) == ^article_info.id)
-
-      cur_count = Repo.aggregate(count_query, :count)
-
-      # dec 是 comment 还没有删除的时候的操作，和 inc 不同
-      # 因为 dec 操作如果放在 delete 后面，那么 update 会失败
-      case opt do
-        :inc -> ORM.update(article, %{article_comments_count: cur_count})
-        :dec -> ORM.update(article, %{article_comments_count: Enum.max([1, cur_count]) - 1})
-      end
-    end
-  end
-
-  # creat article comment for parent or reply
-  # set floor
-  # TODO: parse editor-json
-  # set default emotions
-  defp do_create_comment(content, foreign_key, article, %User{id: user_id}) do
-    count_query = from(c in ArticleComment, where: field(c, ^foreign_key) == ^article.id)
-    floor = Repo.aggregate(count_query, :count) + 1
-
-    ArticleComment
-    |> ORM.create(
-      Map.put(
-        %{
-          author_id: user_id,
-          body_html: content,
-          emotions: @default_emotions,
-          floor: floor,
-          is_article_author: user_id == article.author.user.id,
-          meta: @default_comment_meta
-        },
-        foreign_key,
-        article.id
-      )
-    )
-  end
-
   # 设计盖楼只保留一个层级，回复楼中的评论都会被放到顶楼的 replies 中
   defp get_parent_comment(%ArticleComment{reply_to_id: nil} = comment) do
     comment
@@ -317,26 +272,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   defp add_replies_ifneed(%ArticleComment{} = parent_comment, _) do
     {:ok, parent_comment}
   end
-
-  # add participator to article-like content (Post, Job ...) and update count
-  defp add_participator_to_article(%Post{} = article, %User{} = user) do
-    total_participators =
-      article.article_comments_participators
-      |> List.insert_at(0, user)
-      |> Enum.uniq()
-
-    new_comment_participators = total_participators |> Enum.slice(0, @max_participator_count)
-
-    total_participators_count = length(total_participators)
-
-    article
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_change(:article_comments_participators_count, total_participators_count)
-    |> Ecto.Changeset.put_embed(:article_comments_participators, new_comment_participators)
-    |> Repo.update()
-  end
-
-  defp add_participator_to_article(_, _), do: {:ok, :pass}
 
   defp get_article(%ArticleComment{post_id: post_id} = comment) when not is_nil(post_id) do
     with {:ok, article} <- ORM.find(Post, comment.post_id, preload: [author: :user]) do

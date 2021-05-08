@@ -14,8 +14,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.User
-  # TODO: why Post?
-  alias CMS.{ArticleComment, ArticlePinedComment, Embeds, Post}
+  alias CMS.{ArticleComment, ArticlePinedComment, Embeds}
   alias Ecto.Multi
 
   @max_participator_count ArticleComment.max_participator_count()
@@ -141,6 +140,68 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     |> upsert_comment_result()
   end
 
+  # add participator to article-like content (Post, Job ...) and update count
+  def add_participator_to_article(
+        %{article_comments_participators: article_comments_participators} = article,
+        %User{} = user
+      ) do
+    total_participators = article_comments_participators |> List.insert_at(0, user) |> Enum.uniq()
+    new_comment_participators = total_participators |> Enum.slice(0, @max_participator_count)
+    total_participators_count = length(total_participators)
+
+    article
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_change(:article_comments_participators_count, total_participators_count)
+    |> Ecto.Changeset.put_embed(:article_comments_participators, new_comment_participators)
+    |> Repo.update()
+  end
+
+  def add_participator_to_article(_, _), do: {:ok, :pass}
+
+  # update comment's parent article's comments total count
+  @spec update_article_comments_count(ArticleComment.t(), :inc | :dec) :: ArticleComment.t()
+  def update_article_comments_count(%ArticleComment{} = comment, opt) do
+    with {:ok, article_info} <- match(:comment_article, comment),
+         {:ok, article} <- ORM.find(article_info.model, article_info.id) do
+      count_query =
+        from(c in ArticleComment, where: field(c, ^article_info.foreign_key) == ^article_info.id)
+
+      cur_count = Repo.aggregate(count_query, :count)
+
+      # dec 是 comment 还没有删除的时候的操作，和 inc 不同
+      # 因为 dec 操作如果放在 delete 后面，那么 update 会失败
+      case opt do
+        :inc -> ORM.update(article, %{article_comments_count: cur_count})
+        :dec -> ORM.update(article, %{article_comments_count: Enum.max([1, cur_count]) - 1})
+      end
+    end
+  end
+
+  # creat article comment for parent or reply
+  # set floor
+  # TODO: parse editor-json
+  # set default emotions
+  def do_create_comment(content, foreign_key, article, %User{id: user_id}) do
+    count_query = from(c in ArticleComment, where: field(c, ^foreign_key) == ^article.id)
+    floor = Repo.aggregate(count_query, :count) + 1
+
+    ArticleComment
+    |> ORM.create(
+      Map.put(
+        %{
+          author_id: user_id,
+          body_html: content,
+          emotions: @default_emotions,
+          floor: floor,
+          is_article_author: user_id == article.author.user.id,
+          meta: @default_comment_meta
+        },
+        foreign_key,
+        article.id
+      )
+    )
+  end
+
   defp do_list_article_comment(thread, article_id, filters, where_query, user) do
     %{page: page, size: size} = filters
 
@@ -209,69 +270,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   end
 
   defp add_pined_comments_ifneed(paged_comments, _thread, _article_id, _), do: paged_comments
-
-  # update comment's parent article's comments total count
-  @spec update_article_comments_count(ArticleComment.t(), :inc | :dec) :: ArticleComment.t()
-  defp update_article_comments_count(%ArticleComment{} = comment, opt) do
-    with {:ok, article_info} <- match(:comment_article, comment),
-         {:ok, article} <- ORM.find(article_info.model, article_info.id) do
-      count_query =
-        from(c in ArticleComment, where: field(c, ^article_info.foreign_key) == ^article_info.id)
-
-      cur_count = Repo.aggregate(count_query, :count)
-
-      # dec 是 comment 还没有删除的时候的操作，和 inc 不同
-      # 因为 dec 操作如果放在 delete 后面，那么 update 会失败
-      case opt do
-        :inc -> ORM.update(article, %{article_comments_count: cur_count})
-        :dec -> ORM.update(article, %{article_comments_count: Enum.max([1, cur_count]) - 1})
-      end
-    end
-  end
-
-  # creat article comment for parent or reply
-  # set floor
-  # TODO: parse editor-json
-  # set default emotions
-  defp do_create_comment(content, foreign_key, article, %User{id: user_id}) do
-    count_query = from(c in ArticleComment, where: field(c, ^foreign_key) == ^article.id)
-    floor = Repo.aggregate(count_query, :count) + 1
-
-    ArticleComment
-    |> ORM.create(
-      Map.put(
-        %{
-          author_id: user_id,
-          body_html: content,
-          emotions: @default_emotions,
-          floor: floor,
-          is_article_author: user_id == article.author.user.id,
-          meta: @default_comment_meta
-        },
-        foreign_key,
-        article.id
-      )
-    )
-  end
-
-  # add participator to article-like content (Post, Job ...) and update count
-  defp add_participator_to_article(%Post{} = article, %User{} = user) do
-    total_participators =
-      article.article_comments_participators
-      |> List.insert_at(0, user)
-      |> Enum.uniq()
-
-    new_comment_participators = total_participators |> Enum.slice(0, @max_participator_count)
-    total_participators_count = length(total_participators)
-
-    article
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_change(:article_comments_participators_count, total_participators_count)
-    |> Ecto.Changeset.put_embed(:article_comments_participators, new_comment_participators)
-    |> Repo.update()
-  end
-
-  defp add_participator_to_article(_, _), do: {:ok, :pass}
 
   defp user_in_logins?([], _), do: false
   defp user_in_logins?(ids_list, %User{login: login}), do: Enum.member?(ids_list, login)
