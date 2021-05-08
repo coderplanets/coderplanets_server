@@ -317,6 +317,11 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.update_article_comment(comment, content)
   end
 
+  def delete_article_comment(_root, ~m(passport_source)a, _info) do
+    comment = passport_source
+    CMS.delete_article_comment(comment)
+  end
+
   ############
   ############
   ############

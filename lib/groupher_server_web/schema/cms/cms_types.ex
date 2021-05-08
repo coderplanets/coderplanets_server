@@ -358,6 +358,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:replies, list_of(:article_comment_reply))
     field(:replies_count, :integer)
 
+    field(:is_deleted, :boolean)
     field(:viewer_has_upvoted, :boolean)
 
     timestamp_fields()

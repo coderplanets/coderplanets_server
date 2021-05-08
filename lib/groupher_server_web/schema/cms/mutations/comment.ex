@@ -33,6 +33,17 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
       resolve(&R.CMS.update_article_comment/3)
     end
 
+    @desc "delete a comment"
+    field :delete_article_comment, :article_comment do
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.PassportLoader, source: :article_comment)
+      middleware(M.Passport, claim: "owner")
+
+      resolve(&R.CMS.delete_article_comment/3)
+    end
+
     @desc "create a comment"
     field :create_comment, :comment do
       # TODO use thread and force community pass-in

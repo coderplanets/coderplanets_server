@@ -126,11 +126,11 @@ defmodule GroupherServer.CMS do
   defdelegate list_article_comments_participators(thread, content_id, filters), to: ArticleComment
 
   defdelegate create_article_comment(thread, article_id, args, user), to: ArticleComment
-  defdelegate update_article_comment(comment, args), to: ArticleComment
+  defdelegate update_article_comment(comment, content), to: ArticleComment
+  defdelegate delete_article_comment(comment), to: ArticleComment
 
   defdelegate upvote_article_comment(comment_id, user), to: ArticleComment
   defdelegate undo_upvote_article_comment(comment_id, user), to: ArticleComment
-  defdelegate delete_article_comment(comment_id, user), to: ArticleComment
   defdelegate reply_article_comment(comment_id, args, user), to: ArticleComment
 
   defdelegate pin_article_comment(comment_id), to: ArticleComment

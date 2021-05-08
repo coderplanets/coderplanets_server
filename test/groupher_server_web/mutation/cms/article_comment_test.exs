@@ -1,7 +1,6 @@
 defmodule GroupherServer.Test.Mutation.ArticleComment do
   use GroupherServer.TestTools
 
-  alias Helper.ORM
   alias GroupherServer.CMS
 
   setup do
@@ -63,29 +62,28 @@ defmodule GroupherServer.Test.Mutation.ArticleComment do
 
     @delete_comment_query """
     mutation($id: ID!) {
-      deleteComment(id: $id) {
+      deleteArticleComment(id: $id) {
         id
+        isDeleted
       }
     }
     """
-    test "delete a comment", ~m(post user_conn community)a do
-      variables1 = %{
-        community: community.raw,
-        thread: "POST",
-        id: post.id,
-        body: "a test comment"
-      }
+    @tag :wip2
+    test "only owner can delete a exsit comment",
+         ~m(post user guest_conn user_conn owner_conn)a do
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
+      variables = %{id: comment.id}
 
-      created = user_conn |> mutation_result(@create_comment_query, variables1, "createComment")
-      assert created["body"] == variables1.body
+      assert user_conn |> mutation_get_error?(@delete_comment_query, variables, ecode(:passport))
 
-      variables2 = %{id: created["id"]}
+      assert guest_conn
+             |> mutation_get_error?(@delete_comment_query, variables, ecode(:account_login))
 
-      deleted = user_conn |> mutation_result(@delete_comment_query, variables2, "deleteComment")
+      deleted =
+        owner_conn |> mutation_result(@delete_comment_query, variables, "deleteArticleComment")
 
-      assert deleted["id"] == created["id"]
-
-      assert {:error, _} = ORM.find(CMS.PostComment, deleted["id"])
+      assert deleted["id"] == to_string(comment.id)
+      assert deleted["isDeleted"]
     end
   end
 end

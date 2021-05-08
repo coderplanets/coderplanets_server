@@ -157,24 +157,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
-  @doc "delete article comment"
-  def delete_article_comment(comment_id, %User{} = _user) do
-    with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
-      Multi.new()
-      |> Multi.run(:update_article_comments_count, fn _, _ ->
-        update_article_comments_count(comment, :dec)
-      end)
-      |> Multi.run(:remove_pined_comment, fn _, _ ->
-        ORM.findby_delete(ArticlePinedComment, %{article_comment_id: comment.id})
-      end)
-      |> Multi.run(:delete_article_comment, fn _, _ ->
-        ORM.update(comment, %{body_html: @delete_hint, is_deleted: true})
-      end)
-      |> Repo.transaction()
-      |> upsert_comment_result()
-    end
-  end
-
   def fold_article_comment(%ArticleComment{} = comment, %User{} = _user) do
     comment |> ORM.update(%{is_folded: true})
   end
@@ -312,6 +294,22 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   """
   def update_article_comment(%ArticleComment{} = article_comment, content) do
     article_comment |> ORM.update(%{body_html: content})
+  end
+
+  @doc "delete article comment"
+  def delete_article_comment(%ArticleComment{} = comment) do
+    Multi.new()
+    |> Multi.run(:update_article_comments_count, fn _, _ ->
+      update_article_comments_count(comment, :dec)
+    end)
+    |> Multi.run(:remove_pined_comment, fn _, _ ->
+      ORM.findby_delete(ArticlePinedComment, %{article_comment_id: comment.id})
+    end)
+    |> Multi.run(:delete_article_comment, fn _, _ ->
+      ORM.update(comment, %{body_html: @delete_hint, is_deleted: true})
+    end)
+    |> Repo.transaction()
+    |> upsert_comment_result()
   end
 
   @doc "reply to exsiting comment"
