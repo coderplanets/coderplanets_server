@@ -50,4 +50,13 @@ defmodule GroupherServer.CMS.ArticleCommentUserEmotion do
     |> foreign_key_constraint(:user_id)
     |> foreign_key_constraint(:recived_user_id)
   end
+
+  def update_changeset(%ArticleCommentUserEmotion{} = struct, attrs) do
+    struct
+    |> cast(attrs, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
+    |> foreign_key_constraint(:article_comment_id)
+    |> foreign_key_constraint(:user_id)
+    |> foreign_key_constraint(:recived_user_id)
+  end
 end

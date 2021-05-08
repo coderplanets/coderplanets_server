@@ -20,7 +20,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     ArticlePinedComment,
     ArticleCommentUpvote,
     ArticleCommentReply,
-    ArticleCommentUserEmotion,
     Embeds,
     Post,
     Job
@@ -28,7 +27,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   alias Ecto.Multi
 
-  @max_latest_emotion_users_count ArticleComment.max_latest_emotion_users_count()
   @max_participator_count ArticleComment.max_participator_count()
   @max_parent_replies_count ArticleComment.max_parent_replies_count()
   @default_emotions Embeds.ArticleCommentEmotion.default_emotions()
@@ -157,24 +155,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
-  @doc "delete article comment"
-  def delete_article_comment(comment_id, %User{} = _user) do
-    with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
-      Multi.new()
-      |> Multi.run(:update_article_comments_count, fn _, _ ->
-        update_article_comments_count(comment, :dec)
-      end)
-      |> Multi.run(:remove_pined_comment, fn _, _ ->
-        ORM.findby_delete(ArticlePinedComment, %{article_comment_id: comment.id})
-      end)
-      |> Multi.run(:delete_article_comment, fn _, _ ->
-        ORM.update(comment, %{body_html: @delete_hint, is_deleted: true})
-      end)
-      |> Repo.transaction()
-      |> upsert_comment_result()
-    end
-  end
-
   def fold_article_comment(%ArticleComment{} = comment, %User{} = _user) do
     comment |> ORM.update(%{is_folded: true})
   end
@@ -224,68 +204,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
-  @doc "make emotion to a comment"
-  def emotion_to_comment(comment_id, emotion, %User{} = user) do
-    with {:ok, comment} <-
-           ORM.find(ArticleComment, comment_id) do
-      Multi.new()
-      |> Multi.run(:create_user_emotion, fn _, _ ->
-        args =
-          Map.put(
-            %{
-              article_comment_id: comment.id,
-              recived_user_id: comment.author_id,
-              user_id: user.id
-            },
-            :"#{emotion}",
-            true
-          )
-
-        {:ok, _} = ArticleCommentUserEmotion |> ORM.create(args)
-      end)
-      |> Multi.run(:query_emotion_status, fn _, _ ->
-        # 每次被 emotion 动作触发后重新查询，主要原因
-        # 1.并发下保证数据准确，类似 views 阅读数的统计
-        # 2. 前端使用 nickname 而非 login 展示，如果用户改了 nickname, 可以"自动纠正"
-        query =
-          from(a in ArticleCommentUserEmotion,
-            join: user in User,
-            on: a.user_id == user.id,
-            where: a.article_comment_id == ^comment.id,
-            where: field(a, ^emotion) == true,
-            select: %{login: user.login, nickname: user.nickname}
-          )
-
-        emotioned_user_info_list = Repo.all(query) |> Enum.uniq()
-        emotioned_user_count = length(emotioned_user_info_list)
-
-        {:ok, %{user_list: emotioned_user_info_list, user_count: emotioned_user_count}}
-      end)
-      |> Multi.run(:update_comment_emotion, fn _, %{query_emotion_status: status} ->
-        updated_emotions =
-          %{}
-          |> Map.put(:"#{emotion}_count", status.user_count)
-          |> Map.put(
-            :"#{emotion}_user_logins",
-            status.user_list |> Enum.map(& &1.login)
-          )
-          |> Map.put(
-            :"latest_#{emotion}_users",
-            Enum.slice(status.user_list, 0, @max_latest_emotion_users_count)
-          )
-
-        comment
-        |> Ecto.Changeset.change()
-        |> Ecto.Changeset.put_embed(:emotions, updated_emotions)
-        |> Repo.update()
-      end)
-      |> Repo.transaction()
-      |> upsert_comment_result
-    end
-  end
-
   @doc """
-  Creates a comment for psot, job ...
+  creates a comment for article like psot, job ...
   """
   def create_article_comment(thread, article_id, content, %User{} = user) do
     with {:ok, info} <- match(thread),
@@ -305,6 +225,29 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> Repo.transaction()
       |> upsert_comment_result()
     end
+  end
+
+  @doc """
+  update a comment for article like psot, job ...
+  """
+  def update_article_comment(%ArticleComment{} = article_comment, content) do
+    article_comment |> ORM.update(%{body_html: content})
+  end
+
+  @doc "delete article comment"
+  def delete_article_comment(%ArticleComment{} = comment) do
+    Multi.new()
+    |> Multi.run(:update_article_comments_count, fn _, _ ->
+      update_article_comments_count(comment, :dec)
+    end)
+    |> Multi.run(:remove_pined_comment, fn _, _ ->
+      ORM.findby_delete(ArticlePinedComment, %{article_comment_id: comment.id})
+    end)
+    |> Multi.run(:delete_article_comment, fn _, _ ->
+      ORM.update(comment, %{body_html: @delete_hint, is_deleted: true})
+    end)
+    |> Repo.transaction()
+    |> upsert_comment_result()
   end
 
   @doc "reply to exsiting comment"
@@ -704,7 +647,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   defp upsert_comment_result({:ok, %{add_reply_to: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{check_article_author_upvoted: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{update_report_flag: result}}), do: {:ok, result}
-  defp upsert_comment_result({:ok, %{update_comment_emotion: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{update_comment_flag: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{delete_article_comment: result}}), do: {:ok, result}
 

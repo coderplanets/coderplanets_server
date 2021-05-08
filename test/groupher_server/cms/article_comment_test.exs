@@ -46,6 +46,15 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
       assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
     end
+
+    @tag :wip3
+    test "comment can be updated", ~m(post user)a do
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
+
+      {:ok, updated_comment} = CMS.update_article_comment(comment, "updated content")
+
+      assert updated_comment.body_html == "updated content"
+    end
   end
 
   describe "[article comment floor]" do
@@ -130,7 +139,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert comment.meta.is_article_author_upvoted
     end
 
-    @tag :wip2
+    @tag :wip3
     test "user upvote post comment will add id to upvoted_user_ids", ~m(post user)a do
       comment = "post_comment"
       {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
@@ -139,7 +148,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert user.id in comment.meta.upvoted_user_ids
     end
 
-    @tag :wip2
+    @tag :wip3
     test "user undo upvote post comment will remove id from upvoted_user_ids",
          ~m(post user user2)a do
       comment = "post_comment"
@@ -556,7 +565,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
   end
 
   describe "[article comment delete]" do
-    @tag :wip
+    @tag :wip3
     test "delete comment still exsit in paged list and content is gone", ~m(user post)a do
       total_count = 10
       page_number = 1
@@ -571,7 +580,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
       random_comment = all_comments |> Enum.at(1)
 
-      {:ok, deleted_comment} = CMS.delete_article_comment(random_comment.id, user)
+      {:ok, deleted_comment} = CMS.delete_article_comment(random_comment)
 
       {:ok, paged_comments} =
         CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size}, :replies)
@@ -581,7 +590,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert deleted_comment.body_html == @delete_hint
     end
 
-    @tag :wip
+    @tag :wip3
     test "delete comment still update article's comments_count field", ~m(user post)a do
       {:ok, _comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       {:ok, _comment} = CMS.create_article_comment(:post, post.id, "commment", user)
@@ -593,13 +602,13 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
 
       assert post.article_comments_count == 5
 
-      {:ok, _} = CMS.delete_article_comment(comment.id, user)
+      {:ok, _} = CMS.delete_article_comment(comment)
 
       {:ok, post} = ORM.find(Post, post.id)
       assert post.article_comments_count == 4
     end
 
-    @tag :wip
+    @tag :wip3
     test "delete comment still delete pined record if needed", ~m(user post)a do
       total_count = 10
 
@@ -615,7 +624,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       {:ok, _comment} = CMS.pin_article_comment(random_comment.id)
       {:ok, _comment} = ORM.find(ArticleComment, random_comment.id)
 
-      {:ok, _} = CMS.delete_article_comment(random_comment.id, user)
+      {:ok, _} = CMS.delete_article_comment(random_comment)
       assert {:error, _comment} = ORM.find(ArticlePinedComment, random_comment.id)
     end
   end

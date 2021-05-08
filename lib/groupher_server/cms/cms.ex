@@ -13,9 +13,9 @@ defmodule GroupherServer.CMS do
     ArticleOperation,
     ArticleReaction,
     ArticleComment,
+    ArticleCommentEmotion,
     CommentCURD,
     CommunitySync,
-    CommentReaction,
     CommunityCURD,
     CommunityOperation,
     PassportCURD,
@@ -126,15 +126,18 @@ defmodule GroupherServer.CMS do
   defdelegate list_article_comments_participators(thread, content_id, filters), to: ArticleComment
 
   defdelegate create_article_comment(thread, article_id, args, user), to: ArticleComment
+  defdelegate update_article_comment(comment, content), to: ArticleComment
+  defdelegate delete_article_comment(comment), to: ArticleComment
+
   defdelegate upvote_article_comment(comment_id, user), to: ArticleComment
   defdelegate undo_upvote_article_comment(comment_id, user), to: ArticleComment
-  defdelegate delete_article_comment(comment_id, user), to: ArticleComment
   defdelegate reply_article_comment(comment_id, args, user), to: ArticleComment
 
   defdelegate pin_article_comment(comment_id), to: ArticleComment
   defdelegate undo_pin_article_comment(comment_id), to: ArticleComment
 
-  defdelegate emotion_to_comment(comment_id, args, user), to: ArticleComment
+  defdelegate emotion_to_comment(comment_id, args, user), to: ArticleCommentEmotion
+  defdelegate undo_emotion_to_comment(comment_id, args, user), to: ArticleCommentEmotion
   defdelegate fold_article_comment(comment_id, user), to: ArticleComment
   defdelegate unfold_article_comment(comment_id, user), to: ArticleComment
   defdelegate report_article_comment(comment_id, user), to: ArticleComment

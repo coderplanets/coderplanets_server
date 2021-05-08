@@ -9,8 +9,10 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
   import Helper.ErrorCode
   import ShortMaps
 
-  alias GroupherServer.CMS
   alias Helper.ORM
+  alias GroupherServer.CMS
+
+  alias CMS.{ArticleComment}
 
   def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
 
@@ -24,8 +26,20 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
         %{resolution | arguments: arguments}
 
       {:error, err_msg} ->
+        resolution |> handle_absinthe_error(err_msg, ecode(:passport))
+    end
+  end
+
+  @doc "load article comment"
+  def call(%{context: %{cur_user: _}, arguments: ~m(id)a} = resolution, source: :article_comment) do
+    case ORM.find(ArticleComment, id, preload: :author) do
+      {:ok, article_comment} ->
         resolution
-        |> handle_absinthe_error(err_msg, ecode(:passport))
+        |> load_owner_info(:article_comment, article_comment)
+        |> load_source(article_comment)
+
+      {:error, err_msg} ->
+        resolution |> handle_absinthe_error(err_msg, ecode(:passport))
     end
   end
 
@@ -83,6 +97,9 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
   def load_owner_info(%{context: %{cur_user: cur_user}} = resolution, react, content) do
     content_author_id =
       cond do
+        react == :article_comment ->
+          content.author.id
+
         react == :comment ->
           content.author.id
 

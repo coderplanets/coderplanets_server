@@ -34,13 +34,13 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       assert exist_in?(replyed_comment, parent_comment.replies)
     end
 
-    @tag :wip
+    @tag :wip3
     test "deleted comment can not be reply", ~m(post user user2)a do
       parent_content = "parent comment"
       reply_content = "reply comment"
 
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
-      {:ok, _} = CMS.delete_article_comment(parent_comment.id, user)
+      {:ok, _} = CMS.delete_article_comment(parent_comment)
 
       {:error, _} = CMS.reply_article_comment(parent_comment.id, reply_content, user2)
     end
