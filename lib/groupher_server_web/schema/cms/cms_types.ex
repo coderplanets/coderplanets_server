@@ -44,8 +44,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
     field(:meta, :article_meta)
-    field(:article_comments_participators, list_of(:user))
-    field(:article_comments_participators_count, :integer)
 
     field :comments, list_of(:comment) do
       arg(:filter, :members_filter)
@@ -69,6 +67,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
       end)
     end
 
+    article_comments_fields()
     viewer_has_state_fields()
     # upvoted_count
     # collected_count
@@ -99,6 +98,8 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:origial_community, :community, resolve: dataloader(CMS, :origial_community))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
+    field(:meta, :article_meta)
+
     field(:salary, :string)
     field(:exp, :string)
     field(:education, :string)
@@ -108,8 +109,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
     # comments_count
     # comments_participators
-    comments_counter_fields(:job)
-
+    article_comments_fields()
     viewer_has_state_fields()
     timestamp_fields()
   end
@@ -154,7 +154,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     viewer_has_state_fields()
     # comments_count
     # comments_participators
-    comments_counter_fields(:repo)
 
     timestamp_fields()
   end

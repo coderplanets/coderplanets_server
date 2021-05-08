@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Query.ArticleComment do
+defmodule GroupherServer.Test.Query.Comments.PostComment do
   @moduledoc false
 
   use GroupherServer.TestTools
@@ -7,14 +7,13 @@ defmodule GroupherServer.Test.Query.ArticleComment do
 
   setup do
     {:ok, post} = db_insert(:post)
-    {:ok, job} = db_insert(:job)
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user, user)
 
-    {:ok, ~m(user_conn guest_conn post job user user2)a}
+    {:ok, ~m(user_conn guest_conn post user user2)a}
   end
 
   describe "[baisc article post comment]" do
@@ -239,27 +238,6 @@ defmodule GroupherServer.Test.Query.ArticleComment do
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
-
-      assert results |> is_valid_pagination?
-      assert results["totalCount"] == total_count
-    end
-
-    @tag :wip
-    test "guest user can get paged comment for job", ~m(guest_conn job user)a do
-      comment = "test comment"
-      total_count = 30
-      thread = :job
-
-      Enum.reduce(1..total_count, [], fn _, acc ->
-        {:ok, value} = CMS.create_article_comment(thread, job.id, comment, user)
-
-        acc ++ [value]
-      end)
-
-      variables = %{id: job.id, thread: "JOB", filter: %{page: 1, size: 10}}
-      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
-
-      # IO.inspect(results, label: "results-")
 
       assert results |> is_valid_pagination?
       assert results["totalCount"] == total_count

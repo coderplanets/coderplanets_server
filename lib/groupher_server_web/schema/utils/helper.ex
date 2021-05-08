@@ -191,6 +191,14 @@ defmodule GroupherServerWeb.Schema.Utils.Helper do
     end
   end
 
+  defmacro article_comments_fields do
+    quote do
+      field(:article_comments_participators, list_of(:user))
+      field(:article_comments_participators_count, :integer)
+      field(:article_comments_count, :integer)
+    end
+  end
+
   defmacro comments_counter_fields(thread) do
     quote do
       # @dec "total comments of the post"

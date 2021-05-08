@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Mutation.ArticleComment do
+defmodule GroupherServer.Test.Mutation.Comments.PostComment do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
@@ -130,7 +130,7 @@ defmodule GroupherServer.Test.Mutation.ArticleComment do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "login user can undo emotion to a comment", ~m(post user owner_conn)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
       {:ok, _} = CMS.emotion_to_comment(comment.id, :beer, user)
