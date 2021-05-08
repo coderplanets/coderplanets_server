@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{ArticleComment, Embeds}
+  alias CMS.{ArticleComment, Embeds, ArticleCommentUserEmotion}
 
   @default_emotions Embeds.ArticleCommentEmotion.default_emotions()
 
@@ -115,8 +115,8 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       assert not user_exist_in?(user2, emotions.latest_downvote_users)
     end
 
-    @tag :wip3
-    test "same user make same emotion to same comment", ~m(post user)a do
+    @tag :wip2
+    test "same user make same emotion to same comment.", ~m(post user)a do
       parent_content = "parent comment"
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
 
@@ -129,7 +129,31 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       assert user_exist_in?(user, parent_comment.emotions.latest_downvote_users)
     end
 
-    @tag :wip
+    @tag :wip2
+    test "same user same emotion to same comment only have one user_emotion record",
+         ~m(post user)a do
+      parent_content = "parent comment"
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
+
+      {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
+      {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :heart, user)
+
+      {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
+
+      {:ok, records} = ORM.find_all(ArticleCommentUserEmotion, %{page: 1, size: 10})
+      assert records.total_count == 1
+
+      {:ok, record} =
+        ORM.find_by(ArticleCommentUserEmotion, %{
+          article_comment_id: parent_comment.id,
+          user_id: user.id
+        })
+
+      assert record.downvote
+      assert record.heart
+    end
+
+    @tag :wip2
     test "different user can make same emotions on same comment", ~m(post user user2 user3)a do
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent comment", user)
 

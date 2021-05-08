@@ -4,7 +4,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentEmotion do
   """
   import Ecto.Query, warn: false
 
-  # alias Helper.Types, as: T
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS, Repo}
 
@@ -23,10 +22,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentEmotion do
     with {:ok, comment} <- ORM.find(ArticleComment, comment_id, preload: :author) do
       Multi.new()
       |> Multi.run(:create_user_emotion, fn _, _ ->
-        # dTODO:
-        # 分两步
-        # 当前如果有记录，那么直接 emotion 相应置位 boolean 就好
-        # 如果没有找到记录，那么才就要创建
         target = %{
           article_comment_id: comment.id,
           recived_user_id: comment.author.id,
@@ -35,7 +30,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentEmotion do
 
         args = Map.put(target, :"#{emotion}", true)
 
-        ArticleCommentUserEmotion |> ORM.create(args)
+        case ORM.find_by(ArticleCommentUserEmotion, target) do
+          {:ok, article_comment_user_emotion} -> article_comment_user_emotion |> ORM.update(args)
+          {:error, _} -> ArticleCommentUserEmotion |> ORM.create(args)
+        end
       end)
       |> Multi.run(:query_emotion_status, fn _, _ ->
         query_emotion_status(comment, emotion)
@@ -44,7 +42,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentEmotion do
         update_comment_emotion(comment, emotion, status, user)
       end)
       |> Repo.transaction()
-      |> upsert_comment_result
+      |> update_emotion_result
     end
   end
 
@@ -69,7 +67,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentEmotion do
         update_comment_emotion(comment, emotion, status, user)
       end)
       |> Repo.transaction()
-      |> upsert_comment_result
+      |> update_emotion_result
     end
   end
 
@@ -125,9 +123,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentEmotion do
     {:ok, Map.merge(comment, %{emotion: emotions})}
   end
 
-  defp upsert_comment_result({:ok, %{update_comment_emotion: result}}), do: {:ok, result}
+  defp update_emotion_result({:ok, %{update_comment_emotion: result}}), do: {:ok, result}
 
-  defp upsert_comment_result({:error, _, result, _steps}) do
+  defp update_emotion_result({:error, _, result, _steps}) do
     {:error, result}
   end
 end
