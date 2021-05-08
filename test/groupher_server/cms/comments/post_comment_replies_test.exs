@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
+defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
   @moduledoc false
 
   use GroupherServer.TestTools
@@ -14,9 +14,8 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
     {:ok, post} = db_insert(:post)
-    {:ok, job} = db_insert(:job)
 
-    {:ok, ~m(user user2 post job)a}
+    {:ok, ~m(user user2 post)a}
   end
 
   describe "[basic article comment replies]" do

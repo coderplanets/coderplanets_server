@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
+defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
   @moduledoc false
 
   use GroupherServer.TestTools
@@ -16,9 +16,8 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
     {:ok, user3} = db_insert(:user)
 
     {:ok, post} = db_insert(:post)
-    {:ok, job} = db_insert(:job)
 
-    {:ok, ~m(user user2 user3 post job)a}
+    {:ok, ~m(user user2 user3 post)a}
   end
 
   describe "[emotion in paged article comment]" do
