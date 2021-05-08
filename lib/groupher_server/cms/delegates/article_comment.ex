@@ -79,6 +79,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
           {:ok, T.paged_users()}
   def list_article_comments_participators(thread, article_id, filters) do
     %{page: page, size: size} = filters
+
     with {:ok, thread_query} <- match(thread, :query, article_id) do
       ArticleComment
       |> where(^thread_query)
