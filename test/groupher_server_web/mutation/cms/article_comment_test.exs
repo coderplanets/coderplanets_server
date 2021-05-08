@@ -15,7 +15,7 @@ defmodule GroupherServer.Test.Mutation.ArticleComment do
     {:ok, ~m(user_conn user guest_conn owner_conn community post)a}
   end
 
-  describe "[create article comment]" do
+  describe "[article comment CURD]" do
     @write_comment_query """
     mutation($thread: CmsThread!, $id: ID!, $content: String!) {
       createArticleComment(thread: $thread,id: $id, content: $content) {
@@ -84,6 +84,35 @@ defmodule GroupherServer.Test.Mutation.ArticleComment do
 
       assert deleted["id"] == to_string(comment.id)
       assert deleted["isDeleted"]
+    end
+  end
+
+  describe "[article comment emotion]" do
+    @emotion_comment_query """
+    mutation($id: ID!, $emotion: ArticleCommentEmotion!) {
+      emotionToComment(id: $id, emotion: $emotion) {
+        id
+        emotions {
+          beerCount
+          viewerHasBeered
+          latestBeerUsers {
+            login
+            nickname
+          }
+        }
+      }
+    }
+    """
+    @tag :wip2
+    test "login user can emotion to a comment", ~m(post user guest_conn user_conn owner_conn)a do
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
+      variables = %{id: comment.id, emotion: "BEER"}
+
+      comment =
+        user_conn |> mutation_result(@emotion_comment_query, variables, "emotionToComment")
+
+      assert comment |> get_in(["emotions", "beerCount"]) == 1
+      assert get_in(comment, ["emotions", "viewerHasBeered"])
     end
   end
 end

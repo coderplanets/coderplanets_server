@@ -225,6 +225,19 @@ defmodule GroupherServerWeb.Schema.Utils.Helper do
   end
 
   @doc """
+  general emotion enum for comments
+  #NOTE: xxx_user_logins field is not support for gq-endpoint
+  """
+  defmacro emotion_enum() do
+    @supported_emotions
+    |> Enum.map(fn emotion ->
+      quote do
+        value(unquote(:"#{emotion}"))
+      end
+    end)
+  end
+
+  @doc """
   general emotions for comments
   #NOTE: xxx_user_logins field is not support for gq-endpoint
   """

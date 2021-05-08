@@ -322,6 +322,10 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.delete_article_comment(comment)
   end
 
+  def emotion_to_comment(_root, ~m(id emotion)a, %{context: %{cur_user: user}}) do
+    CMS.emotion_to_comment(id, emotion, user)
+  end
+
   ############
   ############
   ############

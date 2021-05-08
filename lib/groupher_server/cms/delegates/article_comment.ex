@@ -244,26 +244,39 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
         {:ok, %{user_list: emotioned_user_info_list, user_count: emotioned_user_count}}
       end)
       |> Multi.run(:update_comment_emotion, fn _, %{query_emotion_status: status} ->
+        %{user_count: user_count, user_list: user_list} = status
+
         updated_emotions =
           %{}
-          |> Map.put(:"#{emotion}_count", status.user_count)
-          |> Map.put(
-            :"#{emotion}_user_logins",
-            status.user_list |> Enum.map(& &1.login)
-          )
+          |> Map.put(:"#{emotion}_count", user_count)
+          |> Map.put(:"#{emotion}_user_logins", user_list |> Enum.map(& &1.login))
           |> Map.put(
             :"latest_#{emotion}_users",
-            Enum.slice(status.user_list, 0, @max_latest_emotion_users_count)
+            Enum.slice(user_list, 0, @max_latest_emotion_users_count)
           )
+
+        viewer_has_emotioned = user.login in Map.get(updated_emotions, :"#{emotion}_user_logins")
+
+        updated_emotions =
+          updated_emotions |> Map.put(:"viewer_has_#{emotion}ed", viewer_has_emotioned)
 
         comment
         |> Ecto.Changeset.change()
         |> Ecto.Changeset.put_embed(:emotions, updated_emotions)
         |> Repo.update()
+        # virtual field can not be updated
+        |> add_viewer_emotioned_ifneed(updated_emotions)
       end)
       |> Repo.transaction()
       |> upsert_comment_result
     end
+  end
+
+  defp add_viewer_emotioned_ifneed({:error, error}, _), do: {:error, error}
+
+  defp add_viewer_emotioned_ifneed({:ok, comment}, emotions) do
+    # Map.merge(comment, %{emotion: emotions})
+    {:ok, Map.merge(comment, %{emotion: emotions})}
   end
 
   @doc """
