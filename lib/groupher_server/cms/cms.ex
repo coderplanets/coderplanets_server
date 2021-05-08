@@ -13,6 +13,7 @@ defmodule GroupherServer.CMS do
     ArticleOperation,
     ArticleReaction,
     ArticleComment,
+    ArticleCommentAction,
     ArticleCommentEmotion,
     CommentCURD,
     CommunitySync,
@@ -129,20 +130,24 @@ defmodule GroupherServer.CMS do
   defdelegate update_article_comment(comment, content), to: ArticleComment
   defdelegate delete_article_comment(comment), to: ArticleComment
 
-  defdelegate upvote_article_comment(comment_id, user), to: ArticleComment
-  defdelegate undo_upvote_article_comment(comment_id, user), to: ArticleComment
-  defdelegate reply_article_comment(comment_id, args, user), to: ArticleComment
+  defdelegate upvote_article_comment(comment_id, user), to: ArticleCommentAction
+  defdelegate undo_upvote_article_comment(comment_id, user), to: ArticleCommentAction
+  defdelegate reply_article_comment(comment_id, args, user), to: ArticleCommentAction
 
-  defdelegate pin_article_comment(comment_id), to: ArticleComment
-  defdelegate undo_pin_article_comment(comment_id), to: ArticleComment
+  defdelegate pin_article_comment(comment_id), to: ArticleCommentAction
+  defdelegate undo_pin_article_comment(comment_id), to: ArticleCommentAction
+
+  defdelegate fold_article_comment(comment_id, user), to: ArticleCommentAction
+  defdelegate unfold_article_comment(comment_id, user), to: ArticleCommentAction
+  defdelegate report_article_comment(comment_id, user), to: ArticleCommentAction
+  defdelegate unreport_article_comment(comment_id, user), to: ArticleCommentAction
 
   defdelegate emotion_to_comment(comment_id, args, user), to: ArticleCommentEmotion
   defdelegate undo_emotion_to_comment(comment_id, args, user), to: ArticleCommentEmotion
-  defdelegate fold_article_comment(comment_id, user), to: ArticleComment
-  defdelegate unfold_article_comment(comment_id, user), to: ArticleComment
-  defdelegate report_article_comment(comment_id, user), to: ArticleComment
-  defdelegate unreport_article_comment(comment_id, user), to: ArticleComment
-
+  ###################
+  ###################
+  ###################
+  ###################
   defdelegate create_comment(thread, content_id, args, user), to: CommentCURD
   defdelegate update_comment(thread, id, args, user), to: CommentCURD
   defdelegate delete_comment(thread, content_id), to: CommentCURD

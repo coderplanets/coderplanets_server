@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.Job do
 
   import Ecto.Changeset
 
-  alias GroupherServer.CMS
+  alias GroupherServer.{CMS, Accounts}
 
   alias CMS.{
     Author,
@@ -67,6 +67,8 @@ defmodule GroupherServer.CMS.Job do
     has_many(:article_comments, {"articles_comments", ArticleComment})
     field(:article_comments_count, :integer, default: 0)
     field(:article_comments_participators_count, :integer, default: 0)
+    # 评论参与者，只保留最近 5 个
+    embeds_many(:article_comments_participators, Accounts.User, on_replace: :delete)
 
     many_to_many(
       :tags,

@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Query.PostComment do
+defmodule GroupherServer.Test.Query.OldPostComment do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS

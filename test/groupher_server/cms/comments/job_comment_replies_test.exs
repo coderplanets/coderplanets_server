@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
+defmodule GroupherServer.Test.CMS.Comments.JobCommentReplies do
   @moduledoc false
 
   use GroupherServer.TestTools
@@ -6,26 +6,25 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{ArticleComment, Post}
+  alias CMS.{ArticleComment, Job}
 
   @max_parent_replies_count CMS.ArticleComment.max_parent_replies_count()
 
   setup do
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
-    {:ok, post} = db_insert(:post)
     {:ok, job} = db_insert(:job)
 
-    {:ok, ~m(user user2 post job)a}
+    {:ok, ~m(user user2 job)a}
   end
 
   describe "[basic article comment replies]" do
     @tag :wip
-    test "exsit comment can be reply", ~m(post user user2)a do
+    test "exsit comment can be reply", ~m(job user user2)a do
       parent_content = "parent comment"
       reply_content = "reply comment"
 
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, parent_content, user)
       {:ok, replyed_comment} = CMS.reply_article_comment(parent_comment.id, reply_content, user2)
       assert replyed_comment.reply_to.id == parent_comment.id
 
@@ -35,23 +34,23 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
     end
 
     @tag :wip3
-    test "deleted comment can not be reply", ~m(post user user2)a do
+    test "deleted comment can not be reply", ~m(job user user2)a do
       parent_content = "parent comment"
       reply_content = "reply comment"
 
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, parent_content, user)
       {:ok, _} = CMS.delete_article_comment(parent_comment)
 
       {:error, _} = CMS.reply_article_comment(parent_comment.id, reply_content, user2)
     end
 
     @tag :wip
-    test "multi reply should belong to one parent comment", ~m(post user user2)a do
+    test "multi reply should belong to one parent comment", ~m(job user user2)a do
       parent_content = "parent comment"
       reply_content_1 = "reply comment 1"
       reply_content_2 = "reply comment 2"
 
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, parent_content, user)
 
       {:ok, replyed_comment_1} =
         CMS.reply_article_comment(parent_comment.id, reply_content_1, user2)
@@ -65,10 +64,10 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       assert exist_in?(replyed_comment_2, parent_comment.replies)
     end
 
-    @tag :wip
+    @tag :wip3
     test "reply to reply inside a comment should belong same parent comment",
-         ~m(post user user2)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent comment", user)
+         ~m(job user user2)a do
+      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, "parent comment", user)
 
       {:ok, replyed_comment_1} = CMS.reply_article_comment(parent_comment.id, "reply 1", user2)
       {:ok, replyed_comment_2} = CMS.reply_article_comment(replyed_comment_1.id, "reply 2", user2)
@@ -91,10 +90,10 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       assert replyed_comment_3.reply_to_id == replyed_comment_2.id
     end
 
-    @tag :wip
+    @tag :wip3
     test "reply to reply inside a comment should have is_reply_to_others flag in meta",
-         ~m(post user user2)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent comment", user)
+         ~m(job user user2)a do
+      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, "parent comment", user)
 
       {:ok, replyed_comment_1} = CMS.reply_article_comment(parent_comment.id, "reply 1", user2)
       {:ok, replyed_comment_2} = CMS.reply_article_comment(replyed_comment_1.id, "reply 2", user2)
@@ -111,11 +110,11 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       assert replyed_comment_3.meta.is_reply_to_others
     end
 
-    @tag :wip
-    test "comment replies only contains @max_parent_replies_count replies", ~m(post user)a do
+    @tag :wip3
+    test "comment replies only contains @max_parent_replies_count replies", ~m(job user)a do
       total_reply_count = @max_parent_replies_count + 1
 
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, "parent_conent", user)
 
       reply_comment_list =
         Enum.reduce(1..total_reply_count, [], fn n, acc ->
@@ -135,19 +134,19 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
     end
 
     @tag :wip
-    test "replyed user should appear in article comment participators", ~m(post user user2)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
+    test "replyed user should appear in article comment participators", ~m(job user user2)a do
+      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, "parent_conent", user)
       {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user2)
 
-      {:ok, article} = ORM.find(Post, post.id)
+      {:ok, article} = ORM.find(Job, job.id)
 
       assert exist_in?(user, article.article_comments_participators)
       assert exist_in?(user2, article.article_comments_participators)
     end
 
     @tag :wip
-    test "replies count should inc by 1 after got replyed", ~m(post user user2)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
+    test "replies count should inc by 1 after got replyed", ~m(job user user2)a do
+      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, "parent_conent", user)
       assert parent_comment.replies_count === 0
 
       {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user2)
@@ -162,8 +161,8 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
 
   describe "[paged article comment replies]" do
     @tag :wip
-    test "can get paged replies of a parent comment", ~m(post user)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
+    test "can get paged replies of a parent comment", ~m(job user)a do
+      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, "parent_conent", user)
       {:ok, paged_replies} = CMS.list_comment_replies(parent_comment.id, %{page: 1, size: 20})
       assert is_valid_pagination?(paged_replies, :raw, :empty)
 
@@ -189,11 +188,11 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
     end
 
     @tag :wip
-    test "can get reply_to info of a parent comment", ~m(post user)a do
+    test "can get reply_to info of a parent comment", ~m(job user)a do
       page_number = 1
       page_size = 10
 
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, "parent_conent", user)
 
       {:ok, reply_comment} = CMS.reply_article_comment(parent_comment.id, "reply_content_1", user)
 
@@ -202,8 +201,8 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
 
       {:ok, paged_comments} =
         CMS.list_article_comments(
-          :post,
-          post.id,
+          :job,
+          job.id,
           %{page: page_number, size: page_size},
           :timeline
         )

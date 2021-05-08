@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
+defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
   @moduledoc false
 
   use GroupherServer.TestTools
@@ -16,9 +16,8 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
     {:ok, user3} = db_insert(:user)
 
     {:ok, post} = db_insert(:post)
-    {:ok, job} = db_insert(:job)
 
-    {:ok, ~m(user user2 user3 post job)a}
+    {:ok, ~m(user user2 user3 post)a}
   end
 
   describe "[emotion in paged article comment]" do
@@ -77,7 +76,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       assert @default_emotions == emotions
     end
 
-    @tag :wip2
+    @tag :wip3
     test "can make emotion to comment", ~m(post user user2)a do
       parent_content = "parent comment"
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
@@ -92,7 +91,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       assert user_exist_in?(user2, emotions.latest_downvote_users)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "can undo emotion to comment", ~m(post user user2)a do
       parent_content = "parent comment"
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
@@ -115,7 +114,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       assert not user_exist_in?(user2, emotions.latest_downvote_users)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "same user make same emotion to same comment.", ~m(post user)a do
       parent_content = "parent comment"
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
@@ -129,7 +128,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       assert user_exist_in?(user, parent_comment.emotions.latest_downvote_users)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "same user same emotion to same comment only have one user_emotion record",
          ~m(post user)a do
       parent_content = "parent comment"
@@ -153,7 +152,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentEmotions do
       assert record.heart
     end
 
-    @tag :wip2
+    @tag :wip3
     test "different user can make same emotions on same comment", ~m(post user user2 user3)a do
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent comment", user)
 
