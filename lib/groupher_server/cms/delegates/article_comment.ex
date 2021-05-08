@@ -285,7 +285,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   end
 
   @doc """
-  Creates a comment for psot, job ...
+  creates a comment for article like psot, job ...
   """
   def create_article_comment(thread, article_id, content, %User{} = user) do
     with {:ok, info} <- match(thread),
@@ -305,6 +305,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> Repo.transaction()
       |> upsert_comment_result()
     end
+  end
+
+  @doc """
+  update a comment for article like psot, job ...
+  """
+  def update_article_comment(%ArticleComment{} = article_comment, content) do
+    article_comment |> ORM.update(%{body_html: content})
   end
 
   @doc "reply to exsiting comment"

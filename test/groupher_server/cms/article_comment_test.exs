@@ -46,6 +46,15 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
       assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
     end
+
+    @tag :wip2
+    test "comment can be updated", ~m(post user)a do
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
+
+      {:ok, updated_comment} = CMS.update_article_comment(comment, "updated content")
+
+      assert updated_comment.body_html == "updated content"
+    end
   end
 
   describe "[article comment floor]" do
@@ -130,7 +139,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert comment.meta.is_article_author_upvoted
     end
 
-    @tag :wip2
+    @tag :wip3
     test "user upvote post comment will add id to upvoted_user_ids", ~m(post user)a do
       comment = "post_comment"
       {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
@@ -139,7 +148,7 @@ defmodule GroupherServer.Test.CMS.ArticleComment do
       assert user.id in comment.meta.upvoted_user_ids
     end
 
-    @tag :wip2
+    @tag :wip3
     test "user undo upvote post comment will remove id from upvoted_user_ids",
          ~m(post user user2)a do
       comment = "post_comment"

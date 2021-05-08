@@ -53,6 +53,8 @@ defmodule GroupherServer.CMS.ArticleComment do
 
   @type t :: %ArticleComment{}
   schema "articles_comments" do
+    belongs_to(:author, Accounts.User, foreign_key: :author_id)
+
     field(:body_html, :string)
     # 是否被折叠
     field(:is_folded, :boolean, default: false)
@@ -71,7 +73,6 @@ defmodule GroupherServer.CMS.ArticleComment do
     field(:is_pinned, :boolean, default: false)
     field(:viewer_has_upvoted, :boolean, default: false, virtual: true)
 
-    belongs_to(:author, Accounts.User, foreign_key: :author_id)
     belongs_to(:post, Post, foreign_key: :post_id)
     belongs_to(:job, Job, foreign_key: :job_id)
     belongs_to(:reply_to, ArticleComment, foreign_key: :reply_to_id)

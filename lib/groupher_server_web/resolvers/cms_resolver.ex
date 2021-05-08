@@ -308,6 +308,19 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.list_article_comments_participators(thread, id, filter)
   end
 
+  def create_article_comment(_root, ~m(thread id content)a, %{context: %{cur_user: user}}) do
+    CMS.create_article_comment(thread, id, content, user)
+  end
+
+  def update_article_comment(_root, ~m(content passport_source)a, _info) do
+    comment = passport_source
+    CMS.update_article_comment(comment, content)
+  end
+
+  ############
+  ############
+  ############
+
   def paged_comment_replies(_root, ~m(id filter)a, %{context: %{cur_user: user}}) do
     CMS.list_comment_replies(id, filter, user)
   end
@@ -330,10 +343,6 @@ defmodule GroupherServerWeb.Resolvers.CMS do
 
   def create_comment(_root, ~m(thread id)a = args, %{context: %{cur_user: user}}) do
     CMS.create_comment(thread, id, args, user)
-  end
-
-  def create_article_comment(_root, ~m(thread id content)a, %{context: %{cur_user: user}}) do
-    CMS.create_article_comment(thread, id, content, user)
   end
 
   def update_comment(_root, ~m(thread id)a = args, %{context: %{cur_user: user}}) do
