@@ -65,7 +65,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       assert exist_in?(replyed_comment_2, parent_comment.replies)
     end
 
-    @tag :wip
+    @tag :wip2
     test "reply to reply inside a comment should belong same parent comment",
          ~m(post user user2)a do
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent comment", user)
@@ -91,7 +91,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       assert replyed_comment_3.reply_to_id == replyed_comment_2.id
     end
 
-    @tag :wip
+    @tag :wip2
     test "reply to reply inside a comment should have is_reply_to_others flag in meta",
          ~m(post user user2)a do
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent comment", user)
@@ -111,7 +111,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommentReplies do
       assert replyed_comment_3.meta.is_reply_to_others
     end
 
-    @tag :wip
+    @tag :wip2
     test "comment replies only contains @max_parent_replies_count replies", ~m(post user)a do
       total_reply_count = @max_parent_replies_count + 1
 
