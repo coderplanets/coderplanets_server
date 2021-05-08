@@ -22,7 +22,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
     ArticlePinedComment,
     ArticleCommentUpvote,
     ArticleCommentReply,
-    Embeds,
+    # TODO: remove spec type
     Post,
     Job
   }

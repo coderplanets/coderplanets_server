@@ -44,6 +44,17 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
       resolve(&R.CMS.delete_article_comment/3)
     end
 
+    @desc "reply to a comment"
+    field :reply_article_comment, :article_comment do
+      arg(:id, non_null(:id))
+      arg(:content, non_null(:string))
+
+      middleware(M.Authorize, :login)
+      # TODO: 文章作者可以删除评论，文章可以设置禁止评论
+      resolve(&R.CMS.reply_article_comment/3)
+      middleware(M.Statistics.MakeContribute, for: :user)
+    end
+
     @desc "emotion to a comment"
     field :emotion_to_comment, :article_comment do
       arg(:id, non_null(:id))

@@ -1,10 +1,10 @@
-defmodule GroupherServer.Test.Mutation.Comments.PostComment do
+defmodule GroupherServer.Test.Mutation.Comments.JobComment do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
 
   setup do
-    {:ok, post} = db_insert(:post)
+    {:ok, job} = db_insert(:job)
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
 
@@ -12,7 +12,7 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     user_conn = simu_conn(:user)
     owner_conn = simu_conn(:user, user)
 
-    {:ok, ~m(user_conn user guest_conn owner_conn community post)a}
+    {:ok, ~m(user_conn user guest_conn owner_conn community job)a}
   end
 
   describe "[article comment CURD]" do
@@ -25,9 +25,9 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     }
     """
     @tag :wip3
-    test "write article comment to a exsit post", ~m(post user_conn)a do
+    test "write article comment to a exsit job", ~m(job user_conn)a do
       comment = "a test comment"
-      variables = %{thread: "POST", id: post.id, content: comment}
+      variables = %{thread: "JOB", id: job.id, content: comment}
 
       result =
         user_conn |> mutation_result(@write_comment_query, variables, "createArticleComment")
@@ -44,8 +44,8 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     }
     """
     @tag :wip2
-    test "login user can reply to a comment", ~m(post user user_conn)a do
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+    test "login user can reply to a comment", ~m(job user user_conn)a do
+      {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
       variables = %{id: comment.id, content: "reply content"}
 
       result =
@@ -65,8 +65,8 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     """
     @tag :wip3
     test "only owner can update a exsit comment",
-         ~m(post user guest_conn user_conn owner_conn)a do
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
+         ~m(job user guest_conn user_conn owner_conn)a do
+      {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
       variables = %{id: comment.id, content: "updated comment"}
 
       assert user_conn |> mutation_get_error?(@update_comment_query, variables, ecode(:passport))
@@ -90,8 +90,8 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     """
     @tag :wip3
     test "only owner can delete a exsit comment",
-         ~m(post user guest_conn user_conn owner_conn)a do
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
+         ~m(job user guest_conn user_conn owner_conn)a do
+      {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
       variables = %{id: comment.id}
 
       assert user_conn |> mutation_get_error?(@delete_comment_query, variables, ecode(:passport))
@@ -124,8 +124,8 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     }
     """
     @tag :wip3
-    test "login user can emotion to a comment", ~m(post user user_conn)a do
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
+    test "login user can emotion to a comment", ~m(job user user_conn)a do
+      {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
       variables = %{id: comment.id, emotion: "BEER"}
 
       comment =
@@ -151,8 +151,8 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     }
     """
     @tag :wip3
-    test "login user can undo emotion to a comment", ~m(post user owner_conn)a do
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
+    test "login user can undo emotion to a comment", ~m(job user owner_conn)a do
+      {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
       {:ok, _} = CMS.emotion_to_comment(comment.id, :beer, user)
 
       variables = %{id: comment.id, emotion: "BEER"}
