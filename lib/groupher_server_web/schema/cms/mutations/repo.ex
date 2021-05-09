@@ -3,6 +3,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Repo do
   CMS mutations for job
   """
   use Helper.GqlSchemaSuite
+  import GroupherServerWeb.Schema.Helper.Mutations
 
   object :cms_repo_mutations do
     @desc "create a repo"
@@ -69,29 +70,9 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Repo do
       resolve(&R.CMS.update_content/3)
     end
 
-    @desc "pin a repo"
-    field :pin_repo, :repo do
-      arg(:id, non_null(:id))
-      arg(:thread, :repo_thread, default_value: :repo)
-      arg(:community_id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->repo.pin")
-      resolve(&R.CMS.pin_article/3)
-    end
-
-    @desc "unpin a repo"
-    field :undo_pin_repo, :repo do
-      arg(:id, non_null(:id))
-      arg(:thread, :repo_thread, default_value: :repo)
-      arg(:community_id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->repo.undo_pin")
-      resolve(&R.CMS.undo_pin_article/3)
-    end
+    #############
+    article_pin_mutation(:repo)
+    #############
 
     @desc "trash a repo, not delete"
     field :trash_repo, :repo do

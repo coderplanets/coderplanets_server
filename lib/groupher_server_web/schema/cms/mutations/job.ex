@@ -72,31 +72,8 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Job do
 
     #############
     article_upvote_mutation(:job)
+    article_pin_mutation(:job)
     #############
-
-    @desc "pin a job"
-    field :pin_job, :job do
-      arg(:id, non_null(:id))
-      arg(:thread, :job_thread, default_value: :job)
-      arg(:community_id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->job.pin")
-      resolve(&R.CMS.pin_article/3)
-    end
-
-    @desc "unpin a job"
-    field :undo_pin_job, :job do
-      arg(:id, non_null(:id))
-      arg(:thread, :job_thread, default_value: :job)
-      arg(:community_id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->job.undo_pin")
-      resolve(&R.CMS.undo_pin_article/3)
-    end
 
     @desc "trash a job, not delete"
     field :trash_job, :job do

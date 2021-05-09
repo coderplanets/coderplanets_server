@@ -26,4 +26,32 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
       end
     end
   end
+
+  defmacro article_pin_mutation(thread) do
+    quote do
+      @desc unquote("pin to #{thread}")
+      field unquote(:"pin_#{thread}"), unquote(thread) do
+        arg(:id, non_null(:id))
+        arg(:community_id, non_null(:id))
+        arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
+
+        middleware(M.Authorize, :login)
+        middleware(M.PassportLoader, source: :community)
+        middleware(M.Passport, claim: unquote("cms->c?->#{to_string(thread)}.pin"))
+        resolve(&R.CMS.pin_article/3)
+      end
+
+      @desc unquote("undo pin to #{thread}")
+      field unquote(:"undo_pin_#{thread}"), unquote(thread) do
+        arg(:id, non_null(:id))
+        arg(:community_id, non_null(:id))
+        arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
+
+        middleware(M.Authorize, :login)
+        middleware(M.PassportLoader, source: :community)
+        middleware(M.Passport, claim: unquote("cms->c?->#{to_string(thread)}.undo_pin"))
+        resolve(&R.CMS.undo_pin_article/3)
+      end
+    end
+  end
 end
