@@ -288,7 +288,7 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       assert results["entries"] |> List.last() |> Map.get("floor") == 5
     end
 
-    @tag :wip2
+    @tag :wip3
     test "the comments is loaded in default asc order", ~m(guest_conn job user)a do
       page_size = 10
       thread = :job
@@ -312,7 +312,7 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       assert List.last(results["entries"]) |> Map.get("id") == to_string(comment3.id)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "the comments can be loaded in desc order in timeline-mode", ~m(guest_conn job user)a do
       page_size = 10
       thread = :job
@@ -336,7 +336,7 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       assert List.last(results["entries"]) |> Map.get("id") == to_string(comment.id)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "the comments can be loaded in desc order in replies-mode",
          ~m(guest_conn job user user2)a do
       page_size = 10
@@ -538,8 +538,8 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
 
   describe "paged paticipators" do
     @query """
-      query($id: ID!, $filter: PagedFilter!) {
-        pagedArticleCommentsParticipators(id: $id, filter: $filter) {
+      query($id: ID!, $thread: CmsThread, $filter: PagedFilter!) {
+        pagedArticleCommentsParticipators(id: $id, thread: $thread, filter: $filter) {
           entries {
             id
             nickname
@@ -551,7 +551,7 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
         }
     }
     """
-    @tag :wip
+    @tag :wip2
     test "guest user can get paged participators", ~m(guest_conn job user)a do
       total_count = 30
       page_size = 10
@@ -568,8 +568,9 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       {:ok, _comment} = CMS.create_article_comment(:job, job.id, "commment", user)
 
       variables = %{id: job.id, thread: thread, filter: %{page: 1, size: page_size}}
-
       results = guest_conn |> query_result(@query, variables, "pagedArticleCommentsParticipators")
+
+      IO.inspect(results, label: "results")
 
       assert results |> is_valid_pagination?
       assert results["totalCount"] == total_count + 1
