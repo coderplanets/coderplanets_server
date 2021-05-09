@@ -2,7 +2,7 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
   @moduledoc """
   CMS queries
   """
-  import GroupherServerWeb.Schema.Utils.Helper
+  import GroupherServerWeb.Schema.Helper.Queries
 
   use Helper.GqlSchemaSuite
 

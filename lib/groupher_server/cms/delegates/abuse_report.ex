@@ -5,7 +5,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   import Ecto.Query, warn: false
   # import Helper.Utils, only: [done: 1]
 
-  import GroupherServer.CMS.Utils.Matcher2
+  import GroupherServer.CMS.Helper.Matcher2
   # import ShortMaps
 
   alias Helper.{ORM}

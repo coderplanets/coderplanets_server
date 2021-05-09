@@ -6,12 +6,12 @@ defmodule GroupherServerWeb.Schema do
   # use ApolloTracing
 
   alias GroupherServerWeb.Middleware, as: M
-  alias GroupherServerWeb.Schema.{Account, Billing, CMS, Delivery, Statistics, Utils}
+  alias GroupherServerWeb.Schema.{Account, Billing, CMS, Delivery, Statistics, Helper}
 
   import_types(Absinthe.Type.Custom)
 
   # utils
-  import_types(Utils.CommonTypes)
+  import_types(Helper.Metrics)
 
   # account
   import_types(Account.Types)
@@ -91,8 +91,8 @@ defmodule GroupherServerWeb.Schema do
     alias GroupherServer.{Accounts, CMS}
 
     Dataloader.new()
-    |> Dataloader.add_source(Accounts, Accounts.Utils.Loader.data())
-    |> Dataloader.add_source(CMS, CMS.Utils.Loader.data())
+    |> Dataloader.add_source(Accounts, Accounts.Helper.Loader.data())
+    |> Dataloader.add_source(CMS, CMS.Helper.Loader.data())
   end
 
   def context(ctx) do

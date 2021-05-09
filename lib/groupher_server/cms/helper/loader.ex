@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Utils.Loader do
+defmodule GroupherServer.CMS.Helper.Loader do
   @moduledoc """
   dataloader for cms context
   """

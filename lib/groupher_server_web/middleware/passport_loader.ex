@@ -4,7 +4,7 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
   """
   @behaviour Absinthe.Middleware
 
-  import GroupherServer.CMS.Utils.Matcher
+  import GroupherServer.CMS.Helper.Matcher
   import Helper.Utils
   import Helper.ErrorCode
   import ShortMaps

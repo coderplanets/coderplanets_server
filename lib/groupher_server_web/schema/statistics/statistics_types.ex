@@ -1,7 +1,7 @@
 defmodule GroupherServerWeb.Schema.Statistics.Types do
   use Absinthe.Schema.Notation
 
-  # import GroupherServerWeb.Schema.Utils.Helper
+  # import GroupherServerWeb.Schema.Helper.Fields
 
   # alias GroupherServer.Accounts
 

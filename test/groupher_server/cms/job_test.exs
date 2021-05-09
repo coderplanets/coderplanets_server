@@ -25,7 +25,7 @@ defmodule GroupherServer.Test.Job do
       assert found.title == job.title
     end
 
-    @tag :wip3
+    @tag :wip2
     test "read job should update views and meta viewed_user_list",
          ~m(job_attrs community user user2)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)

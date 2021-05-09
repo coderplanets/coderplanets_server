@@ -129,23 +129,5 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Operation do
       middleware(M.Passport, claim: "cms->t?.community.unset")
       resolve(&R.CMS.unset_community/3)
     end
-
-    @desc "upvote an article"
-    field :upvote_article, :article do
-      arg(:id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
-
-      middleware(M.Authorize, :login)
-      resolve(&R.CMS.upvote_article/3)
-    end
-
-    @desc "undo upvote an article"
-    field :undo_upvote_article, :article do
-      arg(:id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
-
-      middleware(M.Authorize, :login)
-      resolve(&R.CMS.undo_upvote_article/3)
-    end
   end
 end

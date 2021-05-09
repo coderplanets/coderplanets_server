@@ -3,7 +3,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
   user collect folder related
   """
   import Ecto.Query, warn: false
-  import GroupherServer.CMS.Utils.Matcher2
+  import GroupherServer.CMS.Helper.Matcher2
 
   alias Helper.Types, as: T
   alias Helper.QueryBuilder

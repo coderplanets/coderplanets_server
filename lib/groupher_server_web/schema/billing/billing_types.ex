@@ -4,7 +4,7 @@ defmodule GroupherServerWeb.Schema.Billing.Types do
   """
   use Helper.GqlSchemaSuite
 
-  import GroupherServerWeb.Schema.Utils.Helper
+  import GroupherServerWeb.Schema.Helper.Fields
 
   enum :bill_state_enum do
     value(:pending)

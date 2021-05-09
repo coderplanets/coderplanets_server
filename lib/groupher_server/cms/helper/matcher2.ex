@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Utils.Matcher2 do
+defmodule GroupherServer.CMS.Helper.Matcher2 do
   @moduledoc """
   this module defined the matches and handy guard ...
   """

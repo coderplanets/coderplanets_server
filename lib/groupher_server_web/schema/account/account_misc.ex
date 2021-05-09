@@ -2,7 +2,7 @@ defmodule GroupherServerWeb.Schema.Account.Misc do
   @moduledoc false
 
   use Absinthe.Schema.Notation
-  import GroupherServerWeb.Schema.Utils.Helper
+  import GroupherServerWeb.Schema.Helper.Fields
 
   @desc "article_filter doc"
   input_object :paged_users_filter do

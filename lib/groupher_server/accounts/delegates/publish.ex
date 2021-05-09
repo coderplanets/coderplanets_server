@@ -7,7 +7,7 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
   # import Helper.ErrorCode
   import ShortMaps
 
-  import GroupherServer.CMS.Utils.Matcher
+  import GroupherServer.CMS.Helper.Matcher
 
   alias Helper.{ORM, QueryBuilder}
   # alias GroupherServer.{Accounts, Repo}

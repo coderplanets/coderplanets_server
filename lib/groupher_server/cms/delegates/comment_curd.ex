@@ -6,7 +6,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
   import Helper.Utils, only: [done: 1]
   import Helper.ErrorCode
 
-  import GroupherServer.CMS.Utils.Matcher
+  import GroupherServer.CMS.Helper.Matcher
   import ShortMaps
 
   alias Helper.{ORM, QueryBuilder}

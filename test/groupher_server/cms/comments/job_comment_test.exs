@@ -39,7 +39,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
     end
 
-    @tag :wip3
+    @tag :wip2
     test "comment can be updated", ~m(job user)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
 
@@ -130,7 +130,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert comment.meta.is_article_author_upvoted
     end
 
-    @tag :wip3
+    @tag :wip2
     test "user upvote job comment will add id to upvoted_user_ids", ~m(job user)a do
       comment = "job_comment"
       {:ok, comment} = CMS.create_article_comment(:job, job.id, comment, user)
@@ -139,7 +139,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert user.id in comment.meta.upvoted_user_ids
     end
 
-    @tag :wip3
+    @tag :wip2
     test "user undo upvote job comment will remove id from upvoted_user_ids",
          ~m(job user user2)a do
       comment = "job_comment"
@@ -543,7 +543,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
   end
 
   describe "[article comment delete]" do
-    @tag :wip3
+    @tag :wip2
     test "delete comment still exsit in paged list and content is gone", ~m(user job)a do
       total_count = 10
       page_number = 1
@@ -568,7 +568,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert deleted_comment.body_html == @delete_hint
     end
 
-    @tag :wip3
+    @tag :wip2
     test "delete comment still update article's comments_count field", ~m(user job)a do
       {:ok, _comment} = CMS.create_article_comment(:job, job.id, "commment", user)
       {:ok, _comment} = CMS.create_article_comment(:job, job.id, "commment", user)
@@ -586,7 +586,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert job.article_comments_count == 4
     end
 
-    @tag :wip3
+    @tag :wip2
     test "delete comment still delete pined record if needed", ~m(user job)a do
       total_count = 10
 
