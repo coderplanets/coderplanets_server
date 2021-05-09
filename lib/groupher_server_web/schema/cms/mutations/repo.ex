@@ -73,17 +73,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Repo do
     #############
     article_pin_mutation(:repo)
     article_trash_mutation(:repo)
+    article_delete_mutation(:repo)
     #############
-
-    @desc "delete a repo"
-    field :delete_repo, :repo do
-      arg(:id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :repo)
-      middleware(M.Passport, claim: "owner;cms->c?->repo.delete")
-
-      resolve(&R.CMS.delete_content/3)
-    end
   end
 end
