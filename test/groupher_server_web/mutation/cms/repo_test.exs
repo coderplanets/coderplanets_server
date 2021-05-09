@@ -185,5 +185,57 @@ defmodule GroupherServer.Test.Mutation.Repo do
 
       assert rule_conn |> mutation_get_error?(@update_repo_query, variables, ecode(:passport))
     end
+
+    @query """
+    mutation($id: ID!){
+      deleteRepo(id: $id) {
+        id
+      }
+    }
+    """
+    @tag :wip2
+    test "delete a repo by repo's owner", ~m(owner_conn repo)a do
+      deleted = owner_conn |> mutation_result(@query, %{id: repo.id}, "deleteRepo")
+
+      assert deleted["id"] == to_string(repo.id)
+      assert {:error, _} = ORM.find(CMS.Repo, deleted["id"])
+    end
+
+    @tag :wip2
+    test "can delete a repo by auth user", ~m(repo)a do
+      belongs_community_title = repo.communities |> List.first() |> Map.get(:title)
+      rule_conn = simu_conn(:user, cms: %{belongs_community_title => %{"repo.delete" => true}})
+
+      deleted = rule_conn |> mutation_result(@query, %{id: repo.id}, "deleteRepo")
+
+      assert deleted["id"] == to_string(repo.id)
+      assert {:error, _} = ORM.find(CMS.Repo, deleted["id"])
+    end
+
+    @tag :wip2
+    test "delete a repo without login user fails", ~m(guest_conn repo)a do
+      assert guest_conn |> mutation_get_error?(@query, %{id: repo.id}, ecode(:account_login))
+    end
+
+    test "login user with auth passport delete a repo", ~m(repo)a do
+      repo_communities_0 = repo.communities |> List.first() |> Map.get(:title)
+      passport_rules = %{repo_communities_0 => %{"repo.delete" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      # assert conn |> mutation_get_error?(@query, %{id: repo.id})
+
+      deleted = rule_conn |> mutation_result(@query, %{id: repo.id}, "deleteRepo")
+
+      assert deleted["id"] == to_string(repo.id)
+    end
+
+    test "unauth user delete repo fails", ~m(user_conn guest_conn repo)a do
+      variables = %{id: repo.id}
+      rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
+
+      assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
+      assert rule_conn |> mutation_get_error?(@query, variables, ecode(:passport))
+    end
   end
 end
