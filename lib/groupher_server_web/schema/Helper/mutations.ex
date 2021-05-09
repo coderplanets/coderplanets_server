@@ -84,4 +84,20 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
       end
     end
   end
+
+  # TODO: if post belongs to multi communities, unset instead delete
+  defmacro article_delete_mutation(thread) do
+    quote do
+      @desc unquote("delete a #{thread}, not delete")
+      field unquote(:"delete_#{thread}"), unquote(thread) do
+        arg(:id, non_null(:id))
+
+        middleware(M.Authorize, :login)
+        middleware(M.PassportLoader, source: unquote(thread))
+        middleware(M.Passport, claim: unquote("owner;cms->c?->#{to_string(thread)}.delete"))
+
+        resolve(&R.CMS.delete_content/3)
+      end
+    end
+  end
 end

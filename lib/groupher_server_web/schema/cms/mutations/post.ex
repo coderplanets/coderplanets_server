@@ -48,18 +48,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Post do
     article_upvote_mutation(:post)
     article_pin_mutation(:post)
     article_trash_mutation(:post)
+    article_delete_mutation(:post)
     #############
-
-    @desc "delete a cms/post"
-    # TODO: if post belongs to multi communities, unset instead delete
-    field :delete_post, :post do
-      arg(:id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :post)
-      middleware(M.Passport, claim: "owner;cms->c?->post.delete")
-
-      resolve(&R.CMS.delete_content/3)
-    end
   end
 end

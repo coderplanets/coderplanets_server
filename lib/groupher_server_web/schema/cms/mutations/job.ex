@@ -74,17 +74,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Job do
     article_upvote_mutation(:job)
     article_pin_mutation(:job)
     article_trash_mutation(:job)
+    article_delete_mutation(:job)
     #############
-
-    @desc "delete a job"
-    field :delete_job, :job do
-      arg(:id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :job)
-      middleware(M.Passport, claim: "owner;cms->c?->job.delete")
-
-      resolve(&R.CMS.delete_content/3)
-    end
   end
 end
