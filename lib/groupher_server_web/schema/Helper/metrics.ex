@@ -1,4 +1,4 @@
-defmodule GroupherServerWeb.Schema.Helper.CommonTypes do
+defmodule GroupherServerWeb.Schema.Helper.Metrics do
   @moduledoc """
   common types might be used in all context
   """

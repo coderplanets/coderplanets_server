@@ -6,7 +6,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   import Helper.Utils, only: [done: 1]
   import Helper.ErrorCode
 
-  import GroupherServer.CMS.Utils.Matcher2
+  import GroupherServer.CMS.Helper.Matcher2
   import ShortMaps
 
   alias Helper.Types, as: T

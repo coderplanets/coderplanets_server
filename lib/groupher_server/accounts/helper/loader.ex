@@ -1,4 +1,4 @@
-defmodule GroupherServer.Accounts.Utils.Loader do
+defmodule GroupherServer.Accounts.Helper.Loader do
   @moduledoc """
   dataloader for accounts
   """
