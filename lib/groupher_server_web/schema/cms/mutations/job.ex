@@ -72,67 +72,9 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Job do
 
     #############
     article_upvote_mutation(:job)
+    article_pin_mutation(:job)
+    article_trash_mutation(:job)
+    article_delete_mutation(:job)
     #############
-
-    @desc "pin a job"
-    field :pin_job, :job do
-      arg(:id, non_null(:id))
-      arg(:thread, :job_thread, default_value: :job)
-      arg(:community_id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->job.pin")
-      resolve(&R.CMS.pin_article/3)
-    end
-
-    @desc "unpin a job"
-    field :undo_pin_job, :job do
-      arg(:id, non_null(:id))
-      arg(:thread, :job_thread, default_value: :job)
-      arg(:community_id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->job.undo_pin")
-      resolve(&R.CMS.undo_pin_article/3)
-    end
-
-    @desc "trash a job, not delete"
-    field :trash_job, :job do
-      arg(:id, non_null(:id))
-      arg(:thread, :job_thread, default_value: :job)
-      arg(:community_id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->job.trash")
-
-      resolve(&R.CMS.trash_content/3)
-    end
-
-    @desc "trash a job, not delete"
-    field :undo_trash_job, :job do
-      arg(:id, non_null(:id))
-      arg(:thread, :job_thread, default_value: :job)
-      arg(:community_id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->job.undo_trash")
-
-      resolve(&R.CMS.undo_trash_content/3)
-    end
-
-    @desc "delete a job"
-    field :delete_job, :job do
-      arg(:id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :job)
-      middleware(M.Passport, claim: "owner;cms->c?->job.delete")
-
-      resolve(&R.CMS.delete_content/3)
-    end
   end
 end

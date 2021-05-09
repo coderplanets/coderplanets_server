@@ -46,68 +46,9 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Post do
 
     #############
     article_upvote_mutation(:post)
+    article_pin_mutation(:post)
+    article_trash_mutation(:post)
+    article_delete_mutation(:post)
     #############
-
-    @desc "pin a post"
-    field :pin_post, :post do
-      arg(:id, non_null(:id))
-      arg(:community_id, non_null(:id))
-      arg(:thread, :post_thread, default_value: :post)
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->post.pin")
-      resolve(&R.CMS.pin_article/3)
-    end
-
-    @desc "unpin a post"
-    field :undo_pin_post, :post do
-      arg(:id, non_null(:id))
-      arg(:thread, :post_thread, default_value: :post)
-      arg(:community_id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->post.undo_pin")
-      resolve(&R.CMS.undo_pin_article/3)
-    end
-
-    @desc "trash a post, not delete"
-    field :trash_post, :post do
-      arg(:id, non_null(:id))
-      arg(:thread, :post_thread, default_value: :post)
-      arg(:community_id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->post.trash")
-
-      resolve(&R.CMS.trash_content/3)
-    end
-
-    @desc "trash a post, not delete"
-    field :undo_trash_post, :post do
-      arg(:id, non_null(:id))
-      arg(:thread, :post_thread, default_value: :post)
-      arg(:community_id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->post.undo_trash")
-
-      resolve(&R.CMS.undo_trash_content/3)
-    end
-
-    @desc "delete a cms/post"
-    # TODO: if post belongs to multi communities, unset instead delete
-    field :delete_post, :post do
-      arg(:id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :post)
-      middleware(M.Passport, claim: "owner;cms->c?->post.delete")
-
-      resolve(&R.CMS.delete_content/3)
-    end
   end
 end
