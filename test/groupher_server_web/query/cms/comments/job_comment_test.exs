@@ -570,8 +570,6 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       variables = %{id: job.id, thread: thread, filter: %{page: 1, size: page_size}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleCommentsParticipators")
 
-      IO.inspect(results, label: "results")
-
       assert results |> is_valid_pagination?
       assert results["totalCount"] == total_count + 1
     end
