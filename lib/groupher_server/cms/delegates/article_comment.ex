@@ -204,6 +204,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   defp do_list_article_comment(thread, article_id, filters, where_query, user) do
     %{page: page, size: size} = filters
+    sort = Map.get(filters, :sort, :asc_inserted)
 
     with {:ok, thread_query} <- match(thread, :query, article_id) do
       query = from(c in ArticleComment, preload: [reply_to: :author])
@@ -211,7 +212,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       query
       |> where(^thread_query)
       |> where(^where_query)
-      |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :asc_inserted}))
+      # |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :asc_inserted}))
+      |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: sort}))
       |> ORM.paginater(~m(page size)a)
       |> set_viewer_emotion_ifneed(user)
       |> add_pined_comments_ifneed(thread, article_id, filters)
