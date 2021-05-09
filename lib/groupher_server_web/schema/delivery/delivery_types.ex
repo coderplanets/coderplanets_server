@@ -1,7 +1,7 @@
 defmodule GroupherServerWeb.Schema.Delivery.Types do
   use Absinthe.Schema.Notation
 
-  import GroupherServerWeb.Schema.Utils.Helper
+  import GroupherServerWeb.Schema.Helper.Fields
   import Helper.Utils, only: [get_config: 2]
 
   @page_size get_config(:general, :page_size)

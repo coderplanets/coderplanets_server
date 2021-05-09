@@ -1,8 +1,8 @@
-defmodule GroupherServerWeb.Schema.Utils.CommonTypes do
+defmodule GroupherServerWeb.Schema.Helper.CommonTypes do
   @moduledoc """
   common types might be used in all context
   """
-  import GroupherServerWeb.Schema.Utils.Helper
+  import GroupherServerWeb.Schema.Helper.Fields
 
   use Absinthe.Schema.Notation
 

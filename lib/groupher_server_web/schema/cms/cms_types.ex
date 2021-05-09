@@ -4,7 +4,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   """
   use Helper.GqlSchemaSuite
 
-  import GroupherServerWeb.Schema.Utils.Helper
+  import GroupherServerWeb.Schema.Helper.Fields
   import Ecto.Query, warn: false
   import Absinthe.Resolution.Helpers, only: [dataloader: 2, on_load: 2]
 

@@ -19,7 +19,7 @@ defmodule GroupherServer.Test.Query.Repo do
     }
   }
   """
-  @tag :wip3
+  @tag :wip2
   test "basic graphql query on repo with logined user", ~m(user_conn repo)a do
     variables = %{id: repo.id}
     results = user_conn |> query_result(@query, variables, "repo")
@@ -30,7 +30,7 @@ defmodule GroupherServer.Test.Query.Repo do
     assert length(Map.keys(results)) == 3
   end
 
-  @tag :wip3
+  @tag :wip2
   test "basic graphql query on repo with stranger(unloged user)", ~m(guest_conn repo)a do
     variables = %{id: repo.id}
     results = guest_conn |> query_result(@query, variables, "repo")

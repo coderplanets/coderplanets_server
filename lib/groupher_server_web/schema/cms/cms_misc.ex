@@ -1,7 +1,10 @@
 defmodule GroupherServerWeb.Schema.CMS.Misc do
+  @moduledoc """
+  common metrics in queries
+  """
   use Absinthe.Schema.Notation
 
-  import GroupherServerWeb.Schema.Utils.Helper
+  import GroupherServerWeb.Schema.Helper.Fields
 
   alias GroupherServer.CMS
 

@@ -16,31 +16,30 @@ defmodule GroupherServer.Test.Mutation.Upvotes.PostUpvote do
 
   describe "[post upvote]" do
     @query """
-    mutation($id: ID!, $thread: CmsThread!) {
-      upvoteArticle(id: $id, thread: $thread) {
+    mutation($id: ID!) {
+      upvotePost(id: $id) {
         id
       }
     }
     """
     @tag :wip2
     test "login user can upvote a post", ~m(user_conn post)a do
-      variables = %{id: post.id, thread: "POST"}
-      created = user_conn |> mutation_result(@query, variables, "upvoteArticle")
+      variables = %{id: post.id}
+      created = user_conn |> mutation_result(@query, variables, "upvotePost")
 
       assert created["id"] == to_string(post.id)
     end
 
     @tag :wip2
     test "unauth user upvote a post fails", ~m(guest_conn post)a do
-      variables = %{id: post.id, thread: "POST"}
+      variables = %{id: post.id}
 
-      assert guest_conn
-             |> mutation_get_error?(@query, variables, ecode(:account_login))
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
     end
 
     @query """
-    mutation($id: ID!, $thread: CmsThread!) {
-      undoUpvoteArticle(id: $id, thread: $thread) {
+    mutation($id: ID!) {
+      undoUpvotePost(id: $id) {
         id
       }
     }
@@ -49,18 +48,17 @@ defmodule GroupherServer.Test.Mutation.Upvotes.PostUpvote do
     test "login user can undo upvote to a post", ~m(user_conn post user)a do
       {:ok, _} = CMS.upvote_article(:post, post.id, user)
 
-      variables = %{id: post.id, thread: "POST"}
-      updated = user_conn |> mutation_result(@query, variables, "undoUpvoteArticle")
+      variables = %{id: post.id}
+      updated = user_conn |> mutation_result(@query, variables, "undoUpvotePost")
 
       assert updated["id"] == to_string(post.id)
     end
 
     @tag :wip2
     test "unauth user undo upvote a post fails", ~m(guest_conn post)a do
-      variables = %{id: post.id, thread: "POST"}
+      variables = %{id: post.id}
 
-      assert guest_conn
-             |> mutation_get_error?(@query, variables, ecode(:account_login))
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
     end
   end
 end

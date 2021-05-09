@@ -4,7 +4,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
   """
   use Helper.GqlSchemaSuite
 
-  import GroupherServerWeb.Schema.Utils.Helper
+  import GroupherServerWeb.Schema.Helper.Fields
   import Absinthe.Resolution.Helpers
 
   alias GroupherServer.Accounts

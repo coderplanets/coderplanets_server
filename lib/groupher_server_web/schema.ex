@@ -6,12 +6,12 @@ defmodule GroupherServerWeb.Schema do
   # use ApolloTracing
 
   alias GroupherServerWeb.Middleware, as: M
-  alias GroupherServerWeb.Schema.{Account, Billing, CMS, Delivery, Statistics, Utils}
+  alias GroupherServerWeb.Schema.{Account, Billing, CMS, Delivery, Statistics, Helper}
 
   import_types(Absinthe.Type.Custom)
 
   # utils
-  import_types(Utils.CommonTypes)
+  import_types(Helper.CommonTypes)
 
   # account
   import_types(Account.Types)

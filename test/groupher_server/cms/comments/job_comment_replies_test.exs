@@ -33,7 +33,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobCommentReplies do
       assert exist_in?(replyed_comment, parent_comment.replies)
     end
 
-    @tag :wip3
+    @tag :wip2
     test "deleted comment can not be reply", ~m(job user user2)a do
       parent_content = "parent comment"
       reply_content = "reply comment"
@@ -64,7 +64,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobCommentReplies do
       assert exist_in?(replyed_comment_2, parent_comment.replies)
     end
 
-    @tag :wip3
+    @tag :wip2
     test "reply to reply inside a comment should belong same parent comment",
          ~m(job user user2)a do
       {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, "parent comment", user)
@@ -90,7 +90,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobCommentReplies do
       assert replyed_comment_3.reply_to_id == replyed_comment_2.id
     end
 
-    @tag :wip3
+    @tag :wip2
     test "reply to reply inside a comment should have is_reply_to_others flag in meta",
          ~m(job user user2)a do
       {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, "parent comment", user)
@@ -110,7 +110,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobCommentReplies do
       assert replyed_comment_3.meta.is_reply_to_others
     end
 
-    @tag :wip3
+    @tag :wip2
     test "comment replies only contains @max_parent_replies_count replies", ~m(job user)a do
       total_reply_count = @max_parent_replies_count + 1
 

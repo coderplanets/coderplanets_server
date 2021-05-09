@@ -4,7 +4,7 @@ defmodule GroupherServer.Accounts.User do
 
   use Ecto.Schema
 
-  # import GroupherServerWeb.Schema.Utils.Helper
+  # import GroupherServerWeb.Schema.Helper.Fields
   import Ecto.Changeset
 
   alias GroupherServer.Accounts.{
