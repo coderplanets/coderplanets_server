@@ -54,4 +54,34 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
       end
     end
   end
+
+  defmacro article_trash_mutation(thread) do
+    quote do
+      @desc unquote("trash a #{thread}, not delete")
+      field unquote(:"trash_#{thread}"), unquote(thread) do
+        arg(:id, non_null(:id))
+        arg(:community_id, non_null(:id))
+        arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
+
+        middleware(M.Authorize, :login)
+        middleware(M.PassportLoader, source: :community)
+        middleware(M.Passport, claim: unquote("cms->c?->#{to_string(thread)}.trash"))
+
+        resolve(&R.CMS.trash_content/3)
+      end
+
+      @desc unquote("undo trash a #{thread}, not delete")
+      field unquote(:"undo_trash_#{thread}"), unquote(thread) do
+        arg(:id, non_null(:id))
+        arg(:community_id, non_null(:id))
+        arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
+
+        middleware(M.Authorize, :login)
+        middleware(M.PassportLoader, source: :community)
+        middleware(M.Passport, claim: unquote("cms->c?->#{to_string(thread)}.undo_trash"))
+
+        resolve(&R.CMS.undo_trash_content/3)
+      end
+    end
+  end
 end

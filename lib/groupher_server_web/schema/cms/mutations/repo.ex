@@ -72,33 +72,8 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Repo do
 
     #############
     article_pin_mutation(:repo)
+    article_trash_mutation(:repo)
     #############
-
-    @desc "trash a repo, not delete"
-    field :trash_repo, :repo do
-      arg(:id, non_null(:id))
-      arg(:thread, :repo_thread, default_value: :repo)
-      arg(:community_id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->repo.trash")
-
-      resolve(&R.CMS.trash_content/3)
-    end
-
-    @desc "trash a repo, not delete"
-    field :undo_trash_repo, :repo do
-      arg(:id, non_null(:id))
-      arg(:thread, :repo_thread, default_value: :repo)
-      arg(:community_id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->repo.undo_trash")
-
-      resolve(&R.CMS.undo_trash_content/3)
-    end
 
     @desc "delete a repo"
     field :delete_repo, :repo do

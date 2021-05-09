@@ -47,33 +47,8 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Post do
     #############
     article_upvote_mutation(:post)
     article_pin_mutation(:post)
+    article_trash_mutation(:post)
     #############
-
-    @desc "trash a post, not delete"
-    field :trash_post, :post do
-      arg(:id, non_null(:id))
-      arg(:thread, :post_thread, default_value: :post)
-      arg(:community_id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->post.trash")
-
-      resolve(&R.CMS.trash_content/3)
-    end
-
-    @desc "trash a post, not delete"
-    field :undo_trash_post, :post do
-      arg(:id, non_null(:id))
-      arg(:thread, :post_thread, default_value: :post)
-      arg(:community_id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->post.undo_trash")
-
-      resolve(&R.CMS.undo_trash_content/3)
-    end
 
     @desc "delete a cms/post"
     # TODO: if post belongs to multi communities, unset instead delete
