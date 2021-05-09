@@ -282,7 +282,7 @@ defmodule GroupherServer.Test.Mutation.Job do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "can delete a job by job's owner", ~m(owner_conn job)a do
       deleted = owner_conn |> mutation_result(@query, %{id: job.id}, "deleteJob")
 

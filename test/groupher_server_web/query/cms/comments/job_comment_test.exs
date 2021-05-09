@@ -31,7 +31,7 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "guest user can get comment participators after comment created",
          ~m(guest_conn job user user2)a do
       comment = "test comment"
@@ -120,7 +120,7 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
         }
     }
     """
-    @tag :wip2
+    @tag :wip
     test "list comments with default replies-mode", ~m(guest_conn job user user2)a do
       total_count = 10
       page_size = 20
@@ -288,22 +288,82 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       assert results["entries"] |> List.last() |> Map.get("floor") == 5
     end
 
-    @tag :wip
-    test "the comments is loaded in asc order", ~m(guest_conn job user)a do
+    @tag :wip3
+    test "the comments is loaded in default asc order", ~m(guest_conn job user)a do
       page_size = 10
       thread = :job
 
-      {:ok, comment} = CMS.create_article_comment(thread, job.id, "test comment #{1}", user)
+      {:ok, comment} = CMS.create_article_comment(thread, job.id, "test comment 1", user)
       Process.sleep(1000)
-      {:ok, _comment2} = CMS.create_article_comment(thread, job.id, "test comment #{2}", user)
+      {:ok, _comment2} = CMS.create_article_comment(thread, job.id, "test comment 2", user)
       Process.sleep(1000)
-      {:ok, comment3} = CMS.create_article_comment(thread, job.id, "test comment #{3}", user)
+      {:ok, comment3} = CMS.create_article_comment(thread, job.id, "test comment 3", user)
 
-      variables = %{id: job.id, thread: "JOB", filter: %{page: 1, size: page_size}}
+      variables = %{
+        id: job.id,
+        thread: "JOB",
+        filter: %{page: 1, size: page_size},
+        mode: "TIMELINE"
+      }
+
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
 
       assert List.first(results["entries"]) |> Map.get("id") == to_string(comment.id)
       assert List.last(results["entries"]) |> Map.get("id") == to_string(comment3.id)
+    end
+
+    @tag :wip3
+    test "the comments can be loaded in desc order in timeline-mode", ~m(guest_conn job user)a do
+      page_size = 10
+      thread = :job
+
+      {:ok, comment} = CMS.create_article_comment(thread, job.id, "test comment 1", user)
+      Process.sleep(1000)
+      {:ok, _comment2} = CMS.create_article_comment(thread, job.id, "test comment 2", user)
+      Process.sleep(1000)
+      {:ok, comment3} = CMS.create_article_comment(thread, job.id, "test comment 3", user)
+
+      variables = %{
+        id: job.id,
+        thread: "JOB",
+        filter: %{page: 1, size: page_size, sort: "DESC_INSERTED"},
+        mode: "TIMELINE"
+      }
+
+      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+
+      assert List.first(results["entries"]) |> Map.get("id") == to_string(comment3.id)
+      assert List.last(results["entries"]) |> Map.get("id") == to_string(comment.id)
+    end
+
+    @tag :wip3
+    test "the comments can be loaded in desc order in replies-mode",
+         ~m(guest_conn job user user2)a do
+      page_size = 10
+      thread = :job
+
+      {:ok, comment} = CMS.create_article_comment(thread, job.id, "parent comment 1", user)
+      {:ok, _reply_comment} = CMS.reply_article_comment(comment.id, "reply 1", user)
+      {:ok, _reply_comment} = CMS.reply_article_comment(comment.id, "reply 2", user2)
+      Process.sleep(1000)
+      {:ok, comment2} = CMS.create_article_comment(thread, job.id, "test comment 2", user)
+      {:ok, _reply_comment} = CMS.reply_article_comment(comment2.id, "reply 1", user)
+      {:ok, _reply_comment} = CMS.reply_article_comment(comment2.id, "reply 2", user2)
+      Process.sleep(1000)
+      {:ok, comment3} = CMS.create_article_comment(thread, job.id, "test comment 3", user)
+      {:ok, _reply_comment} = CMS.reply_article_comment(comment3.id, "reply 1", user)
+      {:ok, _reply_comment} = CMS.reply_article_comment(comment3.id, "reply 2", user2)
+
+      variables = %{
+        id: job.id,
+        thread: "JOB",
+        filter: %{page: 1, size: page_size, sort: "DESC_INSERTED"}
+      }
+
+      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+
+      assert List.first(results["entries"]) |> Map.get("id") == to_string(comment3.id)
+      assert List.last(results["entries"]) |> Map.get("id") == to_string(comment.id)
     end
 
     @tag :wip
@@ -373,7 +433,7 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       assert the_random_comment |> get_in(["meta", "isArticleAuthorUpvoted"])
     end
 
-    @tag :wip2
+    @tag :wip3
     test "guest user can get paged comment with emotions info",
          ~m(guest_conn job user user2)a do
       total_count = 2
@@ -451,7 +511,7 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
              |> get_in(["emotions", "viewerHasDownvoteed"])
     end
 
-    @tag :wip2
+    @tag :wip3
     test "comment should have viewer has upvoted flag", ~m(user_conn job user)a do
       total_count = 10
       page_size = 12

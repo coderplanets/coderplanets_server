@@ -95,11 +95,9 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     value(:this_year)
   end
 
-  enum :comment_sort_enum do
+  enum :inserted_sort_enum do
     value(:asc_inserted)
     value(:desc_inserted)
-    value(:most_likes)
-    value(:most_dislikes)
   end
 
   enum :thread_sort_enum do
@@ -173,7 +171,7 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
 
   input_object :comments_filter do
     pagination_args()
-    field(:sort, :comment_sort_enum, default_value: :asc_inserted)
+    field(:sort, :inserted_sort_enum, default_value: :asc_inserted)
   end
 
   input_object :communities_filter do
