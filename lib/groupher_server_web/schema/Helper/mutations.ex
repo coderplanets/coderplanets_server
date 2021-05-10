@@ -100,4 +100,28 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
       end
     end
   end
+
+  defmacro article_emotion_mutation(thread) do
+    quote do
+      @desc unquote("emotion to #{thread}")
+      field unquote(:"emotion_to_#{thread}"), unquote(thread) do
+        arg(:id, non_null(:id))
+        arg(:emotion, non_null(:article_emotion))
+        arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
+
+        middleware(M.Authorize, :login)
+        resolve(&R.CMS.emotion_to_article/3)
+      end
+
+      @desc unquote("undo emotion to #{thread}")
+      field unquote(:"undo_emotion_to_#{thread}"), unquote(thread) do
+        arg(:id, non_null(:id))
+        arg(:emotion, non_null(:article_emotion))
+        arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
+
+        middleware(M.Authorize, :login)
+        resolve(&R.CMS.undo_emotion_to_article/3)
+      end
+    end
+  end
 end

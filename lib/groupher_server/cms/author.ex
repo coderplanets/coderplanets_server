@@ -7,15 +7,15 @@ defmodule GroupherServer.CMS.Author do
 
   import Ecto.Changeset
 
-  alias GroupherServer.{Accounts, CMS}
-  alias CMS.Post
+  alias GroupherServer.Accounts
+  # alias CMS.Post
 
   @type t :: %Author{}
 
   schema "cms_authors" do
     field(:role, :string)
     # field(:user_id, :id)
-    has_many(:posts, Post)
+    # has_many(:posts, Post)
     # user_id filed in own-table
     belongs_to(:user, Accounts.User)
 

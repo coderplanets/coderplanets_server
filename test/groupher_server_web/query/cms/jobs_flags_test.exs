@@ -51,7 +51,7 @@ defmodule GroupherServer.Test.Query.JobsFlags do
       }
     }
     """
-    @tag :wip
+    @tag :wip3
     test "if have pined jobs, the pined jobs should at the top of entries",
          ~m(guest_conn community job_m)a do
       variables = %{filter: %{community: community.raw}}

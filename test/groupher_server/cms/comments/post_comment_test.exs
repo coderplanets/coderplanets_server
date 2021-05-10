@@ -435,7 +435,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert paged_comments.total_count == total_count
     end
 
-    @tag :wip
+    @tag :wip3
     test "paged article comments should not contains folded and repoted comments",
          ~m(user post)a do
       total_count = 15

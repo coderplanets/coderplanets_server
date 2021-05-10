@@ -551,7 +551,7 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
         }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "guest user can get paged participators", ~m(guest_conn job user)a do
       total_count = 30
       page_size = 10

@@ -70,6 +70,8 @@ defmodule GroupherServer.CMS.Job do
     # 评论参与者，只保留最近 5 个
     embeds_many(:article_comments_participators, Accounts.User, on_replace: :delete)
 
+    embeds_one(:emotions, Embeds.ArticleEmotion, on_replace: :update)
+
     many_to_many(
       :tags,
       Tag,
@@ -114,6 +116,7 @@ defmodule GroupherServer.CMS.Job do
     content
     |> validate_length(:title, min: 3, max: 50)
     |> validate_length(:body, min: 3, max: 10_000)
+    # |> cast_embed(:emotions, with: &Embeds.ArticleEmotion.changeset/2)
     |> HTML.safe_string(:body)
   end
 end

@@ -53,6 +53,7 @@ defmodule GroupherServer.CMS.Repo do
     field(:views, :integer, default: 0)
 
     embeds_one(:meta, Embeds.ArticleMeta, on_replace: :update)
+    embeds_one(:emotions, Embeds.ArticleEmotion, on_replace: :update)
 
     belongs_to(:author, Author)
     has_many(:community_flags, {"repos_communities_flags", RepoCommunityFlag})

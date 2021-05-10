@@ -5,10 +5,10 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.{Accounts, CMS}
-  alias CMS.{ArticleComment}
 
   @page_size get_config(:general, :page_size)
-  @supported_emotions ArticleComment.supported_emotions()
+  @supported_emotions get_config(:article, :supported_emotions)
+  @supported_comment_emotions get_config(:article, :comment_supported_emotions)
   @supported_collect_folder_threads Accounts.CollectFolder.supported_threads()
 
   defmacro timestamp_fields do
@@ -193,7 +193,7 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
   end
 
   @doc """
-  general emotion enum for comments
+  general emotion enum for articles
   #NOTE: xxx_user_logins field is not support for gq-endpoint
   """
   defmacro emotion_enum() do
@@ -206,11 +206,39 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
   end
 
   @doc """
-  general emotions for comments
+  general emotion enum for comments
+  #NOTE: xxx_user_logins field is not support for gq-endpoint
+  """
+  defmacro comment_emotion_enum() do
+    @supported_comment_emotions
+    |> Enum.map(fn emotion ->
+      quote do
+        value(unquote(:"#{emotion}"))
+      end
+    end)
+  end
+
+  @doc """
+  general emotions for articles
   #NOTE: xxx_user_logins field is not support for gq-endpoint
   """
   defmacro emotion_fields() do
     @supported_emotions
+    |> Enum.map(fn emotion ->
+      quote do
+        field(unquote(:"#{emotion}_count"), :integer)
+        field(unquote(:"viewer_has_#{emotion}ed"), :boolean)
+        field(unquote(:"latest_#{emotion}_users"), list_of(:simple_user))
+      end
+    end)
+  end
+
+  @doc """
+  general emotions for comments
+  #NOTE: xxx_user_logins field is not support for gq-endpoint
+  """
+  defmacro comment_emotion_fields() do
+    @supported_comment_emotions
     |> Enum.map(fn emotion ->
       quote do
         field(unquote(:"#{emotion}_count"), :integer)

@@ -72,6 +72,8 @@ defmodule GroupherServer.CMS.Post do
     # 评论参与者，只保留最近 5 个
     embeds_many(:article_comments_participators, Accounts.User, on_replace: :delete)
 
+    embeds_one(:emotions, Embeds.ArticleEmotion, on_replace: :update)
+
     # The keys are inflected from the schema names!
     # see https://hexdocs.pm/ecto/Ecto.Schema.html
     many_to_many(
@@ -118,6 +120,7 @@ defmodule GroupherServer.CMS.Post do
   defp generl_changeset(content) do
     content
     |> validate_length(:title, min: 3, max: 50)
+    |> cast_embed(:emotions, with: &Embeds.ArticleEmotion.changeset/2)
     |> validate_length(:body, min: 3, max: 10_000)
     |> validate_length(:link_addr, min: 5, max: 400)
     |> HTML.safe_string(:body)

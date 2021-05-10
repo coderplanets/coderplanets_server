@@ -3,9 +3,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   CURD and operations for article comments
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1]
+  import Helper.Utils, only: [done: 1, get_config: 2]
   import Helper.ErrorCode
 
+  import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 3]
   import GroupherServer.CMS.Helper.Matcher2
   import ShortMaps
 
@@ -17,9 +18,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   alias CMS.{ArticleComment, ArticlePinedComment, Embeds}
   alias Ecto.Multi
 
+  @supported_emotions get_config(:article, :comment_supported_emotions)
   @max_participator_count ArticleComment.max_participator_count()
   @default_emotions Embeds.ArticleCommentEmotion.default_emotions()
-  @supported_emotions ArticleComment.supported_emotions()
   @delete_hint ArticleComment.delete_hint()
 
   @default_comment_meta Embeds.ArticleCommentMeta.default_meta()
@@ -215,8 +216,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       # |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :asc_inserted}))
       |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: sort}))
       |> ORM.paginater(~m(page size)a)
-      |> set_viewer_emotion_ifneed(user)
       |> add_pined_comments_ifneed(thread, article_id, filters)
+      |> mark_viewer_emotion_states(user, :comment)
       |> mark_viewer_has_upvoted(user)
       |> done()
     end
@@ -233,7 +234,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     |> where(^where_query)
     |> QueryBuilder.filter_pack(filters)
     |> ORM.paginater(~m(page size)a)
-    |> set_viewer_emotion_ifneed(user)
+    |> mark_viewer_emotion_states(user, :comment)
     |> mark_viewer_has_upvoted(user)
     |> done()
   end
@@ -272,30 +273,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   end
 
   defp add_pined_comments_ifneed(paged_comments, _thread, _article_id, _), do: paged_comments
-
-  defp user_in_logins?([], _), do: false
-  defp user_in_logins?(ids_list, %User{login: login}), do: Enum.member?(ids_list, login)
-
-  defp set_viewer_emotion_ifneed(paged_comments, nil), do: paged_comments
-  defp set_viewer_emotion_ifneed(%{entries: []} = paged_comments, _), do: paged_comments
-
-  defp set_viewer_emotion_ifneed(%{entries: entries} = paged_comments, %User{} = user) do
-    new_entries =
-      Enum.map(entries, fn comment ->
-        update_viewed_status =
-          @supported_emotions
-          |> Enum.reduce([], fn emotion, acc ->
-            already_emotioned = user_in_logins?(comment.emotions[:"#{emotion}_user_logins"], user)
-            acc ++ ["viewer_has_#{emotion}ed": already_emotioned]
-          end)
-          |> Enum.into(%{})
-
-        updated_emotions = Map.merge(comment.emotions, update_viewed_status)
-        Map.put(comment, :emotions, updated_emotions)
-      end)
-
-    %{paged_comments | entries: new_entries}
-  end
 
   defp mark_viewer_has_upvoted(paged_comments, nil), do: paged_comments
 

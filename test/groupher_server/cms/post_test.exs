@@ -18,6 +18,7 @@ defmodule GroupherServer.Test.CMS.Post do
   describe "[cms post curd]" do
     alias CMS.{Author, Community}
 
+    @tag :wip3
     test "can create post with valid attrs", ~m(user community post_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
 

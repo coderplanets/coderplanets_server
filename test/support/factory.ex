@@ -10,6 +10,8 @@ defmodule GroupherServer.Support.Factory do
   alias GroupherServer.Repo
   alias GroupherServer.{Accounts, CMS, Delivery}
 
+  @default_emotions CMS.Embeds.ArticleCommentEmotion.default_emotions()
+
   defp mock_meta(:post) do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
 
@@ -23,7 +25,8 @@ defmodule GroupherServer.Support.Factory do
       communities: [
         mock(:community),
         mock(:community)
-      ]
+      ],
+      emotions: @default_emotions
     }
   end
 
@@ -58,7 +61,8 @@ defmodule GroupherServer.Support.Factory do
       communities: [
         mock(:community),
         mock(:community)
-      ]
+      ],
+      emotions: @default_emotions
     }
   end
 
@@ -121,7 +125,8 @@ defmodule GroupherServer.Support.Factory do
       scale: scale_enum |> Enum.at(Enum.random(0..(length(scale_enum) - 1))),
       communities: [
         mock(:community)
-      ]
+      ],
+      emotions: @default_emotions
     }
   end
 

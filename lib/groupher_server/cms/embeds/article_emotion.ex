@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Embeds.ArticleCommentEmotion.Macros do
+defmodule GroupherServer.CMS.Embeds.ArticleEmotion.Macros do
   @moduledoc """
   general fields for each emotion
 
@@ -13,7 +13,7 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentEmotion.Macros do
   alias GroupherServer.CMS
   alias CMS.Embeds
 
-  @supported_emotions get_config(:article, :comment_supported_emotions)
+  @supported_emotions get_config(:article, :supported_emotions)
 
   defmacro emotion_fields() do
     @supported_emotions
@@ -28,7 +28,7 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentEmotion.Macros do
   end
 end
 
-defmodule GroupherServer.CMS.Embeds.ArticleCommentEmotion do
+defmodule GroupherServer.CMS.Embeds.ArticleEmotion do
   @moduledoc """
   general article meta info for article-like content, like post, job, works ...
   """
@@ -36,10 +36,11 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentEmotion do
   use Accessible
 
   import Ecto.Changeset
-  import GroupherServer.CMS.Embeds.ArticleCommentEmotion.Macros
+  import GroupherServer.CMS.Embeds.ArticleEmotion.Macros
   import Helper.Utils, only: [get_config: 2]
 
-  @supported_emotions get_config(:article, :comment_supported_emotions)
+  @supported_emotions get_config(:article, :supported_emotions)
+
   @optional_fields Enum.map(@supported_emotions, &:"#{&1}_count") ++
                      Enum.map(@supported_emotions, &:"#{&1}_user_logins")
 
