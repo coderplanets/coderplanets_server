@@ -3,12 +3,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   CURD and operations for article comments
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1]
+  import Helper.Utils, only: [done: 1, get_config: 2]
   import Helper.ErrorCode
 
   import GroupherServer.CMS.Helper.Matcher2
   import ShortMaps
-  import Helper.Utils, only: [get_config: 2]
 
   alias Helper.Types, as: T
   alias Helper.{ORM, QueryBuilder}
