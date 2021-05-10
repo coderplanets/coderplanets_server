@@ -11,6 +11,7 @@ defmodule GroupherServer.CMS do
     AbuseReport,
     ArticleCURD,
     ArticleOperation,
+    ArticleEmotion,
     ArticleReaction,
     ArticleComment,
     ArticleCommentAction,
@@ -110,6 +111,9 @@ defmodule GroupherServer.CMS do
   # >> community: set / unset
   defdelegate set_community(community, thread, content_id), to: ArticleOperation
   defdelegate unset_community(community, thread, content_id), to: ArticleOperation
+
+  defdelegate emotion_to_article(thread, article_id, args, user), to: ArticleEmotion
+  defdelegate undo_emotion_to_article(thread, article_id, args, user), to: ArticleEmotion
 
   # Comment CURD
   defdelegate list_article_comments(thread, article_id, filters, mode), to: ArticleComment

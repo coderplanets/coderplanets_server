@@ -121,6 +121,7 @@ defmodule GroupherServer.CMS.Post do
   defp generl_changeset(content) do
     content
     |> validate_length(:title, min: 3, max: 50)
+    |> cast_embed(:emotions, with: &Embeds.ArticleEmotion.changeset/2)
     |> validate_length(:body, min: 3, max: 10_000)
     |> validate_length(:link_addr, min: 5, max: 400)
     |> HTML.safe_string(:body)

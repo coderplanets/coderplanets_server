@@ -114,6 +114,7 @@ defmodule GroupherServer.CMS.Job do
     content
     |> validate_length(:title, min: 3, max: 50)
     |> validate_length(:body, min: 3, max: 10_000)
+    # |> cast_embed(:emotions, with: &Embeds.ArticleEmotion.changeset/2)
     |> HTML.safe_string(:body)
   end
 end

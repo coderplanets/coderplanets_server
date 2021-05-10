@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
+defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
   @moduledoc false
 
   use GroupherServer.TestTools
@@ -6,61 +6,65 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{ArticleComment, Embeds, ArticleCommentUserEmotion}
+  alias CMS.{Post, Embeds, ArticleUserEmotion}
 
-  @default_emotions Embeds.ArticleCommentEmotion.default_emotions()
+  @default_emotions Embeds.ArticleEmotion.default_emotions()
 
   setup do
     {:ok, user} = db_insert(:user)
+    {:ok, community} = db_insert(:community)
     {:ok, user2} = db_insert(:user)
     {:ok, user3} = db_insert(:user)
 
     {:ok, post} = db_insert(:post)
+    post_attrs = mock_attrs(:post, %{community_id: community.id})
 
-    {:ok, ~m(user user2 user3 post)a}
+    {:ok, ~m(user user2 user3 community post post_attrs)a}
   end
 
-  describe "[emotion in paged article comment]" do
-    @tag :wip3
-    test "login user should got viewer has emotioned status", ~m(post user)a do
+  describe "[emotion in paged posts]" do
+    @tag :wip2
+    test "login user should got viewer has emotioned status",
+         ~m(community post post_attrs user)a do
       total_count = 0
       page_number = 10
       page_size = 20
 
-      all_comment =
-        Enum.reduce(0..total_count, [], fn _, acc ->
-          {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
-          acc ++ [comment]
-        end)
+      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user)
 
-      first_comment = List.first(all_comment)
+      # all_posts =
+      #   Enum.reduce(0..total_count, [], fn _, acc ->
+      #     {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      #     acc ++ [post]
+      #   end)
 
-      {:ok, _} = CMS.emotion_to_comment(first_comment.id, :downvote, user)
-      {:ok, _} = CMS.emotion_to_comment(first_comment.id, :beer, user)
-      {:ok, _} = CMS.emotion_to_comment(first_comment.id, :popcorn, user)
+      # first_comment = List.first(all_comment)
 
-      {:ok, paged_comments} =
-        CMS.list_article_comments(
-          :post,
-          post.id,
-          %{page: page_number, size: page_size},
-          :replies,
-          user
-        )
+      # {:ok, _} = CMS.emotion_to_comment(first_comment.id, :downvote, user)
+      # {:ok, _} = CMS.emotion_to_comment(first_comment.id, :beer, user)
+      # {:ok, _} = CMS.emotion_to_comment(first_comment.id, :popcorn, user)
 
-      target = Enum.find(paged_comments.entries, &(&1.id == first_comment.id))
+      {:ok, paged_articles} =
+        CMS.paged_articles(:post, %{page: page_number, size: page_size}, user)
 
-      assert target.emotions.downvote_count == 1
-      assert user_exist_in?(user, target.emotions.latest_downvote_users)
-      assert target.emotions.viewer_has_downvoteed
+      target = Enum.find(paged_articles.entries, &(&1.id == post.id))
 
-      assert target.emotions.beer_count == 1
-      assert user_exist_in?(user, target.emotions.latest_beer_users)
-      assert target.emotions.viewer_has_beered
+      IO.inspect(target.emotions, label: "target emotions")
 
-      assert target.emotions.popcorn_count == 1
-      assert user_exist_in?(user, target.emotions.latest_popcorn_users)
-      assert target.emotions.viewer_has_popcorned
+      # target = Enum.find(paged_comments.entries, &(&1.id == first_comment.id))
+
+      # assert target.emotions.downvote_count == 1
+      # assert user_exist_in?(user, target.emotions.latest_downvote_users)
+      # assert target.emotions.viewer_has_downvoteed
+
+      # assert target.emotions.beer_count == 1
+      # assert user_exist_in?(user, target.emotions.latest_beer_users)
+      # assert target.emotions.viewer_has_beered
+
+      # assert target.emotions.popcorn_count == 1
+      # assert user_exist_in?(user, target.emotions.latest_popcorn_users)
+      # assert target.emotions.viewer_has_popcorned
     end
   end
 

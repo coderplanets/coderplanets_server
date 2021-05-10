@@ -61,7 +61,20 @@ config :groupher_server, :customization,
   sidebar_communities_index: %{}
 
 config :groupher_server, :article,
-  supported_emotions: [:downvote, :beer, :heart, :biceps, :orz, :confused, :pill, :popcorn],
+  emotionable_threads: [:post, :job],
+  # NOTE: if you want to add/remove emotion, just edit the list below
+  # and migrate the field to table "articles_users_emotions"
+  supported_emotions: [
+    :upvote,
+    :downvote,
+    :beer,
+    :heart,
+    :biceps,
+    :orz,
+    :confused,
+    :pill,
+    :popcorn
+  ],
   # NOTE: if you want to add/remove emotion, just edit the list below
   # and migrate the field to table "articles_comments_users_emotions"
   comment_supported_emotions: [

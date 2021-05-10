@@ -1,9 +1,6 @@
 defmodule GroupherServer.CMS.ArticleCommentUserEmotion.Macros do
   import Helper.Utils, only: [get_config: 2]
 
-  alias GroupherServer.CMS
-  alias CMS.ArticleComment
-
   @supported_emotions get_config(:article, :comment_supported_emotions)
 
   defmacro emotion_fields() do
@@ -31,7 +28,6 @@ defmodule GroupherServer.CMS.ArticleCommentUserEmotion do
   @supported_emotions get_config(:article, :comment_supported_emotions)
 
   @required_fields ~w(article_comment_id user_id recived_user_id)a
-  # @optional_fields ~w(downvote beer heart biceps orz confused pill)a
   @optional_fields Enum.map(@supported_emotions, &:"#{&1}")
 
   @type t :: %ArticleCommentUserEmotion{}

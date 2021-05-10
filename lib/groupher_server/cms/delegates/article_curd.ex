@@ -20,6 +20,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   alias Ecto.Multi
 
+  @default_emotions Embeds.ArticleEmotion.default_emotions()
   @default_article_meta Embeds.ArticleMeta.default_meta()
 
   @doc """
@@ -389,6 +390,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     target
     |> struct()
     |> target.changeset(attrs)
+    |> Ecto.Changeset.put_change(:emotions, @default_emotions)
     |> Ecto.Changeset.put_change(:author_id, aid)
     |> Ecto.Changeset.put_change(:origial_community_id, integerfy(cid))
     |> Ecto.Changeset.put_embed(:meta, @default_article_meta)
