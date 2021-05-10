@@ -5,10 +5,9 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.{Accounts, CMS}
-  alias CMS.{ArticleComment}
 
   @page_size get_config(:general, :page_size)
-  @supported_emotions ArticleComment.supported_emotions()
+  @supported_emotions get_config(:article, :comment_supported_emotions)
   @supported_collect_folder_threads Accounts.CollectFolder.supported_threads()
 
   defmacro timestamp_fields do

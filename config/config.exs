@@ -60,6 +60,21 @@ config :groupher_server, :customization,
   display_density: "20",
   sidebar_communities_index: %{}
 
+config :groupher_server, :article,
+  supported_emotions: [:downvote, :beer, :heart, :biceps, :orz, :confused, :pill, :popcorn],
+  # NOTE: if you want to add/remove emotion, just edit the list below
+  # and migrate the field to table "articles_comments_users_emotions"
+  comment_supported_emotions: [
+    :downvote,
+    :beer,
+    :heart,
+    :biceps,
+    :orz,
+    :confused,
+    :pill,
+    :popcorn
+  ]
+
 config :groupher_server, GroupherServerWeb.Gettext, default_locale: "zh_CN", locales: ~w(en zh_CN)
 
 config :groupher_server, :cloud_assets,

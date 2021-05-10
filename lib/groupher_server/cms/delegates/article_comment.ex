@@ -8,6 +8,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   import GroupherServer.CMS.Helper.Matcher2
   import ShortMaps
+  import Helper.Utils, only: [get_config: 2]
 
   alias Helper.Types, as: T
   alias Helper.{ORM, QueryBuilder}
@@ -17,9 +18,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   alias CMS.{ArticleComment, ArticlePinedComment, Embeds}
   alias Ecto.Multi
 
+  @supported_emotions get_config(:article, :comment_supported_emotions)
   @max_participator_count ArticleComment.max_participator_count()
   @default_emotions Embeds.ArticleCommentEmotion.default_emotions()
-  @supported_emotions ArticleComment.supported_emotions()
   @delete_hint ArticleComment.delete_hint()
 
   @default_comment_meta Embeds.ArticleCommentMeta.default_meta()
