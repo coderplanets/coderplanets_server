@@ -28,6 +28,7 @@ defmodule GroupherServer.CMS.Delegate.Helper do
         %User{} = user,
         type \\ :article
       ) do
+    IO.inspect("hello?")
     supported_emotions = get_supported_mentions(type)
 
     new_entries =

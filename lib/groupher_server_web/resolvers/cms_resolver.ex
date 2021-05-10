@@ -55,6 +55,7 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   end
 
   def paged_articles(_root, ~m(thread filter)a, %{context: %{cur_user: user}}) do
+    IO.inspect(filter, label: "the filter")
     CMS.paged_articles(thread, filter, user)
   end
 

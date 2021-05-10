@@ -45,11 +45,8 @@ defmodule GroupherServerWeb.Middleware.PageSizeProof do
 
   def call(resolution, _) do
     case valid_size(resolution.arguments) do
-      {:error, msg} ->
-        resolution |> handle_absinthe_error(msg, ecode(:pagination))
-
-      arguments ->
-        %{resolution | arguments: sort_desc_by_default(arguments)}
+      {:error, msg} -> resolution |> handle_absinthe_error(msg, ecode(:pagination))
+      arguments -> %{resolution | arguments: sort_desc_by_default(arguments)}
     end
   end
 
