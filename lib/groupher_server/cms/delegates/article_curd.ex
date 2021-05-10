@@ -7,7 +7,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   import GroupherServer.CMS.Helper.Matcher2
   import GroupherServer.CMS.Helper.Matcher, only: [match_action: 2]
 
-  import Helper.Utils, only: [done: 1, pick_by: 2, integerfy: 1, strip_struct: 1, get_config: 2]
+  import Helper.Utils, only: [done: 1, pick_by: 2, integerfy: 1, strip_struct: 1]
+  import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 2]
   import Helper.ErrorCode
   import ShortMaps
 
@@ -21,7 +22,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   alias Ecto.Multi
 
-  @supported_emotions get_config(:article, :supported_emotions)
   @default_emotions Embeds.ArticleEmotion.default_emotions()
   @default_article_meta Embeds.ArticleMeta.default_meta()
 
@@ -75,8 +75,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> QueryBuilder.filter_pack(filter)
       |> ORM.paginater(~m(page size)a)
       |> add_pin_contents_ifneed(info.model, filter)
-      |> IO.inspect(label: "before --")
-      |> set_viewer_emotion_ifneed(user)
+      |> mark_viewer_emotion_states(user)
       |> mark_viewer_has_states(user)
       |> done()
     end
@@ -109,30 +108,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       viewer_has_viewed: Enum.member?(meta.viewed_user_ids, user_id),
       viewer_has_reported: Enum.member?(meta.reported_user_ids, user_id)
     }
-  end
-
-  defp user_in_logins?([], _), do: false
-  defp user_in_logins?(ids_list, %User{login: login}), do: Enum.member?(ids_list, login)
-
-  defp set_viewer_emotion_ifneed(paged_articles, nil), do: paged_articles
-  defp set_viewer_emotion_ifneed(%{entries: []} = paged_articles, _), do: paged_articles
-
-  defp set_viewer_emotion_ifneed(%{entries: entries} = paged_articles, %User{} = user) do
-    new_entries =
-      Enum.map(entries, fn article ->
-        update_viewed_status =
-          @supported_emotions
-          |> Enum.reduce([], fn emotion, acc ->
-            already_emotioned = user_in_logins?(article.emotions[:"#{emotion}_user_logins"], user)
-            acc ++ ["viewer_has_#{emotion}ed": already_emotioned]
-          end)
-          |> Enum.into(%{})
-
-        updated_emotions = Map.merge(article.emotions, update_viewed_status)
-        Map.put(article, :emotions, updated_emotions)
-      end)
-
-    %{paged_articles | entries: new_entries}
   end
 
   @doc """

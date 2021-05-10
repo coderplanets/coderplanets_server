@@ -5,6 +5,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleEmotion do
   import Ecto.Query, warn: false
   import GroupherServer.CMS.Helper.Matcher2
 
+  import GroupherServer.CMS.Delegate.Helper, only: [update_emotions_field: 4]
+
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS, Repo}
 
@@ -15,9 +17,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleEmotion do
 
   @type t_user_list :: [%{login: String.t()}]
   @type t_mention_status :: %{user_list: t_user_list, user_count: Integer.t()}
-
-  # ArticleComment.max_latest_emotion_users_count()
-  @max_latest_emotion_users_count 4
 
   @doc "make emotion to a comment"
   def emotion_to_article(thread, article_id, emotion, %User{} = user) do
@@ -32,18 +31,18 @@ defmodule GroupherServer.CMS.Delegate.ArticleEmotion do
         args = Map.put(target, :"#{emotion}", true)
 
         case ORM.find_by(ArticleUserEmotion, target) do
-          {:ok, article_user_emotion} -> article_user_emotion |> ORM.update(args)
-          {:error, _} -> ArticleUserEmotion |> ORM.create(args)
+          {:ok, article_user_emotion} -> ORM.update(article_user_emotion, args)
+          {:error, _} -> ORM.create(ArticleUserEmotion, args)
         end
       end)
       |> Multi.run(:query_emotion_status, fn _, _ ->
         query_emotion_status(thread, article.id, emotion)
       end)
-      |> Multi.run(:update_emotion, fn _, %{query_emotion_status: status} ->
-        update_emotion(article, emotion, status, user)
+      |> Multi.run(:update_emotions_field, fn _, %{query_emotion_status: status} ->
+        update_emotions_field(article, emotion, status, user)
       end)
       |> Repo.transaction()
-      |> update_emotion_result
+      |> update_emotions_field_result
     end
   end
 
@@ -53,7 +52,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleEmotion do
       Multi.new()
       |> Multi.run(:update_user_emotion, fn _, _ ->
         target =
-          %{recived_user_id: article.author.id, user_id: user.id}
+          %{recived_user_id: article.author.user_id, user_id: user.id}
           |> Map.put(info.foreign_key, article_id)
 
         {:ok, article_user_emotion} = ORM.find_by(ArticleUserEmotion, target)
@@ -63,11 +62,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleEmotion do
       |> Multi.run(:query_emotion_status, fn _, _ ->
         query_emotion_status(thread, article.id, emotion)
       end)
-      |> Multi.run(:update_emotion, fn _, %{query_emotion_status: status} ->
-        update_emotion(article, emotion, status, user)
+      |> Multi.run(:update_emotions_field, fn _, %{query_emotion_status: status} ->
+        update_emotions_field(article, emotion, status, user)
       end)
       |> Repo.transaction()
-      |> update_emotion_result
+      |> update_emotions_field_result
     end
   end
 
@@ -93,41 +92,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleEmotion do
     end
   end
 
-  @spec update_emotion(ArticleComment.t(), Atom.t(), t_mention_status, User.t()) ::
-          {:ok, ArticleComment.t()} | {:error, any}
-  defp update_emotion(comment, emotion, status, user) do
-    %{user_count: user_count, user_list: user_list} = status
+  defp update_emotions_field_result({:ok, %{update_emotions_field: result}}), do: {:ok, result}
 
-    emotions =
-      %{}
-      |> Map.put(:"#{emotion}_count", user_count)
-      |> Map.put(:"#{emotion}_user_logins", user_list |> Enum.map(& &1.login))
-      |> Map.put(
-        :"latest_#{emotion}_users",
-        Enum.slice(user_list, 0, @max_latest_emotion_users_count)
-      )
-
-    viewer_has_emotioned = user.login in Map.get(emotions, :"#{emotion}_user_logins")
-    emotions = emotions |> Map.put(:"viewer_has_#{emotion}ed", viewer_has_emotioned)
-
-    comment
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_embed(:emotions, emotions)
-    |> Repo.update()
-    # virtual field can not be updated
-    |> add_viewer_emotioned_ifneed(emotions)
-  end
-
-  defp add_viewer_emotioned_ifneed({:error, error}, _), do: {:error, error}
-
-  defp add_viewer_emotioned_ifneed({:ok, comment}, emotions) do
-    # Map.merge(comment, %{emotion: emotions})
-    {:ok, Map.merge(comment, %{emotion: emotions})}
-  end
-
-  defp update_emotion_result({:ok, %{update_emotion: result}}), do: {:ok, result}
-
-  defp update_emotion_result({:error, _, result, _steps}) do
+  defp update_emotions_field_result({:error, _, result, _steps}) do
     {:error, result}
   end
 end

@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{Post, Embeds, ArticleUserEmotion}
+  alias CMS.{Embeds, ArticlerEmotion, ArticleUserEmotion}
 
   @default_emotions Embeds.ArticleEmotion.default_emotions()
 
@@ -46,160 +46,140 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
 
       target = Enum.find(paged_articles.entries, &(&1.id == random_post.id))
 
-      IO.inspect(target.emotions, label: "target emotions")
-
       assert target.emotions.downvote_count == 1
       assert user_exist_in?(user, target.emotions.latest_downvote_users)
       assert target.emotions.viewer_has_downvoteed
 
       assert target.emotions.beer_count == 1
       assert user_exist_in?(user, target.emotions.latest_beer_users)
-      # assert target.emotions.viewer_has_beered
+      assert target.emotions.viewer_has_beered
 
       assert target.emotions.popcorn_count == 1
       assert user_exist_in?(user, target.emotions.latest_popcorn_users)
-      # assert target.emotions.viewer_has_popcorned
+      assert target.emotions.viewer_has_popcorned
     end
   end
 
-  # describe "[basic article comment emotion]" do
-  #   @tag :wip
-  #   test "comment has default emotions after created", ~m(post user)a do
-  #     parent_content = "parent comment"
+  describe "[basic article emotion]" do
+    @tag :wip2
+    test "post has default emotions after created", ~m(community post_attrs user)a do
+      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 
-  #     {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
-  #     {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
+      emotions = post.emotions |> Map.from_struct() |> Map.delete(:id)
+      assert @default_emotions == emotions
+    end
 
-  #     emotions = parent_comment.emotions |> Map.from_struct() |> Map.delete(:id)
-  #     assert @default_emotions == emotions
-  #   end
+    @tag :wip2
+    test "can make emotion to post", ~m(community post_attrs user user2)a do
+      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 
-  #   @tag :wip3
-  #   test "can make emotion to comment", ~m(post user user2)a do
-  #     parent_content = "parent comment"
-  #     {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
+      {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user)
+      {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user2)
 
-  #     {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
-  #     {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user2)
+      {:ok, %{emotions: emotions}} = ORM.find(CMS.Post, post.id)
 
-  #     {:ok, %{emotions: emotions}} = ORM.find(ArticleComment, parent_comment.id)
+      assert emotions.downvote_count == 2
+      assert user_exist_in?(user, emotions.latest_downvote_users)
+      assert user_exist_in?(user2, emotions.latest_downvote_users)
+    end
 
-  #     assert emotions.downvote_count == 2
-  #     assert user_exist_in?(user, emotions.latest_downvote_users)
-  #     assert user_exist_in?(user2, emotions.latest_downvote_users)
-  #   end
+    @tag :wip2
+    test "can undo emotion to post", ~m(community post_attrs user user2)a do
+      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 
-  #   @tag :wip3
-  #   test "can undo emotion to comment", ~m(post user user2)a do
-  #     parent_content = "parent comment"
-  #     {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
+      {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user)
+      {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user2)
 
-  #     {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
-  #     {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user2)
+      {:ok, _} = CMS.undo_emotion_to_article(:post, post.id, :downvote, user)
+      {:ok, _} = CMS.undo_emotion_to_article(:post, post.id, :downvote, user2)
 
-  #     {:ok, %{emotions: emotions}} = ORM.find(ArticleComment, parent_comment.id)
+      {:ok, %{emotions: emotions}} = ORM.find(CMS.Post, post.id)
 
-  #     assert emotions.downvote_count == 2
-  #     assert user_exist_in?(user, emotions.latest_downvote_users)
-  #     assert user_exist_in?(user2, emotions.latest_downvote_users)
+      assert emotions.downvote_count == 0
+      assert not user_exist_in?(user, emotions.latest_downvote_users)
+      assert not user_exist_in?(user2, emotions.latest_downvote_users)
+    end
 
-  #     {:ok, _} = CMS.undo_emotion_to_comment(parent_comment.id, :downvote, user)
-  #     {:ok, _} = CMS.undo_emotion_to_comment(parent_comment.id, :downvote, user2)
+    @tag :wip2
+    test "same user make same emotion to same post.", ~m(community post_attrs user)a do
+      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 
-  #     {:ok, %{emotions: emotions}} = ORM.find(ArticleComment, parent_comment.id)
-  #     assert emotions.downvote_count == 0
-  #     assert not user_exist_in?(user, emotions.latest_downvote_users)
-  #     assert not user_exist_in?(user2, emotions.latest_downvote_users)
-  #   end
+      {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user)
+      {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user)
 
-  #   @tag :wip3
-  #   test "same user make same emotion to same comment.", ~m(post user)a do
-  #     parent_content = "parent comment"
-  #     {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
+      {:ok, post} = ORM.find(CMS.Post, post.id)
 
-  #     {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
-  #     {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
+      assert post.emotions.downvote_count == 1
+      assert user_exist_in?(user, post.emotions.latest_downvote_users)
+    end
 
-  #     {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
+    @tag :wip2
+    test "same user same emotion to same post only have one user_emotion record",
+         ~m(community post_attrs user)a do
+      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 
-  #     assert parent_comment.emotions.downvote_count == 1
-  #     assert user_exist_in?(user, parent_comment.emotions.latest_downvote_users)
-  #   end
+      {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user)
+      {:ok, _} = CMS.emotion_to_article(:post, post.id, :heart, user)
 
-  #   @tag :wip3
-  #   test "same user same emotion to same comment only have one user_emotion record",
-  #        ~m(post user)a do
-  #     parent_content = "parent comment"
-  #     {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
+      {:ok, post} = ORM.find(CMS.Post, post.id)
 
-  #     {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
-  #     {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :heart, user)
+      {:ok, records} = ORM.find_all(ArticleUserEmotion, %{page: 1, size: 10})
+      assert records.total_count == 1
 
-  #     {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
+      {:ok, record} = ORM.find_by(ArticleUserEmotion, %{post_id: post.id, user_id: user.id})
+      assert record.downvote
+      assert record.heart
+    end
 
-  #     {:ok, records} = ORM.find_all(ArticleCommentUserEmotion, %{page: 1, size: 10})
-  #     assert records.total_count == 1
+    @tag :wip2
+    test "different user can make same emotions on same post",
+         ~m(community post_attrs user user2 user3)a do
+      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 
-  #     {:ok, record} =
-  #       ORM.find_by(ArticleCommentUserEmotion, %{
-  #         article_comment_id: parent_comment.id,
-  #         user_id: user.id
-  #       })
+      {:ok, _} = CMS.emotion_to_article(:post, post.id, :beer, user)
+      {:ok, _} = CMS.emotion_to_article(:post, post.id, :beer, user2)
+      {:ok, _} = CMS.emotion_to_article(:post, post.id, :beer, user3)
 
-  #     assert record.downvote
-  #     assert record.heart
-  #   end
+      {:ok, %{emotions: emotions}} = ORM.find(CMS.Post, post.id)
 
-  #   @tag :wip3
-  #   test "different user can make same emotions on same comment", ~m(post user user2 user3)a do
-  #     {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent comment", user)
+      assert emotions.beer_count == 3
+      assert user_exist_in?(user, emotions.latest_beer_users)
+      assert user_exist_in?(user2, emotions.latest_beer_users)
+      assert user_exist_in?(user3, emotions.latest_beer_users)
+    end
 
-  #     {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :beer, user)
-  #     {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :beer, user2)
-  #     {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :beer, user3)
+    @tag :wip2
+    test "same user can make differcent emotions on same post", ~m(community post_attrs user)a do
+      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 
-  #     {:ok, %{emotions: emotions}} = ORM.find(ArticleComment, parent_comment.id)
-  #     # IO.inspect(emotions, label: "the parent_comment")
+      {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user)
+      {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user)
+      {:ok, _} = CMS.emotion_to_article(:post, post.id, :beer, user)
+      {:ok, _} = CMS.emotion_to_article(:post, post.id, :heart, user)
+      {:ok, _} = CMS.emotion_to_article(:post, post.id, :orz, user)
 
-  #     assert emotions.beer_count == 3
-  #     assert user_exist_in?(user, emotions.latest_beer_users)
-  #     assert user_exist_in?(user2, emotions.latest_beer_users)
-  #     assert user_exist_in?(user3, emotions.latest_beer_users)
-  #   end
+      {:ok, %{emotions: emotions}} = ORM.find(CMS.Post, post.id)
 
-  #   @tag :wip
-  #   test "same user can make differcent emotions on same comment", ~m(post user)a do
-  #     parent_content = "parent comment"
-  #     {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
+      assert emotions.downvote_count == 1
+      assert user_exist_in?(user, emotions.latest_downvote_users)
 
-  #     {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
-  #     {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
-  #     {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :beer, user)
-  #     {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :heart, user)
-  #     {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :orz, user)
+      assert emotions.beer_count == 1
+      assert user_exist_in?(user, emotions.latest_beer_users)
 
-  #     {:ok, %{emotions: emotions}} = ORM.find(ArticleComment, parent_comment.id)
+      assert emotions.heart_count == 1
+      assert user_exist_in?(user, emotions.latest_heart_users)
 
-  #     assert emotions.downvote_count == 1
-  #     assert user_exist_in?(user, emotions.latest_downvote_users)
+      assert emotions.orz_count == 1
+      assert user_exist_in?(user, emotions.latest_orz_users)
 
-  #     assert emotions.beer_count == 1
-  #     assert user_exist_in?(user, emotions.latest_beer_users)
+      assert emotions.pill_count == 0
+      assert not user_exist_in?(user, emotions.latest_pill_users)
 
-  #     assert emotions.heart_count == 1
-  #     assert user_exist_in?(user, emotions.latest_heart_users)
+      assert emotions.biceps_count == 0
+      assert not user_exist_in?(user, emotions.latest_biceps_users)
 
-  #     assert emotions.orz_count == 1
-  #     assert user_exist_in?(user, emotions.latest_orz_users)
-
-  #     assert emotions.pill_count == 0
-  #     assert not user_exist_in?(user, emotions.latest_pill_users)
-
-  #     assert emotions.biceps_count == 0
-  #     assert not user_exist_in?(user, emotions.latest_biceps_users)
-
-  #     assert emotions.confused_count == 0
-  #     assert not user_exist_in?(user, emotions.latest_confused_users)
-  #   end
-  # end
+      assert emotions.confused_count == 0
+      assert not user_exist_in?(user, emotions.latest_confused_users)
+    end
+  end
 end
