@@ -128,6 +128,14 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.collected_users(thread, id, filter)
   end
 
+  def emotion_to_article(_root, ~m(id thread emotion)a, %{context: %{cur_user: user}}) do
+    CMS.emotion_to_article(thread, id, emotion, user)
+  end
+
+  def undo_emotion_to_article(_root, ~m(id thread emotion)a, %{context: %{cur_user: user}}) do
+    CMS.undo_emotion_to_article(thread, id, emotion, user)
+  end
+
   # #######################
   # category ..
   # #######################

@@ -153,10 +153,11 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     value(:grey)
   end
 
+  @desc "emotion options of article"
+  enum(:article_emotion, do: emotion_enum())
+
   @desc "emotion options of comment"
-  enum :article_comment_emotion do
-    emotion_enum()
-  end
+  enum(:article_comment_emotion, do: comment_emotion_enum())
 
   @desc "the filter mode for list comments"
   enum :article_comments_mode do

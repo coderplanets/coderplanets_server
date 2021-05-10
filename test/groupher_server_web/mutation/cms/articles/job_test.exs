@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Mutation.Job do
+defmodule GroupherServer.Test.Mutation.Articles.Job do
   use GroupherServer.TestTools
 
   alias Helper.ORM

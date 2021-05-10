@@ -75,6 +75,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Job do
     article_pin_mutation(:job)
     article_trash_mutation(:job)
     article_delete_mutation(:job)
+    article_emotion_mutation(:job)
     #############
   end
 end

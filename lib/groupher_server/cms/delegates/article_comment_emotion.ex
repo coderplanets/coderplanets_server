@@ -56,9 +56,14 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentEmotion do
           user_id: user.id
         }
 
-        {:ok, article_comment_user_emotion} = ORM.find_by(ArticleCommentUserEmotion, target)
-        args = Map.put(target, :"#{emotion}", false)
-        article_comment_user_emotion |> ORM.update(args)
+        case ORM.find_by(ArticleCommentUserEmotion, target) do
+          {:ok, article_comment_user_emotion} ->
+            args = Map.put(target, :"#{emotion}", false)
+            article_comment_user_emotion |> ORM.update(args)
+
+          {:error, _} ->
+            ORM.create(ArticleCommentUserEmotion, target)
+        end
       end)
       |> Multi.run(:query_emotion_states, fn _, _ ->
         query_emotion_states(comment, emotion)

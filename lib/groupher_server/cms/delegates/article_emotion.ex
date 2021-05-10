@@ -55,9 +55,16 @@ defmodule GroupherServer.CMS.Delegate.ArticleEmotion do
           %{recived_user_id: article.author.user_id, user_id: user.id}
           |> Map.put(info.foreign_key, article_id)
 
-        {:ok, article_user_emotion} = ORM.find_by(ArticleUserEmotion, target)
-        args = Map.put(target, :"#{emotion}", false)
-        article_user_emotion |> ORM.update(args)
+        case ORM.find_by(ArticleUserEmotion, target) do
+          {:ok, article_user_emotion} ->
+            args = Map.put(target, :"#{emotion}", false)
+            article_user_emotion |> ORM.update(args)
+
+          {:error, _} ->
+            # args = Map.put(target, :"#{emotion}", false)
+            args = target
+            ORM.create(ArticleUserEmotion, args)
+        end
       end)
       |> Multi.run(:query_emotion_status, fn _, _ ->
         query_emotion_status(thread, article.id, emotion)

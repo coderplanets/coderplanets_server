@@ -44,6 +44,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
     field(:meta, :article_meta)
+    field(:emotions, :article_emotions)
 
     field :comments, list_of(:comment) do
       arg(:filter, :members_filter)
@@ -99,6 +100,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
     field(:meta, :article_meta)
+    field(:emotions, :article_emotions)
 
     field(:salary, :string)
     field(:exp, :string)
@@ -316,6 +318,10 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   end
 
   object :article_comment_emotions do
+    comment_emotion_fields()
+  end
+
+  object :article_emotions do
     emotion_fields()
   end
 
