@@ -300,22 +300,21 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp domain_filter_query(queryable, _filter), do: queryable
 
-  defp add_pin_contents_ifneed(contents, querable, %{community: _community} = filter) do
+  defp add_pin_contents_ifneed(contents, querable, %{community: community} = filter) do
     with {:ok, _} <- should_add_pin?(filter),
          {:ok, info} <- match(querable),
-         {:ok, normal_contents} <- contents,
-         true <- Map.has_key?(filter, :community),
-         true <- 1 == Map.get(normal_contents, :page_number) do
-      {:ok, pined_content} =
+         true <- 1 == Map.get(contents, :page_number) do
+      {:ok, pinned_articles} =
         PinnedArticle
         |> join(:inner, [p], c in assoc(p, :community))
-        |> join(:inner, [p], content in assoc(p, ^info.thread))
-        |> where([p, c, content], c.raw == ^filter.community)
-        |> select([p, c, content], content)
+        # |> join(:inner, [p], article in assoc(p, ^filter.thread))
+        |> join(:inner, [p], article in assoc(p, ^info.thread))
+        |> where([p, c, article], c.raw == ^community)
+        |> select([p, c, article], article)
         # 10 pined contents per community/thread, at most
-        |> ORM.paginater(%{page: 1, size: 10})
+        |> ORM.find_all(%{page: 1, size: 10})
 
-      concat_contents(pined_content, normal_contents)
+      concat_contents(pinned_articles, contents)
     else
       _error -> contents
     end
@@ -325,22 +324,16 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   # if filter contains like: tags, sort.., then don't add pin content
   defp should_add_pin?(%{page: 1, tag: :all, sort: :desc_inserted} = filter) do
-    filter
-    |> Map.keys()
-    |> Enum.reject(fn x -> x in [:community, :tag, :sort, :page, :size] end)
-    |> case do
-      [] -> {:ok, :pass}
-      _ -> {:error, :pass}
-    end
+    {:ok, :pass}
   end
 
   defp should_add_pin?(_filter), do: {:error, :pass}
 
   defp concat_contents(%{total_count: 0}, normal_contents), do: normal_contents
 
-  defp concat_contents(pined_content, normal_contents) do
+  defp concat_contents(pinned_articles, normal_contents) do
     pind_entries =
-      pined_content
+      pinned_articles
       |> Map.get(:entries)
       |> Enum.map(&struct(&1, %{is_pinned: true}))
 

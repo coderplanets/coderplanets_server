@@ -50,6 +50,7 @@ defmodule GroupherServer.Test.Query.ReposFlags do
       }
     }
     """
+    @tag :wip2
     test "if have pined repos, the pined repos should at the top of entries",
          ~m(guest_conn community repo_m)a do
       variables = %{filter: %{community: community.raw}}

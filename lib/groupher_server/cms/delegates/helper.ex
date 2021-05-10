@@ -17,6 +17,7 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   defp get_supported_mentions(_), do: @supported_emotions
 
   def mark_viewer_emotion_states(paged_contents, nil), do: paged_contents
+  def mark_viewer_emotion_states(paged_contents, nil, :comment), do: paged_contents
   def mark_viewer_emotion_states(%{entries: []} = paged_contents, _), do: paged_contents
 
   @doc """
