@@ -215,8 +215,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       # |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :asc_inserted}))
       |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: sort}))
       |> ORM.paginater(~m(page size)a)
-      |> set_viewer_emotion_ifneed(user)
       |> add_pined_comments_ifneed(thread, article_id, filters)
+      |> set_viewer_emotion_ifneed(user)
       |> mark_viewer_has_upvoted(user)
       |> done()
     end

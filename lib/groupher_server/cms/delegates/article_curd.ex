@@ -7,10 +7,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   import GroupherServer.CMS.Helper.Matcher2
   import GroupherServer.CMS.Helper.Matcher, only: [match_action: 2]
 
-  import Helper.Utils, only: [done: 1, pick_by: 2, integerfy: 1, strip_struct: 1]
+  import Helper.Utils, only: [done: 1, pick_by: 2, integerfy: 1, strip_struct: 1, get_config: 2]
   import Helper.ErrorCode
+  import ShortMaps
 
-  alias Helper.{Later, ORM}
+  alias Helper.{Later, ORM, QueryBuilder}
   alias GroupherServer.{Accounts, CMS, Delivery, Email, Repo, Statistics}
 
   alias Accounts.User
@@ -20,6 +21,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   alias Ecto.Multi
 
+  @supported_emotions get_config(:article, :supported_emotions)
   @default_emotions Embeds.ArticleEmotion.default_emotions()
   @default_article_meta Embeds.ArticleMeta.default_meta()
 
@@ -50,31 +52,41 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   end
 
   def paged_articles(thread, filter) do
+    %{page: page, size: size} = filter
+
     with {:ok, info} <- match(thread) do
       info.model
       |> domain_filter_query(filter)
       |> community_with_flag_query(filter)
-      |> ORM.find_all(filter)
+      |> QueryBuilder.filter_pack(filter)
+      |> ORM.paginater(~m(page size)a)
       |> add_pin_contents_ifneed(info.model, filter)
+      |> done()
     end
   end
 
   def paged_articles(thread, filter, %User{} = user) do
+    %{page: page, size: size} = filter
+
     with {:ok, info} <- match(thread) do
       info.model
       |> domain_filter_query(filter)
       |> community_with_flag_query(filter)
-      |> ORM.find_all(filter)
+      |> QueryBuilder.filter_pack(filter)
+      |> ORM.paginater(~m(page size)a)
       |> add_pin_contents_ifneed(info.model, filter)
+      |> IO.inspect(label: "before --")
+      |> set_viewer_emotion_ifneed(user)
       |> mark_viewer_has_states(user)
+      |> done()
     end
   end
 
-  defp mark_viewer_has_states({:ok, %{entries: []} = contents}, _), do: {:ok, contents}
+  defp mark_viewer_has_states(%{entries: []} = contents, _), do: contents
 
-  defp mark_viewer_has_states({:ok, %{entries: entries} = contents}, user) do
+  defp mark_viewer_has_states(%{entries: entries} = contents, user) do
     entries = Enum.map(entries, &Map.merge(&1, do_mark_viewer_has_states(&1.meta, user)))
-    {:ok, Map.merge(contents, %{entries: entries})}
+    Map.merge(contents, %{entries: entries})
   end
 
   defp mark_viewer_has_states({:error, reason}, _), do: {:error, reason}
@@ -97,6 +109,30 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       viewer_has_viewed: Enum.member?(meta.viewed_user_ids, user_id),
       viewer_has_reported: Enum.member?(meta.reported_user_ids, user_id)
     }
+  end
+
+  defp user_in_logins?([], _), do: false
+  defp user_in_logins?(ids_list, %User{login: login}), do: Enum.member?(ids_list, login)
+
+  defp set_viewer_emotion_ifneed(paged_articles, nil), do: paged_articles
+  defp set_viewer_emotion_ifneed(%{entries: []} = paged_articles, _), do: paged_articles
+
+  defp set_viewer_emotion_ifneed(%{entries: entries} = paged_articles, %User{} = user) do
+    new_entries =
+      Enum.map(entries, fn article ->
+        update_viewed_status =
+          @supported_emotions
+          |> Enum.reduce([], fn emotion, acc ->
+            already_emotioned = user_in_logins?(article.emotions[:"#{emotion}_user_logins"], user)
+            acc ++ ["viewer_has_#{emotion}ed": already_emotioned]
+          end)
+          |> Enum.into(%{})
+
+        updated_emotions = Map.merge(article.emotions, update_viewed_status)
+        Map.put(article, :emotions, updated_emotions)
+      end)
+
+    %{paged_articles | entries: new_entries}
   end
 
   @doc """
@@ -303,12 +339,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
         |> select([p, c, content], content)
         # 10 pined contents per community/thread, at most
         |> ORM.paginater(%{page: 1, size: 10})
-        |> done()
 
       concat_contents(pined_content, normal_contents)
     else
-      _error ->
-        contents
+      _error -> contents
     end
   end
 
@@ -327,7 +361,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp should_add_pin?(_filter), do: {:error, :pass}
 
-  defp concat_contents(%{total_count: 0}, normal_contents), do: {:ok, normal_contents}
+  defp concat_contents(%{total_count: 0}, normal_contents), do: normal_contents
 
   defp concat_contents(pined_content, normal_contents) do
     pind_entries =
@@ -349,7 +383,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     # those two are equals
     # |> Map.put(:total_count, pind_count + normal_count - pind_count)
     |> Map.put(:total_count, normal_count)
-    |> done
   end
 
   defp create_content_result({:ok, %{create_content: result}}) do
