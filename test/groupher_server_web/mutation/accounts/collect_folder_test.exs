@@ -106,7 +106,7 @@ defmodule GroupherServer.Test.Mutation.Accounts.CollectFolder do
 
   describe "[Accounts CollectFolder add/remove]" do
     @query """
-    mutation($articleId: ID!, $folderId: ID!, $thread: CmsThread) {
+    mutation($articleId: ID!, $folderId: ID!, $thread: Thread) {
       addToCollect(articleId: $articleId, folderId: $folderId, thread: $thread) {
         id
         title
@@ -154,7 +154,7 @@ defmodule GroupherServer.Test.Mutation.Accounts.CollectFolder do
     end
 
     @query """
-    mutation($articleId: ID!, $folderId: ID!, $thread: CmsThread) {
+    mutation($articleId: ID!, $folderId: ID!, $thread: Thread) {
       removeFromCollect(articleId: $articleId, folderId: $folderId, thread: $thread) {
         id
         title

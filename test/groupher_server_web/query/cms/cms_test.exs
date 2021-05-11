@@ -306,7 +306,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
     end
 
     @query """
-    query($communityId: ID, $community: String, $thread: CmsThread, $all: Boolean ) {
+    query($communityId: ID, $community: String, $thread: Thread, $all: Boolean ) {
       partialTags(communityId: $communityId, community: $community, thread: $thread, all: $all) {
         id
         title
@@ -359,7 +359,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
     end
 
     @query """
-    query($community: String, $thread: CmsThread!) {
+    query($community: String, $thread: Thread!) {
       partialTags(community: $community, thread: $thread) {
         id
         title

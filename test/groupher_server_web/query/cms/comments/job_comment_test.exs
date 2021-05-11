@@ -58,7 +58,7 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
     end
 
     @query """
-      query($id: ID!, $thread: CmsThread, $mode: ArticleCommentsMode, $filter: CommentsFilter!) {
+      query($id: ID!, $thread: Thread, $mode: ArticleCommentsMode, $filter: CommentsFilter!) {
         pagedArticleComments(id: $id, thread: $thread, mode: $mode, filter: $filter) {
           entries {
             id
@@ -538,7 +538,7 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
 
   describe "paged paticipators" do
     @query """
-      query($id: ID!, $thread: CmsThread, $filter: PagedFilter!) {
+      query($id: ID!, $thread: Thread, $filter: PagedFilter!) {
         pagedArticleCommentsParticipators(id: $id, thread: $thread, filter: $filter) {
           entries {
             id

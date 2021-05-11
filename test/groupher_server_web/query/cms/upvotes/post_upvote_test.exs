@@ -19,7 +19,7 @@ defmodule GroupherServer.Test.Query.Upvotes.PostUpvote do
     @query """
     query(
       $id: ID!
-      $thread: CmsThread
+      $thread: Thread
       $filter: PagedFilter!
     ) {
       upvotedUsers(id: $id, thread: $thread, filter: $filter) {

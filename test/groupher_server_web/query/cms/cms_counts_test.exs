@@ -3,7 +3,6 @@ defmodule GroupherServer.Test.Query.CMS.ContentCounts do
 
   # alias GroupherServer.Accounts.User
   alias GroupherServer.CMS
-  # alias CMS.{Community, Thread, Category}
 
   setup do
     guest_conn = simu_conn(:guest)

@@ -66,7 +66,7 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     value(:radar)
   end
 
-  enum :cms_thread do
+  enum :thread do
     value(:post)
     value(:job)
     value(:user)
@@ -251,19 +251,19 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
 
   @desc "common filter for upvoted articles"
   input_object :upvoted_articles_filter do
-    field(:thread, :cms_thread)
+    field(:thread, :thread)
     pagination_args()
   end
 
   @desc "common filter for collect folders"
   input_object :collect_folders_filter do
-    field(:thread, :cms_thread)
+    field(:thread, :thread)
     pagination_args()
   end
 
   @desc "common filter for collect articles"
   input_object :collected_articles_filter do
-    field(:thread, :cms_thread)
+    field(:thread, :thread)
     pagination_args()
   end
 

@@ -30,7 +30,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Repo do
       arg(:primary_language, non_null(:repo_lang_input))
 
       arg(:community_id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :repo)
+      arg(:thread, :thread, default_value: :repo)
       arg(:tags, list_of(:ids))
 
       middleware(M.Authorize, :login)

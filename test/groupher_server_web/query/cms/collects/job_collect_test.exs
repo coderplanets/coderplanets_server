@@ -19,7 +19,7 @@ defmodule GroupherServer.Test.Query.Collects.JobCollect do
     @query """
     query(
       $id: ID!
-      $thread: CmsThread
+      $thread: Thread
       $filter: PagedFilter!
     ) {
       collectedUsers(id: $id, thread: $thread, filter: $filter) {

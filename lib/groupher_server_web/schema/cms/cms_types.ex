@@ -202,7 +202,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     timestamp_fields()
   end
 
-  object :thread do
+  object :thread_item do
     field(:id, :id)
     field(:title, :string)
     field(:raw, :string)
@@ -232,7 +232,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:index, :integer)
     field(:logo, :string)
     field(:author, :user, resolve: dataloader(CMS, :author))
-    field(:threads, list_of(:thread), resolve: dataloader(CMS, :threads))
+    field(:threads, list_of(:thread_item), resolve: dataloader(CMS, :threads))
     field(:categories, list_of(:category), resolve: dataloader(CMS, :categories))
 
     @desc "total count of post contents"
@@ -443,7 +443,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   end
 
   object :paged_threads do
-    field(:entries, list_of(:thread))
+    field(:entries, list_of(:thread_item))
     pagination_fields()
   end
 

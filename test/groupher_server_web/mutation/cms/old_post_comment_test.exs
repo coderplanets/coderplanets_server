@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Mutation.PostComment do
+defmodule GroupherServer.Test.Mutation.OldPostComment do
   use GroupherServer.TestTools
 
   alias Helper.ORM
@@ -22,7 +22,7 @@ defmodule GroupherServer.Test.Mutation.PostComment do
     @create_comment_query """
     mutation(
       $community: String!
-      $thread: CmsThread
+      $thread: Thread
       $id: ID!
       $body: String!
       $mentionUsers: [Ids]
@@ -98,7 +98,7 @@ defmodule GroupherServer.Test.Mutation.PostComment do
     end
 
     @delete_comment_query """
-    mutation($thread: CmsThread, $id: ID!) {
+    mutation($thread: Thread, $id: ID!) {
       deleteComment(thread: $thread, id: $id) {
         id
         body
@@ -138,7 +138,7 @@ defmodule GroupherServer.Test.Mutation.PostComment do
     @reply_comment_query """
     mutation(
       $community: String!
-      $thread: CmsThread
+      $thread: Thread
       $id: ID!
       $body: String!
       $mentionUsers: [Ids]

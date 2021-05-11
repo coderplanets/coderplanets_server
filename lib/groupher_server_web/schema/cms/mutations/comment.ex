@@ -8,7 +8,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
     @desc "write a comment"
     field :create_article_comment, :article_comment do
       # TODO use thread and force community pass-in
-      arg(:thread, :cms_thread, default_value: :post)
+      arg(:thread, :thread, default_value: :post)
       arg(:id, non_null(:id))
       arg(:content, non_null(:string))
       # arg(:mention_users, list_of(:ids))
@@ -82,7 +82,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
     field :create_comment, :comment do
       # TODO use thread and force community pass-in
       arg(:community, non_null(:string))
-      arg(:thread, :cms_thread, default_value: :post)
+      arg(:thread, :thread, default_value: :post)
       arg(:id, non_null(:id))
       arg(:body, non_null(:string))
       arg(:mention_users, list_of(:ids))
@@ -97,7 +97,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
     @desc "update a comment"
     field :update_comment, :comment do
       arg(:id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
+      arg(:thread, :thread, default_value: :post)
       arg(:body, non_null(:string))
 
       # TDOO: use a comment resolver
@@ -107,7 +107,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
 
     @desc "delete a comment"
     field :delete_comment, :comment do
-      arg(:thread, :cms_thread, default_value: :post)
+      arg(:thread, :thread, default_value: :post)
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
@@ -123,7 +123,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
     @desc "reply a exsiting comment"
     field :reply_comment, :comment do
       arg(:community, non_null(:string))
-      arg(:thread, non_null(:cms_thread), default_value: :post)
+      arg(:thread, non_null(:thread), default_value: :post)
       arg(:id, non_null(:id))
       arg(:body, non_null(:string))
       arg(:mention_users, list_of(:ids))

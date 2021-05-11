@@ -17,7 +17,7 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
 
   describe "[article comment CURD]" do
     @write_comment_query """
-    mutation($thread: CmsThread!, $id: ID!, $content: String!) {
+    mutation($thread: Thread!, $id: ID!, $content: String!) {
       createArticleComment(thread: $thread,id: $id, content: $content) {
         id
         bodyHtml

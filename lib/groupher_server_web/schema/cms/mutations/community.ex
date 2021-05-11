@@ -76,7 +76,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Community do
     end
 
     @desc "create independent thread"
-    field :create_thread, :thread do
+    field :create_thread, :thread_item do
       arg(:title, non_null(:string))
       arg(:raw, non_null(:string))
       arg(:index, :integer, default_value: 0)
@@ -131,7 +131,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Community do
       arg(:title, non_null(:string))
       arg(:color, non_null(:rainbow_color_enum))
       arg(:community_id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
+      arg(:thread, :thread, default_value: :post)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
@@ -147,7 +147,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Community do
       # arg(:color, non_null(:rainbow_color_enum))
       arg(:color, non_null(:rainbow_color_enum))
       arg(:community_id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
+      arg(:thread, :thread, default_value: :post)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
@@ -160,7 +160,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Community do
     field :delete_tag, :tag do
       arg(:id, non_null(:id))
       arg(:community_id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
+      arg(:thread, :thread, default_value: :post)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)

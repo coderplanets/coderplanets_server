@@ -132,7 +132,7 @@ defmodule GroupherServer.Test.Query.OldPostComment do
   end
 
   @query """
-  query($id: ID!, $thread: CmsThread, $filter: PagedFilter!) {
+  query($id: ID!, $thread: Thread, $filter: PagedFilter!) {
     pagedCommentsParticipators(id: $id, thread: $thread, filter: $filter) {
       entries {
         id
