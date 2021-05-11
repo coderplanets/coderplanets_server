@@ -102,11 +102,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   end
 
   @doc "report a comment"
-  def report_article_comment(comment_id, %User{} = user) do
+  def report_article_comment(comment_id, reason, attr, %User{} = user) do
     with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
       Multi.new()
       |> Multi.run(:create_abuse_report, fn _, _ ->
-        CMS.create_report(:article_comment, comment_id, %{reason: "todo fucked"}, user)
+        CMS.create_report(:article_comment, comment_id, reason, attr, user)
       end)
       |> Multi.run(:update_report_flag, fn _, _ ->
         # TODO: update report count in meta

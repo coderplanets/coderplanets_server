@@ -160,11 +160,11 @@ defmodule GroupherServer.CMS do
   defdelegate list_comments_participators(thread, content_id, filters), to: CommentCURD
 
   # TODO: move report to abuse report module
-  defdelegate create_report(type, content_id, args, user), to: AbuseReport
+  defdelegate create_report(type, content_id, reason, attr, user), to: AbuseReport
   defdelegate report_article(thread, article_id, reason, attr, user), to: AbuseReport
   defdelegate undo_report_article(thread, article_id, user), to: AbuseReport
   defdelegate list_reports(type, content_id, filter), to: AbuseReport
-  defdelegate report_article_comment(comment_id, user), to: ArticleCommentAction
+  defdelegate report_article_comment(comment_id, reason, attr, user), to: ArticleCommentAction
   defdelegate unreport_article_comment(comment_id, user), to: ArticleCommentAction
 
   # Passport CURD

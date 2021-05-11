@@ -288,7 +288,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       assert results["entries"] |> List.last() |> Map.get("floor") == 5
     end
 
-    @tag :wip3
+    @tag :wip2
     test "the comments is loaded in default asc order", ~m(guest_conn post user)a do
       page_size = 10
       thread = :post
@@ -312,7 +312,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       assert List.last(results["entries"]) |> Map.get("id") == to_string(comment3.id)
     end
 
-    @tag :wip3
+    @tag :wip2
     test "the comments can be loaded in desc order in timeline-mode", ~m(guest_conn post user)a do
       page_size = 10
       thread = :post
@@ -336,7 +336,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       assert List.last(results["entries"]) |> Map.get("id") == to_string(comment.id)
     end
 
-    @tag :wip3
+    @tag :wip2
     test "the comments can be loaded in desc order in replies-mode",
          ~m(guest_conn post user user2)a do
       page_size = 10
@@ -433,7 +433,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       assert the_random_comment |> get_in(["meta", "isArticleAuthorUpvoted"])
     end
 
-    @tag :wip3
+    @tag :wip2
     test "guest user can get paged comment with emotions info",
          ~m(guest_conn post user user2)a do
       total_count = 2
@@ -511,7 +511,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
              |> get_in(["emotions", "viewerHasDownvoteed"])
     end
 
-    @tag :wip3
+    @tag :wip2
     test "comment should have viewer has upvoted flag", ~m(user_conn post user)a do
       total_count = 10
       page_size = 12

@@ -35,7 +35,7 @@ defmodule GroupherServer.Test.Query.Collects.JobCollect do
       }
     }
     """
-    @tag :wip3
+    @tag :wip2
     test "guest can get collected users list after collect a job",
          ~m(guest_conn job user user2)a do
       {:ok, _} = CMS.collect_article(:job, job.id, user)
