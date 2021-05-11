@@ -62,6 +62,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
     end
   end
 
+  ########
+  ########
+  ########
+  ########
+  ########
+
   @doc """
   trash / untrash articles
   """

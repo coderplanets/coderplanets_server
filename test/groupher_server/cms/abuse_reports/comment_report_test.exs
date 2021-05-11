@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.CMS.AbuseReport do
+defmodule GroupherServer.Test.CMS.AbuseReports.CommentReport do
   @moduledoc false
 
   use GroupherServer.TestTools
@@ -18,12 +18,13 @@ defmodule GroupherServer.Test.CMS.AbuseReport do
   end
 
   describe "[article comment report/unreport]" do
-    @tag :wip
+    @tag :wip3
     test "report a comment should have a abuse report record", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       {:ok, _comment} = CMS.report_article_comment(comment.id, user)
 
-      {:ok, all_reports} = ORM.find_all(AbuseReport, %{page: 1, size: 10})
+      {:ok, all_reports} = CMS.list_reports(:article_comment, comment.id, %{page: 1, size: 20})
+
       report = List.first(all_reports.entries)
       report_cases = report.report_cases
 
@@ -32,14 +33,14 @@ defmodule GroupherServer.Test.CMS.AbuseReport do
       assert List.first(report_cases).user.login == user.login
     end
 
-    @tag :wip
+    @tag :wip3
     test "different user report a comment should have same report with different report cases",
          ~m(user user2 post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       {:ok, _} = CMS.report_article_comment(comment.id, user)
       {:ok, _} = CMS.report_article_comment(comment.id, user2)
 
-      {:ok, all_reports} = ORM.find_all(AbuseReport, %{page: 1, size: 10})
+      {:ok, all_reports} = CMS.list_reports(:article_comment, comment.id, %{page: 1, size: 20})
 
       report = List.first(all_reports.entries)
       report_cases = report.report_cases
