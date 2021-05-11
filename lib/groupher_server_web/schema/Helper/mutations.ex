@@ -124,4 +124,28 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
       end
     end
   end
+
+  defmacro article_report_mutation(thread) do
+    quote do
+      @desc unquote("report a #{thread}")
+      field unquote(:"report_#{thread}"), unquote(thread) do
+        arg(:id, non_null(:id))
+        arg(:reason, non_null(:string))
+        arg(:attr, :string, default_value: "")
+        arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
+
+        middleware(M.Authorize, :login)
+        resolve(&R.CMS.report_article/3)
+      end
+
+      @desc unquote("undo report a #{thread}")
+      field unquote(:"undo_report_#{thread}"), unquote(thread) do
+        arg(:id, non_null(:id))
+        arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
+
+        middleware(M.Authorize, :login)
+        resolve(&R.CMS.undo_report_article/3)
+      end
+    end
+  end
 end

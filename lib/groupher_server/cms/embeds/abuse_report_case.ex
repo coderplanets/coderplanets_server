@@ -8,9 +8,11 @@ defmodule GroupherServer.CMS.Embeds.AbuseReportCase do
   alias GroupherServer.CMS
   alias CMS.Embeds
 
+  @optional_fields [:reason, :attr]
+
   embedded_schema do
     field(:reason, :string)
-    field(:additional_reason, :string)
+    field(:attr, :string)
     embeds_one(:user, Embeds.User, on_replace: :delete)
 
     timestamps(type: :utc_datetime)
@@ -18,7 +20,7 @@ defmodule GroupherServer.CMS.Embeds.AbuseReportCase do
 
   def changeset(struct, params) do
     struct
-    |> cast(params, [:reason, :additional_reason])
+    |> cast(params, @optional_fields)
     |> cast_embed(:user, required: true, with: &Embeds.User.changeset/2)
   end
 end

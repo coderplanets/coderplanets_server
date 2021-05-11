@@ -79,7 +79,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
           report_cases = [
             %{
               reason: reason,
-              additional_reason: attr,
+              attr: attr,
               user: %{login: user.login, nickname: user.nickname}
             }
           ]
@@ -91,15 +91,13 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
           AbuseReport |> ORM.create(args)
 
         _ ->
+          user = %{login: user.login, nickname: user.nickname}
+
           report_cases =
             report.report_cases
             |> List.insert_at(
               length(report.report_cases),
-              %Embeds.AbuseReportCase{
-                reason: reason,
-                additional_reason: attr,
-                user: %{login: user.login, nickname: user.nickname}
-              }
+              %Embeds.AbuseReportCase{reason: reason, attr: attr, user: user}
             )
 
           report
@@ -151,11 +149,6 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     end
   end
 
-  ##############
-  ##############
-  ##############
-  ##############
-
   defp not_reported_before(info, content_id, %User{login: login}) do
     query = from(r in AbuseReport, where: field(r, ^info.foreign_key) == ^content_id)
 
@@ -176,8 +169,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     end
   end
 
-  defp result({:ok, %{create_abuse_report: result}}), do: result |> done()
-  defp result({:ok, %{delete_abuse_report: result}}), do: result |> done()
+  defp result({:ok, %{update_report_flag: result}}), do: result |> done()
 
   defp result({:error, _, result, _steps}) do
     {:error, result}

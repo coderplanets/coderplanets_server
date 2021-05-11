@@ -94,11 +94,16 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     set_community_flags(community_id, thread, id, %{trash: false})
   end
 
-  # TODO: report contents
-  # def report_content(_root, ~m(id thread community_id)a, _info),
-  # do: set_community_flags(community_id, thread, id, %{report: true})
+  def report_article(_root, ~m(thread id reason attr)a, %{context: %{cur_user: user}}) do
+    CMS.report_article(thread, id, reason, attr, user)
+  end
 
-  # def undo_report_content(_root, ~m(id thread community_id)a, _info),
+  def undo_report_article(_root, ~m(thread id)a, %{context: %{cur_user: user}}) do
+    CMS.undo_report_article(thread, id, user)
+  end
+
+  # TODO: report contents
+  # do: set_community_flags(community_id, thread, id, %{report: true})
   # do: set_community_flags(community_id, thread, id, %{report: false})
 
   defp set_community_flags(community_id, thread, id, flag) do

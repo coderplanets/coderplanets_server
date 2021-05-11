@@ -6,10 +6,10 @@ defmodule GroupherServer.CMS.AbuseReport do
   import Ecto.Changeset
 
   alias GroupherServer.{Accounts, CMS}
-  alias CMS.{ArticleComment, Embeds, Post, Job}
+  alias CMS.{ArticleComment, Embeds, Post, Job, Repo}
 
   # @required_fields ~w(article_comment_id user_id recived_user_id)a
-  @optional_fields ~w(article_comment_id post_id job_id account_id operate_user_id deal_with is_closed report_cases_count)a
+  @optional_fields ~w(article_comment_id post_id job_id repo_id account_id operate_user_id deal_with is_closed report_cases_count)a
   @update_fields ~w(operate_user_id deal_with is_closed report_cases_count)a
 
   @type t :: %AbuseReport{}
@@ -17,6 +17,7 @@ defmodule GroupherServer.CMS.AbuseReport do
     belongs_to(:article_comment, ArticleComment, foreign_key: :article_comment_id)
     belongs_to(:post, Post, foreign_key: :post_id)
     belongs_to(:job, Job, foreign_key: :job_id)
+    belongs_to(:repo, Repo, foreign_key: :repo_id)
     belongs_to(:account, Accounts.User, foreign_key: :account_id)
 
     embeds_many(:report_cases, Embeds.AbuseReportCase, on_replace: :delete)
