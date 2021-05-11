@@ -5,7 +5,6 @@ defmodule GroupherServer.Test.CMS.AbuseReports.PostReport do
 
   alias Helper.ORM
   alias GroupherServer.CMS
-  # alias CMS.AbuseReport
 
   setup do
     {:ok, user} = db_insert(:user)
