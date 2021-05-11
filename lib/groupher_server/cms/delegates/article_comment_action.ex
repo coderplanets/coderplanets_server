@@ -122,13 +122,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
     end
   end
 
-  @doc "unreport a comment"
-  def unreport_article_comment(comment_id, %User{} = _user) do
-    with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
-      comment |> ORM.update(%{is_reported: false})
-    end
-  end
-
   @doc "reply to exsiting comment"
   def reply_article_comment(comment_id, content, %User{} = user) do
     with {:ok, target_comment} <-

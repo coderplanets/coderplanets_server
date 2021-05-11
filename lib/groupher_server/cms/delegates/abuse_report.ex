@@ -49,6 +49,10 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     end
   end
 
+  def undo_report_article_comment(comment_id, %User{} = user) do
+    undo_report_article(:article_comment, comment_id, user)
+  end
+
   @doc """
   undo report article content
   """

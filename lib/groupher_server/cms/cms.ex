@@ -165,7 +165,7 @@ defmodule GroupherServer.CMS do
   defdelegate undo_report_article(thread, article_id, user), to: AbuseReport
   defdelegate list_reports(type, content_id, filter), to: AbuseReport
   defdelegate report_article_comment(comment_id, reason, attr, user), to: ArticleCommentAction
-  defdelegate unreport_article_comment(comment_id, user), to: ArticleCommentAction
+  defdelegate undo_report_article_comment(comment_id, user), to: AbuseReport
 
   # Passport CURD
   defdelegate stamp_passport(rules, user), to: PassportCURD

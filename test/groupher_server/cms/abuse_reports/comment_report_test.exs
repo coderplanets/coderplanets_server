@@ -15,7 +15,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.CommentReport do
   end
 
   describe "[article comment report/unreport]" do
-    @tag :wip2
+    @tag :wip3
     test "report a comment should have a abuse report record", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       {:ok, _comment} = CMS.report_article_comment(comment.id, "reason", "attr", user)
@@ -30,7 +30,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.CommentReport do
       assert List.first(report_cases).user.login == user.login
     end
 
-    @tag :wip2
+    @tag :wip3
     test "different user report a comment should have same report with different report cases",
          ~m(user user2 post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)

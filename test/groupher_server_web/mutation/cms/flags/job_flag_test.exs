@@ -25,7 +25,7 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "auth user can trash job", ~m(community job)a do
       variables = %{id: job.id, communityId: community.id}
 
@@ -38,7 +38,7 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
       assert updated["trash"] == true
     end
 
-    @tag :wip2
+    @tag :wip3
     test "unauth user trash job fails", ~m(user_conn guest_conn job community)a do
       variables = %{id: job.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
@@ -56,7 +56,7 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "auth user can undo trash job", ~m(community job)a do
       variables = %{id: job.id, communityId: community.id}
 
@@ -87,7 +87,7 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "auth user can pin job", ~m(community job)a do
       variables = %{id: job.id, communityId: community.id}
 
@@ -99,7 +99,7 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
       assert updated["id"] == to_string(job.id)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "unauth user pin job fails", ~m(user_conn guest_conn community job)a do
       variables = %{id: job.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
@@ -117,7 +117,7 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "auth user can undo pin job", ~m(community job)a do
       variables = %{id: job.id, communityId: community.id}
 
@@ -131,7 +131,7 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
       assert updated["isPinned"] == false
     end
 
-    @tag :wip2
+    @tag :wip3
     test "unauth user undo pin job fails", ~m(user_conn guest_conn community job)a do
       variables = %{id: job.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})

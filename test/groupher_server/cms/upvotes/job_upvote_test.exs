@@ -15,7 +15,7 @@ defmodule GroupherServer.Test.Upvotes.JobUpvote do
   end
 
   describe "[cms job upvote]" do
-    @tag :wip2
+    @tag :wip3
     test "job can be upvote && upvotes_count should inc by 1",
          ~m(user user2 community job_attrs)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
@@ -28,7 +28,7 @@ defmodule GroupherServer.Test.Upvotes.JobUpvote do
       assert article.upvotes_count == 2
     end
 
-    @tag :wip2
+    @tag :wip3
     test "job can be undo upvote && upvotes_count should dec by 1",
          ~m(user user2 community job_attrs)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
@@ -41,7 +41,7 @@ defmodule GroupherServer.Test.Upvotes.JobUpvote do
       assert article.upvotes_count == 0
     end
 
-    @tag :wip2
+    @tag :wip3
     test "can get upvotes_users", ~m(user user2 community job_attrs)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
 
@@ -55,7 +55,7 @@ defmodule GroupherServer.Test.Upvotes.JobUpvote do
       assert user_exist_in?(user2, users.entries)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "job meta history should be updated after upvote",
          ~m(user user2 community job_attrs)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
@@ -67,7 +67,7 @@ defmodule GroupherServer.Test.Upvotes.JobUpvote do
       assert user2.id in article.meta.upvoted_user_ids
     end
 
-    @tag :wip2
+    @tag :wip3
     test "job meta history should be updated after undo upvote",
          ~m(user user2 community job_attrs)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
