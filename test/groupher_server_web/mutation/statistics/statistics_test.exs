@@ -175,7 +175,7 @@ defmodule GroupherServer.Test.Mutation.Statistics do
     end
 
     @create_comment_query """
-    mutation($community: String!, $thread: CmsThread, $id: ID!, $body: String!) {
+    mutation($community: String!, $thread: Thread, $id: ID!, $body: String!) {
       createComment(community: $community, thread: $thread, id: $id, body: $body) {
         id
         body

@@ -496,7 +496,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
 
   describe "[mutation post comment]" do
     @write_comment_query """
-    mutation($thread: CmsThread!, $id: ID!, $content: String!) {
+    mutation($thread: Thread!, $id: ID!, $content: String!) {
       createArticleComment(thread: $thread,id: $id, content: $content) {
         id
         bodyHtml
@@ -515,7 +515,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
     end
 
     @create_comment_query """
-    mutation($community: String!, $thread: CmsThread!, $id: ID!, $body: String!) {
+    mutation($community: String!, $thread: Thread!, $id: ID!, $body: String!) {
       createComment(community: $community, thread: $thread,id: $id, body: $body) {
         id
         body
@@ -530,7 +530,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
     end
 
     @update_comment_query """
-    mutation($thread: CmsThread!, $id: ID!, $body: String!) {
+    mutation($thread: Thread!, $id: ID!, $body: String!) {
       updateComment(thread: $thread,id: $id, body: $body) {
         id
         body

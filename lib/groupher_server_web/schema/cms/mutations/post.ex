@@ -16,7 +16,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Post do
       arg(:link_addr, :string)
       arg(:copy_right, :string)
       arg(:community_id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
+      arg(:thread, :thread, default_value: :post)
       arg(:tags, list_of(:ids))
       arg(:mention_users, list_of(:ids))
 

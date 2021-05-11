@@ -72,7 +72,7 @@ defmodule GroupherServerWeb.Schema.Account.Mutations do
     field :add_to_collect, :collect_folder do
       arg(:article_id, non_null(:id))
       arg(:folder_id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
+      arg(:thread, :thread, default_value: :post)
 
       middleware(M.Authorize, :login)
       resolve(&R.Accounts.add_to_collect/3)
@@ -82,7 +82,7 @@ defmodule GroupherServerWeb.Schema.Account.Mutations do
     field :remove_from_collect, :collect_folder do
       arg(:article_id, non_null(:id))
       arg(:folder_id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
+      arg(:thread, :thread, default_value: :post)
 
       middleware(M.Authorize, :login)
       resolve(&R.Accounts.remove_from_collect/3)

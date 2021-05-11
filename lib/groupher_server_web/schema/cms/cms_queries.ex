@@ -105,7 +105,7 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
     field :partial_tags, list_of(:tag) do
       arg(:community_id, :id)
       arg(:community, :string)
-      arg(:thread, :cms_thread, default_value: :post)
+      arg(:thread, :thread, default_value: :post)
       arg(:all, :boolean, default_value: false)
 
       resolve(&R.CMS.get_tags/3)
@@ -115,7 +115,7 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
     field :paged_article_comments, :paged_article_comments do
       arg(:id, non_null(:id))
       arg(:mode, :article_comments_mode, default_value: :replies)
-      arg(:thread, :cms_thread, default_value: :post)
+      arg(:thread, :thread, default_value: :post)
       arg(:filter, :comments_filter)
 
       middleware(M.PageSizeProof)
@@ -125,7 +125,7 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
     @desc "get paged article comments participators"
     field :paged_article_comments_participators, :paged_users do
       arg(:id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
+      arg(:thread, :thread, default_value: :post)
       arg(:filter, :paged_filter)
 
       middleware(M.PageSizeProof)
@@ -144,7 +144,7 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
     @desc "get paged comments"
     field :paged_comments, :paged_comments do
       arg(:id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
+      arg(:thread, :thread, default_value: :post)
       arg(:filter, :comments_filter)
 
       middleware(M.PageSizeProof)
@@ -154,7 +154,7 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
     @desc "get paged comments participators"
     field :paged_comments_participators, :paged_users do
       arg(:id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
+      arg(:thread, :thread, default_value: :post)
       arg(:filter, :paged_filter)
 
       middleware(M.PageSizeProof)
@@ -165,7 +165,7 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
     # TODO: remove
     field :comments, :paged_comments do
       arg(:id, non_null(:id))
-      arg(:thread, :cms_thread, default_value: :post)
+      arg(:thread, :thread, default_value: :post)
       arg(:filter, :comments_filter)
 
       middleware(M.PageSizeProof)

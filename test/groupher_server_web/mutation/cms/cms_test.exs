@@ -185,7 +185,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
 
   describe "[mutation cms tag]" do
     @create_tag_query """
-    mutation($thread: CmsThread!, $title: String!, $color: RainbowColorEnum!, $communityId: ID!) {
+    mutation($thread: Thread!, $title: String!, $color: RainbowColorEnum!, $communityId: ID!) {
       createTag(thread: $thread, title: $title, color: $color, communityId: $communityId) {
         id
         title
@@ -431,6 +431,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       }
     }
     """
+    @tag :wip2
     test "auth user can create thread", ~m(user)a do
       title = "post"
       raw = "POST"
@@ -444,6 +445,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       assert result["title"] == title
     end
 
+    @tag :wip2
     test "unauth user create thread fails", ~m(user_conn guest_conn)a do
       title = "psot"
       raw = "POST"
