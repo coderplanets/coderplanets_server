@@ -36,33 +36,76 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
         create_report(thread, article_id, reason, attr, user)
       end)
       |> Multi.run(:update_report_flag, fn _, _ ->
-        count_query = from(c in AbuseReport, where: field(c, ^info.foreign_key) == ^article.id)
-        reported_count = Repo.aggregate(count_query, :count)
-        meta = article.meta |> Map.merge(%{reported_count: reported_count}) |> strip_struct
-
-        article
-        |> Ecto.Changeset.change(%{is_reported: true})
-        |> Ecto.Changeset.put_embed(:meta, meta)
-        |> Repo.update()
+        update_report_meta(info, article, true)
       end)
       |> Repo.transaction()
       |> result()
     end
   end
 
-  @doc "unreport a comment"
-  # def unreport_article(thread, article_id, %User{} = _user) do
-  #   with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
-  #     comment |> ORM.update(%{is_reported: false})
-  #   end
-  # end
+  @doc "unreport an article"
+  def undo_report_article(thread, article_id, %User{} = user) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, article_id) do
+      Multi.new()
+      |> Multi.run(:delete_abuse_report, fn _, _ ->
+        delete_report(thread, article_id, user)
+      end)
+      |> Multi.run(:update_report_flag, fn _, _ ->
+        update_report_meta(info, article, false)
+      end)
+      |> Repo.transaction()
+      |> result()
+    end
+  end
+
+  defp delete_report(thread, content_id, %User{} = user) do
+    with {:ok, info} <- match(thread),
+         {:error, _} <- not_reported_before(info, content_id, user),
+         {:ok, report} = ORM.find_by(AbuseReport, Map.put(%{}, info.foreign_key, content_id)) do
+      case length(report.report_cases) do
+        1 ->
+          ORM.delete(report)
+
+        _ ->
+          report_cases = report.report_cases |> Enum.reject(&(&1.user.login == user.login))
+
+          report
+          |> Ecto.Changeset.change(%{report_cases_count: length(report_cases)})
+          |> Ecto.Changeset.put_embed(:report_cases, report_cases)
+          |> Repo.update()
+      end
+    end
+  end
+
+  # update is_reported flag and reported_count in mete for article or comment
+  defp update_report_meta(info, content, is_reported) do
+    case ORM.find_by(AbuseReport, Map.put(%{}, info.foreign_key, content.id)) do
+      {:ok, record} ->
+        reported_count = record.report_cases |> length
+        meta = content.meta |> Map.merge(%{reported_count: reported_count}) |> strip_struct
+
+        content
+        |> Ecto.Changeset.change(%{is_reported: is_reported})
+        |> Ecto.Changeset.put_embed(:meta, meta)
+        |> Repo.update()
+
+      {:error, _} ->
+        meta = content.meta |> Map.merge(%{reported_count: 0}) |> strip_struct
+
+        content
+        |> Ecto.Changeset.change(%{is_reported: false})
+        |> Ecto.Changeset.put_embed(:meta, meta)
+        |> Repo.update()
+    end
+  end
 
   def create_report(type, content_id, reason, attr, %User{} = user) do
     with {:ok, info} <- match(type),
          {:ok, report} <- not_reported_before(info, content_id, user) do
       case report do
         nil ->
-          updated_report_cases = [
+          report_cases = [
             %{
               reason: reason,
               additional_reason: attr,
@@ -71,13 +114,13 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
           ]
 
           args =
-            %{report_cases_count: 1, report_cases: updated_report_cases}
+            %{report_cases_count: 1, report_cases: report_cases}
             |> Map.put(info.foreign_key, content_id)
 
           AbuseReport |> ORM.create(args)
 
         _ ->
-          updated_report_cases =
+          report_cases =
             report.report_cases
             |> List.insert_at(
               length(report.report_cases),
@@ -89,12 +132,17 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
             )
 
           report
-          |> Ecto.Changeset.change(%{report_cases_count: length(updated_report_cases)})
-          |> Ecto.Changeset.put_embed(:report_cases, updated_report_cases)
+          |> Ecto.Changeset.change(%{report_cases_count: length(report_cases)})
+          |> Ecto.Changeset.put_embed(:report_cases, report_cases)
           |> Repo.update()
       end
     end
   end
+
+  ##############
+  ##############
+  ##############
+  ##############
 
   @doc """
   create report record
@@ -161,6 +209,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   end
 
   defp result({:ok, %{create_abuse_report: result}}), do: result |> done()
+  defp result({:ok, %{delete_abuse_report: result}}), do: result |> done()
 
   defp result({:error, _, result, _steps}) do
     {:error, result}
