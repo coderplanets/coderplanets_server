@@ -82,6 +82,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
     end
   end
 
+  @doc "fold a comment"
   def fold_article_comment(%ArticleComment{} = comment, %User{} = _user) do
     comment |> ORM.update(%{is_folded: true})
   end
@@ -93,22 +94,22 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
     end
   end
 
-  @doc "fold a comment"
+  @doc "unfold a comment"
   def unfold_article_comment(comment_id, %User{} = _user) do
     with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
       comment |> ORM.update(%{is_folded: false})
     end
   end
 
-  @doc "fold a comment"
-  def report_article_comment(comment_id, %User{} = user) do
-    with {:ok, comment} <-
-           ORM.find(ArticleComment, comment_id) do
+  @doc "report a comment"
+  def report_article_comment(comment_id, reason, attr, %User{} = user) do
+    with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
       Multi.new()
       |> Multi.run(:create_abuse_report, fn _, _ ->
-        CMS.create_report(:article_comment, comment_id, %{reason: "todo fucked"}, user)
+        CMS.create_report(:article_comment, comment_id, reason, attr, user)
       end)
       |> Multi.run(:update_report_flag, fn _, _ ->
+        # TODO: update report count in meta
         ORM.update(comment, %{is_reported: true})
       end)
       |> Multi.run(:fold_comment_report_too_many, fn _, %{create_abuse_report: abuse_report} ->
@@ -118,14 +119,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
       end)
       |> Repo.transaction()
       |> upsert_comment_result()
-    end
-  end
-
-  @doc "fold a comment"
-  def unreport_article_comment(comment_id, %User{} = _user) do
-    with {:ok, comment} <-
-           ORM.find(ArticleComment, comment_id) do
-      comment |> ORM.update(%{is_reported: false})
     end
   end
 

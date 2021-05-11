@@ -25,7 +25,7 @@ defmodule GroupherServer.CMS.Repo do
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title owner_name owner_url repo_url desc readme star_count issues_count prs_count fork_count watch_count upvotes_count collects_count)a
-  @optional_fields ~w(origial_community_id last_sync homepage_url release_tag license)a
+  @optional_fields ~w(origial_community_id last_sync homepage_url release_tag license is_reported)a
 
   @type t :: %Repo{}
   schema "cms_repos" do
@@ -61,6 +61,7 @@ defmodule GroupherServer.CMS.Repo do
     # NOTE: this one is tricky, pin is dynamic changed when return by func: add_pin_contents_ifneed
     field(:is_pinned, :boolean, default: false, virtual: true)
     field(:trash, :boolean, default_value: false)
+    field(:is_reported, :boolean, default: false)
 
     has_many(:upvotes, {"article_upvotes", ArticleUpvote})
     field(:upvotes_count, :integer, default: 0)

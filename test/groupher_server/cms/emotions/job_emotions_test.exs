@@ -22,7 +22,7 @@ defmodule GroupherServer.Test.CMS.Emotions.JobEmotions do
   end
 
   describe "[emotion in paged jobs]" do
-    @tag :wip3
+    @tag :wip2
     test "login user should got viewer has emotioned status",
          ~m(community job_attrs user)a do
       total_count = 10
@@ -61,7 +61,7 @@ defmodule GroupherServer.Test.CMS.Emotions.JobEmotions do
   end
 
   describe "[basic article emotion]" do
-    @tag :wip3
+    @tag :wip2
     test "job has default emotions after created", ~m(community job_attrs user)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
 
@@ -69,7 +69,7 @@ defmodule GroupherServer.Test.CMS.Emotions.JobEmotions do
       assert @default_emotions == emotions
     end
 
-    @tag :wip3
+    @tag :wip2
     test "can make emotion to job", ~m(community job_attrs user user2)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
 
@@ -83,7 +83,7 @@ defmodule GroupherServer.Test.CMS.Emotions.JobEmotions do
       assert user_exist_in?(user2, emotions.latest_downvote_users)
     end
 
-    @tag :wip3
+    @tag :wip2
     test "can undo emotion to job", ~m(community job_attrs user user2)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
 
@@ -100,7 +100,7 @@ defmodule GroupherServer.Test.CMS.Emotions.JobEmotions do
       assert not user_exist_in?(user2, emotions.latest_downvote_users)
     end
 
-    @tag :wip3
+    @tag :wip2
     test "same user make same emotion to same job.", ~m(community job_attrs user)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
 
@@ -113,7 +113,7 @@ defmodule GroupherServer.Test.CMS.Emotions.JobEmotions do
       assert user_exist_in?(user, job.emotions.latest_downvote_users)
     end
 
-    @tag :wip3
+    @tag :wip2
     test "same user same emotion to same job only have one user_emotion record",
          ~m(community job_attrs user)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
@@ -131,7 +131,7 @@ defmodule GroupherServer.Test.CMS.Emotions.JobEmotions do
       assert record.heart
     end
 
-    @tag :wip3
+    @tag :wip2
     test "different user can make same emotions on same job",
          ~m(community job_attrs user user2 user3)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
@@ -148,7 +148,7 @@ defmodule GroupherServer.Test.CMS.Emotions.JobEmotions do
       assert user_exist_in?(user3, emotions.latest_beer_users)
     end
 
-    @tag :wip3
+    @tag :wip2
     test "same user can make differcent emotions on same job", ~m(community job_attrs user)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
 

@@ -26,7 +26,7 @@ defmodule GroupherServer.CMS.Post do
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title body digest length)a
-  @optional_fields ~w(origial_community_id link_addr copy_right link_addr link_icon article_comments_count article_comments_participators_count upvotes_count collects_count)a
+  @optional_fields ~w(origial_community_id link_addr copy_right link_addr link_icon article_comments_count article_comments_participators_count upvotes_count collects_count is_reported)a
 
   @type t :: %Post{}
   schema "cms_posts" do
@@ -48,6 +48,7 @@ defmodule GroupherServer.CMS.Post do
     # field(:pin, :boolean, default_value: false, virtual: true)
     field(:is_pinned, :boolean, default: false, virtual: true)
     field(:trash, :boolean, default_value: false, virtual: true)
+    field(:is_reported, :boolean, default: false)
 
     field(:viewer_has_viewed, :boolean, default: false, virtual: true)
     field(:viewer_has_upvoted, :boolean, default: false, virtual: true)

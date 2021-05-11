@@ -17,7 +17,7 @@ defmodule GroupherServer.Test.Repo do
 
   describe "[cms repo curd]" do
     alias CMS.{Author, Community}
-    @tag :wip3
+    @tag :wip2
     test "can create repo with valid attrs", ~m(user community repo_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
 
@@ -27,7 +27,7 @@ defmodule GroupherServer.Test.Repo do
       assert repo.contributors |> length !== 0
     end
 
-    @tag :wip3
+    @tag :wip2
     test "read repo should update views and meta viewed_user_list",
          ~m(repo_attrs community user user2)a do
       {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)

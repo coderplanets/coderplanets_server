@@ -50,6 +50,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Post do
     article_trash_mutation(:post)
     article_delete_mutation(:post)
     article_emotion_mutation(:post)
+    article_report_mutation(:post)
     #############
   end
 end
