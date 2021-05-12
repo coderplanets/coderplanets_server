@@ -13,12 +13,12 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.User
-  alias CMS.{AbuseReport, Embeds}
+  alias CMS.{AbuseReport, ArticleComment, Embeds}
 
   alias Ecto.Multi
 
   # filter = %{
-  #   contentType: account | post | job | repo | article_comment
+  #   contentType: account | post | job | repo | article_comment | community
   #   contentId: ...
   #   operate_user_id,
   #   min_case_count,
@@ -28,9 +28,6 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   #   size
   # }
 
-  # def list_all_reports(thread, filter)
-  # def list_all_reports(community, filter)
-  # def list_all_reports(filter)
   @article_threads [:post, :job, :repo]
   @export_report_keys [
     :id,
@@ -43,6 +40,34 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     :updated_at
   ]
 
+  @export_author_keys [:id, :login, :nickname, :avatar]
+  @export_article_keys [:id, :title, :digest, :upvotes_count, :views]
+
+  @doc """
+  list paged reports for article comemnts
+  """
+  def list_reports(%{content_type: :article_comment, content_id: content_id} = filter) do
+    %{page: page, size: size} = filter
+
+    with {:ok, info} <- match(:article_comment) do
+      query =
+        from(r in AbuseReport,
+          where: field(r, ^info.foreign_key) == ^content_id,
+          preload: [article_comment: ^@article_threads],
+          preload: [article_comment: :author]
+        )
+
+      query
+      |> QueryBuilder.filter_pack(filter)
+      |> ORM.paginater(~m(page size)a)
+      |> reports_formater(:article_comment)
+      |> done()
+    end
+  end
+
+  @doc """
+  list paged reports for article
+  """
   def list_reports(%{content_type: thread, content_id: content_id} = filter)
       when thread in @article_threads do
     %{page: page, size: size} = filter
@@ -62,6 +87,17 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     end
   end
 
+  defp reports_formater(%{entries: entries} = paged_reports, :article_comment) do
+    paged_reports
+    |> Map.put(
+      :entries,
+      Enum.map(entries, fn report ->
+        basic_report = report |> Map.take(@export_report_keys)
+        basic_report |> Map.put(:article_comment, extract_article_comment_info(report))
+      end)
+    )
+  end
+
   defp reports_formater(%{entries: entries} = paged_reports, thread)
        when thread in @article_threads do
     paged_reports
@@ -74,36 +110,18 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     )
   end
 
+  # TODO: original community and communities info
   defp extract_article_info(thread, %AbuseReport{} = report) do
     article = Map.get(report, thread)
 
-    %{
-      thread: thread,
-      id: article.id,
-      title: article.title,
-      digest: article.digest,
-      upvotes_count: article.upvotes_count,
-      views: article.views
-    }
+    article
+    |> Map.take(@export_article_keys)
+    |> Map.merge(%{thread: thread})
   end
 
-  @doc """
-  list paged reports for both comment and article
-  """
-  def list_reports(thread, content_id, %{page: page, size: size} = filter) do
-    with {:ok, info} <- match(thread) do
-      query =
-        from(r in AbuseReport,
-          where: field(r, ^info.foreign_key) == ^content_id,
-          preload: [^thread, :operate_user]
-        )
-
-      query
-      |> QueryBuilder.filter_pack(filter)
-      |> ORM.paginater(~m(page size)a)
-      |> done()
-    end
-  end
+  # def report_account(user_id) do
+  #   # TODO*
+  # end
 
   @doc """
   report article content
@@ -123,10 +141,6 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     end
   end
 
-  def undo_report_article_comment(comment_id, %User{} = user) do
-    undo_report_article(:article_comment, comment_id, user)
-  end
-
   @doc """
   undo report article content
   """
@@ -143,6 +157,10 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
       |> Repo.transaction()
       |> result()
     end
+  end
+
+  def undo_report_article_comment(comment_id, %User{} = user) do
+    undo_report_article(:article_comment, comment_id, user)
   end
 
   def create_report(type, content_id, reason, attr, %User{} = user) do
@@ -241,6 +259,30 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
 
         if not reported_before, do: {:ok, report}, else: {:error, "#{login} already reported"}
     end
+  end
+
+  def extract_article_comment_info(%AbuseReport{} = report) do
+    keys = [:id, :upvotes_count, :body_html]
+    author = Map.take(report.article_comment.author, @export_author_keys)
+
+    comment = Map.take(report.article_comment, keys)
+    comment = Map.merge(comment, %{author: author})
+
+    article = extract_article_in_comment(report.article_comment)
+    Map.merge(comment, %{article: article})
+  end
+
+  defp extract_article_in_comment(%ArticleComment{} = article_comment) do
+    article_thread =
+      Enum.filter(@article_threads, fn thread ->
+        not is_nil(Map.get(article_comment, :"#{thread}_id"))
+      end)
+      |> List.first()
+
+    article_comment
+    |> Map.get(article_thread)
+    |> Map.take(@export_article_keys)
+    |> Map.merge(%{thread: article_thread})
   end
 
   defp result({:ok, %{update_report_flag: result}}), do: result |> done()

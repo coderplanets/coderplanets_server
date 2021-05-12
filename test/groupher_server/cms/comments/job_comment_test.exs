@@ -295,7 +295,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert not comment.is_reported
     end
 
-    @tag :wip3
+    @tag :wip2
     test "can undo a report with other user report it too",
          ~m(user user2 job)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
@@ -303,7 +303,8 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       {:ok, _comment} = CMS.report_article_comment(comment.id, "reason", "attr", user)
       {:ok, _comment} = CMS.report_article_comment(comment.id, "reason", "attr", user2)
 
-      {:ok, all_reports} = CMS.list_reports(:article_comment, comment.id, %{page: 1, size: 20})
+      filter = %{content_type: :article_comment, content_id: comment.id, page: 1, size: 20}
+      {:ok, all_reports} = CMS.list_reports(filter)
       assert all_reports.total_count == 1
 
       report = all_reports.entries |> List.first()
@@ -313,7 +314,8 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       {:ok, _report} = CMS.undo_report_article(:article_comment, comment.id, user)
 
-      {:ok, all_reports} = CMS.list_reports(:article_comment, comment.id, %{page: 1, size: 20})
+      filter = %{content_type: :article_comment, content_id: comment.id, page: 1, size: 20}
+      {:ok, all_reports} = CMS.list_reports(filter)
       assert all_reports.total_count == 1
 
       report = all_reports.entries |> List.first()
@@ -321,7 +323,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert Enum.any?(report.report_cases, &(&1.user.login == user2.login))
     end
 
-    @tag :wip3
+    @tag :wip2
     test "report user < @report_threshold_for_fold will not fold comment", ~m(user job)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
 

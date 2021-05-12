@@ -15,29 +15,32 @@ defmodule GroupherServer.Test.CMS.AbuseReports.CommentReport do
   end
 
   describe "[article comment report/unreport]" do
-    @tag :wip3
+    @tag :wip2
     test "report a comment should have a abuse report record", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       {:ok, _comment} = CMS.report_article_comment(comment.id, "reason", "attr", user)
 
-      {:ok, all_reports} = CMS.list_reports(:article_comment, comment.id, %{page: 1, size: 20})
+      filter = %{content_type: :article_comment, content_id: comment.id, page: 1, size: 20}
+      {:ok, all_reports} = CMS.list_reports(filter)
 
       report = List.first(all_reports.entries)
       report_cases = report.report_cases
+      assert report.article_comment.id == comment.id
 
       assert all_reports.total_count == 1
       assert report.report_cases_count == 1
       assert List.first(report_cases).user.login == user.login
     end
 
-    @tag :wip3
+    @tag :wip2
     test "different user report a comment should have same report with different report cases",
          ~m(user user2 post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       {:ok, _} = CMS.report_article_comment(comment.id, "reason", "attr", user)
       {:ok, _} = CMS.report_article_comment(comment.id, "reason", "attr", user2)
 
-      {:ok, all_reports} = CMS.list_reports(:article_comment, comment.id, %{page: 1, size: 20})
+      filter = %{content_type: :article_comment, content_id: comment.id, page: 1, size: 20}
+      {:ok, all_reports} = CMS.list_reports(filter)
 
       report = List.first(all_reports.entries)
       report_cases = report.report_cases

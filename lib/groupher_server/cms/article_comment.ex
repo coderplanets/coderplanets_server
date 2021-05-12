@@ -12,6 +12,7 @@ defmodule GroupherServer.CMS.ArticleComment do
   alias CMS.{
     Post,
     Job,
+    Repo,
     Embeds,
     ArticleCommentUpvote
   }
@@ -19,7 +20,7 @@ defmodule GroupherServer.CMS.ArticleComment do
   # alias Helper.HTML
 
   @required_fields ~w(body_html author_id)a
-  @optional_fields ~w(post_id job_id reply_to_id replies_count is_folded is_reported is_deleted floor is_article_author)a
+  @optional_fields ~w(post_id job_id repo_id reply_to_id replies_count is_folded is_reported is_deleted floor is_article_author)a
   @updatable_fields ~w(is_folded is_reported is_deleted floor upvotes_count is_pinned)a
 
   @max_participator_count 5
@@ -72,6 +73,8 @@ defmodule GroupherServer.CMS.ArticleComment do
 
     belongs_to(:post, Post, foreign_key: :post_id)
     belongs_to(:job, Job, foreign_key: :job_id)
+    belongs_to(:repo, Repo, foreign_key: :repo_id)
+
     belongs_to(:reply_to, ArticleComment, foreign_key: :reply_to_id)
 
     embeds_many(:replies, ArticleComment, on_replace: :delete)

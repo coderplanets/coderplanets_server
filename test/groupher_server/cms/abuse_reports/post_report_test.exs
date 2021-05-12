@@ -17,7 +17,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.PostReport do
   end
 
   describe "[article post report/unreport]" do
-    @tag :wip2
+    @tag :wip3
     test "list article reports should work", ~m(community user user2 post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
       {:ok, _report} = CMS.report_article(:post, post.id, "reason", "attr_info", user)
@@ -25,14 +25,10 @@ defmodule GroupherServer.Test.CMS.AbuseReports.PostReport do
 
       filter = %{content_type: :post, content_id: post.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.list_reports(filter)
-      IO.inspect(all_reports, label: "all_reports -- ")
 
-      # report = all_reports.entries |> List.first()
-      # IO.inspect(Map.keys(report), label: "report keys")
-      # #       [:deal_with, :id, :inserted_at, :is_closed, :operate_user, :post, :report_cases,
-      # #  :report_cases_count, :updated_at]
-      # assert report |> Map.get(:post) |> Map.get(:id) == post.id
-      # assert report |> Map.get(:report_cases) |> length == 2
+      report = all_reports.entries |> List.first()
+      assert report.article.id == post.id
+      assert report.article.thread == :post
     end
 
     @tag :wip3
@@ -40,12 +36,13 @@ defmodule GroupherServer.Test.CMS.AbuseReports.PostReport do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
       {:ok, _report} = CMS.report_article(:post, post.id, "reason", "attr_info", user)
 
-      {:ok, all_reports} = CMS.list_reports(:post, post.id, %{page: 1, size: 20})
+      filter = %{content_type: :post, content_id: post.id, page: 1, size: 20}
+      {:ok, all_reports} = CMS.list_reports(filter)
 
       report = List.first(all_reports.entries)
       report_cases = report.report_cases
 
-      assert report.post_id == post.id
+      assert report.article.id == post.id
       assert all_reports.total_count == 1
       assert report.report_cases_count == 1
       assert List.first(report_cases).user.login == user.login
@@ -61,7 +58,8 @@ defmodule GroupherServer.Test.CMS.AbuseReports.PostReport do
       {:ok, _report} = CMS.report_article(:post, post.id, "reason", "attr_info", user)
       {:ok, _report} = CMS.undo_report_article(:post, post.id, user)
 
-      {:ok, all_reports} = CMS.list_reports(:post, post.id, %{page: 1, size: 20})
+      filter = %{content_type: :post, content_id: post.id, page: 1, size: 20}
+      {:ok, all_reports} = CMS.list_reports(filter)
       assert all_reports.total_count == 0
     end
 
@@ -72,7 +70,8 @@ defmodule GroupherServer.Test.CMS.AbuseReports.PostReport do
       {:ok, _report} = CMS.report_article(:post, post.id, "reason", "attr_info", user)
       {:ok, _report} = CMS.report_article(:post, post.id, "reason", "attr_info", user2)
 
-      {:ok, all_reports} = CMS.list_reports(:post, post.id, %{page: 1, size: 20})
+      filter = %{content_type: :post, content_id: post.id, page: 1, size: 20}
+      {:ok, all_reports} = CMS.list_reports(filter)
       assert all_reports.total_count == 1
 
       report = all_reports.entries |> List.first()
@@ -82,7 +81,8 @@ defmodule GroupherServer.Test.CMS.AbuseReports.PostReport do
 
       {:ok, _report} = CMS.undo_report_article(:post, post.id, user)
 
-      {:ok, all_reports} = CMS.list_reports(:post, post.id, %{page: 1, size: 20})
+      filter = %{content_type: :post, content_id: post.id, page: 1, size: 20}
+      {:ok, all_reports} = CMS.list_reports(filter)
       assert all_reports.total_count == 1
 
       report = all_reports.entries |> List.first()
@@ -98,7 +98,8 @@ defmodule GroupherServer.Test.CMS.AbuseReports.PostReport do
       {:ok, _report} = CMS.report_article(:post, post.id, "reason", "attr_info", user)
       {:ok, _report} = CMS.report_article(:post, post.id, "reason2", "attr_info 2", user2)
 
-      {:ok, all_reports} = CMS.list_reports(:post, post.id, %{page: 1, size: 20})
+      filter = %{content_type: :post, content_id: post.id, page: 1, size: 20}
+      {:ok, all_reports} = CMS.list_reports(filter)
 
       report = List.first(all_reports.entries)
       report_cases = report.report_cases
