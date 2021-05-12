@@ -279,7 +279,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       {:ok, comment} = CMS.report_article_comment(comment.id, "reason", "attr", user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
-      assert comment.is_reported
+      assert not comment.is_reported
     end
 
     @tag :wip
@@ -288,7 +288,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       {:ok, _comment} = CMS.report_article_comment(comment.id, "reason", "attr", user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
 
-      assert comment.is_reported
+      assert not comment.is_reported
 
       {:ok, _comment} = CMS.undo_report_article_comment(comment.id, user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
@@ -353,7 +353,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       end)
 
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
-      assert comment.is_reported
+      assert not comment.is_reported
       assert comment.is_folded
     end
   end

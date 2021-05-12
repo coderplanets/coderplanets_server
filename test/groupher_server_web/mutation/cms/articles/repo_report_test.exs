@@ -33,7 +33,7 @@ defmodule GroupherServer.Test.Mutation.Articles.RepoReport do
       variables = %{id: repo.id, reason: "reason"}
       article = user_conn |> mutation_result(@report_query, variables, "reportRepo")
 
-      assert article["isReported"]
+      assert not article["isReported"]
       assert article["id"] == to_string(repo.id)
     end
 
@@ -53,7 +53,7 @@ defmodule GroupherServer.Test.Mutation.Articles.RepoReport do
       variables = %{id: repo.id, reason: "reason"}
       article = user_conn |> mutation_result(@report_query, variables, "reportRepo")
 
-      assert article["isReported"]
+      assert not article["isReported"]
       assert article["id"] == to_string(repo.id)
 
       variables = %{id: repo.id}

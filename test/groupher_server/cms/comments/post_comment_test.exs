@@ -288,7 +288,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, _comment} = CMS.report_article_comment(comment.id, "reason", "attr", user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
 
-      assert comment.is_reported
+      assert not comment.is_reported
 
       {:ok, _comment} = CMS.undo_report_article_comment(comment.id, user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
