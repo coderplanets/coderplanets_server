@@ -471,10 +471,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       random_comment_2 = all_comments |> Enum.at(1)
       random_comment_3 = all_comments |> Enum.at(3)
 
-      random_comment_4 = all_comments |> Enum.at(2)
-      random_comment_5 = all_comments |> Enum.at(4)
-      random_comment_6 = all_comments |> Enum.at(8)
-
       {:ok, _comment} = CMS.fold_article_comment(random_comment_1.id, user)
       {:ok, _comment} = CMS.fold_article_comment(random_comment_2.id, user)
       {:ok, _comment} = CMS.fold_article_comment(random_comment_3.id, user)

@@ -60,6 +60,7 @@ defmodule GroupherServer.Accounts.User do
     # field(:sponsor_member, :boolean)
     # field(:paid_member, :boolean)
     # field(:platinum_member, :boolean)
+    field(:viewer_has_reported, :boolean, default: false, virtual: true)
 
     embeds_one(:meta, Embeds.UserMeta, on_replace: :update)
 

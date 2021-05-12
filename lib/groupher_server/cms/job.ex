@@ -61,6 +61,11 @@ defmodule GroupherServer.CMS.Job do
     has_many(:upvotes, {"article_upvotes", ArticleUpvote})
     field(:upvotes_count, :integer, default: 0)
 
+    field(:viewer_has_viewed, :boolean, default: false, virtual: true)
+    field(:viewer_has_upvoted, :boolean, default: false, virtual: true)
+    field(:viewer_has_collected, :boolean, default: false, virtual: true)
+    field(:viewer_has_reported, :boolean, default: false, virtual: true)
+
     has_many(:collects, {"article_collects", ArticleCollect})
     field(:collects_count, :integer, default: 0)
 

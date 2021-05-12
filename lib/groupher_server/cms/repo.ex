@@ -62,6 +62,11 @@ defmodule GroupherServer.CMS.Repo do
     field(:is_pinned, :boolean, default: false, virtual: true)
     field(:trash, :boolean, default_value: false)
 
+    field(:viewer_has_viewed, :boolean, default: false, virtual: true)
+    field(:viewer_has_upvoted, :boolean, default: false, virtual: true)
+    field(:viewer_has_collected, :boolean, default: false, virtual: true)
+    field(:viewer_has_reported, :boolean, default: false, virtual: true)
+
     has_many(:upvotes, {"article_upvotes", ArticleUpvote})
     field(:upvotes_count, :integer, default: 0)
 
