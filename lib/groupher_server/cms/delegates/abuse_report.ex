@@ -23,7 +23,6 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   #   operate_user_id,
   #   min_case_count,
   #   max_case_count,
-  #   is_closed
   #   page
   #   size
   # }
@@ -34,7 +33,6 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   @export_report_keys [
     :id,
     :deal_with,
-    :is_closed,
     :operate_user,
     :report_cases,
     :report_cases_count,
@@ -107,6 +105,9 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     end
   end
 
+  @doc """
+  report an account
+  """
   def report_account(account_id, reason, attr, user) do
     with {:ok, info} <- match(:account_user),
          {:ok, account} <- ORM.find(info.model, account_id) do
@@ -352,6 +353,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   end
 
   defp result({:ok, %{update_report_flag: result}}), do: result |> done()
+  defp result({:ok, %{update_content_reported_flag: result}}), do: result |> done()
 
   defp result({:error, _, result, _steps}) do
     {:error, result}

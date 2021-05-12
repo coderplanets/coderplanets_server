@@ -33,7 +33,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   def list_article_comments(thread, article_id, filters, mode, user \\ nil)
 
   def list_article_comments(thread, article_id, filters, :timeline, user) do
-    where_query = dynamic([c], not c.is_folded and not c.is_reported and not c.is_pinned)
+    where_query = dynamic([c], not c.is_folded and not c.is_pinned)
     do_list_article_comment(thread, article_id, filters, where_query, user)
   end
 
@@ -44,26 +44,19 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     where_query =
       dynamic(
         [c],
-        is_nil(c.reply_to_id) and not c.is_folded and not c.is_reported and not c.is_pinned
+        is_nil(c.reply_to_id) and not c.is_folded and not c.is_pinned
       )
 
     do_list_article_comment(thread, article_id, filters, where_query, user)
   end
 
   def list_folded_article_comments(thread, article_id, filters) do
-    where_query = dynamic([c], c.is_folded and not c.is_reported and not c.is_pinned)
+    where_query = dynamic([c], c.is_folded and not c.is_pinned)
     do_list_article_comment(thread, article_id, filters, where_query, nil)
   end
 
   def list_folded_article_comments(thread, article_id, filters, user) do
-    where_query = dynamic([c], c.is_folded and not c.is_reported and not c.is_pinned)
-    do_list_article_comment(thread, article_id, filters, where_query, user)
-  end
-
-  def list_reported_article_comments(thread, article_id, filters, user \\ nil)
-
-  def list_reported_article_comments(thread, article_id, filters, user) do
-    where_query = dynamic([c], c.is_reported)
+    where_query = dynamic([c], c.is_folded and not c.is_pinned)
     do_list_article_comment(thread, article_id, filters, where_query, user)
   end
 
@@ -227,8 +220,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     %{page: page, size: size} = filters
     query = from(c in ArticleComment, preload: [reply_to: :author])
 
-    where_query =
-      dynamic([c], not c.is_reported and not c.is_folded and c.reply_to_id == ^comment_id)
+    where_query = dynamic([c], not c.is_folded and c.reply_to_id == ^comment_id)
 
     query
     |> where(^where_query)

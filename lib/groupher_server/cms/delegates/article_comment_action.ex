@@ -108,10 +108,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
       |> Multi.run(:create_abuse_report, fn _, _ ->
         CMS.create_report(:article_comment, comment_id, reason, attr, user)
       end)
-      |> Multi.run(:update_report_flag, fn _, _ ->
-        # TODO: update report count in meta
-        ORM.update(comment, %{is_reported: true})
-      end)
       |> Multi.run(:fold_comment_report_too_many, fn _, %{create_abuse_report: abuse_report} ->
         if abuse_report.report_cases_count >= @report_threshold_for_fold,
           do: fold_article_comment(comment, user),
@@ -349,7 +345,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   defp upsert_comment_result({:ok, %{create_article_comment: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{add_reply_to: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{check_article_author_upvoted: result}}), do: {:ok, result}
-  defp upsert_comment_result({:ok, %{update_report_flag: result}}), do: {:ok, result}
+  defp upsert_comment_result({:ok, %{fold_comment_report_too_many: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{update_comment_flag: result}}), do: {:ok, result}
   defp upsert_comment_result({:ok, %{delete_article_comment: result}}), do: {:ok, result}
 

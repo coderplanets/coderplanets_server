@@ -431,7 +431,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "auth user can create thread", ~m(user)a do
       title = "post"
       raw = "POST"
@@ -445,7 +445,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       assert result["title"] == title
     end
 
-    @tag :wip2
+    @tag :wip3
     test "unauth user create thread fails", ~m(user_conn guest_conn)a do
       title = "psot"
       raw = "POST"

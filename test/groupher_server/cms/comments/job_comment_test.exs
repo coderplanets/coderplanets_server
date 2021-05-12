@@ -39,7 +39,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
     end
 
-    @tag :wip2
+    @tag :wip3
     test "comment can be updated", ~m(job user)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
 
@@ -130,7 +130,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert comment.meta.is_article_author_upvoted
     end
 
-    @tag :wip2
+    @tag :wip3
     test "user upvote job comment will add id to upvoted_user_ids", ~m(job user)a do
       comment = "job_comment"
       {:ok, comment} = CMS.create_article_comment(:job, job.id, comment, user)
@@ -139,7 +139,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert user.id in comment.meta.upvoted_user_ids
     end
 
-    @tag :wip2
+    @tag :wip3
     test "user undo upvote job comment will remove id from upvoted_user_ids",
          ~m(job user user2)a do
       comment = "job_comment"
@@ -270,32 +270,26 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
   end
 
   describe "[article comment report/unreport]" do
-    @tag :wip
-    test "user can report a comment", ~m(user job)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
-      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+    # @tag :wip
+    # test "user can report a comment", ~m(user job)a do
+    #   {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
+    #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
 
-      assert not comment.is_reported
+    #   {:ok, comment} = CMS.report_article_comment(comment.id, "reason", "attr", user)
+    #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
+    # end
 
-      {:ok, comment} = CMS.report_article_comment(comment.id, "reason", "attr", user)
-      {:ok, comment} = ORM.find(ArticleComment, comment.id)
-      assert not comment.is_reported
-    end
+    # @tag :wip
+    # test "user can unreport a comment", ~m(user job)a do
+    #   {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
+    #   {:ok, _comment} = CMS.report_article_comment(comment.id, "reason", "attr", user)
+    #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
 
-    @tag :wip
-    test "user can unreport a comment", ~m(user job)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
-      {:ok, _comment} = CMS.report_article_comment(comment.id, "reason", "attr", user)
-      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+    #   {:ok, _comment} = CMS.undo_report_article_comment(comment.id, user)
+    #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
+    # end
 
-      assert not comment.is_reported
-
-      {:ok, _comment} = CMS.undo_report_article_comment(comment.id, user)
-      {:ok, comment} = ORM.find(ArticleComment, comment.id)
-      assert not comment.is_reported
-    end
-
-    @tag :wip2
+    @tag :wip3
     test "can undo a report with other user report it too",
          ~m(user user2 job)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
@@ -323,11 +317,10 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert Enum.any?(report.report_cases, &(&1.user.login == user2.login))
     end
 
-    @tag :wip2
+    @tag :wip3
     test "report user < @report_threshold_for_fold will not fold comment", ~m(user job)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
 
-      assert not comment.is_reported
       assert not comment.is_folded
 
       Enum.reduce(1..(@report_threshold_for_fold - 1), [], fn _, _acc ->
@@ -336,7 +329,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       end)
 
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
-      assert comment.is_reported
       assert not comment.is_folded
     end
 
@@ -344,7 +336,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     test "report user > @report_threshold_for_fold will cause comment fold", ~m(user job)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
 
-      assert not comment.is_reported
       assert not comment.is_folded
 
       Enum.reduce(1..(@report_threshold_for_fold + 1), [], fn _, _acc ->
@@ -353,7 +344,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       end)
 
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
-      assert not comment.is_reported
       assert comment.is_folded
     end
   end
@@ -463,7 +453,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert paged_comments.total_count == total_count
     end
 
-    @tag :wip2
+    @tag :wip3
     test "paged article comments should not contains folded and repoted comments",
          ~m(user job)a do
       total_count = 15
@@ -571,7 +561,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
   end
 
   describe "[article comment delete]" do
-    @tag :wip2
+    @tag :wip3
     test "delete comment still exsit in paged list and content is gone", ~m(user job)a do
       total_count = 10
       page_number = 1
@@ -596,7 +586,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert deleted_comment.body_html == @delete_hint
     end
 
-    @tag :wip2
+    @tag :wip3
     test "delete comment still update article's comments_count field", ~m(user job)a do
       {:ok, _comment} = CMS.create_article_comment(:job, job.id, "commment", user)
       {:ok, _comment} = CMS.create_article_comment(:job, job.id, "commment", user)
@@ -614,7 +604,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert job.article_comments_count == 4
     end
 
-    @tag :wip2
+    @tag :wip3
     test "delete comment still delete pined record if needed", ~m(user job)a do
       total_count = 10
 

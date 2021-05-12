@@ -22,18 +22,16 @@ defmodule GroupherServer.Test.Mutation.Articles.JobReport do
       reportJob(id: $id, reason: $reason, attr: $attr) {
         id
         title
-        isReported
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "login user can report a job", ~m(community job_attrs user user_conn)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
 
       variables = %{id: job.id, reason: "reason"}
       article = user_conn |> mutation_result(@report_query, variables, "reportJob")
 
-      assert not article["isReported"]
       assert article["id"] == to_string(job.id)
     end
 
@@ -42,25 +40,22 @@ defmodule GroupherServer.Test.Mutation.Articles.JobReport do
       undoReportJob(id: $id) {
         id
         title
-        isReported
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "login user can undo report a job", ~m(community job_attrs user user_conn)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
 
       variables = %{id: job.id, reason: "reason"}
       article = user_conn |> mutation_result(@report_query, variables, "reportJob")
 
-      assert not article["isReported"]
       assert article["id"] == to_string(job.id)
 
       variables = %{id: job.id}
 
       article = user_conn |> mutation_result(@undo_report_query, variables, "undoReportJob")
 
-      assert not article["isReported"]
       assert article["id"] == to_string(job.id)
     end
   end

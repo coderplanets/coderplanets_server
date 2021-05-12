@@ -22,7 +22,6 @@ defmodule GroupherServer.Test.Mutation.Articles.PostReport do
       reportPost(id: $id, reason: $reason, attr: $attr) {
         id
         title
-        isReported
       }
     }
     """
@@ -33,7 +32,6 @@ defmodule GroupherServer.Test.Mutation.Articles.PostReport do
       variables = %{id: post.id, reason: "reason"}
       article = user_conn |> mutation_result(@report_query, variables, "reportPost")
 
-      assert not article["isReported"]
       assert article["id"] == to_string(post.id)
     end
 
@@ -42,7 +40,6 @@ defmodule GroupherServer.Test.Mutation.Articles.PostReport do
       undoReportPost(id: $id) {
         id
         title
-        isReported
       }
     }
     """
@@ -53,14 +50,11 @@ defmodule GroupherServer.Test.Mutation.Articles.PostReport do
       variables = %{id: post.id, reason: "reason"}
       article = user_conn |> mutation_result(@report_query, variables, "reportPost")
 
-      assert not article["isReported"]
       assert article["id"] == to_string(post.id)
 
       variables = %{id: post.id}
 
       article = user_conn |> mutation_result(@undo_report_query, variables, "undoReportPost")
-
-      assert not article["isReported"]
       assert article["id"] == to_string(post.id)
     end
   end

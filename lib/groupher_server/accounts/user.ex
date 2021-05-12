@@ -61,7 +61,6 @@ defmodule GroupherServer.Accounts.User do
     # field(:paid_member, :boolean)
     # field(:platinum_member, :boolean)
 
-    field(:is_reported, :boolean, default: false)
     embeds_one(:meta, Embeds.UserMeta, on_replace: :update)
 
     has_one(:customization, Customization)

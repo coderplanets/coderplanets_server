@@ -21,7 +21,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
   end
 
   describe "[emotion in paged article comment]" do
-    @tag :wip2
+    @tag :wip3
     test "login user should got viewer has emotioned status", ~m(post user)a do
       total_count = 0
       page_number = 10
@@ -76,7 +76,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
       assert @default_emotions == emotions
     end
 
-    @tag :wip2
+    @tag :wip3
     test "can make emotion to comment", ~m(post user user2)a do
       parent_content = "parent comment"
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
@@ -91,7 +91,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
       assert user_exist_in?(user2, emotions.latest_downvote_users)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "can undo emotion to comment", ~m(post user user2)a do
       parent_content = "parent comment"
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
@@ -114,7 +114,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
       assert not user_exist_in?(user2, emotions.latest_downvote_users)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "same user make same emotion to same comment.", ~m(post user)a do
       parent_content = "parent comment"
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
@@ -128,7 +128,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
       assert user_exist_in?(user, parent_comment.emotions.latest_downvote_users)
     end
 
-    @tag :wip2
+    @tag :wip3
     test "same user same emotion to same comment only have one user_emotion record",
          ~m(post user)a do
       parent_content = "parent comment"
@@ -152,7 +152,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
       assert record.heart
     end
 
-    @tag :wip2
+    @tag :wip3
     test "different user can make same emotions on same comment", ~m(post user user2 user3)a do
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent comment", user)
 

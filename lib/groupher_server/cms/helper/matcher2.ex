@@ -15,6 +15,7 @@ defmodule GroupherServer.CMS.Helper.Matcher2 do
      %{
        model: ArticleComment,
        foreign_key: :article_comment_id,
+       preload: :article_comment,
        default_meta: CMS.Embeds.ArticleCommentMeta.default_meta()
      }}
   end
@@ -36,6 +37,7 @@ defmodule GroupherServer.CMS.Helper.Matcher2 do
      %{
        model: User,
        foreign_key: :account_id,
+       preload: :account,
        default_meta: Accounts.Embeds.UserMeta.default_meta()
      }}
   end
@@ -47,7 +49,12 @@ defmodule GroupherServer.CMS.Helper.Matcher2 do
 
   def match(:post) do
     {:ok,
-     %{model: Post, foreign_key: :post_id, default_meta: CMS.Embeds.ArticleMeta.default_meta()}}
+     %{
+       model: Post,
+       foreign_key: :post_id,
+       preload: :post,
+       default_meta: CMS.Embeds.ArticleMeta.default_meta()
+     }}
   end
 
   def match(Job) do
@@ -56,7 +63,12 @@ defmodule GroupherServer.CMS.Helper.Matcher2 do
 
   def match(:job) do
     {:ok,
-     %{model: Job, foreign_key: :job_id, default_meta: CMS.Embeds.ArticleMeta.default_meta()}}
+     %{
+       model: Job,
+       foreign_key: :job_id,
+       preload: :job,
+       default_meta: CMS.Embeds.ArticleMeta.default_meta()
+     }}
   end
 
   def match(Repo) do
@@ -65,7 +77,12 @@ defmodule GroupherServer.CMS.Helper.Matcher2 do
 
   def match(:repo) do
     {:ok,
-     %{model: Repo, foreign_key: :repo_id, default_meta: CMS.Embeds.ArticleMeta.default_meta()}}
+     %{
+       model: Repo,
+       foreign_key: :repo_id,
+       preload: :repo,
+       default_meta: CMS.Embeds.ArticleMeta.default_meta()
+     }}
   end
 
   def match(:post, :query, id), do: {:ok, dynamic([c], c.post_id == ^id)}

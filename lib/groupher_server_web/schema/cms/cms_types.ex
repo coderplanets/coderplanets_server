@@ -68,8 +68,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
       end)
     end
 
-    field(:is_reported, :boolean)
-
     article_comments_fields()
     viewer_has_state_fields()
     # upvoted_count
@@ -111,7 +109,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:finance, :string)
     field(:scale, :string)
 
-    field(:is_reported, :boolean)
     # comments_count
     # comments_participators
     article_comments_fields()
@@ -156,7 +153,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:origial_community, :community, resolve: dataloader(CMS, :origial_community))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
-    field(:is_reported, :boolean)
     viewer_has_state_fields()
     # comments_count
     # comments_participators
@@ -460,7 +456,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   object :article_meta do
     field(:is_edited, :boolean)
     field(:is_comment_locked, :boolean)
-    # field(:isReported, :boolean)
     # field(:linked_posts_count, :integer)
     # field(:linked_jobs_count, :integer)
     # field(:linked_works_count, :integer)
