@@ -32,7 +32,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   # def list_all_reports(community, filter)
   # def list_all_reports(filter)
   @article_threads [:post, :job, :repo]
-  @export_report_keys = [
+  @export_report_keys [
     :id,
     :deal_with,
     :is_closed,
