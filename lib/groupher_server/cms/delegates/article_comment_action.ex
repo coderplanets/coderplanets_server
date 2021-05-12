@@ -30,7 +30,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   alias Ecto.Multi
 
   @max_parent_replies_count ArticleComment.max_parent_replies_count()
-  @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
   @pined_comment_limit ArticleComment.pined_comment_limit()
 
   @spec pin_article_comment(Integer.t()) :: {:ok, ArticleComment.t()}
@@ -98,23 +97,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   def unfold_article_comment(comment_id, %User{} = _user) do
     with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
       comment |> ORM.update(%{is_folded: false})
-    end
-  end
-
-  @doc "report a comment"
-  def report_article_comment(comment_id, reason, attr, %User{} = user) do
-    with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
-      Multi.new()
-      |> Multi.run(:create_abuse_report, fn _, _ ->
-        CMS.create_report(:article_comment, comment_id, reason, attr, user)
-      end)
-      |> Multi.run(:fold_comment_report_too_many, fn _, %{create_abuse_report: abuse_report} ->
-        if abuse_report.report_cases_count >= @report_threshold_for_fold,
-          do: fold_article_comment(comment, user),
-          else: {:ok, comment}
-      end)
-      |> Repo.transaction()
-      |> upsert_comment_result()
     end
   end
 

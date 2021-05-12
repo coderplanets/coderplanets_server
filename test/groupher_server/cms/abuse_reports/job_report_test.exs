@@ -49,6 +49,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.JobReport do
 
       {:ok, job} = ORM.find(CMS.Job, job.id)
       assert job.meta.reported_count == 1
+      assert user.id in job.meta.reported_user_ids
     end
 
     @tag :wip3
@@ -60,6 +61,26 @@ defmodule GroupherServer.Test.CMS.AbuseReports.JobReport do
       filter = %{content_type: :job, content_id: job.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.list_reports(filter)
       assert all_reports.total_count == 0
+
+      {:ok, job} = ORM.find(CMS.Job, job.id)
+      assert user.id not in job.meta.reported_user_ids
+    end
+
+    @tag :wip2
+    test "can undo a existed report", ~m(community user user2 job_attrs)a do
+      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, _report} = CMS.report_article(:job, job.id, "reason", "attr_info", user)
+      {:ok, _report} = CMS.report_article(:job, job.id, "reason", "attr_info", user2)
+      {:ok, _report} = CMS.undo_report_article(:job, job.id, user)
+
+      filter = %{content_type: :job, content_id: job.id, page: 1, size: 20}
+      {:ok, all_reports} = CMS.list_reports(filter)
+      assert all_reports.total_count == 1
+
+      {:ok, job} = ORM.find(CMS.Job, job.id)
+
+      assert user2.id in job.meta.reported_user_ids
+      assert user.id not in job.meta.reported_user_ids
     end
 
     @tag :wip3

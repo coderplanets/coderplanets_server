@@ -528,36 +528,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert page_size == paged_comments.page_size
       assert total_count == paged_comments.total_count
     end
-
-    @tag :wip
-    test "can loaded paged reported comment", ~m(user job)a do
-      total_count = 10
-      page_number = 1
-      page_size = 20
-
-      all_reported_comments =
-        Enum.reduce(1..total_count, [], fn _, acc ->
-          {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
-          CMS.report_article_comment(comment.id, "reason", "attr", user)
-
-          acc ++ [comment]
-        end)
-
-      random_comment_1 = all_reported_comments |> Enum.at(1)
-      random_comment_2 = all_reported_comments |> Enum.at(3)
-      random_comment_3 = all_reported_comments |> Enum.at(5)
-
-      {:ok, paged_comments} =
-        CMS.list_reported_article_comments(:job, job.id, %{page: page_number, size: page_size})
-
-      assert exist_in?(random_comment_1, paged_comments.entries)
-      assert exist_in?(random_comment_2, paged_comments.entries)
-      assert exist_in?(random_comment_3, paged_comments.entries)
-
-      assert page_number == paged_comments.page_number
-      assert page_size == paged_comments.page_size
-      assert total_count == paged_comments.total_count
-    end
   end
 
   describe "[article comment delete]" do

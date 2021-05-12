@@ -39,7 +39,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.AccountReport do
 
     @tag :wip3
     test "report an account should have a abuse report record", ~m(user user2)a do
-      {:ok, report} = CMS.report_account(user.id, "reason", "attr_info", user2)
+      {:ok, _report} = CMS.report_account(user.id, "reason", "attr_info", user2)
 
       filter = %{content_type: :user, content_id: user.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.list_reports(filter)
@@ -56,14 +56,35 @@ defmodule GroupherServer.Test.CMS.AbuseReports.AccountReport do
       assert user.meta.reported_count == 1
     end
 
-    @tag :wip3
+    @tag :wip2
     test "can undo a report", ~m(user user2)a do
-      {:ok, report} = CMS.report_account(user.id, "reason", "attr_info", user2)
+      {:ok, _report} = CMS.report_account(user.id, "reason", "attr_info", user2)
+      {:ok, user} = ORM.find(User, user.id)
+      assert user2.id in user.meta.reported_user_ids
+
       {:ok, _report} = CMS.undo_report_account(user.id, user2)
 
       filter = %{content_type: :user, content_id: user.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.list_reports(filter)
       assert all_reports.total_count == 0
+
+      {:ok, user} = ORM.find(User, user.id)
+      assert user2.id not in user.meta.reported_user_ids
+    end
+
+    @tag :wip2
+    test "can undo a existed report", ~m(user user2 user3)a do
+      {:ok, _report} = CMS.report_account(user.id, "reason", "attr_info", user2)
+      {:ok, _report} = CMS.report_account(user.id, "reason", "attr_info", user3)
+      {:ok, _report} = CMS.undo_report_account(user.id, user2)
+
+      filter = %{content_type: :user, content_id: user.id, page: 1, size: 20}
+      {:ok, all_reports} = CMS.list_reports(filter)
+      assert all_reports.total_count == 1
+
+      {:ok, user} = ORM.find(User, user.id)
+      assert user2.id not in user.meta.reported_user_ids
+      assert user3.id in user.meta.reported_user_ids
     end
 
     @tag :wip3

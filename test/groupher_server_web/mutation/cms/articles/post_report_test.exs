@@ -25,7 +25,7 @@ defmodule GroupherServer.Test.Mutation.Articles.PostReport do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "login user can report a post", ~m(community post_attrs user user_conn)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 
@@ -43,7 +43,7 @@ defmodule GroupherServer.Test.Mutation.Articles.PostReport do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "login user can undo report a post", ~m(community post_attrs user user_conn)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 

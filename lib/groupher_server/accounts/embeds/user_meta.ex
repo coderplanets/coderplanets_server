@@ -9,7 +9,8 @@ defmodule GroupherServer.Accounts.Embeds.UserMeta do
   @optional_fields ~w(reported_count)a
 
   @default_meta %{
-    reported_count: 0
+    reported_count: 0,
+    reported_user_ids: []
   }
 
   @doc "for test usage"
@@ -17,6 +18,7 @@ defmodule GroupherServer.Accounts.Embeds.UserMeta do
 
   embedded_schema do
     field(:reported_count, :integer, default: 0)
+    field(:reported_user_ids, {:array, :integer}, default: [])
   end
 
   def changeset(struct, params) do

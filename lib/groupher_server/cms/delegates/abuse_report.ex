@@ -17,6 +17,8 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
 
   alias Ecto.Multi
 
+  @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
+
   # filter = %{
   #   contentType: account | post | job | repo | article_comment | community
   #   contentId: ...
@@ -115,7 +117,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
       |> Multi.run(:create_abuse_report, fn _, _ ->
         create_report(:account_user, account.id, reason, attr, user)
       end)
-      |> Multi.run(:update_report_flag, fn _, _ ->
+      |> Multi.run(:update_report_meta, fn _, _ ->
         update_report_meta(info, account)
       end)
       |> Repo.transaction()
@@ -133,7 +135,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
       |> Multi.run(:delete_abuse_report, fn _, _ ->
         delete_report(:account_user, account.id, user)
       end)
-      |> Multi.run(:update_report_flag, fn _, _ ->
+      |> Multi.run(:update_report_meta, fn _, _ ->
         update_report_meta(info, account)
       end)
       |> Repo.transaction()
@@ -151,7 +153,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
       |> Multi.run(:create_abuse_report, fn _, _ ->
         create_report(thread, article.id, reason, attr, user)
       end)
-      |> Multi.run(:update_report_flag, fn _, _ ->
+      |> Multi.run(:update_report_meta, fn _, _ ->
         update_report_meta(info, article)
       end)
       |> Repo.transaction()
@@ -169,8 +171,29 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
       |> Multi.run(:delete_abuse_report, fn _, _ ->
         delete_report(thread, article.id, user)
       end)
-      |> Multi.run(:update_report_flag, fn _, _ ->
+      |> Multi.run(:update_report_meta, fn _, _ ->
         update_report_meta(info, article)
+      end)
+      |> Repo.transaction()
+      |> result()
+    end
+  end
+
+  @doc "report a comment"
+  def report_article_comment(comment_id, reason, attr, %User{} = user) do
+    with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
+      Multi.new()
+      |> Multi.run(:create_abuse_report, fn _, _ ->
+        CMS.create_report(:article_comment, comment_id, reason, attr, user)
+      end)
+      |> Multi.run(:update_report_meta, fn _, _ ->
+        {:ok, info} = match(:article_comment)
+        update_report_meta(info, comment)
+      end)
+      |> Multi.run(:fold_comment_report_too_many, fn _, %{create_abuse_report: abuse_report} ->
+        if abuse_report.report_cases_count >= @report_threshold_for_fold,
+          do: CMS.fold_article_comment(comment, user),
+          else: {:ok, comment}
       end)
       |> Repo.transaction()
       |> result()
@@ -190,7 +213,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
             %{
               reason: reason,
               attr: attr,
-              user: %{login: user.login, nickname: user.nickname}
+              user: %{user_id: user.id, login: user.login, nickname: user.nickname}
             }
           ]
 
@@ -201,7 +224,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
           AbuseReport |> ORM.create(args)
 
         _ ->
-          user = %{login: user.login, nickname: user.nickname}
+          user = %{user_id: user.id, login: user.login, nickname: user.nickname}
 
           report_cases =
             report.report_cases
@@ -237,29 +260,29 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     end
   end
 
-  # update  reported_count in mete for article or comment
+  # update reported_count in mete for article | comment | account
   defp update_report_meta(info, content) do
-    case ORM.find_by(AbuseReport, Map.put(%{}, info.foreign_key, content.id)) do
-      {:ok, record} ->
-        reported_count = record.report_cases |> length
+    meta =
+      case ORM.find_by(AbuseReport, Map.put(%{}, info.foreign_key, content.id)) do
+        {:ok, record} ->
+          report_cases = record.report_cases
+          reported_count = length(report_cases)
+          safe_meta = if is_nil(content.meta), do: info.default_meta, else: content.meta
+          reported_user_ids = report_cases |> Enum.map(& &1.user.user_id)
 
-        safe_meta = if is_nil(content.meta), do: info.default_meta, else: content.meta
-        meta = safe_meta |> Map.merge(%{reported_count: reported_count}) |> strip_struct
+          meta =
+            safe_meta
+            |> Map.merge(%{reported_count: reported_count, reported_user_ids: reported_user_ids})
+            |> strip_struct
 
-        content
-        |> Ecto.Changeset.change()
-        |> Ecto.Changeset.put_embed(:meta, meta)
-        |> Repo.update()
+        {:error, _} ->
+          safe_meta = if is_nil(content.meta), do: info.default_meta, else: content.meta
 
-      {:error, _} ->
-        safe_meta = if is_nil(content.meta), do: info.default_meta, else: content.meta
-        meta = safe_meta |> Map.merge(%{reported_count: 0}) |> strip_struct
+          meta =
+            safe_meta |> Map.merge(%{reported_count: 0, reported_user_ids: []}) |> strip_struct
+      end
 
-        content
-        |> Ecto.Changeset.change()
-        |> Ecto.Changeset.put_embed(:meta, meta)
-        |> Repo.update()
-    end
+    content |> ORM.update_meta(meta)
   end
 
   defp not_reported_before(info, content_id, %User{login: login}) do
@@ -352,7 +375,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     |> Map.merge(%{thread: article_thread})
   end
 
-  defp result({:ok, %{update_report_flag: result}}), do: result |> done()
+  defp result({:ok, %{update_report_meta: result}}), do: result |> done()
   defp result({:ok, %{update_content_reported_flag: result}}), do: result |> done()
 
   defp result({:error, _, result, _steps}) do

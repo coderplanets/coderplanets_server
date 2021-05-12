@@ -9,8 +9,8 @@ defmodule GroupherServer.CMS.AbuseReport do
   alias CMS.{ArticleComment, Embeds, Post, Job, Repo}
 
   # @required_fields ~w(article_comment_id user_id recived_user_id)a
-  @optional_fields ~w(article_comment_id post_id job_id repo_id account_id operate_user_id deal_with is_confirmed report_cases_count)a
-  @update_fields ~w(operate_user_id deal_with is_confirmed report_cases_count)a
+  @optional_fields ~w(article_comment_id post_id job_id repo_id account_id operate_user_id deal_with report_cases_count)a
+  @update_fields ~w(operate_user_id deal_with report_cases_count)a
 
   @type t :: %AbuseReport{}
   schema "abuse_reports" do
@@ -26,7 +26,6 @@ defmodule GroupherServer.CMS.AbuseReport do
     belongs_to(:operate_user, Accounts.User, foreign_key: :operate_user_id)
 
     field(:deal_with, :string)
-    field(:is_confirmed, :boolean, default: false)
 
     timestamps(type: :utc_datetime)
   end
