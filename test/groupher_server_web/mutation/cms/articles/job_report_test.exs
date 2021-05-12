@@ -26,7 +26,7 @@ defmodule GroupherServer.Test.Mutation.Articles.JobReport do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "login user can report a job", ~m(community job_attrs user user_conn)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
 
@@ -46,7 +46,7 @@ defmodule GroupherServer.Test.Mutation.Articles.JobReport do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "login user can undo report a job", ~m(community job_attrs user user_conn)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
 

@@ -26,7 +26,7 @@ defmodule GroupherServer.Test.Mutation.Articles.RepoReport do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "login user can report a repo", ~m(community repo_attrs user user_conn)a do
       {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
 
@@ -46,7 +46,7 @@ defmodule GroupherServer.Test.Mutation.Articles.RepoReport do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "login user can undo report a repo", ~m(community repo_attrs user user_conn)a do
       {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
 

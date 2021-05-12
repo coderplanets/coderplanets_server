@@ -17,12 +17,86 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
 
   alias Ecto.Multi
 
+  # filter = %{
+  #   contentType: account | post | job | repo | article_comment
+  #   contentId: ...
+  #   operate_user_id,
+  #   min_case_count,
+  #   max_case_count,
+  #   is_closed
+  #   page
+  #   size
+  # }
+
+  # def list_all_reports(thread, filter)
+  # def list_all_reports(community, filter)
+  # def list_all_reports(filter)
+  @article_threads [:post, :job, :repo]
+  @export_report_keys = [
+    :id,
+    :deal_with,
+    :is_closed,
+    :operate_user,
+    :report_cases,
+    :report_cases_count,
+    :inserted_at,
+    :updated_at
+  ]
+
+  def list_reports(%{content_type: thread, content_id: content_id} = filter)
+      when thread in @article_threads do
+    %{page: page, size: size} = filter
+
+    with {:ok, info} <- match(thread) do
+      query =
+        from(r in AbuseReport,
+          where: field(r, ^info.foreign_key) == ^content_id,
+          preload: [^thread, :operate_user]
+        )
+
+      query
+      |> QueryBuilder.filter_pack(filter)
+      |> ORM.paginater(~m(page size)a)
+      |> reports_formater(thread)
+      |> done()
+    end
+  end
+
+  defp reports_formater(%{entries: entries} = paged_reports, thread)
+       when thread in @article_threads do
+    paged_reports
+    |> Map.put(
+      :entries,
+      Enum.map(entries, fn report ->
+        basic_report = report |> Map.take(@export_report_keys)
+        basic_report |> Map.put(:article, extract_article_info(thread, report))
+      end)
+    )
+  end
+
+  defp extract_article_info(thread, %AbuseReport{} = report) do
+    article = Map.get(report, thread)
+
+    %{
+      thread: thread,
+      id: article.id,
+      title: article.title,
+      digest: article.digest,
+      upvotes_count: article.upvotes_count,
+      views: article.views
+    }
+  end
+
   @doc """
   list paged reports for both comment and article
   """
-  def list_reports(type, content_id, %{page: page, size: size} = filter) do
-    with {:ok, info} <- match(type) do
-      query = from(r in AbuseReport, where: field(r, ^info.foreign_key) == ^content_id)
+  def list_reports(thread, content_id, %{page: page, size: size} = filter) do
+    with {:ok, info} <- match(thread) do
+      query =
+        from(r in AbuseReport,
+          where: field(r, ^info.foreign_key) == ^content_id,
+          preload: [^thread, :operate_user]
+        )
 
       query
       |> QueryBuilder.filter_pack(filter)

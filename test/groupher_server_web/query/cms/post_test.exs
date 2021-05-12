@@ -28,7 +28,7 @@ defmodule GroupherServer.Test.Query.Post do
     }
   }
   """
-  @tag :wip2
+  @tag :wip3
   test "basic graphql query on post with logined user",
        ~m(user_conn community user post_attrs)a do
     {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
@@ -43,7 +43,7 @@ defmodule GroupherServer.Test.Query.Post do
     assert length(Map.keys(results)) == 4
   end
 
-  @tag :wip2
+  @tag :wip3
   test "basic graphql query on post with stranger(unloged user)", ~m(guest_conn post)a do
     variables = %{id: post.id}
     results = guest_conn |> query_result(@query, variables, "post")
