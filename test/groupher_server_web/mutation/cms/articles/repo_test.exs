@@ -193,7 +193,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Repo do
       }
     }
     """
-    @tag :wip3
+    @tag :wip2
     test "delete a repo by repo's owner", ~m(owner_conn repo)a do
       deleted = owner_conn |> mutation_result(@query, %{id: repo.id}, "deleteRepo")
 
@@ -201,7 +201,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Repo do
       assert {:error, _} = ORM.find(CMS.Repo, deleted["id"])
     end
 
-    @tag :wip3
+    @tag :wip2
     test "can delete a repo by auth user", ~m(repo)a do
       belongs_community_title = repo.communities |> List.first() |> Map.get(:title)
       rule_conn = simu_conn(:user, cms: %{belongs_community_title => %{"repo.delete" => true}})
@@ -212,7 +212,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Repo do
       assert {:error, _} = ORM.find(CMS.Repo, deleted["id"])
     end
 
-    @tag :wip3
+    @tag :wip2
     test "delete a repo without login user fails", ~m(guest_conn repo)a do
       assert guest_conn |> mutation_get_error?(@query, %{id: repo.id}, ecode(:account_login))
     end

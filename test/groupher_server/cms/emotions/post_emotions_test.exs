@@ -22,7 +22,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
   end
 
   describe "[emotion in paged posts]" do
-    @tag :wip3
+    @tag :wip2
     test "login user should got viewer has emotioned status",
          ~m(community post_attrs user)a do
       total_count = 10
@@ -61,7 +61,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
   end
 
   describe "[basic article emotion]" do
-    @tag :wip3
+    @tag :wip2
     test "post has default emotions after created", ~m(community post_attrs user)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 
@@ -69,7 +69,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
       assert @default_emotions == emotions
     end
 
-    @tag :wip3
+    @tag :wip2
     test "can make emotion to post", ~m(community post_attrs user user2)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 
@@ -83,7 +83,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
       assert user_exist_in?(user2, emotions.latest_downvote_users)
     end
 
-    @tag :wip3
+    @tag :wip2
     test "can undo emotion to post", ~m(community post_attrs user user2)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 
@@ -100,7 +100,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
       assert not user_exist_in?(user2, emotions.latest_downvote_users)
     end
 
-    @tag :wip3
+    @tag :wip2
     test "same user make same emotion to same post.", ~m(community post_attrs user)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 
@@ -113,7 +113,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
       assert user_exist_in?(user, post.emotions.latest_downvote_users)
     end
 
-    @tag :wip3
+    @tag :wip2
     test "same user same emotion to same post only have one user_emotion record",
          ~m(community post_attrs user)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
@@ -131,7 +131,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
       assert record.heart
     end
 
-    @tag :wip3
+    @tag :wip2
     test "different user can make same emotions on same post",
          ~m(community post_attrs user user2 user3)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
@@ -148,7 +148,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
       assert user_exist_in?(user3, emotions.latest_beer_users)
     end
 
-    @tag :wip3
+    @tag :wip2
     test "same user can make differcent emotions on same post", ~m(community post_attrs user)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 

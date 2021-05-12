@@ -17,7 +17,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.PostReport do
   end
 
   describe "[article post report/unreport]" do
-    @tag :wip3
+    @tag :wip2
     test "list article reports should work", ~m(community user user2 post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
       {:ok, _report} = CMS.report_article(:post, post.id, "reason", "attr_info", user)
@@ -31,7 +31,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.PostReport do
       assert report.article.thread == :post
     end
 
-    @tag :wip3
+    @tag :wip2
     test "report a post should have a abuse report record", ~m(community user post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
       {:ok, _report} = CMS.report_article(:post, post.id, "reason", "attr_info", user)
@@ -48,11 +48,11 @@ defmodule GroupherServer.Test.CMS.AbuseReports.PostReport do
       assert List.first(report_cases).user.login == user.login
 
       {:ok, post} = ORM.find(CMS.Post, post.id)
-      assert post.is_reported
+      assert not post.is_reported
       assert post.meta.reported_count == 1
     end
 
-    @tag :wip3
+    @tag :wip2
     test "can undo a report", ~m(community user post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
       {:ok, _report} = CMS.report_article(:post, post.id, "reason", "attr_info", user)
@@ -63,7 +63,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.PostReport do
       assert all_reports.total_count == 0
     end
 
-    @tag :wip3
+    @tag :wip2
     test "can undo a report with other user report it too",
          ~m(community user user2 post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
@@ -90,7 +90,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.PostReport do
       assert Enum.any?(report.report_cases, &(&1.user.login == user2.login))
     end
 
-    @tag :wip3
+    @tag :wip2
     test "different user report a comment should have same report with different report cases",
          ~m(community user user2 post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
@@ -112,7 +112,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.PostReport do
       assert List.last(report_cases).user.login == user2.login
     end
 
-    @tag :wip3
+    @tag :wip2
     test "same user can not report a comment twice", ~m(community post_attrs user)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
 

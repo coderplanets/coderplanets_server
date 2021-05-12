@@ -29,6 +29,8 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   # }
 
   @article_threads [:post, :job, :repo]
+  @export_author_keys [:id, :login, :nickname, :avatar]
+  @export_article_keys [:id, :title, :digest, :upvotes_count, :views]
   @export_report_keys [
     :id,
     :deal_with,
@@ -40,8 +42,26 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     :updated_at
   ]
 
-  @export_author_keys [:id, :login, :nickname, :avatar]
-  @export_article_keys [:id, :title, :digest, :upvotes_count, :views]
+  @doc """
+  list paged reports for article comemnts
+  """
+  def list_reports(%{content_type: :user, content_id: content_id} = filter) do
+    %{page: page, size: size} = filter
+
+    with {:ok, info} <- match(:account_user) do
+      query =
+        from(r in AbuseReport,
+          where: field(r, ^info.foreign_key) == ^content_id,
+          preload: :account
+        )
+
+      query
+      |> QueryBuilder.filter_pack(filter)
+      |> ORM.paginater(~m(page size)a)
+      |> reports_formater(:account_user)
+      |> done()
+    end
+  end
 
   @doc """
   list paged reports for article comemnts
@@ -87,41 +107,38 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     end
   end
 
-  defp reports_formater(%{entries: entries} = paged_reports, :article_comment) do
-    paged_reports
-    |> Map.put(
-      :entries,
-      Enum.map(entries, fn report ->
-        basic_report = report |> Map.take(@export_report_keys)
-        basic_report |> Map.put(:article_comment, extract_article_comment_info(report))
+  def report_account(account_id, reason, attr, user) do
+    with {:ok, info} <- match(:account_user),
+         {:ok, account} <- ORM.find(info.model, account_id) do
+      Multi.new()
+      |> Multi.run(:create_abuse_report, fn _, _ ->
+        create_report(:account_user, account.id, reason, attr, user)
       end)
-    )
-  end
-
-  defp reports_formater(%{entries: entries} = paged_reports, thread)
-       when thread in @article_threads do
-    paged_reports
-    |> Map.put(
-      :entries,
-      Enum.map(entries, fn report ->
-        basic_report = report |> Map.take(@export_report_keys)
-        basic_report |> Map.put(:article, extract_article_info(thread, report))
+      |> Multi.run(:update_report_flag, fn _, _ ->
+        update_report_meta(info, account)
       end)
-    )
+      |> Repo.transaction()
+      |> result()
+    end
   end
 
-  # TODO: original community and communities info
-  defp extract_article_info(thread, %AbuseReport{} = report) do
-    article = Map.get(report, thread)
-
-    article
-    |> Map.take(@export_article_keys)
-    |> Map.merge(%{thread: thread})
+  @doc """
+  undo report article content
+  """
+  def undo_report_account(account_id, %User{} = user) do
+    with {:ok, info} <- match(:account_user),
+         {:ok, account} <- ORM.find(info.model, account_id) do
+      Multi.new()
+      |> Multi.run(:delete_abuse_report, fn _, _ ->
+        delete_report(:account_user, account.id, user)
+      end)
+      |> Multi.run(:update_report_flag, fn _, _ ->
+        update_report_meta(info, account)
+      end)
+      |> Repo.transaction()
+      |> result()
+    end
   end
-
-  # def report_account(user_id) do
-  #   # TODO*
-  # end
 
   @doc """
   report article content
@@ -131,10 +148,10 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
          {:ok, article} <- ORM.find(info.model, article_id) do
       Multi.new()
       |> Multi.run(:create_abuse_report, fn _, _ ->
-        create_report(thread, article_id, reason, attr, user)
+        create_report(thread, article.id, reason, attr, user)
       end)
       |> Multi.run(:update_report_flag, fn _, _ ->
-        update_report_meta(info, article, true)
+        update_report_meta(info, article)
       end)
       |> Repo.transaction()
       |> result()
@@ -149,10 +166,10 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
          {:ok, article} <- ORM.find(info.model, article_id) do
       Multi.new()
       |> Multi.run(:delete_abuse_report, fn _, _ ->
-        delete_report(thread, article_id, user)
+        delete_report(thread, article.id, user)
       end)
       |> Multi.run(:update_report_flag, fn _, _ ->
-        update_report_meta(info, article, false)
+        update_report_meta(info, article)
       end)
       |> Repo.transaction()
       |> result()
@@ -219,23 +236,26 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     end
   end
 
-  # update is_reported flag and reported_count in mete for article or comment
-  defp update_report_meta(info, content, is_reported) do
+  # update  reported_count in mete for article or comment
+  defp update_report_meta(info, content) do
     case ORM.find_by(AbuseReport, Map.put(%{}, info.foreign_key, content.id)) do
       {:ok, record} ->
         reported_count = record.report_cases |> length
-        meta = content.meta |> Map.merge(%{reported_count: reported_count}) |> strip_struct
+
+        safe_meta = if is_nil(content.meta), do: info.default_meta, else: content.meta
+        meta = safe_meta |> Map.merge(%{reported_count: reported_count}) |> strip_struct
 
         content
-        |> Ecto.Changeset.change(%{is_reported: is_reported})
+        |> Ecto.Changeset.change()
         |> Ecto.Changeset.put_embed(:meta, meta)
         |> Repo.update()
 
       {:error, _} ->
-        meta = content.meta |> Map.merge(%{reported_count: 0}) |> strip_struct
+        safe_meta = if is_nil(content.meta), do: info.default_meta, else: content.meta
+        meta = safe_meta |> Map.merge(%{reported_count: 0}) |> strip_struct
 
         content
-        |> Ecto.Changeset.change(%{is_reported: false})
+        |> Ecto.Changeset.change()
         |> Ecto.Changeset.put_embed(:meta, meta)
         |> Repo.update()
     end
@@ -259,6 +279,52 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
 
         if not reported_before, do: {:ok, report}, else: {:error, "#{login} already reported"}
     end
+  end
+
+  defp reports_formater(%{entries: entries} = paged_reports, :account_user) do
+    paged_reports
+    |> Map.put(
+      :entries,
+      Enum.map(entries, fn report ->
+        basic_report = report |> Map.take(@export_report_keys)
+        basic_report |> Map.put(:account, extract_account_info(report))
+      end)
+    )
+  end
+
+  defp reports_formater(%{entries: entries} = paged_reports, :article_comment) do
+    paged_reports
+    |> Map.put(
+      :entries,
+      Enum.map(entries, fn report ->
+        basic_report = report |> Map.take(@export_report_keys)
+        basic_report |> Map.put(:article_comment, extract_article_comment_info(report))
+      end)
+    )
+  end
+
+  defp reports_formater(%{entries: entries} = paged_reports, thread)
+       when thread in @article_threads do
+    paged_reports
+    |> Map.put(
+      :entries,
+      Enum.map(entries, fn report ->
+        basic_report = report |> Map.take(@export_report_keys)
+        basic_report |> Map.put(:article, extract_article_info(thread, report))
+      end)
+    )
+  end
+
+  defp extract_account_info(%AbuseReport{} = report) do
+    account = report |> Map.get(:account) |> Map.take(@export_author_keys)
+  end
+
+  # TODO: original community and communities info
+  defp extract_article_info(thread, %AbuseReport{} = report) do
+    report
+    |> Map.get(thread)
+    |> Map.take(@export_article_keys)
+    |> Map.merge(%{thread: thread})
   end
 
   def extract_article_comment_info(%AbuseReport{} = report) do
