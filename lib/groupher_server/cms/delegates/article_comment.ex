@@ -96,19 +96,15 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
          # make sure the article exsit
          # author is passed by middleware, it's exsit for sure
          {:ok, article} <- ORM.find(info.model, article_id, preload: [author: :user]) do
-      IO.inspect(info, label: "bb")
 
       Multi.new()
       |> Multi.run(:create_article_comment, fn _, _ ->
-        IO.inspect("11")
         do_create_comment(content, info.foreign_key, article, user)
       end)
       |> Multi.run(:update_article_comments_count, fn _, %{create_article_comment: comment} ->
-        IO.inspect("22")
-        update_article_comments_count(comment, :inc) |> IO.inspect(label: "22 after")
+        update_article_comments_count(comment, :inc)
       end)
       |> Multi.run(:add_participator, fn _, _ ->
-        IO.inspect("33")
         add_participator_to_article(article, user)
       end)
       |> Repo.transaction()
