@@ -39,7 +39,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
     end
 
-    @tag :wip3
     test "comment can be updated", ~m(job user)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
 
@@ -130,7 +129,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert comment.meta.is_article_author_upvoted
     end
 
-    @tag :wip3
     test "user upvote job comment will add id to upvoted_user_ids", ~m(job user)a do
       comment = "job_comment"
       {:ok, comment} = CMS.create_article_comment(:job, job.id, comment, user)
@@ -139,7 +137,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert user.id in comment.meta.upvoted_user_ids
     end
 
-    @tag :wip3
     test "user undo upvote job comment will remove id from upvoted_user_ids",
          ~m(job user user2)a do
       comment = "job_comment"
@@ -289,7 +286,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
     # end
 
-    @tag :wip3
     test "can undo a report with other user report it too",
          ~m(user user2 job)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
@@ -317,7 +313,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert Enum.any?(report.report_cases, &(&1.user.login == user2.login))
     end
 
-    @tag :wip3
     test "report user < @report_threshold_for_fold will not fold comment", ~m(user job)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
 
@@ -453,7 +448,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert paged_comments.total_count == total_count
     end
 
-    @tag :wip3
+    @tag :wip2
     test "paged article comments should not contains folded and repoted comments",
          ~m(user job)a do
       total_count = 15
@@ -471,17 +466,9 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       random_comment_2 = all_comments |> Enum.at(1)
       random_comment_3 = all_comments |> Enum.at(3)
 
-      random_comment_4 = all_comments |> Enum.at(2)
-      random_comment_5 = all_comments |> Enum.at(4)
-      random_comment_6 = all_comments |> Enum.at(8)
-
       {:ok, _comment} = CMS.fold_article_comment(random_comment_1.id, user)
       {:ok, _comment} = CMS.fold_article_comment(random_comment_2.id, user)
       {:ok, _comment} = CMS.fold_article_comment(random_comment_3.id, user)
-
-      {:ok, _comment} = CMS.report_article_comment(random_comment_4.id, "reason", "attr", user)
-      {:ok, _comment} = CMS.report_article_comment(random_comment_5.id, "reason", "attr", user)
-      {:ok, _comment} = CMS.report_article_comment(random_comment_6.id, "reason", "attr", user)
 
       {:ok, paged_comments} =
         CMS.list_article_comments(:job, job.id, %{page: page_number, size: page_size}, :replies)
@@ -490,13 +477,9 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert not exist_in?(random_comment_2, paged_comments.entries)
       assert not exist_in?(random_comment_3, paged_comments.entries)
 
-      assert not exist_in?(random_comment_4, paged_comments.entries)
-      assert not exist_in?(random_comment_5, paged_comments.entries)
-      assert not exist_in?(random_comment_6, paged_comments.entries)
-
       assert page_number == paged_comments.page_number
       assert page_size == paged_comments.page_size
-      assert total_count - 6 == paged_comments.total_count
+      assert total_count - 3 == paged_comments.total_count
     end
 
     @tag :wip
@@ -531,7 +514,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
   end
 
   describe "[article comment delete]" do
-    @tag :wip3
     test "delete comment still exsit in paged list and content is gone", ~m(user job)a do
       total_count = 10
       page_number = 1
@@ -556,7 +538,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert deleted_comment.body_html == @delete_hint
     end
 
-    @tag :wip3
     test "delete comment still update article's comments_count field", ~m(user job)a do
       {:ok, _comment} = CMS.create_article_comment(:job, job.id, "commment", user)
       {:ok, _comment} = CMS.create_article_comment(:job, job.id, "commment", user)
@@ -574,7 +555,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert job.article_comments_count == 4
     end
 
-    @tag :wip3
     test "delete comment still delete pined record if needed", ~m(user job)a do
       total_count = 10
 

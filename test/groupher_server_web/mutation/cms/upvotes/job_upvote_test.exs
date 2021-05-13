@@ -22,7 +22,7 @@ defmodule GroupherServer.Test.Mutation.Upvotes.JobUpvote do
       }
     }
     """
-    @tag :wip3
+
     test "login user can upvote a job", ~m(user_conn job)a do
       variables = %{id: job.id}
       created = user_conn |> mutation_result(@query, variables, "upvoteJob")
@@ -30,7 +30,6 @@ defmodule GroupherServer.Test.Mutation.Upvotes.JobUpvote do
       assert created["id"] == to_string(job.id)
     end
 
-    @tag :wip3
     test "unauth user upvote a job fails", ~m(guest_conn job)a do
       variables = %{id: job.id}
 
@@ -45,7 +44,7 @@ defmodule GroupherServer.Test.Mutation.Upvotes.JobUpvote do
       }
     }
     """
-    @tag :wip3
+
     test "login user can undo upvote to a job", ~m(user_conn job user)a do
       {:ok, _} = CMS.upvote_article(:job, job.id, user)
 
@@ -55,7 +54,6 @@ defmodule GroupherServer.Test.Mutation.Upvotes.JobUpvote do
       assert updated["id"] == to_string(job.id)
     end
 
-    @tag :wip3
     test "unauth user undo upvote a job fails", ~m(guest_conn job)a do
       variables = %{id: job.id}
 

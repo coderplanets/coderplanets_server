@@ -23,7 +23,6 @@ defmodule GroupherServer.Test.CMS.AbuseReports.AccountReport do
   end
 
   describe "[account report/unreport]" do
-    @tag :wip3
     # test "list article reports should work", ~m(community user user2 post_attrs)a do
     #   {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
     #   {:ok, _report} = CMS.report_article(:post, post.id, "reason", "attr_info", user)
@@ -37,7 +36,6 @@ defmodule GroupherServer.Test.CMS.AbuseReports.AccountReport do
     #   assert report.article.thread == :post
     # end
 
-    @tag :wip3
     test "report an account should have a abuse report record", ~m(user user2)a do
       {:ok, _report} = CMS.report_account(user.id, "reason", "attr_info", user2)
 
@@ -56,7 +54,6 @@ defmodule GroupherServer.Test.CMS.AbuseReports.AccountReport do
       assert user.meta.reported_count == 1
     end
 
-    @tag :wip2
     test "can undo a report", ~m(user user2)a do
       {:ok, _report} = CMS.report_account(user.id, "reason", "attr_info", user2)
       {:ok, user} = ORM.find(User, user.id)
@@ -72,7 +69,6 @@ defmodule GroupherServer.Test.CMS.AbuseReports.AccountReport do
       assert user2.id not in user.meta.reported_user_ids
     end
 
-    @tag :wip2
     test "can undo a existed report", ~m(user user2 user3)a do
       {:ok, _report} = CMS.report_account(user.id, "reason", "attr_info", user2)
       {:ok, _report} = CMS.report_account(user.id, "reason", "attr_info", user3)
@@ -87,7 +83,6 @@ defmodule GroupherServer.Test.CMS.AbuseReports.AccountReport do
       assert user3.id in user.meta.reported_user_ids
     end
 
-    @tag :wip3
     test "can undo a report with other user report it too", ~m(user user2 user3)a do
       {:ok, _report} = CMS.report_account(user.id, "reason", "attr_info", user2)
       {:ok, _report} = CMS.report_account(user.id, "reason", "attr_info", user3)
@@ -112,7 +107,6 @@ defmodule GroupherServer.Test.CMS.AbuseReports.AccountReport do
       assert Enum.any?(report.report_cases, &(&1.user.login == user3.login))
     end
 
-    @tag :wip3
     test "different user report a account should have same report with different report cases",
          ~m(user user2 user3)a do
       {:ok, _report} = CMS.report_account(user.id, "reason", "attr_info", user2)
@@ -132,7 +126,6 @@ defmodule GroupherServer.Test.CMS.AbuseReports.AccountReport do
       assert List.last(report_cases).user.login == user3.login
     end
 
-    @tag :wip3
     test "same user can not report a account twice", ~m(user user2)a do
       {:ok, _report} = CMS.report_account(user.id, "reason", "attr_info", user2)
       assert {:error, _report} = CMS.report_account(user.id, "reason", "attr_info", user2)

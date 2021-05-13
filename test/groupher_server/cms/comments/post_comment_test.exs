@@ -39,7 +39,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
     end
 
-    @tag :wip3
     test "comment can be updated", ~m(post user)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
 
@@ -130,7 +129,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert comment.meta.is_article_author_upvoted
     end
 
-    @tag :wip3
     test "user upvote post comment will add id to upvoted_user_ids", ~m(post user)a do
       comment = "post_comment"
       {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
@@ -139,7 +137,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert user.id in comment.meta.upvoted_user_ids
     end
 
-    @tag :wip3
     test "user undo upvote post comment will remove id from upvoted_user_ids",
          ~m(post user user2)a do
       comment = "post_comment"
@@ -279,7 +276,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
     #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
     # end
 
-    # @tag :wip3
+    #
     # test "user can unreport a comment", ~m(user post)a do
     #   {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
     #   {:ok, _comment} = CMS.report_article_comment(comment.id, "reason", "attr", user)
@@ -289,7 +286,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
     #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
     # end
 
-    @tag :wip3
     test "can undo a report with other user report it too",
          ~m(user user2 post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
@@ -453,7 +449,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert paged_comments.total_count == total_count
     end
 
-    @tag :wip3
     test "paged article comments should not contains folded and repoted comments",
          ~m(user post)a do
       total_count = 15
@@ -519,7 +514,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
   end
 
   describe "[article comment delete]" do
-    @tag :wip3
     test "delete comment still exsit in paged list and content is gone", ~m(user post)a do
       total_count = 10
       page_number = 1
@@ -544,7 +538,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert deleted_comment.body_html == @delete_hint
     end
 
-    @tag :wip3
     test "delete comment still update article's comments_count field", ~m(user post)a do
       {:ok, _comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       {:ok, _comment} = CMS.create_article_comment(:post, post.id, "commment", user)
@@ -562,7 +555,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert post.article_comments_count == 4
     end
 
-    @tag :wip3
     test "delete comment still delete pined record if needed", ~m(user post)a do
       total_count = 10
 

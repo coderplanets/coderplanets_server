@@ -17,7 +17,6 @@ defmodule GroupherServer.Test.CMS.AbuseReports.JobReport do
   end
 
   describe "[article job report/unreport]" do
-    @tag :wip3
     test "list article reports should work", ~m(community user user2 job_attrs)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
       {:ok, _report} = CMS.report_article(:job, job.id, "reason", "attr_info", user)
@@ -31,7 +30,6 @@ defmodule GroupherServer.Test.CMS.AbuseReports.JobReport do
       assert report.article.thread == :job
     end
 
-    @tag :wip3
     test "report a job should have a abuse report record", ~m(community user job_attrs)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
       {:ok, _report} = CMS.report_article(:job, job.id, "reason", "attr_info", user)
@@ -52,7 +50,6 @@ defmodule GroupherServer.Test.CMS.AbuseReports.JobReport do
       assert user.id in job.meta.reported_user_ids
     end
 
-    @tag :wip3
     test "can undo a report", ~m(community user job_attrs)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
       {:ok, _report} = CMS.report_article(:job, job.id, "reason", "attr_info", user)
@@ -66,7 +63,6 @@ defmodule GroupherServer.Test.CMS.AbuseReports.JobReport do
       assert user.id not in job.meta.reported_user_ids
     end
 
-    @tag :wip2
     test "can undo a existed report", ~m(community user user2 job_attrs)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
       {:ok, _report} = CMS.report_article(:job, job.id, "reason", "attr_info", user)
@@ -83,7 +79,6 @@ defmodule GroupherServer.Test.CMS.AbuseReports.JobReport do
       assert user.id not in job.meta.reported_user_ids
     end
 
-    @tag :wip3
     test "can undo a report with other user report it too",
          ~m(community user user2 job_attrs)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
@@ -110,7 +105,6 @@ defmodule GroupherServer.Test.CMS.AbuseReports.JobReport do
       assert Enum.any?(report.report_cases, &(&1.user.login == user2.login))
     end
 
-    @tag :wip3
     test "different user report a comment should have same report with different report cases",
          ~m(community user user2 job_attrs)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
@@ -132,7 +126,6 @@ defmodule GroupherServer.Test.CMS.AbuseReports.JobReport do
       assert List.last(report_cases).user.login == user2.login
     end
 
-    @tag :wip3
     test "same user can not report a comment twice", ~m(community job_attrs user)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
 

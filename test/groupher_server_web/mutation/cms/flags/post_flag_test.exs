@@ -25,7 +25,7 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
       }
     }
     """
-    @tag :wip3
+
     test "auth user can trash post", ~m(community post)a do
       variables = %{id: post.id, communityId: community.id}
 
@@ -38,7 +38,6 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
       assert updated["trash"] == true
     end
 
-    @tag :wip3
     test "unauth user trash post fails", ~m(user_conn guest_conn post community)a do
       variables = %{id: post.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
@@ -56,7 +55,7 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
       }
     }
     """
-    @tag :wip3
+
     test "auth user can undo trash post", ~m(community post)a do
       variables = %{id: post.id, communityId: community.id}
 
@@ -71,7 +70,6 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
       assert updated["trash"] == false
     end
 
-    @tag :wip3
     test "unauth user undo trash post fails", ~m(user_conn guest_conn community post)a do
       variables = %{id: post.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
@@ -88,7 +86,7 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
       }
     }
     """
-    @tag :wip3
+
     test "auth user can pin post", ~m(community post)a do
       variables = %{id: post.id, communityId: community.id}
 
@@ -100,7 +98,6 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
       assert updated["id"] == to_string(post.id)
     end
 
-    @tag :wip3
     test "unauth user pin post fails", ~m(user_conn guest_conn community post)a do
       variables = %{id: post.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
@@ -118,7 +115,7 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
       }
     }
     """
-    @tag :wip3
+
     test "auth user can undo pin post", ~m(community post)a do
       variables = %{id: post.id, communityId: community.id}
 
@@ -131,7 +128,6 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
       assert updated["id"] == to_string(post.id)
     end
 
-    @tag :wip3
     test "unauth user undo pin post fails", ~m(user_conn guest_conn community post)a do
       variables = %{id: post.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
