@@ -96,7 +96,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
          # make sure the article exsit
          # author is passed by middleware, it's exsit for sure
          {:ok, article} <- ORM.find(info.model, article_id, preload: [author: :user]) do
-
       Multi.new()
       |> Multi.run(:create_article_comment, fn _, _ ->
         do_create_comment(content, info.foreign_key, article, user)
