@@ -39,7 +39,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.AccountReport do
     test "report an account should have a abuse report record", ~m(user user2)a do
       {:ok, _report} = CMS.report_account(user.id, "reason", "attr_info", user2)
 
-      filter = %{content_type: :user, content_id: user.id, page: 1, size: 20}
+      filter = %{content_type: :account, content_id: user.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.list_reports(filter)
 
       report = List.first(all_reports.entries)
@@ -61,7 +61,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.AccountReport do
 
       {:ok, _report} = CMS.undo_report_account(user.id, user2)
 
-      filter = %{content_type: :user, content_id: user.id, page: 1, size: 20}
+      filter = %{content_type: :account, content_id: user.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.list_reports(filter)
       assert all_reports.total_count == 0
 
@@ -74,7 +74,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.AccountReport do
       {:ok, _report} = CMS.report_account(user.id, "reason", "attr_info", user3)
       {:ok, _report} = CMS.undo_report_account(user.id, user2)
 
-      filter = %{content_type: :user, content_id: user.id, page: 1, size: 20}
+      filter = %{content_type: :account, content_id: user.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.list_reports(filter)
       assert all_reports.total_count == 1
 
@@ -87,7 +87,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.AccountReport do
       {:ok, _report} = CMS.report_account(user.id, "reason", "attr_info", user2)
       {:ok, _report} = CMS.report_account(user.id, "reason", "attr_info", user3)
 
-      filter = %{content_type: :user, content_id: user.id, page: 1, size: 20}
+      filter = %{content_type: :account, content_id: user.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.list_reports(filter)
       assert all_reports.total_count == 1
 
@@ -98,7 +98,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.AccountReport do
 
       {:ok, _report} = CMS.undo_report_account(user.id, user2)
 
-      filter = %{content_type: :user, content_id: user.id, page: 1, size: 20}
+      filter = %{content_type: :account, content_id: user.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.list_reports(filter)
       assert all_reports.total_count == 1
 
@@ -112,7 +112,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.AccountReport do
       {:ok, _report} = CMS.report_account(user.id, "reason", "attr_info", user2)
       {:ok, _report} = CMS.report_account(user.id, "reason", "attr_info", user3)
 
-      filter = %{content_type: :user, content_id: user.id, page: 1, size: 20}
+      filter = %{content_type: :account, content_id: user.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.list_reports(filter)
 
       report = List.first(all_reports.entries)

@@ -286,8 +286,8 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
     #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
     # end
 
-    test "can undo a report with other user report it too",
-         ~m(user user2 post)a do
+    @tag :wip
+    test "can undo a report with other user report it too", ~m(user user2 post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
 
       {:ok, _comment} = CMS.report_article_comment(comment.id, "reason", "attr", user)
@@ -306,6 +306,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
 
       filter = %{content_type: :article_comment, content_id: comment.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.list_reports(filter)
+
       assert all_reports.total_count == 1
 
       report = all_reports.entries |> List.first()

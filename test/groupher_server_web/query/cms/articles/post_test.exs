@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Query.Post do
+defmodule GroupherServer.Test.Query.Articles.Post do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS

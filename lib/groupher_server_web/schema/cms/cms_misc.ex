@@ -40,30 +40,8 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     # value(:watch)
   end
 
-  enum :react_thread do
-    value(:post)
-    value(:job)
-    value(:repo)
-    # home community
-    value(:tech)
-    value(:city)
-    value(:share)
-    value(:radar)
-  end
-
   enum :cms_comment do
     value(:post_comment)
-  end
-
-  enum :commentable_thread do
-    value(:post)
-    value(:job)
-    value(:repo)
-    # home community
-    value(:tech)
-    value(:city)
-    value(:share)
-    value(:radar)
   end
 
   enum :thread do
@@ -81,11 +59,6 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     # city community
     value(:group)
     value(:company)
-  end
-
-  enum :order_enum do
-    value(:asc)
-    value(:desc)
   end
 
   enum :when_enum do
@@ -297,11 +270,25 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     field(:color, :string)
   end
 
-  enum :search_part do
-    value(:community)
+  enum :report_content_type do
     value(:post)
     value(:job)
     value(:repo)
+    value(:account)
+    value(:article_comment)
+    # value(:community)
+  end
+
+  @desc """
+  abuse report filter
+  """
+  input_object :report_filter do
+    field(:content_type, :report_content_type)
+    field(:content_id, :id)
+    pagination_args()
+    #   operate_user_id,
+    #   min_case_count,
+    #   max_case_count,
   end
 
   @doc """

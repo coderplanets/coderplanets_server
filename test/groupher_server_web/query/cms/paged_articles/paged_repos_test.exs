@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Query.PagedRepos do
+defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
   use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]

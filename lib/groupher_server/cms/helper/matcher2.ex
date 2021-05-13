@@ -32,7 +32,7 @@ defmodule GroupherServer.CMS.Helper.Matcher2 do
     {:error, "not supported"}
   end
 
-  def match(:account_user) do
+  def match(:account) do
     {:ok,
      %{
        model: User,

@@ -13,6 +13,33 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
   import_types(Schema.CMS.Misc)
 
+  ######
+  # common stands for minimal info of the type
+  # usually used in abuse_report, feeds, etc ..
+  object :common_user do
+    field(:login, :string)
+    field(:nickname, :string)
+    field(:avatar, :string)
+  end
+
+  object :common_article do
+    field(:thread, :string)
+    field(:id, :id)
+    # field(:body_html, :string)
+    field(:title, :string)
+    field(:author, :user, resolve: dataloader(CMS, :author))
+  end
+
+  object :common_article_comment do
+    field(:id, :id)
+    field(:body_html, :string)
+    field(:upvotes_count, :integer)
+    field(:author, :common_user)
+    field(:article, :common_article)
+  end
+
+  ######
+
   object :idlike do
     field(:id, :id)
   end
@@ -369,16 +396,25 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     timestamp_fields()
   end
 
-  object :comment do
-    comments_fields()
+  object :abuse_report do
+    field(:id, :id)
+    # field(:article_comment, :article_comment, resolve: dataloader(CMS, :article_comment))
+    field(:article_comment, :common_article_comment)
+    # field(:account, :user)
+    field(:report_cases_count, :integer)
+    field(:deal_with, :string)
+    field(:operate_user, :user)
+
+    timestamp_fields()
   end
 
-  object :common_article do
-    field(:thread, :string)
-    field(:id, :id)
-    # field(:body_html, :string)
-    field(:title, :string)
-    field(:author, :user, resolve: dataloader(CMS, :author))
+  object :paged_reports do
+    field(:entries, list_of(:abuse_report))
+    pagination_fields()
+  end
+
+  object :comment do
+    comments_fields()
   end
 
   object :post_comment do
@@ -457,12 +493,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:is_edited, :boolean)
     field(:is_comment_locked, :boolean)
     # field(:linked_posts_count, :integer)
-    # field(:linked_jobs_count, :integer)
-    # field(:linked_works_count, :integer)
-
-    # reaction: %{
-    #   rocketCount: 0,
-    #   heartCount: 0,
-    # }
   end
+
+  ####### reports
 end

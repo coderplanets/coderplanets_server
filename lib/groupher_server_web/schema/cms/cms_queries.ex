@@ -79,9 +79,6 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.cheatsheet/3)
     end
 
-    article_reacted_users_query(:upvot, &R.CMS.upvoted_users/3)
-    article_reacted_users_query(:collect, &R.CMS.collected_users/3)
-
     # get all tags
     @desc "get paged tags"
     field :paged_tags, :paged_tags do
@@ -203,6 +200,16 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
 
       resolve(&R.CMS.search_items/3)
     end
+
+    @desc "paged reports list"
+    field :paged_abuse_reports, :paged_reports do
+      arg(:filter, non_null(:report_filter))
+
+      resolve(&R.CMS.list_reports/3)
+    end
+
+    article_reacted_users_query(:upvot, &R.CMS.upvoted_users/3)
+    article_reacted_users_query(:collect, &R.CMS.collected_users/3)
 
     article_queries(:post)
     article_queries(:job)

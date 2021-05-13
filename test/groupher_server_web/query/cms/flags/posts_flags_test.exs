@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Query.PostsFlags do
+defmodule GroupherServer.Test.Query.Flags.PostsFlags do
   use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]

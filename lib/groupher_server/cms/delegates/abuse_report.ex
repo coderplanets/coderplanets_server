@@ -19,16 +19,6 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
 
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
 
-  # filter = %{
-  #   contentType: account | post | job | repo | article_comment | community
-  #   contentId: ...
-  #   operate_user_id,
-  #   min_case_count,
-  #   max_case_count,
-  #   page
-  #   size
-  # }
-
   @article_threads [:post, :job, :repo]
   @export_author_keys [:id, :login, :nickname, :avatar]
   @export_article_keys [:id, :title, :digest, :upvotes_count, :views]
@@ -45,21 +35,15 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   @doc """
   list paged reports for article comemnts
   """
-  def list_reports(%{content_type: :user, content_id: content_id} = filter) do
-    %{page: page, size: size} = filter
-
-    with {:ok, info} <- match(:account_user) do
+  def list_reports(%{content_type: :account, content_id: content_id} = filter) do
+    with {:ok, info} <- match(:account) do
       query =
         from(r in AbuseReport,
           where: field(r, ^info.foreign_key) == ^content_id,
           preload: :account
         )
 
-      query
-      |> QueryBuilder.filter_pack(filter)
-      |> ORM.paginater(~m(page size)a)
-      |> reports_formater(:account_user)
-      |> done()
+      do_list_reports(query, :account, filter)
     end
   end
 
@@ -67,8 +51,6 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   list paged reports for article comemnts
   """
   def list_reports(%{content_type: :article_comment, content_id: content_id} = filter) do
-    %{page: page, size: size} = filter
-
     with {:ok, info} <- match(:article_comment) do
       query =
         from(r in AbuseReport,
@@ -77,11 +59,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
           preload: [article_comment: :author]
         )
 
-      query
-      |> QueryBuilder.filter_pack(filter)
-      |> ORM.paginater(~m(page size)a)
-      |> reports_formater(:article_comment)
-      |> done()
+      do_list_reports(query, :article_comment, filter)
     end
   end
 
@@ -90,8 +68,6 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   """
   def list_reports(%{content_type: thread, content_id: content_id} = filter)
       when thread in @article_threads do
-    %{page: page, size: size} = filter
-
     with {:ok, info} <- match(thread) do
       query =
         from(r in AbuseReport,
@@ -99,23 +75,55 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
           preload: [^thread, :operate_user]
         )
 
-      query
-      |> QueryBuilder.filter_pack(filter)
-      |> ORM.paginater(~m(page size)a)
-      |> reports_formater(thread)
-      |> done()
+      do_list_reports(query, thread, filter)
     end
+  end
+
+  # def list_reports(%{content_type: thread} = filter) when thread in @article_threads do
+  def list_reports(%{content_type: thread} = filter) do
+    IO.inspect(filter, label: "list filter 1-")
+
+    with {:ok, info} <- match(thread) do
+      query =
+        from(r in AbuseReport,
+          where: not is_nil(field(r, ^info.foreign_key)),
+          preload: [^thread, :operate_user],
+          preload: [article_comment: :author]
+        )
+
+      do_list_reports(query, thread, filter)
+    end
+  end
+
+  def list_reports(filter) do
+    query = from(r in AbuseReport, preload: [:operate_user])
+
+    do_list_reports(query, filter)
+  end
+
+  defp do_list_reports(query, thread, filter) do
+    %{page: page, size: size} = filter
+
+    query
+    |> QueryBuilder.filter_pack(filter)
+    |> ORM.paginater(~m(page size)a)
+    |> reports_formater(thread)
+    |> done()
+  end
+
+  defp do_list_reports(query, %{page: page, size: size}) do
+    query |> ORM.paginater(~m(page size)a) |> done()
   end
 
   @doc """
   report an account
   """
   def report_account(account_id, reason, attr, user) do
-    with {:ok, info} <- match(:account_user),
+    with {:ok, info} <- match(:account),
          {:ok, account} <- ORM.find(info.model, account_id) do
       Multi.new()
       |> Multi.run(:create_abuse_report, fn _, _ ->
-        create_report(:account_user, account.id, reason, attr, user)
+        create_report(:account, account.id, reason, attr, user)
       end)
       |> Multi.run(:update_report_meta, fn _, _ ->
         update_report_meta(info, account)
@@ -129,11 +137,11 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   undo report article content
   """
   def undo_report_account(account_id, %User{} = user) do
-    with {:ok, info} <- match(:account_user),
+    with {:ok, info} <- match(:account),
          {:ok, account} <- ORM.find(info.model, account_id) do
       Multi.new()
       |> Multi.run(:delete_abuse_report, fn _, _ ->
-        delete_report(:account_user, account.id, user)
+        delete_report(:account, account.id, user)
       end)
       |> Multi.run(:update_report_meta, fn _, _ ->
         update_report_meta(info, account)
@@ -270,16 +278,14 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
           safe_meta = if is_nil(content.meta), do: info.default_meta, else: content.meta
           reported_user_ids = report_cases |> Enum.map(& &1.user.user_id)
 
-          meta =
-            safe_meta
-            |> Map.merge(%{reported_count: reported_count, reported_user_ids: reported_user_ids})
-            |> strip_struct
+          safe_meta
+          |> Map.merge(%{reported_count: reported_count, reported_user_ids: reported_user_ids})
+          |> strip_struct
 
         {:error, _} ->
           safe_meta = if is_nil(content.meta), do: info.default_meta, else: content.meta
 
-          meta =
-            safe_meta |> Map.merge(%{reported_count: 0, reported_user_ids: []}) |> strip_struct
+          safe_meta |> Map.merge(%{reported_count: 0, reported_user_ids: []}) |> strip_struct
       end
 
     content |> ORM.update_meta(meta)
@@ -305,7 +311,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     end
   end
 
-  defp reports_formater(%{entries: entries} = paged_reports, :account_user) do
+  defp reports_formater(%{entries: entries} = paged_reports, :account) do
     paged_reports
     |> Map.put(
       :entries,
@@ -340,7 +346,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   end
 
   defp extract_account_info(%AbuseReport{} = report) do
-    account = report |> Map.get(:account) |> Map.take(@export_author_keys)
+    report |> Map.get(:account) |> Map.take(@export_author_keys)
   end
 
   # TODO: original community and communities info

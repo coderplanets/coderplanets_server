@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Query.PagedJobs do
+defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
   @moduledoc false
   use GroupherServer.TestTools
 

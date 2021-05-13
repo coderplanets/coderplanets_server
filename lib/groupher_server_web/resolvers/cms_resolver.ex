@@ -62,6 +62,10 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.paged_articles(thread, filter)
   end
 
+  def list_reports(_root, ~m(filter)a, _) do
+    CMS.list_reports(filter)
+  end
+
   def wiki(_root, ~m(community)a, _info), do: CMS.get_wiki(%Community{raw: community})
   def cheatsheet(_root, ~m(community)a, _info), do: CMS.get_cheatsheet(%Community{raw: community})
 

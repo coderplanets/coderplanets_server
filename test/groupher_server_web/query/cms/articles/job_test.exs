@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Query.Job do
+defmodule GroupherServer.Test.Query.Articles.Job do
   use GroupherServer.TestTools
 
   setup do
