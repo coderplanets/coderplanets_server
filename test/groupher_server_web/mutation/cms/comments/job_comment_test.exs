@@ -24,7 +24,7 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
       }
     }
     """
-    @tag :wip2
+
     test "write article comment to a exsit job", ~m(job user_conn)a do
       comment = "a test comment"
       variables = %{thread: "JOB", id: job.id, content: comment}
@@ -43,7 +43,7 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
       }
     }
     """
-    @tag :wip2
+
     test "login user can reply to a comment", ~m(job user user_conn)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
       variables = %{id: comment.id, content: "reply content"}
@@ -63,7 +63,7 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
       }
     }
     """
-    @tag :wip2
+
     test "only owner can update a exsit comment",
          ~m(job user guest_conn user_conn owner_conn)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
@@ -88,7 +88,7 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
       }
     }
     """
-    @tag :wip2
+
     test "only owner can delete a exsit comment",
          ~m(job user guest_conn user_conn owner_conn)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
@@ -123,7 +123,7 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
       }
     }
     """
-    @tag :wip2
+
     test "login user can emotion to a comment", ~m(job user user_conn)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
       variables = %{id: comment.id, emotion: "BEER"}
@@ -150,7 +150,7 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
       }
     }
     """
-    @tag :wip2
+
     test "login user can undo emotion to a comment", ~m(job user owner_conn)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
       {:ok, _} = CMS.emotion_to_comment(comment.id, :beer, user)

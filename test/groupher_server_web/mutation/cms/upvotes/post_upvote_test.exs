@@ -22,7 +22,7 @@ defmodule GroupherServer.Test.Mutation.Upvotes.PostUpvote do
       }
     }
     """
-    @tag :wip2
+
     test "login user can upvote a post", ~m(user_conn post)a do
       variables = %{id: post.id}
       created = user_conn |> mutation_result(@query, variables, "upvotePost")
@@ -30,7 +30,6 @@ defmodule GroupherServer.Test.Mutation.Upvotes.PostUpvote do
       assert created["id"] == to_string(post.id)
     end
 
-    @tag :wip2
     test "unauth user upvote a post fails", ~m(guest_conn post)a do
       variables = %{id: post.id}
 
@@ -44,7 +43,7 @@ defmodule GroupherServer.Test.Mutation.Upvotes.PostUpvote do
       }
     }
     """
-    @tag :wip2
+
     test "login user can undo upvote to a post", ~m(user_conn post user)a do
       {:ok, _} = CMS.upvote_article(:post, post.id, user)
 
@@ -54,7 +53,6 @@ defmodule GroupherServer.Test.Mutation.Upvotes.PostUpvote do
       assert updated["id"] == to_string(post.id)
     end
 
-    @tag :wip2
     test "unauth user undo upvote a post fails", ~m(guest_conn post)a do
       variables = %{id: post.id}
 

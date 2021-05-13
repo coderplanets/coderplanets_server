@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Query.PagedRepos do
+defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
   use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
@@ -88,12 +88,13 @@ defmodule GroupherServer.Test.Query.PagedRepos do
           viewerHasCollected
           viewerHasUpvoted
           viewerHasViewed
+          viewerHasReported
         }
         totalCount
       }
     }
     """
-    @tag :wip2
+
     test "has_xxx state should work", ~m(user)a do
       user_conn = simu_conn(:user, user)
       {:ok, community} = db_insert(:community)
@@ -110,16 +111,19 @@ defmodule GroupherServer.Test.Query.PagedRepos do
       assert not the_repo["viewerHasViewed"]
       assert not the_repo["viewerHasUpvoted"]
       assert not the_repo["viewerHasCollected"]
+      assert not the_repo["viewerHasReported"]
 
       {:ok, _} = CMS.read_article(:repo, repo.id, user)
       {:ok, _} = CMS.upvote_article(:repo, repo.id, user)
       {:ok, _} = CMS.collect_article(:repo, repo.id, user)
+      {:ok, _} = CMS.report_article(:repo, repo.id, "reason", "attr_info", user)
 
       results = user_conn |> query_result(@query, variables, "pagedRepos")
       the_repo = Enum.find(results["entries"], &(&1["id"] == to_string(repo.id)))
       assert the_repo["viewerHasViewed"]
       assert the_repo["viewerHasUpvoted"]
       assert the_repo["viewerHasCollected"]
+      assert the_repo["viewerHasReported"]
     end
   end
 

@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Embeds.CollectFolderMeta.Macros do
+defmodule GroupherServer.Accounts.Embeds.CollectFolderMeta.Macros do
   @moduledoc """
   general fields for each folder meta
 
@@ -31,7 +31,7 @@ defmodule GroupherServer.Accounts.Embeds.CollectFolderMeta do
   """
   use Ecto.Schema
   import Ecto.Changeset
-  import GroupherServer.CMS.Embeds.CollectFolderMeta.Macros
+  import GroupherServer.Accounts.Embeds.CollectFolderMeta.Macros
 
   alias GroupherServer.Accounts.CollectFolder
 

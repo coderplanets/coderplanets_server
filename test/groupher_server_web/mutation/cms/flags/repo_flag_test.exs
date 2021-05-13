@@ -25,7 +25,7 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
       }
     }
     """
-    @tag :wip2
+
     test "auth user can trash repo", ~m(community repo)a do
       variables = %{id: repo.id, communityId: community.id}
 
@@ -38,7 +38,6 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
       assert updated["trash"] == true
     end
 
-    @tag :wip2
     test "unauth user trash repo fails", ~m(user_conn guest_conn repo community)a do
       variables = %{id: repo.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
@@ -56,7 +55,7 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
       }
     }
     """
-    @tag :wip2
+
     test "auth user can undo trash repo", ~m(community repo)a do
       variables = %{id: repo.id, communityId: community.id}
 
@@ -71,7 +70,6 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
       assert updated["trash"] == false
     end
 
-    @tag :wip2
     test "unauth user undo trash repo fails", ~m(user_conn guest_conn community repo)a do
       variables = %{id: repo.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
@@ -88,7 +86,7 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
       }
     }
     """
-    @tag :wip2
+
     test "auth user can pin repo", ~m(community repo)a do
       variables = %{id: repo.id, communityId: community.id}
 
@@ -100,7 +98,6 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
       assert updated["id"] == to_string(repo.id)
     end
 
-    @tag :wip2
     test "unauth user pin repo fails", ~m(user_conn guest_conn community repo)a do
       variables = %{id: repo.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
@@ -118,7 +115,7 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
       }
     }
     """
-    @tag :wip2
+
     test "auth user can undo pin repo", ~m(community repo)a do
       variables = %{id: repo.id, communityId: community.id}
 
@@ -131,7 +128,6 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
       assert updated["id"] == to_string(repo.id)
     end
 
-    @tag :wip2
     test "unauth user undo pin repo fails", ~m(user_conn guest_conn community repo)a do
       variables = %{id: repo.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})

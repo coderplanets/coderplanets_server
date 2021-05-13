@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Query.PostsFlags do
+defmodule GroupherServer.Test.Query.Flags.PostsFlags do
   use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
@@ -51,7 +51,7 @@ defmodule GroupherServer.Test.Query.PostsFlags do
       }
     }
     """
-    @tag :wip2
+
     test "if have pined posts, the pined posts should at the top of entries",
          ~m(guest_conn community post_m)a do
       variables = %{filter: %{community: community.raw}}

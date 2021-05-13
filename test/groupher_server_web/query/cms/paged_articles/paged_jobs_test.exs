@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Query.PagedJobs do
+defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
   @moduledoc false
   use GroupherServer.TestTools
 
@@ -92,12 +92,13 @@ defmodule GroupherServer.Test.Query.PagedJobs do
           viewerHasCollected
           viewerHasUpvoted
           viewerHasViewed
+          viewerHasReported
         }
         totalCount
       }
     }
     """
-    @tag :wip2
+
     test "has_xxx state should work", ~m(user)a do
       user_conn = simu_conn(:user, user)
       {:ok, community} = db_insert(:community)
@@ -114,16 +115,19 @@ defmodule GroupherServer.Test.Query.PagedJobs do
       assert not the_job["viewerHasViewed"]
       assert not the_job["viewerHasUpvoted"]
       assert not the_job["viewerHasCollected"]
+      assert not the_job["viewerHasReported"]
 
       {:ok, _} = CMS.read_article(:job, job.id, user)
       {:ok, _} = CMS.upvote_article(:job, job.id, user)
       {:ok, _} = CMS.collect_article(:job, job.id, user)
+      {:ok, _} = CMS.report_article(:job, job.id, "reason", "attr_info", user)
 
       results = user_conn |> query_result(@query, variables, "pagedJobs")
       the_job = Enum.find(results["entries"], &(&1["id"] == to_string(job.id)))
       assert the_job["viewerHasViewed"]
       assert the_job["viewerHasUpvoted"]
       assert the_job["viewerHasCollected"]
+      assert the_job["viewerHasReported"]
     end
   end
 

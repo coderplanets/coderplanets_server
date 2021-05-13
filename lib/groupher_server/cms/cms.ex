@@ -121,10 +121,6 @@ defmodule GroupherServer.CMS do
 
   defdelegate list_folded_article_comments(thread, article_id, filters), to: ArticleComment
   defdelegate list_folded_article_comments(thread, article_id, filters, user), to: ArticleComment
-  defdelegate list_reported_article_comments(thread, article_id, filters), to: ArticleComment
-
-  defdelegate list_reported_article_comments(thread, article_id, filters, user),
-    to: ArticleComment
 
   defdelegate list_comment_replies(comment_id, filters), to: ArticleComment
   defdelegate list_comment_replies(comment_id, filters, user), to: ArticleComment
@@ -160,11 +156,12 @@ defmodule GroupherServer.CMS do
   defdelegate list_comments_participators(thread, content_id, filters), to: CommentCURD
 
   # TODO: move report to abuse report module
-  defdelegate create_report(type, content_id, reason, attr, user), to: AbuseReport
   defdelegate report_article(thread, article_id, reason, attr, user), to: AbuseReport
+  defdelegate report_article_comment(comment_id, reason, attr, user), to: AbuseReport
+  defdelegate report_account(account_id, reason, attr, user), to: AbuseReport
+  defdelegate undo_report_account(account_id, user), to: AbuseReport
   defdelegate undo_report_article(thread, article_id, user), to: AbuseReport
-  defdelegate list_reports(type, content_id, filter), to: AbuseReport
-  defdelegate report_article_comment(comment_id, reason, attr, user), to: ArticleCommentAction
+  defdelegate list_reports(filter), to: AbuseReport
   defdelegate undo_report_article_comment(comment_id, user), to: AbuseReport
 
   # Passport CURD

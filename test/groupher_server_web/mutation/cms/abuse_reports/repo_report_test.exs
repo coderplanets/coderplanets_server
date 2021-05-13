@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Mutation.Articles.RepoReport do
+defmodule GroupherServer.Test.Mutation.AbuseReports.RepoReport do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
@@ -22,18 +22,16 @@ defmodule GroupherServer.Test.Mutation.Articles.RepoReport do
       reportRepo(id: $id, reason: $reason, attr: $attr) {
         id
         title
-        isReported
       }
     }
     """
-    @tag :wip2
+
     test "login user can report a repo", ~m(community repo_attrs user user_conn)a do
       {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
 
       variables = %{id: repo.id, reason: "reason"}
       article = user_conn |> mutation_result(@report_query, variables, "reportRepo")
 
-      assert article["isReported"]
       assert article["id"] == to_string(repo.id)
     end
 
@@ -42,25 +40,22 @@ defmodule GroupherServer.Test.Mutation.Articles.RepoReport do
       undoReportRepo(id: $id) {
         id
         title
-        isReported
       }
     }
     """
-    @tag :wip2
+
     test "login user can undo report a repo", ~m(community repo_attrs user user_conn)a do
       {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
 
       variables = %{id: repo.id, reason: "reason"}
       article = user_conn |> mutation_result(@report_query, variables, "reportRepo")
 
-      assert article["isReported"]
       assert article["id"] == to_string(repo.id)
 
       variables = %{id: repo.id}
 
       article = user_conn |> mutation_result(@undo_report_query, variables, "undoReportRepo")
 
-      assert not article["isReported"]
       assert article["id"] == to_string(repo.id)
     end
   end

@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Query.JobsFlags do
+defmodule GroupherServer.Test.Query.Flags.JobsFlags do
   use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
@@ -51,7 +51,7 @@ defmodule GroupherServer.Test.Query.JobsFlags do
       }
     }
     """
-    @tag :wip2
+
     test "if have pined jobs, the pined jobs should at the top of entries",
          ~m(guest_conn community job_m)a do
       variables = %{filter: %{community: community.raw}}

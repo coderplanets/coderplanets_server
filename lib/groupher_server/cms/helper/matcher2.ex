@@ -5,12 +5,19 @@ defmodule GroupherServer.CMS.Helper.Matcher2 do
 
   import Ecto.Query, warn: false
 
-  alias GroupherServer.CMS
+  alias GroupherServer.{Accounts, CMS}
 
+  alias Accounts.User
   alias CMS.{ArticleComment, Post, Job, Repo}
 
   def match(:article_comment) do
-    {:ok, %{model: ArticleComment, foreign_key: :article_comment_id}}
+    {:ok,
+     %{
+       model: ArticleComment,
+       foreign_key: :article_comment_id,
+       preload: :article_comment,
+       default_meta: CMS.Embeds.ArticleCommentMeta.default_meta()
+     }}
   end
 
   def match(:comment_article, %ArticleComment{post_id: post_id}) when not is_nil(post_id) do
@@ -21,8 +28,22 @@ defmodule GroupherServer.CMS.Helper.Matcher2 do
     {:ok, %{model: Job, id: job_id, foreign_key: :job_id}}
   end
 
+  def match(:comment_article, %ArticleComment{repo_id: repo_id}) when not is_nil(repo_id) do
+    {:ok, %{model: Repo, id: repo_id, foreign_key: :repo_id}}
+  end
+
   def match(:comment_article, %ArticleComment{}) do
-    {:error, "not supported"}
+    {:error, "match error, not supported"}
+  end
+
+  def match(:account) do
+    {:ok,
+     %{
+       model: User,
+       foreign_key: :account_id,
+       preload: :account,
+       default_meta: Accounts.Embeds.UserMeta.default_meta()
+     }}
   end
 
   # used for paged pin articles
@@ -31,7 +52,13 @@ defmodule GroupherServer.CMS.Helper.Matcher2 do
   end
 
   def match(:post) do
-    {:ok, %{model: Post, foreign_key: :post_id}}
+    {:ok,
+     %{
+       model: Post,
+       foreign_key: :post_id,
+       preload: :post,
+       default_meta: CMS.Embeds.ArticleMeta.default_meta()
+     }}
   end
 
   def match(Job) do
@@ -39,7 +66,13 @@ defmodule GroupherServer.CMS.Helper.Matcher2 do
   end
 
   def match(:job) do
-    {:ok, %{model: Job, foreign_key: :job_id}}
+    {:ok,
+     %{
+       model: Job,
+       foreign_key: :job_id,
+       preload: :job,
+       default_meta: CMS.Embeds.ArticleMeta.default_meta()
+     }}
   end
 
   def match(Repo) do
@@ -47,7 +80,13 @@ defmodule GroupherServer.CMS.Helper.Matcher2 do
   end
 
   def match(:repo) do
-    {:ok, %{model: Repo, foreign_key: :repo_id}}
+    {:ok,
+     %{
+       model: Repo,
+       foreign_key: :repo_id,
+       preload: :repo,
+       default_meta: CMS.Embeds.ArticleMeta.default_meta()
+     }}
   end
 
   def match(:post, :query, id), do: {:ok, dynamic([c], c.post_id == ^id)}

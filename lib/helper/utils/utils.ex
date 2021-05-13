@@ -173,6 +173,8 @@ defmodule Helper.Utils do
     struct |> Map.from_struct() |> Map.delete(:id)
   end
 
+  def strip_struct(map) when is_map(map), do: map
+
   @doc "html uniq id generator for editorjs"
   @spec uid(:html, map) :: String.t()
   def uid(:html, %{"id" => id}) when g_none_empty_str(id), do: id

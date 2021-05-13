@@ -13,6 +13,33 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
   import_types(Schema.CMS.Misc)
 
+  ######
+  # common stands for minimal info of the type
+  # usually used in abuse_report, feeds, etc ..
+  object :common_user do
+    field(:login, :string)
+    field(:nickname, :string)
+    field(:avatar, :string)
+  end
+
+  object :common_article do
+    field(:thread, :string)
+    field(:id, :id)
+    # field(:body_html, :string)
+    field(:title, :string)
+    field(:author, :user, resolve: dataloader(CMS, :author))
+  end
+
+  object :common_article_comment do
+    field(:id, :id)
+    field(:body_html, :string)
+    field(:upvotes_count, :integer)
+    field(:author, :common_user)
+    field(:article, :common_article)
+  end
+
+  ######
+
   object :idlike do
     field(:id, :id)
   end
@@ -68,8 +95,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
       end)
     end
 
-    field(:is_reported, :boolean)
-
     article_comments_fields()
     viewer_has_state_fields()
     # upvoted_count
@@ -111,7 +136,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:finance, :string)
     field(:scale, :string)
 
-    field(:is_reported, :boolean)
     # comments_count
     # comments_participators
     article_comments_fields()
@@ -156,7 +180,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:origial_community, :community, resolve: dataloader(CMS, :origial_community))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
-    field(:is_reported, :boolean)
     viewer_has_state_fields()
     # comments_count
     # comments_participators
@@ -373,16 +396,34 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     timestamp_fields()
   end
 
-  object :comment do
-    comments_fields()
+  ####### reports
+  object :abuse_report_case do
+    field(:reason, :string)
+    field(:attr, :string)
+    field(:user, :common_user)
   end
 
-  object :common_article do
-    field(:thread, :string)
+  object :abuse_report do
     field(:id, :id)
-    # field(:body_html, :string)
-    field(:title, :string)
-    field(:author, :user, resolve: dataloader(CMS, :author))
+    field(:article, :common_article)
+    # field(:article_comment, :article_comment, resolve: dataloader(CMS, :article_comment))
+    field(:article_comment, :common_article_comment)
+    field(:account, :common_user)
+    field(:report_cases_count, :integer)
+    field(:deal_with, :string)
+    field(:operate_user, :user)
+    field(:report_cases, list_of(:abuse_report_case))
+
+    timestamp_fields()
+  end
+
+  object :paged_reports do
+    field(:entries, list_of(:abuse_report))
+    pagination_fields()
+  end
+
+  object :comment do
+    comments_fields()
   end
 
   object :post_comment do
@@ -460,14 +501,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   object :article_meta do
     field(:is_edited, :boolean)
     field(:is_comment_locked, :boolean)
-    # field(:isReported, :boolean)
     # field(:linked_posts_count, :integer)
-    # field(:linked_jobs_count, :integer)
-    # field(:linked_works_count, :integer)
-
-    # reaction: %{
-    #   rocketCount: 0,
-    #   heartCount: 0,
-    # }
   end
 end

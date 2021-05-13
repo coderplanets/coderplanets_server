@@ -3,12 +3,14 @@ defmodule GroupherServer.Accounts.User do
   alias __MODULE__
 
   use Ecto.Schema
+  use Accessible
 
   # import GroupherServerWeb.Schema.Helper.Fields
   import Ecto.Changeset
 
   alias GroupherServer.Accounts.{
     Achievement,
+    Embeds,
     Customization,
     EducationBackground,
     CollectFolder,
@@ -59,6 +61,9 @@ defmodule GroupherServer.Accounts.User do
     # field(:sponsor_member, :boolean)
     # field(:paid_member, :boolean)
     # field(:platinum_member, :boolean)
+    field(:viewer_has_reported, :boolean, default: false, virtual: true)
+
+    embeds_one(:meta, Embeds.UserMeta, on_replace: :update)
 
     has_one(:customization, Customization)
     has_one(:purchase, Purchase)
@@ -70,6 +75,7 @@ defmodule GroupherServer.Accounts.User do
   def changeset(%User{} = user, attrs) do
     user
     |> update_changeset(attrs)
+    |> cast_embed(:meta, required: false, with: &Embeds.UserMeta.changeset/2)
     |> validate_required(@required_fields)
 
     # |> unique_constraint(:username)
@@ -80,6 +86,7 @@ defmodule GroupherServer.Accounts.User do
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> cast_embed(:education_backgrounds, with: &EducationBackground.changeset/2)
     |> cast_embed(:work_backgrounds, with: &WorkBackground.changeset/2)
+    |> cast_embed(:meta, required: false, with: &Embeds.UserMeta.changeset/2)
     |> validate_length(:nickname, min: 3, max: 30)
     |> validate_length(:bio, min: 3, max: 100)
     |> validate_inclusion(:sex, ["dude", "girl"])

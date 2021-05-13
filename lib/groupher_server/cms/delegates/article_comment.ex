@@ -33,7 +33,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   def list_article_comments(thread, article_id, filters, mode, user \\ nil)
 
   def list_article_comments(thread, article_id, filters, :timeline, user) do
-    where_query = dynamic([c], not c.is_folded and not c.is_reported and not c.is_pinned)
+    where_query = dynamic([c], not c.is_folded and not c.is_pinned)
     do_list_article_comment(thread, article_id, filters, where_query, user)
   end
 
@@ -44,26 +44,19 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     where_query =
       dynamic(
         [c],
-        is_nil(c.reply_to_id) and not c.is_folded and not c.is_reported and not c.is_pinned
+        is_nil(c.reply_to_id) and not c.is_folded and not c.is_pinned
       )
 
     do_list_article_comment(thread, article_id, filters, where_query, user)
   end
 
   def list_folded_article_comments(thread, article_id, filters) do
-    where_query = dynamic([c], c.is_folded and not c.is_reported and not c.is_pinned)
+    where_query = dynamic([c], c.is_folded and not c.is_pinned)
     do_list_article_comment(thread, article_id, filters, where_query, nil)
   end
 
   def list_folded_article_comments(thread, article_id, filters, user) do
-    where_query = dynamic([c], c.is_folded and not c.is_reported and not c.is_pinned)
-    do_list_article_comment(thread, article_id, filters, where_query, user)
-  end
-
-  def list_reported_article_comments(thread, article_id, filters, user \\ nil)
-
-  def list_reported_article_comments(thread, article_id, filters, user) do
-    where_query = dynamic([c], c.is_reported)
+    where_query = dynamic([c], c.is_folded and not c.is_pinned)
     do_list_article_comment(thread, article_id, filters, where_query, user)
   end
 
@@ -103,14 +96,19 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
          # make sure the article exsit
          # author is passed by middleware, it's exsit for sure
          {:ok, article} <- ORM.find(info.model, article_id, preload: [author: :user]) do
+      IO.inspect(info, label: "bb")
+
       Multi.new()
       |> Multi.run(:create_article_comment, fn _, _ ->
+        IO.inspect("11")
         do_create_comment(content, info.foreign_key, article, user)
       end)
       |> Multi.run(:update_article_comments_count, fn _, %{create_article_comment: comment} ->
-        update_article_comments_count(comment, :inc)
+        IO.inspect("22")
+        update_article_comments_count(comment, :inc) |> IO.inspect(label: "22 after")
       end)
       |> Multi.run(:add_participator, fn _, _ ->
+        IO.inspect("33")
         add_participator_to_article(article, user)
       end)
       |> Repo.transaction()
@@ -227,8 +225,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     %{page: page, size: size} = filters
     query = from(c in ArticleComment, preload: [reply_to: :author])
 
-    where_query =
-      dynamic([c], not c.is_reported and not c.is_folded and c.reply_to_id == ^comment_id)
+    where_query = dynamic([c], not c.is_folded and c.reply_to_id == ^comment_id)
 
     query
     |> where(^where_query)
