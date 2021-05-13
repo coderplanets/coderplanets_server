@@ -32,8 +32,6 @@ Enum.each(patch_communities, fn raw ->
   case community.raw not in ["cps-support"] do
     true ->
       # create_tags(community, :repo)
-      IO.inspect(community.raw, label: "patching community")
-
       Enum.each(patch_tags, fn attr ->
         {:ok, _} = CMS.create_tag(community, :repo, attr, bot)
       end)

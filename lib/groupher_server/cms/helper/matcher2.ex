@@ -4,11 +4,11 @@ defmodule GroupherServer.CMS.Helper.Matcher2.Macros do
   """
 
   alias GroupherServer.CMS
-  alias CMS.{Community, Embeds}
+  alias CMS.{ArticleComment, Community, Embeds}
 
   @article_threads Community.article_threads()
 
-  defmacro thread_matchs() do
+  defmacro thread_matches() do
     @article_threads
     |> Enum.map(fn thread ->
       quote do
@@ -24,10 +24,38 @@ defmodule GroupherServer.CMS.Helper.Matcher2.Macros do
              default_meta: Embeds.ArticleMeta.default_meta()
            }}
         end
+      end
+    end)
+  end
 
-        # def match(Module.concat(CMS, Recase.to_pascal(unquote(thread)))) do
-        #   {:ok, %{thread: :post}}
-        # end
+  defmacro thread_query_matches() do
+    @article_threads
+    |> Enum.map(fn thread ->
+      quote do
+        def match(unquote(thread), :query, id) do
+          {:ok, dynamic([c], field(c, unquote(:"#{thread}_id")) == ^id)}
+        end
+      end
+    end)
+  end
+
+  defmacro comment_article_matches() do
+    @article_threads
+    |> Enum.map(fn thread ->
+      # def match(:comment_article, %ArticleComment{post_id: id})
+      quote do
+        # see https://elixirforum.com/t/generate-map-pattern-matching-functions/21928/2
+        def match(:comment_article, %ArticleComment{unquote(:"#{thread}_id") => id})
+            when not is_nil(id) do
+          thread_module = unquote(thread) |> to_string |> Recase.to_pascal()
+
+          {:ok,
+           %{
+             id: id,
+             model: Module.concat(CMS, thread_module),
+             foreign_key: unquote(:"#{thread}_id")
+           }}
+        end
       end
     end)
   end
@@ -44,7 +72,7 @@ defmodule GroupherServer.CMS.Helper.Matcher2 do
   alias GroupherServer.{Accounts, CMS}
 
   alias Accounts.User
-  alias CMS.{ArticleComment, Post, Job, Repo}
+  alias CMS.{ArticleComment}
 
   def match(:account) do
     {:ok,
@@ -66,24 +94,7 @@ defmodule GroupherServer.CMS.Helper.Matcher2 do
      }}
   end
 
-  def match(:comment_article, %ArticleComment{post_id: post_id}) when not is_nil(post_id) do
-    {:ok, %{model: Post, id: post_id, foreign_key: :post_id}}
-  end
-
-  def match(:comment_article, %ArticleComment{job_id: job_id}) when not is_nil(job_id) do
-    {:ok, %{model: Job, id: job_id, foreign_key: :job_id}}
-  end
-
-  def match(:comment_article, %ArticleComment{repo_id: repo_id}) when not is_nil(repo_id) do
-    {:ok, %{model: Repo, id: repo_id, foreign_key: :repo_id}}
-  end
-
-  def match(:comment_article, %ArticleComment{}) do
-    {:error, "match error, not supported"}
-  end
-
-  thread_matchs()
-
-  def match(:post, :query, id), do: {:ok, dynamic([c], c.post_id == ^id)}
-  def match(:job, :query, id), do: {:ok, dynamic([c], c.job_id == ^id)}
+  thread_matches()
+  thread_query_matches()
+  comment_article_matches()
 end
