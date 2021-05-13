@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Query.AbuseReports.PostReport do
+defmodule GroupherServer.Test.Query.AbuseReports.RepoReport do
   @moduledoc false
 
   use GroupherServer.TestTools
@@ -6,19 +6,19 @@ defmodule GroupherServer.Test.Query.AbuseReports.PostReport do
   alias GroupherServer.CMS
 
   setup do
-    {:ok, post} = db_insert(:post)
+    {:ok, repo} = db_insert(:repo)
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
 
     {:ok, community} = db_insert(:community)
-    post_attrs = mock_attrs(:post, %{community_id: community.id})
+    repo_attrs = mock_attrs(:repo, %{community_id: community.id})
 
     guest_conn = simu_conn(:guest)
 
-    {:ok, ~m(guest_conn community post post_attrs user user2)a}
+    {:ok, ~m(guest_conn community repo repo_attrs user user2)a}
   end
 
-  describe "[query paged_posts filter pagination]" do
+  describe "[query paged_repos filter pagination]" do
     # id
     @query """
     query($filter: ReportFilter!) {
@@ -58,14 +58,14 @@ defmodule GroupherServer.Test.Query.AbuseReports.PostReport do
     }
     """
     @tag :wip2
-    test "should get pagination info", ~m(guest_conn community post_attrs user user2)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
-      {:ok, post2} = CMS.create_content(community, :post, post_attrs, user)
+    test "should get pagination info", ~m(guest_conn community repo_attrs user user2)a do
+      {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
+      {:ok, repo2} = CMS.create_content(community, :repo, repo_attrs, user)
 
-      {:ok, _report} = CMS.report_article(:post, post.id, "reason", "attr_info", user)
-      {:ok, _report} = CMS.report_article(:post, post2.id, "reason", "attr_info", user2)
+      {:ok, _report} = CMS.report_article(:repo, repo.id, "reason", "attr_info", user)
+      {:ok, _report} = CMS.report_article(:repo, repo2.id, "reason", "attr_info", user2)
 
-      variables = %{filter: %{content_type: "POST", page: 1, size: 10}}
+      variables = %{filter: %{content_type: "REPO", page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedAbuseReports")
 
       assert results |> is_valid_pagination?
@@ -74,27 +74,27 @@ defmodule GroupherServer.Test.Query.AbuseReports.PostReport do
 
     @tag :wip2
     test "support search with id", ~m(guest_conn user user2)a do
-      {:ok, post} = db_insert(:post)
-      {:ok, post2} = db_insert(:post)
+      {:ok, repo} = db_insert(:repo)
+      {:ok, repo2} = db_insert(:repo)
 
-      {:ok, _report} = CMS.report_article(:post, post.id, "reason", "attr_info", user)
-      {:ok, _report} = CMS.report_article(:post, post2.id, "reason", "attr_info", user2)
+      {:ok, _report} = CMS.report_article(:repo, repo.id, "reason", "attr_info", user)
+      {:ok, _report} = CMS.report_article(:repo, repo2.id, "reason", "attr_info", user2)
 
-      variables = %{filter: %{content_type: "POST", content_id: post.id, page: 1, size: 10}}
+      variables = %{filter: %{content_type: "REPO", content_id: repo.id, page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedAbuseReports")
 
       report = results["entries"] |> List.first()
 
-      assert get_in(report, ["article", "thread"]) == "POST"
-      assert get_in(report, ["article", "id"]) == to_string(post.id)
+      assert get_in(report, ["article", "thread"]) == "REPO"
+      assert get_in(report, ["article", "id"]) == to_string(repo.id)
 
       assert results |> is_valid_pagination?
       assert results["totalCount"] == 1
     end
 
     @tag :wip3
-    test "support article_comment", ~m(guest_conn post user)a do
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, "comment", user)
+    test "support article_comment", ~m(guest_conn repo user)a do
+      {:ok, comment} = CMS.create_article_comment(:repo, repo.id, "comment", user)
       {:ok, _} = CMS.report_article_comment(comment.id, "reason", "attr", user)
 
       variables = %{filter: %{content_type: "ARTICLE_COMMENT", page: 1, size: 10}}

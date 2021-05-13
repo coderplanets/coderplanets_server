@@ -81,8 +81,6 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
 
   # def list_reports(%{content_type: thread} = filter) when thread in @article_threads do
   def list_reports(%{content_type: thread} = filter) do
-    IO.inspect(filter, label: "list filter 1-")
-
     with {:ok, info} <- match(thread) do
       query =
         from(r in AbuseReport,
@@ -354,7 +352,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     report
     |> Map.get(thread)
     |> Map.take(@export_article_keys)
-    |> Map.merge(%{thread: thread})
+    |> Map.merge(%{thread: thread |> to_string |> String.upcase()})
   end
 
   def extract_article_comment_info(%AbuseReport{} = report) do

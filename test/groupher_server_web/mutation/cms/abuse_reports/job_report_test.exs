@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Mutation.Articles.JobReport do
+defmodule GroupherServer.Test.Mutation.AbuseReports.JobReport do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS

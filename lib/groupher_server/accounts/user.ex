@@ -3,6 +3,7 @@ defmodule GroupherServer.Accounts.User do
   alias __MODULE__
 
   use Ecto.Schema
+  use Accessible
 
   # import GroupherServerWeb.Schema.Helper.Fields
   import Ecto.Changeset

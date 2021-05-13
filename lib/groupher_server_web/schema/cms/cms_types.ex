@@ -396,14 +396,23 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     timestamp_fields()
   end
 
+  ####### reports
+  object :abuse_report_case do
+    field(:reason, :string)
+    field(:attr, :string)
+    field(:user, :common_user)
+  end
+
   object :abuse_report do
     field(:id, :id)
+    field(:article, :common_article)
     # field(:article_comment, :article_comment, resolve: dataloader(CMS, :article_comment))
     field(:article_comment, :common_article_comment)
-    # field(:account, :user)
+    field(:account, :common_user)
     field(:report_cases_count, :integer)
     field(:deal_with, :string)
     field(:operate_user, :user)
+    field(:report_cases, list_of(:abuse_report_case))
 
     timestamp_fields()
   end
@@ -494,6 +503,4 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:is_comment_locked, :boolean)
     # field(:linked_posts_count, :integer)
   end
-
-  ####### reports
 end

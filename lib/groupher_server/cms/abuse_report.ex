@@ -3,6 +3,7 @@ defmodule GroupherServer.CMS.AbuseReport do
   alias __MODULE__
 
   use Ecto.Schema
+  use Accessible
   import Ecto.Changeset
 
   alias GroupherServer.{Accounts, CMS}
