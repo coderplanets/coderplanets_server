@@ -99,20 +99,6 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     do_list_reports(query, filter)
   end
 
-  defp do_list_reports(query, thread, filter) do
-    %{page: page, size: size} = filter
-
-    query
-    |> QueryBuilder.filter_pack(filter)
-    |> ORM.paginater(~m(page size)a)
-    |> reports_formater(thread)
-    |> done()
-  end
-
-  defp do_list_reports(query, %{page: page, size: size}) do
-    query |> ORM.paginater(~m(page size)a) |> done()
-  end
-
   @doc """
   report an account
   """
@@ -190,7 +176,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
       Multi.new()
       |> Multi.run(:create_abuse_report, fn _, _ ->
-        CMS.create_report(:article_comment, comment_id, reason, attr, user)
+        create_report(:article_comment, comment_id, reason, attr, user)
       end)
       |> Multi.run(:update_report_meta, fn _, _ ->
         {:ok, info} = match(:article_comment)
@@ -210,7 +196,21 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     undo_report_article(:article_comment, comment_id, user)
   end
 
-  def create_report(type, content_id, reason, attr, %User{} = user) do
+  defp do_list_reports(query, thread, filter) do
+    %{page: page, size: size} = filter
+
+    query
+    |> QueryBuilder.filter_pack(filter)
+    |> ORM.paginater(~m(page size)a)
+    |> reports_formater(thread)
+    |> done()
+  end
+
+  defp do_list_reports(query, %{page: page, size: size}) do
+    query |> ORM.paginater(~m(page size)a) |> done()
+  end
+
+  defp create_report(type, content_id, reason, attr, %User{} = user) do
     with {:ok, info} <- match(type),
          {:ok, report} <- not_reported_before(info, content_id, user) do
       case report do

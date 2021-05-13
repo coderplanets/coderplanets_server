@@ -156,7 +156,6 @@ defmodule GroupherServer.CMS do
   defdelegate list_comments_participators(thread, content_id, filters), to: CommentCURD
 
   # TODO: move report to abuse report module
-  defdelegate create_report(type, content_id, reason, attr, user), to: AbuseReport
   defdelegate report_article(thread, article_id, reason, attr, user), to: AbuseReport
   defdelegate report_article_comment(comment_id, reason, attr, user), to: AbuseReport
   defdelegate report_account(account_id, reason, attr, user), to: AbuseReport
