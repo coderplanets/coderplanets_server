@@ -28,8 +28,12 @@ defmodule GroupherServer.CMS.Helper.Matcher2 do
     {:ok, %{model: Job, id: job_id, foreign_key: :job_id}}
   end
 
+  def match(:comment_article, %ArticleComment{repo_id: repo_id}) when not is_nil(repo_id) do
+    {:ok, %{model: Repo, id: repo_id, foreign_key: :repo_id}}
+  end
+
   def match(:comment_article, %ArticleComment{}) do
-    {:error, "not supported"}
+    {:error, "match error, not supported"}
   end
 
   def match(:account) do

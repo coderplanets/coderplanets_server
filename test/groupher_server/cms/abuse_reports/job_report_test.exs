@@ -27,7 +27,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.JobReport do
 
       report = all_reports.entries |> List.first()
       assert report.article.id == job.id
-      assert report.article.thread == :job
+      assert report.article.thread == "JOB"
     end
 
     test "report a job should have a abuse report record", ~m(community user job_attrs)a do

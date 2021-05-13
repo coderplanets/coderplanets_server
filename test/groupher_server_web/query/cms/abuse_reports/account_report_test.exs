@@ -52,7 +52,7 @@ defmodule GroupherServer.Test.Query.AbuseReports.AccountReport do
       }
     }
     """
-    @tag :wip2
+
     test "should get pagination info", ~m(guest_conn user user2)a do
       {:ok, _report} = CMS.report_article(:account, user.id, "reason", "attr_info", user2)
 

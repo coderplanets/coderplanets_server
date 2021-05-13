@@ -27,7 +27,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.PostReport do
 
       report = all_reports.entries |> List.first()
       assert report.article.id == post.id
-      assert report.article.thread == :post
+      assert report.article.thread == "POST"
     end
 
     test "report a post should have a abuse report record", ~m(community user post_attrs)a do

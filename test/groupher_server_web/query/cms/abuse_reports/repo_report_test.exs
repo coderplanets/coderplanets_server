@@ -57,7 +57,7 @@ defmodule GroupherServer.Test.Query.AbuseReports.RepoReport do
       }
     }
     """
-    @tag :wip2
+
     test "should get pagination info", ~m(guest_conn community repo_attrs user user2)a do
       {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
       {:ok, repo2} = CMS.create_content(community, :repo, repo_attrs, user)
@@ -72,7 +72,6 @@ defmodule GroupherServer.Test.Query.AbuseReports.RepoReport do
       assert results["totalCount"] == 2
     end
 
-    @tag :wip2
     test "support search with id", ~m(guest_conn user user2)a do
       {:ok, repo} = db_insert(:repo)
       {:ok, repo2} = db_insert(:repo)
@@ -92,7 +91,7 @@ defmodule GroupherServer.Test.Query.AbuseReports.RepoReport do
       assert results["totalCount"] == 1
     end
 
-    @tag :wip3
+    @tag :wip2
     test "support article_comment", ~m(guest_conn repo user)a do
       {:ok, comment} = CMS.create_article_comment(:repo, repo.id, "comment", user)
       {:ok, _} = CMS.report_article_comment(comment.id, "reason", "attr", user)
