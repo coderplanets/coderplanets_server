@@ -67,7 +67,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
 
     field(:author, :user, resolve: dataloader(CMS, :author))
-    field(:origial_community, :community, resolve: dataloader(CMS, :origial_community))
+    field(:original_community, :community, resolve: dataloader(CMS, :original_community))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
     field(:meta, :article_meta)
@@ -123,7 +123,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
-    field(:origial_community, :community, resolve: dataloader(CMS, :origial_community))
+    field(:original_community, :community, resolve: dataloader(CMS, :original_community))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
     field(:meta, :article_meta)
@@ -177,7 +177,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:last_sync, :datetime)
 
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
-    field(:origial_community, :community, resolve: dataloader(CMS, :origial_community))
+    field(:original_community, :community, resolve: dataloader(CMS, :original_community))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
     viewer_has_state_fields()

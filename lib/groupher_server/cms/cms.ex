@@ -10,7 +10,7 @@ defmodule GroupherServer.CMS do
   alias Delegate.{
     AbuseReport,
     ArticleCURD,
-    ArticleOperation,
+    ArticleCommunity,
     ArticleEmotion,
     ArticleComment,
     ArticleCollect,
@@ -97,20 +97,21 @@ defmodule GroupherServer.CMS do
   defdelegate set_collect_folder(collect, folder), to: ArticleCollect
   defdelegate undo_set_collect_folder(collect, folder), to: ArticleCollect
 
-  # ArticleOperation
+  # ArticleCommunity
   # >> set flag on article, like: pin / unpin article
-  defdelegate set_community_flags(community_info, queryable, attrs), to: ArticleOperation
-  defdelegate pin_article(thread, id, community_id), to: ArticleOperation
-  defdelegate undo_pin_article(thread, id, community_id), to: ArticleOperation
+  defdelegate set_community_flags(community_info, queryable, attrs), to: ArticleCommunity
+  defdelegate pin_article(thread, id, community_id), to: ArticleCommunity
+  defdelegate undo_pin_article(thread, id, community_id), to: ArticleCommunity
 
-  defdelegate lock_article_comment(content), to: ArticleOperation
+  defdelegate lock_article_comment(content), to: ArticleCommunity
 
   # >> tag: set / unset
-  defdelegate set_tag(thread, tag, content_id), to: ArticleOperation
-  defdelegate unset_tag(thread, tag, content_id), to: ArticleOperation
+  defdelegate set_tag(thread, tag, content_id), to: ArticleCommunity
+  defdelegate unset_tag(thread, tag, content_id), to: ArticleCommunity
   # >> community: set / unset
-  defdelegate set_community(community, thread, content_id), to: ArticleOperation
-  defdelegate unset_community(community, thread, content_id), to: ArticleOperation
+  defdelegate mirror_article(thread, article_id, community_id), to: ArticleCommunity
+  defdelegate unmirror_article(thread, article_id, community_id), to: ArticleCommunity
+  defdelegate move_article(thread, article_id, community_id), to: ArticleCommunity
 
   defdelegate emotion_to_article(thread, article_id, args, user), to: ArticleEmotion
   defdelegate undo_emotion_to_article(thread, article_id, args, user), to: ArticleEmotion

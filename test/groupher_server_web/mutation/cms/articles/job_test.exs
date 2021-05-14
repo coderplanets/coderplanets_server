@@ -58,7 +58,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
           exp
           education
           field
-          origialCommunity {
+          originalCommunity {
             id
           }
           communities {
@@ -68,6 +68,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       }
     }
     """
+    @tag :wip2
     test "create job with valid attrs and make sure author exsit" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -87,7 +88,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       {:ok, found} = ORM.find(CMS.Job, created["id"])
 
       assert created["id"] == to_string(found.id)
-      assert created["origialCommunity"]["id"] == to_string(community.id)
+      assert created["originalCommunity"]["id"] == to_string(community.id)
 
       assert created["id"] == to_string(found.id)
     end
@@ -298,64 +299,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
 
       assert deleted["id"] == to_string(job.id)
       assert {:error, _} = ORM.find(CMS.Job, deleted["id"])
-    end
-  end
-
-  describe "[mutation job tag]" do
-    @set_tag_query """
-    mutation($thread: Thread!, $id: ID!, $tagId: ID! $communityId: ID!) {
-      setTag(thread: $thread, id: $id, tagId: $tagId, communityId: $communityId) {
-        id
-        title
-      }
-    }
-    """
-    test "auth user can set a valid tag to job", ~m(job)a do
-      {:ok, community} = db_insert(:community)
-      {:ok, tag} = db_insert(:tag, %{thread: "job", community: community})
-
-      passport_rules = %{community.title => %{"job.tag.set" => true}}
-      rule_conn = simu_conn(:user, cms: passport_rules)
-
-      variables = %{thread: "JOB", id: job.id, tagId: tag.id, communityId: community.id}
-      rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
-      {:ok, found} = ORM.find(CMS.Job, job.id, preload: :tags)
-
-      assoc_tags = found.tags |> Enum.map(& &1.id)
-      assert tag.id in assoc_tags
-    end
-
-    # TODO: should fix in auth layer
-    # test "auth user set a other community's tag to job fails", ~m(job)a do
-    # {:ok, community} = db_insert(:community)
-    # {:ok, tag} = db_insert(:tag, %{thread: "job"})
-
-    # passport_rules = %{community.title => %{"job.tag.set" => true}}
-    # rule_conn = simu_conn(:user, cms: passport_rules)
-
-    # variables = %{thread: "JOB", id: job.id, tagId: tag.id, communityId: community.id}
-    # assert rule_conn |> mutation_get_error?(@set_tag_query, variables, ecode(:custom))
-    # end
-
-    test "can set multi tag to a job", ~m(job)a do
-      {:ok, community} = db_insert(:community)
-      {:ok, tag} = db_insert(:tag, %{community: community, thread: "job"})
-      {:ok, tag2} = db_insert(:tag, %{community: community, thread: "job"})
-
-      passport_rules = %{community.title => %{"job.tag.set" => true}}
-      rule_conn = simu_conn(:user, cms: passport_rules)
-
-      variables = %{thread: "JOB", id: job.id, tagId: tag.id, communityId: community.id}
-      rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
-
-      variables2 = %{thread: "JOB", id: job.id, tagId: tag2.id, communityId: community.id}
-      rule_conn |> mutation_result(@set_tag_query, variables2, "setTag")
-
-      {:ok, found} = ORM.find(CMS.Job, job.id, preload: :tags)
-
-      assoc_tags = found.tags |> Enum.map(& &1.id)
-      assert tag.id in assoc_tags
-      assert tag2.id in assoc_tags
     end
   end
 end

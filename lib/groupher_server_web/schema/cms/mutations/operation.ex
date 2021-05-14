@@ -108,26 +108,37 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Operation do
       resolve(&R.CMS.unset_tag/3)
     end
 
-    # TODO: use community loader
-    field :set_community, :community do
+    @desc "mirror article to other community"
+    field :mirror_article, :article do
       arg(:id, non_null(:id))
       arg(:community_id, non_null(:id))
       arg(:thread, :thread, default_value: :post)
 
       middleware(M.Authorize, :login)
-      middleware(M.Passport, claim: "cms->t?.community.set")
-      resolve(&R.CMS.set_community/3)
+      middleware(M.Passport, claim: "cms->t?.community.mirror")
+      resolve(&R.CMS.mirror_article/3)
     end
 
-    # TODO: can't not unset the oldest community
-    field :unset_community, :community do
+    @desc "unmirror article to other community"
+    field :unmirror_article, :article do
       arg(:id, non_null(:id))
       arg(:community_id, non_null(:id))
       arg(:thread, :thread, default_value: :post)
 
       middleware(M.Authorize, :login)
-      middleware(M.Passport, claim: "cms->t?.community.unset")
-      resolve(&R.CMS.unset_community/3)
+      middleware(M.Passport, claim: "cms->t?.community.unmirror")
+      resolve(&R.CMS.unmirror_article/3)
+    end
+
+    @desc "move article to other community"
+    field :move_article, :article do
+      arg(:id, non_null(:id))
+      arg(:community_id, non_null(:id))
+      arg(:thread, :thread, default_value: :post)
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->t?.community.move")
+      resolve(&R.CMS.move_article/3)
     end
   end
 end

@@ -290,12 +290,16 @@ defmodule GroupherServerWeb.Resolvers.CMS do
 
   def community_subscribers(_root, _args, _info), do: {:error, "invalid args"}
 
-  def set_community(_root, ~m(thread id community_id)a, _info) do
-    CMS.set_community(%Community{id: community_id}, thread, id)
+  def mirror_article(_root, ~m(thread id community_id)a, _info) do
+    CMS.mirror_article(thread, id, community_id)
   end
 
-  def unset_community(_root, ~m(thread id community_id)a, _info) do
-    CMS.unset_community(%Community{id: community_id}, thread, id)
+  def unmirror_article(_root, ~m(thread id community_id)a, _info) do
+    CMS.unmirror_article(thread, id, community_id)
+  end
+
+  def move_article(_root, ~m(thread id community_id)a, _info) do
+    CMS.move_article(thread, id, community_id)
   end
 
   # #######################
