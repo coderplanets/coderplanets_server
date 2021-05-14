@@ -7,7 +7,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   import GroupherServer.CMS.Helper.Matcher2
   import GroupherServer.CMS.Helper.Matcher, only: [match_action: 2]
 
-  import Helper.Utils, only: [done: 1, pick_by: 2, integerfy: 1, strip_struct: 1]
+  import Helper.Utils,
+    only: [done: 1, pick_by: 2, integerfy: 1, strip_struct: 1, module_to_thread: 1]
+
   import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 2]
   import Helper.ErrorCode
   import ShortMaps
@@ -301,19 +303,19 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp domain_filter_query(queryable, _filter), do: queryable
 
   defp add_pin_contents_ifneed(contents, querable, %{community: community} = filter) do
-    with {:ok, _} <- should_add_pin?(filter),
-         {:ok, info} <- match(querable),
-         true <- 1 == Map.get(contents, :page_number) do
-      {:ok, pinned_articles} =
-        PinnedArticle
-        |> join(:inner, [p], c in assoc(p, :community))
-        # |> join(:inner, [p], article in assoc(p, ^filter.thread))
-        |> join(:inner, [p], article in assoc(p, ^info.thread))
-        |> where([p, c, article], c.raw == ^community)
-        |> select([p, c, article], article)
-        # 10 pined contents per community/thread, at most
-        |> ORM.find_all(%{page: 1, size: 10})
+    thread = module_to_thread(querable)
 
+    with {:ok, _} <- should_add_pin?(filter),
+         true <- 1 == Map.get(contents, :page_number),
+         {:ok, pinned_articles} <-
+           PinnedArticle
+           |> join(:inner, [p], c in assoc(p, :community))
+           # |> join(:inner, [p], article in assoc(p, ^filter.thread))
+           |> join(:inner, [p], article in assoc(p, ^thread))
+           |> where([p, c, article], c.raw == ^community)
+           |> select([p, c, article], article)
+           # 10 pined contents per community/thread, at most
+           |> ORM.find_all(%{page: 1, size: 10}) do
       concat_contents(pinned_articles, contents)
     else
       _error -> contents

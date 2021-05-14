@@ -79,6 +79,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.PostReport do
       assert user.id not in post.meta.reported_user_ids
     end
 
+    @tag :wip2
     test "can undo a report with other user report it too",
          ~m(community user user2 post_attrs)a do
       {:ok, post} = CMS.create_content(community, :post, post_attrs, user)

@@ -13,13 +13,13 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.User
-  alias CMS.{AbuseReport, ArticleComment, Embeds}
+  alias CMS.{Community, AbuseReport, ArticleComment, Embeds}
 
   alias Ecto.Multi
 
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
 
-  @article_threads [:post, :job, :repo]
+  @article_threads Community.article_threads()
   @export_author_keys [:id, :login, :nickname, :avatar]
   @export_article_keys [:id, :title, :digest, :upvotes_count, :views]
   @export_report_keys [

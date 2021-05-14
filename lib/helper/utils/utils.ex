@@ -175,6 +175,16 @@ defmodule Helper.Utils do
 
   def strip_struct(map) when is_map(map), do: map
 
+  @doc "turn GroupherServer.CMS.Post -> :post"
+  def module_to_thread(module) do
+    module
+    |> to_string
+    |> String.split(".")
+    |> List.last()
+    |> String.downcase()
+    |> String.to_atom()
+  end
+
   @doc "html uniq id generator for editorjs"
   @spec uid(:html, map) :: String.t()
   def uid(:html, %{"id" => id}) when g_none_empty_str(id), do: id
