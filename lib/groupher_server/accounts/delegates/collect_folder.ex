@@ -29,37 +29,37 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
   @doc """
   list a user's not-private collect folders
   """
-  def list_collect_folders(user_id, filter) do
+  def paged_collect_folders(user_id, filter) do
     query = CollectFolder |> where([c], c.user_id == ^user_id and not c.private)
 
-    do_list_collect_folders(filter, query)
+    do_paged_collect_folders(filter, query)
   end
 
   @doc """
   list a owner's collect folders
   """
-  def list_collect_folders(user_id, filter, %User{id: cur_user_id}) do
+  def paged_collect_folders(user_id, filter, %User{id: cur_user_id}) do
     query =
       if cur_user_id == user_id,
         do: CollectFolder |> where([c], c.user_id == ^user_id),
         else: CollectFolder |> where([c], c.user_id == ^user_id and not c.private)
 
-    do_list_collect_folders(filter, query)
+    do_paged_collect_folders(filter, query)
   end
 
   @doc """
   list article inside a collect folder
   """
-  def list_collect_folder_articles(folder_id, filter) do
+  def paged_collect_folder_articles(folder_id, filter) do
     with {:ok, folder} <- ORM.find(CollectFolder, folder_id) do
       case folder.private do
         true -> raise_error(:private_collect_folder, "#{folder.title} is private")
-        false -> do_list_collect_folder_articles(folder, filter)
+        false -> do_paged_collect_folder_articles(folder, filter)
       end
     end
   end
 
-  def list_collect_folder_articles(folder_id, filter, %User{id: cur_user_id}) do
+  def paged_collect_folder_articles(folder_id, filter, %User{id: cur_user_id}) do
     with {:ok, folder} <- ORM.find(CollectFolder, folder_id) do
       is_valid_request =
         case folder.private do
@@ -69,12 +69,12 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
 
       case is_valid_request do
         false -> raise_error(:private_collect_folder, "#{folder.title} is private")
-        true -> do_list_collect_folder_articles(folder, filter)
+        true -> do_paged_collect_folder_articles(folder, filter)
       end
     end
   end
 
-  defp do_list_collect_folder_articles(folder, filter) do
+  defp do_paged_collect_folder_articles(folder, filter) do
     Repo.preload(folder.collects, @supported_collect_threads)
     |> ORM.embeds_paginater(filter)
     |> ORM.extract_articles(@supported_collect_threads)
@@ -228,7 +228,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
     end
   end
 
-  defp do_list_collect_folders(filter, query) do
+  defp do_paged_collect_folders(filter, query) do
     %{page: page, size: size} = filter
 
     query

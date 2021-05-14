@@ -19,9 +19,9 @@ defmodule GroupherServer.Test.CMS.ArticlePin do
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
 
-    {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
-    {:ok, job} = CMS.create_content(community, :job, mock_attrs(:job), user)
-    {:ok, repo} = CMS.create_content(community, :repo, mock_attrs(:repo), user)
+    {:ok, post} = CMS.create_article(community, :post, mock_attrs(:post), user)
+    {:ok, job} = CMS.create_article(community, :job, mock_attrs(:job), user)
+    {:ok, repo} = CMS.create_article(community, :repo, mock_attrs(:repo), user)
 
     {:ok, ~m(user community post job repo)a}
   end
@@ -38,12 +38,12 @@ defmodule GroupherServer.Test.CMS.ArticlePin do
     @tag :wip
     test "one community & thread can only pin certern count of post", ~m(community user)a do
       Enum.reduce(1..@max_pinned_article_count_per_thread, [], fn _, acc ->
-        {:ok, new_post} = CMS.create_content(community, :post, mock_attrs(:post), user)
+        {:ok, new_post} = CMS.create_article(community, :post, mock_attrs(:post), user)
         {:ok, _} = CMS.pin_article(:post, new_post.id, community.id)
         acc
       end)
 
-      {:ok, new_post} = CMS.create_content(community, :post, mock_attrs(:post), user)
+      {:ok, new_post} = CMS.create_article(community, :post, mock_attrs(:post), user)
       {:error, reason} = CMS.pin_article(:post, new_post.id, community.id)
       assert reason |> Keyword.get(:code) == ecode(:too_much_pinned_article)
     end

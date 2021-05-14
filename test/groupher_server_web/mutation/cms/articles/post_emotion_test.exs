@@ -34,7 +34,7 @@ defmodule GroupherServer.Test.Mutation.Articles.PostEmotion do
     """
 
     test "login user can emotion to a ppost", ~m(community post_attrs user user_conn)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       variables = %{id: post.id, emotion: "BEER"}
       article = user_conn |> mutation_result(@emotion_query, variables, "emotionToPost")
@@ -60,7 +60,7 @@ defmodule GroupherServer.Test.Mutation.Articles.PostEmotion do
     """
 
     test "login user can undo emotion to a post", ~m(community post_attrs user owner_conn)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :beer, user)
 
       variables = %{id: post.id, emotion: "BEER"}

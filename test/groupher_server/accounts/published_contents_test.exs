@@ -26,7 +26,7 @@ defmodule GroupherServer.Test.Accounts.PublishedContents do
       pub_posts =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
           post_attrs = mock_attrs(:post, %{community_id: community.id})
-          {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+          {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
           acc ++ [post]
         end)
@@ -34,7 +34,7 @@ defmodule GroupherServer.Test.Accounts.PublishedContents do
       pub_posts2 =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
           post_attrs = mock_attrs(:post, %{community_id: community2.id})
-          {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+          {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
           acc ++ [post]
         end)
@@ -42,7 +42,7 @@ defmodule GroupherServer.Test.Accounts.PublishedContents do
       # unrelated other user
       Enum.reduce(1..5, [], fn _, acc ->
         post_attrs = mock_attrs(:post, %{community_id: community.id})
-        {:ok, post} = CMS.create_content(community, :post, post_attrs, user2)
+        {:ok, post} = CMS.create_article(community, :post, post_attrs, user2)
 
         acc ++ [post]
       end)
@@ -72,7 +72,7 @@ defmodule GroupherServer.Test.Accounts.PublishedContents do
       pub_jobs =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
           job_attrs = mock_attrs(:job, %{community_id: community.id})
-          {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+          {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
           acc ++ [job]
         end)
@@ -80,7 +80,7 @@ defmodule GroupherServer.Test.Accounts.PublishedContents do
       pub_jobs2 =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
           job_attrs = mock_attrs(:job, %{community_id: community2.id})
-          {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+          {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
           acc ++ [job]
         end)
@@ -88,7 +88,7 @@ defmodule GroupherServer.Test.Accounts.PublishedContents do
       # unrelated other user
       Enum.reduce(1..5, [], fn _, acc ->
         job_attrs = mock_attrs(:job, %{community_id: community.id})
-        {:ok, job} = CMS.create_content(community, :job, job_attrs, user2)
+        {:ok, job} = CMS.create_article(community, :job, job_attrs, user2)
 
         acc ++ [job]
       end)
@@ -117,7 +117,7 @@ defmodule GroupherServer.Test.Accounts.PublishedContents do
       pub_repos =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
           repo_attrs = mock_attrs(:repo, %{community_id: community.id})
-          {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
+          {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
 
           acc ++ [repo]
         end)
@@ -125,7 +125,7 @@ defmodule GroupherServer.Test.Accounts.PublishedContents do
       pub_repos2 =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
           repo_attrs = mock_attrs(:repo, %{community_id: community2.id})
-          {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
+          {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
 
           acc ++ [repo]
         end)
@@ -133,7 +133,7 @@ defmodule GroupherServer.Test.Accounts.PublishedContents do
       # unrelated other user
       Enum.reduce(1..5, [], fn _, acc ->
         repo_attrs = mock_attrs(:repo, %{community_id: community.id})
-        {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user2)
+        {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user2)
 
         acc ++ [repo]
       end)

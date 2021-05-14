@@ -34,7 +34,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Job do
 
       middleware(M.Authorize, :login)
       middleware(M.PublishThrottle)
-      resolve(&R.CMS.create_content/3)
+      resolve(&R.CMS.create_article/3)
       middleware(M.Statistics.MakeContribute, for: [:user, :community])
     end
 
@@ -67,7 +67,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Job do
       middleware(M.PassportLoader, source: :job)
       middleware(M.Passport, claim: "owner;cms->c?->job.edit")
 
-      resolve(&R.CMS.update_content/3)
+      resolve(&R.CMS.update_article/3)
     end
 
     #############

@@ -30,48 +30,48 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   [timeline-mode] list paged article comments
   """
 
-  def list_article_comments(thread, article_id, filters, mode, user \\ nil)
+  def paged_article_comments(thread, article_id, filters, mode, user \\ nil)
 
-  def list_article_comments(thread, article_id, filters, :timeline, user) do
+  def paged_article_comments(thread, article_id, filters, :timeline, user) do
     where_query = dynamic([c], not c.is_folded and not c.is_pinned)
-    do_list_article_comment(thread, article_id, filters, where_query, user)
+    do_paged_article_comment(thread, article_id, filters, where_query, user)
   end
 
   @doc """
   [replies-mode] list paged article comments
   """
-  def list_article_comments(thread, article_id, filters, :replies, user) do
+  def paged_article_comments(thread, article_id, filters, :replies, user) do
     where_query =
       dynamic(
         [c],
         is_nil(c.reply_to_id) and not c.is_folded and not c.is_pinned
       )
 
-    do_list_article_comment(thread, article_id, filters, where_query, user)
+    do_paged_article_comment(thread, article_id, filters, where_query, user)
   end
 
-  def list_folded_article_comments(thread, article_id, filters) do
+  def paged_folded_article_comments(thread, article_id, filters) do
     where_query = dynamic([c], c.is_folded and not c.is_pinned)
-    do_list_article_comment(thread, article_id, filters, where_query, nil)
+    do_paged_article_comment(thread, article_id, filters, where_query, nil)
   end
 
-  def list_folded_article_comments(thread, article_id, filters, user) do
+  def paged_folded_article_comments(thread, article_id, filters, user) do
     where_query = dynamic([c], c.is_folded and not c.is_pinned)
-    do_list_article_comment(thread, article_id, filters, where_query, user)
+    do_paged_article_comment(thread, article_id, filters, where_query, user)
   end
 
   @doc """
   list paged comment replies
   """
-  def list_comment_replies(comment_id, filters, user \\ nil)
+  def paged_comment_replies(comment_id, filters, user \\ nil)
 
-  def list_comment_replies(comment_id, filters, user) do
-    do_list_comment_replies(comment_id, filters, user)
+  def paged_comment_replies(comment_id, filters, user) do
+    do_paged_comment_replies(comment_id, filters, user)
   end
 
-  @spec list_article_comments_participators(T.comment_thread(), Integer.t(), T.paged_filter()) ::
+  @spec paged_article_comments_participators(T.comment_thread(), Integer.t(), T.paged_filter()) ::
           {:ok, T.paged_users()}
-  def list_article_comments_participators(thread, article_id, filters) do
+  def paged_article_comments_participators(thread, article_id, filters) do
     %{page: page, size: size} = filters
 
     with {:ok, thread_query} <- match(thread, :query, article_id) do
@@ -196,7 +196,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     )
   end
 
-  defp do_list_article_comment(thread, article_id, filters, where_query, user) do
+  defp do_paged_article_comment(thread, article_id, filters, where_query, user) do
     %{page: page, size: size} = filters
     sort = Map.get(filters, :sort, :asc_inserted)
 
@@ -216,7 +216,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
-  defp do_list_comment_replies(comment_id, filters, user) do
+  defp do_paged_comment_replies(comment_id, filters, user) do
     %{page: page, size: size} = filters
     query = from(c in ArticleComment, preload: [reply_to: :author])
 

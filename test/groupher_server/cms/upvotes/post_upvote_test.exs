@@ -17,7 +17,7 @@ defmodule GroupherServer.Test.Upvotes.PostUpvote do
   describe "[cms post upvote]" do
     test "post can be upvote && upvotes_count should inc by 1",
          ~m(user user2 community post_attrs)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       {:ok, article} = CMS.upvote_article(:post, post.id, user)
       assert article.id == post.id
@@ -29,7 +29,7 @@ defmodule GroupherServer.Test.Upvotes.PostUpvote do
 
     test "post can be undo upvote && upvotes_count should dec by 1",
          ~m(user user2 community post_attrs)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       {:ok, article} = CMS.upvote_article(:post, post.id, user)
       assert article.id == post.id
@@ -40,7 +40,7 @@ defmodule GroupherServer.Test.Upvotes.PostUpvote do
     end
 
     test "can get upvotes_users", ~m(user user2 community post_attrs)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       {:ok, _article} = CMS.upvote_article(:post, post.id, user)
       {:ok, _article} = CMS.upvote_article(:post, post.id, user2)
@@ -54,7 +54,7 @@ defmodule GroupherServer.Test.Upvotes.PostUpvote do
 
     test "post meta history should be updated after upvote",
          ~m(user user2 community post_attrs)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
       {:ok, article} = CMS.upvote_article(:post, post.id, user)
       assert user.id in article.meta.upvoted_user_ids
 
@@ -65,7 +65,7 @@ defmodule GroupherServer.Test.Upvotes.PostUpvote do
 
     test "post meta history should be updated after undo upvote",
          ~m(user user2 community post_attrs)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       {:ok, _article} = CMS.upvote_article(:post, post.id, user)
       {:ok, article} = CMS.upvote_article(:post, post.id, user2)

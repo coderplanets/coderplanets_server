@@ -50,7 +50,7 @@ defmodule GroupherServer.Test.Billing do
     test "can get paged bill records of a user", ~m(user valid_attrs)a do
       {:ok, _record} = Billing.create_record(user, valid_attrs)
 
-      {:ok, records} = Billing.list_records(user, %{page: 1, size: 20})
+      {:ok, records} = Billing.paged_records(user, %{page: 1, size: 20})
 
       records |> is_valid_pagination?(:raw)
       assert records.entries |> List.first() |> Map.get(:user_id) == user.id

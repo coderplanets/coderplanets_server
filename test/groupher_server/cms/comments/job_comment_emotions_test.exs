@@ -39,7 +39,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobCommentEmotions do
       {:ok, _} = CMS.emotion_to_comment(first_comment.id, :popcorn, user)
 
       {:ok, paged_comments} =
-        CMS.list_article_comments(
+        CMS.paged_article_comments(
           :job,
           job.id,
           %{page: page_number, size: page_size},

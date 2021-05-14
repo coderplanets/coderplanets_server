@@ -43,7 +43,7 @@ defmodule GroupherServer.Test.Query.OldPostComment do
       {:ok, user2} = db_insert(:user)
 
       {:ok, community} = db_insert(:community)
-      {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
+      {:ok, post} = CMS.create_article(community, :post, mock_attrs(:post), user)
 
       variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
@@ -85,8 +85,8 @@ defmodule GroupherServer.Test.Query.OldPostComment do
     test "can get comments participators of a post with multi user", ~m(user guest_conn)a do
       body = "this is a test comment"
       {:ok, community} = db_insert(:community)
-      {:ok, post1} = CMS.create_content(community, :post, mock_attrs(:post), user)
-      {:ok, post2} = CMS.create_content(community, :post, mock_attrs(:post), user)
+      {:ok, post1} = CMS.create_article(community, :post, mock_attrs(:post), user)
+      {:ok, post2} = CMS.create_article(community, :post, mock_attrs(:post), user)
 
       {:ok, users_list} = db_insert_multi(:user, 10)
       {:ok, users_list2} = db_insert_multi(:user, 10)
@@ -115,7 +115,7 @@ defmodule GroupherServer.Test.Query.OldPostComment do
       body = "this is a test comment"
 
       {:ok, community} = db_insert(:community)
-      {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
+      {:ok, post} = CMS.create_article(community, :post, mock_attrs(:post), user)
       {:ok, users_list} = db_insert_multi(:user, 10)
 
       Enum.each(
@@ -149,7 +149,7 @@ defmodule GroupherServer.Test.Query.OldPostComment do
     body = "this is a test comment"
 
     {:ok, community} = db_insert(:community)
-    {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
+    {:ok, post} = CMS.create_article(community, :post, mock_attrs(:post), user)
     {:ok, users_list} = db_insert_multi(:user, 10)
 
     Enum.each(
@@ -164,7 +164,7 @@ defmodule GroupherServer.Test.Query.OldPostComment do
     assert results["totalCount"] == 10
   end
 
-  # TODO: user can get specific user's replies :list_replies
+  # TODO: user can get specific user's replies :paged_replies
   # TODO: filter comment by time / like / reply
   describe "[post comment]" do
     @query """

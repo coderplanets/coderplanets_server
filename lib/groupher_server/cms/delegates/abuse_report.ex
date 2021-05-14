@@ -35,7 +35,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   @doc """
   list paged reports for article comemnts
   """
-  def list_reports(%{content_type: :account, content_id: content_id} = filter) do
+  def paged_reports(%{content_type: :account, content_id: content_id} = filter) do
     with {:ok, info} <- match(:account) do
       query =
         from(r in AbuseReport,
@@ -43,14 +43,14 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
           preload: :account
         )
 
-      do_list_reports(query, :account, filter)
+      do_paged_reports(query, :account, filter)
     end
   end
 
   @doc """
   list paged reports for article comemnts
   """
-  def list_reports(%{content_type: :article_comment, content_id: content_id} = filter) do
+  def paged_reports(%{content_type: :article_comment, content_id: content_id} = filter) do
     with {:ok, info} <- match(:article_comment) do
       query =
         from(r in AbuseReport,
@@ -59,14 +59,14 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
           preload: [article_comment: :author]
         )
 
-      do_list_reports(query, :article_comment, filter)
+      do_paged_reports(query, :article_comment, filter)
     end
   end
 
   @doc """
   list paged reports for article
   """
-  def list_reports(%{content_type: thread, content_id: content_id} = filter)
+  def paged_reports(%{content_type: thread, content_id: content_id} = filter)
       when thread in @article_threads do
     with {:ok, info} <- match(thread) do
       query =
@@ -75,12 +75,12 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
           preload: [^thread, :operate_user]
         )
 
-      do_list_reports(query, thread, filter)
+      do_paged_reports(query, thread, filter)
     end
   end
 
-  # def list_reports(%{content_type: thread} = filter) when thread in @article_threads do
-  def list_reports(%{content_type: thread} = filter) do
+  # def paged_reports(%{content_type: thread} = filter) when thread in @article_threads do
+  def paged_reports(%{content_type: thread} = filter) do
     with {:ok, info} <- match(thread) do
       query =
         from(r in AbuseReport,
@@ -89,14 +89,14 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
           preload: [article_comment: :author]
         )
 
-      do_list_reports(query, thread, filter)
+      do_paged_reports(query, thread, filter)
     end
   end
 
-  def list_reports(filter) do
+  def paged_reports(filter) do
     query = from(r in AbuseReport, preload: [:operate_user])
 
-    do_list_reports(query, filter)
+    do_paged_reports(query, filter)
   end
 
   @doc """
@@ -196,7 +196,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     undo_report_article(:article_comment, comment_id, user)
   end
 
-  defp do_list_reports(query, thread, filter) do
+  defp do_paged_reports(query, thread, filter) do
     %{page: page, size: size} = filter
 
     query
@@ -206,7 +206,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     |> done()
   end
 
-  defp do_list_reports(query, %{page: page, size: size}) do
+  defp do_paged_reports(query, %{page: page, size: size}) do
     query |> ORM.paginater(~m(page size)a) |> done()
   end
 

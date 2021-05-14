@@ -124,24 +124,24 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   {:error, %Ecto.Changeset{}}
 
   """
-  def create_content(%Community{id: cid}, thread, attrs, %User{id: uid}) do
+  def create_article(%Community{id: cid}, thread, attrs, %User{id: uid}) do
     with {:ok, author} <- ensure_author_exists(%User{id: uid}),
          {:ok, action} <- match_action(thread, :community),
          {:ok, community} <- ORM.find(Community, cid) do
       Multi.new()
-      |> Multi.run(:create_content, fn _, _ ->
+      |> Multi.run(:create_article, fn _, _ ->
         do_create_content(action.target, attrs, author, community)
       end)
-      |> Multi.run(:set_community, fn _, %{create_content: content} ->
+      |> Multi.run(:set_community, fn _, %{create_article: content} ->
         ArticleOperation.set_community(community, thread, content.id)
       end)
-      |> Multi.run(:set_community_flag, fn _, %{create_content: content} ->
+      |> Multi.run(:set_community_flag, fn _, %{create_article: content} ->
         exec_set_community_flag(community, content, action)
       end)
-      |> Multi.run(:set_tag, fn _, %{create_content: content} ->
+      |> Multi.run(:set_tag, fn _, %{create_article: content} ->
         exec_set_tag(thread, content.id, attrs)
       end)
-      |> Multi.run(:mention_users, fn _, %{create_content: content} ->
+      |> Multi.run(:mention_users, fn _, %{create_article: content} ->
         Delivery.mention_from_content(community.raw, thread, content, attrs, %User{id: uid})
         {:ok, :pass}
       end)
@@ -180,20 +180,20 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   @doc """
   update a content(post/job ...)
   """
-  def update_content(content, args) do
+  def update_article(content, args) do
     Multi.new()
-    |> Multi.run(:update_content, fn _, _ ->
+    |> Multi.run(:update_article, fn _, _ ->
       ORM.update(content, args)
     end)
-    |> Multi.run(:update_edit_status, fn _, %{update_content: update_content} ->
-      ArticleOperation.update_edit_status(update_content)
+    |> Multi.run(:update_edit_status, fn _, %{update_article: update_article} ->
+      ArticleOperation.update_edit_status(update_article)
     end)
     |> Multi.run(:update_tag, fn _, _ ->
       # TODO: move it to ArticleOperation module
       exec_update_tags(content, args)
     end)
     |> Repo.transaction()
-    |> update_content_result()
+    |> update_article_result()
   end
 
   @spec ensure_author_exists(User.t()) :: {:ok, User.t()}
@@ -325,7 +325,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp add_pin_contents_ifneed(contents, _querable, _filter), do: contents
 
   # if filter contains like: tags, sort.., then don't add pin content
-  defp should_add_pin?(%{page: 1, tag: :all, sort: :desc_inserted} = filter) do
+  defp should_add_pin?(%{page: 1, tag: :all, sort: :desc_inserted} = _filter) do
     {:ok, :pass}
   end
 
@@ -355,16 +355,16 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     |> Map.put(:total_count, normal_count)
   end
 
-  defp create_content_result({:ok, %{create_content: result}}) do
+  defp create_content_result({:ok, %{create_article: result}}) do
     Later.exec({__MODULE__, :notify_admin_new_content, [result]})
     {:ok, result}
   end
 
-  defp create_content_result({:error, :create_content, %Ecto.Changeset{} = result, _steps}) do
+  defp create_content_result({:error, :create_article, %Ecto.Changeset{} = result, _steps}) do
     {:error, result}
   end
 
-  defp create_content_result({:error, :create_content, _result, _steps}) do
+  defp create_content_result({:error, :create_article, _result, _steps}) do
     {:error, [message: "create cms content author", code: ecode(:create_fails)]}
   end
 
@@ -383,10 +383,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp create_content_result({:error, :log_action, _result, _steps}) do
     {:error, [message: "log action", code: ecode(:create_fails)]}
   end
-
-  defp update_content_result({:ok, %{update_edit_status: result}}), do: {:ok, result}
-  defp update_content_result({:error, :update_content, result, _steps}), do: {:error, result}
-  defp update_content_result({:error, :update_tag, result, _steps}), do: {:error, result}
 
   #  for create content step in Multi.new
   defp do_create_content(target, attrs, %Author{id: aid}, %Community{id: cid}) do
@@ -468,6 +464,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
         {:ok, :pass}
     end
   end
+
+  defp update_article_result({:ok, %{update_edit_status: result}}), do: {:ok, result}
+  defp update_article_result({:error, :update_article, result, _steps}), do: {:error, result}
+  defp update_article_result({:error, :update_tag, result, _steps}), do: {:error, result}
 
   defp read_result({:ok, %{inc_views: result}}), do: result |> done()
 

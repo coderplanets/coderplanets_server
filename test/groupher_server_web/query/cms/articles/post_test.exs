@@ -31,7 +31,7 @@ defmodule GroupherServer.Test.Query.Articles.Post do
 
   test "basic graphql query on post with logined user",
        ~m(user_conn community user post_attrs)a do
-    {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+    {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
     variables = %{id: post.id}
     results = user_conn |> query_result(@query, variables, "post")

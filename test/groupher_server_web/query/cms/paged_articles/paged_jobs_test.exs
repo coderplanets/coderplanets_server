@@ -103,9 +103,9 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       user_conn = simu_conn(:user, user)
       {:ok, community} = db_insert(:community)
 
-      {:ok, job} = CMS.create_content(community, :job, mock_attrs(:job), user)
-      {:ok, _job} = CMS.create_content(community, :job, mock_attrs(:job), user)
-      {:ok, _job3} = CMS.create_content(community, :job, mock_attrs(:job), user)
+      {:ok, job} = CMS.create_article(community, :job, mock_attrs(:job), user)
+      {:ok, _job} = CMS.create_article(community, :job, mock_attrs(:job), user)
+      {:ok, _job3} = CMS.create_article(community, :job, mock_attrs(:job), user)
 
       variables = %{filter: %{community: community.raw}}
       results = user_conn |> query_result(@query, variables, "pagedJobs")
@@ -150,7 +150,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
     test "filter community should get jobs which belongs to that community",
          ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
-      {:ok, job} = CMS.create_content(community, :job, mock_attrs(:job), user)
+      {:ok, job} = CMS.create_article(community, :job, mock_attrs(:job), user)
 
       variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedJobs")

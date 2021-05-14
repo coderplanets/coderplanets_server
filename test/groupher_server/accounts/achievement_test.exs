@@ -21,7 +21,7 @@ defmodule GroupherServer.Test.Accounts.Achievement do
 
   describe "[Accounts Achievement communities]" do
     test "normal user should have a empty editable communities list", ~m(user)a do
-      {:ok, results} = Accounts.list_editable_communities(user, %{page: 1, size: 20})
+      {:ok, results} = Accounts.paged_editable_communities(user, %{page: 1, size: 20})
 
       assert results |> is_valid_pagination?(:raw)
       assert results.total_count == 0
@@ -40,7 +40,8 @@ defmodule GroupherServer.Test.Accounts.Achievement do
       {:ok, user_x} = db_insert(:user)
       {:ok, _} = CMS.set_editor(community_x, title, user_x)
 
-      {:ok, editable_communities} = Accounts.list_editable_communities(user, %{page: 1, size: 20})
+      {:ok, editable_communities} =
+        Accounts.paged_editable_communities(user, %{page: 1, size: 20})
 
       assert editable_communities.total_count == 2
       assert editable_communities.entries |> Enum.any?(&(&1.id == community.id))

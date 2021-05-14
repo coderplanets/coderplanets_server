@@ -59,8 +59,8 @@ defmodule GroupherServer.Test.Query.AbuseReports.PostReport do
     """
 
     test "should get pagination info", ~m(guest_conn community post_attrs user user2)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
-      {:ok, post2} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+      {:ok, post2} = CMS.create_article(community, :post, post_attrs, user)
 
       {:ok, _report} = CMS.report_article(:post, post.id, "reason", "attr_info", user)
       {:ok, _report} = CMS.report_article(:post, post2.id, "reason", "attr_info", user2)

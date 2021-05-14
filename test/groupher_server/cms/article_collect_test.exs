@@ -21,7 +21,7 @@ defmodule GroupherServer.Test.ArticleCollect do
     @tag :wip
     test "post can be collect && collects_count should inc by 1",
          ~m(user user2 community post_attrs)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       {:ok, article_collect} = CMS.collect_article(:post, post.id, user)
       {:ok, article} = ORM.find(Post, article_collect.post_id)
@@ -38,7 +38,7 @@ defmodule GroupherServer.Test.ArticleCollect do
     @tag :wip
     test "post can be undo collect && collects_count should dec by 1",
          ~m(user community post_attrs)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       {:ok, article_collect} = CMS.collect_article(:post, post.id, user)
       {:ok, article} = ORM.find(Post, article_collect.post_id)
@@ -52,7 +52,7 @@ defmodule GroupherServer.Test.ArticleCollect do
 
     @tag :wip
     test "can get collect_users", ~m(user user2 community post_attrs)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       {:ok, _article} = CMS.collect_article(:post, post.id, user)
       {:ok, _article} = CMS.collect_article(:post, post.id, user2)
@@ -65,7 +65,7 @@ defmodule GroupherServer.Test.ArticleCollect do
     end
 
     test "post meta history should be updated", ~m(user user2 community post_attrs)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
       {:ok, _} = CMS.collect_article(:post, post.id, user)
 
       {:ok, article} = ORM.find(Post, post.id)
@@ -80,7 +80,7 @@ defmodule GroupherServer.Test.ArticleCollect do
 
     test "post meta history should be updated after undo collect",
          ~m(user user2 community post_attrs)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
       {:ok, _} = CMS.collect_article(:post, post.id, user)
       {:ok, _} = CMS.collect_article(:post, post.id, user2)
 
@@ -103,7 +103,7 @@ defmodule GroupherServer.Test.ArticleCollect do
     @tag :wip
     test "job can be collect && collects_count should inc by 1",
          ~m(user user2 community job_attrs)a do
-      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
       {:ok, article_collect} = CMS.collect_article(:job, job.id, user)
       {:ok, article} = ORM.find(Job, article_collect.job_id)
@@ -119,7 +119,7 @@ defmodule GroupherServer.Test.ArticleCollect do
     @tag :wip
     test "job can be undo collect && collects_count should dec by 1",
          ~m(user community job_attrs)a do
-      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
       {:ok, article_collect} = CMS.collect_article(:job, job.id, user)
       {:ok, article} = ORM.find(Job, article_collect.job_id)
@@ -134,7 +134,7 @@ defmodule GroupherServer.Test.ArticleCollect do
 
     @tag :wip
     test "can get collect_users", ~m(user user2 community job_attrs)a do
-      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
       {:ok, _article} = CMS.collect_article(:job, job.id, user)
       {:ok, _article} = CMS.collect_article(:job, job.id, user2)
@@ -147,7 +147,7 @@ defmodule GroupherServer.Test.ArticleCollect do
     end
 
     test "job meta history should be updated", ~m(user user2 community job_attrs)a do
-      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
       {:ok, _} = CMS.collect_article(:job, job.id, user)
 
       {:ok, article} = ORM.find(Job, job.id)
@@ -161,7 +161,7 @@ defmodule GroupherServer.Test.ArticleCollect do
 
     test "job meta history should be updated after undo collect",
          ~m(user user2 community job_attrs)a do
-      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
       {:ok, _} = CMS.collect_article(:job, job.id, user)
       {:ok, _} = CMS.collect_article(:job, job.id, user2)
 

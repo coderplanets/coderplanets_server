@@ -21,7 +21,7 @@ defmodule GroupherServer.Test.Repo do
     test "can create repo with valid attrs", ~m(user community repo_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
 
-      {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
+      {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
 
       assert repo.title == repo_attrs.title
       assert repo.contributors |> length !== 0
@@ -29,7 +29,7 @@ defmodule GroupherServer.Test.Repo do
 
     test "read repo should update views and meta viewed_user_list",
          ~m(repo_attrs community user user2)a do
-      {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
+      {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
       {:ok, _} = CMS.read_article(:repo, repo.id, user)
       {:ok, _created} = ORM.find(CMS.Repo, repo.id)
 
@@ -49,7 +49,7 @@ defmodule GroupherServer.Test.Repo do
     end
 
     test "created repo has origial community info", ~m(user community repo_attrs)a do
-      {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
+      {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
       {:ok, found} = ORM.find(CMS.Repo, repo.id, preload: :origial_community)
 
       assert repo.origial_community_id == community.id
@@ -60,7 +60,7 @@ defmodule GroupherServer.Test.Repo do
          ~m(user community repo_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
 
-      {:ok, _} = CMS.create_content(community, :repo, repo_attrs, user)
+      {:ok, _} = CMS.create_article(community, :repo, repo_attrs, user)
       {:ok, author} = ORM.find_by(Author, user_id: user.id)
       assert author.user_id == user.id
     end
@@ -69,7 +69,7 @@ defmodule GroupherServer.Test.Repo do
       invalid_attrs = mock_attrs(:post, %{community_id: non_exsit_id()})
       ivalid_community = %Community{id: non_exsit_id()}
 
-      assert {:error, _} = CMS.create_content(ivalid_community, :repo, invalid_attrs, user)
+      assert {:error, _} = CMS.create_article(ivalid_community, :repo, invalid_attrs, user)
     end
   end
 end

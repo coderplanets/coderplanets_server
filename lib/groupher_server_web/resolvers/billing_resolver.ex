@@ -9,7 +9,7 @@ defmodule GroupherServerWeb.Resolvers.Billing do
   alias GroupherServer.Billing
 
   def paged_bill_records(_root, %{filter: filter}, %{context: %{cur_user: cur_user}}) do
-    Billing.list_records(cur_user, filter)
+    Billing.paged_records(cur_user, filter)
   end
 
   def create_bill(_root, args, %{context: %{cur_user: cur_user}}) do

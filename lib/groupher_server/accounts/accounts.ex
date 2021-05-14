@@ -22,10 +22,10 @@ defmodule GroupherServer.Accounts do
   defdelegate subscribed_communities(user, filter), to: Profile
 
   # collect folder
-  defdelegate list_collect_folders(user_id, filter), to: CollectFolder
-  defdelegate list_collect_folders(user_id, filter, owner), to: CollectFolder
-  defdelegate list_collect_folder_articles(folder_id, filter, user), to: CollectFolder
-  defdelegate list_collect_folder_articles(folder_id, filter), to: CollectFolder
+  defdelegate paged_collect_folders(user_id, filter), to: CollectFolder
+  defdelegate paged_collect_folders(user_id, filter, owner), to: CollectFolder
+  defdelegate paged_collect_folder_articles(folder_id, filter, user), to: CollectFolder
+  defdelegate paged_collect_folder_articles(folder_id, filter), to: CollectFolder
 
   defdelegate create_collect_folder(attrs, user), to: CollectFolder
   defdelegate update_collect_folder(id, attrs), to: CollectFolder
@@ -35,9 +35,9 @@ defmodule GroupherServer.Accounts do
 
   # achievement
   defdelegate achieve(user, operation, key), to: Achievements
-  defdelegate list_editable_communities(user, filter), to: Achievements
+  defdelegate paged_editable_communities(user, filter), to: Achievements
   defdelegate downgrade_achievement(user, action, count), to: Achievements
-  # defdelegate list_editable_communities(filter), to: Achievements
+  # defdelegate paged_editable_communities(filter), to: Achievements
 
   # publish
   defdelegate published_contents(user, thread, filter), to: Publish
@@ -50,7 +50,7 @@ defmodule GroupherServer.Accounts do
   defdelegate fetch_followings(user, filter), to: Fans
 
   # upvoted articles
-  defdelegate list_upvoted_articles(user_id, filter), to: UpvotedArticles
+  defdelegate paged_upvoted_articles(user_id, filter), to: UpvotedArticles
 
   # mentions
   defdelegate fetch_mentions(user, filter), to: Mails

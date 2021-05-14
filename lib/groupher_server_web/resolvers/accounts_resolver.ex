@@ -103,7 +103,7 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
 
   def paged_upvoted_articles(_root, ~m(user_login filter)a, _info) do
     with {:ok, user_id} <- Accounts.get_userid_and_cache(user_login) do
-      Accounts.list_upvoted_articles(user_id, filter)
+      Accounts.paged_upvoted_articles(user_id, filter)
     end
   end
 
@@ -131,22 +131,22 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
 
   def paged_collect_folders(_root, ~m(user_login filter)a, %{context: %{cur_user: cur_user}}) do
     with {:ok, user_id} <- Accounts.get_userid_and_cache(user_login) do
-      Accounts.list_collect_folders(user_id, filter, cur_user)
+      Accounts.paged_collect_folders(user_id, filter, cur_user)
     end
   end
 
   def paged_collect_folders(_root, ~m(user_login filter)a, _info) do
     with {:ok, user_id} <- Accounts.get_userid_and_cache(user_login) do
-      Accounts.list_collect_folders(user_id, filter)
+      Accounts.paged_collect_folders(user_id, filter)
     end
   end
 
   def paged_collected_articles(_root, ~m(folder_id filter)a, %{context: %{cur_user: cur_user}}) do
-    Accounts.list_collect_folder_articles(folder_id, filter, cur_user)
+    Accounts.paged_collect_folder_articles(folder_id, filter, cur_user)
   end
 
   def paged_collected_articles(_root, ~m(folder_id filter)a, _info) do
-    Accounts.list_collect_folder_articles(folder_id, filter)
+    Accounts.paged_collect_folder_articles(folder_id, filter)
   end
 
   # published contents
@@ -169,11 +169,11 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
 
   # paged communities which the user it's the editor
   def editable_communities(_root, ~m(user_id filter)a, _info) do
-    Accounts.list_editable_communities(%User{id: user_id}, filter)
+    Accounts.paged_editable_communities(%User{id: user_id}, filter)
   end
 
   def editable_communities(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
-    Accounts.list_editable_communities(cur_user, filter)
+    Accounts.paged_editable_communities(cur_user, filter)
   end
 
   # def editable_communities(_root, ~m(filter)a, %{
@@ -183,7 +183,7 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
   # end
 
   def editable_communities(root, ~m(filter)a, _info) do
-    Accounts.list_editable_communities(%User{id: root.id}, filter)
+    Accounts.paged_editable_communities(%User{id: root.id}, filter)
   end
 
   # TODO: refactor

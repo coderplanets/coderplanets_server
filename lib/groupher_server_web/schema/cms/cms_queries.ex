@@ -205,7 +205,7 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
     field :paged_abuse_reports, :paged_reports do
       arg(:filter, non_null(:report_filter))
 
-      resolve(&R.CMS.list_reports/3)
+      resolve(&R.CMS.paged_reports/3)
     end
 
     article_reacted_users_query(:upvot, &R.CMS.upvoted_users/3)

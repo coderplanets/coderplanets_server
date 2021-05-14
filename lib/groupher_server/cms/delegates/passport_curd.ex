@@ -14,7 +14,7 @@ defmodule GroupherServer.CMS.Delegate.PassportCURD do
   # http://www.ubazu.com/using-postgres-jsonb-columns-in-ecto
   # http://www.ubazu.com/using-postgres-jsonb-columns-in-ecto
 
-  def list_passports(community, key) do
+  def paged_passports(community, key) do
     UserPasport
     |> where([p], fragment("(?->?->>?)::boolean = ?", p.rules, ^community, ^key, true))
     |> Repo.all()
