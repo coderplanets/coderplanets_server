@@ -132,8 +132,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Multi.run(:create_article, fn _, _ ->
         do_create_article(action.target, attrs, author, community)
       end)
-      |> Multi.run(:mirror_community, fn _, %{create_article: article} ->
-        ArticleCommunity.mirror_community(thread, article.id, community.id)
+      |> Multi.run(:mirror_article, fn _, %{create_article: article} ->
+        ArticleCommunity.mirror_article(thread, article.id, community.id)
       end)
       |> Multi.run(:set_community_flag, fn _, %{create_article: article} ->
         exec_set_community_flag(community, article, action)
@@ -368,7 +368,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     {:error, [message: "create cms content author", code: ecode(:create_fails)]}
   end
 
-  defp create_content_result({:error, :mirror_community, _result, _steps}) do
+  defp create_content_result({:error, :mirror_article, _result, _steps}) do
     {:error, [message: "set community", code: ecode(:create_fails)]}
   end
 

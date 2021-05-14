@@ -290,12 +290,12 @@ defmodule GroupherServerWeb.Resolvers.CMS do
 
   def community_subscribers(_root, _args, _info), do: {:error, "invalid args"}
 
-  def mirror_community(_root, ~m(thread id community_id)a, _info) do
-    CMS.mirror_community(thread, id, community_id)
+  def mirror_article(_root, ~m(thread id community_id)a, _info) do
+    CMS.mirror_article(thread, id, community_id)
   end
 
-  def unmirror_community(_root, ~m(thread id community_id)a, _info) do
-    CMS.unmirror_community(thread, id, community_id)
+  def unmirror_article(_root, ~m(thread id community_id)a, _info) do
+    CMS.unmirror_article(thread, id, community_id)
   end
 
   # #######################

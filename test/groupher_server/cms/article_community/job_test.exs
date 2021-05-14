@@ -45,7 +45,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Job do
 
       assert not is_nil(Enum.find(job.communities, &(&1.id == community.id)))
 
-      {:ok, _} = CMS.mirror_community(:job, job.id, community2.id)
+      {:ok, _} = CMS.mirror_article(:job, job.id, community2.id)
 
       {:ok, job} = ORM.find(CMS.Job, job.id, preload: :communities)
       assert job.communities |> length == 2
@@ -56,13 +56,13 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Job do
     test "job can be unmirror from community",
          ~m(user community community2 community3 job_attrs)a do
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
-      {:ok, _} = CMS.mirror_community(:job, job.id, community2.id)
-      {:ok, _} = CMS.mirror_community(:job, job.id, community3.id)
+      {:ok, _} = CMS.mirror_article(:job, job.id, community2.id)
+      {:ok, _} = CMS.mirror_article(:job, job.id, community3.id)
 
       {:ok, job} = ORM.find(CMS.Job, job.id, preload: :communities)
       assert job.communities |> length == 3
 
-      {:ok, _} = CMS.unmirror_community(:job, job.id, community3.id)
+      {:ok, _} = CMS.unmirror_article(:job, job.id, community3.id)
       {:ok, job} = ORM.find(CMS.Job, job.id, preload: :communities)
       assert job.communities |> length == 2
 
@@ -72,14 +72,14 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Job do
     test "job can not unmirror from original community",
          ~m(user community community2 community3 job_attrs)a do
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
-      {:ok, _} = CMS.mirror_community(:job, job.id, community2.id)
-      {:ok, _} = CMS.mirror_community(:job, job.id, community3.id)
+      {:ok, _} = CMS.mirror_article(:job, job.id, community2.id)
+      {:ok, _} = CMS.mirror_article(:job, job.id, community3.id)
 
       {:ok, job} = ORM.find(CMS.Job, job.id, preload: :communities)
       assert job.communities |> length == 3
 
-      {:error, reason} = CMS.unmirror_community(:job, job.id, community.id)
-      assert reason |> is_error?(:mirror_community)
+      {:error, reason} = CMS.unmirror_article(:job, job.id, community.id)
+      assert reason |> is_error?(:mirror_article)
     end
   end
 end

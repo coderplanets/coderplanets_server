@@ -107,7 +107,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
   @doc """
   mirror article to other community
   """
-  def mirror_community(thread, article_id, community_id) do
+  def mirror_article(thread, article_id, community_id) do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, article_id, preload: :communities),
          {:ok, community} <- ORM.find(Community, community_id) do
@@ -121,14 +121,14 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
   @doc """
   unmirror article to a community
   """
-  def unmirror_community(thread, article_id, community_id) do
+  def unmirror_article(thread, article_id, community_id) do
     with {:ok, info} <- match(thread),
          {:ok, article} <-
            ORM.find(info.model, article_id, preload: [:communities, :original_community]),
          {:ok, community} <- ORM.find(Community, community_id) do
       case article.original_community.id == community.id do
         true ->
-          raise_error(:mirror_community, "can not unmirror original_community")
+          raise_error(:mirror_article, "can not unmirror original_community")
 
         false ->
           article
@@ -153,7 +153,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
         |> Ecto.Changeset.put_change(:original_community_id, community.id)
         |> Repo.update()
       end)
-      |> Multi.run(:unmirror_community, fn _, %{change_original_community: article} ->
+      |> Multi.run(:unmirror_article, fn _, %{change_original_community: article} ->
         article
         |> Ecto.Changeset.change()
         |> Ecto.Changeset.put_assoc(:communities, article.communities -- [community])
