@@ -30,7 +30,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Manager do
     """
     test "root can trash a post", ~m(community user)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id})
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       variables = %{id: post.id, communityId: community.id}
 

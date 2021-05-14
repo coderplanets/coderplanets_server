@@ -24,7 +24,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.AccountReport do
 
   describe "[account report/unreport]" do
     # test "list article reports should work", ~m(community user user2 post_attrs)a do
-    #   {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+    #   {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
     #   {:ok, _report} = CMS.report_article(:post, post.id, "reason", "attr_info", user)
     #   {:ok, _report} = CMS.report_article(:post, post.id, "reason", "attr_info", user2)
 

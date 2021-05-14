@@ -59,8 +59,8 @@ defmodule GroupherServer.Test.Query.AbuseReports.RepoReport do
     """
 
     test "should get pagination info", ~m(guest_conn community repo_attrs user user2)a do
-      {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
-      {:ok, repo2} = CMS.create_content(community, :repo, repo_attrs, user)
+      {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
+      {:ok, repo2} = CMS.create_article(community, :repo, repo_attrs, user)
 
       {:ok, _report} = CMS.report_article(:repo, repo.id, "reason", "attr_info", user)
       {:ok, _report} = CMS.report_article(:repo, repo2.id, "reason", "attr_info", user2)
@@ -91,7 +91,6 @@ defmodule GroupherServer.Test.Query.AbuseReports.RepoReport do
       assert results["totalCount"] == 1
     end
 
-    @tag :wip2
     test "support article_comment", ~m(guest_conn repo user)a do
       {:ok, comment} = CMS.create_article_comment(:repo, repo.id, "comment", user)
       {:ok, _} = CMS.report_article_comment(comment.id, "reason", "attr", user)

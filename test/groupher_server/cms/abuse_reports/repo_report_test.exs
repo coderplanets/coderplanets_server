@@ -18,7 +18,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.RepoReport do
 
   describe "[article repo report/unreport]" do
     test "list article reports should work", ~m(community user user2 repo_attrs)a do
-      {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
+      {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
       {:ok, _report} = CMS.report_article(:repo, repo.id, "reason", "attr_info", user)
       {:ok, _report} = CMS.report_article(:repo, repo.id, "reason", "attr_info", user2)
 
@@ -31,7 +31,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.RepoReport do
     end
 
     test "report a repo should have a abuse report record", ~m(community user repo_attrs)a do
-      {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
+      {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
       {:ok, _report} = CMS.report_article(:repo, repo.id, "reason", "attr_info", user)
 
       filter = %{content_type: :repo, content_id: repo.id, page: 1, size: 20}
@@ -51,7 +51,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.RepoReport do
     end
 
     test "can undo a report", ~m(community user repo_attrs)a do
-      {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
+      {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
       {:ok, _report} = CMS.report_article(:repo, repo.id, "reason", "attr_info", user)
       {:ok, _report} = CMS.undo_report_article(:repo, repo.id, user)
 
@@ -64,7 +64,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.RepoReport do
     end
 
     test "can undo a existed report", ~m(community user user2 repo_attrs)a do
-      {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
+      {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
       {:ok, _report} = CMS.report_article(:repo, repo.id, "reason", "attr_info", user)
       {:ok, _report} = CMS.report_article(:repo, repo.id, "reason", "attr_info", user2)
       {:ok, _report} = CMS.undo_report_article(:repo, repo.id, user)
@@ -81,7 +81,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.RepoReport do
 
     test "can undo a report with other user report it too",
          ~m(community user user2 repo_attrs)a do
-      {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
+      {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
       {:ok, _report} = CMS.report_article(:repo, repo.id, "reason", "attr_info", user)
       {:ok, _report} = CMS.report_article(:repo, repo.id, "reason", "attr_info", user2)
 
@@ -107,7 +107,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.RepoReport do
 
     test "different user report a comment should have same report with different report cases",
          ~m(community user user2 repo_attrs)a do
-      {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
+      {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
 
       {:ok, _report} = CMS.report_article(:repo, repo.id, "reason", "attr_info", user)
       {:ok, _report} = CMS.report_article(:repo, repo.id, "reason2", "attr_info 2", user2)
@@ -127,7 +127,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.RepoReport do
     end
 
     test "same user can not report a comment twice", ~m(community repo_attrs user)a do
-      {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
+      {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
 
       {:ok, _report} = CMS.report_article(:repo, repo.id, "reason", "attr_info", user)
       assert {:error, _report} = CMS.report_article(:repo, repo.id, "reason", "attr_info", user)

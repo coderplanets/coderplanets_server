@@ -7,7 +7,7 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
 
-    {:ok, job} = CMS.create_content(community, :job, mock_attrs(:job), user)
+    {:ok, job} = CMS.create_article(community, :job, mock_attrs(:job), user)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)

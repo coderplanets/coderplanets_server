@@ -21,14 +21,14 @@ defmodule GroupherServer.Test.CMS.Post do
     test "can create post with valid attrs", ~m(user community post_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
 
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       assert post.title == post_attrs.title
     end
 
     test "read post should update views and meta viewed_user_list",
          ~m(post_attrs community user user2)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
       {:ok, _} = CMS.read_article(:post, post.id, user)
       {:ok, _created} = ORM.find(CMS.Post, post.id)
 
@@ -48,7 +48,7 @@ defmodule GroupherServer.Test.CMS.Post do
     end
 
     test "created post has origial community info", ~m(user community post_attrs)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :origial_community)
 
       assert post.origial_community_id == community.id
@@ -61,7 +61,7 @@ defmodule GroupherServer.Test.CMS.Post do
 
       post_with_tags = Map.merge(post_attrs, %{tags: [%{id: tag1.id}, %{id: tag2.id}]})
 
-      {:ok, created} = CMS.create_content(community, :post, post_with_tags, user)
+      {:ok, created} = CMS.create_article(community, :post, post_with_tags, user)
       {:ok, found} = ORM.find(CMS.Post, created.id, preload: :tags)
 
       assert found.tags |> Enum.any?(&(&1.id == tag1.id))
@@ -75,7 +75,7 @@ defmodule GroupherServer.Test.CMS.Post do
       post_with_tags =
         Map.merge(post_attrs, %{tags: [%{id: tag1.id}, %{id: tag2.id}, %{id: non_exsit_id()}]})
 
-      {:error, _} = CMS.create_content(community, :post, post_with_tags, user)
+      {:error, _} = CMS.create_article(community, :post, post_with_tags, user)
       {:error, _} = ORM.find_by(CMS.Post, %{title: post_attrs.title})
     end
 
@@ -83,7 +83,7 @@ defmodule GroupherServer.Test.CMS.Post do
          ~m(user community post_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
 
-      {:ok, _} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, _} = CMS.create_article(community, :post, post_attrs, user)
       {:ok, author} = ORM.find_by(Author, user_id: user.id)
       assert author.user_id == user.id
     end
@@ -92,7 +92,7 @@ defmodule GroupherServer.Test.CMS.Post do
       invalid_attrs = mock_attrs(:post, %{community_id: non_exsit_id()})
       ivalid_community = %Community{id: non_exsit_id()}
 
-      assert {:error, _} = CMS.create_content(ivalid_community, :post, invalid_attrs, user)
+      assert {:error, _} = CMS.create_article(ivalid_community, :post, invalid_attrs, user)
     end
   end
 end

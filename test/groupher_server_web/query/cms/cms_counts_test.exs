@@ -31,7 +31,7 @@ defmodule GroupherServer.Test.Query.CMS.ContentCounts do
 
       Enum.reduce(1..count, [], fn _, acc ->
         post_attrs = mock_attrs(:post, %{community_id: community.id})
-        {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+        {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
         acc ++ [post]
       end)
 
@@ -57,7 +57,7 @@ defmodule GroupherServer.Test.Query.CMS.ContentCounts do
 
       Enum.reduce(1..count, [], fn _, acc ->
         job_attrs = mock_attrs(:job, %{community_id: community.id})
-        {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+        {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
         acc ++ [job]
       end)
@@ -84,7 +84,7 @@ defmodule GroupherServer.Test.Query.CMS.ContentCounts do
 
       Enum.reduce(1..count, [], fn _, acc ->
         repo_attrs = mock_attrs(:repo, %{community_id: community.id})
-        {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
+        {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
 
         acc ++ [repo]
       end)

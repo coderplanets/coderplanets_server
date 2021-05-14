@@ -30,7 +30,7 @@ defmodule GroupherServer.Test.CMS.Emotions.JobEmotions do
 
       all_jobs =
         Enum.reduce(0..total_count, [], fn _, acc ->
-          {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+          {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
           acc ++ [job]
         end)
 
@@ -61,14 +61,14 @@ defmodule GroupherServer.Test.CMS.Emotions.JobEmotions do
 
   describe "[basic article emotion]" do
     test "job has default emotions after created", ~m(community job_attrs user)a do
-      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
       emotions = job.emotions |> Map.from_struct() |> Map.delete(:id)
       assert @default_emotions == emotions
     end
 
     test "can make emotion to job", ~m(community job_attrs user user2)a do
-      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
       {:ok, _} = CMS.emotion_to_article(:job, job.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_article(:job, job.id, :downvote, user2)
@@ -81,7 +81,7 @@ defmodule GroupherServer.Test.CMS.Emotions.JobEmotions do
     end
 
     test "can undo emotion to job", ~m(community job_attrs user user2)a do
-      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
       {:ok, _} = CMS.emotion_to_article(:job, job.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_article(:job, job.id, :downvote, user2)
@@ -97,7 +97,7 @@ defmodule GroupherServer.Test.CMS.Emotions.JobEmotions do
     end
 
     test "same user make same emotion to same job.", ~m(community job_attrs user)a do
-      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
       {:ok, _} = CMS.emotion_to_article(:job, job.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_article(:job, job.id, :downvote, user)
@@ -110,7 +110,7 @@ defmodule GroupherServer.Test.CMS.Emotions.JobEmotions do
 
     test "same user same emotion to same job only have one user_emotion record",
          ~m(community job_attrs user)a do
-      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
       {:ok, _} = CMS.emotion_to_article(:job, job.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_article(:job, job.id, :heart, user)
@@ -127,7 +127,7 @@ defmodule GroupherServer.Test.CMS.Emotions.JobEmotions do
 
     test "different user can make same emotions on same job",
          ~m(community job_attrs user user2 user3)a do
-      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
       {:ok, _} = CMS.emotion_to_article(:job, job.id, :beer, user)
       {:ok, _} = CMS.emotion_to_article(:job, job.id, :beer, user2)
@@ -142,7 +142,7 @@ defmodule GroupherServer.Test.CMS.Emotions.JobEmotions do
     end
 
     test "same user can make differcent emotions on same job", ~m(community job_attrs user)a do
-      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
       {:ok, _} = CMS.emotion_to_article(:job, job.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_article(:job, job.id, :downvote, user)

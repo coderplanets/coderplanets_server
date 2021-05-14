@@ -24,7 +24,7 @@ defmodule GroupherServer.Test.CMS.PostMeta do
     test "can get default meta info", ~m(user community post_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
 
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
       {:ok, post} = ORM.find_by(Post, id: post.id)
       meta = post.meta |> Map.from_struct() |> Map.delete(:id)
 
@@ -33,7 +33,7 @@ defmodule GroupherServer.Test.CMS.PostMeta do
 
     @tag :wip
     test "is_edited flag should set to true after post updated", ~m(user community post_attrs)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
       {:ok, post} = ORM.find_by(Post, id: post.id)
 
       assert not post.meta.is_edited
@@ -46,7 +46,7 @@ defmodule GroupherServer.Test.CMS.PostMeta do
 
     @tag :wip
     test "post 's lock article should work", ~m(user community post_attrs)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
       assert not post.meta.is_comment_locked
 
       {:ok, _} = CMS.lock_article_comment(post)

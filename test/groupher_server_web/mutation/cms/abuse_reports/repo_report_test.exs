@@ -27,7 +27,7 @@ defmodule GroupherServer.Test.Mutation.AbuseReports.RepoReport do
     """
 
     test "login user can report a repo", ~m(community repo_attrs user user_conn)a do
-      {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
+      {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
 
       variables = %{id: repo.id, reason: "reason"}
       article = user_conn |> mutation_result(@report_query, variables, "reportRepo")
@@ -45,7 +45,7 @@ defmodule GroupherServer.Test.Mutation.AbuseReports.RepoReport do
     """
 
     test "login user can undo report a repo", ~m(community repo_attrs user user_conn)a do
-      {:ok, repo} = CMS.create_content(community, :repo, repo_attrs, user)
+      {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
 
       variables = %{id: repo.id, reason: "reason"}
       article = user_conn |> mutation_result(@report_query, variables, "reportRepo")

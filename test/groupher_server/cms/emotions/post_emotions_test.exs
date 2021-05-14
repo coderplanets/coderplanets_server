@@ -30,7 +30,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
 
       all_posts =
         Enum.reduce(0..total_count, [], fn _, acc ->
-          {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+          {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
           acc ++ [post]
         end)
 
@@ -61,14 +61,14 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
 
   describe "[basic article emotion]" do
     test "post has default emotions after created", ~m(community post_attrs user)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       emotions = post.emotions |> Map.from_struct() |> Map.delete(:id)
       assert @default_emotions == emotions
     end
 
     test "can make emotion to post", ~m(community post_attrs user user2)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user2)
@@ -81,7 +81,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
     end
 
     test "can undo emotion to post", ~m(community post_attrs user user2)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user2)
@@ -97,7 +97,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
     end
 
     test "same user make same emotion to same post.", ~m(community post_attrs user)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user)
@@ -110,7 +110,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
 
     test "same user same emotion to same post only have one user_emotion record",
          ~m(community post_attrs user)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :heart, user)
@@ -127,7 +127,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
 
     test "different user can make same emotions on same post",
          ~m(community post_attrs user user2 user3)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :beer, user)
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :beer, user2)
@@ -142,7 +142,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
     end
 
     test "same user can make differcent emotions on same post", ~m(community post_attrs user)a do
-      {:ok, post} = CMS.create_content(community, :post, post_attrs, user)
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user)

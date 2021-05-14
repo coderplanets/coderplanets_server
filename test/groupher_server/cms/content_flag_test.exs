@@ -17,9 +17,9 @@ defmodule GroupherServer.Test.CMS.ContentFlags do
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
 
-    {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
-    {:ok, job} = CMS.create_content(community, :job, mock_attrs(:job), user)
-    {:ok, repo} = CMS.create_content(community, :repo, mock_attrs(:repo), user)
+    {:ok, post} = CMS.create_article(community, :post, mock_attrs(:post), user)
+    {:ok, job} = CMS.create_article(community, :job, mock_attrs(:job), user)
+    {:ok, repo} = CMS.create_article(community, :repo, mock_attrs(:repo), user)
 
     {:ok, ~m(user community post job repo)a}
   end

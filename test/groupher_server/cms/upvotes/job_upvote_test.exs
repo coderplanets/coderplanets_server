@@ -17,7 +17,7 @@ defmodule GroupherServer.Test.Upvotes.JobUpvote do
   describe "[cms job upvote]" do
     test "job can be upvote && upvotes_count should inc by 1",
          ~m(user user2 community job_attrs)a do
-      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
       {:ok, article} = CMS.upvote_article(:job, job.id, user)
       assert article.id == job.id
@@ -30,7 +30,7 @@ defmodule GroupherServer.Test.Upvotes.JobUpvote do
     @tag :wip2
     test "job can be undo upvote && upvotes_count should dec by 1",
          ~m(user user2 community job_attrs)a do
-      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
       {:ok, article} = CMS.upvote_article(:job, job.id, user)
       assert article.id == job.id
@@ -41,7 +41,7 @@ defmodule GroupherServer.Test.Upvotes.JobUpvote do
     end
 
     test "can get upvotes_users", ~m(user user2 community job_attrs)a do
-      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
       {:ok, _article} = CMS.upvote_article(:job, job.id, user)
       {:ok, _article} = CMS.upvote_article(:job, job.id, user2)
@@ -55,7 +55,7 @@ defmodule GroupherServer.Test.Upvotes.JobUpvote do
 
     test "job meta history should be updated after upvote",
          ~m(user user2 community job_attrs)a do
-      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
       {:ok, article} = CMS.upvote_article(:job, job.id, user)
       assert user.id in article.meta.upvoted_user_ids
 
@@ -66,7 +66,7 @@ defmodule GroupherServer.Test.Upvotes.JobUpvote do
 
     test "job meta history should be updated after undo upvote",
          ~m(user user2 community job_attrs)a do
-      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
       {:ok, _article} = CMS.upvote_article(:job, job.id, user)
       {:ok, article} = CMS.upvote_article(:job, job.id, user2)

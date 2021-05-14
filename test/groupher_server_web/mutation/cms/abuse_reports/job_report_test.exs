@@ -27,7 +27,7 @@ defmodule GroupherServer.Test.Mutation.AbuseReports.JobReport do
     """
 
     test "login user can report a job", ~m(community job_attrs user user_conn)a do
-      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
       variables = %{id: job.id, reason: "reason"}
       article = user_conn |> mutation_result(@report_query, variables, "reportJob")
@@ -45,7 +45,7 @@ defmodule GroupherServer.Test.Mutation.AbuseReports.JobReport do
     """
 
     test "login user can undo report a job", ~m(community job_attrs user user_conn)a do
-      {:ok, job} = CMS.create_content(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
       variables = %{id: job.id, reason: "reason"}
       article = user_conn |> mutation_result(@report_query, variables, "reportJob")

@@ -124,24 +124,24 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   {:error, %Ecto.Changeset{}}
 
   """
-  def create_content(%Community{id: cid}, thread, attrs, %User{id: uid}) do
+  def create_article(%Community{id: cid}, thread, attrs, %User{id: uid}) do
     with {:ok, author} <- ensure_author_exists(%User{id: uid}),
          {:ok, action} <- match_action(thread, :community),
          {:ok, community} <- ORM.find(Community, cid) do
       Multi.new()
-      |> Multi.run(:create_content, fn _, _ ->
+      |> Multi.run(:create_article, fn _, _ ->
         do_create_content(action.target, attrs, author, community)
       end)
-      |> Multi.run(:set_community, fn _, %{create_content: content} ->
+      |> Multi.run(:set_community, fn _, %{create_article: content} ->
         ArticleOperation.set_community(community, thread, content.id)
       end)
-      |> Multi.run(:set_community_flag, fn _, %{create_content: content} ->
+      |> Multi.run(:set_community_flag, fn _, %{create_article: content} ->
         exec_set_community_flag(community, content, action)
       end)
-      |> Multi.run(:set_tag, fn _, %{create_content: content} ->
+      |> Multi.run(:set_tag, fn _, %{create_article: content} ->
         exec_set_tag(thread, content.id, attrs)
       end)
-      |> Multi.run(:mention_users, fn _, %{create_content: content} ->
+      |> Multi.run(:mention_users, fn _, %{create_article: content} ->
         Delivery.mention_from_content(community.raw, thread, content, attrs, %User{id: uid})
         {:ok, :pass}
       end)
@@ -325,7 +325,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp add_pin_contents_ifneed(contents, _querable, _filter), do: contents
 
   # if filter contains like: tags, sort.., then don't add pin content
-  defp should_add_pin?(%{page: 1, tag: :all, sort: :desc_inserted} = filter) do
+  defp should_add_pin?(%{page: 1, tag: :all, sort: :desc_inserted} = _filter) do
     {:ok, :pass}
   end
 
@@ -355,16 +355,16 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     |> Map.put(:total_count, normal_count)
   end
 
-  defp create_content_result({:ok, %{create_content: result}}) do
+  defp create_content_result({:ok, %{create_article: result}}) do
     Later.exec({__MODULE__, :notify_admin_new_content, [result]})
     {:ok, result}
   end
 
-  defp create_content_result({:error, :create_content, %Ecto.Changeset{} = result, _steps}) do
+  defp create_content_result({:error, :create_article, %Ecto.Changeset{} = result, _steps}) do
     {:error, result}
   end
 
-  defp create_content_result({:error, :create_content, _result, _steps}) do
+  defp create_content_result({:error, :create_article, _result, _steps}) do
     {:error, [message: "create cms content author", code: ecode(:create_fails)]}
   end
 

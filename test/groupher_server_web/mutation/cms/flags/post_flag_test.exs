@@ -7,7 +7,7 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
 
-    {:ok, post} = CMS.create_content(community, :post, mock_attrs(:post), user)
+    {:ok, post} = CMS.create_article(community, :post, mock_attrs(:post), user)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)

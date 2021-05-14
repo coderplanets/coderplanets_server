@@ -16,11 +16,11 @@ defmodule GroupherServer.Test.Query.Flags.JobsFlags do
     {:ok, community} = db_insert(:community)
 
     {:ok, community2} = db_insert(:community)
-    CMS.create_content(community2, :job, mock_attrs(:job), user)
+    CMS.create_article(community2, :job, mock_attrs(:job), user)
 
     jobs =
       Enum.reduce(1..@total_count, [], fn _, acc ->
-        {:ok, value} = CMS.create_content(community, :job, mock_attrs(:job), user)
+        {:ok, value} = CMS.create_article(community, :job, mock_attrs(:job), user)
         acc ++ [value]
       end)
 

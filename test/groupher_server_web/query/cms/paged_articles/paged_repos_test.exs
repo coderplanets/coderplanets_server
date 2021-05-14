@@ -99,9 +99,9 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
       user_conn = simu_conn(:user, user)
       {:ok, community} = db_insert(:community)
 
-      {:ok, repo} = CMS.create_content(community, :repo, mock_attrs(:repo), user)
-      {:ok, _repo} = CMS.create_content(community, :repo, mock_attrs(:repo), user)
-      {:ok, _repo3} = CMS.create_content(community, :repo, mock_attrs(:repo), user)
+      {:ok, repo} = CMS.create_article(community, :repo, mock_attrs(:repo), user)
+      {:ok, _repo} = CMS.create_article(community, :repo, mock_attrs(:repo), user)
+      {:ok, _repo3} = CMS.create_article(community, :repo, mock_attrs(:repo), user)
 
       variables = %{filter: %{community: community.raw}}
       results = user_conn |> query_result(@query, variables, "pagedRepos")
@@ -150,7 +150,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
     test "filter community should get repos which belongs to that community",
          ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
-      {:ok, repo} = CMS.create_content(community, :repo, mock_attrs(:repo), user)
+      {:ok, repo} = CMS.create_article(community, :repo, mock_attrs(:repo), user)
 
       variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedRepos")

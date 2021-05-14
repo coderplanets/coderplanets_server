@@ -15,11 +15,11 @@ defmodule GroupherServer.Test.Query.Flags.ReposFlags do
     {:ok, community} = db_insert(:community)
 
     {:ok, community2} = db_insert(:community)
-    CMS.create_content(community2, :repo, mock_attrs(:repo), user)
+    CMS.create_article(community2, :repo, mock_attrs(:repo), user)
 
     repos =
       Enum.reduce(1..@total_count, [], fn _, acc ->
-        {:ok, value} = CMS.create_content(community, :repo, mock_attrs(:repo), user)
+        {:ok, value} = CMS.create_article(community, :repo, mock_attrs(:repo), user)
         acc ++ [value]
       end)
 
