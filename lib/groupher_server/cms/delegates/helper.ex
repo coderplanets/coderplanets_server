@@ -2,10 +2,18 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   @moduledoc """
   helpers for GroupherServer.CMS.Delegate
   """
-  import Helper.Utils, only: [get_config: 2, done: 1]
+  import Helper.Utils, only: [get_config: 2, done: 1, strip_struct: 1]
+  import Ecto.Query, warn: false
+  import GroupherServer.CMS.Helper.Matcher2
+  import ShortMaps
 
-  alias GroupherServer.{Accounts, Repo}
+  alias Helper.{ORM, QueryBuilder}
+  alias GroupherServer.{Accounts, Repo, CMS}
+
+  alias CMS.{ArticleUpvote, ArticleCollect}
   alias Accounts.User
+
+  @default_article_meta CMS.Embeds.ArticleMeta.default_meta()
 
   # TODO:
   # @max_latest_emotion_users_count ArticleComment.max_latest_emotion_users_count()
@@ -13,12 +21,15 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   @supported_emotions get_config(:article, :supported_emotions)
   @supported_comment_emotions get_config(:article, :comment_supported_emotions)
 
+  #######
+  # emotion related
+  #######
   defp get_supported_mentions(:comment), do: @supported_comment_emotions
   defp get_supported_mentions(_), do: @supported_emotions
 
   def mark_viewer_emotion_states(paged_contents, nil), do: paged_contents
-  def mark_viewer_emotion_states(paged_contents, nil, :comment), do: paged_contents
   def mark_viewer_emotion_states(%{entries: []} = paged_contents, _), do: paged_contents
+  def mark_viewer_emotion_states(paged_contents, nil, :comment), do: paged_contents
 
   @doc """
   mark viewer emotions status for article or comment
@@ -82,4 +93,89 @@ defmodule GroupherServer.CMS.Delegate.Helper do
 
   defp user_in_logins?([], _), do: false
   defp user_in_logins?(ids_list, %User{login: login}), do: Enum.member?(ids_list, login)
+
+  #######
+  # emotion related end
+  #######
+
+  ######
+  # reaction related end, include upvote && collect
+  #######
+  @doc """
+  paged [reaction] users list
+  """
+  def load_reaction_users(queryable, thread, article_id, filter) do
+    %{page: page, size: size} = filter
+
+    with {:ok, info} <- match(thread) do
+      queryable
+      |> where([u], field(u, ^info.foreign_key) == ^article_id)
+      |> QueryBuilder.load_inner_users(filter)
+      |> ORM.paginater(~m(page size)a)
+      |> done()
+    end
+  end
+
+  @doc """
+  update the [reaction]s_count for article
+  e.g:
+  inc/dec upvotes_count of article
+  """
+  def update_article_reactions_count(info, article, field, opt) do
+    schema =
+      case field do
+        :upvotes_count -> ArticleUpvote
+        :collects_count -> ArticleCollect
+      end
+
+    count_query = from(u in schema, where: field(u, ^info.foreign_key) == ^article.id)
+    cur_count = Repo.aggregate(count_query, :count)
+
+    case opt do
+      :inc ->
+        new_count = Enum.max([0, cur_count])
+        ORM.update(article, Map.put(%{}, field, new_count + 1))
+
+      :dec ->
+        new_count = Enum.max([1, cur_count])
+        ORM.update(article, Map.put(%{}, field, new_count - 1))
+    end
+  end
+
+  @doc """
+  add or remove artilce's reaction users is list history
+  e.g:
+  add/remove user_id to upvoted_user_ids in article meta
+  """
+  @spec update_article_reaction_user_list(
+          :upvot | :collect,
+          T.article_common(),
+          String.t(),
+          :add | :remove
+        ) :: T.article_common()
+  def update_article_reaction_user_list(action, %{meta: nil} = article, user_id, opt) do
+    cur_user_ids = []
+
+    updated_user_ids =
+      case opt do
+        :add -> [user_id] ++ cur_user_ids
+        :remove -> cur_user_ids -- [user_id]
+      end
+
+    meta = @default_article_meta |> Map.merge(%{"#{action}ed_user_ids": updated_user_ids})
+    ORM.update_meta(article, meta)
+  end
+
+  def update_article_reaction_user_list(action, article, user_id, opt) do
+    cur_user_ids = get_in(article, [:meta, :"#{action}ed_user_ids"])
+
+    updated_user_ids =
+      case opt do
+        :add -> [user_id] ++ cur_user_ids
+        :remove -> cur_user_ids -- [user_id]
+      end
+
+    meta = article.meta |> Map.merge(%{"#{action}ed_user_ids": updated_user_ids}) |> strip_struct
+    ORM.update_meta(article, meta)
+  end
 end

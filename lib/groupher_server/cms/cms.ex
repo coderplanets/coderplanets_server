@@ -12,8 +12,9 @@ defmodule GroupherServer.CMS do
     ArticleCURD,
     ArticleOperation,
     ArticleEmotion,
-    ArticleReaction,
     ArticleComment,
+    ArticleCollect,
+    ArticleUpvote,
     ArticleCommentAction,
     ArticleCommentEmotion,
     CommentCURD,
@@ -81,21 +82,20 @@ defmodule GroupherServer.CMS do
   defdelegate create_content(community, thread, attrs, user), to: ArticleCURD
   defdelegate update_content(content, attrs), to: ArticleCURD
 
-  # ArticleReaction
-  defdelegate upvote_article(thread, article_id, user), to: ArticleReaction
-  defdelegate undo_upvote_article(thread, article_id, user), to: ArticleReaction
+  defdelegate upvote_article(thread, article_id, user), to: ArticleUpvote
+  defdelegate undo_upvote_article(thread, article_id, user), to: ArticleUpvote
 
-  defdelegate upvoted_users(thread, article_id, filter), to: ArticleReaction
+  defdelegate upvoted_users(thread, article_id, filter), to: ArticleUpvote
 
-  defdelegate collect_article(thread, article_id, user), to: ArticleReaction
-  defdelegate collect_article_ifneed(thread, article_id, user), to: ArticleReaction
+  defdelegate collect_article(thread, article_id, user), to: ArticleCollect
+  defdelegate collect_article_ifneed(thread, article_id, user), to: ArticleCollect
 
-  defdelegate undo_collect_article(thread, article_id, user), to: ArticleReaction
-  defdelegate undo_collect_article_ifneed(thread, article_id, user), to: ArticleReaction
-  defdelegate collected_users(thread, article_id, filter), to: ArticleReaction
+  defdelegate undo_collect_article(thread, article_id, user), to: ArticleCollect
+  defdelegate undo_collect_article_ifneed(thread, article_id, user), to: ArticleCollect
+  defdelegate collected_users(thread, article_id, filter), to: ArticleCollect
 
-  defdelegate set_collect_folder(collect, folder), to: ArticleReaction
-  defdelegate undo_set_collect_folder(collect, folder), to: ArticleReaction
+  defdelegate set_collect_folder(collect, folder), to: ArticleCollect
+  defdelegate undo_set_collect_folder(collect, folder), to: ArticleCollect
 
   # ArticleOperation
   # >> set flag on article, like: pin / unpin article

@@ -63,7 +63,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
         )
       end)
       |> Repo.transaction()
-      |> upsert_comment_result()
+      |> result()
     end
   end
 
@@ -77,7 +77,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
         ORM.findby_delete(ArticlePinedComment, %{article_comment_id: comment.id})
       end)
       |> Repo.transaction()
-      |> upsert_comment_result()
+      |> result()
     end
   end
 
@@ -141,7 +141,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
         |> Repo.update()
       end)
       |> Repo.transaction()
-      |> upsert_comment_result()
+      |> result()
     end
   end
 
@@ -166,7 +166,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
         update_article_author_upvoted_info(comment, user_id)
       end)
       |> Repo.transaction()
-      |> upsert_comment_result()
+      |> result()
     end
   end
 
@@ -194,7 +194,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
         update_article_author_upvoted_info(updated_comment, user_id)
       end)
       |> Repo.transaction()
-      |> upsert_comment_result()
+      |> result()
     end
   end
 
@@ -324,24 +324,24 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
     ORM.update_meta(comment, meta)
   end
 
-  defp upsert_comment_result({:ok, %{create_article_comment: result}}), do: {:ok, result}
-  defp upsert_comment_result({:ok, %{add_reply_to: result}}), do: {:ok, result}
-  defp upsert_comment_result({:ok, %{check_article_author_upvoted: result}}), do: {:ok, result}
-  defp upsert_comment_result({:ok, %{fold_comment_report_too_many: result}}), do: {:ok, result}
-  defp upsert_comment_result({:ok, %{update_comment_flag: result}}), do: {:ok, result}
-  defp upsert_comment_result({:ok, %{delete_article_comment: result}}), do: {:ok, result}
+  defp result({:ok, %{create_article_comment: result}}), do: {:ok, result}
+  defp result({:ok, %{add_reply_to: result}}), do: {:ok, result}
+  defp result({:ok, %{check_article_author_upvoted: result}}), do: {:ok, result}
+  defp result({:ok, %{fold_comment_report_too_many: result}}), do: {:ok, result}
+  defp result({:ok, %{update_comment_flag: result}}), do: {:ok, result}
+  defp result({:ok, %{delete_article_comment: result}}), do: {:ok, result}
 
-  defp upsert_comment_result({:error, :create_article_comment, result, _steps}) do
+  defp result({:error, :create_article_comment, result, _steps}) do
     raise_error(:create_comment, result)
   end
 
-  defp upsert_comment_result({:error, :add_participator, result, _steps}) do
+  defp result({:error, :add_participator, result, _steps}) do
     {:error, result}
   end
 
-  defp upsert_comment_result({:error, :create_abuse_report, result, _steps}) do
+  defp result({:error, :create_abuse_report, result, _steps}) do
     {:error, result}
   end
 
-  defp upsert_comment_result({:error, _, result, _steps}), do: {:error, result}
+  defp result({:error, _, result, _steps}), do: {:error, result}
 end
