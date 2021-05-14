@@ -4,19 +4,23 @@ defmodule GroupherServer.CMS.Delegate.ArticleCollect do
   """
   import GroupherServer.CMS.Helper.Matcher2
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, strip_struct: 1]
-  # import Helper.ErrorCode
-  import ShortMaps
+  import Helper.Utils, only: [done: 1]
 
-  alias Helper.{ORM, QueryBuilder}
+  import GroupherServer.CMS.Delegate.Helper,
+    only: [
+      load_reaction_users: 4,
+      update_article_reactions_count: 4,
+      update_article_reaction_user_list: 4
+    ]
+
+  # import Helper.ErrorCode
+  alias Helper.{ORM}
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.User
-  alias CMS.{ArticleUpvote, ArticleCollect, Embeds}
+  alias CMS.ArticleCollect
 
   alias Ecto.Multi
-
-  @default_article_meta Embeds.ArticleMeta.default_meta()
 
   @doc """
   get paged collected users
@@ -36,7 +40,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCollect do
         Accounts.achieve(article.author.user, :inc, :collect)
       end)
       |> Multi.run(:inc_article_collects_count, fn _, _ ->
-        update_article_upvotes_count(info, article, :collects_count, :inc)
+        update_article_reactions_count(info, article, :collect, :inc)
       end)
       |> Multi.run(:update_article_reaction_user_list, fn _, _ ->
         update_article_reaction_user_list(:collect, article, user_id, :add)
@@ -75,7 +79,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCollect do
         Accounts.achieve(article.author.user, :dec, :collect)
       end)
       |> Multi.run(:inc_article_collects_count, fn _, _ ->
-        update_article_upvotes_count(info, article, :collects_count, :dec)
+        update_article_reactions_count(info, article, :collect, :dec)
       end)
       |> Multi.run(:update_article_reaction_user_list, fn _, _ ->
         update_article_reaction_user_list(:collect, article, user_id, :remove)
@@ -133,84 +137,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCollect do
   end
 
   #############
-  #############
-  #############
-
-  # TODO: put in header, it's for upvotes and collect users
-  defp load_reaction_users(schema, thread, article_id, %{page: page, size: size} = filter) do
-    with {:ok, info} <- match(thread) do
-      schema
-      |> where([u], field(u, ^info.foreign_key) == ^article_id)
-      |> QueryBuilder.load_inner_users(filter)
-      |> ORM.paginater(~m(page size)a)
-      |> done()
-    end
-  end
-
-  # TODO: put in header, it's for upvotes and collect users
-  defp update_article_upvotes_count(info, article, field, opt) do
-    schema =
-      case field do
-        :upvotes_count -> ArticleUpvote
-        :collects_count -> ArticleCollect
-      end
-
-    count_query = from(u in schema, where: field(u, ^info.foreign_key) == ^article.id)
-    cur_count = Repo.aggregate(count_query, :count)
-
-    case opt do
-      :inc ->
-        new_count = Enum.max([0, cur_count])
-        ORM.update(article, Map.put(%{}, field, new_count + 1))
-
-      :dec ->
-        new_count = Enum.max([1, cur_count])
-        ORM.update(article, Map.put(%{}, field, new_count - 1))
-    end
-  end
-
-  # TODO: put in header, it's for upvotes and collect users
-  @doc """
-  add or remove artilce's reaction users is list history
-  e.g:
-  add/remove user_id to upvoted_user_ids in article meta
-  """
-  @spec update_article_reaction_user_list(
-          :upvot | :collect,
-          T.article_common(),
-          String.t(),
-          :add | :remove
-        ) :: T.article_common()
-  defp update_article_reaction_user_list(action, %{meta: nil} = article, user_id, opt) do
-    cur_user_ids = []
-
-    updated_user_ids =
-      case opt do
-        :add -> [user_id] ++ cur_user_ids
-        :remove -> cur_user_ids -- [user_id]
-      end
-
-    meta = @default_article_meta |> Map.merge(%{"#{action}ed_user_ids": updated_user_ids})
-    ORM.update_meta(article, meta)
-  end
-
-  defp update_article_reaction_user_list(action, article, user_id, opt) do
-    cur_user_ids = get_in(article, [:meta, :"#{action}ed_user_ids"])
-
-    updated_user_ids =
-      case opt do
-        :add -> [user_id] ++ cur_user_ids
-        :remove -> cur_user_ids -- [user_id]
-      end
-
-    meta = article.meta |> Map.merge(%{"#{action}ed_user_ids": updated_user_ids}) |> strip_struct
-    ORM.update_meta(article, meta)
-  end
-
   defp result({:ok, %{create_collect: result}}), do: result |> done()
   defp result({:ok, %{undo_collect: result}}), do: result |> done()
-
-  defp result({:error, _, result, _steps}) do
-    {:error, result}
-  end
+  defp result({:error, _, result, _steps}), do: {:error, result}
 end
