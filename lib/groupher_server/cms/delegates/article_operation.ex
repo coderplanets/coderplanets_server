@@ -3,11 +3,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   set / unset operations for Article-like resource
   """
   import GroupherServer.CMS.Helper.Matcher
+  import GroupherServer.CMS.Helper.Matcher2
   import Ecto.Query, warn: false
 
   import Helper.ErrorCode
   import ShortMaps
-  import Helper.Utils, only: [strip_struct: 1]
+  import Helper.Utils, only: [strip_struct: 1, integerfy: 1]
   import GroupherServer.CMS.Helper.Matcher2
 
   alias Helper.Types, as: T
@@ -104,24 +105,44 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   @doc """
   set content to diffent community
   """
-  def set_community(%Community{id: community_id}, thread, content_id) do
-    with {:ok, action} <- match_action(thread, :community),
-         {:ok, content} <- ORM.find(action.target, content_id, preload: :communities),
-         {:ok, community} <- ORM.find(action.reactor, community_id) do
-      content
+  def set_community(thread, article_id, community_id) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, article_id, preload: :communities),
+         {:ok, community} <- ORM.find(Community, community_id) do
+      article
       |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:communities, content.communities ++ [community])
+      |> Ecto.Changeset.put_assoc(:communities, article.communities ++ [community])
       |> Repo.update()
     end
   end
 
-  def unset_community(%Community{id: community_id}, thread, content_id) do
-    with {:ok, action} <- match_action(thread, :community),
-         {:ok, content} <- ORM.find(action.target, content_id, preload: :communities),
-         {:ok, community} <- ORM.find(action.reactor, community_id) do
-      content
+  def unset_community(thread, article_id, community_id) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <-
+           ORM.find(info.model, article_id, preload: [:communities, :original_community]),
+         {:ok, community} <- ORM.find(Community, community_id) do
+      case article.original_community.id == community_id do
+        true ->
+          raise_error(:mirror_community, "can not unmirror original_community")
+
+        false ->
+          article
+          |> Ecto.Changeset.change()
+          |> Ecto.Changeset.put_assoc(:communities, article.communities -- [community])
+          |> Repo.update()
+      end
+    end
+  end
+
+  @doc """
+  set article original community in meta
+  """
+  def move_article(thread, article_id, community_id) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, article_id) do
+      article
       |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:communities, content.communities -- [community])
+      |> Ecto.Changeset.put_change(:original_community_id, integerfy(community_id))
       |> Repo.update()
     end
   end

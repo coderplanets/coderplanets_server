@@ -26,7 +26,7 @@ defmodule GroupherServer.CMS.Post do
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title body digest length)a
-  @optional_fields ~w(origial_community_id link_addr copy_right link_addr link_icon article_comments_count article_comments_participators_count upvotes_count collects_count)a
+  @optional_fields ~w(original_community_id link_addr copy_right link_addr link_icon article_comments_count article_comments_participators_count upvotes_count collects_count)a
 
   @type t :: %Post{}
   schema "cms_posts" do
@@ -86,7 +86,7 @@ defmodule GroupherServer.CMS.Post do
       on_replace: :delete
     )
 
-    belongs_to(:origial_community, Community)
+    belongs_to(:original_community, Community)
 
     many_to_many(
       :communities,

@@ -130,19 +130,19 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
          {:ok, community} <- ORM.find(Community, cid) do
       Multi.new()
       |> Multi.run(:create_article, fn _, _ ->
-        do_create_content(action.target, attrs, author, community)
+        do_create_article(action.target, attrs, author, community)
       end)
-      |> Multi.run(:set_community, fn _, %{create_article: content} ->
-        ArticleOperation.set_community(community, thread, content.id)
+      |> Multi.run(:set_community, fn _, %{create_article: article} ->
+        ArticleOperation.set_community(thread, article.id, community.id)
       end)
-      |> Multi.run(:set_community_flag, fn _, %{create_article: content} ->
-        exec_set_community_flag(community, content, action)
+      |> Multi.run(:set_community_flag, fn _, %{create_article: article} ->
+        exec_set_community_flag(community, article, action)
       end)
-      |> Multi.run(:set_tag, fn _, %{create_article: content} ->
-        exec_set_tag(thread, content.id, attrs)
+      |> Multi.run(:set_tag, fn _, %{create_article: article} ->
+        exec_set_tag(thread, article.id, attrs)
       end)
-      |> Multi.run(:mention_users, fn _, %{create_article: content} ->
-        Delivery.mention_from_content(community.raw, thread, content, attrs, %User{id: uid})
+      |> Multi.run(:mention_users, fn _, %{create_article: article} ->
+        Delivery.mention_from_content(community.raw, thread, article, attrs, %User{id: uid})
         {:ok, :pass}
       end)
       |> Multi.run(:log_action, fn _, _ ->
@@ -160,7 +160,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   """
   def notify_admin_new_content(%{id: id} = result) do
     target = result.__struct__
-    preload = [:origial_community, author: :user]
+    preload = [:original_community, author: :user]
 
     with {:ok, content} <- ORM.find(target, id, preload: preload) do
       info = %{
@@ -385,13 +385,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   end
 
   #  for create content step in Multi.new
-  defp do_create_content(target, attrs, %Author{id: aid}, %Community{id: cid}) do
+  defp do_create_article(target, attrs, %Author{id: aid}, %Community{id: cid}) do
     target
     |> struct()
     |> target.changeset(attrs)
     |> Ecto.Changeset.put_change(:emotions, @default_emotions)
     |> Ecto.Changeset.put_change(:author_id, aid)
-    |> Ecto.Changeset.put_change(:origial_community_id, integerfy(cid))
+    |> Ecto.Changeset.put_change(:original_community_id, integerfy(cid))
     |> Ecto.Changeset.put_embed(:meta, @default_article_meta)
     |> Repo.insert()
   end

@@ -47,14 +47,6 @@ defmodule GroupherServer.Test.CMS.Post do
       assert user2.id in created.meta.viewed_user_ids
     end
 
-    test "created post has origial community info", ~m(user community post_attrs)a do
-      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
-      {:ok, found} = ORM.find(CMS.Post, post.id, preload: :origial_community)
-
-      assert post.origial_community_id == community.id
-      assert found.origial_community.id == community.id
-    end
-
     test "can create post with exsited tags", ~m(user community post_attrs)a do
       {:ok, tag1} = db_insert(:tag)
       {:ok, tag2} = db_insert(:tag)
