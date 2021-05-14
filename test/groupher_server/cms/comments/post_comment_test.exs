@@ -383,7 +383,12 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
         end)
 
       {:ok, paged_comments} =
-        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size}, :replies)
+        CMS.paged_article_comments(
+          :post,
+          post.id,
+          %{page: page_number, size: page_size},
+          :replies
+        )
 
       random_comment = all_comments |> Enum.at(Enum.random(0..total_count))
 
@@ -414,7 +419,12 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)
 
       {:ok, paged_comments} =
-        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size}, :replies)
+        CMS.paged_article_comments(
+          :post,
+          post.id,
+          %{page: page_number, size: page_size},
+          :replies
+        )
 
       assert pined_comment_1.id == List.first(paged_comments.entries) |> Map.get(:id)
       assert pined_comment_2.id == Enum.at(paged_comments.entries, 1) |> Map.get(:id)
@@ -442,7 +452,12 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)
 
       {:ok, paged_comments} =
-        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size}, :replies)
+        CMS.paged_article_comments(
+          :post,
+          post.id,
+          %{page: page_number, size: page_size},
+          :replies
+        )
 
       assert not exist_in?(pined_comment_1, paged_comments.entries)
       assert not exist_in?(pined_comment_2, paged_comments.entries)
@@ -472,7 +487,12 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, _comment} = CMS.fold_article_comment(random_comment_3.id, user)
 
       {:ok, paged_comments} =
-        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size}, :replies)
+        CMS.paged_article_comments(
+          :post,
+          post.id,
+          %{page: page_number, size: page_size},
+          :replies
+        )
 
       assert not exist_in?(random_comment_1, paged_comments.entries)
       assert not exist_in?(random_comment_2, paged_comments.entries)
@@ -532,7 +552,12 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, deleted_comment} = CMS.delete_article_comment(random_comment)
 
       {:ok, paged_comments} =
-        CMS.list_article_comments(:post, post.id, %{page: page_number, size: page_size}, :replies)
+        CMS.paged_article_comments(
+          :post,
+          post.id,
+          %{page: page_number, size: page_size},
+          :replies
+        )
 
       assert exist_in?(deleted_comment, paged_comments.entries)
       assert deleted_comment.is_deleted

@@ -116,8 +116,8 @@ defmodule GroupherServer.CMS do
   defdelegate undo_emotion_to_article(thread, article_id, args, user), to: ArticleEmotion
 
   # Comment CURD
-  defdelegate list_article_comments(thread, article_id, filters, mode), to: ArticleComment
-  defdelegate list_article_comments(thread, article_id, filters, mode, user), to: ArticleComment
+  defdelegate paged_article_comments(thread, article_id, filters, mode), to: ArticleComment
+  defdelegate paged_article_comments(thread, article_id, filters, mode, user), to: ArticleComment
 
   defdelegate list_folded_article_comments(thread, article_id, filters), to: ArticleComment
   defdelegate list_folded_article_comments(thread, article_id, filters, user), to: ArticleComment

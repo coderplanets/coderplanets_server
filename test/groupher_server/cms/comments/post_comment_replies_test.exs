@@ -195,7 +195,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
         CMS.reply_article_comment(parent_comment.id, "reply_content_2", user)
 
       {:ok, paged_comments} =
-        CMS.list_article_comments(
+        CMS.paged_article_comments(
           :post,
           post.id,
           %{page: page_number, size: page_size},
