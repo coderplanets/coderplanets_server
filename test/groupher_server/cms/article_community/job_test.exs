@@ -25,14 +25,16 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Job do
       assert job.original_community_id == community.id
     end
 
+    @tag :wip2
     test "job can be move to other community", ~m(user community community2 job_attrs)a do
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
       assert job.original_community_id == community.id
 
       {:ok, _} = CMS.move_article(:job, job.id, community2.id)
-      {:ok, job} = ORM.find(CMS.Job, job.id, preload: :original_community)
+      {:ok, job} = ORM.find(CMS.Job, job.id, preload: [:original_community, :communities])
 
       assert job.original_community.id == community2.id
+      assert is_nil(Enum.find(job.communities, &(&1.id == community2.id)))
     end
 
     test "job can be mirror to other community", ~m(user community community2 job_attrs)a do

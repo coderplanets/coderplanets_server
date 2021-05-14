@@ -8,7 +8,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
 
   import Helper.ErrorCode
   import ShortMaps
-  import Helper.Utils, only: [strip_struct: 1, integerfy: 1]
+  import Helper.Utils, only: [strip_struct: 1, integerfy: 1, done: 1]
   import GroupherServer.CMS.Helper.Matcher2
 
   alias Helper.Types, as: T
@@ -28,6 +28,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
 
   alias GroupherServer.CMS.Repo, as: CMSRepo
   alias GroupherServer.Repo
+
+  alias Ecto.Multi
 
   @max_pinned_article_count_per_thread Community.max_pinned_article_count_per_thread()
 
@@ -103,7 +105,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   end
 
   @doc """
-  set content to diffent community
+  mirror article to other community
   """
   def set_community(thread, article_id, community_id) do
     with {:ok, info} <- match(thread),
@@ -116,6 +118,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
     end
   end
 
+  @doc """
+  unmirror article to a community
+  """
   def unset_community(thread, article_id, community_id) do
     with {:ok, info} <- match(thread),
          {:ok, article} <-
@@ -135,17 +140,32 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
   end
 
   @doc """
-  set article original community in meta
+  move article original community to other community
   """
   def move_article(thread, article_id, community_id) do
     with {:ok, info} <- match(thread),
-         {:ok, article} <- ORM.find(info.model, article_id) do
-      article
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_change(:original_community_id, integerfy(community_id))
-      |> Repo.update()
+         {:ok, community} <- ORM.find(Community, community_id),
+         {:ok, article} <- ORM.find(info.model, article_id, preload: [:communities]) do
+      Multi.new()
+      |> Multi.run(:change_original_community, fn _, _ ->
+        article
+        |> Ecto.Changeset.change()
+        |> Ecto.Changeset.put_change(:original_community_id, community.id)
+        |> Repo.update()
+      end)
+      |> Multi.run(:unmirror_community, fn _, %{change_original_community: article} ->
+        article
+        |> Ecto.Changeset.change()
+        |> Ecto.Changeset.put_assoc(:communities, article.communities -- [community])
+        |> Repo.update()
+      end)
+      |> Repo.transaction()
+      |> result()
     end
   end
+
+  defp result({:ok, %{change_original_community: result}}), do: result |> done()
+  defp result({:error, _, result, _steps}), do: {:error, result}
 
   @doc """
   set general tag for post / tuts ...
