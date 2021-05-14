@@ -18,7 +18,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Job do
   end
 
   describe "[article mirror/move]" do
-    @tag :wip2
     test "created job has origial community info", ~m(user community job_attrs)a do
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
       {:ok, job} = ORM.find(CMS.Job, job.id, preload: :original_community)
@@ -26,7 +25,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Job do
       assert job.original_community_id == community.id
     end
 
-    @tag :wip2
     test "job can be move to other community", ~m(user community community2 job_attrs)a do
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
       assert job.original_community_id == community.id
@@ -37,7 +35,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Job do
       assert job.original_community.id == community2.id
     end
 
-    @tag :wip2
     test "job can be mirror to other community", ~m(user community community2 job_attrs)a do
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
@@ -54,7 +51,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Job do
       assert not is_nil(Enum.find(job.communities, &(&1.id == community2.id)))
     end
 
-    @tag :wip2
     test "job can be unmirror from community",
          ~m(user community community2 community3 job_attrs)a do
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
@@ -71,7 +67,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Job do
       assert is_nil(Enum.find(job.communities, &(&1.id == community3.id)))
     end
 
-    @tag :wip2
     test "job can not unmirror from original community",
          ~m(user community community2 community3 job_attrs)a do
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)

@@ -22,6 +22,7 @@ defmodule GroupherServer.Support.Factory do
       length: String.length(body),
       author: mock(:author),
       views: Enum.random(0..2000),
+      original_community: mock(:community),
       communities: [
         mock(:community),
         mock(:community)
@@ -58,6 +59,7 @@ defmodule GroupherServer.Support.Factory do
       ],
       author: mock(:author),
       views: Enum.random(0..2000),
+      original_community: mock(:community),
       communities: [
         mock(:community),
         mock(:community)
@@ -123,6 +125,7 @@ defmodule GroupherServer.Support.Factory do
       field: field_enum |> Enum.at(Enum.random(0..(length(field_enum) - 1))),
       finance: finance_enum |> Enum.at(Enum.random(0..(length(finance_enum) - 1))),
       scale: scale_enum |> Enum.at(Enum.random(0..(length(scale_enum) - 1))),
+      original_community: mock(:community),
       communities: [
         mock(:community)
       ],

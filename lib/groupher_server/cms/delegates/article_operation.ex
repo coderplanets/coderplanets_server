@@ -121,7 +121,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
          {:ok, article} <-
            ORM.find(info.model, article_id, preload: [:communities, :original_community]),
          {:ok, community} <- ORM.find(Community, community_id) do
-      case article.original_community.id == community_id do
+      case article.original_community.id == community.id do
         true ->
           raise_error(:mirror_community, "can not unmirror original_community")
 

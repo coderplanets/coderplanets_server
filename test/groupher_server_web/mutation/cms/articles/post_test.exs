@@ -464,6 +464,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       }
     }
     """
+    @tag :wip2
     test "auth user can unset community from a post", ~m(post)a do
       passport_rules = %{"post.community.set" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
