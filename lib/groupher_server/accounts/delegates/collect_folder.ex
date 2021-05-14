@@ -29,22 +29,22 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
   @doc """
   list a user's not-private collect folders
   """
-  def list_collect_folders(user_id, filter) do
+  def paged_collect_folders(user_id, filter) do
     query = CollectFolder |> where([c], c.user_id == ^user_id and not c.private)
 
-    do_list_collect_folders(filter, query)
+    do_paged_collect_folders(filter, query)
   end
 
   @doc """
   list a owner's collect folders
   """
-  def list_collect_folders(user_id, filter, %User{id: cur_user_id}) do
+  def paged_collect_folders(user_id, filter, %User{id: cur_user_id}) do
     query =
       if cur_user_id == user_id,
         do: CollectFolder |> where([c], c.user_id == ^user_id),
         else: CollectFolder |> where([c], c.user_id == ^user_id and not c.private)
 
-    do_list_collect_folders(filter, query)
+    do_paged_collect_folders(filter, query)
   end
 
   @doc """
@@ -228,7 +228,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
     end
   end
 
-  defp do_list_collect_folders(filter, query) do
+  defp do_paged_collect_folders(filter, query) do
     %{page: page, size: size} = filter
 
     query

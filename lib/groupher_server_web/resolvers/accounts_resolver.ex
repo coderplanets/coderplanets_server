@@ -131,13 +131,13 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
 
   def paged_collect_folders(_root, ~m(user_login filter)a, %{context: %{cur_user: cur_user}}) do
     with {:ok, user_id} <- Accounts.get_userid_and_cache(user_login) do
-      Accounts.list_collect_folders(user_id, filter, cur_user)
+      Accounts.paged_collect_folders(user_id, filter, cur_user)
     end
   end
 
   def paged_collect_folders(_root, ~m(user_login filter)a, _info) do
     with {:ok, user_id} <- Accounts.get_userid_and_cache(user_login) do
-      Accounts.list_collect_folders(user_id, filter)
+      Accounts.paged_collect_folders(user_id, filter)
     end
   end
 

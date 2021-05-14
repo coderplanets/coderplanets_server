@@ -66,7 +66,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder2"}, user)
 
-      {:ok, result} = Accounts.list_collect_folders(user.id, %{page: 1, size: 20})
+      {:ok, result} = Accounts.paged_collect_folders(user.id, %{page: 1, size: 20})
 
       assert result |> is_valid_pagination?(:raw)
       assert result.total_count == 2
@@ -79,7 +79,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
 
       {:ok, folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
 
-      {:ok, result} = Accounts.list_collect_folders(user.id, %{thread: :post, page: 1, size: 20})
+      {:ok, result} = Accounts.paged_collect_folders(user.id, %{thread: :post, page: 1, size: 20})
 
       assert result |> is_valid_pagination?(:raw)
       assert result.total_count == 1
@@ -94,7 +94,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
 
       {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder2"}, user2)
 
-      {:ok, result} = Accounts.list_collect_folders(user2.id, %{page: 1, size: 20}, user)
+      {:ok, result} = Accounts.paged_collect_folders(user2.id, %{page: 1, size: 20}, user)
 
       assert result |> is_valid_pagination?(:raw)
       assert result.total_count == 1
@@ -106,7 +106,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
         Accounts.create_collect_folder(%{title: "test folder", private: true}, user)
 
       {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder2"}, user)
-      {:ok, result} = Accounts.list_collect_folders(user.id, %{page: 1, size: 20}, user)
+      {:ok, result} = Accounts.paged_collect_folders(user.id, %{page: 1, size: 20}, user)
 
       assert result |> is_valid_pagination?(:raw)
       assert result.total_count == 2
