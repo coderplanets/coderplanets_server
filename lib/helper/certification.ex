@@ -52,8 +52,10 @@ defmodule Helper.Certification do
         "category.unset",
         "thread.create",
         "post.community.mirror",
+        "post.community.move",
         "post.community.unmirror",
         "job.community.mirror",
+        "job.community.move",
         "job.community.unmirror",
         # flag on content
         "post.pin",

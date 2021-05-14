@@ -145,7 +145,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
   def move_article(thread, article_id, community_id) do
     with {:ok, info} <- match(thread),
          {:ok, community} <- ORM.find(Community, community_id),
-         {:ok, article} <- ORM.find(info.model, article_id, preload: [:communities]) do
+         {:ok, article} <-
+           ORM.find(info.model, article_id, preload: [:communities, :original_community]) do
+      cur_original_community = article.original_community
+
       Multi.new()
       |> Multi.run(:change_original_community, fn _, _ ->
         article
@@ -156,7 +159,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
       |> Multi.run(:unmirror_article, fn _, %{change_original_community: article} ->
         article
         |> Ecto.Changeset.change()
-        |> Ecto.Changeset.put_assoc(:communities, article.communities -- [community])
+        |> Ecto.Changeset.put_assoc(:communities, article.communities -- [cur_original_community])
+        |> Repo.update()
+      end)
+      |> Multi.run(:mirror_target_community, fn _, %{unmirror_article: article} ->
+        article
+        |> Ecto.Changeset.change()
+        |> Ecto.Changeset.put_assoc(:communities, article.communities ++ [community])
         |> Repo.update()
       end)
       |> Repo.transaction()
@@ -164,7 +173,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
     end
   end
 
-  defp result({:ok, %{change_original_community: result}}), do: result |> done()
+  defp result({:ok, %{mirror_target_community: result}}), do: result |> done()
   defp result({:error, _, result, _steps}), do: {:error, result}
 
   @doc """

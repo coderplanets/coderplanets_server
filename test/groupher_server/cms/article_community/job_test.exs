@@ -34,7 +34,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Job do
       {:ok, job} = ORM.find(CMS.Job, job.id, preload: [:original_community, :communities])
 
       assert job.original_community.id == community2.id
-      assert is_nil(Enum.find(job.communities, &(&1.id == community2.id)))
+      assert not is_nil(Enum.find(job.communities, &(&1.id == community2.id)))
     end
 
     test "job can be mirror to other community", ~m(user community community2 job_attrs)a do

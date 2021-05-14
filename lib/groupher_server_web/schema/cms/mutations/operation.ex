@@ -130,15 +130,15 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Operation do
       resolve(&R.CMS.unmirror_article/3)
     end
 
-    # @desc "move article to other community"
-    # field :move_article, :article do
-    #   arg(:id, non_null(:id))
-    #   arg(:community_id, non_null(:id))
-    #   arg(:thread, :thread, default_value: :post)
+    @desc "move article to other community"
+    field :move_article, :article do
+      arg(:id, non_null(:id))
+      arg(:community_id, non_null(:id))
+      arg(:thread, :thread, default_value: :post)
 
-    #   middleware(M.Authorize, :login)
-    #   middleware(M.Passport, claim: "cms->t?.community.mirror")
-    #   resolve(&R.CMS.mirror_article/3)
-    # end
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->t?.community.move")
+      resolve(&R.CMS.move_article/3)
+    end
   end
 end
