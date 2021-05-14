@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Delegate.ArticleOperation do
+defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
   @moduledoc """
   set / unset operations for Article-like resource
   """
@@ -8,7 +8,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleOperation do
 
   import Helper.ErrorCode
   import ShortMaps
-  import Helper.Utils, only: [strip_struct: 1, integerfy: 1, done: 1]
+  import Helper.Utils, only: [strip_struct: 1, done: 1]
   import GroupherServer.CMS.Helper.Matcher2
 
   alias Helper.Types, as: T

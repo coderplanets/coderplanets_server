@@ -20,7 +20,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   alias Accounts.User
   alias CMS.{Author, Community, PinnedArticle, Embeds, Delegate, Tag}
 
-  alias Delegate.ArticleOperation
+  alias Delegate.ArticleCommunity
 
   alias Ecto.Multi
 
@@ -133,7 +133,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
         do_create_article(action.target, attrs, author, community)
       end)
       |> Multi.run(:set_community, fn _, %{create_article: article} ->
-        ArticleOperation.set_community(thread, article.id, community.id)
+        ArticleCommunity.set_community(thread, article.id, community.id)
       end)
       |> Multi.run(:set_community_flag, fn _, %{create_article: article} ->
         exec_set_community_flag(community, article, action)
@@ -186,10 +186,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       ORM.update(content, args)
     end)
     |> Multi.run(:update_edit_status, fn _, %{update_article: update_article} ->
-      ArticleOperation.update_edit_status(update_article)
+      ArticleCommunity.update_edit_status(update_article)
     end)
     |> Multi.run(:update_tag, fn _, _ ->
-      # TODO: move it to ArticleOperation module
+      # TODO: move it to ArticleCommunity module
       exec_update_tags(content, args)
     end)
     |> Repo.transaction()
@@ -399,7 +399,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp exec_set_tag(thread, id, %{tags: tags}) do
     try do
       Enum.each(tags, fn tag ->
-        {:ok, _} = ArticleOperation.set_tag(thread, %Tag{id: tag.id}, id)
+        {:ok, _} = ArticleCommunity.set_tag(thread, %Tag{id: tag.id}, id)
       end)
 
       {:ok, "psss"}
@@ -412,7 +412,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   # TODO:  flag 逻辑似乎有问题
   defp exec_set_community_flag(%Community{} = community, content, %{flag: _flag}) do
-    ArticleOperation.set_community_flags(community, content, %{
+    ArticleCommunity.set_community_flags(community, content, %{
       trash: false
     })
   end
