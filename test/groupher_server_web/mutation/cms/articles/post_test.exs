@@ -38,7 +38,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
         title
         body
         id
-        origialCommunity {
+        originalCommunity {
           id
         }
       }
@@ -56,7 +56,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       {:ok, post} = ORM.find(CMS.Post, created["id"])
 
       assert created["id"] == to_string(post.id)
-      assert created["origialCommunity"]["id"] == to_string(community.id)
+      assert created["originalCommunity"]["id"] == to_string(community.id)
 
       assert {:ok, _} = ORM.find_by(CMS.Author, user_id: user.id)
     end

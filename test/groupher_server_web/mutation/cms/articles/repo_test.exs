@@ -59,7 +59,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Repo do
         id
         title
         desc
-        origialCommunity {
+        originalCommunity {
           id
         }
       }
@@ -79,7 +79,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Repo do
       assert created["id"] == to_string(repo.id)
 
       assert created["id"] == to_string(repo.id)
-      assert created["origialCommunity"]["id"] == to_string(community.id)
+      assert created["originalCommunity"]["id"] == to_string(community.id)
       assert {:ok, _} = ORM.find_by(CMS.Author, user_id: user.id)
     end
 
@@ -126,7 +126,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Repo do
         title
         readme
         desc
-        origialCommunity {
+        originalCommunity {
           id
         }
       }

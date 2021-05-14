@@ -58,7 +58,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
           exp
           education
           field
-          origialCommunity {
+          originalCommunity {
             id
           }
           communities {
@@ -68,6 +68,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       }
     }
     """
+    @tag :wip2
     test "create job with valid attrs and make sure author exsit" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -87,7 +88,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       {:ok, found} = ORM.find(CMS.Job, created["id"])
 
       assert created["id"] == to_string(found.id)
-      assert created["origialCommunity"]["id"] == to_string(community.id)
+      assert created["originalCommunity"]["id"] == to_string(community.id)
 
       assert created["id"] == to_string(found.id)
     end
