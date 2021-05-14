@@ -33,7 +33,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleUpvote do
          {:ok, article} <- ORM.find(info.model, article_id, preload: [author: :user]) do
       Multi.new()
       |> Multi.run(:inc_article_upvotes_count, fn _, _ ->
-        update_article_reactions_count(info, article, :upvote, :inc)
+        update_article_reactions_count(info, article, :upvotes_count, :inc)
       end)
       |> Multi.run(:update_article_reaction_user_list, fn _, _ ->
         update_article_reaction_user_list(:upvot, article, user_id, :add)
@@ -61,7 +61,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleUpvote do
          {:ok, article} <- ORM.find(info.model, article_id) do
       Multi.new()
       |> Multi.run(:inc_article_upvotes_count, fn _, _ ->
-        update_article_reactions_count(info, article, :upvote, :dec)
+        update_article_reactions_count(info, article, :upvotes_count, :dec)
       end)
       |> Multi.run(:update_article_reaction_user_list, fn _, _ ->
         update_article_reaction_user_list(:upvot, article, user_id, :remove)

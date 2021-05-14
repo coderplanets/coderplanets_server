@@ -27,6 +27,7 @@ defmodule GroupherServer.Test.Upvotes.JobUpvote do
       assert article.upvotes_count == 2
     end
 
+    @tag :wip2
     test "job can be undo upvote && upvotes_count should dec by 1",
          ~m(user user2 community job_attrs)a do
       {:ok, job} = CMS.create_content(community, :job, job_attrs, user)

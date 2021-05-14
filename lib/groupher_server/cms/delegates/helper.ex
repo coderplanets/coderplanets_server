@@ -114,8 +114,8 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   def update_article_reactions_count(info, article, field, opt) do
     schema =
       case field do
-        :upvote -> ArticleUpvote
-        :collect -> ArticleCollect
+        :upvotes_count -> ArticleUpvote
+        :collects_count -> ArticleCollect
       end
 
     count_query = from(u in schema, where: field(u, ^info.foreign_key) == ^article.id)
