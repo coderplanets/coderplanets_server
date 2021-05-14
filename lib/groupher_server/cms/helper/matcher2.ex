@@ -8,6 +8,19 @@ defmodule GroupherServer.CMS.Helper.Matcher2.Macros do
 
   @article_threads Community.article_threads()
 
+  @doc """
+  match basic threads
+
+  {:ok, info} <- match(:post)
+  info:
+  %{
+    model: Post,
+    thread: :post,
+    foreign_key: post_id,
+    preload: :post
+    default_meta: ...
+  }
+  """
   defmacro thread_matches() do
     @article_threads
     |> Enum.map(fn thread ->
@@ -28,6 +41,13 @@ defmodule GroupherServer.CMS.Helper.Matcher2.Macros do
     end)
   end
 
+  @doc """
+  match basic thread query
+
+  {:ok, info} <- match(:post, :query, id)
+  info:
+  %{dynamic([c], field(c, :post_id) == ^id)}
+  """
   defmacro thread_query_matches() do
     @article_threads
     |> Enum.map(fn thread ->
@@ -39,6 +59,17 @@ defmodule GroupherServer.CMS.Helper.Matcher2.Macros do
     end)
   end
 
+  @doc """
+  mapping basic article_comment -> thread
+
+  {:ok, info} <- match(:comment_article, %ArticleComment{post_id: id} = comment)
+  info:
+  %{
+    id: id,
+    model: CMS.Post,
+    foreign_key: :post_id,
+  }
+  """
   defmacro comment_article_matches() do
     @article_threads
     |> Enum.map(fn thread ->
