@@ -180,20 +180,20 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   @doc """
   update a content(post/job ...)
   """
-  def update_content(content, args) do
+  def update_article(content, args) do
     Multi.new()
-    |> Multi.run(:update_content, fn _, _ ->
+    |> Multi.run(:update_article, fn _, _ ->
       ORM.update(content, args)
     end)
-    |> Multi.run(:update_edit_status, fn _, %{update_content: update_content} ->
-      ArticleOperation.update_edit_status(update_content)
+    |> Multi.run(:update_edit_status, fn _, %{update_article: update_article} ->
+      ArticleOperation.update_edit_status(update_article)
     end)
     |> Multi.run(:update_tag, fn _, _ ->
       # TODO: move it to ArticleOperation module
       exec_update_tags(content, args)
     end)
     |> Repo.transaction()
-    |> update_content_result()
+    |> update_article_result()
   end
 
   @spec ensure_author_exists(User.t()) :: {:ok, User.t()}
@@ -384,10 +384,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     {:error, [message: "log action", code: ecode(:create_fails)]}
   end
 
-  defp update_content_result({:ok, %{update_edit_status: result}}), do: {:ok, result}
-  defp update_content_result({:error, :update_content, result, _steps}), do: {:error, result}
-  defp update_content_result({:error, :update_tag, result, _steps}), do: {:error, result}
-
   #  for create content step in Multi.new
   defp do_create_content(target, attrs, %Author{id: aid}, %Community{id: cid}) do
     target
@@ -468,6 +464,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
         {:ok, :pass}
     end
   end
+
+  defp update_article_result({:ok, %{update_edit_status: result}}), do: {:ok, result}
+  defp update_article_result({:error, :update_article, result, _steps}), do: {:error, result}
+  defp update_article_result({:error, :update_tag, result, _steps}), do: {:error, result}
 
   defp read_result({:ok, %{inc_views: result}}), do: result |> done()
 

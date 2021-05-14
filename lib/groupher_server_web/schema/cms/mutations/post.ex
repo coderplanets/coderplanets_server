@@ -41,7 +41,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Post do
       middleware(M.PassportLoader, source: :post)
       middleware(M.Passport, claim: "owner;cms->c?->post.edit")
 
-      resolve(&R.CMS.update_content/3)
+      resolve(&R.CMS.update_article/3)
     end
 
     #############
