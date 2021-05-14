@@ -28,8 +28,8 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   defp get_supported_mentions(_), do: @supported_emotions
 
   def mark_viewer_emotion_states(paged_contents, nil), do: paged_contents
-  def mark_viewer_emotion_states(paged_contents, nil, :comment), do: paged_contents
   def mark_viewer_emotion_states(%{entries: []} = paged_contents, _), do: paged_contents
+  def mark_viewer_emotion_states(paged_contents, nil, :comment), do: paged_contents
 
   @doc """
   mark viewer emotions status for article or comment
@@ -101,9 +101,14 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   ######
   # reaction related end, include upvote && collect
   #######
-  def load_reaction_users(schema, thread, article_id, %{page: page, size: size} = filter) do
+  @doc """
+  paged [reaction] users list
+  """
+  def load_reaction_users(queryable, thread, article_id, filter) do
+    %{page: page, size: size} = filter
+
     with {:ok, info} <- match(thread) do
-      schema
+      queryable
       |> where([u], field(u, ^info.foreign_key) == ^article_id)
       |> QueryBuilder.load_inner_users(filter)
       |> ORM.paginater(~m(page size)a)
@@ -111,6 +116,11 @@ defmodule GroupherServer.CMS.Delegate.Helper do
     end
   end
 
+  @doc """
+  update the [reaction]s_count for article
+  e.g:
+  inc/dec upvotes_count of article
+  """
   def update_article_reactions_count(info, article, field, opt) do
     schema =
       case field do
