@@ -294,7 +294,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       {:ok, _comment} = CMS.report_article_comment(comment.id, "reason", "attr", user2)
 
       filter = %{content_type: :article_comment, content_id: comment.id, page: 1, size: 20}
-      {:ok, all_reports} = CMS.list_reports(filter)
+      {:ok, all_reports} = CMS.paged_reports(filter)
       assert all_reports.total_count == 1
 
       report = all_reports.entries |> List.first()
@@ -305,7 +305,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       {:ok, _report} = CMS.undo_report_article(:article_comment, comment.id, user)
 
       filter = %{content_type: :article_comment, content_id: comment.id, page: 1, size: 20}
-      {:ok, all_reports} = CMS.list_reports(filter)
+      {:ok, all_reports} = CMS.paged_reports(filter)
       assert all_reports.total_count == 1
 
       report = all_reports.entries |> List.first()
@@ -361,7 +361,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       {:ok, _comment} = CMS.create_article_comment(:job, job.id, "commment", user)
 
       {:ok, results} =
-        CMS.list_article_comments_participators(thread, job.id, %{page: 1, size: page_size})
+        CMS.paged_article_comments_participators(thread, job.id, %{page: 1, size: page_size})
 
       assert results |> is_valid_pagination?(:raw)
       assert results.total_count == total_count + 1
@@ -500,7 +500,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       random_comment_3 = all_folded_comments |> Enum.at(5)
 
       {:ok, paged_comments} =
-        CMS.list_folded_article_comments(:job, job.id, %{page: page_number, size: page_size})
+        CMS.paged_folded_article_comments(:job, job.id, %{page: page_number, size: page_size})
 
       assert exist_in?(random_comment_1, paged_comments.entries)
       assert exist_in?(random_comment_2, paged_comments.entries)

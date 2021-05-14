@@ -62,8 +62,8 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.paged_articles(thread, filter)
   end
 
-  def list_reports(_root, ~m(filter)a, _) do
-    CMS.list_reports(filter)
+  def paged_reports(_root, ~m(filter)a, _) do
+    CMS.paged_reports(filter)
   end
 
   def wiki(_root, ~m(community)a, _info), do: CMS.get_wiki(%Community{raw: community})
@@ -316,7 +316,7 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   end
 
   def paged_article_comments_participators(_root, ~m(id thread filter)a, _info) do
-    CMS.list_article_comments_participators(thread, id, filter)
+    CMS.paged_article_comments_participators(thread, id, filter)
   end
 
   def create_article_comment(_root, ~m(thread id content)a, %{context: %{cur_user: user}}) do
@@ -350,23 +350,23 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   ############
 
   def paged_comment_replies(_root, ~m(id filter)a, %{context: %{cur_user: user}}) do
-    CMS.list_comment_replies(id, filter, user)
+    CMS.paged_comment_replies(id, filter, user)
   end
 
   def paged_comment_replies(_root, ~m(id filter)a, _info) do
-    CMS.list_comment_replies(id, filter)
+    CMS.paged_comment_replies(id, filter)
   end
 
   def paged_comments(_root, ~m(id thread filter)a, _info) do
-    CMS.list_comments(thread, id, filter)
+    CMS.paged_comments(thread, id, filter)
   end
 
   def paged_comments_participators(_root, ~m(id thread filter)a, _info) do
-    CMS.list_comments_participators(thread, id, filter)
+    CMS.paged_comments_participators(thread, id, filter)
   end
 
   def paged_comments_participators(root, ~m(thread)a, _info) do
-    CMS.list_comments_participators(thread, root.id, %{page: 1, size: 20})
+    CMS.paged_comments_participators(thread, root.id, %{page: 1, size: 20})
   end
 
   def create_comment(_root, ~m(thread id)a = args, %{context: %{cur_user: user}}) do

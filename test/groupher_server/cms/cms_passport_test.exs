@@ -68,16 +68,16 @@ defmodule GroupherServer.Test.CMS.Passport do
       {:ok, _} = CMS.stamp_passport(@valid_passport_rules, user)
       {:ok, _} = CMS.stamp_passport(@valid_passport_rules2, user2)
 
-      {:ok, passports} = CMS.list_passports("javascript", "post.article.delete")
+      {:ok, passports} = CMS.paged_passports("javascript", "post.article.delete")
       assert length(passports) == 1
       assert passports |> List.first() |> Map.get(:rules) |> Map.equal?(@valid_passport_rules)
     end
 
     test "list passport by invalid key get []", ~m(user)a do
       {:ok, _} = CMS.stamp_passport(@valid_passport_rules, user)
-      {:ok, []} = CMS.list_passports("javascript", "non-exsit")
+      {:ok, []} = CMS.paged_passports("javascript", "non-exsit")
 
-      {:ok, []} = CMS.list_passports("non-exsit", "non-exsit")
+      {:ok, []} = CMS.paged_passports("non-exsit", "non-exsit")
     end
 
     test "can ease a rule in passport", ~m(user)a do

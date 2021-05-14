@@ -97,7 +97,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
   @doc """
   list paged comments
   """
-  def list_comments(thread, content_id, %{page: page, size: size} = filters) do
+  def paged_comments(thread, content_id, %{page: page, size: size} = filters) do
     with {:ok, action} <- match_action(thread, :comment) do
       dynamic = dynamic_comment_where(thread, content_id)
 
@@ -112,7 +112,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
   @doc """
   list paged comments participators
   """
-  def list_comments_participators(thread, content_id, %{page: page, size: size} = filters) do
+  def paged_comments_participators(thread, content_id, %{page: page, size: size} = filters) do
     with {:ok, action} <- match_action(thread, :comment) do
       dynamic = dynamic_comment_where(thread, content_id)
 
@@ -131,7 +131,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
     end
   end
 
-  def list_replies(thread, comment_id, %Accounts.User{id: user_id}) do
+  def paged_replies(thread, comment_id, %Accounts.User{id: user_id}) do
     with {:ok, action} <- match_action(thread, :comment) do
       action.reactor
       |> where([c], c.author_id == ^user_id)

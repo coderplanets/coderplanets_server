@@ -164,7 +164,7 @@ defmodule GroupherServer.Test.Query.OldPostComment do
     assert results["totalCount"] == 10
   end
 
-  # TODO: user can get specific user's replies :list_replies
+  # TODO: user can get specific user's replies :paged_replies
   # TODO: filter comment by time / like / reply
   describe "[post comment]" do
     @query """

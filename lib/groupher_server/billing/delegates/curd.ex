@@ -19,7 +19,7 @@ defmodule GroupherServer.Billing.Delegate.CURD do
   @doc """
   list all the bill records
   """
-  def list_records(%User{id: user_id}, %{page: page, size: size} = _filter) do
+  def paged_records(%User{id: user_id}, %{page: page, size: size} = _filter) do
     with {:ok, user} <- ORM.find(User, user_id) do
       BillRecord
       |> where([r], r.user_id == ^user.id)

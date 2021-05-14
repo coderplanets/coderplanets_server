@@ -23,7 +23,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.RepoReport do
       {:ok, _report} = CMS.report_article(:repo, repo.id, "reason", "attr_info", user2)
 
       filter = %{content_type: :repo, content_id: repo.id, page: 1, size: 20}
-      {:ok, all_reports} = CMS.list_reports(filter)
+      {:ok, all_reports} = CMS.paged_reports(filter)
 
       report = all_reports.entries |> List.first()
       assert report.article.id == repo.id
@@ -35,7 +35,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.RepoReport do
       {:ok, _report} = CMS.report_article(:repo, repo.id, "reason", "attr_info", user)
 
       filter = %{content_type: :repo, content_id: repo.id, page: 1, size: 20}
-      {:ok, all_reports} = CMS.list_reports(filter)
+      {:ok, all_reports} = CMS.paged_reports(filter)
 
       report = List.first(all_reports.entries)
       report_cases = report.report_cases
@@ -56,7 +56,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.RepoReport do
       {:ok, _report} = CMS.undo_report_article(:repo, repo.id, user)
 
       filter = %{content_type: :repo, content_id: repo.id, page: 1, size: 20}
-      {:ok, all_reports} = CMS.list_reports(filter)
+      {:ok, all_reports} = CMS.paged_reports(filter)
       assert all_reports.total_count == 0
 
       {:ok, repo} = ORM.find(CMS.Repo, repo.id)
@@ -70,7 +70,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.RepoReport do
       {:ok, _report} = CMS.undo_report_article(:repo, repo.id, user)
 
       filter = %{content_type: :repo, content_id: repo.id, page: 1, size: 20}
-      {:ok, all_reports} = CMS.list_reports(filter)
+      {:ok, all_reports} = CMS.paged_reports(filter)
       assert all_reports.total_count == 1
 
       {:ok, repo} = ORM.find(CMS.Repo, repo.id)
@@ -86,7 +86,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.RepoReport do
       {:ok, _report} = CMS.report_article(:repo, repo.id, "reason", "attr_info", user2)
 
       filter = %{content_type: :repo, content_id: repo.id, page: 1, size: 20}
-      {:ok, all_reports} = CMS.list_reports(filter)
+      {:ok, all_reports} = CMS.paged_reports(filter)
       assert all_reports.total_count == 1
 
       report = all_reports.entries |> List.first()
@@ -97,7 +97,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.RepoReport do
       {:ok, _report} = CMS.undo_report_article(:repo, repo.id, user)
 
       filter = %{content_type: :repo, content_id: repo.id, page: 1, size: 20}
-      {:ok, all_reports} = CMS.list_reports(filter)
+      {:ok, all_reports} = CMS.paged_reports(filter)
       assert all_reports.total_count == 1
 
       report = all_reports.entries |> List.first()
@@ -113,7 +113,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.RepoReport do
       {:ok, _report} = CMS.report_article(:repo, repo.id, "reason2", "attr_info 2", user2)
 
       filter = %{content_type: :repo, content_id: repo.id, page: 1, size: 20}
-      {:ok, all_reports} = CMS.list_reports(filter)
+      {:ok, all_reports} = CMS.paged_reports(filter)
 
       report = List.first(all_reports.entries)
       report_cases = report.report_cases

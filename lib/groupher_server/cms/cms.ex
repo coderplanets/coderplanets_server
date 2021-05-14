@@ -119,12 +119,14 @@ defmodule GroupherServer.CMS do
   defdelegate paged_article_comments(thread, article_id, filters, mode), to: ArticleComment
   defdelegate paged_article_comments(thread, article_id, filters, mode, user), to: ArticleComment
 
-  defdelegate list_folded_article_comments(thread, article_id, filters), to: ArticleComment
-  defdelegate list_folded_article_comments(thread, article_id, filters, user), to: ArticleComment
+  defdelegate paged_folded_article_comments(thread, article_id, filters), to: ArticleComment
+  defdelegate paged_folded_article_comments(thread, article_id, filters, user), to: ArticleComment
 
-  defdelegate list_comment_replies(comment_id, filters), to: ArticleComment
-  defdelegate list_comment_replies(comment_id, filters, user), to: ArticleComment
-  defdelegate list_article_comments_participators(thread, content_id, filters), to: ArticleComment
+  defdelegate paged_comment_replies(comment_id, filters), to: ArticleComment
+  defdelegate paged_comment_replies(comment_id, filters, user), to: ArticleComment
+
+  defdelegate paged_article_comments_participators(thread, content_id, filters),
+    to: ArticleComment
 
   defdelegate create_article_comment(thread, article_id, args, user), to: ArticleComment
   defdelegate update_article_comment(comment, content), to: ArticleComment
@@ -149,11 +151,11 @@ defmodule GroupherServer.CMS do
   defdelegate create_comment(thread, content_id, args, user), to: CommentCURD
   defdelegate update_comment(thread, id, args, user), to: CommentCURD
   defdelegate delete_comment(thread, content_id), to: CommentCURD
-  defdelegate list_replies(thread, comment, user), to: CommentCURD
+  defdelegate paged_replies(thread, comment, user), to: CommentCURD
   defdelegate reply_comment(thread, comment, args, user), to: CommentCURD
 
-  defdelegate list_comments(thread, content_id, filters), to: CommentCURD
-  defdelegate list_comments_participators(thread, content_id, filters), to: CommentCURD
+  defdelegate paged_comments(thread, content_id, filters), to: CommentCURD
+  defdelegate paged_comments_participators(thread, content_id, filters), to: CommentCURD
 
   # TODO: move report to abuse report module
   defdelegate report_article(thread, article_id, reason, attr, user), to: AbuseReport
@@ -161,14 +163,14 @@ defmodule GroupherServer.CMS do
   defdelegate report_account(account_id, reason, attr, user), to: AbuseReport
   defdelegate undo_report_account(account_id, user), to: AbuseReport
   defdelegate undo_report_article(thread, article_id, user), to: AbuseReport
-  defdelegate list_reports(filter), to: AbuseReport
+  defdelegate paged_reports(filter), to: AbuseReport
   defdelegate undo_report_article_comment(comment_id, user), to: AbuseReport
 
   # Passport CURD
   defdelegate stamp_passport(rules, user), to: PassportCURD
   defdelegate erase_passport(rules, user), to: PassportCURD
   defdelegate get_passport(user), to: PassportCURD
-  defdelegate list_passports(community, key), to: PassportCURD
+  defdelegate paged_passports(community, key), to: PassportCURD
   defdelegate delete_passport(user), to: PassportCURD
 
   # search

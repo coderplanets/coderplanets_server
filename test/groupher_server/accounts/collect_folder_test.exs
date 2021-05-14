@@ -183,7 +183,8 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
 
       {:ok, _} = Accounts.remove_from_collect(:post, post.id, folder.id, user)
 
-      {:ok, result} = Accounts.list_collect_folder_articles(folder.id, %{page: 1, size: 10}, user)
+      {:ok, result} =
+        Accounts.paged_collect_folder_articles(folder.id, %{page: 1, size: 10}, user)
 
       assert result.total_count == 1
       assert result.entries |> length == 1
@@ -275,7 +276,9 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
       {:ok, _folder} = Accounts.add_to_collect(:job, job.id, folder.id, user)
 
-      {:ok, result} = Accounts.list_collect_folder_articles(folder.id, %{page: 1, size: 10}, user)
+      {:ok, result} =
+        Accounts.paged_collect_folder_articles(folder.id, %{page: 1, size: 10}, user)
+
       assert result |> is_valid_pagination?(:raw)
 
       collect_job = result.entries |> List.first()
@@ -295,11 +298,13 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
       {:ok, _folder} = Accounts.add_to_collect(:job, job.id, folder.id, user)
 
-      {:ok, result} = Accounts.list_collect_folder_articles(folder.id, %{page: 1, size: 10}, user)
+      {:ok, result} =
+        Accounts.paged_collect_folder_articles(folder.id, %{page: 1, size: 10}, user)
+
       assert result |> is_valid_pagination?(:raw)
 
       {:error, reason} =
-        Accounts.list_collect_folder_articles(folder.id, %{page: 1, size: 10}, user2)
+        Accounts.paged_collect_folder_articles(folder.id, %{page: 1, size: 10}, user2)
 
       assert reason |> is_error?(:private_collect_folder)
     end

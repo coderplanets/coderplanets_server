@@ -127,7 +127,7 @@ defmodule GroupherServer.Accounts.Delegate.Achievements do
   """
   alias GroupherServer.CMS.CommunityEditor
 
-  def list_editable_communities(%User{id: user_id}, %{page: page, size: size}) do
+  def paged_editable_communities(%User{id: user_id}, %{page: page, size: size}) do
     with {:ok, user} <- ORM.find(User, user_id) do
       CommunityEditor
       |> where([e], e.user_id == ^user.id)

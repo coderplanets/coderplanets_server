@@ -158,7 +158,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
   describe "[paged article comment replies]" do
     test "can get paged replies of a parent comment", ~m(post user)a do
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
-      {:ok, paged_replies} = CMS.list_comment_replies(parent_comment.id, %{page: 1, size: 20})
+      {:ok, paged_replies} = CMS.paged_comment_replies(parent_comment.id, %{page: 1, size: 20})
       assert is_valid_pagination?(paged_replies, :raw, :empty)
 
       total_reply_count = 30
@@ -171,7 +171,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
           acc ++ [replyed_comment]
         end)
 
-      {:ok, paged_replies} = CMS.list_comment_replies(parent_comment.id, %{page: 1, size: 20})
+      {:ok, paged_replies} = CMS.paged_comment_replies(parent_comment.id, %{page: 1, size: 20})
 
       assert total_reply_count == paged_replies.total_count
       assert is_valid_pagination?(paged_replies, :raw)

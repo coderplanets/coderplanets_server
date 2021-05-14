@@ -20,7 +20,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.CommentReport do
       {:ok, _comment} = CMS.report_article_comment(comment.id, "reason", "attr", user)
 
       filter = %{content_type: :article_comment, content_id: comment.id, page: 1, size: 20}
-      {:ok, all_reports} = CMS.list_reports(filter)
+      {:ok, all_reports} = CMS.paged_reports(filter)
 
       report = List.first(all_reports.entries)
       report_cases = report.report_cases
@@ -38,7 +38,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.CommentReport do
       {:ok, _} = CMS.report_article_comment(comment.id, "reason", "attr", user2)
 
       filter = %{content_type: :article_comment, content_id: comment.id, page: 1, size: 20}
-      {:ok, all_reports} = CMS.list_reports(filter)
+      {:ok, all_reports} = CMS.paged_reports(filter)
 
       report = List.first(all_reports.entries)
       report_cases = report.report_cases

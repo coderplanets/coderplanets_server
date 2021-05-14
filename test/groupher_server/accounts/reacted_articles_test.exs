@@ -20,7 +20,7 @@ defmodule GroupherServer.Test.Accounts.ReactedContents do
       {:ok, _} = CMS.upvote_article(:job, job.id, user)
 
       filter = %{page: 1, size: 20}
-      {:ok, articles} = Accounts.list_upvoted_articles(user.id, filter)
+      {:ok, articles} = Accounts.paged_upvoted_articles(user.id, filter)
 
       article_post = articles |> Map.get(:entries) |> List.last()
       article_job = articles |> Map.get(:entries) |> List.first()
@@ -39,7 +39,7 @@ defmodule GroupherServer.Test.Accounts.ReactedContents do
       {:ok, _} = CMS.upvote_article(:job, job.id, user)
 
       filter = %{thread: :post, page: 1, size: 20}
-      {:ok, articles} = Accounts.list_upvoted_articles(user.id, filter)
+      {:ok, articles} = Accounts.paged_upvoted_articles(user.id, filter)
 
       assert articles |> is_valid_pagination?(:raw)
       assert post.id == articles |> Map.get(:entries) |> List.last() |> Map.get(:id)
@@ -52,7 +52,7 @@ defmodule GroupherServer.Test.Accounts.ReactedContents do
       {:ok, _} = CMS.upvote_article(:job, job.id, user)
 
       filter = %{thread: :job, page: 1, size: 20}
-      {:ok, articles} = Accounts.list_upvoted_articles(user.id, filter)
+      {:ok, articles} = Accounts.paged_upvoted_articles(user.id, filter)
 
       assert articles |> is_valid_pagination?(:raw)
       assert job.id == articles |> Map.get(:entries) |> List.last() |> Map.get(:id)
