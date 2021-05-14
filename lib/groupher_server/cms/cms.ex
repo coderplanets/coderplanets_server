@@ -14,6 +14,7 @@ defmodule GroupherServer.CMS do
     ArticleEmotion,
     ArticleReaction,
     ArticleComment,
+    ArticleCollect,
     ArticleCommentAction,
     ArticleCommentEmotion,
     CommentCURD,
@@ -87,15 +88,15 @@ defmodule GroupherServer.CMS do
 
   defdelegate upvoted_users(thread, article_id, filter), to: ArticleReaction
 
-  defdelegate collect_article(thread, article_id, user), to: ArticleReaction
-  defdelegate collect_article_ifneed(thread, article_id, user), to: ArticleReaction
+  defdelegate collect_article(thread, article_id, user), to: ArticleCollect
+  defdelegate collect_article_ifneed(thread, article_id, user), to: ArticleCollect
 
-  defdelegate undo_collect_article(thread, article_id, user), to: ArticleReaction
-  defdelegate undo_collect_article_ifneed(thread, article_id, user), to: ArticleReaction
-  defdelegate collected_users(thread, article_id, filter), to: ArticleReaction
+  defdelegate undo_collect_article(thread, article_id, user), to: ArticleCollect
+  defdelegate undo_collect_article_ifneed(thread, article_id, user), to: ArticleCollect
+  defdelegate collected_users(thread, article_id, filter), to: ArticleCollect
 
-  defdelegate set_collect_folder(collect, folder), to: ArticleReaction
-  defdelegate undo_set_collect_folder(collect, folder), to: ArticleReaction
+  defdelegate set_collect_folder(collect, folder), to: ArticleCollect
+  defdelegate undo_set_collect_folder(collect, folder), to: ArticleCollect
 
   # ArticleOperation
   # >> set flag on article, like: pin / unpin article
