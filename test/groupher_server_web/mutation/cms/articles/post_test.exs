@@ -404,20 +404,20 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
   end
 
   describe "[mutation post community]" do
-    @set_community_query """
+    @mirror_community_query """
     mutation($id: ID!, $communityId: ID!) {
-      setCommunity(id: $id, communityId: $communityId) {
+      mirrorCommunity(id: $id, communityId: $communityId) {
         id
       }
     }
     """
     test "auth user can set a community to post", ~m(post)a do
-      passport_rules = %{"post.community.set" => true}
+      passport_rules = %{"post.community.mirror" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       {:ok, community} = db_insert(:community)
       variables = %{id: post.id, communityId: community.id}
-      rule_conn |> mutation_result(@set_community_query, variables, "setCommunity")
+      rule_conn |> mutation_result(@mirror_community_query, variables, "mirrorCommunity")
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :communities)
 
       assoc_communities = found.communities |> Enum.map(& &1.id)
@@ -429,26 +429,28 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       variables = %{id: post.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
-      assert user_conn |> mutation_get_error?(@set_community_query, variables, ecode(:passport))
+      assert user_conn
+             |> mutation_get_error?(@mirror_community_query, variables, ecode(:passport))
 
       assert guest_conn
-             |> mutation_get_error?(@set_community_query, variables, ecode(:account_login))
+             |> mutation_get_error?(@mirror_community_query, variables, ecode(:account_login))
 
-      assert rule_conn |> mutation_get_error?(@set_community_query, variables, ecode(:passport))
+      assert rule_conn
+             |> mutation_get_error?(@mirror_community_query, variables, ecode(:passport))
     end
 
     test "auth user can set multi community to a post", ~m(post)a do
-      passport_rules = %{"post.community.set" => true}
+      passport_rules = %{"post.community.mirror" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       {:ok, community} = db_insert(:community)
       {:ok, community2} = db_insert(:community)
 
       variables = %{id: post.id, communityId: community.id}
-      rule_conn |> mutation_result(@set_community_query, variables, "setCommunity")
+      rule_conn |> mutation_result(@mirror_community_query, variables, "mirrorCommunity")
 
       variables = %{id: post.id, communityId: community2.id}
-      rule_conn |> mutation_result(@set_community_query, variables, "setCommunity")
+      rule_conn |> mutation_result(@mirror_community_query, variables, "mirrorCommunity")
 
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :communities)
 
@@ -457,26 +459,26 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert community2.id in assoc_communities
     end
 
-    @unset_community_query """
+    @unmirror_community_query """
     mutation($id: ID!, $communityId: ID!) {
-      unsetCommunity(id: $id, communityId: $communityId) {
+      unmirrorCommunity(id: $id, communityId: $communityId) {
         id
       }
     }
     """
     @tag :wip2
     test "auth user can unset community from a post", ~m(post)a do
-      passport_rules = %{"post.community.set" => true}
+      passport_rules = %{"post.community.mirror" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       {:ok, community} = db_insert(:community)
       {:ok, community2} = db_insert(:community)
 
       variables = %{id: post.id, communityId: community.id}
-      rule_conn |> mutation_result(@set_community_query, variables, "setCommunity")
+      rule_conn |> mutation_result(@mirror_community_query, variables, "mirrorCommunity")
 
       variables2 = %{id: post.id, communityId: community2.id}
-      rule_conn |> mutation_result(@set_community_query, variables2, "setCommunity")
+      rule_conn |> mutation_result(@mirror_community_query, variables2, "mirrorCommunity")
 
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :communities)
 
@@ -484,10 +486,10 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert community.id in assoc_communities
       assert community2.id in assoc_communities
 
-      passport_rules = %{"post.community.unset" => true}
+      passport_rules = %{"post.community.unmirror" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      rule_conn |> mutation_result(@unset_community_query, variables, "unsetCommunity")
+      rule_conn |> mutation_result(@unmirror_community_query, variables, "unmirrorCommunity")
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :communities)
       assoc_communities = found.communities |> Enum.map(& &1.id)
       assert community.id not in assoc_communities

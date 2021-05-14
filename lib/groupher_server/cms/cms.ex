@@ -109,8 +109,8 @@ defmodule GroupherServer.CMS do
   defdelegate set_tag(thread, tag, content_id), to: ArticleCommunity
   defdelegate unset_tag(thread, tag, content_id), to: ArticleCommunity
   # >> community: set / unset
-  defdelegate set_community(thread, article_id, community_id), to: ArticleCommunity
-  defdelegate unset_community(thread, article_id, community_id), to: ArticleCommunity
+  defdelegate mirror_community(thread, article_id, community_id), to: ArticleCommunity
+  defdelegate unmirror_community(thread, article_id, community_id), to: ArticleCommunity
   defdelegate move_article(thread, article_id, community_id), to: ArticleCommunity
 
   defdelegate emotion_to_article(thread, article_id, args, user), to: ArticleEmotion

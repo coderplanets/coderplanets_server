@@ -107,7 +107,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
   @doc """
   mirror article to other community
   """
-  def set_community(thread, article_id, community_id) do
+  def mirror_community(thread, article_id, community_id) do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, article_id, preload: :communities),
          {:ok, community} <- ORM.find(Community, community_id) do
@@ -121,7 +121,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
   @doc """
   unmirror article to a community
   """
-  def unset_community(thread, article_id, community_id) do
+  def unmirror_community(thread, article_id, community_id) do
     with {:ok, info} <- match(thread),
          {:ok, article} <-
            ORM.find(info.model, article_id, preload: [:communities, :original_community]),

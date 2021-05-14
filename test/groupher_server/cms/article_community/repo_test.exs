@@ -45,7 +45,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Repo do
 
       assert not is_nil(Enum.find(repo.communities, &(&1.id == community.id)))
 
-      {:ok, _} = CMS.set_community(:repo, repo.id, community2.id)
+      {:ok, _} = CMS.mirror_community(:repo, repo.id, community2.id)
 
       {:ok, repo} = ORM.find(CMS.Repo, repo.id, preload: :communities)
       assert repo.communities |> length == 2
@@ -56,13 +56,13 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Repo do
     test "repo can be unmirror from community",
          ~m(user community community2 community3 repo_attrs)a do
       {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
-      {:ok, _} = CMS.set_community(:repo, repo.id, community2.id)
-      {:ok, _} = CMS.set_community(:repo, repo.id, community3.id)
+      {:ok, _} = CMS.mirror_community(:repo, repo.id, community2.id)
+      {:ok, _} = CMS.mirror_community(:repo, repo.id, community3.id)
 
       {:ok, repo} = ORM.find(CMS.Repo, repo.id, preload: :communities)
       assert repo.communities |> length == 3
 
-      {:ok, _} = CMS.unset_community(:repo, repo.id, community3.id)
+      {:ok, _} = CMS.unmirror_community(:repo, repo.id, community3.id)
       {:ok, repo} = ORM.find(CMS.Repo, repo.id, preload: :communities)
       assert repo.communities |> length == 2
 
@@ -72,13 +72,13 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Repo do
     test "repo can not unmirror from original community",
          ~m(user community community2 community3 repo_attrs)a do
       {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
-      {:ok, _} = CMS.set_community(:repo, repo.id, community2.id)
-      {:ok, _} = CMS.set_community(:repo, repo.id, community3.id)
+      {:ok, _} = CMS.mirror_community(:repo, repo.id, community2.id)
+      {:ok, _} = CMS.mirror_community(:repo, repo.id, community3.id)
 
       {:ok, repo} = ORM.find(CMS.Repo, repo.id, preload: :communities)
       assert repo.communities |> length == 3
 
-      {:error, reason} = CMS.unset_community(:repo, repo.id, community.id)
+      {:error, reason} = CMS.unmirror_community(:repo, repo.id, community.id)
       assert reason |> is_error?(:mirror_community)
     end
   end

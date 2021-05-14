@@ -109,25 +109,25 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Operation do
     end
 
     # TODO: use community loader
-    field :set_community, :community do
+    field :mirror_community, :community do
       arg(:id, non_null(:id))
       arg(:community_id, non_null(:id))
       arg(:thread, :thread, default_value: :post)
 
       middleware(M.Authorize, :login)
-      middleware(M.Passport, claim: "cms->t?.community.set")
-      resolve(&R.CMS.set_community/3)
+      middleware(M.Passport, claim: "cms->t?.community.mirror")
+      resolve(&R.CMS.mirror_community/3)
     end
 
     # TODO: can't not unset the oldest community
-    field :unset_community, :community do
+    field :unmirror_community, :community do
       arg(:id, non_null(:id))
       arg(:community_id, non_null(:id))
       arg(:thread, :thread, default_value: :post)
 
       middleware(M.Authorize, :login)
-      middleware(M.Passport, claim: "cms->t?.community.unset")
-      resolve(&R.CMS.unset_community/3)
+      middleware(M.Passport, claim: "cms->t?.community.unmirror")
+      resolve(&R.CMS.unmirror_community/3)
     end
   end
 end
