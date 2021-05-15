@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
+defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
@@ -7,40 +7,40 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
 
-    {:ok, post} = CMS.create_article(community, :post, mock_attrs(:post), user)
+    {:ok, repo} = CMS.create_article(community, :repo, mock_attrs(:repo), user)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
     owner_conn = simu_conn(:user, user)
 
-    {:ok, ~m(user_conn guest_conn owner_conn community post)a}
+    {:ok, ~m(user_conn guest_conn owner_conn community repo)a}
   end
 
-  describe "[mutation post flag curd]" do
+  describe "[mutation repo flag curd]" do
     @query """
     mutation($id: ID!){
-      markDeletePost(id: $id) {
+      markDeleteRepo(id: $id) {
         id
         markDelete
       }
     }
     """
     @tag :wip2
-    test "auth user can markDelete post", ~m(community post)a do
-      variables = %{id: post.id}
+    test "auth user can markDelete repo", ~m(community repo)a do
+      variables = %{id: repo.id}
 
-      passport_rules = %{"post.mark_delete" => true}
+      passport_rules = %{"repo.mark_delete" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      updated = rule_conn |> mutation_result(@query, variables, "markDeletePost")
+      updated = rule_conn |> mutation_result(@query, variables, "markDeleteRepo")
 
-      assert updated["id"] == to_string(post.id)
+      assert updated["id"] == to_string(repo.id)
       assert updated["markDelete"] == true
     end
 
     @tag :wip2
-    test "unauth user markDelete post fails", ~m(user_conn guest_conn post community)a do
-      variables = %{id: post.id}
+    test "unauth user markDelete repo fails", ~m(user_conn guest_conn repo community)a do
+      variables = %{id: repo.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
@@ -50,30 +50,30 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
 
     @query """
     mutation($id: ID!){
-      undoMarkDeletePost(id: $id) {
+      undoMarkDeleteRepo(id: $id) {
         id
         markDelete
       }
     }
     """
     @tag :wip2
-    test "auth user can undo markDelete post", ~m(community post)a do
-      variables = %{id: post.id}
+    test "auth user can undo markDelete repo", ~m(community repo)a do
+      variables = %{id: repo.id}
 
-      {:ok, _} = CMS.mark_delete_article(:post, post.id)
+      {:ok, _} = CMS.mark_delete_article(:repo, repo.id)
 
-      passport_rules = %{"post.undo_mark_delete" => true}
+      passport_rules = %{"repo.undo_mark_delete" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      updated = rule_conn |> mutation_result(@query, variables, "undoMarkDeletePost")
+      updated = rule_conn |> mutation_result(@query, variables, "undoMarkDeleteRepo")
 
-      assert updated["id"] == to_string(post.id)
+      assert updated["id"] == to_string(repo.id)
       assert updated["markDelete"] == false
     end
 
     @tag :wip2
-    test "unauth user undo markDelete post fails", ~m(user_conn guest_conn community post)a do
-      variables = %{id: post.id}
+    test "unauth user undo markDelete repo fails", ~m(user_conn guest_conn community repo)a do
+      variables = %{id: repo.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
@@ -83,25 +83,25 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
 
     @query """
     mutation($id: ID!, $communityId: ID!){
-      pinPost(id: $id, communityId: $communityId) {
+      pinRepo(id: $id, communityId: $communityId) {
         id
       }
     }
     """
 
-    test "auth user can pin post", ~m(community post)a do
-      variables = %{id: post.id, communityId: community.id}
+    test "auth user can pin repo", ~m(community repo)a do
+      variables = %{id: repo.id, communityId: community.id}
 
-      passport_rules = %{community.raw => %{"post.pin" => true}}
+      passport_rules = %{community.raw => %{"repo.pin" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      updated = rule_conn |> mutation_result(@query, variables, "pinPost")
+      updated = rule_conn |> mutation_result(@query, variables, "pinRepo")
 
-      assert updated["id"] == to_string(post.id)
+      assert updated["id"] == to_string(repo.id)
     end
 
-    test "unauth user pin post fails", ~m(user_conn guest_conn community post)a do
-      variables = %{id: post.id, communityId: community.id}
+    test "unauth user pin repo fails", ~m(user_conn guest_conn community repo)a do
+      variables = %{id: repo.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
@@ -111,27 +111,27 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
 
     @query """
     mutation($id: ID!, $communityId: ID!){
-      undoPinPost(id: $id, communityId: $communityId) {
+      undoPinRepo(id: $id, communityId: $communityId) {
         id
         isPinned
       }
     }
     """
 
-    test "auth user can undo pin post", ~m(community post)a do
-      variables = %{id: post.id, communityId: community.id}
+    test "auth user can undo pin repo", ~m(community repo)a do
+      variables = %{id: repo.id, communityId: community.id}
 
-      passport_rules = %{community.raw => %{"post.undo_pin" => true}}
+      passport_rules = %{community.raw => %{"repo.undo_pin" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      CMS.pin_article(:post, post.id, community.id)
-      updated = rule_conn |> mutation_result(@query, variables, "undoPinPost")
+      CMS.pin_article(:repo, repo.id, community.id)
+      updated = rule_conn |> mutation_result(@query, variables, "undoPinRepo")
 
-      assert updated["id"] == to_string(post.id)
+      assert updated["id"] == to_string(repo.id)
     end
 
-    test "unauth user undo pin post fails", ~m(user_conn guest_conn community post)a do
-      variables = %{id: post.id, communityId: community.id}
+    test "unauth user undo pin repo fails", ~m(user_conn guest_conn community repo)a do
+      variables = %{id: repo.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
