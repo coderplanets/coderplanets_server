@@ -25,7 +25,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Post do
       assert post.original_community_id == community.id
     end
 
-    @tag :wip2
+    @tag :wip3
     test "post can be move to other community", ~m(user community community2 post_attrs)a do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
       assert post.original_community_id == community.id

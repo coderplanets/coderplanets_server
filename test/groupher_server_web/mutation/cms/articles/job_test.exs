@@ -68,7 +68,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "create job with valid attrs and make sure author exsit" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)

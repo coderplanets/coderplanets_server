@@ -116,8 +116,8 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Post do
 
   describe "[mirror/unmirror/move psot to/from community]" do
     @mirror_article_query """
-    mutation($id: ID!, $communityId: ID!) {
-      mirrorArticle(id: $id, communityId: $communityId) {
+    mutation($id: ID!, $thread: Thread, $communityId: ID!) {
+      mirrorArticle(id: $id, thread: $thread, communityId: $communityId) {
         id
       }
     }
@@ -127,7 +127,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Post do
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       {:ok, community} = db_insert(:community)
-      variables = %{id: post.id, communityId: community.id}
+      variables = %{id: post.id, thread: "POST", communityId: community.id}
       rule_conn |> mutation_result(@mirror_article_query, variables, "mirrorArticle")
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :communities)
 
@@ -137,7 +137,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Post do
 
     test "unauth user cannot mirror a post to a community", ~m(user_conn guest_conn post)a do
       {:ok, community} = db_insert(:community)
-      variables = %{id: post.id, communityId: community.id}
+      variables = %{id: post.id, thread: "POST", communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn
@@ -157,10 +157,10 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Post do
       {:ok, community} = db_insert(:community)
       {:ok, community2} = db_insert(:community)
 
-      variables = %{id: post.id, communityId: community.id}
+      variables = %{id: post.id, thread: "POST", communityId: community.id}
       rule_conn |> mutation_result(@mirror_article_query, variables, "mirrorArticle")
 
-      variables = %{id: post.id, communityId: community2.id}
+      variables = %{id: post.id, thread: "POST", communityId: community2.id}
       rule_conn |> mutation_result(@mirror_article_query, variables, "mirrorArticle")
 
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :communities)
@@ -171,13 +171,13 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Post do
     end
 
     @unmirror_article_query """
-    mutation($id: ID!, $communityId: ID!) {
-      unmirrorArticle(id: $id, communityId: $communityId) {
+    mutation($id: ID!, $thread: Thread, $communityId: ID!) {
+      unmirrorArticle(id: $id, thread: $thread, communityId: $communityId) {
         id
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "auth user can unmirror post to a community", ~m(post)a do
       passport_rules = %{"post.community.mirror" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
@@ -185,10 +185,10 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Post do
       {:ok, community} = db_insert(:community)
       {:ok, community2} = db_insert(:community)
 
-      variables = %{id: post.id, communityId: community.id}
+      variables = %{id: post.id, thread: "POST", communityId: community.id}
       rule_conn |> mutation_result(@mirror_article_query, variables, "mirrorArticle")
 
-      variables2 = %{id: post.id, communityId: community2.id}
+      variables2 = %{id: post.id, thread: "POST", communityId: community2.id}
       rule_conn |> mutation_result(@mirror_article_query, variables2, "mirrorArticle")
 
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: :communities)
@@ -208,8 +208,8 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Post do
     end
 
     @move_article_query """
-    mutation($id: ID!, $communityId: ID!) {
-      moveArticle(id: $id, communityId: $communityId) {
+    mutation($id: ID!, $thread: Thread, $communityId: ID!) {
+      moveArticle(id: $id, thread: $thread, communityId: $communityId) {
         id
       }
     }
@@ -222,7 +222,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Post do
       {:ok, community} = db_insert(:community)
       {:ok, community2} = db_insert(:community)
 
-      variables = %{id: post.id, communityId: community.id}
+      variables = %{id: post.id, thread: "POST", communityId: community.id}
       rule_conn |> mutation_result(@mirror_article_query, variables, "mirrorArticle")
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: [:original_community, :communities])
       assoc_communities = found.communities |> Enum.map(& &1.id)
@@ -233,7 +233,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Post do
 
       pre_original_community_id = found.original_community.id
 
-      variables = %{id: post.id, communityId: community2.id}
+      variables = %{id: post.id, thread: "POST", communityId: community2.id}
       rule_conn |> mutation_result(@move_article_query, variables, "moveArticle")
       {:ok, found} = ORM.find(CMS.Post, post.id, preload: [:original_community, :communities])
       assoc_communities = found.communities |> Enum.map(& &1.id)

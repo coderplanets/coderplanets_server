@@ -91,7 +91,7 @@ defmodule GroupherServer.Test.Query.AbuseReports.JobReport do
       assert results["totalCount"] == 1
     end
 
-    @tag :wip2
+    @tag :wip3
     test "support article_comment", ~m(guest_conn job user)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "comment", user)
       {:ok, _} = CMS.report_article_comment(comment.id, "reason", "attr", user)
