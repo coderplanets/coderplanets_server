@@ -83,19 +83,18 @@ defmodule GroupherServer.Test.Query.Flags.PostsFlags do
 
       {:ok, _pined_post} = CMS.pin_article(:post, random_id, community.id)
 
-      # {:ok, _} = CMS.set_community_flags(community, %Post{id: random_id}, %{pin: true})
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
       assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))
     end
 
-    test "if have trashed posts, the trashed posts should not appears in result",
+    test "if have trashed posts, the mark deleted posts should not appears in result",
          ~m(guest_conn community)a do
       variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
       random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _} = CMS.set_community_flags(community, %Post{id: random_id}, %{trash: true})
+      {:ok, _} = CMS.mark_delete_article(:post, random_id)
 
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 

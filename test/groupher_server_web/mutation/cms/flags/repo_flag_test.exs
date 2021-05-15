@@ -18,28 +18,28 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
 
   describe "[mutation repo flag curd]" do
     @query """
-    mutation($id: ID!, $communityId: ID!){
-      trashRepo(id: $id, communityId: $communityId) {
+    mutation($id: ID!){
+      markDeleteRepo(id: $id) {
         id
-        trash
+        markDelete
       }
     }
     """
 
-    test "auth user can trash repo", ~m(community repo)a do
-      variables = %{id: repo.id, communityId: community.id}
+    test "auth user can markDelete repo", ~m(repo)a do
+      variables = %{id: repo.id}
 
-      passport_rules = %{community.raw => %{"repo.trash" => true}}
+      passport_rules = %{"repo.mark_delete" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      updated = rule_conn |> mutation_result(@query, variables, "trashRepo")
+      updated = rule_conn |> mutation_result(@query, variables, "markDeleteRepo")
 
       assert updated["id"] == to_string(repo.id)
-      assert updated["trash"] == true
+      assert updated["markDelete"] == true
     end
 
-    test "unauth user trash repo fails", ~m(user_conn guest_conn repo community)a do
-      variables = %{id: repo.id, communityId: community.id}
+    test "unauth user markDelete repo fails", ~m(user_conn guest_conn repo)a do
+      variables = %{id: repo.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
@@ -48,30 +48,30 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
     end
 
     @query """
-    mutation($id: ID!, $communityId: ID!){
-      undoTrashRepo(id: $id, communityId: $communityId) {
+    mutation($id: ID!){
+      undoMarkDeleteRepo(id: $id) {
         id
-        trash
+        markDelete
       }
     }
     """
 
-    test "auth user can undo trash repo", ~m(community repo)a do
-      variables = %{id: repo.id, communityId: community.id}
+    test "auth user can undo markDelete repo", ~m(repo)a do
+      variables = %{id: repo.id}
 
-      {:ok, _} = CMS.set_community_flags(community, repo, %{trash: true})
+      {:ok, _} = CMS.mark_delete_article(:repo, repo.id)
 
-      passport_rules = %{community.raw => %{"repo.undo_trash" => true}}
+      passport_rules = %{"repo.undo_mark_delete" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      updated = rule_conn |> mutation_result(@query, variables, "undoTrashRepo")
+      updated = rule_conn |> mutation_result(@query, variables, "undoMarkDeleteRepo")
 
       assert updated["id"] == to_string(repo.id)
-      assert updated["trash"] == false
+      assert updated["markDelete"] == false
     end
 
-    test "unauth user undo trash repo fails", ~m(user_conn guest_conn community repo)a do
-      variables = %{id: repo.id, communityId: community.id}
+    test "unauth user undo markDelete repo fails", ~m(user_conn guest_conn repo)a do
+      variables = %{id: repo.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))

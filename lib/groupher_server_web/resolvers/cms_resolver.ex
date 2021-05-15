@@ -77,7 +77,7 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.update_article(content, args)
   end
 
-  def delete_content(_root, %{passport_source: content}, _info), do: ORM.delete(content)
+  def delete_article(_root, %{passport_source: content}, _info), do: ORM.delete(content)
 
   # #######################
   # content flag ..
@@ -90,12 +90,12 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.undo_pin_article(thread, id, community_id)
   end
 
-  def trash_content(_root, ~m(id thread community_id)a, _info) do
-    set_community_flags(community_id, thread, id, %{trash: true})
+  def mark_delete_article(_root, ~m(id thread)a, _info) do
+    CMS.mark_delete_article(thread, id)
   end
 
-  def undo_trash_content(_root, ~m(id thread community_id)a, _info) do
-    set_community_flags(community_id, thread, id, %{trash: false})
+  def undo_mark_delete_article(_root, ~m(id thread)a, _info) do
+    CMS.undo_mark_delete_article(thread, id)
   end
 
   def report_article(_root, ~m(thread id reason attr)a, %{context: %{cur_user: user}}) do
@@ -104,18 +104,6 @@ defmodule GroupherServerWeb.Resolvers.CMS do
 
   def undo_report_article(_root, ~m(thread id)a, %{context: %{cur_user: user}}) do
     CMS.undo_report_article(thread, id, user)
-  end
-
-  # TODO: report contents
-  # do: set_community_flags(community_id, thread, id, %{report: true})
-  # do: set_community_flags(community_id, thread, id, %{report: false})
-
-  defp set_community_flags(community_id, thread, id, flag) do
-    with {:ok, content} <- match_action(thread, :self) do
-      queryable = content.target |> struct(%{id: id})
-
-      CMS.set_community_flags(community_id, queryable, flag)
-    end
   end
 
   # #######################

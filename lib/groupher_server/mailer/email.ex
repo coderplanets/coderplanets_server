@@ -86,7 +86,7 @@ defmodule GroupherServer.Email do
   end
 
   #  notify admin when new post has created
-  def notify_admin(%{type: type, title: title} = info, :new_content) do
+  def notify_admin(%{type: type, title: title} = info, :new_article) do
     case @conf_notify_admin_on_content_created do
       true ->
         base_mail()

@@ -16,7 +16,6 @@ defmodule GroupherServer.CMS.Post do
     ArticlePinedComment,
     Community,
     PostComment,
-    PostCommunityFlag,
     Tag,
     ArticleUpvote,
     ArticleCollect
@@ -26,7 +25,7 @@ defmodule GroupherServer.CMS.Post do
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title body digest length)a
-  @optional_fields ~w(original_community_id link_addr copy_right link_addr link_icon article_comments_count article_comments_participators_count upvotes_count collects_count)a
+  @optional_fields ~w(original_community_id link_addr copy_right link_addr link_icon article_comments_count article_comments_participators_count upvotes_count collects_count mark_delete)a
 
   @type t :: %Post{}
   schema "cms_posts" do
@@ -42,12 +41,10 @@ defmodule GroupherServer.CMS.Post do
     belongs_to(:author, Author)
     embeds_one(:meta, Embeds.ArticleMeta, on_replace: :update)
 
-    has_many(:community_flags, {"posts_communities_flags", PostCommunityFlag})
-
     # NOTE: this one is tricky, pin is dynamic changed when return by func: add_pin_contents_ifneed
     # field(:pin, :boolean, default_value: false, virtual: true)
     field(:is_pinned, :boolean, default: false, virtual: true)
-    field(:trash, :boolean, default_value: false, virtual: true)
+    field(:mark_delete, :boolean, default: false)
 
     field(:viewer_has_viewed, :boolean, default: false, virtual: true)
     field(:viewer_has_upvoted, :boolean, default: false, virtual: true)

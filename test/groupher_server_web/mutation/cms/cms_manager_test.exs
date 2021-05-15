@@ -21,26 +21,27 @@ defmodule GroupherServer.Test.Mutation.CMS.Manager do
 
   describe "root mutation" do
     @query """
-    mutation($id: ID!, $communityId: ID!){
-      trashPost(id: $id, communityId: $communityId) {
+    mutation($id: ID!){
+      markDeletePost(id: $id) {
         id
-        trash
+        markDelete
       }
     }
     """
-    test "root can trash a post", ~m(community user)a do
+    @tag :wip2
+    test "root can markDelete a post", ~m(community user)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
-      variables = %{id: post.id, communityId: community.id}
+      variables = %{id: post.id}
 
       passport_rules = %{"root" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      updated = rule_conn |> mutation_result(@query, variables, "trashPost")
+      updated = rule_conn |> mutation_result(@query, variables, "markDeletePost")
 
       assert updated["id"] == to_string(post.id)
-      assert updated["trash"] == true
+      assert updated["markDelete"] == true
     end
 
     @query """

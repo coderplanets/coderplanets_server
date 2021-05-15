@@ -18,28 +18,28 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
 
   describe "[mutation job flag curd]" do
     @query """
-    mutation($id: ID!, $communityId: ID!){
-      trashJob(id: $id, communityId: $communityId) {
+    mutation($id: ID!){
+      markDeleteJob(id: $id) {
         id
-        trash
+        markDelete
       }
     }
     """
 
-    test "auth user can trash job", ~m(community job)a do
-      variables = %{id: job.id, communityId: community.id}
+    test "auth user can markDelete job", ~m(job)a do
+      variables = %{id: job.id}
 
-      passport_rules = %{community.raw => %{"job.trash" => true}}
+      passport_rules = %{"job.mark_delete" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      updated = rule_conn |> mutation_result(@query, variables, "trashJob")
+      updated = rule_conn |> mutation_result(@query, variables, "markDeleteJob")
 
       assert updated["id"] == to_string(job.id)
-      assert updated["trash"] == true
+      assert updated["markDelete"] == true
     end
 
-    test "unauth user trash job fails", ~m(user_conn guest_conn job community)a do
-      variables = %{id: job.id, communityId: community.id}
+    test "unauth user markDelete job fails", ~m(user_conn guest_conn job)a do
+      variables = %{id: job.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
@@ -48,30 +48,30 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
     end
 
     @query """
-    mutation($id: ID!, $communityId: ID!){
-      undoTrashJob(id: $id, communityId: $communityId) {
+    mutation($id: ID!){
+      undoMarkDeleteJob(id: $id) {
         id
-        trash
+        markDelete
       }
     }
     """
 
-    test "auth user can undo trash job", ~m(community job)a do
-      variables = %{id: job.id, communityId: community.id}
+    test "auth user can undo markDelete job", ~m(job)a do
+      variables = %{id: job.id}
 
-      {:ok, _} = CMS.set_community_flags(community, job, %{trash: true})
+      {:ok, _} = CMS.mark_delete_article(:job, job.id)
 
-      passport_rules = %{community.raw => %{"job.undo_trash" => true}}
+      passport_rules = %{"job.undo_mark_delete" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      updated = rule_conn |> mutation_result(@query, variables, "undoTrashJob")
+      updated = rule_conn |> mutation_result(@query, variables, "undoMarkDeleteJob")
 
       assert updated["id"] == to_string(job.id)
-      assert updated["trash"] == false
+      assert updated["markDelete"] == false
     end
 
-    test "unauth user undo trash job fails", ~m(user_conn guest_conn community job)a do
-      variables = %{id: job.id, communityId: community.id}
+    test "unauth user undo markDelete job fails", ~m(user_conn guest_conn job)a do
+      variables = %{id: job.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
@@ -126,7 +126,6 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
       updated = rule_conn |> mutation_result(@query, variables, "undoPinJob")
 
       assert updated["id"] == to_string(job.id)
-      assert updated["isPinned"] == false
     end
 
     test "unauth user undo pin job fails", ~m(user_conn guest_conn community job)a do

@@ -63,7 +63,7 @@ defmodule GroupherServer.Test.Query.Flags.JobsFlags do
       assert results["pageSize"] == @page_size
       assert results["totalCount"] == @total_count
 
-      {:ok, _pined_post} = CMS.pin_article(:job, job_m.id, community.id)
+      {:ok, _pined_job} = CMS.pin_article(:job, job_m.id, community.id)
 
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
       entries_first = results["entries"] |> List.first()
@@ -80,20 +80,21 @@ defmodule GroupherServer.Test.Query.Flags.JobsFlags do
       assert results |> is_valid_pagination?
 
       random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _pined_post} = CMS.pin_article(:job, random_id, community.id)
-      # {:ok, _} = CMS.set_community_flags(community, %Job{id: random_id}, %{pin: true})
+
+      {:ok, _pined_job} = CMS.pin_article(:job, random_id, community.id)
+
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
 
       assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))
     end
 
-    test "if have trashed jobs, the trashed jobs should not appears in result",
+    test "if have trashed jobs, the mark deleted jobs should not appears in result",
          ~m(guest_conn community)a do
       variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
 
       random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _} = CMS.set_community_flags(community, %Job{id: random_id}, %{trash: true})
+      {:ok, _} = CMS.mark_delete_article(:job, random_id)
 
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
 

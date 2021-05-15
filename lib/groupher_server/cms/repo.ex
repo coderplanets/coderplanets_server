@@ -15,7 +15,6 @@ defmodule GroupherServer.CMS.Repo do
     Community,
     RepoContributor,
     RepoLang,
-    RepoCommunityFlag,
     Tag,
     ArticleUpvote,
     ArticleCollect
@@ -24,8 +23,8 @@ defmodule GroupherServer.CMS.Repo do
   alias Helper.HTML
 
   @timestamps_opts [type: :utc_datetime_usec]
-  @required_fields ~w(title owner_name owner_url repo_url desc readme star_count issues_count prs_count fork_count watch_count upvotes_count collects_count)a
-  @optional_fields ~w(original_community_id last_sync homepage_url release_tag license)a
+  @required_fields ~w(title owner_name owner_url repo_url desc readme star_count issues_count prs_count fork_count watch_count)a
+  @optional_fields ~w(original_community_id last_sync homepage_url release_tag license upvotes_count collects_count mark_delete)a
 
   @type t :: %Repo{}
   schema "cms_repos" do
@@ -56,11 +55,10 @@ defmodule GroupherServer.CMS.Repo do
     embeds_one(:emotions, Embeds.ArticleEmotion, on_replace: :update)
 
     belongs_to(:author, Author)
-    has_many(:community_flags, {"repos_communities_flags", RepoCommunityFlag})
 
     # NOTE: this one is tricky, pin is dynamic changed when return by func: add_pin_contents_ifneed
     field(:is_pinned, :boolean, default: false, virtual: true)
-    field(:trash, :boolean, default_value: false)
+    field(:mark_delete, :boolean, default: false)
 
     field(:viewer_has_viewed, :boolean, default: false, virtual: true)
     field(:viewer_has_upvoted, :boolean, default: false, virtual: true)

@@ -4,6 +4,7 @@ defmodule GroupherServer.Test.Query.Flags.ReposFlags do
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.CMS
+  # alias GroupherServer.Repo
 
   alias CMS.Repo
 
@@ -62,7 +63,7 @@ defmodule GroupherServer.Test.Query.Flags.ReposFlags do
       assert results["pageSize"] == @page_size
       assert results["totalCount"] == @total_count
 
-      {:ok, _pined_post} = CMS.pin_article(:repo, repo_m.id, community.id)
+      {:ok, _pined_repo} = CMS.pin_article(:repo, repo_m.id, community.id)
 
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
       entries_first = results["entries"] |> List.first()
@@ -80,19 +81,20 @@ defmodule GroupherServer.Test.Query.Flags.ReposFlags do
 
       random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
 
-      {:ok, _pined_post} = CMS.pin_article(:repo, random_id, community.id)
+      {:ok, _pined_repo} = CMS.pin_article(:repo, random_id, community.id)
+
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
 
       assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))
     end
 
-    test "if have trashed repos, the trashed repos should not appears in result",
+    test "if have trashed repos, the mark deleted repos should not appears in result",
          ~m(guest_conn community)a do
       variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
 
       random_id = results["entries"] |> Enum.shuffle() |> List.first() |> Map.get("id")
-      {:ok, _} = CMS.set_community_flags(community, %Repo{id: random_id}, %{trash: true})
+      {:ok, _} = CMS.mark_delete_article(:repo, random_id)
 
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
 
