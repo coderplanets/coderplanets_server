@@ -17,13 +17,14 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Repo do
 
   describe "[mutation repo tag]" do
     @set_tag_query """
-    mutation($id: ID!, $tagId: ID! $communityId: ID!) {
-      setTag(id: $id, tagId: $tagId, communityId: $communityId) {
+    mutation($id: ID!, $thread: Thread, $tagId: ID! $communityId: ID!) {
+      setTag(id: $id, thread: $thread, tagId: $tagId, communityId: $communityId) {
         id
         title
       }
     }
     """
+    @tag :wip2
     test "auth user can set a valid tag to repo", ~m(repo)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "repo", community: community})
@@ -31,7 +32,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Repo do
       passport_rules = %{community.title => %{"repo.tag.set" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      variables = %{id: repo.id, tagId: tag.id, communityId: community.id}
+      variables = %{id: repo.id, thread: "REPO", tagId: tag.id, communityId: community.id}
       rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
       {:ok, found} = ORM.find(CMS.Repo, repo.id, preload: :tags)
 
@@ -51,6 +52,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Repo do
     # assert rule_conn |> mutation_get_error?(@set_tag_query, variables)
     # end
 
+    @tag :wip2
     test "can set multi tag to a repo", ~m(repo)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "repo", community: community})
@@ -59,10 +61,10 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Repo do
       passport_rules = %{community.title => %{"repo.tag.set" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      variables = %{id: repo.id, tagId: tag.id, communityId: community.id}
+      variables = %{id: repo.id, thread: "REPO", tagId: tag.id, communityId: community.id}
       rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
 
-      variables2 = %{id: repo.id, tagId: tag2.id, communityId: community.id}
+      variables2 = %{id: repo.id, thread: "REPO", tagId: tag2.id, communityId: community.id}
       rule_conn |> mutation_result(@set_tag_query, variables2, "setTag")
 
       {:ok, found} = ORM.find(CMS.Repo, repo.id, preload: :tags)
@@ -73,13 +75,14 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Repo do
     end
 
     @unset_tag_query """
-    mutation($id: ID!, $tagId: ID!, $communityId: ID!) {
-      unsetTag(id: $id, tagId: $tagId, communityId: $communityId) {
+    mutation($id: ID!, $thread: Thread, $tagId: ID! $communityId: ID!) {
+      unsetTag(id: $id, thread: $thread, tagId: $tagId, communityId: $communityId) {
         id
         title
       }
     }
     """
+    @tag :wip2
     test "can unset tag to a repo", ~m(repo)a do
       {:ok, community} = db_insert(:community)
 
@@ -89,10 +92,10 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Repo do
       {:ok, tag} = db_insert(:tag, %{thread: "repo", community: community})
       {:ok, tag2} = db_insert(:tag, %{thread: "repo", community: community})
 
-      variables = %{id: repo.id, tagId: tag.id, communityId: community.id}
+      variables = %{id: repo.id, thread: "REPO", tagId: tag.id, communityId: community.id}
       rule_conn |> mutation_result(@set_tag_query, variables, "setTag")
 
-      variables2 = %{id: repo.id, tagId: tag2.id, communityId: community.id}
+      variables2 = %{id: repo.id, thread: "REPO", tagId: tag2.id, communityId: community.id}
       rule_conn |> mutation_result(@set_tag_query, variables2, "setTag")
 
       {:ok, found} = ORM.find(CMS.Repo, repo.id, preload: :tags)
