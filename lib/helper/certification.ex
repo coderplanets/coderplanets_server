@@ -10,7 +10,7 @@ defmodule Helper.Certification do
     %{
       "post.tag.create" => true,
       "post.tag.edit" => true,
-      "post.article.trash" => true
+      "post.mark_delete" => true
     }
   end
 
@@ -60,26 +60,26 @@ defmodule Helper.Certification do
         # flag on content
         "post.pin",
         "post.undo_pin",
-        "post.trash",
-        "post.undo_trash",
         "job.pin",
         "job.undo_pin",
-        "job.trash",
-        "job.undo_trash",
         "repo.pin",
         "repo.undo_pin",
-        "repo.trash",
-        "repo.undo_trash"
+        "post.mark_delete",
+        "post.undo_mark_delete",
+        "job.mark_delete",
+        "job.undo_mark_delete",
+        "repo.mark_delete",
+        "repo.undo_mark_delete"
       ],
       community: [
         # thread
         "thread.set",
         "thread.unset",
         "post.edit",
-        "post.trash",
+        "post.mark_delete",
         "post.delete",
         "job.edit",
-        "job.trash",
+        "job.mark_delete",
         "job.delete",
         # post tag
         "post.tag.create",
@@ -91,8 +91,8 @@ defmodule Helper.Certification do
         # post flag
         "post.pin",
         "post.undo_pin",
-        "post.trash",
-        "post.undo_trash",
+        "post.mark_delete",
+        "post.undo_mark_delete",
         # job tag
         "job.tag.create",
         "job.tag.update",
@@ -103,8 +103,8 @@ defmodule Helper.Certification do
         # job flag
         "job.pin",
         "job.undo_pin",
-        "job.trash",
-        "job.undo_trash",
+        "job.mark_delete",
+        "job.undo_mark_delete",
         # repo tag
         "repo.tag.create",
         "repo.tag.update",
@@ -115,8 +115,8 @@ defmodule Helper.Certification do
         # repo flag
         "repo.pin",
         "repo.undo_pin",
-        "repo.trash",
-        "repo.undo_trash"
+        "repo.mark_delete",
+        "repo.undo_mark_delete"
       ]
     }
   end
@@ -140,7 +140,6 @@ end
 # middleware(M.Passport, claim: "cms->c?->posts.tag.add")
 # middleware(M.Passport, claim: "cms->c?->posts.tag.edit")
 # middleware(M.Passport, claim: "cms->c?->posts.tag.delete")
-# middleware(M.Passport, claim: "cms->c?->posts.tag.trash")
 # middleware(M.Passport, claim: "owner;cms->c?->posts.tag.delete")
 
 # 可以给某个社区 posts 版块的 posts 设置标签(setTag), 同时可支持 owner?

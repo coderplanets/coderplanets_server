@@ -25,7 +25,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Repo do
       assert repo.original_community_id == community.id
     end
 
-    @tag :wip3
     test "repo can be move to other community", ~m(user community community2 repo_attrs)a do
       {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
       assert repo.original_community_id == community.id

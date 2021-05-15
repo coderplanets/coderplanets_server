@@ -210,9 +210,9 @@ defmodule Helper.QueryBuilder do
       #   queryable
       #   |> where([p], p.pin == ^bool)
 
-      # {:trash, bool}, queryable ->
-      #   queryable
-      #   |> where([p], p.trash == ^bool)
+      {:mark_delete, bool}, queryable ->
+        queryable
+        |> where([p], p.mark_delete == ^bool)
 
       {_, _}, queryable ->
         queryable

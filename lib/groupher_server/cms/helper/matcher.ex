@@ -18,11 +18,7 @@ defmodule GroupherServer.CMS.Helper.Matcher do
     PostCommentLike,
     #
     Tag,
-    Community,
-    # flags
-    PostCommunityFlag,
-    JobCommunityFlag,
-    RepoCommunityFlag
+    Community
   }
 
   #########################################
@@ -39,7 +35,7 @@ defmodule GroupherServer.CMS.Helper.Matcher do
   def match_action(:tech, :tag), do: {:ok, %{target: Post, reactor: Tag}}
 
   def match_action(:post, :community),
-    do: {:ok, %{target: Post, reactor: Community, flag: PostCommunityFlag}}
+    do: {:ok, %{target: Post, reactor: Community}}
 
   def match_action(:post, :comment),
     do: {:ok, %{target: Post, reactor: PostComment, preload: :author}}
@@ -54,7 +50,7 @@ defmodule GroupherServer.CMS.Helper.Matcher do
     do: {:ok, %{target: Job, reactor: Job, preload: :author}}
 
   def match_action(:job, :community),
-    do: {:ok, %{target: Job, reactor: Community, flag: JobCommunityFlag}}
+    do: {:ok, %{target: Job, reactor: Community}}
 
   def match_action(:job, :tag), do: {:ok, %{target: Job, reactor: Tag}}
 
@@ -65,7 +61,7 @@ defmodule GroupherServer.CMS.Helper.Matcher do
     do: {:ok, %{target: Repo, reactor: Repo, preload: :author}}
 
   def match_action(:repo, :community),
-    do: {:ok, %{target: Repo, reactor: Community, flag: RepoCommunityFlag}}
+    do: {:ok, %{target: Repo, reactor: Community}}
 
   def match_action(:repo, :tag), do: {:ok, %{target: Repo, reactor: Tag}}
 

@@ -14,19 +14,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
   alias Helper.Types, as: T
   alias Helper.ORM
 
-  alias GroupherServer.CMS.{
-    Embeds,
-    Community,
-    Post,
-    PostCommunityFlag,
-    Job,
-    JobCommunityFlag,
-    RepoCommunityFlag,
-    Tag,
-    PinnedArticle
-  }
-
-  alias GroupherServer.CMS.Repo, as: CMSRepo
+  alias GroupherServer.CMS.{Embeds, Community, Tag, PinnedArticle}
   alias GroupherServer.Repo
 
   alias Ecto.Multi
@@ -68,41 +56,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
   ########
   ########
   ########
-  ########
-  ########
-
-  @doc """
-  trash / untrash articles
-  """
-  def set_community_flags(%Community{id: cid}, content, attrs) do
-    with {:ok, content} <- ORM.find(content.__struct__, content.id),
-         {:ok, record} <- insert_flag_record(content, cid, attrs) do
-      {:ok, struct(content, %{trash: record.trash})}
-    end
-  end
-
-  def set_community_flags(community_id, content, attrs) do
-    with {:ok, content} <- ORM.find(content.__struct__, content.id),
-         {:ok, community} <- ORM.find(Community, community_id),
-         {:ok, record} <- insert_flag_record(content, community.id, attrs) do
-      {:ok, struct(content, %{trash: record.trash})}
-    end
-  end
-
-  defp insert_flag_record(%Post{id: post_id}, community_id, attrs) do
-    clauses = ~m(post_id community_id)a
-    PostCommunityFlag |> ORM.upsert_by(clauses, Map.merge(attrs, clauses))
-  end
-
-  defp insert_flag_record(%Job{id: job_id}, community_id, attrs) do
-    clauses = ~m(job_id community_id)a
-    JobCommunityFlag |> ORM.upsert_by(clauses, Map.merge(attrs, clauses))
-  end
-
-  defp insert_flag_record(%CMSRepo{id: repo_id}, community_id, attrs) do
-    clauses = ~m(repo_id community_id)a
-    RepoCommunityFlag |> ORM.upsert_by(clauses, Map.merge(attrs, clauses))
-  end
 
   @doc """
   mirror article to other community

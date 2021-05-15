@@ -80,7 +80,10 @@ defmodule GroupherServer.CMS do
   defdelegate paged_articles(queryable, filter, user), to: ArticleCURD
 
   defdelegate create_article(community, thread, attrs, user), to: ArticleCURD
-  defdelegate update_article(content, attrs), to: ArticleCURD
+  defdelegate update_article(article, attrs), to: ArticleCURD
+
+  defdelegate mark_delete_article(thread, id), to: ArticleCURD
+  defdelegate undo_mark_delete_article(thread, id), to: ArticleCURD
 
   defdelegate upvote_article(thread, article_id, user), to: ArticleUpvote
   defdelegate undo_upvote_article(thread, article_id, user), to: ArticleUpvote
@@ -99,11 +102,9 @@ defmodule GroupherServer.CMS do
 
   # ArticleCommunity
   # >> set flag on article, like: pin / unpin article
-  defdelegate set_community_flags(community_info, queryable, attrs), to: ArticleCommunity
   defdelegate pin_article(thread, id, community_id), to: ArticleCommunity
   defdelegate undo_pin_article(thread, id, community_id), to: ArticleCommunity
-
-  defdelegate lock_article_comment(content), to: ArticleCommunity
+  defdelegate lock_article_comment(article), to: ArticleCommunity
 
   # >> tag: set / unset
   defdelegate set_tag(thread, tag, content_id), to: ArticleCommunity

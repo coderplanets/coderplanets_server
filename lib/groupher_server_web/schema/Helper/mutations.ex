@@ -55,32 +55,28 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
     end
   end
 
-  defmacro article_trash_mutation(thread) do
+  defmacro article_mark_delete_mutation(thread) do
     quote do
-      @desc unquote("trash a #{thread}, not delete")
-      field unquote(:"trash_#{thread}"), unquote(thread) do
+      @desc unquote("mark delete a #{thread} type article, aka soft-delete")
+      field unquote(:"mark_delete_#{thread}"), unquote(thread) do
         arg(:id, non_null(:id))
-        arg(:community_id, non_null(:id))
         arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
 
         middleware(M.Authorize, :login)
-        middleware(M.PassportLoader, source: :community)
-        middleware(M.Passport, claim: unquote("cms->c?->#{to_string(thread)}.trash"))
+        middleware(M.Passport, claim: unquote("cms->#{to_string(thread)}.mark_delete"))
 
-        resolve(&R.CMS.trash_content/3)
+        resolve(&R.CMS.mark_delete_article/3)
       end
 
-      @desc unquote("undo trash a #{thread}, not delete")
-      field unquote(:"undo_trash_#{thread}"), unquote(thread) do
+      @desc unquote("undo mark delete a #{thread} type article")
+      field unquote(:"undo_mark_delete_#{thread}"), unquote(thread) do
         arg(:id, non_null(:id))
-        arg(:community_id, non_null(:id))
         arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
 
         middleware(M.Authorize, :login)
-        middleware(M.PassportLoader, source: :community)
-        middleware(M.Passport, claim: unquote("cms->c?->#{to_string(thread)}.undo_trash"))
+        middleware(M.Passport, claim: unquote("cms->#{to_string(thread)}.undo_mark_delete"))
 
-        resolve(&R.CMS.undo_trash_content/3)
+        resolve(&R.CMS.undo_mark_delete_article/3)
       end
     end
   end
@@ -96,7 +92,7 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
         middleware(M.PassportLoader, source: unquote(thread))
         middleware(M.Passport, claim: unquote("owner;cms->c?->#{to_string(thread)}.delete"))
 
-        resolve(&R.CMS.delete_content/3)
+        resolve(&R.CMS.delete_article/3)
       end
     end
   end

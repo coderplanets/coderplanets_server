@@ -25,7 +25,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Job do
       assert job.original_community_id == community.id
     end
 
-    @tag :wip3
     test "job can be move to other community", ~m(user community community2 job_attrs)a do
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
       assert job.original_community_id == community.id

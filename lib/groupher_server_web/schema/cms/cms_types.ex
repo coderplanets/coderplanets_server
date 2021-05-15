@@ -63,7 +63,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:views, :integer)
     # NOTE: only meaningful in paged-xxx queries
     field(:is_pinned, :boolean)
-    field(:trash, :boolean)
+    field(:mark_delete, :boolean)
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
 
     field(:author, :user, resolve: dataloader(CMS, :author))
@@ -119,7 +119,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:views, :integer)
 
     field(:is_pinned, :boolean)
-    field(:trash, :boolean)
+    field(:mark_delete, :boolean)
 
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
@@ -170,9 +170,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
     field(:views, :integer)
     field(:is_pinned, :boolean)
-    field(:trash, :boolean)
-    # TODO: remove
-    # field(:trash, :boolean)
+    field(:mark_delete, :boolean)
 
     field(:last_sync, :datetime)
 

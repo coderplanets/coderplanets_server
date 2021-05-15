@@ -18,28 +18,29 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
 
   describe "[mutation post flag curd]" do
     @query """
-    mutation($id: ID!, $communityId: ID!){
-      trashPost(id: $id, communityId: $communityId) {
+    mutation($id: ID!){
+      markDeletePost(id: $id) {
         id
-        trash
+        markDelete
       }
     }
     """
+    @tag :wip2
+    test "auth user can markDelete post", ~m(community post)a do
+      variables = %{id: post.id}
 
-    test "auth user can trash post", ~m(community post)a do
-      variables = %{id: post.id, communityId: community.id}
-
-      passport_rules = %{community.raw => %{"post.trash" => true}}
+      passport_rules = %{"post.mark_delete" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      updated = rule_conn |> mutation_result(@query, variables, "trashPost")
+      updated = rule_conn |> mutation_result(@query, variables, "markDeletePost")
 
       assert updated["id"] == to_string(post.id)
-      assert updated["trash"] == true
+      assert updated["markDelete"] == true
     end
 
-    test "unauth user trash post fails", ~m(user_conn guest_conn post community)a do
-      variables = %{id: post.id, communityId: community.id}
+    @tag :wip2
+    test "unauth user markDelete post fails", ~m(user_conn guest_conn post community)a do
+      variables = %{id: post.id, thread: "POST"}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
@@ -48,30 +49,31 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
     end
 
     @query """
-    mutation($id: ID!, $communityId: ID!){
-      undoTrashPost(id: $id, communityId: $communityId) {
+    mutation($id: ID!){
+      undoMarkDeletePost(id: $id) {
         id
-        trash
+        markDelete
       }
     }
     """
+    @tag :wip2
+    test "auth user can undo markDelete post", ~m(community post)a do
+      variables = %{id: post.id, thread: "POST"}
 
-    test "auth user can undo trash post", ~m(community post)a do
-      variables = %{id: post.id, communityId: community.id}
+      {:ok, _} = CMS.mark_delete_article(:post, post.id)
 
-      {:ok, _} = CMS.set_community_flags(community, post, %{trash: true})
-
-      passport_rules = %{community.raw => %{"post.undo_trash" => true}}
+      passport_rules = %{"post.undo_mark_delete" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      updated = rule_conn |> mutation_result(@query, variables, "undoTrashPost")
+      updated = rule_conn |> mutation_result(@query, variables, "undoMarkDeletePost")
 
       assert updated["id"] == to_string(post.id)
-      assert updated["trash"] == false
+      assert updated["markDelete"] == false
     end
 
-    test "unauth user undo trash post fails", ~m(user_conn guest_conn community post)a do
-      variables = %{id: post.id, communityId: community.id}
+    @tag :wip2
+    test "unauth user undo markDelete post fails", ~m(user_conn guest_conn community post)a do
+      variables = %{id: post.id, thread: "POST"}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))

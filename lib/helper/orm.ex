@@ -78,7 +78,7 @@ defmodule Helper.ORM do
   @doc """
   return pageinated Data required by filter
   """
-  # TODO: find content not in trash by default
+  # TODO: find article not mark_delete by default
   def find_all(queryable, %{page: page, size: size} = filter) do
     queryable
     |> QueryBuilder.filter_pack(filter)
@@ -89,7 +89,7 @@ defmodule Helper.ORM do
   @doc """
   return  Data required by filter
   """
-  # TODO: find content not in trash by default
+  # TODO: find article not in mark_delete by default
   def find_all(queryable, filter) do
     queryable |> QueryBuilder.filter_pack(filter) |> Repo.all() |> done()
   end

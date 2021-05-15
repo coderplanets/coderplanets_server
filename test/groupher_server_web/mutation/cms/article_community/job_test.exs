@@ -24,7 +24,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Job do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "auth user can set a valid tag to job", ~m(job)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "job", community: community})
@@ -52,7 +52,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Job do
     # assert rule_conn |> mutation_get_error?(@set_tag_query, variables)
     # end
 
-    @tag :wip2
+    @tag :wip3
     test "can set multi tag to a job", ~m(job)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "job", community: community})
@@ -82,7 +82,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Job do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "can unset tag to a job", ~m(job)a do
       {:ok, community} = db_insert(:community)
 
@@ -180,7 +180,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Job do
       }
     }
     """
-    @tag :wip3
+
     test "auth user can unmirror job to a community", ~m(job)a do
       passport_rules = %{"job.community.mirror" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
@@ -217,7 +217,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Job do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "auth user can move job to other community", ~m(job)a do
       passport_rules = %{"job.community.mirror" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
