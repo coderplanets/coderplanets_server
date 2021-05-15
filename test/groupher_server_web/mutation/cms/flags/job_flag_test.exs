@@ -25,8 +25,8 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
       }
     }
     """
-    @tag :wip2
-    test "auth user can markDelete job", ~m(community job)a do
+
+    test "auth user can markDelete job", ~m(job)a do
       variables = %{id: job.id}
 
       passport_rules = %{"job.mark_delete" => true}
@@ -38,8 +38,7 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
       assert updated["markDelete"] == true
     end
 
-    @tag :wip2
-    test "unauth user markDelete job fails", ~m(user_conn guest_conn job community)a do
+    test "unauth user markDelete job fails", ~m(user_conn guest_conn job)a do
       variables = %{id: job.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
@@ -56,8 +55,8 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
       }
     }
     """
-    @tag :wip2
-    test "auth user can undo markDelete job", ~m(community job)a do
+
+    test "auth user can undo markDelete job", ~m(job)a do
       variables = %{id: job.id}
 
       {:ok, _} = CMS.mark_delete_article(:job, job.id)
@@ -71,8 +70,7 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
       assert updated["markDelete"] == false
     end
 
-    @tag :wip2
-    test "unauth user undo markDelete job fails", ~m(user_conn guest_conn community job)a do
+    test "unauth user undo markDelete job fails", ~m(user_conn guest_conn job)a do
       variables = %{id: job.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 

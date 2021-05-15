@@ -25,8 +25,8 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
       }
     }
     """
-    @tag :wip2
-    test "auth user can markDelete repo", ~m(community repo)a do
+
+    test "auth user can markDelete repo", ~m(repo)a do
       variables = %{id: repo.id}
 
       passport_rules = %{"repo.mark_delete" => true}
@@ -38,8 +38,7 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
       assert updated["markDelete"] == true
     end
 
-    @tag :wip2
-    test "unauth user markDelete repo fails", ~m(user_conn guest_conn repo community)a do
+    test "unauth user markDelete repo fails", ~m(user_conn guest_conn repo)a do
       variables = %{id: repo.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
@@ -56,8 +55,8 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
       }
     }
     """
-    @tag :wip2
-    test "auth user can undo markDelete repo", ~m(community repo)a do
+
+    test "auth user can undo markDelete repo", ~m(repo)a do
       variables = %{id: repo.id}
 
       {:ok, _} = CMS.mark_delete_article(:repo, repo.id)
@@ -71,8 +70,7 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
       assert updated["markDelete"] == false
     end
 
-    @tag :wip2
-    test "unauth user undo markDelete repo fails", ~m(user_conn guest_conn community repo)a do
+    test "unauth user undo markDelete repo fails", ~m(user_conn guest_conn repo)a do
       variables = %{id: repo.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 

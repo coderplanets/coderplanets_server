@@ -88,7 +88,6 @@ defmodule GroupherServer.Test.Query.Flags.ReposFlags do
       assert results["entries"] |> Enum.any?(&(&1["id"] !== random_id))
     end
 
-    @tag :wip2
     test "if have trashed repos, the mark deleted repos should not appears in result",
          ~m(guest_conn community)a do
       variables = %{filter: %{community: community.raw}}

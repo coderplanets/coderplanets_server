@@ -25,7 +25,6 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
       }
     }
     """
-    @tag :wip2
     test "auth user can markDelete post", ~m(community post)a do
       variables = %{id: post.id}
 
@@ -38,8 +37,7 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
       assert updated["markDelete"] == true
     end
 
-    @tag :wip2
-    test "unauth user markDelete post fails", ~m(user_conn guest_conn post community)a do
+    test "unauth user markDelete post fails", ~m(user_conn guest_conn post)a do
       variables = %{id: post.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
@@ -56,8 +54,7 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
       }
     }
     """
-    @tag :wip2
-    test "auth user can undo markDelete post", ~m(community post)a do
+    test "auth user can undo markDelete post", ~m(post)a do
       variables = %{id: post.id}
 
       {:ok, _} = CMS.mark_delete_article(:post, post.id)
@@ -71,8 +68,7 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
       assert updated["markDelete"] == false
     end
 
-    @tag :wip2
-    test "unauth user undo markDelete post fails", ~m(user_conn guest_conn community post)a do
+    test "unauth user undo markDelete post fails", ~m(user_conn guest_conn post)a do
       variables = %{id: post.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
 
