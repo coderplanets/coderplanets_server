@@ -154,7 +154,7 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
                to_string(replyed_comment_2.id)
     end
 
-    @tag :wip
+    @tag :wip2
     test "timeline-mode paged comments", ~m(guest_conn repo user user2)a do
       total_count = 3
       page_size = 20
@@ -363,7 +363,6 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       assert List.last(results["entries"]) |> Map.get("id") == to_string(comment.id)
     end
 
-    @tag :wip2
     test "guest user can get paged comment with upvotes_count", ~m(guest_conn repo user user2)a do
       total_count = 10
       page_size = 10

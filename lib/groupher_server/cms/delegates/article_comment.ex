@@ -68,7 +68,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     do_paged_comment_replies(comment_id, filters, user)
   end
 
-  @spec paged_article_comments_participators(T.comment_thread(), Integer.t(), T.paged_filter()) ::
+  @spec paged_article_comments_participators(T.article_thread(), Integer.t(), T.paged_filter()) ::
           {:ok, T.paged_users()}
   def paged_article_comments_participators(thread, article_id, filters) do
     %{page: page, size: size} = filters

@@ -34,7 +34,6 @@ defmodule Helper.Types do
         }
 
   @type article_thread :: :post | :job | :repo
-  @type comment_thread :: :post | :job
 
   @type paged_filter :: %{
           page: Integer.t(),
