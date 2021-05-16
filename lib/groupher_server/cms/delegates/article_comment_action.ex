@@ -256,6 +256,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
     end
   end
 
+  defp get_article(%ArticleComment{repo_id: repo_id} = comment) when not is_nil(job_id) do
+    with {:ok, article} <- ORM.find(CMS.Repo, comment.repo_id, preload: [author: :user]) do
+      {:job, article}
+    end
+  end
+
   @spec get_full_comment(String.t()) :: {:ok, T.article_info()} | {:error, nil}
   defp get_full_comment(comment_id) do
     query = from(c in ArticleComment, where: c.id == ^comment_id, preload: :post, preload: :job)
@@ -271,6 +277,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
 
   defp extract_article_info(%ArticleComment{job: %Job{} = job}) when not is_nil(job) do
     do_extract_article_info(:job, job)
+  end
+
+  defp extract_article_info(%ArticleComment{repo: %CMS.Repo{} = repo}) when not is_nil(repo) do
+    do_extract_article_info(:repo, repo)
   end
 
   @spec do_extract_article_info(T.article_thread(), T.article_common()) :: {:ok, T.article_info()}
