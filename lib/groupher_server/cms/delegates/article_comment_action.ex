@@ -50,8 +50,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
         pined_comments_count = Repo.aggregate(count_query, :count)
 
         case pined_comments_count >= @pinned_comment_limit do
-          true -> {:error, "only support #{@pinned_comment_limit} pinned comment for each article"}
-          false -> {:ok, :pass}
+          true ->
+            {:error, "only support #{@pinned_comment_limit} pinned comment for each article"}
+
+          false ->
+            {:ok, :pass}
         end
       end)
       |> Multi.run(:update_comment_flag, fn _, _ ->
