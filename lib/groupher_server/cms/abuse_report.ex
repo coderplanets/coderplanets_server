@@ -6,6 +6,7 @@ defmodule GroupherServer.CMS.AbuseReport do
   use Accessible
   import Ecto.Changeset
   import GroupherServer.CMS.Helper.Macros
+  import GroupherServer.CMS.Helper.Utils, only: [articles_foreign_key_constraint: 1]
 
   alias GroupherServer.{Accounts, CMS}
   alias CMS.{ArticleComment, Embeds}
@@ -39,11 +40,13 @@ defmodule GroupherServer.CMS.AbuseReport do
     struct
     |> cast(attrs, @optional_fields ++ @article_fields)
     |> cast_embed(:report_cases, required: true, with: &Embeds.AbuseReportCase.changeset/2)
+    |> articles_foreign_key_constraint
   end
 
   def update_changeset(%AbuseReport{} = struct, attrs) do
     struct
     |> cast(attrs, @update_fields ++ @article_fields)
     |> cast_embed(:report_cases, required: true, with: &Embeds.AbuseReportCase.changeset/2)
+    |> articles_foreign_key_constraint
   end
 end

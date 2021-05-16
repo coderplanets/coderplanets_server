@@ -19,7 +19,6 @@ defmodule GroupherServer.CMS.Helper.Macros do
     @article_threads
     |> Enum.map(fn thread ->
       quote do
-        # thread_module = unquote(thread) |> to_string |> Recase.to_pascal()
         belongs_to(
           unquote(thread),
           Module.concat(CMS, unquote(thread) |> to_string |> Recase.to_pascal()),

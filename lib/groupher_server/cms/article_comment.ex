@@ -7,6 +7,7 @@ defmodule GroupherServer.CMS.ArticleComment do
 
   import Ecto.Changeset
   import GroupherServer.CMS.Helper.Macros
+  import GroupherServer.CMS.Helper.Utils, only: [articles_foreign_key_constraint: 1]
 
   alias GroupherServer.{Accounts, CMS}
   alias CMS.{Embeds, ArticleCommentUpvote}
@@ -102,6 +103,7 @@ defmodule GroupherServer.CMS.ArticleComment do
   defp generl_changeset(content) do
     content
     |> foreign_key_constraint(:author_id)
+    |> articles_foreign_key_constraint
 
     # |> validate_length(:body_html, min: 3, max: 2000)
     # |> HTML.safe_string(:body_html)

@@ -7,6 +7,7 @@ defmodule GroupherServer.CMS.ArticlePinnedComment do
 
   import Ecto.Changeset
   import GroupherServer.CMS.Helper.Macros
+  import GroupherServer.CMS.Helper.Utils, only: [articles_foreign_key_constraint: 1]
 
   alias GroupherServer.CMS
   alias CMS.ArticleComment
@@ -24,7 +25,6 @@ defmodule GroupherServer.CMS.ArticlePinnedComment do
     belongs_to(:article_comment, ArticleComment, foreign_key: :article_comment_id)
 
     article_belongs_to()
-
     timestamps(type: :utc_datetime)
   end
 
@@ -33,11 +33,13 @@ defmodule GroupherServer.CMS.ArticlePinnedComment do
     article_pined_comment
     |> cast(attrs, @required_fields ++ @article_fields)
     |> validate_required(@required_fields)
+    |> articles_foreign_key_constraint
   end
 
   # @doc false
   def update_changeset(%ArticlePinnedComment{} = article_pined_comment, attrs) do
     article_pined_comment
     |> cast(attrs, @required_fields ++ @article_fields)
+    |> articles_foreign_key_constraint
   end
 end

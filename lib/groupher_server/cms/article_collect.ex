@@ -5,6 +5,7 @@ defmodule GroupherServer.CMS.ArticleCollect do
   use Ecto.Schema
   import Ecto.Changeset
   import GroupherServer.CMS.Helper.Macros
+  import GroupherServer.CMS.Helper.Utils, only: [articles_foreign_key_constraint: 1]
 
   alias GroupherServer.{Accounts, CMS}
   alias Accounts.{User, CollectFolder}
@@ -23,7 +24,6 @@ defmodule GroupherServer.CMS.ArticleCollect do
     embeds_many(:collect_folders, CollectFolder, on_replace: :delete)
 
     article_belongs_to()
-
     timestamps(type: :utc_datetime)
   end
 
@@ -34,9 +34,6 @@ defmodule GroupherServer.CMS.ArticleCollect do
     |> validate_required(@required_fields)
     |> cast_embed(:collect_folders, with: &CollectFolder.changeset/2)
     |> foreign_key_constraint(:user_id)
-
-    # |> foreign_key_constraint(:post_id)
-    # |> foreign_key_constraint(:job_id)
-    # |> foreign_key_constraint(:repo_id)
+    |> articles_foreign_key_constraint
   end
 end

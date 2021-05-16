@@ -5,6 +5,7 @@ defmodule GroupherServer.CMS.PinnedArticle do
   use Ecto.Schema
   import Ecto.Changeset
   import GroupherServer.CMS.Helper.Macros
+  import GroupherServer.CMS.Helper.Utils, only: [articles_foreign_key_constraint: 1]
 
   alias GroupherServer.CMS
   alias CMS.Community
@@ -29,11 +30,7 @@ defmodule GroupherServer.CMS.PinnedArticle do
     pinned_article
     |> cast(attrs, @article_fields ++ @required_fields)
     |> validate_required(@required_fields)
-    # |> foreign_key_constraint(:post_id)
-    # |> foreign_key_constraint(:job_id)
-    # |> foreign_key_constraint(:repo_id)
     |> foreign_key_constraint(:community_id)
-
-    # |> unique_constraint(:pinned_articles, name: :pinned_articles_post_id_community_id_index)
+    |> articles_foreign_key_constraint
   end
 end
