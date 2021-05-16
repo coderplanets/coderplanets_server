@@ -34,7 +34,7 @@ defmodule GroupherServer.Test.Query.Account.Achievement do
       }
     }
     """
-    @tag :wip
+
     test "empty user should get empty achievement", ~m(guest_conn user)a do
       variables = %{login: user.login}
 
@@ -183,7 +183,7 @@ defmodule GroupherServer.Test.Query.Account.Achievement do
       }
     }
     """
-    @tag :wip
+
     test "inc user's achievement after user's post got collected", ~m(guest_conn user)a do
       {:ok, post} = db_insert(:post)
       {:ok, _article_collect} = CMS.collect_article(:post, post.id, user)
@@ -198,7 +198,6 @@ defmodule GroupherServer.Test.Query.Account.Achievement do
       assert results["achievement"] |> Map.get("reputation") == @collect_weight
     end
 
-    @tag :wip
     test "minus user's acheiveements after user's post's collect cancled", ~m(guest_conn)a do
       total_count = 10
       {:ok, post} = db_insert(:post)

@@ -251,7 +251,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert updated_post["copyRight"] == variables.copyRight
     end
 
-    @tag :wip
     test "update post with valid attrs should have is_edited meta info update",
          ~m(owner_conn post)a do
       unique_num = System.unique_integer([:positive, :monotonic])

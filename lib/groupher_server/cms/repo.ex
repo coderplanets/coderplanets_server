@@ -7,11 +7,12 @@ defmodule GroupherServer.CMS.Repo do
 
   import Ecto.Changeset
 
-  alias GroupherServer.CMS
+  alias GroupherServer.{CMS, Accounts}
 
   alias CMS.{
     Author,
     Embeds,
+    ArticleComment,
     Community,
     RepoContributor,
     RepoLang,
@@ -24,7 +25,7 @@ defmodule GroupherServer.CMS.Repo do
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title owner_name owner_url repo_url desc readme star_count issues_count prs_count fork_count watch_count)a
-  @optional_fields ~w(original_community_id last_sync homepage_url release_tag license upvotes_count collects_count mark_delete)a
+  @optional_fields ~w(original_community_id last_sync homepage_url release_tag license upvotes_count collects_count mark_delete article_comments_count article_comments_participators_count)a
 
   @type t :: %Repo{}
   schema "cms_repos" do
@@ -72,6 +73,12 @@ defmodule GroupherServer.CMS.Repo do
     field(:collects_count, :integer, default: 0)
 
     field(:last_sync, :utc_datetime)
+
+    has_many(:article_comments, {"articles_comments", ArticleComment})
+    field(:article_comments_count, :integer, default: 0)
+    field(:article_comments_participators_count, :integer, default: 0)
+    # 评论参与者，只保留最近 5 个
+    embeds_many(:article_comments_participators, Accounts.User, on_replace: :delete)
 
     many_to_many(
       :tags,

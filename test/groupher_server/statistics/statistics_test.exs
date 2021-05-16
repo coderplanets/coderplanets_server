@@ -148,7 +148,6 @@ defmodule GroupherServer.Test.Statistics do
       assert length(contributes) == @community_contribute_days + 1
     end
 
-    @tag :wip
     test "the contributes data should be cached after first query", ~m(community)a do
       scope = Cache.get_scope(:community_contributes, community.id)
       assert {:error, nil} = Cache.get(:common, scope)

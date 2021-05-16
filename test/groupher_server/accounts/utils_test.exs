@@ -8,7 +8,6 @@ defmodule GroupherServer.Test.Accounts.Utils do
   @cache_pool :user_login
 
   describe "[get userid]" do
-    @tag :wip
     test "get_userid_and_cache should work" do
       {:ok, user} = db_insert(:user)
 

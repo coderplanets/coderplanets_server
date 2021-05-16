@@ -41,7 +41,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Quote do
       }
     end
 
-    @tag :wip
     test "short quote parse should work" do
       editor_json = set_data("short", "short quote")
       {:ok, editor_string} = Jason.encode(editor_json)
@@ -54,7 +53,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Quote do
       assert Utils.str_occurence(converted, @class["caption"]) == 0
     end
 
-    @tag :wip
     test "long quote parse should work" do
       editor_json = set_data("long", "long quote", "caption")
       {:ok, editor_string} = Jason.encode(editor_json)
@@ -65,7 +63,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Quote do
       assert Utils.str_occurence(converted, @class["caption_text"]) == 1
     end
 
-    @tag :wip
     test "long quote without caption parse should work" do
       editor_json = set_data("long", "long quote")
       {:ok, editor_string} = Jason.encode(editor_json)
@@ -76,7 +73,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Quote do
       assert Utils.str_occurence(converted, @class["caption_text"]) == 0
     end
 
-    @tag :wip
     test "long quote without empty caption parse should work" do
       editor_json = set_data("long", "long quote", "")
       {:ok, editor_string} = Jason.encode(editor_json)
@@ -87,7 +83,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Quote do
       assert Utils.str_occurence(converted, @class["caption_text"]) == 0
     end
 
-    @tag :wip
     test "invalid quote should have invalid hint" do
       editor_json = set_data("none_exsit", "long quote", "")
       {:ok, editor_string} = Jason.encode(editor_json)

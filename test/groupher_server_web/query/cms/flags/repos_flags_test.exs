@@ -70,7 +70,6 @@ defmodule GroupherServer.Test.Query.Flags.ReposFlags do
       assert entries_first["isPinned"] == true
     end
 
-    @tag :wip
     test "pind repos should not appear when page > 1", ~m(guest_conn community)a do
       variables = %{filter: %{page: 2, size: 20}}
       results = guest_conn |> query_result(@query, variables, "pagedRepos")

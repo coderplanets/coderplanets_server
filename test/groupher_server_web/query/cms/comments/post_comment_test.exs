@@ -31,7 +31,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       }
     }
     """
-    @tag :wip
+
     test "guest user can get comment participators after comment created",
          ~m(guest_conn post user user2)a do
       comment = "test comment"
@@ -120,7 +120,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
         }
     }
     """
-    @tag :wip
+
     test "list comments with default replies-mode", ~m(guest_conn post user user2)a do
       total_count = 10
       page_size = 20
@@ -154,7 +154,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
                to_string(replyed_comment_2.id)
     end
 
-    @tag :wip
     test "timeline-mode paged comments", ~m(guest_conn post user user2)a do
       total_count = 3
       page_size = 20
@@ -189,7 +188,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       assert random_comment["repliesCount"] == 2
     end
 
-    @tag :wip
     test "comment should have reply_to content if need", ~m(guest_conn post user user2)a do
       total_count = 2
       thread = :post
@@ -224,7 +222,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
                to_string(parent_comment.author_id)
     end
 
-    @tag :wip
     test "guest user can get paged comment for post", ~m(guest_conn post user)a do
       comment = "test comment"
       total_count = 30
@@ -269,7 +266,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       assert results["totalCount"] == total_count + 2
     end
 
-    @tag :wip
     test "guest user can get paged comment with floor it", ~m(guest_conn post user)a do
       total_count = 5
       thread = :post
@@ -363,7 +359,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       assert List.last(results["entries"]) |> Map.get("id") == to_string(comment.id)
     end
 
-    @tag :wip
     test "guest user can get paged comment with upvotes_count", ~m(guest_conn post user user2)a do
       total_count = 10
       page_size = 10
@@ -391,7 +386,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       assert results["entries"] |> List.last() |> Map.get("upvotesCount") == 0
     end
 
-    @tag :wip
     test "article author upvote a comment can get is_article_author and/or is_article_author_upvoted flag",
          ~m(guest_conn post user)a do
       total_count = 5
@@ -480,7 +474,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       assert user2.login in latest_beer_users_logins
     end
 
-    @tag :wip
     test "user make emotion can get paged comment with emotions has_motioned field",
          ~m(user_conn post user user2)a do
       total_count = 10
@@ -546,7 +539,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
         }
     }
     """
-    @tag :wip
+
     test "guest user can get paged participators", ~m(guest_conn post user)a do
       total_count = 30
       page_size = 10
@@ -621,7 +614,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
         }
     }
     """
-    @tag :wip
+
     test "guest user can get paged replies", ~m(guest_conn post user user2)a do
       comment = "test comment"
       total_count = 2

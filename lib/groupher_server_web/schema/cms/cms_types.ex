@@ -178,6 +178,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:original_community, :community, resolve: dataloader(CMS, :original_community))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
+    article_comments_fields()
     viewer_has_state_fields()
     # comments_count
     # comments_participators

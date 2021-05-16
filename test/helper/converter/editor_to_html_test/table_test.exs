@@ -28,7 +28,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Table do
       }
     end
 
-    @tag :wip
     test "basic table parse should work" do
       editor_json =
         set_items(4, [
@@ -104,7 +103,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Table do
       assert Utils.str_occurence(converted, @class["td_stripe"]) == 3
     end
 
-    @tag :wip
     test "edit exsit block will not change id value" do
       editor_json =
         set_items(
@@ -133,7 +131,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Table do
       assert Utils.str_occurence(converted, ~s(id="exist")) == 1
     end
 
-    @tag :wip
     test "invalid table field parse should raise error message" do
       editor_json = set_items("aa", "bb")
       {:ok, editor_string} = Jason.encode(editor_json)

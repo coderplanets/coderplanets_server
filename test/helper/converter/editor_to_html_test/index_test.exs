@@ -37,14 +37,13 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
       "blocks" => [],
       "version" => "2.15.0"
     }
-    @tag :wip
+
     test "valid editorjs json fmt should work" do
       {:ok, editor_string} = Jason.encode(@editor_json)
 
       assert {:ok, _} = Parser.to_html(editor_string)
     end
 
-    @tag :wip
     test "invalid editorjs json fmt should raise error" do
       editor_json = %{
         "invalid_time" => 1_567_250_876_713,
@@ -114,7 +113,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
   end
 
   describe "[secure issues]" do
-    @tag :wip
     test "code block should avoid potential xss script attack" do
       editor_json = %{
         "time" => 1_567_250_876_713,
