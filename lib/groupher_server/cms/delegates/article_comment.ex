@@ -15,7 +15,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.User
-  alias CMS.{ArticleComment, ArticlePinedComment, Embeds}
+  alias CMS.{ArticleComment, ArticlePinnedComment, Embeds}
   alias Ecto.Multi
 
   @max_participator_count ArticleComment.max_participator_count()
@@ -124,7 +124,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       update_article_comments_count(comment, :dec)
     end)
     |> Multi.run(:remove_pined_comment, fn _, _ ->
-      ORM.findby_delete(ArticlePinedComment, %{article_comment_id: comment.id})
+      ORM.findby_delete(ArticlePinnedComment, %{article_comment_id: comment.id})
     end)
     |> Multi.run(:delete_article_comment, fn _, _ ->
       ORM.update(comment, %{body_html: @delete_hint, is_deleted: true})
@@ -235,7 +235,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
        }) do
     with {:ok, info} <- match(thread),
          query <-
-           from(p in ArticlePinedComment,
+           from(p in ArticlePinnedComment,
              join: c in ArticleComment,
              on: p.article_comment_id == c.id,
              where: field(p, ^info.foreign_key) == ^article_id,

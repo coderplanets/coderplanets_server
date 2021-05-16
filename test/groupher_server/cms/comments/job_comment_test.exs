@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS}
 
-  alias CMS.{ArticleComment, ArticlePinedComment, Embeds, Job}
+  alias CMS.{ArticleComment, ArticlePinnedComment, Embeds, Job}
 
   @delete_hint CMS.ArticleComment.delete_hint()
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
@@ -226,7 +226,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       assert comment.is_pinned
 
-      {:ok, pined_record} = ArticlePinedComment |> ORM.find_by(%{job_id: job.id})
+      {:ok, pined_record} = ArticlePinnedComment |> ORM.find_by(%{job_id: job.id})
       assert pined_record.job_id == job.id
     end
 
@@ -237,7 +237,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       {:ok, comment} = CMS.undo_pin_article_comment(comment.id)
 
       assert not comment.is_pinned
-      assert {:error, _} = ArticlePinedComment |> ORM.find_by(%{article_comment_id: comment.id})
+      assert {:error, _} = ArticlePinnedComment |> ORM.find_by(%{article_comment_id: comment.id})
     end
 
     test "pined comments has a limit for each article", ~m(user job)a do
@@ -549,7 +549,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       {:ok, _comment} = ORM.find(ArticleComment, random_comment.id)
 
       {:ok, _} = CMS.delete_article_comment(random_comment)
-      assert {:error, _comment} = ORM.find(ArticlePinedComment, random_comment.id)
+      assert {:error, _comment} = ORM.find(ArticlePinnedComment, random_comment.id)
     end
   end
 

@@ -19,7 +19,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
 
   alias CMS.{
     ArticleComment,
-    ArticlePinedComment,
+    ArticlePinnedComment,
     ArticleCommentUpvote,
     ArticleCommentReply,
     Community,
@@ -43,7 +43,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
       Multi.new()
       |> Multi.run(:checked_pined_comments_count, fn _, _ ->
         count_query =
-          from(p in ArticlePinedComment,
+          from(p in ArticlePinnedComment,
             where: field(p, ^info.foreign_key) == ^full_comment.article.id
           )
 
@@ -58,7 +58,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
         ORM.update(comment, %{is_pinned: true})
       end)
       |> Multi.run(:add_pined_comment, fn _, _ ->
-        ArticlePinedComment
+        ArticlePinnedComment
         |> ORM.create(
           %{article_comment_id: comment.id}
           |> Map.put(info.foreign_key, full_comment.article.id)
@@ -76,7 +76,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
         ORM.update(comment, %{is_pinned: false})
       end)
       |> Multi.run(:remove_pined_comment, fn _, _ ->
-        ORM.findby_delete(ArticlePinedComment, %{article_comment_id: comment.id})
+        ORM.findby_delete(ArticlePinnedComment, %{article_comment_id: comment.id})
       end)
       |> Repo.transaction()
       |> result()
