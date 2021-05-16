@@ -50,8 +50,8 @@ defmodule GroupherServer.CMS.ArticleUserEmotion do
     struct
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
-    |> foreign_key_constraint(:post_id)
-    |> foreign_key_constraint(:job_id)
+    # |> foreign_key_constraint(:post_id)
+    # |> foreign_key_constraint(:job_id)
     |> foreign_key_constraint(:user_id)
     |> foreign_key_constraint(:recived_user_id)
   end
@@ -60,8 +60,8 @@ defmodule GroupherServer.CMS.ArticleUserEmotion do
     struct
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
-    |> foreign_key_constraint(:post_id)
-    |> foreign_key_constraint(:job_id)
+    # |> foreign_key_constraint(:post_id)
+    # |> foreign_key_constraint(:job_id)
     |> foreign_key_constraint(:user_id)
     |> foreign_key_constraint(:recived_user_id)
   end

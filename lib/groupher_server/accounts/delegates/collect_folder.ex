@@ -152,7 +152,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
         CMS.set_collect_folder(article_collect, folder)
       end)
       |> Repo.transaction()
-      |> upsert_collect_folder_result()
+      |> result()
     end
   end
 
@@ -183,7 +183,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
         CMS.undo_set_collect_folder(article_collect, folder)
       end)
       |> Repo.transaction()
-      |> upsert_collect_folder_result()
+      |> result()
     end
   end
 
@@ -249,13 +249,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
 
   defp filter_thread_ifneed(query, _), do: query
 
-  defp upsert_collect_folder_result({:ok, %{add_to_collect_folder: result}}), do: {:ok, result}
-
-  defp upsert_collect_folder_result({:ok, %{rm_from_collect_folder: result}}) do
-    {:ok, result}
-  end
-
-  defp upsert_collect_folder_result({:error, _, result, _steps}) do
-    {:error, result}
-  end
+  defp result({:ok, %{add_to_collect_folder: result}}), do: {:ok, result}
+  defp result({:ok, %{rm_from_collect_folder: result}}), do: {:ok, result}
+  defp result({:error, _, result, _steps}), do: {:error, result}
 end

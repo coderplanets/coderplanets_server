@@ -18,10 +18,11 @@ defmodule GroupherServer.CMS.Helper.Macros do
   defmacro article_belongs_to() do
     @article_threads
     |> Enum.map(fn thread ->
-      thread_module = unquote(thread) |> to_string |> Recase.to_pascal()
-
       quote do
-        belongs_to(unquote(thread), Module.concat(CMS, thread_module),
+        # thread_module = unquote(thread) |> to_string |> Recase.to_pascal()
+        belongs_to(
+          unquote(thread),
+          Module.concat(CMS, unquote(thread) |> to_string |> Recase.to_pascal()),
           foreign_key: unquote(:"#{thread}_id")
         )
       end

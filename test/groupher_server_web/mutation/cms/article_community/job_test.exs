@@ -113,7 +113,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Job do
     end
   end
 
-  describe "[mirror/unmirror/move psot to/from community]" do
+  describe "[mirror/unmirror/move job to/from community]" do
     @mirror_article_query """
     mutation($id: ID!, $thread: Thread, $communityId: ID!) {
       mirrorArticle(id: $id, thread: $thread, communityId: $communityId) {
