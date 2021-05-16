@@ -7,7 +7,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
   import Ecto.Query, warn: false
 
   import Helper.ErrorCode
-  import ShortMaps
   import Helper.Utils, only: [strip_struct: 1, done: 1]
   import GroupherServer.CMS.Helper.Matcher2
 

@@ -8,12 +8,7 @@ defmodule GroupherServer.CMS.ArticlePinedComment do
   import Ecto.Changeset
 
   alias GroupherServer.CMS
-
-  alias CMS.{
-    Post,
-    Job,
-    ArticleComment
-  }
+  alias CMS.ArticleComment
 
   # alias Helper.HTML
 
@@ -23,8 +18,9 @@ defmodule GroupherServer.CMS.ArticlePinedComment do
   @type t :: %ArticlePinedComment{}
   schema "articles_pined_comments" do
     belongs_to(:article_comment, ArticleComment, foreign_key: :article_comment_id)
-    belongs_to(:post, Post, foreign_key: :post_id)
-    belongs_to(:job, Job, foreign_key: :job_id)
+    belongs_to(:post, CMS.Post, foreign_key: :post_id)
+    belongs_to(:job, CMS.Job, foreign_key: :job_id)
+    belongs_to(:repo, CMS.Repo, foreign_key: :repo_id)
 
     timestamps(type: :utc_datetime)
   end
@@ -39,6 +35,6 @@ defmodule GroupherServer.CMS.ArticlePinedComment do
   # @doc false
   def update_changeset(%ArticlePinedComment{} = article_pined_comment, attrs) do
     article_pined_comment
-    |> cast(attrs, @required_fields ++ @updatable_fields)
+    |> cast(attrs, @required_fields ++ @optional_fields)
   end
 end
