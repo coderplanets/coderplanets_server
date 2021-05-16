@@ -18,7 +18,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   alias CMS.{ArticleComment, ArticlePinedComment, Embeds}
   alias Ecto.Multi
 
-  @supported_emotions get_config(:article, :comment_supported_emotions)
   @max_participator_count ArticleComment.max_participator_count()
   @default_emotions Embeds.ArticleCommentEmotion.default_emotions()
   @delete_hint ArticleComment.delete_hint()
@@ -249,17 +248,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
         _ ->
           preloaded_pined_comments =
-            Enum.slice(pined_comments, 0, @pined_comment_limit)
-            |> Repo.preload(reply_to: :author)
+            Enum.slice(pined_comments, 0, @pined_comment_limit) |> Repo.preload(reply_to: :author)
 
-          updated_entries = Enum.concat(preloaded_pined_comments, entries)
-
+          entries = Enum.concat(preloaded_pined_comments, entries)
           pined_comment_count = length(pined_comments)
 
-          Map.merge(paged_comments, %{
-            entries: updated_entries,
-            total_count: paged_comments.total_count + pined_comment_count
-          })
+          total_count = paged_comments.total_count + pined_comment_count
+          paged_comments |> Map.merge(%{entries: entries, total_count: total_count})
       end
     end
   end
