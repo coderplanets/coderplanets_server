@@ -61,7 +61,6 @@ config :groupher_server, :customization,
   sidebar_communities_index: %{}
 
 config :groupher_server, :article,
-  emotionable_threads: [:post, :job],
   # NOTE: if you want to add/remove emotion, just edit the list below
   # and migrate the field to table "articles_users_emotions"
   supported_emotions: [

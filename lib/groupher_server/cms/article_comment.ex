@@ -78,7 +78,6 @@ defmodule GroupherServer.CMS.ArticleComment do
     has_many(:upvotes, {"articles_comments_upvotes", ArticleCommentUpvote})
 
     article_belongs_to()
-
     timestamps(type: :utc_datetime)
   end
 
