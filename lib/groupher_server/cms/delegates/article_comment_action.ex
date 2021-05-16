@@ -22,6 +22,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
     ArticlePinedComment,
     ArticleCommentUpvote,
     ArticleCommentReply,
+    Community,
     # TODO: remove spec type
     Post,
     Job
@@ -29,6 +30,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
 
   alias Ecto.Multi
 
+  @article_threads Community.article_threads()
   @max_parent_replies_count ArticleComment.max_parent_replies_count()
   @pined_comment_limit ArticleComment.pined_comment_limit()
 
@@ -264,7 +266,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
 
   @spec get_full_comment(String.t()) :: {:ok, T.article_info()} | {:error, nil}
   defp get_full_comment(comment_id) do
-    query = from(c in ArticleComment, where: c.id == ^comment_id, preload: :post, preload: :job)
+    query = from(c in ArticleComment, where: c.id == ^comment_id, preload: ^@article_threads)
 
     with {:ok, comment} <- Repo.one(query) |> done() do
       extract_article_info(comment)

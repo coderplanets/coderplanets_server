@@ -4,9 +4,6 @@ defmodule GroupherServer.Test.Query.Flags.JobsFlags do
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.CMS
-  # alias GroupherServer.Repo
-
-  alias CMS.Job
 
   @total_count 35
   @page_size get_config(:general, :page_size)

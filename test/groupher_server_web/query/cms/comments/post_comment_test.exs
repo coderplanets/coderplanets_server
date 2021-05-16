@@ -243,7 +243,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       assert results["totalCount"] == total_count
     end
 
-    @tag :wip2
     test "guest user can get paged comment with pinned comment in it",
          ~m(guest_conn post user)a do
       total_count = 20

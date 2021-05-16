@@ -4,9 +4,6 @@ defmodule GroupherServer.Test.Query.Flags.ReposFlags do
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.CMS
-  # alias GroupherServer.Repo
-
-  alias CMS.Repo
 
   @total_count 35
   @page_size get_config(:general, :page_size)

@@ -243,7 +243,6 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       assert results["totalCount"] == total_count
     end
 
-    @tag :wip2
     test "guest user can get paged comment with pinned comment in it",
          ~m(guest_conn repo user)a do
       total_count = 20
@@ -364,7 +363,7 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       assert List.last(results["entries"]) |> Map.get("id") == to_string(comment.id)
     end
 
-    @tag :wip
+    @tag :wip2
     test "guest user can get paged comment with upvotes_count", ~m(guest_conn repo user user2)a do
       total_count = 10
       page_size = 10

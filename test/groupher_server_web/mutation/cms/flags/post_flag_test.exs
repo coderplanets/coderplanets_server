@@ -25,7 +25,7 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
       }
     }
     """
-    test "auth user can markDelete post", ~m(community post)a do
+    test "auth user can markDelete post", ~m(post)a do
       variables = %{id: post.id}
 
       passport_rules = %{"post.mark_delete" => true}
