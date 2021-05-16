@@ -52,7 +52,6 @@ defmodule GroupherServer.Test.Accounts.Achievement do
   describe "[Accounts Achievement funtion]" do
     alias Accounts.Achievement
 
-    @tag :wip
     test "Accounts.achieve should inc / dec achievement by parts", ~m(user)a do
       user |> Accounts.achieve(:inc, :follow)
       user |> Accounts.achieve(:inc, :upvote)
@@ -77,7 +76,6 @@ defmodule GroupherServer.Test.Accounts.Achievement do
       assert achievement.reputation == 0
     end
 
-    @tag :wip
     test "Accounts.achieve can not minus count < 0", ~m(user)a do
       user |> Accounts.achieve(:dec, :follow)
       user |> Accounts.achieve(:dec, :upvote)

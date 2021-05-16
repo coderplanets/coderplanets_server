@@ -33,7 +33,7 @@ defmodule GroupherServer.CMS.ArticleComment do
   @report_threshold_for_fold 5
 
   # 每篇文章最多含有置顶评论的条数
-  @pined_comment_limit 10
+  @pinned_comment_limit 10
 
   @doc "latest participators stores in article article_comment_participators field"
   def max_participator_count(), do: @max_participator_count
@@ -47,7 +47,7 @@ defmodule GroupherServer.CMS.ArticleComment do
   def delete_hint(), do: @delete_hint
 
   def report_threshold_for_fold, do: @report_threshold_for_fold
-  def pined_comment_limit, do: @pined_comment_limit
+  def pinned_comment_limit, do: @pinned_comment_limit
 
   @type t :: %ArticleComment{}
   schema "articles_comments" do

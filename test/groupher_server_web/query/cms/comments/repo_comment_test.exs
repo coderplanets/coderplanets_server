@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Query.Comments.PostComment do
+defmodule GroupherServer.Test.Query.Comments.RepoComment do
   @moduledoc false
 
   use GroupherServer.TestTools
@@ -6,23 +6,22 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
   alias GroupherServer.CMS
 
   setup do
-    {:ok, post} = db_insert(:post)
+    {:ok, repo} = db_insert(:repo)
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user, user)
 
-    {:ok, ~m(user_conn guest_conn post user user2)a}
+    {:ok, ~m(user_conn guest_conn repo user user2)a}
   end
 
-  describe "[baisc article post comment]" do
+  describe "[baisc article repo comment]" do
     @query """
     query($id: ID!) {
-      post(id: $id) {
+      repo(id: $id) {
         id
         title
-        body
         articleCommentsParticipators {
           id
           nickname
@@ -31,23 +30,22 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       }
     }
     """
-
     test "guest user can get comment participators after comment created",
-         ~m(guest_conn post user user2)a do
+         ~m(guest_conn repo user user2)a do
       comment = "test comment"
       total_count = 5
-      thread = :post
+      thread = :repo
 
       Enum.reduce(1..total_count, [], fn _, acc ->
-        {:ok, comment} = CMS.create_article_comment(thread, post.id, comment, user)
+        {:ok, comment} = CMS.create_article_comment(thread, repo.id, comment, user)
 
         acc ++ [comment]
       end)
 
-      {:ok, _} = CMS.create_article_comment(thread, post.id, comment, user2)
+      {:ok, _} = CMS.create_article_comment(thread, repo.id, comment, user2)
 
-      variables = %{id: post.id}
-      results = guest_conn |> query_result(@query, variables, "post")
+      variables = %{id: repo.id}
+      results = guest_conn |> query_result(@query, variables, "repo")
 
       article_comments_participators = results["articleCommentsParticipators"]
       article_comments_participators_count = results["articleCommentsParticipatorsCount"]
@@ -121,14 +119,14 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
     }
     """
 
-    test "list comments with default replies-mode", ~m(guest_conn post user user2)a do
+    test "list comments with default replies-mode", ~m(guest_conn repo user user2)a do
       total_count = 10
       page_size = 20
-      thread = :post
+      thread = :repo
 
       all_comments =
         Enum.reduce(1..total_count, [], fn i, acc ->
-          {:ok, comment} = CMS.create_article_comment(thread, post.id, "comment #{i}", user)
+          {:ok, comment} = CMS.create_article_comment(thread, repo.id, "comment #{i}", user)
           acc ++ [comment]
         end)
 
@@ -136,7 +134,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       {:ok, replyed_comment_1} = CMS.reply_article_comment(random_comment.id, "reply 1", user2)
       {:ok, replyed_comment_2} = CMS.reply_article_comment(random_comment.id, "reply 2", user2)
 
-      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
+      variables = %{id: repo.id, thread: "REPO", filter: %{page: 1, size: page_size}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
       assert results["entries"] |> length == total_count
 
@@ -154,14 +152,14 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
                to_string(replyed_comment_2.id)
     end
 
-    test "timeline-mode paged comments", ~m(guest_conn post user user2)a do
+    test "timeline-mode paged comments", ~m(guest_conn repo user user2)a do
       total_count = 3
       page_size = 20
-      thread = :post
+      thread = :repo
 
       all_comments =
         Enum.reduce(1..total_count, [], fn i, acc ->
-          {:ok, comment} = CMS.create_article_comment(thread, post.id, "comment #{i}", user)
+          {:ok, comment} = CMS.create_article_comment(thread, repo.id, "comment #{i}", user)
           acc ++ [comment]
         end)
 
@@ -171,8 +169,8 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       {:ok, replyed_comment_2} = CMS.reply_article_comment(random_comment.id, "reply 2", user2)
 
       variables = %{
-        id: post.id,
-        thread: "POST",
+        id: repo.id,
+        thread: "REPO",
         mode: "TIMELINE",
         filter: %{page: 1, size: page_size}
       }
@@ -188,21 +186,21 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       assert random_comment["repliesCount"] == 2
     end
 
-    test "comment should have reply_to content if need", ~m(guest_conn post user user2)a do
+    test "comment should have reply_to content if need", ~m(guest_conn repo user user2)a do
       total_count = 2
-      thread = :post
+      thread = :repo
 
       Enum.reduce(0..total_count, [], fn i, acc ->
-        {:ok, comment} = CMS.create_article_comment(thread, post.id, "comment #{i}", user)
+        {:ok, comment} = CMS.create_article_comment(thread, repo.id, "comment #{i}", user)
         acc ++ [comment]
       end)
 
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_content", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, "parent_content", user)
 
       {:ok, replyed_comment_1} = CMS.reply_article_comment(parent_comment.id, "reply 1", user2)
       {:ok, replyed_comment_2} = CMS.reply_article_comment(parent_comment.id, "reply 2", user2)
 
-      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: 10}, mode: "TIMELINE"}
+      variables = %{id: repo.id, thread: "REPO", filter: %{page: 1, size: 10}, mode: "TIMELINE"}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
 
       replyed_comment_1 =
@@ -222,42 +220,43 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
                to_string(parent_comment.author_id)
     end
 
-    test "guest user can get paged comment for post", ~m(guest_conn post user)a do
+    test "guest user can get paged comment for repo", ~m(guest_conn repo user)a do
       comment = "test comment"
       total_count = 30
-      thread = :post
+      thread = :repo
 
       Enum.reduce(1..total_count, [], fn _, acc ->
-        {:ok, value} = CMS.create_article_comment(thread, post.id, comment, user)
+        {:ok, value} = CMS.create_article_comment(thread, repo.id, comment, user)
 
         acc ++ [value]
       end)
 
-      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: 10}}
+      variables = %{id: repo.id, thread: "REPO", filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
 
       assert results |> is_valid_pagination?
       assert results["totalCount"] == total_count
     end
 
+    @tag :wip2
     test "guest user can get paged comment with pinned comment in it",
-         ~m(guest_conn post user)a do
+         ~m(guest_conn repo user)a do
       total_count = 20
-      thread = :post
+      thread = :repo
 
       Enum.reduce(1..total_count, [], fn _, acc ->
-        {:ok, comment} = CMS.create_article_comment(thread, post.id, "test comment", user)
+        {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment", user)
 
         acc ++ [comment]
       end)
 
-      {:ok, comment} = CMS.create_article_comment(thread, post.id, "pinned comment", user)
+      {:ok, comment} = CMS.create_article_comment(thread, repo.id, "pinned comment", user)
       {:ok, pinned_comment} = CMS.pin_article_comment(comment.id)
 
-      {:ok, comment} = CMS.create_article_comment(thread, post.id, "pinned comment 2", user)
+      {:ok, comment} = CMS.create_article_comment(thread, repo.id, "pinned comment 2", user)
       {:ok, pinned_comment2} = CMS.pin_article_comment(comment.id)
 
-      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: 10}}
+      variables = %{id: repo.id, thread: "REPO", filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
 
       assert results["entries"] |> List.first() |> Map.get("id") == to_string(pinned_comment.id)
@@ -266,37 +265,37 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       assert results["totalCount"] == total_count + 2
     end
 
-    test "guest user can get paged comment with floor it", ~m(guest_conn post user)a do
+    test "guest user can get paged comment with floor it", ~m(guest_conn repo user)a do
       total_count = 5
-      thread = :post
+      thread = :repo
       page_size = 10
 
       Enum.reduce(1..total_count, [], fn _, acc ->
-        {:ok, comment} = CMS.create_article_comment(thread, post.id, "test comment", user)
+        {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment", user)
         Process.sleep(1000)
         acc ++ [comment]
       end)
 
-      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
+      variables = %{id: repo.id, thread: "REPO", filter: %{page: 1, size: page_size}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
 
       assert results["entries"] |> List.first() |> Map.get("floor") == 1
       assert results["entries"] |> List.last() |> Map.get("floor") == 5
     end
 
-    test "the comments is loaded in default asc order", ~m(guest_conn post user)a do
+    test "the comments is loaded in default asc order", ~m(guest_conn repo user)a do
       page_size = 10
-      thread = :post
+      thread = :repo
 
-      {:ok, comment} = CMS.create_article_comment(thread, post.id, "test comment 1", user)
+      {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment 1", user)
       Process.sleep(1000)
-      {:ok, _comment2} = CMS.create_article_comment(thread, post.id, "test comment 2", user)
+      {:ok, _comment2} = CMS.create_article_comment(thread, repo.id, "test comment 2", user)
       Process.sleep(1000)
-      {:ok, comment3} = CMS.create_article_comment(thread, post.id, "test comment 3", user)
+      {:ok, comment3} = CMS.create_article_comment(thread, repo.id, "test comment 3", user)
 
       variables = %{
-        id: post.id,
-        thread: "POST",
+        id: repo.id,
+        thread: "REPO",
         filter: %{page: 1, size: page_size},
         mode: "TIMELINE"
       }
@@ -307,19 +306,19 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       assert List.last(results["entries"]) |> Map.get("id") == to_string(comment3.id)
     end
 
-    test "the comments can be loaded in desc order in timeline-mode", ~m(guest_conn post user)a do
+    test "the comments can be loaded in desc order in timeline-mode", ~m(guest_conn repo user)a do
       page_size = 10
-      thread = :post
+      thread = :repo
 
-      {:ok, comment} = CMS.create_article_comment(thread, post.id, "test comment 1", user)
+      {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment 1", user)
       Process.sleep(1000)
-      {:ok, _comment2} = CMS.create_article_comment(thread, post.id, "test comment 2", user)
+      {:ok, _comment2} = CMS.create_article_comment(thread, repo.id, "test comment 2", user)
       Process.sleep(1000)
-      {:ok, comment3} = CMS.create_article_comment(thread, post.id, "test comment 3", user)
+      {:ok, comment3} = CMS.create_article_comment(thread, repo.id, "test comment 3", user)
 
       variables = %{
-        id: post.id,
-        thread: "POST",
+        id: repo.id,
+        thread: "REPO",
         filter: %{page: 1, size: page_size, sort: "DESC_INSERTED"},
         mode: "TIMELINE"
       }
@@ -331,25 +330,25 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
     end
 
     test "the comments can be loaded in desc order in replies-mode",
-         ~m(guest_conn post user user2)a do
+         ~m(guest_conn repo user user2)a do
       page_size = 10
-      thread = :post
+      thread = :repo
 
-      {:ok, comment} = CMS.create_article_comment(thread, post.id, "parent comment 1", user)
+      {:ok, comment} = CMS.create_article_comment(thread, repo.id, "parent comment 1", user)
       {:ok, _reply_comment} = CMS.reply_article_comment(comment.id, "reply 1", user)
       {:ok, _reply_comment} = CMS.reply_article_comment(comment.id, "reply 2", user2)
       Process.sleep(1000)
-      {:ok, comment2} = CMS.create_article_comment(thread, post.id, "test comment 2", user)
+      {:ok, comment2} = CMS.create_article_comment(thread, repo.id, "test comment 2", user)
       {:ok, _reply_comment} = CMS.reply_article_comment(comment2.id, "reply 1", user)
       {:ok, _reply_comment} = CMS.reply_article_comment(comment2.id, "reply 2", user2)
       Process.sleep(1000)
-      {:ok, comment3} = CMS.create_article_comment(thread, post.id, "test comment 3", user)
+      {:ok, comment3} = CMS.create_article_comment(thread, repo.id, "test comment 3", user)
       {:ok, _reply_comment} = CMS.reply_article_comment(comment3.id, "reply 1", user)
       {:ok, _reply_comment} = CMS.reply_article_comment(comment3.id, "reply 2", user2)
 
       variables = %{
-        id: post.id,
-        thread: "POST",
+        id: repo.id,
+        thread: "REPO",
         filter: %{page: 1, size: page_size, sort: "DESC_INSERTED"}
       }
 
@@ -359,14 +358,14 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       assert List.last(results["entries"]) |> Map.get("id") == to_string(comment.id)
     end
 
-    test "guest user can get paged comment with upvotes_count", ~m(guest_conn post user user2)a do
+    test "guest user can get paged comment with upvotes_count", ~m(guest_conn repo user user2)a do
       total_count = 10
       page_size = 10
-      thread = :post
+      thread = :repo
 
       all_comment =
         Enum.reduce(1..total_count, [], fn i, acc ->
-          {:ok, comment} = CMS.create_article_comment(thread, post.id, "test comment #{i}", user)
+          {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment #{i}", user)
           Process.sleep(1000)
           acc ++ [comment]
         end)
@@ -377,7 +376,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       {:ok, _} = CMS.upvote_article_comment(upvote_comment2.id, user)
       {:ok, _} = CMS.upvote_article_comment(upvote_comment2.id, user2)
 
-      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
+      variables = %{id: repo.id, thread: "REPO", filter: %{page: 1, size: page_size}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
 
       assert results["entries"] |> Enum.at(3) |> Map.get("upvotesCount") == 1
@@ -387,16 +386,16 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
     end
 
     test "article author upvote a comment can get is_article_author and/or is_article_author_upvoted flag",
-         ~m(guest_conn post user)a do
+         ~m(guest_conn repo user)a do
       total_count = 5
       page_size = 12
-      thread = :post
+      thread = :repo
 
-      author_user = post.author.user
+      author_user = repo.author.user
 
       all_comments =
         Enum.reduce(0..total_count, [], fn i, acc ->
-          {:ok, comment} = CMS.create_article_comment(thread, post.id, "test comment #{i}", user)
+          {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment #{i}", user)
           acc ++ [comment]
         end)
 
@@ -404,11 +403,11 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       {:ok, _} = CMS.upvote_article_comment(random_comment.id, author_user)
 
       {:ok, author_comment} =
-        CMS.create_article_comment(thread, post.id, "test comment", author_user)
+        CMS.create_article_comment(thread, repo.id, "test comment", author_user)
 
       {:ok, _} = CMS.upvote_article_comment(author_comment.id, author_user)
 
-      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
+      variables = %{id: repo.id, thread: "REPO", filter: %{page: 1, size: page_size}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
 
       the_author_comment =
@@ -425,14 +424,14 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
     end
 
     test "guest user can get paged comment with emotions info",
-         ~m(guest_conn post user user2)a do
+         ~m(guest_conn repo user user2)a do
       total_count = 2
       page_size = 10
-      thread = :post
+      thread = :repo
 
       all_comment =
         Enum.reduce(1..total_count, [], fn i, acc ->
-          {:ok, comment} = CMS.create_article_comment(thread, post.id, "test comment #{i}", user)
+          {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment #{i}", user)
           Process.sleep(1000)
           acc ++ [comment]
         end)
@@ -444,7 +443,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       {:ok, _} = CMS.emotion_to_comment(comment.id, :downvote, user2)
       {:ok, _} = CMS.emotion_to_comment(comment2.id, :beer, user2)
 
-      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
+      variables = %{id: repo.id, thread: "REPO", filter: %{page: 1, size: page_size}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
 
       comment_emotion =
@@ -475,14 +474,14 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
     end
 
     test "user make emotion can get paged comment with emotions has_motioned field",
-         ~m(user_conn post user user2)a do
+         ~m(user_conn repo user user2)a do
       total_count = 10
       page_size = 12
-      thread = :post
+      thread = :repo
 
       all_comment =
         Enum.reduce(1..total_count, [], fn i, acc ->
-          {:ok, comment} = CMS.create_article_comment(thread, post.id, "test comment #{i}", user)
+          {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment #{i}", user)
           Process.sleep(1000)
           acc ++ [comment]
         end)
@@ -493,21 +492,21 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       {:ok, _} = CMS.emotion_to_comment(comment.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_comment(comment2.id, :downvote, user2)
 
-      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
+      variables = %{id: repo.id, thread: "REPO", filter: %{page: 1, size: page_size}}
       results = user_conn |> query_result(@query, variables, "pagedArticleComments")
 
       assert Enum.find(results["entries"], &(&1["id"] == to_string(comment.id)))
              |> get_in(["emotions", "viewerHasDownvoteed"])
     end
 
-    test "comment should have viewer has upvoted flag", ~m(user_conn post user)a do
+    test "comment should have viewer has upvoted flag", ~m(user_conn repo user)a do
       total_count = 10
       page_size = 12
-      thread = :post
+      thread = :repo
 
       all_comments =
         Enum.reduce(0..total_count, [], fn i, acc ->
-          {:ok, comment} = CMS.create_article_comment(thread, post.id, "comment #{i}", user)
+          {:ok, comment} = CMS.create_article_comment(thread, repo.id, "comment #{i}", user)
           acc ++ [comment]
         end)
 
@@ -515,7 +514,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
 
       {:ok, _} = CMS.upvote_article_comment(random_comment.id, user)
 
-      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
+      variables = %{id: repo.id, thread: "REPO", filter: %{page: 1, size: page_size}}
       results = user_conn |> query_result(@query, variables, "pagedArticleComments")
 
       upvoted_comment = Enum.find(results["entries"], &(&1["id"] == to_string(random_comment.id)))
@@ -540,22 +539,22 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
     }
     """
 
-    test "guest user can get paged participators", ~m(guest_conn post user)a do
+    test "guest user can get paged participators", ~m(guest_conn repo user)a do
       total_count = 30
       page_size = 10
-      thread = "POST"
+      thread = "REPO"
 
       Enum.reduce(1..total_count, [], fn _, acc ->
         {:ok, new_user} = db_insert(:user)
-        {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", new_user)
+        {:ok, comment} = CMS.create_article_comment(:repo, repo.id, "commment", new_user)
 
         acc ++ [comment]
       end)
 
-      {:ok, _comment} = CMS.create_article_comment(:post, post.id, "commment", user)
-      {:ok, _comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "commment", user)
+      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "commment", user)
 
-      variables = %{id: post.id, thread: thread, filter: %{page: 1, size: page_size}}
+      variables = %{id: repo.id, thread: thread, filter: %{page: 1, size: page_size}}
 
       results = guest_conn |> query_result(@query, variables, "pagedArticleCommentsParticipators")
 
@@ -615,14 +614,14 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
     }
     """
 
-    test "guest user can get paged replies", ~m(guest_conn post user user2)a do
+    test "guest user can get paged replies", ~m(guest_conn repo user user2)a do
       comment = "test comment"
       total_count = 2
       page_size = 10
-      thread = :post
+      thread = :repo
 
-      author_user = post.author.user
-      {:ok, parent_comment} = CMS.create_article_comment(thread, post.id, comment, user)
+      author_user = repo.author.user
+      {:ok, parent_comment} = CMS.create_article_comment(thread, repo.id, comment, user)
 
       Enum.reduce(1..total_count, [], fn i, acc ->
         {:ok, reply_comment} = CMS.reply_article_comment(parent_comment.id, "reply #{i}", user2)

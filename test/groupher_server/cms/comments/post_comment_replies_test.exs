@@ -19,7 +19,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
   end
 
   describe "[basic article comment replies]" do
-    @tag :wip
     test "exsit comment can be reply", ~m(post user user2)a do
       parent_content = "parent comment"
       reply_content = "reply comment"
@@ -43,7 +42,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
       {:error, _} = CMS.reply_article_comment(parent_comment.id, reply_content, user2)
     end
 
-    @tag :wip
     test "multi reply should belong to one parent comment", ~m(post user user2)a do
       parent_content = "parent comment"
       reply_content_1 = "reply comment 1"
@@ -129,7 +127,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
       assert not exist_in?(List.last(reply_comment_list), parent_comment.replies)
     end
 
-    @tag :wip
     test "replyed user should appear in article comment participators", ~m(post user user2)a do
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
       {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user2)
@@ -140,7 +137,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
       assert exist_in?(user2, article.article_comments_participators)
     end
 
-    @tag :wip
     test "replies count should inc by 1 after got replyed", ~m(post user user2)a do
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
       assert parent_comment.replies_count === 0
@@ -182,7 +178,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
       assert exist_in?(Enum.at(reply_comment_list, 3), paged_replies.entries)
     end
 
-    @tag :wip
     test "can get reply_to info of a parent comment", ~m(post user)a do
       page_number = 1
       page_size = 10

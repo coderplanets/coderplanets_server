@@ -51,7 +51,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       ],
       "version" => "2.15.0"
     }
-    @tag :wip
+
     test "header parse should work" do
       {:ok, editor_string} = Jason.encode(@editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
@@ -61,7 +61,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       assert Utils.str_occurence(converted, "header3 content") == 1
     end
 
-    @tag :wip
     test "full header parse should work" do
       editor_json =
         set_data(%{
@@ -81,7 +80,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       assert Utils.str_occurence(converted, @class["footer_title"]) == 1
     end
 
-    @tag :wip
     test "edit exsit block will not change id value" do
       editor_json =
         set_data(%{
@@ -98,7 +96,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       assert Utils.str_occurence(converted, ~s(id="exist")) == 1
     end
 
-    @tag :wip
     test "optional field should valid properly" do
       editor_json =
         set_data(%{
@@ -127,7 +124,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
       assert Utils.str_occurence(converted, @class["footer_title"]) == 1
     end
 
-    @tag :wip
     test "wrong header format data should have invalid hint" do
       editor_json =
         set_data(%{

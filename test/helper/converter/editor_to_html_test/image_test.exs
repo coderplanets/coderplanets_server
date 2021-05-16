@@ -29,7 +29,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
       }
     end
 
-    @tag :wip
     test "single image parse should work" do
       editor_json =
         set_items("single", [
@@ -58,7 +57,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
       assert Utils.str_occurence(converted, "this is a caption") == 2
     end
 
-    @tag :wip
     test "single image parse should work without wight && height" do
       editor_json =
         set_items("single", [
@@ -81,7 +79,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
       assert Utils.str_occurence(converted, single_image_wrapper_class) == 1
     end
 
-    @tag :wip
     test "single image parse should work without caption" do
       editor_json =
         set_items("single", [
@@ -106,7 +103,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
       assert Utils.str_occurence(converted, image_caption_class) == 0
     end
 
-    @tag :wip
     test "jiugongge image parse should work" do
       editor_json =
         set_items(
@@ -132,7 +128,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
       assert Utils.str_occurence(converted, jiugongge_image_class) == length(mock_images(9))
     end
 
-    @tag :wip
     test "gallery image parse should work" do
       editor_json =
         set_items(
@@ -158,7 +153,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
       assert Utils.str_occurence(converted, gallery_mini_image_class) == length(mock_images(9))
     end
 
-    @tag :wip
     test "edit exsit block will not change id value" do
       editor_json =
         set_items(
@@ -181,7 +175,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
       assert Utils.str_occurence(converted, "id=\"exsit\"") == 1
     end
 
-    @tag :wip
     test "invalid mode parse should raise error message" do
       editor_json = set_items("invalid-mode", [])
       {:ok, editor_string} = Jason.encode(editor_json)
@@ -197,7 +190,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
              ] == err_msg
     end
 
-    @tag :wip
     test "invalid data parse should raise error message" do
       editor_json =
         set_items("single", [
@@ -220,7 +212,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
              ]
     end
 
-    @tag :wip
     test "src should starts with https://" do
       editor_json =
         set_items("single", [

@@ -181,7 +181,7 @@ defmodule GroupherServer.Test.Query.OldPostComment do
       }
     }
     """
-    @tag :wip
+
     test "guest user can get a paged comment", ~m(guest_conn post user community)a do
       body = "test comment"
 

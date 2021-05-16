@@ -64,7 +64,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       assert Utils.str_occurence(converted, @class["unorder_list_prefix"]) == 3
     end
 
-    @tag :wip
     test "basic order list parse should work" do
       editor_json =
         set_items("order_list", [
@@ -106,7 +105,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       assert Utils.str_occurence(converted, @class["order_list_prefix"]) == 3
     end
 
-    @tag :wip
     test "edit exsit block will not change id value" do
       editor_json =
         set_items(
@@ -132,7 +130,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       assert Utils.str_occurence(converted, "id=\"exsit\"") == 1
     end
 
-    @tag :wip
     test "basic checklist parse should work" do
       editor_json =
         set_items("checklist", [
@@ -177,7 +174,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       assert Utils.str_occurence(converted, @class["checklist_checkbox_checked"]) == 1
     end
 
-    @tag :wip
     test "checklist without label parse should work" do
       editor_json =
         set_items("checklist", [
@@ -205,7 +201,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       assert Utils.str_occurence(converted, @class["label"]) == 0
     end
 
-    @tag :wip
     test "invalid list mode parse should raise error message" do
       editor_json = set_items("invalid-mode", [])
       {:ok, editor_string} = Jason.encode(editor_json)
@@ -221,7 +216,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
              ] == err_msg
     end
 
-    @tag :wip
     test "invalid list data parse should raise error message" do
       editor_json =
         set_items("checklist", [
@@ -253,7 +247,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
              ]
     end
 
-    @tag :wip
     test "invalid indent field should get error" do
       editor_json =
         set_items("checklist", [

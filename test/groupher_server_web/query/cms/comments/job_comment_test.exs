@@ -31,7 +31,7 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       }
     }
     """
-    @tag :wip
+
     test "guest user can get comment participators after comment created",
          ~m(guest_conn job user user2)a do
       comment = "test comment"
@@ -120,7 +120,7 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
         }
     }
     """
-    @tag :wip
+
     test "list comments with default replies-mode", ~m(guest_conn job user user2)a do
       total_count = 10
       page_size = 20
@@ -154,7 +154,6 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
                to_string(replyed_comment_2.id)
     end
 
-    @tag :wip
     test "timeline-mode paged comments", ~m(guest_conn job user user2)a do
       total_count = 3
       page_size = 20
@@ -189,7 +188,6 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       assert random_comment["repliesCount"] == 2
     end
 
-    @tag :wip
     test "comment should have reply_to content if need", ~m(guest_conn job user user2)a do
       total_count = 2
       thread = :job
@@ -224,7 +222,6 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
                to_string(parent_comment.author_id)
     end
 
-    @tag :wip
     test "guest user can get paged comment for job", ~m(guest_conn job user)a do
       comment = "test comment"
       total_count = 30
@@ -243,8 +240,8 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       assert results["totalCount"] == total_count
     end
 
-    @tag :wip
-    test "guest user can get paged comment with pined comment in it", ~m(guest_conn job user)a do
+    test "guest user can get paged comment with pinned comment in it",
+         ~m(guest_conn job user)a do
       total_count = 20
       thread = :job
 
@@ -254,22 +251,21 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
         acc ++ [comment]
       end)
 
-      {:ok, comment} = CMS.create_article_comment(thread, job.id, "pined comment", user)
-      {:ok, pined_comment} = CMS.pin_article_comment(comment.id)
+      {:ok, comment} = CMS.create_article_comment(thread, job.id, "pinned comment", user)
+      {:ok, pinned_comment} = CMS.pin_article_comment(comment.id)
 
-      {:ok, comment} = CMS.create_article_comment(thread, job.id, "pined comment 2", user)
-      {:ok, pined_comment2} = CMS.pin_article_comment(comment.id)
+      {:ok, comment} = CMS.create_article_comment(thread, job.id, "pinned comment 2", user)
+      {:ok, pinned_comment2} = CMS.pin_article_comment(comment.id)
 
       variables = %{id: job.id, thread: "JOB", filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
 
-      assert results["entries"] |> List.first() |> Map.get("id") == to_string(pined_comment.id)
-      assert results["entries"] |> Enum.at(1) |> Map.get("id") == to_string(pined_comment2.id)
+      assert results["entries"] |> List.first() |> Map.get("id") == to_string(pinned_comment.id)
+      assert results["entries"] |> Enum.at(1) |> Map.get("id") == to_string(pinned_comment2.id)
 
       assert results["totalCount"] == total_count + 2
     end
 
-    @tag :wip
     test "guest user can get paged comment with floor it", ~m(guest_conn job user)a do
       total_count = 5
       thread = :job
@@ -363,7 +359,6 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       assert List.last(results["entries"]) |> Map.get("id") == to_string(comment.id)
     end
 
-    @tag :wip
     test "guest user can get paged comment with upvotes_count", ~m(guest_conn job user user2)a do
       total_count = 10
       page_size = 10
@@ -391,7 +386,6 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       assert results["entries"] |> List.last() |> Map.get("upvotesCount") == 0
     end
 
-    @tag :wip
     test "article author upvote a comment can get is_article_author and/or is_article_author_upvoted flag",
          ~m(guest_conn job user)a do
       total_count = 5
@@ -480,7 +474,6 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       assert user2.login in latest_beer_users_logins
     end
 
-    @tag :wip
     test "user make emotion can get paged comment with emotions has_motioned field",
          ~m(user_conn job user user2)a do
       total_count = 10
@@ -563,6 +556,7 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       {:ok, _comment} = CMS.create_article_comment(:job, job.id, "commment", user)
 
       variables = %{id: job.id, thread: thread, filter: %{page: 1, size: page_size}}
+
       results = guest_conn |> query_result(@query, variables, "pagedArticleCommentsParticipators")
 
       assert results |> is_valid_pagination?
@@ -620,7 +614,7 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
         }
     }
     """
-    @tag :wip
+
     test "guest user can get paged replies", ~m(guest_conn job user user2)a do
       comment = "test comment"
       total_count = 2

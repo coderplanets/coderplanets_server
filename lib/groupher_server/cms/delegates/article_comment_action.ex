@@ -19,9 +19,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
 
   alias CMS.{
     ArticleComment,
-    ArticlePinedComment,
+    ArticlePinnedComment,
     ArticleCommentUpvote,
     ArticleCommentReply,
+    Community,
     # TODO: remove spec type
     Post,
     Job
@@ -29,8 +30,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
 
   alias Ecto.Multi
 
+  @article_threads Community.article_threads()
   @max_parent_replies_count ArticleComment.max_parent_replies_count()
-  @pined_comment_limit ArticleComment.pined_comment_limit()
+  @pinned_comment_limit ArticleComment.pinned_comment_limit()
 
   @spec pin_article_comment(Integer.t()) :: {:ok, ArticleComment.t()}
   @doc "pin a comment"
@@ -41,22 +43,25 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
       Multi.new()
       |> Multi.run(:checked_pined_comments_count, fn _, _ ->
         count_query =
-          from(p in ArticlePinedComment,
+          from(p in ArticlePinnedComment,
             where: field(p, ^info.foreign_key) == ^full_comment.article.id
           )
 
         pined_comments_count = Repo.aggregate(count_query, :count)
 
-        case pined_comments_count >= @pined_comment_limit do
-          true -> {:error, "only support #{@pined_comment_limit} pined comment for each article"}
-          false -> {:ok, :pass}
+        case pined_comments_count >= @pinned_comment_limit do
+          true ->
+            {:error, "only support #{@pinned_comment_limit} pinned comment for each article"}
+
+          false ->
+            {:ok, :pass}
         end
       end)
       |> Multi.run(:update_comment_flag, fn _, _ ->
         ORM.update(comment, %{is_pinned: true})
       end)
       |> Multi.run(:add_pined_comment, fn _, _ ->
-        ArticlePinedComment
+        ArticlePinnedComment
         |> ORM.create(
           %{article_comment_id: comment.id}
           |> Map.put(info.foreign_key, full_comment.article.id)
@@ -74,7 +79,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
         ORM.update(comment, %{is_pinned: false})
       end)
       |> Multi.run(:remove_pined_comment, fn _, _ ->
-        ORM.findby_delete(ArticlePinedComment, %{article_comment_id: comment.id})
+        ORM.findby_delete(ArticlePinnedComment, %{article_comment_id: comment.id})
       end)
       |> Repo.transaction()
       |> result()
@@ -256,9 +261,15 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
     end
   end
 
+  defp get_article(%ArticleComment{repo_id: repo_id} = comment) when not is_nil(repo_id) do
+    with {:ok, article} <- ORM.find(CMS.Repo, comment.repo_id, preload: [author: :user]) do
+      {:repo, article}
+    end
+  end
+
   @spec get_full_comment(String.t()) :: {:ok, T.article_info()} | {:error, nil}
   defp get_full_comment(comment_id) do
-    query = from(c in ArticleComment, where: c.id == ^comment_id, preload: :post, preload: :job)
+    query = from(c in ArticleComment, where: c.id == ^comment_id, preload: ^@article_threads)
 
     with {:ok, comment} <- Repo.one(query) |> done() do
       extract_article_info(comment)
@@ -271,6 +282,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
 
   defp extract_article_info(%ArticleComment{job: %Job{} = job}) when not is_nil(job) do
     do_extract_article_info(:job, job)
+  end
+
+  defp extract_article_info(%ArticleComment{repo: %CMS.Repo{} = repo}) when not is_nil(repo) do
+    do_extract_article_info(:repo, repo)
   end
 
   @spec do_extract_article_info(T.article_thread(), T.article_common()) :: {:ok, T.article_info()}

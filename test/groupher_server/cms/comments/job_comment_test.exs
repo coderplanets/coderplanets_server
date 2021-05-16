@@ -6,12 +6,12 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS}
 
-  alias CMS.{ArticleComment, ArticlePinedComment, Embeds, Job}
+  alias CMS.{ArticleComment, ArticlePinnedComment, Embeds, Job}
 
   @delete_hint CMS.ArticleComment.delete_hint()
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
   @default_comment_meta Embeds.ArticleCommentMeta.default_meta()
-  @pined_comment_limit ArticleComment.pined_comment_limit()
+  @pinned_comment_limit ArticleComment.pinned_comment_limit()
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -22,7 +22,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
   end
 
   describe "[basic article comment]" do
-    @tag :wip
     test "job are supported by article comment.", ~m(user job)a do
       {:ok, job_comment_1} = CMS.create_article_comment(:job, job.id, "job_comment 1", user)
       {:ok, job_comment_2} = CMS.create_article_comment(:job, job.id, "job_comment 2", user)
@@ -33,7 +32,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert exist_in?(job_comment_2, job.article_comments)
     end
 
-    @tag :wip
     test "comment should have default meta after create", ~m(user job)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
       assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
@@ -49,7 +47,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
   end
 
   describe "[article comment floor]" do
-    @tag :wip
     test "comment will have a floor number after created", ~m(user job)a do
       {:ok, job_comment} = CMS.create_article_comment(:job, job.id, "comment", user)
       {:ok, job_comment2} = CMS.create_article_comment(:job, job.id, "comment2", user)
@@ -63,7 +60,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
   end
 
   describe "[article comment participator for job]" do
-    @tag :wip
     test "job will have participator after comment created", ~m(user job)a do
       job_comment_1 = "job_comment 1"
 
@@ -75,7 +71,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert participator.id == user.id
     end
 
-    @tag :wip
     test "psot participator will not contains same user", ~m(user job)a do
       job_comment_1 = "job_comment 1"
 
@@ -87,7 +82,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert 1 == length(job.article_comments_participators)
     end
 
-    @tag :wip
     test "recent comment user should appear at first of the psot participators",
          ~m(user user2 job)a do
       job_comment_1 = "job_comment 1"
@@ -104,7 +98,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
   end
 
   describe "[article comment upvotes]" do
-    @tag :wip
     test "user can upvote a job comment", ~m(user job)a do
       comment = "job_comment"
       {:ok, comment} = CMS.create_article_comment(:job, job.id, comment, user)
@@ -117,7 +110,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert List.first(comment.upvotes).user_id == user.id
     end
 
-    @tag :wip
     test "article author upvote job comment will have flag", ~m(job user)a do
       comment = "job_comment"
       {:ok, comment} = CMS.create_article_comment(:job, job.id, comment, user)
@@ -153,7 +145,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert user2.id not in comment.meta.upvoted_user_ids
     end
 
-    @tag :wip
     test "user upvote a already-upvoted comment fails", ~m(user job)a do
       comment = "job_comment"
       {:ok, comment} = CMS.create_article_comment(:job, job.id, comment, user)
@@ -162,7 +153,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       {:error, _} = CMS.upvote_article_comment(comment.id, user)
     end
 
-    @tag :wip
     test "upvote comment should inc the comment's upvotes_count", ~m(user user2 job)a do
       comment = "job_comment"
       {:ok, comment} = CMS.create_article_comment(:job, job.id, comment, user)
@@ -176,7 +166,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert comment.upvotes_count == 2
     end
 
-    @tag :wip
     test "user can undo upvote a job comment", ~m(user job)a do
       content = "job_comment"
       {:ok, comment} = CMS.create_article_comment(:job, job.id, content, user)
@@ -189,7 +178,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert 0 == comment.upvotes_count
     end
 
-    @tag :wip
     test "user can undo upvote a job comment with no upvote", ~m(user job)a do
       content = "job_comment"
       {:ok, comment} = CMS.create_article_comment(:job, job.id, content, user)
@@ -202,7 +190,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
   end
 
   describe "[article comment fold/unfold]" do
-    @tag :wip
     test "user can fold a comment", ~m(user job)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
@@ -214,7 +201,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert comment.is_folded
     end
 
-    @tag :wip
     test "user can unfold a comment", ~m(user job)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
       {:ok, _comment} = CMS.fold_article_comment(comment.id, user)
@@ -240,7 +226,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       assert comment.is_pinned
 
-      {:ok, pined_record} = ArticlePinedComment |> ORM.find_by(%{job_id: job.id})
+      {:ok, pined_record} = ArticlePinnedComment |> ORM.find_by(%{job_id: job.id})
       assert pined_record.job_id == job.id
     end
 
@@ -251,14 +237,13 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       {:ok, comment} = CMS.undo_pin_article_comment(comment.id)
 
       assert not comment.is_pinned
-      assert {:error, _} = ArticlePinedComment |> ORM.find_by(%{article_comment_id: comment.id})
+      assert {:error, _} = ArticlePinnedComment |> ORM.find_by(%{article_comment_id: comment.id})
     end
 
-    @tag :wip
-    test "pined comments has a limit for each article", ~m(user job)a do
+    test "pinned comments has a limit for each article", ~m(user job)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
 
-      Enum.reduce(0..(@pined_comment_limit - 1), [], fn _, _acc ->
+      Enum.reduce(0..(@pinned_comment_limit - 1), [], fn _, _acc ->
         {:ok, _comment} = CMS.pin_article_comment(comment.id)
       end)
 
@@ -267,7 +252,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
   end
 
   describe "[article comment report/unreport]" do
-    # @tag :wip
+    #
     # test "user can report a comment", ~m(user job)a do
     #   {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
     #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
@@ -276,7 +261,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
     # end
 
-    # @tag :wip
+    #
     # test "user can unreport a comment", ~m(user job)a do
     #   {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
     #   {:ok, _comment} = CMS.report_article_comment(comment.id, "reason", "attr", user)
@@ -327,7 +312,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert not comment.is_folded
     end
 
-    @tag :wip
     test "report user > @report_threshold_for_fold will cause comment fold", ~m(user job)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
 
@@ -344,7 +328,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
   end
 
   describe "paged article comments" do
-    @tag :wip
     test "can load paged comments participators of a article", ~m(user job)a do
       total_count = 30
       page_size = 10
@@ -367,7 +350,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert results.total_count == total_count + 1
     end
 
-    @tag :wip
     test "paged article comments folded flag should be false", ~m(user job)a do
       total_count = 30
       page_number = 1
@@ -392,8 +374,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert total_count == paged_comments.total_count
     end
 
-    @tag :wip
-    test "paged article comments should contains pined comments at top position",
+    test "paged article comments should contains pinned comments at top position",
          ~m(user job)a do
       total_count = 20
       page_number = 1
@@ -420,8 +401,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert paged_comments.total_count == total_count + 2
     end
 
-    @tag :wip
-    test "only page 1 have pined coments",
+    test "only page 1 have pinned coments",
          ~m(user job)a do
       total_count = 20
       page_number = 2
@@ -481,7 +461,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert total_count - 3 == paged_comments.total_count
     end
 
-    @tag :wip
     test "can loaded paged folded comment", ~m(user job)a do
       total_count = 10
       page_number = 1
@@ -554,7 +533,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert job.article_comments_count == 4
     end
 
-    test "delete comment still delete pined record if needed", ~m(user job)a do
+    test "delete comment still delete pinned record if needed", ~m(user job)a do
       total_count = 10
 
       all_comments =
@@ -570,7 +549,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       {:ok, _comment} = ORM.find(ArticleComment, random_comment.id)
 
       {:ok, _} = CMS.delete_article_comment(random_comment)
-      assert {:error, _comment} = ORM.find(ArticlePinedComment, random_comment.id)
+      assert {:error, _comment} = ORM.find(ArticlePinnedComment, random_comment.id)
     end
   end
 

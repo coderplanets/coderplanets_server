@@ -51,7 +51,6 @@ defmodule GroupherServer.Test.CMS.AbuseReports.CommentReport do
       assert List.last(report_cases).user.login == user2.login
     end
 
-    @tag :wip
     test "same user can not report a comment twice", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       {:ok, comment} = CMS.report_article_comment(comment.id, "reason", "attr", user)

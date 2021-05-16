@@ -6,12 +6,12 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS}
 
-  alias CMS.{ArticleComment, ArticlePinedComment, Embeds, Post}
+  alias CMS.{ArticleComment, ArticlePinnedComment, Embeds, Post}
 
   @delete_hint CMS.ArticleComment.delete_hint()
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
   @default_comment_meta Embeds.ArticleCommentMeta.default_meta()
-  @pined_comment_limit ArticleComment.pined_comment_limit()
+  @pinned_comment_limit ArticleComment.pinned_comment_limit()
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -22,7 +22,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
   end
 
   describe "[basic article comment]" do
-    @tag :wip
     test "post are supported by article comment.", ~m(user post)a do
       {:ok, post_comment_1} = CMS.create_article_comment(:post, post.id, "post_comment 1", user)
       {:ok, post_comment_2} = CMS.create_article_comment(:post, post.id, "post_comment 2", user)
@@ -33,7 +32,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert exist_in?(post_comment_2, post.article_comments)
     end
 
-    @tag :wip
     test "comment should have default meta after create", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
       assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
@@ -49,7 +47,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
   end
 
   describe "[article comment floor]" do
-    @tag :wip
     test "comment will have a floor number after created", ~m(user post)a do
       {:ok, post_comment} = CMS.create_article_comment(:post, post.id, "comment", user)
       {:ok, post_comment2} = CMS.create_article_comment(:post, post.id, "comment2", user)
@@ -63,7 +60,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
   end
 
   describe "[article comment participator for post]" do
-    @tag :wip
     test "post will have participator after comment created", ~m(user post)a do
       post_comment_1 = "post_comment 1"
 
@@ -75,7 +71,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert participator.id == user.id
     end
 
-    @tag :wip
     test "psot participator will not contains same user", ~m(user post)a do
       post_comment_1 = "post_comment 1"
 
@@ -87,7 +82,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert 1 == length(post.article_comments_participators)
     end
 
-    @tag :wip
     test "recent comment user should appear at first of the psot participators",
          ~m(user user2 post)a do
       post_comment_1 = "post_comment 1"
@@ -104,7 +98,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
   end
 
   describe "[article comment upvotes]" do
-    @tag :wip
     test "user can upvote a post comment", ~m(user post)a do
       comment = "post_comment"
       {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
@@ -117,7 +110,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert List.first(comment.upvotes).user_id == user.id
     end
 
-    @tag :wip
     test "article author upvote post comment will have flag", ~m(post user)a do
       comment = "post_comment"
       {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
@@ -153,7 +145,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert user2.id not in comment.meta.upvoted_user_ids
     end
 
-    @tag :wip
     test "user upvote a already-upvoted comment fails", ~m(user post)a do
       comment = "post_comment"
       {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
@@ -162,7 +153,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:error, _} = CMS.upvote_article_comment(comment.id, user)
     end
 
-    @tag :wip
     test "upvote comment should inc the comment's upvotes_count", ~m(user user2 post)a do
       comment = "post_comment"
       {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
@@ -176,7 +166,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert comment.upvotes_count == 2
     end
 
-    @tag :wip
     test "user can undo upvote a post comment", ~m(user post)a do
       content = "post_comment"
       {:ok, comment} = CMS.create_article_comment(:post, post.id, content, user)
@@ -189,7 +178,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert 0 == comment.upvotes_count
     end
 
-    @tag :wip
     test "user can undo upvote a post comment with no upvote", ~m(user post)a do
       content = "post_comment"
       {:ok, comment} = CMS.create_article_comment(:post, post.id, content, user)
@@ -202,7 +190,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
   end
 
   describe "[article comment fold/unfold]" do
-    @tag :wip
     test "user can fold a comment", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
@@ -214,7 +201,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert comment.is_folded
     end
 
-    @tag :wip
     test "user can unfold a comment", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
       {:ok, _comment} = CMS.fold_article_comment(comment.id, user)
@@ -240,7 +226,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
 
       assert comment.is_pinned
 
-      {:ok, pined_record} = ArticlePinedComment |> ORM.find_by(%{post_id: post.id})
+      {:ok, pined_record} = ArticlePinnedComment |> ORM.find_by(%{post_id: post.id})
       assert pined_record.post_id == post.id
     end
 
@@ -251,14 +237,13 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, comment} = CMS.undo_pin_article_comment(comment.id)
 
       assert not comment.is_pinned
-      assert {:error, _} = ArticlePinedComment |> ORM.find_by(%{article_comment_id: comment.id})
+      assert {:error, _} = ArticlePinnedComment |> ORM.find_by(%{article_comment_id: comment.id})
     end
 
-    @tag :wip
-    test "pined comments has a limit for each article", ~m(user post)a do
+    test "pinned comments has a limit for each article", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
 
-      Enum.reduce(0..(@pined_comment_limit - 1), [], fn _, _acc ->
+      Enum.reduce(0..(@pinned_comment_limit - 1), [], fn _, _acc ->
         {:ok, _comment} = CMS.pin_article_comment(comment.id)
       end)
 
@@ -267,7 +252,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
   end
 
   describe "[article comment report/unreport]" do
-    # @tag :wip
+    #
     # test "user can report a comment", ~m(user post)a do
     #   {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
     #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
@@ -286,7 +271,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
     #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
     # end
 
-    @tag :wip
     test "can undo a report with other user report it too", ~m(user user2 post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
 
@@ -314,7 +298,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert Enum.any?(report.report_cases, &(&1.user.login == user2.login))
     end
 
-    @tag :wip
     test "report user < @report_threshold_for_fold will not fold comment", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
 
@@ -329,7 +312,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert not comment.is_folded
     end
 
-    @tag :wip
     test "report user > @report_threshold_for_fold will cause comment fold", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
 
@@ -346,7 +328,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
   end
 
   describe "paged article comments" do
-    @tag :wip
     test "can load paged comments participators of a article", ~m(user post)a do
       total_count = 30
       page_size = 10
@@ -369,7 +350,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert results.total_count == total_count + 1
     end
 
-    @tag :wip
     test "paged article comments folded flag should be false", ~m(user post)a do
       total_count = 30
       page_number = 1
@@ -399,8 +379,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert total_count == paged_comments.total_count
     end
 
-    @tag :wip
-    test "paged article comments should contains pined comments at top position",
+    test "paged article comments should contains pinned comments at top position",
          ~m(user post)a do
       total_count = 20
       page_number = 1
@@ -432,8 +411,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert paged_comments.total_count == total_count + 2
     end
 
-    @tag :wip
-    test "only page 1 have pined coments",
+    test "only page 1 have pinned coments",
          ~m(user post)a do
       total_count = 20
       page_number = 2
@@ -503,7 +481,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert total_count - 3 == paged_comments.total_count
     end
 
-    @tag :wip
     test "can loaded paged folded comment", ~m(user post)a do
       total_count = 10
       page_number = 1
@@ -581,7 +558,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert post.article_comments_count == 4
     end
 
-    test "delete comment still delete pined record if needed", ~m(user post)a do
+    test "delete comment still delete pinned record if needed", ~m(user post)a do
       total_count = 10
 
       all_comments =
@@ -597,7 +574,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, _comment} = ORM.find(ArticleComment, random_comment.id)
 
       {:ok, _} = CMS.delete_article_comment(random_comment)
-      assert {:error, _comment} = ORM.find(ArticlePinedComment, random_comment.id)
+      assert {:error, _comment} = ORM.find(ArticlePinnedComment, random_comment.id)
     end
   end
 

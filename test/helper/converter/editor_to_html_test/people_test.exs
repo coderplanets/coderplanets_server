@@ -29,7 +29,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.People do
       }
     end
 
-    @tag :wip
     test "multi people should have previewer" do
       editor_json =
         set_items("gallery", [
@@ -78,7 +77,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.People do
       assert Utils.str_occurence(converted, mock_image()) == 4
     end
 
-    @tag :wip
     test "one people should not have previewer bar" do
       editor_json =
         set_items("gallery", [

@@ -19,7 +19,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobCommentReplies do
   end
 
   describe "[basic article comment replies]" do
-    @tag :wip
     test "exsit comment can be reply", ~m(job user user2)a do
       parent_content = "parent comment"
       reply_content = "reply comment"
@@ -43,7 +42,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobCommentReplies do
       {:error, _} = CMS.reply_article_comment(parent_comment.id, reply_content, user2)
     end
 
-    @tag :wip
     test "multi reply should belong to one parent comment", ~m(job user user2)a do
       parent_content = "parent comment"
       reply_content_1 = "reply comment 1"
@@ -129,7 +127,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobCommentReplies do
       assert not exist_in?(List.last(reply_comment_list), parent_comment.replies)
     end
 
-    @tag :wip
     test "replyed user should appear in article comment participators", ~m(job user user2)a do
       {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, "parent_conent", user)
       {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user2)
@@ -140,7 +137,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobCommentReplies do
       assert exist_in?(user2, article.article_comments_participators)
     end
 
-    @tag :wip
     test "replies count should inc by 1 after got replyed", ~m(job user user2)a do
       {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, "parent_conent", user)
       assert parent_comment.replies_count === 0
@@ -156,7 +152,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobCommentReplies do
   end
 
   describe "[paged article comment replies]" do
-    @tag :wip
     test "can get paged replies of a parent comment", ~m(job user)a do
       {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, "parent_conent", user)
       {:ok, paged_replies} = CMS.paged_comment_replies(parent_comment.id, %{page: 1, size: 20})
@@ -183,7 +178,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobCommentReplies do
       assert exist_in?(Enum.at(reply_comment_list, 3), paged_replies.entries)
     end
 
-    @tag :wip
     test "can get reply_to info of a parent comment", ~m(job user)a do
       page_number = 1
       page_size = 10

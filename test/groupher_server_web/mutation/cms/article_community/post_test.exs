@@ -24,7 +24,6 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Post do
       }
     }
     """
-    @tag :wip3
     test "auth user can set a valid tag to post", ~m(post)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
@@ -52,7 +51,6 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Post do
     # assert rule_conn |> mutation_get_error?(@set_tag_query, variables)
     # end
 
-    @tag :wip3
     test "can set multi tag to a post", ~m(post)a do
       {:ok, community} = db_insert(:community)
       {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
@@ -82,7 +80,6 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Post do
       }
     }
     """
-    @tag :wip3
     test "can unset tag to a post", ~m(post)a do
       {:ok, community} = db_insert(:community)
 
@@ -217,7 +214,8 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Post do
       }
     }
     """
-    @tag :wip3
+    3
+
     test "auth user can move post to other community", ~m(post)a do
       passport_rules = %{"post.community.mirror" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)

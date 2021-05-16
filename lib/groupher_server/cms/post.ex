@@ -13,7 +13,6 @@ defmodule GroupherServer.CMS.Post do
     Embeds,
     Author,
     ArticleComment,
-    ArticlePinedComment,
     Community,
     PostComment,
     Tag,
@@ -63,7 +62,6 @@ defmodule GroupherServer.CMS.Post do
     has_many(:comments, {"posts_comments", PostComment})
 
     has_many(:article_comments, {"articles_comments", ArticleComment})
-    has_many(:article_pined_comments, {"articles_pined_comments", ArticlePinedComment})
     field(:article_comments_count, :integer, default: 0)
     field(:article_comments_participators_count, :integer, default: 0)
     # 评论参与者，只保留最近 5 个

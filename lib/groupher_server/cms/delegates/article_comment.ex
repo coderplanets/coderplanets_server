@@ -3,7 +3,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   CURD and operations for article comments
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, get_config: 2]
+  import Helper.Utils, only: [done: 1]
   import Helper.ErrorCode
 
   import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 3]
@@ -15,16 +15,15 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.User
-  alias CMS.{ArticleComment, ArticlePinedComment, Embeds}
+  alias CMS.{ArticleComment, ArticlePinnedComment, Embeds}
   alias Ecto.Multi
 
-  @supported_emotions get_config(:article, :comment_supported_emotions)
   @max_participator_count ArticleComment.max_participator_count()
   @default_emotions Embeds.ArticleCommentEmotion.default_emotions()
   @delete_hint ArticleComment.delete_hint()
 
   @default_comment_meta Embeds.ArticleCommentMeta.default_meta()
-  @pined_comment_limit ArticleComment.pined_comment_limit()
+  @pinned_comment_limit ArticleComment.pinned_comment_limit()
 
   @doc """
   [timeline-mode] list paged article comments
@@ -69,7 +68,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     do_paged_comment_replies(comment_id, filters, user)
   end
 
-  @spec paged_article_comments_participators(T.comment_thread(), Integer.t(), T.paged_filter()) ::
+  @spec paged_article_comments_participators(T.article_thread(), Integer.t(), T.paged_filter()) ::
           {:ok, T.paged_users()}
   def paged_article_comments_participators(thread, article_id, filters) do
     %{page: page, size: size} = filters
@@ -125,7 +124,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       update_article_comments_count(comment, :dec)
     end)
     |> Multi.run(:remove_pined_comment, fn _, _ ->
-      ORM.findby_delete(ArticlePinedComment, %{article_comment_id: comment.id})
+      ORM.findby_delete(ArticlePinnedComment, %{article_comment_id: comment.id})
     end)
     |> Multi.run(:delete_article_comment, fn _, _ ->
       ORM.update(comment, %{body_html: @delete_hint, is_deleted: true})
@@ -236,7 +235,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
        }) do
     with {:ok, info} <- match(thread),
          query <-
-           from(p in ArticlePinedComment,
+           from(p in ArticlePinnedComment,
              join: c in ArticleComment,
              on: p.article_comment_id == c.id,
              where: field(p, ^info.foreign_key) == ^article_id,
@@ -249,17 +248,14 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
         _ ->
           preloaded_pined_comments =
-            Enum.slice(pined_comments, 0, @pined_comment_limit)
+            Enum.slice(pined_comments, 0, @pinned_comment_limit)
             |> Repo.preload(reply_to: :author)
 
-          updated_entries = Enum.concat(preloaded_pined_comments, entries)
-
+          entries = Enum.concat(preloaded_pined_comments, entries)
           pined_comment_count = length(pined_comments)
 
-          Map.merge(paged_comments, %{
-            entries: updated_entries,
-            total_count: paged_comments.total_count + pined_comment_count
-          })
+          total_count = paged_comments.total_count + pined_comment_count
+          paged_comments |> Map.merge(%{entries: entries, total_count: total_count})
       end
     end
   end

@@ -305,7 +305,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
            |> join(:inner, [p], article in assoc(p, ^thread))
            |> where([p, c, article], c.raw == ^community)
            |> select([p, c, article], article)
-           # 10 pined articles per community/thread, at most
+           # 10 pinned articles per community/thread, at most
            |> ORM.find_all(%{page: 1, size: 10}) do
       concat_articles(pinned_articles, articles)
     else
@@ -334,7 +334,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
     normal_count = non_pinned_articles |> Map.get(:total_count)
 
-    # remote the pined article from normal_entries (if have)
+    # remote the pinned article from normal_entries (if have)
     pind_ids = pick_by(pinned_entries, :id)
     normal_entries = Enum.reject(normal_entries, &(&1.id in pind_ids))
 

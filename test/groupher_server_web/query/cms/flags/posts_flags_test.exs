@@ -4,9 +4,6 @@ defmodule GroupherServer.Test.Query.Flags.PostsFlags do
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.CMS
-  # alias GroupherServer.Repo
-
-  alias CMS.Post
 
   @total_count 35
   @page_size get_config(:general, :page_size)
@@ -52,7 +49,7 @@ defmodule GroupherServer.Test.Query.Flags.PostsFlags do
     }
     """
 
-    test "if have pined posts, the pined posts should at the top of entries",
+    test "if have pinned posts, the pinned posts should at the top of entries",
          ~m(guest_conn community post_m)a do
       variables = %{filter: %{community: community.raw}}
       # variables = %{filter: %{}}
@@ -73,7 +70,6 @@ defmodule GroupherServer.Test.Query.Flags.PostsFlags do
       assert entries_first["isPinned"] == true
     end
 
-    @tag :wip
     test "pind posts should not appear when page > 1", ~m(guest_conn community)a do
       variables = %{filter: %{page: 2, size: 20}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")

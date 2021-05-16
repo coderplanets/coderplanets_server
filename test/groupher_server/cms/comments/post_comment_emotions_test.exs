@@ -64,7 +64,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
   end
 
   describe "[basic article comment emotion]" do
-    @tag :wip
     test "comment has default emotions after created", ~m(post user)a do
       parent_content = "parent comment"
 
@@ -163,7 +162,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
       assert user_exist_in?(user3, emotions.latest_beer_users)
     end
 
-    @tag :wip
     test "same user can make differcent emotions on same comment", ~m(post user)a do
       parent_content = "parent comment"
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
