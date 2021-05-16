@@ -114,7 +114,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Post do
     end
   end
 
-  describe "[mirror/unmirror/move psot to/from community]" do
+  describe "[mirror/unmirror/move post to/from community]" do
     @mirror_article_query """
     mutation($id: ID!, $thread: Thread, $communityId: ID!) {
       mirrorArticle(id: $id, thread: $thread, communityId: $communityId) {
@@ -214,8 +214,6 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Post do
       }
     }
     """
-    3
-
     test "auth user can move post to other community", ~m(post)a do
       passport_rules = %{"post.community.mirror" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)

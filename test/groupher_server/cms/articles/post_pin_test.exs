@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.CMS.ArticlePin do
+defmodule GroupherServer.Test.CMS.Artilces.PostPin do
   @moduledoc false
 
   use GroupherServer.TestTools
@@ -6,12 +6,7 @@ defmodule GroupherServer.Test.CMS.ArticlePin do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{
-    Community,
-    PinnedArticle
-    # Post,
-    # Job
-  }
+  alias CMS.{Community, PinnedArticle}
 
   @max_pinned_article_count_per_thread Community.max_pinned_article_count_per_thread()
 
@@ -20,10 +15,8 @@ defmodule GroupherServer.Test.CMS.ArticlePin do
     {:ok, community} = db_insert(:community)
 
     {:ok, post} = CMS.create_article(community, :post, mock_attrs(:post), user)
-    {:ok, job} = CMS.create_article(community, :job, mock_attrs(:job), user)
-    {:ok, repo} = CMS.create_article(community, :repo, mock_attrs(:repo), user)
 
-    {:ok, ~m(user community post job repo)a}
+    {:ok, ~m(user community post)a}
   end
 
   describe "[cms post pin]" do
@@ -46,6 +39,7 @@ defmodule GroupherServer.Test.CMS.ArticlePin do
       assert reason |> Keyword.get(:code) == ecode(:too_much_pinned_article)
     end
 
+    @tag :wip2
     test "can not pin a non-exsit post", ~m(community)a do
       assert {:error, _} = CMS.pin_article(:post, 8848, community.id)
     end
@@ -58,6 +52,4 @@ defmodule GroupherServer.Test.CMS.ArticlePin do
       assert {:error, _} = ORM.find_by(PinnedArticle, %{post_id: post.id})
     end
   end
-
-  # TODO: Job, Repo
 end
