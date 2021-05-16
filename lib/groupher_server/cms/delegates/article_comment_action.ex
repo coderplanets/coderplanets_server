@@ -256,7 +256,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
     end
   end
 
-  defp get_article(%ArticleComment{repo_id: repo_id} = comment) when not is_nil(job_id) do
+  defp get_article(%ArticleComment{repo_id: repo_id} = comment) when not is_nil(repo_id) do
     with {:ok, article} <- ORM.find(CMS.Repo, comment.repo_id, preload: [author: :user]) do
       {:job, article}
     end
