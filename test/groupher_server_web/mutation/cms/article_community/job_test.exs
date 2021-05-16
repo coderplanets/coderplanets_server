@@ -213,8 +213,6 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Job do
       }
     }
     """
-    3
-
     test "auth user can move job to other community", ~m(job)a do
       passport_rules = %{"job.community.mirror" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)

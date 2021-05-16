@@ -214,8 +214,6 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Repo do
       }
     }
     """
-    3
-
     test "auth user can move repo to other community", ~m(repo)a do
       passport_rules = %{"repo.community.mirror" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
