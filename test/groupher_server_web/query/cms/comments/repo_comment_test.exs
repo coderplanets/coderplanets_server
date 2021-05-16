@@ -30,7 +30,6 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       }
     }
     """
-    @tag :wip2
     test "guest user can get comment participators after comment created",
          ~m(guest_conn repo user user2)a do
       comment = "test comment"
@@ -239,6 +238,7 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       assert results["totalCount"] == total_count
     end
 
+    @tag :wip2
     test "guest user can get paged comment with pinned comment in it",
          ~m(guest_conn repo user)a do
       total_count = 20

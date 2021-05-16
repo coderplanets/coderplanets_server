@@ -13,7 +13,7 @@ defmodule GroupherServer.CMS.ArticlePinedComment do
   # alias Helper.HTML
 
   @required_fields ~w(article_comment_id)a
-  @optional_fields ~w(post_id job_id)a
+  @optional_fields ~w(post_id job_id repo_id)a
 
   @type t :: %ArticlePinedComment{}
   schema "articles_pined_comments" do
