@@ -6,22 +6,19 @@ defmodule GroupherServer.CMS.ArticleComment do
   use Accessible
 
   import Ecto.Changeset
+  import GroupherServer.CMS.Helper.Macros
 
   alias GroupherServer.{Accounts, CMS}
-
-  alias CMS.{
-    Post,
-    Job,
-    Repo,
-    Embeds,
-    ArticleCommentUpvote
-  }
+  alias CMS.{Embeds, ArticleCommentUpvote}
 
   # alias Helper.HTML
+  @article_threads CMS.Community.article_threads()
 
   @required_fields ~w(body_html author_id)a
-  @optional_fields ~w(post_id job_id repo_id reply_to_id replies_count is_folded is_deleted floor is_article_author)a
+  @optional_fields ~w(reply_to_id replies_count is_folded is_deleted floor is_article_author)a
   @updatable_fields ~w(is_folded is_deleted floor upvotes_count is_pinned)a
+
+  @article_fields @article_threads |> Enum.map(&:"#{&1}_id")
 
   @max_participator_count 5
   @max_parent_replies_count 3
@@ -69,10 +66,6 @@ defmodule GroupherServer.CMS.ArticleComment do
     field(:is_pinned, :boolean, default: false)
     field(:viewer_has_upvoted, :boolean, default: false, virtual: true)
 
-    belongs_to(:post, Post, foreign_key: :post_id)
-    belongs_to(:job, Job, foreign_key: :job_id)
-    belongs_to(:repo, Repo, foreign_key: :repo_id)
-
     belongs_to(:reply_to, ArticleComment, foreign_key: :reply_to_id)
 
     embeds_many(:replies, ArticleComment, on_replace: :delete)
@@ -83,13 +76,15 @@ defmodule GroupherServer.CMS.ArticleComment do
 
     has_many(:upvotes, {"articles_comments_upvotes", ArticleCommentUpvote})
 
+    article_belongs_to()
+
     timestamps(type: :utc_datetime)
   end
 
   @doc false
   def changeset(%ArticleComment{} = article_comment, attrs) do
     article_comment
-    |> cast(attrs, @required_fields ++ @optional_fields)
+    |> cast(attrs, @required_fields ++ @optional_fields ++ @article_fields)
     |> cast_embed(:emotions, required: true, with: &Embeds.ArticleCommentEmotion.changeset/2)
     |> cast_embed(:meta, required: true, with: &Embeds.ArticleCommentMeta.changeset/2)
     |> validate_required(@required_fields)
@@ -99,7 +94,7 @@ defmodule GroupherServer.CMS.ArticleComment do
   # @doc false
   def update_changeset(%ArticleComment{} = article_comment, attrs) do
     article_comment
-    |> cast(attrs, @required_fields ++ @updatable_fields)
+    |> cast(attrs, @required_fields ++ @updatable_fields ++ @article_fields)
     |> cast_embed(:meta, required: true, with: &Embeds.ArticleCommentMeta.changeset/2)
     |> generl_changeset
   end
