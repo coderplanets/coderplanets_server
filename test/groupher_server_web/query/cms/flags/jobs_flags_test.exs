@@ -49,7 +49,7 @@ defmodule GroupherServer.Test.Query.Flags.JobsFlags do
     }
     """
 
-    test "if have pined jobs, the pined jobs should at the top of entries",
+    test "if have pinned jobs, the pinned jobs should at the top of entries",
          ~m(guest_conn community job_m)a do
       variables = %{filter: %{community: community.raw}}
       # variables = %{filter: %{}}

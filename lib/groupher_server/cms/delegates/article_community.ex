@@ -201,7 +201,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
 
   def lock_article_comment(content), do: {:ok, content}
 
-  # check if the thread has aready enough pined articles
+  # check if the thread has aready enough pinned articles
   defp check_pinned_article_count(community_id, thread) do
     thread_upcase = thread |> to_string |> String.upcase()
 

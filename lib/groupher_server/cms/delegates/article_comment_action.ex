@@ -32,7 +32,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
 
   @article_threads Community.article_threads()
   @max_parent_replies_count ArticleComment.max_parent_replies_count()
-  @pined_comment_limit ArticleComment.pined_comment_limit()
+  @pinned_comment_limit ArticleComment.pinned_comment_limit()
 
   @spec pin_article_comment(Integer.t()) :: {:ok, ArticleComment.t()}
   @doc "pin a comment"
@@ -49,8 +49,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
 
         pined_comments_count = Repo.aggregate(count_query, :count)
 
-        case pined_comments_count >= @pined_comment_limit do
-          true -> {:error, "only support #{@pined_comment_limit} pined comment for each article"}
+        case pined_comments_count >= @pinned_comment_limit do
+          true -> {:error, "only support #{@pinned_comment_limit} pinned comment for each article"}
           false -> {:ok, :pass}
         end
       end)

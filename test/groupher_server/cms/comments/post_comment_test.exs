@@ -11,7 +11,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
   @delete_hint CMS.ArticleComment.delete_hint()
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
   @default_comment_meta Embeds.ArticleCommentMeta.default_meta()
-  @pined_comment_limit ArticleComment.pined_comment_limit()
+  @pinned_comment_limit ArticleComment.pinned_comment_limit()
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -240,10 +240,10 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert {:error, _} = ArticlePinnedComment |> ORM.find_by(%{article_comment_id: comment.id})
     end
 
-    test "pined comments has a limit for each article", ~m(user post)a do
+    test "pinned comments has a limit for each article", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
 
-      Enum.reduce(0..(@pined_comment_limit - 1), [], fn _, _acc ->
+      Enum.reduce(0..(@pinned_comment_limit - 1), [], fn _, _acc ->
         {:ok, _comment} = CMS.pin_article_comment(comment.id)
       end)
 
@@ -379,7 +379,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert total_count == paged_comments.total_count
     end
 
-    test "paged article comments should contains pined comments at top position",
+    test "paged article comments should contains pinned comments at top position",
          ~m(user post)a do
       total_count = 20
       page_number = 1
@@ -411,7 +411,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert paged_comments.total_count == total_count + 2
     end
 
-    test "only page 1 have pined coments",
+    test "only page 1 have pinned coments",
          ~m(user post)a do
       total_count = 20
       page_number = 2
@@ -558,7 +558,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert post.article_comments_count == 4
     end
 
-    test "delete comment still delete pined record if needed", ~m(user post)a do
+    test "delete comment still delete pinned record if needed", ~m(user post)a do
       total_count = 10
 
       all_comments =

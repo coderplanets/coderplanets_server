@@ -49,7 +49,7 @@ defmodule GroupherServer.Test.Query.Flags.ReposFlags do
     }
     """
 
-    test "if have pined repos, the pined repos should at the top of entries",
+    test "if have pinned repos, the pinned repos should at the top of entries",
          ~m(guest_conn community repo_m)a do
       variables = %{filter: %{community: community.raw}}
       # variables = %{filter: %{}}

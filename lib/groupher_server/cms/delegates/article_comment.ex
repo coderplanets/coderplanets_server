@@ -23,7 +23,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   @delete_hint ArticleComment.delete_hint()
 
   @default_comment_meta Embeds.ArticleCommentMeta.default_meta()
-  @pined_comment_limit ArticleComment.pined_comment_limit()
+  @pinned_comment_limit ArticleComment.pinned_comment_limit()
 
   @doc """
   [timeline-mode] list paged article comments
@@ -248,7 +248,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
         _ ->
           preloaded_pined_comments =
-            Enum.slice(pined_comments, 0, @pined_comment_limit) |> Repo.preload(reply_to: :author)
+            Enum.slice(pined_comments, 0, @pinned_comment_limit)
+            |> Repo.preload(reply_to: :author)
 
           entries = Enum.concat(preloaded_pined_comments, entries)
           pined_comment_count = length(pined_comments)
