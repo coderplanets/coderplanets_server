@@ -9,7 +9,7 @@ defmodule GroupherServer.CMS.ArticleCollect do
   import GroupherServer.CMS.Helper.Macros
   import GroupherServer.CMS.Helper.Utils, only: [articles_foreign_key_constraint: 1]
 
-  alias GroupherServer.{Accounts, CMS}
+  alias GroupherServer.Accounts
   alias Accounts.{User, CollectFolder}
 
   @article_threads get_config(:article, :article_threads)

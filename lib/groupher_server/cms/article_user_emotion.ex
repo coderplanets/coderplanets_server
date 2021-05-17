@@ -26,7 +26,7 @@ defmodule GroupherServer.CMS.ArticleUserEmotion do
   import GroupherServer.CMS.Helper.Macros
   import GroupherServer.CMS.Helper.Utils, only: [articles_foreign_key_constraint: 1]
 
-  alias GroupherServer.{Accounts, CMS}
+  alias GroupherServer.Accounts
 
   @supported_emotions get_config(:article, :supported_emotions)
   @article_threads get_config(:article, :article_threads)
