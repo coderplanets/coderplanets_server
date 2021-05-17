@@ -6,7 +6,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
   alias GroupherServer.{CMS, Accounts}
 
   alias Accounts.User
-  alias CMS.{Community, ArticleComment, ArticleUpvote, ArticleCollect}
+  alias CMS.{Author, Community, ArticleComment, ArticleUpvote, ArticleCollect}
 
   @article_threads Community.article_threads()
 
@@ -103,6 +103,8 @@ defmodule GroupherServer.CMS.Helper.Macros do
 
   defmacro general_article_fields do
     quote do
+      belongs_to(:author, Author)
+
       field(:views, :integer, default: 0)
       field(:is_pinned, :boolean, default: false, virtual: true)
       field(:mark_delete, :boolean, default: false)
