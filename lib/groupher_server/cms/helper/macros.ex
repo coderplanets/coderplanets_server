@@ -39,6 +39,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
   end
 
   @doc """
+  for GroupherServer.CMS.[Article]
   article_comments related fields
 
   MIGRATION:
@@ -66,6 +67,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
   end
 
   @doc """
+  for GroupherServer.CMS.[Article]
   viewer has xxx fields for each article
 
   those fields is virtual, do not need DB migration
@@ -80,6 +82,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
   end
 
   @doc """
+  for GroupherServer.CMS.[Article]
   aritlce's upvote and collect feature
 
   MIGRATION:
@@ -106,6 +109,8 @@ defmodule GroupherServer.CMS.Helper.Macros do
   end
 
   @doc """
+  for GroupherServer.CMS.[Article]
+
   common casting fields for general_article_fields
   """
   def general_article_fields(:cast) do
@@ -120,6 +125,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
   end
 
   @doc """
+  for GroupherServer.CMS.[Article]
 
   MIGRATION:
 
@@ -189,6 +195,15 @@ defmodule GroupherServer.CMS.Helper.Macros do
     end
   end
 
+  @doc """
+  for GroupherServer.CMS.Community
+
+  # TABLE: "communities_[article]s"
+    add(:community_id, references(:communities, on_delete: :delete_all), null: false)
+    add(:[article]_id, references(:cms_[article]s, on_delete: :delete_all), null: false)
+
+  create(unique_index(:communities_[article]s, [:community_id, :[article]_id]))
+  """
   defmacro community_article_fields() do
     @article_threads
     |> Enum.map(fn thread ->
@@ -204,6 +219,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
   end
 
   @doc """
+  for GroupherServer.CMS.[Article]
 
   # TABLE: "communities_[article]s"
     add(:community_id, references(:communities, on_delete: :delete_all), null: false)
