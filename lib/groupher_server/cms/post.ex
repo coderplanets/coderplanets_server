@@ -16,10 +16,9 @@ defmodule GroupherServer.CMS.Post do
   @timestamps_opts [type: :utc_datetime_usec]
 
   @required_fields ~w(title body digest length)a
-  @article_comment_fields ~w(article_comments_count article_comments_participators_count)a
-  @upvote_and_collect_fields ~w(upvotes_count collects_count)a
-  @optional_fields ~w(original_community_id link_addr copy_right link_addr link_icon mark_delete)a ++
-                     @article_comment_fields ++ @upvote_and_collect_fields
+  @article_cast_fields general_article_fields(:cast)
+  @optional_fields ~w(original_community_id link_addr copy_right link_addr link_icon)a ++
+                     @article_cast_fields
 
   @type t :: %Post{}
   schema "cms_posts" do
@@ -30,24 +29,6 @@ defmodule GroupherServer.CMS.Post do
     field(:link_icon, :string)
     field(:copy_right, :string)
     field(:length, :integer)
-    # field(:views, :integer, default: 0)
-
-    # general_article_fields
-    # - author_field
-    # - article_comment_fields
-    # - aritle_meta_field
-    # - pin
-    # - mark_delete
-    # - emotion
-    # - upvote_and_collect_fields
-    # - viewer_has_fields
-    # - timestamp
-
-    # belongs_to(:author, Author)
-    # embeds_one(:meta, Embeds.ArticleMeta, on_replace: :update)
-
-    # field(:is_pinned, :boolean, default: false, virtual: true)
-    # field(:mark_delete, :boolean, default: false)
 
     # TODO: remove after legacy data migrated
     has_many(:comments, {"posts_comments", PostComment})
@@ -75,11 +56,6 @@ defmodule GroupherServer.CMS.Post do
     )
 
     general_article_fields()
-
-    # timestamps(type: :utc_datetime)
-    # for paged test to diff
-    # timestamps(type: :utc_datetime_usec)
-    # timestamps()
   end
 
   @doc false

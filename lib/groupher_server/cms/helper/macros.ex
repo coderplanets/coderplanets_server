@@ -101,6 +101,19 @@ defmodule GroupherServer.CMS.Helper.Macros do
     end
   end
 
+  @doc """
+  common casting fields for general_article_fields
+  """
+  def general_article_fields(:cast) do
+    [
+      :article_comments_count,
+      :article_comments_participators_count,
+      :upvotes_count,
+      :collects_count,
+      :mark_delete
+    ]
+  end
+
   defmacro general_article_fields do
     quote do
       belongs_to(:author, Author)
@@ -116,11 +129,11 @@ defmodule GroupherServer.CMS.Helper.Macros do
       upvote_and_collect_fields()
       viewer_has_fields()
       article_comment_fields()
+
+      # TODO:
+      # reference_articles
+      # related_articles
       timestamps()
     end
   end
-
-  # TODO:
-  # reference_articles
-  # related_articles
 end
