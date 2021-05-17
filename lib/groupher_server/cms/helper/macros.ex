@@ -101,6 +101,13 @@ defmodule GroupherServer.CMS.Helper.Macros do
     end
   end
 
+  defmacro general_article_fields do
+    quote do
+      upvote_and_collect_fields()
+      viewer_has_fields()
+    end
+  end
+
   # TODO:
   # reference_articles
   # related_articles

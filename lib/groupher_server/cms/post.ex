@@ -74,8 +74,9 @@ defmodule GroupherServer.CMS.Post do
       on_replace: :delete
     )
 
-    viewer_has_fields()
-    upvote_and_collect_fields()
+    general_article_fields()
+    # viewer_has_fields()
+    # upvote_and_collect_fields()
     article_comment_fields()
 
     # timestamps(type: :utc_datetime)
