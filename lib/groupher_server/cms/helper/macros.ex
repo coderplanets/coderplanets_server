@@ -103,8 +103,18 @@ defmodule GroupherServer.CMS.Helper.Macros do
 
   defmacro general_article_fields do
     quote do
+      field(:views, :integer, default: 0)
+      field(:is_pinned, :boolean, default: false, virtual: true)
+      field(:mark_delete, :boolean, default: false)
+
+      embeds_one(:meta, CMS.Embeds.ArticleMeta, on_replace: :update)
+      belongs_to(:original_community, CMS.Community)
+      embeds_one(:emotions, CMS.Embeds.ArticleEmotion, on_replace: :update)
+
       upvote_and_collect_fields()
       viewer_has_fields()
+      article_comment_fields()
+      timestamps()
     end
   end
 

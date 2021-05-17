@@ -30,7 +30,7 @@ defmodule GroupherServer.CMS.Post do
     field(:link_icon, :string)
     field(:copy_right, :string)
     field(:length, :integer)
-    field(:views, :integer, default: 0)
+    # field(:views, :integer, default: 0)
 
     # general_article_fields
     # - author_field
@@ -43,17 +43,17 @@ defmodule GroupherServer.CMS.Post do
     # - viewer_has_fields
     # - timestamp
 
-    belongs_to(:author, Author)
-    embeds_one(:meta, Embeds.ArticleMeta, on_replace: :update)
+    # belongs_to(:author, Author)
+    # embeds_one(:meta, Embeds.ArticleMeta, on_replace: :update)
 
-    field(:is_pinned, :boolean, default: false, virtual: true)
-    field(:mark_delete, :boolean, default: false)
+    # field(:is_pinned, :boolean, default: false, virtual: true)
+    # field(:mark_delete, :boolean, default: false)
 
     # TODO: remove after legacy data migrated
     has_many(:comments, {"posts_comments", PostComment})
 
-    embeds_one(:emotions, Embeds.ArticleEmotion, on_replace: :update)
-    belongs_to(:original_community, Community)
+    # embeds_one(:emotions, Embeds.ArticleEmotion, on_replace: :update)
+    # belongs_to(:original_community, Community)
 
     # The keys are inflected from the schema names!
     # see https://hexdocs.pm/ecto/Ecto.Schema.html
@@ -75,14 +75,11 @@ defmodule GroupherServer.CMS.Post do
     )
 
     general_article_fields()
-    # viewer_has_fields()
-    # upvote_and_collect_fields()
-    article_comment_fields()
 
     # timestamps(type: :utc_datetime)
     # for paged test to diff
     # timestamps(type: :utc_datetime_usec)
-    timestamps()
+    # timestamps()
   end
 
   @doc false
