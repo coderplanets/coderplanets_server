@@ -4,14 +4,16 @@ defmodule GroupherServer.CMS.AbuseReport do
 
   use Ecto.Schema
   use Accessible
+
   import Ecto.Changeset
+  import Helper.Utils, only: [get_config: 2]
   import GroupherServer.CMS.Helper.Macros
   import GroupherServer.CMS.Helper.Utils, only: [articles_foreign_key_constraint: 1]
 
   alias GroupherServer.{Accounts, CMS}
   alias CMS.{ArticleComment, Embeds}
 
-  @article_threads CMS.Community.article_threads()
+  @article_threads get_config(:article, :article_threads)
 
   # @required_fields ~w(article_comment_id user_id recived_user_id)a
   @optional_fields ~w(article_comment_id account_id operate_user_id deal_with report_cases_count)a
@@ -31,7 +33,7 @@ defmodule GroupherServer.CMS.AbuseReport do
 
     field(:deal_with, :string)
 
-    article_belongs_to()
+    article_belongs_to_fields()
     timestamps(type: :utc_datetime)
   end
 

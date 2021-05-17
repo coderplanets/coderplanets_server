@@ -6,6 +6,7 @@ defmodule GroupherServer.CMS.ArticlePinnedComment do
   use Accessible
 
   import Ecto.Changeset
+  import Helper.Utils, only: [get_config: 2]
   import GroupherServer.CMS.Helper.Macros
   import GroupherServer.CMS.Helper.Utils, only: [articles_foreign_key_constraint: 1]
 
@@ -13,7 +14,7 @@ defmodule GroupherServer.CMS.ArticlePinnedComment do
   alias CMS.ArticleComment
 
   # alias Helper.HTML
-  @article_threads CMS.Community.article_threads()
+  @article_threads get_config(:article, :article_threads)
 
   @required_fields ~w(article_comment_id)a
   # @optional_fields ~w(post_id job_id repo_id)a
@@ -24,7 +25,7 @@ defmodule GroupherServer.CMS.ArticlePinnedComment do
   schema "articles_pinned_comments" do
     belongs_to(:article_comment, ArticleComment, foreign_key: :article_comment_id)
 
-    article_belongs_to()
+    article_belongs_to_fields()
     timestamps(type: :utc_datetime)
   end
 

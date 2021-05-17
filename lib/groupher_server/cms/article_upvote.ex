@@ -3,14 +3,16 @@ defmodule GroupherServer.CMS.ArticleUpvote do
   alias __MODULE__
 
   use Ecto.Schema
+
   import Ecto.Changeset
+  import Helper.Utils, only: [get_config: 2]
   import GroupherServer.CMS.Helper.Macros
   import GroupherServer.CMS.Helper.Utils, only: [articles_foreign_key_constraint: 1]
 
   alias GroupherServer.{Accounts, CMS}
   alias Accounts.User
 
-  @article_threads CMS.Community.article_threads()
+  @article_threads get_config(:article, :article_threads)
 
   @required_fields ~w(user_id)a
   @optional_fields ~w(thread)a
@@ -22,7 +24,7 @@ defmodule GroupherServer.CMS.ArticleUpvote do
     field(:thread, :string)
     belongs_to(:user, User, foreign_key: :user_id)
 
-    article_belongs_to()
+    article_belongs_to_fields()
     timestamps(type: :utc_datetime)
   end
 

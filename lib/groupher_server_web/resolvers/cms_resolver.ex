@@ -1,7 +1,6 @@
 defmodule GroupherServerWeb.Resolvers.CMS do
   @moduledoc false
 
-  import GroupherServer.CMS.Helper.Matcher
   import ShortMaps
   import Ecto.Query, warn: false
 
@@ -213,10 +212,6 @@ defmodule GroupherServerWeb.Resolvers.CMS do
 
   def set_tag(_root, ~m(thread id tag_id)a, _info) do
     CMS.set_tag(thread, %Tag{id: tag_id}, id)
-  end
-
-  def set_refined_tag(_root, ~m(community_id thread id)a, _info) do
-    CMS.set_refined_tag(%Community{id: community_id}, thread, id)
   end
 
   def unset_tag(_root, ~m(id thread tag_id)a, _info) do

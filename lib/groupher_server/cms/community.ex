@@ -4,14 +4,12 @@ defmodule GroupherServer.CMS.Community do
 
   use Ecto.Schema
   import Ecto.Changeset
+  import GroupherServer.CMS.Helper.Macros
 
   alias GroupherServer.{Accounts, CMS}
 
   alias CMS.{
     Category,
-    Post,
-    Repo,
-    Job,
     CommunityThread,
     CommunitySubscriber,
     CommunityEditor,
@@ -19,14 +17,12 @@ defmodule GroupherServer.CMS.Community do
     CommunityCheatsheet
   }
 
-  @article_threads [:post, :job, :repo]
   @max_pinned_article_count_per_thread 2
 
   @required_fields ~w(title desc user_id logo raw)a
   # @required_fields ~w(title desc user_id)a
   @optional_fields ~w(label geo_info index aka)a
 
-  def article_threads, do: @article_threads
   def max_pinned_article_count_per_thread, do: @max_pinned_article_count_per_thread
 
   schema "communities" do
@@ -59,30 +55,7 @@ defmodule GroupherServer.CMS.Community do
       # on_replace: :delete
     )
 
-    many_to_many(
-      :posts,
-      Post,
-      join_through: "communities_posts",
-      join_keys: [community_id: :id, post_id: :id]
-    )
-
-    many_to_many(
-      :repos,
-      Repo,
-      join_through: "communities_repos",
-      join_keys: [community_id: :id, repo_id: :id]
-    )
-
-    many_to_many(
-      :jobs,
-      Job,
-      join_through: "communities_jobs",
-      join_keys: [community_id: :id, job_id: :id]
-    )
-
-    # posts_managers
-    # jobs_managers
-    # tuts_managers
+    community_article_fields()
     #
     # posts_block_list ...
     timestamps(type: :utc_datetime)

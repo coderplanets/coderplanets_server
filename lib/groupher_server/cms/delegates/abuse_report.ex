@@ -3,7 +3,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   CURD and operations for article comments
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, strip_struct: 1]
+  import Helper.Utils, only: [done: 1, strip_struct: 1, get_config: 2]
 
   import GroupherServer.CMS.Helper.Matcher2
   import ShortMaps
@@ -17,9 +17,9 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
 
   alias Ecto.Multi
 
+  @article_threads get_config(:article, :article_threads)
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
 
-  @article_threads Community.article_threads()
   @export_author_keys [:id, :login, :nickname, :avatar]
   @export_article_keys [:id, :title, :digest, :upvotes_count, :views]
   @export_report_keys [

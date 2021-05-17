@@ -124,7 +124,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       variables = %{filter: %{}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
       inserted_timestamps = results["entries"] |> Enum.map(& &1["inserted_at"])
-      # IO.inspect(inserted_timestamps, label: "inserted_timestamps")
 
       {:ok, first_inserted_time, 0} =
         inserted_timestamps |> List.first() |> DateTime.from_iso8601()

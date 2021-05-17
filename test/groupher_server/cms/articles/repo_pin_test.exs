@@ -39,7 +39,6 @@ defmodule GroupherServer.Test.CMS.Artilces.RepoPin do
       assert reason |> Keyword.get(:code) == ecode(:too_much_pinned_article)
     end
 
-    @tag :wip2
     test "can not pin a non-exsit repo", ~m(community)a do
       assert {:error, _} = CMS.pin_article(:repo, 8848, community.id)
     end

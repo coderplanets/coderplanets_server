@@ -2,11 +2,12 @@ defmodule GroupherServer.CMS.Helper.Matcher2.Macros do
   @moduledoc """
   generate match functions
   """
+  import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.CMS
   alias CMS.{ArticleComment, Community, Embeds}
 
-  @article_threads Community.article_threads()
+  @article_threads get_config(:article, :article_threads)
 
   @doc """
   match basic threads

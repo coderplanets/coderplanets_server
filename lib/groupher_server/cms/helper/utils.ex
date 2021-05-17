@@ -3,11 +3,12 @@ defmodule GroupherServer.CMS.Helper.Utils do
   utils for CMS helper
   """
   import Ecto.Changeset
+  import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.CMS
   alias CMS.Community
 
-  @article_threads CMS.Community.article_threads()
+  @article_threads get_config(:article, :article_threads)
   @article_fields @article_threads |> Enum.map(&:"#{&1}_id")
 
   @doc """
