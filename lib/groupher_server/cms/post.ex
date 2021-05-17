@@ -44,13 +44,7 @@ defmodule GroupherServer.CMS.Post do
       on_replace: :delete
     )
 
-    many_to_many(
-      :communities,
-      Community,
-      join_through: "communities_posts",
-      on_replace: :delete
-    )
-
+    article_community_field(:post)
     general_article_fields()
   end
 

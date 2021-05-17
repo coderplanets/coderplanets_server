@@ -188,4 +188,23 @@ defmodule GroupherServer.CMS.Helper.Macros do
       timestamps()
     end
   end
+
+  @doc """
+
+  # TABLE: "communities_[article]s"
+    add(:community_id, references(:communities, on_delete: :delete_all), null: false)
+    add(:[article]_id, references(:cms_[article]s, on_delete: :delete_all), null: false)
+
+  create(unique_index(:communities_[article]s, [:community_id, :[article]_id]))
+  """
+  defmacro article_community_field(thread) do
+    quote do
+      many_to_many(
+        :communities,
+        Community,
+        join_through: unquote("communities_#{to_string(thread)}s"),
+        on_replace: :delete
+      )
+    end
+  end
 end
