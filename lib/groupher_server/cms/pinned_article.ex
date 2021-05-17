@@ -3,14 +3,16 @@ defmodule GroupherServer.CMS.PinnedArticle do
   alias __MODULE__
 
   use Ecto.Schema
+
   import Ecto.Changeset
+  import Helper.Utils, only: [get_config: 2]
   import GroupherServer.CMS.Helper.Macros
   import GroupherServer.CMS.Helper.Utils, only: [articles_foreign_key_constraint: 1]
 
   alias GroupherServer.CMS
   alias CMS.Community
 
-  @article_threads CMS.Community.article_threads()
+  @article_threads get_config(:article, :article_threads)
 
   @required_fields ~w(community_id thread)a
   # @optional_fields ~w(post_id job_id repo_id)a

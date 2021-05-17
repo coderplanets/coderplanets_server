@@ -6,6 +6,7 @@ defmodule GroupherServer.CMS.ArticleComment do
   use Accessible
 
   import Ecto.Changeset
+  import Helper.Utils, only: [get_config: 2]
   import GroupherServer.CMS.Helper.Macros
   import GroupherServer.CMS.Helper.Utils, only: [articles_foreign_key_constraint: 1]
 
@@ -13,7 +14,7 @@ defmodule GroupherServer.CMS.ArticleComment do
   alias CMS.{Embeds, ArticleCommentUpvote}
 
   # alias Helper.HTML
-  @article_threads CMS.Community.article_threads()
+  @article_threads get_config(:article, :article_threads)
 
   @required_fields ~w(body_html author_id)a
   @optional_fields ~w(reply_to_id replies_count is_folded is_deleted floor is_article_author)a

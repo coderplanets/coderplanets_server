@@ -29,7 +29,7 @@ defmodule GroupherServer.CMS.ArticleUserEmotion do
   alias GroupherServer.{Accounts, CMS}
 
   @supported_emotions get_config(:article, :supported_emotions)
-  @article_threads CMS.Community.article_threads()
+  @article_threads get_config(:article, :article_threads)
 
   @required_fields ~w(user_id recived_user_id)a
   @optional_fields Enum.map(@article_threads, &:"#{&1}_id") ++

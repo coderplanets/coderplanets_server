@@ -3,7 +3,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   CURD and operations for article comments
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, strip_struct: 1]
+  import Helper.Utils, only: [done: 1, strip_struct: 1, get_config: 2]
   import Helper.ErrorCode
 
   import GroupherServer.CMS.Delegate.ArticleComment,
@@ -30,7 +30,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
 
   alias Ecto.Multi
 
-  @article_threads Community.article_threads()
+  @article_threads get_config(:article, :article_threads)
+
   @max_parent_replies_count ArticleComment.max_parent_replies_count()
   @pinned_comment_limit ArticleComment.pinned_comment_limit()
 

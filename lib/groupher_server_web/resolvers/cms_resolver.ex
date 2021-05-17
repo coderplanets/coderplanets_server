@@ -1,7 +1,6 @@
 defmodule GroupherServerWeb.Resolvers.CMS do
   @moduledoc false
 
-  import GroupherServer.CMS.Helper.Matcher
   import ShortMaps
   import Ecto.Query, warn: false
 

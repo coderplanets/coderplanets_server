@@ -2,13 +2,14 @@ defmodule GroupherServer.CMS.Helper.Macros do
   @moduledoc """
   macros for define article related fields in CMS models
   """
+  import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.{CMS, Accounts}
 
   alias Accounts.User
   alias CMS.{Author, Community, ArticleComment, ArticleUpvote, ArticleCollect}
 
-  @article_threads Community.article_threads()
+  @article_threads get_config(:article, :article_threads)
 
   @doc """
   generate belongs to fields for given thread

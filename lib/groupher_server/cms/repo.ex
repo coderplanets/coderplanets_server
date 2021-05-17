@@ -8,9 +8,8 @@ defmodule GroupherServer.CMS.Repo do
   import Ecto.Changeset
   import GroupherServer.CMS.Helper.Macros
 
-  alias GroupherServer.{CMS, Accounts}
-
-  alias CMS.{Embeds, Community, RepoContributor, RepoLang, Tag}
+  alias GroupherServer.CMS
+  alias CMS.{Embeds, RepoContributor, RepoLang, Tag}
 
   alias Helper.HTML
 
@@ -51,13 +50,7 @@ defmodule GroupherServer.CMS.Repo do
       on_replace: :delete
     )
 
-    many_to_many(
-      :communities,
-      Community,
-      join_through: "communities_repos",
-      on_replace: :delete
-    )
-
+    article_community_field(:repo)
     general_article_fields()
   end
 
