@@ -189,6 +189,20 @@ defmodule GroupherServer.CMS.Helper.Macros do
     end
   end
 
+  defmacro community_article_fields() do
+    @article_threads
+    |> Enum.map(fn thread ->
+      quote do
+        many_to_many(
+          unquote(:"#{thread}s"),
+          Module.concat(CMS, unquote(thread) |> to_string |> Recase.to_pascal()),
+          join_through: unquote("communities_#{to_string(thread)}s"),
+          join_keys: [community_id: :id] ++ Keyword.new([{unquote(:"#{thread}_id"), :id}])
+        )
+      end
+    end)
+  end
+
   @doc """
 
   # TABLE: "communities_[article]s"
