@@ -6,6 +6,7 @@ defmodule GroupherServer.CMS.Job do
   use Accessible
 
   import Ecto.Changeset
+  import GroupherServer.CMS.Helper.Macros
 
   alias GroupherServer.{CMS, Accounts}
   alias CMS.{Author, Embeds, ArticleComment, Community, Tag, ArticleUpvote, ArticleCollect}
@@ -13,7 +14,9 @@ defmodule GroupherServer.CMS.Job do
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title company company_logo body digest length)a
-  @optional_fields ~w(original_community_id desc company_link link_addr copy_right salary exp education field finance scale article_comments_count article_comments_participators_count upvotes_count collects_count mark_delete)a
+  @article_cast_fields general_article_fields(:cast)
+  @optional_fields ~w(original_community_id desc company_link link_addr copy_right salary exp education field finance scale)a ++
+                     @article_cast_fields
 
   @type t :: %Job{}
   schema "cms_jobs" do
@@ -23,10 +26,6 @@ defmodule GroupherServer.CMS.Job do
     field(:company_link, :string)
     field(:desc, :string)
     field(:body, :string)
-    belongs_to(:author, Author)
-    field(:views, :integer, default: 0)
-
-    embeds_one(:meta, Embeds.ArticleMeta, on_replace: :update)
 
     field(:link_addr, :string)
     field(:copy_right, :string)
@@ -40,29 +39,6 @@ defmodule GroupherServer.CMS.Job do
 
     field(:digest, :string)
     field(:length, :integer)
-
-    # NOTE: this one is tricky, pin is dynamic changed when return by func: add_pin_contents_ifneed
-    field(:is_pinned, :boolean, default: false, virtual: true)
-    field(:mark_delete, :boolean, default: false)
-
-    has_many(:upvotes, {"article_upvotes", ArticleUpvote})
-    field(:upvotes_count, :integer, default: 0)
-
-    field(:viewer_has_viewed, :boolean, default: false, virtual: true)
-    field(:viewer_has_upvoted, :boolean, default: false, virtual: true)
-    field(:viewer_has_collected, :boolean, default: false, virtual: true)
-    field(:viewer_has_reported, :boolean, default: false, virtual: true)
-
-    has_many(:collects, {"article_collects", ArticleCollect})
-    field(:collects_count, :integer, default: 0)
-
-    has_many(:article_comments, {"articles_comments", ArticleComment})
-    field(:article_comments_count, :integer, default: 0)
-    field(:article_comments_participators_count, :integer, default: 0)
-    # 评论参与者，只保留最近 5 个
-    embeds_many(:article_comments_participators, Accounts.User, on_replace: :delete)
-
-    embeds_one(:emotions, Embeds.ArticleEmotion, on_replace: :update)
 
     many_to_many(
       :tags,
@@ -83,8 +59,7 @@ defmodule GroupherServer.CMS.Job do
       on_replace: :delete
     )
 
-    # timestamps(type: :utc_datetime)
-    timestamps()
+    general_article_fields()
   end
 
   @doc false
