@@ -51,8 +51,6 @@ defmodule GroupherServer.CMS.Repo do
       on_replace: :delete
     )
 
-    belongs_to(:original_community, Community)
-
     many_to_many(
       :communities,
       Community,
