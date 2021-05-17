@@ -90,6 +90,10 @@ defmodule GroupherServer.CMS.Helper.Macros do
   -----
   add(:upvotes_count, :integer, default: 0)
   add(:collects_count, :integer, default: 0)
+
+  ## TABLE: "article_upvotes" and TABLE: "article_collects"
+  -----
+  add(:[article]_id, references(:cms_[article]s, on_delete: :delete_all))
   """
   defmacro upvote_and_collect_fields() do
     quote do
@@ -114,6 +118,52 @@ defmodule GroupherServer.CMS.Helper.Macros do
     ]
   end
 
+  @doc """
+
+  MIGRATION:
+
+  TABLE: "cms_[article]s"
+  -----
+  # for :author
+  add(:author_id, references(:cms_authors, on_delete: :delete_all), null: false)
+  create(index(:cms_[article]s, [:author_id]))
+
+  # for :views
+  add(:views, :integer, default: 0)
+
+  # for :mark_delete
+  add(:mark_delete, :boolean, default: false)
+
+  # for :meta
+  add(:meta, :map)
+
+  # for :emotion
+  add(:emotions, :map)
+
+  # for :original_community
+  add(:original_community_id, references(:communities, on_delete: :delete_all))
+
+  # for :upvote and :collect
+  add(:upvotes_count, :integer, default: 0)
+  add(:collects_count, :integer, default: 0)
+
+  # for :article_comment
+  add(:article_comments_participators_count, :integer, default: 0)
+  add(:article_comments_count, :integer, default: 0)
+  add(:article_comments_participators, :map)
+
+  # for table contains macro "article_belongs_to_fields":
+  # TABLE: "abuse_reports"
+  # TABLE: "article_collects"
+  # TABLE: "article_upvotes"
+  # TABLE: "articles_comments"
+  # TABLE: "articles_pinned_comments"
+  # TABLE: "articles_users_emotions"
+  # TABLE: "pinned_articles"
+  -----
+  add(:[article]_id, references(:cms_[article]s, on_delete: :delete_all))
+
+  """
   defmacro general_article_fields do
     quote do
       belongs_to(:author, Author)
@@ -123,8 +173,9 @@ defmodule GroupherServer.CMS.Helper.Macros do
       field(:mark_delete, :boolean, default: false)
 
       embeds_one(:meta, CMS.Embeds.ArticleMeta, on_replace: :update)
-      belongs_to(:original_community, CMS.Community)
       embeds_one(:emotions, CMS.Embeds.ArticleEmotion, on_replace: :update)
+
+      belongs_to(:original_community, CMS.Community)
 
       upvote_and_collect_fields()
       viewer_has_fields()
