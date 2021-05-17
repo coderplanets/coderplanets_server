@@ -3,9 +3,12 @@ defmodule GroupherServer.CMS.Helper.Macros do
   macros for define article related fields in CMS models
   """
 
-  alias GroupherServer.CMS
+  alias GroupherServer.{CMS, Accounts}
 
-  @article_threads CMS.Community.article_threads()
+  alias Accounts.User
+  alias CMS.{Community, ArticleComment, ArticleUpvote, ArticleCollect}
+
+  @article_threads Community.article_threads()
 
   @doc """
   generate belongs to fields for given thread
@@ -58,7 +61,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
       field(:article_comments_count, :integer, default: 0)
       has_many(:article_comments, {"articles_comments", ArticleComment})
       # 评论参与者，只保留最近 5 个
-      embeds_many(:article_comments_participators, Accounts.User, on_replace: :delete)
+      embeds_many(:article_comments_participators, User, on_replace: :delete)
     end
   end
 

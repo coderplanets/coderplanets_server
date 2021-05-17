@@ -3,8 +3,7 @@ defmodule Helper.Scheduler do
   cron-like job scheduler
   """
   use Quantum.Scheduler, otp_app: :groupher_server
-
-  alias Helper.Cache
+  # alias Helper.Cache
 
   @doc """
   clear all the cache in Cachex

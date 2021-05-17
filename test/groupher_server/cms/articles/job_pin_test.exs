@@ -39,7 +39,6 @@ defmodule GroupherServer.Test.CMS.Artilces.JobPin do
       assert reason |> Keyword.get(:code) == ecode(:too_much_pinned_article)
     end
 
-    @tag :wip2
     test "can not pin a non-exsit job", ~m(community)a do
       assert {:error, _} = CMS.pin_article(:job, 8848, community.id)
     end

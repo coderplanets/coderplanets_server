@@ -6,21 +6,14 @@ defmodule GroupherServer.CMS.Post do
   use Accessible
 
   import Ecto.Changeset
+  import GroupherServer.CMS.Helper.Macros
 
-  alias GroupherServer.{CMS, Accounts}
-
-  alias CMS.{
-    Embeds,
-    Author,
-    Community,
-    ArticleComment,
-    ArticleUpvote,
-    ArticleCollect,
-    PostComment,
-    Tag
-  }
+  alias GroupherServer.CMS
+  alias CMS.{Embeds, Author, Community, PostComment, Tag}
 
   alias Helper.HTML
+
+  @timestamps_opts [type: :utc_datetime_usec]
 
   @required_fields ~w(title body digest length)a
   @article_comment_fields ~w(article_comments_count article_comments_participators_count)a
@@ -38,6 +31,17 @@ defmodule GroupherServer.CMS.Post do
     field(:copy_right, :string)
     field(:length, :integer)
     field(:views, :integer, default: 0)
+
+    # general_article_fields
+    # - author_field
+    # - article_comment_fields
+    # - aritle_meta_field
+    # - pin
+    # - mark_delete
+    # - emotion
+    # - upvote_and_collect_fields
+    # - viewer_has_fields
+    # - timestamp
 
     belongs_to(:author, Author)
     embeds_one(:meta, Embeds.ArticleMeta, on_replace: :update)

@@ -7,8 +7,6 @@ defmodule GroupherServer.Application do
   @spec start(any, any) :: {:error, any} | {:ok, pid}
   def start(_type, _args) do
     import Supervisor.Spec
-    import Cachex.Spec
-
     alias Helper.Cache
 
     # Define workers and child supervisors to be supervised
