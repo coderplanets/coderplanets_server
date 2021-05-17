@@ -41,7 +41,7 @@ defmodule GroupherServer.CMS.ArticleUserEmotion do
     belongs_to(:user, Accounts.User, foreign_key: :user_id)
 
     emotion_fields()
-    article_belongs_to()
+    article_belongs_to_fields()
     timestamps(type: :utc_datetime)
   end
 

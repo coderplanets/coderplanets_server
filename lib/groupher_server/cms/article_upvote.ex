@@ -22,7 +22,7 @@ defmodule GroupherServer.CMS.ArticleUpvote do
     field(:thread, :string)
     belongs_to(:user, User, foreign_key: :user_id)
 
-    article_belongs_to()
+    article_belongs_to_fields()
     timestamps(type: :utc_datetime)
   end
 

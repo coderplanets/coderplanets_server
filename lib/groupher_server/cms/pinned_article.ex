@@ -21,7 +21,7 @@ defmodule GroupherServer.CMS.PinnedArticle do
     belongs_to(:community, Community, foreign_key: :community_id)
     field(:thread, :string)
 
-    article_belongs_to()
+    article_belongs_to_fields()
     timestamps(type: :utc_datetime)
   end
 

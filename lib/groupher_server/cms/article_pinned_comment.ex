@@ -24,7 +24,7 @@ defmodule GroupherServer.CMS.ArticlePinnedComment do
   schema "articles_pinned_comments" do
     belongs_to(:article_comment, ArticleComment, foreign_key: :article_comment_id)
 
-    article_belongs_to()
+    article_belongs_to_fields()
     timestamps(type: :utc_datetime)
   end
 

@@ -23,7 +23,7 @@ defmodule GroupherServer.CMS.ArticleCollect do
     belongs_to(:user, User, foreign_key: :user_id)
     embeds_many(:collect_folders, CollectFolder, on_replace: :delete)
 
-    article_belongs_to()
+    article_belongs_to_fields()
     timestamps(type: :utc_datetime)
   end
 

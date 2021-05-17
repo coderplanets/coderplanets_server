@@ -31,7 +31,7 @@ defmodule GroupherServer.CMS.AbuseReport do
 
     field(:deal_with, :string)
 
-    article_belongs_to()
+    article_belongs_to_fields()
     timestamps(type: :utc_datetime)
   end
 
