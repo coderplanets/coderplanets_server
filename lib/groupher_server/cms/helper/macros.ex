@@ -110,6 +110,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
   """
   def general_article_fields(:cast) do
     [
+      :original_community_id,
       :article_comments_count,
       :article_comments_participators_count,
       :upvotes_count,

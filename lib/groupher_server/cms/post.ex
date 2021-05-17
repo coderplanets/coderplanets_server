@@ -9,7 +9,7 @@ defmodule GroupherServer.CMS.Post do
   import GroupherServer.CMS.Helper.Macros
 
   alias GroupherServer.CMS
-  alias CMS.{Embeds, Author, Community, PostComment, Tag}
+  alias CMS.{Embeds, Community, PostComment, Tag}
 
   alias Helper.HTML
 
@@ -17,8 +17,7 @@ defmodule GroupherServer.CMS.Post do
 
   @required_fields ~w(title body digest length)a
   @article_cast_fields general_article_fields(:cast)
-  @optional_fields ~w(original_community_id link_addr copy_right link_addr link_icon)a ++
-                     @article_cast_fields
+  @optional_fields ~w(link_addr copy_right link_addr link_icon)a ++ @article_cast_fields
 
   @type t :: %Post{}
   schema "cms_posts" do
@@ -32,9 +31,6 @@ defmodule GroupherServer.CMS.Post do
 
     # TODO: remove after legacy data migrated
     has_many(:comments, {"posts_comments", PostComment})
-
-    # embeds_one(:emotions, Embeds.ArticleEmotion, on_replace: :update)
-    # belongs_to(:original_community, Community)
 
     # The keys are inflected from the schema names!
     # see https://hexdocs.pm/ecto/Ecto.Schema.html
