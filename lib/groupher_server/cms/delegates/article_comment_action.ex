@@ -16,17 +16,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.User
-
-  alias CMS.{
-    ArticleComment,
-    ArticlePinnedComment,
-    ArticleCommentUpvote,
-    ArticleCommentReply,
-    Community,
-    # TODO: remove spec type
-    Post,
-    Job
-  }
+  alias CMS.{ArticleComment, ArticlePinnedComment, ArticleCommentUpvote, ArticleCommentReply}
 
   alias Ecto.Multi
 
@@ -250,21 +240,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
     {:ok, parent_comment}
   end
 
-  defp get_article(%ArticleComment{post_id: post_id} = comment) when not is_nil(post_id) do
-    with {:ok, article} <- ORM.find(Post, comment.post_id, preload: [author: :user]) do
-      {:post, article}
-    end
-  end
-
-  defp get_article(%ArticleComment{job_id: job_id} = comment) when not is_nil(job_id) do
-    with {:ok, article} <- ORM.find(Job, comment.job_id, preload: [author: :user]) do
-      {:job, article}
-    end
-  end
-
-  defp get_article(%ArticleComment{repo_id: repo_id} = comment) when not is_nil(repo_id) do
-    with {:ok, article} <- ORM.find(CMS.Repo, comment.repo_id, preload: [author: :user]) do
-      {:repo, article}
+  defp get_article(%ArticleComment{} = comment) do
+    with article_thread <- find_comment_article_thread(comment),
+         {:ok, info} <- match(article_thread),
+         article_id <- Map.get(comment, info.foreign_key),
+         {:ok, article} <- ORM.find(info.model, article_id, preload: [author: :user]) do
+      {article_thread, article}
     end
   end
 
@@ -272,21 +253,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   defp get_full_comment(comment_id) do
     query = from(c in ArticleComment, where: c.id == ^comment_id, preload: ^@article_threads)
 
-    with {:ok, comment} <- Repo.one(query) |> done() do
-      extract_article_info(comment)
+    with {:ok, comment} <- Repo.one(query) |> done(),
+         article_thread <- find_comment_article_thread(comment) do
+      do_extract_article_info(article_thread, Map.get(comment, article_thread))
     end
-  end
-
-  defp extract_article_info(%ArticleComment{post: %Post{} = post}) when not is_nil(post) do
-    do_extract_article_info(:post, post)
-  end
-
-  defp extract_article_info(%ArticleComment{job: %Job{} = job}) when not is_nil(job) do
-    do_extract_article_info(:job, job)
-  end
-
-  defp extract_article_info(%ArticleComment{repo: %CMS.Repo{} = repo}) when not is_nil(repo) do
-    do_extract_article_info(:repo, repo)
   end
 
   @spec do_extract_article_info(T.article_thread(), T.article_common()) :: {:ok, T.article_info()}
@@ -304,6 +274,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
 
       {:ok, %{thread: thread, article: article_info, author: author_info}}
     end
+  end
+
+  defp find_comment_article_thread(%ArticleComment{} = comment) do
+    @article_threads
+    |> Enum.filter(&Map.get(comment, :"#{&1}_id"))
+    |> List.first()
   end
 
   # used in replies mode, for those reply to other user in replies box (for frontend)
