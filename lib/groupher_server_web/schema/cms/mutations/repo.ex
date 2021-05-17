@@ -74,6 +74,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Repo do
     article_pin_mutation(:repo)
     article_mark_delete_mutation(:repo)
     article_delete_mutation(:repo)
+    article_emotion_mutation(:repo)
     article_report_mutation(:repo)
     #############
   end
