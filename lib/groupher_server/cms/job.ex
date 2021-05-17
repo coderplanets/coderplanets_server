@@ -15,8 +15,8 @@ defmodule GroupherServer.CMS.Job do
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title company company_logo body digest length)a
   @article_cast_fields general_article_fields(:cast)
-  @optional_fields ~w(original_community_id desc company_link link_addr copy_right salary exp education field finance scale)a ++
-                     @article_cast_fields
+  @optional_fields @article_cast_fields ++
+                     ~w(desc company_link link_addr copy_right salary exp education field finance scale)a
 
   @type t :: %Job{}
   schema "cms_jobs" do
@@ -49,8 +49,6 @@ defmodule GroupherServer.CMS.Job do
       on_delete: :delete_all,
       on_replace: :delete
     )
-
-    belongs_to(:original_community, Community)
 
     many_to_many(
       :communities,
