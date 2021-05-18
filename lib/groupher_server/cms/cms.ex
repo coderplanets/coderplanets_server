@@ -46,6 +46,9 @@ defmodule GroupherServer.CMS do
   # >> tag
   defdelegate create_article_tag(community, thread, attrs, user), to: ArticleTag
   defdelegate update_article_tag(tag_id, attrs), to: ArticleTag
+  defdelegate delete_article_tag(tag_id), to: ArticleTag
+  defdelegate set_article_tag(thread, article_id, tag_id), to: ArticleTag
+  defdelegate unset_article_tag(thread, article_id, tag_id), to: ArticleTag
 
   defdelegate create_tag(community, thread, attrs, user), to: CommunityCURD
   defdelegate update_tag(attrs), to: CommunityCURD

@@ -3,7 +3,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
   community curd
   """
   import Ecto.Query, warn: false
-  import GroupherServer.CMS.Helper.Matcher
+  import GroupherServer.CMS.Helper.Matcher2
   import Helper.Utils, only: [done: 1, map_atom_value: 2]
   import GroupherServer.CMS.Delegate.ArticleCURD, only: [ensure_author_exists: 1]
   import ShortMaps
@@ -29,10 +29,57 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
     end
   end
 
+  @doc """
+  update an article tag
+  """
   def update_article_tag(id, attrs) do
     with {:ok, article_tag} <- ORM.find(ArticleTag, id) do
       ORM.update(article_tag, attrs)
     end
+  end
+
+  @doc """
+  delete an article tag
+  """
+  def delete_article_tag(id) do
+    with {:ok, article_tag} <- ORM.find(ArticleTag, id) do
+      ORM.delete(article_tag)
+    end
+  end
+
+  @doc """
+  set article a tag
+  """
+  def set_article_tag(thread, article_id, tag_id) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, article_id, preload: :article_tags),
+         {:ok, article_tag} <- ORM.find(ArticleTag, tag_id) do
+      do_update_article_tags_assoc(article, article_tag, :add)
+    end
+  end
+
+  @doc """
+  unset article a tag
+  """
+  def unset_article_tag(thread, article_id, tag_id) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, article_id, preload: :article_tags),
+         {:ok, article_tag} <- ORM.find(ArticleTag, tag_id) do
+      do_update_article_tags_assoc(article, article_tag, :remove)
+    end
+  end
+
+  defp do_update_article_tags_assoc(article, %ArticleTag{} = tag, opt \\ :add) do
+    article_tags =
+      case opt do
+        :add -> article.article_tags ++ [tag]
+        :remove -> article.article_tags -- [tag]
+      end
+
+    article
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_assoc(:article_tags, article_tags)
+    |> Repo.update()
   end
 
   @doc """
