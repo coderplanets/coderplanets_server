@@ -9,7 +9,7 @@ defmodule GroupherServer.CMS.Repo do
   import GroupherServer.CMS.Helper.Macros
 
   alias GroupherServer.CMS
-  alias CMS.{Embeds, RepoContributor, RepoLang, ArticleTag, Tag}
+  alias CMS.{Embeds, RepoContributor, RepoLang, Tag}
 
   alias Helper.HTML
 
@@ -42,16 +42,6 @@ defmodule GroupherServer.CMS.Repo do
     field(:last_sync, :utc_datetime)
 
     many_to_many(
-      :article_tags,
-      ArticleTag,
-      join_through: "articles_join_tags",
-      join_keys: [repo_id: :id, article_tag_id: :id],
-      # :delete_all will only remove data from the join source
-      on_delete: :delete_all,
-      on_replace: :delete
-    )
-
-    many_to_many(
       :tags,
       Tag,
       join_through: "repos_tags",
@@ -60,6 +50,7 @@ defmodule GroupherServer.CMS.Repo do
       on_replace: :delete
     )
 
+    article_tags_field(:repo)
     article_community_field(:repo)
     general_article_fields()
   end

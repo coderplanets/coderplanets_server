@@ -9,7 +9,7 @@ defmodule GroupherServer.CMS.Job do
   import GroupherServer.CMS.Helper.Macros
 
   alias GroupherServer.{CMS, Accounts}
-  alias CMS.{Embeds, ArticleTag, Tag}
+  alias CMS.{Embeds, Tag}
   alias Helper.HTML
 
   @timestamps_opts [type: :utc_datetime_usec]
@@ -41,16 +41,6 @@ defmodule GroupherServer.CMS.Job do
     field(:length, :integer)
 
     many_to_many(
-      :article_tags,
-      ArticleTag,
-      join_through: "articles_join_tags",
-      join_keys: [job_id: :id, article_tag_id: :id],
-      # :delete_all will only remove data from the join source
-      on_delete: :delete_all,
-      on_replace: :delete
-    )
-
-    many_to_many(
       :tags,
       Tag,
       join_through: "jobs_tags",
@@ -60,6 +50,7 @@ defmodule GroupherServer.CMS.Job do
       on_replace: :delete
     )
 
+    article_tags_field(:job)
     article_community_field(:job)
     general_article_fields()
   end
