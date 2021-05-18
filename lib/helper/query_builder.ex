@@ -175,10 +175,10 @@ defmodule Helper.QueryBuilder do
         queryable
 
       # TODO: use raw instead title
-      {:tag, tag_name}, queryable ->
+      {:article_tag, tag_name}, queryable ->
         from(
           q in queryable,
-          join: t in assoc(q, :tags),
+          join: t in assoc(q, :article_tags),
           where: t.title == ^tag_name
         )
 
@@ -188,6 +188,17 @@ defmodule Helper.QueryBuilder do
           join: t in assoc(q, :categories),
           where: t.raw == ^catetory_raw
         )
+
+      {:community_id, community_id}, queryable ->
+        from(
+          q in queryable,
+          join: t in assoc(q, :community),
+          where: t.id == ^community_id
+        )
+
+      {:thread, thread}, queryable ->
+        thread = thread |> to_string |> String.upcase()
+        from(q in queryable, where: q.thread == ^thread)
 
       {:community, community_raw}, queryable ->
         from(
@@ -211,8 +222,7 @@ defmodule Helper.QueryBuilder do
       #   |> where([p], p.pin == ^bool)
 
       {:mark_delete, bool}, queryable ->
-        queryable
-        |> where([p], p.mark_delete == ^bool)
+        queryable |> where([p], p.mark_delete == ^bool)
 
       {_, _}, queryable ->
         queryable

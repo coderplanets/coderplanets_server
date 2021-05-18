@@ -64,7 +64,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     # NOTE: only meaningful in paged-xxx queries
     field(:is_pinned, :boolean)
     field(:mark_delete, :boolean)
-    field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
+    field(:article_tags, list_of(:article_tag), resolve: dataloader(CMS, :article_tags))
 
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:original_community, :community, resolve: dataloader(CMS, :original_community))
@@ -122,7 +122,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:mark_delete, :boolean)
 
     field(:author, :user, resolve: dataloader(CMS, :author))
-    field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
+    field(:article_tags, list_of(:article_tag), resolve: dataloader(CMS, :article_tags))
     field(:original_community, :community, resolve: dataloader(CMS, :original_community))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
@@ -174,7 +174,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
     field(:last_sync, :datetime)
 
-    field(:tags, list_of(:tag), resolve: dataloader(CMS, :tags))
+    field(:article_tags, list_of(:article_tag), resolve: dataloader(CMS, :article_tags))
     field(:original_community, :community, resolve: dataloader(CMS, :original_community))
     field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
 
@@ -332,7 +332,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     timestamp_fields()
   end
 
-  object :tag do
+  object :article_tag do
     field(:id, :id)
     field(:title, :string)
     field(:color, :string)
@@ -481,8 +481,8 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     pagination_fields()
   end
 
-  object :paged_tags do
-    field(:entries, list_of(:tag))
+  object :paged_article_tags do
+    field(:entries, list_of(:article_tag))
     pagination_fields()
   end
 

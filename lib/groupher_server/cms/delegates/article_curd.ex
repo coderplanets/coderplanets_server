@@ -5,7 +5,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   import Ecto.Query, warn: false
 
   import GroupherServer.CMS.Helper.Matcher2
-  import GroupherServer.CMS.Helper.Matcher, only: [match_action: 2]
 
   import Helper.Utils,
     only: [done: 1, pick_by: 2, integerfy: 1, strip_struct: 1, module_to_thread: 1]
@@ -18,9 +17,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   alias GroupherServer.{Accounts, CMS, Delivery, Email, Repo, Statistics}
 
   alias Accounts.User
-  alias CMS.{Author, Community, PinnedArticle, Embeds, Delegate, Tag}
+  alias CMS.{Author, Community, PinnedArticle, Embeds, Delegate}
 
-  alias Delegate.ArticleCommunity
+  alias Delegate.{ArticleCommunity, ArticleTag}
 
   alias Ecto.Multi
 
@@ -125,17 +124,17 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   """
   def create_article(%Community{id: cid}, thread, attrs, %User{id: uid}) do
     with {:ok, author} <- ensure_author_exists(%User{id: uid}),
-         {:ok, action} <- match_action(thread, :community),
+         {:ok, info} <- match(thread),
          {:ok, community} <- ORM.find(Community, cid) do
       Multi.new()
       |> Multi.run(:create_article, fn _, _ ->
-        do_create_article(action.target, attrs, author, community)
+        do_create_article(info.model, attrs, author, community)
       end)
       |> Multi.run(:mirror_article, fn _, %{create_article: article} ->
         ArticleCommunity.mirror_article(thread, article.id, community.id)
       end)
-      |> Multi.run(:set_tag, fn _, %{create_article: article} ->
-        exec_set_tag(thread, article.id, attrs)
+      |> Multi.run(:set_article_tags, fn _, %{create_article: article} ->
+        ArticleTag.set_article_tags(community, thread, article, attrs)
       end)
       |> Multi.run(:mention_users, fn _, %{create_article: article} ->
         Delivery.mention_from_content(community.raw, thread, article, attrs, %User{id: uid})
@@ -183,10 +182,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end)
     |> Multi.run(:update_edit_status, fn _, %{update_article: update_article} ->
       ArticleCommunity.update_edit_status(update_article)
-    end)
-    |> Multi.run(:update_tag, fn _, _ ->
-      # TODO: move it to ArticleCommunity module
-      exec_update_tags(article, args)
     end)
     |> Repo.transaction()
     |> update_article_result()
@@ -366,7 +361,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     {:error, [message: "set community flag", code: ecode(:create_fails)]}
   end
 
-  defp create_article_result({:error, :set_tag, result, _steps}) do
+  defp create_article_result({:error, :set_article_tags, result, _steps}) do
     {:error, result}
   end
 
@@ -386,42 +381,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     |> Repo.insert()
   end
 
-  defp exec_set_tag(thread, id, %{tags: tags}) do
-    try do
-      Enum.each(tags, fn tag ->
-        {:ok, _} = ArticleCommunity.set_tag(thread, %Tag{id: tag.id}, id)
-      end)
-
-      {:ok, "psss"}
-    rescue
-      _ -> {:error, [message: "set tag", code: ecode(:create_fails)]}
-    end
-  end
-
-  defp exec_set_tag(_thread, _id, _attrs), do: {:ok, :pass}
-
-  # except Job, other article will just pass, should use set_tag function instead
+  # except Job, other article will just pass, should use set_article_tags function instead
   # defp exec_update_tags(_, _tags_ids), do: {:ok, :pass}
-
-  defp exec_update_tags(_article, %{tags: tags_ids}) when tags_ids == [], do: {:ok, :pass}
-
-  defp exec_update_tags(article, %{tags: tags_ids}) do
-    with {:ok, article} <- ORM.find(article.__struct__, article.id, preload: :tags) do
-      tags =
-        Enum.reduce(tags_ids, [], fn t, acc ->
-          {:ok, tag} = ORM.find(Tag, t.id)
-
-          acc ++ [tag]
-        end)
-
-      article
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:tags, tags)
-      |> Repo.update()
-    end
-  end
-
-  defp exec_update_tags(_article, _), do: {:ok, :pass}
 
   defp update_viewed_user_list(%{meta: nil} = article, user_id) do
     new_ids = Enum.uniq([user_id] ++ @default_article_meta.viewed_user_ids)
@@ -446,7 +407,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp update_article_result({:ok, %{update_edit_status: result}}), do: {:ok, result}
   defp update_article_result({:error, :update_article, result, _steps}), do: {:error, result}
-  defp update_article_result({:error, :update_tag, result, _steps}), do: {:error, result}
 
   defp read_result({:ok, %{inc_views: result}}), do: result |> done()
 

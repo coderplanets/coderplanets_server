@@ -46,30 +46,6 @@ defmodule GroupherServer.Test.Job do
       assert user2.id in created.meta.viewed_user_ids
     end
 
-    test "can create job with exsited tags", ~m(user community job_attrs)a do
-      {:ok, tag1} = db_insert(:tag)
-      {:ok, tag2} = db_insert(:tag)
-
-      job_with_tags = Map.merge(job_attrs, %{tags: [%{id: tag1.id}, %{id: tag2.id}]})
-
-      {:ok, created} = CMS.create_article(community, :job, job_with_tags, user)
-      {:ok, found} = ORM.find(CMS.Job, created.id, preload: :tags)
-
-      assert found.tags |> Enum.any?(&(&1.id == tag1.id))
-      assert found.tags |> Enum.any?(&(&1.id == tag2.id))
-    end
-
-    test "create job with invalid tags fails", ~m(user community job_attrs)a do
-      {:ok, tag1} = db_insert(:tag)
-      {:ok, tag2} = db_insert(:tag)
-
-      job_with_tags =
-        Map.merge(job_attrs, %{tags: [%{id: tag1.id}, %{id: tag2.id}, %{id: non_exsit_id()}]})
-
-      {:error, _} = CMS.create_article(community, :job, job_with_tags, user)
-      {:error, _} = ORM.find_by(CMS.Job, %{title: job_attrs.title})
-    end
-
     test "create job with an exsit community fails", ~m(user)a do
       invalid_attrs = mock_attrs(:job, %{community_id: non_exsit_id()})
       ivalid_community = %Community{id: non_exsit_id()}

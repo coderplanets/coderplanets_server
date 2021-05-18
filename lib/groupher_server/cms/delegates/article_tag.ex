@@ -4,21 +4,23 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
   """
   import Ecto.Query, warn: false
   import GroupherServer.CMS.Helper.Matcher2
-  import Helper.Utils, only: [done: 1, map_atom_value: 2]
+  import Helper.Utils, only: [done: 1]
   import GroupherServer.CMS.Delegate.ArticleCURD, only: [ensure_author_exists: 1]
   import ShortMaps
+  import Helper.ErrorCode
 
   alias Helper.ORM
   alias Helper.QueryBuilder
   alias GroupherServer.{Accounts, Repo}
 
+  alias Accounts.User
   alias GroupherServer.CMS.{Community, ArticleTag}
 
   @doc """
   create a article tag
   """
-  def create_article_tag(%Community{id: community_id}, thread, attrs, %Accounts.User{id: user_id}) do
-    with {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}),
+  def create_article_tag(%Community{id: community_id}, thread, attrs, %User{id: user_id}) do
+    with {:ok, author} <- ensure_author_exists(%User{id: user_id}),
          {:ok, community} <- ORM.find(Community, community_id) do
       thread = thread |> to_string |> String.upcase()
 
@@ -47,12 +49,52 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
     end
   end
 
+  # check if the tag to be set is in same community & thread
+  defp is_article_tag_in_some_thread?(article_tags, filter) do
+    with {:ok, paged_article_tags} <- paged_article_tags(filter) do
+      domain_tags_ids = Enum.map(paged_article_tags.entries, &to_string(&1.id))
+      cur_tags_ids = Enum.map(article_tags, &to_string(&1.id))
+
+      Enum.all?(cur_tags_ids, &Enum.member?(domain_tags_ids, &1))
+    end
+  end
+
+  @doc """
+  set article tag by list of article_tag_ids
+
+  used for create article with article_tags in args
+  """
+  def set_article_tags(%Community{id: cid}, thread, article, %{article_tags: article_tags}) do
+    check_filter = %{page: 1, size: 100, community_id: cid, thread: thread}
+
+    with true <- is_article_tag_in_some_thread?(article_tags, check_filter) do
+      Enum.each(article_tags, fn article_tag ->
+        set_article_tag(thread, article, article_tag.id)
+      end)
+
+      {:ok, :pass}
+    else
+      false -> raise_error(:invalid_domain_tag, "tag not in same community & thread")
+    end
+  end
+
+  def set_article_tags(_community, _thread, _id, _attrs), do: {:ok, :pass}
+
   @doc """
   set article a tag
   """
-  def set_article_tag(thread, article_id, tag_id) do
+  def set_article_tag(thread, article_id, tag_id) when is_binary(article_id) do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, article_id, preload: :article_tags),
+         {:ok, article_tag} <- ORM.find(ArticleTag, tag_id) do
+      do_update_article_tags_assoc(article, article_tag, :add)
+    end
+  end
+
+  def set_article_tag(thread, article, tag_id) do
+    article = Repo.preload(article, :article_tags)
+
+    with {:ok, info} <- match(thread),
          {:ok, article_tag} <- ORM.find(ArticleTag, tag_id) do
       do_update_article_tags_assoc(article, article_tag, :add)
     end
@@ -83,87 +125,32 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
   end
 
   @doc """
-  get all tags belongs to a community
-  """
-  def get_tags(%Community{id: community_id}) when not is_nil(community_id) do
-    Tag
-    |> join(:inner, [t], c in assoc(t, :community))
-    |> where([t, c, cp], c.id == ^community_id)
-    |> Repo.all()
-    |> done()
-  end
-
-  def get_tags(%Community{raw: community_raw}) when not is_nil(community_raw) do
-    Tag
-    |> join(:inner, [t], c in assoc(t, :community))
-    |> where([t, c, cp], c.raw == ^community_raw)
-    |> Repo.all()
-    |> done()
-  end
-
-  @doc """
   get all paged tags
   """
-  def get_tags(%{page: page, size: size} = filter) do
-    Tag
+  def paged_article_tags(%{page: page, size: size} = filter) do
+    ArticleTag
     |> QueryBuilder.filter_pack(filter)
     |> ORM.paginater(~m(page size)a)
     |> done()
   end
 
-  @doc """
-  get tags belongs to a community / thread
-  """
-  def get_tags(%Community{raw: community_raw}, thread) when not is_nil(community_raw) do
-    thread = thread |> to_string |> String.downcase()
+  # def paged_article_tags(filter) when not is_nil(community_id) do
+  #   thread = thread |> to_string |> String.upcase()
 
-    Tag
-    |> join(:inner, [t], c in assoc(t, :community))
-    |> where([t, c], c.raw == ^community_raw and t.thread == ^thread)
-    |> distinct([t], t.title)
-    |> Repo.all()
-    |> done()
-  end
+  #   ArticleTag
+  #   |> join(:inner, [t], c in assoc(t, :community))
+  #   |> where([t, c], c.id == ^community_id and t.thread == ^thread)
+  #   |> distinct([t], t.title)
+  #   |> ORM.paginater(page: page, size: size)
+  #   |> done()
+  # end
 
-  def get_tags(%Community{id: community_id}, thread) when not is_nil(community_id) do
-    # thread = thread |> to_string |> String.upcase()
-    thread = thread |> to_string |> String.downcase()
-
-    Tag
-    |> join(:inner, [t], c in assoc(t, :community))
-    |> where([t, c], c.id == ^community_id and t.thread == ^thread)
-    |> distinct([t], t.title)
-    |> Repo.all()
-    |> done()
-  end
-
-  def get_tags(%Community{raw: community_raw}, thread) do
-    thread = thread |> to_string |> String.downcase()
-
-    result = get_tags_query(community_raw, thread)
-
-    case result do
-      {:ok, []} ->
-        with {:ok, community} <- ORM.find_by(Community, aka: community_raw) do
-          get_tags_query(community.raw, thread)
-        else
-          _ -> {:ok, []}
-        end
-
-      {:ok, ret} ->
-        {:ok, ret}
-
-      {:error, reason} ->
-        {:error, reason}
-    end
-  end
-
-  defp get_tags_query(community_raw, thread) do
-    Tag
-    |> join(:inner, [t], c in assoc(t, :community))
-    |> where([t, c], c.raw == ^community_raw and t.thread == ^thread)
-    |> distinct([t], t.title)
-    |> Repo.all()
-    |> done()
-  end
+  # defp get_tags_query(community_raw, thread) do
+  #   ArticleTag
+  #   |> join(:inner, [t], c in assoc(t, :community))
+  #   |> where([t, c], c.raw == ^community_raw and t.thread == ^thread)
+  #   |> distinct([t], t.title)
+  #   |> Repo.all()
+  #   |> done()
+  # end
 end

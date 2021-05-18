@@ -79,27 +79,17 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.cheatsheet/3)
     end
 
-    # get all tags
-    @desc "get paged tags"
-    field :paged_tags, :paged_tags do
+    @desc "get paged article tags"
+    field :paged_article_tags, :paged_article_tags do
       arg(:filter, non_null(:paged_filter))
 
       middleware(M.PageSizeProof)
-      resolve(&R.CMS.get_tags/3)
-    end
-
-    # TODO: remove
-    field :tags, :paged_tags do
-      arg(:filter, non_null(:paged_filter))
-
-      middleware(M.PageSizeProof)
-      # TODO: should be passport
-      resolve(&R.CMS.get_tags/3)
+      resolve(&R.CMS.get_article_tags/3)
     end
 
     # partial
     @desc "get paged tags belongs to community_id or community"
-    field :partial_tags, list_of(:tag) do
+    field :partial_tags, list_of(:article_tag) do
       arg(:community_id, :id)
       arg(:community, :string)
       arg(:thread, :thread, default_value: :post)

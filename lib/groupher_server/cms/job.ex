@@ -8,7 +8,7 @@ defmodule GroupherServer.CMS.Job do
   import Ecto.Changeset
   import GroupherServer.CMS.Helper.Macros
 
-  alias GroupherServer.{CMS, Accounts}
+  alias GroupherServer.CMS
   alias CMS.{Embeds, Tag}
   alias Helper.HTML
 

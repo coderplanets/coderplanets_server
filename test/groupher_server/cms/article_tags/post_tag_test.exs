@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.CMS do
+defmodule GroupherServer.Test.CMS.ArticleTag.PostTag do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
@@ -12,7 +12,9 @@ defmodule GroupherServer.Test.CMS do
     tag_attrs = mock_attrs(:tag)
     tag_attrs2 = mock_attrs(:tag)
 
-    {:ok, ~m(user community post tag_attrs tag_attrs2)a}
+    post_attrs = mock_attrs(:post)
+
+    {:ok, ~m(user community post post_attrs tag_attrs tag_attrs2)a}
   end
 
   describe "[post tag CURD]" do
@@ -45,7 +47,6 @@ defmodule GroupherServer.Test.CMS do
       assert {:error, _} = ORM.find(ArticleTag, article_tag.id)
     end
 
-    @tag :wip2
     test "assoc tag should be delete after tag deleted",
          ~m(community post tag_attrs tag_attrs2 user)a do
       {:ok, article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)
@@ -72,8 +73,39 @@ defmodule GroupherServer.Test.CMS do
     end
   end
 
-  describe "[post tag set /unset]" do
+  describe "[create/update post with tags]" do
     @tag :wip2
+    test "can create post with exsited article tags",
+         ~m(community user post_attrs tag_attrs tag_attrs2)a do
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)
+      {:ok, article_tag2} = CMS.create_article_tag(community, :post, tag_attrs2, user)
+
+      post_with_tags =
+        Map.merge(post_attrs, %{article_tags: [%{id: article_tag.id}, %{id: article_tag2.id}]})
+
+      {:ok, created} = CMS.create_article(community, :post, post_with_tags, user)
+      {:ok, post} = ORM.find(CMS.Post, created.id, preload: :article_tags)
+
+      assert exist_in?(article_tag, post.article_tags)
+      assert exist_in?(article_tag2, post.article_tags)
+    end
+
+    @tag :wip2
+    test "can not create post with other community's article tags",
+         ~m(community user post_attrs tag_attrs tag_attrs2)a do
+      {:ok, community2} = db_insert(:community)
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)
+      {:ok, article_tag2} = CMS.create_article_tag(community2, :post, tag_attrs2, user)
+
+      post_with_tags =
+        Map.merge(post_attrs, %{article_tags: [%{id: article_tag.id}, %{id: article_tag2.id}]})
+
+      {:error, reason} = CMS.create_article(community, :post, post_with_tags, user)
+      is_error?(reason, :invalid_domain_tag)
+    end
+  end
+
+  describe "[post tag set /unset]" do
     test "can set a tag ", ~m(community post tag_attrs tag_attrs2 user)a do
       {:ok, article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)
       {:ok, article_tag2} = CMS.create_article_tag(community, :post, tag_attrs2, user)
