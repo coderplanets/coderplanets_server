@@ -222,31 +222,9 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     # CMS.unset_tag(thread, %Tag{id: tag_id}, id)
   end
 
-  def paged_article_tags(_root, %{community_id: community_id, all: true}, _info) do
-    CMS.paged_article_tags(%Community{id: community_id})
+  def paged_article_tags(_root, %{filter: filter}, _info) do
+    CMS.paged_article_tags(filter)
   end
-
-  def paged_article_tags(_root, %{community: community, all: true}, _info) do
-    CMS.paged_article_tags(%Community{raw: community})
-  end
-
-  def paged_article_tags(_root, ~m(community_id thread)a, _info) do
-    CMS.paged_article_tags(%Community{id: community_id}, thread)
-  end
-
-  def paged_article_tags(_root, ~m(community thread)a, _info) do
-    CMS.paged_article_tags(%Community{raw: community}, thread)
-  end
-
-  def paged_article_tags(_root, ~m(community_id thread)a, _info) do
-    CMS.paged_article_tags(%Community{id: community_id}, thread)
-  end
-
-  def paged_article_tags(_root, %{thread: _thread}, _info) do
-    {:error, "community_id or community is needed"}
-  end
-
-  def paged_article_tags(_root, ~m(filter)a, _info), do: CMS.paged_article_tags(filter)
 
   # #######################
   # community subscribe ..

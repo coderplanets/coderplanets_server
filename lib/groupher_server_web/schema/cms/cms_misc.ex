@@ -160,6 +160,12 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     field(:sort, :thread_sort_enum)
   end
 
+  input_object :article_tags_filter do
+    field(:community_id, :id)
+    field(:thread, :thread)
+    pagination_args()
+  end
+
   input_object :paged_filter do
     @desc "limit of records (default 20), if first > 30, only return 30 at most"
     pagination_args()

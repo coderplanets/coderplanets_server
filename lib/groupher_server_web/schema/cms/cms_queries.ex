@@ -81,21 +81,10 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
 
     @desc "get paged article tags"
     field :paged_article_tags, :paged_article_tags do
-      arg(:filter, non_null(:paged_filter))
+      arg(:filter, :article_tags_filter)
 
       middleware(M.PageSizeProof)
-      resolve(&R.CMS.get_article_tags/3)
-    end
-
-    # partial
-    @desc "get paged tags belongs to community_id or community"
-    field :partial_tags, list_of(:article_tag) do
-      arg(:community_id, :id)
-      arg(:community, :string)
-      arg(:thread, :thread, default_value: :post)
-      arg(:all, :boolean, default_value: false)
-
-      resolve(&R.CMS.get_tags/3)
+      resolve(&R.CMS.paged_article_tags/3)
     end
 
     @desc "get paged article comments"

@@ -74,7 +74,6 @@ defmodule GroupherServer.Test.CMS.ArticleTag.PostTag do
   end
 
   describe "[create/update post with tags]" do
-    @tag :wip2
     test "can create post with exsited article tags",
          ~m(community user post_attrs tag_attrs tag_attrs2)a do
       {:ok, article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)
@@ -90,7 +89,6 @@ defmodule GroupherServer.Test.CMS.ArticleTag.PostTag do
       assert exist_in?(article_tag2, post.article_tags)
     end
 
-    @tag :wip2
     test "can not create post with other community's article tags",
          ~m(community user post_attrs tag_attrs tag_attrs2)a do
       {:ok, community2} = db_insert(:community)

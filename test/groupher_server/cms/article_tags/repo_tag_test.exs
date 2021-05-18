@@ -74,7 +74,6 @@ defmodule GroupherServer.Test.CMS.ArticleTag.RepoTag do
   end
 
   describe "[create/update repo with tags]" do
-    @tag :wip2
     test "can create repo with exsited article tags",
          ~m(community user post_attrs tag_attrs tag_attrs2)a do
       {:ok, article_tag} = CMS.create_article_tag(community, :repo, tag_attrs, user)
@@ -90,7 +89,6 @@ defmodule GroupherServer.Test.CMS.ArticleTag.RepoTag do
       assert exist_in?(article_tag2, repo.article_tags)
     end
 
-    @tag :wip2
     test "can not create repo with other community's article tags",
          ~m(community user post_attrs tag_attrs tag_attrs2)a do
       {:ok, community2} = db_insert(:community)

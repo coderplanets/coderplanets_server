@@ -91,11 +91,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
     end
   end
 
-  def set_article_tag(thread, article, tag_id) do
+  def set_article_tag(_thread, article, tag_id) do
     article = Repo.preload(article, :article_tags)
 
-    with {:ok, info} <- match(thread),
-         {:ok, article_tag} <- ORM.find(ArticleTag, tag_id) do
+    with {:ok, article_tag} <- ORM.find(ArticleTag, tag_id) do
       do_update_article_tags_assoc(article, article_tag, :add)
     end
   end
@@ -111,7 +110,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
     end
   end
 
-  defp do_update_article_tags_assoc(article, %ArticleTag{} = tag, opt \\ :add) do
+  defp do_update_article_tags_assoc(article, %ArticleTag{} = tag, opt) do
     article_tags =
       case opt do
         :add -> article.article_tags ++ [tag]
@@ -134,23 +133,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
     |> done()
   end
 
-  # def paged_article_tags(filter) when not is_nil(community_id) do
-  #   thread = thread |> to_string |> String.upcase()
-
-  #   ArticleTag
-  #   |> join(:inner, [t], c in assoc(t, :community))
-  #   |> where([t, c], c.id == ^community_id and t.thread == ^thread)
-  #   |> distinct([t], t.title)
-  #   |> ORM.paginater(page: page, size: size)
-  #   |> done()
-  # end
-
-  # defp get_tags_query(community_raw, thread) do
-  #   ArticleTag
-  #   |> join(:inner, [t], c in assoc(t, :community))
-  #   |> where([t, c], c.raw == ^community_raw and t.thread == ^thread)
-  #   |> distinct([t], t.title)
-  #   |> Repo.all()
-  #   |> done()
-  # end
+  # if no page info given, load 100 tags by default
+  def paged_article_tags(filter) do
+    ArticleTag
+    |> QueryBuilder.filter_pack(filter)
+    |> ORM.paginater(%{page: 1, size: 100})
+    |> done()
+  end
 end
