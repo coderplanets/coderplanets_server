@@ -55,10 +55,6 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     value(:tech)
     value(:city)
     value(:share)
-    value(:radar)
-    # city community
-    value(:group)
-    value(:company)
   end
 
   enum :when_enum do

@@ -95,7 +95,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Operation do
 
     @desc "unset a tag to content"
     field :unset_article_tag, :article_tag do
-      # thread id
       arg(:id, non_null(:id))
       arg(:article_tag_id, non_null(:id))
       arg(:community_id, non_null(:id))

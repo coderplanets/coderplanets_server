@@ -38,7 +38,7 @@ defmodule GroupherServer.Test.Query.CMS.ArticleTags do
       }
     }
     """
-    @tag :wip2
+
     test "guest user can get paged tags without filter",
          ~m(guest_conn community tag_attrs tag_attrs2 user)a do
       variables = %{}
@@ -52,7 +52,6 @@ defmodule GroupherServer.Test.Query.CMS.ArticleTags do
       assert results["totalCount"] == 3
     end
 
-    @tag :wip2
     test "guest user can get all paged tags belongs to a community",
          ~m(guest_conn community tag_attrs tag_attrs2 user)a do
       {:ok, _article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)
@@ -66,7 +65,6 @@ defmodule GroupherServer.Test.Query.CMS.ArticleTags do
       assert results["totalCount"] == 3
     end
 
-    @tag :wip2
     test "guest user can get tags by communityId and thread",
          ~m(guest_conn community community2 tag_attrs tag_attrs2 user)a do
       {:ok, article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)

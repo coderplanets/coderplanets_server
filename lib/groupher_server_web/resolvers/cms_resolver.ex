@@ -214,12 +214,12 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.update_article_tag(id, args)
   end
 
-  def set_tag(_root, ~m(thread id tag_id)a, _info) do
-    # CMS.set_tag(thread, %Tag{id: tag_id}, id)
+  def set_article_tag(_root, ~m(id article_tag_id)a, _info) do
+    CMS.set_article_tag(:post, id, article_tag_id)
   end
 
-  def unset_tag(_root, ~m(id thread tag_id)a, _info) do
-    # CMS.unset_tag(thread, %Tag{id: tag_id}, id)
+  def unset_article_tag(_root, ~m(id thread tag_id)a, _info) do
+    CMS.unset_article_tag(thread, id, tag_id)
   end
 
   def paged_article_tags(_root, %{filter: filter}, _info) do
