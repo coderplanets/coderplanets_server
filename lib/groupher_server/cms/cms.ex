@@ -17,6 +17,7 @@ defmodule GroupherServer.CMS do
     ArticleUpvote,
     ArticleCommentAction,
     ArticleCommentEmotion,
+    ArticleTag,
     CommentCURD,
     CommunitySync,
     CommunityCURD,
@@ -43,6 +44,9 @@ defmodule GroupherServer.CMS do
   defdelegate create_thread(attrs), to: CommunityCURD
   defdelegate count(community, part), to: CommunityCURD
   # >> tag
+  defdelegate create_article_tag(community, thread, attrs, user), to: ArticleTag
+  defdelegate update_article_tag(tag_id, attrs), to: ArticleTag
+
   defdelegate create_tag(community, thread, attrs, user), to: CommunityCURD
   defdelegate update_tag(attrs), to: CommunityCURD
   defdelegate get_tags(community, thread), to: CommunityCURD
