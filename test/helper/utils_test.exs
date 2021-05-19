@@ -4,7 +4,6 @@ defmodule GroupherServer.Test.Helper.UtilsTest do
   alias Helper.Utils
 
   describe "map atom value up upcase str" do
-    @tag :wip2
     test "atom value can be convert to upcase str" do
       map = %{
         color: :green,

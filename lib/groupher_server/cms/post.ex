@@ -9,7 +9,7 @@ defmodule GroupherServer.CMS.Post do
   import GroupherServer.CMS.Helper.Macros
 
   alias GroupherServer.CMS
-  alias CMS.{Embeds, PostComment, Tag}
+  alias CMS.{Embeds, PostComment}
 
   alias Helper.HTML
 
@@ -31,18 +31,6 @@ defmodule GroupherServer.CMS.Post do
 
     # TODO: remove after legacy data migrated
     has_many(:comments, {"posts_comments", PostComment})
-
-    # The keys are inflected from the schema names!
-    # see https://hexdocs.pm/ecto/Ecto.Schema.html
-    many_to_many(
-      :tags,
-      Tag,
-      join_through: "posts_tags",
-      join_keys: [post_id: :id, tag_id: :id],
-      # :delete_all will only remove data from the join source
-      on_delete: :delete_all,
-      on_replace: :delete
-    )
 
     article_tags_field(:post)
     article_community_field(:post)

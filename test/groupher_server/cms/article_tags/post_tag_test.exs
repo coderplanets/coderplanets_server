@@ -9,37 +9,42 @@ defmodule GroupherServer.Test.CMS.ArticleTag.PostTag do
     {:ok, user} = db_insert(:user)
     {:ok, post} = db_insert(:post)
     {:ok, community} = db_insert(:community)
-    tag_attrs = mock_attrs(:tag)
-    tag_attrs2 = mock_attrs(:tag)
+    article_tag_attrs = mock_attrs(:article_tag)
+    article_tag_attrs2 = mock_attrs(:article_tag)
 
     post_attrs = mock_attrs(:post)
 
-    {:ok, ~m(user community post post_attrs tag_attrs tag_attrs2)a}
+    {:ok, ~m(user community post post_attrs article_tag_attrs article_tag_attrs2)a}
   end
 
   describe "[post tag CURD]" do
-    test "create article tag with valid data", ~m(community tag_attrs user)a do
-      {:ok, article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)
-      assert article_tag.title == tag_attrs.title
+    test "create article tag with valid data", ~m(community article_tag_attrs user)a do
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
+      assert article_tag.title == article_tag_attrs.title
     end
 
-    test "can update an article tag", ~m(community tag_attrs user)a do
-      {:ok, article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)
+    test "can update an article tag", ~m(community article_tag_attrs user)a do
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
 
-      new_attrs = tag_attrs |> Map.merge(%{title: "new title"})
+      new_attrs = article_tag_attrs |> Map.merge(%{title: "new title"})
 
       {:ok, article_tag} = CMS.update_article_tag(article_tag.id, new_attrs)
       assert article_tag.title == "new title"
     end
 
-    test "create article tag with non-exsit community fails", ~m(tag_attrs user)a do
+    test "create article tag with non-exsit community fails", ~m(article_tag_attrs user)a do
       assert {:error, _} =
-               CMS.create_article_tag(%Community{id: non_exsit_id()}, :post, tag_attrs, user)
+               CMS.create_article_tag(
+                 %Community{id: non_exsit_id()},
+                 :post,
+                 article_tag_attrs,
+                 user
+               )
     end
 
     @tag :wip
-    test "tag can be deleted", ~m(community tag_attrs user)a do
-      {:ok, article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)
+    test "tag can be deleted", ~m(community article_tag_attrs user)a do
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
       {:ok, article_tag} = ORM.find(ArticleTag, article_tag.id)
 
       {:ok, _} = CMS.delete_article_tag(article_tag.id)
@@ -48,9 +53,9 @@ defmodule GroupherServer.Test.CMS.ArticleTag.PostTag do
     end
 
     test "assoc tag should be delete after tag deleted",
-         ~m(community post tag_attrs tag_attrs2 user)a do
-      {:ok, article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)
-      {:ok, article_tag2} = CMS.create_article_tag(community, :post, tag_attrs2, user)
+         ~m(community post article_tag_attrs article_tag_attrs2 user)a do
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
+      {:ok, article_tag2} = CMS.create_article_tag(community, :post, article_tag_attrs2, user)
 
       {:ok, post} = CMS.set_article_tag(:post, post.id, article_tag.id)
       {:ok, post} = CMS.set_article_tag(:post, post.id, article_tag2.id)
@@ -75,9 +80,9 @@ defmodule GroupherServer.Test.CMS.ArticleTag.PostTag do
 
   describe "[create/update post with tags]" do
     test "can create post with exsited article tags",
-         ~m(community user post_attrs tag_attrs tag_attrs2)a do
-      {:ok, article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)
-      {:ok, article_tag2} = CMS.create_article_tag(community, :post, tag_attrs2, user)
+         ~m(community user post_attrs article_tag_attrs article_tag_attrs2)a do
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
+      {:ok, article_tag2} = CMS.create_article_tag(community, :post, article_tag_attrs2, user)
 
       post_with_tags =
         Map.merge(post_attrs, %{article_tags: [%{id: article_tag.id}, %{id: article_tag2.id}]})
@@ -90,10 +95,10 @@ defmodule GroupherServer.Test.CMS.ArticleTag.PostTag do
     end
 
     test "can not create post with other community's article tags",
-         ~m(community user post_attrs tag_attrs tag_attrs2)a do
+         ~m(community user post_attrs article_tag_attrs article_tag_attrs2)a do
       {:ok, community2} = db_insert(:community)
-      {:ok, article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)
-      {:ok, article_tag2} = CMS.create_article_tag(community2, :post, tag_attrs2, user)
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
+      {:ok, article_tag2} = CMS.create_article_tag(community2, :post, article_tag_attrs2, user)
 
       post_with_tags =
         Map.merge(post_attrs, %{article_tags: [%{id: article_tag.id}, %{id: article_tag2.id}]})
@@ -104,9 +109,9 @@ defmodule GroupherServer.Test.CMS.ArticleTag.PostTag do
   end
 
   describe "[post tag set /unset]" do
-    test "can set a tag ", ~m(community post tag_attrs tag_attrs2 user)a do
-      {:ok, article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)
-      {:ok, article_tag2} = CMS.create_article_tag(community, :post, tag_attrs2, user)
+    test "can set a tag ", ~m(community post article_tag_attrs article_tag_attrs2 user)a do
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
+      {:ok, article_tag2} = CMS.create_article_tag(community, :post, article_tag_attrs2, user)
 
       {:ok, post} = CMS.set_article_tag(:post, post.id, article_tag.id)
       assert post.article_tags |> length == 1

@@ -2,7 +2,6 @@ defmodule GroupherServer.Test.Mutation.CMS.Manager do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
-  # alias CMS.{Category, Community, CommunityEditor, Passport, Tag, Thread}
   alias Helper.ORM
 
   setup do
@@ -10,7 +9,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Manager do
     # {:ok, category} = db_insert(:category)
     {:ok, community} = db_insert(:community)
     # {:ok, thread} = db_insert(:thread)
-    {:ok, tag} = db_insert(:tag, %{community: community})
+    {:ok, tag} = db_insert(:article_tag, %{community: community})
     {:ok, user} = db_insert(:user)
 
     user_conn = simu_conn(:user)

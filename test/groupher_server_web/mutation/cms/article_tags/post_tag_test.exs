@@ -15,10 +15,11 @@ defmodule GroupherServer.Test.Mutation.ArticleTags.PostTag do
     user_conn = simu_conn(:user)
     owner_conn = simu_conn(:owner, post)
 
-    tag_attrs = mock_attrs(:tag)
-    tag_attrs2 = mock_attrs(:tag)
+    article_tag_attrs = mock_attrs(:article_tag)
+    article_tag_attrs2 = mock_attrs(:article_tag)
 
-    {:ok, ~m(user_conn guest_conn owner_conn community post tag_attrs tag_attrs2 user)a}
+    {:ok,
+     ~m(user_conn guest_conn owner_conn community post article_tag_attrs article_tag_attrs2 user)a}
   end
 
   describe "[mutation post tag]" do
@@ -30,8 +31,8 @@ defmodule GroupherServer.Test.Mutation.ArticleTags.PostTag do
     }
     """
 
-    test "auth user can set a valid tag to post", ~m(community post tag_attrs user)a do
-      {:ok, article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)
+    test "auth user can set a valid tag to post", ~m(community post article_tag_attrs user)a do
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
 
       passport_rules = %{community.title => %{"post.article_tag.set" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
@@ -59,9 +60,10 @@ defmodule GroupherServer.Test.Mutation.ArticleTags.PostTag do
     }
     """
 
-    test "can unset tag to a post", ~m(community post tag_attrs tag_attrs2 user)a do
-      {:ok, article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)
-      {:ok, article_tag2} = CMS.create_article_tag(community, :post, tag_attrs2, user)
+    test "can unset tag to a post",
+         ~m(community post article_tag_attrs article_tag_attrs2 user)a do
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
+      {:ok, article_tag2} = CMS.create_article_tag(community, :post, article_tag_attrs2, user)
 
       {:ok, _} = CMS.set_article_tag(:post, post.id, article_tag.id)
       {:ok, _} = CMS.set_article_tag(:post, post.id, article_tag2.id)

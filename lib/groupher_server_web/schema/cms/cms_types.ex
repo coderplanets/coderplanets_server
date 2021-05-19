@@ -309,8 +309,8 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
       resolve(&R.CMS.threads_count/3)
     end
 
-    field :tags_count, :integer do
-      resolve(&R.CMS.tags_count/3)
+    field :article_tags_count, :integer do
+      resolve(&R.CMS.article_tags_count/3)
     end
 
     field :contributes_digest, list_of(:integer) do

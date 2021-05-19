@@ -18,7 +18,7 @@ defmodule GroupherServerWeb.Schema.Statistics.Types do
     field(:repos_count, :integer)
 
     field(:categories_count, :integer)
-    field(:tags_count, :integer)
+    field(:article_tags_count, :integer)
     field(:threads_count, :integer)
   end
 end

@@ -107,29 +107,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       assert job.body == assert_v(:xss_safe_string)
     end
 
-    test "can create job with tags" do
-      {:ok, user} = db_insert(:user)
-      user_conn = simu_conn(:user, user)
-
-      {:ok, community} = db_insert(:community)
-      {:ok, tag1} = db_insert(:tag)
-      {:ok, tag2} = db_insert(:tag)
-
-      job_attr = mock_attrs(:job)
-
-      variables =
-        job_attr
-        |> Map.merge(%{communityId: community.id})
-        |> Map.merge(%{companyLogo: job_attr.company_logo})
-        |> Map.merge(%{tags: [%{id: tag1.id}, %{id: tag2.id}]})
-
-      created = user_conn |> mutation_result(@create_job_query, variables, "createJob")
-      {:ok, job} = ORM.find(CMS.Job, created["id"], preload: :tags)
-
-      assert job.tags |> Enum.any?(&(&1.id == tag1.id))
-      assert job.tags |> Enum.any?(&(&1.id == tag2.id))
-    end
-
     test "can create job with mentionUsers" do
       {:ok, user} = db_insert(:user)
       {:ok, user2} = db_insert(:user)
@@ -199,47 +176,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       assert updated["title"] == variables.title
       assert updated["body"] == variables.body
       assert updated["salary"] == variables.salary
-    end
-
-    test "job can be update along with tags(city)", ~m(owner_conn user job)a do
-      unique_num = System.unique_integer([:positive, :monotonic])
-
-      {:ok, community} = db_insert(:community)
-      {:ok, tag} = CMS.create_tag(community, :job, mock_attrs(:tag), user)
-
-      variables = %{
-        id: job.id,
-        title: "updated title #{unique_num}",
-        tags: [%{id: tag.id}]
-      }
-
-      updated = owner_conn |> mutation_result(@query, variables, "updateJob")
-
-      assert updated["title"] == variables.title
-      assert updated["tags"] |> Enum.any?(&(&1["id"] == to_string(tag.id)))
-    end
-
-    test "update job tags will replace old city-tags", ~m(owner_conn user job)a do
-      unique_num = System.unique_integer([:positive, :monotonic])
-
-      {:ok, community} = db_insert(:community)
-      {:ok, community2} = db_insert(:community)
-      {:ok, tag} = CMS.create_tag(community, :job, mock_attrs(:tag), user)
-      {:ok, tag2} = CMS.create_tag(community2, :job, mock_attrs(:tag), user)
-
-      {:ok, _} = CMS.set_tag(:job, tag2, job.id)
-
-      variables = %{
-        id: job.id,
-        title: "updated title #{unique_num}",
-        tags: [%{id: tag.id}]
-      }
-
-      updated = owner_conn |> mutation_result(@query, variables, "updateJob")
-
-      assert updated["title"] == variables.title
-      assert updated["tags"] |> length == 1
-      assert updated["tags"] |> Enum.any?(&(&1["id"] == to_string(tag.id)))
     end
 
     test "login user with auth passport update a job", ~m(job)a do

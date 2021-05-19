@@ -388,7 +388,7 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.count(%Community{id: root.id}, :threads)
   end
 
-  def tags_count(root, _, _) do
-    CMS.count(%Community{id: root.id}, :tags)
+  def article_tags_count(root, _, _) do
+    CMS.count(%Community{id: root.id}, :article_tags)
   end
 end

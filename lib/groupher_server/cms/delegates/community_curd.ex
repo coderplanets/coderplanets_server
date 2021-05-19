@@ -10,16 +10,9 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
 
   alias Helper.ORM
   alias Helper.QueryBuilder
-  alias GroupherServer.{Accounts, Repo}
+  alias GroupherServer.{Accounts, CMS}
 
-  alias GroupherServer.CMS.{
-    Category,
-    Community,
-    CommunityEditor,
-    CommunitySubscriber,
-    Tag,
-    Thread
-  }
+  alias CMS.{ArticleTag, Category, Community, CommunityEditor, CommunitySubscriber, Thread}
 
   @doc """
   return paged community subscribers
@@ -53,30 +46,6 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     with {:ok, _} <- CommunityEditor |> ORM.update_by(clauses, ~m(title)a) do
       Accounts.User |> ORM.find(user_id)
     end
-  end
-
-  @doc """
-  create a Tag base on type: post / tuts ...
-  """
-  def create_tag(%Community{id: community_id}, thread, attrs, %Accounts.User{id: user_id}) do
-    with {:ok, action} <- match_action(thread, :tag),
-         {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}),
-         {:ok, _community} <- ORM.find(Community, community_id) do
-      attrs =
-        attrs
-        |> Map.merge(%{author_id: author.id, community_id: community_id})
-        |> map_atom_value(:string)
-        |> Map.merge(%{thread: thread |> to_string |> String.downcase()})
-
-      action.reactor |> ORM.create(attrs)
-    end
-  end
-
-  def update_tag(%{id: _id} = attrs) do
-    ~m(id title color)a = attrs |> map_atom_value(:string)
-
-    Tag
-    |> ORM.find_update(~m(id title color)a)
   end
 
   def create_category(attrs, %Accounts.User{id: user_id}) do
@@ -128,10 +97,10 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   end
 
   @doc "count the total tags in community"
-  def count(%Community{id: id}, :tags) do
+  def count(%Community{id: id}, :article_tags) do
     with {:ok, community} <- ORM.find(Community, id) do
       result =
-        Tag
+        ArticleTag
         |> where([t], t.community_id == ^community.id)
         |> ORM.paginater(page: 1, size: 1)
 

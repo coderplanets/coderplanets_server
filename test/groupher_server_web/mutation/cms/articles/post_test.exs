@@ -88,28 +88,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert user_conn |> mutation_get_error?(@create_post_query, variables)
     end
 
-    test "can create post with tags" do
-      {:ok, user} = db_insert(:user)
-      user_conn = simu_conn(:user, user)
-
-      {:ok, community} = db_insert(:community)
-      {:ok, tag1} = db_insert(:tag)
-      {:ok, tag2} = db_insert(:tag)
-
-      post_attr = mock_attrs(:post)
-
-      variables =
-        post_attr
-        |> Map.merge(%{communityId: community.id})
-        |> Map.merge(%{tags: [%{id: tag1.id}, %{id: tag2.id}]})
-
-      created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
-      {:ok, post} = ORM.find(CMS.Post, created["id"], preload: :tags)
-
-      assert post.tags |> Enum.any?(&(&1.id == tag1.id))
-      assert post.tags |> Enum.any?(&(&1.id == tag2.id))
-    end
-
     test "can create post with mentionUsers" do
       {:ok, user} = db_insert(:user)
       {:ok, user2} = db_insert(:user)
@@ -212,26 +190,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       }
 
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
-    end
-
-    test "can update post with tags", ~m(owner_conn post)a do
-      {:ok, tag1} = db_insert(:tag)
-      {:ok, tag2} = db_insert(:tag)
-
-      unique_num = System.unique_integer([:positive, :monotonic])
-
-      variables = %{
-        id: post.id,
-        title: "updated title #{unique_num}",
-        tags: [%{id: tag1.id}, %{id: tag2.id}]
-      }
-
-      updated = owner_conn |> mutation_result(@query, variables, "updatePost")
-      {:ok, post} = ORM.find(CMS.Post, updated["id"], preload: :tags)
-      tag_ids = post.tags |> Utils.pick_by(:id)
-
-      assert tag1.id in tag_ids
-      assert tag2.id in tag_ids
     end
 
     test "post can be update by owner", ~m(owner_conn post)a do

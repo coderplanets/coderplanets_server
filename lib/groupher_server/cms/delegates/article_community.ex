@@ -13,7 +13,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
   alias Helper.Types, as: T
   alias Helper.ORM
 
-  alias GroupherServer.CMS.{Embeds, Community, Tag, PinnedArticle}
+  alias GroupherServer.CMS.{Embeds, Community, PinnedArticle}
   alias GroupherServer.Repo
 
   alias Ecto.Multi
@@ -127,47 +127,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
 
   defp result({:ok, %{mirror_target_community: result}}), do: result |> done()
   defp result({:error, _, result, _steps}), do: {:error, result}
-
-  @doc """
-  set general tag for post / tuts ...
-  """
-  # check community first
-  def set_tag(thread, %Tag{id: tag_id}, content_id) do
-    with {:ok, action} <- match_action(thread, :tag),
-         {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
-         {:ok, tag} <- ORM.find(action.reactor, tag_id) do
-      update_content_tag(content, tag)
-
-      # NOTE: this should be control by Middleware
-      # case tag_in_community_thread?(%Community{id: communitId}, thread, tag) do
-      # true ->
-      # content
-      # |> Ecto.Changeset.change()
-      # |> Ecto.Changeset.put_assoc(:tags, content.tags ++ [tag])
-      # |> Repo.update()
-
-      # _ ->
-      # {:error, message: "Tag,Community,Thread not match", code: ecode(:custom)}
-      # end
-    end
-  end
-
-  def unset_tag(thread, %Tag{id: tag_id}, content_id) do
-    with {:ok, action} <- match_action(thread, :tag),
-         {:ok, content} <- ORM.find(action.target, content_id, preload: :tags),
-         {:ok, tag} <- ORM.find(action.reactor, tag_id) do
-      update_content_tag(content, tag, :drop)
-    end
-  end
-
-  defp update_content_tag(content, %Tag{} = tag, opt \\ :add) do
-    new_tags = if opt == :add, do: content.tags ++ [tag], else: content.tags -- [tag]
-
-    content
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_assoc(:tags, new_tags)
-    |> Repo.update()
-  end
 
   @doc "update isEdited meta label if needed"
   # TODO: diff history

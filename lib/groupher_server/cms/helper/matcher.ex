@@ -17,7 +17,6 @@ defmodule GroupherServer.CMS.Helper.Matcher do
     # commtnes reaction
     PostCommentLike,
     #
-    Tag,
     Community
   }
 
@@ -26,13 +25,6 @@ defmodule GroupherServer.CMS.Helper.Matcher do
   #########################################
   def match_action(:post, :self),
     do: {:ok, %{target: Post, reactor: Post, preload: :author}}
-
-  def match_action(:post, :tag), do: {:ok, %{target: Post, reactor: Tag}}
-  # NOTE: the tech, radar, share, city thread also use common tag
-  def match_action(:radar, :tag), do: {:ok, %{target: Post, reactor: Tag}}
-  def match_action(:share, :tag), do: {:ok, %{target: Post, reactor: Tag}}
-  def match_action(:city, :tag), do: {:ok, %{target: Post, reactor: Tag}}
-  def match_action(:tech, :tag), do: {:ok, %{target: Post, reactor: Tag}}
 
   def match_action(:post, :community),
     do: {:ok, %{target: Post, reactor: Community}}
@@ -52,8 +44,6 @@ defmodule GroupherServer.CMS.Helper.Matcher do
   def match_action(:job, :community),
     do: {:ok, %{target: Job, reactor: Community}}
 
-  def match_action(:job, :tag), do: {:ok, %{target: Job, reactor: Tag}}
-
   #########################################
   ## repos ...
   #########################################
@@ -62,8 +52,6 @@ defmodule GroupherServer.CMS.Helper.Matcher do
 
   def match_action(:repo, :community),
     do: {:ok, %{target: Repo, reactor: Community}}
-
-  def match_action(:repo, :tag), do: {:ok, %{target: Repo, reactor: Tag}}
 
   # dynamic where query match
   def dynamic_where(thread, id) do

@@ -20,7 +20,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
         id
         title
         threadsCount
-        tagsCount
+        articleTagsCount
         threads {
           id
           raw
@@ -66,16 +66,17 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       assert results["threadsCount"] == 5
     end
 
+    @tag :wip2
     test "can get tags count ", ~m(community guest_conn user)a do
-      {:ok, _tags} = db_insert_multi(:tag, 5)
-
-      CMS.create_tag(community, :post, mock_attrs(:tag), user)
-      CMS.create_tag(community, :post, mock_attrs(:tag), user)
+      article_tag_attrs = mock_attrs(:article_tag)
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
+      article_tag_attrs = mock_attrs(:article_tag)
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
 
       variables = %{raw: community.raw}
       results = guest_conn |> query_result(@query, variables, "community")
 
-      assert results["tagsCount"] == 2
+      assert results["articleTagsCount"] == 2
     end
 
     test "guest use get community threads with default asc sort index",

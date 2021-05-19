@@ -13,12 +13,12 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
     {:ok, thread} = db_insert(:thread)
     {:ok, user} = db_insert(:user)
 
-    tag_attrs = mock_attrs(:tag)
+    article_tag_attrs = mock_attrs(:article_tag)
 
     user_conn = simu_conn(:user)
     guest_conn = simu_conn(:guest)
 
-    {:ok, ~m(user_conn guest_conn community thread user tag_attrs)a}
+    {:ok, ~m(user_conn guest_conn community thread user article_tag_attrs)a}
   end
 
   describe "[mutation cms tag]" do
@@ -37,7 +37,7 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
       }
     }
     """
-    @tag :wip2
+
     test "create tag with valid attrs, has default POST thread and default posts",
          ~m(community)a do
       variables = %{
@@ -61,7 +61,6 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
       assert belong_community["id"] == to_string(community.id)
     end
 
-    @tag :wip2
     test "unauth user create tag fails", ~m(community user_conn guest_conn)a do
       variables = %{
         title: "tag title",
@@ -89,9 +88,9 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
       }
     }
     """
-    @tag :wip2
-    test "auth user can update a tag", ~m(tag_attrs community user)a do
-      {:ok, article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)
+
+    test "auth user can update a tag", ~m(article_tag_attrs community user)a do
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
 
       variables = %{
         id: article_tag.id,
@@ -116,9 +115,9 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
       }
     }
     """
-    @tag :wip2
-    test "auth user can delete tag", ~m(tag_attrs community user)a do
-      {:ok, article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)
+
+    test "auth user can delete tag", ~m(article_tag_attrs community user)a do
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
 
       variables = %{id: article_tag.id, communityId: community.id}
 
@@ -132,9 +131,9 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
       assert deleted["id"] == to_string(article_tag.id)
     end
 
-    @tag :wip2
-    test "unauth user delete tag fails", ~m(tag_attrs community user_conn guest_conn user)a do
-      {:ok, article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)
+    test "unauth user delete tag fails",
+         ~m(article_tag_attrs community user_conn guest_conn user)a do
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
 
       variables = %{id: article_tag.id, communityId: community.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})

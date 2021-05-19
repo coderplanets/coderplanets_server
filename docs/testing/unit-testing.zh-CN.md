@@ -1,4 +1,3 @@
-
 ### 单元测试
 
 单元测试部分全部位于 `test/groupher_server/` 目录下, 按照接口的 Context 分为
@@ -7,13 +6,13 @@
 accounts   billing    cms        delivery   logs       seeds      statistics
 ```
 
-> Phoenix 使用 ExUnit(link) 作为测试模块，测试文件必须以 '_test.exs' 作为结尾，否则会被忽略。
+> Phoenix 使用 ExUnit(link) 作为测试模块，测试文件必须以 '\_test.exs' 作为结尾，否则会被忽略。
 
 #### 运行测试
 
 在项目根目录执行 `make test` 即可运行所有测试, 你也可以使用 `make test.watch` 或
 `make test.watch.wip` 以 watch mode 运行全部或其中一部分测试。 更多命令可以使用
-`make test.help` 查看: 
+`make test.help` 查看:
 
 ```text
 
@@ -38,7 +37,7 @@ accounts   billing    cms        delivery   logs       seeds      statistics
 
 #### Helper 函数
 
-以一个实际例子作为说明: 
+以一个实际例子作为说明:
 
 ```elixir
 defmodule GroupherServer.Test.CMS do
@@ -60,9 +59,9 @@ defmodule GroupherServer.Test.CMS do
 
   describe "[cms tag]" do
     test "create tag with valid data", ~m(community user)a do
-      valid_attrs = mock_attrs(:tag)
+      valid_attrs = mock_attrs(:article_tag)
 
-      {:ok, tag} = CMS.create_tag(community, :post, valid_attrs, %User{id: user.id})
+      {:ok, tag} = CMS.create_article_tag(community, :post, valid_attrs, %User{id: user.id})
       assert tag.title == valid_attrs.title
     end
   end
@@ -81,8 +80,3 @@ use GroupherServer.TestTools
 3. 这里测试的都是 `lib/groupher_server` 下的模块，不涉及 Graphql
 
 4. 更多的技巧你可以参照文档或现有的测试用例，通常它们都浅显易懂。
-
-
-
-
-

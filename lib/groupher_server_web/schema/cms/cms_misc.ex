@@ -174,7 +174,7 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     field(:first, :integer)
 
     @desc "Matching a tag"
-    field(:tag, :string, default_value: :all)
+    field(:article_tag, :string)
     # field(:sort, :sort_input)
     field(:when, :when_enum)
     field(:sort, :sort_enum)
