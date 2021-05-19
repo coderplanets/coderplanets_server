@@ -4,6 +4,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
   """
   import Ecto.Query, warn: false
   import GroupherServer.CMS.Helper.Matcher2
+  import Helper.Validator.Guards, only: [g_is_id: 1]
   import Helper.Utils, only: [done: 1]
   import GroupherServer.CMS.Delegate.ArticleCURD, only: [ensure_author_exists: 1]
   import ShortMaps
@@ -83,7 +84,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
   @doc """
   set article a tag
   """
-  def set_article_tag(thread, article_id, tag_id) when is_binary(article_id) do
+  def set_article_tag(thread, article_id, tag_id) when g_is_id(article_id) do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, article_id, preload: :article_tags),
          {:ok, article_tag} <- ORM.find(ArticleTag, tag_id) do
