@@ -2,7 +2,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleUpvote do
   @moduledoc """
   reaction[upvote, collect, watch ...] on article [post, job...]
   """
-  import GroupherServer.CMS.Helper.Matcher2
+  import GroupherServer.CMS.Helper.Matcher
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1]
 

@@ -2,12 +2,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
   @moduledoc """
   set / unset operations for Article-like resource
   """
-  import GroupherServer.CMS.Helper.Matcher2
+  import GroupherServer.CMS.Helper.Matcher
   import Ecto.Query, warn: false
 
   import Helper.ErrorCode
   import Helper.Utils, only: [strip_struct: 1, done: 1]
-  import GroupherServer.CMS.Helper.Matcher2
+  import GroupherServer.CMS.Helper.Matcher
 
   alias Helper.Types, as: T
   alias Helper.ORM

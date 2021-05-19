@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   import Helper.ErrorCode
 
   import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 3]
-  import GroupherServer.CMS.Helper.Matcher2
+  import GroupherServer.CMS.Helper.Matcher
   import ShortMaps
 
   alias Helper.Types, as: T

@@ -4,7 +4,7 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   """
   import Helper.Utils, only: [get_config: 2, done: 1, strip_struct: 1]
   import Ecto.Query, warn: false
-  import GroupherServer.CMS.Helper.Matcher2
+  import GroupherServer.CMS.Helper.Matcher
   import ShortMaps
 
   alias Helper.{ORM, QueryBuilder}

@@ -4,7 +4,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   """
   import Ecto.Query, warn: false
 
-  import GroupherServer.CMS.Helper.Matcher2
+  import GroupherServer.CMS.Helper.Matcher
 
   import Helper.Utils,
     only: [done: 1, pick_by: 2, integerfy: 1, strip_struct: 1, module_to_thread: 1]
