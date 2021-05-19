@@ -66,7 +66,6 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       assert results["threadsCount"] == 5
     end
 
-    @tag :wip2
     test "can get tags count ", ~m(community guest_conn user)a do
       article_tag_attrs = mock_attrs(:article_tag)
       {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)

@@ -48,7 +48,7 @@ defmodule GroupherServer.Test.Query.Flags.PostsFlags do
       }
     }
     """
-
+    @tag :wip
     test "if have pinned posts, the pinned posts should at the top of entries",
          ~m(guest_conn community post_m)a do
       variables = %{filter: %{community: community.raw}}

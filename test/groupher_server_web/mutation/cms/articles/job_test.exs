@@ -32,7 +32,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       $scale: String!,
       $field: String!,
       $mentionUsers: [Ids],
-      $tags: [Ids]
+      $articleTags: [Ids]
      ) {
       createJob(
         title: $title,
@@ -49,7 +49,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
         scale: $scale,
         field: $field,
         mentionUsers: $mentionUsers,
-        tags: $tags
+        articleTags: $articleTags
         ) {
           id
           title
@@ -136,8 +136,8 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
     end
 
     @query """
-    mutation($id: ID!, $title: String, $body: String, $salary: String, $tags: [Ids]){
-      updateJob(id: $id, title: $title, body: $body, salary: $salary, tags: $tags) {
+    mutation($id: ID!, $title: String, $body: String, $salary: String, $articleTags: [Ids]){
+      updateJob(id: $id, title: $title, body: $body, salary: $salary, articleTags: $articleTags) {
         id
         title
         body

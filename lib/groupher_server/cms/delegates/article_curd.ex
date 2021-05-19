@@ -70,7 +70,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
     with {:ok, info} <- match(thread) do
       info.model
-      # TODO: trash -> mark_delete
       |> domain_filter_query(filter)
       |> QueryBuilder.filter_pack(Map.merge(filter, %{mark_delete: false}))
       |> ORM.paginater(~m(page size)a)
@@ -311,7 +310,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp add_pin_articles_ifneed(articles, _querable, _filter), do: articles
 
   # if filter contains like: tags, sort.., then don't add pin article
-  defp should_add_pin?(%{page: 1, tag: :all, sort: :desc_inserted} = _filter) do
+  # TODO: tag
+  # defp should_add_pin?(%{page: 1, article_tag: :all, sort: :desc_inserted} = _filter) do
+  defp should_add_pin?(%{page: 1, sort: :desc_inserted} = _filter) do
     {:ok, :pass}
   end
 

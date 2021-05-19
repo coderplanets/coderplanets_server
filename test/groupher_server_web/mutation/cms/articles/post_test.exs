@@ -23,7 +23,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       $digest: String!
       $length: Int!
       $communityId: ID!
-      $tags: [Ids]
+      $articleTags: [Ids]
       $mentionUsers: [Ids]
     ) {
       createPost(
@@ -32,7 +32,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
         digest: $digest
         length: $length
         communityId: $communityId
-        tags: $tags
+        articleTags: $articleTags
         mentionUsers: $mentionUsers
       ) {
         title
@@ -164,8 +164,8 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
     end
 
     @query """
-    mutation($id: ID!, $title: String, $body: String, $copyRight: String, $tags: [Ids]){
-      updatePost(id: $id, title: $title, body: $body, copyRight: $copyRight, tags: $tags) {
+    mutation($id: ID!, $title: String, $body: String, $copyRight: String, $articleTags: [Ids]){
+      updatePost(id: $id, title: $title, body: $body, copyRight: $copyRight, articleTags: $articleTags) {
         id
         title
         body

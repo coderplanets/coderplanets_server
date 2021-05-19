@@ -23,7 +23,7 @@ defmodule GroupherServer.Test.Mutation.Statistics do
       $digest: String!
       $length: Int!
       $communityId: ID!
-      $tags: [Ids]
+      $articleTags: [Ids]
     ) {
       createPost(
         title: $title
@@ -31,7 +31,7 @@ defmodule GroupherServer.Test.Mutation.Statistics do
         digest: $digest
         length: $length
         communityId: $communityId
-        tags: $tags
+        articleTags: $articleTags
       ) {
         title
         body
@@ -39,6 +39,7 @@ defmodule GroupherServer.Test.Mutation.Statistics do
       }
     }
     """
+    @tag :wip2
     test "user should have contribute list after create a post", ~m(user_conn user community)a do
       post_attr = mock_attrs(:post)
       variables = post_attr |> Map.merge(%{communityId: community.id})
@@ -75,7 +76,7 @@ defmodule GroupherServer.Test.Mutation.Statistics do
       $finance: String!,
       $scale: String!,
       $field: String!,
-      $tags: [Ids]
+      $articleTags: [Ids]
     ) {
       createJob(
         title: $title,
@@ -91,7 +92,7 @@ defmodule GroupherServer.Test.Mutation.Statistics do
         finance: $finance,
         scale: $scale,
         field: $field,
-        tags: $tags
+        articleTags: $articleTags
       ) {
         id
         title
@@ -136,7 +137,7 @@ defmodule GroupherServer.Test.Mutation.Statistics do
       $primaryLanguage: RepoLangInput,
       $contributors: [RepoContributorInput],
       $communityId: ID!,
-      $tags: [Ids]
+      $articleTags: [Ids]
     ) {
       createRepo(
         title: $title,
@@ -156,7 +157,7 @@ defmodule GroupherServer.Test.Mutation.Statistics do
         releaseTag: $releaseTag,
         contributors: $contributors,
         communityId: $communityId,
-        tags: $tags
+        articleTags: $articleTags
       ) {
         id
         title
