@@ -337,6 +337,8 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:title, :string)
     field(:color, :string)
     field(:thread, :string)
+    field(:group, :string)
+
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:community, :community, resolve: dataloader(CMS, :community))
 

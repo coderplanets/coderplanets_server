@@ -11,13 +11,15 @@ defmodule GroupherServer.CMS.ArticleTag do
   alias CMS.{Author, Community}
 
   @required_fields ~w(thread title color author_id community_id)a
-  @updatable_fields ~w(thread title color community_id)a
+  @updatable_fields ~w(thread title color community_id group)a
 
   @type t :: %ArticleTag{}
   schema "article_tags" do
     field(:title, :string)
     field(:color, :string)
     field(:thread, :string)
+    field(:group, :string)
+
     belongs_to(:community, Community)
     belongs_to(:author, Author)
 
@@ -26,7 +28,7 @@ defmodule GroupherServer.CMS.ArticleTag do
 
   def changeset(%ArticleTag{} = tag, attrs) do
     tag
-    |> cast(attrs, @required_fields)
+    |> cast(attrs, @required_fields ++ @updatable_fields)
     |> validate_required(@required_fields)
     |> foreign_key_constraint(:user_id)
     |> foreign_key_constraint(:community_id)

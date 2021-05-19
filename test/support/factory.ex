@@ -197,6 +197,7 @@ defmodule GroupherServer.Support.Factory do
       title: "#{Faker.Pizza.cheese()} #{unique_num}",
       thread: "POST",
       color: "YELLOW",
+      group: "cool",
       # community: Faker.Pizza.topping(),
       community: mock(:community),
       author: mock(:author)

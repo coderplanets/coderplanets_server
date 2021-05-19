@@ -131,6 +131,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Community do
       arg(:title, non_null(:string))
       arg(:color, non_null(:rainbow_color))
       arg(:community_id, non_null(:id))
+      arg(:group, :string)
       arg(:thread, :thread, default_value: :post)
 
       middleware(M.Authorize, :login)
@@ -146,6 +147,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Community do
       arg(:community_id, non_null(:id))
       arg(:title, :string)
       arg(:color, :rainbow_color)
+      arg(:group, :string)
       arg(:thread, :thread, default_value: :post)
 
       middleware(M.Authorize, :login)

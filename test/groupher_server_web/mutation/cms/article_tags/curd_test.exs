@@ -23,8 +23,8 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
 
   describe "[mutation cms tag]" do
     @create_tag_query """
-    mutation($thread: Thread!, $title: String!, $color: RainbowColor!, $communityId: ID!) {
-      createArticleTag(thread: $thread, title: $title, color: $color, communityId: $communityId) {
+    mutation($thread: Thread!, $title: String!, $color: RainbowColor!, $group: String, $communityId: ID!) {
+      createArticleTag(thread: $thread, title: $title, color: $color, group: $group, communityId: $communityId) {
         id
         title
         color
@@ -37,14 +37,15 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
       }
     }
     """
-
+    @tag :wip2
     test "create tag with valid attrs, has default POST thread and default posts",
          ~m(community)a do
       variables = %{
         title: "tag title",
         communityId: community.id,
         thread: "POST",
-        color: "GREEN"
+        color: "GREEN",
+        group: "awesome"
       }
 
       passport_rules = %{community.title => %{"post.article_tag.create" => true}}
@@ -58,6 +59,7 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
 
       assert created["id"] == to_string(found.id)
       assert found.thread == "POST"
+      assert found.group == "awesome"
       assert belong_community["id"] == to_string(community.id)
     end
 

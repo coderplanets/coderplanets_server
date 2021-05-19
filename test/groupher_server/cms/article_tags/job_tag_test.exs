@@ -21,6 +21,7 @@ defmodule GroupherServer.Test.CMS.ArticleTag.JobTag do
     test "create article tag with valid data", ~m(community article_tag_attrs user)a do
       {:ok, article_tag} = CMS.create_article_tag(community, :job, article_tag_attrs, user)
       assert article_tag.title == article_tag_attrs.title
+      assert article_tag.group == article_tag_attrs.group
     end
 
     test "can update an article tag", ~m(community article_tag_attrs user)a do
