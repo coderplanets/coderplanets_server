@@ -49,6 +49,7 @@ defmodule GroupherServer.Test.Query.Accounts.CollectedArticles do
     assert results2 |> is_valid_pagination?()
   end
 
+  @tag :wip2
   test "other user can get other user's paged collect folders filter by thread",
        ~m(guest_conn)a do
     {:ok, user} = db_insert(:user)

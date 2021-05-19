@@ -51,7 +51,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
       }
     }
     """
-    @tag :wip2
+
     test "should get pagination info", ~m(guest_conn)a do
       variables = %{filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedRepos")

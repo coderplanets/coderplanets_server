@@ -195,7 +195,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
     end
 
-    @tag :wip2
     test "post can be update by owner", ~m(owner_conn post)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
