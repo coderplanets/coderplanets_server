@@ -38,7 +38,7 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
       }
     }
     """
-    @tag :wip2
+
     test "create tag with valid attrs, has default POST thread and default posts",
          ~m(community)a do
       variables = %{

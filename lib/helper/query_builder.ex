@@ -174,7 +174,6 @@ defmodule Helper.QueryBuilder do
       {_, :all}, queryable ->
         queryable
 
-      # TODO: use raw instead title
       {:article_tag, tag_name}, queryable ->
         from(
           q in queryable,
@@ -189,16 +188,16 @@ defmodule Helper.QueryBuilder do
           where: t.raw == ^catetory_raw
         )
 
+      {:thread, thread}, queryable ->
+        thread = thread |> to_string |> String.upcase()
+        from(q in queryable, where: q.thread == ^thread)
+
       {:community_id, community_id}, queryable ->
         from(
           q in queryable,
           join: t in assoc(q, :community),
           where: t.id == ^community_id
         )
-
-      {:thread, thread}, queryable ->
-        thread = thread |> to_string |> String.upcase()
-        from(q in queryable, where: q.thread == ^thread)
 
       {:community, community_raw}, queryable ->
         from(

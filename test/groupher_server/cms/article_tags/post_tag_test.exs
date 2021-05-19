@@ -18,7 +18,6 @@ defmodule GroupherServer.Test.CMS.ArticleTag.PostTag do
   end
 
   describe "[post tag CURD]" do
-    @tag :wip2
     test "create article tag with valid data", ~m(community article_tag_attrs user)a do
       {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
       assert article_tag.title == article_tag_attrs.title

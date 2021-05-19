@@ -46,6 +46,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
         entries {
           id
           communities {
+            id
             raw
           }
           articleTags {
@@ -59,7 +60,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       }
     }
     """
-
     test "should get pagination info", ~m(guest_conn)a do
       variables = %{filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
@@ -68,6 +68,39 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       assert results["pageSize"] == 10
       assert results["totalCount"] == @total_count
       assert results["entries"] |> List.first() |> Map.get("articleTags") |> is_list
+    end
+
+    test "support article_tag filter", ~m(guest_conn user)a do
+      {:ok, community} = db_insert(:community)
+      post_attrs = mock_attrs(:post, %{community_id: community.id})
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+
+      article_tag_attrs = mock_attrs(:article_tag)
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
+      {:ok, _} = CMS.set_article_tag(:post, post.id, article_tag.id)
+
+      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.title}}
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+
+      post = results["entries"] |> List.first()
+      assert results["totalCount"] == 1
+      assert exist_in?(article_tag, post["articleTags"], :string_key)
+    end
+
+    test "support community filter", ~m(guest_conn user)a do
+      {:ok, community} = db_insert(:community)
+
+      post_attrs = mock_attrs(:post, %{community_id: community.id})
+      {:ok, _post} = CMS.create_article(community, :post, post_attrs, user)
+      post_attrs2 = mock_attrs(:post, %{community_id: community.id})
+      {:ok, _post} = CMS.create_article(community, :post, post_attrs2, user)
+
+      variables = %{filter: %{page: 1, size: 10, community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+
+      post = results["entries"] |> List.first()
+      assert results["totalCount"] == 2
+      assert exist_in?(%{id: to_string(community.id)}, post["communities"], :string_key)
     end
 
     test "request large size fails", ~m(guest_conn)a do
