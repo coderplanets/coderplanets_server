@@ -29,6 +29,7 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
         title
         color
         thread
+        group
         community {
           id
           logo
