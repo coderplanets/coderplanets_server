@@ -41,7 +41,7 @@ defmodule GroupherServer.CMS.Job do
     field(:length, :integer)
 
     article_tags_field(:job)
-    article_community_field(:job)
+    article_communities_field(:job)
     general_article_fields()
   end
 

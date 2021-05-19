@@ -228,7 +228,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
 
   create(unique_index(:communities_[article]s, [:community_id, :[article]_id]))
   """
-  defmacro article_community_field(thread) do
+  defmacro article_communities_field(thread) do
     quote do
       many_to_many(
         :communities,

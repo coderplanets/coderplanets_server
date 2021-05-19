@@ -42,7 +42,7 @@ defmodule GroupherServer.CMS.Repo do
     field(:last_sync, :utc_datetime)
 
     article_tags_field(:repo)
-    article_community_field(:repo)
+    article_communities_field(:repo)
     general_article_fields()
   end
 

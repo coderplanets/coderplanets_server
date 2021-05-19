@@ -33,7 +33,7 @@ defmodule GroupherServer.CMS.Post do
     has_many(:comments, {"posts_comments", PostComment})
 
     article_tags_field(:post)
-    article_community_field(:post)
+    article_communities_field(:post)
     general_article_fields()
   end
 
