@@ -206,12 +206,12 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.create_article_tag(%Community{id: community_id}, thread, args, user)
   end
 
-  def delete_article_tag(_root, %{id: id}, _info) do
-    CMS.delete_article_tag(id)
-  end
-
   def update_article_tag(_root, %{id: id} = args, _info) do
     CMS.update_article_tag(id, args)
+  end
+
+  def delete_article_tag(_root, %{id: id}, _info) do
+    CMS.delete_article_tag(id)
   end
 
   def set_article_tag(_root, ~m(id thread article_tag_id)a, _info) do

@@ -6,7 +6,7 @@ defmodule GroupherServer.CMS.ArticleTag do
   import Ecto.Changeset
 
   alias GroupherServer.CMS
-  alias CMS.{Author, Community, Job, Post}
+  alias CMS.{Author, Community}
 
   @required_fields ~w(thread title color author_id community_id)a
   @updatable_fields ~w(thread title color community_id)a
@@ -18,21 +18,6 @@ defmodule GroupherServer.CMS.ArticleTag do
     field(:thread, :string)
     belongs_to(:community, Community)
     belongs_to(:author, Author)
-
-    # many_to_many(
-    #   :posts,
-    #   Post,
-    #   join_through: "posts_tags",
-    #   join_keys: [post_id: :id, tag_id: :id],
-    #   on_delete: :delete_all
-    # )
-
-    # many_to_many(
-    #   :jobs,
-    #   Job,
-    #   join_through: "jobs_tags",
-    #   join_keys: [job_id: :id, tag_id: :id]
-    # )
 
     timestamps(type: :utc_datetime)
   end

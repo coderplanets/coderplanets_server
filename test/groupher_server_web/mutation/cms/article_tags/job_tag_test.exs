@@ -29,7 +29,7 @@ defmodule GroupherServer.Test.Mutation.ArticleTags.JobTag do
       }
     }
     """
-    @tag :wip2
+
     test "auth user can set a valid tag to job", ~m(community job tag_attrs user)a do
       {:ok, article_tag} = CMS.create_article_tag(community, :job, tag_attrs, user)
 
@@ -58,7 +58,7 @@ defmodule GroupherServer.Test.Mutation.ArticleTags.JobTag do
       }
     }
     """
-    @tag :wip2
+
     test "can unset tag to a job", ~m(community job tag_attrs tag_attrs2 user)a do
       {:ok, article_tag} = CMS.create_article_tag(community, :job, tag_attrs, user)
       {:ok, article_tag2} = CMS.create_article_tag(community, :job, tag_attrs2, user)

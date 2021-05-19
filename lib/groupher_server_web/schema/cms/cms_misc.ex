@@ -108,7 +108,7 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     value(:least_words)
   end
 
-  enum :rainbow_color_enum do
+  enum :rainbow_color do
     value(:red)
     value(:orange)
     value(:yellow)

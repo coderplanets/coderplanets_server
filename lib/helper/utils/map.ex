@@ -1,7 +1,25 @@
 defmodule Helper.Utils.Map do
   @moduledoc """
-  unitil functions
+  utils functions for map structure
   """
+  @doc """
+  map atom value to upcase string
+
+  e.g:
+  %{hello: :world} # -> %{hello: "WORLD"}
+  """
+  def map_atom_values_to_upcase_str(map) when is_map(map) do
+    map
+    |> Enum.reduce(%{}, fn {key, val}, acc ->
+      case is_atom(val) do
+        true -> Map.put(acc, key, val |> to_string |> String.upcase())
+        false -> Map.put(acc, key, val)
+      end
+    end)
+  end
+
+  def map_atom_values_to_upcase_str(value), do: value
+
   def map_key_stringify(%{__struct__: _} = map) when is_map(map) do
     map = Map.from_struct(map)
     map |> Enum.reduce(%{}, fn {key, val}, acc -> Map.put(acc, to_string(key), val) end)
