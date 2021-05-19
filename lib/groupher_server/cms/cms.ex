@@ -51,9 +51,6 @@ defmodule GroupherServer.CMS do
   defdelegate unset_article_tag(thread, article_id, tag_id), to: ArticleTag
   defdelegate paged_article_tags(filter), to: ArticleTag
 
-  defdelegate create_tag(community, thread, attrs, user), to: CommunityCURD
-  defdelegate update_tag(attrs), to: CommunityCURD
-
   # >> wiki & cheatsheet (sync with github)
   defdelegate get_wiki(community), to: CommunitySync
   defdelegate get_cheatsheet(community), to: CommunitySync
@@ -113,9 +110,6 @@ defmodule GroupherServer.CMS do
   defdelegate undo_pin_article(thread, id, community_id), to: ArticleCommunity
   defdelegate lock_article_comment(article), to: ArticleCommunity
 
-  # >> tag: set / unset
-  defdelegate set_tag(thread, tag, content_id), to: ArticleCommunity
-  defdelegate unset_tag(thread, tag, content_id), to: ArticleCommunity
   # >> community: set / unset
   defdelegate mirror_article(thread, article_id, community_id), to: ArticleCommunity
   defdelegate unmirror_article(thread, article_id, community_id), to: ArticleCommunity

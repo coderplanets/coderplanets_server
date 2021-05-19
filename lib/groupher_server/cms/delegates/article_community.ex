@@ -2,7 +2,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
   @moduledoc """
   set / unset operations for Article-like resource
   """
-  import GroupherServer.CMS.Helper.Matcher
   import GroupherServer.CMS.Helper.Matcher2
   import Ecto.Query, warn: false
 

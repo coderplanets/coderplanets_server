@@ -3,8 +3,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   community curd
   """
   import Ecto.Query, warn: false
-  import GroupherServer.CMS.Helper.Matcher
-  import Helper.Utils, only: [done: 1, map_atom_value: 2]
+  import Helper.Utils, only: [done: 1]
   import GroupherServer.CMS.Delegate.ArticleCURD, only: [ensure_author_exists: 1]
   import ShortMaps
 
