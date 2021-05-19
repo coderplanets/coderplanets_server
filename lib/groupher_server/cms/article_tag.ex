@@ -3,6 +3,8 @@ defmodule GroupherServer.CMS.ArticleTag do
   alias __MODULE__
 
   use Ecto.Schema
+  use Accessible
+
   import Ecto.Changeset
 
   alias GroupherServer.CMS

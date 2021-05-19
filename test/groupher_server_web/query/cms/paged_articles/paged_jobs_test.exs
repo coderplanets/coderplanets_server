@@ -44,6 +44,9 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       pagedJobs(filter: $filter) {
         entries {
           id
+          articleTags {
+            id
+          }
         }
         totalPages
         totalCount
@@ -52,6 +55,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       }
     }
     """
+    @tag :wip2
     test "should get pagination info", ~m(guest_conn)a do
       variables = %{filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
@@ -59,6 +63,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert results |> is_valid_pagination?
       assert results["pageSize"] == 10
       assert results["totalCount"] == @total_count
+      assert results["entries"] |> List.first() |> Map.get("articleTags") |> is_list
     end
 
     test "request large size fails", ~m(guest_conn)a do

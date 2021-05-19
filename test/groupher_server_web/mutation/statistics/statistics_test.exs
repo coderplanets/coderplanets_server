@@ -39,7 +39,6 @@ defmodule GroupherServer.Test.Mutation.Statistics do
       }
     }
     """
-    @tag :wip2
     test "user should have contribute list after create a post", ~m(user_conn user community)a do
       post_attr = mock_attrs(:post)
       variables = post_attr |> Map.merge(%{communityId: community.id})
