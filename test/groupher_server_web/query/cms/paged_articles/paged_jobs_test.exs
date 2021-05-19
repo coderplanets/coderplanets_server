@@ -44,6 +44,13 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       pagedJobs(filter: $filter) {
         entries {
           id
+          communities {
+            id
+            raw
+          }
+          articleTags {
+            id
+          }
         }
         totalPages
         totalCount
@@ -59,6 +66,42 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert results |> is_valid_pagination?
       assert results["pageSize"] == 10
       assert results["totalCount"] == @total_count
+      assert results["entries"] |> List.first() |> Map.get("articleTags") |> is_list
+    end
+
+    @tag :wip2
+    test "support article_tag filter", ~m(guest_conn user)a do
+      {:ok, community} = db_insert(:community)
+      job_attrs = mock_attrs(:job, %{community_id: community.id})
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
+
+      article_tag_attrs = mock_attrs(:article_tag)
+      {:ok, article_tag} = CMS.create_article_tag(community, :job, article_tag_attrs, user)
+      {:ok, _} = CMS.set_article_tag(:job, job.id, article_tag.id)
+
+      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.title}}
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+
+      job = results["entries"] |> List.first()
+      assert results["totalCount"] == 1
+      assert exist_in?(article_tag, job["articleTags"], :string_key)
+    end
+
+    @tag :wip2
+    test "support community filter", ~m(guest_conn user)a do
+      {:ok, community} = db_insert(:community)
+
+      job_attrs = mock_attrs(:job, %{community_id: community.id})
+      {:ok, _job} = CMS.create_article(community, :job, job_attrs, user)
+      job_attrs2 = mock_attrs(:job, %{community_id: community.id})
+      {:ok, _job} = CMS.create_article(community, :job, job_attrs2, user)
+
+      variables = %{filter: %{page: 1, size: 10, community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+
+      job = results["entries"] |> List.first()
+      assert results["totalCount"] == 2
+      assert exist_in?(%{id: to_string(community.id)}, job["communities"], :string_key)
     end
 
     test "request large size fails", ~m(guest_conn)a do

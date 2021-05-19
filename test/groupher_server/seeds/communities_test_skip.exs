@@ -54,33 +54,6 @@ defmodule GroupherServer.Test.Seeds.Communities do
       assert length(found.threads) == 7
     end
 
-    test "seeded general community has general tags" do
-      CMS.seed_communities(:pl)
-      {:ok, results} = ORM.find_all(CMS.Community, %{page: 1, size: 20})
-      radom_community = results.entries |> Enum.random()
-
-      # test post threads
-      {:ok, random_community} = ORM.find(CMS.Community, radom_community.id)
-      {:ok, tags} = CMS.get_tags(random_community, :post)
-      found_tags = tags |> Utils.pick_by(:title)
-      config_tags = SeedsConfig.tags(:post) |> Utils.pick_by(:title)
-      assert found_tags |> Enum.sort() == config_tags |> Enum.sort()
-
-      # test job threads
-      {:ok, random_community} = ORM.find(CMS.Community, radom_community.id)
-      {:ok, tags} = CMS.get_tags(random_community, :job)
-      found_tags = tags |> Utils.pick_by(:title)
-      config_tags = SeedsConfig.tags(:job) |> Utils.pick_by(:title)
-      assert found_tags |> Enum.sort() == config_tags |> Enum.sort()
-
-      # test repo threads
-      {:ok, random_community} = ORM.find(CMS.Community, radom_community.id)
-      {:ok, tags} = CMS.get_tags(random_community, :repo)
-      found_tags = tags |> Utils.pick_by(:title)
-      config_tags = SeedsConfig.tags(:repo) |> Utils.pick_by(:title)
-      assert found_tags |> Enum.sort() == config_tags |> Enum.sort()
-    end
-
     test "seeded home community has home-spec tags" do
       CMS.seed_communities(:home)
 

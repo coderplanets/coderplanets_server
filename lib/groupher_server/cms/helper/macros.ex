@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
   alias GroupherServer.{CMS, Accounts}
 
   alias Accounts.User
-  alias CMS.{Author, Community, ArticleComment, ArticleUpvote, ArticleCollect}
+  alias CMS.{Author, Community, ArticleComment, ArticleTag, ArticleUpvote, ArticleCollect}
 
   @article_threads get_config(:article, :article_threads)
 
@@ -228,12 +228,33 @@ defmodule GroupherServer.CMS.Helper.Macros do
 
   create(unique_index(:communities_[article]s, [:community_id, :[article]_id]))
   """
-  defmacro article_community_field(thread) do
+  defmacro article_communities_field(thread) do
     quote do
       many_to_many(
         :communities,
         Community,
         join_through: unquote("communities_#{to_string(thread)}s"),
+        on_replace: :delete
+      )
+    end
+  end
+
+  @doc """
+  for GroupherServer.CMS.[Article]
+
+  # TABLE: "articles_join_tags"
+
+  add(:[article]_id, references(:cms_[article]s, on_delete: :delete_all))
+  """
+  defmacro article_tags_field(thread) do
+    quote do
+      many_to_many(
+        :article_tags,
+        ArticleTag,
+        join_through: "articles_join_tags",
+        join_keys: Keyword.new([{unquote(:"#{thread}_id"), :id}]) ++ [article_tag_id: :id],
+        # :delete_all will only remove data from the join source
+        on_delete: :delete_all,
         on_replace: :delete
       )
     end

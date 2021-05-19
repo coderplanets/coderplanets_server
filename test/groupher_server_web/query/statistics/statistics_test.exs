@@ -74,7 +74,7 @@ defmodule GroupherServer.Test.Query.Statistics do
         jobsCount
         reposCount
         categoriesCount
-        tagsCount
+        articleTagsCount
         threadsCount
       }
     }

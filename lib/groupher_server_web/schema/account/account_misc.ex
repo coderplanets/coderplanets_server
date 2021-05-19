@@ -9,7 +9,6 @@ defmodule GroupherServerWeb.Schema.Account.Misc do
     pagination_args()
     # field(:when, :when_enum)
     # field(:sort, :sort_enum)
-    # field(:tag, :string, default_value: :all)
     # field(:community, :string)
   end
 

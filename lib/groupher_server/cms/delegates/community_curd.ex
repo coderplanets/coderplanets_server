@@ -10,16 +10,9 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
 
   alias Helper.ORM
   alias Helper.QueryBuilder
-  alias GroupherServer.{Accounts, Repo}
+  alias GroupherServer.{Accounts, CMS}
 
-  alias GroupherServer.CMS.{
-    Category,
-    Community,
-    CommunityEditor,
-    CommunitySubscriber,
-    Tag,
-    Thread
-  }
+  alias CMS.{ArticleTag, Category, Community, CommunityEditor, CommunitySubscriber, Thread}
 
   @doc """
   return paged community subscribers
@@ -53,115 +46,6 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     with {:ok, _} <- CommunityEditor |> ORM.update_by(clauses, ~m(title)a) do
       Accounts.User |> ORM.find(user_id)
     end
-  end
-
-  @doc """
-  create a Tag base on type: post / tuts ...
-  """
-  def create_tag(%Community{id: community_id}, thread, attrs, %Accounts.User{id: user_id}) do
-    with {:ok, action} <- match_action(thread, :tag),
-         {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}),
-         {:ok, _community} <- ORM.find(Community, community_id) do
-      attrs =
-        attrs
-        |> Map.merge(%{author_id: author.id, community_id: community_id})
-        |> map_atom_value(:string)
-        |> Map.merge(%{thread: thread |> to_string |> String.downcase()})
-
-      action.reactor |> ORM.create(attrs)
-    end
-  end
-
-  def update_tag(%{id: _id} = attrs) do
-    ~m(id title color)a = attrs |> map_atom_value(:string)
-
-    Tag
-    |> ORM.find_update(~m(id title color)a)
-  end
-
-  @doc """
-  get all tags belongs to a community
-  """
-  def get_tags(%Community{id: community_id}) when not is_nil(community_id) do
-    Tag
-    |> join(:inner, [t], c in assoc(t, :community))
-    |> where([t, c, cp], c.id == ^community_id)
-    |> Repo.all()
-    |> done()
-  end
-
-  def get_tags(%Community{raw: community_raw}) when not is_nil(community_raw) do
-    Tag
-    |> join(:inner, [t], c in assoc(t, :community))
-    |> where([t, c, cp], c.raw == ^community_raw)
-    |> Repo.all()
-    |> done()
-  end
-
-  @doc """
-  get all paged tags
-  """
-  def get_tags(%{page: page, size: size} = filter) do
-    Tag
-    |> QueryBuilder.filter_pack(filter)
-    |> ORM.paginater(~m(page size)a)
-    |> done()
-  end
-
-  @doc """
-  get tags belongs to a community / thread
-  """
-  def get_tags(%Community{raw: community_raw}, thread) when not is_nil(community_raw) do
-    thread = thread |> to_string |> String.downcase()
-
-    Tag
-    |> join(:inner, [t], c in assoc(t, :community))
-    |> where([t, c], c.raw == ^community_raw and t.thread == ^thread)
-    |> distinct([t], t.title)
-    |> Repo.all()
-    |> done()
-  end
-
-  def get_tags(%Community{id: community_id}, thread) when not is_nil(community_id) do
-    # thread = thread |> to_string |> String.upcase()
-    thread = thread |> to_string |> String.downcase()
-
-    Tag
-    |> join(:inner, [t], c in assoc(t, :community))
-    |> where([t, c], c.id == ^community_id and t.thread == ^thread)
-    |> distinct([t], t.title)
-    |> Repo.all()
-    |> done()
-  end
-
-  def get_tags(%Community{raw: community_raw}, thread) do
-    thread = thread |> to_string |> String.downcase()
-
-    result = get_tags_query(community_raw, thread)
-
-    case result do
-      {:ok, []} ->
-        with {:ok, community} <- ORM.find_by(Community, aka: community_raw) do
-          get_tags_query(community.raw, thread)
-        else
-          _ -> {:ok, []}
-        end
-
-      {:ok, ret} ->
-        {:ok, ret}
-
-      {:error, reason} ->
-        {:error, reason}
-    end
-  end
-
-  defp get_tags_query(community_raw, thread) do
-    Tag
-    |> join(:inner, [t], c in assoc(t, :community))
-    |> where([t, c], c.raw == ^community_raw and t.thread == ^thread)
-    |> distinct([t], t.title)
-    |> Repo.all()
-    |> done()
   end
 
   def create_category(attrs, %Accounts.User{id: user_id}) do
@@ -213,10 +97,10 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   end
 
   @doc "count the total tags in community"
-  def count(%Community{id: id}, :tags) do
+  def count(%Community{id: id}, :article_tags) do
     with {:ok, community} <- ORM.find(Community, id) do
       result =
-        Tag
+        ArticleTag
         |> where([t], t.community_id == ^community.id)
         |> ORM.paginater(page: 1, size: 1)
 

@@ -34,7 +34,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Repo do
       $primaryLanguage: RepoLangInput,
       $contributors: [RepoContributorInput],
       $communityId: ID!,
-      $tags: [Ids]
+      $articleTags: [Ids]
     ) {
       createRepo(
         title: $title,
@@ -54,7 +54,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Repo do
         releaseTag: $releaseTag,
         contributors: $contributors,
         communityId: $communityId,
-        tags: $tags
+        articleTags: $articleTags
       ) {
         id
         title

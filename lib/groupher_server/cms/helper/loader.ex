@@ -12,6 +12,7 @@ defmodule GroupherServer.CMS.Helper.Loader do
     CommunityEditor,
     CommunitySubscriber,
     CommunityThread,
+    ArticleTag,
     # POST
     Post,
     PostComment,

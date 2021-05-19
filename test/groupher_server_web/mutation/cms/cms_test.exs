@@ -1,8 +1,10 @@
 defmodule GroupherServer.Test.Mutation.CMS.Basic do
+  @moduledoc false
+
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
-  alias CMS.{Category, Community, CommunityEditor, Passport, Tag}
+  alias CMS.{Category, Community, CommunityEditor, Passport}
 
   alias Helper.ORM
 
@@ -10,13 +12,12 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
     {:ok, category} = db_insert(:category)
     {:ok, community} = db_insert(:community)
     {:ok, thread} = db_insert(:thread)
-    {:ok, tag} = db_insert(:tag, %{community: community})
     {:ok, user} = db_insert(:user)
 
     user_conn = simu_conn(:user)
     guest_conn = simu_conn(:guest)
 
-    {:ok, ~m(user_conn guest_conn community thread category user tag)a}
+    {:ok, ~m(user_conn guest_conn community thread category user)a}
   end
 
   describe "mutation cms category" do
@@ -180,129 +181,6 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
              |> mutation_get_error?(@unset_category_query, variables, ecode(:account_login))
 
       assert rule_conn |> mutation_get_error?(@unset_category_query, variables, ecode(:passport))
-    end
-  end
-
-  describe "[mutation cms tag]" do
-    @create_tag_query """
-    mutation($thread: Thread!, $title: String!, $color: RainbowColorEnum!, $communityId: ID!) {
-      createTag(thread: $thread, title: $title, color: $color, communityId: $communityId) {
-        id
-        title
-        color
-        thread
-        community {
-          id
-          logo
-          title
-        }
-      }
-    }
-    """
-    test "create tag with valid attrs, has default POST thread and default posts",
-         ~m(community)a do
-      variables = mock_attrs(:tag, %{communityId: community.id})
-
-      passport_rules = %{community.title => %{"post.tag.create" => true}}
-      rule_conn = simu_conn(:user, cms: passport_rules)
-
-      created = rule_conn |> mutation_result(@create_tag_query, variables, "createTag")
-      belong_community = created["community"]
-
-      {:ok, found} = Tag |> ORM.find(created["id"])
-
-      assert created["id"] == to_string(found.id)
-      assert found.thread == "post"
-      assert belong_community["id"] == to_string(community.id)
-    end
-
-    # TODO:
-    # test "auth user create duplicate tag fails", ~m(community)a do
-    #   variables = mock_attrs(:tag, %{communityId: community.id})
-
-    #   passport_rules = %{community.title => %{"post.tag.create" => true}}
-    #   rule_conn = simu_conn(:user, cms: passport_rules)
-
-    #   assert nil !== rule_conn |> mutation_result(@create_tag_query, variables, "createTag")
-
-    #   assert rule_conn |> mutation_get_error?(@create_tag_query, variables, ecode(:changeset))
-    # end
-
-    # TODO: server return 400 wrong status code
-    # see https://github.com/absinthe-graphql/absinthe/issues/554
-    # test "create with invalid color fails", ~m(community)a do
-    # variables = %{
-    # title: "title",
-    # color: "NON_EXSIT",
-    # communityId: community.id,
-    # thread: "POST",
-    # }
-    # passport_rules = %{community.title => %{"post.tag.create" => true}}
-    # rule_conn = simu_conn(:user, cms: passport_rules)
-
-    # assert rule_conn |> mutation_get_error?(@create_tag_query, variables)
-    # end
-
-    test "unauth user create tag fails", ~m(community user_conn guest_conn)a do
-      variables = mock_attrs(:tag, %{communityId: community.id})
-      rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
-
-      assert user_conn |> mutation_get_error?(@create_tag_query, variables, ecode(:passport))
-
-      assert guest_conn
-             |> mutation_get_error?(@create_tag_query, variables, ecode(:account_login))
-
-      assert rule_conn |> mutation_get_error?(@create_tag_query, variables, ecode(:passport))
-    end
-
-    @update_tag_query """
-    mutation($id: ID!, $color: RainbowColorEnum!, $title: String!, $communityId: ID!) {
-      updateTag(id: $id, color: $color, title: $title, communityId: $communityId) {
-        id
-        title
-        color
-      }
-    }
-    """
-    test "auth user can update a tag", ~m(tag community)a do
-      variables = %{id: tag.id, color: "GREEN", title: "new title", communityId: community.id}
-
-      passport_rules = %{community.title => %{"post.tag.update" => true}}
-      rule_conn = simu_conn(:user, cms: passport_rules)
-
-      updated = rule_conn |> mutation_result(@update_tag_query, variables, "updateTag")
-
-      assert updated["color"] == "green"
-      assert updated["title"] == "new title"
-    end
-
-    @delete_tag_query """
-    mutation($id: ID!, $communityId: ID!){
-      deleteTag(id: $id, communityId: $communityId) {
-        id
-      }
-    }
-    """
-    test "auth user can delete tag", ~m(tag community)a do
-      variables = mock_attrs(:tag, %{id: tag.id, communityId: community.id})
-
-      rule_conn = simu_conn(:user, cms: %{tag.community.title => %{"post.tag.delete" => true}})
-
-      deleted = rule_conn |> mutation_result(@delete_tag_query, variables, "deleteTag")
-
-      assert deleted["id"] == to_string(tag.id)
-    end
-
-    test "unauth user delete tag fails", ~m(tag user_conn guest_conn)a do
-      variables = %{id: tag.id, communityId: tag.community_id}
-      rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
-
-      assert user_conn |> mutation_get_error?(@delete_tag_query, variables, ecode(:passport))
-
-      assert guest_conn
-             |> mutation_get_error?(@delete_tag_query, variables, ecode(:account_login))
-
-      assert rule_conn |> mutation_get_error?(@delete_tag_query, variables, ecode(:passport))
     end
   end
 

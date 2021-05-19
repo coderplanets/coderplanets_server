@@ -13,7 +13,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.User
-  alias CMS.{Community, AbuseReport, ArticleComment, Embeds}
+  alias CMS.{AbuseReport, ArticleComment, Embeds}
 
   alias Ecto.Multi
 

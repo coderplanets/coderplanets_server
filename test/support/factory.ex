@@ -190,13 +190,14 @@ defmodule GroupherServer.Support.Factory do
     }
   end
 
-  defp mock_meta(:tag) do
+  defp mock_meta(:article_tag) do
     unique_num = System.unique_integer([:positive, :monotonic])
 
     %{
       title: "#{Faker.Pizza.cheese()} #{unique_num}",
       thread: "POST",
       color: "YELLOW",
+      group: "cool",
       # community: Faker.Pizza.topping(),
       community: mock(:community),
       author: mock(:author)
@@ -284,7 +285,7 @@ defmodule GroupherServer.Support.Factory do
   def mock_attrs(:communities_threads, attrs),
     do: mock_meta(:communities_threads) |> Map.merge(attrs)
 
-  def mock_attrs(:tag, attrs), do: mock_meta(:tag) |> Map.merge(attrs)
+  def mock_attrs(:article_tag, attrs), do: mock_meta(:article_tag) |> Map.merge(attrs)
   def mock_attrs(:sys_notification, attrs), do: mock_meta(:sys_notification) |> Map.merge(attrs)
   def mock_attrs(:category, attrs), do: mock_meta(:category) |> Map.merge(attrs)
   def mock_attrs(:github_profile, attrs), do: mock_meta(:github_profile) |> Map.merge(attrs)
@@ -308,7 +309,7 @@ defmodule GroupherServer.Support.Factory do
   defp mock(:mention), do: Delivery.Mention |> struct(mock_meta(:mention))
   defp mock(:author), do: CMS.Author |> struct(mock_meta(:author))
   defp mock(:category), do: CMS.Category |> struct(mock_meta(:category))
-  defp mock(:tag), do: CMS.Tag |> struct(mock_meta(:tag))
+  defp mock(:article_tag), do: CMS.ArticleTag |> struct(mock_meta(:article_tag))
 
   defp mock(:sys_notification),
     do: Delivery.SysNotification |> struct(mock_meta(:sys_notification))

@@ -7,7 +7,7 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   alias GroupherServer.{Accounts, CMS}
 
   alias Accounts.User
-  alias CMS.{Community, Category, Tag, Thread}
+  alias CMS.{Community, Category, Thread}
 
   alias Helper.ORM
 
@@ -200,49 +200,31 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   # #######################
   # tags ..
   # #######################
-  def create_tag(_root, %{thread: thread, community_id: community_id} = args, %{
+  def create_article_tag(_root, %{thread: thread, community_id: community_id} = args, %{
         context: %{cur_user: user}
       }) do
-    CMS.create_tag(%Community{id: community_id}, thread, args, user)
+    CMS.create_article_tag(%Community{id: community_id}, thread, args, user)
   end
 
-  def delete_tag(_root, %{id: id}, _info), do: Tag |> ORM.find_delete!(id)
-
-  def update_tag(_root, args, _info), do: CMS.update_tag(args)
-
-  def set_tag(_root, ~m(thread id tag_id)a, _info) do
-    CMS.set_tag(thread, %Tag{id: tag_id}, id)
+  def update_article_tag(_root, %{id: id} = args, _info) do
+    CMS.update_article_tag(id, args)
   end
 
-  def unset_tag(_root, ~m(id thread tag_id)a, _info) do
-    CMS.unset_tag(thread, %Tag{id: tag_id}, id)
+  def delete_article_tag(_root, %{id: id}, _info) do
+    CMS.delete_article_tag(id)
   end
 
-  def get_tags(_root, %{community_id: community_id, all: true}, _info) do
-    CMS.get_tags(%Community{id: community_id})
+  def set_article_tag(_root, ~m(id thread article_tag_id)a, _info) do
+    CMS.set_article_tag(thread, id, article_tag_id)
   end
 
-  def get_tags(_root, %{community: community, all: true}, _info) do
-    CMS.get_tags(%Community{raw: community})
+  def unset_article_tag(_root, ~m(id thread article_tag_id)a, _info) do
+    CMS.unset_article_tag(thread, id, article_tag_id)
   end
 
-  def get_tags(_root, ~m(community_id thread)a, _info) do
-    CMS.get_tags(%Community{id: community_id}, thread)
+  def paged_article_tags(_root, %{filter: filter}, _info) do
+    CMS.paged_article_tags(filter)
   end
-
-  def get_tags(_root, ~m(community thread)a, _info) do
-    CMS.get_tags(%Community{raw: community}, thread)
-  end
-
-  def get_tags(_root, ~m(community_id thread)a, _info) do
-    CMS.get_tags(%Community{id: community_id}, thread)
-  end
-
-  def get_tags(_root, %{thread: _thread}, _info) do
-    {:error, "community_id or community is needed"}
-  end
-
-  def get_tags(_root, ~m(filter)a, _info), do: CMS.get_tags(filter)
 
   # #######################
   # community subscribe ..
@@ -406,7 +388,7 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.count(%Community{id: root.id}, :threads)
   end
 
-  def tags_count(root, _, _) do
-    CMS.count(%Community{id: root.id}, :tags)
+  def article_tags_count(root, _, _) do
+    CMS.count(%Community{id: root.id}, :article_tags)
   end
 end

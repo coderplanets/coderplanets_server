@@ -20,7 +20,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
         id
         title
         threadsCount
-        tagsCount
+        articleTagsCount
         threads {
           id
           raw
@@ -67,15 +67,15 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
     end
 
     test "can get tags count ", ~m(community guest_conn user)a do
-      {:ok, _tags} = db_insert_multi(:tag, 5)
-
-      CMS.create_tag(community, :post, mock_attrs(:tag), user)
-      CMS.create_tag(community, :post, mock_attrs(:tag), user)
+      article_tag_attrs = mock_attrs(:article_tag)
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
+      article_tag_attrs = mock_attrs(:article_tag)
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
 
       variables = %{raw: community.raw}
       results = guest_conn |> query_result(@query, variables, "community")
 
-      assert results["tagsCount"] == 2
+      assert results["articleTagsCount"] == 2
     end
 
     test "guest use get community threads with default asc sort index",
@@ -271,127 +271,6 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       contain_communities = results["entries"] |> List.first() |> Map.get("communities")
 
       assert contain_communities |> List.first() |> Map.get("id") == to_string(community.id)
-    end
-  end
-
-  describe "[cms query tags]" do
-    @query """
-    query($filter: PagedFilter!) {
-      tags(filter: $filter) {
-        entries {
-          id
-          title
-          author {
-            id
-            nickname
-            avatar
-          }
-        }
-        totalCount
-        totalPages
-        pageSize
-        pageNumber
-      }
-    }
-    """
-    test "guest user can get paged tags", ~m(guest_conn community user)a do
-      variables = %{filter: %{page: 1, size: 10}}
-
-      valid_attrs = mock_attrs(:tag, %{user_id: user.id})
-      {:ok, _} = CMS.create_tag(community, :post, valid_attrs, user)
-
-      results = guest_conn |> query_result(@query, variables, "tags")
-
-      assert results |> is_valid_pagination?
-    end
-
-    @query """
-    query($communityId: ID, $community: String, $thread: Thread, $all: Boolean ) {
-      partialTags(communityId: $communityId, community: $community, thread: $thread, all: $all) {
-        id
-        title
-        color
-        thread
-        community {
-          id
-          title
-          logo
-        }
-      }
-    }
-    """
-    test "guest user can get all partial tags belongs to a community",
-         ~m(guest_conn community)a do
-      {:ok, _tag} = db_insert(:tag, %{thread: "post", community: community})
-      {:ok, _tag2} = db_insert(:tag, %{thread: "job", community: community})
-
-      variables = %{all: true, communityId: community.id}
-      results = guest_conn |> query_result(@query, variables, "partialTags")
-
-      assert results |> length == 2
-
-      variables = %{all: true, community: community.raw}
-      results = guest_conn |> query_result(@query, variables, "partialTags")
-
-      assert results |> length == 2
-    end
-
-    test "guest user can get partial tags by communityId and thread", ~m(guest_conn community)a do
-      {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
-      {:ok, tag2} = db_insert(:tag, %{thread: "job", community: community})
-
-      variables = %{thread: "POST", communityId: community.id}
-
-      results = guest_conn |> query_result(@query, variables, "partialTags")
-
-      assert results |> Enum.any?(&(&1["id"] == to_string(tag.id)))
-      assert results |> Enum.any?(&(&1["id"] != to_string(tag2.id)))
-    end
-
-    test "user can get partial tags by default", ~m(guest_conn community user)a do
-      valid_attrs = mock_attrs(:tag)
-      {:ok, _tag} = CMS.create_tag(community, :post, valid_attrs, user)
-
-      variables = %{thread: "POST", communityId: community.id}
-      results = guest_conn |> query_result(@query, variables, "partialTags")
-
-      assert results |> length == 1
-    end
-
-    @query """
-    query($community: String, $thread: Thread!) {
-      partialTags(community: $community, thread: $thread) {
-        id
-        title
-        color
-        thread
-        community {
-          id
-          title
-          logo
-        }
-      }
-    }
-    """
-    test "guest user can get partial tags by communityRaw", ~m(guest_conn community)a do
-      {:ok, tag} = db_insert(:tag, %{thread: "post", community: community})
-      {:ok, tag2} = db_insert(:tag, %{thread: "job", community: community})
-
-      variables = %{thread: "POST", community: community.raw}
-
-      results = guest_conn |> query_result(@query, variables, "partialTags")
-
-      assert results |> Enum.any?(&(&1["id"] == to_string(tag.id)))
-      assert results |> Enum.any?(&(&1["id"] != to_string(tag2.id)))
-    end
-
-    test "get partial tags with no community info fails", ~m(guest_conn community)a do
-      {:ok, _tag} = db_insert(:tag, %{thread: "post", community: community})
-      {:ok, _tag2} = db_insert(:tag, %{thread: "job", community: community})
-
-      variables = %{thread: "POST"}
-
-      assert guest_conn |> mutation_get_error?(@query, variables)
     end
   end
 

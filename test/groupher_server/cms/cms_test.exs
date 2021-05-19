@@ -15,29 +15,6 @@ defmodule GroupherServer.Test.CMS do
     {:ok, ~m(user community category)a}
   end
 
-  describe "[cms tag]" do
-    test "create tag with valid data", ~m(community user)a do
-      valid_attrs = mock_attrs(:tag)
-
-      {:ok, tag} = CMS.create_tag(community, :post, valid_attrs, user)
-      assert tag.title == valid_attrs.title
-    end
-
-    test "create tag with non-exsit user fails", ~m(user)a do
-      invalid_attrs = mock_attrs(:tag)
-
-      assert {:error, _} =
-               CMS.create_tag(%Community{id: non_exsit_id()}, :post, invalid_attrs, user)
-    end
-
-    test "create tag with non-exsit community fails", ~m(user)a do
-      invalid_attrs = mock_attrs(:tag)
-
-      assert {:error, _} =
-               CMS.create_tag(%Community{id: non_exsit_id()}, :post, invalid_attrs, user)
-    end
-  end
-
   describe "[cms category]" do
     alias CMS.{Community, Category}
 
@@ -109,43 +86,6 @@ defmodule GroupherServer.Test.CMS do
       assert community.id not in assoc_communities
     end
   end
-
-  # this logic is move to resolver
-  # describe "[cms community]" do
-  # test "create a community with a existing user", ~m(user)a do
-  # community_args = %{
-  # title: "elixir community",
-  # desc: "function pragraming for everyone",
-  # user_id: user.id,
-  # raw: "elixir",
-  # logo: "http: ..."
-  # }
-
-  # assert {:error, _} = ORM.find_by(CMS.Community, title: "elixir community")
-  # {:ok, community} = CMS.create_community(community_args)
-  # assert community.title == community_args.title
-  # end
-
-  # test "create a community with a empty title fails", ~m(user)a do
-  # invalid_community_args = %{
-  # title: "",
-  # desc: "function pragraming for everyone",
-  # user_id: user.id
-  # }
-
-  # assert {:error, %Ecto.Changeset{}} = CMS.create_community(invalid_community_args)
-  # end
-
-  # test "create a community with a non-exist user fails" do
-  # community_args = %{
-  # title: "elixir community",
-  # desc: "function pragraming for everyone",
-  # user_id: 10000
-  # }
-
-  # assert {:error, _} = CMS.create_community(community_args)
-  # end
-  # end
 
   describe "[cms community thread]" do
     alias CMS.Community

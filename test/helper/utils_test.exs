@@ -3,6 +3,22 @@ defmodule GroupherServer.Test.Helper.UtilsTest do
 
   alias Helper.Utils
 
+  describe "map atom value up upcase str" do
+    test "atom value can be convert to upcase str" do
+      map = %{
+        color: :green,
+        thread: :post,
+        other: "hello"
+      }
+
+      result = Utils.map_atom_values_to_upcase_str(map)
+
+      assert result.color == "GREEN"
+      assert result.thread == "POST"
+      assert result.other == "hello"
+    end
+  end
+
   describe "map keys to string" do
     test "atom keys should covert to string keys on nested map" do
       atom_map = %{

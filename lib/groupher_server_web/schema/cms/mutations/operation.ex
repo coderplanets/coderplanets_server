@@ -78,34 +78,33 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Operation do
       resolve(&R.CMS.unsubscribe_community/3)
     end
 
-    @desc "set a tag to content"
-    field :set_tag, :tag do
+    @desc "set a article_tag to content"
+    field :set_article_tag, :article_tag do
       arg(:id, non_null(:id))
-      arg(:tag_id, non_null(:id))
+      arg(:article_tag_id, non_null(:id))
       # community_id only use for passport check
       arg(:community_id, non_null(:id))
       arg(:thread, :thread, default_value: :post)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->t?.tag.set")
+      middleware(M.Passport, claim: "cms->c?->t?.article_tag.set")
 
-      resolve(&R.CMS.set_tag/3)
+      resolve(&R.CMS.set_article_tag/3)
     end
 
     @desc "unset a tag to content"
-    field :unset_tag, :tag do
-      # thread id
+    field :unset_article_tag, :article_tag do
       arg(:id, non_null(:id))
-      arg(:tag_id, non_null(:id))
+      arg(:article_tag_id, non_null(:id))
       arg(:community_id, non_null(:id))
       arg(:thread, :thread, default_value: :post)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->t?.tag.unset")
+      middleware(M.Passport, claim: "cms->c?->t?.article_tag.unset")
 
-      resolve(&R.CMS.unset_tag/3)
+      resolve(&R.CMS.unset_article_tag/3)
     end
 
     @desc "mirror article to other community"

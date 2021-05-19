@@ -55,10 +55,6 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     value(:tech)
     value(:city)
     value(:share)
-    value(:radar)
-    # city community
-    value(:group)
-    value(:company)
   end
 
   enum :when_enum do
@@ -112,7 +108,7 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     value(:least_words)
   end
 
-  enum :rainbow_color_enum do
+  enum :rainbow_color do
     value(:red)
     value(:orange)
     value(:yellow)
@@ -160,6 +156,12 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     field(:sort, :thread_sort_enum)
   end
 
+  input_object :article_tags_filter do
+    field(:community_id, :id)
+    field(:thread, :thread)
+    pagination_args()
+  end
+
   input_object :paged_filter do
     @desc "limit of records (default 20), if first > 30, only return 30 at most"
     pagination_args()
@@ -172,7 +174,7 @@ defmodule GroupherServerWeb.Schema.CMS.Misc do
     field(:first, :integer)
 
     @desc "Matching a tag"
-    field(:tag, :string, default_value: :all)
+    field(:article_tag, :string)
     # field(:sort, :sort_input)
     field(:when, :when_enum)
     field(:sort, :sort_enum)

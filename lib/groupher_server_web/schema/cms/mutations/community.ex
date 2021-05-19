@@ -127,46 +127,47 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Community do
     end
 
     @desc "create a tag"
-    field :create_tag, :tag do
+    field :create_article_tag, :article_tag do
       arg(:title, non_null(:string))
-      arg(:color, non_null(:rainbow_color_enum))
+      arg(:color, non_null(:rainbow_color))
       arg(:community_id, non_null(:id))
+      arg(:group, :string)
       arg(:thread, :thread, default_value: :post)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->t?.tag.create")
+      middleware(M.Passport, claim: "cms->c?->t?.article_tag.create")
 
-      resolve(&R.CMS.create_tag/3)
+      resolve(&R.CMS.create_article_tag/3)
     end
 
     @desc "update a tag"
-    field :update_tag, :tag do
+    field :update_article_tag, :article_tag do
       arg(:id, non_null(:id))
-      arg(:title, non_null(:string))
-      # arg(:color, non_null(:rainbow_color_enum))
-      arg(:color, non_null(:rainbow_color_enum))
       arg(:community_id, non_null(:id))
+      arg(:title, :string)
+      arg(:color, :rainbow_color)
+      arg(:group, :string)
       arg(:thread, :thread, default_value: :post)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->t?.tag.update")
+      middleware(M.Passport, claim: "cms->c?->t?.article_tag.update")
 
-      resolve(&R.CMS.update_tag/3)
+      resolve(&R.CMS.update_article_tag/3)
     end
 
     @desc "delete a tag by thread"
-    field :delete_tag, :tag do
+    field :delete_article_tag, :article_tag do
       arg(:id, non_null(:id))
       arg(:community_id, non_null(:id))
       arg(:thread, :thread, default_value: :post)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
-      middleware(M.Passport, claim: "cms->c?->t?.tag.delete")
+      middleware(M.Passport, claim: "cms->c?->t?.article_tag.delete")
 
-      resolve(&R.CMS.delete_tag/3)
+      resolve(&R.CMS.delete_article_tag/3)
     end
 
     @desc "sync github wiki"

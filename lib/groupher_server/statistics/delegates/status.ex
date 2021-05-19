@@ -18,11 +18,11 @@ defmodule GroupherServer.Statistics.Delegate.Status do
     {:ok, %{total_count: repos_count}} = find_total_count(CMS.Repo)
 
     {:ok, %{total_count: threads_count}} = find_total_count(CMS.Thread)
-    {:ok, %{total_count: tags_count}} = find_total_count(CMS.Tag)
+    {:ok, %{total_count: article_tags_count}} = find_total_count(CMS.ArticleTag)
     {:ok, %{total_count: categories_count}} = find_total_count(CMS.Category)
 
     {:ok,
-     ~m(communities_count posts_count jobs_count repos_count threads_count tags_count categories_count)a}
+     ~m(communities_count posts_count jobs_count repos_count threads_count article_tags_count categories_count)a}
   end
 
   defp find_total_count(queryable), do: ORM.find_all(queryable, @count_filter)

@@ -8,8 +8,8 @@ defmodule GroupherServer.CMS.Job do
   import Ecto.Changeset
   import GroupherServer.CMS.Helper.Macros
 
-  alias GroupherServer.{CMS, Accounts}
-  alias CMS.{Embeds, Tag}
+  alias GroupherServer.CMS
+  alias CMS.Embeds
   alias Helper.HTML
 
   @timestamps_opts [type: :utc_datetime_usec]
@@ -40,17 +40,8 @@ defmodule GroupherServer.CMS.Job do
     field(:digest, :string)
     field(:length, :integer)
 
-    many_to_many(
-      :tags,
-      Tag,
-      join_through: "jobs_tags",
-      join_keys: [job_id: :id, tag_id: :id],
-      # :delete_all will only remove data from the join source
-      on_delete: :delete_all,
-      on_replace: :delete
-    )
-
-    article_community_field(:job)
+    article_tags_field(:job)
+    article_communities_field(:job)
     general_article_fields()
   end
 

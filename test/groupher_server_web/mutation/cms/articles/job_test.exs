@@ -32,7 +32,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       $scale: String!,
       $field: String!,
       $mentionUsers: [Ids],
-      $tags: [Ids]
+      $articleTags: [Ids]
      ) {
       createJob(
         title: $title,
@@ -49,7 +49,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
         scale: $scale,
         field: $field,
         mentionUsers: $mentionUsers,
-        tags: $tags
+        articleTags: $articleTags
         ) {
           id
           title
@@ -107,29 +107,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       assert job.body == assert_v(:xss_safe_string)
     end
 
-    test "can create job with tags" do
-      {:ok, user} = db_insert(:user)
-      user_conn = simu_conn(:user, user)
-
-      {:ok, community} = db_insert(:community)
-      {:ok, tag1} = db_insert(:tag)
-      {:ok, tag2} = db_insert(:tag)
-
-      job_attr = mock_attrs(:job)
-
-      variables =
-        job_attr
-        |> Map.merge(%{communityId: community.id})
-        |> Map.merge(%{companyLogo: job_attr.company_logo})
-        |> Map.merge(%{tags: [%{id: tag1.id}, %{id: tag2.id}]})
-
-      created = user_conn |> mutation_result(@create_job_query, variables, "createJob")
-      {:ok, job} = ORM.find(CMS.Job, created["id"], preload: :tags)
-
-      assert job.tags |> Enum.any?(&(&1.id == tag1.id))
-      assert job.tags |> Enum.any?(&(&1.id == tag2.id))
-    end
-
     test "can create job with mentionUsers" do
       {:ok, user} = db_insert(:user)
       {:ok, user2} = db_insert(:user)
@@ -159,13 +136,13 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
     end
 
     @query """
-    mutation($id: ID!, $title: String, $body: String, $salary: String, $tags: [Ids]){
-      updateJob(id: $id, title: $title, body: $body, salary: $salary, tags: $tags) {
+    mutation($id: ID!, $title: String, $body: String, $salary: String, $articleTags: [Ids]){
+      updateJob(id: $id, title: $title, body: $body, salary: $salary, articleTags: $articleTags) {
         id
         title
         body
         salary
-        tags {
+        articleTags {
           id
         }
       }
@@ -201,47 +178,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       assert updated["salary"] == variables.salary
     end
 
-    test "job can be update along with tags(city)", ~m(owner_conn user job)a do
-      unique_num = System.unique_integer([:positive, :monotonic])
-
-      {:ok, community} = db_insert(:community)
-      {:ok, tag} = CMS.create_tag(community, :job, mock_attrs(:tag), user)
-
-      variables = %{
-        id: job.id,
-        title: "updated title #{unique_num}",
-        tags: [%{id: tag.id}]
-      }
-
-      updated = owner_conn |> mutation_result(@query, variables, "updateJob")
-
-      assert updated["title"] == variables.title
-      assert updated["tags"] |> Enum.any?(&(&1["id"] == to_string(tag.id)))
-    end
-
-    test "update job tags will replace old city-tags", ~m(owner_conn user job)a do
-      unique_num = System.unique_integer([:positive, :monotonic])
-
-      {:ok, community} = db_insert(:community)
-      {:ok, community2} = db_insert(:community)
-      {:ok, tag} = CMS.create_tag(community, :job, mock_attrs(:tag), user)
-      {:ok, tag2} = CMS.create_tag(community2, :job, mock_attrs(:tag), user)
-
-      {:ok, _} = CMS.set_tag(:job, tag2, job.id)
-
-      variables = %{
-        id: job.id,
-        title: "updated title #{unique_num}",
-        tags: [%{id: tag.id}]
-      }
-
-      updated = owner_conn |> mutation_result(@query, variables, "updateJob")
-
-      assert updated["title"] == variables.title
-      assert updated["tags"] |> length == 1
-      assert updated["tags"] |> Enum.any?(&(&1["id"] == to_string(tag.id)))
-    end
-
     test "login user with auth passport update a job", ~m(job)a do
       job_communities_0 = job.communities |> List.first() |> Map.get(:title)
       passport_rules = %{job_communities_0 => %{"job.edit" => true}}
@@ -255,7 +191,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
         body: "updated body #{unique_num}"
       }
 
-      updated = rule_conn |> mutation_result(@query, variables, "updateJob")
+      updated = rule_conn |> mutation_result(@query, variables, "updateJob", :debug)
 
       assert updated["id"] == to_string(job.id)
     end

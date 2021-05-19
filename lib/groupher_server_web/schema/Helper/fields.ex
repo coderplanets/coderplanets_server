@@ -39,7 +39,7 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
     quote do
       field(:when, :when_enum)
       field(:length, :length_enum)
-      field(:tag, :string, default_value: :all)
+      field(:article_tag, :string)
       field(:community, :string)
     end
   end
