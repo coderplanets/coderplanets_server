@@ -191,7 +191,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
         body: "updated body #{unique_num}"
       }
 
-      updated = rule_conn |> mutation_result(@query, variables, "updateJob", :debug)
+      updated = rule_conn |> mutation_result(@query, variables, "updateJob")
 
       assert updated["id"] == to_string(job.id)
     end

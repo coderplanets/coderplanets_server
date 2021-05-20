@@ -39,96 +39,97 @@ defmodule GroupherServer.Test.Query.OldPostComment do
       }
     }
     """
-    test "can get comments participators of a post", ~m(user guest_conn)a do
-      {:ok, user2} = db_insert(:user)
 
-      {:ok, community} = db_insert(:community)
-      {:ok, post} = CMS.create_article(community, :post, mock_attrs(:post), user)
+    # test "can get comments participators of a post", ~m(user guest_conn)a do
+    #   {:ok, user2} = db_insert(:user)
 
-      variables = %{filter: %{community: community.raw}}
-      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+    #   {:ok, community} = db_insert(:community)
+    #   {:ok, post} = CMS.create_article(community, :post, mock_attrs(:post), user)
 
-      comments_participators_count =
-        results["entries"] |> List.first() |> Map.get("commentsParticipatorsCount")
+    #   variables = %{filter: %{community: community.raw}}
+    #   results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
-      assert comments_participators_count == 0
+    #   comments_participators_count =
+    #     results["entries"] |> List.first() |> Map.get("commentsParticipatorsCount")
 
-      body = "this is a test comment"
+    #   assert comments_participators_count == 0
 
-      assert {:ok, _comment} =
-               CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
+    #   body = "this is a test comment"
 
-      assert {:ok, _comment} =
-               CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
+    #   assert {:ok, _comment} =
+    #            CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
 
-      assert {:ok, _comment} =
-               CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user2)
+    #   assert {:ok, _comment} =
+    #            CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
 
-      variables = %{filter: %{community: community.raw}}
-      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+    #   assert {:ok, _comment} =
+    #            CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user2)
 
-      comments_participators_count =
-        results["entries"] |> List.first() |> Map.get("commentsParticipatorsCount")
+    #   variables = %{filter: %{community: community.raw}}
+    #   results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
-      comments_count = results["entries"] |> List.first() |> Map.get("commentsCount")
+    #   comments_participators_count =
+    #     results["entries"] |> List.first() |> Map.get("commentsParticipatorsCount")
 
-      assert comments_participators_count == 2
-      assert comments_count == 3
+    #   comments_count = results["entries"] |> List.first() |> Map.get("commentsCount")
 
-      comments_participators =
-        results["entries"] |> List.first() |> Map.get("commentsParticipators")
+    #   assert comments_participators_count == 2
+    #   assert comments_count == 3
 
-      assert comments_participators |> Enum.any?(&(&1["id"] == to_string(user.id)))
-      assert comments_participators |> Enum.any?(&(&1["id"] == to_string(user2.id)))
-    end
+    #   comments_participators =
+    #     results["entries"] |> List.first() |> Map.get("commentsParticipators")
 
-    test "can get comments participators of a post with multi user", ~m(user guest_conn)a do
-      body = "this is a test comment"
-      {:ok, community} = db_insert(:community)
-      {:ok, post1} = CMS.create_article(community, :post, mock_attrs(:post), user)
-      {:ok, post2} = CMS.create_article(community, :post, mock_attrs(:post), user)
+    #   assert comments_participators |> Enum.any?(&(&1["id"] == to_string(user.id)))
+    #   assert comments_participators |> Enum.any?(&(&1["id"] == to_string(user2.id)))
+    # end
 
-      {:ok, users_list} = db_insert_multi(:user, 10)
-      {:ok, users_list2} = db_insert_multi(:user, 10)
+    # test "can get comments participators of a post with multi user", ~m(user guest_conn)a do
+    #   body = "this is a test comment"
+    #   {:ok, community} = db_insert(:community)
+    #   {:ok, post1} = CMS.create_article(community, :post, mock_attrs(:post), user)
+    #   {:ok, post2} = CMS.create_article(community, :post, mock_attrs(:post), user)
 
-      Enum.each(
-        users_list,
-        &CMS.create_comment(:post, post1.id, %{community: community.raw, body: body}, &1)
-      )
+    #   {:ok, users_list} = db_insert_multi(:user, 10)
+    #   {:ok, users_list2} = db_insert_multi(:user, 10)
 
-      Enum.each(
-        users_list2,
-        &CMS.create_comment(:post, post2.id, %{community: community.raw, body: body}, &1)
-      )
+    #   Enum.each(
+    #     users_list,
+    #     &CMS.create_comment(:post, post1.id, %{community: community.raw, body: body}, &1)
+    #   )
 
-      variables = %{filter: %{community: community.raw}}
-      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+    #   Enum.each(
+    #     users_list2,
+    #     &CMS.create_comment(:post, post2.id, %{community: community.raw, body: body}, &1)
+    #   )
 
-      assert results["entries"] |> List.first() |> Map.get("commentsParticipators") |> length == 5
-      assert results["entries"] |> List.first() |> Map.get("commentsParticipatorsCount") == 10
+    #   variables = %{filter: %{community: community.raw}}
+    #   results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
-      assert results["entries"] |> List.last() |> Map.get("commentsParticipators") |> length == 5
-      assert results["entries"] |> List.last() |> Map.get("commentsParticipatorsCount") == 10
-    end
+    #   assert results["entries"] |> List.first() |> Map.get("commentsParticipators") |> length == 5
+    #   assert results["entries"] |> List.first() |> Map.get("commentsParticipatorsCount") == 10
 
-    test "can get paged commetns participators of a post", ~m(user guest_conn)a do
-      body = "this is a test comment"
+    #   assert results["entries"] |> List.last() |> Map.get("commentsParticipators") |> length == 5
+    #   assert results["entries"] |> List.last() |> Map.get("commentsParticipatorsCount") == 10
+    # end
 
-      {:ok, community} = db_insert(:community)
-      {:ok, post} = CMS.create_article(community, :post, mock_attrs(:post), user)
-      {:ok, users_list} = db_insert_multi(:user, 10)
+    # test "can get paged commetns participators of a post", ~m(user guest_conn)a do
+    #   body = "this is a test comment"
 
-      Enum.each(
-        users_list,
-        &CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, &1)
-      )
+    #   {:ok, community} = db_insert(:community)
+    #   {:ok, post} = CMS.create_article(community, :post, mock_attrs(:post), user)
+    #   {:ok, users_list} = db_insert_multi(:user, 10)
 
-      variables = %{filter: %{community: community.raw}}
-      results = guest_conn |> query_result(@query, variables, "pagedPosts")
-      participators = results["entries"] |> List.first() |> Map.get("pagedCommentsParticipators")
+    #   Enum.each(
+    #     users_list,
+    #     &CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, &1)
+    #   )
 
-      assert participators["totalCount"] == 10
-    end
+    #   variables = %{filter: %{community: community.raw}}
+    #   results = guest_conn |> query_result(@query, variables, "pagedPosts")
+    #   participators = results["entries"] |> List.first() |> Map.get("pagedCommentsParticipators")
+
+    #   assert participators["totalCount"] == 10
+    # end
   end
 
   @query """
