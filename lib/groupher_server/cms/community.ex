@@ -45,6 +45,10 @@ defmodule GroupherServer.CMS.Community do
     has_many(:subscribers, {"communities_subscribers", CommunitySubscriber})
     has_many(:editors, {"communities_editors", CommunityEditor})
 
+    field(:articles_count, :integer, default: 0)
+    field(:editors_count, :integer, default: 0)
+    field(:subscribers_count, :integer, default: 0)
+
     has_one(:wiki, CommunityWiki)
     has_one(:cheatsheet, CommunityCheatsheet)
 

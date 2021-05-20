@@ -29,7 +29,6 @@ defmodule GroupherServer.CMS.Embeds.CommunityMeta do
   @article_threads get_config(:article, :article_threads)
 
   @general_options %{
-    articles_count: 0,
     subscribers_count: 0,
     editors_count: 0,
     subscribed_user_ids: [],
@@ -49,7 +48,6 @@ defmodule GroupherServer.CMS.Embeds.CommunityMeta do
 
   embedded_schema do
     thread_count_fields()
-    field(:articles_count, :integer, default: 0)
 
     # 关注相关
     field(:subscribers_count, :integer, default: 0)

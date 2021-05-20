@@ -20,8 +20,8 @@ defmodule GroupherServer.Test.Query.CMS.CommunityMeta do
       community(id: $id) {
         id
         title
+        articlesCount
         meta {
-          articlesCount
           postsCount
           jobsCount
           reposCount
@@ -29,7 +29,7 @@ defmodule GroupherServer.Test.Query.CMS.CommunityMeta do
       }
     }
     """
-    @tag :wip3
+    @tag :wip2
     test "community have valid [thread]s_count in meta", ~m(guest_conn community_attrs user)a do
       {:ok, community} = CMS.create_community(community_attrs)
 
@@ -42,7 +42,7 @@ defmodule GroupherServer.Test.Query.CMS.CommunityMeta do
       results = guest_conn |> query_result(@query, variables, "community")
 
       meta = results["meta"]
-      assert meta["articlesCount"] == 4
+      assert results["articlesCount"] == 4
       assert meta["postsCount"] == 2
       assert meta["jobsCount"] == 1
       assert meta["reposCount"] == 1

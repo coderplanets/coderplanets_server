@@ -87,10 +87,12 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
       thread_article_count = Repo.aggregate(count_query, :count)
       community_meta = if is_nil(community.meta), do: @default_meta, else: community.meta
 
-      meta = community_meta |> Map.put(:"#{thread}s_count", thread_article_count)
-      meta = meta |> Map.put(:articles_count, recount_articles_count(meta)) |> strip_struct
+      meta = community_meta |> Map.put(:"#{thread}s_count", thread_article_count) |> strip_struct
 
-      community |> ORM.update_meta(meta)
+      community
+      |> Ecto.Changeset.change(%{articles_count: recount_articles_count(meta)})
+      |> Ecto.Changeset.put_embed(:meta, meta)
+      |> Repo.update()
     end
   end
 

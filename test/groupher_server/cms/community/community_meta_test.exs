@@ -38,7 +38,7 @@ defmodule GroupherServer.Test.CMS.Community.CommunityMeta do
       assert community.meta |> strip_struct == @default_meta
     end
 
-    @tag :wip3
+    @tag :wip2
     test "create a post should inc posts_count in meta",
          ~m(user community community2 community3)a do
       post_attrs = mock_attrs(:post)
@@ -51,15 +51,15 @@ defmodule GroupherServer.Test.CMS.Community.CommunityMeta do
       {:ok, _post} = CMS.create_article(community3, :post, post_attrs, user)
 
       {:ok, community} = ORM.find(Community, community.id)
-      assert community.meta.articles_count == 2
+      assert community.articles_count == 2
       assert community.meta.posts_count == 2
 
       {:ok, community2} = ORM.find(Community, community2.id)
-      assert community2.meta.articles_count == 1
+      assert community2.articles_count == 1
       assert community2.meta.posts_count == 1
     end
 
-    @tag :wip3
+    @tag :wip2
     test "create a job should inc jobs_count in meta",
          ~m(user community community2 community3)a do
       job_attrs = mock_attrs(:job)
@@ -72,15 +72,15 @@ defmodule GroupherServer.Test.CMS.Community.CommunityMeta do
       {:ok, _job} = CMS.create_article(community3, :job, job_attrs, user)
 
       {:ok, community} = ORM.find(Community, community.id)
-      assert community.meta.articles_count == 2
+      assert community.articles_count == 2
       assert community.meta.jobs_count == 2
 
       {:ok, community2} = ORM.find(Community, community2.id)
-      assert community2.meta.articles_count == 1
+      assert community2.articles_count == 1
       assert community2.meta.jobs_count == 1
     end
 
-    @tag :wip3
+    @tag :wip2
     test "create a repo should inc repos_count in meta",
          ~m(user community community2 community3)a do
       repo_attrs = mock_attrs(:repo)
@@ -93,15 +93,15 @@ defmodule GroupherServer.Test.CMS.Community.CommunityMeta do
       {:ok, _repo} = CMS.create_article(community3, :repo, repo_attrs, user)
 
       {:ok, community} = ORM.find(Community, community.id)
-      assert community.meta.articles_count == 2
+      assert community.articles_count == 2
       assert community.meta.repos_count == 2
 
       {:ok, community2} = ORM.find(Community, community2.id)
-      assert community2.meta.articles_count == 1
+      assert community2.articles_count == 1
       assert community2.meta.repos_count == 1
     end
 
-    @tag :wip3
+    @tag :wip2
     test "create a multi article should inc repos_count in meta",
          ~m(user community community2)a do
       post_attrs = mock_attrs(:post)
@@ -118,13 +118,13 @@ defmodule GroupherServer.Test.CMS.Community.CommunityMeta do
       {:ok, _} = CMS.create_article(community2, :repo, repo_attrs, user)
 
       {:ok, community} = ORM.find(Community, community.id)
-      assert community.meta.articles_count == 3
+      assert community.articles_count == 3
       assert community.meta.posts_count == 2
       assert community.meta.jobs_count == 1
       assert community.meta.repos_count == 0
 
       {:ok, community2} = ORM.find(Community, community2.id)
-      assert community2.meta.articles_count == 2
+      assert community2.articles_count == 2
       assert community2.meta.posts_count == 0
       assert community2.meta.jobs_count == 1
       assert community2.meta.repos_count == 1

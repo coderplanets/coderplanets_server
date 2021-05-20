@@ -263,6 +263,10 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:meta, :community_meta)
     field(:views, :integer)
 
+    field(:articles_count, :integer)
+    field(:subscribers_count, :integer)
+    field(:editors_count, :integer)
+
     field :subscribers, list_of(:user) do
       arg(:filter, :members_filter)
       middleware(M.PageSizeProof)
@@ -503,11 +507,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   end
 
   object :community_meta do
-    field(:articles_count, :integer)
     threads_count_fields()
-
-    field(:subscribers_count, :integer)
-    field(:editors_count, :integer)
-    field(:contributes_digest, list_of(:integer))
+    # field(:contributes_digest, list_of(:integer))
   end
 end
