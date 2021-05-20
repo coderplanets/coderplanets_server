@@ -25,13 +25,13 @@ defmodule GroupherServer.Test.CMS.Community.CommunityMeta do
 
   describe "[article count meta]" do
     @tag :wip
-    test "created community should have default meta ", ~m(user community_attrs)a do
+    test "created community should have default meta ", ~m(community_attrs)a do
       {:ok, community} = CMS.create_community(community_attrs)
       assert community.meta |> strip_struct == @default_meta
     end
 
     @tag :wip
-    test "update legacy community should add default meta", ~m(user community)a do
+    test "update legacy community should add default meta", ~m(community)a do
       assert is_nil(community.meta)
 
       {:ok, community} = CMS.update_community(community.id, %{title: "new title"})

@@ -36,6 +36,7 @@ defmodule GroupherServer.CMS.Community do
     field(:raw, :string)
     field(:index, :integer)
     field(:geo_info, :map)
+    field(:views, :integer)
 
     embeds_one(:meta, Embeds.CommunityMeta, on_replace: :delete)
     belongs_to(:author, Accounts.User, foreign_key: :user_id)

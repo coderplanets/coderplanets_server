@@ -261,6 +261,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:threads, list_of(:thread_item), resolve: dataloader(CMS, :threads))
     field(:categories, list_of(:category), resolve: dataloader(CMS, :categories))
     field(:meta, :community_meta)
+    field(:views, :integer)
 
     field :subscribers, list_of(:user) do
       arg(:filter, :members_filter)

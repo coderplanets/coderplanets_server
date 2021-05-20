@@ -4,6 +4,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
   alias GroupherServer.Accounts.User
   alias GroupherServer.CMS
   alias CMS.{Community, Category}
+  alias Helper.ORM
 
   setup do
     guest_conn = simu_conn(:guest)
@@ -21,6 +22,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
         title
         threadsCount
         articleTagsCount
+        views
         threads {
           id
           raw
@@ -29,17 +31,20 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
+    @tag :wip2
+    test "views should work", ~m(guest_conn)a do
+      {:ok, community} = db_insert(:community)
 
-    # @tag :cache
-    # test "make sure apollo cache works", ~m(guest_conn)a do
-    # {:ok, _community} = db_insert(:community, %{raw: "cacheme"})
+      variables = %{id: community.id}
+      guest_conn |> query_result(@query, variables, "community")
 
-    # variables = %{raw: "cacheme"}
-    # guest_conn |> query_result(@query, variables, "community")
+      {:ok, community} = ORM.find(Community, community.id)
+      assert community.views == 1
+      guest_conn |> query_result(@query, variables, "community")
 
-    # variables = %{raw: "cacheme"}
-    # guest_conn |> query_result(@query, variables, "community")
-    # end
+      {:ok, community} = ORM.find(Community, community.id)
+      assert community.views == 2
+    end
 
     test "can get from alias community name", ~m(guest_conn)a do
       {:ok, _community} = db_insert(:community, %{raw: "kubernetes", aka: "k8s"})

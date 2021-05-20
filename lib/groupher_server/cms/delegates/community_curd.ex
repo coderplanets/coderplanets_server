@@ -27,6 +27,22 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   @default_meta Embeds.CommunityMeta.default_meta()
   @article_threads get_config(:article, :article_threads)
 
+  def read_community(%{id: id}), do: ORM.read(Community, id, inc: :views)
+
+  def read_community(%{raw: raw} = clauses) do
+    case ORM.read_by(Community, clauses, inc: :views) do
+      {:ok, community} -> {:ok, community}
+      {:error, _} -> ORM.find_by(Community, aka: raw)
+    end
+  end
+
+  def read_community(%{title: title} = clauses) do
+    case ORM.read_by(Community, clauses, inc: :views) do
+      {:ok, community} -> {:ok, community}
+      {:error, _} -> ORM.find_by(Community, aka: title)
+    end
+  end
+
   @doc """
   create a community
   """

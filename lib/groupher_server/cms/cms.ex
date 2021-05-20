@@ -31,6 +31,7 @@ defmodule GroupherServer.CMS do
   # see https://github.com/elixir-lang/elixir/issues/5306
 
   # Community CURD: editors, thread, tag
+  defdelegate read_community(args), to: CommunityCURD
   defdelegate create_community(args), to: CommunityCURD
   defdelegate update_community(id, args), to: CommunityCURD
   # >> editor ..
