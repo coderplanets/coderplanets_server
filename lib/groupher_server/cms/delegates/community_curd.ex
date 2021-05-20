@@ -3,8 +3,9 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   community curd
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1]
+  import Helper.Utils, only: [done: 1, strip_struct: 1, get_config: 2]
   import GroupherServer.CMS.Delegate.ArticleCURD, only: [ensure_author_exists: 1]
+  import GroupherServer.CMS.Helper.Matcher
   import ShortMaps
 
   alias Helper.ORM
@@ -24,7 +25,11 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   }
 
   @default_meta Embeds.CommunityMeta.default_meta()
+  @article_threads get_config(:article, :article_threads)
 
+  @doc """
+  create a community
+  """
   def create_community(%{user_id: user_id} = args) do
     with {:ok, author} <- ensure_author_exists(%User{id: user_id}) do
       args = args |> Map.merge(%{user_id: author.user_id, meta: @default_meta})
@@ -32,6 +37,9 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     end
   end
 
+  @doc """
+  update community
+  """
   def update_community(id, args) do
     with {:ok, community} <- ORM.find(Community, id) do
       case community.meta do
@@ -39,6 +47,25 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
         _ -> ORM.update(community, args)
       end
     end
+  end
+
+  def update_article_count(%Community{} = community, thread) do
+    with {:ok, info} <- match(thread) do
+      count_query =
+        from(a in info.model, join: c in assoc(a, :communities), where: ^community.id == c.id)
+
+      thread_article_count = Repo.aggregate(count_query, :count)
+      community_meta = if is_nil(community.meta), do: @default_meta, else: community.meta
+
+      meta = community_meta |> Map.put(:"#{thread}s_count", thread_article_count)
+      meta = meta |> Map.put(:articles_count, recount_articles_count(meta)) |> strip_struct
+
+      community |> ORM.update_meta(meta)
+    end
+  end
+
+  defp recount_articles_count(meta) do
+    @article_threads |> Enum.reduce(0, &(&2 + Map.get(meta, :"#{&1}s_count")))
   end
 
   @doc """

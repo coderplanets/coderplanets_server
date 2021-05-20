@@ -1,33 +1,55 @@
+defmodule GroupherServer.CMS.Embeds.CommunityMeta.Macro do
+  @moduledoc false
+
+  import Helper.Utils, only: [get_config: 2]
+
+  @article_threads get_config(:article, :article_threads)
+
+  defmacro thread_count_fields() do
+    @article_threads
+    |> Enum.map(fn thread ->
+      quote do
+        field(unquote(:"#{thread}s_count"), :integer, default: 0)
+      end
+    end)
+  end
+end
+
 defmodule GroupherServer.CMS.Embeds.CommunityMeta do
   @moduledoc """
-  general article meta info for article-like content, like post, job, works ...
+  general community meta
   """
   use Ecto.Schema
   use Accessible
+
   import Ecto.Changeset
+  import Helper.Utils, only: [get_config: 2]
+  import GroupherServer.CMS.Embeds.CommunityMeta.Macro
 
-  @optional_fields ~w(articles_count posts_count jobs_count repos_count subscribers_count subscribed_user_ids editors_count contributes_digest)a
+  @article_threads get_config(:article, :article_threads)
 
-  @default_meta %{
+  @general_options %{
     articles_count: 0,
-    posts_count: 0,
-    jobs_count: 0,
-    repos_count: 0,
     subscribers_count: 0,
-    subscribed_user_ids: [],
     editors_count: 0,
+    subscribed_user_ids: [],
     contributes_digest: []
   }
 
-  @doc "for test usage"
-  def default_meta(), do: @default_meta
+  @optional_fields Map.keys(@general_options) ++ Enum.map(@article_threads, &:"#{&1}s_count")
+
+  def default_meta() do
+    threads_counts =
+      @article_threads
+      |> Enum.reduce([], &(&2 ++ ["#{&1}s_count": 0]))
+      |> Enum.into(%{})
+
+    @general_options |> Map.merge(threads_counts)
+  end
 
   embedded_schema do
+    thread_count_fields()
     field(:articles_count, :integer, default: 0)
-    # TODO: use macros to extract
-    field(:posts_count, :integer, default: 0)
-    field(:jobs_count, :integer, default: 0)
-    field(:repos_count, :integer, default: 0)
 
     # 关注相关
     field(:subscribers_count, :integer, default: 0)

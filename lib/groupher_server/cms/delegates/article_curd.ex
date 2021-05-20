@@ -19,7 +19,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   alias Accounts.User
   alias CMS.{Author, Community, PinnedArticle, Embeds, Delegate}
 
-  alias Delegate.{ArticleCommunity, ArticleTag}
+  alias Delegate.{ArticleCommunity, ArticleTag, CommunityCURD}
 
   alias Ecto.Multi
 
@@ -134,6 +134,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       end)
       |> Multi.run(:set_article_tags, fn _, %{create_article: article} ->
         ArticleTag.set_article_tags(community, thread, article, attrs)
+      end)
+      |> Multi.run(:update_community_article_count, fn _, _ ->
+        CommunityCURD.update_article_count(community, thread)
       end)
       |> Multi.run(:mention_users, fn _, %{create_article: article} ->
         Delivery.mention_from_content(community.raw, thread, article, attrs, %User{id: uid})
