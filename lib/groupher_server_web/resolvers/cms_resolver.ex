@@ -14,7 +14,9 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   # #######################
   # community ..
   # #######################
-  def community(_root, %{id: id}, _info), do: Community |> ORM.find(id)
+  def community(_root, %{id: id}, _info) do
+    Community |> ORM.find(id)
+  end
 
   def community(_root, %{title: title}, _info) do
     case Community |> ORM.find_by(title: title) do

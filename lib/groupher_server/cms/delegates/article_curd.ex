@@ -136,7 +136,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
         ArticleTag.set_article_tags(community, thread, article, attrs)
       end)
       |> Multi.run(:update_community_article_count, fn _, _ ->
-        CommunityCURD.update_article_count(community, thread)
+        CommunityCURD.update_community_meta(community, thread, :count)
       end)
       |> Multi.run(:mention_users, fn _, %{create_article: article} ->
         Delivery.mention_from_content(community.raw, thread, article, attrs, %User{id: uid})

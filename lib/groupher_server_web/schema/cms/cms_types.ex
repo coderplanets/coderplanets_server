@@ -260,16 +260,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:threads, list_of(:thread_item), resolve: dataloader(CMS, :threads))
     field(:categories, list_of(:category), resolve: dataloader(CMS, :categories))
-
-    # field(:posts_count)
-    @desc "total count of post contents"
-    content_counts_field(:post, CMS.Post)
-
-    @desc "total count of job contents"
-    content_counts_field(:job, CMS.Job)
-
-    @desc "total count of repo contents"
-    content_counts_field(:repo, CMS.Repo)
+    field(:meta, :community_meta)
 
     field :subscribers, list_of(:user) do
       arg(:filter, :members_filter)
@@ -277,6 +268,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
       resolve(dataloader(CMS, :subscribers))
     end
 
+    # TODO: remove
     field :subscribers_count, :integer do
       arg(:count, :count_type, default_value: :count)
       arg(:type, :community_type, default_value: :community)
@@ -284,6 +276,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
       middleware(M.ConvertToInt)
     end
 
+    # TODO: remove
     field :viewer_has_subscribed, :boolean do
       arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
 
@@ -306,10 +299,12 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
       middleware(M.ConvertToInt)
     end
 
+    # TODO: remove
     field :threads_count, :integer do
       resolve(&R.CMS.threads_count/3)
     end
 
+    # TODO: remove
     field :article_tags_count, :integer do
       resolve(&R.CMS.article_tags_count/3)
     end
@@ -504,5 +499,14 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:is_edited, :boolean)
     field(:is_comment_locked, :boolean)
     # field(:linked_posts_count, :integer)
+  end
+
+  object :community_meta do
+    field(:articles_count, :integer)
+    threads_count_fields()
+
+    field(:subscribers_count, :integer)
+    field(:editors_count, :integer)
+    field(:contributes_digest, list_of(:integer))
   end
 end

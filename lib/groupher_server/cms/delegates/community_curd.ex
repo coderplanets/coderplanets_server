@@ -49,7 +49,10 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     end
   end
 
-  def update_article_count(%Community{} = community, thread) do
+  @doc """
+  update thread / article count in community meta
+  """
+  def update_community_meta(%Community{} = community, thread, :count) do
     with {:ok, info} <- match(thread) do
       count_query =
         from(a in info.model, join: c in assoc(a, :communities), where: ^community.id == c.id)
