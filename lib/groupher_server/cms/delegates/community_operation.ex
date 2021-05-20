@@ -102,33 +102,23 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
   @doc """
   subscribe a community. (ONLY community, post etc use watch )
   """
-  def subscribe_community(
-        %Community{id: community_id},
-        %User{id: user_id}
-      ) do
-    with {:ok, record} <- CommunitySubscriber |> ORM.create(~m(user_id community_id)a) do
-      Community |> ORM.find(record.community_id)
+  def subscribe_community(%Community{id: community_id}, %User{id: user_id}) do
+    with {:ok, record} <- ORM.create(CommunitySubscriber, ~m(user_id community_id)a) do
+      ORM.find(Community, record.community_id)
     end
   end
 
-  def subscribe_community(
-        %Community{id: community_id},
-        %User{id: user_id},
-        remote_ip
-      ) do
-    with {:ok, record} <- CommunitySubscriber |> ORM.create(~m(user_id community_id)a) do
+  def subscribe_community(%Community{id: community_id}, %User{id: user_id}, remote_ip) do
+    with {:ok, record} <- ORM.create(CommunitySubscriber, ~m(user_id community_id)a) do
       update_community_geo(community_id, user_id, remote_ip, :inc)
-      Community |> ORM.find(record.community_id)
+      ORM.find(Community, record.community_id)
     end
   end
 
   @doc """
   unsubscribe a community
   """
-  def unsubscribe_community(
-        %Community{id: community_id},
-        %User{id: user_id}
-      ) do
+  def unsubscribe_community(%Community{id: community_id}, %User{id: user_id}) do
     with {:ok, community} <- ORM.find(Community, community_id),
          true <- community.raw !== "home",
          {:ok, record} <-
@@ -175,11 +165,8 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
       update_community_geo_map(community.id, city, :dec)
       Community |> ORM.find(record.community_id)
     else
-      false ->
-        {:error, "can't delete home community"}
-
-      error ->
-        error
+      false -> {:error, "can't delete home community"}
+      error -> error
     end
   end
 
@@ -217,12 +204,9 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
   def subscribe_default_community_ifnot(%User{geo_city: city} = user, _remote_ip) do
     with {:ok, community} <- ORM.find_by(Community, raw: "home") do
       case ORM.find_by(CommunitySubscriber, %{community_id: community.id, user_id: user.id}) do
-        {:error, _} ->
-          update_community_geo_map(community.id, city, :inc)
-
-        {:ok, _} ->
-          # 手续齐全且之前也订阅了
-          {:ok, :pass}
+        {:error, _} -> update_community_geo_map(community.id, city, :inc)
+        # 手续齐全且之前也订阅了
+        {:ok, _} -> {:ok, :pass}
       end
     end
   end
