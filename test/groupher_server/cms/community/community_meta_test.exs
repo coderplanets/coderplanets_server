@@ -38,7 +38,7 @@ defmodule GroupherServer.Test.CMS.Community.CommunityMeta do
       assert community.meta |> strip_struct == @default_meta
     end
 
-    @tag :wip2
+    @tag :wip3
     test "create a post should inc posts_count in meta",
          ~m(user community community2 community3)a do
       post_attrs = mock_attrs(:post)
@@ -59,7 +59,7 @@ defmodule GroupherServer.Test.CMS.Community.CommunityMeta do
       assert community2.meta.posts_count == 1
     end
 
-    @tag :wip2
+    @tag :wip3
     test "create a job should inc jobs_count in meta",
          ~m(user community community2 community3)a do
       job_attrs = mock_attrs(:job)
@@ -80,7 +80,7 @@ defmodule GroupherServer.Test.CMS.Community.CommunityMeta do
       assert community2.meta.jobs_count == 1
     end
 
-    @tag :wip2
+    @tag :wip3
     test "create a repo should inc repos_count in meta",
          ~m(user community community2 community3)a do
       repo_attrs = mock_attrs(:repo)
@@ -101,7 +101,7 @@ defmodule GroupherServer.Test.CMS.Community.CommunityMeta do
       assert community2.meta.repos_count == 1
     end
 
-    @tag :wip2
+    @tag :wip3
     test "create a multi article should inc repos_count in meta",
          ~m(user community community2)a do
       post_attrs = mock_attrs(:post)

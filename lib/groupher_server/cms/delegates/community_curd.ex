@@ -49,13 +49,24 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     end
   end
 
+  def update_community_meta(communities, thread, :count) when is_list(communities) do
+    case Enum.all?(communities, &({:ok, _} = update_community_meta(&1, thread, :count))) do
+      true -> {:ok, :pass}
+      false -> {:error, "update_community_meta"}
+    end
+  end
+
   @doc """
   update thread / article count in community meta
   """
   def update_community_meta(%Community{} = community, thread, :count) do
     with {:ok, info} <- match(thread) do
       count_query =
-        from(a in info.model, join: c in assoc(a, :communities), where: ^community.id == c.id)
+        from(a in info.model,
+          join: c in assoc(a, :communities),
+          where: a.mark_delete == false,
+          where: c.id == ^community.id
+        )
 
       thread_article_count = Repo.aggregate(count_query, :count)
       community_meta = if is_nil(community.meta), do: @default_meta, else: community.meta

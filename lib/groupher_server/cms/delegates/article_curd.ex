@@ -48,7 +48,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
         update_viewed_user_list(article, user_id)
       end)
       |> Repo.transaction()
-      |> read_result()
+      |> result()
     end
   end
 
@@ -186,18 +186,42 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       ArticleCommunity.update_edit_status(update_article)
     end)
     |> Repo.transaction()
-    |> update_article_result()
+    |> result()
   end
 
+  @doc """
+  mark delete falst for an anticle
+  """
   def mark_delete_article(thread, id) do
-    with {:ok, info} <- match(thread) do
-      ORM.find_update(info.model, %{id: id, mark_delete: true})
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id, preload: :communities) do
+      Multi.new()
+      |> Multi.run(:update_article, fn _, _ ->
+        ORM.update(article, %{mark_delete: true})
+      end)
+      |> Multi.run(:update_community_article_count, fn _, _ ->
+        CommunityCURD.update_community_meta(article.communities, thread, :count)
+      end)
+      |> Repo.transaction()
+      |> result()
     end
   end
 
+  @doc """
+  undo mark delete falst for an anticle
+  """
   def undo_mark_delete_article(thread, id) do
-    with {:ok, info} <- match(thread) do
-      ORM.find_update(info.model, %{id: id, mark_delete: false})
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id, preload: :communities) do
+      Multi.new()
+      |> Multi.run(:update_article, fn _, _ ->
+        ORM.update(article, %{mark_delete: false})
+      end)
+      |> Multi.run(:update_community_article_count, fn _, _ ->
+        CommunityCURD.update_community_meta(article.communities, thread, :count)
+      end)
+      |> Repo.transaction()
+      |> result()
     end
   end
 
@@ -409,12 +433,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  defp update_article_result({:ok, %{update_edit_status: result}}), do: {:ok, result}
-  defp update_article_result({:error, :update_article, result, _steps}), do: {:error, result}
+  defp result({:ok, %{update_edit_status: result}}), do: {:ok, result}
+  defp result({:ok, %{update_article: result}}), do: {:ok, result}
+  defp result({:ok, %{inc_views: result}}), do: result |> done()
 
-  defp read_result({:ok, %{inc_views: result}}), do: result |> done()
-
-  defp read_result({:error, _, result, _steps}) do
+  defp result({:error, _, result, _steps}) do
     {:error, result}
   end
 end

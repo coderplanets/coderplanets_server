@@ -2,6 +2,7 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
+  alias Helper.ORM
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -13,7 +14,7 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
     user_conn = simu_conn(:user)
     owner_conn = simu_conn(:user, user)
 
-    {:ok, ~m(user_conn guest_conn owner_conn community repo)a}
+    {:ok, ~m(user_conn guest_conn owner_conn community user repo)a}
   end
 
   describe "[mutation repo flag curd]" do
@@ -25,7 +26,6 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
       }
     }
     """
-
     test "auth user can markDelete repo", ~m(repo)a do
       variables = %{id: repo.id}
 
@@ -36,6 +36,25 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
 
       assert updated["id"] == to_string(repo.id)
       assert updated["markDelete"] == true
+    end
+
+    @tag :wip2
+    test "mark delete repo should update repo's communities meta count", ~m(user)a do
+      community_attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id})
+      {:ok, community} = CMS.create_community(community_attrs)
+      {:ok, repo} = CMS.create_article(community, :repo, mock_attrs(:repo), user)
+
+      {:ok, community} = ORM.find(CMS.Community, community.id)
+      assert community.meta.repos_count == 1
+
+      variables = %{id: repo.id}
+      passport_rules = %{"repo.mark_delete" => true}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      rule_conn |> mutation_result(@query, variables, "markDeleteRepo")
+
+      {:ok, community} = ORM.find(CMS.Community, community.id)
+      assert community.meta.repos_count == 0
     end
 
     test "unauth user markDelete repo fails", ~m(user_conn guest_conn repo)a do
@@ -55,7 +74,6 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
       }
     }
     """
-
     test "auth user can undo markDelete repo", ~m(repo)a do
       variables = %{id: repo.id}
 
@@ -68,6 +86,26 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
 
       assert updated["id"] == to_string(repo.id)
       assert updated["markDelete"] == false
+    end
+
+    @tag :wip2
+    test "undo mark delete repo should update repo's communities meta count", ~m(user)a do
+      community_attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id})
+      {:ok, community} = CMS.create_community(community_attrs)
+      {:ok, repo} = CMS.create_article(community, :repo, mock_attrs(:repo), user)
+
+      {:ok, _} = CMS.mark_delete_article(:repo, repo.id)
+
+      {:ok, community} = ORM.find(CMS.Community, community.id)
+      assert community.meta.repos_count == 0
+
+      variables = %{id: repo.id}
+      passport_rules = %{"repo.undo_mark_delete" => true}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+      rule_conn |> mutation_result(@query, variables, "undoMarkDeleteRepo")
+
+      {:ok, community} = ORM.find(CMS.Community, community.id)
+      assert community.meta.repos_count == 1
     end
 
     test "unauth user undo markDelete repo fails", ~m(user_conn guest_conn repo)a do

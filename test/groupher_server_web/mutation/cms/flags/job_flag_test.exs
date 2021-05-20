@@ -2,6 +2,7 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
+  alias Helper.ORM
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -13,7 +14,7 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
     user_conn = simu_conn(:user)
     owner_conn = simu_conn(:user, user)
 
-    {:ok, ~m(user_conn guest_conn owner_conn community job)a}
+    {:ok, ~m(user_conn guest_conn owner_conn community user job)a}
   end
 
   describe "[mutation job flag curd]" do
@@ -25,7 +26,6 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
       }
     }
     """
-
     test "auth user can markDelete job", ~m(job)a do
       variables = %{id: job.id}
 
@@ -36,6 +36,25 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
 
       assert updated["id"] == to_string(job.id)
       assert updated["markDelete"] == true
+    end
+
+    @tag :wip2
+    test "mark delete job should update job's communities meta count", ~m(user)a do
+      community_attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id})
+      {:ok, community} = CMS.create_community(community_attrs)
+      {:ok, job} = CMS.create_article(community, :job, mock_attrs(:job), user)
+
+      {:ok, community} = ORM.find(CMS.Community, community.id)
+      assert community.meta.jobs_count == 1
+
+      variables = %{id: job.id}
+      passport_rules = %{"job.mark_delete" => true}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      rule_conn |> mutation_result(@query, variables, "markDeleteJob")
+
+      {:ok, community} = ORM.find(CMS.Community, community.id)
+      assert community.meta.jobs_count == 0
     end
 
     test "unauth user markDelete job fails", ~m(user_conn guest_conn job)a do
@@ -55,7 +74,6 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
       }
     }
     """
-
     test "auth user can undo markDelete job", ~m(job)a do
       variables = %{id: job.id}
 
@@ -68,6 +86,26 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
 
       assert updated["id"] == to_string(job.id)
       assert updated["markDelete"] == false
+    end
+
+    @tag :wip2
+    test "undo mark delete job should update job's communities meta count", ~m(user)a do
+      community_attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id})
+      {:ok, community} = CMS.create_community(community_attrs)
+      {:ok, job} = CMS.create_article(community, :job, mock_attrs(:job), user)
+
+      {:ok, _} = CMS.mark_delete_article(:job, job.id)
+
+      {:ok, community} = ORM.find(CMS.Community, community.id)
+      assert community.meta.jobs_count == 0
+
+      variables = %{id: job.id}
+      passport_rules = %{"job.undo_mark_delete" => true}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+      rule_conn |> mutation_result(@query, variables, "undoMarkDeleteJob")
+
+      {:ok, community} = ORM.find(CMS.Community, community.id)
+      assert community.meta.jobs_count == 1
     end
 
     test "unauth user undo markDelete job fails", ~m(user_conn guest_conn job)a do
