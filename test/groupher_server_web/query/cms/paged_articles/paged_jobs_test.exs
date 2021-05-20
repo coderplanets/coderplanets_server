@@ -69,7 +69,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert results["entries"] |> List.first() |> Map.get("articleTags") |> is_list
     end
 
-    @tag :wip2
     test "support article_tag filter", ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
       job_attrs = mock_attrs(:job, %{community_id: community.id})
@@ -87,7 +86,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert exist_in?(article_tag, job["articleTags"], :string_key)
     end
 
-    @tag :wip2
     test "support community filter", ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
 

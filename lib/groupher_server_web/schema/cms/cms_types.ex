@@ -11,7 +11,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   alias GroupherServer.CMS
   alias GroupherServerWeb.Schema
 
-  import_types(Schema.CMS.Misc)
+  import_types(Schema.CMS.Metrics)
 
   ######
   # common stands for minimal info of the type
@@ -261,6 +261,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:threads, list_of(:thread_item), resolve: dataloader(CMS, :threads))
     field(:categories, list_of(:category), resolve: dataloader(CMS, :categories))
 
+    # field(:posts_count)
     @desc "total count of post contents"
     content_counts_field(:post, CMS.Post)
 

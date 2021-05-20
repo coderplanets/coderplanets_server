@@ -1,4 +1,4 @@
-defmodule GroupherServerWeb.Schema.CMS.Misc do
+defmodule GroupherServerWeb.Schema.CMS.Metrics do
   @moduledoc """
   common metrics in queries
   """

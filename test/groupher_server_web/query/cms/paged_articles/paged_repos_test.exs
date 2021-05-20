@@ -66,7 +66,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
       assert results["entries"] |> List.first() |> Map.get("articleTags") |> is_list
     end
 
-    @tag :wip2
     test "support article_tag filter", ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
       repo_attrs = mock_attrs(:repo, %{community_id: community.id})
@@ -84,7 +83,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
       assert exist_in?(article_tag, repo["articleTags"], :string_key)
     end
 
-    @tag :wip2
     test "support community filter", ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
 

@@ -9,9 +9,37 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
 
   alias Helper.ORM
   alias Helper.QueryBuilder
-  alias GroupherServer.{Accounts, CMS}
+  alias GroupherServer.{Accounts, CMS, Repo}
 
-  alias CMS.{ArticleTag, Category, Community, CommunityEditor, CommunitySubscriber, Thread}
+  alias Accounts.User
+
+  alias CMS.{
+    Embeds,
+    ArticleTag,
+    Category,
+    Community,
+    CommunityEditor,
+    CommunitySubscriber,
+    Thread
+  }
+
+  @default_meta Embeds.CommunityMeta.default_meta()
+
+  def create_community(%{user_id: user_id} = args) do
+    with {:ok, author} <- ensure_author_exists(%User{id: user_id}) do
+      args = args |> Map.merge(%{user_id: author.user_id, meta: @default_meta})
+      Community |> ORM.create(args)
+    end
+  end
+
+  def update_community(id, args) do
+    with {:ok, community} <- ORM.find(Community, id) do
+      case community.meta do
+        nil -> ORM.update(community, args |> Map.merge(%{meta: @default_meta}))
+        _ -> ORM.update(community, args)
+      end
+    end
+  end
 
   @doc """
   return paged community subscribers
@@ -39,16 +67,16 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   @doc """
   update community editor
   """
-  def update_editor(%Community{id: community_id}, title, %Accounts.User{id: user_id}) do
+  def update_editor(%Community{id: community_id}, title, %User{id: user_id}) do
     clauses = ~m(user_id community_id)a
 
     with {:ok, _} <- CommunityEditor |> ORM.update_by(clauses, ~m(title)a) do
-      Accounts.User |> ORM.find(user_id)
+      User |> ORM.find(user_id)
     end
   end
 
-  def create_category(attrs, %Accounts.User{id: user_id}) do
-    with {:ok, author} <- ensure_author_exists(%Accounts.User{id: user_id}) do
+  def create_category(attrs, %User{id: user_id}) do
+    with {:ok, author} <- ensure_author_exists(%User{id: user_id}) do
       attrs = attrs |> Map.merge(%{author_id: author.id})
       Category |> ORM.create(attrs)
     end

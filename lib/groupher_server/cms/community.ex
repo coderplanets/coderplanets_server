@@ -9,6 +9,7 @@ defmodule GroupherServer.CMS.Community do
   alias GroupherServer.{Accounts, CMS}
 
   alias CMS.{
+    Embeds,
     Category,
     CommunityThread,
     CommunitySubscriber,
@@ -36,6 +37,7 @@ defmodule GroupherServer.CMS.Community do
     field(:index, :integer)
     field(:geo_info, :map)
 
+    embeds_one(:meta, Embeds.CommunityMeta, on_replace: :delete)
     belongs_to(:author, Accounts.User, foreign_key: :user_id)
 
     has_many(:threads, {"communities_threads", CommunityThread})
@@ -68,6 +70,7 @@ defmodule GroupherServer.CMS.Community do
     community
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
+    |> cast_embed(:meta, with: &Embeds.CommunityMeta.changeset/2)
     |> validate_length(:title, min: 1, max: 30)
     |> foreign_key_constraint(:user_id)
     |> unique_constraint(:title, name: :communities_title_index)
@@ -82,6 +85,7 @@ defmodule GroupherServer.CMS.Community do
     # |> unique_constraint(:title, name: :communities_title_index)
     community
     |> cast(attrs, @optional_fields ++ @required_fields)
+    |> cast_embed(:meta, with: &Embeds.CommunityMeta.changeset/2)
     |> validate_length(:title, min: 1, max: 30)
     |> foreign_key_constraint(:user_id)
     |> unique_constraint(:title, name: :communities_title_index)

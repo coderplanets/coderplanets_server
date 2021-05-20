@@ -1,4 +1,4 @@
-defmodule GroupherServerWeb.Schema.Account.Misc do
+defmodule GroupherServerWeb.Schema.Account.Metrics do
   @moduledoc false
 
   use Absinthe.Schema.Notation
