@@ -55,6 +55,5 @@ defmodule GroupherServer.CMS.Embeds.CommunityMeta do
   def changeset(struct, params) do
     struct
     |> cast(params, @optional_fields)
-    |> IO.inspect(label: "community meta casting?")
   end
 end

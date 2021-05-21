@@ -273,24 +273,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
       resolve(dataloader(CMS, :subscribers))
     end
 
-    # TODO: remove
-    field :subscribers_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-      arg(:type, :community_type, default_value: :community)
-      resolve(dataloader(CMS, :subscribers))
-      middleware(M.ConvertToInt)
-    end
-
-    # TODO: remove
-    field :viewer_has_subscribed, :boolean do
-      arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
-
-      middleware(M.Authorize, :login)
-      middleware(M.PutCurrentUser)
-      resolve(dataloader(CMS, :subscribers))
-      middleware(M.ViewerDidConvert)
-    end
-
     field :editors, list_of(:user) do
       arg(:filter, :members_filter)
       middleware(M.PageSizeProof)

@@ -49,6 +49,8 @@ defmodule GroupherServer.CMS.Community do
     field(:editors_count, :integer, default: 0)
     field(:subscribers_count, :integer, default: 0)
 
+    field(:viewer_has_subscribed, :boolean, default: false, virtual: true)
+
     has_one(:wiki, CommunityWiki)
     has_one(:cheatsheet, CommunityCheatsheet)
 
