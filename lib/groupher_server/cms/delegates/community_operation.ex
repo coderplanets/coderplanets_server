@@ -4,13 +4,13 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
   """
   import ShortMaps
 
-  alias Ecto.Multi
   alias Helper.{Certification, RadarSearch, ORM}
   alias GroupherServer.Accounts.User
   alias GroupherServer.CMS.Delegate.PassportCURD
   alias GroupherServer.Repo
 
   alias GroupherServer.CMS.{
+    Delegate,
     Category,
     Community,
     CommunityCategory,
@@ -19,6 +19,9 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
     CommunityThread,
     Thread
   }
+
+  alias Delegate.CommunityCURD
+  alias Ecto.Multi
 
   @doc """
   set a category to community
@@ -104,14 +107,32 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
   """
   def subscribe_community(%Community{id: community_id}, %User{id: user_id}) do
     with {:ok, record} <- ORM.create(CommunitySubscriber, ~m(user_id community_id)a) do
-      ORM.find(Community, record.community_id)
+      Multi.new()
+      |> Multi.run(:subscribed_community, fn _, _ ->
+        ORM.find(Community, record.community_id)
+      end)
+      |> Multi.run(:update_community_count, fn _, %{subscribed_community: community} ->
+        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :inc)
+      end)
+      |> Repo.transaction()
+      |> result()
     end
   end
 
   def subscribe_community(%Community{id: community_id}, %User{id: user_id}, remote_ip) do
     with {:ok, record} <- ORM.create(CommunitySubscriber, ~m(user_id community_id)a) do
-      update_community_geo(community_id, user_id, remote_ip, :inc)
-      ORM.find(Community, record.community_id)
+      Multi.new()
+      |> Multi.run(:subscribed_community, fn _, _ ->
+        ORM.find(Community, record.community_id)
+      end)
+      |> Multi.run(:update_community_geo, fn _, _ ->
+        update_community_geo(community_id, user_id, remote_ip, :inc)
+      end)
+      |> Multi.run(:update_community_count, fn _, %{subscribed_community: community} ->
+        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :inc)
+      end)
+      |> Repo.transaction()
+      |> result()
     end
   end
 
@@ -123,7 +144,15 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
          true <- community.raw !== "home",
          {:ok, record} <-
            ORM.findby_delete!(CommunitySubscriber, community_id: community.id, user_id: user_id) do
-      Community |> ORM.find(record.community_id)
+      Multi.new()
+      |> Multi.run(:unsubscribed_community, fn _, _ ->
+        ORM.find(Community, record.community_id)
+      end)
+      |> Multi.run(:update_community_count, fn _, %{unsubscribed_community: community} ->
+        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
+      end)
+      |> Repo.transaction()
+      |> result()
     else
       false ->
         {:error, "can not unsubscribe home community"}
@@ -142,8 +171,18 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
          true <- community.raw !== "home",
          {:ok, record} <-
            CommunitySubscriber |> ORM.findby_delete!(community_id: community.id, user_id: user_id) do
-      update_community_geo(community_id, user_id, remote_ip, :dec)
-      Community |> ORM.find(record.community_id)
+      Multi.new()
+      |> Multi.run(:unsubscribed_community, fn _, _ ->
+        ORM.find(Community, record.community_id)
+      end)
+      |> Multi.run(:update_community_geo, fn _, _ ->
+        update_community_geo(community_id, user_id, remote_ip, :dec)
+      end)
+      |> Multi.run(:update_community_count, fn _, %{unsubscribed_community: community} ->
+        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
+      end)
+      |> Repo.transaction()
+      |> result()
     else
       false ->
         {:error, "can't delete home community"}
@@ -162,8 +201,18 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
          true <- community.raw !== "home",
          {:ok, record} <-
            CommunitySubscriber |> ORM.findby_delete!(community_id: community.id, user_id: user_id) do
-      update_community_geo_map(community.id, city, :dec)
-      Community |> ORM.find(record.community_id)
+      Multi.new()
+      |> Multi.run(:unsubscribed_community, fn _, _ ->
+        ORM.find(Community, record.community_id)
+      end)
+      |> Multi.run(:update_community_geo_city, fn _, _ ->
+        update_community_geo_map(community.id, city, :dec)
+      end)
+      |> Multi.run(:update_community_count, fn _, %{unsubscribed_community: community} ->
+        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
+      end)
+      |> Repo.transaction()
+      |> result()
     else
       false -> {:error, "can't delete home community"}
       error -> error
@@ -254,5 +303,17 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
 
   defp update_geo_value(geo_info, :dec) do
     Map.merge(geo_info, %{"value" => max(geo_info["value"] - 1, 0)})
+  end
+
+  defp result({:ok, %{subscribed_community: result}}) do
+    {:ok, result}
+  end
+
+  defp result({:ok, %{unsubscribed_community: result}}) do
+    {:ok, result}
+  end
+
+  defp result({:error, _, result, _steps}) do
+    {:error, result}
   end
 end

@@ -145,7 +145,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
         ArticleTag.set_article_tags(community, thread, article, attrs)
       end)
       |> Multi.run(:update_community_article_count, fn _, _ ->
-        CommunityCURD.update_community_meta(community, thread, :count)
+        CommunityCURD.update_community_count_field(community, thread)
       end)
       |> Multi.run(:mention_users, fn _, %{create_article: article} ->
         Delivery.mention_from_content(community.raw, thread, article, attrs, %User{id: uid})
@@ -209,7 +209,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
         ORM.update(article, %{mark_delete: true})
       end)
       |> Multi.run(:update_community_article_count, fn _, _ ->
-        CommunityCURD.update_community_meta(article.communities, thread, :count)
+        CommunityCURD.update_community_count_field(article.communities, thread)
       end)
       |> Repo.transaction()
       |> result()
@@ -227,7 +227,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
         ORM.update(article, %{mark_delete: false})
       end)
       |> Multi.run(:update_community_article_count, fn _, _ ->
-        CommunityCURD.update_community_meta(article.communities, thread, :count)
+        CommunityCURD.update_community_count_field(article.communities, thread)
       end)
       |> Repo.transaction()
       |> result()

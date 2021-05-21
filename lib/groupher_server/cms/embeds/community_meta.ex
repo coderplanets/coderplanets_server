@@ -29,8 +29,6 @@ defmodule GroupherServer.CMS.Embeds.CommunityMeta do
   @article_threads get_config(:article, :article_threads)
 
   @general_options %{
-    subscribers_count: 0,
-    editors_count: 0,
     subscribed_user_ids: [],
     contributes_digest: []
   }
@@ -50,14 +48,13 @@ defmodule GroupherServer.CMS.Embeds.CommunityMeta do
     thread_count_fields()
 
     # 关注相关
-    field(:subscribers_count, :integer, default: 0)
     field(:subscribed_user_ids, {:array, :integer}, default: [])
-
-    field(:editors_count, :integer, default: 0)
     field(:contributes_digest, {:array, :integer}, default: [])
   end
 
   def changeset(struct, params) do
-    struct |> cast(params, @optional_fields)
+    struct
+    |> cast(params, @optional_fields)
+    |> IO.inspect(label: "community meta casting?")
   end
 end

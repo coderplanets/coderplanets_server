@@ -3,7 +3,7 @@ defmodule GroupherServer.Test.CMS do
 
   alias GroupherServer.Accounts.User
   alias GroupherServer.CMS
-  alias CMS.Community
+  alias CMS.{Community, CommunityEditor}
 
   alias Helper.{Certification, ORM}
 
@@ -88,8 +88,6 @@ defmodule GroupherServer.Test.CMS do
   end
 
   describe "[cms community thread]" do
-    alias CMS.Community
-
     test "can create thread to a community" do
       title = "post"
       raw = "POST"
@@ -115,8 +113,6 @@ defmodule GroupherServer.Test.CMS do
   end
 
   describe "[cms community editors]" do
-    alias CMS.{Community, CommunityEditor}
-
     test "can add editor to a community, editor has default passport", ~m(user community)a do
       title = "chief editor"
 
@@ -150,11 +146,37 @@ defmodule GroupherServer.Test.CMS do
   end
 
   describe "[cms community subscribe]" do
-    alias CMS.Community
-
+    # @tag :wip2
     test "user can subscribe a community", ~m(user community)a do
       {:ok, record} = CMS.subscribe_community(community, user)
       assert community.id == record.id
+    end
+
+    @tag :wip2
+    test "user subscribe a community will update the community's subscribted info",
+         ~m(user community)a do
+      assert community.subscribers_count == 0
+      {:ok, record} = CMS.subscribe_community(community, user)
+
+      {:ok, community} = ORM.find(Community, community.id)
+      assert community.subscribers_count == 1
+
+      assert user.id in community.meta.subscribed_user_ids
+    end
+
+    @tag :wip2
+    test "user unsubscribe a community will update the community's subscribted info",
+         ~m(user community)a do
+      {:ok, _} = CMS.subscribe_community(community, user)
+      {:ok, community} = ORM.find(Community, community.id)
+      assert community.subscribers_count == 1
+      assert user.id in community.meta.subscribed_user_ids
+
+      {:ok, _} = CMS.unsubscribe_community(community, user)
+
+      {:ok, community} = ORM.find(Community, community.id)
+      assert community.subscribers_count == 0
+      assert user.id not in community.meta.subscribed_user_ids
     end
 
     test "user can get paged-subscribers of a community", ~m(community)a do

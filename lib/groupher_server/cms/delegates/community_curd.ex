@@ -65,17 +65,39 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     end
   end
 
-  def update_community_meta(communities, thread, :count) when is_list(communities) do
-    case Enum.all?(communities, &({:ok, _} = update_community_meta(&1, thread, :count))) do
+  @doc """
+  update subscribers_count of a community
+  """
+  def update_community_count_field(%Community{} = community, user_id, :subscribers_count, opt) do
+    count_query = from(s in CommunitySubscriber, where: s.community_id == ^community.id)
+    subscribers_count = Repo.aggregate(count_query, :count)
+    community_meta = if is_nil(community.meta), do: @default_meta, else: community.meta
+
+    subscribed_user_ids =
+      case opt do
+        :inc -> (community_meta.subscribed_user_ids ++ [user_id]) |> Enum.uniq()
+        :dec -> (community_meta.subscribed_user_ids -- [user_id]) |> Enum.uniq()
+      end
+
+    meta = community_meta |> Map.put(:subscribed_user_ids, subscribed_user_ids) |> strip_struct
+
+    community
+    |> Ecto.Changeset.change(%{subscribers_count: subscribers_count})
+    |> Ecto.Changeset.put_embed(:meta, meta)
+    |> Repo.update()
+  end
+
+  def update_community_count_field(communities, thread) when is_list(communities) do
+    case Enum.all?(communities, &({:ok, _} = update_community_count_field(&1, thread))) do
       true -> {:ok, :pass}
-      false -> {:error, "update_community_meta"}
+      false -> {:error, "update_community_count_field"}
     end
   end
 
   @doc """
   update thread / article count in community meta
   """
-  def update_community_meta(%Community{} = community, thread, :count) do
+  def update_community_count_field(%Community{} = community, thread) do
     with {:ok, info} <- match(thread) do
       count_query =
         from(a in info.model,

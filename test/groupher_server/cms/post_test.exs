@@ -47,7 +47,6 @@ defmodule GroupherServer.Test.CMS.Post do
       assert user2.id in created.meta.viewed_user_ids
     end
 
-    @tag :wip2
     test "read post should contains viewer_has_xxx state", ~m(post_attrs community user user2)a do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
       {:ok, post} = CMS.read_article(:post, post.id, user)

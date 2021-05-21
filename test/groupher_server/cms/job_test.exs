@@ -46,7 +46,6 @@ defmodule GroupherServer.Test.Job do
       assert user2.id in created.meta.viewed_user_ids
     end
 
-    @tag :wip2
     test "read job should contains viewer_has_xxx state", ~m(job_attrs community user user2)a do
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
       {:ok, job} = CMS.read_article(:job, job.id, user)
