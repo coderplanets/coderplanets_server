@@ -47,6 +47,38 @@ defmodule GroupherServer.Test.CMS.Post do
       assert user2.id in created.meta.viewed_user_ids
     end
 
+    @tag :wip2
+    test "read post should contains viewer_has_xxx state", ~m(post_attrs community user user2)a do
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+      {:ok, post} = CMS.read_article(:post, post.id, user)
+
+      assert not post.viewer_has_collected
+      assert not post.viewer_has_upvoted
+      assert not post.viewer_has_reported
+
+      {:ok, post} = CMS.read_article(:post, post.id)
+
+      assert not post.viewer_has_collected
+      assert not post.viewer_has_upvoted
+      assert not post.viewer_has_reported
+
+      {:ok, post} = CMS.read_article(:post, post.id, user2)
+
+      assert not post.viewer_has_collected
+      assert not post.viewer_has_upvoted
+      assert not post.viewer_has_reported
+
+      {:ok, _} = CMS.upvote_article(:post, post.id, user)
+      {:ok, _} = CMS.collect_article(:post, post.id, user)
+      {:ok, _} = CMS.report_article(:post, post.id, "reason", "attr_info", user)
+
+      {:ok, post} = CMS.read_article(:post, post.id, user)
+
+      assert post.viewer_has_collected
+      assert post.viewer_has_upvoted
+      assert post.viewer_has_reported
+    end
+
     test "add user to cms authors, if the user is not exsit in cms authors",
          ~m(user community post_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)

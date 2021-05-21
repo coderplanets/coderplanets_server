@@ -46,6 +46,38 @@ defmodule GroupherServer.Test.Job do
       assert user2.id in created.meta.viewed_user_ids
     end
 
+    @tag :wip2
+    test "read job should contains viewer_has_xxx state", ~m(job_attrs community user user2)a do
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
+      {:ok, job} = CMS.read_article(:job, job.id, user)
+
+      assert not job.viewer_has_collected
+      assert not job.viewer_has_upvoted
+      assert not job.viewer_has_reported
+
+      {:ok, job} = CMS.read_article(:job, job.id)
+
+      assert not job.viewer_has_collected
+      assert not job.viewer_has_upvoted
+      assert not job.viewer_has_reported
+
+      {:ok, job} = CMS.read_article(:job, job.id, user2)
+
+      assert not job.viewer_has_collected
+      assert not job.viewer_has_upvoted
+      assert not job.viewer_has_reported
+
+      {:ok, _} = CMS.upvote_article(:job, job.id, user)
+      {:ok, _} = CMS.collect_article(:job, job.id, user)
+      {:ok, _} = CMS.report_article(:job, job.id, "reason", "attr_info", user)
+
+      {:ok, job} = CMS.read_article(:job, job.id, user)
+
+      assert job.viewer_has_collected
+      assert job.viewer_has_upvoted
+      assert job.viewer_has_reported
+    end
+
     test "create job with an exsit community fails", ~m(user)a do
       invalid_attrs = mock_attrs(:job, %{community_id: non_exsit_id()})
       ivalid_community = %Community{id: non_exsit_id()}

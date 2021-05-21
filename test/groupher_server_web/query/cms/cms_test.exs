@@ -31,7 +31,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
-    @tag :wip2
+    @tag :wip3
     test "views should work", ~m(guest_conn)a do
       {:ok, community} = db_insert(:community)
 

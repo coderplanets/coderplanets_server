@@ -47,6 +47,15 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Multi.run(:add_viewed_user, fn _, %{inc_views: article} ->
         update_viewed_user_list(article, user_id)
       end)
+      |> Multi.run(:set_viewer_has_states, fn _, %{inc_views: article} ->
+        viewer_has_states = %{
+          viewer_has_collected: user_id in article.meta.collected_user_ids,
+          viewer_has_upvoted: user_id in article.meta.upvoted_user_ids,
+          viewer_has_reported: user_id in article.meta.reported_user_ids
+        }
+
+        {:ok, Map.merge(article, viewer_has_states)}
+      end)
       |> Repo.transaction()
       |> result()
     end
@@ -435,7 +444,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp result({:ok, %{update_edit_status: result}}), do: {:ok, result}
   defp result({:ok, %{update_article: result}}), do: {:ok, result}
-  defp result({:ok, %{inc_views: result}}), do: result |> done()
+  defp result({:ok, %{set_viewer_has_states: result}}), do: result |> done()
 
   defp result({:error, _, result, _steps}) do
     {:error, result}
