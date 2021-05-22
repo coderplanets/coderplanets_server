@@ -17,7 +17,6 @@ defmodule GroupherServer.Test.CMS.Community do
   end
 
   describe "[cms community read]" do
-    @tag :wip2
     test "read community should inc views", ~m(community)a do
       {:ok, community} = CMS.read_community(%{id: community.id})
 
@@ -28,7 +27,6 @@ defmodule GroupherServer.Test.CMS.Community do
       assert community.views == 3
     end
 
-    @tag :wip2
     test "read subscribed community should have a flag", ~m(community user user2)a do
       {:ok, _} = CMS.subscribe_community(community, user)
 
@@ -50,11 +48,10 @@ defmodule GroupherServer.Test.CMS.Community do
       assert community.id == record.id
     end
 
-    @tag :wip2
     test "user subscribe a community will update the community's subscribted info",
          ~m(user community)a do
       assert community.subscribers_count == 0
-      {:ok, record} = CMS.subscribe_community(community, user)
+      {:ok, _record} = CMS.subscribe_community(community, user)
 
       {:ok, community} = ORM.find(Community, community.id)
       assert community.subscribers_count == 1
@@ -62,7 +59,6 @@ defmodule GroupherServer.Test.CMS.Community do
       assert user.id in community.meta.subscribed_user_ids
     end
 
-    @tag :wip2
     test "user unsubscribe a community will update the community's subscribted info",
          ~m(user community)a do
       {:ok, _} = CMS.subscribe_community(community, user)

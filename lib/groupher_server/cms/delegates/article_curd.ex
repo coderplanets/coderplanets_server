@@ -48,10 +48,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
         update_viewed_user_list(article, user_id)
       end)
       |> Multi.run(:set_viewer_has_states, fn _, %{inc_views: article} ->
+        article_meta = if is_nil(article.meta), do: @default_article_meta, else: article.meta
+
         viewer_has_states = %{
-          viewer_has_collected: user_id in article.meta.collected_user_ids,
-          viewer_has_upvoted: user_id in article.meta.upvoted_user_ids,
-          viewer_has_reported: user_id in article.meta.reported_user_ids
+          viewer_has_collected: user_id in article_meta.collected_user_ids,
+          viewer_has_upvoted: user_id in article_meta.upvoted_user_ids,
+          viewer_has_reported: user_id in article_meta.reported_user_ids
         }
 
         {:ok, Map.merge(article, viewer_has_states)}

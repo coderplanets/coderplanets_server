@@ -19,7 +19,7 @@ defmodule GroupherServer.Test.Query.Articles.Repo do
     }
   }
   """
-
+  @tag :wip2
   test "basic graphql query on repo with logined user", ~m(user_conn repo)a do
     variables = %{id: repo.id}
     results = user_conn |> query_result(@query, variables, "repo")
