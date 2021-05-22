@@ -148,44 +148,21 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.paged_comments/3)
     end
 
-    @desc "search communities by title"
-    field :search_communities, :paged_communities do
-      arg(:title, non_null(:string))
-      arg(:part, :community_type, default_value: :community)
-
-      resolve(&R.CMS.search_items/3)
-    end
-
-    @desc "search post by title"
-    field :search_posts, :paged_posts do
-      arg(:title, non_null(:string))
-      arg(:part, :post_thread, default_value: :post)
-
-      resolve(&R.CMS.search_items/3)
-    end
-
-    @desc "search job by title"
-    field :search_jobs, :paged_jobs do
-      arg(:title, non_null(:string))
-      arg(:part, :job_thread, default_value: :job)
-
-      resolve(&R.CMS.search_items/3)
-    end
-
-    @desc "search repo by title"
-    field :search_repos, :paged_repos do
-      arg(:title, non_null(:string))
-      arg(:part, :repo_thread, default_value: :repo)
-
-      resolve(&R.CMS.search_items/3)
-    end
-
     @desc "paged reports list"
     field :paged_abuse_reports, :paged_reports do
       arg(:filter, non_null(:report_filter))
 
       resolve(&R.CMS.paged_reports/3)
     end
+
+    @desc "search communities by title"
+    field :search_communities, :paged_communities do
+      arg(:title, non_null(:string))
+
+      resolve(&R.CMS.search_communities/3)
+    end
+
+    article_search_queries()
 
     article_reacted_users_query(:upvot, &R.CMS.upvoted_users/3)
     article_reacted_users_query(:collect, &R.CMS.collected_users/3)
