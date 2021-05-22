@@ -39,10 +39,47 @@ defmodule GroupherServer.Test.CMS.Community do
       assert not community.viewer_has_subscribed
       assert user2.id not in community.meta.subscribed_user_ids
     end
+
+    @tag :wip2
+    test "read editored community should have a flag", ~m(community user user2)a do
+      title = "chief editor"
+      {:ok, community} = CMS.set_editor(community, title, user)
+
+      {:ok, community} = CMS.read_community(%{id: community.id}, user)
+      assert community.viewer_is_editor
+
+      {:ok, community} = CMS.read_community(%{id: community.id}, user2)
+      assert not community.viewer_is_editor
+
+      {:ok, community} = CMS.unset_editor(community, user)
+      {:ok, community} = CMS.read_community(%{id: community.id}, user)
+      assert not community.viewer_is_editor
+    end
+  end
+
+  describe "[cms community editor]" do
+    @tag :wip2
+    test "can set editor to a community", ~m(user community)a do
+      title = "chief editor"
+      {:ok, community} = CMS.set_editor(community, title, user)
+
+      assert community.editors_count == 1
+      assert user.id in community.meta.editors_ids
+    end
+
+    @tag :wip2
+    test "can unset editor to a community", ~m(user community)a do
+      title = "chief editor"
+      {:ok, community} = CMS.set_editor(community, title, user)
+      assert community.editors_count == 1
+
+      {:ok, community} = CMS.unset_editor(community, user)
+      assert community.editors_count == 0
+      assert user.id not in community.meta.editors_ids
+    end
   end
 
   describe "[cms community subscribe]" do
-    # @tag :wip2
     test "user can subscribe a community", ~m(user community)a do
       {:ok, record} = CMS.subscribe_community(community, user)
       assert community.id == record.id

@@ -50,6 +50,7 @@ defmodule GroupherServer.CMS.Community do
     field(:subscribers_count, :integer, default: 0)
 
     field(:viewer_has_subscribed, :boolean, default: false, virtual: true)
+    field(:viewer_is_editor, :boolean, default: false, virtual: true)
 
     has_one(:wiki, CommunityWiki)
     has_one(:cheatsheet, CommunityCheatsheet)

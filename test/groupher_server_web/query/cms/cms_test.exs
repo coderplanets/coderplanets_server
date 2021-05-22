@@ -326,14 +326,12 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
+    @tag :wip2
     test "guest can get editors list and count of a community", ~m(guest_conn community)a do
       title = "chief editor"
       {:ok, users} = db_insert_multi(:user, assert_v(:inner_page_size))
 
-      Enum.each(
-        users,
-        &CMS.set_editor(community, title, %User{id: &1.id})
-      )
+      Enum.each(users, &CMS.set_editor(community, title, %User{id: &1.id}))
 
       variables = %{id: community.id}
       results = guest_conn |> query_result(@query, variables, "community")
@@ -363,14 +361,12 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
+    @tag :wip2
     test "guest user can get paged editors", ~m(guest_conn community)a do
       title = "chief editor"
       {:ok, users} = db_insert_multi(:user, 25)
 
-      Enum.each(
-        users,
-        &CMS.set_editor(community, title, %User{id: &1.id})
-      )
+      Enum.each(users, &CMS.set_editor(community, title, %User{id: &1.id}))
 
       variables = %{id: community.id, filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "communityEditors")

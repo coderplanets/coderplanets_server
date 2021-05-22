@@ -279,13 +279,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
       resolve(dataloader(CMS, :editors))
     end
 
-    field :editors_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-      arg(:type, :community_type, default_value: :community)
-      resolve(dataloader(CMS, :editors))
-      middleware(M.ConvertToInt)
-    end
-
     # TODO: remove
     field :threads_count, :integer do
       resolve(&R.CMS.threads_count/3)

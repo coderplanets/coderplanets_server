@@ -55,6 +55,28 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   end
 
   @doc """
+  update editors_count of a community
+  """
+  def update_community_count_field(%Community{} = community, user_id, :editors_count, opt) do
+    count_query = from(s in CommunityEditor, where: s.community_id == ^community.id)
+    editors_count = Repo.aggregate(count_query, :count)
+    community_meta = if is_nil(community.meta), do: @default_meta, else: community.meta
+
+    editors_ids =
+      case opt do
+        :inc -> (community_meta.editors_ids ++ [user_id]) |> Enum.uniq()
+        :dec -> (community_meta.editors_ids -- [user_id]) |> Enum.uniq()
+      end
+
+    meta = community_meta |> Map.put(:editors_ids, editors_ids) |> strip_struct
+
+    community
+    |> Ecto.Changeset.change(%{editors_count: editors_count})
+    |> Ecto.Changeset.put_embed(:meta, meta)
+    |> Repo.update()
+  end
+
+  @doc """
   update subscribers_count of a community
   """
   def update_community_count_field(%Community{} = community, user_id, :subscribers_count, opt) do
@@ -213,7 +235,10 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   end
 
   defp viewer_has_states({:ok, community}, %User{id: user_id}) do
-    viewer_has_states = %{viewer_has_subscribed: user_id in community.meta.subscribed_user_ids}
+    viewer_has_states = %{
+      viewer_has_subscribed: user_id in community.meta.subscribed_user_ids,
+      viewer_is_editor: user_id in community.meta.editors_ids
+    }
 
     {:ok, Map.merge(community, viewer_has_states)}
   end

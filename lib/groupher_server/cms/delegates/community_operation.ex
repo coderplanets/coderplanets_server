@@ -71,36 +71,38 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
       :insert_editor,
       CommunityEditor.changeset(%CommunityEditor{}, ~m(user_id community_id title)a)
     )
+    |> Multi.run(:update_editors_count, fn _, _ ->
+      with {:ok, community} <- ORM.find(Community, community_id) do
+        CommunityCURD.update_community_count_field(community, user_id, :editors_count, :inc)
+      end
+    end)
     |> Multi.run(:stamp_passport, fn _, _ ->
       rules = Certification.passport_rules(cms: title)
       PassportCURD.stamp_passport(rules, %User{id: user_id})
     end)
     |> Repo.transaction()
-    |> set_editor_result()
+    |> result()
   end
 
   @doc """
   unset a community editor
   """
   def unset_editor(%Community{id: community_id}, %User{id: user_id}) do
-    with {:ok, _} <- ORM.findby_delete!(CommunityEditor, ~m(user_id community_id)a),
-         {:ok, _} <- PassportCURD.delete_passport(%User{id: user_id}) do
-      User |> ORM.find(user_id)
-    end
+    Multi.new()
+    |> Multi.run(:delete_editor, fn _, _ ->
+      ORM.findby_delete!(CommunityEditor, ~m(user_id community_id)a)
+    end)
+    |> Multi.run(:update_editors_count, fn _, _ ->
+      with {:ok, community} <- ORM.find(Community, community_id) do
+        CommunityCURD.update_community_count_field(community, user_id, :editors_count, :dec)
+      end
+    end)
+    |> Multi.run(:stamp_passport, fn _, _ ->
+      PassportCURD.delete_passport(%User{id: user_id})
+    end)
+    |> Repo.transaction()
+    |> result()
   end
-
-  defp set_editor_result({:ok, %{insert_editor: editor}}) do
-    User |> ORM.find(editor.user_id)
-  end
-
-  defp set_editor_result({:error, :stamp_passport, %Ecto.Changeset{} = result, _steps}),
-    do: {:error, result}
-
-  defp set_editor_result({:error, :stamp_passport, _result, _steps}),
-    do: {:error, "stamp passport error"}
-
-  defp set_editor_result({:error, :insert_editor, _result, _steps}),
-    do: {:error, "insert editor error"}
 
   @doc """
   subscribe a community. (ONLY community, post etc use watch )
@@ -305,13 +307,15 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
     Map.merge(geo_info, %{"value" => max(geo_info["value"] - 1, 0)})
   end
 
-  defp result({:ok, %{subscribed_community: result}}) do
+  defp result({:ok, %{update_editors_count: result}}) do
     {:ok, result}
   end
 
-  defp result({:ok, %{unsubscribed_community: result}}) do
-    {:ok, result}
-  end
+  defp result({:error, :stamp_passport, %Ecto.Changeset{} = result, _steps}),
+    do: {:error, result}
+
+  defp result({:error, :stamp_passport, _result, _steps}),
+    do: {:error, "stamp passport error"}
 
   defp result({:error, _, result, _steps}) do
     {:error, result}
