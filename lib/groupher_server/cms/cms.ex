@@ -181,7 +181,7 @@ defmodule GroupherServer.CMS do
   defdelegate delete_passport(user), to: PassportCURD
 
   # search
-  defdelegate search_items(part, args), to: Search
+  defdelegate search_contents(part, args), to: Search
 
   # seeds
   defdelegate seed_communities(opt), to: Seeds

@@ -374,8 +374,12 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.add_contributor(%CMS.CommunityCheatsheet{id: id}, contributor)
   end
 
-  def search_items(_root, %{part: part, title: title}, _info) do
-    CMS.search_items(part, %{title: title})
+  def search_communities(_root, %{title: title}, _info) do
+    CMS.search_contents(:community, %{title: title})
+  end
+
+  def search_contents(_root, %{thread: thread, title: title}, _info) do
+    CMS.search_contents(thread, %{title: title})
   end
 
   # ##############################################

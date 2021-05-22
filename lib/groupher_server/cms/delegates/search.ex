@@ -5,6 +5,7 @@ defmodule GroupherServer.CMS.Delegate.Search do
 
   import Helper.Utils, only: [done: 1]
   import Ecto.Query, warn: false
+  import GroupherServer.CMS.Helper.Matcher
 
   alias Helper.ORM
   alias GroupherServer.CMS.{Community, Post, Job, Repo}
@@ -14,7 +15,7 @@ defmodule GroupherServer.CMS.Delegate.Search do
   @doc """
   search community by title
   """
-  def search_items(:community, %{title: title} = _args) do
+  def search_contents(:community, %{title: title} = _args) do
     Community
     |> where([c], ilike(c.title, ^"%#{title}%") or ilike(c.raw, ^"%#{title}%"))
     |> ORM.paginater(page: 1, size: @search_items_count)
@@ -22,32 +23,15 @@ defmodule GroupherServer.CMS.Delegate.Search do
   end
 
   @doc """
-  search post by title
+  search article by title
   """
-  def search_items(:post, %{title: title} = _args) do
-    Post
-    |> where([c], ilike(c.title, ^"%#{title}%") or ilike(c.digest, ^"%#{title}%"))
-    |> ORM.paginater(page: 1, size: @search_items_count)
-    |> done()
-  end
-
-  @doc """
-  search job by title or company name
-  """
-  def search_items(:job, %{title: title} = _args) do
-    Job
-    |> where([c], ilike(c.title, ^"%#{title}%") or ilike(c.company, ^"%#{title}%"))
-    |> ORM.paginater(page: 1, size: @search_items_count)
-    |> done()
-  end
-
-  @doc """
-  search repo by title
-  """
-  def search_items(:repo, %{title: title} = _args) do
-    Repo
-    |> where([c], ilike(c.title, ^"%#{title}%") or ilike(c.owner_name, ^"%#{title}%"))
-    |> ORM.paginater(page: 1, size: @search_items_count)
-    |> done()
+  def search_contents(thread, %{title: title}) do
+    with {:ok, info} <- match(thread) do
+      info.model
+      # |> where([c], ilike(c.title, ^"%#{title}%") or ilike(c.digest, ^"%#{title}%"))
+      |> where([c], ilike(c.title, ^"%#{title}%"))
+      |> ORM.paginater(page: 1, size: @search_items_count)
+      |> done()
+    end
   end
 end
