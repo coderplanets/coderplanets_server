@@ -40,9 +40,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   end
 
   defp viewer_has_states({:ok, community}, %User{id: user_id}) do
-    viewer_has_states = %{
-      viewer_has_subscribed: user_id in community.meta.subscribed_user_ids
-    }
+    viewer_has_states = %{viewer_has_subscribed: user_id in community.meta.subscribed_user_ids}
 
     {:ok, Map.merge(community, viewer_has_states)}
   end
