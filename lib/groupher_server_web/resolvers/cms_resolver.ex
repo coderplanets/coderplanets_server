@@ -375,11 +375,11 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   end
 
   def search_communities(_root, %{title: title}, _info) do
-    CMS.search_contents(:community, %{title: title})
+    CMS.search_communities(community, %{title: title})
   end
 
-  def search_contents(_root, %{thread: thread, title: title}, _info) do
-    CMS.search_contents(thread, %{title: title})
+  def search_articles(_root, %{thread: thread, title: title}, _info) do
+    CMS.search_articles(thread, %{title: title})
   end
 
   # ##############################################

@@ -18,7 +18,7 @@ defmodule GroupherServerWeb.Schema.Helper.Queries do
           arg(:title, non_null(:string))
           arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
 
-          resolve(&R.CMS.search_contents/3)
+          resolve(&R.CMS.search_articles/3)
         end
       end
     end)

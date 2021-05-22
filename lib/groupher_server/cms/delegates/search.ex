@@ -15,7 +15,7 @@ defmodule GroupherServer.CMS.Delegate.Search do
   @doc """
   search community by title
   """
-  def search_contents(:community, %{title: title} = _args) do
+  def search_communities(%{title: title} = _args) do
     Community
     |> where([c], ilike(c.title, ^"%#{title}%") or ilike(c.raw, ^"%#{title}%"))
     |> ORM.paginater(page: 1, size: @search_items_count)
@@ -25,7 +25,7 @@ defmodule GroupherServer.CMS.Delegate.Search do
   @doc """
   search article by title
   """
-  def search_contents(thread, %{title: title}) do
+  def search_articles(thread, %{title: title}) do
     with {:ok, info} <- match(thread) do
       info.model
       # |> where([c], ilike(c.title, ^"%#{title}%") or ilike(c.digest, ^"%#{title}%"))
