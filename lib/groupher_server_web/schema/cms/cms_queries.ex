@@ -25,22 +25,22 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
     end
 
     @desc "paged subscribers of a community"
-    field :community_subscribers, :paged_users do
+    field :paged_community_subscribers, :paged_users do
       arg(:id, :id)
       arg(:community, :string)
       arg(:filter, :paged_filter)
 
       middleware(M.PageSizeProof)
-      resolve(&R.CMS.community_subscribers/3)
+      resolve(&R.CMS.paged_community_subscribers/3)
     end
 
     @desc "paged subscribers of a community"
-    field :community_editors, :paged_users do
+    field :paged_community_editors, :paged_users do
       arg(:id, non_null(:id))
       arg(:filter, :paged_filter)
 
       middleware(M.PageSizeProof)
-      resolve(&R.CMS.community_editors/3)
+      resolve(&R.CMS.paged_community_editors/3)
     end
 
     @desc "get community geo cities info"

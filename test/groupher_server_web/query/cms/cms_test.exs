@@ -339,7 +339,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
 
     @query """
     query($id: ID!, $filter: PagedFilter!) {
-      communityEditors(id: $id, filter: $filter) {
+      pagedCommunityEditors(id: $id, filter: $filter) {
         entries {
           nickname
         }
@@ -358,7 +358,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       Enum.each(users, &CMS.set_editor(community, title, %User{id: &1.id}))
 
       variables = %{id: community.id, filter: %{page: 1, size: 10}}
-      results = guest_conn |> query_result(@query, variables, "communityEditors")
+      results = guest_conn |> query_result(@query, variables, "pagedCommunityEditors")
 
       assert results |> is_valid_pagination?
     end
@@ -387,7 +387,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
 
     @query """
     query($id: ID, $community: String, $filter: PagedFilter!) {
-      communitySubscribers(id: $id, community: $community, filter: $filter) {
+      pagedCommunitySubscribers(id: $id, community: $community, filter: $filter) {
         entries {
           id
           nickname
@@ -409,7 +409,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       )
 
       variables = %{id: community.id, filter: %{page: 1, size: 10}}
-      results = guest_conn |> query_result(@query, variables, "communitySubscribers")
+      results = guest_conn |> query_result(@query, variables, "pagedCommunitySubscribers")
 
       assert results |> is_valid_pagination?
     end
@@ -423,7 +423,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       )
 
       variables = %{community: community.raw, filter: %{page: 1, size: 10}}
-      results = guest_conn |> query_result(@query, variables, "communitySubscribers")
+      results = guest_conn |> query_result(@query, variables, "pagedCommunitySubscribers")
 
       assert results |> is_valid_pagination?
     end
