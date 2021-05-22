@@ -4,6 +4,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
   alias GroupherServer.Accounts.User
   alias GroupherServer.CMS
   alias CMS.{Community, Category}
+  alias Helper.ORM
 
   setup do
     guest_conn = simu_conn(:guest)
@@ -21,6 +22,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
         title
         threadsCount
         articleTagsCount
+        views
         threads {
           id
           raw
@@ -29,17 +31,20 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
+    @tag :wip3
+    test "views should work", ~m(guest_conn)a do
+      {:ok, community} = db_insert(:community)
 
-    # @tag :cache
-    # test "make sure apollo cache works", ~m(guest_conn)a do
-    # {:ok, _community} = db_insert(:community, %{raw: "cacheme"})
+      variables = %{id: community.id}
+      guest_conn |> query_result(@query, variables, "community")
 
-    # variables = %{raw: "cacheme"}
-    # guest_conn |> query_result(@query, variables, "community")
+      {:ok, community} = ORM.find(Community, community.id)
+      assert community.views == 1
+      guest_conn |> query_result(@query, variables, "community")
 
-    # variables = %{raw: "cacheme"}
-    # guest_conn |> query_result(@query, variables, "community")
-    # end
+      {:ok, community} = ORM.find(Community, community.id)
+      assert community.views == 2
+    end
 
     test "can get from alias community name", ~m(guest_conn)a do
       {:ok, _community} = db_insert(:community, %{raw: "kubernetes", aka: "k8s"})
@@ -68,9 +73,9 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
 
     test "can get tags count ", ~m(community guest_conn user)a do
       article_tag_attrs = mock_attrs(:article_tag)
-      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
+      {:ok, _article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
       article_tag_attrs = mock_attrs(:article_tag)
-      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
+      {:ok, _article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
 
       variables = %{raw: community.raw}
       results = guest_conn |> query_result(@query, variables, "community")
@@ -314,34 +319,21 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       community(id: $id) {
         id
         editorsCount
-        editors {
-          id
-          nickname
-        }
       }
     }
     """
-    test "guest can get editors list and count of a community", ~m(guest_conn community)a do
+
+    test "guest can get editors count of a community", ~m(guest_conn community)a do
       title = "chief editor"
       {:ok, users} = db_insert_multi(:user, assert_v(:inner_page_size))
 
-      Enum.each(
-        users,
-        &CMS.set_editor(community, title, %User{id: &1.id})
-      )
+      Enum.each(users, &CMS.set_editor(community, title, %User{id: &1.id}))
 
       variables = %{id: community.id}
       results = guest_conn |> query_result(@query, variables, "community")
-      editors = results["editors"]
       editors_count = results["editorsCount"]
 
-      [user_1, user_2, user_3, user_x] = users |> firstn_and_last(3)
-
       assert results["id"] == to_string(community.id)
-      assert editors |> Enum.any?(&(&1["id"] == to_string(user_1.id)))
-      assert editors |> Enum.any?(&(&1["id"] == to_string(user_2.id)))
-      assert editors |> Enum.any?(&(&1["id"] == to_string(user_3.id)))
-      assert editors |> Enum.any?(&(&1["id"] == to_string(user_x.id)))
       assert editors_count == assert_v(:inner_page_size)
     end
 
@@ -358,14 +350,12 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
+
     test "guest user can get paged editors", ~m(guest_conn community)a do
       title = "chief editor"
       {:ok, users} = db_insert_multi(:user, 25)
 
-      Enum.each(
-        users,
-        &CMS.set_editor(community, title, %User{id: &1.id})
-      )
+      Enum.each(users, &CMS.set_editor(community, title, %User{id: &1.id}))
 
       variables = %{id: community.id, filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "communityEditors")
@@ -380,49 +370,19 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       community(id: $id) {
         id
         subscribersCount
-        subscribers {
-          id
-          nickname
-        }
       }
     }
     """
-    test "guest can get subscribers list and count of a community", ~m(guest_conn community)a do
+    test "guest can get subscribers count of a community", ~m(guest_conn community)a do
       {:ok, users} = db_insert_multi(:user, assert_v(:inner_page_size))
 
-      Enum.each(
-        users,
-        &CMS.subscribe_community(community, %User{id: &1.id})
-      )
+      Enum.each(users, &CMS.subscribe_community(community, %User{id: &1.id}))
 
       variables = %{id: community.id}
       results = guest_conn |> query_result(@query, variables, "community")
-      subscribers = results["subscribers"]
       subscribers_count = results["subscribersCount"]
 
-      [user_1, user_2, user_3, user_x] = users |> firstn_and_last(3)
-
-      assert results["id"] == to_string(community.id)
-      assert subscribers |> Enum.any?(&(&1["id"] == to_string(user_1.id)))
-      assert subscribers |> Enum.any?(&(&1["id"] == to_string(user_2.id)))
-      assert subscribers |> Enum.any?(&(&1["id"] == to_string(user_3.id)))
-      assert subscribers |> Enum.any?(&(&1["id"] == to_string(user_x.id)))
       assert subscribers_count == assert_v(:inner_page_size)
-    end
-
-    test "guest user can get subscribers count of 20 at most", ~m(guest_conn community)a do
-      {:ok, users} = db_insert_multi(:user, assert_v(:inner_page_size) + 1)
-
-      Enum.each(
-        users,
-        &CMS.subscribe_community(community, %User{id: &1.id})
-      )
-
-      variables = %{id: community.id}
-      results = guest_conn |> query_result(@query, variables, "community")
-      subscribers = results["subscribers"]
-
-      assert length(subscribers) == assert_v(:inner_page_size)
     end
 
     @query """

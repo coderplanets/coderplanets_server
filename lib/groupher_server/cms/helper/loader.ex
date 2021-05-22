@@ -5,76 +5,20 @@ defmodule GroupherServer.CMS.Helper.Loader do
   import Ecto.Query, warn: false
 
   alias GroupherServer.{CMS, Repo}
-  alias CMS.Repo, as: CMSRepo
 
   alias CMS.{
     Author,
     CommunityEditor,
     CommunitySubscriber,
     CommunityThread,
-    ArticleTag,
-    # POST
-    Post,
     PostComment,
     PostCommentLike,
-    PostCommentReply,
-    # JOB
-    Job
-    # JobStar,
-    # Repo,
+    PostCommentReply
   }
 
   alias Helper.QueryBuilder
 
-  def data, do: Dataloader.Ecto.new(Repo, query: &query/2, run_batch: &run_batch/5)
-
-  # Big thanks: https://elixirforum.com/t/grouping-error-in-absinthe-dadaloader/13671/2
-  # see also: https://github.com/absinthe-graphql/dataloader/issues/25
-  def run_batch(Post, content_query, :posts_count, community_ids, repo_opts) do
-    query_content_counts(content_query, community_ids, repo_opts)
-  end
-
-  def run_batch(Job, content_query, :jobs_count, community_ids, repo_opts) do
-    query_content_counts(content_query, community_ids, repo_opts)
-  end
-
-  def run_batch(CMSRepo, content_query, :repos_count, community_ids, repo_opts) do
-    query_content_counts(content_query, community_ids, repo_opts)
-  end
-
-  defp query_content_counts(content_query, community_ids, repo_opts) do
-    query =
-      from(
-        content in content_query,
-        join: c in assoc(content, :communities),
-        where: c.id in ^community_ids,
-        group_by: c.id,
-        select: {c.id, [count(content.id)]}
-      )
-
-    results =
-      query
-      |> Repo.all(repo_opts)
-      |> Map.new()
-
-    for id <- community_ids, do: Map.get(results, id, [0])
-  end
-
-  def run_batch(PostComment, comment_query, :cp_count, post_ids, repo_opts) do
-    results =
-      comment_query
-      |> join(:inner, [c], a in assoc(c, :author))
-      # |> distinct([c, a], a.id)
-      |> group_by([c, a], a.id)
-      |> group_by([c, a], c.post_id)
-      |> select([c, a], {c.post_id, count(a.id)})
-      |> Repo.all(repo_opts)
-      |> Enum.group_by(fn {x, _} -> x end)
-      |> Enum.map(fn {x, y} -> {x, [length(y)]} end)
-      |> Map.new()
-
-    for id <- post_ids, do: Map.get(results, id, [0])
-  end
+  def data, do: Dataloader.Ecto.new(Repo, query: &query/2)
 
   def query(Author, _args) do
     from(a in Author, join: u in assoc(a, :user), select: u)

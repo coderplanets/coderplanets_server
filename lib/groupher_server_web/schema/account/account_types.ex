@@ -10,7 +10,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
   alias GroupherServer.Accounts
   alias GroupherServerWeb.Schema
 
-  import_types(Schema.Account.Misc)
+  import_types(Schema.Account.Metrics)
 
   object :session_state do
     field(:user, :user)

@@ -11,6 +11,8 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
   @supported_comment_emotions get_config(:article, :comment_supported_emotions)
   @supported_collect_folder_threads Accounts.CollectFolder.supported_threads()
 
+  @article_threads get_config(:article, :article_threads)
+
   defmacro timestamp_fields do
     quote do
       field(:inserted_at, :datetime)
@@ -67,25 +69,13 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
   alias GroupherServerWeb.Middleware, as: M
   alias GroupherServerWeb.Resolvers, as: R
 
-  # Big thanks: https://elixirforum.com/t/grouping-error-in-absinthe-dadaloader/13671/2
-  # see also: https://github.com/absinthe-graphql/dataloader/issues/25
-  defmacro content_counts_field(thread, schema) do
-    quote do
-      field unquote(String.to_atom("#{to_string(thread)}s_count")), :integer do
-        resolve(fn community, _args, %{context: %{loader: loader}} ->
-          loader
-          |> Dataloader.load(CMS, {:one, unquote(schema)}, [
-            {unquote(String.to_atom("#{to_string(thread)}s_count")), community.id}
-          ])
-          |> on_load(fn loader ->
-            {:ok,
-             Dataloader.get(loader, CMS, {:one, unquote(schema)}, [
-               {unquote(String.to_atom("#{to_string(thread)}s_count")), community.id}
-             ])}
-          end)
-        end)
+  defmacro threads_count_fields() do
+    @article_threads
+    |> Enum.map(fn thread ->
+      quote do
+        field(unquote(:"#{thread}s_count"), :integer)
       end
-    end
+    end)
   end
 
   defmacro viewer_has_state_fields do

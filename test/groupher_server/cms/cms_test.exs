@@ -3,7 +3,7 @@ defmodule GroupherServer.Test.CMS do
 
   alias GroupherServer.Accounts.User
   alias GroupherServer.CMS
-  alias CMS.Community
+  alias CMS.{Category, Community, CommunityEditor}
 
   alias Helper.{Certification, ORM}
 
@@ -16,8 +16,6 @@ defmodule GroupherServer.Test.CMS do
   end
 
   describe "[cms category]" do
-    alias CMS.{Community, Category}
-
     test "create category with valid attrs", ~m(user)a do
       valid_attrs = mock_attrs(:category, %{user_id: user.id})
       ~m(title raw)a = valid_attrs
@@ -88,8 +86,6 @@ defmodule GroupherServer.Test.CMS do
   end
 
   describe "[cms community thread]" do
-    alias CMS.Community
-
     test "can create thread to a community" do
       title = "post"
       raw = "POST"
@@ -115,8 +111,6 @@ defmodule GroupherServer.Test.CMS do
   end
 
   describe "[cms community editors]" do
-    alias CMS.{Community, CommunityEditor}
-
     test "can add editor to a community, editor has default passport", ~m(user community)a do
       title = "chief editor"
 
@@ -136,39 +130,13 @@ defmodule GroupherServer.Test.CMS do
       {:ok, users} = db_insert_multi(:user, 25)
       title = "chief editor"
 
-      Enum.each(
-        users,
-        &CMS.set_editor(community, title, %User{id: &1.id})
-      )
+      Enum.each(users, &CMS.set_editor(community, title, %User{id: &1.id}))
 
       filter = %{page: 1, size: 10}
       {:ok, results} = CMS.community_members(:editors, %Community{id: community.id}, filter)
 
       assert results |> is_valid_pagination?(:raw)
       assert results.total_count == 25
-    end
-  end
-
-  describe "[cms community subscribe]" do
-    alias CMS.Community
-
-    test "user can subscribe a community", ~m(user community)a do
-      {:ok, record} = CMS.subscribe_community(community, user)
-      assert community.id == record.id
-    end
-
-    test "user can get paged-subscribers of a community", ~m(community)a do
-      {:ok, users} = db_insert_multi(:user, 25)
-
-      Enum.each(
-        users,
-        &CMS.subscribe_community(community, %User{id: &1.id})
-      )
-
-      {:ok, results} =
-        CMS.community_members(:subscribers, %Community{id: community.id}, %{page: 1, size: 10})
-
-      assert results |> is_valid_pagination?(:raw)
     end
   end
 end

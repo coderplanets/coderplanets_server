@@ -1,7 +1,7 @@
 defmodule GroupherServer.Test.Mutation.Articles.Post do
   use GroupherServer.TestTools
 
-  alias Helper.{ORM, Utils}
+  alias Helper.ORM
   alias GroupherServer.{CMS, Delivery}
 
   setup do

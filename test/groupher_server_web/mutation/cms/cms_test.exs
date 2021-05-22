@@ -401,7 +401,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
 
       result = rule_conn |> mutation_result(@set_editor_query, variables, "setEditor")
 
-      assert result["id"] == to_string(user.id)
+      assert result["id"] == to_string(community.id)
     end
 
     @unset_editor_query """
@@ -483,9 +483,6 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
     mutation($communityId: ID!){
       subscribeCommunity(communityId: $communityId) {
         id
-        subscribers {
-          id
-        }
       }
     }
     """
@@ -496,7 +493,6 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       created = login_conn |> mutation_result(@subscribe_query, variables, "subscribeCommunity")
 
       assert created["id"] == to_string(community.id)
-      assert created["subscribers"] |> Enum.any?(&(&1["id"] == to_string(user.id)))
     end
 
     test "login user subscribe non-exsit community fails", ~m(user)a do
@@ -529,12 +525,10 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
     mutation($communityId: ID!){
       unsubscribeCommunity(communityId: $communityId) {
         id
-        subscribers {
-          id
-        }
       }
     }
     """
+
     test "login user can unsubscribe community", ~m(user community)a do
       {:ok, cur_subscribers} =
         CMS.community_members(:subscribers, %Community{id: community.id}, %{page: 1, size: 10})
@@ -547,7 +541,6 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
         CMS.community_members(:subscribers, %Community{id: community.id}, %{page: 1, size: 10})
 
       assert true == cur_subscribers.entries |> Enum.any?(&(&1.id == user.id))
-
       login_conn = simu_conn(:user, user)
 
       variables = %{communityId: community.id}

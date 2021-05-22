@@ -3,9 +3,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
   community curd
   """
   import Ecto.Query, warn: false
-  import GroupherServer.CMS.Helper.Matcher2
+  import GroupherServer.CMS.Helper.Matcher
   import Helper.Validator.Guards, only: [g_is_id: 1]
-  import Helper.Utils, only: [done: 1, camelize_map_key: 2, map_atom_values_to_upcase_str: 1]
+  import Helper.Utils, only: [done: 1, map_atom_values_to_upcase_str: 1]
   import GroupherServer.CMS.Delegate.ArticleCURD, only: [ensure_author_exists: 1]
   import ShortMaps
   import Helper.ErrorCode

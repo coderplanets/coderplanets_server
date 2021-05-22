@@ -222,18 +222,18 @@ defmodule GroupherServer.CMS.Helper.Macros do
   @doc """
   for GroupherServer.CMS.[Article]
 
-  # TABLE: "communities_[article]s"
-    add(:community_id, references(:communities, on_delete: :delete_all), null: false)
-    add(:[article]_id, references(:cms_[article]s, on_delete: :delete_all), null: false)
+  # TABLE: "communities_join_[article]s"
+  add(:community_id, references(:communities, on_delete: :delete_all), null: false)
+  add(:[article]_id, references(:cms_[article]s, on_delete: :delete_all), null: false)
 
-  create(unique_index(:communities_[article]s, [:community_id, :[article]_id]))
+  create(unique_index(:communities_job_[article]s, [:community_id, :[article]_id]))
   """
   defmacro article_communities_field(thread) do
     quote do
       many_to_many(
         :communities,
         Community,
-        join_through: unquote("communities_#{to_string(thread)}s"),
+        join_through: unquote("communities_join_#{to_string(thread)}s"),
         on_replace: :delete
       )
     end

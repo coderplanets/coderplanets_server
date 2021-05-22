@@ -4,13 +4,13 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
   """
   import ShortMaps
 
-  alias Ecto.Multi
   alias Helper.{Certification, RadarSearch, ORM}
   alias GroupherServer.Accounts.User
   alias GroupherServer.CMS.Delegate.PassportCURD
   alias GroupherServer.Repo
 
   alias GroupherServer.CMS.{
+    Delegate,
     Category,
     Community,
     CommunityCategory,
@@ -19,6 +19,9 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
     CommunityThread,
     Thread
   }
+
+  alias Delegate.CommunityCURD
+  alias Ecto.Multi
 
   @doc """
   set a category to community
@@ -68,72 +71,88 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
       :insert_editor,
       CommunityEditor.changeset(%CommunityEditor{}, ~m(user_id community_id title)a)
     )
+    |> Multi.run(:update_community_count, fn _, _ ->
+      with {:ok, community} <- ORM.find(Community, community_id) do
+        CommunityCURD.update_community_count_field(community, user_id, :editors_count, :inc)
+      end
+    end)
     |> Multi.run(:stamp_passport, fn _, _ ->
       rules = Certification.passport_rules(cms: title)
       PassportCURD.stamp_passport(rules, %User{id: user_id})
     end)
     |> Repo.transaction()
-    |> set_editor_result()
+    |> result()
   end
 
   @doc """
   unset a community editor
   """
   def unset_editor(%Community{id: community_id}, %User{id: user_id}) do
-    with {:ok, _} <- ORM.findby_delete!(CommunityEditor, ~m(user_id community_id)a),
-         {:ok, _} <- PassportCURD.delete_passport(%User{id: user_id}) do
-      User |> ORM.find(user_id)
-    end
+    Multi.new()
+    |> Multi.run(:delete_editor, fn _, _ ->
+      ORM.findby_delete!(CommunityEditor, ~m(user_id community_id)a)
+    end)
+    |> Multi.run(:update_community_count, fn _, _ ->
+      with {:ok, community} <- ORM.find(Community, community_id) do
+        CommunityCURD.update_community_count_field(community, user_id, :editors_count, :dec)
+      end
+    end)
+    |> Multi.run(:stamp_passport, fn _, _ ->
+      PassportCURD.delete_passport(%User{id: user_id})
+    end)
+    |> Repo.transaction()
+    |> result()
   end
-
-  defp set_editor_result({:ok, %{insert_editor: editor}}) do
-    User |> ORM.find(editor.user_id)
-  end
-
-  defp set_editor_result({:error, :stamp_passport, %Ecto.Changeset{} = result, _steps}),
-    do: {:error, result}
-
-  defp set_editor_result({:error, :stamp_passport, _result, _steps}),
-    do: {:error, "stamp passport error"}
-
-  defp set_editor_result({:error, :insert_editor, _result, _steps}),
-    do: {:error, "insert editor error"}
 
   @doc """
   subscribe a community. (ONLY community, post etc use watch )
   """
-  def subscribe_community(
-        %Community{id: community_id},
-        %User{id: user_id}
-      ) do
-    with {:ok, record} <- CommunitySubscriber |> ORM.create(~m(user_id community_id)a) do
-      Community |> ORM.find(record.community_id)
+  def subscribe_community(%Community{id: community_id}, %User{id: user_id}) do
+    with {:ok, record} <- ORM.create(CommunitySubscriber, ~m(user_id community_id)a) do
+      Multi.new()
+      |> Multi.run(:subscribed_community, fn _, _ ->
+        ORM.find(Community, record.community_id)
+      end)
+      |> Multi.run(:update_community_count, fn _, %{subscribed_community: community} ->
+        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :inc)
+      end)
+      |> Repo.transaction()
+      |> result()
     end
   end
 
-  def subscribe_community(
-        %Community{id: community_id},
-        %User{id: user_id},
-        remote_ip
-      ) do
-    with {:ok, record} <- CommunitySubscriber |> ORM.create(~m(user_id community_id)a) do
-      update_community_geo(community_id, user_id, remote_ip, :inc)
-      Community |> ORM.find(record.community_id)
+  def subscribe_community(%Community{id: community_id}, %User{id: user_id}, remote_ip) do
+    with {:ok, record} <- ORM.create(CommunitySubscriber, ~m(user_id community_id)a) do
+      Multi.new()
+      |> Multi.run(:subscribed_community, fn _, _ ->
+        ORM.find(Community, record.community_id)
+      end)
+      |> Multi.run(:update_community_geo, fn _, _ ->
+        update_community_geo(community_id, user_id, remote_ip, :inc)
+      end)
+      |> Multi.run(:update_community_count, fn _, %{subscribed_community: community} ->
+        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :inc)
+      end)
+      |> Repo.transaction()
+      |> result()
     end
   end
 
   @doc """
   unsubscribe a community
   """
-  def unsubscribe_community(
-        %Community{id: community_id},
-        %User{id: user_id}
-      ) do
+  def unsubscribe_community(%Community{id: community_id}, %User{id: user_id}) do
     with {:ok, community} <- ORM.find(Community, community_id),
-         true <- community.raw !== "home",
-         {:ok, record} <-
-           ORM.findby_delete!(CommunitySubscriber, community_id: community.id, user_id: user_id) do
-      Community |> ORM.find(record.community_id)
+         true <- community.raw !== "home" do
+      Multi.new()
+      |> Multi.run(:unsubscribed_community, fn _, _ ->
+        ORM.findby_delete!(CommunitySubscriber, %{community_id: community.id, user_id: user_id})
+      end)
+      |> Multi.run(:update_community_count, fn _, _ ->
+        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
+      end)
+      |> Repo.transaction()
+      |> result()
     else
       false ->
         {:error, "can not unsubscribe home community"}
@@ -149,11 +168,19 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
         remote_ip
       ) do
     with {:ok, community} <- ORM.find(Community, community_id),
-         true <- community.raw !== "home",
-         {:ok, record} <-
-           CommunitySubscriber |> ORM.findby_delete!(community_id: community.id, user_id: user_id) do
-      update_community_geo(community_id, user_id, remote_ip, :dec)
-      Community |> ORM.find(record.community_id)
+         true <- community.raw !== "home" do
+      Multi.new()
+      |> Multi.run(:unsubscribed_community, fn _, _ ->
+        ORM.findby_delete!(CommunitySubscriber, %{community_id: community.id, user_id: user_id})
+      end)
+      |> Multi.run(:update_community_count, fn _, _ ->
+        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
+      end)
+      |> Multi.run(:update_community_geo, fn _, _ ->
+        update_community_geo(community_id, user_id, remote_ip, :dec)
+      end)
+      |> Repo.transaction()
+      |> result()
     else
       false ->
         {:error, "can't delete home community"}
@@ -169,17 +196,22 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
         _remote_ip
       ) do
     with {:ok, community} <- ORM.find(Community, community_id),
-         true <- community.raw !== "home",
-         {:ok, record} <-
-           CommunitySubscriber |> ORM.findby_delete!(community_id: community.id, user_id: user_id) do
-      update_community_geo_map(community.id, city, :dec)
-      Community |> ORM.find(record.community_id)
+         true <- community.raw !== "home" do
+      Multi.new()
+      |> Multi.run(:unsubscribed_community, fn _, _ ->
+        ORM.findby_delete!(CommunitySubscriber, %{community_id: community.id, user_id: user_id})
+      end)
+      |> Multi.run(:update_community_count, fn _, _ ->
+        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
+      end)
+      |> Multi.run(:update_community_geo_city, fn _, _ ->
+        update_community_geo_map(community.id, city, :dec)
+      end)
+      |> Repo.transaction()
+      |> result()
     else
-      false ->
-        {:error, "can't delete home community"}
-
-      error ->
-        error
+      false -> {:error, "can't delete home community"}
+      error -> error
     end
   end
 
@@ -217,12 +249,9 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
   def subscribe_default_community_ifnot(%User{geo_city: city} = user, _remote_ip) do
     with {:ok, community} <- ORM.find_by(Community, raw: "home") do
       case ORM.find_by(CommunitySubscriber, %{community_id: community.id, user_id: user.id}) do
-        {:error, _} ->
-          update_community_geo_map(community.id, city, :inc)
-
-        {:ok, _} ->
-          # 手续齐全且之前也订阅了
-          {:ok, :pass}
+        {:error, _} -> update_community_geo_map(community.id, city, :inc)
+        # 手续齐全且之前也订阅了
+        {:ok, _} -> {:ok, :pass}
       end
     end
   end
@@ -270,5 +299,23 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
 
   defp update_geo_value(geo_info, :dec) do
     Map.merge(geo_info, %{"value" => max(geo_info["value"] - 1, 0)})
+  end
+
+  defp result({:ok, %{subscribed_community: result}}) do
+    {:ok, result}
+  end
+
+  defp result({:ok, %{update_community_count: result}}) do
+    {:ok, result}
+  end
+
+  defp result({:error, :stamp_passport, %Ecto.Changeset{} = result, _steps}),
+    do: {:error, result}
+
+  defp result({:error, :stamp_passport, _result, _steps}),
+    do: {:error, "stamp passport error"}
+
+  defp result({:error, _, result, _steps}) do
+    {:error, result}
   end
 end

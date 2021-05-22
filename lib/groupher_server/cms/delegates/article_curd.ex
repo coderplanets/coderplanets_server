@@ -4,7 +4,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   """
   import Ecto.Query, warn: false
 
-  import GroupherServer.CMS.Helper.Matcher2
+  import GroupherServer.CMS.Helper.Matcher
 
   import Helper.Utils,
     only: [done: 1, pick_by: 2, integerfy: 1, strip_struct: 1, module_to_thread: 1]
@@ -19,7 +19,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   alias Accounts.User
   alias CMS.{Author, Community, PinnedArticle, Embeds, Delegate}
 
-  alias Delegate.{ArticleCommunity, ArticleTag}
+  alias Delegate.{ArticleCommunity, ArticleTag, CommunityCURD}
 
   alias Ecto.Multi
 
@@ -47,8 +47,19 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Multi.run(:add_viewed_user, fn _, %{inc_views: article} ->
         update_viewed_user_list(article, user_id)
       end)
+      |> Multi.run(:set_viewer_has_states, fn _, %{inc_views: article} ->
+        article_meta = if is_nil(article.meta), do: @default_article_meta, else: article.meta
+
+        viewer_has_states = %{
+          viewer_has_collected: user_id in article_meta.collected_user_ids,
+          viewer_has_upvoted: user_id in article_meta.upvoted_user_ids,
+          viewer_has_reported: user_id in article_meta.reported_user_ids
+        }
+
+        {:ok, Map.merge(article, viewer_has_states)}
+      end)
       |> Repo.transaction()
-      |> read_result()
+      |> result()
     end
   end
 
@@ -135,6 +146,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Multi.run(:set_article_tags, fn _, %{create_article: article} ->
         ArticleTag.set_article_tags(community, thread, article, attrs)
       end)
+      |> Multi.run(:update_community_article_count, fn _, _ ->
+        CommunityCURD.update_community_count_field(community, thread)
+      end)
       |> Multi.run(:mention_users, fn _, %{create_article: article} ->
         Delivery.mention_from_content(community.raw, thread, article, attrs, %User{id: uid})
         {:ok, :pass}
@@ -183,18 +197,42 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       ArticleCommunity.update_edit_status(update_article)
     end)
     |> Repo.transaction()
-    |> update_article_result()
+    |> result()
   end
 
+  @doc """
+  mark delete falst for an anticle
+  """
   def mark_delete_article(thread, id) do
-    with {:ok, info} <- match(thread) do
-      ORM.find_update(info.model, %{id: id, mark_delete: true})
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id, preload: :communities) do
+      Multi.new()
+      |> Multi.run(:update_article, fn _, _ ->
+        ORM.update(article, %{mark_delete: true})
+      end)
+      |> Multi.run(:update_community_article_count, fn _, _ ->
+        CommunityCURD.update_community_count_field(article.communities, thread)
+      end)
+      |> Repo.transaction()
+      |> result()
     end
   end
 
+  @doc """
+  undo mark delete falst for an anticle
+  """
   def undo_mark_delete_article(thread, id) do
-    with {:ok, info} <- match(thread) do
-      ORM.find_update(info.model, %{id: id, mark_delete: false})
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id, preload: :communities) do
+      Multi.new()
+      |> Multi.run(:update_article, fn _, _ ->
+        ORM.update(article, %{mark_delete: false})
+      end)
+      |> Multi.run(:update_community_article_count, fn _, _ ->
+        CommunityCURD.update_community_count_field(article.communities, thread)
+      end)
+      |> Repo.transaction()
+      |> result()
     end
   end
 
@@ -406,12 +444,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  defp update_article_result({:ok, %{update_edit_status: result}}), do: {:ok, result}
-  defp update_article_result({:error, :update_article, result, _steps}), do: {:error, result}
+  defp result({:ok, %{update_edit_status: result}}), do: {:ok, result}
+  defp result({:ok, %{update_article: result}}), do: {:ok, result}
+  defp result({:ok, %{set_viewer_has_states: result}}), do: result |> done()
 
-  defp read_result({:ok, %{inc_views: result}}), do: result |> done()
-
-  defp read_result({:error, _, result, _steps}) do
+  defp result({:error, _, result, _steps}) do
     {:error, result}
   end
 end

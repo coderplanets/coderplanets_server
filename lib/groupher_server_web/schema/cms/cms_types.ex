@@ -11,7 +11,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   alias GroupherServer.CMS
   alias GroupherServerWeb.Schema
 
-  import_types(Schema.CMS.Misc)
+  import_types(Schema.CMS.Metrics)
 
   ######
   # common stands for minimal info of the type
@@ -260,55 +260,19 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:threads, list_of(:thread_item), resolve: dataloader(CMS, :threads))
     field(:categories, list_of(:category), resolve: dataloader(CMS, :categories))
+    field(:meta, :community_meta)
+    field(:views, :integer)
 
-    @desc "total count of post contents"
-    content_counts_field(:post, CMS.Post)
+    field(:articles_count, :integer)
+    field(:subscribers_count, :integer)
+    field(:editors_count, :integer)
 
-    @desc "total count of job contents"
-    content_counts_field(:job, CMS.Job)
-
-    @desc "total count of repo contents"
-    content_counts_field(:repo, CMS.Repo)
-
-    field :subscribers, list_of(:user) do
-      arg(:filter, :members_filter)
-      middleware(M.PageSizeProof)
-      resolve(dataloader(CMS, :subscribers))
-    end
-
-    field :subscribers_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-      arg(:type, :community_type, default_value: :community)
-      resolve(dataloader(CMS, :subscribers))
-      middleware(M.ConvertToInt)
-    end
-
-    field :viewer_has_subscribed, :boolean do
-      arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
-
-      middleware(M.Authorize, :login)
-      middleware(M.PutCurrentUser)
-      resolve(dataloader(CMS, :subscribers))
-      middleware(M.ViewerDidConvert)
-    end
-
-    field :editors, list_of(:user) do
-      arg(:filter, :members_filter)
-      middleware(M.PageSizeProof)
-      resolve(dataloader(CMS, :editors))
-    end
-
-    field :editors_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-      arg(:type, :community_type, default_value: :community)
-      resolve(dataloader(CMS, :editors))
-      middleware(M.ConvertToInt)
-    end
-
+    # TODO: remove
     field :threads_count, :integer do
       resolve(&R.CMS.threads_count/3)
     end
 
+    # TODO: remove
     field :article_tags_count, :integer do
       resolve(&R.CMS.article_tags_count/3)
     end
@@ -503,5 +467,10 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:is_edited, :boolean)
     field(:is_comment_locked, :boolean)
     # field(:linked_posts_count, :integer)
+  end
+
+  object :community_meta do
+    threads_count_fields()
+    # field(:contributes_digest, list_of(:integer))
   end
 end

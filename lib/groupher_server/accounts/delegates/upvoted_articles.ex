@@ -2,7 +2,6 @@ defmodule GroupherServer.Accounts.Delegate.UpvotedArticles do
   @moduledoc """
   get contents(posts, jobs ...) that user upvotes
   """
-  # import GroupherServer.CMS.Helper.Matcher
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1]
   import ShortMaps

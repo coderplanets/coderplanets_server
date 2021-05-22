@@ -9,7 +9,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   import GroupherServer.CMS.Delegate.ArticleComment,
     only: [add_participator_to_article: 2, do_create_comment: 4, update_article_comments_count: 2]
 
-  import GroupherServer.CMS.Helper.Matcher2
+  import GroupherServer.CMS.Helper.Matcher
 
   alias Helper.Types, as: T
   alias Helper.ORM

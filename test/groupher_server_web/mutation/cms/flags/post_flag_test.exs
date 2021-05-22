@@ -2,6 +2,7 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
+  alias Helper.ORM
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -13,7 +14,7 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
     user_conn = simu_conn(:user)
     owner_conn = simu_conn(:user, user)
 
-    {:ok, ~m(user_conn guest_conn owner_conn community post)a}
+    {:ok, ~m(user_conn guest_conn owner_conn community user post)a}
   end
 
   describe "[mutation post flag curd]" do
@@ -35,6 +36,25 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
 
       assert updated["id"] == to_string(post.id)
       assert updated["markDelete"] == true
+    end
+
+    @tag :wip3
+    test "mark delete post should update post's communities meta count", ~m(user)a do
+      community_attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id})
+      {:ok, community} = CMS.create_community(community_attrs)
+      {:ok, post} = CMS.create_article(community, :post, mock_attrs(:post), user)
+
+      {:ok, community} = ORM.find(CMS.Community, community.id)
+      assert community.meta.posts_count == 1
+
+      variables = %{id: post.id}
+      passport_rules = %{"post.mark_delete" => true}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      rule_conn |> mutation_result(@query, variables, "markDeletePost")
+
+      {:ok, community} = ORM.find(CMS.Community, community.id)
+      assert community.meta.posts_count == 0
     end
 
     test "unauth user markDelete post fails", ~m(user_conn guest_conn post)a do
@@ -66,6 +86,26 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
 
       assert updated["id"] == to_string(post.id)
       assert updated["markDelete"] == false
+    end
+
+    @tag :wip3
+    test "undo mark delete post should update post's communities meta count", ~m(user)a do
+      community_attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id})
+      {:ok, community} = CMS.create_community(community_attrs)
+      {:ok, post} = CMS.create_article(community, :post, mock_attrs(:post), user)
+
+      {:ok, _} = CMS.mark_delete_article(:post, post.id)
+
+      {:ok, community} = ORM.find(CMS.Community, community.id)
+      assert community.meta.posts_count == 0
+
+      variables = %{id: post.id}
+      passport_rules = %{"post.undo_mark_delete" => true}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+      rule_conn |> mutation_result(@query, variables, "undoMarkDeletePost")
+
+      {:ok, community} = ORM.find(CMS.Community, community.id)
+      assert community.meta.posts_count == 1
     end
 
     test "unauth user undo markDelete post fails", ~m(user_conn guest_conn post)a do

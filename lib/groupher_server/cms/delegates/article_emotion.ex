@@ -3,7 +3,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleEmotion do
   CURD and operations for article comments
   """
   import Ecto.Query, warn: false
-  import GroupherServer.CMS.Helper.Matcher2
+  import GroupherServer.CMS.Helper.Matcher
 
   import GroupherServer.CMS.Delegate.Helper, only: [update_emotions_field: 4]
 

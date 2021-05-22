@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   import Helper.ErrorCode
 
   import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 3]
-  import GroupherServer.CMS.Helper.Matcher2
+  import GroupherServer.CMS.Helper.Matcher
   import ShortMaps
 
   alias Helper.Types, as: T
@@ -106,7 +106,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
         add_participator_to_article(article, user)
       end)
       |> Repo.transaction()
-      |> upsert_comment_result()
+      |> result()
     end
   end
 
@@ -130,7 +130,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       ORM.update(comment, %{body_html: @delete_hint, is_deleted: true})
     end)
     |> Repo.transaction()
-    |> upsert_comment_result()
+    |> result()
   end
 
   # add participator to article-like content (Post, Job ...) and update count
@@ -274,16 +274,16 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     Map.merge(paged_comments, %{entries: entries})
   end
 
-  defp upsert_comment_result({:ok, %{create_article_comment: result}}), do: {:ok, result}
-  defp upsert_comment_result({:ok, %{delete_article_comment: result}}), do: {:ok, result}
+  defp result({:ok, %{create_article_comment: result}}), do: {:ok, result}
+  defp result({:ok, %{delete_article_comment: result}}), do: {:ok, result}
 
-  defp upsert_comment_result({:error, :create_article_comment, result, _steps}) do
+  defp result({:error, :create_article_comment, result, _steps}) do
     raise_error(:create_comment, result)
   end
 
-  defp upsert_comment_result({:error, :add_participator, result, _steps}) do
+  defp result({:error, :add_participator, result, _steps}) do
     {:error, result}
   end
 
-  defp upsert_comment_result({:error, _, result, _steps}), do: {:error, result}
+  defp result({:error, _, result, _steps}), do: {:error, result}
 end
