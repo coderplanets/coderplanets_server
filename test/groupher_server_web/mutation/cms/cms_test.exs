@@ -401,7 +401,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
 
       result = rule_conn |> mutation_result(@set_editor_query, variables, "setEditor")
 
-      assert result["id"] == to_string(user.id)
+      assert result["id"] == to_string(community.id)
     end
 
     @unset_editor_query """
@@ -508,7 +508,6 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       assert guest_conn |> mutation_get_error?(@subscribe_query, variables, ecode(:account_login))
     end
 
-    @tag :wip2
     test "subscribed community should inc it's own geo info", ~m(user community)a do
       login_conn = simu_conn(:user, user)
 
@@ -529,7 +528,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       }
     }
     """
-    @tag :wip2
+
     test "login user can unsubscribe community", ~m(user community)a do
       {:ok, cur_subscribers} =
         CMS.community_members(:subscribers, %Community{id: community.id}, %{page: 1, size: 10})

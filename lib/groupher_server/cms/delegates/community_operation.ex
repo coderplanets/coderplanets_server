@@ -145,11 +145,11 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
     with {:ok, community} <- ORM.find(Community, community_id),
          true <- community.raw !== "home" do
       Multi.new()
-      |> Multi.run(:update_community_count, fn _, _ ->
-        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
-      end)
       |> Multi.run(:unsubscribed_community, fn _, _ ->
         ORM.findby_delete!(CommunitySubscriber, %{community_id: community.id, user_id: user_id})
+      end)
+      |> Multi.run(:update_community_count, fn _, _ ->
+        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
       end)
       |> Repo.transaction()
       |> result()
@@ -170,11 +170,11 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
     with {:ok, community} <- ORM.find(Community, community_id),
          true <- community.raw !== "home" do
       Multi.new()
-      |> Multi.run(:update_community_count, fn _, _ ->
-        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
-      end)
       |> Multi.run(:unsubscribed_community, fn _, _ ->
         ORM.findby_delete!(CommunitySubscriber, %{community_id: community.id, user_id: user_id})
+      end)
+      |> Multi.run(:update_community_count, fn _, _ ->
+        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
       end)
       |> Multi.run(:update_community_geo, fn _, _ ->
         update_community_geo(community_id, user_id, remote_ip, :dec)
@@ -198,11 +198,11 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
     with {:ok, community} <- ORM.find(Community, community_id),
          true <- community.raw !== "home" do
       Multi.new()
-      |> Multi.run(:update_community_count, fn _, _ ->
-        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
-      end)
       |> Multi.run(:unsubscribed_community, fn _, _ ->
         ORM.findby_delete!(CommunitySubscriber, %{community_id: community.id, user_id: user_id})
+      end)
+      |> Multi.run(:update_community_count, fn _, _ ->
+        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
       end)
       |> Multi.run(:update_community_geo_city, fn _, _ ->
         update_community_geo_map(community.id, city, :dec)

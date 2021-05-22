@@ -93,6 +93,7 @@ defmodule GroupherServer.Test.CMS.Community do
       assert user.id in community.meta.subscribed_user_ids
     end
 
+    @tag :wip2
     test "user unsubscribe a community will update the community's subscribted info",
          ~m(user community)a do
       {:ok, _} = CMS.subscribe_community(community, user)
