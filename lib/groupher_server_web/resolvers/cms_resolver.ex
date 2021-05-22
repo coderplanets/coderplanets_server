@@ -183,7 +183,7 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.update_editor(%Community{id: community_id}, title, %User{id: user_id})
   end
 
-  def community_editors(_root, ~m(id filter)a, _info) do
+  def paged_community_editors(_root, ~m(id filter)a, _info) do
     CMS.community_members(:editors, %Community{id: id}, filter)
   end
 
@@ -242,15 +242,15 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.unsubscribe_community(%Community{id: community_id}, cur_user)
   end
 
-  def community_subscribers(_root, ~m(id filter)a, _info) do
+  def paged_community_subscribers(_root, ~m(id filter)a, _info) do
     CMS.community_members(:subscribers, %Community{id: id}, filter)
   end
 
-  def community_subscribers(_root, ~m(community filter)a, _info) do
+  def paged_community_subscribers(_root, ~m(community filter)a, _info) do
     CMS.community_members(:subscribers, %Community{raw: community}, filter)
   end
 
-  def community_subscribers(_root, _args, _info), do: {:error, "invalid args"}
+  def paged_community_subscribers(_root, _args, _info), do: {:error, "invalid args"}
 
   def mirror_article(_root, ~m(thread id community_id)a, _info) do
     CMS.mirror_article(thread, id, community_id)
