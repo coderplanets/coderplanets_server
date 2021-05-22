@@ -322,7 +322,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
-    @tag :wip2
+
     test "guest can get editors count of a community", ~m(guest_conn community)a do
       title = "chief editor"
       {:ok, users} = db_insert_multi(:user, assert_v(:inner_page_size))
@@ -350,7 +350,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
-    @tag :wip2
+
     test "guest user can get paged editors", ~m(guest_conn community)a do
       title = "chief editor"
       {:ok, users} = db_insert_multi(:user, 25)
@@ -373,7 +373,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
-    @tag :wip2
+
     test "guest can get subscribers count of a community", ~m(guest_conn community)a do
       {:ok, users} = db_insert_multi(:user, assert_v(:inner_page_size))
 

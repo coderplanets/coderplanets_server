@@ -529,12 +529,10 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
     mutation($communityId: ID!){
       unsubscribeCommunity(communityId: $communityId) {
         id
-        subscribers {
-          id
-        }
       }
     }
     """
+    @tag :wip2
     test "login user can unsubscribe community", ~m(user community)a do
       {:ok, cur_subscribers} =
         CMS.community_members(:subscribers, %Community{id: community.id}, %{page: 1, size: 10})
@@ -547,7 +545,6 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
         CMS.community_members(:subscribers, %Community{id: community.id}, %{page: 1, size: 10})
 
       assert true == cur_subscribers.entries |> Enum.any?(&(&1.id == user.id))
-
       login_conn = simu_conn(:user, user)
 
       variables = %{communityId: community.id}

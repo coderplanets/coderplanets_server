@@ -71,7 +71,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
       :insert_editor,
       CommunityEditor.changeset(%CommunityEditor{}, ~m(user_id community_id title)a)
     )
-    |> Multi.run(:update_editors_count, fn _, _ ->
+    |> Multi.run(:update_community_count, fn _, _ ->
       with {:ok, community} <- ORM.find(Community, community_id) do
         CommunityCURD.update_community_count_field(community, user_id, :editors_count, :inc)
       end
@@ -92,7 +92,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
     |> Multi.run(:delete_editor, fn _, _ ->
       ORM.findby_delete!(CommunityEditor, ~m(user_id community_id)a)
     end)
-    |> Multi.run(:update_editors_count, fn _, _ ->
+    |> Multi.run(:update_community_count, fn _, _ ->
       with {:ok, community} <- ORM.find(Community, community_id) do
         CommunityCURD.update_community_count_field(community, user_id, :editors_count, :dec)
       end
@@ -143,15 +143,13 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
   """
   def unsubscribe_community(%Community{id: community_id}, %User{id: user_id}) do
     with {:ok, community} <- ORM.find(Community, community_id),
-         true <- community.raw !== "home",
-         {:ok, record} <-
-           ORM.findby_delete!(CommunitySubscriber, community_id: community.id, user_id: user_id) do
+         true <- community.raw !== "home" do
       Multi.new()
-      |> Multi.run(:unsubscribed_community, fn _, _ ->
-        ORM.find(Community, record.community_id)
-      end)
-      |> Multi.run(:update_community_count, fn _, %{unsubscribed_community: community} ->
+      |> Multi.run(:update_community_count, fn _, _ ->
         CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
+      end)
+      |> Multi.run(:unsubscribed_community, fn _, _ ->
+        ORM.findby_delete!(CommunitySubscriber, %{community_id: community.id, user_id: user_id})
       end)
       |> Repo.transaction()
       |> result()
@@ -170,18 +168,16 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
         remote_ip
       ) do
     with {:ok, community} <- ORM.find(Community, community_id),
-         true <- community.raw !== "home",
-         {:ok, record} <-
-           CommunitySubscriber |> ORM.findby_delete!(community_id: community.id, user_id: user_id) do
+         true <- community.raw !== "home" do
       Multi.new()
+      |> Multi.run(:update_community_count, fn _, _ ->
+        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
+      end)
       |> Multi.run(:unsubscribed_community, fn _, _ ->
-        ORM.find(Community, record.community_id)
+        ORM.findby_delete!(CommunitySubscriber, %{community_id: community.id, user_id: user_id})
       end)
       |> Multi.run(:update_community_geo, fn _, _ ->
         update_community_geo(community_id, user_id, remote_ip, :dec)
-      end)
-      |> Multi.run(:update_community_count, fn _, %{unsubscribed_community: community} ->
-        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
       end)
       |> Repo.transaction()
       |> result()
@@ -200,18 +196,16 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
         _remote_ip
       ) do
     with {:ok, community} <- ORM.find(Community, community_id),
-         true <- community.raw !== "home",
-         {:ok, record} <-
-           CommunitySubscriber |> ORM.findby_delete!(community_id: community.id, user_id: user_id) do
+         true <- community.raw !== "home" do
       Multi.new()
+      |> Multi.run(:update_community_count, fn _, _ ->
+        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
+      end)
       |> Multi.run(:unsubscribed_community, fn _, _ ->
-        ORM.find(Community, record.community_id)
+        ORM.findby_delete!(CommunitySubscriber, %{community_id: community.id, user_id: user_id})
       end)
       |> Multi.run(:update_community_geo_city, fn _, _ ->
         update_community_geo_map(community.id, city, :dec)
-      end)
-      |> Multi.run(:update_community_count, fn _, %{unsubscribed_community: community} ->
-        CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
       end)
       |> Repo.transaction()
       |> result()
@@ -311,7 +305,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
     {:ok, result}
   end
 
-  defp result({:ok, %{update_editors_count: result}}) do
+  defp result({:ok, %{update_community_count: result}}) do
     {:ok, result}
   end
 

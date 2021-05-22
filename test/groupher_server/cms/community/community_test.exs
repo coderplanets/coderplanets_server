@@ -40,7 +40,6 @@ defmodule GroupherServer.Test.CMS.Community do
       assert user2.id not in community.meta.subscribed_user_ids
     end
 
-    @tag :wip2
     test "read editored community should have a flag", ~m(community user user2)a do
       title = "chief editor"
       {:ok, community} = CMS.set_editor(community, title, user)
@@ -58,7 +57,6 @@ defmodule GroupherServer.Test.CMS.Community do
   end
 
   describe "[cms community editor]" do
-    @tag :wip2
     test "can set editor to a community", ~m(user community)a do
       title = "chief editor"
       {:ok, community} = CMS.set_editor(community, title, user)
@@ -67,7 +65,6 @@ defmodule GroupherServer.Test.CMS.Community do
       assert user.id in community.meta.editors_ids
     end
 
-    @tag :wip2
     test "can unset editor to a community", ~m(user community)a do
       title = "chief editor"
       {:ok, community} = CMS.set_editor(community, title, user)
