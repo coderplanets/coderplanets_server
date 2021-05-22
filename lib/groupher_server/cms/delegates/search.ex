@@ -15,7 +15,7 @@ defmodule GroupherServer.CMS.Delegate.Search do
   @doc """
   search community by title
   """
-  def search_communities(%{title: title} = _args) do
+  def search_communities(title) do
     Community
     |> where([c], ilike(c.title, ^"%#{title}%") or ilike(c.raw, ^"%#{title}%"))
     |> ORM.paginater(page: 1, size: @search_items_count)
