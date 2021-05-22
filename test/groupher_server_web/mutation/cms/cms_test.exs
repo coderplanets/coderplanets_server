@@ -483,9 +483,6 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
     mutation($communityId: ID!){
       subscribeCommunity(communityId: $communityId) {
         id
-        subscribers {
-          id
-        }
       }
     }
     """
@@ -496,7 +493,6 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       created = login_conn |> mutation_result(@subscribe_query, variables, "subscribeCommunity")
 
       assert created["id"] == to_string(community.id)
-      assert created["subscribers"] |> Enum.any?(&(&1["id"] == to_string(user.id)))
     end
 
     test "login user subscribe non-exsit community fails", ~m(user)a do
@@ -512,6 +508,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       assert guest_conn |> mutation_get_error?(@subscribe_query, variables, ecode(:account_login))
     end
 
+    @tag :wip2
     test "subscribed community should inc it's own geo info", ~m(user community)a do
       login_conn = simu_conn(:user, user)
 

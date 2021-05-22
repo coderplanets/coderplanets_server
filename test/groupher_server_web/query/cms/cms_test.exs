@@ -373,35 +373,16 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
-
     test "guest can get subscribers count of a community", ~m(guest_conn community)a do
       {:ok, users} = db_insert_multi(:user, assert_v(:inner_page_size))
 
-      Enum.each(
-        users,
-        &CMS.subscribe_community(community, %User{id: &1.id})
-      )
+      Enum.each(users, &CMS.subscribe_community(community, %User{id: &1.id}))
 
       variables = %{id: community.id}
       results = guest_conn |> query_result(@query, variables, "community")
       subscribers_count = results["subscribersCount"]
 
       assert subscribers_count == assert_v(:inner_page_size)
-    end
-
-    test "guest user can get subscribers count of 20 at most", ~m(guest_conn community)a do
-      {:ok, users} = db_insert_multi(:user, assert_v(:inner_page_size) + 1)
-
-      Enum.each(
-        users,
-        &CMS.subscribe_community(community, %User{id: &1.id})
-      )
-
-      variables = %{id: community.id}
-      results = guest_conn |> query_result(@query, variables, "community")
-      subscribers = results["subscribers"]
-
-      assert length(subscribers) == assert_v(:inner_page_size)
     end
 
     @query """
