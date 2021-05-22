@@ -307,6 +307,10 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
     Map.merge(geo_info, %{"value" => max(geo_info["value"] - 1, 0)})
   end
 
+  defp result({:ok, %{subscribed_community: result}}) do
+    {:ok, result}
+  end
+
   defp result({:ok, %{update_editors_count: result}}) do
     {:ok, result}
   end

@@ -267,12 +267,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:subscribers_count, :integer)
     field(:editors_count, :integer)
 
-    field :subscribers, list_of(:user) do
-      arg(:filter, :members_filter)
-      middleware(M.PageSizeProof)
-      resolve(dataloader(CMS, :subscribers))
-    end
-
     field :editors, list_of(:user) do
       arg(:filter, :members_filter)
       middleware(M.PageSizeProof)
