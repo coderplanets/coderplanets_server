@@ -387,7 +387,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
 
     @query """
     query($id: ID, $community: String, $filter: PagedFilter!) {
-      communitySubscribers(id: $id, community: $community, filter: $filter) {
+      pagedCommunitySubscribers(id: $id, community: $community, filter: $filter) {
         entries {
           id
           nickname
@@ -403,13 +403,10 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
     test "guest user can get paged subscribers by community id", ~m(guest_conn community)a do
       {:ok, users} = db_insert_multi(:user, 25)
 
-      Enum.each(
-        users,
-        &CMS.subscribe_community(community, %User{id: &1.id})
-      )
+      Enum.each(users, &CMS.subscribe_community(community, %User{id: &1.id}))
 
       variables = %{id: community.id, filter: %{page: 1, size: 10}}
-      results = guest_conn |> query_result(@query, variables, "communitySubscribers")
+      results = guest_conn |> query_result(@query, variables, "pagedCommunitySubscribers")
 
       assert results |> is_valid_pagination?
     end
@@ -423,7 +420,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       )
 
       variables = %{community: community.raw, filter: %{page: 1, size: 10}}
-      results = guest_conn |> query_result(@query, variables, "communitySubscribers")
+      results = guest_conn |> query_result(@query, variables, "pagedCommunitySubscribers")
 
       assert results |> is_valid_pagination?
     end
