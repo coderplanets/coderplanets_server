@@ -54,45 +54,46 @@ defmodule GroupherServer.Test.CMS.Search do
     end
 
     test "search non exsit community should get empty pagi data" do
-      {:ok, searched} = CMS.search_communities(%{title: "non-exsit"})
+      {:ok, searched} = CMS.search_communities("non-exsit")
       assert searched |> is_valid_pagination?(:raw, :empty)
     end
   end
 
   describe "[cms search community]" do
     test "search community by full title should valid paged communities" do
-      {:ok, searched} = CMS.search_communities(%{title: "react"})
+      {:ok, searched} = CMS.search_communities("react")
 
       assert searched |> is_valid_pagination?(:raw)
       assert searched.total_count == 1
       assert searched.entries |> Enum.at(0) |> Map.get(:title) == "react"
     end
 
+    @tag :wip2
     test "search community blur title should return valid communities" do
-      {:ok, searched} = CMS.search_communities(%{title: "reac"})
+      {:ok, searched} = CMS.search_communities("reac")
       assert searched.entries |> Enum.at(0) |> Map.get(:title) == "react"
 
-      {:ok, searched} = CMS.search_communities(%{title: "rea"})
+      {:ok, searched} = CMS.search_communities("rea")
       assert searched.entries |> Enum.at(0) |> Map.get(:title) == "react"
 
-      {:ok, searched} = CMS.search_communities(%{title: "eac"})
+      {:ok, searched} = CMS.search_communities("eac")
       assert searched.entries |> Enum.at(0) |> Map.get(:title) == "react"
 
-      {:ok, searched} = CMS.search_communities(%{title: "每日"})
+      {:ok, searched} = CMS.search_communities("每日")
       assert searched.entries |> Enum.at(0) |> Map.get(:title) == "每日妹子"
 
-      {:ok, searched} = CMS.search_communities(%{title: "javasc"})
+      {:ok, searched} = CMS.search_communities("javasc")
       assert searched.total_count == 1
       assert searched.entries |> Enum.at(0) |> Map.get(:title) == "javascript"
 
-      {:ok, searched} = CMS.search_communities(%{title: "java"})
+      {:ok, searched} = CMS.search_communities("java")
       assert searched.total_count == 2
       assert searched.entries |> Enum.any?(&(&1.title == "java"))
       assert searched.entries |> Enum.any?(&(&1.title == "javascript"))
     end
 
     test "search non exsit community should get empty pagi data" do
-      {:ok, searched} = CMS.search_communities(%{title: "non-exsit"})
+      {:ok, searched} = CMS.search_communities("non-exsit")
       assert searched |> is_valid_pagination?(:raw, :empty)
     end
   end
