@@ -267,12 +267,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:subscribers_count, :integer)
     field(:editors_count, :integer)
 
-    field :editors, list_of(:user) do
-      arg(:filter, :members_filter)
-      middleware(M.PageSizeProof)
-      resolve(dataloader(CMS, :editors))
-    end
-
     # TODO: remove
     field :threads_count, :integer do
       resolve(&R.CMS.threads_count/3)
