@@ -32,21 +32,6 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   def read_community(%{raw: raw} = clauses), do: do_read_community(clauses, raw)
   def read_community(%{title: title} = clauses), do: do_read_community(clauses, title)
 
-  defp do_read_community(clauses, aka) do
-    case ORM.read_by(Community, clauses, inc: :views) do
-      {:ok, community} -> {:ok, community}
-      {:error, _} -> ORM.find_by(Community, aka: aka)
-    end
-  end
-
-  defp viewer_has_states({:ok, community}, %User{id: user_id}) do
-    viewer_has_states = %{viewer_has_subscribed: user_id in community.meta.subscribed_user_ids}
-
-    {:ok, Map.merge(community, viewer_has_states)}
-  end
-
-  defp viewer_has_states({:error, reason}, _user), do: {:error, reason}
-
   @doc """
   create a community
   """
@@ -219,6 +204,21 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
       {:ok, result.total_count}
     end
   end
+
+  defp do_read_community(clauses, aka) do
+    case ORM.read_by(Community, clauses, inc: :views) do
+      {:ok, community} -> {:ok, community}
+      {:error, _} -> ORM.find_by(Community, aka: aka)
+    end
+  end
+
+  defp viewer_has_states({:ok, community}, %User{id: user_id}) do
+    viewer_has_states = %{viewer_has_subscribed: user_id in community.meta.subscribed_user_ids}
+
+    {:ok, Map.merge(community, viewer_has_states)}
+  end
+
+  defp viewer_has_states({:error, reason}, _user), do: {:error, reason}
 
   defp load_community_members(%Community{id: id}, queryable, %{page: page, size: size} = filters)
        when not is_nil(id) do
