@@ -77,6 +77,18 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   end
 
   @doc """
+  update article_tags_count of a community
+  """
+  def update_community_count_field(%Community{} = community, :article_tags_count) do
+    count_query = from(t in ArticleTag, where: t.community_id == ^community.id)
+    article_tags_count = Repo.aggregate(count_query, :count)
+
+    community
+    |> Ecto.Changeset.change(%{article_tags_count: article_tags_count})
+    |> Repo.update()
+  end
+
+  @doc """
   update subscribers_count of a community
   """
   def update_community_count_field(%Community{} = community, user_id, :subscribers_count, opt) do

@@ -266,15 +266,11 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:articles_count, :integer)
     field(:subscribers_count, :integer)
     field(:editors_count, :integer)
+    field(:article_tags_count, :integer)
 
     # TODO: remove
     field :threads_count, :integer do
       resolve(&R.CMS.threads_count/3)
-    end
-
-    # TODO: remove
-    field :article_tags_count, :integer do
-      resolve(&R.CMS.article_tags_count/3)
     end
 
     field :contributes_digest, list_of(:integer) do

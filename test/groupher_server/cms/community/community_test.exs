@@ -13,7 +13,9 @@ defmodule GroupherServer.Test.CMS.Community do
     {:ok, user2} = db_insert(:user)
     {:ok, community} = db_insert(:community)
 
-    {:ok, ~m(user community user2)a}
+    article_tag_attrs = mock_attrs(:article_tag)
+
+    {:ok, ~m(user community article_tag_attrs user2)a}
   end
 
   describe "[cms community read]" do
@@ -53,6 +55,25 @@ defmodule GroupherServer.Test.CMS.Community do
       {:ok, community} = CMS.unset_editor(community, user)
       {:ok, community} = CMS.read_community(%{id: community.id}, user)
       assert not community.viewer_is_editor
+    end
+  end
+
+  describe "[cms community article_tag]" do
+    @tag :wip2
+    test "articleTagsCount should work", ~m(community article_tag_attrs user)a do
+      {:ok, tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
+      {:ok, tag2} = CMS.create_article_tag(community, :job, article_tag_attrs, user)
+      {:ok, tag3} = CMS.create_article_tag(community, :repo, article_tag_attrs, user)
+
+      {:ok, community} = ORM.find(Community, community.id)
+      assert community.article_tags_count == 3
+
+      {:ok, _} = CMS.delete_article_tag(tag.id)
+      {:ok, _} = CMS.delete_article_tag(tag2.id)
+      {:ok, _} = CMS.delete_article_tag(tag3.id)
+
+      {:ok, community} = ORM.find(Community, community.id)
+      assert community.article_tags_count == 0
     end
   end
 

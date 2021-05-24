@@ -38,7 +38,6 @@ defmodule GroupherServer.Test.Query.CMS.ArticleTags do
       }
     }
     """
-
     test "guest user can get paged tags without filter",
          ~m(guest_conn community article_tag_attrs article_tag_attrs2 user)a do
       variables = %{}
