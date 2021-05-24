@@ -15,20 +15,30 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
   alias GroupherServer.{Accounts, Repo}
 
   alias Accounts.User
-  alias GroupherServer.CMS.{Community, ArticleTag}
+  alias GroupherServer.CMS.{ArticleTag, Community, Delegate}
+
+  alias Delegate.CommunityCURD
+
+  alias Ecto.Multi
 
   @doc """
   create a article tag
   """
-  def create_article_tag(%Community{id: community_id}, thread, attrs, %User{id: user_id}) do
+  def create_article_tag(%Community{} = community, thread, attrs, %User{id: user_id}) do
     with {:ok, author} <- ensure_author_exists(%User{id: user_id}),
-         {:ok, community} <- ORM.find(Community, community_id) do
-      attrs =
-        attrs
-        |> Map.merge(%{author_id: author.id, community_id: community.id, thread: thread})
-        |> map_atom_values_to_upcase_str
+         {:ok, community} <- ORM.find(Community, community.id) do
+      Multi.new()
+      |> Multi.run(:create_article_tag, fn _, _ ->
+        update_attrs = %{author_id: author.id, community_id: community.id, thread: thread}
+        attrs = attrs |> Map.merge(update_attrs) |> map_atom_values_to_upcase_str
 
-      ArticleTag |> ORM.create(attrs)
+        ORM.create(ArticleTag, attrs)
+      end)
+      |> Multi.run(:update_community_count, fn _, _ ->
+        CommunityCURD.update_community_count_field(community, :article_tags_count)
+      end)
+      |> Repo.transaction()
+      |> result()
     end
   end
 
@@ -46,8 +56,17 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
   delete an article tag
   """
   def delete_article_tag(id) do
-    with {:ok, article_tag} <- ORM.find(ArticleTag, id) do
-      ORM.delete(article_tag)
+    with {:ok, article_tag} <- ORM.find(ArticleTag, id),
+         {:ok, community} <- ORM.find(Community, article_tag.community_id) do
+      Multi.new()
+      |> Multi.run(:delete_article_tag, fn _, _ ->
+        ORM.delete(article_tag)
+      end)
+      |> Multi.run(:update_community_count, fn _, _ ->
+        CommunityCURD.update_community_count_field(community, :article_tags_count)
+      end)
+      |> Repo.transaction()
+      |> result()
     end
   end
 
@@ -142,4 +161,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
     |> ORM.paginater(%{page: 1, size: 100})
     |> done()
   end
+
+  defp result({:ok, %{create_article_tag: result}}), do: {:ok, result}
+  defp result({:ok, %{delete_article_tag: result}}), do: {:ok, result}
+  defp result({:error, _, result, _steps}), do: {:error, result}
 end

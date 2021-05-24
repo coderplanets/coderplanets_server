@@ -48,6 +48,8 @@ defmodule GroupherServer.CMS.Community do
     field(:articles_count, :integer, default: 0)
     field(:editors_count, :integer, default: 0)
     field(:subscribers_count, :integer, default: 0)
+    field(:article_tags_count, :integer, default: 0)
+    field(:threads_count, :integer, default: 0)
 
     field(:viewer_has_subscribed, :boolean, default: false, virtual: true)
     field(:viewer_is_editor, :boolean, default: false, virtual: true)

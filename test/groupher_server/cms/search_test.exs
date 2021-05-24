@@ -68,7 +68,6 @@ defmodule GroupherServer.Test.CMS.Search do
       assert searched.entries |> Enum.at(0) |> Map.get(:title) == "react"
     end
 
-    @tag :wip2
     test "search community blur title should return valid communities" do
       {:ok, searched} = CMS.search_communities("reac")
       assert searched.entries |> Enum.at(0) |> Map.get(:title) == "react"
