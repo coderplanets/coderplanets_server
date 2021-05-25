@@ -10,10 +10,13 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
   alias GroupherServer.{Accounts, CMS, Repo, Statistics}
 
   alias Accounts.User
-  alias CMS.Community
+  alias CMS.{Community, Delegate}
   alias Statistics.{CommunityContribute, UserContribute}
 
+  alias Delegate.CommunityCURD
+
   alias Helper.{Cache, Later, ORM, QueryBuilder}
+  alias Ecto.Multi
 
   @community_contribute_days get_config(:general, :community_contribute_days)
   @user_contribute_months get_config(:general, :user_contribute_months)
@@ -39,13 +42,23 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
   def make_contribute(%Community{id: id}) do
     today = Timex.today() |> Date.to_iso8601()
 
-    case ORM.find_by(CommunityContribute, community_id: id, date: today) do
-      {:ok, contribute} ->
-        update_contribute_record(contribute)
+    Multi.new()
+    |> Multi.run(:make_contribute, fn _, _ ->
+      case ORM.find_by(CommunityContribute, %{community_id: id, date: today}) do
+        {:ok, contribute} -> update_contribute_record(contribute)
+        {:error, _} -> insert_contribute_record(%Community{id: id})
+      end
+    end)
+    |> Multi.run(:update_community_field, fn _, _ ->
+      contributes_digest =
+        %Community{id: id}
+        |> do_get_contributes()
+        |> to_counts_digest(days: @community_contribute_days)
 
-      {:error, _} ->
-        insert_contribute_record(%Community{id: id})
-    end
+      CommunityCURD.update_community(id, %{contributes_digest: contributes_digest})
+    end)
+    |> Repo.transaction()
+    |> result()
   end
 
   @doc """
@@ -161,15 +174,13 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
         return_count = abs(count) + 1
         enmpty_tuple = return_count |> repeat(0) |> List.to_tuple()
 
-        results =
-          Enum.reduce(record, enmpty_tuple, fn record, acc ->
-            diff = Timex.diff(Timex.to_date(record.date), today, :days)
-            index = diff + abs(count)
+        Enum.reduce(record, enmpty_tuple, fn record, acc ->
+          diff = Timex.diff(Timex.to_date(record.date), today, :days)
+          index = diff + abs(count)
 
-            put_elem(acc, index, record.count)
-          end)
-
-        results |> Tuple.to_list()
+          put_elem(acc, index, record.count)
+        end)
+        |> Tuple.to_list()
     end
   end
 
@@ -194,4 +205,7 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
 
     put_in(contribute.count, result)
   end
+
+  defp result({:ok, %{make_contribute: result}}), do: {:ok, result}
+  defp result({:error, _, result, _steps}), do: {:error, result}
 end

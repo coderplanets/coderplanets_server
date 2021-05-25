@@ -273,11 +273,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
       resolve(&R.CMS.threads_count/3)
     end
 
-    field :contributes_digest, list_of(:integer) do
-      # TODO add complex here to warning N+1 problem
-      resolve(&R.Statistics.list_contributes_digest/3)
-    end
-
     timestamp_fields()
   end
 

@@ -104,6 +104,50 @@ defmodule GroupherServer.Test.Statistics do
       assert contribute.date == Timex.today()
     end
 
+    @tag :wip2
+    test "should update community's field after contribute being make", ~m(community)a do
+      community_id = community.id
+      assert {:error, _} = ORM.find_by(CommunityContribute, ~m(community_id)a)
+
+      Statistics.make_contribute(%Community{id: community.id})
+
+      {:ok, community} = ORM.find(Community, community.id)
+
+      assert community.contributes_digest == [
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               1
+             ]
+    end
+
     test "should update a contribute when make communityContribute before", ~m(community)a do
       community_id = community.id
 
