@@ -22,7 +22,7 @@ defmodule GroupherServer.CMS.Community do
 
   @required_fields ~w(title desc user_id logo raw)a
   # @required_fields ~w(title desc user_id)a
-  @optional_fields ~w(label geo_info index aka)a
+  @optional_fields ~w(label geo_info index aka contributes_digest)a
 
   def max_pinned_article_count_per_thread, do: @max_pinned_article_count_per_thread
 
@@ -53,6 +53,7 @@ defmodule GroupherServer.CMS.Community do
 
     field(:viewer_has_subscribed, :boolean, default: false, virtual: true)
     field(:viewer_is_editor, :boolean, default: false, virtual: true)
+    field(:contributes_digest, {:array, :integer}, default: [])
 
     has_one(:wiki, CommunityWiki)
     has_one(:cheatsheet, CommunityCheatsheet)
