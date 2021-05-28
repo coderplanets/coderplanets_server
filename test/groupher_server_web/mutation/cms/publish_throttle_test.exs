@@ -134,6 +134,7 @@ defmodule GroupherServer.Test.Mutation.PublishThrottle do
            |> mutation_get_error?(@create_post_query, variables, ecode(:throttle_hour))
   end
 
+  @tag :wip2
   test "user create multi content with valid hour count success in next hour", ~m(community)a do
     {:ok, user} = db_insert(:user)
     user_conn = simu_conn(:user, user)
