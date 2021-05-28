@@ -16,7 +16,6 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     Accounts.read_user(login, cur_user)
   end
 
-  def user(_root, _args, %{context: %{cur_user: cur_user}}), do: Accounts.read_user(cur_user)
   def user(_root, %{login: login}, _info), do: Accounts.read_user(login)
 
   def user(_root, _args, _info) do
@@ -88,20 +87,28 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     Accounts.undo_follow(cur_user, %User{id: user_id})
   end
 
-  def paged_followers(_root, ~m(user_id filter)a, _info) do
-    Accounts.paged_followers(%User{id: user_id}, filter)
+  def paged_followers(_root, ~m(login filter)a, %{context: %{cur_user: cur_user}}) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(login) do
+      Accounts.paged_followers(%User{id: user_id}, filter, cur_user)
+    end
   end
 
-  def paged_followers(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
-    Accounts.paged_followers(cur_user, filter)
+  def paged_followers(_root, ~m(login filter)a, _info) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(login) do
+      Accounts.paged_followers(%User{id: user_id}, filter)
+    end
   end
 
-  def paged_followings(_root, ~m(user_id filter)a, _info) do
-    Accounts.paged_followings(%User{id: user_id}, filter)
+  def paged_followings(_root, ~m(login filter)a, %{context: %{cur_user: cur_user}}) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(login) do
+      Accounts.paged_followings(%User{id: user_id}, filter, cur_user)
+    end
   end
 
-  def paged_followings(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
-    Accounts.paged_followings(cur_user, filter)
+  def paged_followings(_root, ~m(login filter)a, _info) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(login) do
+      Accounts.paged_followings(%User{id: user_id}, filter)
+    end
   end
 
   def paged_upvoted_articles(_root, ~m(user_login filter)a, _info) do
@@ -263,10 +270,7 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
   def get_all_rules(_root, _args, %{context: %{cur_user: _}}) do
     cms_rules = Certification.all_rules(:cms, :stringify)
 
-    {:ok,
-     %{
-       cms: cms_rules
-     }}
+    {:ok, %{cms: cms_rules}}
   end
 
   # def create_user(_root, args, %{context: %{cur_user: %{root: true}}}) do

@@ -13,28 +13,38 @@ defmodule GroupherServer.Test.Query.Account.Fans do
 
   describe "[account followers]" do
     @query """
-    query($userId: ID, $filter: PagedFilter!) {
-      pagedFollowers(userId: $userId, filter: $filter) {
+    query($login: String!, $filter: PagedFilter!) {
+      pagedFollowers(login: $login, filter: $filter) {
         entries {
           id
+          viewerBeenFollowed
+          viewerHasFollowed
         }
         totalCount
       }
     }
     """
-    test "login user can get it's own paged followers", ~m(user)a do
-      variables = %{filter: %{page: 1, size: 20}}
+    @tag :wip2
+    test "login user can get basic paged followers info", ~m(user)a do
+      variables = %{login: user.login, filter: %{page: 1, size: 20}}
 
       {:ok, user2} = db_insert(:user)
       {:ok, user3} = db_insert(:user)
-      {:ok, _followeer} = user |> Accounts.follow(user2)
-      {:ok, _followeer} = user3 |> Accounts.follow(user2)
 
-      user2_conn = simu_conn(:user, user2)
-      results = user2_conn |> query_result(@query, variables, "pagedFollowers")
+      {:ok, _} = Accounts.follow(user2, user)
+      {:ok, _} = Accounts.follow(user3, user)
+
+      user_conn = simu_conn(:user, user)
+      results = user_conn |> query_result(@query, variables, "pagedFollowers")
 
       assert results |> Map.get("totalCount") == 2
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(user.id)))
+      entries = results |> Map.get("entries")
+
+      assert entries |> List.first() |> Map.get("viewerBeenFollowed")
+      assert entries |> List.last() |> Map.get("viewerBeenFollowed")
+
+      assert user2 |> exist_in?(entries, :string_key)
+      assert user3 |> exist_in?(entries, :string_key)
     end
 
     test "login user can get other user's paged followers", ~m(guest_conn user)a do
@@ -141,7 +151,7 @@ defmodule GroupherServer.Test.Query.Account.Fans do
       }
     }
     """
-    @tag :wip2
+
     test "login user can check if 'i' has followed this user", ~m(user_conn user)a do
       {:ok, user2} = db_insert(:user)
 
@@ -164,7 +174,7 @@ defmodule GroupherServer.Test.Query.Account.Fans do
       }
     }
     """
-    @tag :wip2
+
     test "login user can check if 'i' was been followed", ~m(user)a do
       {:ok, user2} = db_insert(:user)
       user_conn = simu_conn(:user, user2)

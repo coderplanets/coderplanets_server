@@ -73,7 +73,6 @@ defmodule GroupherServer.Test.Accounts.Fans do
       assert found |> Map.get(:followers) |> length == 0
     end
 
-    @tag :wip2
     test "undo follow user should update follow meta info", ~m(user)a do
       {:ok, user2} = db_insert(:user)
 

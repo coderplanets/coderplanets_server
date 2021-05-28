@@ -113,6 +113,12 @@ defmodule GroupherServer.Accounts.Delegate.Fans do
   get paged followers of a user
   """
   @spec paged_followers(User.t(), map()) :: {:ok, map()} | {:error, String.t()}
+  def paged_followers(%User{id: user_id}, filter, %User{} = cur_user) do
+    paged_followers(%User{id: user_id}, filter)
+    |> mark_viewer_follow_status(cur_user)
+    |> done
+  end
+
   def paged_followers(%User{id: user_id}, filter) do
     UserFollower
     |> where([uf], uf.user_id == ^user_id)
@@ -138,6 +144,27 @@ defmodule GroupherServer.Accounts.Delegate.Fans do
     |> QueryBuilder.filter_pack(filter)
     |> ORM.paginater(~m(page size)a)
     |> done()
+  end
+
+  @doc """
+  mark viewer's follower/followings states
+  """
+  def mark_viewer_follow_status({:ok, %{entries: entries} = paged_users}, cur_user) do
+    entries = Enum.map(entries, &Map.merge(&1, do_mark_viewer_has_states(&1.id, cur_user)))
+    Map.merge(paged_users, %{entries: entries})
+  end
+
+  def mark_viewer_follow_status({:error, reason}), do: {:error, reason}
+
+  defp do_mark_viewer_has_states(user_id, %User{meta: nil}) do
+    %{viewer_been_followed: false, viewer_has_followed: false}
+  end
+
+  defp do_mark_viewer_has_states(user_id, %User{meta: meta}) do
+    %{
+      viewer_been_followed: Enum.member?(meta.follower_user_ids, user_id),
+      viewer_has_followed: Enum.member?(meta.following_user_ids, user_id)
+    }
   end
 
   @spec result({:ok, map()}) :: SpecType.done()

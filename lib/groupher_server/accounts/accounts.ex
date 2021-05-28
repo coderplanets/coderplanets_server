@@ -49,7 +49,9 @@ defmodule GroupherServer.Accounts do
   defdelegate follow(user, follower), to: Fans
   defdelegate undo_follow(user, follower), to: Fans
   defdelegate paged_followers(user, filter), to: Fans
+  defdelegate paged_followers(user, filter, cur_user), to: Fans
   defdelegate paged_followings(user, filter), to: Fans
+  defdelegate paged_followings(user, filter, cur_user), to: Fans
 
   # upvoted articles
   defdelegate paged_upvoted_articles(user_id, filter), to: UpvotedArticles

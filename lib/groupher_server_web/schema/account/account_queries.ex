@@ -15,8 +15,7 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
 
     @desc "get user by id"
     field :user, :user do
-      # arg(:id, :id)
-      arg(:login, :string)
+      arg(:login, non_null(:string))
 
       resolve(&R.Accounts.user/3)
     end
@@ -46,7 +45,7 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
 
     @desc "get user's follower"
     field :paged_followers, :paged_users do
-      arg(:user_id, :id)
+      arg(:login, non_null(:string))
       arg(:filter, non_null(:paged_filter))
 
       middleware(M.PageSizeProof)
@@ -55,7 +54,7 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
 
     @desc "get user's follower"
     field :paged_followings, :paged_users do
-      arg(:user_id, :id)
+      arg(:login, non_null(:string))
       arg(:filter, non_null(:paged_filter))
 
       middleware(M.PageSizeProof)
