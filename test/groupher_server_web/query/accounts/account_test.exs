@@ -70,9 +70,16 @@ defmodule GroupherServer.Test.Query.Account.Basic do
     end
 
     @tag :wip2
-    test "user should have default contributes", ~m(guest_conn user)a do
+    test "user should have default contributes", ~m(guest_conn user_conn user)a do
       variables = %{login: user.login}
       results = guest_conn |> query_result(@query, variables, "user")
+
+      contributes = results["contributes"]
+
+      assert contributes["records"] == []
+      assert contributes["totalCount"] == 0
+
+      results = user_conn |> query_result(@query, %{}, "user")
 
       contributes = results["contributes"]
 
