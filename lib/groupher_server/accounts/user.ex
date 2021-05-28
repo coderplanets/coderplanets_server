@@ -64,6 +64,7 @@ defmodule GroupherServer.Accounts.User do
     field(:viewer_has_reported, :boolean, default: false, virtual: true)
 
     embeds_one(:meta, Embeds.UserMeta, on_replace: :update)
+    embeds_one(:contributes, Embeds.UserContribute, on_replace: :update)
 
     has_one(:customization, Customization)
     has_one(:purchase, Purchase)

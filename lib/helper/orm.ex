@@ -272,6 +272,16 @@ defmodule Helper.ORM do
     |> Repo.update()
   end
 
+  @doc """
+  update embed data
+  """
+  def update_embed(queryable, key, value) do
+    queryable
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_embed(key, value)
+    |> Repo.update()
+  end
+
   @doc "extract common articles info"
   @spec extract_articles(T.paged_data(), [Atom.t()]) :: T.paged_article_common()
   def extract_articles(%{entries: entries} = paged_articles, supported_threads) do

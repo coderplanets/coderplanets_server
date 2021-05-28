@@ -3,6 +3,7 @@ defmodule GroupherServerWeb.Resolvers.Statistics do
   resolvers for Statistics
   """
   alias GroupherServer.{Accounts, CMS, Statistics}
+  alias CMS.Community
   alias Accounts.User
 
   # tmp for test
@@ -14,13 +15,9 @@ defmodule GroupherServerWeb.Resolvers.Statistics do
     Statistics.list_contributes_digest(%User{id: id})
   end
 
-  def list_contributes_digest(%CMS.Community{id: id}, _args, _info) do
-    Statistics.list_contributes_digest(%CMS.Community{id: id})
+  def list_contributes_digest(%Community{id: id}, _args, _info) do
+    Statistics.list_contributes_digest(%Community{id: id})
   end
-
-  # def list_contributes_digest(%CMS.Community{id: id}, _args, _info) do
-  # Statistics.list_contributes_digest(%CMS.Community{id: id})
-  # end
 
   def make_contrubute(_root, %{user_id: user_id}, _info) do
     Statistics.make_contribute(%User{id: user_id})

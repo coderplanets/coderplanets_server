@@ -24,15 +24,23 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
   @doc """
   update user's contributes record
   """
-  def make_contribute(%User{id: id} = user) do
+  def make_contribute(%User{id: id}) do
     today = Timex.today() |> Date.to_iso8601()
 
-    case ORM.find_by(UserContribute, user_id: id, date: today) do
-      {:ok, contribute} ->
-        update_contribute_record(contribute)
-
-      {:error, _} ->
-        insert_contribute_record(user)
+    with {:ok, user} <- ORM.find(User, id) do
+      Multi.new()
+      |> Multi.run(:make_contribute, fn _, _ ->
+        case ORM.find_by(UserContribute, user_id: id, date: today) do
+          {:ok, contribute} -> update_contribute_record(contribute)
+          {:error, _} -> insert_contribute_record(user)
+        end
+      end)
+      |> Multi.run(:update_community_field, fn _, _ ->
+        {:ok, contributes} = list_contributes_digest(user)
+        ORM.update_embed(user, :contributes, contributes)
+      end)
+      |> Repo.transaction()
+      |> result()
     end
   end
 
