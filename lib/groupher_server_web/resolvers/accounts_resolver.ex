@@ -8,14 +8,14 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
   alias GroupherServer.{Accounts, CMS}
 
   alias Accounts.{MentionMail, NotificationMail, SysNotificationMail, User}
-  alias Helper.{Certification, ORM, Utils}
+  alias Helper.{Certification, ORM}
 
   # def user(_root, %{id: id}, _info), do: User |> ORM.read(id, inc: :views)
-  def user(_root, %{login: login}, _info), do: User |> ORM.read_by(%{login: login}, inc: :views)
-  def user(_root, _args, %{context: %{cur_user: cur_user}}), do: ORM.find(User, cur_user.id)
+  def user(_root, %{login: login}, _info), do: Accounts.read_user(login)
+  def user(_root, _args, %{context: %{cur_user: cur_user}}), do: Accounts.read_user(cur_user)
 
   def user(_root, _args, _info) do
-    {:error, [message: "need login", code: ecode(:account_login)]}
+    {:error, [message: "need user login name", code: ecode(:account_login)]}
   end
 
   def users(_root, ~m(filter)a, _info), do: User |> ORM.find_all(filter)

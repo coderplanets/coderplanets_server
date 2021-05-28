@@ -159,12 +159,7 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
 
   defp to_contribute_records(data) do
     data
-    |> Enum.map(fn %{count: count, date: date} ->
-      %{
-        date: date,
-        count: count
-      }
-    end)
+    |> Enum.map(fn %{count: count, date: date} -> %{date: date, count: count} end)
   end
 
   # 返回 count 数组，方便前端绘图

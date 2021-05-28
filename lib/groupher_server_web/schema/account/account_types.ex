@@ -118,9 +118,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       middleware(M.ViewerDidConvert)
     end
 
-    field :contributes, :contribute_map do
-      resolve(&R.Statistics.list_contributes_digest/3)
-    end
+    field(:contributes, :contribute_map)
 
     # TODO, for msg-bell UI
     # field :has_messges,

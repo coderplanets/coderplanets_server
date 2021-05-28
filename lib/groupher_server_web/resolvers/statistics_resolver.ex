@@ -7,13 +7,6 @@ defmodule GroupherServerWeb.Resolvers.Statistics do
   alias Accounts.User
 
   # tmp for test
-  def list_contributes_digest(_root, %{id: id}, _info) do
-    Statistics.list_contributes_digest(%User{id: id})
-  end
-
-  def list_contributes_digest(%User{id: id}, _args, _info) do
-    Statistics.list_contributes_digest(%User{id: id})
-  end
 
   def list_contributes_digest(%Community{id: id}, _args, _info) do
     Statistics.list_contributes_digest(%Community{id: id})

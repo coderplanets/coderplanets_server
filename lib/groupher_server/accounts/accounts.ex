@@ -15,6 +15,7 @@ defmodule GroupherServer.Accounts do
   }
 
   # profile
+  defdelegate read_user(user), to: Profile
   defdelegate update_profile(user, attrs), to: Profile
   defdelegate update_geo(user, remote_ip), to: Profile
   defdelegate github_signin(github_user), to: Profile

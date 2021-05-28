@@ -6,7 +6,7 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
   import Helper.Utils, only: [done: 1, get_config: 2]
   import ShortMaps
 
-  alias GroupherServer.{Accounts, CMS, Email, Repo}
+  alias GroupherServer.{Accounts, CMS, Email, Repo, Statistics}
 
   alias Accounts.{Achievement, GithubUser, User, Social}
   alias Helper.{Guardian, ORM, QueryBuilder, RadarSearch}
@@ -14,6 +14,29 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
   alias Ecto.Multi
 
   @default_subscribed_communities get_config(:general, :default_subscribed_communities)
+
+  def read_user(%User{} = user) do
+    with {:ok, user} <- ORM.read(User, user.id, inc: :views) do
+      case user.contributes do
+        nil -> assign_default_contributes(user)
+        _ -> {:ok, user}
+      end
+    end
+  end
+
+  def read_user(login) when is_binary(login) do
+    with {:ok, user} <- ORM.read_by(User, %{login: login}, inc: :views) do
+      case user.contributes do
+        nil -> assign_default_contributes(user)
+        _ -> {:ok, user}
+      end
+    end
+  end
+
+  defp assign_default_contributes(%User{} = user) do
+    {:ok, contributes} = Statistics.list_contributes_digest(%User{id: user.id})
+    ORM.update_embed(user, :contributes, contributes)
+  end
 
   @doc """
   update user's profile
