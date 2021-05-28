@@ -112,13 +112,13 @@ defmodule GroupherServer.Accounts.Delegate.Fans do
   @doc """
   get paged followers of a user
   """
-  @spec paged_followers(User.t(), map()) :: {:ok, map()} | {:error, String.t()}
   def paged_followers(%User{id: user_id}, filter, %User{} = cur_user) do
     paged_followers(%User{id: user_id}, filter)
     |> mark_viewer_follow_status(cur_user)
     |> done
   end
 
+  @spec paged_followers(User.t(), map()) :: {:ok, map()} | {:error, String.t()}
   def paged_followers(%User{id: user_id}, filter) do
     UserFollower
     |> where([uf], uf.user_id == ^user_id)
@@ -129,6 +129,12 @@ defmodule GroupherServer.Accounts.Delegate.Fans do
   @doc """
   get paged followings of a user
   """
+  def paged_followings(%User{id: user_id}, filter, %User{} = cur_user) do
+    paged_followings(%User{id: user_id}, filter)
+    |> mark_viewer_follow_status(cur_user)
+    |> done
+  end
+
   @spec paged_followings(User.t(), map()) :: {:ok, map()} | {:error, String.t()}
   def paged_followings(%User{id: user_id}, filter) do
     UserFollowing
