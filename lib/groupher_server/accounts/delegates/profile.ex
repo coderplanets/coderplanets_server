@@ -33,6 +33,25 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
     end
   end
 
+  def read_user(login, %User{meta: nil}), do: read_user(login)
+
+  def read_user(login, %User{} = cur_user) do
+    with {:ok, user} <- read_user(login) do
+      # Ta 关注了你
+      viewer_been_followed = user.id in cur_user.meta.follower_user_ids
+      # 正在关注
+      viewer_has_followed = user.id in cur_user.meta.following_user_ids
+
+      user =
+        Map.merge(user, %{
+          viewer_been_followed: viewer_been_followed,
+          viewer_has_followed: viewer_has_followed
+        })
+
+      {:ok, user}
+    end
+  end
+
   defp assign_default_contributes(%User{} = user) do
     {:ok, contributes} = Statistics.list_contributes_digest(%User{id: user.id})
     ORM.update_embed(user, :contributes, contributes)

@@ -11,14 +11,19 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
   alias Helper.{Certification, ORM}
 
   # def user(_root, %{id: id}, _info), do: User |> ORM.read(id, inc: :views)
-  def user(_root, %{login: login}, _info), do: Accounts.read_user(login)
+
+  def user(_root, %{login: login}, %{context: %{cur_user: cur_user}}) do
+    Accounts.read_user(login, cur_user)
+  end
+
   def user(_root, _args, %{context: %{cur_user: cur_user}}), do: Accounts.read_user(cur_user)
+  def user(_root, %{login: login}, _info), do: Accounts.read_user(login)
 
   def user(_root, _args, _info) do
     {:error, [message: "need user login name", code: ecode(:account_login)]}
   end
 
-  def users(_root, ~m(filter)a, _info), do: User |> ORM.find_all(filter)
+  def paged_users(_root, ~m(filter)a, _info), do: User |> ORM.find_all(filter)
 
   def session_state(_root, _args, %{context: %{cur_user: cur_user, remote_ip: remote_ip}}) do
     # 1. store remote_ip
@@ -84,21 +89,19 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
   end
 
   def paged_followers(_root, ~m(user_id filter)a, _info) do
-    Accounts.fetch_followers(%User{id: user_id}, filter)
+    Accounts.paged_followers(%User{id: user_id}, filter)
   end
 
   def paged_followers(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
-    # TODO: rename to list_follower_users
-    Accounts.fetch_followers(cur_user, filter)
+    Accounts.paged_followers(cur_user, filter)
   end
 
   def paged_followings(_root, ~m(user_id filter)a, _info) do
-    Accounts.fetch_followings(%User{id: user_id}, filter)
+    Accounts.paged_followings(%User{id: user_id}, filter)
   end
 
   def paged_followings(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
-    # TODO: rename to list_following_users
-    Accounts.fetch_followings(cur_user, filter)
+    Accounts.paged_followings(cur_user, filter)
   end
 
   def paged_upvoted_articles(_root, ~m(user_login filter)a, _info) do

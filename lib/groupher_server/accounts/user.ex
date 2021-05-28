@@ -61,7 +61,12 @@ defmodule GroupherServer.Accounts.User do
     # field(:sponsor_member, :boolean)
     # field(:paid_member, :boolean)
     # field(:platinum_member, :boolean)
+
     field(:viewer_has_reported, :boolean, default: false, virtual: true)
+    # 已关注
+    field(:viewer_has_followed, :boolean, default: false, virtual: true)
+    # Ta 关注了你
+    field(:viewer_been_followed, :boolean, default: false, virtual: true)
 
     embeds_one(:meta, Embeds.UserMeta, on_replace: :update)
     embeds_one(:contributes, Embeds.UserContribute, on_replace: :update)

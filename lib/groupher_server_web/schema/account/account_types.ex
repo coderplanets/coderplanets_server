@@ -108,15 +108,10 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       middleware(M.ConvertToInt)
     end
 
-    @desc "wether viewer has followed"
-    field :viewer_has_followed, :boolean do
-      arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
-
-      middleware(M.Authorize, :login)
-      middleware(M.PutCurrentUser)
-      resolve(dataloader(Accounts, :followers))
-      middleware(M.ViewerDidConvert)
-    end
+    @desc "if viewer has followed"
+    field(:viewer_has_followed, :boolean)
+    @desc "if viewer has been followed"
+    field(:viewer_been_followed, :boolean)
 
     field(:contributes, :contribute_map)
 

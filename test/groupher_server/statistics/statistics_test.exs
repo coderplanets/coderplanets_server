@@ -22,7 +22,6 @@ defmodule GroupherServer.Test.Statistics do
   end
 
   describe "[statistics user_contribute] " do
-    @tag :wip2
     test "list_contributes return empty list when theres no records", ~m(user)a do
       {:ok, contributes} = Statistics.list_contributes_digest(%User{id: user.id})
 
@@ -65,7 +64,6 @@ defmodule GroupherServer.Test.Statistics do
       assert length(contributes.records) == 1
     end
 
-    @tag :wip2
     test "should update user's embeds contribute", ~m(user)a do
       Statistics.make_contribute(%User{id: user.id})
       {:ok, user} = ORM.find(User, user.id)

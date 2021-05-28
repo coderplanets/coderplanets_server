@@ -10,7 +10,7 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
       arg(:filter, non_null(:paged_users_filter))
 
       middleware(M.PageSizeProof)
-      resolve(&R.Accounts.users/3)
+      resolve(&R.Accounts.paged_users/3)
     end
 
     @desc "get user by id"

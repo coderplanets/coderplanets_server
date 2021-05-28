@@ -141,6 +141,7 @@ defmodule GroupherServer.Test.Query.Account.Fans do
       }
     }
     """
+    @tag :wip2
     test "login user can check if 'i' has followed this user", ~m(user_conn user)a do
       {:ok, user2} = db_insert(:user)
 
@@ -153,6 +154,31 @@ defmodule GroupherServer.Test.Query.Account.Fans do
       resolts = user_conn |> query_result(@query, variables, "user")
 
       assert resolts |> Map.get("viewerHasFollowed") == true
+    end
+
+    @query """
+    query($login: String!) {
+      user(login: $login) {
+        id
+        viewerBeenFollowed
+      }
+    }
+    """
+    @tag :wip2
+    test "login user can check if 'i' was been followed", ~m(user)a do
+      {:ok, user2} = db_insert(:user)
+      user_conn = simu_conn(:user, user2)
+
+      variables = %{login: user.login}
+      resolts = user_conn |> query_result(@query, variables, "user")
+      assert resolts |> Map.get("viewerBeenFollowed") == false
+
+      {:ok, _} = Accounts.follow(user, user2)
+      variables = %{login: user.login}
+
+      resolts = user_conn |> query_result(@query, variables, "user")
+
+      assert resolts |> Map.get("viewerBeenFollowed") == true
     end
   end
 end
