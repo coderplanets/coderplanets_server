@@ -317,6 +317,7 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       }
     }
     """
+    @tag :wip2
     test "guest user can get paged default subscrubed communities", ~m(guest_conn)a do
       {:ok, _} = db_insert_multi(:community, 25)
       {:ok, _} = db_insert(:community, %{raw: "home"})
@@ -328,6 +329,7 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       assert @default_subscribed_communities == results["pageSize"]
     end
 
+    @tag :wip2
     test "guest user can get paged default subscrubed communities with home included",
          ~m(guest_conn)a do
       {:ok, _} = db_insert_multi(:community, 25)
@@ -340,8 +342,8 @@ defmodule GroupherServer.Test.Query.Account.Basic do
     end
 
     @query """
-    query($userId: ID, $filter: PagedFilter!) {
-      subscribedCommunities(userId: $userId, filter: $filter) {
+    query($login: String, $filter: PagedFilter!) {
+      subscribedCommunities(login: $login, filter: $filter) {
         entries {
           title
         }
@@ -352,11 +354,12 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       }
     }
     """
+    @tag :wip2
     test "guest user can get paged default subscrubed communities with empty args",
          ~m(guest_conn)a do
       {:ok, _} = db_insert_multi(:community, 25)
 
-      variables = %{userId: "", filter: %{page: 1, size: 10}}
+      variables = %{filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "subscribedCommunities")
 
       assert results |> is_valid_pagination?

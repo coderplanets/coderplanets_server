@@ -75,12 +75,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       resolve(&R.Accounts.subscribed_communities/3)
     end
 
-    field :subscribed_communities_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-
-      resolve(dataloader(Accounts, :subscribed_communities))
-      middleware(M.ConvertToInt)
-    end
+    field(:subscribed_communities_count, :integer)
 
     @desc "paged communities which the user it's the editor"
     field :editable_communities, :paged_communities do
