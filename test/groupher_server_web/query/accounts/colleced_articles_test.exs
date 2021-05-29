@@ -17,8 +17,8 @@ defmodule GroupherServer.Test.Query.Accounts.CollectedArticles do
   end
 
   @query """
-  query($userLogin: String!, $filter: CollectFoldersFilter!) {
-    pagedCollectFolders(userLogin: $userLogin, filter: $filter) {
+  query($login: String!, $filter: CollectFoldersFilter!) {
+    pagedCollectFolders(login: $login, filter: $filter) {
       entries {
         id
         title
@@ -38,7 +38,7 @@ defmodule GroupherServer.Test.Query.Accounts.CollectedArticles do
     {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
     {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder2"}, user)
 
-    variables = %{userLogin: user.login, filter: %{page: 1, size: 20}}
+    variables = %{login: user.login, filter: %{page: 1, size: 20}}
     results = user_conn |> query_result(@query, variables, "pagedCollectFolders")
     results2 = guest_conn |> query_result(@query, variables, "pagedCollectFolders")
 
@@ -63,11 +63,11 @@ defmodule GroupherServer.Test.Query.Accounts.CollectedArticles do
     {:ok, _folder} = Accounts.add_to_collect(:job, job.id, folder_post.id, user)
     {:ok, _folder} = Accounts.add_to_collect(:job, job2.id, folder_job.id, user)
 
-    variables = %{userLogin: user.login, filter: %{thread: "JOB", page: 1, size: 20}}
+    variables = %{login: user.login, filter: %{thread: "JOB", page: 1, size: 20}}
     results = guest_conn |> query_result(@query, variables, "pagedCollectFolders")
     assert results["totalCount"] == 2
 
-    variables = %{userLogin: user.login, filter: %{thread: "POST", page: 1, size: 20}}
+    variables = %{login: user.login, filter: %{thread: "POST", page: 1, size: 20}}
     results = guest_conn |> query_result(@query, variables, "pagedCollectFolders")
     assert results["totalCount"] == 1
   end
@@ -77,7 +77,7 @@ defmodule GroupherServer.Test.Query.Accounts.CollectedArticles do
     {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder", private: true}, user)
     {:ok, _folder} = Accounts.create_collect_folder(%{title: "test folder2"}, user)
 
-    variables = %{userLogin: user.login, filter: %{page: 1, size: 20}}
+    variables = %{login: user.login, filter: %{page: 1, size: 20}}
     results = user_conn |> query_result(@query, variables, "pagedCollectFolders")
     results2 = guest_conn |> query_result(@query, variables, "pagedCollectFolders")
 
