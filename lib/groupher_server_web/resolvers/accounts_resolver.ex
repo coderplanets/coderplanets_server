@@ -8,7 +8,7 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
   alias GroupherServer.{Accounts, CMS}
 
   alias Accounts.{MentionMail, NotificationMail, SysNotificationMail, User}
-  alias Helper.{Certification, ORM}
+  alias Helper.Certification
 
   # def user(_root, %{id: id}, _info), do: User |> ORM.read(id, inc: :views)
 
@@ -22,7 +22,13 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     {:error, [message: "need user login name", code: ecode(:account_login)]}
   end
 
-  def paged_users(_root, ~m(filter)a, _info), do: User |> ORM.find_all(filter)
+  def paged_users(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.paged_users(filter, cur_user)
+  end
+
+  def paged_users(_root, ~m(filter)a, _info) do
+    Accounts.paged_users(filter)
+  end
 
   def session_state(_root, _args, %{context: %{cur_user: cur_user, remote_ip: remote_ip}}) do
     # 1. store remote_ip

@@ -11,18 +11,10 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
   alias Accounts.{Achievement, GithubUser, User, Social}
   alias Helper.{Guardian, ORM, QueryBuilder, RadarSearch}
 
+  alias GroupherServer.Accounts.Delegate.Fans
   alias Ecto.Multi
 
   @default_subscribed_communities get_config(:general, :default_subscribed_communities)
-
-  def read_user(%User{} = user) do
-    with {:ok, user} <- ORM.read(User, user.id, inc: :views) do
-      case user.contributes do
-        nil -> assign_default_contributes(user)
-        _ -> {:ok, user}
-      end
-    end
-  end
 
   def read_user(login) when is_binary(login) do
     with {:ok, user} <- ORM.read_by(User, %{login: login}, inc: :views) do
@@ -52,18 +44,19 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
     end
   end
 
-  defp assign_default_contributes(%User{} = user) do
-    {:ok, contributes} = Statistics.list_contributes_digest(%User{id: user.id})
-    ORM.update_embed(user, :contributes, contributes)
+  def paged_users(filter, %User{} = user) do
+    ORM.find_all(User, filter) |> Fans.mark_viewer_follow_status(user) |> done
+  end
+
+  def paged_users(filter) do
+    ORM.find_all(User, filter)
   end
 
   @doc """
   update user's profile
   """
   def update_profile(%User{} = user, attrs \\ %{}) do
-    changeset =
-      user
-      |> Ecto.Changeset.change(attrs)
+    changeset = user |> Ecto.Changeset.change(attrs)
 
     changeset
     |> update_social_ifneed(user, attrs)
@@ -298,5 +291,11 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
       true ->
         changeset
     end
+  end
+
+  # assign default contributes
+  defp assign_default_contributes(%User{} = user) do
+    {:ok, contributes} = Statistics.list_contributes_digest(%User{id: user.id})
+    ORM.update_embed(user, :contributes, contributes)
   end
 end

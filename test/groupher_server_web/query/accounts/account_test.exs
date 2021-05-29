@@ -143,6 +143,8 @@ defmodule GroupherServer.Test.Query.Account.Basic do
           id
           nickname
           bio
+          viewerHasFollowed
+          viewerBeenFollowed
         }
         totalPages
         totalCount
@@ -156,6 +158,28 @@ defmodule GroupherServer.Test.Query.Account.Basic do
 
       results = guest_conn |> query_result(@query, variables, "pagedUsers")
       assert results |> is_valid_pagination?()
+    end
+
+    @tag :wip2
+    test "login user can get paged users with follow state info", ~m(user_conn user)a do
+      variables = %{filter: %{page: 1, size: 10}}
+
+      {:ok, user2} = db_insert(:user)
+      {:ok, user3} = db_insert(:user)
+
+      {:ok, _} = Accounts.follow(user, user2)
+      {:ok, _} = Accounts.follow(user3, user)
+
+      results = user_conn |> query_result(@query, variables, "pagedUsers")
+      assert results |> is_valid_pagination?()
+
+      entries = results["entries"]
+
+      user3 = Enum.find(entries, &(&1["id"] == to_string(user3.id)))
+      assert user3["viewerBeenFollowed"]
+
+      user2 = Enum.find(entries, &(&1["id"] == to_string(user2.id)))
+      assert user2["viewerHasFollowed"]
     end
   end
 
