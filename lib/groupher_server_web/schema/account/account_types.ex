@@ -63,16 +63,6 @@ defmodule GroupherServerWeb.Schema.Account.Types do
 
     field(:subscribed_communities_count, :integer)
 
-    @desc "paged communities which the user it's the editor"
-    field :editable_communities, :paged_communities do
-      # arg(:filter, non_null(:paged_filter))
-      arg(:filter, :paged_filter)
-
-      # middleware(M.SeeMe)
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.editable_communities/3)
-    end
-
     @desc "get follower users count"
     field(:followers_count, :integer)
 
