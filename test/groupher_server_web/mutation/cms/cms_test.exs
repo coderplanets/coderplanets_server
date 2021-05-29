@@ -497,7 +497,6 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       assert created["id"] == to_string(community.id)
     end
 
-    @tag :wip2
     test "subscribe should update user's subscribed count", ~m(user community)a do
       login_conn = simu_conn(:user, user)
 
@@ -569,7 +568,6 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       assert false == cur_subscribers.entries |> Enum.any?(&(&1.id == user.id))
     end
 
-    @tag :wip2
     test "unsubscribe should update user's subscribed count", ~m(user community)a do
       login_conn = simu_conn(:user, user)
 

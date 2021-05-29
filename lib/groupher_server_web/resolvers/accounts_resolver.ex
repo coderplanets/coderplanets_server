@@ -263,7 +263,7 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     end
   end
 
-  def subscribed_communities(_root, %{filter: filter}, _info) do
+  def subscribed_communities(_root, %{filter: filter} = args, _info) do
     Accounts.default_subscribed_communities(filter)
   end
 
