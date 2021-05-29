@@ -129,7 +129,7 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
 
     @desc "paged communities which the user it's the editor"
     field :editable_communities, :paged_communities do
-      arg(:user_id, :id)
+      arg(:login, :string)
       arg(:filter, non_null(:paged_filter))
 
       middleware(M.PageSizeProof)

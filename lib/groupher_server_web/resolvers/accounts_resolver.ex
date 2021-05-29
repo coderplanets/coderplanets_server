@@ -197,22 +197,16 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
   end
 
   # paged communities which the user it's the editor
-  def editable_communities(_root, ~m(user_id filter)a, _info) do
-    Accounts.paged_editable_communities(%User{id: user_id}, filter)
+  def editable_communities(_root, ~m(login filter)a, _info) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(login) do
+      Accounts.paged_editable_communities(%User{id: user_id}, filter)
+    else
+      _ -> raise_error(:not_exsit, "#{login} not found")
+    end
   end
 
   def editable_communities(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
     Accounts.paged_editable_communities(cur_user, filter)
-  end
-
-  # def editable_communities(_root, ~m(filter)a, %{
-  #       context: %{cur_user: %{cur_passport: %{"cms" => %{"root" => true}}} = _cur_user}
-  #     }) do
-  #   CMS.Community |> ORM.find_all(filter)
-  # end
-
-  def editable_communities(root, ~m(filter)a, _info) do
-    Accounts.paged_editable_communities(%User{id: root.id}, filter)
   end
 
   # TODO: refactor
