@@ -99,7 +99,7 @@ defmodule GroupherServer.Test.Query.Account.Achievement do
       }
     }
     """
-    @tag :wip2
+
     test "user can get own editable communities list", ~m(user)a do
       user_conn = simu_conn(:user, user)
 

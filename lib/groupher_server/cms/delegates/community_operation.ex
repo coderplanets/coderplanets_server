@@ -5,11 +5,13 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
   import ShortMaps
 
   alias Helper.{Certification, RadarSearch, ORM}
-  alias GroupherServer.Accounts.User
-  alias GroupherServer.CMS.Delegate.PassportCURD
-  alias GroupherServer.Repo
 
-  alias GroupherServer.CMS.{
+  alias GroupherServer.{Accounts, CMS, Repo}
+
+  alias Accounts.User
+  alias CMS.Delegate.PassportCURD
+
+  alias CMS.{
     Delegate,
     Category,
     Community,

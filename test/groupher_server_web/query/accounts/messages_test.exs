@@ -25,7 +25,7 @@ defmodule GroupherServer.Test.Query.Accounts.Messages do
       }
     }
     """
-    @tag :wip2
+
     test "login user can get mail box status" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -48,7 +48,6 @@ defmodule GroupherServer.Test.Query.Accounts.Messages do
       assert mail_box["notificationCount"] == 18
     end
 
-    @tag :wip2
     test "unauth user get mailBox status fails", ~m(guest_conn user)a do
       variables = %{login: user.login}
 
@@ -87,7 +86,7 @@ defmodule GroupherServer.Test.Query.Accounts.Messages do
       }
     }
     """
-    @tag :wip2
+
     test "user can get mentions send by others" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -107,7 +106,6 @@ defmodule GroupherServer.Test.Query.Accounts.Messages do
       assert mentions["entries"] |> List.first() |> Map.get("toUserId") == to_string(user.id)
     end
 
-    @tag :wip2
     test "user can get notifications send by others" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -127,7 +125,6 @@ defmodule GroupherServer.Test.Query.Accounts.Messages do
       assert notifications["entries"] |> List.first() |> Map.get("toUserId") == to_string(user.id)
     end
 
-    @tag :wip2
     test "user can get system notifications" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)

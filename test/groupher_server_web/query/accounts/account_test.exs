@@ -69,7 +69,6 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       assert results["cmsPassport"] == nil
     end
 
-    @tag :wip2
     test "user should have default contributes", ~m(guest_conn user_conn user)a do
       variables = %{login: user.login}
       results = guest_conn |> query_result(@query, variables, "user")
@@ -87,7 +86,6 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       assert contributes["totalCount"] == 0
     end
 
-    @tag :wip2
     test "login user can get it's own profile", ~m(user_conn user)a do
       results = user_conn |> query_result(@query, %{login: user.login}, "user")
       assert results["id"] == to_string(user.id)
@@ -118,7 +116,6 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       }
     }
 
-    @tag :wip2
     test "login user can get own cms_passport and cms_passport_string", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
@@ -130,7 +127,6 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       assert Map.equal?(Jason.decode!(results["cmsPassportString"]), @valid_rules)
     end
 
-    @tag :wip2
     test "login user can get empty if cms_passport not exsit", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
@@ -317,7 +313,7 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       }
     }
     """
-    @tag :wip2
+
     test "guest user can get paged default subscrubed communities", ~m(guest_conn)a do
       {:ok, _} = db_insert_multi(:community, 25)
       {:ok, _} = db_insert(:community, %{raw: "home"})
@@ -329,7 +325,6 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       assert @default_subscribed_communities == results["pageSize"]
     end
 
-    @tag :wip2
     test "guest user can get paged default subscrubed communities with home included",
          ~m(guest_conn)a do
       {:ok, _} = db_insert_multi(:community, 25)
@@ -354,7 +349,7 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       }
     }
     """
-    @tag :wip2
+
     test "guest user can get paged default subscrubed communities with empty args",
          ~m(guest_conn)a do
       {:ok, _} = db_insert_multi(:community, 25)
