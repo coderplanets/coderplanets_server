@@ -96,11 +96,12 @@ defmodule GroupherServer.Test.Query.Account.Fans do
       assert user4 |> exist_in?(entries, :string_key)
     end
 
+    @tag :wip2
     test "login user can get other user's paged followings", ~m(guest_conn user)a do
       {:ok, user2} = db_insert(:user)
       {:ok, _followeer} = user |> Accounts.follow(user2)
 
-      variables = %{userId: user.id, filter: %{page: 1, size: 20}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20}}
       results = guest_conn |> query_result(@query, variables, "pagedFollowings")
 
       assert results |> Map.get("totalCount") == 1

@@ -48,8 +48,9 @@ defmodule GroupherServer.Test.Query.Accounts.Messages do
       assert mail_box["notificationCount"] == 18
     end
 
-    test "unauth user get mailBox status fails", ~m(guest_conn)a do
-      variables = %{}
+    @tag :wip2
+    test "unauth user get mailBox status fails", ~m(guest_conn user)a do
+      variables = %{login: user.login}
 
       assert guest_conn |> query_get_error?(@query, variables, ecode(:account_login))
     end

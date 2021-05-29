@@ -86,8 +86,9 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       assert contributes["totalCount"] == 0
     end
 
+    @tag :wip2
     test "login user can get it's own profile", ~m(user_conn user)a do
-      results = user_conn |> query_result(@query, %{}, "user")
+      results = user_conn |> query_result(@query, %{login: user.login}, "user")
       assert results["id"] == to_string(user.id)
     end
 
@@ -116,21 +117,23 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       }
     }
 
+    @tag :wip2
     test "login user can get own cms_passport and cms_passport_string", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
       {:ok, _} = CMS.stamp_passport(@valid_rules, user)
 
-      results = user_conn |> query_result(@query, %{}, "user")
+      results = user_conn |> query_result(@query, %{login: user.login}, "user")
 
       assert Map.equal?(results["cmsPassport"], @valid_rules)
       assert Map.equal?(Jason.decode!(results["cmsPassportString"]), @valid_rules)
     end
 
+    @tag :wip2
     test "login user can get empty if cms_passport not exsit", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
-      results = user_conn |> query_result(@query, %{}, "user")
+      results = user_conn |> query_result(@query, %{login: user.login}, "user")
 
       assert %{} == results["cmsPassport"]
       assert "{}" == results["cmsPassportString"]
