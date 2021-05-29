@@ -23,9 +23,7 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     Accounts.paged_users(filter, cur_user)
   end
 
-  def paged_users(_root, ~m(filter)a, _info) do
-    Accounts.paged_users(filter)
-  end
+  def paged_users(_root, ~m(filter)a, _info), do: Accounts.paged_users(filter)
 
   def session_state(_root, _args, %{context: %{cur_user: cur_user, remote_ip: remote_ip}}) do
     # 1. store remote_ip
