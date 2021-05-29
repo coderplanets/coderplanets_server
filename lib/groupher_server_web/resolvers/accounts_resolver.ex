@@ -10,8 +10,6 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
   alias Accounts.{MentionMail, NotificationMail, SysNotificationMail, User}
   alias Helper.Certification
 
-  # def user(_root, %{id: id}, _info), do: User |> ORM.read(id, inc: :views)
-
   def user(_root, %{login: login}, %{context: %{cur_user: cur_user}}) do
     Accounts.read_user(login, cur_user)
   end
