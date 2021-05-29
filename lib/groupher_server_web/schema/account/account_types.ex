@@ -61,26 +61,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       resolve(&R.Accounts.get_passport/3)
     end
 
-    # field :subscribed_communities, list_of(:community) do
-    # arg(:filter, :members_filter)
-
-    # middleware(M.PageSizeProof)
-    # resolve(dataloader(Accounts, :subscribed_communities))
-    # end
-    @desc "paged communities subscribed by this user"
-    field :subscribed_communities, :paged_communities do
-      arg(:filter, :paged_filter)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.subscribed_communities/3)
-    end
-
-    field :subscribed_communities_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-
-      resolve(dataloader(Accounts, :subscribed_communities))
-      middleware(M.ConvertToInt)
-    end
+    field(:subscribed_communities_count, :integer)
 
     @desc "paged communities which the user it's the editor"
     field :editable_communities, :paged_communities do

@@ -66,6 +66,18 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
   end
 
   @doc """
+  update user's subscribed communities count
+  """
+  def update_subscribe_count(user_id) do
+    with {:ok, user} <- ORM.find(User, user_id) do
+      count_query = from(s in CMS.CommunitySubscriber, where: s.user_id == ^user.id)
+      count = Repo.aggregate(count_query, :count)
+
+      user |> ORM.update(%{subscribed_communities_count: count})
+    end
+  end
+
+  @doc """
   update geo info for user, include geo_city & remote ip
   """
   def update_geo(%User{geo_city: geo_city} = user, remote_ip) when is_nil(geo_city) do

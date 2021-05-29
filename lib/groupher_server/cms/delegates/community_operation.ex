@@ -5,11 +5,13 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
   import ShortMaps
 
   alias Helper.{Certification, RadarSearch, ORM}
-  alias GroupherServer.Accounts.User
-  alias GroupherServer.CMS.Delegate.PassportCURD
-  alias GroupherServer.Repo
 
-  alias GroupherServer.CMS.{
+  alias GroupherServer.{Accounts, CMS, Repo}
+
+  alias Accounts.User
+  alias CMS.Delegate.PassportCURD
+
+  alias CMS.{
     Delegate,
     Category,
     Community,
@@ -116,6 +118,9 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
       |> Multi.run(:update_community_count, fn _, %{subscribed_community: community} ->
         CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :inc)
       end)
+      |> Multi.run(:update_user_subscribe_count, fn _, _ ->
+        Accounts.update_subscribe_count(user_id)
+      end)
       |> Repo.transaction()
       |> result()
     end
@@ -132,6 +137,9 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
       end)
       |> Multi.run(:update_community_count, fn _, %{subscribed_community: community} ->
         CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :inc)
+      end)
+      |> Multi.run(:update_user_subscribe_count, fn _, _ ->
+        Accounts.update_subscribe_count(user_id)
       end)
       |> Repo.transaction()
       |> result()
@@ -150,6 +158,9 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
       end)
       |> Multi.run(:update_community_count, fn _, _ ->
         CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
+      end)
+      |> Multi.run(:update_user_subscribe_count, fn _, _ ->
+        Accounts.update_subscribe_count(user_id)
       end)
       |> Repo.transaction()
       |> result()
@@ -175,6 +186,9 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
       end)
       |> Multi.run(:update_community_count, fn _, _ ->
         CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
+      end)
+      |> Multi.run(:update_user_subscribe_count, fn _, _ ->
+        Accounts.update_subscribe_count(user_id)
       end)
       |> Multi.run(:update_community_geo, fn _, _ ->
         update_community_geo(community_id, user_id, remote_ip, :dec)
@@ -203,6 +217,9 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
       end)
       |> Multi.run(:update_community_count, fn _, _ ->
         CommunityCURD.update_community_count_field(community, user_id, :subscribers_count, :dec)
+      end)
+      |> Multi.run(:update_user_subscribe_count, fn _, _ ->
+        Accounts.update_subscribe_count(user_id)
       end)
       |> Multi.run(:update_community_geo_city, fn _, _ ->
         update_community_geo_map(community.id, city, :dec)

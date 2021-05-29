@@ -254,25 +254,16 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     Accounts.mark_mail_read(%SysNotificationMail{id: id}, cur_user)
   end
 
-  def subscribed_communities(%{id: id}, %{filter: filter}, _info) do
-    Accounts.subscribed_communities(%User{id: id}, filter)
-  end
-
-  # for user self's
-  def subscribed_communities(_root, %{filter: filter}, %{context: %{cur_user: cur_user}}) do
-    Accounts.subscribed_communities(%User{id: cur_user.id}, filter)
-  end
-
-  def subscribed_communities(_root, %{user_id: "", filter: filter}, _info) do
-    Accounts.default_subscribed_communities(filter)
-  end
-
   # for check other users subscribed_communities
-  def subscribed_communities(_root, %{user_id: user_id, filter: filter}, _info) do
-    Accounts.subscribed_communities(%User{id: user_id}, filter)
+  def subscribed_communities(_root, %{login: login, filter: filter}, _info) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(login) do
+      Accounts.subscribed_communities(%User{id: user_id}, filter)
+    else
+      _ -> raise_error(:not_exsit, "#{login} not found")
+    end
   end
 
-  def subscribed_communities(_root, %{filter: filter}, _info) do
+  def subscribed_communities(_root, %{filter: filter} = args, _info) do
     Accounts.default_subscribed_communities(filter)
   end
 

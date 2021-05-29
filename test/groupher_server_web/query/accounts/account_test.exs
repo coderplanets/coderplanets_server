@@ -46,13 +46,6 @@ defmodule GroupherServer.Test.Query.Account.Basic do
           company
           title
         }
-        subscribedCommunities {
-          entries {
-            id
-          }
-          pageSize
-          totalCount
-        }
       }
     }
     """
@@ -69,7 +62,6 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       assert results["cmsPassport"] == nil
     end
 
-    @tag :wip2
     test "user should have default contributes", ~m(guest_conn user_conn user)a do
       variables = %{login: user.login}
       results = guest_conn |> query_result(@query, variables, "user")
@@ -87,7 +79,6 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       assert contributes["totalCount"] == 0
     end
 
-    @tag :wip2
     test "login user can get it's own profile", ~m(user_conn user)a do
       results = user_conn |> query_result(@query, %{login: user.login}, "user")
       assert results["id"] == to_string(user.id)
@@ -118,7 +109,6 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       }
     }
 
-    @tag :wip2
     test "login user can get own cms_passport and cms_passport_string", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
@@ -130,7 +120,6 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       assert Map.equal?(Jason.decode!(results["cmsPassportString"]), @valid_rules)
     end
 
-    @tag :wip2
     test "login user can get empty if cms_passport not exsit", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
@@ -207,102 +196,6 @@ defmodule GroupherServer.Test.Query.Account.Basic do
   end
 
   describe "[account subscrube]" do
-    alias CMS.Community
-
-    @query """
-    query($login: String!) {
-      user(login: $login) {
-        id
-        nickname
-        subscribedCommunitiesCount
-        subscribedCommunities {
-          entries {
-            id
-            title
-            raw
-            index
-          }
-          pageSize
-          totalCount
-        }
-      }
-    }
-    """
-    test "guest user can get subscrubed communities list and count", ~m(guest_conn user)a do
-      variables = %{login: user.login}
-      {:ok, communities} = db_insert_multi(:community, assert_v(:page_size))
-
-      Enum.each(
-        communities,
-        &CMS.subscribe_community(%Community{id: &1.id}, user)
-      )
-
-      results = guest_conn |> query_result(@query, variables, "user")
-      subscribed_communities = results["subscribedCommunities"]["entries"]
-
-      subscribed_communities_count = results["subscribedCommunitiesCount"]
-      [community_1, community_2, community_3, community_x] = communities |> firstn_and_last(3)
-
-      assert subscribed_communities |> Enum.any?(&(&1["id"] == to_string(community_1.id)))
-      assert subscribed_communities |> Enum.any?(&(&1["id"] == to_string(community_2.id)))
-      assert subscribed_communities |> Enum.any?(&(&1["id"] == to_string(community_3.id)))
-      assert subscribed_communities |> Enum.any?(&(&1["id"] == to_string(community_x.id)))
-      assert subscribed_communities_count == assert_v(:page_size)
-    end
-
-    test "guest user can get subscrubed community list by index", ~m(guest_conn user)a do
-      variables = %{login: user.login}
-      {:ok, communities} = db_insert_multi(:community, assert_v(:page_size))
-
-      Enum.each(
-        communities,
-        &CMS.subscribe_community(%Community{id: &1.id}, user)
-      )
-
-      [community_1, community_2, community_3, _community_x] = communities |> firstn_and_last(3)
-
-      {:ok, _} =
-        Accounts.set_customization(user, %{
-          sidebar_communities_index: %{
-            community_1.raw => 3,
-            community_2.raw => 2,
-            community_3.raw => 1
-          }
-        })
-
-      results = guest_conn |> query_result(@query, variables, "user")
-      subscribed_communities = results["subscribedCommunities"]["entries"]
-
-      found_community_1 =
-        Enum.find(subscribed_communities, fn c -> c["raw"] == community_1.raw end)
-
-      found_community_2 =
-        Enum.find(subscribed_communities, fn c -> c["raw"] == community_2.raw end)
-
-      found_community_3 =
-        Enum.find(subscribed_communities, fn c -> c["raw"] == community_3.raw end)
-
-      assert found_community_1["index"] == 3
-      assert found_community_2["index"] == 2
-      assert found_community_3["index"] == 1
-    end
-
-    test "guest user can get subscrubed communities count of 20 at most", ~m(guest_conn user)a do
-      variables = %{login: user.login}
-      {:ok, communities} = db_insert_multi(:community, assert_v(:page_size) + 1)
-
-      Enum.each(
-        communities,
-        &CMS.subscribe_community(%Community{id: &1.id}, user)
-      )
-
-      results = guest_conn |> query_result(@query, variables, "user")
-      subscribed_communities = results["subscribedCommunities"]
-
-      assert subscribed_communities["totalCount"] == assert_v(:page_size) + 1
-      assert subscribed_communities["pageSize"] == assert_v(:page_size)
-    end
-
     @query """
     query($filter: PagedFilter!) {
       subscribedCommunities(filter: $filter) {
@@ -340,8 +233,8 @@ defmodule GroupherServer.Test.Query.Account.Basic do
     end
 
     @query """
-    query($userId: ID, $filter: PagedFilter!) {
-      subscribedCommunities(userId: $userId, filter: $filter) {
+    query($login: String, $filter: PagedFilter!) {
+      subscribedCommunities(login: $login, filter: $filter) {
         entries {
           title
         }
@@ -352,11 +245,12 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       }
     }
     """
+
     test "guest user can get paged default subscrubed communities with empty args",
          ~m(guest_conn)a do
       {:ok, _} = db_insert_multi(:community, 25)
 
-      variables = %{userId: "", filter: %{page: 1, size: 10}}
+      variables = %{filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "subscribedCommunities")
 
       assert results |> is_valid_pagination?

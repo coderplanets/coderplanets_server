@@ -53,7 +53,7 @@ defmodule GroupherServer.Test.Mutation.Delivery do
       }
     }
     """
-    @tag :wip2
+
     test "auth user can publish system notifications" do
       {:ok, user} = db_insert(:user)
 
@@ -100,7 +100,7 @@ defmodule GroupherServer.Test.Mutation.Delivery do
       }
     }
     """
-    @tag :wip2
+
     test "auth user can mark a system notification as read" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -200,7 +200,7 @@ defmodule GroupherServer.Test.Mutation.Delivery do
       }
     }
     """
-    @tag :wip2
+
     test "user can mark a mention as read" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -237,7 +237,7 @@ defmodule GroupherServer.Test.Mutation.Delivery do
       }
     }
     """
-    @tag :wip2
+
     test "user can mark all unread mentions as read" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -265,7 +265,7 @@ defmodule GroupherServer.Test.Mutation.Delivery do
       }
     }
     """
-    @tag :wip2
+
     test "user can mark a notification as read" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -303,7 +303,7 @@ defmodule GroupherServer.Test.Mutation.Delivery do
       }
     }
     """
-    @tag :wip2
+
     test "user can mark all unread notifications as read" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)

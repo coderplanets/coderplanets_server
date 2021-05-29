@@ -25,7 +25,7 @@ defmodule GroupherServer.Accounts.User do
   alias GroupherServer.CMS
 
   @required_fields ~w(nickname avatar)a
-  @optional_fields ~w(login nickname bio remote_ip sex location email)a
+  @optional_fields ~w(login nickname bio remote_ip sex location email subscribed_communities_count)a
 
   @type t :: %User{}
   schema "users" do
@@ -55,6 +55,7 @@ defmodule GroupherServer.Accounts.User do
     has_many(:followings, {"users_followings", UserFollowing})
 
     has_many(:subscribed_communities, {"communities_subscribers", CMS.CommunitySubscriber})
+    field(:subscribed_communities_count, :integer, default: 0)
 
     has_many(:collect_folder, {"collect_folders", CollectFolder})
 

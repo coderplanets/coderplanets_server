@@ -22,6 +22,7 @@ defmodule GroupherServer.Accounts do
 
   defdelegate update_profile(user, attrs), to: Profile
   defdelegate update_geo(user, remote_ip), to: Profile
+  defdelegate update_subscribe_count(user), to: Profile
   defdelegate github_signin(github_user), to: Profile
   defdelegate default_subscribed_communities(filter), to: Profile
   defdelegate subscribed_communities(user, filter), to: Profile

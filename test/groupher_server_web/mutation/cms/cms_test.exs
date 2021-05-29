@@ -3,7 +3,9 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
 
   use GroupherServer.TestTools
 
-  alias GroupherServer.CMS
+  alias GroupherServer.{Accounts, CMS}
+
+  alias Accounts.User
   alias CMS.{Category, Community, CommunityEditor, Passport}
 
   alias Helper.ORM
@@ -495,6 +497,17 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       assert created["id"] == to_string(community.id)
     end
 
+    test "subscribe should update user's subscribed count", ~m(user community)a do
+      login_conn = simu_conn(:user, user)
+
+      variables = %{communityId: community.id}
+      created = login_conn |> mutation_result(@subscribe_query, variables, "subscribeCommunity")
+
+      {:ok, user} = ORM.find(User, user.id)
+
+      assert user.subscribed_communities_count == 1
+    end
+
     test "login user subscribe non-exsit community fails", ~m(user)a do
       login_conn = simu_conn(:user, user)
       variables = %{communityId: non_exsit_id()}
@@ -553,6 +566,21 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
 
       assert result["id"] == to_string(record.id)
       assert false == cur_subscribers.entries |> Enum.any?(&(&1.id == user.id))
+    end
+
+    test "unsubscribe should update user's subscribed count", ~m(user community)a do
+      login_conn = simu_conn(:user, user)
+
+      variables = %{communityId: community.id}
+      created = login_conn |> mutation_result(@subscribe_query, variables, "subscribeCommunity")
+
+      {:ok, user} = ORM.find(User, user.id)
+      assert user.subscribed_communities_count == 1
+
+      login_conn |> mutation_result(@unsubscribe_query, variables, "unsubscribeCommunity")
+
+      {:ok, user} = ORM.find(User, user.id)
+      assert user.subscribed_communities_count == 0
     end
 
     test "other login user unsubscribe community fails", ~m(user_conn community)a do

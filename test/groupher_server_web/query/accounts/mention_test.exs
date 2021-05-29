@@ -26,7 +26,7 @@ defmodule GroupherServer.Test.Query.Accounts.Mention do
       }
     }
     """
-    @tag :wip2
+
     test "auth user can get it's own mailbox status" do
       {:ok, [user, user2]} = db_insert_multi(:user, 2)
 
