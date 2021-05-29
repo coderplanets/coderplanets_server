@@ -46,13 +46,6 @@ defmodule GroupherServer.Test.Query.Account.Basic do
           company
           title
         }
-        subscribedCommunities {
-          entries {
-            id
-          }
-          pageSize
-          totalCount
-        }
       }
     }
     """
