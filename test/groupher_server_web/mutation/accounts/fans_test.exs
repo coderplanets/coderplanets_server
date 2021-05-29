@@ -24,7 +24,6 @@ defmodule GroupherServer.Test.Mutation.Accounts.Fans do
       }
     }
     """
-    @tag :wip2
     test "login user can follow other user", ~m(user_conn)a do
       {:ok, user2} = db_insert(:user)
 
@@ -35,7 +34,6 @@ defmodule GroupherServer.Test.Mutation.Accounts.Fans do
       assert followed["viewerHasFollowed"] == false
     end
 
-    @tag :wip2
     test "login user follow other user twice fails", ~m(user_conn)a do
       {:ok, user2} = db_insert(:user)
 
@@ -46,20 +44,17 @@ defmodule GroupherServer.Test.Mutation.Accounts.Fans do
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:already_did))
     end
 
-    @tag :wip2
     test "login user follow self fails", ~m(user_conn user)a do
       variables = %{login: user.login}
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:self_conflict))
     end
 
-    @tag :wip2
     test "login user follow no-exsit cuser fails", ~m(user_conn)a do
       variables = %{login: non_exsit_login()}
 
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:not_exsit))
     end
 
-    @tag :wip2
     test "unauth user follow other user fails", ~m(guest_conn)a do
       {:ok, user2} = db_insert(:user)
       variables = %{login: user2.login}
@@ -73,7 +68,7 @@ defmodule GroupherServer.Test.Mutation.Accounts.Fans do
       }
     }
     """
-    @tag :wip2
+
     test "login user can undo follow other user", ~m(user_conn user)a do
       {:ok, user2} = db_insert(:user)
       {:ok, _followeer} = user |> Accounts.follow(user2)

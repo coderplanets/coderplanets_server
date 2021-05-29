@@ -46,7 +46,6 @@ defmodule GroupherServer.Test.Query.Account.Fans do
       assert user3 |> exist_in?(entries, :string_key)
     end
 
-    @tag :wip2
     test "login user can get other user's paged followers", ~m(guest_conn user)a do
       {:ok, user2} = db_insert(:user)
       {:ok, _followeer} = user |> Accounts.follow(user2)
@@ -71,7 +70,7 @@ defmodule GroupherServer.Test.Query.Account.Fans do
       }
     }
     """
-    @tag :wip2
+
     test "login user can get it's own paged followings", ~m(user_conn user)a do
       variables = %{login: user.login, filter: %{page: 1, size: 20}}
 

@@ -84,8 +84,8 @@ defmodule GroupherServer.Test.Query.Account.Achievement do
     end
 
     @query """
-    query {
-      user {
+    query($login: String!) {
+      user(login: $login) {
         id
         editableCommunities {
           entries {

@@ -13,8 +13,8 @@ defmodule GroupherServer.Test.Query.Accounts.Messages do
 
   describe "[account messages queries]" do
     @query """
-    query {
-      user {
+    query($login: String!) {
+      user(login: $login) {
         id
         mailBox {
           hasMail
@@ -25,11 +25,12 @@ defmodule GroupherServer.Test.Query.Accounts.Messages do
       }
     }
     """
+    @tag :wip2
     test "login user can get mail box status" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
-      result = user_conn |> query_result(@query, %{}, "user")
+      result = user_conn |> query_result(@query, %{login: user.login}, "user")
       mail_box = result["mailBox"]
       assert mail_box["hasMail"] == false
       assert mail_box["totalCount"] == 0
@@ -39,7 +40,7 @@ defmodule GroupherServer.Test.Query.Accounts.Messages do
       mock_mentions_for(user, 2)
       mock_notifications_for(user, 18)
 
-      result = user_conn |> query_result(@query, %{}, "user")
+      result = user_conn |> query_result(@query, %{login: user.login}, "user")
       mail_box = result["mailBox"]
       assert mail_box["hasMail"] == true
       assert mail_box["totalCount"] == 20
@@ -54,8 +55,8 @@ defmodule GroupherServer.Test.Query.Accounts.Messages do
     end
 
     @query """
-    query($filter: MessagesFilter!) {
-      user {
+    query($login: String!, $filter: MessagesFilter!) {
+      user(login: $login) {
         id
         mentions(filter: $filter) {
           entries {
@@ -85,18 +86,19 @@ defmodule GroupherServer.Test.Query.Accounts.Messages do
       }
     }
     """
+    @tag :wip2
     test "user can get mentions send by others" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
-      variables = %{filter: %{page: 1, size: 20, read: false}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: false}}
       result = user_conn |> query_result(@query, variables, "user")
       mentions = result["mentions"]
       assert mentions["totalCount"] == 0
 
       mock_mentions_for(user, 3)
 
-      variables = %{filter: %{page: 1, size: 20, read: false}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: false}}
       result = user_conn |> query_result(@query, variables, "user")
       mentions = result["mentions"]
 
@@ -104,18 +106,19 @@ defmodule GroupherServer.Test.Query.Accounts.Messages do
       assert mentions["entries"] |> List.first() |> Map.get("toUserId") == to_string(user.id)
     end
 
+    @tag :wip2
     test "user can get notifications send by others" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
-      variables = %{filter: %{page: 1, size: 20, read: false}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: false}}
       result = user_conn |> query_result(@query, variables, "user")
       notifications = result["notifications"]
       assert notifications["totalCount"] == 0
 
       mock_notifications_for(user, 3)
 
-      variables = %{filter: %{page: 1, size: 20, read: false}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: false}}
       result = user_conn |> query_result(@query, variables, "user")
       notifications = result["notifications"]
 
@@ -123,18 +126,19 @@ defmodule GroupherServer.Test.Query.Accounts.Messages do
       assert notifications["entries"] |> List.first() |> Map.get("toUserId") == to_string(user.id)
     end
 
+    @tag :wip2
     test "user can get system notifications" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
-      variables = %{filter: %{page: 1, size: 20, read: false}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: false}}
       result = user_conn |> query_result(@query, variables, "user")
       notifications = result["sysNotifications"]
       assert notifications["totalCount"] == 0
 
       mock_sys_notification(5)
 
-      variables = %{filter: %{page: 1, size: 20, read: false}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: false}}
       result = user_conn |> query_result(@query, variables, "user")
       notifications = result["sysNotifications"]
 

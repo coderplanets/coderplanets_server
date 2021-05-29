@@ -160,7 +160,6 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       assert results |> is_valid_pagination?()
     end
 
-    @tag :wip2
     test "login user can get paged users with follow state info", ~m(user_conn user)a do
       variables = %{filter: %{page: 1, size: 10}}
 
