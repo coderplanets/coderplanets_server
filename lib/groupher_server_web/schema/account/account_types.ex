@@ -93,20 +93,10 @@ defmodule GroupherServerWeb.Schema.Account.Types do
     end
 
     @desc "get follower users count"
-    field :followers_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-
-      resolve(dataloader(Accounts, :followers))
-      middleware(M.ConvertToInt)
-    end
+    field(:followers_count, :integer)
 
     @desc "get following users count"
-    field :followings_count, :integer do
-      arg(:count, :count_type, default_value: :count)
-
-      resolve(dataloader(Accounts, :followings))
-      middleware(M.ConvertToInt)
-    end
+    field(:followings_count, :integer)
 
     @desc "if viewer has followed"
     field(:viewer_has_followed, :boolean)

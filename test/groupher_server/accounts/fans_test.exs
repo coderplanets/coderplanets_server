@@ -22,7 +22,7 @@ defmodule GroupherServer.Test.Accounts.Fans do
       assert found |> Map.get(:followers) |> length == 1
     end
 
-    @tag :wip
+    @tag :wip2
     test "follow user should update follow meta info", ~m(user)a do
       {:ok, user2} = db_insert(:user)
 
@@ -30,6 +30,9 @@ defmodule GroupherServer.Test.Accounts.Fans do
 
       {:ok, user} = ORM.find(User, user.id)
       {:ok, user2} = ORM.find(User, user2.id)
+
+      assert user.followings_count == 1
+      assert user2.followers_count == 1
 
       assert user2.id in user.meta.following_user_ids
       assert user.id in user2.meta.follower_user_ids
@@ -73,6 +76,7 @@ defmodule GroupherServer.Test.Accounts.Fans do
       assert found |> Map.get(:followers) |> length == 0
     end
 
+    @tag :wip2
     test "undo follow user should update follow meta info", ~m(user)a do
       {:ok, user2} = db_insert(:user)
 
@@ -88,6 +92,9 @@ defmodule GroupherServer.Test.Accounts.Fans do
 
       {:ok, user} = ORM.find(User, user.id)
       {:ok, user2} = ORM.find(User, user2.id)
+
+      assert user.followings_count == 0
+      assert user2.followers_count == 0
 
       assert user2.id not in user.meta.following_user_ids
       assert user.id not in user2.meta.follower_user_ids

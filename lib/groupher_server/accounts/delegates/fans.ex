@@ -35,8 +35,8 @@ defmodule GroupherServer.Accounts.Delegate.Fans do
           following_id: target_user.id
         })
       )
-      |> Multi.run(:update_user_meta, fn _, _ ->
-        update_follow_meta(target_user, user_id, :add)
+      |> Multi.run(:update_user_follow_info, fn _, _ ->
+        update_user_follow_info(target_user, user_id, :add)
       end)
       |> Multi.run(:add_achievement, fn _, _ ->
         Accounts.achieve(%User{id: target_user.id}, :inc, :follow)
@@ -63,8 +63,8 @@ defmodule GroupherServer.Accounts.Delegate.Fans do
       |> Multi.run(:delete_following, fn _, _ ->
         ORM.findby_delete!(UserFollowing, %{user_id: user_id, following_id: target_user.id})
       end)
-      |> Multi.run(:update_user_meta, fn _, _ ->
-        update_follow_meta(target_user, user_id, :remove)
+      |> Multi.run(:update_user_follow_info, fn _, _ ->
+        update_user_follow_info(target_user, user_id, :remove)
       end)
       |> Multi.run(:minus_achievement, fn _, _ ->
         Accounts.achieve(%User{id: target_user.id}, :dec, :follow)
@@ -78,31 +78,35 @@ defmodule GroupherServer.Accounts.Delegate.Fans do
   end
 
   # update follow in user meta
-  defp update_follow_meta(%User{} = target_user, user_id, opt) do
+  defp update_user_follow_info(%User{} = target_user, user_id, opt) do
     with {:ok, user} <- ORM.find(User, user_id) do
       target_user_meta = ensure(target_user.meta, @default_user_meta)
       user_meta = ensure(user.meta, @default_user_meta)
 
+      follower_user_ids =
+        case opt do
+          :add -> (target_user_meta.follower_user_ids ++ [user_id]) |> Enum.uniq()
+          :remove -> (target_user_meta.follower_user_ids -- [user_id]) |> Enum.uniq()
+        end
+
+      following_user_ids =
+        case opt do
+          :add -> (user_meta.following_user_ids ++ [target_user.id]) |> Enum.uniq()
+          :remove -> (user_meta.following_user_ids -- [target_user.id]) |> Enum.uniq()
+        end
+
       Multi.new()
       |> Multi.run(:update_follower_meta, fn _, _ ->
-        follower_user_ids =
-          case opt do
-            :add -> target_user_meta.follower_user_ids ++ [user_id]
-            :remove -> target_user_meta.follower_user_ids -- [user_id]
-          end
-
+        followers_count = length(follower_user_ids)
         meta = Map.merge(target_user_meta, %{follower_user_ids: follower_user_ids})
-        ORM.update_meta(target_user, meta)
+
+        ORM.update_meta(target_user, meta, changes: %{followers_count: followers_count})
       end)
       |> Multi.run(:update_following_meta, fn _, _ ->
-        following_user_ids =
-          case opt do
-            :add -> user_meta.following_user_ids ++ [target_user.id]
-            :remove -> user_meta.following_user_ids -- [target_user.id]
-          end
-
+        followings_count = length(following_user_ids)
         meta = Map.merge(user_meta, %{following_user_ids: following_user_ids})
-        ORM.update_meta(user, meta)
+
+        ORM.update_meta(user, meta, changes: %{followings_count: followings_count})
       end)
       |> Repo.transaction()
       |> result()

@@ -68,6 +68,9 @@ defmodule GroupherServer.Accounts.User do
     # Ta 关注了你
     field(:viewer_been_followed, :boolean, default: false, virtual: true)
 
+    field(:followings_count, :integer, default: 0)
+    field(:followers_count, :integer, default: 0)
+
     embeds_one(:meta, Embeds.UserMeta, on_replace: :update)
     embeds_one(:contributes, Embeds.UserContribute, on_replace: :update)
 
