@@ -1,4 +1,6 @@
 defmodule GroupherServer.Test.Statistics do
+  @moduledoc false
+
   use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
@@ -7,6 +9,8 @@ defmodule GroupherServer.Test.Statistics do
   alias Helper.{Cache, ORM}
   alias GroupherServer.Accounts.User
   alias GroupherServer.{CMS, Repo, Statistics}
+
+  alias Statistics.UserContribute
 
   @community_contribute_days get_config(:general, :community_contribute_days)
 
@@ -18,10 +22,9 @@ defmodule GroupherServer.Test.Statistics do
   end
 
   describe "[statistics user_contribute] " do
-    alias Statistics.UserContribute
-
     test "list_contributes return empty list when theres no records", ~m(user)a do
       {:ok, contributes} = Statistics.list_contributes_digest(%User{id: user.id})
+
       assert contributes.records == []
       assert contributes.total_count == 0
     end
@@ -59,6 +62,14 @@ defmodule GroupherServer.Test.Statistics do
 
       {:ok, contributes} = Statistics.list_contributes_digest(%User{id: user.id})
       assert length(contributes.records) == 1
+    end
+
+    test "should update user's embeds contribute", ~m(user)a do
+      Statistics.make_contribute(%User{id: user.id})
+      {:ok, user} = ORM.find(User, user.id)
+
+      assert user.contributes.total_count == 1
+      assert not Enum.empty?(user.contributes.records)
     end
 
     test "should inserted a contribute when the user not contribute before", ~m(user)a do
@@ -104,7 +115,6 @@ defmodule GroupherServer.Test.Statistics do
       assert contribute.date == Timex.today()
     end
 
-    @tag :wip2
     test "should update community's field after contribute being make", ~m(community)a do
       community_id = community.id
       assert {:error, _} = ORM.find_by(CommunityContribute, ~m(community_id)a)

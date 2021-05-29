@@ -3,7 +3,7 @@ defmodule Helper.ORM do
   General CORD functions
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, done: 3, add: 1]
+  import Helper.Utils, only: [done: 1, done: 3, add: 1, strip_struct: 1]
   import ShortMaps
 
   import Helper.ErrorHandler
@@ -265,10 +265,31 @@ defmodule Helper.ORM do
   @doc """
   update meta info for article / comment
   """
+  def update_meta(queryable, meta, changes: changes) when is_map(changes) do
+    meta = meta |> strip_struct
+
+    queryable
+    |> Ecto.Changeset.change(changes)
+    |> Ecto.Changeset.put_embed(:meta, meta)
+    |> Repo.update()
+  end
+
   def update_meta(queryable, meta) do
+    meta = meta |> strip_struct
+
     queryable
     |> Ecto.Changeset.change()
     |> Ecto.Changeset.put_embed(:meta, meta)
+    |> Repo.update()
+  end
+
+  @doc """
+  update embed data
+  """
+  def update_embed(queryable, key, value) do
+    queryable
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_embed(key, value)
     |> Repo.update()
   end
 

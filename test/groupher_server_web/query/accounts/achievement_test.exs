@@ -84,8 +84,8 @@ defmodule GroupherServer.Test.Query.Account.Achievement do
     end
 
     @query """
-    query {
-      user {
+    query($login: String!) {
+      user(login: $login) {
         id
         editableCommunities {
           entries {
@@ -99,6 +99,7 @@ defmodule GroupherServer.Test.Query.Account.Achievement do
       }
     }
     """
+    @tag :wip2
     test "user can get own editable communities list", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
@@ -109,7 +110,7 @@ defmodule GroupherServer.Test.Query.Account.Achievement do
       {:ok, _} = CMS.set_editor(community, title, user)
       {:ok, _} = CMS.set_editor(community2, title, user)
 
-      variables = %{filter: %{page: 1, size: 20}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20}}
       results = user_conn |> query_result(@query, variables, "user")
       editable_communities = results["editableCommunities"]
 

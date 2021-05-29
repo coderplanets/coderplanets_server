@@ -25,7 +25,7 @@ defmodule GroupherServerWeb.Schema.Account.Mutations do
 
     @doc "follow a user"
     field :follow, :user do
-      arg(:user_id, non_null(:id))
+      arg(:login, non_null(:string))
 
       middleware(M.Authorize, :login)
       resolve(&R.Accounts.follow/3)
@@ -33,7 +33,7 @@ defmodule GroupherServerWeb.Schema.Account.Mutations do
 
     @doc "undo follow to a user"
     field :undo_follow, :user do
-      arg(:user_id, non_null(:id))
+      arg(:login, non_null(:string))
 
       middleware(M.Authorize, :login)
       resolve(&R.Accounts.undo_follow/3)

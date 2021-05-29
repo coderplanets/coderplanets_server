@@ -6,22 +6,57 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
   import Helper.Utils, only: [done: 1, get_config: 2]
   import ShortMaps
 
-  alias GroupherServer.{Accounts, CMS, Email, Repo}
+  alias GroupherServer.{Accounts, CMS, Email, Repo, Statistics}
 
   alias Accounts.{Achievement, GithubUser, User, Social}
   alias Helper.{Guardian, ORM, QueryBuilder, RadarSearch}
 
+  alias GroupherServer.Accounts.Delegate.Fans
   alias Ecto.Multi
 
   @default_subscribed_communities get_config(:general, :default_subscribed_communities)
+
+  def read_user(login) when is_binary(login) do
+    with {:ok, user} <- ORM.read_by(User, %{login: login}, inc: :views) do
+      case user.contributes do
+        nil -> assign_default_contributes(user)
+        _ -> {:ok, user}
+      end
+    end
+  end
+
+  def read_user(login, %User{meta: nil}), do: read_user(login)
+
+  def read_user(login, %User{} = cur_user) do
+    with {:ok, user} <- read_user(login) do
+      # Ta 关注了你
+      viewer_been_followed = user.id in cur_user.meta.follower_user_ids
+      # 正在关注
+      viewer_has_followed = user.id in cur_user.meta.following_user_ids
+
+      user =
+        Map.merge(user, %{
+          viewer_been_followed: viewer_been_followed,
+          viewer_has_followed: viewer_has_followed
+        })
+
+      {:ok, user}
+    end
+  end
+
+  def paged_users(filter, %User{} = user) do
+    ORM.find_all(User, filter) |> Fans.mark_viewer_follow_status(user) |> done
+  end
+
+  def paged_users(filter) do
+    ORM.find_all(User, filter)
+  end
 
   @doc """
   update user's profile
   """
   def update_profile(%User{} = user, attrs \\ %{}) do
-    changeset =
-      user
-      |> Ecto.Changeset.change(attrs)
+    changeset = user |> Ecto.Changeset.change(attrs)
 
     changeset
     |> update_social_ifneed(user, attrs)
@@ -256,5 +291,11 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
       true ->
         changeset
     end
+  end
+
+  # assign default contributes
+  defp assign_default_contributes(%User{} = user) do
+    {:ok, contributes} = Statistics.list_contributes_digest(%User{id: user.id})
+    ORM.update_embed(user, :contributes, contributes)
   end
 end

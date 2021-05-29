@@ -17,8 +17,8 @@ defmodule GroupherServer.Test.Mutation.Accounts.Fans do
     alias Accounts.User
 
     @query """
-    mutation($userId: ID!) {
-      follow(userId: $userId) {
+    mutation($login: String!) {
+      follow(login: $login) {
         id
         viewerHasFollowed
       }
@@ -27,17 +27,17 @@ defmodule GroupherServer.Test.Mutation.Accounts.Fans do
     test "login user can follow other user", ~m(user_conn)a do
       {:ok, user2} = db_insert(:user)
 
-      variables = %{userId: user2.id}
+      variables = %{login: user2.login}
       followed = user_conn |> mutation_result(@query, variables, "follow")
 
       assert followed["id"] == to_string(user2.id)
-      assert followed["viewerHasFollowed"] == true
+      assert followed["viewerHasFollowed"] == false
     end
 
     test "login user follow other user twice fails", ~m(user_conn)a do
       {:ok, user2} = db_insert(:user)
 
-      variables = %{userId: user2.id}
+      variables = %{login: user2.login}
       followed = user_conn |> mutation_result(@query, variables, "follow")
       assert followed["id"] == to_string(user2.id)
 
@@ -45,29 +45,30 @@ defmodule GroupherServer.Test.Mutation.Accounts.Fans do
     end
 
     test "login user follow self fails", ~m(user_conn user)a do
-      variables = %{userId: user.id}
+      variables = %{login: user.login}
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:self_conflict))
     end
 
     test "login user follow no-exsit cuser fails", ~m(user_conn)a do
-      variables = %{userId: non_exsit_id()}
+      variables = %{login: non_exsit_login()}
 
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:not_exsit))
     end
 
     test "unauth user follow other user fails", ~m(guest_conn)a do
       {:ok, user2} = db_insert(:user)
-      variables = %{userId: user2.id}
+      variables = %{login: user2.login}
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
     end
 
     @query """
-    mutation($userId: ID!) {
-      undoFollow(userId: $userId) {
+    mutation($login: String!) {
+      undoFollow(login: $login) {
         id
       }
     }
     """
+
     test "login user can undo follow other user", ~m(user_conn user)a do
       {:ok, user2} = db_insert(:user)
       {:ok, _followeer} = user |> Accounts.follow(user2)
@@ -75,7 +76,7 @@ defmodule GroupherServer.Test.Mutation.Accounts.Fans do
       {:ok, found} = User |> ORM.find(user2.id, preload: :followers)
       assert found |> Map.get(:followers) |> length == 1
 
-      variables = %{userId: user2.id}
+      variables = %{login: user2.login}
       result = user_conn |> mutation_result(@query, variables, "undoFollow")
 
       assert result["id"] == to_string(user2.id)

@@ -8,17 +8,20 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
   alias GroupherServer.{Accounts, CMS}
 
   alias Accounts.{MentionMail, NotificationMail, SysNotificationMail, User}
-  alias Helper.{Certification, ORM, Utils}
+  alias Helper.Certification
 
-  # def user(_root, %{id: id}, _info), do: User |> ORM.read(id, inc: :views)
-  def user(_root, %{login: login}, _info), do: User |> ORM.read_by(%{login: login}, inc: :views)
-  def user(_root, _args, %{context: %{cur_user: cur_user}}), do: ORM.find(User, cur_user.id)
-
-  def user(_root, _args, _info) do
-    {:error, [message: "need login", code: ecode(:account_login)]}
+  def user(_root, %{login: login}, %{context: %{cur_user: cur_user}}) do
+    Accounts.read_user(login, cur_user)
   end
 
-  def users(_root, ~m(filter)a, _info), do: User |> ORM.find_all(filter)
+  def user(_root, %{login: login}, _info), do: Accounts.read_user(login)
+  def user(_root, _args, _info), do: raise_error(:account_login, "need user login name")
+
+  def paged_users(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.paged_users(filter, cur_user)
+  end
+
+  def paged_users(_root, ~m(filter)a, _info), do: Accounts.paged_users(filter)
 
   def session_state(_root, _args, %{context: %{cur_user: cur_user, remote_ip: remote_ip}}) do
     # 1. store remote_ip
@@ -75,35 +78,59 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     {:error, [message: "need login", code: ecode(:account_login)]}
   end
 
-  def follow(_root, ~m(user_id)a, %{context: %{cur_user: cur_user}}) do
-    Accounts.follow(cur_user, %User{id: user_id})
+  def follow(_root, ~m(login)a, %{context: %{cur_user: cur_user}}) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(login) do
+      Accounts.follow(cur_user, %User{id: user_id})
+    else
+      _ -> raise_error(:not_exsit, "#{login} not found")
+    end
   end
 
-  def undo_follow(_root, ~m(user_id)a, %{context: %{cur_user: cur_user}}) do
-    Accounts.undo_follow(cur_user, %User{id: user_id})
+  def undo_follow(_root, ~m(login)a, %{context: %{cur_user: cur_user}}) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(login) do
+      Accounts.undo_follow(cur_user, %User{id: user_id})
+    else
+      _ -> raise_error(:not_exsit, "#{login} not found")
+    end
   end
 
-  def paged_followers(_root, ~m(user_id filter)a, _info) do
-    Accounts.fetch_followers(%User{id: user_id}, filter)
+  def paged_followers(_root, ~m(login filter)a, %{context: %{cur_user: cur_user}}) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(login) do
+      Accounts.paged_followers(%User{id: user_id}, filter, cur_user)
+    else
+      _ -> raise_error(:not_exsit, "#{login} not found")
+    end
   end
 
-  def paged_followers(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
-    # TODO: rename to list_follower_users
-    Accounts.fetch_followers(cur_user, filter)
+  def paged_followers(_root, ~m(login filter)a, _info) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(login) do
+      Accounts.paged_followers(%User{id: user_id}, filter)
+    else
+      _ -> raise_error(:not_exsit, "#{login} not found")
+    end
   end
 
-  def paged_followings(_root, ~m(user_id filter)a, _info) do
-    Accounts.fetch_followings(%User{id: user_id}, filter)
+  def paged_followings(_root, ~m(login filter)a, %{context: %{cur_user: cur_user}}) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(login) do
+      Accounts.paged_followings(%User{id: user_id}, filter, cur_user)
+    else
+      _ -> raise_error(:not_exsit, "#{login} not found")
+    end
   end
 
-  def paged_followings(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
-    # TODO: rename to list_following_users
-    Accounts.fetch_followings(cur_user, filter)
+  def paged_followings(_root, ~m(login filter)a, _info) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(login) do
+      Accounts.paged_followings(%User{id: user_id}, filter)
+    else
+      _ -> raise_error(:not_exsit, "#{login} not found")
+    end
   end
 
-  def paged_upvoted_articles(_root, ~m(user_login filter)a, _info) do
-    with {:ok, user_id} <- Accounts.get_userid_and_cache(user_login) do
+  def paged_upvoted_articles(_root, ~m(login filter)a, _info) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(login) do
       Accounts.paged_upvoted_articles(user_id, filter)
+    else
+      _ -> raise_error(:not_exsit, "#{login} not found")
     end
   end
 
@@ -129,15 +156,17 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     Accounts.remove_from_collect(thread, article_id, folder_id, cur_user)
   end
 
-  def paged_collect_folders(_root, ~m(user_login filter)a, %{context: %{cur_user: cur_user}}) do
-    with {:ok, user_id} <- Accounts.get_userid_and_cache(user_login) do
+  def paged_collect_folders(_root, ~m(login filter)a, %{context: %{cur_user: cur_user}}) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(login) do
       Accounts.paged_collect_folders(user_id, filter, cur_user)
     end
   end
 
-  def paged_collect_folders(_root, ~m(user_login filter)a, _info) do
-    with {:ok, user_id} <- Accounts.get_userid_and_cache(user_login) do
+  def paged_collect_folders(_root, ~m(login filter)a, _info) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(login) do
       Accounts.paged_collect_folders(user_id, filter)
+    else
+      _ -> raise_error(:not_exsit, "#{login} not found")
     end
   end
 
@@ -260,10 +289,7 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
   def get_all_rules(_root, _args, %{context: %{cur_user: _}}) do
     cms_rules = Certification.all_rules(:cms, :stringify)
 
-    {:ok,
-     %{
-       cms: cms_rules
-     }}
+    {:ok, %{cms: cms_rules}}
   end
 
   # def create_user(_root, args, %{context: %{cur_user: %{root: true}}}) do

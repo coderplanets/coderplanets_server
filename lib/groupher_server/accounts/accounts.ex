@@ -15,6 +15,11 @@ defmodule GroupherServer.Accounts do
   }
 
   # profile
+  defdelegate read_user(user), to: Profile
+  defdelegate read_user(login, user), to: Profile
+  defdelegate paged_users(filter), to: Profile
+  defdelegate paged_users(filter, user), to: Profile
+
   defdelegate update_profile(user, attrs), to: Profile
   defdelegate update_geo(user, remote_ip), to: Profile
   defdelegate github_signin(github_user), to: Profile
@@ -46,8 +51,10 @@ defmodule GroupherServer.Accounts do
   # fans
   defdelegate follow(user, follower), to: Fans
   defdelegate undo_follow(user, follower), to: Fans
-  defdelegate fetch_followers(user, filter), to: Fans
-  defdelegate fetch_followings(user, filter), to: Fans
+  defdelegate paged_followers(user, filter), to: Fans
+  defdelegate paged_followers(user, filter, cur_user), to: Fans
+  defdelegate paged_followings(user, filter), to: Fans
+  defdelegate paged_followings(user, filter, cur_user), to: Fans
 
   # upvoted articles
   defdelegate paged_upvoted_articles(user_id, filter), to: UpvotedArticles

@@ -14,8 +14,8 @@ defmodule GroupherServer.Test.Query.Accounts.Mention do
 
   describe "[accounts mailbox status]" do
     @query """
-    query {
-      user {
+    query($login: String!) {
+      user(login: $login) {
         id
         mailBox {
           hasMail
@@ -26,6 +26,7 @@ defmodule GroupherServer.Test.Query.Accounts.Mention do
       }
     }
     """
+    @tag :wip2
     test "auth user can get it's own mailbox status" do
       {:ok, [user, user2]} = db_insert_multi(:user, 2)
 
@@ -34,7 +35,7 @@ defmodule GroupherServer.Test.Query.Accounts.Mention do
 
       user_conn = simu_conn(:user, user)
 
-      variables = %{}
+      variables = %{login: user.login}
       results = user_conn |> query_result(@query, variables, "user")
       mail_Box = results["mailBox"]
 

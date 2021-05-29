@@ -13,8 +13,8 @@ defmodule GroupherServer.Test.Query.Account.Customization do
 
   describe "[account customization]" do
     @query """
-    query {
-      user {
+    query($login: String!) {
+      user(login: $login) {
         id
         nickname
         customization {
@@ -30,8 +30,9 @@ defmodule GroupherServer.Test.Query.Account.Customization do
       }
     }
     """
+    @tag :wip2
     test "user can have default customization configs", ~m(user_conn user)a do
-      results = user_conn |> query_result(@query, %{}, "user")
+      results = user_conn |> query_result(@query, %{login: user.login}, "user")
 
       assert results["id"] == to_string(user.id)
       assert results["customization"]["theme"] == Customization.default() |> Map.get(:theme)

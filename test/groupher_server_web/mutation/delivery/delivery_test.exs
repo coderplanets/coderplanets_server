@@ -13,8 +13,8 @@ defmodule GroupherServer.Test.Mutation.Delivery do
   end
 
   @account_query """
-  query($filter: MessagesFilter!) {
-    user {
+  query($login: String, $filter: MessagesFilter!) {
+    user(login: $login) {
       id
       mentions(filter: $filter) {
         entries {
@@ -53,6 +53,7 @@ defmodule GroupherServer.Test.Mutation.Delivery do
       }
     }
     """
+    @tag :wip2
     test "auth user can publish system notifications" do
       {:ok, user} = db_insert(:user)
 
@@ -71,7 +72,7 @@ defmodule GroupherServer.Test.Mutation.Delivery do
       %{"done" => true} =
         rule_conn |> mutation_result(@query, variables, "publishSystemNotification")
 
-      variables = %{filter: %{page: 1, size: 20, read: false}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: false}}
       result = user_conn |> query_result(@account_query, variables, "user")
       sys_notifications = result["sysNotifications"]
 
@@ -99,12 +100,13 @@ defmodule GroupherServer.Test.Mutation.Delivery do
       }
     }
     """
+    @tag :wip2
     test "auth user can mark a system notification as read" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
       mock_sys_notification(3)
-      variables = %{filter: %{page: 1, size: 20, read: false}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: false}}
 
       result = user_conn |> query_result(@account_query, variables, "user")
 
@@ -116,13 +118,13 @@ defmodule GroupherServer.Test.Mutation.Delivery do
 
       user_conn |> mutation_result(@query, variables, "markSysNotificationRead")
 
-      variables = %{filter: %{page: 1, size: 20, read: false}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: false}}
       result = user_conn |> query_result(@account_query, variables, "user")
 
       notifications = result["sysNotifications"]
       assert notifications["totalCount"] == 2
 
-      variables = %{filter: %{page: 1, size: 20, read: true}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: true}}
 
       result = user_conn |> query_result(@account_query, variables, "user")
       notifications = result["sysNotifications"]
@@ -198,12 +200,13 @@ defmodule GroupherServer.Test.Mutation.Delivery do
       }
     }
     """
+    @tag :wip2
     test "user can mark a mention as read" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
       mock_mentions_for(user, 3)
-      variables = %{filter: %{page: 1, size: 20, read: false}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: false}}
 
       result = user_conn |> query_result(@account_query, variables, "user")
       mentions = result["mentions"]
@@ -214,13 +217,13 @@ defmodule GroupherServer.Test.Mutation.Delivery do
 
       user_conn |> mutation_result(@query, variables, "markMentionRead")
 
-      variables = %{filter: %{page: 1, size: 20, read: false}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: false}}
 
       result = user_conn |> query_result(@account_query, variables, "user")
       mentions = result["mentions"]
       assert mentions["totalCount"] == 2
 
-      variables = %{filter: %{page: 1, size: 20, read: true}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: true}}
 
       result = user_conn |> query_result(@account_query, variables, "user")
       mentions = result["mentions"]
@@ -234,20 +237,21 @@ defmodule GroupherServer.Test.Mutation.Delivery do
       }
     }
     """
+    @tag :wip2
     test "user can mark all unread mentions as read" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
       mock_mentions_for(user, 3)
 
-      variables = %{filter: %{page: 1, size: 20, read: false}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: false}}
       result = user_conn |> query_result(@account_query, variables, "user")
       mentions = result["mentions"]
       assert mentions["totalCount"] == 3
 
       user_conn |> mutation_result(@query, %{}, "markMentionReadAll")
 
-      variables = %{filter: %{page: 1, size: 20, read: false}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: false}}
       result = user_conn |> query_result(@account_query, variables, "user")
       mentions = result["mentions"]
 
@@ -261,12 +265,13 @@ defmodule GroupherServer.Test.Mutation.Delivery do
       }
     }
     """
+    @tag :wip2
     test "user can mark a notification as read" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
       mock_notifications_for(user, 3)
-      variables = %{filter: %{page: 1, size: 20, read: false}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: false}}
 
       result = user_conn |> query_result(@account_query, variables, "user")
 
@@ -278,13 +283,13 @@ defmodule GroupherServer.Test.Mutation.Delivery do
 
       user_conn |> mutation_result(@query, variables, "markNotificationRead")
 
-      variables = %{filter: %{page: 1, size: 20, read: false}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: false}}
       result = user_conn |> query_result(@account_query, variables, "user")
 
       notifications = result["notifications"]
       assert notifications["totalCount"] == 2
 
-      variables = %{filter: %{page: 1, size: 20, read: true}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: true}}
 
       result = user_conn |> query_result(@account_query, variables, "user")
       notifications = result["notifications"]
@@ -298,20 +303,21 @@ defmodule GroupherServer.Test.Mutation.Delivery do
       }
     }
     """
+    @tag :wip2
     test "user can mark all unread notifications as read" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
       mock_notifications_for(user, 3)
 
-      variables = %{filter: %{page: 1, size: 20, read: false}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: false}}
       result = user_conn |> query_result(@account_query, variables, "user")
       notifications = result["notifications"]
       assert notifications["totalCount"] == 3
 
       user_conn |> mutation_result(@query, %{}, "markNotificationReadAll")
 
-      variables = %{filter: %{page: 1, size: 20, read: false}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20, read: false}}
       result = user_conn |> query_result(@account_query, variables, "user")
       notifications = result["notifications"]
 

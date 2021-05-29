@@ -10,13 +10,12 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
       arg(:filter, non_null(:paged_users_filter))
 
       middleware(M.PageSizeProof)
-      resolve(&R.Accounts.users/3)
+      resolve(&R.Accounts.paged_users/3)
     end
 
     @desc "get user by id"
     field :user, :user do
-      # arg(:id, :id)
-      arg(:login, :string)
+      arg(:login, non_null(:string))
 
       resolve(&R.Accounts.user/3)
     end
@@ -46,7 +45,7 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
 
     @desc "get user's follower"
     field :paged_followers, :paged_users do
-      arg(:user_id, :id)
+      arg(:login, non_null(:string))
       arg(:filter, non_null(:paged_filter))
 
       middleware(M.PageSizeProof)
@@ -55,7 +54,7 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
 
     @desc "get user's follower"
     field :paged_followings, :paged_users do
-      arg(:user_id, :id)
+      arg(:login, non_null(:string))
       arg(:filter, non_null(:paged_filter))
 
       middleware(M.PageSizeProof)
@@ -64,7 +63,7 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
 
     @desc "get paged upvoted articles"
     field :paged_upvoted_articles, :paged_articles do
-      arg(:user_login, non_null(:string))
+      arg(:login, non_null(:string))
       arg(:filter, :upvoted_articles_filter)
 
       resolve(&R.Accounts.paged_upvoted_articles/3)
@@ -72,7 +71,7 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
 
     @desc "get paged collect folders of a user"
     field :paged_collect_folders, :paged_collect_folders do
-      arg(:user_login, non_null(:string))
+      arg(:login, non_null(:string))
       arg(:filter, non_null(:collect_folders_filter))
 
       middleware(M.PageSizeProof)
