@@ -7,6 +7,7 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
   # import Helper.ErrorCode
   import ShortMaps
 
+  import GroupherServer.CMS.Helper.Matcher
   import GroupherServer.CMS.Helper.MatcherOld
 
   alias Helper.{ORM, QueryBuilder}
@@ -19,12 +20,12 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
   get paged published contets of a user
   """
   def published_articles(%User{id: user_id}, thread, %{page: page, size: size} = filter) do
-    with {:ok, user} <- ORM.find(User, user_id),
-         {:ok, content} <- match_action(thread, :self) do
-      content.target
-      |> join(:inner, [content], author in assoc(content, :author))
-      |> where([content, author], author.user_id == ^user.id)
-      |> select([content, author], content)
+    with {:ok, info} <- match(thread),
+         {:ok, user} <- ORM.find(User, user_id) do
+      info.model
+      |> join(:inner, [article], author in assoc(article, :author))
+      |> where([article, author], author.user_id == ^user.id)
+      |> select([article, author], article)
       |> QueryBuilder.filter_pack(filter)
       |> ORM.paginater(~m(page size)a)
       |> done()
