@@ -14,7 +14,7 @@ defmodule GroupherServer.Test.Accounts.Published.Job do
     {:ok, ~m(user user2 community community2)a}
   end
 
-  describe "[Accounts Publised jobs]" do
+  describe "[publised jobs]" do
     test "fresh user get empty paged published jobs", ~m(user)a do
       {:ok, results} = Accounts.published_articles(user, :job, %{page: 1, size: 20})
 

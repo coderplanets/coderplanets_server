@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Accounts.Published.Post do
+defmodule GroupherServer.Test.Accounts.Published.Repo do
   use GroupherServer.TestTools
 
   alias GroupherServer.{Accounts, CMS}
@@ -14,7 +14,7 @@ defmodule GroupherServer.Test.Accounts.Published.Post do
     {:ok, ~m(user user2 community community2)a}
   end
 
-  describe "[Accounts Publised repos]" do
+  describe "[publised repos]" do
     test "fresh user get empty paged published repos", ~m(user)a do
       {:ok, results} = Accounts.published_articles(user, :repo, %{page: 1, size: 20})
 
