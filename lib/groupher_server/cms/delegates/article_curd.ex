@@ -121,16 +121,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   end
 
   @doc """
-  Creates a article(post/job ...), and set community.
+  Creates a article
 
   ## Examples
 
-  iex> create_post(%{field: value})
+  iex> create_article(community, :post, %{title: ...}, user)
   {:ok, %Post{}}
-
-  iex> create_post(%{field: bad_value})
-  {:error, %Ecto.Changeset{}}
-
   """
   def create_article(%Community{id: cid}, thread, attrs, %User{id: uid}) do
     with {:ok, author} <- ensure_author_exists(%User{id: uid}),
@@ -148,6 +144,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       end)
       |> Multi.run(:update_community_article_count, fn _, _ ->
         CommunityCURD.update_community_count_field(community, thread)
+      end)
+      |> Multi.run(:update_user_published_meta, fn _, _ ->
+        Accounts.update_published_states(uid, thread)
       end)
       |> Multi.run(:mention_users, fn _, %{create_article: article} ->
         Delivery.mention_from_content(community.raw, thread, article, attrs, %User{id: uid})

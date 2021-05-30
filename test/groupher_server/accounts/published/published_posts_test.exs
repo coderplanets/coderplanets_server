@@ -2,6 +2,8 @@ defmodule GroupherServer.Test.Accounts.Published.Post do
   use GroupherServer.TestTools
 
   alias GroupherServer.{Accounts, CMS}
+  alias Accounts.User
+  alias Helper.ORM
 
   @publish_count 10
 
@@ -15,6 +17,16 @@ defmodule GroupherServer.Test.Accounts.Published.Post do
   end
 
   describe "[Publised posts]" do
+    @tag :wip2
+    test "create post should update user published meta", ~m(community user)a do
+      post_attrs = mock_attrs(:post, %{community_id: community.id})
+      {:ok, _post} = CMS.create_article(community, :post, post_attrs, user)
+      {:ok, _post} = CMS.create_article(community, :post, post_attrs, user)
+
+      {:ok, user} = ORM.find(User, user.id)
+      assert user.meta.published_posts_count == 2
+    end
+
     test "fresh user get empty paged published posts", ~m(user)a do
       {:ok, results} = Accounts.published_articles(user, :post, %{page: 1, size: 20})
 
@@ -22,7 +34,6 @@ defmodule GroupherServer.Test.Accounts.Published.Post do
       assert results.total_count == 0
     end
 
-    @tag :wip2
     test "user can get paged published posts", ~m(user user2 community community2)a do
       pub_posts =
         Enum.reduce(1..@publish_count, [], fn _, acc ->

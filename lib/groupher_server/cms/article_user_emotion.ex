@@ -1,8 +1,6 @@
 defmodule GroupherServer.CMS.ArticleUserEmotion.Macros do
   import Helper.Utils, only: [get_config: 2]
 
-  alias GroupherServer.CMS
-
   @supported_emotions get_config(:article, :supported_emotions)
 
   defmacro emotion_fields() do

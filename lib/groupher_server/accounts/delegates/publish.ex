@@ -3,7 +3,7 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
   user followers / following related
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1]
+  import Helper.Utils, only: [done: 1, ensure: 2]
   # import Helper.ErrorCode
   import ShortMaps
 
@@ -11,25 +11,46 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
   import GroupherServer.CMS.Helper.MatcherOld
 
   alias Helper.{ORM, QueryBuilder}
-  # alias GroupherServer.{Accounts, Repo}
+  alias GroupherServer.Accounts.{Embeds, User}
 
-  alias GroupherServer.Accounts.User
-  # alias GroupherServer.CMS
+  @default_meta Embeds.UserMeta.default_meta()
 
   @doc """
   get paged published contets of a user
   """
-  def published_articles(%User{id: user_id}, thread, %{page: page, size: size} = filter) do
+  def published_articles(%User{id: user_id}, thread, filter) do
     with {:ok, info} <- match(thread),
          {:ok, user} <- ORM.find(User, user_id) do
-      info.model
-      |> join(:inner, [article], author in assoc(article, :author))
-      |> where([article, author], author.user_id == ^user.id)
-      |> select([article, author], article)
-      |> QueryBuilder.filter_pack(filter)
-      |> ORM.paginater(~m(page size)a)
-      |> done()
+      do_paged_published_articles(info.model, user, filter)
     end
+  end
+
+  @doc """
+  update published articles count in user meta
+  """
+  def update_published_states(user_id, thread) do
+    filter = %{page: 1, size: 1}
+
+    with {:ok, info} <- match(thread),
+         {:ok, user} <- ORM.find(User, user_id),
+         {:ok, paged_published_articles} <- do_paged_published_articles(info.model, user, filter) do
+      articles_count = paged_published_articles.total_count
+
+      meta =
+        ensure(user.meta, @default_meta) |> Map.put(:"published_#{thread}s_count", articles_count)
+
+      ORM.update_meta(user, meta)
+    end
+  end
+
+  defp do_paged_published_articles(queryable, %User{} = user, %{page: page, size: size} = filter) do
+    queryable
+    |> join(:inner, [article], author in assoc(article, :author))
+    |> where([article, author], author.user_id == ^user.id)
+    |> select([article, author], article)
+    |> QueryBuilder.filter_pack(filter)
+    |> ORM.paginater(~m(page size)a)
+    |> done()
   end
 
   @doc """

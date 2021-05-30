@@ -15,6 +15,16 @@ defmodule GroupherServer.Test.Accounts.Published.Repo do
   end
 
   describe "[publised repos]" do
+    @tag :wip2
+    test "create repo should update user published meta", ~m(community user)a do
+      repo_attrs = mock_attrs(:repo, %{community_id: community.id})
+      {:ok, _repo} = CMS.create_article(community, :repo, repo_attrs, user)
+      {:ok, _repo} = CMS.create_article(community, :repo, repo_attrs, user)
+
+      {:ok, user} = ORM.find(User, user.id)
+      assert user.meta.published_repos_count == 2
+    end
+
     test "fresh user get empty paged published repos", ~m(user)a do
       {:ok, results} = Accounts.published_articles(user, :repo, %{page: 1, size: 20})
 

@@ -15,6 +15,16 @@ defmodule GroupherServer.Test.Accounts.Published.Job do
   end
 
   describe "[publised jobs]" do
+    @tag :wip2
+    test "create job should update user published meta", ~m(community user)a do
+      job_attrs = mock_attrs(:job, %{community_id: community.id})
+      {:ok, _job} = CMS.create_article(community, :job, job_attrs, user)
+      {:ok, _job} = CMS.create_article(community, :job, job_attrs, user)
+
+      {:ok, user} = ORM.find(User, user.id)
+      assert user.meta.published_jobs_count == 2
+    end
+
     test "fresh user get empty paged published jobs", ~m(user)a do
       {:ok, results} = Accounts.published_articles(user, :job, %{page: 1, size: 20})
 
