@@ -108,12 +108,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
       |> Multi.run(:create_reply_comment, fn _, _ ->
         do_create_comment(content, info.foreign_key, article, user)
       end)
-      |> Multi.run(:update_article_comments_count, fn _,
-                                                      %{create_reply_comment: replyed_comment} ->
+      |> Multi.run(:update_comments_count, fn _, %{create_reply_comment: replyed_comment} ->
         update_article_comments_count(replyed_comment, :inc)
       end)
-      |> Multi.run(:create_article_comment_reply, fn _,
-                                                     %{create_reply_comment: replyed_comment} ->
+      |> Multi.run(:create_comment_reply, fn _, %{create_reply_comment: replyed_comment} ->
         ArticleCommentReply
         |> ORM.create(%{article_comment_id: replyed_comment.id, reply_to_id: replying_comment.id})
       end)

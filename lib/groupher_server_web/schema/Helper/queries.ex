@@ -9,6 +9,24 @@ defmodule GroupherServerWeb.Schema.Helper.Queries do
 
   @article_threads get_config(:article, :article_threads)
 
+  # user published articles
+  defmacro published_article_queries() do
+    @article_threads
+    |> Enum.map(fn thread ->
+      quote do
+        @desc unquote("paged published #{thread}s")
+        field unquote(:"paged_published_#{thread}s"), unquote(:"paged_#{thread}s") do
+          arg(:login, non_null(:string))
+          arg(:filter, non_null(:paged_filter))
+          arg(:thread, :thread, default_value: unquote(thread))
+
+          middleware(M.PageSizeProof)
+          resolve(&R.Accounts.paged_published_articles/3)
+        end
+      end
+    end)
+  end
+
   defmacro article_search_queries() do
     @article_threads
     |> Enum.map(fn thread ->

@@ -179,12 +179,32 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
   end
 
   # published contents
-  def published_contents(_root, ~m(user_id filter thread)a, _info) do
-    Accounts.published_contents(%User{id: user_id}, thread, filter)
+  def paged_published_articles(_root, ~m(login filter thread)a, _info) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(login) do
+      Accounts.paged_published_articles(%User{id: user_id}, thread, filter)
+    else
+      _ -> raise_error(:not_exsit, "#{login} not found")
+    end
   end
 
-  def published_contents(_root, ~m(filter thread)a, %{context: %{cur_user: cur_user}}) do
-    Accounts.published_contents(cur_user, thread, filter)
+  def paged_published_articles(_root, ~m(filter thread)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.paged_published_articles(cur_user, thread, filter)
+  end
+
+  def paged_published_article_comments(_root, ~m(login filter thread)a, _info) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(login) do
+      Accounts.paged_published_article_comments(%User{id: user_id}, thread, filter)
+    else
+      _ -> raise_error(:not_exsit, "#{login} not found")
+    end
+  end
+
+  def paged_published_article_comments(_root, ~m(login filter)a, _info) do
+    with {:ok, user_id} <- Accounts.get_userid_and_cache(login) do
+      Accounts.paged_published_article_comments(%User{id: user_id}, filter)
+    else
+      _ -> raise_error(:not_exsit, "#{login} not found")
+    end
   end
 
   # published comments

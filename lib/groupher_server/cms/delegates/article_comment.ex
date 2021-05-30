@@ -175,6 +175,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   # TODO: parse editor-json
   # set default emotions
   def do_create_comment(content, foreign_key, article, %User{id: user_id}) do
+    thread = foreign_key |> to_string |> String.split("_id") |> List.first() |> String.upcase()
+
     count_query = from(c in ArticleComment, where: field(c, ^foreign_key) == ^article.id)
     floor = Repo.aggregate(count_query, :count) + 1
 
@@ -187,6 +189,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
           emotions: @default_emotions,
           floor: floor,
           is_article_author: user_id == article.author.user.id,
+          thread: thread,
           meta: @default_comment_meta
         },
         foreign_key,

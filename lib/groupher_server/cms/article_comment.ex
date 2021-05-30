@@ -17,7 +17,7 @@ defmodule GroupherServer.CMS.ArticleComment do
   @article_threads get_config(:article, :article_threads)
 
   @required_fields ~w(body_html author_id)a
-  @optional_fields ~w(reply_to_id replies_count is_folded is_deleted floor is_article_author)a
+  @optional_fields ~w(reply_to_id replies_count is_folded is_deleted floor is_article_author thread)a
   @updatable_fields ~w(is_folded is_deleted floor upvotes_count is_pinned)a
 
   @article_fields @article_threads |> Enum.map(&:"#{&1}_id")
@@ -41,8 +41,6 @@ defmodule GroupherServer.CMS.ArticleComment do
 
   @doc "操作某 emotion 的最近用户"
   def max_latest_emotion_users_count(), do: @max_latest_emotion_users_count
-
-  def supported_emotions(), do: @supported_emotions
   def delete_hint(), do: @delete_hint
 
   def report_threshold_for_fold, do: @report_threshold_for_fold
@@ -52,6 +50,7 @@ defmodule GroupherServer.CMS.ArticleComment do
   schema "articles_comments" do
     belongs_to(:author, Accounts.User, foreign_key: :author_id)
 
+    field(:thread, :string)
     field(:body_html, :string)
     # 是否被折叠
     field(:is_folded, :boolean, default: false)

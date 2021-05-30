@@ -2,6 +2,7 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
   @moduledoc """
   accounts GraphQL queries
   """
+  import GroupherServerWeb.Schema.Helper.Queries
   use Helper.GqlSchemaSuite
 
   object :account_queries do
@@ -87,46 +88,6 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.paged_collected_articles/3)
     end
 
-    @desc "get paged published posts"
-    field :published_posts, :paged_posts do
-      arg(:user_id, non_null(:id))
-      arg(:filter, non_null(:paged_filter))
-      arg(:thread, :post_thread, default_value: :post)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.published_contents/3)
-    end
-
-    @desc "get paged published jobs"
-    field :published_jobs, :paged_jobs do
-      arg(:user_id, non_null(:id))
-      arg(:filter, non_null(:paged_filter))
-      arg(:thread, :job_thread, default_value: :job)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.published_contents/3)
-    end
-
-    @desc "get paged published repos"
-    field :published_repos, :paged_repos do
-      arg(:user_id, non_null(:id))
-      arg(:filter, non_null(:paged_filter))
-      arg(:thread, :repo_thread, default_value: :repo)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.published_contents/3)
-    end
-
-    @desc "get paged published comments on post"
-    field :published_post_comments, :paged_post_comments do
-      arg(:user_id, non_null(:id))
-      arg(:filter, non_null(:paged_filter))
-      arg(:thread, :post_thread, default_value: :post)
-
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.published_comments/3)
-    end
-
     @desc "paged communities which the user it's the editor"
     field :editable_communities, :paged_communities do
       arg(:login, :string)
@@ -149,5 +110,27 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
 
       resolve(&R.Accounts.search_users/3)
     end
+
+    @desc "get paged published comments on post"
+    field :published_post_comments, :paged_post_comments do
+      arg(:user_id, non_null(:id))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :post_thread, default_value: :post)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.published_comments/3)
+    end
+
+    @desc "get paged published article comments"
+    field :paged_published_article_comments, :paged_article_comments do
+      arg(:login, non_null(:string))
+      arg(:filter, non_null(:paged_filter))
+      arg(:thread, :thread, default_value: :post)
+
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.paged_published_article_comments/3)
+    end
+
+    published_article_queries()
   end
 end
