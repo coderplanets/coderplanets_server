@@ -448,7 +448,5 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp result({:ok, %{update_article: result}}), do: {:ok, result}
   defp result({:ok, %{set_viewer_has_states: result}}), do: result |> done()
 
-  defp result({:error, _, result, _steps}) do
-    {:error, result}
-  end
+  defp result({:error, _, result, _steps}), do: {:error, result}
 end
