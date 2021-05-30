@@ -19,7 +19,7 @@ defmodule GroupherServer.Test.Query.Accounts.Published.Posts do
   describe "[published posts]" do
     @query """
     query($login: String!, $filter: PagedFilter!) {
-      publishedPosts(login: $login, filter: $filter) {
+      pagedPublishedPosts(login: $login, filter: $filter) {
         entries {
           id
           title
@@ -42,7 +42,7 @@ defmodule GroupherServer.Test.Query.Accounts.Published.Posts do
       {:ok, post2} = CMS.create_article(community, :post, post_attrs, user)
 
       variables = %{login: user.login, filter: %{page: 1, size: 20}}
-      results = guest_conn |> query_result(@query, variables, "publishedPosts")
+      results = guest_conn |> query_result(@query, variables, "pagedPublishedPosts")
 
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(post.id)))
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(post2.id)))
@@ -52,7 +52,7 @@ defmodule GroupherServer.Test.Query.Accounts.Published.Posts do
   describe "[account published comments on post]" do
     @query """
     query($login: String!, $thread: Thread, $filter: PagedFilter!) {
-      publishedArticleComments(login: $login, thread: $thread, filter: $filter) {
+      pagedPublishedArticleComments(login: $login, thread: $thread, filter: $filter) {
         entries {
           id
           bodyHtml
@@ -82,7 +82,7 @@ defmodule GroupherServer.Test.Query.Accounts.Published.Posts do
       random_comment_id = pub_comments |> Enum.random() |> Map.get(:id) |> to_string
 
       variables = %{login: user.login, thread: "POST", filter: %{page: 1, size: 20}}
-      results = guest_conn |> query_result(@query, variables, "publishedArticleComments")
+      results = guest_conn |> query_result(@query, variables, "pagedPublishedArticleComments")
 
       assert results |> is_valid_pagination?
       assert results["totalCount"] == @publish_count

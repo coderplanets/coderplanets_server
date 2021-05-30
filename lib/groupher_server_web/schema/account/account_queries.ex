@@ -122,13 +122,13 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
     end
 
     @desc "get paged published article comments"
-    field :published_article_comments, :paged_article_comments do
+    field :paged_published_article_comments, :paged_article_comments do
       arg(:login, non_null(:string))
       arg(:filter, non_null(:paged_filter))
       arg(:thread, :thread, default_value: :post)
 
       middleware(M.PageSizeProof)
-      resolve(&R.Accounts.published_article_comments/3)
+      resolve(&R.Accounts.paged_published_article_comments/3)
     end
 
     published_article_queries()

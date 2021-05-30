@@ -19,7 +19,7 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
   @doc """
   get paged published contets of a user
   """
-  def published_articles(%User{id: user_id}, thread, filter) do
+  def paged_published_articles(%User{id: user_id}, thread, filter) do
     with {:ok, info} <- match(thread),
          {:ok, user} <- ORM.find(User, user_id) do
       do_paged_published_articles(info.model, user, filter)
@@ -54,7 +54,7 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
     |> done()
   end
 
-  def published_article_comments(%User{id: user_id}, %{page: page, size: size} = filter) do
+  def paged_published_article_comments(%User{id: user_id}, %{page: page, size: size} = filter) do
     with {:ok, user} <- ORM.find(User, user_id) do
       ArticleComment
       |> join(:inner, [comment], author in assoc(comment, :author))
@@ -66,7 +66,11 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
     end
   end
 
-  def published_article_comments(%User{id: user_id}, thread, %{page: page, size: size} = filter) do
+  def paged_published_article_comments(
+        %User{id: user_id},
+        thread,
+        %{page: page, size: size} = filter
+      ) do
     with {:ok, user} <- ORM.find(User, user_id) do
       thread = thread |> to_string |> String.upcase()
       thread_atom = thread |> String.downcase() |> String.to_atom()

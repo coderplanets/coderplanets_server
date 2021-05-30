@@ -28,7 +28,7 @@ defmodule GroupherServer.Test.Accounts.Published.Post do
     end
 
     test "fresh user get empty paged published posts", ~m(user)a do
-      {:ok, results} = Accounts.published_articles(user, :post, %{page: 1, size: 20})
+      {:ok, results} = Accounts.paged_published_articles(user, :post, %{page: 1, size: 20})
 
       assert results |> is_valid_pagination?(:raw)
       assert results.total_count == 0
@@ -59,7 +59,7 @@ defmodule GroupherServer.Test.Accounts.Published.Post do
         acc ++ [post]
       end)
 
-      {:ok, results} = Accounts.published_articles(user, :post, %{page: 1, size: 20})
+      {:ok, results} = Accounts.paged_published_articles(user, :post, %{page: 1, size: 20})
 
       assert results |> is_valid_pagination?(:raw)
       assert results.total_count == @publish_count * 2
@@ -82,7 +82,7 @@ defmodule GroupherServer.Test.Accounts.Published.Post do
       end)
 
       filter = %{page: 1, size: 20}
-      {:ok, articles} = Accounts.published_article_comments(user, :post, filter)
+      {:ok, articles} = Accounts.paged_published_article_comments(user, :post, filter)
 
       entries = articles.entries
       article = entries |> List.first()
