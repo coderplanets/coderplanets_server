@@ -14,7 +14,7 @@ defmodule GroupherServer.Test.Accounts.Published.Post do
     {:ok, ~m(user user2 community community2)a}
   end
 
-  describe "[Accounts Publised posts]" do
+  describe "[Publised posts]" do
     test "fresh user get empty paged published posts", ~m(user)a do
       {:ok, results} = Accounts.published_articles(user, :post, %{page: 1, size: 20})
 
@@ -22,6 +22,7 @@ defmodule GroupherServer.Test.Accounts.Published.Post do
       assert results.total_count == 0
     end
 
+    @tag :wip2
     test "user can get paged published posts", ~m(user user2 community community2)a do
       pub_posts =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
