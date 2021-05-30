@@ -501,7 +501,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       login_conn = simu_conn(:user, user)
 
       variables = %{communityId: community.id}
-      created = login_conn |> mutation_result(@subscribe_query, variables, "subscribeCommunity")
+      login_conn |> mutation_result(@subscribe_query, variables, "subscribeCommunity")
 
       {:ok, user} = ORM.find(User, user.id)
 
@@ -572,7 +572,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       login_conn = simu_conn(:user, user)
 
       variables = %{communityId: community.id}
-      created = login_conn |> mutation_result(@subscribe_query, variables, "subscribeCommunity")
+      login_conn |> mutation_result(@subscribe_query, variables, "subscribeCommunity")
 
       {:ok, user} = ORM.find(User, user.id)
       assert user.subscribed_communities_count == 1

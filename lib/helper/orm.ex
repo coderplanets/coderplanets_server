@@ -3,7 +3,7 @@ defmodule Helper.ORM do
   General CORD functions
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, done: 3, add: 1, strip_struct: 1]
+  import Helper.Utils, only: [done: 1, done: 3, add: 1, strip_struct: 1, get_config: 2]
   import ShortMaps
 
   import Helper.ErrorHandler
@@ -11,6 +11,8 @@ defmodule Helper.ORM do
   alias Helper.Types, as: T
   alias GroupherServer.Repo
   alias Helper.{QueryBuilder, SpecType}
+
+  @article_threads get_config(:article, :article_threads)
 
   @doc """
   a wrap for paginate request
@@ -291,6 +293,16 @@ defmodule Helper.ORM do
     |> Ecto.Changeset.change()
     |> Ecto.Changeset.put_embed(key, value)
     |> Repo.update()
+  end
+
+  def extract_and_assign_article(%{entries: entries} = paged_articles) do
+    entries =
+      Enum.map(entries, fn item ->
+        thread = Enum.find(@article_threads, &(not is_nil(Map.get(item, :"#{&1}_id"))))
+        Map.merge(item, %{article: export_article_info(thread, Map.get(item, thread))})
+      end)
+
+    paged_articles |> Map.put(:entries, entries)
   end
 
   @doc "extract common articles info"

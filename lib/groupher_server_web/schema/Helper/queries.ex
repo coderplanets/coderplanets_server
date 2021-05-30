@@ -18,7 +18,7 @@ defmodule GroupherServerWeb.Schema.Helper.Queries do
         field unquote(:"published_#{thread}s"), unquote(:"paged_#{thread}s") do
           arg(:login, non_null(:string))
           arg(:filter, non_null(:paged_filter))
-          arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
+          arg(:thread, :thread, default_value: unquote(thread))
 
           middleware(M.PageSizeProof)
           resolve(&R.Accounts.published_articles/3)

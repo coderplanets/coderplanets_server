@@ -48,6 +48,8 @@ defmodule GroupherServer.Accounts do
   # publish
   defdelegate published_articles(user, thread, filter), to: Publish
   defdelegate published_comments(user, thread, filter), to: Publish
+  defdelegate published_article_comments(user, thread, filter), to: Publish
+  defdelegate published_article_comments(user, thread), to: Publish
   defdelegate update_published_states(user, thread), to: Publish
 
   # fans

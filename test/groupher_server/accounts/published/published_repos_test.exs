@@ -2,20 +2,22 @@ defmodule GroupherServer.Test.Accounts.Published.Repo do
   use GroupherServer.TestTools
 
   alias GroupherServer.{Accounts, CMS}
+  alias Accounts.User
+  alias Helper.ORM
 
   @publish_count 10
 
   setup do
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
+    {:ok, repo} = db_insert(:repo)
     {:ok, community} = db_insert(:community)
     {:ok, community2} = db_insert(:community)
 
-    {:ok, ~m(user user2 community community2)a}
+    {:ok, ~m(user user2 repo community community2)a}
   end
 
   describe "[publised repos]" do
-    @tag :wip2
     test "create repo should update user published meta", ~m(community user)a do
       repo_attrs = mock_attrs(:repo, %{community_id: community.id})
       {:ok, _repo} = CMS.create_article(community, :repo, repo_attrs, user)
@@ -66,6 +68,27 @@ defmodule GroupherServer.Test.Accounts.Published.Repo do
       random_repo_id2 = pub_repos2 |> Enum.random() |> Map.get(:id)
       assert results.entries |> Enum.any?(&(&1.id == random_repo_id))
       assert results.entries |> Enum.any?(&(&1.id == random_repo_id2))
+    end
+  end
+
+  describe "[publised repo comments]" do
+    @tag :wip2
+    test "can get published article comments", ~m(repo user)a do
+      total_count = 10
+
+      Enum.reduce(1..total_count, [], fn _, acc ->
+        {:ok, comment} = CMS.create_article_comment(:repo, repo.id, "commment", user)
+        acc ++ [comment]
+      end)
+
+      filter = %{page: 1, size: 20}
+      {:ok, articles} = Accounts.published_article_comments(user, :repo, filter)
+
+      entries = articles.entries
+      article = entries |> List.first()
+
+      assert article.article.id == repo.id
+      assert article.article.title == repo.title
     end
   end
 end

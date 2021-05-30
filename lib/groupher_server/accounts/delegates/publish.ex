@@ -10,8 +10,9 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
   import GroupherServer.CMS.Helper.Matcher
   import GroupherServer.CMS.Helper.MatcherOld
 
-  alias Helper.{ORM, QueryBuilder}
   alias GroupherServer.Accounts.{Embeds, User}
+  alias GroupherServer.CMS.ArticleComment
+  alias Helper.{ORM, QueryBuilder}
 
   @default_meta Embeds.UserMeta.default_meta()
 
@@ -51,6 +52,38 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
     |> QueryBuilder.filter_pack(filter)
     |> ORM.paginater(~m(page size)a)
     |> done()
+  end
+
+  def published_article_comments(%User{id: user_id}, %{page: page, size: size} = filter) do
+    with {:ok, user} <- ORM.find(User, user_id) do
+      ArticleComment
+      |> join(:inner, [comment], author in assoc(comment, :author))
+      |> where([comment, author], author.id == ^user.id)
+      |> QueryBuilder.filter_pack(filter)
+      |> ORM.paginater(~m(page size)a)
+      |> ORM.extract_and_assign_article()
+      |> done()
+    end
+  end
+
+  def published_article_comments(%User{id: user_id}, thread, %{page: page, size: size} = filter) do
+    with {:ok, user} <- ORM.find(User, user_id) do
+      thread = thread |> to_string |> String.upcase()
+      thread_atom = thread |> String.downcase() |> String.to_atom()
+
+      # article_preload = Keyword.new([{thread_atom, :author}])
+      # query = from(comment in ArticleComment, preload: ^article_preload)
+      query = from(comment in ArticleComment, preload: ^thread_atom)
+
+      query
+      |> join(:inner, [comment], author in assoc(comment, :author))
+      |> where([comment, author], author.id == ^user.id)
+      |> where([comment, author], comment.thread == ^thread)
+      |> QueryBuilder.filter_pack(filter)
+      |> ORM.paginater(~m(page size)a)
+      |> ORM.extract_and_assign_article()
+      |> done()
+    end
   end
 
   @doc """
