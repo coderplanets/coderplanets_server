@@ -18,7 +18,7 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
   @doc """
   get paged published contets of a user
   """
-  def published_contents(%User{id: user_id}, thread, %{page: page, size: size} = filter) do
+  def published_articles(%User{id: user_id}, thread, %{page: page, size: size} = filter) do
     with {:ok, user} <- ORM.find(User, user_id),
          {:ok, content} <- match_action(thread, :self) do
       content.target

@@ -46,7 +46,7 @@ defmodule GroupherServer.Accounts do
   # defdelegate paged_editable_communities(filter), to: Achievements
 
   # publish
-  defdelegate published_contents(user, thread, filter), to: Publish
+  defdelegate published_articles(user, thread, filter), to: Publish
   defdelegate published_comments(user, thread, filter), to: Publish
 
   # fans

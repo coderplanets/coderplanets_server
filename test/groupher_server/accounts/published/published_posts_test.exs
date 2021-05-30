@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Accounts.PublishedContents do
+defmodule GroupherServer.Test.Accounts.Published.Post do
   use GroupherServer.TestTools
 
   alias GroupherServer.{Accounts, CMS}
@@ -16,7 +16,7 @@ defmodule GroupherServer.Test.Accounts.PublishedContents do
 
   describe "[Accounts Publised posts]" do
     test "fresh user get empty paged published posts", ~m(user)a do
-      {:ok, results} = Accounts.published_contents(user, :post, %{page: 1, size: 20})
+      {:ok, results} = Accounts.published_articles(user, :post, %{page: 1, size: 20})
 
       assert results |> is_valid_pagination?(:raw)
       assert results.total_count == 0
@@ -47,7 +47,7 @@ defmodule GroupherServer.Test.Accounts.PublishedContents do
         acc ++ [post]
       end)
 
-      {:ok, results} = Accounts.published_contents(user, :post, %{page: 1, size: 20})
+      {:ok, results} = Accounts.published_articles(user, :post, %{page: 1, size: 20})
 
       assert results |> is_valid_pagination?(:raw)
       assert results.total_count == @publish_count * 2
@@ -61,7 +61,7 @@ defmodule GroupherServer.Test.Accounts.PublishedContents do
 
   describe "[Accounts Publised jobs]" do
     test "fresh user get empty paged published jobs", ~m(user)a do
-      {:ok, results} = Accounts.published_contents(user, :job, %{page: 1, size: 20})
+      {:ok, results} = Accounts.published_articles(user, :job, %{page: 1, size: 20})
 
       assert results |> is_valid_pagination?(:raw)
       assert results.total_count == 0
@@ -92,7 +92,7 @@ defmodule GroupherServer.Test.Accounts.PublishedContents do
         acc ++ [job]
       end)
 
-      {:ok, results} = Accounts.published_contents(user, :job, %{page: 1, size: 20})
+      {:ok, results} = Accounts.published_articles(user, :job, %{page: 1, size: 20})
 
       assert results |> is_valid_pagination?(:raw)
       assert results.total_count == @publish_count * 2
@@ -106,7 +106,7 @@ defmodule GroupherServer.Test.Accounts.PublishedContents do
 
   describe "[Accounts Publised repos]" do
     test "fresh user get empty paged published repos", ~m(user)a do
-      {:ok, results} = Accounts.published_contents(user, :repo, %{page: 1, size: 20})
+      {:ok, results} = Accounts.published_articles(user, :repo, %{page: 1, size: 20})
 
       assert results |> is_valid_pagination?(:raw)
       assert results.total_count == 0
@@ -137,7 +137,7 @@ defmodule GroupherServer.Test.Accounts.PublishedContents do
         acc ++ [repo]
       end)
 
-      {:ok, results} = Accounts.published_contents(user, :repo, %{page: 1, size: 20})
+      {:ok, results} = Accounts.published_articles(user, :repo, %{page: 1, size: 20})
 
       assert results |> is_valid_pagination?(:raw)
       assert results.total_count == @publish_count * 2

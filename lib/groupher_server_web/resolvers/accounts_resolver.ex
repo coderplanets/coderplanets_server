@@ -179,12 +179,12 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
   end
 
   # published contents
-  def published_contents(_root, ~m(user_id filter thread)a, _info) do
-    Accounts.published_contents(%User{id: user_id}, thread, filter)
+  def published_articles(_root, ~m(user_id filter thread)a, _info) do
+    Accounts.published_articles(%User{id: user_id}, thread, filter)
   end
 
-  def published_contents(_root, ~m(filter thread)a, %{context: %{cur_user: cur_user}}) do
-    Accounts.published_contents(cur_user, thread, filter)
+  def published_articles(_root, ~m(filter thread)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.published_articles(cur_user, thread, filter)
   end
 
   # published comments
