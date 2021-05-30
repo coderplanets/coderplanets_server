@@ -2,6 +2,7 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
   @moduledoc """
   accounts GraphQL queries
   """
+  import GroupherServerWeb.Schema.Helper.Queries
   use Helper.GqlSchemaSuite
 
   object :account_queries do
