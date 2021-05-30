@@ -21,7 +21,7 @@ defmodule GroupherServer.Test.Accounts.PublishedComments do
       assert results.total_count == 0
     end
 
-    test "user can get paged published posts", ~m(user user2 community)a do
+    test "user can get paged published post comments", ~m(user user2 community)a do
       body = "this is a test comment"
       {:ok, post} = db_insert(:post)
       {:ok, post2} = db_insert(:post)
