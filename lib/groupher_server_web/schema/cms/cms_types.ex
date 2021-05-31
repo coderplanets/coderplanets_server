@@ -109,7 +109,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:title, :string)
     field(:desc, :string)
     field(:company, :string)
-    field(:company_logo, :string)
     field(:company_link, :string)
     field(:digest, :string)
     field(:length, :integer)
@@ -128,13 +127,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
     field(:meta, :article_meta)
     field(:emotions, :article_emotions)
-
-    field(:salary, :string)
-    field(:exp, :string)
-    field(:education, :string)
-    field(:field, :string)
-    field(:finance, :string)
-    field(:scale, :string)
 
     # comments_count
     # comments_participators

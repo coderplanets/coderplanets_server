@@ -86,6 +86,66 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert exist_in?(article_tag, job["articleTags"], :string_key)
     end
 
+    test "support multi-tag (article_tags) filter", ~m(guest_conn user)a do
+      {:ok, community} = db_insert(:community)
+      job_attrs = mock_attrs(:job, %{community_id: community.id})
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
+
+      article_tag_attrs = mock_attrs(:article_tag)
+
+      {:ok, article_tag} = CMS.create_article_tag(community, :job, article_tag_attrs, user)
+      {:ok, article_tag2} = CMS.create_article_tag(community, :job, article_tag_attrs, user)
+      {:ok, article_tag3} = CMS.create_article_tag(community, :job, article_tag_attrs, user)
+
+      {:ok, _} = CMS.set_article_tag(:job, job.id, article_tag.id)
+      {:ok, _} = CMS.set_article_tag(:job, job.id, article_tag2.id)
+
+      variables = %{
+        filter: %{page: 1, size: 10, article_tags: [article_tag.title, article_tag2.title]}
+      }
+
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+
+      job = results["entries"] |> List.first()
+      assert results["totalCount"] == 1
+      assert exist_in?(article_tag, job["articleTags"], :string_key)
+      assert exist_in?(article_tag2, job["articleTags"], :string_key)
+      assert not exist_in?(article_tag3, job["articleTags"], :string_key)
+    end
+
+    @tag :wip2
+    test "should not have pined jobs when filter have article_tag or article_tags",
+         ~m(guest_conn user)a do
+      {:ok, community} = db_insert(:community)
+      job_attrs = mock_attrs(:job, %{community_id: community.id})
+      {:ok, pinned_job} = CMS.create_article(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
+
+      {:ok, _} = CMS.pin_article(:job, pinned_job.id, community.id)
+
+      article_tag_attrs = mock_attrs(:article_tag)
+      {:ok, article_tag} = CMS.create_article_tag(community, :job, article_tag_attrs, user)
+      {:ok, _} = CMS.set_article_tag(:job, job.id, article_tag.id)
+
+      variables = %{
+        filter: %{page: 1, size: 10, community: community.raw, article_tag: article_tag.title}
+      }
+
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+
+      assert not exist_in?(pinned_job, results["entries"], :string_key)
+      assert exist_in?(job, results["entries"], :string_key)
+
+      variables = %{
+        filter: %{page: 1, size: 10, community: community.raw, article_tags: [article_tag.title]}
+      }
+
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+
+      assert not exist_in?(pinned_job, results["entries"], :string_key)
+      assert exist_in?(job, results["entries"], :string_key)
+    end
+
     test "support community filter", ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
 
@@ -303,169 +363,22 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       pagedJobs(filter: $filter) {
         entries {
           id
-          salary
-          exp
-          field
-          finance
-          scale
-          education
+          title
         }
         totalCount
       }
     }
     """
-    test "salary option should work", ~m(guest_conn)a do
-      {:ok, job} = db_insert(:job, %{salary: "2k-5k"})
-      {:ok, job2} = db_insert(:job, %{salary: "5k-10k"})
+    test "basic filter should work", ~m(guest_conn)a do
+      {:ok, job} = db_insert(:job)
+      {:ok, job2} = db_insert(:job)
 
-      variables = %{filter: %{page: 1, size: 20, salary: "2k-5k"}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
-
-      assert results["totalCount"] >= 1
-      assert results["entries"] |> Enum.all?(&(&1["salary"] == "2k-5k"))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job2.id)))
-    end
-
-    test "field option should work", ~m(guest_conn)a do
-      {:ok, job} = db_insert(:job, %{field: "互联网"})
-      {:ok, job2} = db_insert(:job, %{field: "电子商务"})
-
-      variables = %{filter: %{page: 1, size: 20, field: "互联网"}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
-
-      assert results["totalCount"] >= 1
-      assert results["entries"] |> Enum.all?(&(&1["field"] == "互联网"))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job2.id)))
-    end
-
-    test "finance option should work", ~m(guest_conn)a do
-      {:ok, job} = db_insert(:job, %{finance: "未融资"})
-      {:ok, job2} = db_insert(:job, %{finance: "天使轮"})
-
-      variables = %{filter: %{page: 1, size: 20, finance: "未融资"}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
-
-      assert results["totalCount"] >= 1
-      assert results["entries"] |> Enum.all?(&(&1["finance"] == "未融资"))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job2.id)))
-    end
-
-    test "scale option should work", ~m(guest_conn)a do
-      {:ok, job} = db_insert(:job, %{scale: "少于15人"})
-      {:ok, job2} = db_insert(:job, %{scale: "15-50人"})
-
-      variables = %{filter: %{page: 1, size: 20, scale: "少于15人"}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
-
-      assert results["totalCount"] >= 1
-      assert results["entries"] |> Enum.all?(&(&1["scale"] == "少于15人"))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job2.id)))
-    end
-
-    test "exp option should work", ~m(guest_conn)a do
-      {:ok, job} = db_insert(:job, %{exp: "应届"})
-      {:ok, job2} = db_insert(:job, %{exp: "3年以下"})
-
-      variables = %{filter: %{page: 1, size: 20, exp: "应届"}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
-
-      assert results["totalCount"] >= 1
-      assert results["entries"] |> Enum.all?(&(&1["exp"] == "应届"))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job2.id)))
-
-      variables = %{filter: %{page: 1, size: 20, exp: "不限"}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
-
-      assert results["totalCount"] > @total_count
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job2.id)))
-    end
-
-    test "education option should work", ~m(guest_conn)a do
-      {:ok, job} = db_insert(:job, %{education: "不限"})
-      {:ok, job2} = db_insert(:job, %{education: "大专"})
-      {:ok, job3} = db_insert(:job, %{education: "本科"})
-      {:ok, job4} = db_insert(:job, %{education: "硕士"})
-      {:ok, job5} = db_insert(:job, %{education: "博士"})
-
-      variables = %{filter: %{page: 1, size: 30, education: "不限"}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
-
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job2.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job3.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job4.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job5.id)))
-
-      variables = %{filter: %{page: 1, size: 30, education: "大专"}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
-
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job2.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job3.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job4.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job5.id)))
-
-      variables = %{filter: %{page: 1, size: 30, education: "本科"}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
-
-      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job2.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job3.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job4.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job5.id)))
-
-      variables = %{filter: %{page: 1, size: 30, education: "硕士"}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
-
-      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job2.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job3.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job4.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job5.id)))
-
-      variables = %{filter: %{page: 1, size: 30, education: "博士"}}
-      results = guest_conn |> query_result(@query, variables, "pagedJobs")
-
-      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job2.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job3.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job4.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job5.id)))
-    end
-
-    test "multi filter should work together", ~m(guest_conn)a do
-      {:ok, job} =
-        db_insert(:job, %{
-          title: "hehe",
-          scale: "少于15人",
-          exp: "本科",
-          field: "教育",
-          finance: "D轮以上",
-          salary: "20k-50k"
-        })
-
-      variables = %{
-        filter: %{
-          page: 1,
-          size: 20,
-          scale: "少于15人",
-          exp: "本科",
-          field: "教育",
-          finance: "D轮以上",
-          salary: "20k-50k"
-        }
-      }
-
+      variables = %{filter: %{page: 1, size: 20}}
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
 
       assert results["totalCount"] >= 1
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job.id)))
+      assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job2.id)))
     end
   end
 end

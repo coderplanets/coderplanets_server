@@ -13,30 +13,20 @@ defmodule GroupherServer.CMS.Job do
   alias Helper.HTML
 
   @timestamps_opts [type: :utc_datetime_usec]
-  @required_fields ~w(title company company_logo body digest length)a
+  @required_fields ~w(title company body digest length)a
   @article_cast_fields general_article_fields(:cast)
-  @optional_fields @article_cast_fields ++
-                     ~w(desc company_link link_addr copy_right salary exp education field finance scale)a
+  @optional_fields @article_cast_fields ++ ~w(desc company_link link_addr copy_right)a
 
   @type t :: %Job{}
   schema "cms_jobs" do
     field(:title, :string)
     field(:company, :string)
-    field(:company_logo, :string)
     field(:company_link, :string)
     field(:desc, :string)
     field(:body, :string)
 
     field(:link_addr, :string)
     field(:copy_right, :string)
-
-    field(:salary, :string)
-    field(:exp, :string)
-    field(:education, :string)
-    field(:field, :string)
-    field(:finance, :string)
-    field(:scale, :string)
-
     field(:digest, :string)
     field(:length, :integer)
 

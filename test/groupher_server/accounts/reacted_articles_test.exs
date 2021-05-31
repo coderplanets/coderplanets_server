@@ -14,7 +14,6 @@ defmodule GroupherServer.Test.Accounts.ReactedContents do
   end
 
   describe "[user upvoted articles]" do
-    @tag :wip2
     test "user can get paged upvoted common articles", ~m(user post job)a do
       {:ok, _} = CMS.upvote_article(:post, post.id, user)
       {:ok, _} = CMS.upvote_article(:job, job.id, user)

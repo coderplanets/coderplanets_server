@@ -254,52 +254,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     ORM.find_by(Author, user_id: changeset.data.user_id)
   end
 
-  defp domain_filter_query(CMS.Job = queryable, filter) do
-    Enum.reduce(filter, queryable, fn
-      {:salary, salary}, queryable ->
-        queryable |> where([content], content.salary == ^salary)
-
-      {:field, field}, queryable ->
-        queryable |> where([content], content.field == ^field)
-
-      {:finance, finance}, queryable ->
-        queryable |> where([content], content.finance == ^finance)
-
-      {:scale, scale}, queryable ->
-        queryable |> where([content], content.scale == ^scale)
-
-      {:exp, exp}, queryable ->
-        if exp == "不限", do: queryable, else: queryable |> where([content], content.exp == ^exp)
-
-      {:education, education}, queryable ->
-        cond do
-          education == "大专" ->
-            queryable
-            |> where([content], content.education == "大专" or content.education == "不限")
-
-          education == "本科" ->
-            queryable
-            |> where([content], content.education != "不限")
-            |> where([content], content.education != "大专")
-
-          education == "硕士" ->
-            queryable
-            |> where([content], content.education != "不限")
-            |> where([content], content.education != "大专")
-            |> where([content], content.education != "本科")
-
-          education == "不限" ->
-            queryable
-
-          true ->
-            queryable |> where([content], content.education == ^education)
-        end
-
-      {_, _}, queryable ->
-        queryable
-    end)
-  end
-
   defp domain_filter_query(CMS.Repo = queryable, filter) do
     Enum.reduce(filter, queryable, fn
       {:sort, :most_github_star}, queryable ->
@@ -327,12 +281,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp add_pin_articles_ifneed(articles, querable, %{community: community} = filter) do
     thread = module_to_thread(querable)
 
-    with {:ok, _} <- should_add_pin?(filter),
+    with true <- should_add_pin?(filter),
          true <- 1 == Map.get(articles, :page_number),
          {:ok, pinned_articles} <-
            PinnedArticle
            |> join(:inner, [p], c in assoc(p, :community))
-           # |> join(:inner, [p], article in assoc(p, ^filter.thread))
            |> join(:inner, [p], article in assoc(p, ^thread))
            |> where([p, c, article], c.raw == ^community)
            |> select([p, c, article], article)
@@ -347,13 +300,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp add_pin_articles_ifneed(articles, _querable, _filter), do: articles
 
   # if filter contains like: tags, sort.., then don't add pin article
-  # TODO: tag
-  # defp should_add_pin?(%{page: 1, article_tag: :all, sort: :desc_inserted} = _filter) do
-  defp should_add_pin?(%{page: 1, sort: :desc_inserted} = _filter) do
-    {:ok, :pass}
+  defp should_add_pin?(%{page: 1, sort: :desc_inserted} = filter) do
+    skip_pinned_fields = [:article_tag, :article_tags]
+
+    not Enum.any?(Map.keys(filter), &(&1 in skip_pinned_fields))
   end
 
-  defp should_add_pin?(_filter), do: {:error, :pass}
+  defp should_add_pin?(_filter), do: false
 
   defp concat_articles(%{total_count: 0}, non_pinned_articles), do: non_pinned_articles
 
