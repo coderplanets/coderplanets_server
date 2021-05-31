@@ -238,6 +238,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
         entries {
           id
           inserted_at
+          active_at
           author {
             id
             nickname
@@ -258,6 +259,18 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
 
       assert length(results["entries"]) == 1
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job.id)))
+    end
+
+    @tag :wip2
+    test "should have a active_at same with inserted_at", ~m(guest_conn user)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, job} = CMS.create_article(community, :job, mock_attrs(:job), user)
+
+      variables = %{filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+      job = results["entries"] |> List.first()
+
+      assert job["inserted_at"] == job["active_at"]
     end
 
     @tag :skip_travis

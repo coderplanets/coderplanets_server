@@ -176,6 +176,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
         entries {
           id
           inserted_at
+          active_at
           author {
             id
             nickname
@@ -199,6 +200,18 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
 
       assert length(results["entries"]) == 1
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(repo.id)))
+    end
+
+    @tag :wip2
+    test "should have a active_at same with inserted_at", ~m(guest_conn user)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, repo} = CMS.create_article(community, :repo, mock_attrs(:repo), user)
+
+      variables = %{filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedRepos")
+      repo = results["entries"] |> List.first()
+
+      assert repo["inserted_at"] == repo["active_at"]
     end
 
     @tag :skip_travis

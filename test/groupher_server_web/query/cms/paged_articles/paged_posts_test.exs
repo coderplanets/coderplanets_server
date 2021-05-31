@@ -132,6 +132,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
         entries {
           id
           inserted_at
+          active_at
           author {
             id
             nickname
@@ -155,6 +156,18 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
 
       assert length(results["entries"]) == 1
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(post.id)))
+    end
+
+    @tag :wip2
+    test "should have a active_at same with inserted_at", ~m(guest_conn user)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, post} = CMS.create_article(community, :post, mock_attrs(:post), user)
+
+      variables = %{filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      post = results["entries"] |> List.first()
+
+      assert post["inserted_at"] == post["active_at"]
     end
 
     test "filter sort should have default :desc_inserted", ~m(guest_conn)a do
