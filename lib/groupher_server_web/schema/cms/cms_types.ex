@@ -27,7 +27,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:id, :id)
     # field(:body_html, :string)
     field(:title, :string)
-    field(:author, :user, resolve: dataloader(CMS, :author))
+    field(:author, :common_user)
   end
 
   object :common_article_comment do

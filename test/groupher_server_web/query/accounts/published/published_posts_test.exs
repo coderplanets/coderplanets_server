@@ -34,7 +34,7 @@ defmodule GroupherServer.Test.Query.Accounts.Published.Posts do
       }
     }
     """
-    @tag :wip2
+
     test "can get published posts", ~m(guest_conn community user)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id})
 
@@ -62,6 +62,10 @@ defmodule GroupherServer.Test.Query.Accounts.Published.Posts do
           article {
             id
             title
+            author {
+              nickname
+              login
+            }
           }
         }
         totalPages
@@ -82,14 +86,18 @@ defmodule GroupherServer.Test.Query.Accounts.Published.Posts do
       random_comment_id = pub_comments |> Enum.random() |> Map.get(:id) |> to_string
 
       variables = %{login: user.login, thread: "POST", filter: %{page: 1, size: 20}}
+
       results = guest_conn |> query_result(@query, variables, "pagedPublishedArticleComments")
 
+      entries = results["entries"]
       assert results |> is_valid_pagination?
       assert results["totalCount"] == @publish_count
 
-      assert results["entries"] |> Enum.all?(&(&1["article"]["id"] == to_string(post.id)))
-      assert results["entries"] |> Enum.all?(&(&1["author"]["id"] == to_string(user.id)))
-      assert results["entries"] |> Enum.any?(&(&1["id"] == random_comment_id))
+      assert entries |> Enum.all?(&(not is_nil(&1["article"]["author"])))
+
+      assert entries |> Enum.all?(&(&1["article"]["id"] == to_string(post.id)))
+      assert entries |> Enum.all?(&(&1["author"]["id"] == to_string(user.id)))
+      assert entries |> Enum.any?(&(&1["id"] == random_comment_id))
     end
   end
 end

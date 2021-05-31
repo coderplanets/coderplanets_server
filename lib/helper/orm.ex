@@ -295,6 +295,9 @@ defmodule Helper.ORM do
     |> Repo.update()
   end
 
+  @doc """
+  extract common article info and assign it to 'article' field
+  """
   def extract_and_assign_article(%{entries: entries} = paged_articles) do
     entries =
       Enum.map(entries, fn item ->
@@ -320,11 +323,14 @@ defmodule Helper.ORM do
   end
 
   defp export_article_info(thread, article) do
+    author = article.author.user
+
     %{
       thread: thread,
       id: article.id,
       title: article.title,
-      upvotes_count: Map.get(article, :upvotes_count)
+      upvotes_count: Map.get(article, :upvotes_count),
+      author: author
     }
   end
 end

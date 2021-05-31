@@ -75,9 +75,8 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
       thread = thread |> to_string |> String.upcase()
       thread_atom = thread |> String.downcase() |> String.to_atom()
 
-      # article_preload = Keyword.new([{thread_atom, :author}])
-      # query = from(comment in ArticleComment, preload: ^article_preload)
-      query = from(comment in ArticleComment, preload: ^thread_atom)
+      article_preload = Keyword.new([{thread_atom, [author: :user]}])
+      query = from(comment in ArticleComment, preload: ^article_preload)
 
       query
       |> join(:inner, [comment], author in assoc(comment, :author))
