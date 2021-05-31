@@ -254,52 +254,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     ORM.find_by(Author, user_id: changeset.data.user_id)
   end
 
-  defp domain_filter_query(CMS.Job = queryable, filter) do
-    Enum.reduce(filter, queryable, fn
-      {:salary, salary}, queryable ->
-        queryable |> where([content], content.salary == ^salary)
-
-      {:field, field}, queryable ->
-        queryable |> where([content], content.field == ^field)
-
-      {:finance, finance}, queryable ->
-        queryable |> where([content], content.finance == ^finance)
-
-      {:scale, scale}, queryable ->
-        queryable |> where([content], content.scale == ^scale)
-
-      {:exp, exp}, queryable ->
-        if exp == "不限", do: queryable, else: queryable |> where([content], content.exp == ^exp)
-
-      {:education, education}, queryable ->
-        cond do
-          education == "大专" ->
-            queryable
-            |> where([content], content.education == "大专" or content.education == "不限")
-
-          education == "本科" ->
-            queryable
-            |> where([content], content.education != "不限")
-            |> where([content], content.education != "大专")
-
-          education == "硕士" ->
-            queryable
-            |> where([content], content.education != "不限")
-            |> where([content], content.education != "大专")
-            |> where([content], content.education != "本科")
-
-          education == "不限" ->
-            queryable
-
-          true ->
-            queryable |> where([content], content.education == ^education)
-        end
-
-      {_, _}, queryable ->
-        queryable
-    end)
-  end
-
   defp domain_filter_query(CMS.Repo = queryable, filter) do
     Enum.reduce(filter, queryable, fn
       {:sort, :most_github_star}, queryable ->

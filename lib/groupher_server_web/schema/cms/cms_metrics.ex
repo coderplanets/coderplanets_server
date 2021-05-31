@@ -206,13 +206,6 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
     pagination_args()
     article_filter_fields()
     field(:sort, :sort_enum)
-
-    field(:salary, :string)
-    field(:exp, :string)
-    field(:education, :string)
-    field(:field, :string)
-    field(:finance, :string)
-    field(:scale, :string)
   end
 
   @desc "article_filter doc"
