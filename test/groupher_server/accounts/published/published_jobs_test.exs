@@ -72,7 +72,6 @@ defmodule GroupherServer.Test.Accounts.Published.Job do
   end
 
   describe "[publised job comments]" do
-    @tag :wip2
     test "can get published article comments", ~m(job user)a do
       total_count = 10
 

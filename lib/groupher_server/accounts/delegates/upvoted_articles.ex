@@ -3,7 +3,7 @@ defmodule GroupherServer.Accounts.Delegate.UpvotedArticles do
   get contents(posts, jobs ...) that user upvotes
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1]
+  import Helper.Utils, only: [done: 1, get_config: 2]
   import ShortMaps
 
   alias Helper.{ORM, QueryBuilder}
@@ -11,8 +11,7 @@ defmodule GroupherServer.Accounts.Delegate.UpvotedArticles do
   alias GroupherServer.CMS
   alias CMS.{ArticleUpvote}
 
-  # TODO: move to Model
-  @supported_uovoted_threads [:post, :job]
+  @article_threads get_config(:article, :article_threads)
 
   @doc """
   get paged upvoted articles
@@ -31,13 +30,19 @@ defmodule GroupherServer.Accounts.Delegate.UpvotedArticles do
   end
 
   defp load_upvoted_articles(where_query, %{page: page, size: size} = filter) do
-    query = from(a in ArticleUpvote, preload: ^@supported_uovoted_threads)
+    article_preload =
+      @article_threads
+      |> Enum.reduce([], fn thread, acc ->
+        acc ++ Keyword.new([{thread, [author: :user]}])
+      end)
+
+    query = from(a in ArticleUpvote, preload: ^article_preload)
 
     query
     |> where(^where_query)
     |> QueryBuilder.filter_pack(filter)
     |> ORM.paginater(~m(page size)a)
-    |> ORM.extract_articles(@supported_uovoted_threads)
+    |> ORM.extract_articles()
     |> done()
   end
 end

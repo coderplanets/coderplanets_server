@@ -10,12 +10,12 @@ defmodule GroupherServer.Accounts.Embeds.CollectFolderMeta.Macros do
     field(:has_repo, :boolean, default: false)
     field(:repo_count, :integer, default: 0)
   """
-  alias GroupherServer.Accounts.CollectFolder
+  import Helper.Utils, only: [get_config: 2]
 
-  @supported_threads CollectFolder.supported_threads()
+  @article_threads get_config(:article, :article_threads)
 
   defmacro threads_fields() do
-    @supported_threads
+    @article_threads
     |> Enum.map(fn thread ->
       quote do
         field(unquote(:"has_#{thread}"), :boolean, default: false)
@@ -27,21 +27,20 @@ end
 
 defmodule GroupherServer.Accounts.Embeds.CollectFolderMeta do
   @moduledoc """
-  general article meta info for article-like content, like @supported_threads
+  general article meta info for articles
   """
   use Ecto.Schema
   import Ecto.Changeset
   import GroupherServer.Accounts.Embeds.CollectFolderMeta.Macros
+  import Helper.Utils, only: [get_config: 2]
 
-  alias GroupherServer.Accounts.CollectFolder
+  @article_threads get_config(:article, :article_threads)
 
-  @supported_threads CollectFolder.supported_threads()
-
-  @optional_fields Enum.map(@supported_threads, &:"#{&1}_count") ++
-                     Enum.map(@supported_threads, &:"has_#{&1}")
+  @optional_fields Enum.map(@article_threads, &:"#{&1}_count") ++
+                     Enum.map(@article_threads, &:"has_#{&1}")
 
   def default_meta() do
-    @supported_threads
+    @article_threads
     |> Enum.reduce([], fn thread, acc -> acc ++ ["#{thread}_count": 0, "has_#{thread}": false] end)
     |> Enum.into(%{})
   end

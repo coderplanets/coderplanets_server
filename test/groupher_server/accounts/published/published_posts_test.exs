@@ -72,7 +72,6 @@ defmodule GroupherServer.Test.Accounts.Published.Post do
   end
 
   describe "[publised post comments]" do
-    @tag :wip2
     test "can get published article comments", ~m(post user)a do
       total_count = 10
 

@@ -9,7 +9,6 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
   @page_size get_config(:general, :page_size)
   @supported_emotions get_config(:article, :supported_emotions)
   @supported_comment_emotions get_config(:article, :comment_supported_emotions)
-  @supported_collect_folder_threads Accounts.CollectFolder.supported_threads()
 
   @article_threads get_config(:article, :article_threads)
 
@@ -242,7 +241,7 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
   general collect folder meta info
   """
   defmacro collect_folder_meta_fields() do
-    @supported_collect_folder_threads
+    @article_threads
     |> Enum.map(fn thread ->
       quote do
         field(unquote(:"has_#{thread}"), :boolean)

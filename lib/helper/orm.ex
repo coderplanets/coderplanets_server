@@ -295,6 +295,9 @@ defmodule Helper.ORM do
     |> Repo.update()
   end
 
+  @doc """
+  extract common article info and assign it to 'article' field
+  """
   def extract_and_assign_article(%{entries: entries} = paged_articles) do
     entries =
       Enum.map(entries, fn item ->
@@ -307,24 +310,27 @@ defmodule Helper.ORM do
 
   @doc "extract common articles info"
   @spec extract_articles(T.paged_data(), [Atom.t()]) :: T.paged_article_common()
-  def extract_articles(%{entries: entries} = paged_articles, supported_threads) do
+  def extract_articles(%{entries: entries} = paged_articles, threads \\ @article_threads) do
     paged_articles
-    |> Map.put(:entries, Enum.map(entries, &extract_article_info(&1, supported_threads)))
+    |> Map.put(:entries, Enum.map(entries, &extract_article_info(&1, threads)))
   end
 
-  defp extract_article_info(reaction, supported_threads) do
-    thread = Enum.find(supported_threads, &(not is_nil(Map.get(reaction, &1))))
+  defp extract_article_info(reaction, threads) do
+    thread = Enum.find(threads, &(not is_nil(Map.get(reaction, &1))))
     article = Map.get(reaction, thread)
 
     export_article_info(thread, article)
   end
 
   defp export_article_info(thread, article) do
+    author = article.author.user
+
     %{
       thread: thread,
       id: article.id,
       title: article.title,
-      upvotes_count: Map.get(article, :upvotes_count)
+      upvotes_count: Map.get(article, :upvotes_count),
+      author: author
     }
   end
 end
