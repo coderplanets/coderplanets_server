@@ -17,8 +17,9 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
     {:ok, repo} = db_insert(:repo)
+    {:ok, community} = db_insert(:community)
 
-    {:ok, ~m(user user2 repo)a}
+    {:ok, ~m(community user user2 repo)a}
   end
 
   describe "[basic article comment]" do
@@ -35,6 +36,33 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
     test "comment should have default meta after create", ~m(user repo)a do
       {:ok, comment} = CMS.create_article_comment(:repo, repo.id, "repo comment", user)
       assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
+    end
+
+    @tag :wip2
+    test "create comment should update active timestamp of repo", ~m(user repo)a do
+      Process.sleep(1000)
+      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "repo comment", user)
+      {:ok, repo} = ORM.find(Repo, repo.id, preload: :article_comments)
+
+      assert not is_nil(repo.active_at)
+      assert repo.active_at > repo.inserted_at
+    end
+
+    @tag :wip2
+    test "repo author create comment will not update active timestamp", ~m(community user)a do
+      repo_attrs = mock_attrs(:repo, %{community_id: community.id})
+      {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
+      {:ok, repo} = ORM.find(Repo, repo.id, preload: [author: :user])
+
+      Process.sleep(1000)
+
+      {:ok, _comment} =
+        CMS.create_article_comment(:repo, repo.id, "repo comment", repo.author.user)
+
+      {:ok, repo} = ORM.find(Repo, repo.id, preload: :article_comments)
+
+      assert not is_nil(repo.active_at)
+      assert repo.active_at == repo.inserted_at
     end
 
     test "comment can be updated", ~m(repo user)a do

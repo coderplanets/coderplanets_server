@@ -203,6 +203,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   end
 
   @doc """
+  update active at timestamp of an article
+  """
+  def update_active_timestamp(article) do
+    ORM.update(article, %{active_at: DateTime.utc_now()})
+  end
+
+  @doc """
   mark delete falst for an anticle
   """
   def mark_delete_article(thread, id) do

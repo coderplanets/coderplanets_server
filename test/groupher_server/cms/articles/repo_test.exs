@@ -27,7 +27,6 @@ defmodule GroupherServer.Test.Articles.Repo do
       assert repo.contributors |> length !== 0
     end
 
-    @tag :wip2
     test "created repo should have a acitve_at field, same with inserted_at",
          ~m(user community repo_attrs)a do
       {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)

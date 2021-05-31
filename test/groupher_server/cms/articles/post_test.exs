@@ -26,7 +26,6 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
       assert post.title == post_attrs.title
     end
 
-    @tag :wip2
     test "created post should have a acitve_at field, same with inserted_at",
          ~m(user community post_attrs)a do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)

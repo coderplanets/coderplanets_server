@@ -17,8 +17,9 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
     {:ok, job} = db_insert(:job)
+    {:ok, community} = db_insert(:community)
 
-    {:ok, ~m(user user2 job)a}
+    {:ok, ~m(community user user2 job)a}
   end
 
   describe "[basic article comment]" do
@@ -35,6 +36,32 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     test "comment should have default meta after create", ~m(user job)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
       assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
+    end
+
+    @tag :wip2
+    test "create comment should update active timestamp of job", ~m(user job)a do
+      Process.sleep(1000)
+      {:ok, _comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
+      {:ok, job} = ORM.find(Job, job.id, preload: :article_comments)
+
+      assert not is_nil(job.active_at)
+      assert job.active_at > job.inserted_at
+    end
+
+    @tag :wip2
+    test "job author create comment will not update active timestamp", ~m(community user)a do
+      job_attrs = mock_attrs(:job, %{community_id: community.id})
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
+      {:ok, job} = ORM.find(Job, job.id, preload: [author: :user])
+
+      Process.sleep(1000)
+
+      {:ok, _comment} = CMS.create_article_comment(:job, job.id, "job comment", job.author.user)
+
+      {:ok, job} = ORM.find(Job, job.id, preload: :article_comments)
+
+      assert not is_nil(job.active_at)
+      assert job.active_at == job.inserted_at
     end
 
     test "comment can be updated", ~m(job user)a do
