@@ -63,6 +63,13 @@ config :groupher_server, :customization,
 config :groupher_server, :article,
   # NOTE: do not change unless you know what you are doing
   article_threads: [:post, :job, :repo],
+  # in this period, paged articles will sorted by active_at timestamp
+  active_period_days: %{
+    post: 10,
+    job: 10,
+    repo: 10
+  },
+
   # NOTE: if you want to add/remove emotion, just edit the list below
   # and migrate the field to table "articles_users_emotions"
   supported_emotions: [

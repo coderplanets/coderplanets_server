@@ -2,11 +2,14 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
   @moduledoc false
 
   use GroupherServer.TestTools
+  import Helper.Utils, only: [get_config: 2]
 
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS}
 
   alias CMS.{ArticleComment, ArticlePinnedComment, Embeds, Post}
+
+  @active_period get_config(:article, :active_period_days)
 
   @delete_hint CMS.ArticleComment.delete_hint()
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
@@ -38,7 +41,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
     end
 
-    @tag :wip2
     test "create comment should update active timestamp of post", ~m(user post)a do
       Process.sleep(1000)
       {:ok, _comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
@@ -48,7 +50,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert post.active_at > post.inserted_at
     end
 
-    @tag :wip2
     test "post author create comment will not update active timestamp", ~m(community user)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
@@ -63,6 +64,30 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
 
       assert not is_nil(post.active_at)
       assert post.active_at == post.inserted_at
+    end
+
+    @tag :wip2
+    test "old post will not update active after comment created", ~m(user)a do
+      active_period_days = Map.get(@active_period, :post)
+
+      inserted_at =
+        Timex.shift(Timex.now(), days: -(active_period_days - 1)) |> Timex.to_datetime()
+
+      {:ok, post} = db_insert(:post, %{inserted_at: inserted_at})
+      {:ok, _comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
+      {:ok, post} = ORM.find(Post, post.id)
+
+      assert post.active_at |> DateTime.to_date() == DateTime.utc_now() |> DateTime.to_date()
+
+      # ----
+      inserted_at =
+        Timex.shift(Timex.now(), days: -(active_period_days + 1)) |> Timex.to_datetime()
+
+      {:ok, post} = db_insert(:post, %{inserted_at: inserted_at})
+      {:ok, _comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
+      {:ok, post} = ORM.find(Post, post.id)
+
+      assert is_nil(post.active_at)
     end
 
     test "comment can be updated", ~m(post user)a do

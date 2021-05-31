@@ -108,7 +108,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> Multi.run(:update_article_active_timestamp, fn _, %{create_article_comment: comment} ->
         case comment.author_id == article.author.user.id do
           true -> {:ok, :pass}
-          false -> CMS.update_active_timestamp(article)
+          false -> CMS.update_active_timestamp(thread, article)
         end
       end)
       |> Repo.transaction()

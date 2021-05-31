@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   import GroupherServer.CMS.Helper.Matcher
 
   import Helper.Utils,
-    only: [done: 1, pick_by: 2, integerfy: 1, strip_struct: 1, module_to_thread: 1]
+    only: [done: 1, pick_by: 2, integerfy: 1, strip_struct: 1, module_to_thread: 1, get_config: 2]
 
   import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 2]
   import Helper.ErrorCode
@@ -23,6 +23,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   alias Ecto.Multi
 
+  @active_period get_config(:article, :active_period_days)
   @default_emotions Embeds.ArticleEmotion.default_emotions()
   @default_article_meta Embeds.ArticleMeta.default_meta()
 
@@ -205,8 +206,22 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   @doc """
   update active at timestamp of an article
   """
-  def update_active_timestamp(article) do
-    ORM.update(article, %{active_at: DateTime.utc_now()})
+  def update_active_timestamp(thread, article) do
+    active_period_days = Map.get(@active_period, thread)
+
+    inserted_at = article.inserted_at
+    active_threshold = Timex.shift(Timex.now(), days: -active_period_days)
+
+    # @article_active_period
+    # 1. 超过时限不更新
+    # 2. 已经沉默的不更新, is_sinked
+
+    case inserted_at <= active_threshold do
+      # pass
+      true -> {:ok, :pass}
+      # update active_at
+      false -> ORM.update(article, %{active_at: DateTime.utc_now()})
+    end
   end
 
   @doc """
