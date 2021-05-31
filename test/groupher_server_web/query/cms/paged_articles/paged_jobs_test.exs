@@ -113,7 +113,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert not exist_in?(article_tag3, job["articleTags"], :string_key)
     end
 
-    @tag :wip2
     test "should not have pined jobs when filter have article_tag or article_tags",
          ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)

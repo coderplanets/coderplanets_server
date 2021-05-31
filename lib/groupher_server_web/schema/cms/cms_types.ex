@@ -100,7 +100,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     # upvoted_count
     # collected_count
 
-    timestamp_fields()
+    timestamp_fields(:article)
   end
 
   object :job do
@@ -132,7 +132,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     # comments_participators
     article_comments_fields()
     viewer_has_state_fields()
-    timestamp_fields()
+    timestamp_fields(:article)
   end
 
   object :repo do
@@ -175,7 +175,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     # comments_count
     # comments_participators
 
-    timestamp_fields()
+    timestamp_fields(:article)
   end
 
   object :repo_contributor do

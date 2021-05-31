@@ -1,8 +1,10 @@
-defmodule GroupherServer.Test.CMS.Post do
+defmodule GroupherServer.Test.CMS.Articles.Post do
   use GroupherServer.TestTools
 
   alias Helper.ORM
   alias GroupherServer.CMS
+
+  alias CMS.{Author, Community}
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -16,14 +18,20 @@ defmodule GroupherServer.Test.CMS.Post do
   end
 
   describe "[cms post curd]" do
-    alias CMS.{Author, Community}
-
     test "can create post with valid attrs", ~m(user community post_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
 
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       assert post.title == post_attrs.title
+    end
+
+    @tag :wip2
+    test "created post should have a acitve_at field, same with inserted_at",
+         ~m(user community post_attrs)a do
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+
+      assert post.active_at == post.inserted_at
     end
 
     test "read post should update views and meta viewed_user_list",

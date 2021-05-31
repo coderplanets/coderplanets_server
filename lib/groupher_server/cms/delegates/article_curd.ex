@@ -142,6 +142,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Multi.run(:set_article_tags, fn _, %{create_article: article} ->
         ArticleTag.set_article_tags(community, thread, article, attrs)
       end)
+      |> Multi.run(:set_active_at_timestamp, fn _, %{create_article: article} ->
+        ORM.update(article, %{active_at: article.inserted_at})
+      end)
       |> Multi.run(:update_community_article_count, fn _, _ ->
         CommunityCURD.update_community_count_field(community, thread)
       end)
@@ -156,7 +159,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
         Statistics.log_publish_action(%User{id: uid})
       end)
       |> Repo.transaction()
-      |> create_article_result()
+      |> result()
     end
   end
 
@@ -331,35 +334,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     |> Map.put(:total_count, normal_count)
   end
 
-  defp create_article_result({:ok, %{create_article: result}}) do
-    Later.exec({__MODULE__, :notify_admin_new_article, [result]})
-    {:ok, result}
-  end
-
-  defp create_article_result({:error, :create_article, %Ecto.Changeset{} = result, _steps}) do
-    {:error, result}
-  end
-
-  defp create_article_result({:error, :create_article, _result, _steps}) do
-    {:error, [message: "create cms article author", code: ecode(:create_fails)]}
-  end
-
-  defp create_article_result({:error, :mirror_article, _result, _steps}) do
-    {:error, [message: "set community", code: ecode(:create_fails)]}
-  end
-
-  defp create_article_result({:error, :set_community_flag, _result, _steps}) do
-    {:error, [message: "set community flag", code: ecode(:create_fails)]}
-  end
-
-  defp create_article_result({:error, :set_article_tags, result, _steps}) do
-    {:error, result}
-  end
-
-  defp create_article_result({:error, :log_action, _result, _steps}) do
-    {:error, [message: "log action", code: ecode(:create_fails)]}
-  end
-
   #  for create artilce step in Multi.new
   defp do_create_article(target, attrs, %Author{id: aid}, %Community{id: cid}) do
     target
@@ -396,9 +370,31 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end
   end
 
+  # create done
+  defp result({:ok, %{set_active_at_timestamp: result}}) do
+    Later.exec({__MODULE__, :notify_admin_new_article, [result]})
+    {:ok, result}
+  end
+
   defp result({:ok, %{update_edit_status: result}}), do: {:ok, result}
   defp result({:ok, %{update_article: result}}), do: {:ok, result}
   defp result({:ok, %{set_viewer_has_states: result}}), do: result |> done()
+
+  defp result({:error, :create_article, _result, _steps}) do
+    {:error, [message: "create cms article author", code: ecode(:create_fails)]}
+  end
+
+  defp result({:error, :mirror_article, _result, _steps}) do
+    {:error, [message: "set community", code: ecode(:create_fails)]}
+  end
+
+  defp result({:error, :set_community_flag, _result, _steps}) do
+    {:error, [message: "set community flag", code: ecode(:create_fails)]}
+  end
+
+  defp result({:error, :log_action, _result, _steps}) do
+    {:error, [message: "log action", code: ecode(:create_fails)]}
+  end
 
   defp result({:error, _, result, _steps}), do: {:error, result}
 end

@@ -13,7 +13,7 @@ defmodule GroupherServer.CMS.Repo do
 
   alias Helper.HTML
 
-  @timestamps_opts [type: :utc_datetime_usec]
+  @timestamps_opts [type: :utc_datetime]
   @required_fields ~w(title owner_name owner_url repo_url desc readme star_count issues_count prs_count fork_count watch_count)a
   @article_cast_fields general_article_fields(:cast)
   @optional_fields @article_cast_fields ++ ~w(last_sync homepage_url release_tag license)a

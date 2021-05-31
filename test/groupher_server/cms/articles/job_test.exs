@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Job do
+defmodule GroupherServer.Test.Articles.Job do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
@@ -23,6 +23,14 @@ defmodule GroupherServer.Test.Job do
       {:ok, found} = ORM.find(CMS.Job, job.id)
       assert found.id == job.id
       assert found.title == job.title
+    end
+
+    @tag :wip2
+    test "created job should have a acitve_at field, same with inserted_at",
+         ~m(user community job_attrs)a do
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
+
+      assert job.active_at == job.inserted_at
     end
 
     test "read job should update views and meta viewed_user_list",

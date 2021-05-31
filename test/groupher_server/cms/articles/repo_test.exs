@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Repo do
+defmodule GroupherServer.Test.Articles.Repo do
   use GroupherServer.TestTools
 
   alias Helper.ORM
@@ -25,6 +25,14 @@ defmodule GroupherServer.Test.Repo do
 
       assert repo.title == repo_attrs.title
       assert repo.contributors |> length !== 0
+    end
+
+    @tag :wip2
+    test "created repo should have a acitve_at field, same with inserted_at",
+         ~m(user community repo_attrs)a do
+      {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
+
+      assert repo.active_at == repo.inserted_at
     end
 
     test "read repo should update views and meta viewed_user_list",

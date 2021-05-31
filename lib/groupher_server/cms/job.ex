@@ -12,7 +12,7 @@ defmodule GroupherServer.CMS.Job do
   alias CMS.Embeds
   alias Helper.HTML
 
-  @timestamps_opts [type: :utc_datetime_usec]
+  @timestamps_opts [type: :utc_datetime]
   @required_fields ~w(title company body digest length)a
   @article_cast_fields general_article_fields(:cast)
   @optional_fields @article_cast_fields ++ ~w(desc company_link link_addr copy_right)a
