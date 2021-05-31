@@ -86,6 +86,34 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert exist_in?(article_tag, job["articleTags"], :string_key)
     end
 
+    @tag :wip2
+    test "support multi-tag (article_tags) filter", ~m(guest_conn user)a do
+      {:ok, community} = db_insert(:community)
+      job_attrs = mock_attrs(:job, %{community_id: community.id})
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
+
+      article_tag_attrs = mock_attrs(:article_tag)
+
+      {:ok, article_tag} = CMS.create_article_tag(community, :job, article_tag_attrs, user)
+      {:ok, article_tag2} = CMS.create_article_tag(community, :job, article_tag_attrs, user)
+      {:ok, article_tag3} = CMS.create_article_tag(community, :job, article_tag_attrs, user)
+
+      {:ok, _} = CMS.set_article_tag(:job, job.id, article_tag.id)
+      {:ok, _} = CMS.set_article_tag(:job, job.id, article_tag2.id)
+
+      variables = %{
+        filter: %{page: 1, size: 10, article_tags: [article_tag.title, article_tag2.title]}
+      }
+
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+
+      job = results["entries"] |> List.first()
+      assert results["totalCount"] == 1
+      assert exist_in?(article_tag, job["articleTags"], :string_key)
+      assert exist_in?(article_tag2, job["articleTags"], :string_key)
+      assert not exist_in?(article_tag3, job["articleTags"], :string_key)
+    end
+
     test "support community filter", ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
 

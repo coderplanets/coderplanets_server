@@ -181,6 +181,15 @@ defmodule Helper.QueryBuilder do
           where: t.title == ^tag_name
         )
 
+      {:article_tags, tag_name_list}, queryable ->
+        from(
+          q in queryable,
+          join: t in assoc(q, :article_tags),
+          where: t.title in ^tag_name_list,
+          distinct: q.id,
+          group_by: q.id
+        )
+
       {:category, catetory_raw}, queryable ->
         from(
           q in queryable,
