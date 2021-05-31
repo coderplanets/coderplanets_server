@@ -24,13 +24,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       $length: Int!,
       $communityId: ID!,
       $company: String!,
-      $companyLogo: String!
-      $salary: String!,
-      $exp: String!,
-      $education: String!,
-      $finance: String!,
-      $scale: String!,
-      $field: String!,
       $mentionUsers: [Ids],
       $articleTags: [Ids]
      ) {
@@ -41,23 +34,12 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
         length: $length,
         communityId: $communityId,
         company: $company,
-        companyLogo: $companyLogo,
-        salary: $salary,
-        exp: $exp,
-        education: $education,
-        finance: $finance,
-        scale: $scale,
-        field: $field,
         mentionUsers: $mentionUsers,
         articleTags: $articleTags
         ) {
           id
           title
           body
-          salary
-          exp
-          education
-          field
           originalCommunity {
             id
           }
@@ -79,11 +61,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       variables = job_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
 
       created = user_conn |> mutation_result(@create_job_query, variables, "createJob")
-
-      assert created["salary"] == variables["salary"]
-      assert created["exp"] == variables["exp"]
-      assert created["field"] == variables["field"]
-      assert created["education"] == variables["education"]
 
       {:ok, found} = ORM.find(CMS.Job, created["id"])
 
@@ -136,12 +113,11 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
     end
 
     @query """
-    mutation($id: ID!, $title: String, $body: String, $salary: String, $articleTags: [Ids]){
-      updateJob(id: $id, title: $title, body: $body, salary: $salary, articleTags: $articleTags) {
+    mutation($id: ID!, $title: String, $body: String, $articleTags: [Ids]){
+      updateJob(id: $id, title: $title, body: $body, articleTags: $articleTags) {
         id
         title
         body
-        salary
         articleTags {
           id
         }
@@ -154,8 +130,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       variables = %{
         id: job.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}",
-        salary: "15k-20k"
+        body: "updated body #{unique_num}"
       }
 
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
@@ -167,15 +142,13 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       variables = %{
         id: job.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}",
-        salary: "15k-20k"
+        body: "updated body #{unique_num}"
       }
 
       updated = owner_conn |> mutation_result(@query, variables, "updateJob")
 
       assert updated["title"] == variables.title
       assert updated["body"] == variables.body
-      assert updated["salary"] == variables.salary
     end
 
     test "login user with auth passport update a job", ~m(job)a do

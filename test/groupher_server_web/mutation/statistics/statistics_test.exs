@@ -68,13 +68,6 @@ defmodule GroupherServer.Test.Mutation.Statistics do
       $length: Int!,
       $communityId: ID!,
       $company: String!,
-      $companyLogo: String!
-      $salary: String!,
-      $exp: String!,
-      $education: String!,
-      $finance: String!,
-      $scale: String!,
-      $field: String!,
       $articleTags: [Ids]
     ) {
       createJob(
@@ -84,22 +77,11 @@ defmodule GroupherServer.Test.Mutation.Statistics do
         length: $length,
         communityId: $communityId,
         company: $company,
-        companyLogo: $companyLogo,
-        salary: $salary,
-        exp: $exp,
-        education: $education,
-        finance: $finance,
-        scale: $scale,
-        field: $field,
         articleTags: $articleTags
       ) {
         id
         title
         body
-        salary
-        exp
-        education
-        field
         communities {
           id
           title
