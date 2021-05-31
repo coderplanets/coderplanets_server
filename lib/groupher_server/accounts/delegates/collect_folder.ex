@@ -9,7 +9,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
   alias Helper.QueryBuilder
 
   import Helper.ErrorCode
-  import Helper.Utils, only: [done: 1]
+  import Helper.Utils, only: [done: 1, get_config: 2]
 
   import ShortMaps
 
@@ -24,7 +24,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
   # @max_article_count_per_collect_folder 300
 
   @default_meta Embeds.CollectFolderMeta.default_meta()
-  @supported_collect_threads [:post, :job]
+  @article_threads get_config(:article, :article_threads)
 
   @doc """
   list a user's not-private collect folders
@@ -75,9 +75,15 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
   end
 
   defp do_paged_collect_folder_articles(folder, filter) do
-    Repo.preload(folder.collects, @supported_collect_threads)
+    article_preload =
+      @article_threads
+      |> Enum.reduce([], fn thread, acc ->
+        acc ++ Keyword.new([{thread, [author: :user]}])
+      end)
+
+    Repo.preload(folder.collects, article_preload)
     |> ORM.embeds_paginater(filter)
-    |> ORM.extract_articles(@supported_collect_threads)
+    |> ORM.extract_articles()
     |> done()
   end
 

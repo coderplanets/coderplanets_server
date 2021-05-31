@@ -14,6 +14,7 @@ defmodule GroupherServer.Test.Accounts.ReactedContents do
   end
 
   describe "[user upvoted articles]" do
+    @tag :wip2
     test "user can get paged upvoted common articles", ~m(user post job)a do
       {:ok, _} = CMS.upvote_article(:post, post.id, user)
       {:ok, _} = CMS.upvote_article(:job, job.id, user)
@@ -28,8 +29,8 @@ defmodule GroupherServer.Test.Accounts.ReactedContents do
       assert job.id == article_job |> Map.get(:id)
       assert post.id == article_post |> Map.get(:id)
 
-      assert [:id, :thread, :title, :upvotes_count] == article_post |> Map.keys()
-      assert [:id, :thread, :title, :upvotes_count] == article_job |> Map.keys()
+      assert [:author, :id, :thread, :title, :upvotes_count] == article_post |> Map.keys()
+      assert [:author, :id, :thread, :title, :upvotes_count] == article_job |> Map.keys()
     end
 
     test "user can get paged upvoted posts by thread filter", ~m(user post job)a do

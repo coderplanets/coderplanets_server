@@ -310,13 +310,13 @@ defmodule Helper.ORM do
 
   @doc "extract common articles info"
   @spec extract_articles(T.paged_data(), [Atom.t()]) :: T.paged_article_common()
-  def extract_articles(%{entries: entries} = paged_articles, supported_threads) do
+  def extract_articles(%{entries: entries} = paged_articles, threads \\ @article_threads) do
     paged_articles
-    |> Map.put(:entries, Enum.map(entries, &extract_article_info(&1, supported_threads)))
+    |> Map.put(:entries, Enum.map(entries, &extract_article_info(&1, threads)))
   end
 
-  defp extract_article_info(reaction, supported_threads) do
-    thread = Enum.find(supported_threads, &(not is_nil(Map.get(reaction, &1))))
+  defp extract_article_info(reaction, threads) do
+    thread = Enum.find(threads, &(not is_nil(Map.get(reaction, &1))))
     article = Map.get(reaction, thread)
 
     export_article_info(thread, article)
