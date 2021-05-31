@@ -190,7 +190,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
       viewer_has_fields()
       article_comment_fields()
 
-      field(:active_at, :utc_datetime)
+      field(:active_at, :utc_datetime_usec)
       # TODO:
       # reference_articles
       # related_articles

@@ -13,7 +13,7 @@ defmodule GroupherServer.CMS.Post do
 
   alias Helper.HTML
 
-  @timestamps_opts [type: :utc_datetime]
+  @timestamps_opts [type: :utc_datetime_usec]
 
   @required_fields ~w(title body digest length)a
   @article_cast_fields general_article_fields(:cast)

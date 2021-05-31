@@ -231,7 +231,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
     end
   end
 
-  describe "[query paged_jobss filter sort]" do
+  describe "[query paged_jobs filter sort]" do
     @query """
     query($filter: PagedJobsFilter!) {
       pagedJobs(filter: $filter) {
@@ -247,6 +247,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
        }
     }
     """
+    @tag :wip2
     test "filter community should get jobs which belongs to that community",
          ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
