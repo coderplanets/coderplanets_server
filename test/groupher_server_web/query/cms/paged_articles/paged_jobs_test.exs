@@ -86,7 +86,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert exist_in?(article_tag, job["articleTags"], :string_key)
     end
 
-    @tag :wip2
     test "support multi-tag (article_tags) filter", ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
       job_attrs = mock_attrs(:job, %{community_id: community.id})
@@ -112,6 +111,39 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert exist_in?(article_tag, job["articleTags"], :string_key)
       assert exist_in?(article_tag2, job["articleTags"], :string_key)
       assert not exist_in?(article_tag3, job["articleTags"], :string_key)
+    end
+
+    @tag :wip2
+    test "should not have pined jobs when filter have article_tag or article_tags",
+         ~m(guest_conn user)a do
+      {:ok, community} = db_insert(:community)
+      job_attrs = mock_attrs(:job, %{community_id: community.id})
+      {:ok, pinned_job} = CMS.create_article(community, :job, job_attrs, user)
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
+
+      {:ok, _} = CMS.pin_article(:job, pinned_job.id, community.id)
+
+      article_tag_attrs = mock_attrs(:article_tag)
+      {:ok, article_tag} = CMS.create_article_tag(community, :job, article_tag_attrs, user)
+      {:ok, _} = CMS.set_article_tag(:job, job.id, article_tag.id)
+
+      variables = %{
+        filter: %{page: 1, size: 10, community: community.raw, article_tag: article_tag.title}
+      }
+
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+
+      assert not exist_in?(pinned_job, results["entries"], :string_key)
+      assert exist_in?(job, results["entries"], :string_key)
+
+      variables = %{
+        filter: %{page: 1, size: 10, community: community.raw, article_tags: [article_tag.title]}
+      }
+
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+
+      assert not exist_in?(pinned_job, results["entries"], :string_key)
+      assert exist_in?(job, results["entries"], :string_key)
     end
 
     test "support community filter", ~m(guest_conn user)a do

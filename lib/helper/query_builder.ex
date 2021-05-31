@@ -170,10 +170,6 @@ defmodule Helper.QueryBuilder do
         |> where([p], p.inserted_at >= ^Timex.beginning_of_year(date))
         |> where([p], p.inserted_at <= ^Timex.end_of_year(date))
 
-      # TODO: remove
-      {_, :all}, queryable ->
-        queryable
-
       {:article_tag, tag_name}, queryable ->
         from(
           q in queryable,

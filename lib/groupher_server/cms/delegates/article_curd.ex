@@ -281,12 +281,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp add_pin_articles_ifneed(articles, querable, %{community: community} = filter) do
     thread = module_to_thread(querable)
 
-    with {:ok, _} <- should_add_pin?(filter),
+    with true <- should_add_pin?(filter),
          true <- 1 == Map.get(articles, :page_number),
          {:ok, pinned_articles} <-
            PinnedArticle
            |> join(:inner, [p], c in assoc(p, :community))
-           # |> join(:inner, [p], article in assoc(p, ^filter.thread))
            |> join(:inner, [p], article in assoc(p, ^thread))
            |> where([p, c, article], c.raw == ^community)
            |> select([p, c, article], article)
@@ -301,13 +300,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp add_pin_articles_ifneed(articles, _querable, _filter), do: articles
 
   # if filter contains like: tags, sort.., then don't add pin article
-  # TODO: tag
-  # defp should_add_pin?(%{page: 1, article_tag: :all, sort: :desc_inserted} = _filter) do
-  defp should_add_pin?(%{page: 1, sort: :desc_inserted} = _filter) do
-    {:ok, :pass}
+  defp should_add_pin?(%{page: 1, sort: :desc_inserted} = filter) do
+    skip_pinned_fields = [:article_tag, :article_tags]
+
+    not Enum.any?(Map.keys(filter), &(&1 in skip_pinned_fields))
   end
 
-  defp should_add_pin?(_filter), do: {:error, :pass}
+  defp should_add_pin?(_filter), do: false
 
   defp concat_articles(%{total_count: 0}, non_pinned_articles), do: non_pinned_articles
 
