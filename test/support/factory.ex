@@ -325,7 +325,7 @@ defmodule GroupherServer.Support.Factory do
   def db_insert_multi(factory_name, count \\ 2) do
     results =
       Enum.reduce(1..count, [], fn _, acc ->
-        Process.sleep(10)
+        Process.sleep(30)
         {:ok, value} = db_insert(factory_name)
         acc ++ [value]
       end)

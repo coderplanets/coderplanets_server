@@ -175,10 +175,10 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
       active_timestamps = results["entries"] |> Enum.map(& &1["active_at"])
 
-      {:ok, first_inserted_time, 0} = active_timestamps |> List.first() |> DateTime.from_iso8601()
-      {:ok, last_inserted_time, 0} = active_timestamps |> List.last() |> DateTime.from_iso8601()
+      {:ok, first_active_time, 0} = active_timestamps |> List.first() |> DateTime.from_iso8601()
+      {:ok, last_active_time, 0} = active_timestamps |> List.last() |> DateTime.from_iso8601()
 
-      assert :gt = DateTime.compare(first_inserted_time, last_inserted_time)
+      assert :gt = DateTime.compare(first_active_time, last_active_time)
     end
 
     @query """
