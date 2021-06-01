@@ -106,7 +106,7 @@ defmodule GroupherServer.Test.Articles.Repo do
   end
 
   describe "[cms repo sink/undo_sink]" do
-    @tag :wip
+    @tag :wip2
     test "if a repo is too old, read repo should update can_undo_sink flag",
          ~m(user community repo_attrs)a do
       {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
@@ -121,7 +121,7 @@ defmodule GroupherServer.Test.Articles.Repo do
       assert not repo_last_year.meta.can_undo_sink
     end
 
-    @tag :wip
+    @tag :wip2
     test "can sink a repo", ~m(user community repo_attrs)a do
       {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
       assert not repo.meta.is_sinked
@@ -130,7 +130,7 @@ defmodule GroupherServer.Test.Articles.Repo do
       assert repo.meta.is_sinked
     end
 
-    @tag :wip
+    @tag :wip2
     test "can undo sink repo", ~m(user community repo_attrs)a do
       {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
       {:ok, repo} = CMS.sink_article(:repo, repo.id)
@@ -140,7 +140,7 @@ defmodule GroupherServer.Test.Articles.Repo do
       assert not repo.meta.is_sinked
     end
 
-    @tag :wip
+    @tag :wip2
     test "can not undo sink to old repo", ~m()a do
       {:ok, repo_last_year} = db_insert(:repo, %{title: "last year", inserted_at: @last_year})
 

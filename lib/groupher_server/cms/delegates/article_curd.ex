@@ -440,8 +440,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  defp result({:ok, %{update_article_meta: result}}), do: {:ok, result}
-
   # create done
   defp result({:ok, %{set_active_at_timestamp: result}}) do
     Later.exec({__MODULE__, :notify_admin_new_article, [result]})
@@ -451,6 +449,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp result({:ok, %{update_edit_status: result}}), do: {:ok, result}
   defp result({:ok, %{update_article: result}}), do: {:ok, result}
   defp result({:ok, %{set_viewer_has_states: result}}), do: result |> done()
+  defp result({:ok, %{update_article_meta: result}}), do: {:ok, result}
 
   defp result({:error, :create_article, _result, _steps}) do
     {:error, [message: "create cms article author", code: ecode(:create_fails)]}
