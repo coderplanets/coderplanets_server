@@ -66,6 +66,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert post.active_at == post.inserted_at
     end
 
+    @tag :wip2
     test "old post will not update active after comment created", ~m(user)a do
       active_period_days = Map.get(@active_period, :post)
 
@@ -86,7 +87,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, _comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
       {:ok, post} = ORM.find(Post, post.id)
 
-      assert is_nil(post.active_at)
+      assert post.active_at |> DateTime.to_unix() !== DateTime.utc_now() |> DateTime.to_unix()
     end
 
     test "comment can be updated", ~m(post user)a do

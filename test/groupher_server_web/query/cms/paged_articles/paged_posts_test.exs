@@ -170,7 +170,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       assert post["inserted_at"] == post["active_at"]
     end
 
-    @tag :wip2
     test "filter sort should have default :desc_active", ~m(guest_conn)a do
       variables = %{filter: %{}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")

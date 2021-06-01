@@ -86,7 +86,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
       {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "repo comment", user)
       {:ok, repo} = ORM.find(Repo, repo.id)
 
-      assert is_nil(repo.active_at)
+      assert repo.active_at |> DateTime.to_unix() !== DateTime.utc_now() |> DateTime.to_unix()
     end
 
     test "comment can be updated", ~m(repo user)a do

@@ -28,7 +28,7 @@ defmodule GroupherServer.Support.Factory do
         mock(:community)
       ],
       emotions: @default_emotions,
-      active_at: DateTime.utc_now()
+      active_at: Timex.shift(Timex.now(), seconds: +1)
     }
   end
 
@@ -66,7 +66,7 @@ defmodule GroupherServer.Support.Factory do
         mock(:community)
       ],
       emotions: @default_emotions,
-      active_at: DateTime.utc_now()
+      active_at: Timex.shift(Timex.now(), seconds: +1)
     }
   end
 
@@ -118,7 +118,7 @@ defmodule GroupherServer.Support.Factory do
         mock(:community)
       ],
       emotions: @default_emotions,
-      active_at: DateTime.utc_now()
+      active_at: Timex.shift(Timex.now(), seconds: +1)
     }
   end
 
