@@ -146,6 +146,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
        }
     }
     """
+    @tag :wip2
     test "filter community should get posts which belongs to that community",
          ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)

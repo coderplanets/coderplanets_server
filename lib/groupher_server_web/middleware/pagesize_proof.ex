@@ -54,7 +54,8 @@ defmodule GroupherServerWeb.Middleware.PageSizeProof do
     filter =
       if Map.has_key?(filter, :sort),
         do: filter,
-        else: filter |> Map.merge(%{sort: :desc_inserted})
+        # else: filter |> Map.merge(%{sort: :desc_inserted})
+        else: filter |> Map.merge(%{sort: :desc_active})
 
     arguments |> Map.merge(%{filter: filter})
   end

@@ -66,6 +66,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   def paged_articles(thread, filter) do
     %{page: page, size: size} = filter
+    IO.inspect(filter, label: "the filter")
 
     with {:ok, info} <- match(thread) do
       info.model

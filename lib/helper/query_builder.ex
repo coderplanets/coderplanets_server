@@ -109,6 +109,9 @@ defmodule Helper.QueryBuilder do
         # queryable |> order_by(^sort_strategy(:desc_inserted))
         queryable |> order_by(desc: :inserted_at)
 
+      {:sort, :desc_active}, queryable ->
+        queryable |> order_by(desc: :active_at)
+
       {:sort, :asc_inserted}, queryable ->
         queryable |> order_by(asc: :inserted_at)
 

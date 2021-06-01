@@ -27,7 +27,8 @@ defmodule GroupherServer.Support.Factory do
         mock(:community),
         mock(:community)
       ],
-      emotions: @default_emotions
+      emotions: @default_emotions,
+      active_at: DateTime.utc_now()
     }
   end
 
@@ -64,7 +65,8 @@ defmodule GroupherServer.Support.Factory do
         mock(:community),
         mock(:community)
       ],
-      emotions: @default_emotions
+      emotions: @default_emotions,
+      active_at: DateTime.utc_now()
     }
   end
 
@@ -115,7 +117,8 @@ defmodule GroupherServer.Support.Factory do
       communities: [
         mock(:community)
       ],
-      emotions: @default_emotions
+      emotions: @default_emotions,
+      active_at: DateTime.utc_now()
     }
   end
 
