@@ -10,12 +10,14 @@ defmodule GroupherServer.Support.Factory do
   alias GroupherServer.Repo
   alias GroupherServer.{Accounts, CMS, Delivery}
 
+  @default_article_meta CMS.Embeds.ArticleMeta.default_meta()
   @default_emotions CMS.Embeds.ArticleCommentEmotion.default_emotions()
 
   defp mock_meta(:post) do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
 
     %{
+      meta: @default_article_meta,
       title: String.slice(body, 1, 49),
       body: body,
       digest: String.slice(body, 1, 150),
@@ -27,7 +29,8 @@ defmodule GroupherServer.Support.Factory do
         mock(:community),
         mock(:community)
       ],
-      emotions: @default_emotions
+      emotions: @default_emotions,
+      active_at: Timex.shift(Timex.now(), seconds: -1)
     }
   end
 
@@ -35,6 +38,7 @@ defmodule GroupherServer.Support.Factory do
     desc = Faker.Lorem.sentence(%Range{first: 15, last: 60})
 
     %{
+      meta: @default_article_meta,
       title: String.slice(desc, 1, 49),
       owner_name: "coderplanets",
       owner_url: "http://www.github.com/coderplanets",
@@ -64,7 +68,8 @@ defmodule GroupherServer.Support.Factory do
         mock(:community),
         mock(:community)
       ],
-      emotions: @default_emotions
+      emotions: @default_emotions,
+      active_at: Timex.shift(Timex.now(), seconds: +1)
     }
   end
 
@@ -103,6 +108,7 @@ defmodule GroupherServer.Support.Factory do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
 
     %{
+      meta: @default_article_meta,
       title: String.slice(body, 1, 49),
       company: Faker.Company.name(),
       body: body,
@@ -115,7 +121,8 @@ defmodule GroupherServer.Support.Factory do
       communities: [
         mock(:community)
       ],
-      emotions: @default_emotions
+      emotions: @default_emotions,
+      active_at: Timex.shift(Timex.now(), seconds: +1)
     }
   end
 
@@ -319,9 +326,10 @@ defmodule GroupherServer.Support.Factory do
     Repo.insert(mock(factory_name, attributes))
   end
 
-  def db_insert_multi(factory_name, count \\ 2) do
+  def db_insert_multi(factory_name, count, delay \\ 0) do
     results =
       Enum.reduce(1..count, [], fn _, acc ->
+        Process.sleep(delay)
         {:ok, value} = db_insert(factory_name)
         acc ++ [value]
       end)

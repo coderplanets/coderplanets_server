@@ -105,6 +105,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> Multi.run(:add_participator, fn _, _ ->
         add_participator_to_article(article, user)
       end)
+      |> Multi.run(:update_article_active_timestamp, fn _, %{create_article_comment: comment} ->
+        case comment.author_id == article.author.user.id do
+          true -> {:ok, :pass}
+          false -> CMS.update_active_timestamp(thread, article)
+        end
+      end)
       |> Repo.transaction()
       |> result()
     end
@@ -282,10 +288,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   defp result({:error, :create_article_comment, result, _steps}) do
     raise_error(:create_comment, result)
-  end
-
-  defp result({:error, :add_participator, result, _steps}) do
-    {:error, result}
   end
 
   defp result({:error, _, result, _steps}), do: {:error, result}

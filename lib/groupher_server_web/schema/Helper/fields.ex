@@ -12,6 +12,14 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
 
   @article_threads get_config(:article, :article_threads)
 
+  defmacro timestamp_fields(:article) do
+    quote do
+      field(:inserted_at, :datetime)
+      field(:updated_at, :datetime)
+      field(:active_at, :datetime)
+    end
+  end
+
   defmacro timestamp_fields do
     quote do
       field(:inserted_at, :datetime)

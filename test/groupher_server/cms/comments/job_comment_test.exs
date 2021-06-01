@@ -2,11 +2,14 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
   @moduledoc false
 
   use GroupherServer.TestTools
+  import Helper.Utils, only: [get_config: 2]
 
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS}
 
   alias CMS.{ArticleComment, ArticlePinnedComment, Embeds, Job}
+
+  @active_period get_config(:article, :active_period_days)
 
   @delete_hint CMS.ArticleComment.delete_hint()
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
@@ -17,8 +20,9 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
     {:ok, job} = db_insert(:job)
+    {:ok, community} = db_insert(:community)
 
-    {:ok, ~m(user user2 job)a}
+    {:ok, ~m(community user user2 job)a}
   end
 
   describe "[basic article comment]" do
@@ -35,6 +39,53 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     test "comment should have default meta after create", ~m(user job)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
       assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
+    end
+
+    test "create comment should update active timestamp of job", ~m(user job)a do
+      Process.sleep(1000)
+      {:ok, _comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
+      {:ok, job} = ORM.find(Job, job.id, preload: :article_comments)
+
+      assert not is_nil(job.active_at)
+      assert job.active_at > job.inserted_at
+    end
+
+    test "job author create comment will not update active timestamp", ~m(community user)a do
+      job_attrs = mock_attrs(:job, %{community_id: community.id})
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
+      {:ok, job} = ORM.find(Job, job.id, preload: [author: :user])
+
+      Process.sleep(1000)
+
+      {:ok, _comment} = CMS.create_article_comment(:job, job.id, "job comment", job.author.user)
+
+      {:ok, job} = ORM.find(Job, job.id, preload: :article_comments)
+
+      assert not is_nil(job.active_at)
+      assert job.active_at == job.inserted_at
+    end
+
+    test "old job will not update active after comment created", ~m(user)a do
+      active_period_days = Map.get(@active_period, :job)
+
+      inserted_at =
+        Timex.shift(Timex.now(), days: -(active_period_days - 1)) |> Timex.to_datetime()
+
+      {:ok, job} = db_insert(:job, %{inserted_at: inserted_at})
+      {:ok, _comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
+      {:ok, job} = ORM.find(Job, job.id)
+
+      assert job.active_at |> DateTime.to_date() == DateTime.utc_now() |> DateTime.to_date()
+
+      # ----
+      inserted_at =
+        Timex.shift(Timex.now(), days: -(active_period_days + 1)) |> Timex.to_datetime()
+
+      {:ok, job} = db_insert(:job, %{inserted_at: inserted_at})
+      {:ok, _comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
+      {:ok, job} = ORM.find(Job, job.id)
+
+      assert job.active_at |> DateTime.to_unix() !== DateTime.utc_now() |> DateTime.to_unix()
     end
 
     test "comment can be updated", ~m(job user)a do
@@ -271,8 +322,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
     # end
 
-    test "can undo a report with other user report it too",
-         ~m(user user2 job)a do
+    test "can undo a report with other user report it too", ~m(user user2 job)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
 
       {:ok, _comment} = CMS.report_article_comment(comment.id, "reason", "attr", user)
@@ -291,6 +341,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       filter = %{content_type: :article_comment, content_id: comment.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.paged_reports(filter)
+
       assert all_reports.total_count == 1
 
       report = all_reports.entries |> List.first()
@@ -363,7 +414,12 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
         end)
 
       {:ok, paged_comments} =
-        CMS.paged_article_comments(:job, job.id, %{page: page_number, size: page_size}, :replies)
+        CMS.paged_article_comments(
+          :job,
+          job.id,
+          %{page: page_number, size: page_size},
+          :replies
+        )
 
       random_comment = all_comments |> Enum.at(Enum.random(0..total_count))
 
@@ -393,7 +449,12 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)
 
       {:ok, paged_comments} =
-        CMS.paged_article_comments(:job, job.id, %{page: page_number, size: page_size}, :replies)
+        CMS.paged_article_comments(
+          :job,
+          job.id,
+          %{page: page_number, size: page_size},
+          :replies
+        )
 
       assert pined_comment_1.id == List.first(paged_comments.entries) |> Map.get(:id)
       assert pined_comment_2.id == Enum.at(paged_comments.entries, 1) |> Map.get(:id)
@@ -420,7 +481,12 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)
 
       {:ok, paged_comments} =
-        CMS.paged_article_comments(:job, job.id, %{page: page_number, size: page_size}, :replies)
+        CMS.paged_article_comments(
+          :job,
+          job.id,
+          %{page: page_number, size: page_size},
+          :replies
+        )
 
       assert not exist_in?(pined_comment_1, paged_comments.entries)
       assert not exist_in?(pined_comment_2, paged_comments.entries)
@@ -450,7 +516,12 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       {:ok, _comment} = CMS.fold_article_comment(random_comment_3.id, user)
 
       {:ok, paged_comments} =
-        CMS.paged_article_comments(:job, job.id, %{page: page_number, size: page_size}, :replies)
+        CMS.paged_article_comments(
+          :job,
+          job.id,
+          %{page: page_number, size: page_size},
+          :replies
+        )
 
       assert not exist_in?(random_comment_1, paged_comments.entries)
       assert not exist_in?(random_comment_2, paged_comments.entries)
@@ -509,7 +580,12 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       {:ok, deleted_comment} = CMS.delete_article_comment(random_comment)
 
       {:ok, paged_comments} =
-        CMS.paged_article_comments(:job, job.id, %{page: page_number, size: page_size}, :replies)
+        CMS.paged_article_comments(
+          :job,
+          job.id,
+          %{page: page_number, size: page_size},
+          :replies
+        )
 
       assert exist_in?(deleted_comment, paged_comments.entries)
       assert deleted_comment.is_deleted

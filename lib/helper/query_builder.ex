@@ -102,9 +102,15 @@ defmodule Helper.QueryBuilder do
 
   def filter_pack(queryable, filter) when is_map(filter) do
     Enum.reduce(filter, queryable, fn
+      {:sort, :desc_active}, queryable ->
+        queryable |> order_by(desc: :active_at)
+
       {:sort, :desc_inserted}, queryable ->
         # queryable |> order_by(^sort_strategy(:desc_inserted))
         queryable |> order_by(desc: :inserted_at)
+
+      {:sort, :desc_active}, queryable ->
+        queryable |> order_by(desc: :active_at)
 
       {:sort, :asc_inserted}, queryable ->
         queryable |> order_by(asc: :inserted_at)

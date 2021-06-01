@@ -63,6 +63,14 @@ config :groupher_server, :customization,
 config :groupher_server, :article,
   # NOTE: do not change unless you know what you are doing
   article_threads: [:post, :job, :repo],
+  # in this period, paged articles will sort front if non-article-author commented
+  # 在此时间段内，一旦有非文章作者的用户评论，该文章就会排到前面
+  active_period_days: %{
+    post: 10,
+    job: 10,
+    repo: 10
+  },
+
   # NOTE: if you want to add/remove emotion, just edit the list below
   # and migrate the field to table "articles_users_emotions"
   supported_emotions: [

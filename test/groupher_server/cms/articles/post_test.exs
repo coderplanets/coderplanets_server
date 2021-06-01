@@ -1,8 +1,12 @@
-defmodule GroupherServer.Test.CMS.Post do
+defmodule GroupherServer.Test.CMS.Articles.Post do
   use GroupherServer.TestTools
 
   alias Helper.ORM
   alias GroupherServer.CMS
+
+  alias CMS.{Author, Community}
+
+  @last_year Timex.shift(Timex.beginning_of_year(Timex.now()), days: -3, seconds: -1)
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -16,14 +20,19 @@ defmodule GroupherServer.Test.CMS.Post do
   end
 
   describe "[cms post curd]" do
-    alias CMS.{Author, Community}
-
     test "can create post with valid attrs", ~m(user community post_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
 
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       assert post.title == post_attrs.title
+    end
+
+    test "created post should have a acitve_at field, same with inserted_at",
+         ~m(user community post_attrs)a do
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+
+      assert post.active_at == post.inserted_at
     end
 
     test "read post should update views and meta viewed_user_list",
@@ -92,6 +101,53 @@ defmodule GroupherServer.Test.CMS.Post do
       ivalid_community = %Community{id: non_exsit_id()}
 
       assert {:error, _} = CMS.create_article(ivalid_community, :post, invalid_attrs, user)
+    end
+  end
+
+  describe "[cms post sink/undo_sink]" do
+    @tag :wip2
+    test "if a post is too old, read post should update can_undo_sink flag",
+         ~m(user community post_attrs)a do
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+
+      assert post.meta.can_undo_sink
+
+      {:ok, post_last_year} = db_insert(:post, %{title: "last year", inserted_at: @last_year})
+      {:ok, post_last_year} = CMS.read_article(:post, post_last_year.id)
+      assert not post_last_year.meta.can_undo_sink
+
+      {:ok, post_last_year} = CMS.read_article(:post, post_last_year.id, user)
+      assert not post_last_year.meta.can_undo_sink
+    end
+
+    @tag :wip2
+    test "can sink a post", ~m(user community post_attrs)a do
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+      assert not post.meta.is_sinked
+
+      {:ok, post} = CMS.sink_article(:post, post.id)
+      assert post.meta.is_sinked
+      assert post.active_at == post.inserted_at
+    end
+
+    @tag :wip2
+    test "can undo sink post", ~m(user community post_attrs)a do
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+      {:ok, post} = CMS.sink_article(:post, post.id)
+      assert post.meta.is_sinked
+      assert post.meta.last_active_at == post.active_at
+
+      {:ok, post} = CMS.undo_sink_article(:post, post.id)
+      assert not post.meta.is_sinked
+      assert post.active_at == post.meta.last_active_at
+    end
+
+    @tag :wip2
+    test "can not undo sink to old post", ~m()a do
+      {:ok, post_last_year} = db_insert(:post, %{title: "last year", inserted_at: @last_year})
+
+      {:error, reason} = CMS.undo_sink_article(:post, post_last_year.id)
+      is_error?(reason, :undo_sink_old_article)
     end
   end
 end

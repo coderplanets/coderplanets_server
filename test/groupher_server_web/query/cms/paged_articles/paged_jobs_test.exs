@@ -13,9 +13,9 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
   @page_size get_config(:general, :page_size)
 
   @cur_date Timex.now()
-  @last_week Timex.shift(Timex.beginning_of_week(@cur_date), days: -1, microseconds: -1)
-  @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -7, microseconds: -1)
-  @last_year Timex.shift(Timex.beginning_of_year(@cur_date), days: -2, microseconds: -1)
+  @last_week Timex.shift(Timex.beginning_of_week(@cur_date), days: -1, seconds: -1)
+  @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -7, seconds: -1)
+  @last_year Timex.shift(Timex.beginning_of_year(@cur_date), days: -2, seconds: -1)
 
   @today_count 15
 
@@ -28,14 +28,18 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
   setup do
     {:ok, user} = db_insert(:user)
 
-    db_insert_multi(:job, @today_count)
-    db_insert(:job, %{title: "last week", inserted_at: @last_week})
-    db_insert(:job, %{title: "last month", inserted_at: @last_month})
-    {:ok, job_last_year} = db_insert(:job, %{title: "last year", inserted_at: @last_year})
+    {:ok, job_last_week} =
+      db_insert(:job, %{title: "last week", inserted_at: @last_week, active_at: @last_week})
 
+    db_insert(:job, %{title: "last month", inserted_at: @last_month})
+
+    {:ok, job_last_year} =
+      db_insert(:job, %{title: "last year", inserted_at: @last_year, active_at: @last_year})
+
+    db_insert_multi(:job, @today_count)
     guest_conn = simu_conn(:guest)
 
-    {:ok, ~m(guest_conn user job_last_year)a}
+    {:ok, ~m(guest_conn user job_last_week job_last_year)a}
   end
 
   describe "[query paged_jobs filter pagination]" do
@@ -113,7 +117,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert not exist_in?(article_tag3, job["articleTags"], :string_key)
     end
 
-    @tag :wip2
     test "should not have pined jobs when filter have article_tag or article_tags",
          ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
@@ -232,13 +235,14 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
     end
   end
 
-  describe "[query paged_jobss filter sort]" do
+  describe "[query paged_jobs filter sort]" do
     @query """
     query($filter: PagedJobsFilter!) {
       pagedJobs(filter: $filter) {
         entries {
           id
           inserted_at
+          active_at
           author {
             id
             nickname
@@ -248,6 +252,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
        }
     }
     """
+
     test "filter community should get jobs which belongs to that community",
          ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
@@ -260,18 +265,26 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job.id)))
     end
 
-    @tag :skip_travis
-    test "filter sort should have default :desc_inserted", ~m(guest_conn)a do
+    test "should have a active_at same with inserted_at", ~m(guest_conn user)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, _job} = CMS.create_article(community, :job, mock_attrs(:job), user)
+
+      variables = %{filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+      job = results["entries"] |> List.first()
+
+      assert job["inserted_at"] == job["active_at"]
+    end
+
+    test "filter sort should have default :desc_active", ~m(guest_conn)a do
       variables = %{filter: %{}}
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
-      inserted_timestamps = results["entries"] |> Enum.map(& &1["inserted_at"])
+      active_timestamps = results["entries"] |> Enum.map(& &1["active_at"])
 
-      {:ok, first_inserted_time, 0} =
-        inserted_timestamps |> List.first() |> DateTime.from_iso8601()
+      {:ok, first_active_time, 0} = active_timestamps |> List.first() |> DateTime.from_iso8601()
+      {:ok, last_active_time, 0} = active_timestamps |> List.last() |> DateTime.from_iso8601()
 
-      {:ok, last_inserted_time, 0} = inserted_timestamps |> List.last() |> DateTime.from_iso8601()
-
-      assert :gt = DateTime.compare(first_inserted_time, last_inserted_time)
+      assert :gt = DateTime.compare(first_active_time, last_active_time)
     end
 
     @query """
@@ -379,6 +392,67 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert results["totalCount"] >= 1
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(job.id)))
       assert results["entries"] |> Enum.any?(&(&1["id"] != to_string(job2.id)))
+    end
+  end
+
+  describe "[paged jobs active_at]" do
+    @query """
+    query($filter: PagedJobsFilter!) {
+      pagedJobs(filter: $filter) {
+        entries {
+          id
+          insertedAt
+          activeAt
+        }
+      }
+    }
+    """
+
+    test "latest commented job should appear on top", ~m(guest_conn job_last_week user)a do
+      variables = %{filter: %{page: 1, size: 20}}
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+      entries = results["entries"]
+      first_job = entries |> List.first()
+      assert first_job["id"] !== to_string(job_last_week.id)
+
+      Process.sleep(1500)
+      {:ok, _comment} = CMS.create_article_comment(:job, job_last_week.id, "comment", user)
+
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+      entries = results["entries"]
+      first_job = entries |> List.first()
+
+      assert first_job["id"] == to_string(job_last_week.id)
+    end
+
+    test "comment on very old job have no effect", ~m(guest_conn job_last_year user)a do
+      variables = %{filter: %{page: 1, size: 20}}
+
+      {:ok, _comment} = CMS.create_article_comment(:job, job_last_year.id, "comment", user)
+
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+      entries = results["entries"]
+      first_job = entries |> List.first()
+
+      assert first_job["id"] !== to_string(job_last_year.id)
+    end
+
+    test "latest job author commented job have no effect", ~m(guest_conn job_last_week)a do
+      variables = %{filter: %{page: 1, size: 20}}
+
+      {:ok, _comment} =
+        CMS.create_article_comment(
+          :job,
+          job_last_week.id,
+          "comment",
+          job_last_week.author.user
+        )
+
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+      entries = results["entries"]
+      first_job = entries |> List.first()
+
+      assert first_job["id"] !== to_string(job_last_week.id)
     end
   end
 end

@@ -6,7 +6,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
   import Ecto.Query, warn: false
 
   import Helper.ErrorCode
-  import Helper.Utils, only: [strip_struct: 1, done: 1]
+  import Helper.Utils, only: [strip_struct: 1, done: 1, ensure: 2]
   import GroupherServer.CMS.Helper.Matcher
 
   alias Helper.Types, as: T
@@ -17,6 +17,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
 
   alias Ecto.Multi
 
+  @default_article_meta Embeds.ArticleMeta.default_meta()
   @max_pinned_article_count_per_thread Community.max_pinned_article_count_per_thread()
 
   @spec pin_article(T.article_thread(), Integer.t(), Integer.t()) :: {:ok, PinnedArticle.t()}
@@ -144,20 +145,15 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
   def update_edit_status(content, _), do: {:ok, content}
 
   @doc "lock comment of a article"
-  # TODO: record it to ArticleLog
-  def lock_article_comment(
-        %{meta: %Embeds.ArticleMeta{is_comment_locked: false} = meta} = content
-      ) do
-    meta =
-      meta
-      |> Map.from_struct()
-      |> Map.delete(:id)
-      |> Map.merge(%{is_comment_locked: true})
+  def lock_article_comment(thread, id) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id) do
+      article_meta = ensure(article.meta, @default_article_meta)
+      meta = Map.merge(article_meta, %{is_comment_locked: true})
 
-    ORM.update_meta(content, meta)
+      ORM.update_meta(article, meta)
+    end
   end
-
-  def lock_article_comment(content), do: {:ok, content}
 
   # check if the thread has aready enough pinned articles
   defp check_pinned_article_count(community_id, thread) do

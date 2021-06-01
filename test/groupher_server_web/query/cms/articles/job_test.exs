@@ -19,7 +19,6 @@ defmodule GroupherServer.Test.Query.Articles.Job do
     }
   }
   """
-  @tag :wip3
   test "basic graphql query on job with logined user", ~m(user_conn job)a do
     variables = %{id: job.id}
     results = user_conn |> query_result(@query, variables, "job")

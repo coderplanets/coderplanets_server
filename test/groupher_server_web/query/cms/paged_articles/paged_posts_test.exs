@@ -13,9 +13,9 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
   @page_size get_config(:general, :page_size)
 
   @cur_date Timex.now()
-  @last_week Timex.shift(Timex.beginning_of_week(@cur_date), days: -1, microseconds: -1)
-  @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -1, microseconds: -1)
-  @last_year Timex.shift(Timex.beginning_of_year(@cur_date), days: -3, microseconds: -1)
+  @last_week Timex.shift(Timex.beginning_of_week(@cur_date), days: -1, seconds: -1)
+  @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -1, seconds: -1)
+  @last_year Timex.shift(Timex.beginning_of_year(@cur_date), days: -3, seconds: -1)
 
   @today_count 15
 
@@ -29,14 +29,18 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
     {:ok, user} = db_insert(:user)
 
     {:ok, post_last_month} = db_insert(:post, %{title: "last month", inserted_at: @last_month})
-    {:ok, post1} = db_insert(:post, %{title: "last week", inserted_at: @last_week})
-    {:ok, post_last_year} = db_insert(:post, %{title: "last year", inserted_at: @last_year})
+
+    {:ok, post_last_week} =
+      db_insert(:post, %{title: "last week", inserted_at: @last_week, active_at: @last_week})
+
+    {:ok, post_last_year} =
+      db_insert(:post, %{title: "last year", inserted_at: @last_year, active_at: @last_year})
 
     db_insert_multi(:post, @today_count)
 
     guest_conn = simu_conn(:guest)
 
-    {:ok, ~m(guest_conn user post1 post_last_month post_last_year)a}
+    {:ok, ~m(guest_conn user post_last_week post_last_month post_last_year)a}
   end
 
   describe "[query paged_posts filter pagination]" do
@@ -132,6 +136,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
         entries {
           id
           inserted_at
+          active_at
           author {
             id
             nickname
@@ -145,6 +150,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
        }
     }
     """
+
     test "filter community should get posts which belongs to that community",
          ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
@@ -157,15 +163,24 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(post.id)))
     end
 
-    test "filter sort should have default :desc_inserted", ~m(guest_conn)a do
+    test "should have a active_at same with inserted_at", ~m(guest_conn user)a do
+      {:ok, community} = db_insert(:community)
+      {:ok, _post} = CMS.create_article(community, :post, mock_attrs(:post), user)
+
+      variables = %{filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      post = results["entries"] |> List.first()
+
+      assert post["inserted_at"] == post["active_at"]
+    end
+
+    test "filter sort should have default :desc_active", ~m(guest_conn)a do
       variables = %{filter: %{}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
-      inserted_timestamps = results["entries"] |> Enum.map(& &1["inserted_at"])
+      active_timestamps = results["entries"] |> Enum.map(& &1["active_at"])
 
-      {:ok, first_inserted_time, 0} =
-        inserted_timestamps |> List.first() |> DateTime.from_iso8601()
-
-      {:ok, last_inserted_time, 0} = inserted_timestamps |> List.last() |> DateTime.from_iso8601()
+      {:ok, first_inserted_time, 0} = active_timestamps |> List.first() |> DateTime.from_iso8601()
+      {:ok, last_inserted_time, 0} = active_timestamps |> List.last() |> DateTime.from_iso8601()
 
       assert :gt = DateTime.compare(first_inserted_time, last_inserted_time)
     end
@@ -273,7 +288,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       assert results |> Map.get("totalCount") == expect_count
     end
 
-    @tag :skip_travis
     test "THIS_WEEK option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_WEEK"}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
@@ -286,6 +300,69 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
       assert results["entries"] |> Enum.any?(&(&1["id"] != post_last_month.id))
+    end
+  end
+
+  describe "[paged posts active_at]" do
+    @query """
+    query($filter: PagedPostsFilter!) {
+      pagedPosts(filter: $filter) {
+        entries {
+          id
+          insertedAt
+          activeAt
+        }
+      }
+    }
+    """
+    @tag :wip2
+    test "latest commented post should appear on top", ~m(guest_conn post_last_week user)a do
+      variables = %{filter: %{page: 1, size: 20}}
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      entries = results["entries"]
+      first_post = entries |> List.first()
+      assert first_post["id"] !== to_string(post_last_week.id)
+
+      Process.sleep(1500)
+      {:ok, _comment} = CMS.create_article_comment(:post, post_last_week.id, "comment", user)
+
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      entries = results["entries"]
+      first_post = entries |> List.first()
+
+      assert first_post["id"] == to_string(post_last_week.id)
+    end
+
+    @tag :wip2
+    test "comment on very old post have no effect", ~m(guest_conn post_last_year user)a do
+      variables = %{filter: %{page: 1, size: 20}}
+
+      {:ok, _comment} = CMS.create_article_comment(:post, post_last_year.id, "comment", user)
+
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      entries = results["entries"]
+      first_post = entries |> List.first()
+
+      assert first_post["id"] !== to_string(post_last_year.id)
+    end
+
+    @tag :wip2
+    test "latest post author commented post have no effect", ~m(guest_conn post_last_week)a do
+      variables = %{filter: %{page: 1, size: 20}}
+
+      {:ok, _comment} =
+        CMS.create_article_comment(
+          :post,
+          post_last_week.id,
+          "comment",
+          post_last_week.author.user
+        )
+
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      entries = results["entries"]
+      first_post = entries |> List.first()
+
+      assert first_post["id"] !== to_string(post_last_week.id)
     end
   end
 end

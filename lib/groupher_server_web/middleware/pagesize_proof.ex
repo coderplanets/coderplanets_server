@@ -23,7 +23,7 @@ defmodule GroupherServerWeb.Middleware.PageSizeProof do
   def call(
         %{context: %{cur_user: %{customization: customization}}, arguments: arguments} =
           resolution,
-        _info
+        args
       )
       when not is_nil(customization) do
     # NOTE:  c11n display_density should also linted by page limit,
@@ -34,8 +34,7 @@ defmodule GroupherServerWeb.Middleware.PageSizeProof do
       true ->
         filter = arguments.filter |> Map.merge(%{size: size})
         arguments = arguments |> Map.merge(%{filter: filter})
-
-        %{resolution | arguments: sort_desc_by_default(arguments)}
+        %{resolution | arguments: set_sort_ifneed(arguments, args)}
 
       false ->
         arguments = arguments |> Map.merge(%{filter: %{page: 1, size: size, first: size}})
@@ -43,10 +42,20 @@ defmodule GroupherServerWeb.Middleware.PageSizeProof do
     end
   end
 
-  def call(resolution, _) do
+  def call(resolution, args) do
     case valid_size(resolution.arguments) do
       {:error, msg} -> resolution |> handle_absinthe_error(msg, ecode(:pagination))
-      arguments -> %{resolution | arguments: sort_desc_by_default(arguments)}
+      arguments -> %{resolution | arguments: set_sort_ifneed(arguments, args)}
+    end
+  end
+
+  defp set_sort_ifneed(%{filter: filter} = arguments, args) do
+    case args do
+      [] ->
+        sort_desc_by_default(arguments)
+
+      [default_sort: :desc_active] ->
+        Map.merge(arguments, %{filter: Map.merge(%{sort: :desc_active}, filter)})
     end
   end
 

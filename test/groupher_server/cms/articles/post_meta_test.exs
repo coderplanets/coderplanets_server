@@ -42,11 +42,12 @@ defmodule GroupherServer.Test.CMS.PostMeta do
       assert post.meta.is_edited
     end
 
-    test "post 's lock article should work", ~m(user community post_attrs)a do
+    @tag :wip
+    test "post's lock article should work", ~m(user community post_attrs)a do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
       assert not post.meta.is_comment_locked
 
-      {:ok, _} = CMS.lock_article_comment(post)
+      {:ok, _} = CMS.lock_article_comment(:post, post.id)
       {:ok, post} = ORM.find_by(Post, id: post.id)
 
       assert post.meta.is_comment_locked

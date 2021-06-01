@@ -26,14 +26,13 @@ defmodule GroupherServerWeb.Schema.Account.Types do
     field(:bio, :string)
     field(:sex, :string)
     field(:email, :string)
+
     field(:location, :string)
     field(:geo_city, :string)
 
     field(:views, :integer)
     field(:social, :social_map, resolve: dataloader(Accounts, :social))
 
-    field(:inserted_at, :datetime)
-    field(:updated_at, :datetime)
     field(:from_github, :boolean)
     field(:github_profile, :github_profile, resolve: dataloader(Accounts, :github_profile))
     # field(:achievement, :achievement, resolve: dataloader(Accounts, :achievement))
@@ -111,6 +110,8 @@ defmodule GroupherServerWeb.Schema.Account.Types do
       middleware(M.PageSizeProof)
       resolve(&R.Accounts.fetch_sys_notifications/3)
     end
+
+    timestamp_fields()
   end
 
   # field(:sidebar_layout, :map)
@@ -171,9 +172,9 @@ defmodule GroupherServerWeb.Schema.Account.Types do
     field(:total_count, :integer)
     field(:private, :boolean)
     field(:last_updated, :datetime)
-    field(:inserted_at, :datetime)
-    field(:updated_at, :datetime)
     field(:meta, :collect_folder_meta)
+
+    timestamp_fields()
   end
 
   object :paged_collect_folders do

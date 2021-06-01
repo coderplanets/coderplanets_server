@@ -7,7 +7,15 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   import GroupherServer.CMS.Helper.Matcher
 
   import Helper.Utils,
-    only: [done: 1, pick_by: 2, integerfy: 1, strip_struct: 1, module_to_thread: 1]
+    only: [
+      done: 1,
+      pick_by: 2,
+      integerfy: 1,
+      strip_struct: 1,
+      module_to_thread: 1,
+      get_config: 2,
+      ensure: 2
+    ]
 
   import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 2]
   import Helper.ErrorCode
@@ -23,6 +31,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   alias Ecto.Multi
 
+  @active_period get_config(:article, :active_period_days)
   @default_emotions Embeds.ArticleEmotion.default_emotions()
   @default_article_meta Embeds.ArticleMeta.default_meta()
 
@@ -31,7 +40,16 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   """
   def read_article(thread, id) do
     with {:ok, info} <- match(thread) do
-      ORM.read(info.model, id, inc: :views)
+      Multi.new()
+      |> Multi.run(:inc_views, fn _, _ -> ORM.read(info.model, id, inc: :views) end)
+      |> Multi.run(:update_article_meta, fn _, %{inc_views: article} ->
+        article_meta = ensure(article.meta, @default_article_meta)
+        meta = Map.merge(article_meta, %{can_undo_sink: in_active_period?(thread, article)})
+
+        ORM.update_meta(article, meta)
+      end)
+      |> Repo.transaction()
+      |> result()
     end
   end
 
@@ -41,8 +59,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   def read_article(thread, id, %User{id: user_id}) do
     with {:ok, info} <- match(thread) do
       Multi.new()
-      |> Multi.run(:inc_views, fn _, _ ->
-        ORM.read(info.model, id, inc: :views)
+      |> Multi.run(:inc_views, fn _, _ -> ORM.read(info.model, id, inc: :views) end)
+      |> Multi.run(:update_article_meta, fn _, %{inc_views: article} ->
+        article_meta = ensure(article.meta, @default_article_meta)
+        meta = Map.merge(article_meta, %{can_undo_sink: in_active_period?(thread, article)})
+
+        ORM.update_meta(article, meta)
       end)
       |> Multi.run(:add_viewed_user, fn _, %{inc_views: article} ->
         update_viewed_user_list(article, user_id)
@@ -142,6 +164,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Multi.run(:set_article_tags, fn _, %{create_article: article} ->
         ArticleTag.set_article_tags(community, thread, article, attrs)
       end)
+      |> Multi.run(:set_active_at_timestamp, fn _, %{create_article: article} ->
+        ORM.update(article, %{active_at: article.inserted_at})
+      end)
       |> Multi.run(:update_community_article_count, fn _, _ ->
         CommunityCURD.update_community_count_field(community, thread)
       end)
@@ -156,7 +181,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
         Statistics.log_publish_action(%User{id: uid})
       end)
       |> Repo.transaction()
-      |> create_article_result()
+      |> result()
     end
   end
 
@@ -197,6 +222,55 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end)
     |> Repo.transaction()
     |> result()
+  end
+
+  @doc """
+  update active at timestamp of an article
+  """
+  def update_active_timestamp(thread, article) do
+    # @article_active_period
+    # 1. 超过时限不更新
+    # 2. 已经沉默的不更新, is_sinked
+    with true <- in_active_period?(thread, article) do
+      ORM.update(article, %{active_at: DateTime.utc_now()})
+    else
+      _ -> {:ok, :pass}
+    end
+  end
+
+  @doc """
+  sink article
+  """
+  def sink_article(thread, id) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id) do
+      meta = Map.merge(article.meta, %{is_sinked: true, last_active_at: article.active_at})
+      ORM.update_meta(article, meta, changes: %{active_at: article.inserted_at})
+    end
+  end
+
+  @doc """
+  undo sink article
+  """
+  def undo_sink_article(thread, id) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id),
+         true <- in_active_period?(thread, article) do
+      meta = Map.merge(article.meta, %{is_sinked: false})
+      ORM.update_meta(article, meta, changes: %{active_at: meta.last_active_at})
+    else
+      false -> raise_error(:undo_sink_old_article, "can not undo sink old article")
+    end
+  end
+
+  # check is an article's active_at is in active period
+  defp in_active_period?(thread, article) do
+    active_period_days = Map.get(@active_period, thread)
+
+    inserted_at = article.inserted_at
+    active_threshold = Timex.shift(Timex.now(), days: -active_period_days)
+
+    :gt == DateTime.compare(inserted_at, active_threshold)
   end
 
   @doc """
@@ -300,7 +374,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp add_pin_articles_ifneed(articles, _querable, _filter), do: articles
 
   # if filter contains like: tags, sort.., then don't add pin article
-  defp should_add_pin?(%{page: 1, sort: :desc_inserted} = filter) do
+  defp should_add_pin?(%{page: 1, sort: :desc_active} = filter) do
     skip_pinned_fields = [:article_tag, :article_tags]
 
     not Enum.any?(Map.keys(filter), &(&1 in skip_pinned_fields))
@@ -329,35 +403,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     # those two are equals
     # |> Map.put(:total_count, pind_count + normal_count - pind_count)
     |> Map.put(:total_count, normal_count)
-  end
-
-  defp create_article_result({:ok, %{create_article: result}}) do
-    Later.exec({__MODULE__, :notify_admin_new_article, [result]})
-    {:ok, result}
-  end
-
-  defp create_article_result({:error, :create_article, %Ecto.Changeset{} = result, _steps}) do
-    {:error, result}
-  end
-
-  defp create_article_result({:error, :create_article, _result, _steps}) do
-    {:error, [message: "create cms article author", code: ecode(:create_fails)]}
-  end
-
-  defp create_article_result({:error, :mirror_article, _result, _steps}) do
-    {:error, [message: "set community", code: ecode(:create_fails)]}
-  end
-
-  defp create_article_result({:error, :set_community_flag, _result, _steps}) do
-    {:error, [message: "set community flag", code: ecode(:create_fails)]}
-  end
-
-  defp create_article_result({:error, :set_article_tags, result, _steps}) do
-    {:error, result}
-  end
-
-  defp create_article_result({:error, :log_action, _result, _steps}) do
-    {:error, [message: "log action", code: ecode(:create_fails)]}
   end
 
   #  for create artilce step in Multi.new
@@ -396,9 +441,32 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end
   end
 
+  # create done
+  defp result({:ok, %{set_active_at_timestamp: result}}) do
+    Later.exec({__MODULE__, :notify_admin_new_article, [result]})
+    {:ok, result}
+  end
+
   defp result({:ok, %{update_edit_status: result}}), do: {:ok, result}
   defp result({:ok, %{update_article: result}}), do: {:ok, result}
   defp result({:ok, %{set_viewer_has_states: result}}), do: result |> done()
+  defp result({:ok, %{update_article_meta: result}}), do: {:ok, result}
+
+  defp result({:error, :create_article, _result, _steps}) do
+    {:error, [message: "create cms article author", code: ecode(:create_fails)]}
+  end
+
+  defp result({:error, :mirror_article, _result, _steps}) do
+    {:error, [message: "set community", code: ecode(:create_fails)]}
+  end
+
+  defp result({:error, :set_community_flag, _result, _steps}) do
+    {:error, [message: "set community flag", code: ecode(:create_fails)]}
+  end
+
+  defp result({:error, :log_action, _result, _steps}) do
+    {:error, [message: "log action", code: ecode(:create_fails)]}
+  end
 
   defp result({:error, _, result, _steps}), do: {:error, result}
 end

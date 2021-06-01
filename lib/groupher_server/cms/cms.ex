@@ -93,6 +93,10 @@ defmodule GroupherServer.CMS do
   defdelegate mark_delete_article(thread, id), to: ArticleCURD
   defdelegate undo_mark_delete_article(thread, id), to: ArticleCURD
 
+  defdelegate update_active_timestamp(thread, article), to: ArticleCURD
+  defdelegate sink_article(thread, id), to: ArticleCURD
+  defdelegate undo_sink_article(thread, id), to: ArticleCURD
+
   defdelegate upvote_article(thread, article_id, user), to: ArticleUpvote
   defdelegate undo_upvote_article(thread, article_id, user), to: ArticleUpvote
 
@@ -112,7 +116,7 @@ defmodule GroupherServer.CMS do
   # >> set flag on article, like: pin / unpin article
   defdelegate pin_article(thread, id, community_id), to: ArticleCommunity
   defdelegate undo_pin_article(thread, id, community_id), to: ArticleCommunity
-  defdelegate lock_article_comment(article), to: ArticleCommunity
+  defdelegate lock_article_comment(thread, article_id), to: ArticleCommunity
 
   # >> community: set / unset
   defdelegate mirror_article(thread, article_id, community_id), to: ArticleCommunity

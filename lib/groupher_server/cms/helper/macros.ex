@@ -121,7 +121,8 @@ defmodule GroupherServer.CMS.Helper.Macros do
       :article_comments_participators_count,
       :upvotes_count,
       :collects_count,
-      :mark_delete
+      :mark_delete,
+      :active_at
     ]
   end
 
@@ -189,6 +190,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
       viewer_has_fields()
       article_comment_fields()
 
+      field(:active_at, :utc_datetime_usec)
       # TODO:
       # reference_articles
       # related_articles

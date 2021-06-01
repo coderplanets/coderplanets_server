@@ -2,11 +2,14 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
   @moduledoc false
 
   use GroupherServer.TestTools
+  import Helper.Utils, only: [get_config: 2]
 
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS}
 
   alias CMS.{ArticleComment, ArticlePinnedComment, Embeds, Repo}
+
+  @active_period get_config(:article, :active_period_days)
 
   @delete_hint CMS.ArticleComment.delete_hint()
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
@@ -17,8 +20,9 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
     {:ok, repo} = db_insert(:repo)
+    {:ok, community} = db_insert(:community)
 
-    {:ok, ~m(user user2 repo)a}
+    {:ok, ~m(community user user2 repo)a}
   end
 
   describe "[basic article comment]" do
@@ -35,6 +39,54 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
     test "comment should have default meta after create", ~m(user repo)a do
       {:ok, comment} = CMS.create_article_comment(:repo, repo.id, "repo comment", user)
       assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
+    end
+
+    test "create comment should update active timestamp of repo", ~m(user repo)a do
+      Process.sleep(1000)
+      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "repo comment", user)
+      {:ok, repo} = ORM.find(Repo, repo.id, preload: :article_comments)
+
+      assert not is_nil(repo.active_at)
+      assert repo.active_at > repo.inserted_at
+    end
+
+    test "repo author create comment will not update active timestamp", ~m(community user)a do
+      repo_attrs = mock_attrs(:repo, %{community_id: community.id})
+      {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
+      {:ok, repo} = ORM.find(Repo, repo.id, preload: [author: :user])
+
+      Process.sleep(1000)
+
+      {:ok, _comment} =
+        CMS.create_article_comment(:repo, repo.id, "repo comment", repo.author.user)
+
+      {:ok, repo} = ORM.find(Repo, repo.id, preload: :article_comments)
+
+      assert not is_nil(repo.active_at)
+      assert repo.active_at == repo.inserted_at
+    end
+
+    test "old repo will not update active after comment created", ~m(user)a do
+      active_period_days = Map.get(@active_period, :repo)
+
+      inserted_at =
+        Timex.shift(Timex.now(), days: -(active_period_days - 1)) |> Timex.to_datetime()
+
+      {:ok, repo} = db_insert(:repo, %{inserted_at: inserted_at})
+      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "repo comment", user)
+      {:ok, repo} = ORM.find(Repo, repo.id)
+
+      assert repo.active_at |> DateTime.to_date() == DateTime.utc_now() |> DateTime.to_date()
+
+      # ----
+      inserted_at =
+        Timex.shift(Timex.now(), days: -(active_period_days + 1)) |> Timex.to_datetime()
+
+      {:ok, repo} = db_insert(:repo, %{inserted_at: inserted_at})
+      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "repo comment", user)
+      {:ok, repo} = ORM.find(Repo, repo.id)
+
+      assert repo.active_at |> DateTime.to_unix() !== DateTime.utc_now() |> DateTime.to_unix()
     end
 
     test "comment can be updated", ~m(repo user)a do
@@ -271,8 +323,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
     #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
     # end
 
-    test "can undo a report with other user report it too",
-         ~m(user user2 repo)a do
+    test "can undo a report with other user report it too", ~m(user user2 repo)a do
       {:ok, comment} = CMS.create_article_comment(:repo, repo.id, "commment", user)
 
       {:ok, _comment} = CMS.report_article_comment(comment.id, "reason", "attr", user)
@@ -291,6 +342,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
 
       filter = %{content_type: :article_comment, content_id: comment.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.paged_reports(filter)
+
       assert all_reports.total_count == 1
 
       report = all_reports.entries |> List.first()
