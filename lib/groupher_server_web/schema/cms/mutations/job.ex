@@ -55,6 +55,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Job do
     end
 
     #############
+    article_sink_mutation(:job)
     article_upvote_mutation(:job)
     article_pin_mutation(:job)
     article_mark_delete_mutation(:job)

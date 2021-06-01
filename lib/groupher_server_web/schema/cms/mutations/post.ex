@@ -45,6 +45,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Post do
     end
 
     #############
+    article_sink_mutation(:post)
     article_upvote_mutation(:post)
     article_pin_mutation(:post)
     article_mark_delete_mutation(:post)

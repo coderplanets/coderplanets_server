@@ -58,12 +58,21 @@ defmodule Helper.Certification do
         "job.community.move",
         "job.community.unmirror",
         # flag on content
+        # pin/undo_pin
         "post.pin",
         "post.undo_pin",
         "job.pin",
         "job.undo_pin",
         "repo.pin",
         "repo.undo_pin",
+        # sink/undo_sink
+        "post.sink",
+        "post.undo_sink",
+        "job.sink",
+        "job.undo_sink",
+        "repo.sink",
+        "repo.undo_sink",
+        #
         "post.mark_delete",
         "post.undo_mark_delete",
         "job.mark_delete",
