@@ -13,9 +13,9 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
   @page_size get_config(:general, :page_size)
 
   @cur_date Timex.now()
-  @last_week Timex.shift(Timex.beginning_of_week(@cur_date), days: -1, microseconds: -1)
-  @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -1, microseconds: -1)
-  @last_year Timex.shift(Timex.beginning_of_year(@cur_date), days: -3, microseconds: -1)
+  @last_week Timex.shift(Timex.beginning_of_week(@cur_date), days: -1, seconds: -1)
+  @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -1, seconds: -1)
+  @last_year Timex.shift(Timex.beginning_of_year(@cur_date), days: -3, seconds: -1)
 
   @today_count 15
 
@@ -29,14 +29,14 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
     {:ok, user} = db_insert(:user)
 
     {:ok, post_last_month} = db_insert(:post, %{title: "last month", inserted_at: @last_month})
-    {:ok, post1} = db_insert(:post, %{title: "last week", inserted_at: @last_week})
+    {:ok, _} = db_insert(:post, %{title: "last week", inserted_at: @last_week})
     {:ok, post_last_year} = db_insert(:post, %{title: "last year", inserted_at: @last_year})
 
     db_insert_multi(:post, @today_count)
 
     guest_conn = simu_conn(:guest)
 
-    {:ok, ~m(guest_conn user post1 post_last_month post_last_year)a}
+    {:ok, ~m(guest_conn user post_last_month post_last_year)a}
   end
 
   describe "[query paged_posts filter pagination]" do
@@ -175,10 +175,10 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
       active_timestamps = results["entries"] |> Enum.map(& &1["active_at"])
 
-      {:ok, first_active_time, 0} = active_timestamps |> List.first() |> DateTime.from_iso8601()
-      {:ok, last_active_time, 0} = active_timestamps |> List.last() |> DateTime.from_iso8601()
+      {:ok, first_inserted_time, 0} = active_timestamps |> List.first() |> DateTime.from_iso8601()
+      {:ok, last_inserted_time, 0} = active_timestamps |> List.last() |> DateTime.from_iso8601()
 
-      assert :gt = DateTime.compare(first_active_time, last_active_time)
+      assert :gt = DateTime.compare(first_inserted_time, last_inserted_time)
     end
 
     @query """
@@ -284,7 +284,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       assert results |> Map.get("totalCount") == expect_count
     end
 
-    @tag :skip_travis
+    @tag :wip2
     test "THIS_WEEK option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_WEEK"}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")

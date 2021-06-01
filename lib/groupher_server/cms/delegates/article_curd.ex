@@ -72,6 +72,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       info.model
       |> domain_filter_query(filter)
       |> QueryBuilder.filter_pack(Map.merge(filter, %{mark_delete: false}))
+      |> IO.inspect(label: "query")
       |> ORM.paginater(~m(page size)a)
       |> add_pin_articles_ifneed(info.model, filter)
       |> done()
