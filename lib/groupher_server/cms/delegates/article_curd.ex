@@ -212,15 +212,16 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     inserted_at = article.inserted_at
     active_threshold = Timex.shift(Timex.now(), days: -active_period_days)
 
+    # IO.inspect(inserted_at, label: "inserted_at")
+    # IO.inspect(active_threshold, label: "active_threshold")
+
     # @article_active_period
     # 1. 超过时限不更新
     # 2. 已经沉默的不更新, is_sinked
 
-    case inserted_at <= active_threshold do
-      # pass
-      true -> {:ok, :pass}
-      # update active_at
-      false -> ORM.update(article, %{active_at: DateTime.utc_now()})
+    case DateTime.compare(inserted_at, active_threshold) do
+      :gt -> ORM.update(article, %{active_at: DateTime.utc_now()})
+      _ -> {:ok, :pass}
     end
   end
 

@@ -29,14 +29,18 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
     {:ok, user} = db_insert(:user)
 
     {:ok, post_last_month} = db_insert(:post, %{title: "last month", inserted_at: @last_month})
-    {:ok, _} = db_insert(:post, %{title: "last week", inserted_at: @last_week})
-    {:ok, post_last_year} = db_insert(:post, %{title: "last year", inserted_at: @last_year})
+
+    {:ok, post_last_week} =
+      db_insert(:post, %{title: "last week", inserted_at: @last_week, active_at: @last_week})
+
+    {:ok, post_last_year} =
+      db_insert(:post, %{title: "last year", inserted_at: @last_year, active_at: @last_year})
 
     db_insert_multi(:post, @today_count)
 
     guest_conn = simu_conn(:guest)
 
-    {:ok, ~m(guest_conn user post_last_month post_last_year)a}
+    {:ok, ~m(guest_conn user post_last_week post_last_month post_last_year)a}
   end
 
   describe "[query paged_posts filter pagination]" do
@@ -284,7 +288,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       assert results |> Map.get("totalCount") == expect_count
     end
 
-    @tag :wip2
     test "THIS_WEEK option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_WEEK"}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
@@ -297,6 +300,69 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
 
       assert results["entries"] |> Enum.any?(&(&1["id"] != post_last_month.id))
+    end
+  end
+
+  describe "[paged posts active_at]" do
+    @query """
+    query($filter: PagedPostsFilter!) {
+      pagedPosts(filter: $filter) {
+        entries {
+          id
+          insertedAt
+          activeAt
+        }
+      }
+    }
+    """
+    @tag :wip
+    test "latest commented post should appear on top", ~m(guest_conn post_last_week user)a do
+      variables = %{filter: %{page: 1, size: 20}}
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      entries = results["entries"]
+      first_post = entries |> List.first()
+      assert first_post["id"] !== to_string(post_last_week.id)
+
+      Process.sleep(1500)
+      {:ok, _comment} = CMS.create_article_comment(:post, post_last_week.id, "comment", user)
+
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      entries = results["entries"]
+      first_post = entries |> List.first()
+
+      assert first_post["id"] == to_string(post_last_week.id)
+    end
+
+    @tag :wip
+    test "comment on very old post have no effect", ~m(guest_conn post_last_year user)a do
+      variables = %{filter: %{page: 1, size: 20}}
+
+      {:ok, _comment} = CMS.create_article_comment(:post, post_last_year.id, "comment", user)
+
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      entries = results["entries"]
+      first_post = entries |> List.first()
+
+      assert first_post["id"] !== to_string(post_last_year.id)
+    end
+
+    @tag :wip
+    test "latest post author commented post have no effect", ~m(guest_conn post_last_week)a do
+      variables = %{filter: %{page: 1, size: 20}}
+
+      {:ok, _comment} =
+        CMS.create_article_comment(
+          :post,
+          post_last_week.id,
+          "comment",
+          post_last_week.author.user
+        )
+
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      entries = results["entries"]
+      first_post = entries |> List.first()
+
+      assert first_post["id"] !== to_string(post_last_week.id)
     end
   end
 end

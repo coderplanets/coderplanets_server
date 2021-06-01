@@ -28,7 +28,7 @@ defmodule GroupherServer.Support.Factory do
         mock(:community)
       ],
       emotions: @default_emotions,
-      active_at: Timex.shift(Timex.now(), seconds: +1)
+      active_at: Timex.shift(Timex.now(), seconds: -1)
     }
   end
 
@@ -322,10 +322,10 @@ defmodule GroupherServer.Support.Factory do
     Repo.insert(mock(factory_name, attributes))
   end
 
-  def db_insert_multi(factory_name, count \\ 2) do
+  def db_insert_multi(factory_name, count, delay \\ 0) do
     results =
       Enum.reduce(1..count, [], fn _, acc ->
-        Process.sleep(50)
+        Process.sleep(delay)
         {:ok, value} = db_insert(factory_name)
         acc ++ [value]
       end)
