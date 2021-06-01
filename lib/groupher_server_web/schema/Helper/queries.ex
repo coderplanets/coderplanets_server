@@ -62,7 +62,7 @@ defmodule GroupherServerWeb.Schema.Helper.Queries do
         arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
         arg(:filter, non_null(unquote(:"paged_#{thread}s_filter")))
 
-        middleware(M.PageSizeProof)
+        middleware(M.PageSizeProof, default_sort: :desc_active)
         resolve(&R.CMS.paged_articles/3)
       end
     end
