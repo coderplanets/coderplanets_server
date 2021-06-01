@@ -6,7 +6,7 @@ defmodule GroupherServer.CMS.Embeds.ArticleMeta do
   use Accessible
   import Ecto.Changeset
 
-  @optional_fields ~w(is_edited is_comment_locked upvoted_user_ids collected_user_ids viewed_user_ids reported_user_ids reported_count is_sinked can_undo_sink)a
+  @optional_fields ~w(is_edited is_comment_locked upvoted_user_ids collected_user_ids viewed_user_ids reported_user_ids reported_count is_sinked can_undo_sink last_active_at)a
 
   @doc "for test usage"
   def default_meta() do
@@ -19,7 +19,8 @@ defmodule GroupherServer.CMS.Embeds.ArticleMeta do
       reported_user_ids: [],
       reported_count: 0,
       is_sinked: false,
-      can_undo_sink: true
+      can_undo_sink: true,
+      last_active_at: nil
     }
   end
 
@@ -35,6 +36,8 @@ defmodule GroupherServer.CMS.Embeds.ArticleMeta do
 
     field(:is_sinked, :boolean, default: false)
     field(:can_undo_sink, :boolean, default: false)
+    # if undo_sink, can recover last active_at from here
+    field(:last_active_at, :utc_datetime_usec)
   end
 
   def changeset(struct, params) do

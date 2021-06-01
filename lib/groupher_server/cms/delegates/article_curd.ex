@@ -244,8 +244,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   def sink_article(thread, id) do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, id) do
-      meta = Map.merge(article.meta, %{is_sinked: true})
-      ORM.update_meta(article, meta)
+      meta = Map.merge(article.meta, %{is_sinked: true, last_active_at: article.active_at})
+      ORM.update_meta(article, meta, changes: %{active_at: article.inserted_at})
     end
   end
 
@@ -256,7 +256,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, id),
          true <- in_active_period?(thread, article) do
-      ORM.update_meta(article, Map.merge(article.meta, %{is_sinked: false}))
+      meta = Map.merge(article.meta, %{is_sinked: false})
+      ORM.update_meta(article, meta, changes: %{active_at: meta.last_active_at})
     else
       false -> raise_error(:undo_sink_old_article, "can not undo sink old article")
     end
