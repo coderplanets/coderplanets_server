@@ -55,7 +55,7 @@ defmodule GroupherServerWeb.Middleware.PageSizeProof do
         sort_desc_by_default(arguments)
 
       [default_sort: :desc_active] ->
-        Map.merge(arguments, %{filter: Map.merge(filter, %{sort: :desc_active})})
+        Map.merge(arguments, %{filter: Map.merge(%{sort: :desc_active}, filter)})
     end
   end
 
