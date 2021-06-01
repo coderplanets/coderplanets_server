@@ -4,6 +4,8 @@ defmodule GroupherServer.Test.Articles.Repo do
   alias Helper.ORM
   alias GroupherServer.CMS
 
+  @last_year Timex.shift(Timex.beginning_of_year(Timex.now()), days: -3, seconds: -1)
+
   setup do
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
@@ -105,6 +107,21 @@ defmodule GroupherServer.Test.Articles.Repo do
 
   describe "[cms repo sink/undo_sink]" do
     @tag :wip
+    test "if a repo is too old, read repo should update can_undo_sink flag",
+         ~m(user community repo_attrs)a do
+      {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
+
+      assert repo.meta.can_undo_sink
+
+      {:ok, repo_last_year} = db_insert(:repo, %{title: "last year", inserted_at: @last_year})
+      {:ok, repo_last_year} = CMS.read_article(:repo, repo_last_year.id)
+      assert not repo_last_year.meta.can_undo_sink
+
+      {:ok, repo_last_year} = CMS.read_article(:repo, repo_last_year.id, user)
+      assert not repo_last_year.meta.can_undo_sink
+    end
+
+    @tag :wip
     test "can sink a repo", ~m(user community repo_attrs)a do
       {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
       assert not repo.meta.is_sinked
@@ -125,9 +142,7 @@ defmodule GroupherServer.Test.Articles.Repo do
 
     @tag :wip
     test "can not undo sink to old repo", ~m()a do
-      last_year = Timex.shift(Timex.beginning_of_year(Timex.now()), days: -3, seconds: -1)
-
-      {:ok, repo_last_year} = db_insert(:repo, %{title: "last year", inserted_at: last_year})
+      {:ok, repo_last_year} = db_insert(:repo, %{title: "last year", inserted_at: @last_year})
 
       {:error, reason} = CMS.undo_sink_article(:repo, repo_last_year.id)
       is_error?(reason, :undo_sink_old_article)

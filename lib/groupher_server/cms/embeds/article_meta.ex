@@ -19,7 +19,7 @@ defmodule GroupherServer.CMS.Embeds.ArticleMeta do
       reported_user_ids: [],
       reported_count: 0,
       is_sinked: false,
-      can_undo_sink: false
+      can_undo_sink: true
     }
   end
 

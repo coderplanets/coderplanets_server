@@ -352,7 +352,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
       }
     }
     """
-
     test "latest commented repo should appear on top", ~m(guest_conn repo_last_week user)a do
       variables = %{filter: %{page: 1, size: 20}}
       results = guest_conn |> query_result(@query, variables, "pagedRepos")

@@ -7,7 +7,15 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   import GroupherServer.CMS.Helper.Matcher
 
   import Helper.Utils,
-    only: [done: 1, pick_by: 2, integerfy: 1, strip_struct: 1, module_to_thread: 1, get_config: 2]
+    only: [
+      done: 1,
+      pick_by: 2,
+      integerfy: 1,
+      strip_struct: 1,
+      module_to_thread: 1,
+      get_config: 2,
+      ensure: 2
+    ]
 
   import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 2]
   import Helper.ErrorCode
@@ -32,7 +40,16 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   """
   def read_article(thread, id) do
     with {:ok, info} <- match(thread) do
-      ORM.read(info.model, id, inc: :views)
+      Multi.new()
+      |> Multi.run(:inc_views, fn _, _ -> ORM.read(info.model, id, inc: :views) end)
+      |> Multi.run(:update_article_meta, fn _, %{inc_views: article} ->
+        article_meta = ensure(article.meta, @default_article_meta)
+        meta = Map.merge(article_meta, %{can_undo_sink: in_active_period?(thread, article)})
+
+        ORM.update_meta(article, meta)
+      end)
+      |> Repo.transaction()
+      |> result()
     end
   end
 
@@ -42,8 +59,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   def read_article(thread, id, %User{id: user_id}) do
     with {:ok, info} <- match(thread) do
       Multi.new()
-      |> Multi.run(:inc_views, fn _, _ ->
-        ORM.read(info.model, id, inc: :views)
+      |> Multi.run(:inc_views, fn _, _ -> ORM.read(info.model, id, inc: :views) end)
+      |> Multi.run(:update_article_meta, fn _, %{inc_views: article} ->
+        article_meta = ensure(article.meta, @default_article_meta)
+        meta = Map.merge(article_meta, %{can_undo_sink: in_active_period?(thread, article)})
+
+        ORM.update_meta(article, meta)
       end)
       |> Multi.run(:add_viewed_user, fn _, %{inc_views: article} ->
         update_viewed_user_list(article, user_id)
@@ -418,6 +439,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
         {:ok, :pass}
     end
   end
+
+  defp result({:ok, %{update_article_meta: result}}), do: {:ok, result}
 
   # create done
   defp result({:ok, %{set_active_at_timestamp: result}}) do
