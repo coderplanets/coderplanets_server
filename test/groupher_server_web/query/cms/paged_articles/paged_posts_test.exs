@@ -146,7 +146,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
        }
     }
     """
-    @tag :wip2
+
     test "filter community should get posts which belongs to that community",
          ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
@@ -170,15 +170,14 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       assert post["inserted_at"] == post["active_at"]
     end
 
-    test "filter sort should have default :desc_inserted", ~m(guest_conn)a do
+    @tag :wip2
+    test "filter sort should have default :desc_active", ~m(guest_conn)a do
       variables = %{filter: %{}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
-      inserted_timestamps = results["entries"] |> Enum.map(& &1["inserted_at"])
+      active_timestamps = results["entries"] |> Enum.map(& &1["active_at"])
 
-      {:ok, first_inserted_time, 0} =
-        inserted_timestamps |> List.first() |> DateTime.from_iso8601()
-
-      {:ok, last_inserted_time, 0} = inserted_timestamps |> List.last() |> DateTime.from_iso8601()
+      {:ok, first_inserted_time, 0} = active_timestamps |> List.first() |> DateTime.from_iso8601()
+      {:ok, last_inserted_time, 0} = active_timestamps |> List.last() |> DateTime.from_iso8601()
 
       assert :gt = DateTime.compare(first_inserted_time, last_inserted_time)
     end
