@@ -101,4 +101,35 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
       assert {:error, _} = CMS.create_article(ivalid_community, :post, invalid_attrs, user)
     end
   end
+
+  describe "[cms post sink/undo_sink]" do
+    @tag :wip
+    test "can sink a post", ~m(user community post_attrs)a do
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+      assert not post.meta.is_sinked
+
+      {:ok, post} = CMS.sink_article(:post, post.id)
+      assert post.meta.is_sinked
+    end
+
+    @tag :wip
+    test "can undo sink post", ~m(user community post_attrs)a do
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+      {:ok, post} = CMS.sink_article(:post, post.id)
+      assert post.meta.is_sinked
+
+      {:ok, post} = CMS.undo_sink_article(:post, post.id)
+      assert not post.meta.is_sinked
+    end
+
+    @tag :wip
+    test "can not undo sink to old post", ~m()a do
+      last_year = Timex.shift(Timex.beginning_of_year(Timex.now()), days: -3, seconds: -1)
+
+      {:ok, post_last_year} = db_insert(:post, %{title: "last year", inserted_at: last_year})
+
+      {:error, reason} = CMS.undo_sink_article(:post, post_last_year.id)
+      is_error?(reason, :undo_sink_old_article)
+    end
+  end
 end

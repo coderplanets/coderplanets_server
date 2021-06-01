@@ -91,4 +91,35 @@ defmodule GroupherServer.Test.Articles.Job do
       assert {:error, _} = CMS.create_article(ivalid_community, :job, invalid_attrs, user)
     end
   end
+
+  describe "[cms job sink/undo_sink]" do
+    @tag :wip
+    test "can sink a job", ~m(user community job_attrs)a do
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
+      assert not job.meta.is_sinked
+
+      {:ok, job} = CMS.sink_article(:job, job.id)
+      assert job.meta.is_sinked
+    end
+
+    @tag :wip
+    test "can undo sink job", ~m(user community job_attrs)a do
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
+      {:ok, job} = CMS.sink_article(:job, job.id)
+      assert job.meta.is_sinked
+
+      {:ok, job} = CMS.undo_sink_article(:job, job.id)
+      assert not job.meta.is_sinked
+    end
+
+    @tag :wip
+    test "can not undo sink to old job", ~m()a do
+      last_year = Timex.shift(Timex.beginning_of_year(Timex.now()), days: -3, seconds: -1)
+
+      {:ok, job_last_year} = db_insert(:job, %{title: "last year", inserted_at: last_year})
+
+      {:error, reason} = CMS.undo_sink_article(:job, job_last_year.id)
+      is_error?(reason, :undo_sink_old_article)
+    end
+  end
 end

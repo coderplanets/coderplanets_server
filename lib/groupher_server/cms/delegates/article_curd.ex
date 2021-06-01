@@ -207,22 +207,48 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   update active at timestamp of an article
   """
   def update_active_timestamp(thread, article) do
+    # @article_active_period
+    # 1. 超过时限不更新
+    # 2. 已经沉默的不更新, is_sinked
+    with true <- in_active_period?(thread, article) do
+      ORM.update(article, %{active_at: DateTime.utc_now()})
+    else
+      _ -> {:ok, :pass}
+    end
+  end
+
+  @doc """
+  sink article
+  """
+  def sink_article(thread, id) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id) do
+      meta = Map.merge(article.meta, %{is_sinked: true})
+      ORM.update_meta(article, meta)
+    end
+  end
+
+  @doc """
+  undo sink article
+  """
+  def undo_sink_article(thread, id) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id),
+         true <- in_active_period?(thread, article) do
+      ORM.update_meta(article, Map.merge(article.meta, %{is_sinked: false}))
+    else
+      false -> raise_error(:undo_sink_old_article, "can not undo sink old article")
+    end
+  end
+
+  # check is an article's active_at is in active period
+  defp in_active_period?(thread, article) do
     active_period_days = Map.get(@active_period, thread)
 
     inserted_at = article.inserted_at
     active_threshold = Timex.shift(Timex.now(), days: -active_period_days)
 
-    # IO.inspect(inserted_at, label: "inserted_at")
-    # IO.inspect(active_threshold, label: "active_threshold")
-
-    # @article_active_period
-    # 1. 超过时限不更新
-    # 2. 已经沉默的不更新, is_sinked
-
-    case DateTime.compare(inserted_at, active_threshold) do
-      :gt -> ORM.update(article, %{active_at: DateTime.utc_now()})
-      _ -> {:ok, :pass}
-    end
+    :gt == DateTime.compare(inserted_at, active_threshold)
   end
 
   @doc """

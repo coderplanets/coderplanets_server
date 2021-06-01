@@ -6,20 +6,22 @@ defmodule GroupherServer.CMS.Embeds.ArticleMeta do
   use Accessible
   import Ecto.Changeset
 
-  @optional_fields ~w(is_edited is_comment_locked upvoted_user_ids collected_user_ids viewed_user_ids reported_user_ids reported_count)a
-
-  @default_meta %{
-    is_edited: false,
-    is_comment_locked: false,
-    upvoted_user_ids: [],
-    collected_user_ids: [],
-    viewed_user_ids: [],
-    reported_user_ids: [],
-    reported_count: 0
-  }
+  @optional_fields ~w(is_edited is_comment_locked upvoted_user_ids collected_user_ids viewed_user_ids reported_user_ids reported_count is_sinked can_undo_sink)a
 
   @doc "for test usage"
-  def default_meta(), do: @default_meta
+  def default_meta() do
+    %{
+      is_edited: false,
+      is_comment_locked: false,
+      upvoted_user_ids: [],
+      collected_user_ids: [],
+      viewed_user_ids: [],
+      reported_user_ids: [],
+      reported_count: 0,
+      is_sinked: false,
+      can_undo_sink: false
+    }
+  end
 
   embedded_schema do
     field(:is_edited, :boolean, default: false)
@@ -30,6 +32,9 @@ defmodule GroupherServer.CMS.Embeds.ArticleMeta do
     field(:viewed_user_ids, {:array, :integer}, default: [])
     field(:reported_user_ids, {:array, :integer}, default: [])
     field(:reported_count, :integer, default: 0)
+
+    field(:is_sinked, :boolean, default: false)
+    field(:can_undo_sink, :boolean, default: false)
   end
 
   def changeset(struct, params) do

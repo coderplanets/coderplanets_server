@@ -407,7 +407,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       }
     }
     """
-    @tag :wip
+
     test "latest commented job should appear on top", ~m(guest_conn job_last_week user)a do
       variables = %{filter: %{page: 1, size: 20}}
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
@@ -425,7 +425,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert first_job["id"] == to_string(job_last_week.id)
     end
 
-    @tag :wip
     test "comment on very old job have no effect", ~m(guest_conn job_last_year user)a do
       variables = %{filter: %{page: 1, size: 20}}
 
@@ -438,7 +437,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert first_job["id"] !== to_string(job_last_year.id)
     end
 
-    @tag :wip
     test "latest job author commented job have no effect", ~m(guest_conn job_last_week)a do
       variables = %{filter: %{page: 1, size: 20}}
 

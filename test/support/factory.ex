@@ -10,12 +10,14 @@ defmodule GroupherServer.Support.Factory do
   alias GroupherServer.Repo
   alias GroupherServer.{Accounts, CMS, Delivery}
 
+  @default_article_meta CMS.Embeds.ArticleMeta.default_meta()
   @default_emotions CMS.Embeds.ArticleCommentEmotion.default_emotions()
 
   defp mock_meta(:post) do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
 
     %{
+      meta: @default_article_meta,
       title: String.slice(body, 1, 49),
       body: body,
       digest: String.slice(body, 1, 150),
@@ -36,6 +38,7 @@ defmodule GroupherServer.Support.Factory do
     desc = Faker.Lorem.sentence(%Range{first: 15, last: 60})
 
     %{
+      meta: @default_article_meta,
       title: String.slice(desc, 1, 49),
       owner_name: "coderplanets",
       owner_url: "http://www.github.com/coderplanets",
@@ -105,6 +108,7 @@ defmodule GroupherServer.Support.Factory do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
 
     %{
+      meta: @default_article_meta,
       title: String.slice(body, 1, 49),
       company: Faker.Company.name(),
       body: body,

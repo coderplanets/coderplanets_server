@@ -352,7 +352,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
       }
     }
     """
-    @tag :wip
+
     test "latest commented repo should appear on top", ~m(guest_conn repo_last_week user)a do
       variables = %{filter: %{page: 1, size: 20}}
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
@@ -370,7 +370,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
       assert first_repo["id"] == to_string(repo_last_week.id)
     end
 
-    @tag :wip
     test "comment on very old repo have no effect", ~m(guest_conn repo_last_year user)a do
       variables = %{filter: %{page: 1, size: 20}}
 
@@ -383,7 +382,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
       assert first_repo["id"] !== to_string(repo_last_year.id)
     end
 
-    @tag :wip
     test "latest repo author commented repo have no effect", ~m(guest_conn repo_last_week)a do
       variables = %{filter: %{page: 1, size: 20}}
 

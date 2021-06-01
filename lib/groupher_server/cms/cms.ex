@@ -94,6 +94,8 @@ defmodule GroupherServer.CMS do
   defdelegate undo_mark_delete_article(thread, id), to: ArticleCURD
 
   defdelegate update_active_timestamp(thread, article), to: ArticleCURD
+  defdelegate sink_article(thread, id), to: ArticleCURD
+  defdelegate undo_sink_article(thread, id), to: ArticleCURD
 
   defdelegate upvote_article(thread, article_id, user), to: ArticleUpvote
   defdelegate undo_upvote_article(thread, article_id, user), to: ArticleUpvote
