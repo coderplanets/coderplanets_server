@@ -66,7 +66,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert post.active_at == post.inserted_at
     end
 
-    @tag :wip2
     test "old post will not update active after comment created", ~m(user)a do
       active_period_days = Map.get(@active_period, :post)
 

@@ -66,7 +66,8 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
       assert repo.active_at == repo.inserted_at
     end
 
-    @tag :wip2
+    2
+
     test "old repo will not update active after comment created", ~m(user)a do
       active_period_days = Map.get(@active_period, :repo)
 

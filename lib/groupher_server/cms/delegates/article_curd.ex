@@ -326,7 +326,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp add_pin_articles_ifneed(articles, _querable, _filter), do: articles
 
   # if filter contains like: tags, sort.., then don't add pin article
-  defp should_add_pin?(%{page: 1, sort: :desc_inserted} = filter) do
+  defp should_add_pin?(%{page: 1, sort: :desc_active} = filter) do
     skip_pinned_fields = [:article_tag, :article_tags]
 
     not Enum.any?(Map.keys(filter), &(&1 in skip_pinned_fields))

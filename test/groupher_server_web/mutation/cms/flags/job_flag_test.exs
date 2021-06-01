@@ -38,7 +38,6 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
       assert updated["markDelete"] == true
     end
 
-    @tag :wip3
     test "mark delete job should update job's communities meta count", ~m(user)a do
       community_attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id})
       {:ok, community} = CMS.create_community(community_attrs)
@@ -88,7 +87,6 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
       assert updated["markDelete"] == false
     end
 
-    @tag :wip3
     test "undo mark delete job should update job's communities meta count", ~m(user)a do
       community_attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id})
       {:ok, community} = CMS.create_community(community_attrs)

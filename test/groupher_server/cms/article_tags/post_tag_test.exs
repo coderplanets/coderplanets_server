@@ -43,7 +43,6 @@ defmodule GroupherServer.Test.CMS.ArticleTag.PostTag do
                )
     end
 
-    @tag :wip
     test "tag can be deleted", ~m(community article_tag_attrs user)a do
       {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
       {:ok, article_tag} = ORM.find(ArticleTag, article_tag.id)

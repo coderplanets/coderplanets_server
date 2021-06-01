@@ -29,7 +29,6 @@ defmodule GroupherServer.Test.Query.CMS.CommunityMeta do
       }
     }
     """
-    @tag :wip3
     test "community have valid [thread]s_count in meta", ~m(guest_conn community_attrs user)a do
       {:ok, community} = CMS.create_community(community_attrs)
 
