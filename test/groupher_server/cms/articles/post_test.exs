@@ -105,7 +105,7 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
   end
 
   describe "[cms post sink/undo_sink]" do
-    @tag :wip
+    @tag :wip2
     test "if a post is too old, read post should update can_undo_sink flag",
          ~m(user community post_attrs)a do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
@@ -120,7 +120,7 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
       assert not post_last_year.meta.can_undo_sink
     end
 
-    @tag :wip
+    @tag :wip2
     test "can sink a post", ~m(user community post_attrs)a do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
       assert not post.meta.is_sinked
@@ -130,7 +130,7 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
       assert post.active_at == post.inserted_at
     end
 
-    @tag :wip
+    @tag :wip2
     test "can undo sink post", ~m(user community post_attrs)a do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
       {:ok, post} = CMS.sink_article(:post, post.id)
@@ -142,7 +142,7 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
       assert post.active_at == post.meta.last_active_at
     end
 
-    @tag :wip
+    @tag :wip2
     test "can not undo sink to old post", ~m()a do
       {:ok, post_last_year} = db_insert(:post, %{title: "last year", inserted_at: @last_year})
 
