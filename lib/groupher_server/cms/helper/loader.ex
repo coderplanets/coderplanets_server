@@ -106,8 +106,12 @@ defmodule GroupherServer.CMS.Helper.Loader do
   end
 
   def query({"posts_comments_likes", PostCommentLike}, %{filter: _filter} = args) do
-    PostCommentLike
-    |> QueryBuilder.members_pack(args)
+    PostCommentLike |> members_pack(args)
+  end
+
+  # TODO: remove it
+  def members_pack(queryable, %{filter: filter}) do
+    queryable |> QueryBuilder.load_inner_users(filter)
   end
 
   # def query({"articles_comments_upvotes", ArticleCommentUpvote}, %{

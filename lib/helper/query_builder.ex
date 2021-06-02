@@ -2,6 +2,8 @@ defmodule Helper.QueryBuilder do
   # alias GroupherServer.Repo
   import Ecto.Query, warn: false
 
+  alias GroupherServer.CMS
+
   @doc """
   handle [3] situation:
 
@@ -12,10 +14,6 @@ defmodule Helper.QueryBuilder do
   bewteen [THREAD] and [REACT]
   [REACT]; upvotes, stars, watchs ...
   """
-  def members_pack(queryable, %{filter: filter}) do
-    queryable |> load_inner_users(filter)
-  end
-
   def load_inner_users(queryable, filter) do
     queryable
     |> join(:inner, [f], u in assoc(f, :user))
@@ -199,4 +197,31 @@ defmodule Helper.QueryBuilder do
         queryable
     end)
   end
+
+  @doc """
+  handle spec needs for CMS query filter
+  """
+  def domain_query(CMS.Repo = queryable, filter) do
+    Enum.reduce(filter, queryable, fn
+      {:sort, :most_github_star}, queryable ->
+        queryable |> order_by(desc: :star_count)
+
+      {:sort, :most_github_fork}, queryable ->
+        queryable |> order_by(desc: :fork_count)
+
+      {:sort, :most_github_watch}, queryable ->
+        queryable |> order_by(desc: :watch_count)
+
+      {:sort, :most_github_pr}, queryable ->
+        queryable |> order_by(desc: :prs_count)
+
+      {:sort, :most_github_issue}, queryable ->
+        queryable |> order_by(desc: :issues_count)
+
+      {_, _}, queryable ->
+        queryable
+    end)
+  end
+
+  def domain_query(queryable, _filter), do: queryable
 end

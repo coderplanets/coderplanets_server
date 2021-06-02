@@ -277,7 +277,6 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     |> join(:inner, [member], u in assoc(member, :user))
     |> select([member, c, u], u)
     |> QueryBuilder.filter_pack(filters)
-    # |> QueryBuilder.load_inner_users(filters)
     |> ORM.paginater(~m(page size)a)
     |> done()
   end

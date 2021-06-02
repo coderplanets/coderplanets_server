@@ -90,7 +90,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
     with {:ok, info} <- match(thread) do
       info.model
-      |> domain_filter_query(filter)
+      |> QueryBuilder.domain_uery(filter)
       |> QueryBuilder.filter_pack(Map.merge(filter, %{mark_delete: false}))
       |> ORM.paginater(~m(page size)a)
       |> add_pin_articles_ifneed(info.model, filter)
@@ -103,7 +103,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
     with {:ok, info} <- match(thread) do
       info.model
-      |> domain_filter_query(filter)
+      |> QueryBuilder.domain_uery(filter)
       |> QueryBuilder.filter_pack(Map.merge(filter, %{mark_delete: false}))
       |> ORM.paginater(~m(page size)a)
       |> add_pin_articles_ifneed(info.model, filter)
@@ -327,30 +327,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp handle_existing_author({:error, changeset}) do
     ORM.find_by(Author, user_id: changeset.data.user_id)
   end
-
-  defp domain_filter_query(CMS.Repo = queryable, filter) do
-    Enum.reduce(filter, queryable, fn
-      {:sort, :most_github_star}, queryable ->
-        queryable |> order_by(desc: :star_count)
-
-      {:sort, :most_github_fork}, queryable ->
-        queryable |> order_by(desc: :fork_count)
-
-      {:sort, :most_github_watch}, queryable ->
-        queryable |> order_by(desc: :watch_count)
-
-      {:sort, :most_github_pr}, queryable ->
-        queryable |> order_by(desc: :prs_count)
-
-      {:sort, :most_github_issue}, queryable ->
-        queryable |> order_by(desc: :issues_count)
-
-      {_, _}, queryable ->
-        queryable
-    end)
-  end
-
-  defp domain_filter_query(queryable, _filter), do: queryable
 
   defp add_pin_articles_ifneed(articles, querable, %{community: community} = filter) do
     thread = module_to_thread(querable)
