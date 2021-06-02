@@ -5,7 +5,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
   import Helper.Utils, only: [get_config: 2]
 
   alias Helper.ORM
-  alias GroupherServer.{Accounts, CMS}
+  alias GroupherServer.{Accounts, CMS, Repo}
 
   alias CMS.{ArticleComment, ArticlePinnedComment, Embeds, Post}
 
@@ -677,7 +677,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, post_comment} = CMS.create_article_comment(:post, post.id, "comment", user)
 
       assert not post_comment.is_for_question
-      assert not post_comment.meta.is_solution
+      assert not post_comment.is_solution
     end
 
     @tag :wip2
@@ -725,7 +725,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "comment", post_author)
       {:ok, comment} = CMS.mark_comment_solution(comment.id, post_author)
 
-      assert comment.meta.is_solution
+      assert comment.is_solution
 
       {:ok, post} = ORM.find(Post, post.id)
       assert post.is_solved
@@ -759,7 +759,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
 
       {:ok, comment} = CMS.undo_mark_comment_solution(comment.id, post_author)
 
-      assert not comment.meta.is_solution
+      assert not comment.is_solution
 
       {:ok, post} = ORM.find(Post, post.id)
       assert not post.is_solved
@@ -778,6 +778,28 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:error, reason} = CMS.undo_mark_comment_solution(comment.id, random_user)
 
       reason |> is_error?(:require_questioner)
+    end
+
+    @tag :wip
+    test "can only mark one best comment as solution", ~m(user community)a do
+      post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+
+      {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
+      post_author = post.author.user
+
+      {:ok, comment1} = CMS.create_article_comment(:post, post.id, "comment", post_author)
+      {:ok, comment2} = CMS.create_article_comment(:post, post.id, "comment", post_author)
+
+      {:ok, _comment} = CMS.mark_comment_solution(comment1.id, post_author)
+      {:ok, comment2} = CMS.mark_comment_solution(comment2.id, post_author)
+
+      answers =
+        from(c in ArticleComment, where: c.post_id == ^post.id and c.is_solution == true)
+        |> Repo.all()
+
+      assert answers |> length == 1
+      assert answers |> List.first() |> Map.get(:id) == comment2.id
     end
   end
 end

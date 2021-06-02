@@ -140,22 +140,27 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   end
 
   def mark_comment_solution(article_comment_id, user) do
-    do_mark_comment_solution(article_comment_id, user, true)
+    with {:ok, article_comment} <- ORM.find(ArticleComment, article_comment_id),
+         {:ok, post} <- ORM.find(CMS.Post, article_comment.post_id, preload: [author: :user]) do
+      # 确保只有一个最佳答案
+      batch_update_solution_flag(post, false)
+      do_mark_comment_solution(post, article_comment, user, true)
+    end
   end
 
   def undo_mark_comment_solution(article_comment_id, user) do
-    do_mark_comment_solution(article_comment_id, user, false)
+    with {:ok, article_comment} <- ORM.find(ArticleComment, article_comment_id),
+         {:ok, post} <- ORM.find(CMS.Post, article_comment.post_id, preload: [author: :user]) do
+      do_mark_comment_solution(post, article_comment, user, false)
+    end
   end
 
-  defp do_mark_comment_solution(article_comment_id, user, is_solution) do
-    with {:ok, article_comment} <- ORM.find(ArticleComment, article_comment_id),
-         {:ok, post} <- ORM.find(CMS.Post, article_comment.post_id, preload: [author: :user]),
-         # check if user is questioner
-         true <- user.id == post.author.user.id do
+  defp do_mark_comment_solution(post, %ArticleComment{} = article_comment, user, is_solution) do
+    # check if user is questioner
+    with true <- user.id == post.author.user.id do
       Multi.new()
       |> Multi.run(:mark_solution, fn _, _ ->
-        meta = article_comment.meta |> Map.merge(%{is_solution: is_solution})
-        ORM.update_meta(article_comment, meta)
+        ORM.update(article_comment, %{is_solution: is_solution})
       end)
       |> Multi.run(:update_post_state, fn _, _ ->
         ORM.update(post, %{is_solved: is_solution, solution_digest: article_comment.body_html})
@@ -347,6 +352,17 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   end
 
   defp set_question_flag_ifneed(_, comment), do: ORM.update(comment, %{is_for_question: false})
+
+  # batch update is_solution flag for artilce comment
+  defp batch_update_solution_flag(%CMS.Post{} = post, is_question) do
+    from(c in ArticleComment,
+      where: c.post_id == ^post.id,
+      update: [set: [is_solution: ^is_question]]
+    )
+    |> Repo.update_all([])
+
+    {:ok, :pass}
+  end
 
   defp result({:ok, %{set_question_flag_ifneed: result}}), do: {:ok, result}
   defp result({:ok, %{delete_article_comment: result}}), do: {:ok, result}

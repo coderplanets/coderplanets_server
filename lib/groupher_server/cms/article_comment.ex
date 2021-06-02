@@ -17,8 +17,8 @@ defmodule GroupherServer.CMS.ArticleComment do
   @article_threads get_config(:article, :threads)
 
   @required_fields ~w(body_html author_id)a
-  @optional_fields ~w(reply_to_id replies_count is_folded is_deleted floor is_article_author thread is_for_question)a
-  @updatable_fields ~w(is_folded is_deleted floor upvotes_count is_pinned is_for_question)a
+  @optional_fields ~w(reply_to_id replies_count is_folded is_deleted floor is_article_author thread is_for_question is_solution)a
+  @updatable_fields ~w(is_folded is_deleted floor upvotes_count is_pinned is_for_question is_solution)a
 
   @article_fields @article_threads |> Enum.map(&:"#{&1}_id")
 
@@ -58,7 +58,9 @@ defmodule GroupherServer.CMS.ArticleComment do
     field(:is_deleted, :boolean, default: false)
     # 楼层
     field(:floor, :integer, default: 0)
+
     field(:is_for_question, :boolean, default: false)
+    field(:is_solution, :boolean, default: false)
 
     # 是否是评论文章的作者
     field(:is_article_author, :boolean, default: false)
