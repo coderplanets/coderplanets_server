@@ -16,12 +16,6 @@ defmodule Helper.QueryBuilder do
     queryable |> load_inner_users(filter)
   end
 
-  # def members_pack(queryable, %{count: _, type: :community}) do
-  #   queryable
-  #   |> group_by([f], f.community_id)
-  #   |> select([f], count(f.id))
-  # end
-
   def load_inner_users(queryable, filter) do
     queryable
     |> join(:inner, [f], u in assoc(f, :user))
