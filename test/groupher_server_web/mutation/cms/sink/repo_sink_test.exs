@@ -27,7 +27,7 @@ defmodule GroupherServer.Test.Mutation.Sink.RepoSink do
     }
     """
     @tag :wip
-    test "login user can sink a repo", ~m(user_conn community repo)a do
+    test "login user can sink a repo", ~m(community repo)a do
       variables = %{id: repo.id, communityId: community.id}
       passport_rules = %{community.raw => %{"repo.sink" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)

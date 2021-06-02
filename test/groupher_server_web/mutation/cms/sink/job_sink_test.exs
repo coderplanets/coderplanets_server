@@ -27,7 +27,7 @@ defmodule GroupherServer.Test.Mutation.Sink.JobSink do
     }
     """
     @tag :wip
-    test "login user can sink a job", ~m(user_conn community job)a do
+    test "login user can sink a job", ~m(community job)a do
       variables = %{id: job.id, communityId: community.id}
       passport_rules = %{community.raw => %{"job.sink" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
