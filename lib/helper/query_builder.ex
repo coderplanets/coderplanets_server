@@ -1,18 +1,13 @@
 defmodule Helper.QueryBuilder do
-  # alias GroupherServer.Repo
-  import Ecto.Query, warn: false
+  @moduledoc """
+  handle common query pices across the project
+  """
 
+  import Ecto.Query, warn: false
   alias GroupherServer.CMS
 
   @doc """
-  handle [3] situation:
-
-  1. basic query with filter
-  2. reaction_user's count
-  3. is viewer reacted?
-
-  bewteen [THREAD] and [REACT]
-  [REACT]; upvotes, stars, watchs ...
+  load inner user field
   """
   def load_inner_users(queryable, filter) do
     queryable
@@ -81,12 +76,9 @@ defmodule Helper.QueryBuilder do
         queryable |> order_by(asc: :index)
 
       {:sort, :most_views}, queryable ->
-        # this will cause error in Dialyzer
-        # queryable |> order_by(^sort_strategy(:most_views))
         queryable |> order_by(desc: :views, desc: :inserted_at)
 
       {:sort, :least_views}, queryable ->
-        # queryable |> order_by(^sort_strategy(:least_views))
         queryable |> order_by(asc: :views, desc: :inserted_at)
 
       {:sort, :most_stars}, queryable ->
@@ -94,9 +86,6 @@ defmodule Helper.QueryBuilder do
 
       {:sort, :least_stars}, queryable ->
         queryable |> sort_by_count(:stars, :asc)
-
-      {:sort, :most_likes}, queryable ->
-        queryable |> sort_by_count(:likes, :desc)
 
       {:length, :most_words}, queryable ->
         queryable |> order_by(desc: :length)
