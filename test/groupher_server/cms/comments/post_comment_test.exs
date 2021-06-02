@@ -84,7 +84,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
         Timex.shift(Timex.now(), days: -(active_period_days + 1)) |> Timex.to_datetime()
 
       {:ok, post} = db_insert(:post, %{inserted_at: inserted_at})
-      Process.sleep(1000)
+      Process.sleep(2000)
       {:ok, _comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
       {:ok, post} = ORM.find(Post, post.id)
 
