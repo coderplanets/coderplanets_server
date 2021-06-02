@@ -33,13 +33,13 @@ defmodule GroupherServer.CMS.Helper.Loader do
     )
   end
 
-  def query({"communities_subscribers", CommunitySubscriber}, args) do
-    CommunitySubscriber |> QueryBuilder.members_pack(args)
-  end
+  # def query({"communities_subscribers", CommunitySubscriber}, args) do
+  #   CommunitySubscriber |> QueryBuilder.members_pack(args)
+  # end
 
-  def query({"communities_editors", CommunityEditor}, args) do
-    CommunityEditor |> QueryBuilder.members_pack(args)
-  end
+  # def query({"communities_editors", CommunityEditor}, args) do
+  #   CommunityEditor |> QueryBuilder.members_pack(args)
+  # end
 
   # ------- post comments ------
   @doc """

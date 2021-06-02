@@ -10,36 +10,17 @@ defmodule Helper.QueryBuilder do
   3. is viewer reacted?
 
   bewteen [THREAD] and [REACT]
-  [THREAD]: cms thread, include: Post, Job, Repo ...
   [REACT]; upvotes, stars, watchs ...
   """
   def members_pack(queryable, %{filter: filter}) do
     queryable |> load_inner_users(filter)
   end
 
-  # def members_pack(queryable, %{count: _, type: :post}) do
+  # def members_pack(queryable, %{count: _, type: :community}) do
   #   queryable
-  #   |> group_by([f], f.post_id)
+  #   |> group_by([f], f.community_id)
   #   |> select([f], count(f.id))
   # end
-
-  # def members_pack(queryable, %{count: _, type: :job}) do
-  #   queryable
-  #   |> group_by([f], f.job_id)
-  #   |> select([f], count(f.id))
-  # end
-
-  # def members_pack(queryable, %{count: _, type: :repo}) do
-  #   queryable
-  #   |> group_by([f], f.repo_id)
-  #   |> select([f], count(f.id))
-  # end
-
-  def members_pack(queryable, %{count: _, type: :community}) do
-    queryable
-    |> group_by([f], f.community_id)
-    |> select([f], count(f.id))
-  end
 
   def load_inner_users(queryable, filter) do
     queryable
