@@ -2,11 +2,14 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
+  alias CMS.Repo
+
+  alias Helper.ORM
 
   setup do
-    {:ok, repo} = db_insert(:repo)
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
+    {:ok, repo} = CMS.create_article(community, :repo, mock_attrs(:repo), user)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
@@ -24,7 +27,6 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
       }
     }
     """
-
     test "write article comment to a exsit repo", ~m(repo user_conn)a do
       comment = "a test comment"
       variables = %{thread: "REPO", id: repo.id, content: comment}
@@ -43,7 +45,6 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
       }
     }
     """
-
     test "login user can reply to a comment", ~m(repo user user_conn)a do
       {:ok, comment} = CMS.create_article_comment(:repo, repo.id, "commment", user)
       variables = %{id: comment.id, content: "reply content"}
@@ -63,7 +64,6 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
       }
     }
     """
-
     test "only owner can update a exsit comment",
          ~m(repo user guest_conn user_conn owner_conn)a do
       {:ok, comment} = CMS.create_article_comment(:repo, repo.id, "repo comment", user)
@@ -88,7 +88,6 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
       }
     }
     """
-
     test "only owner can delete a exsit comment",
          ~m(repo user guest_conn user_conn owner_conn)a do
       {:ok, comment} = CMS.create_article_comment(:repo, repo.id, "repo comment", user)
@@ -123,7 +122,6 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
       }
     }
     """
-
     test "login user can emotion to a comment", ~m(repo user user_conn)a do
       {:ok, comment} = CMS.create_article_comment(:repo, repo.id, "repo comment", user)
       variables = %{id: comment.id, emotion: "BEER"}
@@ -150,7 +148,6 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
       }
     }
     """
-
     test "login user can undo emotion to a comment", ~m(repo user owner_conn)a do
       {:ok, comment} = CMS.create_article_comment(:repo, repo.id, "repo comment", user)
       {:ok, _} = CMS.emotion_to_comment(comment.id, :beer, user)
@@ -162,6 +159,66 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
 
       assert comment |> get_in(["emotions", "beerCount"]) == 0
       assert not get_in(comment, ["emotions", "viewerHasBeered"])
+    end
+  end
+
+  describe "[article comment lock/unlock]" do
+    @query """
+    mutation($id: ID!, $communityId: ID!){
+      lockRepoComment(id: $id, communityId: $communityId) {
+        id
+      }
+    }
+    """
+    @tag :wip
+    test "can lock a repo's comment", ~m(community repo)a do
+      variables = %{id: repo.id, communityId: community.id}
+      passport_rules = %{community.raw => %{"repo.lock_comment" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      result = rule_conn |> mutation_result(@query, variables, "lockRepoComment")
+      assert result["id"] == to_string(repo.id)
+
+      {:ok, repo} = ORM.find(Repo, repo.id)
+      assert repo.meta.is_comment_locked
+    end
+
+    @tag :wip
+    test "unauth user  fails", ~m(guest_conn community repo)a do
+      variables = %{id: repo.id, communityId: community.id}
+
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
+    end
+
+    @query """
+    mutation($id: ID!, $communityId: ID!){
+      undoLockRepoComment(id: $id, communityId: $communityId) {
+        id
+      }
+    }
+    """
+    @tag :wip
+    test "can undo lock a repo's comment", ~m(community repo)a do
+      {:ok, _} = CMS.lock_article_comment(:repo, repo.id)
+      {:ok, repo} = ORM.find(Repo, repo.id)
+      assert repo.meta.is_comment_locked
+
+      variables = %{id: repo.id, communityId: community.id}
+      passport_rules = %{community.raw => %{"repo.undo_lock_comment" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      result = rule_conn |> mutation_result(@query, variables, "undoLockRepoComment")
+      assert result["id"] == to_string(repo.id)
+
+      {:ok, repo} = ORM.find(Repo, repo.id)
+      assert not repo.meta.is_comment_locked
+    end
+
+    @tag :wip
+    test "unauth user undo fails", ~m(guest_conn community repo)a do
+      variables = %{id: repo.id, communityId: community.id}
+
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
     end
   end
 end
