@@ -315,7 +315,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       }
     }
     """
-    @tag :wip2
+
     test "latest commented post should appear on top", ~m(guest_conn post_last_week user)a do
       variables = %{filter: %{page: 1, size: 20}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
@@ -333,7 +333,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       assert first_post["id"] == to_string(post_last_week.id)
     end
 
-    @tag :wip2
     test "comment on very old post have no effect", ~m(guest_conn post_last_year user)a do
       variables = %{filter: %{page: 1, size: 20}}
 
@@ -346,7 +345,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       assert first_post["id"] !== to_string(post_last_year.id)
     end
 
-    @tag :wip2
     test "latest post author commented post have no effect", ~m(guest_conn post_last_week)a do
       variables = %{filter: %{page: 1, size: 20}}
 

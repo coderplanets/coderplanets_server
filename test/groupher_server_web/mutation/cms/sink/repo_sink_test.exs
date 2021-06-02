@@ -26,8 +26,8 @@ defmodule GroupherServer.Test.Mutation.Sink.RepoSink do
       }
     }
     """
-    @tag :wip
-    test "login user can sink a repo", ~m(user_conn community repo)a do
+
+    test "login user can sink a repo", ~m(community repo)a do
       variables = %{id: repo.id, communityId: community.id}
       passport_rules = %{community.raw => %{"repo.sink" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
@@ -40,7 +40,6 @@ defmodule GroupherServer.Test.Mutation.Sink.RepoSink do
       assert repo.active_at == repo.inserted_at
     end
 
-    @tag :wip
     test "unauth user sink a repo fails", ~m(guest_conn community repo)a do
       variables = %{id: repo.id, communityId: community.id}
 
@@ -54,7 +53,7 @@ defmodule GroupherServer.Test.Mutation.Sink.RepoSink do
       }
     }
     """
-    @tag :wip
+
     test "login user can undo sink to a repo", ~m(community repo)a do
       variables = %{id: repo.id, communityId: community.id}
 

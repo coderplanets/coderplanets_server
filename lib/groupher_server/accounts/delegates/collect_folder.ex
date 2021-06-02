@@ -24,7 +24,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
   # @max_article_count_per_collect_folder 300
 
   @default_meta Embeds.CollectFolderMeta.default_meta()
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
 
   @doc """
   list a user's not-private collect folders

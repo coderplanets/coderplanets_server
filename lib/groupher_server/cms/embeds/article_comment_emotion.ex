@@ -13,7 +13,7 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentEmotion.Macros do
   alias GroupherServer.CMS
   alias CMS.Embeds
 
-  @supported_emotions get_config(:article, :comment_supported_emotions)
+  @supported_emotions get_config(:article, :comment_emotions)
 
   defmacro emotion_fields() do
     @supported_emotions
@@ -39,7 +39,7 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentEmotion do
   import GroupherServer.CMS.Embeds.ArticleCommentEmotion.Macros
   import Helper.Utils, only: [get_config: 2]
 
-  @supported_emotions get_config(:article, :comment_supported_emotions)
+  @supported_emotions get_config(:article, :comment_emotions)
   @optional_fields Enum.map(@supported_emotions, &:"#{&1}_count") ++
                      Enum.map(@supported_emotions, &:"#{&1}_user_logins")
 

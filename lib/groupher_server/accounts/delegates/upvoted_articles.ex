@@ -11,7 +11,7 @@ defmodule GroupherServer.Accounts.Delegate.UpvotedArticles do
   alias GroupherServer.CMS
   alias CMS.{ArticleUpvote}
 
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
 
   @doc """
   get paged upvoted articles

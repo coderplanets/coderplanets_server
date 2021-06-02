@@ -14,7 +14,7 @@ defmodule GroupherServer.CMS.ArticlePinnedComment do
   alias CMS.ArticleComment
 
   # alias Helper.HTML
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
 
   @required_fields ~w(article_comment_id)a
   # @optional_fields ~w(post_id job_id repo_id)a

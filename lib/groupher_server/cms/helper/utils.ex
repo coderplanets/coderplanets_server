@@ -8,7 +8,7 @@ defmodule GroupherServer.CMS.Helper.Utils do
   alias GroupherServer.CMS
   alias CMS.Community
 
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
   @article_fields @article_threads |> Enum.map(&:"#{&1}_id")
 
   @doc """

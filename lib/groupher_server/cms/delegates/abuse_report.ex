@@ -17,7 +17,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
 
   alias Ecto.Multi
 
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
 
   @export_author_keys [:id, :login, :nickname, :avatar]

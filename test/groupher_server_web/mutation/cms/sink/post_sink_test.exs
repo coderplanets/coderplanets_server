@@ -26,8 +26,8 @@ defmodule GroupherServer.Test.Mutation.Sink.PostSink do
       }
     }
     """
-    @tag :wip
-    test "login user can sink a post", ~m(user_conn community post)a do
+
+    test "login user can sink a post", ~m(community post)a do
       variables = %{id: post.id, communityId: community.id}
       passport_rules = %{community.raw => %{"post.sink" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
@@ -40,7 +40,6 @@ defmodule GroupherServer.Test.Mutation.Sink.PostSink do
       assert post.active_at == post.inserted_at
     end
 
-    @tag :wip
     test "unauth user sink a post fails", ~m(guest_conn community post)a do
       variables = %{id: post.id, communityId: community.id}
 
@@ -54,7 +53,7 @@ defmodule GroupherServer.Test.Mutation.Sink.PostSink do
       }
     }
     """
-    @tag :wip
+
     test "login user can undo sink to a post", ~m(community post)a do
       variables = %{id: post.id, communityId: community.id}
 

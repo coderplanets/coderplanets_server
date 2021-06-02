@@ -18,8 +18,8 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   # TODO:
   # @max_latest_emotion_users_count ArticleComment.max_latest_emotion_users_count()
   @max_latest_emotion_users_count 4
-  @supported_emotions get_config(:article, :supported_emotions)
-  @supported_comment_emotions get_config(:article, :comment_supported_emotions)
+  @supported_emotions get_config(:article, :emotions)
+  @supported_comment_emotions get_config(:article, :comment_emotions)
 
   #######
   # emotion related

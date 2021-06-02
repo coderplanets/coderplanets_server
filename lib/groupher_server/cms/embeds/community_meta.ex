@@ -3,7 +3,7 @@ defmodule GroupherServer.CMS.Embeds.CommunityMeta.Macro do
 
   import Helper.Utils, only: [get_config: 2]
 
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
 
   defmacro thread_count_fields() do
     @article_threads
@@ -26,7 +26,7 @@ defmodule GroupherServer.CMS.Embeds.CommunityMeta do
   import Helper.Utils, only: [get_config: 2]
   import GroupherServer.CMS.Embeds.CommunityMeta.Macro
 
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
 
   @general_options %{
     editors_ids: [],

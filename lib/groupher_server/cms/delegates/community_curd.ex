@@ -25,7 +25,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   }
 
   @default_meta Embeds.CommunityMeta.default_meta()
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
 
   def read_community(clauses, user), do: read_community(clauses) |> viewer_has_states(user)
   def read_community(%{id: id}), do: ORM.read(Community, id, inc: :views)

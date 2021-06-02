@@ -20,7 +20,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
 
   alias Ecto.Multi
 
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
 
   @max_parent_replies_count ArticleComment.max_parent_replies_count()
   @pinned_comment_limit ArticleComment.pinned_comment_limit()

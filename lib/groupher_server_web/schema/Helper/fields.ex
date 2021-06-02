@@ -7,10 +7,10 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
   alias GroupherServer.{Accounts, CMS}
 
   @page_size get_config(:general, :page_size)
-  @supported_emotions get_config(:article, :supported_emotions)
-  @supported_comment_emotions get_config(:article, :comment_supported_emotions)
+  @supported_emotions get_config(:article, :emotions)
+  @supported_comment_emotions get_config(:article, :comment_emotions)
 
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
 
   defmacro timestamp_fields(:article) do
     quote do
