@@ -1,7 +1,7 @@
 defmodule GroupherServer.CMS.ArticleUserEmotion.Macros do
   import Helper.Utils, only: [get_config: 2]
 
-  @supported_emotions get_config(:article, :supported_emotions)
+  @supported_emotions get_config(:article, :emotions)
 
   defmacro emotion_fields() do
     @supported_emotions
@@ -26,7 +26,7 @@ defmodule GroupherServer.CMS.ArticleUserEmotion do
 
   alias GroupherServer.Accounts
 
-  @supported_emotions get_config(:article, :supported_emotions)
+  @supported_emotions get_config(:article, :emotions)
   @article_threads get_config(:article, :threads)
 
   @required_fields ~w(user_id recived_user_id)a

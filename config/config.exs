@@ -73,7 +73,7 @@ config :groupher_server, :article,
 
   # NOTE: if you want to add/remove emotion, just edit the list below
   # and migrate the field to table "articles_users_emotions"
-  supported_emotions: [
+  emotions: [
     :upvote,
     :downvote,
     :beer,
@@ -86,7 +86,7 @@ config :groupher_server, :article,
   ],
   # NOTE: if you want to add/remove emotion, just edit the list below
   # and migrate the field to table "articles_comments_users_emotions"
-  comment_supported_emotions: [
+  comment_emotions: [
     :downvote,
     :beer,
     :heart,
