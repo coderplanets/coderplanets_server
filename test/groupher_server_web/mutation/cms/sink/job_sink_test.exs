@@ -26,7 +26,7 @@ defmodule GroupherServer.Test.Mutation.Sink.JobSink do
       }
     }
     """
-    @tag :wip
+
     test "login user can sink a job", ~m(community job)a do
       variables = %{id: job.id, communityId: community.id}
       passport_rules = %{community.raw => %{"job.sink" => true}}
@@ -40,7 +40,6 @@ defmodule GroupherServer.Test.Mutation.Sink.JobSink do
       assert job.active_at == job.inserted_at
     end
 
-    @tag :wip
     test "unauth user sink a job fails", ~m(guest_conn community job)a do
       variables = %{id: job.id, communityId: community.id}
 
@@ -54,7 +53,7 @@ defmodule GroupherServer.Test.Mutation.Sink.JobSink do
       }
     }
     """
-    @tag :wip
+
     test "login user can undo sink to a job", ~m(community job)a do
       variables = %{id: job.id, communityId: community.id}
 

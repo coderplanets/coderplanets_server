@@ -95,7 +95,6 @@ defmodule GroupherServer.Test.Articles.Job do
   end
 
   describe "[cms job sink/undo_sink]" do
-    @tag :wip2
     test "if a job is too old, read job should update can_undo_sink flag",
          ~m(user community job_attrs)a do
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
@@ -110,7 +109,6 @@ defmodule GroupherServer.Test.Articles.Job do
       assert not job_last_year.meta.can_undo_sink
     end
 
-    @tag :wip2
     test "can sink a job", ~m(user community job_attrs)a do
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
       assert not job.meta.is_sinked
@@ -120,7 +118,6 @@ defmodule GroupherServer.Test.Articles.Job do
       assert job.active_at == job.inserted_at
     end
 
-    @tag :wip2
     test "can undo sink job", ~m(user community job_attrs)a do
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
       {:ok, job} = CMS.sink_article(:job, job.id)
@@ -132,7 +129,6 @@ defmodule GroupherServer.Test.Articles.Job do
       assert job.active_at == job.meta.last_active_at
     end
 
-    @tag :wip2
     test "can not undo sink to old job", ~m()a do
       {:ok, job_last_year} = db_insert(:job, %{title: "last year", inserted_at: @last_year})
 
