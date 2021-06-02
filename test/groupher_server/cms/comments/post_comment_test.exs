@@ -66,7 +66,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert post.active_at == post.inserted_at
     end
 
-    @tag :wip
     test "old post will not update active after comment created", ~m(user)a do
       active_period_days = Map.get(@active_period, :post)
 
@@ -641,6 +640,34 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       author_user = post.author.user
       {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", author_user)
       assert comment.is_article_author
+    end
+  end
+
+  describe "[lock/unlock post comment]" do
+    @tag :wip
+    test "locked post can not be comment", ~m(user post)a do
+      {:ok, _} = CMS.create_article_comment(:post, post.id, "comment", user)
+      {:ok, _} = CMS.lock_article_comment(:post, post.id)
+
+      {:error, reason} = CMS.create_article_comment(:post, post.id, "comment", user)
+      assert reason |> is_error?(:article_comment_locked)
+
+      {:ok, _} = CMS.undo_lock_article_comment(:post, post.id)
+      {:ok, _} = CMS.create_article_comment(:post, post.id, "comment", user)
+    end
+
+    @tag :wip
+    test "locked post can not by reply", ~m(user post)a do
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
+
+      {:ok, _} = CMS.lock_article_comment(:post, post.id)
+
+      {:error, reason} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
+      assert reason |> is_error?(:article_comment_locked)
+
+      {:ok, _} = CMS.undo_lock_article_comment(:post, post.id)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
     end
   end
 end

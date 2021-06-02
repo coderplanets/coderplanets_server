@@ -6,7 +6,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
   import Ecto.Query, warn: false
 
   import Helper.ErrorCode
-  import Helper.Utils, only: [strip_struct: 1, done: 1, ensure: 2]
+  import Helper.Utils, only: [strip_struct: 1, done: 1]
   import GroupherServer.CMS.Helper.Matcher
 
   alias Helper.Types, as: T
@@ -143,17 +143,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
   end
 
   def update_edit_status(content, _), do: {:ok, content}
-
-  @doc "lock comment of a article"
-  def lock_article_comment(thread, id) do
-    with {:ok, info} <- match(thread),
-         {:ok, article} <- ORM.find(info.model, id) do
-      article_meta = ensure(article.meta, @default_article_meta)
-      meta = Map.merge(article_meta, %{is_comment_locked: true})
-
-      ORM.update_meta(article, meta)
-    end
-  end
 
   # check if the thread has aready enough pinned articles
   defp check_pinned_article_count(community_id, thread) do

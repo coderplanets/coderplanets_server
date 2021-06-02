@@ -642,4 +642,32 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
       assert comment.is_article_author
     end
   end
+
+  describe "[lock/unlock repo comment]" do
+    @tag :wip
+    test "locked repo can not be comment", ~m(user repo)a do
+      {:ok, _} = CMS.create_article_comment(:repo, repo.id, "comment", user)
+      {:ok, _} = CMS.lock_article_comment(:repo, repo.id)
+
+      {:error, reason} = CMS.create_article_comment(:repo, repo.id, "comment", user)
+      assert reason |> is_error?(:article_comment_locked)
+
+      {:ok, _} = CMS.undo_lock_article_comment(:repo, repo.id)
+      {:ok, _} = CMS.create_article_comment(:repo, repo.id, "comment", user)
+    end
+
+    @tag :wip
+    test "locked repo can not by reply", ~m(user repo)a do
+      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, "parent_conent", user)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
+
+      {:ok, _} = CMS.lock_article_comment(:repo, repo.id)
+
+      {:error, reason} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
+      assert reason |> is_error?(:article_comment_locked)
+
+      {:ok, _} = CMS.undo_lock_article_comment(:repo, repo.id)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
+    end
+  end
 end
