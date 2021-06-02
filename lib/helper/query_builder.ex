@@ -1,65 +1,19 @@
 defmodule Helper.QueryBuilder do
-  # alias GroupherServer.Repo
+  @moduledoc """
+  handle common query pices across the project
+  """
+
   import Ecto.Query, warn: false
+  alias GroupherServer.CMS
 
   @doc """
-  handle [3] situation:
-
-  1. basic query with filter
-  2. reaction_user's count
-  3. is viewer reacted?
-
-  bewteen [THREAD] and [REACT]
-  [THREAD]: cms thread, include: Post, Job, Repo ...
-  [REACT]; upvotes, stars, watchs ...
+  load inner user field
   """
-  def members_pack(queryable, %{filter: filter}) do
-    queryable |> load_inner_users(filter)
-  end
-
-  def members_pack(queryable, %{viewer_did: _, cur_user: cur_user}) do
-    queryable |> where([f], f.user_id == ^cur_user.id)
-  end
-
-  def members_pack(queryable, %{count: _, type: :post}) do
-    queryable
-    |> group_by([f], f.post_id)
-    |> select([f], count(f.id))
-  end
-
-  def members_pack(queryable, %{count: _, type: :job}) do
-    queryable
-    |> group_by([f], f.job_id)
-    |> select([f], count(f.id))
-  end
-
-  def members_pack(queryable, %{count: _, type: :repo}) do
-    queryable
-    |> group_by([f], f.repo_id)
-    |> select([f], count(f.id))
-  end
-
-  def members_pack(queryable, %{count: _, type: :community}) do
-    queryable
-    |> group_by([f], f.community_id)
-    |> select([f], count(f.id))
-  end
-
   def load_inner_users(queryable, filter) do
     queryable
     |> join(:inner, [f], u in assoc(f, :user))
     |> select([f, u], u)
     |> filter_pack(filter)
-  end
-
-  @doc """
-  load replies of the given comment
-  """
-  def load_inner_replies(queryable, filter) do
-    queryable
-    |> filter_pack(filter)
-    |> join(:inner, [c], r in assoc(c, :reply))
-    |> select([c, r], r)
   end
 
   @doc """
@@ -122,12 +76,9 @@ defmodule Helper.QueryBuilder do
         queryable |> order_by(asc: :index)
 
       {:sort, :most_views}, queryable ->
-        # this will cause error in Dialyzer
-        # queryable |> order_by(^sort_strategy(:most_views))
         queryable |> order_by(desc: :views, desc: :inserted_at)
 
       {:sort, :least_views}, queryable ->
-        # queryable |> order_by(^sort_strategy(:least_views))
         queryable |> order_by(asc: :views, desc: :inserted_at)
 
       {:sort, :most_stars}, queryable ->
@@ -135,9 +86,6 @@ defmodule Helper.QueryBuilder do
 
       {:sort, :least_stars}, queryable ->
         queryable |> sort_by_count(:stars, :asc)
-
-      {:sort, :most_likes}, queryable ->
-        queryable |> sort_by_count(:likes, :desc)
 
       {:length, :most_words}, queryable ->
         queryable |> order_by(desc: :length)
@@ -217,19 +165,8 @@ defmodule Helper.QueryBuilder do
           where: t.raw == ^community_raw
         )
 
-      {:one_community, community_raw}, queryable ->
-        from(
-          q in queryable,
-          join: t in assoc(q, :community),
-          where: t.raw == ^community_raw
-        )
-
       {:first, first}, queryable ->
         queryable |> limit(^first)
-
-      # {:pin, bool}, queryable ->
-      #   queryable
-      #   |> where([p], p.pin == ^bool)
 
       {:mark_delete, bool}, queryable ->
         queryable |> where([p], p.mark_delete == ^bool)
@@ -238,4 +175,31 @@ defmodule Helper.QueryBuilder do
         queryable
     end)
   end
+
+  @doc """
+  handle spec needs for CMS query filter
+  """
+  def domain_query(CMS.Repo = queryable, filter) do
+    Enum.reduce(filter, queryable, fn
+      {:sort, :most_github_star}, queryable ->
+        queryable |> order_by(desc: :star_count)
+
+      {:sort, :most_github_fork}, queryable ->
+        queryable |> order_by(desc: :fork_count)
+
+      {:sort, :most_github_watch}, queryable ->
+        queryable |> order_by(desc: :watch_count)
+
+      {:sort, :most_github_pr}, queryable ->
+        queryable |> order_by(desc: :prs_count)
+
+      {:sort, :most_github_issue}, queryable ->
+        queryable |> order_by(desc: :issues_count)
+
+      {_, _}, queryable ->
+        queryable
+    end)
+  end
+
+  def domain_query(queryable, _filter), do: queryable
 end

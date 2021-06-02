@@ -8,8 +8,6 @@ defmodule GroupherServer.CMS.Helper.Loader do
 
   alias CMS.{
     Author,
-    CommunityEditor,
-    CommunitySubscriber,
     CommunityThread,
     PostComment,
     PostCommentLike,
@@ -31,14 +29,6 @@ defmodule GroupherServer.CMS.Helper.Loader do
       order_by: [asc: t.index],
       select: t
     )
-  end
-
-  def query({"communities_subscribers", CommunitySubscriber}, args) do
-    CommunitySubscriber |> QueryBuilder.members_pack(args)
-  end
-
-  def query({"communities_editors", CommunityEditor}, args) do
-    CommunityEditor |> QueryBuilder.members_pack(args)
   end
 
   # ------- post comments ------
@@ -85,7 +75,18 @@ defmodule GroupherServer.CMS.Helper.Loader do
 
   def query({"posts_comments_replies", PostCommentReply}, %{filter: filter}) do
     PostCommentReply
-    |> QueryBuilder.load_inner_replies(filter)
+    |> load_inner_replies(filter)
+  end
+
+  @doc """
+  load replies of the given comment
+  TODO: remove
+  """
+  defp load_inner_replies(queryable, filter) do
+    queryable
+    |> QueryBuilder.filter_pack(filter)
+    |> join(:inner, [c], r in assoc(c, :reply))
+    |> select([c, r], r)
   end
 
   def query({"posts_comments_replies", PostCommentReply}, %{reply_to: _}) do
@@ -105,8 +106,12 @@ defmodule GroupherServer.CMS.Helper.Loader do
   end
 
   def query({"posts_comments_likes", PostCommentLike}, %{filter: _filter} = args) do
-    PostCommentLike
-    |> QueryBuilder.members_pack(args)
+    PostCommentLike |> members_pack(args)
+  end
+
+  # TODO: remove it
+  def members_pack(queryable, %{filter: filter}) do
+    queryable |> QueryBuilder.load_inner_users(filter)
   end
 
   # def query({"articles_comments_upvotes", ArticleCommentUpvote}, %{
