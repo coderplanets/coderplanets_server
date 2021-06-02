@@ -102,6 +102,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> Multi.run(:update_article_comments_count, fn _, %{create_article_comment: comment} ->
         update_article_comments_count(comment, :inc)
       end)
+      |> Multi.run(:set_question_flag_ifneed, fn _, _ ->
+        IO.inspect(article.meta, label: "hello now?")
+        # ORM.update(article, %{active_at: article.inserted_at})
+        {:ok, :pass}
+      end)
       |> Multi.run(:add_participator, fn _, _ ->
         add_participator_to_article(article, user)
       end)
