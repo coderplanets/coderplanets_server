@@ -170,7 +170,7 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
       }
     }
     """
-    @tag :wip
+
     test "can lock a repo's comment", ~m(community repo)a do
       variables = %{id: repo.id, communityId: community.id}
       passport_rules = %{community.raw => %{"repo.lock_comment" => true}}
@@ -183,7 +183,6 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
       assert repo.meta.is_comment_locked
     end
 
-    @tag :wip
     test "unauth user  fails", ~m(guest_conn community repo)a do
       variables = %{id: repo.id, communityId: community.id}
 
@@ -197,7 +196,7 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
       }
     }
     """
-    @tag :wip
+
     test "can undo lock a repo's comment", ~m(community repo)a do
       {:ok, _} = CMS.lock_article_comment(:repo, repo.id)
       {:ok, repo} = ORM.find(Repo, repo.id)
@@ -214,7 +213,6 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
       assert not repo.meta.is_comment_locked
     end
 
-    @tag :wip
     test "unauth user undo fails", ~m(guest_conn community repo)a do
       variables = %{id: repo.id, communityId: community.id}
 

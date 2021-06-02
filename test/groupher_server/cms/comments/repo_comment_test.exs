@@ -644,7 +644,6 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
   end
 
   describe "[lock/unlock repo comment]" do
-    @tag :wip
     test "locked repo can not be comment", ~m(user repo)a do
       {:ok, _} = CMS.create_article_comment(:repo, repo.id, "comment", user)
       {:ok, _} = CMS.lock_article_comment(:repo, repo.id)
@@ -656,7 +655,6 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
       {:ok, _} = CMS.create_article_comment(:repo, repo.id, "comment", user)
     end
 
-    @tag :wip
     test "locked repo can not by reply", ~m(user repo)a do
       {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, "parent_conent", user)
       {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)

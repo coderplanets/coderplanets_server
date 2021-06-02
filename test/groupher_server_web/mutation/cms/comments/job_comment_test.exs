@@ -170,7 +170,7 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
       }
     }
     """
-    @tag :wip
+
     test "can lock a job's comment", ~m(community job)a do
       variables = %{id: job.id, communityId: community.id}
       passport_rules = %{community.raw => %{"job.lock_comment" => true}}
@@ -183,7 +183,6 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
       assert job.meta.is_comment_locked
     end
 
-    @tag :wip
     test "unauth user  fails", ~m(guest_conn community job)a do
       variables = %{id: job.id, communityId: community.id}
 
@@ -197,7 +196,7 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
       }
     }
     """
-    @tag :wip
+
     test "can undo lock a job's comment", ~m(community job)a do
       {:ok, _} = CMS.lock_article_comment(:job, job.id)
       {:ok, job} = ORM.find(Job, job.id)
@@ -214,7 +213,6 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
       assert not job.meta.is_comment_locked
     end
 
-    @tag :wip
     test "unauth user undo fails", ~m(guest_conn community job)a do
       variables = %{id: job.id, communityId: community.id}
 

@@ -643,7 +643,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
   end
 
   describe "[lock/unlock job comment]" do
-    @tag :wip
     test "locked job can not be comment", ~m(user job)a do
       {:ok, _} = CMS.create_article_comment(:job, job.id, "comment", user)
       {:ok, _} = CMS.lock_article_comment(:job, job.id)
@@ -655,7 +654,6 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       {:ok, _} = CMS.create_article_comment(:job, job.id, "comment", user)
     end
 
-    @tag :wip
     test "locked job can not by reply", ~m(user job)a do
       {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, "parent_conent", user)
       {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)

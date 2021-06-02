@@ -115,6 +115,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> result()
     else
       false -> raise_error(:article_comment_locked, "this article is forbid comment")
+      {:error, error} -> {:error, error}
     end
   end
 

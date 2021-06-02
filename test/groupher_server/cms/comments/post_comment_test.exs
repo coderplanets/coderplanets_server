@@ -644,7 +644,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
   end
 
   describe "[lock/unlock post comment]" do
-    @tag :wip
     test "locked post can not be comment", ~m(user post)a do
       {:ok, _} = CMS.create_article_comment(:post, post.id, "comment", user)
       {:ok, _} = CMS.lock_article_comment(:post, post.id)
@@ -656,7 +655,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, _} = CMS.create_article_comment(:post, post.id, "comment", user)
     end
 
-    @tag :wip
     test "locked post can not by reply", ~m(user post)a do
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
       {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
