@@ -26,7 +26,6 @@ defmodule GroupherServer.Test.Mutation.Sink.PostSink do
       }
     }
     """
-
     test "login user can sink a post", ~m(community post)a do
       variables = %{id: post.id, communityId: community.id}
       passport_rules = %{community.raw => %{"post.sink" => true}}

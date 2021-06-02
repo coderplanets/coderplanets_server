@@ -3,7 +3,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   CURD and operations for article comments
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1]
+  import Helper.Utils, only: [done: 1, ensure: 2]
   import Helper.ErrorCode
 
   import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 3]
@@ -22,6 +22,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   @default_emotions Embeds.ArticleCommentEmotion.default_emotions()
   @delete_hint ArticleComment.delete_hint()
 
+  @default_article_meta Embeds.ArticleMeta.default_meta()
   @default_comment_meta Embeds.ArticleCommentMeta.default_meta()
   @pinned_comment_limit ArticleComment.pinned_comment_limit()
 
@@ -92,9 +93,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   """
   def create_article_comment(thread, article_id, content, %User{} = user) do
     with {:ok, info} <- match(thread),
-         # make sure the article exsit
-         # author is passed by middleware, it's exsit for sure
-         {:ok, article} <- ORM.find(info.model, article_id, preload: [author: :user]) do
+         {:ok, article} <- ORM.find(info.model, article_id, preload: [author: :user]),
+         true <- can_comment?(article, user) do
       Multi.new()
       |> Multi.run(:create_article_comment, fn _, _ ->
         do_create_comment(content, info.foreign_key, article, user)
@@ -113,7 +113,18 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       end)
       |> Repo.transaction()
       |> result()
+    else
+      false -> raise_error(:article_comment_locked, "this article is forbid comment")
+      {:error, error} -> {:error, error}
     end
+  end
+
+  @doc "check is article can be comemnt or not"
+  # TODO: check if use is in author's block list?
+  def can_comment?(article, _user) do
+    article_meta = ensure(article.meta, @default_article_meta)
+
+    not article_meta.is_comment_locked
   end
 
   @doc """

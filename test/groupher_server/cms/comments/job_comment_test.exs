@@ -65,6 +65,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert job.active_at == job.inserted_at
     end
 
+    @tag :wip
     test "old job will not update active after comment created", ~m(user)a do
       active_period_days = Map.get(@active_period, :job)
 
@@ -83,7 +84,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
         Timex.shift(Timex.now(), days: -(active_period_days + 1)) |> Timex.to_datetime()
 
       {:ok, job} = db_insert(:job, %{inserted_at: inserted_at})
-      Process.sleep(1000)
+      Process.sleep(3000)
       {:ok, _comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
       {:ok, job} = ORM.find(Job, job.id)
 
@@ -639,6 +640,32 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       author_user = job.author.user
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", author_user)
       assert comment.is_article_author
+    end
+  end
+
+  describe "[lock/unlock job comment]" do
+    test "locked job can not be comment", ~m(user job)a do
+      {:ok, _} = CMS.create_article_comment(:job, job.id, "comment", user)
+      {:ok, _} = CMS.lock_article_comment(:job, job.id)
+
+      {:error, reason} = CMS.create_article_comment(:job, job.id, "comment", user)
+      assert reason |> is_error?(:article_comment_locked)
+
+      {:ok, _} = CMS.undo_lock_article_comment(:job, job.id)
+      {:ok, _} = CMS.create_article_comment(:job, job.id, "comment", user)
+    end
+
+    test "locked job can not by reply", ~m(user job)a do
+      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, "parent_conent", user)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
+
+      {:ok, _} = CMS.lock_article_comment(:job, job.id)
+
+      {:error, reason} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
+      assert reason |> is_error?(:article_comment_locked)
+
+      {:ok, _} = CMS.undo_lock_article_comment(:job, job.id)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
     end
   end
 end

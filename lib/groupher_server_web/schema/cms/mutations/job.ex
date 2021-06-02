@@ -55,13 +55,14 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Job do
     end
 
     #############
-    article_sink_mutation(:job)
     article_upvote_mutation(:job)
     article_pin_mutation(:job)
     article_mark_delete_mutation(:job)
     article_delete_mutation(:job)
     article_emotion_mutation(:job)
     article_report_mutation(:job)
+    article_sink_mutation(:job)
+    article_lock_comment_mutation(:job)
     #############
   end
 end

@@ -2,11 +2,14 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
+  alias CMS.Job
+
+  alias Helper.ORM
 
   setup do
-    {:ok, job} = db_insert(:job)
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
+    {:ok, job} = CMS.create_article(community, :job, mock_attrs(:job), user)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
@@ -24,7 +27,6 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
       }
     }
     """
-
     test "write article comment to a exsit job", ~m(job user_conn)a do
       comment = "a test comment"
       variables = %{thread: "JOB", id: job.id, content: comment}
@@ -43,7 +45,6 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
       }
     }
     """
-
     test "login user can reply to a comment", ~m(job user user_conn)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
       variables = %{id: comment.id, content: "reply content"}
@@ -63,7 +64,6 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
       }
     }
     """
-
     test "only owner can update a exsit comment",
          ~m(job user guest_conn user_conn owner_conn)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
@@ -88,7 +88,6 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
       }
     }
     """
-
     test "only owner can delete a exsit comment",
          ~m(job user guest_conn user_conn owner_conn)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
@@ -123,7 +122,6 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
       }
     }
     """
-
     test "login user can emotion to a comment", ~m(job user user_conn)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
       variables = %{id: comment.id, emotion: "BEER"}
@@ -150,7 +148,6 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
       }
     }
     """
-
     test "login user can undo emotion to a comment", ~m(job user owner_conn)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
       {:ok, _} = CMS.emotion_to_comment(comment.id, :beer, user)
@@ -162,6 +159,64 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
 
       assert comment |> get_in(["emotions", "beerCount"]) == 0
       assert not get_in(comment, ["emotions", "viewerHasBeered"])
+    end
+  end
+
+  describe "[article comment lock/unlock]" do
+    @query """
+    mutation($id: ID!, $communityId: ID!){
+      lockJobComment(id: $id, communityId: $communityId) {
+        id
+      }
+    }
+    """
+
+    test "can lock a job's comment", ~m(community job)a do
+      variables = %{id: job.id, communityId: community.id}
+      passport_rules = %{community.raw => %{"job.lock_comment" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      result = rule_conn |> mutation_result(@query, variables, "lockJobComment")
+      assert result["id"] == to_string(job.id)
+
+      {:ok, job} = ORM.find(Job, job.id)
+      assert job.meta.is_comment_locked
+    end
+
+    test "unauth user  fails", ~m(guest_conn community job)a do
+      variables = %{id: job.id, communityId: community.id}
+
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
+    end
+
+    @query """
+    mutation($id: ID!, $communityId: ID!){
+      undoLockJobComment(id: $id, communityId: $communityId) {
+        id
+      }
+    }
+    """
+
+    test "can undo lock a job's comment", ~m(community job)a do
+      {:ok, _} = CMS.lock_article_comment(:job, job.id)
+      {:ok, job} = ORM.find(Job, job.id)
+      assert job.meta.is_comment_locked
+
+      variables = %{id: job.id, communityId: community.id}
+      passport_rules = %{community.raw => %{"job.undo_lock_comment" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      result = rule_conn |> mutation_result(@query, variables, "undoLockJobComment")
+      assert result["id"] == to_string(job.id)
+
+      {:ok, job} = ORM.find(Job, job.id)
+      assert not job.meta.is_comment_locked
+    end
+
+    test "unauth user undo fails", ~m(guest_conn community job)a do
+      variables = %{id: job.id, communityId: community.id}
+
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
     end
   end
 end

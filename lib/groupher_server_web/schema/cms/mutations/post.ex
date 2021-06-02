@@ -45,13 +45,14 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Post do
     end
 
     #############
-    article_sink_mutation(:post)
     article_upvote_mutation(:post)
     article_pin_mutation(:post)
     article_mark_delete_mutation(:post)
     article_delete_mutation(:post)
     article_emotion_mutation(:post)
     article_report_mutation(:post)
+    article_sink_mutation(:post)
+    article_lock_comment_mutation(:post)
     #############
   end
 end

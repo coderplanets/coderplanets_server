@@ -3,11 +3,16 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   CURD and operations for article comments
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, strip_struct: 1, get_config: 2]
+  import Helper.Utils, only: [done: 1, strip_struct: 1, get_config: 2, ensure: 2]
   import Helper.ErrorCode
 
   import GroupherServer.CMS.Delegate.ArticleComment,
-    only: [add_participator_to_article: 2, do_create_comment: 4, update_article_comments_count: 2]
+    only: [
+      add_participator_to_article: 2,
+      do_create_comment: 4,
+      update_article_comments_count: 2,
+      can_comment?: 2
+    ]
 
   import GroupherServer.CMS.Helper.Matcher
 
@@ -16,12 +21,20 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.User
-  alias CMS.{ArticleComment, ArticlePinnedComment, ArticleCommentUpvote, ArticleCommentReply}
+
+  alias CMS.{
+    ArticleComment,
+    ArticlePinnedComment,
+    ArticleCommentUpvote,
+    ArticleCommentReply,
+    Embeds
+  }
 
   alias Ecto.Multi
 
   @article_threads get_config(:article, :threads)
 
+  @default_article_meta Embeds.ArticleMeta.default_meta()
   @max_parent_replies_count ArticleComment.max_parent_replies_count()
   @pinned_comment_limit ArticleComment.pinned_comment_limit()
 
@@ -102,6 +115,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
            ORM.find_by(ArticleComment, %{id: comment_id, is_deleted: false}),
          replying_comment <- Repo.preload(target_comment, reply_to: :author),
          {thread, article} <- get_article(replying_comment),
+         true <- can_comment?(article, user),
          {:ok, info} <- match(thread),
          parent_comment <- get_parent_comment(replying_comment) do
       Multi.new()
@@ -136,6 +150,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
       end)
       |> Repo.transaction()
       |> result()
+    else
+      false -> raise_error(:article_comment_locked, "this article is forbid comment")
+      {:error, error} -> {:error, error}
     end
   end
 
@@ -189,6 +206,28 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
       end)
       |> Repo.transaction()
       |> result()
+    end
+  end
+
+  @doc "lock comment of a article"
+  def lock_article_comment(thread, id) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id) do
+      article_meta = ensure(article.meta, @default_article_meta)
+      meta = Map.merge(article_meta, %{is_comment_locked: true})
+
+      ORM.update_meta(article, meta)
+    end
+  end
+
+  @doc "undo lock comment of a article"
+  def undo_lock_article_comment(thread, id) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id) do
+      article_meta = ensure(article.meta, @default_article_meta)
+      meta = Map.merge(article_meta, %{is_comment_locked: false})
+
+      ORM.update_meta(article, meta)
     end
   end
 

@@ -5,34 +5,6 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
   alias GroupherServerWeb.Middleware, as: M
   alias GroupherServerWeb.Resolvers, as: R
 
-  defmacro article_sink_mutation(thread) do
-    quote do
-      @desc unquote("sink a #{thread}")
-      field unquote(:"sink_#{thread}"), :article do
-        arg(:id, non_null(:id))
-        arg(:community_id, non_null(:id))
-        arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
-
-        middleware(M.Authorize, :login)
-        middleware(M.PassportLoader, source: :community)
-        middleware(M.Passport, claim: unquote("cms->c?->#{to_string(thread)}.sink"))
-        resolve(&R.CMS.sink_article/3)
-      end
-
-      @desc unquote("undo sink to #{thread}")
-      field unquote(:"undo_sink_#{thread}"), :article do
-        arg(:id, non_null(:id))
-        arg(:community_id, non_null(:id))
-        arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
-
-        middleware(M.Authorize, :login)
-        middleware(M.PassportLoader, source: :community)
-        middleware(M.Passport, claim: unquote("cms->c?->#{to_string(thread)}.undo_sink"))
-        resolve(&R.CMS.undo_sink_article/3)
-      end
-    end
-  end
-
   defmacro article_upvote_mutation(thread) do
     quote do
       @desc unquote("upvote to #{thread}")
@@ -169,6 +141,62 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
 
         middleware(M.Authorize, :login)
         resolve(&R.CMS.undo_report_article/3)
+      end
+    end
+  end
+
+  defmacro article_sink_mutation(thread) do
+    quote do
+      @desc unquote("sink a #{thread}")
+      field unquote(:"sink_#{thread}"), :article do
+        arg(:id, non_null(:id))
+        arg(:community_id, non_null(:id))
+        arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
+
+        middleware(M.Authorize, :login)
+        middleware(M.PassportLoader, source: :community)
+        middleware(M.Passport, claim: unquote("cms->c?->#{to_string(thread)}.sink"))
+        resolve(&R.CMS.sink_article/3)
+      end
+
+      @desc unquote("undo sink to #{thread}")
+      field unquote(:"undo_sink_#{thread}"), :article do
+        arg(:id, non_null(:id))
+        arg(:community_id, non_null(:id))
+        arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
+
+        middleware(M.Authorize, :login)
+        middleware(M.PassportLoader, source: :community)
+        middleware(M.Passport, claim: unquote("cms->c?->#{to_string(thread)}.undo_sink"))
+        resolve(&R.CMS.undo_sink_article/3)
+      end
+    end
+  end
+
+  defmacro article_lock_comment_mutation(thread) do
+    quote do
+      @desc unquote("lock comment to a #{thread}")
+      field unquote(:"lock_#{thread}_comment"), :article do
+        arg(:id, non_null(:id))
+        arg(:community_id, non_null(:id))
+        arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
+
+        middleware(M.Authorize, :login)
+        middleware(M.PassportLoader, source: :community)
+        middleware(M.Passport, claim: unquote("cms->c?->#{to_string(thread)}.lock_comment"))
+        resolve(&R.CMS.lock_article_comment/3)
+      end
+
+      @desc unquote("undo lock to a #{thread}")
+      field unquote(:"undo_lock_#{thread}_comment"), :article do
+        arg(:id, non_null(:id))
+        arg(:community_id, non_null(:id))
+        arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
+
+        middleware(M.Authorize, :login)
+        middleware(M.PassportLoader, source: :community)
+        middleware(M.Passport, claim: unquote("cms->c?->#{to_string(thread)}.undo_lock_comment"))
+        resolve(&R.CMS.undo_lock_article_comment/3)
       end
     end
   end

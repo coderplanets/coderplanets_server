@@ -72,6 +72,13 @@ defmodule Helper.Certification do
         "job.undo_sink",
         "repo.sink",
         "repo.undo_sink",
+        # lock/undo_lock article comment
+        "post.lock_comment",
+        "post.undo_lock_comment",
+        "job.lock_comment",
+        "job.undo_lock_comment",
+        "repo.lock_comment",
+        "repo.undo_lock_comment",
         #
         "post.mark_delete",
         "post.undo_mark_delete",

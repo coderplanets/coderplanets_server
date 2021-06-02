@@ -84,7 +84,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
         Timex.shift(Timex.now(), days: -(active_period_days + 1)) |> Timex.to_datetime()
 
       {:ok, repo} = db_insert(:repo, %{inserted_at: inserted_at})
-      Process.sleep(1000)
+      Process.sleep(3000)
       {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "repo comment", user)
       {:ok, repo} = ORM.find(Repo, repo.id)
 
@@ -640,6 +640,32 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
       author_user = repo.author.user
       {:ok, comment} = CMS.create_article_comment(:repo, repo.id, "commment", author_user)
       assert comment.is_article_author
+    end
+  end
+
+  describe "[lock/unlock repo comment]" do
+    test "locked repo can not be comment", ~m(user repo)a do
+      {:ok, _} = CMS.create_article_comment(:repo, repo.id, "comment", user)
+      {:ok, _} = CMS.lock_article_comment(:repo, repo.id)
+
+      {:error, reason} = CMS.create_article_comment(:repo, repo.id, "comment", user)
+      assert reason |> is_error?(:article_comment_locked)
+
+      {:ok, _} = CMS.undo_lock_article_comment(:repo, repo.id)
+      {:ok, _} = CMS.create_article_comment(:repo, repo.id, "comment", user)
+    end
+
+    test "locked repo can not by reply", ~m(user repo)a do
+      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, "parent_conent", user)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
+
+      {:ok, _} = CMS.lock_article_comment(:repo, repo.id)
+
+      {:error, reason} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
+      assert reason |> is_error?(:article_comment_locked)
+
+      {:ok, _} = CMS.undo_lock_article_comment(:repo, repo.id)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
     end
   end
 end
