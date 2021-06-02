@@ -32,7 +32,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
       assert exist_in?(replyed_comment, parent_comment.replies)
     end
 
-    @tag :wip
     test "deleted comment can not be reply", ~m(post user user2)a do
       parent_content = "parent comment"
       reply_content = "reply comment"
