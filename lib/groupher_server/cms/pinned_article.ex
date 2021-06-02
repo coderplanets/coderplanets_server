@@ -12,7 +12,7 @@ defmodule GroupherServer.CMS.PinnedArticle do
   alias GroupherServer.CMS
   alias CMS.Community
 
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
 
   @required_fields ~w(community_id thread)a
   # @optional_fields ~w(post_id job_id repo_id)a

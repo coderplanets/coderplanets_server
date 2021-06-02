@@ -12,7 +12,7 @@ defmodule GroupherServer.CMS.ArticleCollect do
   alias GroupherServer.Accounts
   alias Accounts.{User, CollectFolder}
 
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
 
   @required_fields ~w(user_id)a
   @optional_fields ~w(thread)a

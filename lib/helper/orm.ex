@@ -12,7 +12,7 @@ defmodule Helper.ORM do
   alias GroupherServer.Repo
   alias Helper.{QueryBuilder, SpecType}
 
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
 
   @doc """
   a wrap for paginate request

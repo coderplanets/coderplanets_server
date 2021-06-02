@@ -9,7 +9,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
   alias Accounts.User
   alias CMS.{Author, Community, ArticleComment, ArticleTag, ArticleUpvote, ArticleCollect}
 
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
 
   @doc """
   generate belongs to fields for given thread

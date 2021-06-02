@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.Helper.MatcherMacros do
   alias GroupherServer.CMS
   alias CMS.{ArticleComment, Embeds}
 
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
 
   @doc """
   match basic threads

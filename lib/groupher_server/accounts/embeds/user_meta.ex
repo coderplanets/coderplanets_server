@@ -3,7 +3,7 @@ defmodule GroupherServer.Accounts.Embeds.UserMeta.Macro do
 
   import Helper.Utils, only: [get_config: 2]
 
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
 
   defmacro published_article_count_fields() do
     @article_threads
@@ -26,7 +26,7 @@ defmodule GroupherServer.Accounts.Embeds.UserMeta do
   import GroupherServer.Accounts.Embeds.UserMeta.Macro
   import Helper.Utils, only: [get_config: 2]
 
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
 
   @general_options %{
     reported_count: 0,

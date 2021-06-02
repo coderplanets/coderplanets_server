@@ -10,7 +10,7 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
   @supported_emotions get_config(:article, :supported_emotions)
   @supported_comment_emotions get_config(:article, :comment_supported_emotions)
 
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
 
   defmacro timestamp_fields(:article) do
     quote do

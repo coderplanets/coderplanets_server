@@ -14,7 +14,7 @@ defmodule GroupherServer.CMS.ArticleComment do
   alias CMS.{Embeds, ArticleCommentUpvote}
 
   # alias Helper.HTML
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
 
   @required_fields ~w(body_html author_id)a
   @optional_fields ~w(reply_to_id replies_count is_folded is_deleted floor is_article_author thread)a

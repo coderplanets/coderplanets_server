@@ -13,7 +13,7 @@ defmodule GroupherServer.CMS.AbuseReport do
   alias GroupherServer.{Accounts, CMS}
   alias CMS.{ArticleComment, Embeds}
 
-  @article_threads get_config(:article, :article_threads)
+  @article_threads get_config(:article, :threads)
 
   # @required_fields ~w(article_comment_id user_id recived_user_id)a
   @optional_fields ~w(article_comment_id account_id operate_user_id deal_with report_cases_count)a
