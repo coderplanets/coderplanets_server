@@ -176,19 +176,8 @@ defmodule Helper.QueryBuilder do
           where: t.raw == ^community_raw
         )
 
-      {:one_community, community_raw}, queryable ->
-        from(
-          q in queryable,
-          join: t in assoc(q, :community),
-          where: t.raw == ^community_raw
-        )
-
       {:first, first}, queryable ->
         queryable |> limit(^first)
-
-      # {:pin, bool}, queryable ->
-      #   queryable
-      #   |> where([p], p.pin == ^bool)
 
       {:mark_delete, bool}, queryable ->
         queryable |> where([p], p.mark_delete == ^bool)
