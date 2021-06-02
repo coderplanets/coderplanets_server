@@ -148,7 +148,7 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
   end
 
   describe "[cms post question]" do
-    @tag :wip
+    @tag :wip2
     test "post have default question flags", ~m(user community post_attrs)a do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
@@ -156,7 +156,7 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
       assert not post.is_solved
     end
 
-    @tag :wip
+    @tag :wip2
     test "can create post with question", ~m(user community post_attrs)a do
       post_attrs = Map.merge(post_attrs, %{is_question: true})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
@@ -164,7 +164,7 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
       assert post.is_question
     end
 
-    @tag :wip
+    @tag :wip2
     test "can update post with question", ~m(user community post_attrs)a do
       post_attrs = Map.merge(post_attrs, %{is_question: true})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)

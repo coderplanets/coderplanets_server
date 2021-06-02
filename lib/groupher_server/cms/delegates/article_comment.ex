@@ -3,7 +3,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   CURD and operations for article comments
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, ensure: 2]
+  import Helper.Utils, only: [done: 1, ensure: 2, get_config: 2]
   import Helper.ErrorCode
 
   import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 3]
@@ -17,6 +17,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   alias Accounts.User
   alias CMS.{ArticleComment, ArticlePinnedComment, Embeds}
   alias Ecto.Multi
+
+  @article_threads get_config(:article, :threads)
 
   @max_participator_count ArticleComment.max_participator_count()
   @default_emotions Embeds.ArticleCommentEmotion.default_emotions()
@@ -102,10 +104,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> Multi.run(:update_article_comments_count, fn _, %{create_article_comment: comment} ->
         update_article_comments_count(comment, :inc)
       end)
-      |> Multi.run(:set_question_flag_ifneed, fn _, _ ->
-        IO.inspect(article.meta, label: "hello now?")
-        # ORM.update(article, %{active_at: article.inserted_at})
-        {:ok, :pass}
+      |> Multi.run(:set_question_flag_ifneed, fn _, %{create_article_comment: comment} ->
+        set_question_flag_ifneed(article, comment)
       end)
       |> Multi.run(:add_participator, fn _, _ ->
         add_participator_to_article(article, user)
@@ -138,6 +138,50 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   def update_article_comment(%ArticleComment{} = article_comment, content) do
     article_comment |> ORM.update(%{body_html: content})
   end
+
+  def mark_comment_solution(article_comment_id, user) do
+    do_mark_comment_solution(article_comment_id, user, true)
+  end
+
+  def undo_mark_comment_solution(article_comment_id, user) do
+    do_mark_comment_solution(article_comment_id, user, false)
+  end
+
+  defp do_mark_comment_solution(article_comment_id, user, is_solution) do
+    with {:ok, article_comment} <- ORM.find(ArticleComment, article_comment_id),
+         {:ok, post} <- ORM.find(CMS.Post, article_comment.post_id, preload: [author: :user]),
+         # check if user is questioner
+         true <- user.id == post.author.user.id do
+      Multi.new()
+      |> Multi.run(:mark_solution, fn _, _ ->
+        meta = article_comment.meta |> Map.merge(%{is_solution: is_solution})
+        ORM.update_meta(article_comment, meta)
+      end)
+      |> Multi.run(:update_post_state, fn _, _ ->
+        ORM.update(post, %{is_solved: is_solution, solution_digest: article_comment.body_html})
+      end)
+      |> Repo.transaction()
+      |> result()
+    else
+      false -> raise_error(:require_questioner, "oops, questioner only")
+      {:error, error} -> {:error, error}
+    end
+  end
+
+  @doc """
+  batch update is_question flag for post-only article
+  """
+  def batch_update_question_flag(%CMS.Post{is_question: is_question} = post) do
+    from(c in ArticleComment,
+      where: c.post_id == ^post.id,
+      update: [set: [is_for_question: ^is_question]]
+    )
+    |> Repo.update_all([])
+
+    {:ok, :pass}
+  end
+
+  def batch_update_question_flag(_), do: {:ok, :pass}
 
   @doc "delete article comment"
   def delete_article_comment(%ArticleComment{} = comment) do
@@ -230,7 +274,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       query
       |> where(^thread_query)
       |> where(^where_query)
-      # |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :asc_inserted}))
       |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: sort}))
       |> ORM.paginater(~m(page size)a)
       |> add_pined_comments_ifneed(thread, article_id, filters)
@@ -299,8 +342,15 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     Map.merge(paged_comments, %{entries: entries})
   end
 
-  defp result({:ok, %{create_article_comment: result}}), do: {:ok, result}
+  defp set_question_flag_ifneed(%{is_question: true} = article, %ArticleComment{} = comment) do
+    ORM.update(comment, %{is_for_question: true})
+  end
+
+  defp set_question_flag_ifneed(_, comment), do: ORM.update(comment, %{is_for_question: false})
+
+  defp result({:ok, %{set_question_flag_ifneed: result}}), do: {:ok, result}
   defp result({:ok, %{delete_article_comment: result}}), do: {:ok, result}
+  defp result({:ok, %{mark_solution: result}}), do: {:ok, result}
 
   defp result({:error, :create_article_comment, result, _steps}) do
     raise_error(:create_comment, result)

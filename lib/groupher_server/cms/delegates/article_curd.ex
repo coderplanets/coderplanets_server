@@ -27,7 +27,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   alias Accounts.User
   alias CMS.{Author, Community, PinnedArticle, Embeds, Delegate}
 
-  alias Delegate.{ArticleCommunity, ArticleTag, CommunityCURD}
+  alias Delegate.{ArticleCommunity, ArticleComment, ArticleTag, CommunityCURD}
 
   alias Ecto.Multi
 
@@ -214,8 +214,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   """
   def update_article(article, args) do
     Multi.new()
-    |> Multi.run(:update_article, fn _, _ ->
-      ORM.update(article, args)
+    |> Multi.run(:update_article, fn _, _ -> ORM.update(article, args) end)
+    |> Multi.run(:update_comment_question_flag_if_need, fn _, %{update_article: update_article} ->
+      # 如果帖子的类型变了，那么 update 所有的 flag
+      case Map.has_key?(args, :is_question) do
+        true -> ArticleComment.batch_update_question_flag(update_article)
+        false -> {:ok, :pass}
+      end
     end)
     |> Multi.run(:update_edit_status, fn _, %{update_article: update_article} ->
       ArticleCommunity.update_edit_status(update_article)

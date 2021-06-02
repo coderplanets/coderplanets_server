@@ -21,6 +21,7 @@ defmodule GroupherServer.Support.Factory do
       title: String.slice(body, 1, 49),
       body: body,
       digest: String.slice(body, 1, 150),
+      solution_digest: String.slice(body, 1, 150),
       length: String.length(body),
       author: mock(:author),
       views: Enum.random(0..2000),

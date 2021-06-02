@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentMeta do
 
   import Ecto.Changeset
 
-  @optional_fields ~w(is_article_author_upvoted report_count is_reply_to_others reported_count reported_user_ids is_solution is_for_question)a
+  @optional_fields ~w(is_article_author_upvoted report_count is_reply_to_others reported_count reported_user_ids is_solution)a
 
   @doc "for test usage"
   def default_meta() do
@@ -18,8 +18,7 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentMeta do
       upvoted_user_ids: [],
       reported_user_ids: [],
       reported_count: 0,
-      is_solution: false,
-      is_for_question: false
+      is_solution: false
     }
   end
 
@@ -35,7 +34,6 @@ defmodule GroupherServer.CMS.Embeds.ArticleCommentMeta do
     field(:reported_count, :integer, default: 0)
 
     field(:is_solution, :boolean, default: false)
-    field(:is_for_question, :boolean, default: false)
   end
 
   def changeset(struct, params) do

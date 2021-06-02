@@ -17,7 +17,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
 
   alias Ecto.Multi
 
-  @default_article_meta Embeds.ArticleMeta.default_meta()
   @max_pinned_article_count_per_thread Community.max_pinned_article_count_per_thread()
 
   @spec pin_article(T.article_thread(), Integer.t(), Integer.t()) :: {:ok, PinnedArticle.t()}

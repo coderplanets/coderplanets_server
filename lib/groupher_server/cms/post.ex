@@ -17,7 +17,7 @@ defmodule GroupherServer.CMS.Post do
 
   @required_fields ~w(title body digest length)a
   @article_cast_fields general_article_fields(:cast)
-  @optional_fields ~w(link_addr copy_right link_addr link_icon is_question is_solved)a ++
+  @optional_fields ~w(link_addr copy_right link_addr link_icon is_question is_solved solution_digest)a ++
                      @article_cast_fields
 
   @type t :: %Post{}
@@ -32,6 +32,7 @@ defmodule GroupherServer.CMS.Post do
 
     field(:is_question, :boolean, default: false)
     field(:is_solved, :boolean, default: false)
+    field(:solution_digest, :string)
 
     # TODO: remove after legacy data migrated
     has_many(:comments, {"posts_comments", PostComment})
