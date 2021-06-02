@@ -84,8 +84,18 @@ defmodule GroupherServer.CMS.Helper.Loader do
   end
 
   def query({"posts_comments_replies", PostCommentReply}, %{filter: filter}) do
-    PostCommentReply
-    |> QueryBuilder.load_inner_replies(filter)
+    PostCommentReply |> load_inner_replies(filter)
+  end
+
+  @doc """
+  load replies of the given comment
+  TODO: remove
+  """
+  defp load_inner_replies(queryable, filter) do
+    queryable
+    |> filter_pack(filter)
+    |> join(:inner, [c], r in assoc(c, :reply))
+    |> select([c, r], r)
   end
 
   def query({"posts_comments_replies", PostCommentReply}, %{reply_to: _}) do

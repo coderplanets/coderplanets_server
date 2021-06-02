@@ -17,27 +17,23 @@ defmodule Helper.QueryBuilder do
     queryable |> load_inner_users(filter)
   end
 
-  def members_pack(queryable, %{viewer_did: _, cur_user: cur_user}) do
-    queryable |> where([f], f.user_id == ^cur_user.id)
-  end
+  # def members_pack(queryable, %{count: _, type: :post}) do
+  #   queryable
+  #   |> group_by([f], f.post_id)
+  #   |> select([f], count(f.id))
+  # end
 
-  def members_pack(queryable, %{count: _, type: :post}) do
-    queryable
-    |> group_by([f], f.post_id)
-    |> select([f], count(f.id))
-  end
+  # def members_pack(queryable, %{count: _, type: :job}) do
+  #   queryable
+  #   |> group_by([f], f.job_id)
+  #   |> select([f], count(f.id))
+  # end
 
-  def members_pack(queryable, %{count: _, type: :job}) do
-    queryable
-    |> group_by([f], f.job_id)
-    |> select([f], count(f.id))
-  end
-
-  def members_pack(queryable, %{count: _, type: :repo}) do
-    queryable
-    |> group_by([f], f.repo_id)
-    |> select([f], count(f.id))
-  end
+  # def members_pack(queryable, %{count: _, type: :repo}) do
+  #   queryable
+  #   |> group_by([f], f.repo_id)
+  #   |> select([f], count(f.id))
+  # end
 
   def members_pack(queryable, %{count: _, type: :community}) do
     queryable
@@ -50,16 +46,6 @@ defmodule Helper.QueryBuilder do
     |> join(:inner, [f], u in assoc(f, :user))
     |> select([f, u], u)
     |> filter_pack(filter)
-  end
-
-  @doc """
-  load replies of the given comment
-  """
-  def load_inner_replies(queryable, filter) do
-    queryable
-    |> filter_pack(filter)
-    |> join(:inner, [c], r in assoc(c, :reply))
-    |> select([c, r], r)
   end
 
   @doc """
