@@ -4,16 +4,18 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
+  alias Helper.ORM
 
   setup do
     {:ok, post} = db_insert(:post)
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
+    {:ok, community} = db_insert(:community)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user, user)
 
-    {:ok, ~m(user_conn guest_conn post user user2)a}
+    {:ok, ~m(user_conn guest_conn community post user user2)a}
   end
 
   describe "[baisc article post comment]" do
@@ -240,6 +242,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       assert results["totalCount"] == total_count
     end
 
+    @tag :wip
     test "guest user can get paged comment with pinned comment in it",
          ~m(guest_conn post user)a do
       total_count = 20
@@ -254,16 +257,56 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       {:ok, comment} = CMS.create_article_comment(thread, post.id, "pinned comment", user)
       {:ok, pinned_comment} = CMS.pin_article_comment(comment.id)
 
+      Process.sleep(1000)
+
       {:ok, comment} = CMS.create_article_comment(thread, post.id, "pinned comment 2", user)
       {:ok, pinned_comment2} = CMS.pin_article_comment(comment.id)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
 
-      assert results["entries"] |> List.first() |> Map.get("id") == to_string(pinned_comment.id)
-      assert results["entries"] |> Enum.at(1) |> Map.get("id") == to_string(pinned_comment2.id)
+      assert results["entries"] |> List.first() |> Map.get("id") == to_string(pinned_comment2.id)
+      assert results["entries"] |> Enum.at(1) |> Map.get("id") == to_string(pinned_comment.id)
 
       assert results["totalCount"] == total_count + 2
+    end
+
+    # post only
+    @tag :wip
+    test "if solution in pinned comments, solution should always on top",
+         ~m(guest_conn community user)a do
+      post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+
+      total_count = 20
+      thread = :post
+
+      Enum.reduce(1..total_count, [], fn _, acc ->
+        {:ok, comment} = CMS.create_article_comment(thread, post.id, "test comment", user)
+
+        acc ++ [comment]
+      end)
+
+      {:ok, post} = ORM.find(CMS.Post, post.id, preload: [author: :user])
+      post_author = post.author.user
+
+      {:ok, comment} = CMS.create_article_comment(thread, post.id, "pinned comment", user)
+      {:ok, pinned_comment} = CMS.pin_article_comment(comment.id)
+
+      Process.sleep(1000)
+
+      {:ok, comment} = CMS.create_article_comment(thread, post.id, "solution", post_author)
+      {:ok, solution_comment} = CMS.mark_comment_solution(comment.id, post_author)
+
+      Process.sleep(1000)
+      {:ok, comment} = CMS.create_article_comment(thread, post.id, "pinned comment 2", user)
+      {:ok, pinned_comment2} = CMS.pin_article_comment(comment.id)
+
+      variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: 10}}
+      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+
+      assert results["entries"] |> List.first() |> Map.get("id") == to_string(solution_comment.id)
+      assert results["totalCount"] == total_count + 3
     end
 
     test "guest user can get paged comment with floor it", ~m(guest_conn post user)a do

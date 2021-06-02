@@ -714,7 +714,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert not comment3.is_for_question
     end
 
-    @tag :wip
+    @tag :wip2
     test "can mark a comment as solution", ~m(user community)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
@@ -732,7 +732,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert post.solution_digest == comment.body_html
     end
 
-    @tag :wip
+    @tag :wip2
     test "non-post-author can not mark a comment as solution", ~m(user community)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
@@ -747,7 +747,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       reason |> is_error?(:require_questioner)
     end
 
-    @tag :wip
+    @tag :wip2
     test "can undo mark a comment as solution", ~m(user community)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
@@ -765,7 +765,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert not post.is_solved
     end
 
-    @tag :wip
+    @tag :wip2
     test "non-post-author can not undo mark a comment as solution", ~m(user community)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
@@ -780,7 +780,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       reason |> is_error?(:require_questioner)
     end
 
-    @tag :wip
+    @tag :wip2
     test "can only mark one best comment as solution", ~m(user community)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)

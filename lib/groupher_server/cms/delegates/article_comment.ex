@@ -107,9 +107,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> Multi.run(:set_question_flag_ifneed, fn _, %{create_article_comment: comment} ->
         set_question_flag_ifneed(article, comment)
       end)
-      |> Multi.run(:add_participator, fn _, _ ->
-        add_participator_to_article(article, user)
-      end)
+      |> Multi.run(:add_participator, fn _, _ -> add_participator_to_article(article, user) end)
       |> Multi.run(:update_article_active_timestamp, fn _, %{create_article_comment: comment} ->
         case comment.author_id == article.author.user.id do
           true -> {:ok, :pass}
@@ -144,6 +142,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
          {:ok, post} <- ORM.find(CMS.Post, article_comment.post_id, preload: [author: :user]) do
       # 确保只有一个最佳答案
       batch_update_solution_flag(post, false)
+      CMS.pin_article_comment(article_comment.id)
       do_mark_comment_solution(post, article_comment, user, true)
     end
   end
@@ -209,7 +208,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
         %{article_comments_participators: article_comments_participators} = article,
         %User{} = user
       ) do
-    total_participators = article_comments_participators |> List.insert_at(0, user) |> Enum.uniq()
+    total_participators =
+      article_comments_participators |> List.insert_at(0, user) |> Enum.uniq_by(& &1.id)
+
     new_comment_participators = total_participators |> Enum.slice(0, @max_participator_count)
     total_participators_count = length(total_participators)
 
@@ -312,6 +313,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
              join: c in ArticleComment,
              on: p.article_comment_id == c.id,
              where: field(p, ^info.foreign_key) == ^article_id,
+             order_by: [desc: p.inserted_at],
              select: c
            ),
          {:ok, pined_comments} <- Repo.all(query) |> done() do
@@ -323,6 +325,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
           preloaded_pined_comments =
             Enum.slice(pined_comments, 0, @pinned_comment_limit)
             |> Repo.preload(reply_to: :author)
+            |> sort_solution_to_front
 
           entries = Enum.concat(preloaded_pined_comments, entries)
           pined_comment_count = length(pined_comments)
@@ -334,6 +337,19 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   end
 
   defp add_pined_comments_ifneed(paged_comments, _thread, _article_id, _), do: paged_comments
+
+  defp sort_solution_to_front(pined_comments) do
+    solution_index = Enum.find_index(pined_comments, & &1.is_solution)
+
+    case is_nil(solution_index) do
+      true ->
+        pined_comments
+
+      false ->
+        {solution_comment, rest_comments} = List.pop_at(pined_comments, solution_index)
+        [solution_comment] ++ rest_comments
+    end
+  end
 
   defp mark_viewer_has_upvoted(paged_comments, nil), do: paged_comments
 
