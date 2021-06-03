@@ -282,7 +282,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       |> where(^where_query)
       |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: sort}))
       |> ORM.paginater(~m(page size)a)
-      |> add_pined_comments_ifneed(thread, article_id, filters)
+      |> add_pinned_comments_ifneed(thread, article_id, filters)
       |> mark_viewer_emotion_states(user, :comment)
       |> mark_viewer_has_upvoted(user)
       |> done()
@@ -304,49 +304,51 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     |> done()
   end
 
-  defp add_pined_comments_ifneed(%{entries: entries} = paged_comments, thread, article_id, %{
-         page: 1
-       }) do
+  defp add_pinned_comments_ifneed(paged_comments, thread, article_id, %{page: 1}) do
     with {:ok, info} <- match(thread),
-         query <-
-           from(p in ArticlePinnedComment,
-             join: c in ArticleComment,
-             on: p.article_comment_id == c.id,
-             where: field(p, ^info.foreign_key) == ^article_id,
-             order_by: [desc: p.inserted_at],
-             select: c
-           ),
-         {:ok, pined_comments} <- Repo.all(query) |> done() do
-      case pined_comments do
+         {:ok, pinned_comments} <- paged_pinned_comments(info, article_id) do
+      case pinned_comments do
         [] ->
           paged_comments
 
         _ ->
-          preloaded_pined_comments =
-            Enum.slice(pined_comments, 0, @pinned_comment_limit)
+          pinned_comments =
+            sort_solution_to_front(pinned_comments)
+            |> Enum.slice(0, @pinned_comment_limit)
             |> Repo.preload(reply_to: :author)
-            |> sort_solution_to_front
 
-          entries = Enum.concat(preloaded_pined_comments, entries)
-          pined_comment_count = length(pined_comments)
+          entries = pinned_comments ++ paged_comments.entries
+          pinned_comment_count = length(pinned_comments)
 
-          total_count = paged_comments.total_count + pined_comment_count
+          total_count = paged_comments.total_count + pinned_comment_count
           paged_comments |> Map.merge(%{entries: entries, total_count: total_count})
       end
     end
   end
 
-  defp add_pined_comments_ifneed(paged_comments, _thread, _article_id, _), do: paged_comments
+  defp add_pinned_comments_ifneed(paged_comments, _thread, _article_id, _), do: paged_comments
 
-  defp sort_solution_to_front(pined_comments) do
-    solution_index = Enum.find_index(pined_comments, & &1.is_solution)
+  defp paged_pinned_comments(info, article_id) do
+    from(p in ArticlePinnedComment,
+      join: c in ArticleComment,
+      on: p.article_comment_id == c.id,
+      where: field(p, ^info.foreign_key) == ^article_id,
+      order_by: [desc: p.inserted_at],
+      select: c
+    )
+    |> Repo.all()
+    |> done
+  end
+
+  defp sort_solution_to_front(pinned_comments) do
+    solution_index = Enum.find_index(pinned_comments, & &1.is_solution)
 
     case is_nil(solution_index) do
       true ->
-        pined_comments
+        pinned_comments
 
       false ->
-        {solution_comment, rest_comments} = List.pop_at(pined_comments, solution_index)
+        {solution_comment, rest_comments} = List.pop_at(pinned_comments, solution_index)
         [solution_comment] ++ rest_comments
     end
   end
