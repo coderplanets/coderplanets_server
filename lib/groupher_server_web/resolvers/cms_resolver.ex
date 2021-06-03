@@ -320,6 +320,14 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.undo_emotion_to_comment(id, emotion, user)
   end
 
+  def mark_comment_solution(_root, ~m(id)a, %{context: %{cur_user: user}}) do
+    CMS.mark_comment_solution(id, user)
+  end
+
+  def undo_mark_comment_solution(_root, ~m(id)a, %{context: %{cur_user: user}}) do
+    CMS.undo_mark_comment_solution(id, user)
+  end
+
   ############
   ############
   ############

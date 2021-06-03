@@ -254,14 +254,16 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       {:ok, comment} = CMS.create_article_comment(thread, job.id, "pinned comment", user)
       {:ok, pinned_comment} = CMS.pin_article_comment(comment.id)
 
+      Process.sleep(1000)
+
       {:ok, comment} = CMS.create_article_comment(thread, job.id, "pinned comment 2", user)
       {:ok, pinned_comment2} = CMS.pin_article_comment(comment.id)
 
       variables = %{id: job.id, thread: "JOB", filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
 
-      assert results["entries"] |> List.first() |> Map.get("id") == to_string(pinned_comment.id)
-      assert results["entries"] |> Enum.at(1) |> Map.get("id") == to_string(pinned_comment2.id)
+      assert results["entries"] |> List.first() |> Map.get("id") == to_string(pinned_comment2.id)
+      assert results["entries"] |> Enum.at(1) |> Map.get("id") == to_string(pinned_comment.id)
 
       assert results["totalCount"] == total_count + 2
     end

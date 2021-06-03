@@ -50,6 +50,8 @@ defmodule Helper.ErrorCode do
   def ecode(:invalid_domain_tag), do: @article_base + 6
   def ecode(:undo_sink_old_article), do: @article_base + 7
   def ecode(:article_comment_locked), do: @article_base + 8
+  def ecode(:require_questioner), do: @article_base + 9
+  # def ecode(:already_solved), do: @article_base + 10
 
   def ecode, do: @default_base
   # def ecode(_), do: @default_base

@@ -219,4 +219,79 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
     end
   end
+
+  describe "[post only: article comment solution]" do
+    @query """
+    mutation($id: ID!) {
+      markCommentSolution(id: $id) {
+        id
+        isForQuestion
+        isSolution
+      }
+    }
+    """
+    @tag :wip
+    test "questioner can mark a post comment as solution", ~m(post)a do
+      {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
+      post_author = post.author.user
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "solution", post_author)
+
+      questioner_conn = simu_conn(:user, post_author)
+
+      variables = %{id: comment.id}
+
+      result = questioner_conn |> mutation_result(@query, variables, "markCommentSolution")
+
+      assert result["isForQuestion"]
+      assert result["isSolution"]
+    end
+
+    @tag :wip
+    test "other user can not mark a post comment as solution", ~m(guest_conn user_conn post)a do
+      {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
+      post_author = post.author.user
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "solution", post_author)
+
+      variables = %{id: comment.id}
+      assert user_conn |> mutation_get_error?(@query, variables, ecode(:require_questioner))
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
+    end
+
+    @query """
+    mutation($id: ID!) {
+      undoMarkCommentSolution(id: $id) {
+        id
+        isForQuestion
+        isSolution
+      }
+    }
+    """
+    @tag :wip
+    test "questioner can undo mark a post comment as solution", ~m(post)a do
+      {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
+      post_author = post.author.user
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "solution", post_author)
+      {:ok, comment} = CMS.mark_comment_solution(comment.id, post_author)
+
+      questioner_conn = simu_conn(:user, post_author)
+
+      variables = %{id: comment.id}
+      result = questioner_conn |> mutation_result(@query, variables, "undoMarkCommentSolution")
+
+      assert result["isForQuestion"]
+      assert not result["isSolution"]
+    end
+
+    @tag :wip
+    test "other user can not undo mark a post comment as solution",
+         ~m(guest_conn user_conn post)a do
+      {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
+      post_author = post.author.user
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "solution", post_author)
+
+      variables = %{id: comment.id}
+      assert user_conn |> mutation_get_error?(@query, variables, ecode(:require_questioner))
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
+    end
+  end
 end

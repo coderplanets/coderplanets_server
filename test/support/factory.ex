@@ -21,6 +21,7 @@ defmodule GroupherServer.Support.Factory do
       title: String.slice(body, 1, 49),
       body: body,
       digest: String.slice(body, 1, 150),
+      solution_digest: String.slice(body, 1, 150),
       length: String.length(body),
       author: mock(:author),
       views: Enum.random(0..2000),
@@ -30,7 +31,9 @@ defmodule GroupherServer.Support.Factory do
         mock(:community)
       ],
       emotions: @default_emotions,
-      active_at: Timex.shift(Timex.now(), seconds: -1)
+      active_at: Timex.shift(Timex.now(), seconds: -1),
+      is_question: false,
+      is_solved: false
     }
   end
 

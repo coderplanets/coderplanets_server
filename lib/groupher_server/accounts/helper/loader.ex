@@ -5,7 +5,7 @@ defmodule GroupherServer.Accounts.Helper.Loader do
   import Ecto.Query, warn: false
 
   alias Helper.QueryBuilder
-  alias GroupherServer.{Accounts, CMS, Repo}
+  alias GroupherServer.{CMS, Repo}
 
   def data, do: Dataloader.Ecto.new(Repo, query: &query/2)
 
@@ -17,10 +17,4 @@ defmodule GroupherServer.Accounts.Helper.Loader do
   end
 
   def query(queryable, _args), do: queryable
-
-  defp count_contents(queryable) do
-    queryable
-    |> group_by([f], f.user_id)
-    |> select([f], count(f.id))
-  end
 end
