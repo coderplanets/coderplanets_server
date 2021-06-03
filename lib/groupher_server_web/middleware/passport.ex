@@ -9,7 +9,7 @@
 defmodule GroupherServerWeb.Middleware.Passport do
   @moduledoc """
   c? -> community / communities
-  t? -> thread, could be post / job / tut ...
+  t? -> article thread, could be post / job / tut ...
   """
   @behaviour Absinthe.Middleware
 
