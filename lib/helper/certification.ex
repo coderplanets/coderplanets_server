@@ -2,6 +2,30 @@ defmodule Helper.Certification do
   @moduledoc """
   valid editors and passport details
   """
+  import Helper.Utils, only: [get_config: 2]
+
+  @article_threads get_config(:article, :threads)
+  @article_rules [
+    "edit",
+    "mark_delete",
+    "undo_mark_delete",
+    "delete",
+    "community.mirror",
+    "community.unmirror",
+    "community.move",
+    "pin",
+    "undo_pin",
+    "sink",
+    "undo_sink",
+    "lock_comment",
+    "undo_lock_comment",
+    "article_tag.create",
+    "article_tag.update",
+    "article_tag.delete",
+    "article_tag.set",
+    "article_tag.unset"
+  ]
+
   def editor_titles(:cms) do
     ["chief editor", "post editor"]
   end
@@ -28,108 +52,42 @@ defmodule Helper.Certification do
   # }
   # }
 
+  defp build_article_rules(rule_list) do
+    Enum.reduce(rule_list, [], fn rule, acc ->
+      articles_rules = @article_threads |> Enum.map(&"#{&1}.#{rule}")
+      acc ++ articles_rules
+    end)
+  end
+
   @doc """
   基础权限，社区权限
   """
   def all_rules(:cms) do
     %{
-      general: [
-        "root",
-        "system_accountant",
-        "system_notification.publish",
-        "stamp_passport",
-        # community
-        "editor.set",
-        "editor.unset",
-        "editor.update",
-        "community.create",
-        "community.update",
-        "community.delete",
-        "category.create",
-        "category.delete",
-        "category.update",
-        "category.set",
-        "category.unset",
-        "thread.create",
-        "post.community.mirror",
-        "post.community.move",
-        "post.community.unmirror",
-        "job.community.mirror",
-        "job.community.move",
-        "job.community.unmirror",
-        # flag on content
-        # pin/undo_pin
-        "post.pin",
-        "post.undo_pin",
-        "job.pin",
-        "job.undo_pin",
-        "repo.pin",
-        "repo.undo_pin",
-        # sink/undo_sink
-        "post.sink",
-        "post.undo_sink",
-        "job.sink",
-        "job.undo_sink",
-        "repo.sink",
-        "repo.undo_sink",
-        # lock/undo_lock article comment
-        "post.lock_comment",
-        "post.undo_lock_comment",
-        "job.lock_comment",
-        "job.undo_lock_comment",
-        "repo.lock_comment",
-        "repo.undo_lock_comment",
-        #
-        "post.mark_delete",
-        "post.undo_mark_delete",
-        "job.mark_delete",
-        "job.undo_mark_delete",
-        "repo.mark_delete",
-        "repo.undo_mark_delete"
-      ],
+      general:
+        build_article_rules(@article_rules) ++
+          [
+            "root",
+            "system_accountant",
+            "system_notification.publish",
+            "stamp_passport",
+            # community
+            "editor.set",
+            "editor.unset",
+            "editor.update",
+            "community.create",
+            "community.update",
+            "community.delete",
+            "category.create",
+            "category.delete",
+            "category.update",
+            "category.set",
+            "category.unset",
+            "thread.create"
+          ],
       community: [
-        # thread
         "thread.set",
-        "thread.unset",
-        "post.edit",
-        "post.mark_delete",
-        "post.delete",
-        "job.edit",
-        "job.mark_delete",
-        "job.delete",
-        # post article_tag
-        "post.article_tag.create",
-        "post.article_tag.update",
-        "post.article_tag.delete",
-        "post.article_tag.set",
-        "post.article_tag.unset",
-        # post flag
-        "post.pin",
-        "post.undo_pin",
-        "post.mark_delete",
-        "post.undo_mark_delete",
-        # job article_tag
-        "job.article_tag.create",
-        "job.article_tag.update",
-        "job.article_tag.delete",
-        "job.article_tag.set",
-        "job.article_tag.unset",
-        # job flag
-        "job.pin",
-        "job.undo_pin",
-        "job.mark_delete",
-        "job.undo_mark_delete",
-        # repo article_tag
-        "repo.article_tag.create",
-        "repo.article_tag.update",
-        "repo.article_tag.delete",
-        "repo.article_tag.set",
-        "repo.article_tag.unset",
-        # repo flag
-        "repo.pin",
-        "repo.undo_pin",
-        "repo.mark_delete",
-        "repo.undo_mark_delete"
+        "thread.unset"
       ]
     }
   end
