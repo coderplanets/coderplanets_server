@@ -13,6 +13,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   alias Helper.Types, as: T
   alias Helper.{ORM, QueryBuilder}
   alias GroupherServer.{Accounts, CMS, Repo}
+  alias CMS.Post
 
   alias Accounts.User
   alias CMS.{ArticleComment, ArticlePinnedComment, Embeds}
@@ -139,7 +140,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   def mark_comment_solution(article_comment_id, user) do
     with {:ok, article_comment} <- ORM.find(ArticleComment, article_comment_id),
-         {:ok, post} <- ORM.find(CMS.Post, article_comment.post_id, preload: [author: :user]) do
+         {:ok, post} <- ORM.find(Post, article_comment.post_id, preload: [author: :user]) do
       # 确保只有一个最佳答案
       batch_update_solution_flag(post, false)
       CMS.pin_article_comment(article_comment.id)
@@ -149,7 +150,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   def undo_mark_comment_solution(article_comment_id, user) do
     with {:ok, article_comment} <- ORM.find(ArticleComment, article_comment_id),
-         {:ok, post} <- ORM.find(CMS.Post, article_comment.post_id, preload: [author: :user]) do
+         {:ok, post} <- ORM.find(Post, article_comment.post_id, preload: [author: :user]) do
       do_mark_comment_solution(post, article_comment, user, false)
     end
   end
@@ -175,7 +176,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   @doc """
   batch update is_question flag for post-only article
   """
-  def batch_update_question_flag(%CMS.Post{is_question: is_question} = post) do
+  def batch_update_question_flag(%Post{is_question: is_question} = post) do
     from(c in ArticleComment,
       where: c.post_id == ^post.id,
       update: [set: [is_for_question: ^is_question]]
@@ -306,14 +307,14 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   defp add_pinned_comments_ifneed(paged_comments, thread, article_id, %{page: 1}) do
     with {:ok, info} <- match(thread),
-         {:ok, pinned_comments} <- paged_pinned_comments(info, article_id) do
+         {:ok, pinned_comments} <- list_pinned_comments(info, article_id) do
       case pinned_comments do
         [] ->
           paged_comments
 
         _ ->
           pinned_comments =
-            sort_solution_to_front(pinned_comments)
+            sort_solution_to_front(thread, pinned_comments)
             |> Enum.slice(0, @pinned_comment_limit)
             |> Repo.preload(reply_to: :author)
 
@@ -328,11 +329,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   defp add_pinned_comments_ifneed(paged_comments, _thread, _article_id, _), do: paged_comments
 
-  defp paged_pinned_comments(info, article_id) do
+  defp list_pinned_comments(%{foreign_key: foreign_key}, article_id) do
     from(p in ArticlePinnedComment,
       join: c in ArticleComment,
       on: p.article_comment_id == c.id,
-      where: field(p, ^info.foreign_key) == ^article_id,
+      where: field(p, ^foreign_key) == ^article_id,
       order_by: [desc: p.inserted_at],
       select: c
     )
@@ -340,7 +341,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     |> done
   end
 
-  defp sort_solution_to_front(pinned_comments) do
+  # only support post
+  defp sort_solution_to_front(:post, pinned_comments) do
     solution_index = Enum.find_index(pinned_comments, & &1.is_solution)
 
     case is_nil(solution_index) do
@@ -352,6 +354,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
         [solution_comment] ++ rest_comments
     end
   end
+
+  defp sort_solution_to_front(_, pinned_comments), do: pinned_comments
 
   defp mark_viewer_has_upvoted(paged_comments, nil), do: paged_comments
 
@@ -372,7 +376,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   defp set_question_flag_ifneed(_, comment), do: ORM.update(comment, %{is_for_question: false})
 
   # batch update is_solution flag for artilce comment
-  defp batch_update_solution_flag(%CMS.Post{} = post, is_question) do
+  defp batch_update_solution_flag(%Post{} = post, is_question) do
     from(c in ArticleComment,
       where: c.post_id == ^post.id,
       update: [set: [is_solution: ^is_question]]
