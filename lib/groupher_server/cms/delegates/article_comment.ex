@@ -134,6 +134,14 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   @doc """
   update a comment for article like psot, job ...
   """
+  # 如果是 solution, 那么要更新对应的 post 的 solution_digest
+  def update_article_comment(%ArticleComment{is_solution: true} = article_comment, content) do
+    with {:ok, post} <- ORM.find(Post, article_comment.post_id) do
+      post |> ORM.update(%{solution_digest: content})
+      article_comment |> ORM.update(%{body_html: content})
+    end
+  end
+
   def update_article_comment(%ArticleComment{} = article_comment, content) do
     article_comment |> ORM.update(%{body_html: content})
   end

@@ -670,7 +670,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
   end
 
   describe "[article comment qa type]" do
-    @tag :wip2
     test "create comment for normal post should have default qa flags", ~m(user community)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
@@ -680,7 +679,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert not post_comment.is_solution
     end
 
-    @tag :wip2
     test "create comment for question post should have flags", ~m(user community)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
@@ -690,7 +688,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert post_comment.is_for_question
     end
 
-    @tag :wip2
     test "update comment with is_question should batch update exsit comments is_for_question field",
          ~m(user community)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
@@ -714,7 +711,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert not comment3.is_for_question
     end
 
-    @tag :wip2
     test "can mark a comment as solution", ~m(user community)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
@@ -732,7 +728,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert post.solution_digest == comment.body_html
     end
 
-    @tag :wip2
     test "non-post-author can not mark a comment as solution", ~m(user community)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
@@ -747,7 +742,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       reason |> is_error?(:require_questioner)
     end
 
-    @tag :wip2
     test "can undo mark a comment as solution", ~m(user community)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
@@ -765,7 +759,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert not post.is_solved
     end
 
-    @tag :wip2
     test "non-post-author can not undo mark a comment as solution", ~m(user community)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
@@ -780,7 +773,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       reason |> is_error?(:require_questioner)
     end
 
-    @tag :wip2
     test "can only mark one best comment as solution", ~m(user community)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
@@ -800,6 +792,24 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
 
       assert answers |> length == 1
       assert answers |> List.first() |> Map.get(:id) == comment2.id
+    end
+
+    test "update a solution should also update post's solution digest", ~m(user community)a do
+      post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+
+      {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
+      post_author = post.author.user
+
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "solution", post_author)
+      {:ok, comment} = CMS.mark_comment_solution(comment.id, post_author)
+
+      {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
+      assert post.solution_digest == "solution"
+
+      {:ok, _comment} = CMS.update_article_comment(comment, "new solution")
+      {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
+      assert post.solution_digest == "new solution"
     end
   end
 end

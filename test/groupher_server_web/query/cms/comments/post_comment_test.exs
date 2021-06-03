@@ -242,7 +242,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       assert results["totalCount"] == total_count
     end
 
-    @tag :wip
     test "guest user can get paged comment with pinned comment in it",
          ~m(guest_conn post user)a do
       total_count = 20
@@ -272,7 +271,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
     end
 
     # post only
-    @tag :wip
+
     test "if solution in pinned comments, solution should always on top",
          ~m(guest_conn community user)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
