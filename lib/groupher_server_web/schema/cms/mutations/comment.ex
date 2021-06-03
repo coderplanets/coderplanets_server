@@ -73,6 +73,22 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
       resolve(&R.CMS.undo_emotion_to_comment/3)
     end
 
+    @desc "mark a comment as question post's best solution"
+    field :mark_comment_solution, :article_comment do
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      resolve(&R.CMS.mark_comment_solution/3)
+    end
+
+    @desc "mark a comment as question post's best solution"
+    field :undo_mark_comment_solution, :article_comment do
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      resolve(&R.CMS.undo_mark_comment_solution/3)
+    end
+
     ############################
     ############################
     ############################

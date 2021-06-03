@@ -344,6 +344,9 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:is_deleted, :boolean)
     field(:viewer_has_upvoted, :boolean)
 
+    field(:is_for_question, :boolean)
+    field(:is_solution, :boolean)
+
     timestamp_fields()
   end
 

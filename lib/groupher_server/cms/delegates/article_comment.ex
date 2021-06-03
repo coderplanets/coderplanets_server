@@ -146,8 +146,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     article_comment |> ORM.update(%{body_html: content})
   end
 
-  def mark_comment_solution(article_comment_id, user) do
-    with {:ok, article_comment} <- ORM.find(ArticleComment, article_comment_id),
+  @doc """
+  mark a comment as question post's best solution
+  """
+  def mark_comment_solution(comment_id, user) do
+    with {:ok, article_comment} <- ORM.find(ArticleComment, comment_id),
          {:ok, post} <- ORM.find(Post, article_comment.post_id, preload: [author: :user]) do
       # 确保只有一个最佳答案
       batch_update_solution_flag(post, false)
@@ -156,8 +159,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
-  def undo_mark_comment_solution(article_comment_id, user) do
-    with {:ok, article_comment} <- ORM.find(ArticleComment, article_comment_id),
+  @doc """
+  undo mark a comment as question post's best solution
+  """
+  def undo_mark_comment_solution(comment_id, user) do
+    with {:ok, article_comment} <- ORM.find(ArticleComment, comment_id),
          {:ok, post} <- ORM.find(Post, article_comment.post_id, preload: [author: :user]) do
       do_mark_comment_solution(post, article_comment, user, false)
     end
@@ -168,7 +174,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     with true <- user.id == post.author.user.id do
       Multi.new()
       |> Multi.run(:mark_solution, fn _, _ ->
-        ORM.update(article_comment, %{is_solution: is_solution})
+        ORM.update(article_comment, %{is_solution: is_solution, is_for_question: true})
       end)
       |> Multi.run(:update_post_state, fn _, _ ->
         ORM.update(post, %{is_solved: is_solution, solution_digest: article_comment.body_html})
