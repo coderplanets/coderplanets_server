@@ -9,11 +9,12 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
   import GroupherServer.CMS.Helper.MatcherOld
   import ShortMaps
 
+  alias GroupherServer.{Accounts, CMS, Delivery, Repo}
+
+  alias Accounts.Model.User
+  alias CMS.Model.PostCommentReply
+
   alias Helper.{ORM, QueryBuilder}
-  alias GroupherServer.{Accounts, Delivery, Repo}
-
-  alias GroupherServer.CMS.Model.PostCommentReply
-
   alias Ecto.Multi
 
   @doc """
@@ -23,11 +24,11 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
         thread,
         content_id,
         %{community: community, body: body} = args,
-        %Accounts.User{id: user_id}
+        %User{id: user_id}
       ) do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, content} <- ORM.find(action.target, content_id),
-         {:ok, user} <- ORM.find(Accounts.User, user_id) do
+         {:ok, user} <- ORM.find(User, user_id) do
       Multi.new()
       |> Multi.run(:create_comment, fn _, _ ->
         do_create_comment(thread, action, content, body, user)
@@ -45,7 +46,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
         thread,
         comment_id,
         %{community: community, body: body} = args,
-        %Accounts.User{id: user_id} = user
+        %User{id: user_id} = user
       ) do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, comment} <- ORM.find(action.reactor, comment_id) do
@@ -68,7 +69,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
   @doc """
   Creates a comment for psot, job ...
   """
-  def update_comment(thread, id, %{body: body}, %Accounts.User{id: user_id}) do
+  def update_comment(thread, id, %{body: body}, %User{id: user_id}) do
     with {:ok, action} <- match_action(thread, :comment),
          {:ok, content} <- ORM.find(action.reactor, id),
          true <- content.author_id == user_id do
@@ -131,7 +132,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
     end
   end
 
-  def paged_replies(thread, comment_id, %Accounts.User{id: user_id}) do
+  def paged_replies(thread, comment_id, %User{id: user_id}) do
     with {:ok, action} <- match_action(thread, :comment) do
       action.reactor
       |> where([c], c.author_id == ^user_id)

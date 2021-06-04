@@ -7,8 +7,10 @@ defmodule GroupherServer.CMS.Delegate.PassportCURD do
   import ShortMaps
 
   alias Helper.{NestedFilter, ORM}
-  alias GroupherServer.CMS.Model.Passport, as: UserPasport
-  alias GroupherServer.{Accounts, Repo}
+  alias GroupherServer.{Accounts, CMS, Repo}
+
+  alias Accounts.Model.User
+  alias CMS.Model.Passport, as: UserPasport
 
   # https://medium.com/front-end-hacking/use-github-oauth-as-your-sso-seamlessly-with-react-3e2e3b358fa1
   # http://www.ubazu.com/using-postgres-jsonb-columns-in-ecto
@@ -24,8 +26,8 @@ defmodule GroupherServer.CMS.Delegate.PassportCURD do
   @doc """
   return a user's passport in CMS context
   """
-  def get_passport(%Accounts.User{} = user) do
-    with {:ok, _} <- ORM.find(Accounts.User, user.id) do
+  def get_passport(%User{} = user) do
+    with {:ok, _} <- ORM.find(User, user.id) do
       case ORM.find_by(UserPasport, user_id: user.id) do
         {:ok, passport} ->
           {:ok, passport.rules}
@@ -40,7 +42,7 @@ defmodule GroupherServer.CMS.Delegate.PassportCURD do
   @doc """
   insert or update a user's passport in CMS context
   """
-  def stamp_passport(rules, %Accounts.User{id: user_id}) do
+  def stamp_passport(rules, %User{id: user_id}) do
     case ORM.find_by(UserPasport, user_id: user_id) do
       {:ok, passport} ->
         rules = passport.rules |> deep_merge(rules) |> reject_invalid_rules
@@ -52,7 +54,7 @@ defmodule GroupherServer.CMS.Delegate.PassportCURD do
     end
   end
 
-  def erase_passport(rules, %Accounts.User{id: user_id}) when is_list(rules) do
+  def erase_passport(rules, %User{id: user_id}) when is_list(rules) do
     with {:ok, passport} <- ORM.find_by(UserPasport, user_id: user_id) do
       case pop_in(passport.rules, rules) do
         {nil, _} ->
@@ -64,7 +66,7 @@ defmodule GroupherServer.CMS.Delegate.PassportCURD do
     end
   end
 
-  def delete_passport(%Accounts.User{id: user_id}) do
+  def delete_passport(%User{id: user_id}) do
     ORM.findby_delete!(UserPasport, ~m(user_id)a)
   end
 

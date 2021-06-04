@@ -8,7 +8,7 @@ defmodule GroupherServer.Billing.Delegate.CURD do
   import ShortMaps
 
   alias Helper.ORM
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.Accounts.Model.User
   alias GroupherServer.Billing.BillRecord
   alias GroupherServer.Billing.Delegate.Actions
   alias GroupherServer.Repo

@@ -8,6 +8,8 @@ defmodule GroupherServer.CMS.Model.Community do
 
   alias GroupherServer.{Accounts, CMS}
 
+  alias Accounts.Model.User
+
   alias CMS.Model.{
     Embeds,
     Category,
@@ -39,7 +41,7 @@ defmodule GroupherServer.CMS.Model.Community do
     field(:views, :integer)
 
     embeds_one(:meta, Embeds.CommunityMeta, on_replace: :delete)
-    belongs_to(:author, Accounts.User, foreign_key: :user_id)
+    belongs_to(:author, User, foreign_key: :user_id)
 
     has_many(:threads, {"communities_threads", CommunityThread})
     has_many(:subscribers, {"communities_subscribers", CommunitySubscriber})

@@ -23,6 +23,8 @@ defmodule GroupherServer.CMS.Model.ArticleCommentUserEmotion do
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.{Accounts, CMS}
+
+  alias Accounts.Model.User
   alias CMS.Model.ArticleComment
 
   @supported_emotions get_config(:article, :comment_emotions)
@@ -33,8 +35,8 @@ defmodule GroupherServer.CMS.Model.ArticleCommentUserEmotion do
   @type t :: %ArticleCommentUserEmotion{}
   schema "articles_comments_users_emotions" do
     belongs_to(:article_comment, ArticleComment, foreign_key: :article_comment_id)
-    belongs_to(:recived_user, Accounts.User, foreign_key: :recived_user_id)
-    belongs_to(:user, Accounts.User, foreign_key: :user_id)
+    belongs_to(:recived_user, User, foreign_key: :recived_user_id)
+    belongs_to(:user, User, foreign_key: :user_id)
 
     emotion_fields()
     timestamps(type: :utc_datetime)

@@ -12,7 +12,7 @@ defmodule GroupherServer.Accounts.Delegate.Achievements do
   import ShortMaps
 
   alias Helper.{ORM, SpecType}
-  alias GroupherServer.Accounts.{Achievement, User}
+  alias GroupherServer.Accounts.Model.{Achievement, User}
 
   alias GroupherServer.CMS.Model.CommunityEditor
 

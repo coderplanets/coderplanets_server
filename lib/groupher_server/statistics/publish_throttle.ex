@@ -5,6 +5,7 @@ defmodule GroupherServer.Statistics.PublishThrottle do
   use Ecto.Schema
   import Ecto.Changeset
   alias GroupherServer.Accounts
+  alias Accounts.Model.User
 
   @optional_fields ~w(user_id publish_hour publish_date hour_count date_count last_publish_time)a
   @required_fields ~w(user_id)a
@@ -15,7 +16,7 @@ defmodule GroupherServer.Statistics.PublishThrottle do
     field(:publish_date, :date)
     field(:hour_count, :integer)
     field(:date_count, :integer)
-    belongs_to(:user, Accounts.User)
+    belongs_to(:user, User)
 
     field(:last_publish_time, :utc_datetime)
 

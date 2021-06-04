@@ -10,8 +10,9 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
   import GroupherServer.CMS.Helper.Matcher
   import GroupherServer.CMS.Helper.MatcherOld
 
-  alias GroupherServer.Accounts.{Embeds, User}
+  alias GroupherServer.Accounts.Model.{Embeds, User}
   alias GroupherServer.CMS.Model.ArticleComment
+
   alias Helper.{ORM, QueryBuilder}
 
   @default_meta Embeds.UserMeta.default_meta()

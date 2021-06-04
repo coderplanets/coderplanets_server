@@ -6,7 +6,7 @@ defmodule GroupherServer.Accounts.Model.CollectFolder do
   import Ecto.Changeset
 
   alias GroupherServer.{Accounts, CMS}
-  alias Accounts.{User, Embeds}
+  alias Accounts.Model.{User, Embeds}
   alias CMS.Model.ArticleCollect
 
   @required_fields ~w(user_id title)a

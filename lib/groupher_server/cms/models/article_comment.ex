@@ -11,6 +11,7 @@ defmodule GroupherServer.CMS.Model.ArticleComment do
   import GroupherServer.CMS.Helper.Utils, only: [articles_foreign_key_constraint: 1]
 
   alias GroupherServer.{Accounts, CMS}
+  alias Accounts.Model.User
   alias CMS.Model.{Embeds, ArticleCommentUpvote}
 
   # alias Helper.HTML
@@ -48,7 +49,7 @@ defmodule GroupherServer.CMS.Model.ArticleComment do
 
   @type t :: %ArticleComment{}
   schema "articles_comments" do
-    belongs_to(:author, Accounts.User, foreign_key: :author_id)
+    belongs_to(:author, User, foreign_key: :author_id)
 
     field(:thread, :string)
     field(:body_html, :string)

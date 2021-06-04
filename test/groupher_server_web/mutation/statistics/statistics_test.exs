@@ -2,7 +2,7 @@ defmodule GroupherServer.Test.Mutation.Statistics do
   use GroupherServer.TestTools
 
   alias GroupherServer.Statistics
-  # alias GroupherServer.Accounts.User
+  # alias GroupherServer.Accounts.Model.User
   alias Helper.ORM
 
   setup do

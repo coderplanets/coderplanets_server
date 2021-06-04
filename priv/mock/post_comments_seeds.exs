@@ -1,6 +1,7 @@
 import GroupherServer.Support.Factory
 
 alias GroupherServer.{CMS, Accounts}
+alias Accounts.Model.User
 
 {:ok, user} = db_insert(:user)
 {:ok, post} = db_insert(:post)
@@ -13,7 +14,7 @@ Enum.reduce(1..15, [], fn _, acc ->
       :post,
       :comment,
       post.id,
-      %Accounts.User{id: user.id},
+      %User{id: user.id},
       "#{Faker.Lorem.Shakespeare.king_richard_iii()} - #{unique_num}"
     )
 

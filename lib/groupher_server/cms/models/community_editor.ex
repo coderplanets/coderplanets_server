@@ -7,6 +7,7 @@ defmodule GroupherServer.CMS.Model.CommunityEditor do
 
   alias GroupherServer.{Accounts, CMS}
 
+  alias Accounts.Model.User
   alias CMS.Model.Community
   alias Helper.Certification
 
@@ -16,7 +17,7 @@ defmodule GroupherServer.CMS.Model.CommunityEditor do
 
   schema "communities_editors" do
     field(:title, :string)
-    belongs_to(:user, Accounts.User, foreign_key: :user_id)
+    belongs_to(:user, User, foreign_key: :user_id)
     belongs_to(:community, Community, foreign_key: :community_id)
 
     timestamps(type: :utc_datetime)

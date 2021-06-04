@@ -92,7 +92,7 @@ defmodule GroupherServer.Test.Accounts do
   end
 
   describe "[github login]" do
-    alias Accounts.{GithubUser, User}
+    alias Accounts.Model.{GithubUser, User}
 
     test "register a valid github user with non-exist in db" do
       assert {:error, _} =

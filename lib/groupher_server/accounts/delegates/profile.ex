@@ -8,12 +8,12 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
 
   alias GroupherServer.{Accounts, CMS, Email, Repo, Statistics}
 
-  alias Accounts.{Achievement, GithubUser, User, Social}
+  alias Accounts.Model.{Achievement, GithubUser, User, Social}
   alias CMS.Model.{Community, CommunitySubscriber}
 
-  alias Helper.{Guardian, ORM, QueryBuilder, RadarSearch}
-
   alias GroupherServer.Accounts.Delegate.Fans
+
+  alias Helper.{Guardian, ORM, QueryBuilder, RadarSearch}
   alias Ecto.Multi
 
   @default_subscribed_communities get_config(:general, :default_subscribed_communities)

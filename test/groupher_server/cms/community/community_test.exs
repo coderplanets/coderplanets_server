@@ -2,7 +2,7 @@ defmodule GroupherServer.Test.CMS.Community do
   @moduledoc false
   use GroupherServer.TestTools
 
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.Accounts.Model.User
   alias GroupherServer.CMS
   alias CMS.Model.Community
 

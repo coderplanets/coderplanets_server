@@ -25,6 +25,7 @@ defmodule GroupherServer.CMS.Model.ArticleUserEmotion do
   import GroupherServer.CMS.Helper.Utils, only: [articles_foreign_key_constraint: 1]
 
   alias GroupherServer.Accounts
+  alias Accounts.Model.User
 
   @supported_emotions get_config(:article, :emotions)
   @article_threads get_config(:article, :threads)
@@ -35,8 +36,8 @@ defmodule GroupherServer.CMS.Model.ArticleUserEmotion do
 
   @type t :: %ArticleUserEmotion{}
   schema "articles_users_emotions" do
-    belongs_to(:recived_user, Accounts.User, foreign_key: :recived_user_id)
-    belongs_to(:user, Accounts.User, foreign_key: :user_id)
+    belongs_to(:recived_user, User, foreign_key: :recived_user_id)
+    belongs_to(:user, User, foreign_key: :user_id)
 
     emotion_fields()
     article_belongs_to_fields()

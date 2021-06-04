@@ -4,7 +4,7 @@ defmodule GroupherServer.Test.Billing do
   import Helper.Utils, only: [get_config: 2]
 
   alias Helper.ORM
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.Accounts.Model.User
   alias GroupherServer.Billing
 
   @senior_amount_threshold get_config(:general, :senior_amount_threshold)

@@ -5,7 +5,7 @@ defmodule GroupherServer.Accounts.Model.Achievement do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias GroupherServer.Accounts.{User, SourceContribute}
+  alias GroupherServer.Accounts.Model.{User, SourceContribute}
 
   @required_fields ~w(user_id)a
   @optional_fields ~w(articles_upvotes_count articles_collects_count contents_watched_count followers_count reputation donate_member senior_member sponsor_member)a

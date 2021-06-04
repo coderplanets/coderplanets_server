@@ -7,7 +7,7 @@ defmodule GroupherServer.Test.Statistics do
 
   # alias Helper.{Cache, Later, ORM}
   alias Helper.{Cache, ORM}
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.Accounts.Model.User
   alias GroupherServer.{CMS, Repo, Statistics}
 
   alias Statistics.UserContribute

@@ -12,6 +12,7 @@ defmodule GroupherServer.CMS.Model.AbuseReport do
 
   alias GroupherServer.{Accounts, CMS}
 
+  alias Accounts.Model.User
   alias CMS.Model.{ArticleComment, Embeds}
 
   @article_threads get_config(:article, :threads)
@@ -25,12 +26,12 @@ defmodule GroupherServer.CMS.Model.AbuseReport do
   @type t :: %AbuseReport{}
   schema "abuse_reports" do
     belongs_to(:article_comment, ArticleComment, foreign_key: :article_comment_id)
-    belongs_to(:account, Accounts.User, foreign_key: :account_id)
+    belongs_to(:account, User, foreign_key: :account_id)
 
     embeds_many(:report_cases, Embeds.AbuseReportCase, on_replace: :delete)
     field(:report_cases_count, :integer, default: 0)
 
-    belongs_to(:operate_user, Accounts.User, foreign_key: :operate_user_id)
+    belongs_to(:operate_user, User, foreign_key: :operate_user_id)
 
     field(:deal_with, :string)
 

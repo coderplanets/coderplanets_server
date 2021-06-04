@@ -1,4 +1,4 @@
-defmodule GroupherServer.Accounts.Embeds.UserMeta.Macro do
+defmodule GroupherServer.Accounts.Model.Embeds.UserMeta.Macro do
   @moduledoc false
 
   import Helper.Utils, only: [get_config: 2]
@@ -15,7 +15,7 @@ defmodule GroupherServer.Accounts.Embeds.UserMeta.Macro do
   end
 end
 
-defmodule GroupherServer.Accounts.Embeds.UserMeta do
+defmodule GroupherServer.Accounts.Model.Embeds.UserMeta do
   @moduledoc """
   general article meta info for articles
   """

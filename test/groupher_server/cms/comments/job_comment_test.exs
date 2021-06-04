@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS}
-
+  alias Accounts.Model.User
   alias CMS.Model.{ArticleComment, ArticlePinnedComment, Embeds, Job}
 
   @active_period get_config(:article, :active_period_days)
@@ -166,7 +166,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     test "article author upvote job comment will have flag", ~m(job user)a do
       comment = "job_comment"
       {:ok, comment} = CMS.create_article_comment(:job, job.id, comment, user)
-      {:ok, author_user} = ORM.find(Accounts.User, job.author.user.id)
+      {:ok, author_user} = ORM.find(User, job.author.user.id)
 
       CMS.upvote_article_comment(comment.id, author_user)
 

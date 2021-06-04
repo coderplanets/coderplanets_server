@@ -8,6 +8,7 @@ defmodule GroupherServer.CMS.Model.Author do
   import Ecto.Changeset
 
   alias GroupherServer.Accounts
+  alias Accounts.Model.User
 
   @type t :: %Author{}
 
@@ -16,7 +17,7 @@ defmodule GroupherServer.CMS.Model.Author do
     # field(:user_id, :id)
     # has_many(:posts, Post)
     # user_id filed in own-table
-    belongs_to(:user, Accounts.User)
+    belongs_to(:user, User)
 
     timestamps(type: :utc_datetime)
   end

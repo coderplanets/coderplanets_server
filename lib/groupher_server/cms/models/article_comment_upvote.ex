@@ -6,13 +6,15 @@ defmodule GroupherServer.CMS.Model.ArticleCommentUpvote do
   import Ecto.Changeset
 
   alias GroupherServer.{Accounts, CMS}
+
+  alias Accounts.Model.User
   alias CMS.Model.ArticleComment
 
   @required_fields ~w(article_comment_id user_id)a
 
   @type t :: %ArticleCommentUpvote{}
   schema "articles_comments_upvotes" do
-    belongs_to(:user, Accounts.User, foreign_key: :user_id)
+    belongs_to(:user, User, foreign_key: :user_id)
     belongs_to(:article_comment, ArticleComment, foreign_key: :article_comment_id)
 
     timestamps(type: :utc_datetime)

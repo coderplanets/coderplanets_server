@@ -8,6 +8,7 @@ defmodule GroupherServerWeb.Middleware.PublishThrottle do
   import Helper.ErrorCode
 
   alias GroupherServer.{Accounts, Statistics}
+  alias Accounts.Model.User
 
   @interval_minutes get_config(:general, :publish_throttle_interval_minutes)
   @hour_limit get_config(:general, :publish_throttle_hour_limit)
@@ -21,7 +22,7 @@ defmodule GroupherServerWeb.Middleware.PublishThrottle do
   end
 
   def call(%{context: %{cur_user: cur_user}} = resolution, opt) do
-    with {:ok, record} <- Statistics.load_throttle_record(%Accounts.User{id: cur_user.id}),
+    with {:ok, record} <- Statistics.load_throttle_record(%User{id: cur_user.id}),
          {:ok, _} <- interval_check(record, opt),
          {:ok, _} <- hour_limit_check(record, opt),
          {:ok, _} <- day_limit_check(record, opt) do

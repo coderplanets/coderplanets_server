@@ -3,7 +3,7 @@ defmodule GroupherServer.CMS.Model.ArticleCommentParticipator do
 
   use Ecto.Schema
 
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.Accounts.Model.User
 
   # alias CMS.Model.{
   #   Post,

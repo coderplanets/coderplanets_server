@@ -5,7 +5,7 @@ defmodule GroupherServer.Delivery.Notification do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.Accounts.Model.User
 
   @required_fields ~w(from_user_id to_user_id action source_title source_id source_preview source_type)a
   @optional_fields ~w(parent_id parent_type read)a

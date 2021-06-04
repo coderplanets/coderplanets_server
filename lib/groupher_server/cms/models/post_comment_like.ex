@@ -6,13 +6,14 @@ defmodule GroupherServer.CMS.Model.PostCommentLike do
   import Ecto.Changeset
 
   alias GroupherServer.{Accounts, CMS}
+  alias Accounts.Model.User
   alias CMS.Model.PostComment
 
   @required_fields ~w(post_comment_id user_id)a
 
   @type t :: %PostCommentLike{}
   schema "posts_comments_likes" do
-    belongs_to(:user, Accounts.User, foreign_key: :user_id)
+    belongs_to(:user, User, foreign_key: :user_id)
     belongs_to(:post_comment, PostComment, foreign_key: :post_comment_id)
 
     timestamps(type: :utc_datetime)

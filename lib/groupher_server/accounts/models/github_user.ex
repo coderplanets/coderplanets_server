@@ -4,7 +4,7 @@ defmodule GroupherServer.Accounts.Model.GithubUser do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.Accounts.Model.User
 
   @type t :: %GithubUser{}
   schema "github_users" do

@@ -10,7 +10,7 @@ defmodule GroupherServer.Accounts.Delegate.Fans do
   alias Helper.{ORM, QueryBuilder, SpecType}
   alias GroupherServer.{Accounts, Repo}
 
-  alias GroupherServer.Accounts.{User, Embeds, UserFollower, UserFollowing}
+  alias GroupherServer.Accounts.Model.{User, Embeds, UserFollower, UserFollowing}
 
   alias Ecto.Multi
 

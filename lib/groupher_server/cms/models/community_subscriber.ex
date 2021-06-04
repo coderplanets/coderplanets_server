@@ -7,13 +7,14 @@ defmodule GroupherServer.CMS.Model.CommunitySubscriber do
 
   alias GroupherServer.{Accounts, CMS}
 
+  alias Accounts.Model.User
   alias CMS.Model.Community
 
   @required_fields ~w(user_id community_id)a
 
   @type t :: %CommunitySubscriber{}
   schema "communities_subscribers" do
-    belongs_to(:user, Accounts.User, foreign_key: :user_id)
+    belongs_to(:user, User, foreign_key: :user_id)
     belongs_to(:community, Community, foreign_key: :community_id)
 
     timestamps(type: :utc_datetime)

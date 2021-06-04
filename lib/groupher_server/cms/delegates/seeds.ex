@@ -14,7 +14,9 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   alias Helper.ORM
   # alias Helper.QueryBuilder
   alias GroupherServer.{Accounts, CMS}
-  alias GroupherServer.CMS.Model.{Community, Thread, Category}
+
+  alias Accounts.Model.User
+  alias CMS.Model.{Community, Thread, Category}
 
   alias CMS.Delegate.SeedsConfig
 
@@ -296,7 +298,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   end
 
   def seed_bot do
-    case ORM.find(Accounts.User, 1) do
+    case ORM.find(User, 1) do
       {:ok, user} ->
         {:ok, user}
 
@@ -304,8 +306,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
         nickname = "cps_bot_2398614_2018"
         avatar = "https://avatars1.githubusercontent.com/u/6184465?s=460&v=4"
 
-        Accounts.User |> ORM.findby_or_insert(~m(nickname avatar)a, ~m(nickname avatar)a)
-        # Accounts.User |> ORM.create(~m(nickname avatar)a)
+        User |> ORM.findby_or_insert(~m(nickname avatar)a, ~m(nickname avatar)a)
     end
   end
 

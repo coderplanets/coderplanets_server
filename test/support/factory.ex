@@ -9,7 +9,7 @@ defmodule GroupherServer.Support.Factory do
 
   alias GroupherServer.Repo
   alias GroupherServer.{Accounts, CMS, Delivery}
-  alias GroupherServer.Accounts.User
+  alias Accounts.Model.User
 
   alias CMS.Model.{
     Author,
@@ -309,8 +309,6 @@ defmodule GroupherServer.Support.Factory do
   # bad example:
   # mismatch                                       mismatch
   # |                                               |
-  # defp mock(:user), do: Accounts.User |> struct(mock_meta(:community))
-
   # this line of code will cause SERIOUS Recursive problem
 
   defp mock(:post), do: Post |> struct(mock_meta(:post))
@@ -327,7 +325,7 @@ defmodule GroupherServer.Support.Factory do
   defp mock(:sys_notification),
     do: Delivery.SysNotification |> struct(mock_meta(:sys_notification))
 
-  defp mock(:user), do: Accounts.User |> struct(mock_meta(:user))
+  defp mock(:user), do: User |> struct(mock_meta(:user))
   defp mock(:community), do: Community |> struct(mock_meta(:community))
   defp mock(:thread), do: Thread |> struct(mock_meta(:thread))
 

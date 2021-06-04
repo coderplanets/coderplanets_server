@@ -1,4 +1,4 @@
-defmodule GroupherServer.Accounts.Embeds.UserContribute do
+defmodule GroupherServer.Accounts.Model.Embeds.UserContribute do
   @moduledoc """
   user contribute
   """

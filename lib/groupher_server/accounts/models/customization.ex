@@ -7,7 +7,7 @@ defmodule GroupherServer.Accounts.Model.Customization do
   import Helper.Utils, only: [get_config: 2]
   import Ecto.Changeset
 
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.Accounts.Model.User
 
   @required_fields ~w(user_id)a
   @optional_fields ~w(theme sidebar_layout sidebar_communities_index community_chart brainwash_free banner_layout contents_layout content_divider content_hover mark_viewed display_density)a

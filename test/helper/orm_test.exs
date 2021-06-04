@@ -5,7 +5,7 @@ defmodule GroupherServer.Test.Helper.ORM do
   import GroupherServer.Support.Factory
 
   alias GroupherServer.CMS.Model.{Post, Author}
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.Accounts.Model.User
   alias Helper.ORM
 
   @posts_count 20

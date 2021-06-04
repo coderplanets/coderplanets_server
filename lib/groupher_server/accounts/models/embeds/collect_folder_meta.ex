@@ -1,4 +1,4 @@
-defmodule GroupherServer.Accounts.Embeds.CollectFolderMeta.Macros do
+defmodule GroupherServer.Accounts.Model.Embeds.CollectFolderMeta.Macros do
   @moduledoc """
   general fields for each folder meta
 
@@ -25,13 +25,13 @@ defmodule GroupherServer.Accounts.Embeds.CollectFolderMeta.Macros do
   end
 end
 
-defmodule GroupherServer.Accounts.Embeds.CollectFolderMeta do
+defmodule GroupherServer.Accounts.Model.Embeds.CollectFolderMeta do
   @moduledoc """
   general article meta info for articles
   """
   use Ecto.Schema
   import Ecto.Changeset
-  import GroupherServer.Accounts.Embeds.CollectFolderMeta.Macros
+  import GroupherServer.Accounts.Model.Embeds.CollectFolderMeta.Macros
   import Helper.Utils, only: [get_config: 2]
 
   @article_threads get_config(:article, :threads)

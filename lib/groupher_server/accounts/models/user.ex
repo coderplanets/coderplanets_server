@@ -8,7 +8,7 @@ defmodule GroupherServer.Accounts.Model.User do
   # import GroupherServerWeb.Schema.Helper.Fields
   import Ecto.Changeset
 
-  alias GroupherServer.Accounts.{
+  alias GroupherServer.Accounts.Model.{
     Achievement,
     Embeds,
     Customization,

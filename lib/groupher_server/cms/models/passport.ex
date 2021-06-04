@@ -6,6 +6,7 @@ defmodule GroupherServer.CMS.Model.Passport do
   import Ecto.Changeset
 
   alias GroupherServer.Accounts
+  alias Accounts.Model.User
 
   @required_fields ~w(rules user_id)a
   @optional_fields ~w(rules)a
@@ -13,7 +14,7 @@ defmodule GroupherServer.CMS.Model.Passport do
   @type t :: %Passport{}
   schema "cms_passports" do
     field(:rules, :map)
-    belongs_to(:user, Accounts.User)
+    belongs_to(:user, User)
 
     timestamps(type: :utc_datetime)
   end

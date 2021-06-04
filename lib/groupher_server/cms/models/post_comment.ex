@@ -6,7 +6,7 @@ defmodule GroupherServer.CMS.Model.PostComment do
   import Ecto.Changeset
 
   alias GroupherServer.{Accounts, CMS}
-
+  alias Accounts.Model.User
   alias CMS.Model.{
     Post,
     PostCommentLike,
@@ -22,7 +22,7 @@ defmodule GroupherServer.CMS.Model.PostComment do
   schema "posts_comments" do
     field(:body, :string)
     field(:floor, :integer)
-    belongs_to(:author, Accounts.User, foreign_key: :author_id)
+    belongs_to(:author, User, foreign_key: :author_id)
     belongs_to(:post, Post, foreign_key: :post_id)
     belongs_to(:reply_to, PostComment, foreign_key: :reply_id)
 

@@ -1,7 +1,7 @@
 # migrate old social fields in account table to user_socials table
 alias Helper.ORM
 
-alias GroupherServer.Accounts.{User, Social}
+alias GroupherServer.Accounts.Model.{User, Social}
 alias Helper.Patch.SocialMigrater
 
 defmodule Helper.Patch.SocialMigrater do

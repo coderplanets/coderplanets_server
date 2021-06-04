@@ -4,7 +4,7 @@ defmodule GroupherServer.Accounts.Model.SysNotificationMail do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.Accounts.Model.User
 
   @required_fields ~w(user_id source_id source_type)a
   @optional_fields ~w(source_preview read)a

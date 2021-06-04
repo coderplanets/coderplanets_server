@@ -4,7 +4,7 @@ defmodule GroupherServer.Delivery.Record do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.Accounts.Model.User
 
   @required_fields ~w(user_id)a
   @optional_fields ~w(mentions_record notifications_record sys_notifications_record)a

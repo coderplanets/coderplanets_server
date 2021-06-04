@@ -1,7 +1,7 @@
 defmodule GroupherServer.Test.Seeds.Communities do
   use GroupherServer.TestTools
 
-  # alias GroupherServer.Accounts.User
+  # alias GroupherServer.Accounts.Model.User
   alias GroupherServer.CMS
 
   alias CMS.Model.Community

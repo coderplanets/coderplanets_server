@@ -4,7 +4,7 @@ defmodule GroupherServer.Test.Accounts.Achievement do
   import Helper.Utils, only: [get_config: 2]
   alias Helper.ORM
   alias GroupherServer.Accounts
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.Accounts.Model.User
 
   @follow_weight get_config(:general, :user_achieve_follow_weight)
   @collect_weight get_config(:general, :user_achieve_collect_weight)

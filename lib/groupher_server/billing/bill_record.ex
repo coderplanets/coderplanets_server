@@ -7,13 +7,13 @@ defmodule GroupherServer.Billing.BillRecord do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias GroupherServer.Accounts
+  alias GroupherServer.Accounts.Model.User
 
   @required_fields ~w(user_id hash_id state amount payment_usage payment_method)a
   @optional_fields ~w(note)a
 
   schema "bill_records" do
-    belongs_to(:user, Accounts.User, foreign_key: :user_id)
+    belongs_to(:user, User, foreign_key: :user_id)
 
     field(:state, :string)
     field(:amount, :float)

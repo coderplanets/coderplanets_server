@@ -5,12 +5,13 @@ defmodule GroupherServer.Statistics.UserContribute do
   use Ecto.Schema
   import Ecto.Changeset
   alias GroupherServer.Accounts
+  alias Accounts.Model.User
 
   @type t :: %UserContribute{}
   schema "user_contributes" do
     field(:count, :integer)
     field(:date, :date)
-    belongs_to(:user, Accounts.User)
+    belongs_to(:user, User)
 
     timestamps(type: :utc_datetime)
   end
