@@ -5,7 +5,7 @@ defmodule GroupherServer.CMS.Model.Category do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias GroupherServer.CMS.{Author, Community}
+  alias GroupherServer.CMS.Model.{Author, Community}
 
   @required_fields ~w(title raw author_id)a
   @optional_fields ~w(index)a

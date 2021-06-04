@@ -11,7 +11,7 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
   import GroupherServer.CMS.Helper.MatcherOld
 
   alias GroupherServer.Accounts.{Embeds, User}
-  alias GroupherServer.CMS.ArticleComment
+  alias GroupherServer.CMS.Model.ArticleComment
   alias Helper.{ORM, QueryBuilder}
 
   @default_meta Embeds.UserMeta.default_meta()

@@ -8,7 +8,7 @@ defmodule GroupherServer.CMS.Delegate.Search do
   import GroupherServer.CMS.Helper.Matcher
 
   alias Helper.ORM
-  alias GroupherServer.CMS.{Community}
+  alias GroupherServer.CMS.Model.{Community}
 
   @search_items_count 15
 
