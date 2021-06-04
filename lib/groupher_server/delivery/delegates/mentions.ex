@@ -7,8 +7,8 @@ defmodule GroupherServer.Delivery.Delegate.Mentions do
   alias GroupherServer.{Accounts, Delivery, Repo}
 
   alias Accounts.Model.User
-  alias Delivery.{Delegate, Mention}
-  alias Delegate.Utils
+  alias Delivery.Model.Mention
+  alias Delivery.Delegate.Utils
 
   # TODO: move mention logic to create contents
   # TODO: 同一篇文章不能 mention 同一个 user 多次？

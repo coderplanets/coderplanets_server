@@ -7,9 +7,8 @@ defmodule GroupherServer.Delivery.Delegate.Notifications do
   alias GroupherServer.{Accounts, Delivery}
 
   alias Accounts.Model.User
-  alias Delivery.{Delegate, Notification, SysNotification}
-  alias Delegate.Utils
-
+  alias Delivery.Model.{Notification, SysNotification}
+  alias Delivery.Delegate.Utils
   alias Helper.ORM
 
   # TODO: audience
