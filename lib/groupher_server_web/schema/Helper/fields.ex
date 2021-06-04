@@ -12,6 +12,50 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
 
   @article_threads get_config(:article, :threads)
 
+  @doc "general article fields for grqphql resolve fields"
+  defmacro general_article_fields() do
+    quote do
+      field(:id, :id)
+      field(:title, :string)
+      field(:views, :integer)
+      field(:is_pinned, :boolean)
+      field(:mark_delete, :boolean)
+
+      field(:article_tags, list_of(:article_tag), resolve: dataloader(CMS, :article_tags))
+      field(:author, :user, resolve: dataloader(CMS, :author))
+      field(:original_community, :community, resolve: dataloader(CMS, :original_community))
+      field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
+
+      field(:meta, :article_meta)
+      field(:upvotes_count, :integer)
+      field(:collects_count, :integer)
+      field(:emotions, :article_emotions)
+
+      field(:viewer_has_collected, :boolean)
+      field(:viewer_has_upvoted, :boolean)
+      field(:viewer_has_viewed, :boolean)
+      field(:viewer_has_reported, :boolean)
+    end
+  end
+
+  defmacro article_thread_enums do
+    @article_threads
+    |> Enum.map(fn thread ->
+      quote do
+        enum(unquote(:"#{thread}_thread"), do: value(unquote(thread)))
+      end
+    end)
+  end
+
+  defmacro article_values do
+    @article_threads
+    |> Enum.map(fn thread ->
+      quote do
+        value(unquote(thread))
+      end
+    end)
+  end
+
   defmacro timestamp_fields(:article) do
     quote do
       field(:inserted_at, :datetime)
@@ -86,15 +130,7 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
     end)
   end
 
-  defmacro viewer_has_state_fields do
-    quote do
-      field(:viewer_has_collected, :boolean)
-      field(:viewer_has_upvoted, :boolean)
-      field(:viewer_has_viewed, :boolean)
-      field(:viewer_has_reported, :boolean)
-    end
-  end
-
+  # TODO: remove
   defmacro comments_fields do
     quote do
       field(:id, :id)
@@ -118,16 +154,6 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
 
         resolve(dataloader(CMS, :likes))
         middleware(M.ConvertToInt)
-      end
-
-      field :viewer_has_liked, :boolean do
-        arg(:viewer_did, :viewer_did_type, default_value: :viewer_did)
-
-        middleware(M.Authorize, :login)
-        # put current user into dataloader's args
-        middleware(M.PutCurrentUser)
-        resolve(dataloader(CMS, :likes))
-        middleware(M.ViewerDidConvert)
       end
 
       field :replies, list_of(:comment) do
@@ -157,6 +183,7 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
     end
   end
 
+  # TODO: remove
   defmacro comments_counter_fields(thread) do
     quote do
       # @dec "total comments of the post"
@@ -170,7 +197,6 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
       # @desc "unique participator list of a the comments"
       field :comments_participators, list_of(:user) do
         arg(:filter, :members_filter)
-        arg(:unique, :unique_type, default_value: true)
 
         # middleware(M.ForceLoader)
         middleware(M.PageSizeProof)

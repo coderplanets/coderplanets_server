@@ -52,25 +52,15 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   object :post do
     meta(:cache, max_age: 30)
     interface(:article)
-    field(:id, :id)
-    field(:title, :string)
+
+    general_article_fields()
+    article_comments_fields()
+
     field(:digest, :string)
     field(:length, :integer)
     field(:link_addr, :string)
     field(:copy_right, :string)
     field(:body, :string)
-    field(:views, :integer)
-    # NOTE: only meaningful in paged-xxx queries
-    field(:is_pinned, :boolean)
-    field(:mark_delete, :boolean)
-    field(:article_tags, list_of(:article_tag), resolve: dataloader(CMS, :article_tags))
-
-    field(:author, :user, resolve: dataloader(CMS, :author))
-    field(:original_community, :community, resolve: dataloader(CMS, :original_community))
-    field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
-
-    field(:meta, :article_meta)
-    field(:emotions, :article_emotions)
 
     field :comments, list_of(:comment) do
       arg(:filter, :members_filter)
@@ -79,8 +69,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
       resolve(dataloader(CMS, :comments))
     end
 
-    # comments_count
-    # comments_participators / paged
     comments_counter_fields(:post)
 
     @desc "totalCount of unique participator list of a the comments"
@@ -94,9 +82,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
       end)
     end
 
-    article_comments_fields()
-    viewer_has_state_fields()
-    # upvoted_count
+    # upvoted_count ?
     # collected_count
 
     timestamp_fields(:article)
@@ -104,8 +90,10 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
   object :job do
     interface(:article)
-    field(:id, :id)
-    field(:title, :string)
+
+    general_article_fields()
+    article_comments_fields()
+
     field(:desc, :string)
     field(:company, :string)
     field(:company_link, :string)
@@ -114,34 +102,19 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:link_addr, :string)
     field(:copy_right, :string)
     field(:body, :string)
-    field(:views, :integer)
 
-    field(:is_pinned, :boolean)
-    field(:mark_delete, :boolean)
-
-    field(:author, :user, resolve: dataloader(CMS, :author))
-    field(:article_tags, list_of(:article_tag), resolve: dataloader(CMS, :article_tags))
-    field(:original_community, :community, resolve: dataloader(CMS, :original_community))
-    field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
-
-    field(:meta, :article_meta)
-    field(:emotions, :article_emotions)
-
-    # comments_count
-    # comments_participators
-    article_comments_fields()
-    viewer_has_state_fields()
     timestamp_fields(:article)
   end
 
   object :repo do
-    # interface(:article)
-    field(:id, :id)
-    field(:title, :string)
+    interface(:article)
+
+    general_article_fields()
+    article_comments_fields()
+
     field(:owner_name, :string)
     field(:owner_url, :string)
     field(:repo_url, :string)
-    field(:author, :user, resolve: dataloader(CMS, :author))
 
     field(:desc, :string)
     field(:homepage_url, :string)
@@ -159,20 +132,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
     field(:contributors, list_of(:repo_contributor))
 
-    field(:views, :integer)
-    field(:is_pinned, :boolean)
-    field(:mark_delete, :boolean)
-
     field(:last_sync, :datetime)
-
-    field(:article_tags, list_of(:article_tag), resolve: dataloader(CMS, :article_tags))
-    field(:original_community, :community, resolve: dataloader(CMS, :original_community))
-    field(:communities, list_of(:community), resolve: dataloader(CMS, :communities))
-
-    article_comments_fields()
-    viewer_has_state_fields()
-    # comments_count
-    # comments_participators
 
     timestamp_fields(:article)
   end
