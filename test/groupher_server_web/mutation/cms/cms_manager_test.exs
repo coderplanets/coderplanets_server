@@ -2,6 +2,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Manager do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
+  alias CMS.Model.Post
   alias Helper.ORM
 
   setup do
@@ -57,7 +58,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Manager do
       deleted = rule_conn |> mutation_result(@query, %{id: post.id}, "deletePost")
 
       assert deleted["id"] == to_string(post.id)
-      assert {:error, _} = ORM.find(CMS.Post, deleted["id"])
+      assert {:error, _} = ORM.find(Post, deleted["id"])
     end
 
     test "root can delete a post with comment", ~m(post community user)a do
@@ -69,13 +70,13 @@ defmodule GroupherServer.Test.Mutation.CMS.Manager do
       {:ok, comment} =
         CMS.create_comment(:post, post.id, %{community: community.raw, body: body}, user)
 
-      {:ok, _} = ORM.find(CMS.PostComment, comment.id)
+      {:ok, _} = ORM.find(PostComment, comment.id)
 
       deleted = rule_conn |> mutation_result(@query, %{id: post.id}, "deletePost")
 
       assert deleted["id"] == to_string(post.id)
-      assert {:error, _} = ORM.find(CMS.Post, deleted["id"])
-      assert {:error, _error} = ORM.find(CMS.PostComment, comment.id)
+      assert {:error, _} = ORM.find(Post, deleted["id"])
+      assert {:error, _error} = ORM.find(PostComment, comment.id)
     end
   end
 end

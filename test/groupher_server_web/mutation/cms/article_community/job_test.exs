@@ -3,6 +3,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Job do
 
   alias Helper.ORM
   alias GroupherServer.CMS
+  alias CMS.Model.Job
 
   setup do
     {:ok, job} = db_insert(:job)
@@ -30,7 +31,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Job do
       {:ok, community} = db_insert(:community)
       variables = %{id: job.id, thread: "JOB", communityId: community.id}
       rule_conn |> mutation_result(@mirror_article_query, variables, "mirrorArticle")
-      {:ok, found} = ORM.find(CMS.Job, job.id, preload: :communities)
+      {:ok, found} = ORM.find(Job, job.id, preload: :communities)
 
       assoc_communities = found.communities |> Enum.map(& &1.id)
       assert community.id in assoc_communities
@@ -64,7 +65,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Job do
       variables = %{id: job.id, thread: "JOB", communityId: community2.id}
       rule_conn |> mutation_result(@mirror_article_query, variables, "mirrorArticle")
 
-      {:ok, found} = ORM.find(CMS.Job, job.id, preload: :communities)
+      {:ok, found} = ORM.find(Job, job.id, preload: :communities)
 
       assoc_communities = found.communities |> Enum.map(& &1.id)
       assert community.id in assoc_communities
@@ -92,7 +93,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Job do
       variables2 = %{id: job.id, thread: "JOB", communityId: community2.id}
       rule_conn |> mutation_result(@mirror_article_query, variables2, "mirrorArticle")
 
-      {:ok, found} = ORM.find(CMS.Job, job.id, preload: :communities)
+      {:ok, found} = ORM.find(Job, job.id, preload: :communities)
 
       assoc_communities = found.communities |> Enum.map(& &1.id)
       assert community.id in assoc_communities
@@ -102,7 +103,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Job do
       rule_conn = simu_conn(:user, cms: passport_rules)
 
       rule_conn |> mutation_result(@unmirror_article_query, variables, "unmirrorArticle")
-      {:ok, found} = ORM.find(CMS.Job, job.id, preload: :communities)
+      {:ok, found} = ORM.find(Job, job.id, preload: :communities)
       assoc_communities = found.communities |> Enum.map(& &1.id)
       assert community.id not in assoc_communities
       assert community2.id in assoc_communities
@@ -124,7 +125,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Job do
 
       variables = %{id: job.id, thread: "JOB", communityId: community.id}
       rule_conn |> mutation_result(@mirror_article_query, variables, "mirrorArticle")
-      {:ok, found} = ORM.find(CMS.Job, job.id, preload: [:original_community, :communities])
+      {:ok, found} = ORM.find(Job, job.id, preload: [:original_community, :communities])
       assoc_communities = found.communities |> Enum.map(& &1.id)
       assert community.id in assoc_communities
 
@@ -135,7 +136,7 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Job do
 
       variables = %{id: job.id, thread: "JOB", communityId: community2.id}
       rule_conn |> mutation_result(@move_article_query, variables, "moveArticle")
-      {:ok, found} = ORM.find(CMS.Job, job.id, preload: [:original_community, :communities])
+      {:ok, found} = ORM.find(Job, job.id, preload: [:original_community, :communities])
       assoc_communities = found.communities |> Enum.map(& &1.id)
       assert pre_original_community_id not in assoc_communities
       assert community2.id in assoc_communities

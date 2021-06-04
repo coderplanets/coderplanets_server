@@ -12,7 +12,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
   alias Helper.{ORM, QueryBuilder}
   alias GroupherServer.{Accounts, Delivery, Repo}
 
-  alias GroupherServer.CMS.PostCommentReply
+  alias GroupherServer.CMS.Model.PostCommentReply
 
   alias Ecto.Multi
 

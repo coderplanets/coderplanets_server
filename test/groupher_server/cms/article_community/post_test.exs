@@ -3,6 +3,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Post do
 
   alias Helper.ORM
   alias GroupherServer.CMS
+  alias CMS.Model.Post
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -20,7 +21,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Post do
   describe "[article mirror/move]" do
     test "created post has origial community info", ~m(user community post_attrs)a do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
-      {:ok, post} = ORM.find(CMS.Post, post.id, preload: :original_community)
+      {:ok, post} = ORM.find(Post, post.id, preload: :original_community)
 
       assert post.original_community_id == community.id
     end
@@ -30,7 +31,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Post do
       assert post.original_community_id == community.id
 
       {:ok, _} = CMS.move_article(:post, post.id, community2.id)
-      {:ok, post} = ORM.find(CMS.Post, post.id, preload: [:original_community, :communities])
+      {:ok, post} = ORM.find(Post, post.id, preload: [:original_community, :communities])
 
       assert post.original_community.id == community2.id
       assert not is_nil(Enum.find(post.communities, &(&1.id == community2.id)))
@@ -39,14 +40,14 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Post do
     test "post can be mirror to other community", ~m(user community community2 post_attrs)a do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
-      {:ok, post} = ORM.find(CMS.Post, post.id, preload: :communities)
+      {:ok, post} = ORM.find(Post, post.id, preload: :communities)
       assert post.communities |> length == 1
 
       assert not is_nil(Enum.find(post.communities, &(&1.id == community.id)))
 
       {:ok, _} = CMS.mirror_article(:post, post.id, community2.id)
 
-      {:ok, post} = ORM.find(CMS.Post, post.id, preload: :communities)
+      {:ok, post} = ORM.find(Post, post.id, preload: :communities)
       assert post.communities |> length == 2
       assert not is_nil(Enum.find(post.communities, &(&1.id == community.id)))
       assert not is_nil(Enum.find(post.communities, &(&1.id == community2.id)))
@@ -58,11 +59,11 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Post do
       {:ok, _} = CMS.mirror_article(:post, post.id, community2.id)
       {:ok, _} = CMS.mirror_article(:post, post.id, community3.id)
 
-      {:ok, post} = ORM.find(CMS.Post, post.id, preload: :communities)
+      {:ok, post} = ORM.find(Post, post.id, preload: :communities)
       assert post.communities |> length == 3
 
       {:ok, _} = CMS.unmirror_article(:post, post.id, community3.id)
-      {:ok, post} = ORM.find(CMS.Post, post.id, preload: :communities)
+      {:ok, post} = ORM.find(Post, post.id, preload: :communities)
       assert post.communities |> length == 2
 
       assert is_nil(Enum.find(post.communities, &(&1.id == community3.id)))
@@ -74,7 +75,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Post do
       {:ok, _} = CMS.mirror_article(:post, post.id, community2.id)
       {:ok, _} = CMS.mirror_article(:post, post.id, community3.id)
 
-      {:ok, post} = ORM.find(CMS.Post, post.id, preload: :communities)
+      {:ok, post} = ORM.find(Post, post.id, preload: :communities)
       assert post.communities |> length == 3
 
       {:error, reason} = CMS.unmirror_article(:post, post.id, community.id)

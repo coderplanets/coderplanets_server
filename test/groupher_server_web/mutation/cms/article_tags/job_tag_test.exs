@@ -5,6 +5,7 @@ defmodule GroupherServer.Test.Mutation.ArticleTags.JobTag do
 
   alias Helper.ORM
   alias GroupherServer.CMS
+  alias CMS.Model.Job
 
   setup do
     {:ok, job} = db_insert(:job)
@@ -45,7 +46,7 @@ defmodule GroupherServer.Test.Mutation.ArticleTags.JobTag do
       }
 
       rule_conn |> mutation_result(@set_tag_query, variables, "setArticleTag")
-      {:ok, found} = ORM.find(CMS.Job, job.id, preload: :article_tags)
+      {:ok, found} = ORM.find(Job, job.id, preload: :article_tags)
 
       assoc_tags = found.article_tags |> Enum.map(& &1.id)
       assert article_tag.id in assoc_tags
@@ -79,7 +80,7 @@ defmodule GroupherServer.Test.Mutation.ArticleTags.JobTag do
 
       rule_conn |> mutation_result(@unset_tag_query, variables, "unsetArticleTag")
 
-      {:ok, job} = ORM.find(CMS.Job, job.id, preload: :article_tags)
+      {:ok, job} = ORM.find(Job, job.id, preload: :article_tags)
       assoc_tags = job.article_tags |> Enum.map(& &1.id)
 
       assert article_tag.id not in assoc_tags

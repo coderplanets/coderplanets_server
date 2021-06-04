@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.Model.{Embeds, ArticleUserEmotion}
+  alias CMS.Model.{Post, Embeds, ArticleUserEmotion}
 
   @default_emotions Embeds.ArticleEmotion.default_emotions()
 
@@ -73,7 +73,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user2)
 
-      {:ok, %{emotions: emotions}} = ORM.find(CMS.Post, post.id)
+      {:ok, %{emotions: emotions}} = ORM.find(Post, post.id)
 
       assert emotions.downvote_count == 2
       assert user_exist_in?(user, emotions.latest_downvote_users)
@@ -89,7 +89,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
       {:ok, _} = CMS.undo_emotion_to_article(:post, post.id, :downvote, user)
       {:ok, _} = CMS.undo_emotion_to_article(:post, post.id, :downvote, user2)
 
-      {:ok, %{emotions: emotions}} = ORM.find(CMS.Post, post.id)
+      {:ok, %{emotions: emotions}} = ORM.find(Post, post.id)
 
       assert emotions.downvote_count == 0
       assert not user_exist_in?(user, emotions.latest_downvote_users)
@@ -102,7 +102,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user)
 
-      {:ok, post} = ORM.find(CMS.Post, post.id)
+      {:ok, post} = ORM.find(Post, post.id)
 
       assert post.emotions.downvote_count == 1
       assert user_exist_in?(user, post.emotions.latest_downvote_users)
@@ -115,7 +115,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :heart, user)
 
-      {:ok, post} = ORM.find(CMS.Post, post.id)
+      {:ok, post} = ORM.find(Post, post.id)
 
       {:ok, records} = ORM.find_all(ArticleUserEmotion, %{page: 1, size: 10})
       assert records.total_count == 1
@@ -133,7 +133,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :beer, user2)
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :beer, user3)
 
-      {:ok, %{emotions: emotions}} = ORM.find(CMS.Post, post.id)
+      {:ok, %{emotions: emotions}} = ORM.find(Post, post.id)
 
       assert emotions.beer_count == 3
       assert user_exist_in?(user, emotions.latest_beer_users)
@@ -150,7 +150,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :heart, user)
       {:ok, _} = CMS.emotion_to_article(:post, post.id, :orz, user)
 
-      {:ok, %{emotions: emotions}} = ORM.find(CMS.Post, post.id)
+      {:ok, %{emotions: emotions}} = ORM.find(Post, post.id)
 
       assert emotions.downvote_count == 1
       assert user_exist_in?(user, emotions.latest_downvote_users)

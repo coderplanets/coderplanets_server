@@ -67,7 +67,7 @@ defmodule GroupherServer.CMS.Helper.MatcherMacros do
   info:
   %{
     id: id,
-    model: CMS.Post,
+    model: CMS.Model.Post,
     foreign_key: :post_id,
   }
   """

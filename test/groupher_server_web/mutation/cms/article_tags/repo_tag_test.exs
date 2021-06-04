@@ -5,6 +5,7 @@ defmodule GroupherServer.Test.Mutation.ArticleTags.RepoTag do
 
   alias Helper.ORM
   alias GroupherServer.CMS
+  alias CMS.Model.Repo
 
   setup do
     {:ok, repo} = db_insert(:repo)
@@ -45,7 +46,7 @@ defmodule GroupherServer.Test.Mutation.ArticleTags.RepoTag do
       }
 
       rule_conn |> mutation_result(@set_tag_query, variables, "setArticleTag")
-      {:ok, found} = ORM.find(CMS.Repo, repo.id, preload: :article_tags)
+      {:ok, found} = ORM.find(Repo, repo.id, preload: :article_tags)
 
       assoc_tags = found.article_tags |> Enum.map(& &1.id)
       assert article_tag.id in assoc_tags
@@ -80,7 +81,7 @@ defmodule GroupherServer.Test.Mutation.ArticleTags.RepoTag do
 
       rule_conn |> mutation_result(@unset_tag_query, variables, "unsetArticleTag")
 
-      {:ok, repo} = ORM.find(CMS.Repo, repo.id, preload: :article_tags)
+      {:ok, repo} = ORM.find(Repo, repo.id, preload: :article_tags)
       assoc_tags = repo.article_tags |> Enum.map(& &1.id)
 
       assert article_tag.id not in assoc_tags

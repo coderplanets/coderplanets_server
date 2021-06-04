@@ -5,6 +5,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.RepoReport do
 
   alias Helper.ORM
   alias GroupherServer.CMS
+  alias CMS.Model.Repo
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -45,7 +46,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.RepoReport do
       assert report.report_cases_count == 1
       assert List.first(report_cases).user.login == user.login
 
-      {:ok, repo} = ORM.find(CMS.Repo, repo.id)
+      {:ok, repo} = ORM.find(Repo, repo.id)
       assert repo.meta.reported_count == 1
       assert user.id in repo.meta.reported_user_ids
     end
@@ -59,7 +60,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.RepoReport do
       {:ok, all_reports} = CMS.paged_reports(filter)
       assert all_reports.total_count == 0
 
-      {:ok, repo} = ORM.find(CMS.Repo, repo.id)
+      {:ok, repo} = ORM.find(Repo, repo.id)
       assert user.id not in repo.meta.reported_user_ids
     end
 
@@ -73,7 +74,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.RepoReport do
       {:ok, all_reports} = CMS.paged_reports(filter)
       assert all_reports.total_count == 1
 
-      {:ok, repo} = ORM.find(CMS.Repo, repo.id)
+      {:ok, repo} = ORM.find(Repo, repo.id)
 
       assert user2.id in repo.meta.reported_user_ids
       assert user.id not in repo.meta.reported_user_ids

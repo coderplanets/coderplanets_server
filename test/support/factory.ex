@@ -9,6 +9,7 @@ defmodule GroupherServer.Support.Factory do
 
   alias GroupherServer.Repo
   alias GroupherServer.{Accounts, CMS, Delivery}
+  alias GroupherServer.Accounts.User
 
   alias CMS.Model.{
     Author,
@@ -18,12 +19,13 @@ defmodule GroupherServer.Support.Factory do
     CommunityThread,
     ArticleTag,
     Post,
-    Repo,
     Job,
     CommunityWiki,
     CommunityCheatsheet,
     Comment
   }
+
+  alias CMS.Model.Repo, as: CMSRepo
 
   @default_article_meta CMS.Model.Embeds.ArticleMeta.default_meta()
   @default_emotions CMS.Model.Embeds.ArticleCommentEmotion.default_emotions()
@@ -312,7 +314,7 @@ defmodule GroupherServer.Support.Factory do
   # this line of code will cause SERIOUS Recursive problem
 
   defp mock(:post), do: Post |> struct(mock_meta(:post))
-  defp mock(:repo), do: Repo |> struct(mock_meta(:repo))
+  defp mock(:repo), do: CMSRepo |> struct(mock_meta(:repo))
   defp mock(:job), do: Job |> struct(mock_meta(:job))
   defp mock(:wiki), do: CommunityWiki |> struct(mock_meta(:wiki))
   defp mock(:cheatsheet), do: CommunityCheatsheet |> struct(mock_meta(:cheatsheet))
@@ -348,14 +350,13 @@ defmodule GroupherServer.Support.Factory do
     results =
       Enum.reduce(1..count, [], fn _, acc ->
         Process.sleep(delay)
+        IO.inspect(db_insert(factory_name), label: "??")
         {:ok, value} = db_insert(factory_name)
         acc ++ [value]
       end)
 
     results |> done
   end
-
-  alias GroupherServer.Accounts.User
 
   def mock_sys_notification(count \\ 3) do
     # {:ok, sys_notifications} = db_insert_multi(:sys_notification, count)

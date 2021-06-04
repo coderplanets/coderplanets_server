@@ -230,7 +230,7 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
       }
     }
     """
-    @tag :wip
+
     test "questioner can mark a post comment as solution", ~m(post)a do
       {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
       post_author = post.author.user
@@ -246,7 +246,6 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
       assert result["isSolution"]
     end
 
-    @tag :wip
     test "other user can not mark a post comment as solution", ~m(guest_conn user_conn post)a do
       {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
       post_author = post.author.user
@@ -266,7 +265,7 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
       }
     }
     """
-    @tag :wip
+
     test "questioner can undo mark a post comment as solution", ~m(post)a do
       {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
       post_author = post.author.user
@@ -282,7 +281,6 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
       assert not result["isSolution"]
     end
 
-    @tag :wip
     test "other user can not undo mark a post comment as solution",
          ~m(guest_conn user_conn post)a do
       {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])

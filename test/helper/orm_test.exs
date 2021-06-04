@@ -12,7 +12,6 @@ defmodule GroupherServer.Test.Helper.ORM do
   @post_clauses %{title: "hello groupher"}
 
   setup do
-    # TODO: token
     db_insert_multi(:post, @posts_count)
     {:ok, post} = db_insert(:post, @post_clauses)
 
@@ -45,6 +44,7 @@ defmodule GroupherServer.Test.Helper.ORM do
       assert %Ecto.Association.NotLoaded{} = found.author
     end
 
+    @tag :wip
     test "find/2 fails with {:error, reason} style" do
       result = ORM.find(Post, 15_982_398_614)
 
