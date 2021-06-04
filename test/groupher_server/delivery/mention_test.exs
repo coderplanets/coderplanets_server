@@ -5,13 +5,12 @@ defmodule GroupherServer.Test.Delivery.Mention do
   import Helper.Utils
 
   alias Helper.ORM
-  alias GroupherServer.Accounts
-  alias GroupherServer.Delivery
+  alias GroupherServer.{Accounts, Delivery}
+
+  alias Accounts.Model.MentionMail
+  alias Delivery.Mention
 
   describe "mentions" do
-    alias Accounts.MentionMail
-    alias Delivery.Mention
-
     test "user can mention other user" do
       {:ok, [user, user2]} = db_insert_multi(:user, 2)
 
