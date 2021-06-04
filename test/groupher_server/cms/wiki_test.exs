@@ -4,7 +4,7 @@ defmodule GroupherServer.Test.Wiki do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{CommunityWiki}
+  alias CMS.Model.{CommunityWiki}
 
   setup do
     {:ok, user} = db_insert(:user)

@@ -48,9 +48,9 @@ accounts   billing    cms    statistics
 defmodule GroupherServer.Test.Query.CMS.Basic do
   use GroupherServer.TestTools
 
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.Accounts.Model.User
   alias GroupherServer.CMS
-  alias CMS.{Community, Thread, Category}
+  alias CMS.Model.{Community, Thread, Category}
 
   setup do
     guest_conn = simu_conn(:guest)

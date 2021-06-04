@@ -4,38 +4,19 @@ defmodule GroupherServer.Test.Helper.ORM do
   # TODO import Service.Utils move both helper and github
   import GroupherServer.Support.Factory
 
-  alias GroupherServer.CMS.{Post, Author}
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.CMS.Model.{Post, Author}
+  alias GroupherServer.Accounts.Model.User
   alias Helper.ORM
 
   @posts_count 20
   @post_clauses %{title: "hello groupher"}
 
   setup do
-    # TODO: token
     db_insert_multi(:post, @posts_count)
     {:ok, post} = db_insert(:post, @post_clauses)
 
     {:ok, post: post}
   end
-
-  # def send_email(to \\ "someone") do
-  #   IO.inspect "send email.. #{to}"
-  # end
-
-  # describe "orm hooks" do
-  #   test "create hooks" do
-  #     user_attrs = mock_attrs(:user)
-  #     user_attrs2 = mock_attrs(:user)
-
-  #     {:ok, _} = ORM.create(User, user_attrs, %{after_success: [&send_email/1, ["me"] ]})
-  #     {:ok, _} = ORM.create(User, user_attrs2, %{after_success: &send_email/0})
-
-  #     ORM.create(User, user_attrs, %{after_success: [&Email.notify_admin/2, [user, :new_register] ]  })
-
-  #     true
-  #   end
-  # end
 
   describe "[find/x find_by]" do
     test "find/2 should work, and not preload fields", %{post: post} do

@@ -6,7 +6,7 @@
 
 defmodule GroupherServer.Mock.User do
   alias GroupherServer.Repo
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.Accounts.Model.User
 
   def random_attrs do
     %{

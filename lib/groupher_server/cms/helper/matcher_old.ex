@@ -4,7 +4,7 @@ defmodule GroupherServer.CMS.Helper.MatcherOld do
   """
   import Ecto.Query, warn: false
 
-  alias GroupherServer.CMS.{
+  alias GroupherServer.CMS.Model.{
     Community,
     # threads
     Post,

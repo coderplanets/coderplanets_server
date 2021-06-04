@@ -2,7 +2,7 @@
 
 defmodule GroupherServer.Mock.CMS.Post do
   alias GroupherServer.Repo
-  alias GroupherServer.CMS.Post
+  alias GroupherServer.CMS.Model.Post
 
   def random_attrs do
     %{

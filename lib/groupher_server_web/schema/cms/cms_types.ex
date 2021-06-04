@@ -57,7 +57,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:digest, :string)
     field(:length, :integer)
     field(:link_addr, :string)
-    field(:link_icon, :string)
     field(:copy_right, :string)
     field(:body, :string)
     field(:views, :integer)
@@ -88,9 +87,9 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field :comments_participators_count, :integer do
       resolve(fn post, _args, %{context: %{loader: loader}} ->
         loader
-        |> Dataloader.load(CMS, {:one, CMS.PostComment}, cp_count: post.id)
+        |> Dataloader.load(CMS, {:one, CMS.Model.PostComment}, cp_count: post.id)
         |> on_load(fn loader ->
-          {:ok, Dataloader.get(loader, CMS, {:one, CMS.PostComment}, cp_count: post.id)}
+          {:ok, Dataloader.get(loader, CMS, {:one, CMS.Model.PostComment}, cp_count: post.id)}
         end)
       end)
     end

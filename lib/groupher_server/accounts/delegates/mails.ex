@@ -4,7 +4,7 @@ defmodule GroupherServer.Accounts.Delegate.Mails do
   import ShortMaps
 
   alias GroupherServer.Repo
-  alias GroupherServer.Accounts.{User, MentionMail, NotificationMail, SysNotificationMail}
+  alias GroupherServer.Accounts.Model.{User, MentionMail, NotificationMail, SysNotificationMail}
   alias GroupherServer.Delivery
   alias Helper.ORM
 

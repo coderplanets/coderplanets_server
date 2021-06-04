@@ -9,7 +9,6 @@ defmodule GroupherServer.Test.Statistics.Status do
 
   setup do
     {:ok, _} = db_insert_multi(:community, @communities_count)
-    # {:ok, _} = db_insert_multi(:post, @posts_count)
 
     :ok
   end

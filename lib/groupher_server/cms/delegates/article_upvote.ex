@@ -18,8 +18,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleUpvote do
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS, Repo}
 
-  alias Accounts.User
-  alias CMS.ArticleUpvote
+  alias Accounts.Model.User
+  alias CMS.Model.ArticleUpvote
 
   alias Ecto.Multi
 

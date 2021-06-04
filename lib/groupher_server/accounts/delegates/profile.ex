@@ -8,10 +8,12 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
 
   alias GroupherServer.{Accounts, CMS, Email, Repo, Statistics}
 
-  alias Accounts.{Achievement, GithubUser, User, Social}
-  alias Helper.{Guardian, ORM, QueryBuilder, RadarSearch}
+  alias Accounts.Model.{Achievement, GithubUser, User, Social}
+  alias CMS.Model.{Community, CommunitySubscriber}
 
   alias GroupherServer.Accounts.Delegate.Fans
+
+  alias Helper.{Guardian, ORM, QueryBuilder, RadarSearch}
   alias Ecto.Multi
 
   @default_subscribed_communities get_config(:general, :default_subscribed_communities)
@@ -70,7 +72,7 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
   """
   def update_subscribe_count(user_id) do
     with {:ok, user} <- ORM.find(User, user_id) do
-      count_query = from(s in CMS.CommunitySubscriber, where: s.user_id == ^user.id)
+      count_query = from(s in CommunitySubscriber, where: s.user_id == ^user.id)
       count = Repo.aggregate(count_query, :count)
 
       user |> ORM.update(%{subscribed_communities_count: count})
@@ -120,8 +122,8 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
   def default_subscribed_communities(%{page: _, size: _} = filter) do
     filter = Map.merge(filter, %{size: @default_subscribed_communities, category: "pl"})
 
-    with {:ok, home_community} <- ORM.find_by(CMS.Community, raw: "home"),
-         {:ok, paged_communities} <- ORM.find_all(CMS.Community, filter) do
+    with {:ok, home_community} <- ORM.find_by(Community, raw: "home"),
+         {:ok, paged_communities} <- ORM.find_all(Community, filter) do
       %{
         entries: paged_communities.entries ++ [home_community],
         page_number: paged_communities.page_number,
@@ -149,7 +151,7 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
   def subscribed_communities(%User{id: id} = user, %{page: page, size: size} = filter) do
     filter = filter |> Map.delete(:first)
     # TODO: merge customed index
-    CMS.CommunitySubscriber
+    CommunitySubscriber
     |> where([c], c.user_id == ^id)
     |> join(:inner, [c], cc in assoc(c, :community))
     |> select([c, cc], cc)

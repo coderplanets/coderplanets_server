@@ -4,6 +4,8 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
   alias Helper.ORM
   alias GroupherServer.{CMS, Delivery}
 
+  alias CMS.Model.Job
+
   setup do
     {:ok, job} = db_insert(:job)
     {:ok, user} = db_insert(:user)
@@ -62,7 +64,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
 
       created = user_conn |> mutation_result(@create_job_query, variables, "createJob")
 
-      {:ok, found} = ORM.find(CMS.Job, created["id"])
+      {:ok, found} = ORM.find(Job, created["id"])
 
       assert created["id"] == to_string(found.id)
       assert created["originalCommunity"]["id"] == to_string(community.id)
@@ -79,7 +81,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
 
       variables = job_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
       created = user_conn |> mutation_result(@create_job_query, variables, "createJob")
-      {:ok, job} = ORM.find(CMS.Job, created["id"])
+      {:ok, job} = ORM.find(Job, created["id"])
 
       assert job.body == assert_v(:xss_safe_string)
     end
@@ -197,7 +199,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       deleted = owner_conn |> mutation_result(@query, %{id: job.id}, "deleteJob")
 
       assert deleted["id"] == to_string(job.id)
-      assert {:error, _} = ORM.find(CMS.Job, deleted["id"])
+      assert {:error, _} = ORM.find(Job, deleted["id"])
     end
 
     test "can delete a job by auth user", ~m(job)a do
@@ -207,7 +209,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       deleted = rule_conn |> mutation_result(@query, %{id: job.id}, "deleteJob")
 
       assert deleted["id"] == to_string(job.id)
-      assert {:error, _} = ORM.find(CMS.Job, deleted["id"])
+      assert {:error, _} = ORM.find(Job, deleted["id"])
     end
   end
 end

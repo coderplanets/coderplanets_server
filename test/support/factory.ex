@@ -9,9 +9,28 @@ defmodule GroupherServer.Support.Factory do
 
   alias GroupherServer.Repo
   alias GroupherServer.{Accounts, CMS, Delivery}
+  alias Accounts.Model.User
 
-  @default_article_meta CMS.Embeds.ArticleMeta.default_meta()
-  @default_emotions CMS.Embeds.ArticleCommentEmotion.default_emotions()
+  alias CMS.Model.{
+    Author,
+    Category,
+    Community,
+    Thread,
+    CommunityThread,
+    ArticleTag,
+    Post,
+    Job,
+    CommunityWiki,
+    CommunityCheatsheet,
+    Comment
+  }
+
+  alias Delivery.Model.{Mention, SysNotification}
+
+  alias CMS.Model.Repo, as: CMSRepo
+
+  @default_article_meta CMS.Model.Embeds.ArticleMeta.default_meta()
+  @default_emotions CMS.Model.Embeds.ArticleCommentEmotion.default_emotions()
 
   defp mock_meta(:post) do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
@@ -217,8 +236,8 @@ defmodule GroupherServer.Support.Factory do
 
     %{
       # username: "#{Faker.Name.first_name()} #{unique_num}",
-      login: "#{Faker.Name.first_name()}#{unique_num}" |> String.downcase(),
-      nickname: "#{Faker.Name.first_name()}#{unique_num}",
+      login: "#{Faker.Person.first_name()}#{unique_num}" |> String.downcase(),
+      nickname: "#{Faker.Person.first_name()}#{unique_num}",
       bio: Faker.Lorem.Shakespeare.romeo_and_juliet(),
       avatar: Faker.Avatar.image_url(),
       email: "faker@gmail.com"
@@ -237,8 +256,8 @@ defmodule GroupherServer.Support.Factory do
     unique_num = System.unique_integer([:positive, :monotonic])
 
     %{
-      id: "#{Faker.Name.first_name()} #{unique_num}",
-      login: "#{Faker.Name.first_name()}#{unique_num}",
+      id: "#{Faker.Person.first_name()} #{unique_num}",
+      login: "#{Faker.Person.first_name()}#{unique_num}",
       github_id: "#{unique_num + 1000}",
       node_id: "#{unique_num + 2000}",
       access_token: "#{unique_num + 3000}",
@@ -292,30 +311,28 @@ defmodule GroupherServer.Support.Factory do
   # bad example:
   # mismatch                                       mismatch
   # |                                               |
-  # defp mock(:user), do: Accounts.User |> struct(mock_meta(:community))
-
   # this line of code will cause SERIOUS Recursive problem
 
-  defp mock(:post), do: CMS.Post |> struct(mock_meta(:post))
-  defp mock(:repo), do: CMS.Repo |> struct(mock_meta(:repo))
-  defp mock(:job), do: CMS.Job |> struct(mock_meta(:job))
-  defp mock(:wiki), do: CMS.CommunityWiki |> struct(mock_meta(:wiki))
-  defp mock(:cheatsheet), do: CMS.CommunityCheatsheet |> struct(mock_meta(:cheatsheet))
-  defp mock(:comment), do: CMS.Comment |> struct(mock_meta(:comment))
-  defp mock(:mention), do: Delivery.Mention |> struct(mock_meta(:mention))
-  defp mock(:author), do: CMS.Author |> struct(mock_meta(:author))
-  defp mock(:category), do: CMS.Category |> struct(mock_meta(:category))
-  defp mock(:article_tag), do: CMS.ArticleTag |> struct(mock_meta(:article_tag))
+  defp mock(:post), do: Post |> struct(mock_meta(:post))
+  defp mock(:repo), do: CMSRepo |> struct(mock_meta(:repo))
+  defp mock(:job), do: Job |> struct(mock_meta(:job))
+  defp mock(:wiki), do: CommunityWiki |> struct(mock_meta(:wiki))
+  defp mock(:cheatsheet), do: CommunityCheatsheet |> struct(mock_meta(:cheatsheet))
+  defp mock(:comment), do: Comment |> struct(mock_meta(:comment))
+  defp mock(:mention), do: Mention |> struct(mock_meta(:mention))
+  defp mock(:author), do: Author |> struct(mock_meta(:author))
+  defp mock(:category), do: Category |> struct(mock_meta(:category))
+  defp mock(:article_tag), do: ArticleTag |> struct(mock_meta(:article_tag))
 
   defp mock(:sys_notification),
-    do: Delivery.SysNotification |> struct(mock_meta(:sys_notification))
+    do: SysNotification |> struct(mock_meta(:sys_notification))
 
-  defp mock(:user), do: Accounts.User |> struct(mock_meta(:user))
-  defp mock(:community), do: CMS.Community |> struct(mock_meta(:community))
-  defp mock(:thread), do: CMS.Thread |> struct(mock_meta(:thread))
+  defp mock(:user), do: User |> struct(mock_meta(:user))
+  defp mock(:community), do: Community |> struct(mock_meta(:community))
+  defp mock(:thread), do: Thread |> struct(mock_meta(:thread))
 
   defp mock(:communities_threads),
-    do: CMS.CommunityThread |> struct(mock_meta(:communities_threads))
+    do: CommunityThread |> struct(mock_meta(:communities_threads))
 
   defp mock(factory_name, attributes) do
     factory_name |> mock() |> struct(attributes)
@@ -339,8 +356,6 @@ defmodule GroupherServer.Support.Factory do
 
     results |> done
   end
-
-  alias GroupherServer.Accounts.User
 
   def mock_sys_notification(count \\ 3) do
     # {:ok, sys_notifications} = db_insert_multi(:sys_notification, count)

@@ -4,8 +4,6 @@ defmodule GroupherServer.Email.Templates.NotifyAdminPayment do
   just copy and paste raw string to: https://mjml.io/try-it-live
   """
 
-  # alias GroupherServer.Billing.BillRecord
-
   def html(record) do
     """
     <!doctype html>

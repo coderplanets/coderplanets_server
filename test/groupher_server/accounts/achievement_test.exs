@@ -1,10 +1,10 @@
 defmodule GroupherServer.Test.Accounts.Achievement do
   use GroupherServer.TestTools
-
   import Helper.Utils, only: [get_config: 2]
+
+  alias GroupherServer.{Accounts, CMS}
+  alias Accounts.Model.{User, Achievement}
   alias Helper.ORM
-  alias GroupherServer.Accounts
-  alias GroupherServer.Accounts.User
 
   @follow_weight get_config(:general, :user_achieve_follow_weight)
   @collect_weight get_config(:general, :user_achieve_collect_weight)
@@ -16,8 +16,6 @@ defmodule GroupherServer.Test.Accounts.Achievement do
 
     {:ok, ~m(user)a}
   end
-
-  alias GroupherServer.CMS
 
   describe "[Accounts Achievement communities]" do
     test "normal user should have a empty editable communities list", ~m(user)a do
@@ -50,8 +48,6 @@ defmodule GroupherServer.Test.Accounts.Achievement do
   end
 
   describe "[Accounts Achievement funtion]" do
-    alias Accounts.Achievement
-
     test "Accounts.achieve should inc / dec achievement by parts", ~m(user)a do
       user |> Accounts.achieve(:inc, :follow)
       user |> Accounts.achieve(:inc, :upvote)

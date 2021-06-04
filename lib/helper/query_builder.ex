@@ -5,6 +5,7 @@ defmodule Helper.QueryBuilder do
 
   import Ecto.Query, warn: false
   alias GroupherServer.CMS
+  alias CMS.Model.Repo, as: CMSRepo
 
   @doc """
   load inner user field
@@ -179,7 +180,7 @@ defmodule Helper.QueryBuilder do
   @doc """
   handle spec needs for CMS query filter
   """
-  def domain_query(CMS.Repo = queryable, filter) do
+  def domain_query(CMSRepo = queryable, filter) do
     Enum.reduce(filter, queryable, fn
       {:sort, :most_github_star}, queryable ->
         queryable |> order_by(desc: :star_count)

@@ -6,8 +6,17 @@ defmodule GroupherServer.CMS.Helper.Macros do
 
   alias GroupherServer.{CMS, Accounts}
 
-  alias Accounts.User
-  alias CMS.{Author, Community, ArticleComment, ArticleTag, ArticleUpvote, ArticleCollect}
+  alias Accounts.Model.User
+
+  alias CMS.Model.{
+    Embeds,
+    Author,
+    Community,
+    ArticleComment,
+    ArticleTag,
+    ArticleUpvote,
+    ArticleCollect
+  }
 
   @article_threads get_config(:article, :threads)
 
@@ -32,7 +41,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
       quote do
         belongs_to(
           unquote(thread),
-          Module.concat(CMS, unquote(thread) |> to_string |> Recase.to_pascal()),
+          Module.concat(CMS.Model, unquote(thread) |> to_string |> Recase.to_pascal()),
           foreign_key: unquote(:"#{thread}_id")
         )
       end
@@ -181,10 +190,10 @@ defmodule GroupherServer.CMS.Helper.Macros do
       field(:is_pinned, :boolean, default: false, virtual: true)
       field(:mark_delete, :boolean, default: false)
 
-      embeds_one(:meta, CMS.Embeds.ArticleMeta, on_replace: :update)
-      embeds_one(:emotions, CMS.Embeds.ArticleEmotion, on_replace: :update)
+      embeds_one(:meta, Embeds.ArticleMeta, on_replace: :update)
+      embeds_one(:emotions, Embeds.ArticleEmotion, on_replace: :update)
 
-      belongs_to(:original_community, CMS.Community)
+      belongs_to(:original_community, Community)
 
       upvote_and_collect_fields()
       viewer_has_fields()
@@ -199,7 +208,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
   end
 
   @doc """
-  for GroupherServer.CMS.Community
+  for GroupherServer.CMS.Model.Community
 
   # TABLE: "communities_[article]s"
     add(:community_id, references(:communities, on_delete: :delete_all), null: false)
@@ -213,7 +222,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
       quote do
         many_to_many(
           unquote(:"#{thread}s"),
-          Module.concat(CMS, unquote(thread) |> to_string |> Recase.to_pascal()),
+          Module.concat(CMS.Model, unquote(thread) |> to_string |> Recase.to_pascal()),
           join_through: unquote("communities_#{to_string(thread)}s"),
           join_keys: [community_id: :id] ++ Keyword.new([{unquote(:"#{thread}_id"), :id}])
         )

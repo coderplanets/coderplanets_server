@@ -3,6 +3,7 @@ defmodule GroupherServer.Test.Articles.Repo do
 
   alias Helper.ORM
   alias GroupherServer.CMS
+  alias CMS.Model.Repo
 
   @last_year Timex.shift(Timex.beginning_of_year(Timex.now()), days: -3, seconds: -1)
 
@@ -18,7 +19,7 @@ defmodule GroupherServer.Test.Articles.Repo do
   end
 
   describe "[cms repo curd]" do
-    alias CMS.{Author, Community}
+    alias CMS.Model.{Author, Community}
 
     test "can create repo with valid attrs", ~m(user community repo_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
@@ -40,17 +41,17 @@ defmodule GroupherServer.Test.Articles.Repo do
          ~m(repo_attrs community user user2)a do
       {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
       {:ok, _} = CMS.read_article(:repo, repo.id, user)
-      {:ok, _created} = ORM.find(CMS.Repo, repo.id)
+      {:ok, _created} = ORM.find(Repo, repo.id)
 
       # same user duplicate case
       {:ok, _} = CMS.read_article(:repo, repo.id, user)
-      {:ok, created} = ORM.find(CMS.Repo, repo.id)
+      {:ok, created} = ORM.find(Repo, repo.id)
 
       assert created.meta.viewed_user_ids |> length == 1
       assert user.id in created.meta.viewed_user_ids
 
       {:ok, _} = CMS.read_article(:repo, repo.id, user2)
-      {:ok, created} = ORM.find(CMS.Repo, repo.id)
+      {:ok, created} = ORM.find(Repo, repo.id)
 
       assert created.meta.viewed_user_ids |> length == 2
       assert user.id in created.meta.viewed_user_ids

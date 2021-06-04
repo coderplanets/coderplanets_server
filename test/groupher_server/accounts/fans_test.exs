@@ -3,7 +3,7 @@ defmodule GroupherServer.Test.Accounts.Fans do
 
   alias Helper.ORM
   alias GroupherServer.Accounts
-  alias Accounts.User
+  alias Accounts.Model.User
 
   setup do
     {:ok, user} = db_insert(:user)

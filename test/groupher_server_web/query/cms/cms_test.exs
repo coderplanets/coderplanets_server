@@ -1,9 +1,9 @@
 defmodule GroupherServer.Test.Query.CMS.Basic do
   use GroupherServer.TestTools
 
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.Accounts.Model.User
   alias GroupherServer.CMS
-  alias CMS.{Community, Category}
+  alias CMS.Model.{Community, Category}
   alias Helper.ORM
 
   setup do

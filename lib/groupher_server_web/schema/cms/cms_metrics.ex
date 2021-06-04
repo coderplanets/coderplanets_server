@@ -3,10 +3,10 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
   common metrics in queries
   """
   use Absinthe.Schema.Notation
-
   import GroupherServerWeb.Schema.Helper.Fields
-
   alias GroupherServer.CMS
+
+  alias CMS.Model.{Post, Job, Repo}
 
   @default_inner_page_size 5
 
@@ -293,10 +293,11 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
     field(:id, :id)
     # field(:title, :string)
 
+    # TODO: remove the domain part
     resolve_type(fn
-      %CMS.Post{}, _ -> :post
-      %CMS.Job{}, _ -> :job
-      %CMS.Repo{}, _ -> :repo
+      %Post{}, _ -> :post
+      %Job{}, _ -> :job
+      %Repo{}, _ -> :repo
       _, _ -> nil
     end)
   end

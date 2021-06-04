@@ -5,6 +5,8 @@ defmodule GroupherServer.Test.Query.Account.Basic do
 
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS}
+  alias Accounts.Model.User
+  alias CMS.Model.CommunitySubscriber
 
   @default_subscribed_communities get_config(:general, :default_subscribed_communities)
 
@@ -85,7 +87,7 @@ defmodule GroupherServer.Test.Query.Account.Basic do
     end
 
     test "user's views +1 after visit", ~m(guest_conn user)a do
-      {:ok, target_user} = ORM.find(Accounts.User, user.id)
+      {:ok, target_user} = ORM.find(User, user.id)
       assert target_user.views == 0
 
       variables = %{login: user.login}
@@ -298,7 +300,7 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       _results = user_conn |> query_result(@query, %{}, "sessionState")
 
       {:ok, record} =
-        ORM.find_by(CMS.CommunitySubscriber, %{community_id: community.id, user_id: user.id})
+        ORM.find_by(CommunitySubscriber, %{community_id: community.id, user_id: user.id})
 
       assert record.user_id == user.id
       assert record.community_id == community.id

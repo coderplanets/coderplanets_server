@@ -10,7 +10,7 @@ defmodule GroupherServer.Test.Accounts do
   @valid_github_profile mock_attrs(:github_profile) |> map_key_stringify
 
   describe "[update user]" do
-    alias Accounts.User
+    alias Accounts.Model.User
 
     test "update user with valid attrs" do
       {:ok, user} = db_insert(:user)
@@ -92,7 +92,7 @@ defmodule GroupherServer.Test.Accounts do
   end
 
   describe "[github login]" do
-    alias Accounts.{GithubUser, User}
+    alias Accounts.Model.{GithubUser, User}
 
     test "register a valid github user with non-exist in db" do
       assert {:error, _} =

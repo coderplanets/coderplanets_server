@@ -2,6 +2,8 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
+  alias CMS.Model.Community
+
   alias Helper.ORM
 
   setup do
@@ -43,7 +45,7 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
       {:ok, community} = CMS.create_community(community_attrs)
       {:ok, job} = CMS.create_article(community, :job, mock_attrs(:job), user)
 
-      {:ok, community} = ORM.find(CMS.Community, community.id)
+      {:ok, community} = ORM.find(Community, community.id)
       assert community.meta.jobs_count == 1
 
       variables = %{id: job.id}
@@ -52,7 +54,7 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
 
       rule_conn |> mutation_result(@query, variables, "markDeleteJob")
 
-      {:ok, community} = ORM.find(CMS.Community, community.id)
+      {:ok, community} = ORM.find(Community, community.id)
       assert community.meta.jobs_count == 0
     end
 
@@ -94,7 +96,7 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
 
       {:ok, _} = CMS.mark_delete_article(:job, job.id)
 
-      {:ok, community} = ORM.find(CMS.Community, community.id)
+      {:ok, community} = ORM.find(Community, community.id)
       assert community.meta.jobs_count == 0
 
       variables = %{id: job.id}
@@ -102,7 +104,7 @@ defmodule GroupherServer.Test.Mutation.Flags.JobFlag do
       rule_conn = simu_conn(:user, cms: passport_rules)
       rule_conn |> mutation_result(@query, variables, "undoMarkDeleteJob")
 
-      {:ok, community} = ORM.find(CMS.Community, community.id)
+      {:ok, community} = ORM.find(Community, community.id)
       assert community.meta.jobs_count == 1
     end
 

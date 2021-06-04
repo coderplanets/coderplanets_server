@@ -3,7 +3,7 @@ defmodule GroupherServer.Test.Mutation.Sink.JobSink do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
-  alias CMS.Job
+  alias CMS.Model.Job
 
   alias Helper.ORM
 

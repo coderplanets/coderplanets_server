@@ -3,6 +3,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Cheatsheet do
 
   alias Helper.ORM
   alias GroupherServer.CMS
+  alias CMS.Model.CommunityCheatsheet
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -34,7 +35,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Cheatsheet do
     variables = cheatsheet_attrs |> Map.merge(%{communityId: community.id})
     created = user_conn |> mutation_result(@sync_cheatsheet_query, variables, "syncCheatsheet")
 
-    {:ok, cheatsheet} = ORM.find(CMS.CommunityCheatsheet, created["id"])
+    {:ok, cheatsheet} = ORM.find(CommunityCheatsheet, created["id"])
 
     assert created["id"] == to_string(cheatsheet.id)
     assert created["readme"] == to_string(cheatsheet.readme)

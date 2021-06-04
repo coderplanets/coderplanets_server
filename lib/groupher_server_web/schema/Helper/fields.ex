@@ -4,7 +4,7 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
   """
   import Helper.Utils, only: [get_config: 2]
 
-  alias GroupherServer.{Accounts, CMS}
+  alias GroupherServer.CMS
 
   @page_size get_config(:general, :page_size)
   @supported_emotions get_config(:article, :emotions)

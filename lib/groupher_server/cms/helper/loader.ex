@@ -6,7 +6,7 @@ defmodule GroupherServer.CMS.Helper.Loader do
 
   alias GroupherServer.{CMS, Repo}
 
-  alias CMS.{
+  alias CMS.Model.{
     Author,
     CommunityThread,
     PostComment,

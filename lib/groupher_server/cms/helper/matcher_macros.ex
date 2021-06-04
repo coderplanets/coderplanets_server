@@ -5,7 +5,7 @@ defmodule GroupherServer.CMS.Helper.MatcherMacros do
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.CMS
-  alias CMS.{ArticleComment, Embeds}
+  alias CMS.Model.{ArticleComment, Embeds}
 
   @article_threads get_config(:article, :threads)
 
@@ -31,7 +31,7 @@ defmodule GroupherServer.CMS.Helper.MatcherMacros do
 
           {:ok,
            %{
-             model: Module.concat(CMS, thread_module),
+             model: Module.concat(CMS.Model, thread_module),
              thread: unquote(thread),
              foreign_key: unquote(:"#{thread}_id"),
              preload: unquote(thread),
@@ -67,7 +67,7 @@ defmodule GroupherServer.CMS.Helper.MatcherMacros do
   info:
   %{
     id: id,
-    model: CMS.Post,
+    model: CMS.Model.Post,
     foreign_key: :post_id,
   }
   """
@@ -84,7 +84,7 @@ defmodule GroupherServer.CMS.Helper.MatcherMacros do
           {:ok,
            %{
              id: id,
-             model: Module.concat(CMS, thread_module),
+             model: Module.concat(CMS.Model, thread_module),
              foreign_key: unquote(:"#{thread}_id")
            }}
         end

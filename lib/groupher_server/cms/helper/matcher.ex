@@ -8,8 +8,8 @@ defmodule GroupherServer.CMS.Helper.Matcher do
 
   alias GroupherServer.{Accounts, CMS}
 
-  alias Accounts.User
-  alias CMS.ArticleComment
+  alias Accounts.Model.User
+  alias CMS.Model.ArticleComment
 
   def match(:account) do
     {:ok,
@@ -27,7 +27,7 @@ defmodule GroupherServer.CMS.Helper.Matcher do
        model: ArticleComment,
        foreign_key: :article_comment_id,
        preload: :article_comment,
-       default_meta: CMS.Embeds.ArticleCommentMeta.default_meta()
+       default_meta: CMS.Model.Embeds.ArticleCommentMeta.default_meta()
      }}
   end
 

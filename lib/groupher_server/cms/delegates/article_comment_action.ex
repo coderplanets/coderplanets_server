@@ -20,9 +20,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS, Repo}
 
-  alias Accounts.User
+  alias Accounts.Model.User
 
-  alias CMS.{
+  alias CMS.Model.{
     ArticleComment,
     ArticlePinnedComment,
     ArticleCommentUpvote,

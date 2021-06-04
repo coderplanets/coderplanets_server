@@ -4,7 +4,7 @@ defmodule GroupherServer.Email.Templates.NotifyAdminRegister do
   just copy and paste raw string to: https://mjml.io/try-it-live
   """
 
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.Accounts.Model.User
 
   def html(%User{from_github: true, github_profile: github_profile} = user) do
     """

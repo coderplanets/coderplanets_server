@@ -6,7 +6,7 @@ defmodule GroupherServer.Statistics.Delegate.Geo do
   import Helper.Utils
   import ShortMaps
 
-  alias GroupherServer.Statistics.UserGeoInfo
+  alias GroupherServer.Statistics.Model.UserGeoInfo
   alias Helper.ORM
 
   def inc_count(city) do

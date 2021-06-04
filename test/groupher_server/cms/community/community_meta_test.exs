@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.CMS.Community.CommunityMeta do
+defmodule GroupherServer.Test.Community.CommunityMeta do
   @moduledoc false
 
   use GroupherServer.TestTools
@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.CMS.Community.CommunityMeta do
   import Helper.Utils, only: [strip_struct: 1]
 
   alias GroupherServer.CMS
-  alias CMS.{Community, Embeds}
+  alias CMS.Model.{Community, Embeds}
 
   alias Helper.{ORM}
 

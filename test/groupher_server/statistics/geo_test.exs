@@ -2,7 +2,8 @@ defmodule GroupherServer.Test.Statistics.Geo do
   use GroupherServer.TestTools
 
   alias Helper.{ORM, GeoPool}
-  alias GroupherServer.{Statistics}
+  alias GroupherServer.Statistics
+  alias Statistics.Model.UserGeoInfo
 
   setup do
     GeoPool.insert_geo_data()
@@ -12,15 +13,15 @@ defmodule GroupherServer.Test.Statistics.Geo do
 
   describe "[statistics geo inc] " do
     test "geo data can be inc by city" do
-      {:ok, _} = Statistics.UserGeoInfo |> ORM.find_by(%{city: "成都"})
+      {:ok, _} = UserGeoInfo |> ORM.find_by(%{city: "成都"})
 
       {:ok, _} = Statistics.inc_count("成都")
 
-      {:ok, updated} = Statistics.UserGeoInfo |> ORM.find_by(%{city: "成都"})
+      {:ok, updated} = UserGeoInfo |> ORM.find_by(%{city: "成都"})
       assert updated.value == 1
       {:ok, _} = Statistics.inc_count("成都")
 
-      {:ok, updated} = Statistics.UserGeoInfo |> ORM.find_by(%{city: "成都"})
+      {:ok, updated} = UserGeoInfo |> ORM.find_by(%{city: "成都"})
       assert updated.value == 2
     end
 

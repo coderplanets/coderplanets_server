@@ -4,6 +4,8 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
   alias Helper.ORM
   alias GroupherServer.{CMS, Delivery}
 
+  alias CMS.Model.{Post, Author}
+
   setup do
     {:ok, post} = db_insert(:post)
     {:ok, community} = db_insert(:community)
@@ -53,12 +55,12 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
 
       variables = post_attr |> Map.merge(%{communityId: community.id})
       created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
-      {:ok, post} = ORM.find(CMS.Post, created["id"])
+      {:ok, post} = ORM.find(Post, created["id"])
 
       assert created["id"] == to_string(post.id)
       assert created["originalCommunity"]["id"] == to_string(community.id)
 
-      assert {:ok, _} = ORM.find_by(CMS.Author, user_id: user.id)
+      assert {:ok, _} = ORM.find_by(Author, user_id: user.id)
     end
 
     test "create post should excape xss attracts" do
@@ -70,7 +72,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
 
       variables = post_attr |> Map.merge(%{communityId: community.id})
       created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
-      {:ok, post} = ORM.find(CMS.Post, created["id"])
+      {:ok, post} = ORM.find(Post, created["id"])
 
       assert post.body == assert_v(:xss_safe_string)
     end
@@ -125,7 +127,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       deleted = owner_conn |> mutation_result(@query, %{id: post.id}, "deletePost")
 
       assert deleted["id"] == to_string(post.id)
-      assert {:error, _} = ORM.find(CMS.Post, deleted["id"])
+      assert {:error, _} = ORM.find(Post, deleted["id"])
     end
 
     test "can delete a post by auth user", ~m(post)a do
@@ -135,7 +137,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       deleted = rule_conn |> mutation_result(@query, %{id: post.id}, "deletePost")
 
       assert deleted["id"] == to_string(post.id)
-      assert {:error, _} = ORM.find(CMS.Post, deleted["id"])
+      assert {:error, _} = ORM.find(Post, deleted["id"])
     end
 
     test "delete a post without login user fails", ~m(guest_conn post)a do

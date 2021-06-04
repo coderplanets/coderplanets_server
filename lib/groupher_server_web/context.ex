@@ -10,6 +10,7 @@ defmodule GroupherServerWeb.Context do
   # import Ecto.Query, only: [first: 1]
 
   alias GroupherServer.{Accounts, CMS}
+  alias Accounts.Model.User
   alias Helper.{Guardian, ORM, RemoteIP}
 
   def init(opts), do: opts
@@ -50,7 +51,7 @@ defmodule GroupherServerWeb.Context do
 
   defp authorize(token) do
     with {:ok, claims, _info} <- Guardian.jwt_decode(token) do
-      case ORM.find(Accounts.User, claims.id, preload: :customization) do
+      case ORM.find(User, claims.id, preload: :customization) do
         {:ok, user} ->
           check_passport(user)
 
@@ -62,8 +63,8 @@ defmodule GroupherServerWeb.Context do
   end
 
   # TODO gather role info from CMS or other context
-  defp check_passport(%Accounts.User{} = user) do
-    with {:ok, cms_passport} <- CMS.get_passport(%Accounts.User{id: user.id}) do
+  defp check_passport(%User{} = user) do
+    with {:ok, cms_passport} <- CMS.get_passport(%User{id: user.id}) do
       {:ok, Map.put(user, :cur_passport, %{"cms" => cms_passport})}
     else
       {:error, _} -> {:ok, user}

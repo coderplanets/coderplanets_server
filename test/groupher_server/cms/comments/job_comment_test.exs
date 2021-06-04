@@ -6,12 +6,12 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS}
-
-  alias CMS.{ArticleComment, ArticlePinnedComment, Embeds, Job}
+  alias Accounts.Model.User
+  alias CMS.Model.{ArticleComment, ArticlePinnedComment, Embeds, Job}
 
   @active_period get_config(:article, :active_period_days)
 
-  @delete_hint CMS.ArticleComment.delete_hint()
+  @delete_hint ArticleComment.delete_hint()
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
   @default_comment_meta Embeds.ArticleCommentMeta.default_meta()
   @pinned_comment_limit ArticleComment.pinned_comment_limit()
@@ -166,7 +166,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     test "article author upvote job comment will have flag", ~m(job user)a do
       comment = "job_comment"
       {:ok, comment} = CMS.create_article_comment(:job, job.id, comment, user)
-      {:ok, author_user} = ORM.find(Accounts.User, job.author.user.id)
+      {:ok, author_user} = ORM.find(User, job.author.user.id)
 
       CMS.upvote_article_comment(comment.id, author_user)
 

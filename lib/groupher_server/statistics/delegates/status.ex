@@ -7,19 +7,20 @@ defmodule GroupherServer.Statistics.Delegate.Status do
   import ShortMaps
 
   alias GroupherServer.CMS
+  alias CMS.Model.{Post, Job, Repo, Community, Thread, Category, ArticleTag}
   alias Helper.ORM
 
   @count_filter %{page: 1, size: 1}
 
   def count_status do
-    {:ok, %{total_count: communities_count}} = find_total_count(CMS.Community)
-    {:ok, %{total_count: posts_count}} = find_total_count(CMS.Post)
-    {:ok, %{total_count: jobs_count}} = find_total_count(CMS.Job)
-    {:ok, %{total_count: repos_count}} = find_total_count(CMS.Repo)
+    {:ok, %{total_count: communities_count}} = find_total_count(Community)
+    {:ok, %{total_count: posts_count}} = find_total_count(Post)
+    {:ok, %{total_count: jobs_count}} = find_total_count(Job)
+    {:ok, %{total_count: repos_count}} = find_total_count(Repo)
 
-    {:ok, %{total_count: threads_count}} = find_total_count(CMS.Thread)
-    {:ok, %{total_count: article_tags_count}} = find_total_count(CMS.ArticleTag)
-    {:ok, %{total_count: categories_count}} = find_total_count(CMS.Category)
+    {:ok, %{total_count: threads_count}} = find_total_count(Thread)
+    {:ok, %{total_count: article_tags_count}} = find_total_count(ArticleTag)
+    {:ok, %{total_count: categories_count}} = find_total_count(Category)
 
     {:ok,
      ~m(communities_count posts_count jobs_count repos_count threads_count article_tags_count categories_count)a}

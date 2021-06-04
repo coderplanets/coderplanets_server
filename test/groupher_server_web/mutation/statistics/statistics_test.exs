@@ -2,7 +2,8 @@ defmodule GroupherServer.Test.Mutation.Statistics do
   use GroupherServer.TestTools
 
   alias GroupherServer.Statistics
-  # alias GroupherServer.Accounts.User
+  alias Statistics.Model.{CommunityContribute, UserContribute}
+  # alias GroupherServer.Accounts.Model.User
   alias Helper.ORM
 
   setup do
@@ -45,7 +46,7 @@ defmodule GroupherServer.Test.Mutation.Statistics do
 
       user_conn |> mutation_result(@create_post_query, variables, "createPost")
 
-      {:ok, contributes} = ORM.find_by(Statistics.UserContribute, user_id: user.id)
+      {:ok, contributes} = ORM.find_by(UserContribute, user_id: user.id)
       assert contributes.count == 1
     end
 
@@ -56,7 +57,7 @@ defmodule GroupherServer.Test.Mutation.Statistics do
 
       user_conn |> mutation_result(@create_post_query, variables, "createPost")
 
-      {:ok, contributes} = ORM.find_by(Statistics.CommunityContribute, community_id: community.id)
+      {:ok, contributes} = ORM.find_by(CommunityContribute, community_id: community.id)
       assert contributes.count == 1
     end
 
@@ -95,7 +96,7 @@ defmodule GroupherServer.Test.Mutation.Statistics do
 
       user_conn |> mutation_result(@create_job_query, variables, "createJob")
 
-      {:ok, contributes} = ORM.find_by(Statistics.UserContribute, user_id: user.id)
+      {:ok, contributes} = ORM.find_by(UserContribute, user_id: user.id)
       assert contributes.count == 1
     end
 
@@ -152,7 +153,7 @@ defmodule GroupherServer.Test.Mutation.Statistics do
 
       user_conn |> mutation_result(@create_repo_query, variables, "createRepo")
 
-      {:ok, contributes} = ORM.find_by(Statistics.UserContribute, user_id: user.id)
+      {:ok, contributes} = ORM.find_by(UserContribute, user_id: user.id)
       assert contributes.count == 1
     end
 
@@ -170,7 +171,7 @@ defmodule GroupherServer.Test.Mutation.Statistics do
       variables = %{community: community.raw, thread: "POST", id: post.id, body: "this a comment"}
       user_conn |> mutation_result(@create_comment_query, variables, "createComment")
 
-      {:ok, contributes} = ORM.find_by(Statistics.UserContribute, user_id: user.id)
+      {:ok, contributes} = ORM.find_by(UserContribute, user_id: user.id)
       assert contributes.count == 1
     end
   end
@@ -187,9 +188,9 @@ defmodule GroupherServer.Test.Mutation.Statistics do
     test "for guest user makeContribute should add record to user_contribute table",
          ~m(guest_conn user)a do
       variables = %{userId: user.id}
-      assert {:error, _} = ORM.find_by(Statistics.UserContribute, user_id: user.id)
+      assert {:error, _} = ORM.find_by(UserContribute, user_id: user.id)
       results = guest_conn |> mutation_result(@query, variables, "makeContrubute")
-      assert {:ok, _} = ORM.find_by(Statistics.UserContribute, user_id: user.id)
+      assert {:ok, _} = ORM.find_by(UserContribute, user_id: user.id)
 
       assert ["count", "date"] == results |> Map.keys()
       assert results["date"] == Timex.today() |> Date.to_iso8601()

@@ -8,11 +8,10 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
 
   alias GroupherServer.{Accounts, CMS, Repo}
 
-  alias Accounts.User
+  alias Accounts.Model.User
   alias CMS.Delegate.PassportCURD
 
-  alias CMS.{
-    Delegate,
+  alias CMS.Model.{
     Category,
     Community,
     CommunityCategory,
@@ -22,7 +21,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
     Thread
   }
 
-  alias Delegate.CommunityCURD
+  alias CMS.Delegate.CommunityCURD
   alias Ecto.Multi
 
   @doc """

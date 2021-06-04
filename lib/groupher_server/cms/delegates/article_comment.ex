@@ -13,10 +13,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   alias Helper.Types, as: T
   alias Helper.{ORM, QueryBuilder}
   alias GroupherServer.{Accounts, CMS, Repo}
-  alias CMS.Post
+  alias CMS.Model.Post
 
-  alias Accounts.User
-  alias CMS.{ArticleComment, ArticlePinnedComment, Embeds}
+  alias Accounts.Model.User
+  alias CMS.Model.{ArticleComment, ArticlePinnedComment, Embeds}
   alias Ecto.Multi
 
   @article_threads get_config(:article, :threads)

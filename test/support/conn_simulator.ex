@@ -6,8 +6,9 @@ defmodule GroupherServer.Test.ConnSimulator do
   import Phoenix.ConnTest, only: [build_conn: 0]
   import Plug.Conn, only: [put_req_header: 3]
 
-  alias Helper.{Guardian, ORM}
   alias GroupherServer.{Accounts, CMS}
+  alias Accounts.Model.User
+  alias Helper.{Guardian, ORM}
 
   @spec simu_conn(:guest | :invalid_token | :user) :: Plug.Conn.t()
   def simu_conn(:guest) do
@@ -34,7 +35,7 @@ defmodule GroupherServer.Test.ConnSimulator do
     build_conn() |> put_req_header("authorization", token)
   end
 
-  def simu_conn(:user, %Accounts.User{} = user) do
+  def simu_conn(:user, %User{} = user) do
     token = gen_jwt_token(id: user.id)
 
     build_conn() |> put_req_header("authorization", token)
@@ -46,21 +47,21 @@ defmodule GroupherServer.Test.ConnSimulator do
 
     token = gen_jwt_token(id: user.id)
 
-    {:ok, _passport} = CMS.stamp_passport(passport_rules, %Accounts.User{id: user.id})
+    {:ok, _passport} = CMS.stamp_passport(passport_rules, %User{id: user.id})
 
     build_conn() |> put_req_header("authorization", token)
   end
 
-  def simu_conn(:user, %Accounts.User{} = user, cms: passport_rules) do
+  def simu_conn(:user, %User{} = user, cms: passport_rules) do
     token = gen_jwt_token(id: user.id)
 
-    {:ok, _passport} = CMS.stamp_passport(passport_rules, %Accounts.User{id: user.id})
+    {:ok, _passport} = CMS.stamp_passport(passport_rules, %User{id: user.id})
 
     build_conn() |> put_req_header("authorization", token)
   end
 
   defp gen_jwt_token(clauses) do
-    with {:ok, user} <- ORM.find_by(Accounts.User, clauses) do
+    with {:ok, user} <- ORM.find_by(User, clauses) do
       {:ok, token, _info} = Guardian.jwt_encode(user)
 
       "Bearer #{token}"

@@ -8,7 +8,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
   alias GroupherServer.CMS
   alias GroupherServer.Repo
 
-  alias CMS.Post
+  alias CMS.Model.Post
 
   @page_size get_config(:general, :page_size)
 

@@ -182,7 +182,7 @@ defmodule Helper.Utils do
 
   def strip_struct(map) when is_map(map), do: map
 
-  @doc "turn GroupherServer.CMS.Post -> :post"
+  @doc "turn GroupherServer.CMS.Model.Post -> :post"
   def module_to_thread(module) do
     module
     |> to_string

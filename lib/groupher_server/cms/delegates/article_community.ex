@@ -12,7 +12,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
   alias Helper.Types, as: T
   alias Helper.ORM
 
-  alias GroupherServer.CMS.{Embeds, Community, PinnedArticle}
+  alias GroupherServer.CMS.Model.{Embeds, Community, PinnedArticle}
   alias GroupherServer.Repo
 
   alias Ecto.Multi

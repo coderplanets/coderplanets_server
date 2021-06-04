@@ -10,8 +10,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleEmotion do
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS, Repo}
 
-  alias Accounts.User
-  alias CMS.{ArticleUserEmotion}
+  alias Accounts.Model.User
+  alias CMS.Model.{ArticleUserEmotion}
 
   alias Ecto.Multi
 

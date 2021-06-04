@@ -3,7 +3,7 @@ defmodule GroupherServer.Test.Mutation.PublishThrottle do
 
   import Helper.Utils, only: [get_config: 2]
 
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.Accounts.Model.User
   alias GroupherServer.Statistics
 
   @throttle_interval get_config(:general, :publish_throttle_interval_minutes)

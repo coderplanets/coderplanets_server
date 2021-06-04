@@ -4,7 +4,7 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{Author, Community}
+  alias CMS.Model.{Author, Community, Post}
 
   @last_year Timex.shift(Timex.beginning_of_year(Timex.now()), days: -3, seconds: -1)
 
@@ -39,17 +39,17 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
          ~m(post_attrs community user user2)a do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
       {:ok, _} = CMS.read_article(:post, post.id, user)
-      {:ok, _created} = ORM.find(CMS.Post, post.id)
+      {:ok, _created} = ORM.find(Post, post.id)
 
       # same user duplicate case
       {:ok, _} = CMS.read_article(:post, post.id, user)
-      {:ok, created} = ORM.find(CMS.Post, post.id)
+      {:ok, created} = ORM.find(Post, post.id)
 
       assert created.meta.viewed_user_ids |> length == 1
       assert user.id in created.meta.viewed_user_ids
 
       {:ok, _} = CMS.read_article(:post, post.id, user2)
-      {:ok, created} = ORM.find(CMS.Post, post.id)
+      {:ok, created} = ORM.find(Post, post.id)
 
       assert created.meta.viewed_user_ids |> length == 2
       assert user.id in created.meta.viewed_user_ids

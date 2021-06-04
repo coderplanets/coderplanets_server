@@ -9,7 +9,7 @@ defmodule GroupherServer.Accounts.Delegate.UpvotedArticles do
   alias Helper.{ORM, QueryBuilder}
 
   alias GroupherServer.CMS
-  alias CMS.{ArticleUpvote}
+  alias CMS.Model.{ArticleUpvote}
 
   @article_threads get_config(:article, :threads)
 

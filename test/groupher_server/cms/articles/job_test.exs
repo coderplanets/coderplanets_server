@@ -2,6 +2,7 @@ defmodule GroupherServer.Test.Articles.Job do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
+  alias CMS.Model.Job
   alias Helper.ORM
 
   @last_year Timex.shift(Timex.beginning_of_year(Timex.now()), days: -3, seconds: -1)
@@ -17,12 +18,12 @@ defmodule GroupherServer.Test.Articles.Job do
   end
 
   describe "[cms jobs curd]" do
-    alias CMS.Community
+    alias CMS.Model.Community
 
     test "can create a job with valid attrs", ~m(user community job_attrs)a do
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
-      {:ok, found} = ORM.find(CMS.Job, job.id)
+      {:ok, found} = ORM.find(Job, job.id)
       assert found.id == job.id
       assert found.title == job.title
     end
@@ -38,17 +39,17 @@ defmodule GroupherServer.Test.Articles.Job do
          ~m(job_attrs community user user2)a do
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
       {:ok, _} = CMS.read_article(:job, job.id, user)
-      {:ok, _created} = ORM.find(CMS.Job, job.id)
+      {:ok, _created} = ORM.find(Job, job.id)
 
       # same user duplicate case
       {:ok, _} = CMS.read_article(:job, job.id, user)
-      {:ok, created} = ORM.find(CMS.Job, job.id)
+      {:ok, created} = ORM.find(Job, job.id)
 
       assert created.meta.viewed_user_ids |> length == 1
       assert user.id in created.meta.viewed_user_ids
 
       {:ok, _} = CMS.read_article(:job, job.id, user2)
-      {:ok, created} = ORM.find(CMS.Job, job.id)
+      {:ok, created} = ORM.find(Job, job.id)
 
       assert created.meta.viewed_user_ids |> length == 2
       assert user.id in created.meta.viewed_user_ids

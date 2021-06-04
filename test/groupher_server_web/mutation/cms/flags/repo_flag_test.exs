@@ -2,6 +2,8 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
+  alias CMS.Model.Community
+
   alias Helper.ORM
 
   setup do
@@ -43,7 +45,7 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
       {:ok, community} = CMS.create_community(community_attrs)
       {:ok, repo} = CMS.create_article(community, :repo, mock_attrs(:repo), user)
 
-      {:ok, community} = ORM.find(CMS.Community, community.id)
+      {:ok, community} = ORM.find(Community, community.id)
       assert community.meta.repos_count == 1
 
       variables = %{id: repo.id}
@@ -52,7 +54,7 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
 
       rule_conn |> mutation_result(@query, variables, "markDeleteRepo")
 
-      {:ok, community} = ORM.find(CMS.Community, community.id)
+      {:ok, community} = ORM.find(Community, community.id)
       assert community.meta.repos_count == 0
     end
 
@@ -94,7 +96,7 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
 
       {:ok, _} = CMS.mark_delete_article(:repo, repo.id)
 
-      {:ok, community} = ORM.find(CMS.Community, community.id)
+      {:ok, community} = ORM.find(Community, community.id)
       assert community.meta.repos_count == 0
 
       variables = %{id: repo.id}
@@ -102,7 +104,7 @@ defmodule GroupherServer.Test.Mutation.Flags.RepoFlag do
       rule_conn = simu_conn(:user, cms: passport_rules)
       rule_conn |> mutation_result(@query, variables, "undoMarkDeleteRepo")
 
-      {:ok, community} = ORM.find(CMS.Community, community.id)
+      {:ok, community} = ORM.find(Community, community.id)
       assert community.meta.repos_count == 1
     end
 

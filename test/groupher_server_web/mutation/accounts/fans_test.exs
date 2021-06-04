@@ -14,7 +14,7 @@ defmodule GroupherServer.Test.Mutation.Accounts.Fans do
   end
 
   describe "[Accounts follower]" do
-    alias Accounts.User
+    alias Accounts.Model.User
 
     @query """
     mutation($login: String!) {

@@ -5,13 +5,12 @@ defmodule GroupherServer.Test.Delivery.Notification do
   import Helper.Utils
 
   alias Helper.ORM
-  alias GroupherServer.Accounts
-  alias GroupherServer.Delivery
+  alias GroupherServer.{Accounts, Delivery}
+
+  alias Accounts.Model.NotificationMail
+  alias Delivery.Model.Notification
 
   describe "[delivery notification]" do
-    alias Accounts.NotificationMail
-    alias Delivery.Notification
-
     test "user can notify other user" do
       {:ok, [user, user2]} = db_insert_multi(:user, 2)
 

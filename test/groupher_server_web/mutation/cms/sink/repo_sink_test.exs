@@ -3,7 +3,7 @@ defmodule GroupherServer.Test.Mutation.Sink.RepoSink do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
-  alias CMS.Repo
+  alias CMS.Model.Repo
 
   alias Helper.ORM
 

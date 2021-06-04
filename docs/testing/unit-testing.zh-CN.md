@@ -43,9 +43,9 @@ accounts   billing    cms        delivery   logs       seeds      statistics
 defmodule GroupherServer.Test.CMS do
   use GroupherServer.TestTools
 
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.Accounts.Model.User
   alias GroupherServer.CMS
-  alias CMS.Community
+  alias CMS.Model.Community
 
   alias Helper.{Certification, ORM}
 

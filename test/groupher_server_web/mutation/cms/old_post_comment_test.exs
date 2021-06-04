@@ -1,8 +1,10 @@
 defmodule GroupherServer.Test.Mutation.OldPostComment do
   use GroupherServer.TestTools
 
-  alias Helper.ORM
   alias GroupherServer.{CMS, Delivery}
+  alias CMS.Model.PostComment
+
+  alias Helper.ORM
 
   setup do
     {:ok, post} = db_insert(:post)
@@ -43,7 +45,7 @@ defmodule GroupherServer.Test.Mutation.OldPostComment do
       variables = %{community: community.raw, thread: "POST", id: post.id, body: "this a comment"}
       created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
 
-      {:ok, found} = ORM.find(CMS.PostComment, created["id"])
+      {:ok, found} = ORM.find(PostComment, created["id"])
 
       assert created["id"] == to_string(found.id)
     end
@@ -58,7 +60,7 @@ defmodule GroupherServer.Test.Mutation.OldPostComment do
 
       created = user_conn |> mutation_result(@create_comment_query, variables, "createComment")
 
-      {:ok, found} = ORM.find(CMS.PostComment, created["id"])
+      {:ok, found} = ORM.find(PostComment, created["id"])
 
       assert created["id"] == to_string(found.id)
       assert created["body"] == assert_v(:xss_safe_string)

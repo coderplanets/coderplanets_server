@@ -4,6 +4,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
+  alias CMS.Model.Post
   alias Helper.ORM
 
   setup do
@@ -286,7 +287,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
         acc ++ [comment]
       end)
 
-      {:ok, post} = ORM.find(CMS.Post, post.id, preload: [author: :user])
+      {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
       post_author = post.author.user
 
       {:ok, comment} = CMS.create_article_comment(thread, post.id, "pinned comment", user)

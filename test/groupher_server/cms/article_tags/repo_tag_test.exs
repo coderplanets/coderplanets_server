@@ -2,7 +2,7 @@ defmodule GroupherServer.Test.CMS.ArticleTag.RepoTag do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
-  alias CMS.{Community, ArticleTag}
+  alias CMS.Model.{Community, ArticleTag, Repo}
   alias Helper.{ORM}
 
   setup do
@@ -60,19 +60,19 @@ defmodule GroupherServer.Test.CMS.ArticleTag.RepoTag do
       {:ok, repo} = CMS.set_article_tag(:repo, repo.id, article_tag.id)
       {:ok, repo} = CMS.set_article_tag(:repo, repo.id, article_tag2.id)
 
-      {:ok, repo} = ORM.find(CMS.Repo, repo.id, preload: :article_tags)
+      {:ok, repo} = ORM.find(Repo, repo.id, preload: :article_tags)
       assert exist_in?(article_tag, repo.article_tags)
       assert exist_in?(article_tag2, repo.article_tags)
 
       {:ok, _} = CMS.delete_article_tag(article_tag.id)
 
-      {:ok, repo} = ORM.find(CMS.Repo, repo.id, preload: :article_tags)
+      {:ok, repo} = ORM.find(Repo, repo.id, preload: :article_tags)
       assert not exist_in?(article_tag, repo.article_tags)
       assert exist_in?(article_tag2, repo.article_tags)
 
       {:ok, _} = CMS.delete_article_tag(article_tag2.id)
 
-      {:ok, repo} = ORM.find(CMS.Repo, repo.id, preload: :article_tags)
+      {:ok, repo} = ORM.find(Repo, repo.id, preload: :article_tags)
       assert not exist_in?(article_tag, repo.article_tags)
       assert not exist_in?(article_tag2, repo.article_tags)
     end
@@ -88,7 +88,7 @@ defmodule GroupherServer.Test.CMS.ArticleTag.RepoTag do
         Map.merge(post_attrs, %{article_tags: [%{id: article_tag.id}, %{id: article_tag2.id}]})
 
       {:ok, created} = CMS.create_article(community, :repo, post_with_tags, user)
-      {:ok, repo} = ORM.find(CMS.Repo, created.id, preload: :article_tags)
+      {:ok, repo} = ORM.find(Repo, created.id, preload: :article_tags)
 
       assert exist_in?(article_tag, repo.article_tags)
       assert exist_in?(article_tag2, repo.article_tags)

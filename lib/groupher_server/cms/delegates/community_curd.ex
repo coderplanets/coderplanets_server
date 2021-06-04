@@ -12,9 +12,9 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   alias Helper.QueryBuilder
   alias GroupherServer.{Accounts, CMS, Repo}
 
-  alias Accounts.User
+  alias Accounts.Model.User
 
-  alias CMS.{
+  alias CMS.Model.{
     Embeds,
     ArticleTag,
     Category,

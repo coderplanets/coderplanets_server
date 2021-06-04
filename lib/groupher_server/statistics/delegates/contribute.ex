@@ -9,11 +9,11 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
 
   alias GroupherServer.{Accounts, CMS, Repo, Statistics}
 
-  alias Accounts.User
-  alias CMS.{Community, Delegate}
-  alias Statistics.{CommunityContribute, UserContribute}
+  alias Accounts.Model.User
+  alias CMS.Model.Community
+  alias Statistics.Model.{CommunityContribute, UserContribute}
 
-  alias Delegate.CommunityCURD
+  alias CMS.Delegate.CommunityCURD
 
   alias Helper.{Cache, Later, ORM, QueryBuilder}
   alias Ecto.Multi

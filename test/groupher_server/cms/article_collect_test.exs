@@ -4,7 +4,7 @@ defmodule GroupherServer.Test.ArticleCollect do
 
   alias Helper.ORM
   alias GroupherServer.CMS
-  alias CMS.{Post, Job}
+  alias CMS.Model.{Post, Job}
 
   setup do
     {:ok, user} = db_insert(:user)

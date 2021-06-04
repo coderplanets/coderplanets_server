@@ -9,8 +9,8 @@ defmodule GroupherServer.Delivery.Delegate.Utils do
 
   alias GroupherServer.{Accounts, Delivery, Repo}
 
-  alias Accounts.User
-  alias Delivery.{Notification, SysNotification, Mention, Record}
+  alias Accounts.Model.User
+  alias Delivery.Model.{Notification, SysNotification, Mention, Record}
 
   alias Helper.ORM
 

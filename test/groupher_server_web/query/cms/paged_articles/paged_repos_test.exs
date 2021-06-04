@@ -5,6 +5,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
 
   alias GroupherServer.CMS
   alias GroupherServer.Repo
+  alias CMS.Model.Repo, as: CMSRepo
 
   @page_size get_config(:general, :page_size)
 
@@ -240,7 +241,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
     }
     """
     test "filter sort MOST_VIEWS should work", ~m(guest_conn)a do
-      most_views_repo = CMS.Repo |> order_by(desc: :views) |> limit(1) |> Repo.one()
+      most_views_repo = CMSRepo |> order_by(desc: :views) |> limit(1) |> Repo.one()
       variables = %{filter: %{sort: "MOST_VIEWS"}}
 
       results = guest_conn |> query_result(@query, variables, "pagedRepos")

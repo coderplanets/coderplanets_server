@@ -1,7 +1,7 @@
 defmodule GroupherServer.Test.CMS.Passport do
   use GroupherServer.TestTools
 
-  alias GroupherServer.Accounts.User
+  alias GroupherServer.Accounts.Model.User
   alias GroupherServer.CMS
 
   setup do
