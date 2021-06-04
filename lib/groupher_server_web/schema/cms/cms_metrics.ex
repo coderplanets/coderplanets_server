@@ -6,8 +6,6 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
   import GroupherServerWeb.Schema.Helper.Fields
   alias GroupherServer.CMS
 
-  alias CMS.Model.{Post, Job, Repo}
-
   @default_inner_page_size 5
 
   enum(:post_thread, do: value(:post))
@@ -284,22 +282,6 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
     #   operate_user_id,
     #   min_case_count,
     #   max_case_count,
-  end
-
-  @doc """
-  only used for reaction result, like: upvote/collect/watch ...
-  """
-  interface :article do
-    field(:id, :id)
-    field(:title, :string)
-
-    # TODO: remove the domain part
-    resolve_type(fn
-      %Post{}, _ -> :post
-      %Job{}, _ -> :job
-      %Repo{}, _ -> :repo
-      _, _ -> nil
-    end)
   end
 
   # @desc """
