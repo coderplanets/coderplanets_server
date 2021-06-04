@@ -4,6 +4,8 @@ defmodule GroupherServer.Test.Mutation.Articles.Repo do
   alias Helper.ORM
   alias GroupherServer.CMS
 
+  alias CMS.Model.{Repo, Author}
+
   setup do
     {:ok, repo} = db_insert(:repo)
 
@@ -74,13 +76,13 @@ defmodule GroupherServer.Test.Mutation.Articles.Repo do
 
       variables = repo_attr |> Map.merge(%{communityId: community.id})
       created = user_conn |> mutation_result(@create_repo_query, variables, "createRepo")
-      {:ok, repo} = ORM.find(CMS.Repo, created["id"])
+      {:ok, repo} = ORM.find(Repo, created["id"])
 
       assert created["id"] == to_string(repo.id)
 
       assert created["id"] == to_string(repo.id)
       assert created["originalCommunity"]["id"] == to_string(community.id)
-      assert {:ok, _} = ORM.find_by(CMS.Author, user_id: user.id)
+      assert {:ok, _} = ORM.find_by(Author, user_id: user.id)
     end
 
     @update_repo_query """
@@ -139,7 +141,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Repo do
       repo_attr = mock_attrs(:repo) |> camelize_map_key
       variables = repo_attr |> Map.merge(%{communityId: community.id})
       created = user_conn |> mutation_result(@create_repo_query, variables, "createRepo")
-      {:ok, repo} = ORM.find(CMS.Repo, created["id"])
+      {:ok, repo} = ORM.find(Repo, created["id"])
 
       _updated =
         user_conn
@@ -162,7 +164,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Repo do
 
       variables = repo_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
       created = user_conn |> mutation_result(@create_repo_query, variables, "createRepo")
-      {:ok, repo} = ORM.find(CMS.Repo, created["id"])
+      {:ok, repo} = ORM.find(Repo, created["id"])
 
       assert repo.readme == assert_v(:xss_safe_string)
     end
@@ -198,7 +200,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Repo do
       deleted = owner_conn |> mutation_result(@query, %{id: repo.id}, "deleteRepo")
 
       assert deleted["id"] == to_string(repo.id)
-      assert {:error, _} = ORM.find(CMS.Repo, deleted["id"])
+      assert {:error, _} = ORM.find(Repo, deleted["id"])
     end
 
     test "can delete a repo by auth user", ~m(repo)a do
@@ -208,7 +210,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Repo do
       deleted = rule_conn |> mutation_result(@query, %{id: repo.id}, "deleteRepo")
 
       assert deleted["id"] == to_string(repo.id)
-      assert {:error, _} = ORM.find(CMS.Repo, deleted["id"])
+      assert {:error, _} = ORM.find(Repo, deleted["id"])
     end
 
     test "delete a repo without login user fails", ~m(guest_conn repo)a do

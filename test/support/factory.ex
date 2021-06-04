@@ -10,6 +10,21 @@ defmodule GroupherServer.Support.Factory do
   alias GroupherServer.Repo
   alias GroupherServer.{Accounts, CMS, Delivery}
 
+  alias CMS.Model.{
+    Author,
+    Category,
+    Community,
+    Thread,
+    CommunityThread,
+    ArticleTag,
+    Post,
+    Repo,
+    Job,
+    CommunityWiki,
+    CommunityCheatsheet,
+    Comment
+  }
+
   @default_article_meta CMS.Model.Embeds.ArticleMeta.default_meta()
   @default_emotions CMS.Model.Embeds.ArticleCommentEmotion.default_emotions()
 
@@ -296,26 +311,26 @@ defmodule GroupherServer.Support.Factory do
 
   # this line of code will cause SERIOUS Recursive problem
 
-  defp mock(:post), do: CMS.Post |> struct(mock_meta(:post))
-  defp mock(:repo), do: CMS.Repo |> struct(mock_meta(:repo))
-  defp mock(:job), do: CMS.Job |> struct(mock_meta(:job))
-  defp mock(:wiki), do: CMS.CommunityWiki |> struct(mock_meta(:wiki))
-  defp mock(:cheatsheet), do: CMS.CommunityCheatsheet |> struct(mock_meta(:cheatsheet))
-  defp mock(:comment), do: CMS.Comment |> struct(mock_meta(:comment))
+  defp mock(:post), do: Post |> struct(mock_meta(:post))
+  defp mock(:repo), do: Repo |> struct(mock_meta(:repo))
+  defp mock(:job), do: Job |> struct(mock_meta(:job))
+  defp mock(:wiki), do: CommunityWiki |> struct(mock_meta(:wiki))
+  defp mock(:cheatsheet), do: CommunityCheatsheet |> struct(mock_meta(:cheatsheet))
+  defp mock(:comment), do: Comment |> struct(mock_meta(:comment))
   defp mock(:mention), do: Delivery.Mention |> struct(mock_meta(:mention))
-  defp mock(:author), do: CMS.Author |> struct(mock_meta(:author))
-  defp mock(:category), do: CMS.Category |> struct(mock_meta(:category))
-  defp mock(:article_tag), do: CMS.ArticleTag |> struct(mock_meta(:article_tag))
+  defp mock(:author), do: Author |> struct(mock_meta(:author))
+  defp mock(:category), do: Category |> struct(mock_meta(:category))
+  defp mock(:article_tag), do: ArticleTag |> struct(mock_meta(:article_tag))
 
   defp mock(:sys_notification),
     do: Delivery.SysNotification |> struct(mock_meta(:sys_notification))
 
   defp mock(:user), do: Accounts.User |> struct(mock_meta(:user))
-  defp mock(:community), do: CMS.Community |> struct(mock_meta(:community))
-  defp mock(:thread), do: CMS.Thread |> struct(mock_meta(:thread))
+  defp mock(:community), do: Community |> struct(mock_meta(:community))
+  defp mock(:thread), do: Thread |> struct(mock_meta(:thread))
 
   defp mock(:communities_threads),
-    do: CMS.CommunityThread |> struct(mock_meta(:communities_threads))
+    do: CommunityThread |> struct(mock_meta(:communities_threads))
 
   defp mock(factory_name, attributes) do
     factory_name |> mock() |> struct(attributes)
