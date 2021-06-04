@@ -11,7 +11,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
 
   @active_period get_config(:article, :active_period_days)
 
-  @delete_hint CMS.ArticleComment.delete_hint()
+  @delete_hint ArticleComment.delete_hint()
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
   @default_comment_meta Embeds.ArticleCommentMeta.default_meta()
   @pinned_comment_limit ArticleComment.pinned_comment_limit()

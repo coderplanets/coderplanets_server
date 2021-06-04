@@ -22,7 +22,7 @@ defmodule GroupherServer.Accounts.User do
     Social
   }
 
-  alias GroupherServer.CMS
+  alias GroupherServer.CMS.Model.{Passport, CommunitySubscriber}
 
   @required_fields ~w(nickname avatar)a
   @optional_fields ~w(login nickname bio remote_ip sex location email subscribed_communities_count)a
@@ -49,12 +49,12 @@ defmodule GroupherServer.Accounts.User do
 
     has_one(:achievement, Achievement)
     has_one(:github_profile, GithubUser)
-    has_one(:cms_passport, CMS.Passport)
+    has_one(:cms_passport, Passport)
 
     has_many(:followers, {"users_followers", UserFollower})
     has_many(:followings, {"users_followings", UserFollowing})
 
-    has_many(:subscribed_communities, {"communities_subscribers", CMS.CommunitySubscriber})
+    has_many(:subscribed_communities, {"communities_subscribers", CommunitySubscriber})
     field(:subscribed_communities_count, :integer, default: 0)
 
     has_many(:collect_folder, {"collect_folders", CollectFolder})

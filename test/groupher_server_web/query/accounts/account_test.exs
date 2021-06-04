@@ -6,6 +6,8 @@ defmodule GroupherServer.Test.Query.Account.Basic do
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS}
 
+  alias CMS.Model.CommunitySubscriber
+
   @default_subscribed_communities get_config(:general, :default_subscribed_communities)
 
   setup do
@@ -298,7 +300,7 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       _results = user_conn |> query_result(@query, %{}, "sessionState")
 
       {:ok, record} =
-        ORM.find_by(CMS.CommunitySubscriber, %{community_id: community.id, user_id: user.id})
+        ORM.find_by(CommunitySubscriber, %{community_id: community.id, user_id: user.id})
 
       assert record.user_id == user.id
       assert record.community_id == community.id

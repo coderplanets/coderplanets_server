@@ -8,7 +8,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentReplies do
 
   alias CMS.Model.{ArticleComment, Repo}
 
-  @max_parent_replies_count CMS.ArticleComment.max_parent_replies_count()
+  @max_parent_replies_count ArticleComment.max_parent_replies_count()
 
   setup do
     {:ok, user} = db_insert(:user)
