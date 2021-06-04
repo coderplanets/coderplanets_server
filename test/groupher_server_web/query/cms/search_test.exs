@@ -3,7 +3,6 @@ defmodule GroupherServer.Test.Query.CMS.Search do
 
   # alias GroupherServer.Accounts.User
   # alias GroupherServer.CMS
-  # alias CMS.{Community}
 
   setup do
     guest_conn = simu_conn(:guest)
