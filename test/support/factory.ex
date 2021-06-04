@@ -10,8 +10,8 @@ defmodule GroupherServer.Support.Factory do
   alias GroupherServer.Repo
   alias GroupherServer.{Accounts, CMS, Delivery}
 
-  @default_article_meta CMS.Embeds.ArticleMeta.default_meta()
-  @default_emotions CMS.Embeds.ArticleCommentEmotion.default_emotions()
+  @default_article_meta CMS.Model.Embeds.ArticleMeta.default_meta()
+  @default_emotions CMS.Model.Embeds.ArticleCommentEmotion.default_emotions()
 
   defp mock_meta(:post) do
     body = Faker.Lorem.sentence(%Range{first: 80, last: 120})

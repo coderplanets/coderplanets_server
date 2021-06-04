@@ -7,7 +7,16 @@ defmodule GroupherServer.CMS.Helper.Macros do
   alias GroupherServer.{CMS, Accounts}
 
   alias Accounts.User
-  alias CMS.Model.{Author, Community, ArticleComment, ArticleTag, ArticleUpvote, ArticleCollect}
+
+  alias CMS.Model.{
+    Embeds,
+    Author,
+    Community,
+    ArticleComment,
+    ArticleTag,
+    ArticleUpvote,
+    ArticleCollect
+  }
 
   @article_threads get_config(:article, :threads)
 
@@ -181,10 +190,10 @@ defmodule GroupherServer.CMS.Helper.Macros do
       field(:is_pinned, :boolean, default: false, virtual: true)
       field(:mark_delete, :boolean, default: false)
 
-      embeds_one(:meta, CMS.Embeds.ArticleMeta, on_replace: :update)
-      embeds_one(:emotions, CMS.Embeds.ArticleEmotion, on_replace: :update)
+      embeds_one(:meta, Embeds.ArticleMeta, on_replace: :update)
+      embeds_one(:emotions, Embeds.ArticleEmotion, on_replace: :update)
 
-      belongs_to(:original_community, CMS.Community)
+      belongs_to(:original_community, Community)
 
       upvote_and_collect_fields()
       viewer_has_fields()
