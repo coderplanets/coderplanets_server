@@ -15,7 +15,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
   alias GroupherServer.{Accounts, Repo}
 
   alias Accounts.User
-  alias GroupherServer.CMS.{ArticleTag, Community, Delegate}
+  alias GroupherServer.CMS.Delegate
+  alias CMS.Model.{ArticleTag, Community}
 
   alias Delegate.CommunityCURD
 
