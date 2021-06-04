@@ -5,6 +5,7 @@ defmodule GroupherServer.Test.Mutation.Accounts.CollectFolder do
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS}
 
+  alias CMS.Model.ArticleCollect
   alias Accounts.CollectFolder
 
   setup do
@@ -143,7 +144,7 @@ defmodule GroupherServer.Test.Mutation.Accounts.CollectFolder do
              }
 
       {:ok, article_collect} =
-        CMS.ArticleCollect |> ORM.find_by(%{post_id: post.id, user_id: user.id})
+        ArticleCollect |> ORM.find_by(%{post_id: post.id, user_id: user.id})
 
       folder_in_article_collect = article_collect.collect_folders |> List.first()
 

@@ -6,6 +6,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS}
 
+  alias CMS.Model.ArticleCollect
   alias Accounts.{Embeds}
 
   @default_meta Embeds.CollectFolderMeta.default_meta()
@@ -45,7 +46,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       {:ok, folder} = Accounts.create_collect_folder(%{title: "test folder"}, user)
       {:ok, _} = Accounts.delete_collect_folder(folder.id)
 
-      assert {:error, _} = ORM.find(CMS.ArticleCollect, folder.id)
+      assert {:error, _} = ORM.find(ArticleCollect, folder.id)
     end
 
     test "user can not delete a non-empty collect folder", ~m(post user)a do
@@ -142,7 +143,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       {:ok, folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
 
       collect_in_folder = folder.collects |> List.first()
-      {:ok, article_collect} = ORM.find(CMS.ArticleCollect, collect_in_folder.id)
+      {:ok, article_collect} = ORM.find(ArticleCollect, collect_in_folder.id)
       article_collect_folder = article_collect.collect_folders |> List.first()
       assert article_collect_folder.id == folder.id
     end
@@ -155,7 +156,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
       {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder.id, user)
       {:ok, _folder} = Accounts.add_to_collect(:post, post.id, folder2.id, user)
 
-      {:ok, result} = ORM.find_all(CMS.ArticleCollect, %{page: 1, size: 10})
+      {:ok, result} = ORM.find_all(ArticleCollect, %{page: 1, size: 10})
       article_collect = result.entries |> List.first()
 
       assert article_collect.post_id == post.id
@@ -187,7 +188,7 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
 
       {:ok, _} = Accounts.remove_from_collect(:post, post.id, folder.id, user)
 
-      {:ok, result} = ORM.find_all(CMS.ArticleCollect, %{page: 1, size: 10})
+      {:ok, result} = ORM.find_all(ArticleCollect, %{page: 1, size: 10})
 
       article_collect =
         result.entries |> List.first() |> Map.get(:collect_folders) |> List.first()
@@ -205,13 +206,13 @@ defmodule GroupherServer.Test.Accounts.CollectFolder do
 
       {:ok, _} = Accounts.remove_from_collect(:post, post.id, folder.id, user)
 
-      {:ok, result} = ORM.find_all(CMS.ArticleCollect, %{page: 1, size: 10})
+      {:ok, result} = ORM.find_all(ArticleCollect, %{page: 1, size: 10})
       article_collect = result.entries |> List.first()
 
       assert article_collect.collect_folders |> length == 1
 
       {:ok, _} = Accounts.remove_from_collect(:post, post.id, folder.id, user)
-      {:ok, result} = ORM.find_all(CMS.ArticleCollect, %{page: 1, size: 10})
+      {:ok, result} = ORM.find_all(ArticleCollect, %{page: 1, size: 10})
       assert result.total_count == 0
     end
 
