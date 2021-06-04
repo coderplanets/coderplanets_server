@@ -31,7 +31,7 @@ defmodule GroupherServer.CMS.Helper.MatcherMacros do
 
           {:ok,
            %{
-             model: Module.concat(CMS, thread_module),
+             model: Module.concat(CMS.Model, thread_module),
              thread: unquote(thread),
              foreign_key: unquote(:"#{thread}_id"),
              preload: unquote(thread),
@@ -84,7 +84,7 @@ defmodule GroupherServer.CMS.Helper.MatcherMacros do
           {:ok,
            %{
              id: id,
-             model: Module.concat(CMS, thread_module),
+             model: Module.concat(CMS.Model, thread_module),
              foreign_key: unquote(:"#{thread}_id")
            }}
         end

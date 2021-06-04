@@ -234,8 +234,8 @@ defmodule GroupherServer.Support.Factory do
 
     %{
       # username: "#{Faker.Name.first_name()} #{unique_num}",
-      login: "#{Faker.Name.first_name()}#{unique_num}" |> String.downcase(),
-      nickname: "#{Faker.Name.first_name()}#{unique_num}",
+      login: "#{Faker.Person.first_name()}#{unique_num}" |> String.downcase(),
+      nickname: "#{Faker.Person.first_name()}#{unique_num}",
       bio: Faker.Lorem.Shakespeare.romeo_and_juliet(),
       avatar: Faker.Avatar.image_url(),
       email: "faker@gmail.com"
@@ -254,8 +254,8 @@ defmodule GroupherServer.Support.Factory do
     unique_num = System.unique_integer([:positive, :monotonic])
 
     %{
-      id: "#{Faker.Name.first_name()} #{unique_num}",
-      login: "#{Faker.Name.first_name()}#{unique_num}",
+      id: "#{Faker.Person.first_name()} #{unique_num}",
+      login: "#{Faker.Person.first_name()}#{unique_num}",
       github_id: "#{unique_num + 1000}",
       node_id: "#{unique_num + 2000}",
       access_token: "#{unique_num + 3000}",
@@ -350,7 +350,6 @@ defmodule GroupherServer.Support.Factory do
     results =
       Enum.reduce(1..count, [], fn _, acc ->
         Process.sleep(delay)
-        IO.inspect(db_insert(factory_name), label: "??")
         {:ok, value} = db_insert(factory_name)
         acc ++ [value]
       end)

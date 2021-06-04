@@ -41,7 +41,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
       quote do
         belongs_to(
           unquote(thread),
-          Module.concat(CMS, unquote(thread) |> to_string |> Recase.to_pascal()),
+          Module.concat(CMS.Model, unquote(thread) |> to_string |> Recase.to_pascal()),
           foreign_key: unquote(:"#{thread}_id")
         )
       end
@@ -222,7 +222,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
       quote do
         many_to_many(
           unquote(:"#{thread}s"),
-          Module.concat(CMS, unquote(thread) |> to_string |> Recase.to_pascal()),
+          Module.concat(CMS.Model, unquote(thread) |> to_string |> Recase.to_pascal()),
           join_through: unquote("communities_#{to_string(thread)}s"),
           join_keys: [community_id: :id] ++ Keyword.new([{unquote(:"#{thread}_id"), :id}])
         )

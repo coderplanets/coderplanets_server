@@ -4,7 +4,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
   alias Helper.ORM
   alias GroupherServer.{CMS, Delivery}
 
-  alias CMS.Model.{Job, Author}
+  alias CMS.Model.Job
 
   setup do
     {:ok, job} = db_insert(:job)
