@@ -2,7 +2,8 @@ defmodule GroupherServer.Test.Statistics.Geo do
   use GroupherServer.TestTools
 
   alias Helper.{ORM, GeoPool}
-  alias GroupherServer.Statistics.Model.UserGeoInfo
+  alias GroupherServer.Statistics
+  alias Statistics.Model.UserGeoInfo
 
   setup do
     GeoPool.insert_geo_data()
