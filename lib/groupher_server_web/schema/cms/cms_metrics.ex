@@ -291,7 +291,7 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
   """
   interface :article do
     field(:id, :id)
-    # field(:title, :string)
+    field(:title, :string)
 
     # TODO: remove the domain part
     resolve_type(fn
