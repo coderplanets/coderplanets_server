@@ -8,7 +8,7 @@ defmodule GroupherServer.Test.Delivery.Mention do
   alias GroupherServer.{Accounts, Delivery}
 
   alias Accounts.Model.MentionMail
-  alias Delivery.Mention
+  alias Delivery.Model.Mention
 
   describe "mentions" do
     test "user can mention other user" do

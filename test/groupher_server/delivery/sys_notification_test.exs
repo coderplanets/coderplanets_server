@@ -8,7 +8,7 @@ defmodule GroupherServer.Test.Delivery.SysNotification do
   alias GroupherServer.{Accounts, Delivery}
 
   alias Accounts.Model.SysNotificationMail
-  alias Delivery.SysNotification
+  alias Delivery.Model.SysNotification
 
   describe "[delivery sys notification]" do
     test "user can publish system notification" do

@@ -1,4 +1,4 @@
-defmodule GroupherServer.Delivery.Record do
+defmodule GroupherServer.Delivery.Model.Record do
   @moduledoc false
   alias __MODULE__
 

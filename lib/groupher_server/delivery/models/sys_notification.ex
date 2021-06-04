@@ -1,4 +1,4 @@
-defmodule GroupherServer.Delivery.SysNotification do
+defmodule GroupherServer.Delivery.Model.SysNotification do
   @moduledoc false
   alias __MODULE__
 

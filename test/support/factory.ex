@@ -25,6 +25,8 @@ defmodule GroupherServer.Support.Factory do
     Comment
   }
 
+  alias Delivery.Model.{Mention, SysNotification}
+
   alias CMS.Model.Repo, as: CMSRepo
 
   @default_article_meta CMS.Model.Embeds.ArticleMeta.default_meta()
@@ -317,13 +319,13 @@ defmodule GroupherServer.Support.Factory do
   defp mock(:wiki), do: CommunityWiki |> struct(mock_meta(:wiki))
   defp mock(:cheatsheet), do: CommunityCheatsheet |> struct(mock_meta(:cheatsheet))
   defp mock(:comment), do: Comment |> struct(mock_meta(:comment))
-  defp mock(:mention), do: Delivery.Mention |> struct(mock_meta(:mention))
+  defp mock(:mention), do: Mention |> struct(mock_meta(:mention))
   defp mock(:author), do: Author |> struct(mock_meta(:author))
   defp mock(:category), do: Category |> struct(mock_meta(:category))
   defp mock(:article_tag), do: ArticleTag |> struct(mock_meta(:article_tag))
 
   defp mock(:sys_notification),
-    do: Delivery.SysNotification |> struct(mock_meta(:sys_notification))
+    do: SysNotification |> struct(mock_meta(:sys_notification))
 
   defp mock(:user), do: User |> struct(mock_meta(:user))
   defp mock(:community), do: Community |> struct(mock_meta(:community))

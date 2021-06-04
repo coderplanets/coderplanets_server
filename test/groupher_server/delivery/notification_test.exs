@@ -8,7 +8,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
   alias GroupherServer.{Accounts, Delivery}
 
   alias Accounts.Model.NotificationMail
-  alias Delivery.Notification
+  alias Delivery.Model.Notification
 
   describe "[delivery notification]" do
     test "user can notify other user" do
