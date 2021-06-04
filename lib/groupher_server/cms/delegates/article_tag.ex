@@ -15,10 +15,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
   alias GroupherServer.{Accounts, Repo}
 
   alias Accounts.User
-  alias GroupherServer.CMS.Delegate
-  alias CMS.Model.{ArticleTag, Community}
+  alias GroupherServer.CMS
 
-  alias Delegate.CommunityCURD
+  alias CMS.Model.{ArticleTag, Community}
+  alias CMS.Delegate.CommunityCURD
 
   alias Ecto.Multi
 
