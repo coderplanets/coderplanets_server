@@ -25,9 +25,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   alias GroupherServer.{Accounts, CMS, Delivery, Email, Repo, Statistics}
 
   alias Accounts.User
-  alias CMS.Model.{Author, Community, PinnedArticle, Embeds, Delegate}
-
-  alias Delegate.{ArticleCommunity, ArticleComment, ArticleTag, CommunityCURD}
+  alias CMS.Model.{Author, Community, PinnedArticle, Embeds}
+  alias CMS.Delegate.{ArticleCommunity, ArticleComment, ArticleTag, CommunityCURD}
 
   alias Ecto.Multi
 
