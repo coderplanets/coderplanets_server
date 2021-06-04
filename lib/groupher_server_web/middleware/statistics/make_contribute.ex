@@ -6,7 +6,7 @@ defmodule GroupherServerWeb.Middleware.Statistics.MakeContribute do
   @behaviour Absinthe.Middleware
   # google: must appear in the GROUP BY clause or be used in an aggregate function
   alias GroupherServer.Accounts.User
-  alias GroupherServer.CMS.Community
+  alias GroupherServer.CMS.Model.Community
   alias GroupherServer.Statistics
 
   def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution

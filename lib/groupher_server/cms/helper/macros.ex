@@ -208,7 +208,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
   end
 
   @doc """
-  for GroupherServer.CMS.Community
+  for GroupherServer.CMS.Model.Community
 
   # TABLE: "communities_[article]s"
     add(:community_id, references(:communities, on_delete: :delete_all), null: false)

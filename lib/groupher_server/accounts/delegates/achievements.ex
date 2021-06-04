@@ -14,6 +14,8 @@ defmodule GroupherServer.Accounts.Delegate.Achievements do
   alias Helper.{ORM, SpecType}
   alias GroupherServer.Accounts.{Achievement, User}
 
+  alias GroupherServer.CMS.Model.CommunityEditor
+
   @collect_weight get_config(:general, :user_achieve_collect_weight)
   @upvote_weight get_config(:general, :user_achieve_upvote_weight)
   # @watch_weight get_config(:general, :user_achieve_watch_weight)
@@ -125,7 +127,6 @@ defmodule GroupherServer.Accounts.Delegate.Achievements do
   @doc """
   list communities which the user is editor in it
   """
-  alias GroupherServer.CMS.CommunityEditor
 
   def paged_editable_communities(%User{id: user_id}, %{page: page, size: size}) do
     with {:ok, user} <- ORM.find(User, user_id) do
