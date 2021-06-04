@@ -4,7 +4,6 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
   """
   use Absinthe.Schema.Notation
   import GroupherServerWeb.Schema.Helper.Fields
-  alias GroupherServer.CMS
 
   @default_inner_page_size 5
 
@@ -282,6 +281,14 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
     #   operate_user_id,
     #   min_case_count,
     #   max_case_count,
+  end
+
+  @doc """
+  only used for reaction result, like: upvote/collect/watch ...
+  """
+  interface :article do
+    field(:id, :id)
+    field(:title, :string)
   end
 
   # @desc """
