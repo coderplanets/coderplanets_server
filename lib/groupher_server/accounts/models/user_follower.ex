@@ -1,4 +1,4 @@
-defmodule GroupherServer.Accounts.UserFollower do
+defmodule GroupherServer.Accounts.Model.UserFollower do
   @moduledoc false
   alias __MODULE__
 

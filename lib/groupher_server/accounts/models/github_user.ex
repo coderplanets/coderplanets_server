@@ -1,4 +1,4 @@
-defmodule GroupherServer.Accounts.GithubUser do
+defmodule GroupherServer.Accounts.Model.GithubUser do
   @moduledoc false
   alias __MODULE__
 

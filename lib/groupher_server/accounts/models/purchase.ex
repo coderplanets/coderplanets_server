@@ -1,4 +1,4 @@
-defmodule GroupherServer.Accounts.Purchase do
+defmodule GroupherServer.Accounts.Model.Purchase do
   @moduledoc false
   alias __MODULE__
 

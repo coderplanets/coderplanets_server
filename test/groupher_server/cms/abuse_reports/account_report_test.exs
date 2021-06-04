@@ -9,7 +9,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.AccountReport do
   alias GroupherServer.CMS
   alias GroupherServer.Accounts
 
-  alias Accounts.User
+  alias Accounts.Model.User
 
   setup do
     {:ok, user} = db_insert(:user)

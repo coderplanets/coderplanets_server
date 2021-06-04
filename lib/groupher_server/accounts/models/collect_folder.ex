@@ -1,4 +1,4 @@
-defmodule GroupherServer.Accounts.CollectFolder do
+defmodule GroupherServer.Accounts.Model.CollectFolder do
   @moduledoc false
   alias __MODULE__
 

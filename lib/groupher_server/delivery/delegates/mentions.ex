@@ -6,7 +6,7 @@ defmodule GroupherServer.Delivery.Delegate.Mentions do
 
   alias GroupherServer.{Accounts, Delivery, Repo}
 
-  alias Accounts.User
+  alias Accounts.Model.User
   alias Delivery.{Delegate, Mention}
   alias Delegate.Utils
 

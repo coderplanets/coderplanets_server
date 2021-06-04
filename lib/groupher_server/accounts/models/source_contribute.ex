@@ -1,4 +1,4 @@
-defmodule GroupherServer.Accounts.SourceContribute do
+defmodule GroupherServer.Accounts.Model.SourceContribute do
   @moduledoc false
   alias __MODULE__
 

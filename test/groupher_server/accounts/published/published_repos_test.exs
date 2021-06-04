@@ -2,7 +2,7 @@ defmodule GroupherServer.Test.Accounts.Published.Repo do
   use GroupherServer.TestTools
 
   alias GroupherServer.{Accounts, CMS}
-  alias Accounts.User
+  alias Accounts.Model.User
   alias Helper.ORM
 
   @publish_count 10

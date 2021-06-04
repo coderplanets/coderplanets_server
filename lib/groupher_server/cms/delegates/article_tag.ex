@@ -14,7 +14,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
   alias Helper.QueryBuilder
   alias GroupherServer.{Accounts, Repo}
 
-  alias Accounts.User
+  alias Accounts.Model.User
   alias GroupherServer.CMS
 
   alias CMS.Model.{ArticleTag, Community}

@@ -10,7 +10,7 @@ defmodule GroupherServer.CMS.Model.ArticleUpvote do
   import GroupherServer.CMS.Helper.Utils, only: [articles_foreign_key_constraint: 1]
 
   alias GroupherServer.Accounts
-  alias Accounts.User
+  alias Accounts.Model.User
 
   @article_threads get_config(:article, :threads)
 

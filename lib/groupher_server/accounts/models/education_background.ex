@@ -1,4 +1,4 @@
-defmodule GroupherServer.Accounts.EducationBackground do
+defmodule GroupherServer.Accounts.Model.EducationBackground do
   @moduledoc false
   alias __MODULE__
 

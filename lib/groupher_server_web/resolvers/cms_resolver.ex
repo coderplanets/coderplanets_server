@@ -6,7 +6,7 @@ defmodule GroupherServerWeb.Resolvers.CMS do
 
   alias GroupherServer.{Accounts, CMS}
 
-  alias Accounts.User
+  alias Accounts.Model.User
   alias CMS.Model.{Community, Category, Thread, CommunityWiki, CommunityCheatsheet}
 
   alias Helper.ORM

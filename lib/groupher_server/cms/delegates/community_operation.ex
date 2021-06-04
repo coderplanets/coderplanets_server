@@ -8,7 +8,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
 
   alias GroupherServer.{Accounts, CMS, Repo}
 
-  alias Accounts.User
+  alias Accounts.Model.User
   alias CMS.Delegate.PassportCURD
 
   alias CMS.Model.{

@@ -3,7 +3,7 @@ defmodule GroupherServer.Accounts.Delegate.Utils do
   utils for Accounts
   """
   alias GroupherServer.Accounts
-  alias Accounts.User
+  alias Accounts.Model.User
   alias Helper.{Cache, ORM}
 
   @cache_pool :user_login

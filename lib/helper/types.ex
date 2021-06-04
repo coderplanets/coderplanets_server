@@ -4,7 +4,7 @@ defmodule Helper.Types do
   """
 
   alias GroupherServer.{Accounts}
-  alias Accounts.User
+  alias Accounts.Model.User
 
   @typedoc """
   general response conventions

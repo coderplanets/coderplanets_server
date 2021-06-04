@@ -24,7 +24,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   alias Helper.{Later, ORM, QueryBuilder}
   alias GroupherServer.{Accounts, CMS, Delivery, Email, Repo, Statistics}
 
-  alias Accounts.User
+  alias Accounts.Model.User
   alias CMS.Model.{Author, Community, PinnedArticle, Embeds}
   alias CMS.Delegate.{ArticleCommunity, ArticleComment, ArticleTag, CommunityCURD}
 

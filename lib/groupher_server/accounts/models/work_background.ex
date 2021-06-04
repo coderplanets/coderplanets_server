@@ -1,4 +1,4 @@
-defmodule GroupherServer.Accounts.WorkBackground do
+defmodule GroupherServer.Accounts.Model.WorkBackground do
   @moduledoc false
   alias __MODULE__
 

@@ -15,7 +15,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   alias GroupherServer.{Accounts, CMS, Repo}
   alias CMS.Model.Post
 
-  alias Accounts.User
+  alias Accounts.Model.User
   alias CMS.Model.{ArticleComment, ArticlePinnedComment, Embeds}
   alias Ecto.Multi
 

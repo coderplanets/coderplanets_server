@@ -6,7 +6,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
 
   alias GroupherServer.{CMS, Accounts}
 
-  alias Accounts.User
+  alias Accounts.Model.User
 
   alias CMS.Model.{
     Embeds,

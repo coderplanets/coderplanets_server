@@ -1,4 +1,4 @@
-defmodule GroupherServer.Accounts.SysNotificationMail do
+defmodule GroupherServer.Accounts.Model.SysNotificationMail do
   @moduledoc false
   alias __MODULE__
 

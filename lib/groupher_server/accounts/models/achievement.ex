@@ -1,4 +1,4 @@
-defmodule GroupherServer.Accounts.Achievement do
+defmodule GroupherServer.Accounts.Model.Achievement do
   @moduledoc false
   alias __MODULE__
 

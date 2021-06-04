@@ -4,7 +4,7 @@ defmodule GroupherServerWeb.Resolvers.Statistics do
   """
   alias GroupherServer.{Accounts, CMS, Statistics}
   alias CMS.Model.Community
-  alias Accounts.User
+  alias Accounts.Model.User
 
   # tmp for test
 
