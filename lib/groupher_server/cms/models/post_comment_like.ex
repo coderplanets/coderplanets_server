@@ -6,7 +6,7 @@ defmodule GroupherServer.CMS.Model.PostCommentLike do
   import Ecto.Changeset
 
   alias GroupherServer.{Accounts, CMS}
-  alias CMS.PostComment
+  alias CMS.Model.PostComment
 
   @required_fields ~w(post_comment_id user_id)a
 

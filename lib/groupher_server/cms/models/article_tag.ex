@@ -8,7 +8,7 @@ defmodule GroupherServer.CMS.Model.ArticleTag do
   import Ecto.Changeset
 
   alias GroupherServer.CMS
-  alias CMS.{Author, Community}
+  alias CMS.Model.{Author, Community}
 
   @required_fields ~w(thread title color author_id community_id)a
   @updatable_fields ~w(thread title color community_id group)a

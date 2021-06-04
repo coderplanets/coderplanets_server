@@ -4,7 +4,7 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{Author, Community}
+  alias CMS.Model.{Author, Community}
 
   @last_year Timex.shift(Timex.beginning_of_year(Timex.now()), days: -3, seconds: -1)
 

@@ -11,7 +11,7 @@ defmodule GroupherServer.CMS.Model.Embeds.ArticleEmotion.Macros do
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.CMS
-  alias CMS.Embeds
+  alias CMS.Model.Embeds
 
   @supported_emotions get_config(:article, :emotions)
 

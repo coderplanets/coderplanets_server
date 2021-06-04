@@ -10,7 +10,7 @@ defmodule GroupherServer.CMS.Model.PinnedArticle do
   import GroupherServer.CMS.Helper.Utils, only: [articles_foreign_key_constraint: 1]
 
   alias GroupherServer.CMS
-  alias CMS.Community
+  alias CMS.Model.Community
 
   @article_threads get_config(:article, :threads)
 

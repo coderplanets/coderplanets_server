@@ -16,7 +16,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   alias GroupherServer.{Accounts, CMS}
   alias GroupherServer.CMS.{Community, Thread, Category}
 
-  alias CMS.Delegate.SeedsConfig
+  alias CMS.Model.Delegate.SeedsConfig
 
   # threads
   @default_threads SeedsConfig.threads(:default)

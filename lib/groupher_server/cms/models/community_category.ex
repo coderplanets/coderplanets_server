@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.Model.CommunityCategory do
 
   alias GroupherServer.CMS
 
-  alias CMS.{Category, Community}
+  alias CMS.Model.{Category, Community}
 
   @type t :: %CommunityCategory{}
 

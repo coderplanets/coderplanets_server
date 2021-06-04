@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentReplies do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{ArticleComment, Repo}
+  alias CMS.Model.{ArticleComment, Repo}
 
   @max_parent_replies_count CMS.ArticleComment.max_parent_replies_count()
 

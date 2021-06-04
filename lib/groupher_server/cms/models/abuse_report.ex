@@ -11,7 +11,7 @@ defmodule GroupherServer.CMS.Model.AbuseReport do
   import GroupherServer.CMS.Helper.Utils, only: [articles_foreign_key_constraint: 1]
 
   alias GroupherServer.{Accounts, CMS}
-  alias CMS.Model.{ArticleComment, Embeds}
+  alias CMS.Model.Model.{ArticleComment, Embeds}
 
   @article_threads get_config(:article, :threads)
 

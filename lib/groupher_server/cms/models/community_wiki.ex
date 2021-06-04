@@ -6,7 +6,7 @@ defmodule GroupherServer.CMS.Model.CommunityWiki do
   import Ecto.Changeset
 
   alias GroupherServer.CMS
-  alias CMS.{Community, GithubContributor}
+  alias CMS.Model.{Community, GithubContributor}
 
   @required_fields ~w(community_id last_sync)a
   @optional_fields ~w(readme)a

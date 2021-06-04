@@ -4,7 +4,7 @@ defmodule GroupherServer.Test.CMS.Cheatsheet do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{CommunityCheatsheet}
+  alias CMS.Model.{CommunityCheatsheet}
 
   setup do
     {:ok, user} = db_insert(:user)

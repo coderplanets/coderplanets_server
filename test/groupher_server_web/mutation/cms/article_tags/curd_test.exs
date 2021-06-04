@@ -4,7 +4,7 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
-  alias CMS.ArticleTag
+  alias CMS.Model.ArticleTag
 
   alias Helper.ORM
 

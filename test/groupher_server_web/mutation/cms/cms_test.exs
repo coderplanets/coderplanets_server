@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
   alias GroupherServer.{Accounts, CMS}
 
   alias Accounts.User
-  alias CMS.{Category, Community, CommunityEditor, Passport}
+  alias CMS.Model.{Category, Community, CommunityEditor, Passport}
 
   alias Helper.ORM
 

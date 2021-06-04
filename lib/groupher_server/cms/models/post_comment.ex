@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.Model.PostComment do
 
   alias GroupherServer.{Accounts, CMS}
 
-  alias CMS.{
+  alias CMS.Model.{
     Post,
     PostCommentLike,
     PostCommentReply

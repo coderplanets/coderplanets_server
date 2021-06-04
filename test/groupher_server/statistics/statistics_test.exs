@@ -99,7 +99,7 @@ defmodule GroupherServer.Test.Statistics do
   end
 
   describe "[statistics community_contribute] " do
-    alias CMS.Community
+    alias CMS.Model.Community
     alias Statistics.CommunityContribute
 
     test "should inserted a community contribute when create community", ~m(community)a do

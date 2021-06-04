@@ -6,7 +6,7 @@ defmodule GroupherServer.CMS.Model.Embeds.AbuseReportCase do
   import Ecto.Changeset
 
   alias GroupherServer.CMS
-  alias CMS.Embeds
+  alias CMS.Model.Embeds
 
   @optional_fields [:reason, :attr]
 

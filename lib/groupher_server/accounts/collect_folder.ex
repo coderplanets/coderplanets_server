@@ -7,7 +7,7 @@ defmodule GroupherServer.Accounts.CollectFolder do
 
   alias GroupherServer.{Accounts, CMS}
   alias Accounts.{User, Embeds}
-  alias CMS.ArticleCollect
+  alias CMS.Model.ArticleCollect
 
   @required_fields ~w(user_id title)a
   @optional_fields ~w(index total_count private desc last_updated)a

@@ -6,7 +6,7 @@ defmodule GroupherServer.CMS.Model.ArticleCommentUpvote do
   import Ecto.Changeset
 
   alias GroupherServer.{Accounts, CMS}
-  alias CMS.ArticleComment
+  alias CMS.Model.ArticleComment
 
   @required_fields ~w(article_comment_id user_id)a
 

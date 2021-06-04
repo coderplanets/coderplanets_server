@@ -11,7 +11,7 @@ defmodule GroupherServer.CMS.Model.ArticlePinnedComment do
   import GroupherServer.CMS.Helper.Utils, only: [articles_foreign_key_constraint: 1]
 
   alias GroupherServer.CMS
-  alias CMS.ArticleComment
+  alias CMS.Model.ArticleComment
 
   # alias Helper.HTML
   @article_threads get_config(:article, :threads)

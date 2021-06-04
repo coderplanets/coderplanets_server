@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.CMS.Artilces.JobPin do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{Community, PinnedArticle}
+  alias CMS.Model.{Community, PinnedArticle}
 
   @max_pinned_article_count_per_thread Community.max_pinned_article_count_per_thread()
 

@@ -9,7 +9,7 @@ defmodule GroupherServer.CMS.Model.Post do
   import GroupherServer.CMS.Helper.Macros
 
   alias GroupherServer.CMS
-  alias CMS.{Embeds, PostComment}
+  alias CMS.Model.{Embeds, PostComment}
 
   alias Helper.HTML
 

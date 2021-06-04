@@ -3,7 +3,7 @@ defmodule GroupherServer.Test.Mutation.Sink.PostSink do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
-  alias CMS.Post
+  alias CMS.Model.Post
 
   alias Helper.ORM
 

@@ -9,7 +9,7 @@ defmodule GroupherServer.CMS.Model.Repo do
   import GroupherServer.CMS.Helper.Macros
 
   alias GroupherServer.CMS
-  alias CMS.{Embeds, RepoContributor, RepoLang}
+  alias CMS.Model.{Embeds, RepoContributor, RepoLang}
 
   alias Helper.HTML
 

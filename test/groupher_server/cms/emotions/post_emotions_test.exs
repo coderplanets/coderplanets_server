@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.CMS.Emotions.PostEmotions do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{Embeds, ArticleUserEmotion}
+  alias CMS.Model.{Embeds, ArticleUserEmotion}
 
   @default_emotions Embeds.ArticleEmotion.default_emotions()
 

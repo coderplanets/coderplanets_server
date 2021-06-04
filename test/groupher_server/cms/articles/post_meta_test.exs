@@ -5,7 +5,7 @@ defmodule GroupherServer.Test.CMS.PostMeta do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{Embeds, Author, Post}
+  alias CMS.Model.{Embeds, Author, Post}
 
   @default_article_meta Embeds.ArticleMeta.default_meta()
 

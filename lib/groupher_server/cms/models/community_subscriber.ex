@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.Model.CommunitySubscriber do
 
   alias GroupherServer.{Accounts, CMS}
 
-  alias CMS.Community
+  alias CMS.Model.Community
 
   @required_fields ~w(user_id community_id)a
 

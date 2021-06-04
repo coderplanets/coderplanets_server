@@ -3,7 +3,7 @@ defmodule GroupherServer.Test.Seeds.Communities do
 
   # alias GroupherServer.Accounts.User
   alias GroupherServer.CMS
-  alias CMS.Delegate.SeedsConfig
+  alias CMS.Model.Delegate.SeedsConfig
 
   alias Helper.{ORM, Utils}
 

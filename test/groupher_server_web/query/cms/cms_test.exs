@@ -3,7 +3,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
 
   alias GroupherServer.Accounts.User
   alias GroupherServer.CMS
-  alias CMS.{Community, Category}
+  alias CMS.Model.{Community, Category}
   alias Helper.ORM
 
   setup do

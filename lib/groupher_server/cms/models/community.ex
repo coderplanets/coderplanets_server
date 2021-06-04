@@ -8,7 +8,7 @@ defmodule GroupherServer.CMS.Model.Community do
 
   alias GroupherServer.{Accounts, CMS}
 
-  alias CMS.{
+  alias CMS.Model.{
     Embeds,
     Category,
     CommunityThread,

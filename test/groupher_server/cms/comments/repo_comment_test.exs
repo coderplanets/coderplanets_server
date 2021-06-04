@@ -7,7 +7,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS}
 
-  alias CMS.{ArticleComment, ArticlePinnedComment, Embeds, Repo}
+  alias CMS.Model.{ArticleComment, ArticlePinnedComment, Embeds, Repo}
 
   @active_period get_config(:article, :active_period_days)
 

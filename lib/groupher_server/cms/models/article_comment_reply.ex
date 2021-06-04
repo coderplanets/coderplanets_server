@@ -6,7 +6,7 @@ defmodule GroupherServer.CMS.Model.ArticleCommentReply do
   import Ecto.Changeset
 
   alias GroupherServer.CMS
-  alias CMS.ArticleComment
+  alias CMS.Model.ArticleComment
 
   @required_fields ~w(article_comment_id reply_to_id)a
 

@@ -22,7 +22,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
 
   alias Accounts.User
 
-  alias CMS.{
+  alias CMS.Model.{
     ArticleComment,
     ArticlePinnedComment,
     ArticleCommentUpvote,

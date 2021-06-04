@@ -6,7 +6,7 @@ defmodule GroupherServer.CMS.Model.CommunityThread do
   import Ecto.Changeset
 
   alias GroupherServer.CMS
-  alias CMS.{Community, Thread}
+  alias CMS.Model.{Community, Thread}
 
   @required_fields ~w(community_id thread_id)a
 

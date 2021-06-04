@@ -23,7 +23,7 @@ defmodule GroupherServer.CMS.Model.ArticleCommentUserEmotion do
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.{Accounts, CMS}
-  alias CMS.ArticleComment
+  alias CMS.Model.ArticleComment
 
   @supported_emotions get_config(:article, :comment_emotions)
 

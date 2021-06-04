@@ -8,7 +8,6 @@ defmodule GroupherServer.CMS.Model.Author do
   import Ecto.Changeset
 
   alias GroupherServer.Accounts
-  # alias CMS.Post
 
   @type t :: %Author{}
 

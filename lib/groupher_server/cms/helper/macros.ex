@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
   alias GroupherServer.{CMS, Accounts}
 
   alias Accounts.User
-  alias CMS.{Author, Community, ArticleComment, ArticleTag, ArticleUpvote, ArticleCollect}
+  alias CMS.Model.{Author, Community, ArticleComment, ArticleTag, ArticleUpvote, ArticleCollect}
 
   @article_threads get_config(:article, :threads)
 

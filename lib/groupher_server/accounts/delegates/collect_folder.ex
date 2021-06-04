@@ -17,7 +17,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.{CollectFolder, Embeds, User}
-  alias CMS.ArticleCollect
+  alias CMS.Model.ArticleCollect
 
   alias Ecto.Multi
 

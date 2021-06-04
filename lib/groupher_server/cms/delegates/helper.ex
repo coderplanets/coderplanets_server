@@ -10,7 +10,7 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   alias Helper.{ORM, QueryBuilder}
   alias GroupherServer.{Accounts, Repo, CMS}
 
-  alias CMS.{ArticleUpvote, ArticleCollect}
+  alias CMS.Model.{ArticleUpvote, ArticleCollect}
   alias Accounts.User
 
   @default_article_meta CMS.Embeds.ArticleMeta.default_meta()

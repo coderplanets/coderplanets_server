@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.Model.CommunityEditor do
 
   alias GroupherServer.{Accounts, CMS}
 
-  alias CMS.Community
+  alias CMS.Model.Community
   alias Helper.Certification
 
   @required_fields ~w(user_id community_id title)a

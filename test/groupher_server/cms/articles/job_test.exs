@@ -17,7 +17,7 @@ defmodule GroupherServer.Test.Articles.Job do
   end
 
   describe "[cms jobs curd]" do
-    alias CMS.Community
+    alias CMS.Model.Community
 
     test "can create a job with valid attrs", ~m(user community job_attrs)a do
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)

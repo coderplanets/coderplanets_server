@@ -3,7 +3,7 @@ defmodule GroupherServer.Test.CMS do
 
   alias GroupherServer.Accounts.User
   alias GroupherServer.CMS
-  alias CMS.{Category, Community, CommunityEditor}
+  alias CMS.Model.{Category, Community, CommunityEditor}
 
   alias Helper.{Certification, ORM}
 

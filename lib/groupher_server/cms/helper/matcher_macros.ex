@@ -5,7 +5,7 @@ defmodule GroupherServer.CMS.Helper.MatcherMacros do
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.CMS
-  alias CMS.{ArticleComment, Embeds}
+  alias CMS.Model.{ArticleComment, Embeds}
 
   @article_threads get_config(:article, :threads)
 

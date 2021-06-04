@@ -12,7 +12,7 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.{ArticleComment}
+  alias CMS.Model.{ArticleComment}
 
   def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
 

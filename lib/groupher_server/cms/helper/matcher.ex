@@ -9,7 +9,7 @@ defmodule GroupherServer.CMS.Helper.Matcher do
   alias GroupherServer.{Accounts, CMS}
 
   alias Accounts.User
-  alias CMS.ArticleComment
+  alias CMS.Model.ArticleComment
 
   def match(:account) do
     {:ok,

@@ -5,7 +5,7 @@ defmodule GroupherServer.CMS.Model.ArticleCommentParticipator do
 
   alias GroupherServer.Accounts.User
 
-  # alias CMS.{
+  # alias CMS.Model.{
   #   Post,
   #   Job,
   #   ArticleCommentUpvote

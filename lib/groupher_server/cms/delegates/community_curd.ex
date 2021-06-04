@@ -14,7 +14,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
 
   alias Accounts.User
 
-  alias CMS.{
+  alias CMS.Model.{
     Embeds,
     ArticleTag,
     Category,

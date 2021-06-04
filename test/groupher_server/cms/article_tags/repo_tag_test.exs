@@ -2,7 +2,7 @@ defmodule GroupherServer.Test.CMS.ArticleTag.RepoTag do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
-  alias CMS.{Community, ArticleTag}
+  alias CMS.Model.{Community, ArticleTag}
   alias Helper.{ORM}
 
   setup do

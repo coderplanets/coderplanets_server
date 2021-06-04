@@ -9,7 +9,7 @@ defmodule GroupherServer.CMS.Model.Job do
   import GroupherServer.CMS.Helper.Macros
 
   alias GroupherServer.CMS
-  alias CMS.Embeds
+  alias CMS.Model.Embeds
   alias Helper.HTML
 
   @timestamps_opts [type: :utc_datetime_usec]

@@ -50,7 +50,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
 
   alias GroupherServer.Accounts.User
   alias GroupherServer.CMS
-  alias CMS.{Community, Thread, Category}
+  alias CMS.Model.{Community, Thread, Category}
 
   setup do
     guest_conn = simu_conn(:guest)

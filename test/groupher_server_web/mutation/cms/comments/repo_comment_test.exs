@@ -2,7 +2,7 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
-  alias CMS.Repo
+  alias CMS.Model.Repo
 
   alias Helper.ORM
 
