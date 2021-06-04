@@ -3,6 +3,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Wiki do
 
   alias Helper.ORM
   alias GroupherServer.CMS
+  alias CMS.Model.CommunityWiki
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -34,7 +35,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Wiki do
     variables = wiki_attrs |> Map.merge(%{communityId: community.id})
     created = user_conn |> mutation_result(@sync_wiki_query, variables, "syncWiki")
 
-    {:ok, wiki} = ORM.find(CMS.CommunityWiki, created["id"])
+    {:ok, wiki} = ORM.find(CommunityWiki, created["id"])
 
     assert created["id"] == to_string(wiki.id)
     assert created["readme"] == to_string(wiki.readme)

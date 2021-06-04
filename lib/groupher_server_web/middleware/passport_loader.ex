@@ -12,7 +12,7 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.Model.{ArticleComment}
+  alias CMS.Model.{ArticleComment, Community}
 
   def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
 
@@ -20,7 +20,7 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
         %{context: %{cur_user: _}, arguments: ~m(community_id)a} = resolution,
         source: :community
       ) do
-    case ORM.find(CMS.Community, community_id) do
+    case ORM.find(Community, community_id) do
       {:ok, community} ->
         arguments = resolution.arguments |> Map.merge(%{passport_communities: [community]})
         %{resolution | arguments: arguments}

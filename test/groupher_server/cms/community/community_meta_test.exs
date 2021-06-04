@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.CMS.Community.CommunityMeta do
+defmodule GroupherServer.Test.Community.CommunityMeta do
   @moduledoc false
 
   use GroupherServer.TestTools

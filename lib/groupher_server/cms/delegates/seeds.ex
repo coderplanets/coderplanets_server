@@ -190,7 +190,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   seed community for home
   """
   def seed_communities(:home) do
-    with {:error, _} <- ORM.find_by(CMS.Community, %{raw: "home"}),
+    with {:error, _} <- ORM.find_by(Community, %{raw: "home"}),
          {:ok, bot} <- seed_bot(),
          {:ok, threads} <- seed_threads(:home),
          {:ok, categories} <- seed_categories(bot, :default) do

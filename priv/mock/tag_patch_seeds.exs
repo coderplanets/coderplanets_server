@@ -1,6 +1,8 @@
 alias GroupherServer.CMS
-alias GroupherServer.CMS.Delegate.SeedsConfig
-alias GroupherServer.CMS.Delegate.Seeds
+
+alias CMS.Model.Community
+alias GroupherServer.CMS.Delegate.{Seeds, SeedsConfig}
+
 alias Helper.ORM
 
 patch_communities =
@@ -27,7 +29,7 @@ patch_tags = [
 ]
 
 Enum.each(patch_communities, fn raw ->
-  {:ok, community} = ORM.find_by(CMS.Community, %{raw: raw})
+  {:ok, community} = ORM.find_by(Community, %{raw: raw})
 
   case community.raw not in ["cps-support"] do
     true ->

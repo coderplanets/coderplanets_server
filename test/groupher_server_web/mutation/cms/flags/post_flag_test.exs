@@ -2,6 +2,8 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
+  alias CMS.Model.Community
+
   alias Helper.ORM
 
   setup do
@@ -43,7 +45,7 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
       {:ok, community} = CMS.create_community(community_attrs)
       {:ok, post} = CMS.create_article(community, :post, mock_attrs(:post), user)
 
-      {:ok, community} = ORM.find(CMS.Community, community.id)
+      {:ok, community} = ORM.find(Community, community.id)
       assert community.meta.posts_count == 1
 
       variables = %{id: post.id}
@@ -52,7 +54,7 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
 
       rule_conn |> mutation_result(@query, variables, "markDeletePost")
 
-      {:ok, community} = ORM.find(CMS.Community, community.id)
+      {:ok, community} = ORM.find(Community, community.id)
       assert community.meta.posts_count == 0
     end
 
@@ -94,7 +96,7 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
 
       {:ok, _} = CMS.mark_delete_article(:post, post.id)
 
-      {:ok, community} = ORM.find(CMS.Community, community.id)
+      {:ok, community} = ORM.find(Community, community.id)
       assert community.meta.posts_count == 0
 
       variables = %{id: post.id}
@@ -102,7 +104,7 @@ defmodule GroupherServer.Test.Mutation.Flags.PostFlag do
       rule_conn = simu_conn(:user, cms: passport_rules)
       rule_conn |> mutation_result(@query, variables, "undoMarkDeletePost")
 
-      {:ok, community} = ORM.find(CMS.Community, community.id)
+      {:ok, community} = ORM.find(Community, community.id)
       assert community.meta.posts_count == 1
     end
 

@@ -4,14 +4,14 @@ defmodule GroupherServer.Statistics.CommunityContribute do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias GroupherServer.CMS
+  alias GroupherServer.CMS.Model.Community
 
   @type t :: %CommunityContribute{}
   schema "community_contributes" do
     field(:count, :integer)
     field(:date, :date)
     # field(:community_id, :id)
-    belongs_to(:community, CMS.Community)
+    belongs_to(:community, Community)
 
     timestamps(type: :utc_datetime)
   end
