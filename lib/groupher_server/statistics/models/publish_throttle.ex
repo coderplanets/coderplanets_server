@@ -1,4 +1,4 @@
-defmodule GroupherServer.Statistics.PublishThrottle do
+defmodule GroupherServer.Statistics.Model.PublishThrottle do
   @moduledoc false
   alias __MODULE__
 

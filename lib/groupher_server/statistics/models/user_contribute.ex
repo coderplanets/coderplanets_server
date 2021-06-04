@@ -1,4 +1,4 @@
-defmodule GroupherServer.Statistics.UserContribute do
+defmodule GroupherServer.Statistics.Model.UserContribute do
   @moduledoc false
   alias __MODULE__
 

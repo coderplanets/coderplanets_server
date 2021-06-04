@@ -1,4 +1,4 @@
-defmodule GroupherServer.Statistics.UserGeoInfo do
+defmodule GroupherServer.Statistics.Model.UserGeoInfo do
   @moduledoc false
   alias __MODULE__
 

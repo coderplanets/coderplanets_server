@@ -11,7 +11,7 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
 
   alias Accounts.Model.User
   alias CMS.Model.Community
-  alias Statistics.{CommunityContribute, UserContribute}
+  alias Statistics.Model.{CommunityContribute, UserContribute}
 
   alias CMS.Delegate.CommunityCURD
 

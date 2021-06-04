@@ -7,10 +7,11 @@ defmodule GroupherServer.Test.Statistics do
 
   # alias Helper.{Cache, Later, ORM}
   alias Helper.{Cache, ORM}
-  alias GroupherServer.Accounts.Model.User
-  alias GroupherServer.{CMS, Repo, Statistics}
+  alias GroupherServer.{Accounts, CMS, Repo, Statistics}
+  alias Accounts.Model.User
 
-  alias Statistics.UserContribute
+  alias CMS.Model.Community
+  alias Statistics.Model.{UserContribute, CommunityContribute}
 
   @community_contribute_days get_config(:general, :community_contribute_days)
 
@@ -99,9 +100,6 @@ defmodule GroupherServer.Test.Statistics do
   end
 
   describe "[statistics community_contribute] " do
-    alias CMS.Model.Community
-    alias Statistics.CommunityContribute
-
     test "should inserted a community contribute when create community", ~m(community)a do
       community_id = community.id
       assert {:error, _} = ORM.find_by(CommunityContribute, ~m(community_id)a)
