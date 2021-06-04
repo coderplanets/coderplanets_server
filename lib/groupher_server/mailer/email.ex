@@ -10,7 +10,7 @@ defmodule GroupherServer.Email do
   alias GroupherServer.{Accounts, Billing, Email, Mailer}
 
   alias Accounts.Model.User
-  alias Billing.BillRecord
+  alias Billing.Model.BillRecord
   alias Email.Templates
   alias Mailer
 
