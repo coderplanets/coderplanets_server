@@ -1,6 +1,7 @@
 defmodule GroupherServer.Test.Helper.UtilsTest do
   use GroupherServerWeb.ConnCase, async: true
 
+  alias GroupherServer.CMS.Model.Post
   alias Helper.Utils
 
   describe "map atom value up upcase str" do
@@ -192,6 +193,19 @@ defmodule GroupherServer.Test.Helper.UtilsTest do
 
     test "exsit id will stay the same" do
       assert "exsit_id" == Utils.uid(:html, %{"id" => "exsit_id"})
+    end
+  end
+
+  describe "[others]" do
+    @tag :wip
+    test "module_to_atom should work" do
+      assert :post == Post |> Utils.module_to_atom()
+      assert :post == %Post{} |> Utils.module_to_atom()
+
+      # invalid case
+      assert nil == "whatever" |> Utils.module_to_atom()
+      assert nil == :whatever |> Utils.module_to_atom()
+      assert nil == 8848 |> Utils.module_to_atom()
     end
   end
 end

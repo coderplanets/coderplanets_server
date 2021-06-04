@@ -182,14 +182,23 @@ defmodule Helper.Utils do
 
   def strip_struct(map) when is_map(map), do: map
 
-  @doc "turn GroupherServer.CMS.Model.Post -> :post"
-  def module_to_thread(module) do
-    module
-    |> to_string
-    |> String.split(".")
+  @doc """
+  get atom name of a module
+  """
+  def module_to_atom(%{__struct__: module_struct}) do
+    module_struct
+    |> Module.split()
     |> List.last()
     |> String.downcase()
     |> String.to_atom()
+  end
+
+  def module_to_atom(module_struct) do
+    try do
+      module_struct |> struct |> module_to_atom
+    rescue
+      _ -> nil
+    end
   end
 
   @doc "html uniq id generator for editorjs"

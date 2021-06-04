@@ -12,7 +12,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       pick_by: 2,
       integerfy: 1,
       strip_struct: 1,
-      module_to_thread: 1,
+      module_to_atom: 1,
       get_config: 2,
       ensure: 2
     ]
@@ -333,7 +333,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   end
 
   defp add_pin_articles_ifneed(articles, querable, %{community: community} = filter) do
-    thread = module_to_thread(querable)
+    thread = module_to_atom(querable)
 
     with true <- should_add_pin?(filter),
          true <- 1 == Map.get(articles, :page_number),

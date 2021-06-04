@@ -51,6 +51,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
   object :post do
     meta(:cache, max_age: 30)
+    interface(:article)
     field(:id, :id)
     field(:title, :string)
     field(:digest, :string)
@@ -102,6 +103,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   end
 
   object :job do
+    interface(:article)
     field(:id, :id)
     field(:title, :string)
     field(:desc, :string)
@@ -133,6 +135,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   end
 
   object :repo do
+    interface(:article)
     field(:id, :id)
     field(:title, :string)
     field(:owner_name, :string)

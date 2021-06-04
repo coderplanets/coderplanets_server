@@ -5,7 +5,22 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
   use Absinthe.Schema.Notation
   import GroupherServerWeb.Schema.Helper.Fields
 
+  import Helper.Utils, only: [module_to_atom: 1]
+
   @default_inner_page_size 5
+
+  @doc """
+  only used for reaction result, like: upvote/collect/watch ...
+  """
+  interface :article do
+    # article 所包含的共同字段
+    field(:id, :id)
+    field(:title, :string)
+    field(:views, :integer)
+
+    # 这里只是遵循 absinthe 的规范，并不是指返回以下的字段
+    resolve_type(fn parent_module, _ -> module_to_atom(parent_module) end)
+  end
 
   enum(:post_thread, do: value(:post))
   enum(:job_thread, do: value(:job))
@@ -282,39 +297,4 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
     #   min_case_count,
     #   max_case_count,
   end
-
-  @doc """
-  only used for reaction result, like: upvote/collect/watch ...
-  """
-  interface :article do
-    field(:id, :id)
-    field(:title, :string)
-  end
-
-  # @desc """
-  # The `DateTime` scalar type represents a date and time in the UTC
-  # timezone. The DateTime appears in a JSON response as an ISO8601 formatted
-  # string, including UTC timezone ("Z"). The parsed date and time string will
-  # be converted to UTC and any UTC offset other than 0 will be rejected.
-  # """
-  # scalar :datetime, name: "DateTime" do
-  # serialize &DateTime.to_iso8601/1
-  # parse &parse_datetime/1
-  # end
-
-  # @spec parse_datetime(Absinthe.Blueprint.Input.String.t) :: {:ok, DateTime.t} | :error
-  # @spec parse_datetime(Absinthe.Blueprint.Input.Null.t) :: {:ok, nil}
-  # defp parse_datetime(%Absinthe.Blueprint.Input.String{value: value}) do
-  # case DateTime.from_iso8601(value) do
-  # {:ok, datetime, 0} -> {:ok, datetime}
-  # {:ok, _datetime, _offset} -> :error
-  # _error -> :error
-  # end
-  # end
-  # defp parse_datetime(%Absinthe.Blueprint.Input.Null{}) do
-  # {:ok, nil}
-  # end
-  # defp parse_datetime(_) do
-  # :error
-  # end
 end

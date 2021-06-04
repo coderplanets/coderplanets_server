@@ -167,10 +167,11 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     mutation($id: ID!, $communityId: ID!){
       lockPostComment(id: $id, communityId: $communityId) {
         id
+        title
       }
     }
     """
-
+    @tag :wip
     test "can lock a post's comment", ~m(community post)a do
       variables = %{id: post.id, communityId: community.id}
       passport_rules = %{community.raw => %{"post.lock_comment" => true}}
