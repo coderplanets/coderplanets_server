@@ -5,13 +5,12 @@ defmodule GroupherServer.Test.Delivery.SysNotification do
   import Helper.Utils
 
   alias Helper.ORM
-  alias GroupherServer.Accounts
-  alias GroupherServer.Delivery
+  alias GroupherServer.{Accounts, Delivery}
+
+  alias Accounts.Model.SysNotificationMail
+  alias Delivery.SysNotification
 
   describe "[delivery sys notification]" do
-    alias Accounts.SysNotificationMail
-    alias Delivery.SysNotification
-
     test "user can publish system notification" do
       attrs = mock_attrs(:sys_notification)
 

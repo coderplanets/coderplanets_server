@@ -5,8 +5,8 @@ defmodule GroupherServer.Test.Mutation.Accounts.CollectFolder do
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS}
 
+  alias Accounts.Model.CollectFolder
   alias CMS.Model.ArticleCollect
-  alias Accounts.CollectFolder
 
   setup do
     {:ok, user} = db_insert(:user)

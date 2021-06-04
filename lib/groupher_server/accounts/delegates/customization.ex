@@ -9,8 +9,8 @@ defmodule GroupherServer.Accounts.Delegate.Customization do
   alias GroupherServer.Accounts
   alias Helper.ORM
 
-  alias Accounts.Model.{Customization, Delegate, User}
-  alias Delegate.Achievements
+  alias Accounts.Model.{Customization, User}
+  alias Accounts.Delegate.Achievements
 
   def upgrade_by_plan(%User{} = user, :donate) do
     Achievements.set_member(user, :donate)
