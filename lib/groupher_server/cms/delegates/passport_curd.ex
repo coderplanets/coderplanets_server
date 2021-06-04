@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.Delegate.PassportCURD do
   import ShortMaps
 
   alias Helper.{NestedFilter, ORM}
-  alias GroupherServer.CMS.Passport, as: UserPasport
+  alias GroupherServer.CMS.Model.Passport, as: UserPasport
   alias GroupherServer.{Accounts, Repo}
 
   # https://medium.com/front-end-hacking/use-github-oauth-as-your-sso-seamlessly-with-react-3e2e3b358fa1
