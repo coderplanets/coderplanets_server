@@ -3,6 +3,7 @@ defmodule GroupherServer.Test.Statistics.PublishThrottle do
 
   alias Helper.ORM
   alias GroupherServer.{CMS, Statistics}
+  alias Statistics.Model.PublishThrottle
 
   setup do
     guest_conn = simu_conn(:guest)
@@ -17,7 +18,7 @@ defmodule GroupherServer.Test.Statistics.PublishThrottle do
     post_attrs = mock_attrs(:post, %{community_id: community.id})
     {:ok, _post} = CMS.create_article(community, :post, post_attrs, user)
 
-    {:ok, pt_record} = Statistics.PublishThrottle |> ORM.find_by(user_id: user.id)
+    {:ok, pt_record} = PublishThrottle |> ORM.find_by(user_id: user.id)
 
     assert pt_record.date_count == 1
     assert pt_record.hour_count == 1
@@ -30,7 +31,7 @@ defmodule GroupherServer.Test.Statistics.PublishThrottle do
     {:ok, _post} = CMS.create_article(community, :post, post_attrs, user)
     {:ok, _post} = CMS.create_article(community, :post, post_attrs2, user)
 
-    {:ok, pt_record} = Statistics.PublishThrottle |> ORM.find_by(user_id: user.id)
+    {:ok, pt_record} = PublishThrottle |> ORM.find_by(user_id: user.id)
 
     assert pt_record.date_count == 2
     assert pt_record.hour_count == 2

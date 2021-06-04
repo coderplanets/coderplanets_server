@@ -9,7 +9,7 @@ defmodule GroupherServer.Statistics.Delegate.Throttle do
   alias GroupherServer.{Accounts, Statistics}
 
   alias Accounts.Model.User
-  alias Statistics.PublishThrottle
+  alias Statistics.Model.PublishThrottle
 
   alias Helper.ORM
 
