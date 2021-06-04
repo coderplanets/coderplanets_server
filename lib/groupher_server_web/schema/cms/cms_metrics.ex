@@ -22,45 +22,18 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
     resolve_type(fn parent_module, _ -> module_to_atom(parent_module) end)
   end
 
-  enum(:post_thread, do: value(:post))
-  enum(:job_thread, do: value(:job))
-  enum(:repo_thread, do: value(:repo))
+  article_thread_enums()
 
-  enum(:community_type, do: value(:community))
-  enum(:comment_replies_type, do: value(:comment_replies_type))
-
+  # TODO: remove
   enum(:count_type, do: value(:count))
-  enum(:viewer_did_type, do: value(:viewer_did))
-
-  enum(:star_action, do: value(:star))
-  enum(:comment_action, do: value(:comment))
-
-  enum :unique_type do
-    value(true)
-    value(false)
-  end
-
-  enum :react_action do
-    value(:collect)
-    value(:upvote)
-    # value(:watch)
-  end
-
-  enum :reactable_action do
-    value(:upvote)
-    # value(:collect)
-    # value(:watch)
-  end
-
+  # TODO: remove
   enum :cms_comment do
     value(:post_comment)
   end
 
   enum :thread do
-    value(:post)
-    value(:job)
+    article_values()
     value(:user)
-    value(:repo)
     value(:wiki)
     value(:cheatsheet)
     # home community
@@ -278,9 +251,7 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
   end
 
   enum :report_content_type do
-    value(:post)
-    value(:job)
-    value(:repo)
+    article_values()
     value(:account)
     value(:article_comment)
     # value(:community)
