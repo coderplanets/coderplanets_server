@@ -24,7 +24,7 @@ defmodule GroupherServer.CMS.Model.Embeds.CommunityMeta do
 
   import Ecto.Changeset
   import Helper.Utils, only: [get_config: 2]
-  import GroupherServer.CMS.Embeds.CommunityMeta.Macro
+  import GroupherServer.CMS.Model.Embeds.CommunityMeta.Macro
 
   @article_threads get_config(:article, :threads)
 
