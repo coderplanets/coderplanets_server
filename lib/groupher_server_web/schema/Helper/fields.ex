@@ -1,15 +1,18 @@
 defmodule GroupherServerWeb.Schema.Helper.Fields do
   @moduledoc """
-  common fields
+  general fields used in schema definition
   """
   import Helper.Utils, only: [get_config: 2]
+  import Absinthe.Resolution.Helpers, only: [dataloader: 2]
 
   alias GroupherServer.CMS
+  alias GroupherServerWeb.Middleware, as: M
+  alias GroupherServerWeb.Resolvers, as: R
 
   @page_size get_config(:general, :page_size)
-  @supported_emotions get_config(:article, :emotions)
-  @supported_comment_emotions get_config(:article, :comment_emotions)
 
+  @emotions get_config(:article, :emotions)
+  @comment_emotions get_config(:article, :comment_emotions)
   @article_threads get_config(:article, :threads)
 
   @doc "general article fields for grqphql resolve fields"
@@ -38,24 +41,98 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
     end
   end
 
+  @doc """
+  generate thread enum based on @article_threads
+
+  e.g:
+
+  enum :post_thread, do: value(:post)
+  enum :job_thread, do: value(:job)
+  # ..
+  """
   defmacro article_thread_enums do
     @article_threads
-    |> Enum.map(fn thread ->
-      quote do
-        enum(unquote(:"#{thread}_thread"), do: value(unquote(thread)))
+    |> Enum.map(
+      &quote do
+        enum(unquote(:"#{&1}_thread"), do: value(unquote(&1)))
       end
-    end)
+    )
   end
 
+  @doc """
+  generate thread value based on @article_threads
+
+  e.g:
+
+  value(:post)
+  value(:job)
+  # ...
+  """
   defmacro article_values do
     @article_threads
-    |> Enum.map(fn thread ->
-      quote do
-        value(unquote(thread))
+    |> Enum.map(
+      &quote do
+        value(unquote(&1))
       end
-    end)
+    )
   end
 
+  @doc """
+  general emotion enum for articles
+  #NOTE: xxx_user_logins field is not support for gq-endpoint
+  """
+  defmacro emotion_values() do
+    @emotions
+    |> Enum.map(
+      &quote do
+        value(unquote(:"#{&1}"))
+      end
+    )
+  end
+
+  defmacro emotion_values(:comment) do
+    @emotions
+    |> Enum.map(
+      &quote do
+        value(unquote(:"#{&1}"))
+      end
+    )
+  end
+
+  @doc """
+  general emotions for articles
+
+  e.g:
+  ------
+  beer_count
+  viewer_has_beered
+  latest_bear_users
+  """
+  defmacro emotion_fields() do
+    @emotions
+    |> Enum.map(
+      &quote do
+        field(unquote(:"#{&1}_count"), :integer)
+        field(unquote(:"viewer_has_#{&1}ed"), :boolean)
+        field(unquote(:"latest_#{&1}_users"), list_of(:simple_user))
+      end
+    )
+  end
+
+  defmacro emotion_fields(:comment) do
+    @comment_emotions
+    |> Enum.map(
+      &quote do
+        field(unquote(:"#{&1}_count"), :integer)
+        field(unquote(:"viewer_has_#{&1}ed"), :boolean)
+        field(unquote(:"latest_#{&1}_users"), list_of(:simple_user))
+      end
+    )
+  end
+
+  @doc """
+  general timestamp with active_at for article
+  """
   defmacro timestamp_fields(:article) do
     quote do
       field(:inserted_at, :datetime)
@@ -79,6 +156,9 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
     end
   end
 
+  @doc """
+  general pagination fields except entries
+  """
   defmacro pagination_fields do
     quote do
       field(:total_count, :integer)
@@ -98,6 +178,9 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
     end
   end
 
+  @doc """
+  general social used for user profile
+  """
   defmacro social_fields do
     quote do
       field(:qq, :string)
@@ -115,19 +198,13 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
     end
   end
 
-  import Absinthe.Resolution.Helpers, only: [dataloader: 2]
-
-  alias GroupherServer.CMS
-  alias GroupherServerWeb.Middleware, as: M
-  alias GroupherServerWeb.Resolvers, as: R
-
   defmacro threads_count_fields() do
     @article_threads
-    |> Enum.map(fn thread ->
-      quote do
-        field(unquote(:"#{thread}s_count"), :integer)
+    |> Enum.map(
+      &quote do
+        field(unquote(:"#{&1}s_count"), :integer)
       end
-    end)
+    )
   end
 
   # TODO: remove
@@ -214,62 +291,6 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
         resolve(&R.CMS.paged_comments_participators/3)
       end
     end
-  end
-
-  @doc """
-  general emotion enum for articles
-  #NOTE: xxx_user_logins field is not support for gq-endpoint
-  """
-  defmacro emotion_enum() do
-    @supported_emotions
-    |> Enum.map(fn emotion ->
-      quote do
-        value(unquote(:"#{emotion}"))
-      end
-    end)
-  end
-
-  @doc """
-  general emotion enum for comments
-  #NOTE: xxx_user_logins field is not support for gq-endpoint
-  """
-  defmacro comment_emotion_enum() do
-    @supported_comment_emotions
-    |> Enum.map(fn emotion ->
-      quote do
-        value(unquote(:"#{emotion}"))
-      end
-    end)
-  end
-
-  @doc """
-  general emotions for articles
-  #NOTE: xxx_user_logins field is not support for gq-endpoint
-  """
-  defmacro emotion_fields() do
-    @supported_emotions
-    |> Enum.map(fn emotion ->
-      quote do
-        field(unquote(:"#{emotion}_count"), :integer)
-        field(unquote(:"viewer_has_#{emotion}ed"), :boolean)
-        field(unquote(:"latest_#{emotion}_users"), list_of(:simple_user))
-      end
-    end)
-  end
-
-  @doc """
-  general emotions for comments
-  #NOTE: xxx_user_logins field is not support for gq-endpoint
-  """
-  defmacro comment_emotion_fields() do
-    @supported_comment_emotions
-    |> Enum.map(fn emotion ->
-      quote do
-        field(unquote(:"#{emotion}_count"), :integer)
-        field(unquote(:"viewer_has_#{emotion}ed"), :boolean)
-        field(unquote(:"latest_#{emotion}_users"), list_of(:simple_user))
-      end
-    end)
   end
 
   @doc """

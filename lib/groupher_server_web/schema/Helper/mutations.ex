@@ -1,10 +1,31 @@
 defmodule GroupherServerWeb.Schema.Helper.Mutations do
   @moduledoc """
-  common fields
+  general mutations used for articles
+
+  e.g:
+  in schema/cms/mutation/post.ex
+
+  add following:
+  article_upvote_mutation(:post)
+
+  post will have two mutation endpoint:
+
+  upvote_post
+  unto_emotion_post
+
+  same for the job/repo .. article thread
   """
   alias GroupherServerWeb.Middleware, as: M
   alias GroupherServerWeb.Resolvers, as: R
 
+  @doc """
+  upvote mutation for article
+
+  include:
+  -----
+  upvote_[thread]
+  unto_emotion_[thread]
+  """
   defmacro article_upvote_mutation(thread) do
     quote do
       @desc unquote("upvote to #{thread}")
@@ -27,6 +48,14 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
     end
   end
 
+  @doc """
+  pin mutation for article
+
+  include:
+  -----
+  pin_[thread]
+  unto_pin_[thread]
+  """
   defmacro article_pin_mutation(thread) do
     quote do
       @desc unquote("pin to #{thread}")
@@ -55,6 +84,14 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
     end
   end
 
+  @doc """
+  mark delete mutation for article
+
+  include:
+  -----
+  mark_delete_[thread]
+  unto_mark_delete_[thread]
+  """
   defmacro article_mark_delete_mutation(thread) do
     quote do
       @desc unquote("mark delete a #{thread} type article, aka soft-delete")
@@ -81,6 +118,14 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
     end
   end
 
+  @doc """
+  delete mutation for article
+
+  include:
+  -----
+  delete_[thread]
+  mark_delete_[thread]
+  """
   # TODO: if post belongs to multi communities, unset instead delete
   defmacro article_delete_mutation(thread) do
     quote do
@@ -97,6 +142,14 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
     end
   end
 
+  @doc """
+  emotion mutation for article
+
+  include:
+  -----
+  emotion_to_[thread]
+  unto_emotion_to_[thread]
+  """
   defmacro article_emotion_mutation(thread) do
     quote do
       @desc unquote("emotion to #{thread}")
@@ -121,6 +174,14 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
     end
   end
 
+  @doc """
+  report mutation for article
+
+  include:
+  -----
+  report_[thread]
+  undo_report_[thread]
+  """
   defmacro article_report_mutation(thread) do
     quote do
       @desc unquote("report a #{thread}")
@@ -145,6 +206,14 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
     end
   end
 
+  @doc """
+  sink mutation for article
+
+  include:
+  -----
+  sink_[thread]
+  undo_sink_[thread]
+  """
   defmacro article_sink_mutation(thread) do
     quote do
       @desc unquote("sink a #{thread}")
@@ -173,9 +242,17 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
     end
   end
 
+  @doc """
+  lock comment of a article
+
+  include:
+  -----
+  lock_[thread]_comment
+  undo_lock_[thread]_comment
+  """
   defmacro article_lock_comment_mutation(thread) do
     quote do
-      @desc unquote("lock comment to a #{thread}")
+      @desc unquote("lock comment of a #{thread}")
       field unquote(:"lock_#{thread}_comment"), :article do
         arg(:id, non_null(:id))
         arg(:community_id, non_null(:id))
