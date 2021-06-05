@@ -4,6 +4,7 @@ defmodule GroupherServerWeb.Schema do
   """
   use Absinthe.Schema
   # use ApolloTracing
+  import GroupherServerWeb.Schema.Helper.Imports
 
   alias GroupherServerWeb.Middleware, as: M
   alias GroupherServerWeb.Schema.{Account, Billing, CMS, Delivery, Statistics, Helper}
@@ -38,10 +39,10 @@ defmodule GroupherServerWeb.Schema do
   import_types(CMS.Queries)
   import_types(CMS.Mutations.Community)
   import_types(CMS.Mutations.Operation)
-  import_types(CMS.Mutations.Post)
-  import_types(CMS.Mutations.Job)
-  import_types(CMS.Mutations.Repo)
+
   import_types(CMS.Mutations.Comment)
+
+  import_article_fields(:mutations, :module)
 
   query do
     import_fields(:account_queries)
@@ -63,9 +64,8 @@ defmodule GroupherServerWeb.Schema do
     # cms
     import_fields(:cms_mutation_community)
     import_fields(:cms_opertion_mutations)
-    import_fields(:cms_post_mutations)
-    import_fields(:cms_job_mutations)
-    import_fields(:cms_repo_mutations)
+
+    import_article_fields(:mutations)
 
     import_fields(:cms_comment_mutations)
   end

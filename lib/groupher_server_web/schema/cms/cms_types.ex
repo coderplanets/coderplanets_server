@@ -4,6 +4,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   """
   use Helper.GqlSchemaSuite
 
+  import Helper.Utils, only: [get_config: 2]
   import GroupherServerWeb.Schema.Helper.Fields
   import Ecto.Query, warn: false
   import Absinthe.Resolution.Helpers, only: [dataloader: 2, on_load: 2]
@@ -252,7 +253,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   end
 
   object :article_comment_emotions do
-    comment_emotion_fields()
+    emotion_fields(:comment)
   end
 
   object :article_emotions do

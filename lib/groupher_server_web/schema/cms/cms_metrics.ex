@@ -5,7 +5,7 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
   use Absinthe.Schema.Notation
   import GroupherServerWeb.Schema.Helper.Fields
 
-  import Helper.Utils, only: [module_to_atom: 1]
+  import Helper.Utils, only: [module_to_atom: 1, get_config: 2]
 
   @default_inner_page_size 5
 
@@ -23,6 +23,12 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
   end
 
   article_thread_enums()
+
+  @desc "emotion options of article"
+  enum(:article_emotion, do: emotion_values())
+
+  @desc "emotion options of comment"
+  enum(:article_comment_emotion, do: emotion_values(:comment))
 
   # TODO: remove
   enum(:count_type, do: value(:count))
@@ -106,12 +112,6 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
     value(:brown)
     value(:grey)
   end
-
-  @desc "emotion options of article"
-  enum(:article_emotion, do: emotion_enum())
-
-  @desc "emotion options of comment"
-  enum(:article_comment_emotion, do: comment_emotion_enum())
 
   @desc "the filter mode for list comments"
   enum :article_comments_mode do
