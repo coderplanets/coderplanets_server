@@ -81,17 +81,14 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
   general emotion enum for articles
   #NOTE: xxx_user_logins field is not support for gq-endpoint
   """
-  defmacro emotion_values() do
-    @emotions
-    |> Enum.map(
-      &quote do
-        value(unquote(:"#{&1}"))
+  defmacro emotion_values(metric \\ :article) do
+    emotions =
+      case metric do
+        :comment -> @comment_emotions
+        _ -> @emotions
       end
-    )
-  end
 
-  defmacro emotion_values(:comment) do
-    @emotions
+    emotions
     |> Enum.map(
       &quote do
         value(unquote(:"#{&1}"))
