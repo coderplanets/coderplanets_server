@@ -208,30 +208,6 @@ defmodule GroupherServer.CMS.Helper.Macros do
   end
 
   @doc """
-  for GroupherServer.CMS.Model.Community
-
-  # TABLE: "communities_[article]s"
-    add(:community_id, references(:communities, on_delete: :delete_all), null: false)
-    add(:[article]_id, references(:cms_[article]s, on_delete: :delete_all), null: false)
-
-  create(unique_index(:communities_[article]s, [:community_id, :[article]_id]))
-  """
-
-  # defmacro community_article_fields() do
-  #   @article_threads
-  #   |> Enum.map(fn thread ->
-  #     quote do
-  #       many_to_many(
-  #         unquote(:"#{thread}s"),
-  #         Module.concat(CMS.Model, Recase.to_pascal(to_string(unquote(thread)))),
-  #         join_through: unquote("communities_#{to_string(thread)}s"),
-  #         join_keys: [community_id: :id] ++ Keyword.new([{unquote(:"#{thread}_id"), :id}])
-  #       )
-  #     end
-  #   end)
-  # end
-
-  @doc """
   for GroupherServer.CMS.[Article]
 
   # TABLE: "communities_join_[article]s"
