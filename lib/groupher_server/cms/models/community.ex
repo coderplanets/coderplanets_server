@@ -70,7 +70,7 @@ defmodule GroupherServer.CMS.Model.Community do
       # on_replace: :delete
     )
 
-    community_article_fields()
+    # community_article_fields()
     #
     # posts_block_list ...
     timestamps(type: :utc_datetime)

@@ -19,7 +19,6 @@ defmodule GroupherServer.CMS.Model.Job do
 
   @type t :: %Job{}
   schema "cms_jobs" do
-    field(:title, :string)
     field(:company, :string)
     field(:company_link, :string)
     field(:desc, :string)

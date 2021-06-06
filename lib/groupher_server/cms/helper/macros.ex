@@ -5,7 +5,6 @@ defmodule GroupherServer.CMS.Helper.Macros do
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.{CMS, Accounts}
-
   alias Accounts.Model.User
 
   alias CMS.Model.{
@@ -32,7 +31,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
 
   add(:post_id, references(:cms_posts, on_delete: :delete_all))
   add(:job_id, references(:cms_jobs, on_delete: :delete_all))
-  add(:repo_id, references(:cms_jobs, on_delete: :delete_all))
+  add(:repo_id, references(:cms_repos, on_delete: :delete_all))
   ...
   """
   defmacro article_belongs_to_fields() do
@@ -41,7 +40,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
       quote do
         belongs_to(
           unquote(thread),
-          Module.concat(CMS.Model, unquote(thread) |> to_string |> Recase.to_pascal()),
+          Module.concat(CMS.Model, Recase.to_pascal(to_string(unquote(thread)))),
           foreign_key: unquote(:"#{thread}_id")
         )
       end
@@ -184,6 +183,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
   """
   defmacro general_article_fields do
     quote do
+      field(:title, :string)
       belongs_to(:author, Author)
 
       field(:views, :integer, default: 0)
@@ -216,19 +216,20 @@ defmodule GroupherServer.CMS.Helper.Macros do
 
   create(unique_index(:communities_[article]s, [:community_id, :[article]_id]))
   """
-  defmacro community_article_fields() do
-    @article_threads
-    |> Enum.map(fn thread ->
-      quote do
-        many_to_many(
-          unquote(:"#{thread}s"),
-          Module.concat(CMS.Model, unquote(thread) |> to_string |> Recase.to_pascal()),
-          join_through: unquote("communities_#{to_string(thread)}s"),
-          join_keys: [community_id: :id] ++ Keyword.new([{unquote(:"#{thread}_id"), :id}])
-        )
-      end
-    end)
-  end
+
+  # defmacro community_article_fields() do
+  #   @article_threads
+  #   |> Enum.map(fn thread ->
+  #     quote do
+  #       many_to_many(
+  #         unquote(:"#{thread}s"),
+  #         Module.concat(CMS.Model, Recase.to_pascal(to_string(unquote(thread)))),
+  #         join_through: unquote("communities_#{to_string(thread)}s"),
+  #         join_keys: [community_id: :id] ++ Keyword.new([{unquote(:"#{thread}_id"), :id}])
+  #       )
+  #     end
+  #   end)
+  # end
 
   @doc """
   for GroupherServer.CMS.[Article]
@@ -237,7 +238,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
   add(:community_id, references(:communities, on_delete: :delete_all), null: false)
   add(:[article]_id, references(:cms_[article]s, on_delete: :delete_all), null: false)
 
-  create(unique_index(:communities_job_[article]s, [:community_id, :[article]_id]))
+  create(unique_index(:communities_join_[article]s, [:community_id, :[article]_id]))
   """
   defmacro article_communities_field(thread) do
     quote do

@@ -20,7 +20,6 @@ defmodule GroupherServer.CMS.Model.Repo do
 
   @type t :: %Repo{}
   schema "cms_repos" do
-    field(:title, :string)
     field(:owner_name, :string)
     field(:owner_url, :string)
     field(:repo_url, :string)
