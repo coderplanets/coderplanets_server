@@ -47,7 +47,7 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
       resolution
       |> assign_owner_info(:article, article)
       |> assign_source(article)
-      |> assign_article_communities_info(article, args)
+      |> assign_article_communities_info(article)
     else
       {:error, err_msg} -> handle_absinthe_error(resolution, err_msg, ecode(:passport))
     end
@@ -70,7 +70,7 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
   end
 
   # 取得 article 里面的 conmunities 字段
-  defp assign_article_communities_info(resolution, article, args) do
+  defp assign_article_communities_info(resolution, article) do
     arguments = resolution.arguments |> Map.merge(%{passport_communities: article.communities})
     %{resolution | arguments: arguments}
   end
