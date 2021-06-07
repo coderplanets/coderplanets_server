@@ -415,6 +415,8 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
           acc ++ [comment]
         end)
 
+      Process.sleep(1000)
+
       {:ok, paged_comments} =
         CMS.paged_article_comments(
           :job,
