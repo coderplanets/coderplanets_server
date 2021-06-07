@@ -23,7 +23,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       $title: String!,
       $body: String,
       $digest: String!,
-      $length: Int!,
+      $length: Int,
       $communityId: ID!,
       $articleTags: [Ids]
      ) {

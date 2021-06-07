@@ -11,11 +11,9 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Blog do
       arg(:title, non_null(:string))
       arg(:body, non_null(:string))
       arg(:digest, non_null(:string))
-      arg(:length, non_null(:integer))
+      arg(:length, :integer)
       arg(:community_id, non_null(:id))
-
       arg(:link_addr, :string)
-
       arg(:thread, :thread, default_value: :blog)
       arg(:article_tags, list_of(:ids))
 
