@@ -43,7 +43,7 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
   # Loader 应该使用 Map 作为参数，以方便模式匹配
   def call(%{context: %{cur_user: _}, arguments: %{id: id}} = resolution, source: thread) do
     with {:ok, info} <- match(thread),
-         {:ok, article} <- ORM.find(info.model, id, preload: :author) do
+         {:ok, article} <- ORM.find(info.model, id, preload: [:author, :communities]) do
       resolution
       |> assign_owner_info(:article, article)
       |> assign_source(article)
