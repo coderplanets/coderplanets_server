@@ -10,6 +10,7 @@ defmodule GroupherServer.CMS.Helper.MatcherOld do
     Post,
     Repo,
     Job,
+    Blog,
     # viewer
     # reactions
     # comments
@@ -43,6 +44,12 @@ defmodule GroupherServer.CMS.Helper.MatcherOld do
 
   def match_action(:job, :community),
     do: {:ok, %{target: Job, reactor: Community}}
+
+  def match_action(:blog, :self),
+    do: {:ok, %{target: Blog, reactor: Blog, preload: :author}}
+
+  def match_action(:blog, :community),
+    do: {:ok, %{target: Blog, reactor: Community}}
 
   #########################################
   ## repos ...

@@ -24,7 +24,6 @@ defmodule GroupherServer.Support.Factory do
   }
 
   alias Delivery.Model.{Mention, SysNotification}
-  alias CMS.Model.Repo
 
   @default_article_meta CMS.Model.Embeds.ArticleMeta.default_meta()
   @default_emotions CMS.Model.Embeds.ArticleCommentEmotion.default_emotions()
@@ -151,6 +150,7 @@ defmodule GroupherServer.Support.Factory do
     %{
       meta: @default_article_meta,
       title: String.slice(body, 1, 49),
+      body: String.slice(body, 1, 49),
       digest: String.slice(body, 1, 150),
       length: String.length(body),
       author: mock(:author),

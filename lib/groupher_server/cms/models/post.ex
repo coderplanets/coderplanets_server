@@ -22,8 +22,6 @@ defmodule GroupherServer.CMS.Model.Post do
 
   @type t :: %Post{}
   schema "cms_posts" do
-    field(:body, :string)
-    field(:digest, :string)
     field(:link_addr, :string)
     field(:copy_right, :string)
     field(:length, :integer)

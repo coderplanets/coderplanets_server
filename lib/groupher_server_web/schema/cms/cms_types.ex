@@ -4,8 +4,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   """
   use Helper.GqlSchemaSuite
 
-  import Helper.Utils, only: [get_config: 2]
-
   import GroupherServerWeb.Schema.Helper.Fields
   import GroupherServerWeb.Schema.Helper.Objects
 
@@ -60,7 +58,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     general_article_fields()
     article_comments_fields()
 
-    field(:digest, :string)
     field(:length, :integer)
     field(:link_addr, :string)
     field(:copy_right, :string)
@@ -101,7 +98,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:desc, :string)
     field(:company, :string)
     field(:company_link, :string)
-    field(:digest, :string)
     field(:length, :integer)
     field(:link_addr, :string)
     field(:copy_right, :string)
@@ -116,7 +112,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     general_article_fields()
     article_comments_fields()
 
-    field(:digest, :string)
     field(:length, :integer)
     field(:link_addr, :string)
     # field(:body, :string)

@@ -20,6 +20,8 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
     quote do
       field(:id, :id)
       field(:title, :string)
+      field(:body, :string)
+      field(:digest, :string)
       field(:views, :integer)
       field(:is_pinned, :boolean)
       field(:mark_delete, :boolean)

@@ -26,7 +26,6 @@ defmodule GroupherServer.CMS.Model.Job do
 
     field(:link_addr, :string)
     field(:copy_right, :string)
-    field(:digest, :string)
     field(:length, :integer)
 
     article_tags_field(:job)

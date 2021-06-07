@@ -13,14 +13,13 @@ defmodule GroupherServer.CMS.Model.Blog do
 
   @timestamps_opts [type: :utc_datetime_usec]
 
-  @required_fields ~w(title digest length)a
+  @required_fields ~w(title digest)a
   @article_cast_fields general_article_fields(:cast)
   @optional_fields ~w(link_addr digest length)a ++ @article_cast_fields
 
   @type t :: %Blog{}
   schema "cms_blogs" do
     field(:link_addr, :string)
-    field(:digest, :string)
     field(:length, :integer)
 
     article_tags_field(:blog)

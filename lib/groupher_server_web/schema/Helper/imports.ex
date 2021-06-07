@@ -4,10 +4,10 @@ defmodule GroupherServerWeb.Schema.Helper.Imports do
   """
 
   import Helper.Utils, only: [get_config: 2]
+
+  alias GroupherServerWeb.Schema.CMS
+
   @article_threads get_config(:article, :threads)
-
-  alias GroupherServerWeb.Schema.{CMS}
-
   @doc """
   import article fields based on @article_threads
   e.g:

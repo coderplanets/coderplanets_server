@@ -9,6 +9,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Blog do
     @desc "create a blog"
     field :create_blog, :blog do
       arg(:title, non_null(:string))
+      arg(:body, non_null(:string))
       arg(:digest, non_null(:string))
       arg(:length, non_null(:integer))
       arg(:community_id, non_null(:id))
@@ -31,8 +32,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Blog do
       arg(:body, :string)
       arg(:digest, :string)
       arg(:length, :integer)
-      arg(:copy_right, :string)
-      arg(:desc, :string)
       arg(:link_addr, :string)
 
       arg(:company, :string)
