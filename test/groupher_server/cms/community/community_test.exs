@@ -59,7 +59,6 @@ defmodule GroupherServer.Test.CMS.Community do
   end
 
   describe "[cms community article_tag]" do
-    @tag :wip
     test "articleTagsCount should work", ~m(community article_tag_attrs user)a do
       {:ok, tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
       {:ok, tag2} = CMS.create_article_tag(community, :job, article_tag_attrs, user)

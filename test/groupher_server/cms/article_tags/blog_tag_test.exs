@@ -109,6 +109,7 @@ defmodule GroupherServer.Test.CMS.ArticleTag.BlogTag do
   end
 
   describe "[blog tag set /unset]" do
+    @tag :wip
     test "can set a tag ", ~m(community blog article_tag_attrs article_tag_attrs2 user)a do
       {:ok, article_tag} = CMS.create_article_tag(community, :blog, article_tag_attrs, user)
       {:ok, article_tag2} = CMS.create_article_tag(community, :blog, article_tag_attrs2, user)

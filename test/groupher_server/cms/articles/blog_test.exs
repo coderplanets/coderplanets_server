@@ -18,7 +18,6 @@ defmodule GroupherServer.Test.Articles.Blog do
   end
 
   describe "[cms blogs curd]" do
-    @tag :wip
     test "can create a blog with valid attrs", ~m(user community blog_attrs)a do
       {:ok, blog} = CMS.create_article(community, :blog, blog_attrs, user)
 

@@ -3,7 +3,7 @@ defmodule GroupherServer.Repo.Migrations.AddBlogToArticleTags do
 
   def change do
     alter table(:articles_join_tags) do
-      add(:blog_id, references(:cms_jobs, on_delete: :delete_all))
+      add(:blog_id, references(:cms_blogs, on_delete: :delete_all))
     end
   end
 end
