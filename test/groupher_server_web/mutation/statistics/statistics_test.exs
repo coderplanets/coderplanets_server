@@ -122,6 +122,7 @@ defmodule GroupherServer.Test.Mutation.Statistics do
     }
     """
     test "user should have contribute list after create a blog", ~m(user_conn user community)a do
+      blog_attr = mock_attrs(:blog)
       variables = blog_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
 
       user_conn |> mutation_result(@create_blog_query, variables, "createBlog")
