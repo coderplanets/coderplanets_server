@@ -11,7 +11,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
   alias GroupherServer.{Accounts, CMS, Delivery, Repo}
 
   alias Accounts.Model.User
-  alias CMS.Model.{PostComment, PostCommentReply}
+  alias CMS.Model.{Post, PostComment, PostCommentReply}
 
   alias Helper.{ORM, QueryBuilder}
   alias Ecto.Multi

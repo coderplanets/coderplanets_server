@@ -2,7 +2,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
   use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias GroupherServer.{CMS, Delivery}
+  alias GroupherServer.CMS
 
   alias CMS.Model.Blog
 
