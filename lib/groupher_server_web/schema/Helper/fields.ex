@@ -6,8 +6,6 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
   import Absinthe.Resolution.Helpers, only: [dataloader: 2]
 
   alias GroupherServer.CMS
-  alias GroupherServerWeb.Middleware, as: M
-  alias GroupherServerWeb.Resolvers, as: R
 
   @page_size get_config(:general, :page_size)
 

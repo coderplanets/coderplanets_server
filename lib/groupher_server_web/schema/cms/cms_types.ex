@@ -8,7 +8,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   import GroupherServerWeb.Schema.Helper.Objects
 
   import Ecto.Query, warn: false
-  import Absinthe.Resolution.Helpers, only: [dataloader: 2, on_load: 2]
+  import Absinthe.Resolution.Helpers, only: [dataloader: 2]
 
   alias GroupherServer.CMS
   alias GroupherServerWeb.Schema
