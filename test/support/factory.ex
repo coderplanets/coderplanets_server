@@ -251,7 +251,6 @@ defmodule GroupherServer.Support.Factory do
     unique_num = System.unique_integer([:positive, :monotonic])
 
     %{
-      # username: "#{Faker.Name.first_name()} #{unique_num}",
       login: "#{Faker.Person.first_name()}#{unique_num}" |> String.downcase(),
       nickname: "#{Faker.Person.first_name()}#{unique_num}",
       bio: Faker.Lorem.Shakespeare.romeo_and_juliet(),
@@ -323,9 +322,6 @@ defmodule GroupherServer.Support.Factory do
   def mock_attrs(thread, attrs), do: mock_meta(thread) |> Map.merge(attrs)
 
   # NOTICE: avoid Recursive problem
-  # bad example:
-  # mismatch                                       mismatch
-  # |                                               |
   # this line of code will cause SERIOUS Recursive problem
   defp mock(:wiki), do: CommunityWiki |> struct(mock_meta(:wiki))
   defp mock(:cheatsheet), do: CommunityCheatsheet |> struct(mock_meta(:cheatsheet))
@@ -347,7 +343,7 @@ defmodule GroupherServer.Support.Factory do
 
   defp mock(thread) do
     with {:ok, info} <- match(thread) do
-      info.model |> struct(mock_meta(:thread))
+      info.model |> struct(mock_meta(thread))
     end
   end
 
