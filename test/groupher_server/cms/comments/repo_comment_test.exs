@@ -407,7 +407,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
     test "paged article comments folded flag should be false", ~m(user repo)a do
       total_count = 30
       page_number = 1
-      page_size = 10
+      page_size = 35
 
       all_comments =
         Enum.reduce(1..total_count, [], fn _, acc ->
@@ -415,8 +415,6 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
 
           acc ++ [comment]
         end)
-
-      Process.sleep(1000)
 
       {:ok, paged_comments} =
         CMS.paged_article_comments(
