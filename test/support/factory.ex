@@ -20,6 +20,7 @@ defmodule GroupherServer.Support.Factory do
     ArticleTag,
     Post,
     Job,
+    Blog,
     CommunityWiki,
     CommunityCheatsheet,
     Comment
@@ -135,6 +136,25 @@ defmodule GroupherServer.Support.Factory do
       company: Faker.Company.name(),
       body: body,
       desc: "活少, 美女多",
+      digest: String.slice(body, 1, 150),
+      length: String.length(body),
+      author: mock(:author),
+      views: Enum.random(0..2000),
+      original_community: mock(:community),
+      communities: [
+        mock(:community)
+      ],
+      emotions: @default_emotions,
+      active_at: Timex.shift(Timex.now(), seconds: +1)
+    }
+  end
+
+  defp mock_meta(:blog) do
+    body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
+
+    %{
+      meta: @default_article_meta,
+      title: String.slice(body, 1, 49),
       digest: String.slice(body, 1, 150),
       length: String.length(body),
       author: mock(:author),
@@ -287,6 +307,7 @@ defmodule GroupherServer.Support.Factory do
   def mock_attrs(:post, attrs), do: mock_meta(:post) |> Map.merge(attrs)
   def mock_attrs(:repo, attrs), do: mock_meta(:repo) |> Map.merge(attrs)
   def mock_attrs(:job, attrs), do: mock_meta(:job) |> Map.merge(attrs)
+  def mock_attrs(:blog, attrs), do: mock_meta(:blog) |> Map.merge(attrs)
   def mock_attrs(:community, attrs), do: mock_meta(:community) |> Map.merge(attrs)
   def mock_attrs(:thread, attrs), do: mock_meta(:thread) |> Map.merge(attrs)
   def mock_attrs(:mention, attrs), do: mock_meta(:mention) |> Map.merge(attrs)
@@ -316,6 +337,7 @@ defmodule GroupherServer.Support.Factory do
   defp mock(:post), do: Post |> struct(mock_meta(:post))
   defp mock(:repo), do: CMSRepo |> struct(mock_meta(:repo))
   defp mock(:job), do: Job |> struct(mock_meta(:job))
+  defp mock(:blog), do: Blog |> struct(mock_meta(:blog))
   defp mock(:wiki), do: CommunityWiki |> struct(mock_meta(:wiki))
   defp mock(:cheatsheet), do: CommunityCheatsheet |> struct(mock_meta(:cheatsheet))
   defp mock(:comment), do: Comment |> struct(mock_meta(:comment))

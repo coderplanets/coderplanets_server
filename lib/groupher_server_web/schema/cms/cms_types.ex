@@ -107,6 +107,20 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     timestamp_fields(:article)
   end
 
+  object :blog do
+    interface(:article)
+
+    general_article_fields()
+    article_comments_fields()
+
+    field(:digest, :string)
+    field(:length, :integer)
+    field(:link_addr, :string)
+    # field(:body, :string)
+
+    timestamp_fields(:article)
+  end
+
   object :repo do
     interface(:article)
 
@@ -368,6 +382,11 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
   object :paged_jobs do
     field(:entries, list_of(:job))
+    pagination_fields()
+  end
+
+  object :paged_blogs do
+    field(:entries, list_of(:blog))
     pagination_fields()
   end
 
