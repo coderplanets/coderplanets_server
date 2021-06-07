@@ -26,7 +26,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
         %{community: community, body: body} = args,
         %User{id: user_id}
       ) do
-    with {:ok, action} <- match_action(thread, :comment),
+    with {:ok, action} <- match_action(:post, :comment),
          {:ok, content} <- ORM.find(action.target, content_id),
          {:ok, user} <- ORM.find(User, user_id) do
       Multi.new()
@@ -48,7 +48,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
         %{community: community, body: body} = args,
         %User{id: user_id} = user
       ) do
-    with {:ok, action} <- match_action(thread, :comment),
+    with {:ok, action} <- match_action(:post, :comment),
          {:ok, comment} <- ORM.find(action.reactor, comment_id) do
       next_floor = get_next_floor(thread, action.reactor, comment)
 
@@ -70,7 +70,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
   Creates a comment for psot, job ...
   """
   def update_comment(thread, id, %{body: body}, %User{id: user_id}) do
-    with {:ok, action} <- match_action(thread, :comment),
+    with {:ok, action} <- match_action(:post, :comment),
          {:ok, content} <- ORM.find(action.reactor, id),
          true <- content.author_id == user_id do
       ORM.update(content, %{body: body})
@@ -81,7 +81,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
   Delete the comment and increase all the floor after this comment
   """
   def delete_comment(thread, content_id) do
-    with {:ok, action} <- match_action(thread, :comment),
+    with {:ok, action} <- match_action(:post, :comment),
          {:ok, comment} <- ORM.find(action.reactor, content_id) do
       Multi.new()
       |> Multi.run(:delete_comment, fn _, _ ->
@@ -99,7 +99,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
   list paged comments
   """
   def paged_comments(thread, content_id, %{page: page, size: size} = filters) do
-    with {:ok, action} <- match_action(thread, :comment) do
+    with {:ok, action} <- match_action(:post, :comment) do
       dynamic = dynamic_comment_where(thread, content_id)
 
       action.reactor
@@ -114,7 +114,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
   list paged comments participators
   """
   def paged_comments_participators(thread, content_id, %{page: page, size: size} = filters) do
-    with {:ok, action} <- match_action(thread, :comment) do
+    with {:ok, action} <- match_action(:post, :comment) do
       dynamic = dynamic_comment_where(thread, content_id)
 
       action.reactor
@@ -133,7 +133,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
   end
 
   def paged_replies(thread, comment_id, %User{id: user_id}) do
-    with {:ok, action} <- match_action(thread, :comment) do
+    with {:ok, action} <- match_action(:post, :comment) do
       action.reactor
       |> where([c], c.author_id == ^user_id)
       |> join(:inner, [c], r in assoc(c, :reply_to))

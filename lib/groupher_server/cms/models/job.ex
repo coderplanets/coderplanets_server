@@ -22,7 +22,6 @@ defmodule GroupherServer.CMS.Model.Job do
     field(:company, :string)
     field(:company_link, :string)
     field(:desc, :string)
-    field(:body, :string)
 
     field(:link_addr, :string)
     field(:copy_right, :string)
