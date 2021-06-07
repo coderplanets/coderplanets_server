@@ -8,7 +8,6 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
   import ShortMaps
 
   import GroupherServer.CMS.Helper.Matcher
-  import GroupherServer.CMS.Helper.MatcherOld
 
   alias GroupherServer.Accounts.Model.{Embeds, User}
   alias GroupherServer.CMS.Model.ArticleComment
@@ -86,22 +85,6 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
       |> QueryBuilder.filter_pack(filter)
       |> ORM.paginater(~m(page size)a)
       |> ORM.extract_and_assign_article()
-      |> done()
-    end
-  end
-
-  @doc """
-  get paged published comments of a user
-  """
-  def published_comments(%User{id: user_id}, thread, %{page: page, size: size} = filter) do
-    with {:ok, user} <- ORM.find(User, user_id),
-         {:ok, content} <- match_action(thread, :comment) do
-      content.reactor
-      |> join(:inner, [comment], author in assoc(comment, :author))
-      |> where([comment, author], author.id == ^user.id)
-      |> select([comment, author], comment)
-      |> QueryBuilder.filter_pack(filter)
-      |> ORM.paginater(~m(page size)a)
       |> done()
     end
   end

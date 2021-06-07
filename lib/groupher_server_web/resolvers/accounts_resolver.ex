@@ -207,15 +207,6 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     end
   end
 
-  # published comments
-  def published_comments(_root, ~m(user_id filter thread)a, _info) do
-    Accounts.published_comments(%User{id: user_id}, thread, filter)
-  end
-
-  def published_comments(_root, ~m(filter thread)a, %{context: %{cur_user: cur_user}}) do
-    Accounts.published_comments(cur_user, thread, filter)
-  end
-
   # paged communities which the user it's the editor
   def editable_communities(_root, ~m(login filter)a, _info) do
     with {:ok, user_id} <- Accounts.get_userid_and_cache(login) do
