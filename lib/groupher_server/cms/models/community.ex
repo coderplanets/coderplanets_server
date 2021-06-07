@@ -4,10 +4,8 @@ defmodule GroupherServer.CMS.Model.Community do
 
   use Ecto.Schema
   import Ecto.Changeset
-  import GroupherServer.CMS.Helper.Macros
 
   alias GroupherServer.{Accounts, CMS}
-
   alias Accounts.Model.User
 
   alias CMS.Model.{
