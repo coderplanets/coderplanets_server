@@ -46,8 +46,10 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
   # def call(%{context: %{cur_user: cur_user}, arguments: %{id: id}} = resolution, [source: .., base: ..]) do
   # Loader 应该使用 Map 作为参数，以方便模式匹配
   def call(%{context: %{cur_user: _}, arguments: %{id: id}} = resolution, args) do
+    {:ok, thread, react} = parse_source(args, resolution)
     IO.inspect(thread, label: "thread")
     IO.inspect(react, label: "react")
+    IO.inspect(match_action(thread, react), label: "match_action(thread, react)")
     IO.inspect("-------")
 
     with {:ok, thread, react} <- parse_source(args, resolution),
