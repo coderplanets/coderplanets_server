@@ -219,7 +219,6 @@ defmodule GroupherServer.Test.Query.OldPostComment do
       }
     }
     """
-    @tag :wip
     test "guest user can get replies info", ~m(guest_conn post user community)a do
       body = "test comment"
 

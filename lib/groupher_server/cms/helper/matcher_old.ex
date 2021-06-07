@@ -30,6 +30,9 @@ defmodule GroupherServer.CMS.Helper.MatcherOld do
   def match_action(:post, :community),
     do: {:ok, %{target: Post, reactor: Community}}
 
+  def match_action(:post, :comment),
+    do: {:ok, %{target: Post, reactor: PostComment, preload: :author}}
+
   #########################################
   ## jobs ...
   #########################################

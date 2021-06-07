@@ -107,7 +107,7 @@ defmodule GroupherServer.Test.Mutation.OldPostComment do
       }
     }
     """
-
+    @tag :wip
     test "comment owner can delete comment", ~m(user community post)a do
       variables = %{community: community.raw, id: post.id, body: "this a comment"}
 

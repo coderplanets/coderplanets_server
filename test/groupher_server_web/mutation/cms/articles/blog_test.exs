@@ -48,7 +48,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       }
     }
     """
-    @tag :wip
     test "create blog with valid attrs and make sure author exsit" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)

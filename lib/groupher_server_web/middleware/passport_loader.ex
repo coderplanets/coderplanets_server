@@ -67,14 +67,10 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
     end
   end
 
-  def call(resolution, _) do
-    # TODO communiy in args
-    resolution
-  end
+  def call(resolution, _), do: resolution
 
-  def load_source(resolution, content) do
-    arguments = resolution.arguments |> Map.merge(%{passport_source: content})
-    %{resolution | arguments: arguments}
+  def load_source(%{arguments: arguments} = resolution, content) do
+    %{resolution | arguments: Map.put(arguments, :passport_source, content)}
   end
 
   # 取得 content 里面的 conmunities 字段
@@ -92,34 +88,22 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
     {:ok, _, react} = parse_source(args)
 
     case react == :comment do
-      true ->
-        {:ok, action.preload}
-
-      false ->
-        {:ok, [action.preload, parse_base(args)]}
+      true -> {:ok, action.preload}
+      false -> {:ok, [action.preload, parse_base(args)]}
     end
   end
 
   def load_owner_info(%{context: %{cur_user: cur_user}} = resolution, react, content) do
     content_author_id =
       cond do
-        react == :article_comment ->
-          content.author.id
-
-        react == :comment ->
-          content.author.id
-
-        true ->
-          content.author.user_id
+        react == :article_comment -> content.author.id
+        react == :comment -> content.author.id
+        true -> content.author.user_id
       end
 
     case content_author_id == cur_user.id do
-      true ->
-        arguments = resolution.arguments |> Map.merge(%{passport_is_owner: true})
-        %{resolution | arguments: arguments}
-
-      _ ->
-        resolution
+      true -> %{resolution | arguments: Map.put(resolution.arguments, :passport_is_owner, true)}
+      _ -> resolution
     end
   end
 
@@ -128,9 +112,7 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
     parse_source(source: [thread, react])
   end
 
-  defp parse_source(args, _resolution) do
-    parse_source(args)
-  end
+  defp parse_source(args, _resolution), do: parse_source(args)
 
   defp parse_source(args) do
     case Keyword.has_key?(args, :source) do
@@ -142,7 +124,5 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
   defp match_source([thread, react]), do: {:ok, thread, react}
   defp match_source(thread), do: {:ok, thread, :self}
 
-  defp parse_base(args) do
-    Keyword.get(args, :base) || :communities
-  end
+  defp parse_base(args), do: Keyword.get(args, :base) || :communities
 end
