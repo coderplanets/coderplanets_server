@@ -6,8 +6,8 @@ defmodule GroupherServer.Support.Factory do
   for example you can db_insert(:user) to insert user into db
   """
   import Helper.Utils, only: [done: 1]
+  import GroupherServer.CMS.Helper.Matcher
 
-  alias GroupherServer.Repo
   alias GroupherServer.{Accounts, CMS, Delivery}
   alias Accounts.Model.User
 
@@ -18,17 +18,13 @@ defmodule GroupherServer.Support.Factory do
     Thread,
     CommunityThread,
     ArticleTag,
-    Post,
-    Job,
-    Blog,
     CommunityWiki,
     CommunityCheatsheet,
     Comment
   }
 
   alias Delivery.Model.{Mention, SysNotification}
-
-  alias CMS.Model.Repo, as: CMSRepo
+  alias CMS.Model.Repo
 
   @default_article_meta CMS.Model.Embeds.ArticleMeta.default_meta()
   @default_emotions CMS.Model.Embeds.ArticleCommentEmotion.default_emotions()
@@ -304,10 +300,7 @@ defmodule GroupherServer.Support.Factory do
   def mock_attrs(_, attrs \\ %{})
   def mock_attrs(:user, attrs), do: mock_meta(:user) |> Map.merge(attrs)
   def mock_attrs(:author, attrs), do: mock_meta(:author) |> Map.merge(attrs)
-  def mock_attrs(:post, attrs), do: mock_meta(:post) |> Map.merge(attrs)
-  def mock_attrs(:repo, attrs), do: mock_meta(:repo) |> Map.merge(attrs)
-  def mock_attrs(:job, attrs), do: mock_meta(:job) |> Map.merge(attrs)
-  def mock_attrs(:blog, attrs), do: mock_meta(:blog) |> Map.merge(attrs)
+
   def mock_attrs(:community, attrs), do: mock_meta(:community) |> Map.merge(attrs)
   def mock_attrs(:thread, attrs), do: mock_meta(:thread) |> Map.merge(attrs)
   def mock_attrs(:mention, attrs), do: mock_meta(:mention) |> Map.merge(attrs)
@@ -325,19 +318,15 @@ defmodule GroupherServer.Support.Factory do
   def mock_attrs(:sys_notification, attrs), do: mock_meta(:sys_notification) |> Map.merge(attrs)
   def mock_attrs(:category, attrs), do: mock_meta(:category) |> Map.merge(attrs)
   def mock_attrs(:github_profile, attrs), do: mock_meta(:github_profile) |> Map.merge(attrs)
-
   def mock_attrs(:bill, attrs), do: mock_meta(:bill) |> Map.merge(attrs)
+
+  def mock_attrs(thread, attrs), do: mock_meta(thread) |> Map.merge(attrs)
 
   # NOTICE: avoid Recursive problem
   # bad example:
   # mismatch                                       mismatch
   # |                                               |
   # this line of code will cause SERIOUS Recursive problem
-
-  defp mock(:post), do: Post |> struct(mock_meta(:post))
-  defp mock(:repo), do: CMSRepo |> struct(mock_meta(:repo))
-  defp mock(:job), do: Job |> struct(mock_meta(:job))
-  defp mock(:blog), do: Blog |> struct(mock_meta(:blog))
   defp mock(:wiki), do: CommunityWiki |> struct(mock_meta(:wiki))
   defp mock(:cheatsheet), do: CommunityCheatsheet |> struct(mock_meta(:cheatsheet))
   defp mock(:comment), do: Comment |> struct(mock_meta(:comment))
@@ -345,6 +334,12 @@ defmodule GroupherServer.Support.Factory do
   defp mock(:author), do: Author |> struct(mock_meta(:author))
   defp mock(:category), do: Category |> struct(mock_meta(:category))
   defp mock(:article_tag), do: ArticleTag |> struct(mock_meta(:article_tag))
+
+  defp mock(thread) do
+    with {:ok, info} <- match(thread) do
+      info.model |> struct(mock_meta(:thread))
+    end
+  end
 
   defp mock(:sys_notification),
     do: SysNotification |> struct(mock_meta(:sys_notification))
@@ -365,7 +360,7 @@ defmodule GroupherServer.Support.Factory do
   # like: views, insert/update ... to test filter-sort,when ...
   # """
   def db_insert(factory_name, attributes \\ []) do
-    Repo.insert(mock(factory_name, attributes))
+    GroupherServer.Repo.insert(mock(factory_name, attributes))
   end
 
   def db_insert_multi(factory_name, count, delay \\ 0) do
