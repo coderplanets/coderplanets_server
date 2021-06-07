@@ -63,29 +63,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:copy_right, :string)
     field(:body, :string)
 
-    field :comments, list_of(:comment) do
-      arg(:filter, :members_filter)
-
-      middleware(M.PageSizeProof)
-      resolve(dataloader(CMS, :comments))
-    end
-
-    comments_counter_fields(:post)
-
-    @desc "totalCount of unique participator list of a the comments"
-    field :comments_participators_count, :integer do
-      resolve(fn post, _args, %{context: %{loader: loader}} ->
-        loader
-        |> Dataloader.load(CMS, {:one, CMS.Model.PostComment}, cp_count: post.id)
-        |> on_load(fn loader ->
-          {:ok, Dataloader.get(loader, CMS, {:one, CMS.Model.PostComment}, cp_count: post.id)}
-        end)
-      end)
-    end
-
-    # upvoted_count ?
-    # collected_count
-
     timestamp_fields(:article)
   end
 

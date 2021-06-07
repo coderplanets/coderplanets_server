@@ -344,14 +344,6 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.paged_comments(thread, id, filter)
   end
 
-  def paged_comments_participators(_root, ~m(id thread filter)a, _info) do
-    CMS.paged_comments_participators(thread, id, filter)
-  end
-
-  def paged_comments_participators(root, ~m(thread)a, _info) do
-    CMS.paged_comments_participators(thread, root.id, %{page: 1, size: 20})
-  end
-
   def create_comment(_root, ~m(thread id)a = args, %{context: %{cur_user: user}}) do
     CMS.create_comment(thread, id, args, user)
   end

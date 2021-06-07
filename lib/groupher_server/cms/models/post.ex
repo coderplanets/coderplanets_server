@@ -9,7 +9,7 @@ defmodule GroupherServer.CMS.Model.Post do
   import GroupherServer.CMS.Helper.Macros
 
   alias GroupherServer.CMS
-  alias CMS.Model.{Embeds, PostComment}
+  alias CMS.Model.Embeds
 
   alias Helper.HTML
 
@@ -29,9 +29,6 @@ defmodule GroupherServer.CMS.Model.Post do
     field(:is_question, :boolean, default: false)
     field(:is_solved, :boolean, default: false)
     field(:solution_digest, :string)
-
-    # TODO: remove after legacy data migrated
-    has_many(:comments, {"posts_comments", PostComment})
 
     article_tags_field(:post)
     article_communities_field(:post)

@@ -259,39 +259,6 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
     end
   end
 
-  # TODO: remove
-  defmacro comments_counter_fields(thread) do
-    quote do
-      # @dec "total comments of the post"
-      field :comments_count, :integer do
-        arg(:count, :count_type, default_value: :count)
-
-        resolve(dataloader(CMS, :comments))
-        middleware(M.ConvertToInt)
-      end
-
-      # @desc "unique participator list of a the comments"
-      field :comments_participators, list_of(:user) do
-        arg(:filter, :members_filter)
-
-        # middleware(M.ForceLoader)
-        middleware(M.PageSizeProof)
-        resolve(dataloader(CMS, :comments))
-        middleware(M.CutParticipators)
-      end
-
-      field(:paged_comments_participators, :paged_users) do
-        arg(
-          :thread,
-          unquote(String.to_atom("#{to_string(thread)}_thread")),
-          default_value: unquote(thread)
-        )
-
-        resolve(&R.CMS.paged_comments_participators/3)
-      end
-    end
-  end
-
   @doc """
   general collect folder meta info
   """

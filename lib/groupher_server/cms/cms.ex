@@ -18,7 +18,6 @@ defmodule GroupherServer.CMS do
     ArticleCommentAction,
     ArticleCommentEmotion,
     ArticleTag,
-    CommentCURD,
     CommunitySync,
     CommunityCURD,
     CommunityOperation,
@@ -162,14 +161,6 @@ defmodule GroupherServer.CMS do
   ###################
   ###################
   ###################
-  defdelegate create_comment(thread, content_id, args, user), to: CommentCURD
-  defdelegate update_comment(thread, id, args, user), to: CommentCURD
-  defdelegate delete_comment(thread, content_id), to: CommentCURD
-  defdelegate paged_replies(thread, comment, user), to: CommentCURD
-  defdelegate reply_comment(thread, comment, args, user), to: CommentCURD
-
-  defdelegate paged_comments(thread, content_id, filters), to: CommentCURD
-  defdelegate paged_comments_participators(thread, content_id, filters), to: CommentCURD
 
   # TODO: move report to abuse report module
   defdelegate report_article(thread, article_id, reason, attr, user), to: AbuseReport
