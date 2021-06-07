@@ -6,16 +6,18 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
   import Helper.Utils, only: [done: 1]
   import Helper.ErrorCode
 
-  import GroupherServer.CMS.Helper.MatcherOld
   import ShortMaps
 
   alias GroupherServer.{Accounts, CMS, Delivery, Repo}
 
   alias Accounts.Model.User
-  alias CMS.Model.PostCommentReply
+  alias CMS.Model.{PostComment, PostCommentReply}
 
   alias Helper.{ORM, QueryBuilder}
   alias Ecto.Multi
+
+  defp match_action(:post, :comment),
+    do: {:ok, %{target: Post, reactor: PostComment, preload: :author}}
 
   @doc """
   Creates a comment for psot, job ...
