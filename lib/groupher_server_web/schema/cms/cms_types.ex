@@ -5,7 +5,10 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   use Helper.GqlSchemaSuite
 
   import Helper.Utils, only: [get_config: 2]
+
   import GroupherServerWeb.Schema.Helper.Fields
+  import GroupherServerWeb.Schema.Helper.Objects
+
   import Ecto.Query, warn: false
   import Absinthe.Resolution.Helpers, only: [dataloader: 2, on_load: 2]
 
@@ -345,6 +348,8 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     timestamp_fields()
   end
 
+  paged_article_objects()
+
   object :paged_reports do
     field(:entries, list_of(:abuse_report))
     pagination_fields()
@@ -359,34 +364,8 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:post, :post, resolve: dataloader(CMS, :post))
   end
 
-  object :repo_comment do
-    comments_fields()
-    field(:repo, :repo, resolve: dataloader(CMS, :repo))
-  end
-
   object :paged_categories do
     field(:entries, list_of(:category))
-    pagination_fields()
-  end
-
-  object :paged_posts do
-    meta(:cache, max_age: 30)
-    field(:entries, list_of(:post))
-    pagination_fields()
-  end
-
-  object :paged_repos do
-    field(:entries, list_of(:repo))
-    pagination_fields()
-  end
-
-  object :paged_jobs do
-    field(:entries, list_of(:job))
-    pagination_fields()
-  end
-
-  object :paged_blogs do
-    field(:entries, list_of(:blog))
     pagination_fields()
   end
 
