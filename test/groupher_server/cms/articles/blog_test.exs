@@ -27,7 +27,6 @@ defmodule GroupherServer.Test.Articles.Blog do
       assert found.title == blog.title
     end
 
-    @tag :wip
     test "created blog should have a acitve_at field, same with inserted_at",
          ~m(user community blog_attrs)a do
       {:ok, blog} = CMS.create_article(community, :blog, blog_attrs, user)
@@ -35,7 +34,6 @@ defmodule GroupherServer.Test.Articles.Blog do
       assert blog.active_at == blog.inserted_at
     end
 
-    @tag :wip
     test "read blog should update views and meta viewed_user_list",
          ~m(blog_attrs community user user2)a do
       {:ok, blog} = CMS.create_article(community, :blog, blog_attrs, user)

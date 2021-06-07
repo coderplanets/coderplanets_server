@@ -335,12 +335,6 @@ defmodule GroupherServer.Support.Factory do
   defp mock(:category), do: Category |> struct(mock_meta(:category))
   defp mock(:article_tag), do: ArticleTag |> struct(mock_meta(:article_tag))
 
-  defp mock(thread) do
-    with {:ok, info} <- match(thread) do
-      info.model |> struct(mock_meta(:thread))
-    end
-  end
-
   defp mock(:sys_notification),
     do: SysNotification |> struct(mock_meta(:sys_notification))
 
@@ -350,6 +344,12 @@ defmodule GroupherServer.Support.Factory do
 
   defp mock(:communities_threads),
     do: CommunityThread |> struct(mock_meta(:communities_threads))
+
+  defp mock(thread) do
+    with {:ok, info} <- match(thread) do
+      info.model |> struct(mock_meta(:thread))
+    end
+  end
 
   defp mock(factory_name, attributes) do
     factory_name |> mock() |> struct(attributes)
