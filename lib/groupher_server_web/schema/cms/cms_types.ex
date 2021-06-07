@@ -327,22 +327,8 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     pagination_fields()
   end
 
-  object :comment do
-    comments_fields()
-  end
-
-  object :post_comment do
-    comments_fields()
-    field(:post, :post, resolve: dataloader(CMS, :post))
-  end
-
   object :paged_categories do
     field(:entries, list_of(:category))
-    pagination_fields()
-  end
-
-  object :paged_comments do
-    field(:entries, list_of(:comment))
     pagination_fields()
   end
 
@@ -351,13 +337,8 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     pagination_fields()
   end
 
-  object :paged_article_replies do
+  object :paged_comment_replies do
     field(:entries, list_of(:article_comment_reply))
-    pagination_fields()
-  end
-
-  object :paged_post_comments do
-    field(:entries, list_of(:post_comment))
     pagination_fields()
   end
 

@@ -405,7 +405,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   defp result({:ok, %{mark_solution: result}}), do: {:ok, result}
 
   defp result({:error, :create_article_comment, result, _steps}) do
-    raise_error(:create_comment, result)
+    raise_error(:create_article_comment, result)
   end
 
   defp result({:error, _, result, _steps}), do: {:error, result}

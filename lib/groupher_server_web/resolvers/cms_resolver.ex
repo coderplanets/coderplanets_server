@@ -340,26 +340,6 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.paged_comment_replies(id, filter)
   end
 
-  def paged_comments(_root, ~m(id thread filter)a, _info) do
-    CMS.paged_comments(thread, id, filter)
-  end
-
-  def create_comment(_root, ~m(thread id)a = args, %{context: %{cur_user: user}}) do
-    CMS.create_comment(thread, id, args, user)
-  end
-
-  def update_comment(_root, ~m(thread id)a = args, %{context: %{cur_user: user}}) do
-    CMS.update_comment(thread, id, args, user)
-  end
-
-  def delete_comment(_root, ~m(thread id)a, _info) do
-    CMS.delete_comment(thread, id)
-  end
-
-  def reply_comment(_root, ~m(thread id)a = args, %{context: %{cur_user: user}}) do
-    CMS.reply_comment(thread, id, args, user)
-  end
-
   def stamp_passport(_root, ~m(user_id rules)a, %{context: %{cur_user: _user}}) do
     CMS.stamp_passport(rules, %User{id: user_id})
   end
