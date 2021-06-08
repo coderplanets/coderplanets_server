@@ -28,7 +28,6 @@ defmodule GroupherServer.Test.Mutation.Flags.BlogFlag do
       }
     }
     """
-    @tag :wip
     test "auth user can markDelete blog", ~m(blog)a do
       variables = %{id: blog.id}
 
@@ -41,7 +40,6 @@ defmodule GroupherServer.Test.Mutation.Flags.BlogFlag do
       assert updated["markDelete"] == true
     end
 
-    @tag :wip
     test "mark delete blog should update blog's communities meta count", ~m(user)a do
       community_attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id})
       {:ok, community} = CMS.create_community(community_attrs)
@@ -60,7 +58,6 @@ defmodule GroupherServer.Test.Mutation.Flags.BlogFlag do
       assert community.meta.blogs_count == 0
     end
 
-    @tag :wip
     test "unauth user markDelete blog fails", ~m(user_conn guest_conn blog)a do
       variables = %{id: blog.id}
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})

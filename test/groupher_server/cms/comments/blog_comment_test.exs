@@ -424,7 +424,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
           :replies
         )
 
-      random_comment = all_comments |> Enum.at(Enum.random(0..total_count))
+      random_comment = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
 
       assert not random_comment.is_folded
 
