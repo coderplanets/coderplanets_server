@@ -406,7 +406,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     test "paged article comments folded flag should be false", ~m(user job)a do
       total_count = 30
       page_number = 1
-      page_size = 10
+      page_size = 35
 
       all_comments =
         Enum.reduce(1..total_count, [], fn _, acc ->
@@ -423,7 +423,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
           :replies
         )
 
-      random_comment = all_comments |> Enum.at(Enum.random(0..total_count))
+      random_comment = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
 
       assert not random_comment.is_folded
 

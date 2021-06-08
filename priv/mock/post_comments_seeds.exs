@@ -9,14 +9,14 @@ alias Accounts.Model.User
 Enum.reduce(1..15, [], fn _, acc ->
   unique_num = System.unique_integer([:positive, :monotonic])
 
-  {:ok, value} =
-    CMS.create_comment(
-      :post,
-      :comment,
-      post.id,
-      %User{id: user.id},
-      "#{Faker.Lorem.Shakespeare.king_richard_iii()} - #{unique_num}"
-    )
+  # {:ok, value} =
+  #   CMS.create_comment(
+  #     :post,
+  #     :comment,
+  #     post.id,
+  #     %User{id: user.id},
+  #     "#{Faker.Lorem.Shakespeare.king_richard_iii()} - #{unique_num}"
+  #   )
 
-  acc ++ [value]
+  # acc ++ [value]
 end)

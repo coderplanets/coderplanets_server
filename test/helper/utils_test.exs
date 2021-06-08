@@ -197,7 +197,6 @@ defmodule GroupherServer.Test.Helper.UtilsTest do
   end
 
   describe "[others]" do
-    @tag :wip
     test "module_to_atom should work" do
       assert :post == Post |> Utils.module_to_atom()
       assert :post == %Post{} |> Utils.module_to_atom()

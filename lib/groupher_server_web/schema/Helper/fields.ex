@@ -6,8 +6,6 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
   import Absinthe.Resolution.Helpers, only: [dataloader: 2]
 
   alias GroupherServer.CMS
-  alias GroupherServerWeb.Middleware, as: M
-  alias GroupherServerWeb.Resolvers, as: R
 
   @page_size get_config(:general, :page_size)
 
@@ -20,6 +18,8 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
     quote do
       field(:id, :id)
       field(:title, :string)
+      field(:body, :string)
+      field(:digest, :string)
       field(:views, :integer)
       field(:is_pinned, :boolean)
       field(:mark_delete, :boolean)
@@ -204,89 +204,11 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
     )
   end
 
-  # TODO: remove
-  defmacro comments_fields do
-    quote do
-      field(:id, :id)
-      field(:body, :string)
-      field(:floor, :integer)
-      field(:author, :user, resolve: dataloader(CMS, :author))
-
-      field :reply_to, :comment do
-        resolve(dataloader(CMS, :reply_to))
-      end
-
-      field :likes, list_of(:user) do
-        arg(:filter, :members_filter)
-
-        middleware(M.PageSizeProof)
-        resolve(dataloader(CMS, :likes))
-      end
-
-      field :likes_count, :integer do
-        arg(:count, :count_type, default_value: :count)
-
-        resolve(dataloader(CMS, :likes))
-        middleware(M.ConvertToInt)
-      end
-
-      field :replies, list_of(:comment) do
-        arg(:filter, :members_filter)
-
-        middleware(M.ForceLoader)
-        middleware(M.PageSizeProof)
-        resolve(dataloader(CMS, :replies))
-      end
-
-      field :replies_count, :integer do
-        arg(:count, :count_type, default_value: :count)
-
-        resolve(dataloader(CMS, :replies))
-        middleware(M.ConvertToInt)
-      end
-
-      timestamp_fields()
-    end
-  end
-
   defmacro article_comments_fields do
     quote do
       field(:article_comments_participators, list_of(:user))
       field(:article_comments_participators_count, :integer)
       field(:article_comments_count, :integer)
-    end
-  end
-
-  # TODO: remove
-  defmacro comments_counter_fields(thread) do
-    quote do
-      # @dec "total comments of the post"
-      field :comments_count, :integer do
-        arg(:count, :count_type, default_value: :count)
-
-        resolve(dataloader(CMS, :comments))
-        middleware(M.ConvertToInt)
-      end
-
-      # @desc "unique participator list of a the comments"
-      field :comments_participators, list_of(:user) do
-        arg(:filter, :members_filter)
-
-        # middleware(M.ForceLoader)
-        middleware(M.PageSizeProof)
-        resolve(dataloader(CMS, :comments))
-        middleware(M.CutParticipators)
-      end
-
-      field(:paged_comments_participators, :paged_users) do
-        arg(
-          :thread,
-          unquote(String.to_atom("#{to_string(thread)}_thread")),
-          default_value: unquote(thread)
-        )
-
-        resolve(&R.CMS.paged_comments_participators/3)
-      end
     end
   end
 

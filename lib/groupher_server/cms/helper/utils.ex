@@ -5,9 +5,6 @@ defmodule GroupherServer.CMS.Helper.Utils do
   import Ecto.Changeset
   import Helper.Utils, only: [get_config: 2]
 
-  alias GroupherServer.CMS
-  alias CMS.Model.Community
-
   @article_threads get_config(:article, :threads)
   @article_fields @article_threads |> Enum.map(&:"#{&1}_id")
 

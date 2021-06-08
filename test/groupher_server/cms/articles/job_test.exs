@@ -2,7 +2,7 @@ defmodule GroupherServer.Test.Articles.Job do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
-  alias CMS.Model.Job
+  alias CMS.Model.{Job, Community}
   alias Helper.ORM
 
   @last_year Timex.shift(Timex.beginning_of_year(Timex.now()), days: -3, seconds: -1)
@@ -18,8 +18,6 @@ defmodule GroupherServer.Test.Articles.Job do
   end
 
   describe "[cms jobs curd]" do
-    alias CMS.Model.Community
-
     test "can create a job with valid attrs", ~m(user community job_attrs)a do
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 

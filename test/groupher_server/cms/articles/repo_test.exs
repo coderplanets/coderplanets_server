@@ -1,9 +1,10 @@
 defmodule GroupherServer.Test.Articles.Repo do
   use GroupherServer.TestTools
 
-  alias Helper.ORM
   alias GroupherServer.CMS
-  alias CMS.Model.Repo
+  alias CMS.Model.{Author, Community, Repo}
+
+  alias Helper.ORM
 
   @last_year Timex.shift(Timex.beginning_of_year(Timex.now()), days: -3, seconds: -1)
 
@@ -19,8 +20,6 @@ defmodule GroupherServer.Test.Articles.Repo do
   end
 
   describe "[cms repo curd]" do
-    alias CMS.Model.{Author, Community}
-
     test "can create repo with valid attrs", ~m(user community repo_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
 

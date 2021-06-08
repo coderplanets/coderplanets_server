@@ -4,10 +4,9 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
   """
   @behaviour Absinthe.Middleware
 
-  import GroupherServer.CMS.Helper.MatcherOld
+  import GroupherServer.CMS.Helper.Matcher
   import Helper.Utils
   import Helper.ErrorCode
-  import ShortMaps
 
   alias Helper.ORM
   alias GroupherServer.CMS
@@ -16,14 +15,11 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
 
   def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
 
-  def call(
-        %{context: %{cur_user: _}, arguments: ~m(community_id)a} = resolution,
-        source: :community
-      ) do
-    case ORM.find(Community, community_id) do
+  @doc "load community"
+  def call(%{context: %{cur_user: _}, arguments: arguments} = resolution, source: :community) do
+    case ORM.find(Community, arguments.community_id) do
       {:ok, community} ->
-        arguments = resolution.arguments |> Map.merge(%{passport_communities: [community]})
-        %{resolution | arguments: arguments}
+        %{resolution | arguments: Map.put(arguments, :passport_communities, [community])}
 
       {:error, err_msg} ->
         resolution |> handle_absinthe_error(err_msg, ecode(:passport))
@@ -31,12 +27,12 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
   end
 
   @doc "load article comment"
-  def call(%{context: %{cur_user: _}, arguments: ~m(id)a} = resolution, source: :article_comment) do
+  def call(%{context: %{cur_user: _}, arguments: %{id: id}} = resolution, source: :article_comment) do
     case ORM.find(ArticleComment, id, preload: :author) do
       {:ok, article_comment} ->
         resolution
-        |> load_owner_info(:article_comment, article_comment)
-        |> load_source(article_comment)
+        |> assign_owner_info(:article_comment, article_comment)
+        |> assign_source(article_comment)
 
       {:error, err_msg} ->
         resolution |> handle_absinthe_error(err_msg, ecode(:passport))
@@ -45,98 +41,37 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
 
   # def call(%{context: %{cur_user: cur_user}, arguments: %{id: id}} = resolution, [source: .., base: ..]) do
   # Loader 应该使用 Map 作为参数，以方便模式匹配
-  def call(%{context: %{cur_user: _}, arguments: %{id: id}} = resolution, args) do
-    with {:ok, thread, react} <- parse_source(args, resolution),
-         {:ok, action} <- match_action(thread, react),
-         {:ok, preload} <- parse_preload(action, args),
-         {:ok, content} <- ORM.find(action.reactor, id, preload: preload) do
+  def call(%{context: %{cur_user: _}, arguments: %{id: id}} = resolution, source: thread) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id, preload: [:author, :communities]) do
       resolution
-      |> load_owner_info(react, content)
-      |> load_source(content)
-      |> load_community_info(content, args)
+      |> assign_owner_info(:article, article)
+      |> assign_source(article)
+      |> assign_article_communities_info(article)
     else
-      {:error, err_msg} ->
-        resolution
-        |> handle_absinthe_error(err_msg, ecode(:passport))
+      {:error, err_msg} -> handle_absinthe_error(resolution, err_msg, ecode(:passport))
     end
   end
 
-  def call(resolution, _) do
-    # TODO communiy in args
-    resolution
+  def call(resolution, _), do: resolution
+
+  def assign_source(%{arguments: arguments} = resolution, article) do
+    %{resolution | arguments: Map.put(arguments, :passport_source, article)}
   end
 
-  def load_source(resolution, content) do
-    arguments = resolution.arguments |> Map.merge(%{passport_source: content})
+  defp assign_owner_info(%{context: %{cur_user: cur_user}} = resolution, react, article) do
+    article_author_id =
+      if react == :article_comment, do: article.author.id, else: article.author.user_id
+
+    case article_author_id == cur_user.id do
+      true -> %{resolution | arguments: Map.put(resolution.arguments, :passport_is_owner, true)}
+      _ -> resolution
+    end
+  end
+
+  # 取得 article 里面的 conmunities 字段
+  defp assign_article_communities_info(resolution, article) do
+    arguments = resolution.arguments |> Map.merge(%{passport_communities: article.communities})
     %{resolution | arguments: arguments}
-  end
-
-  # 取得 content 里面的 conmunities 字段
-  def load_community_info(resolution, content, args) do
-    communities = content |> Map.get(parse_base(args))
-
-    # check if communities is a List
-    communities = if is_list(communities), do: communities, else: [communities]
-
-    arguments = resolution.arguments |> Map.merge(%{passport_communities: communities})
-    %{resolution | arguments: arguments}
-  end
-
-  defp parse_preload(action, args) do
-    {:ok, _, react} = parse_source(args)
-
-    case react == :comment do
-      true ->
-        {:ok, action.preload}
-
-      false ->
-        {:ok, [action.preload, parse_base(args)]}
-    end
-  end
-
-  def load_owner_info(%{context: %{cur_user: cur_user}} = resolution, react, content) do
-    content_author_id =
-      cond do
-        react == :article_comment ->
-          content.author.id
-
-        react == :comment ->
-          content.author.id
-
-        true ->
-          content.author.user_id
-      end
-
-    case content_author_id == cur_user.id do
-      true ->
-        arguments = resolution.arguments |> Map.merge(%{passport_is_owner: true})
-        %{resolution | arguments: arguments}
-
-      _ ->
-        resolution
-    end
-  end
-
-  # typical usage is delete_comment, should load conent by thread
-  defp parse_source([source: [:arg_thread, react]], %{arguments: %{thread: thread}}) do
-    parse_source(source: [thread, react])
-  end
-
-  defp parse_source(args, _resolution) do
-    parse_source(args)
-  end
-
-  defp parse_source(args) do
-    case Keyword.has_key?(args, :source) do
-      false -> {:error, "Invalid.option: #{args}"}
-      true -> args |> Keyword.get(:source) |> match_source
-    end
-  end
-
-  defp match_source([thread, react]), do: {:ok, thread, react}
-  defp match_source(thread), do: {:ok, thread, :self}
-
-  defp parse_base(args) do
-    Keyword.get(args, :base) || :communities
   end
 end

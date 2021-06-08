@@ -6,8 +6,8 @@ defmodule GroupherServer.Support.Factory do
   for example you can db_insert(:user) to insert user into db
   """
   import Helper.Utils, only: [done: 1]
+  import GroupherServer.CMS.Helper.Matcher
 
-  alias GroupherServer.Repo
   alias GroupherServer.{Accounts, CMS, Delivery}
   alias Accounts.Model.User
 
@@ -18,16 +18,12 @@ defmodule GroupherServer.Support.Factory do
     Thread,
     CommunityThread,
     ArticleTag,
-    Post,
-    Job,
     CommunityWiki,
     CommunityCheatsheet,
     Comment
   }
 
   alias Delivery.Model.{Mention, SysNotification}
-
-  alias CMS.Model.Repo, as: CMSRepo
 
   @default_article_meta CMS.Model.Embeds.ArticleMeta.default_meta()
   @default_emotions CMS.Model.Embeds.ArticleCommentEmotion.default_emotions()
@@ -148,6 +144,26 @@ defmodule GroupherServer.Support.Factory do
     }
   end
 
+  defp mock_meta(:blog) do
+    body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
+
+    %{
+      meta: @default_article_meta,
+      title: String.slice(body, 1, 49),
+      body: String.slice(body, 1, 49),
+      digest: String.slice(body, 1, 150),
+      length: String.length(body),
+      author: mock(:author),
+      views: Enum.random(0..2000),
+      original_community: mock(:community),
+      communities: [
+        mock(:community)
+      ],
+      emotions: @default_emotions,
+      active_at: Timex.shift(Timex.now(), seconds: +1)
+    }
+  end
+
   defp mock_meta(:comment) do
     body = Faker.Lorem.sentence(%Range{first: 30, last: 80})
 
@@ -235,7 +251,6 @@ defmodule GroupherServer.Support.Factory do
     unique_num = System.unique_integer([:positive, :monotonic])
 
     %{
-      # username: "#{Faker.Name.first_name()} #{unique_num}",
       login: "#{Faker.Person.first_name()}#{unique_num}" |> String.downcase(),
       nickname: "#{Faker.Person.first_name()}#{unique_num}",
       bio: Faker.Lorem.Shakespeare.romeo_and_juliet(),
@@ -284,9 +299,7 @@ defmodule GroupherServer.Support.Factory do
   def mock_attrs(_, attrs \\ %{})
   def mock_attrs(:user, attrs), do: mock_meta(:user) |> Map.merge(attrs)
   def mock_attrs(:author, attrs), do: mock_meta(:author) |> Map.merge(attrs)
-  def mock_attrs(:post, attrs), do: mock_meta(:post) |> Map.merge(attrs)
-  def mock_attrs(:repo, attrs), do: mock_meta(:repo) |> Map.merge(attrs)
-  def mock_attrs(:job, attrs), do: mock_meta(:job) |> Map.merge(attrs)
+
   def mock_attrs(:community, attrs), do: mock_meta(:community) |> Map.merge(attrs)
   def mock_attrs(:thread, attrs), do: mock_meta(:thread) |> Map.merge(attrs)
   def mock_attrs(:mention, attrs), do: mock_meta(:mention) |> Map.merge(attrs)
@@ -304,18 +317,12 @@ defmodule GroupherServer.Support.Factory do
   def mock_attrs(:sys_notification, attrs), do: mock_meta(:sys_notification) |> Map.merge(attrs)
   def mock_attrs(:category, attrs), do: mock_meta(:category) |> Map.merge(attrs)
   def mock_attrs(:github_profile, attrs), do: mock_meta(:github_profile) |> Map.merge(attrs)
-
   def mock_attrs(:bill, attrs), do: mock_meta(:bill) |> Map.merge(attrs)
 
-  # NOTICE: avoid Recursive problem
-  # bad example:
-  # mismatch                                       mismatch
-  # |                                               |
-  # this line of code will cause SERIOUS Recursive problem
+  def mock_attrs(thread, attrs), do: mock_meta(thread) |> Map.merge(attrs)
 
-  defp mock(:post), do: Post |> struct(mock_meta(:post))
-  defp mock(:repo), do: CMSRepo |> struct(mock_meta(:repo))
-  defp mock(:job), do: Job |> struct(mock_meta(:job))
+  # NOTICE: avoid Recursive problem
+  # this line of code will cause SERIOUS Recursive problem
   defp mock(:wiki), do: CommunityWiki |> struct(mock_meta(:wiki))
   defp mock(:cheatsheet), do: CommunityCheatsheet |> struct(mock_meta(:cheatsheet))
   defp mock(:comment), do: Comment |> struct(mock_meta(:comment))
@@ -334,6 +341,12 @@ defmodule GroupherServer.Support.Factory do
   defp mock(:communities_threads),
     do: CommunityThread |> struct(mock_meta(:communities_threads))
 
+  defp mock(thread) do
+    with {:ok, info} <- match(thread) do
+      info.model |> struct(mock_meta(thread))
+    end
+  end
+
   defp mock(factory_name, attributes) do
     factory_name |> mock() |> struct(attributes)
   end
@@ -343,7 +356,7 @@ defmodule GroupherServer.Support.Factory do
   # like: views, insert/update ... to test filter-sort,when ...
   # """
   def db_insert(factory_name, attributes \\ []) do
-    Repo.insert(mock(factory_name, attributes))
+    GroupherServer.Repo.insert(mock(factory_name, attributes))
   end
 
   def db_insert_multi(factory_name, count, delay \\ 0) do

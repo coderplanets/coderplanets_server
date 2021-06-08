@@ -100,6 +100,37 @@ defmodule GroupherServer.Test.Mutation.Statistics do
       assert contributes.count == 1
     end
 
+    @create_blog_query """
+    mutation (
+      $title: String!,
+      $body: String!,
+      $digest: String!,
+      $communityId: ID!,
+      $articleTags: [Ids]
+    ) {
+      createBlog(
+        title: $title,
+        body: $body,
+        digest: $digest,
+        communityId: $communityId,
+        articleTags: $articleTags
+      ) {
+        id
+        title
+        body
+      }
+    }
+    """
+    test "user should have contribute list after create a blog", ~m(user_conn user community)a do
+      blog_attr = mock_attrs(:blog)
+      variables = blog_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
+
+      user_conn |> mutation_result(@create_blog_query, variables, "createBlog")
+
+      {:ok, contributes} = ORM.find_by(UserContribute, user_id: user.id)
+      assert contributes.count == 1
+    end
+
     @create_repo_query """
     mutation(
       $title: String!,
@@ -157,19 +188,18 @@ defmodule GroupherServer.Test.Mutation.Statistics do
       assert contributes.count == 1
     end
 
-    @create_comment_query """
-    mutation($community: String!, $thread: Thread, $id: ID!, $body: String!) {
-      createComment(community: $community, thread: $thread, id: $id, body: $body) {
+    @write_comment_query """
+    mutation($thread: Thread!, $id: ID!, $content: String!) {
+      createArticleComment(thread: $thread, id: $id, content: $content) {
         id
-        body
+        bodyHtml
       }
     }
     """
-    test "user should have contribute list after create a comment",
-         ~m(user_conn user community)a do
+    test "user should have contribute list after create a comment", ~m(user_conn user)a do
       {:ok, post} = db_insert(:post)
-      variables = %{community: community.raw, thread: "POST", id: post.id, body: "this a comment"}
-      user_conn |> mutation_result(@create_comment_query, variables, "createComment")
+      variables = %{thread: "POST", id: post.id, content: "comment"}
+      user_conn |> mutation_result(@write_comment_query, variables, "createArticleComment")
 
       {:ok, contributes} = ORM.find_by(UserContribute, user_id: user.id)
       assert contributes.count == 1

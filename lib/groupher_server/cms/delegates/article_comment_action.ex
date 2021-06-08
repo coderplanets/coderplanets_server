@@ -361,7 +361,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   defp result({:ok, %{delete_article_comment: result}}), do: {:ok, result}
 
   defp result({:error, :create_article_comment, result, _steps}) do
-    raise_error(:create_comment, result)
+    raise_error(:create_article_comment, result)
   end
 
   defp result({:error, :add_participator, result, _steps}) do

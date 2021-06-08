@@ -3,7 +3,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   CURD and operations for article comments
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, ensure: 2, get_config: 2]
+  import Helper.Utils, only: [done: 1, ensure: 2]
   import Helper.ErrorCode
 
   import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 3]
@@ -18,8 +18,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   alias Accounts.Model.User
   alias CMS.Model.{ArticleComment, ArticlePinnedComment, Embeds}
   alias Ecto.Multi
-
-  @article_threads get_config(:article, :threads)
 
   @max_participator_count ArticleComment.max_participator_count()
   @default_emotions Embeds.ArticleCommentEmotion.default_emotions()
@@ -383,7 +381,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     Map.merge(paged_comments, %{entries: entries})
   end
 
-  defp set_question_flag_ifneed(%{is_question: true} = article, %ArticleComment{} = comment) do
+  defp set_question_flag_ifneed(%{is_question: true} = _article, %ArticleComment{} = comment) do
     ORM.update(comment, %{is_for_question: true})
   end
 
@@ -405,7 +403,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   defp result({:ok, %{mark_solution: result}}), do: {:ok, result}
 
   defp result({:error, :create_article_comment, result, _steps}) do
-    raise_error(:create_comment, result)
+    raise_error(:create_article_comment, result)
   end
 
   defp result({:error, _, result, _steps}), do: {:error, result}

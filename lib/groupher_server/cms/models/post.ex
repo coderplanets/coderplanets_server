@@ -9,7 +9,7 @@ defmodule GroupherServer.CMS.Model.Post do
   import GroupherServer.CMS.Helper.Macros
 
   alias GroupherServer.CMS
-  alias CMS.Model.{Embeds, PostComment}
+  alias CMS.Model.Embeds
 
   alias Helper.HTML
 
@@ -17,13 +17,11 @@ defmodule GroupherServer.CMS.Model.Post do
 
   @required_fields ~w(title body digest length)a
   @article_cast_fields general_article_fields(:cast)
-  @optional_fields ~w(link_addr copy_right link_addr is_question is_solved solution_digest)a ++
+  @optional_fields ~w(link_addr copy_right is_question is_solved solution_digest)a ++
                      @article_cast_fields
 
   @type t :: %Post{}
   schema "cms_posts" do
-    field(:body, :string)
-    field(:digest, :string)
     field(:link_addr, :string)
     field(:copy_right, :string)
     field(:length, :integer)
@@ -31,9 +29,6 @@ defmodule GroupherServer.CMS.Model.Post do
     field(:is_question, :boolean, default: false)
     field(:is_solved, :boolean, default: false)
     field(:solution_digest, :string)
-
-    # TODO: remove after legacy data migrated
-    has_many(:comments, {"posts_comments", PostComment})
 
     article_tags_field(:post)
     article_communities_field(:post)

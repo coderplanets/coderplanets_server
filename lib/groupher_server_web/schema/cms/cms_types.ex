@@ -4,10 +4,11 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   """
   use Helper.GqlSchemaSuite
 
-  import Helper.Utils, only: [get_config: 2]
   import GroupherServerWeb.Schema.Helper.Fields
+  import GroupherServerWeb.Schema.Helper.Objects
+
   import Ecto.Query, warn: false
-  import Absinthe.Resolution.Helpers, only: [dataloader: 2, on_load: 2]
+  import Absinthe.Resolution.Helpers, only: [dataloader: 2]
 
   alias GroupherServer.CMS
   alias GroupherServerWeb.Schema
@@ -57,34 +58,10 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     general_article_fields()
     article_comments_fields()
 
-    field(:digest, :string)
     field(:length, :integer)
     field(:link_addr, :string)
     field(:copy_right, :string)
     field(:body, :string)
-
-    field :comments, list_of(:comment) do
-      arg(:filter, :members_filter)
-
-      middleware(M.PageSizeProof)
-      resolve(dataloader(CMS, :comments))
-    end
-
-    comments_counter_fields(:post)
-
-    @desc "totalCount of unique participator list of a the comments"
-    field :comments_participators_count, :integer do
-      resolve(fn post, _args, %{context: %{loader: loader}} ->
-        loader
-        |> Dataloader.load(CMS, {:one, CMS.Model.PostComment}, cp_count: post.id)
-        |> on_load(fn loader ->
-          {:ok, Dataloader.get(loader, CMS, {:one, CMS.Model.PostComment}, cp_count: post.id)}
-        end)
-      end)
-    end
-
-    # upvoted_count ?
-    # collected_count
 
     timestamp_fields(:article)
   end
@@ -98,11 +75,23 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:desc, :string)
     field(:company, :string)
     field(:company_link, :string)
-    field(:digest, :string)
     field(:length, :integer)
     field(:link_addr, :string)
     field(:copy_right, :string)
     field(:body, :string)
+
+    timestamp_fields(:article)
+  end
+
+  object :blog do
+    interface(:article)
+
+    general_article_fields()
+    article_comments_fields()
+
+    field(:length, :integer)
+    field(:link_addr, :string)
+    # field(:body, :string)
 
     timestamp_fields(:article)
   end
@@ -331,48 +320,15 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     timestamp_fields()
   end
 
+  paged_article_objects()
+
   object :paged_reports do
     field(:entries, list_of(:abuse_report))
     pagination_fields()
   end
 
-  object :comment do
-    comments_fields()
-  end
-
-  object :post_comment do
-    comments_fields()
-    field(:post, :post, resolve: dataloader(CMS, :post))
-  end
-
-  object :repo_comment do
-    comments_fields()
-    field(:repo, :repo, resolve: dataloader(CMS, :repo))
-  end
-
   object :paged_categories do
     field(:entries, list_of(:category))
-    pagination_fields()
-  end
-
-  object :paged_posts do
-    meta(:cache, max_age: 30)
-    field(:entries, list_of(:post))
-    pagination_fields()
-  end
-
-  object :paged_repos do
-    field(:entries, list_of(:repo))
-    pagination_fields()
-  end
-
-  object :paged_jobs do
-    field(:entries, list_of(:job))
-    pagination_fields()
-  end
-
-  object :paged_comments do
-    field(:entries, list_of(:comment))
     pagination_fields()
   end
 
@@ -381,13 +337,8 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     pagination_fields()
   end
 
-  object :paged_article_replies do
+  object :paged_comment_replies do
     field(:entries, list_of(:article_comment_reply))
-    pagination_fields()
-  end
-
-  object :paged_post_comments do
-    field(:entries, list_of(:post_comment))
     pagination_fields()
   end
 

@@ -63,13 +63,15 @@ defmodule GroupherServer.Test.CMS.Community do
       {:ok, tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
       {:ok, tag2} = CMS.create_article_tag(community, :job, article_tag_attrs, user)
       {:ok, tag3} = CMS.create_article_tag(community, :repo, article_tag_attrs, user)
+      {:ok, tag4} = CMS.create_article_tag(community, :blog, article_tag_attrs, user)
 
       {:ok, community} = ORM.find(Community, community.id)
-      assert community.article_tags_count == 3
+      assert community.article_tags_count == 4
 
       {:ok, _} = CMS.delete_article_tag(tag.id)
       {:ok, _} = CMS.delete_article_tag(tag2.id)
       {:ok, _} = CMS.delete_article_tag(tag3.id)
+      {:ok, _} = CMS.delete_article_tag(tag4.id)
 
       {:ok, community} = ORM.find(Community, community.id)
       assert community.article_tags_count == 0
