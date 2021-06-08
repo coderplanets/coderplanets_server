@@ -116,7 +116,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
       }
     }
     """
-    @tag :wip
+
     test "login user can upvote a exsit blog comment", ~m(blog user guest_conn user_conn)a do
       {:ok, comment} = CMS.create_article_comment(:blog, blog.id, "blog comment", user)
       variables = %{id: comment.id}
@@ -141,7 +141,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
       }
     }
     """
-    @tag :wip
+
     test "login user can undo upvote a exsit blog comment", ~m(blog user guest_conn user_conn)a do
       {:ok, comment} = CMS.create_article_comment(:blog, blog.id, "blog comment", user)
       variables = %{id: comment.id}
