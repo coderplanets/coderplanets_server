@@ -172,7 +172,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Multi.run(:update_user_published_meta, fn _, _ ->
         Accounts.update_published_states(uid, thread)
       end)
+      # TODO: run mini tasks
       |> Multi.run(:mention_users, fn _, %{create_article: article} ->
+        # article.body |> Jason.decode!() |> 各种小 task
         Delivery.mention_from_content(community.raw, thread, article, attrs, %User{id: uid})
         {:ok, :pass}
       end)
@@ -387,6 +389,14 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   #  for create artilce step in Multi.new
   defp do_create_article(target, attrs, %Author{id: aid}, %Community{id: cid}) do
+    # {:ok, { body: body, body_html: body_html }} = Convert.body_coverter()
+
+    # body_map = attrs.body |> to_editor_map
+    # body = body_map |> Jason.encode
+    # body_html = body_map |> Convert.to_html
+
+    # |> Ecto.Changeset.put_change(:emotions, @default_emotions)
+
     target
     |> struct()
     |> target.changeset(attrs)

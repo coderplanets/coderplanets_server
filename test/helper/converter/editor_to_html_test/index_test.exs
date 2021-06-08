@@ -25,13 +25,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
   })
 
   describe "[basic convert]" do
-    test "basic string_json parse should work" do
-      string = ~S({"time":1566184478687,"blocks":[{}],"version":"2.15.0"})
-      {:ok, converted} = Parser.string_to_json(string)
-
-      assert converted["version"] == "2.15.0"
-    end
-
     @editor_json %{
       "time" => 1_567_250_876_713,
       "blocks" => [],
@@ -100,15 +93,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
       {:error, error} = Parser.to_html(editor_string)
 
       assert String.contains?(error, "undown block: 1")
-    end
-
-    test "real-world editor.js data should work" do
-      {:ok, converted} = Parser.string_to_json(@real_editor_data)
-
-      assert not Enum.empty?(converted["blocks"])
-      assert converted["blocks"] |> is_list
-      assert converted["version"] |> is_binary
-      assert converted["time"] |> is_integer
     end
   end
 

@@ -201,6 +201,8 @@ defmodule Helper.Utils do
     end
   end
 
+  def uid(str_len \\ 5), do: Nanoid.generate(str_len)
+
   @doc "html uniq id generator for editorjs"
   @spec uid(:html, map) :: String.t()
   def uid(:html, %{"id" => id}) when g_none_empty_str(id), do: id
