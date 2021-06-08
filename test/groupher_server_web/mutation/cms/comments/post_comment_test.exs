@@ -106,6 +106,59 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     end
   end
 
+  describe "[article comment upvote]" do
+    @upvote_comment_query """
+    mutation($id: ID!) {
+      upvoteArticleComment(id: $id) {
+        id
+        upvotesCount
+        viewerHasUpvoted
+      }
+    }
+    """
+    @tag :wip
+    test "login user can upvote a exsit post comment", ~m(post user guest_conn user_conn)a do
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
+      variables = %{id: comment.id}
+
+      assert guest_conn
+             |> mutation_get_error?(@upvote_comment_query, variables, ecode(:account_login))
+
+      result =
+        user_conn |> mutation_result(@upvote_comment_query, variables, "upvoteArticleComment")
+
+      assert result["id"] == to_string(comment.id)
+      assert result["upvotesCount"] == 1
+      assert result["viewerHasUpvoted"]
+    end
+
+    @undo_upvote_comment_query """
+    mutation($id: ID!) {
+      undoUpvoteArticleComment(id: $id) {
+        id
+        upvotesCount
+        viewerHasUpvoted
+      }
+    }
+    """
+    @tag :wip
+    test "login user can undo upvote a exsit post comment", ~m(post user guest_conn user_conn)a do
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, "post comment", user)
+      variables = %{id: comment.id}
+      user_conn |> mutation_result(@upvote_comment_query, variables, "upvoteArticleComment")
+
+      assert guest_conn
+             |> mutation_get_error?(@undo_upvote_comment_query, variables, ecode(:account_login))
+
+      result =
+        user_conn
+        |> mutation_result(@undo_upvote_comment_query, variables, "undoUpvoteArticleComment")
+
+      assert result["upvotesCount"] == 0
+      assert not result["viewerHasUpvoted"]
+    end
+  end
+
   describe "[article comment emotion]" do
     @emotion_comment_query """
     mutation($id: ID!, $emotion: ArticleCommentEmotion!) {

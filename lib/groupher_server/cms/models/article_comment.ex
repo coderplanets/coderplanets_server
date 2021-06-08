@@ -70,6 +70,7 @@ defmodule GroupherServer.CMS.Model.ArticleComment do
     # 是否置顶
     field(:is_pinned, :boolean, default: false)
     field(:viewer_has_upvoted, :boolean, default: false, virtual: true)
+    field(:viewer_has_reported, :boolean, default: false, virtual: true)
 
     belongs_to(:reply_to, ArticleComment, foreign_key: :reply_to_id)
 
