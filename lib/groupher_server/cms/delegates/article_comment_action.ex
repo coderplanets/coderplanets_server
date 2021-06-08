@@ -160,7 +160,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   def upvote_article_comment(comment_id, %User{id: user_id}) do
     with {:ok, comment} <- ORM.find(ArticleComment, comment_id),
          false <- comment.is_deleted do
-      # TODO: is user upvoted before?
       Multi.new()
       |> Multi.run(:create_comment_upvote, fn _, _ ->
         ORM.create(ArticleCommentUpvote, %{article_comment_id: comment.id, user_id: user_id})
@@ -175,6 +174,15 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
       end)
       |> Multi.run(:check_article_author_upvoted, fn _, %{inc_upvotes_count: comment} ->
         update_article_author_upvoted_info(comment, user_id)
+      end)
+      |> Multi.run(:upvote_comment_done, fn _, %{check_article_author_upvoted: comment} ->
+        viewer_has_upvoted = Enum.member?(comment.meta.upvoted_user_ids, user_id)
+        viewer_has_reported = Enum.member?(comment.meta.reported_user_ids, user_id)
+
+        comment
+        |> Map.merge(%{viewer_has_upvoted: viewer_has_upvoted})
+        |> Map.merge(%{viewer_has_reported: viewer_has_reported})
+        |> done
       end)
       |> Repo.transaction()
       |> result()
@@ -203,6 +211,15 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
       end)
       |> Multi.run(:check_article_author_upvoted, fn _, %{desc_upvotes_count: updated_comment} ->
         update_article_author_upvoted_info(updated_comment, user_id)
+      end)
+      |> Multi.run(:upvote_comment_done, fn _, %{check_article_author_upvoted: comment} ->
+        viewer_has_upvoted = Enum.member?(comment.meta.upvoted_user_ids, user_id)
+        viewer_has_reported = Enum.member?(comment.meta.reported_user_ids, user_id)
+
+        comment
+        |> Map.merge(%{viewer_has_upvoted: viewer_has_upvoted})
+        |> Map.merge(%{viewer_has_reported: viewer_has_reported})
+        |> done
       end)
       |> Repo.transaction()
       |> result()
@@ -234,20 +251,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   defp update_article_author_upvoted_info(%ArticleComment{} = comment, user_id) do
     with {:ok, article} = get_full_comment(comment.id) do
       is_article_author_upvoted = article.author.id == user_id
-
-      new_meta =
-        comment.meta
-        |> Map.from_struct()
-        |> Map.merge(%{is_article_author_upvoted: is_article_author_upvoted})
-
-      comment |> ORM.update(%{meta: new_meta})
+      meta = comment.meta |> Map.put(:is_article_author_upvoted, is_article_author_upvoted)
+      comment |> ORM.update_meta(meta)
     end
   end
 
   # 设计盖楼只保留一个层级，回复楼中的评论都会被放到顶楼的 replies 中
-  defp get_parent_comment(%ArticleComment{reply_to_id: nil} = comment) do
-    comment
-  end
+  defp get_parent_comment(%ArticleComment{reply_to_id: nil} = comment), do: comment
 
   defp get_parent_comment(%ArticleComment{reply_to_id: reply_to_id} = comment)
        when not is_nil(reply_to_id) do
@@ -355,7 +365,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
 
   defp result({:ok, %{create_article_comment: result}}), do: {:ok, result}
   defp result({:ok, %{add_reply_to: result}}), do: {:ok, result}
-  defp result({:ok, %{check_article_author_upvoted: result}}), do: {:ok, result}
+  defp result({:ok, %{upvote_comment_done: result}}), do: {:ok, result}
   defp result({:ok, %{fold_comment_report_too_many: result}}), do: {:ok, result}
   defp result({:ok, %{update_comment_flag: result}}), do: {:ok, result}
   defp result({:ok, %{delete_article_comment: result}}), do: {:ok, result}
