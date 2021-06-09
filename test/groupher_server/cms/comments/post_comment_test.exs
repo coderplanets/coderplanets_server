@@ -26,7 +26,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
   end
 
   describe "[basic article comment]" do
-    @tag :wip
     test "post are supported by article comment.", ~m(user post)a do
       {:ok, post_comment_1} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
       {:ok, post_comment_2} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
@@ -783,6 +782,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert answers |> List.first() |> Map.get(:id) == comment2.id
     end
 
+    @tag :wip
     test "update a solution should also update post's solution digest", ~m(user community)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
@@ -790,13 +790,15 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
       post_author = post.author.user
 
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), post_author)
+      {:ok, comment} =
+        CMS.create_article_comment(:post, post.id, mock_comment("solution"), post_author)
+
       {:ok, comment} = CMS.mark_comment_solution(comment.id, post_author)
 
       {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
       assert post.solution_digest == "solution"
 
-      {:ok, _comment} = CMS.update_article_comment(comment, "new solution")
+      {:ok, _comment} = CMS.update_article_comment(comment, mock_comment("new solution"))
       {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
       assert post.solution_digest == "new solution"
     end

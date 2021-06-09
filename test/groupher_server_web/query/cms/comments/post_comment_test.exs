@@ -211,7 +211,8 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
         acc ++ [comment]
       end)
 
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_content", user)
+      {:ok, parent_comment} =
+        CMS.create_article_comment(:post, post.id, mock_comment("parent_comment"), user)
 
       {:ok, replyed_comment_1} =
         CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
@@ -690,13 +691,14 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       {:ok, parent_comment} = CMS.create_article_comment(thread, post.id, mock_comment(), user)
 
       Enum.reduce(1..total_count, [], fn i, acc ->
-        {:ok, reply_comment} = CMS.reply_article_comment(parent_comment.id, "reply #{i}", user2)
+        {:ok, reply_comment} =
+          CMS.reply_article_comment(parent_comment.id, mock_comment("reply #{i}"), user2)
 
         acc ++ [reply_comment]
       end)
 
       {:ok, author_reply_comment} =
-        CMS.reply_article_comment(parent_comment.id, "author reply", author_user)
+        CMS.reply_article_comment(parent_comment.id, mock_comment("author reply"), author_user)
 
       variables = %{id: parent_comment.id, filter: %{page: 1, size: page_size}}
       results = guest_conn |> query_result(@query, variables, "pagedCommentReplies")
