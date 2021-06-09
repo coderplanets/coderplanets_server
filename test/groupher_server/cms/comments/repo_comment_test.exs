@@ -147,7 +147,6 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
 
   describe "[article comment upvotes]" do
     test "user can upvote a repo comment", ~m(user repo)a do
-      comment = "repo_comment"
       {:ok, comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
 
       CMS.upvote_article_comment(comment.id, user)
@@ -159,7 +158,6 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
     end
 
     test "article author upvote repo comment will have flag", ~m(repo user)a do
-      comment = "repo_comment"
       {:ok, comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
       {:ok, author_user} = ORM.find(User, repo.author.user.id)
 
@@ -170,7 +168,6 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
     end
 
     test "user upvote repo comment will add id to upvoted_user_ids", ~m(repo user)a do
-      comment = "repo_comment"
       {:ok, comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
       {:ok, comment} = CMS.upvote_article_comment(comment.id, user)
 
@@ -179,7 +176,6 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
 
     test "user undo upvote repo comment will remove id from upvoted_user_ids",
          ~m(repo user user2)a do
-      comment = "repo_comment"
       {:ok, comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
       {:ok, _comment} = CMS.upvote_article_comment(comment.id, user)
       {:ok, comment} = CMS.upvote_article_comment(comment.id, user2)
@@ -194,7 +190,6 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
     end
 
     test "user upvote a already-upvoted comment fails", ~m(user repo)a do
-      comment = "repo_comment"
       {:ok, comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
 
       CMS.upvote_article_comment(comment.id, user)
@@ -202,7 +197,6 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
     end
 
     test "upvote comment should inc the comment's upvotes_count", ~m(user user2 repo)a do
-      comment = "repo_comment"
       {:ok, comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
       assert comment.upvotes_count == 0

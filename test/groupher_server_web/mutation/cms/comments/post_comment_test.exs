@@ -28,13 +28,13 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     }
     """
     test "write article comment to a exsit post", ~m(post user_conn)a do
-      comment = "a test comment"
-      variables = %{thread: "POST", id: post.id, content: comment}
+      variables = %{thread: "POST", id: post.id, body: mock_comment()}
 
       result =
         user_conn |> mutation_result(@write_comment_query, variables, "createArticleComment")
 
-      assert result["bodyHtml"] == comment
+      assert result["bodyHtml"] |> String.contains?(~s(<p id=))
+      assert result["bodyHtml"] |> String.contains?(~s(comment</p>))
     end
 
     @reply_comment_query """
@@ -47,13 +47,14 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     """
     test "login user can reply to a comment", ~m(post user user_conn)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
-      variables = %{id: comment.id, body: mock_comment()}
+      variables = %{id: comment.id, body: mock_comment("reply comment")}
 
       result =
         user_conn
         |> mutation_result(@reply_comment_query, variables, "replyArticleComment")
 
-      assert result["bodyHtml"] == "reply content"
+      assert result["bodyHtml"] |> String.contains?(~s(<p id=))
+      assert result["bodyHtml"] |> String.contains?(~s(reply comment</p>))
     end
 
     @update_comment_query """
@@ -77,7 +78,8 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
       updated =
         owner_conn |> mutation_result(@update_comment_query, variables, "updateArticleComment")
 
-      assert updated["bodyHtml"] == "updated comment"
+      assert result["bodyHtml"] |> String.contains?(~s(<p id=))
+      assert result["bodyHtml"] |> String.contains?(~s(updated comment</p>))
     end
 
     @delete_comment_query """

@@ -32,7 +32,6 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
     """
     test "guest user can get comment participators after comment created",
          ~m(guest_conn repo user user2)a do
-      comment = "test comment"
       total_count = 5
       thread = :repo
 
@@ -237,7 +236,6 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
     end
 
     test "guest user can get paged comment for repo", ~m(guest_conn repo user)a do
-      comment = "test comment"
       total_count = 30
       thread = :repo
 
@@ -642,7 +640,6 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
     """
 
     test "guest user can get paged replies", ~m(guest_conn repo user user2)a do
-      comment = "test comment"
       total_count = 2
       page_size = 10
       thread = :repo
