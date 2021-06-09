@@ -4,7 +4,8 @@ defmodule Helper.Converter.Article do
 
   {:ok, { body: body, body_html: body_html }} = Converter.Article.body_parse(body)
   """
-  import Helper.Utils, only: [done: 1, uid: 0]
+  import Helper.Utils, only: [done: 1, uid: 0, keys_to_strings: 1]
+
   alias Helper.Converter.EditorToHTML
 
   @doc """
@@ -25,24 +26,31 @@ defmodule Helper.Converter.Article do
   decode article body string to editor map and assign id for each block
   """
   def to_editor_map(string) when is_binary(string) do
-    with {:ok, map} <- Jason.decode(string) do
-      blocks =
-        Enum.map(map["blocks"], fn block ->
-          block_id = if is_id_valid?(block), do: block["id"], else: "block-#{uid()}"
-
-          Map.merge(block, %{"id" => block_id})
-        end)
-
+    with {:ok, map} <- Jason.decode(string),
+         {:ok, _} <- EditorToHTML.Validator.is_valid(map) do
+      blocks = Enum.map(map["blocks"], &Map.merge(&1, %{"id" => get_block_id(&1)}))
       Map.merge(map, %{"blocks" => blocks}) |> done
     end
+  end
+
+  # for markdown blocks
+  def to_editor_map(blocks) when is_list(blocks) do
+    Enum.map(blocks, fn block ->
+      block = keys_to_strings(block)
+      Map.merge(block, %{"id" => get_block_id(block)})
+    end)
+    |> done
   end
 
   def to_editor_map(_), do: {:error, "wrong editor fmt"}
 
   # use custom block id instead of editor.js's default block id
-  defp is_id_valid?(block) when is_map(block) do
-    Map.has_key?(block, "id") and String.starts_with?(block["id"], "block-")
+  defp get_block_id(%{"id" => id} = block) when not is_nil(id) do
+    case String.starts_with?(block["id"], "block-") do
+      true -> id
+      false -> "block-#{uid()}"
+    end
   end
 
-  defp is_id_valid?(_), do: false
+  defp get_block_id(_), do: "block-#{uid()}"
 end

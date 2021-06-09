@@ -45,6 +45,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
       }
 
       {:ok, editor_string} = Jason.encode(editor_json)
+
       {:error, error} = Parser.to_html(editor_string)
 
       assert error == [
@@ -114,8 +115,8 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      assert converted ==
-               ~s(<div class="#{@root_class["viewer"]}"><p>evel script</p></div>)
+      assert converted |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
+      assert converted |> String.contains?(~s(<p id="block-))
 
       editor_json = %{
         "time" => 1_567_250_876_713,
@@ -133,8 +134,12 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      assert converted ==
-               ~s(<div class="#{@root_class["viewer"]}"><p>Editor.js is an element &lt;script&gt;evel script&lt;/script&gt;</p></div>)
+      assert converted |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
+
+      assert converted
+             |> String.contains?(
+               ~s(Editor.js is an element &lt;script&gt;evel script&lt;/script&gt;)
+             )
     end
   end
 end

@@ -11,11 +11,12 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
   @class get_in(@root_class, ["header"])
 
   describe "[header block unit]" do
-    defp set_data(data) do
+    defp set_data(data, id \\ "") do
       %{
         "time" => 1_567_250_876_713,
         "blocks" => [
           %{
+            "id" => id,
             "type" => "header",
             "data" => data
           }
@@ -82,18 +83,20 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Header do
 
     test "edit exsit block will not change id value" do
       editor_json =
-        set_data(%{
-          "id" => "exist",
-          "text" => "header content",
-          "level" => 1,
-          "eyebrowTitle" => "eyebrow title content",
-          "footerTitle" => "footer title content"
-        })
+        set_data(
+          %{
+            "text" => "header content",
+            "level" => 1,
+            "eyebrowTitle" => "eyebrow title content",
+            "footerTitle" => "footer title content"
+          },
+          "block-id-exist"
+        )
 
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      assert Utils.str_occurence(converted, ~s(id="exist")) == 1
+      assert converted |> String.contains?(~s(<div id="block-id-exist"))
     end
 
     test "optional field should valid properly" do

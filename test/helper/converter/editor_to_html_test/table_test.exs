@@ -16,9 +16,9 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Table do
         "time" => 1_567_250_876_713,
         "blocks" => [
           %{
+            "id" => id,
             "type" => "table",
             "data" => %{
-              "id" => id,
               "columnCount" => column_count,
               "items" => items
             }
@@ -122,13 +122,13 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Table do
               "width" => "180px"
             }
           ],
-          "exist"
+          "block-id-exist"
         )
 
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      assert Utils.str_occurence(converted, ~s(id="exist")) == 1
+      assert Utils.str_occurence(converted, ~s(id="block-id-exist")) == 1
     end
 
     test "invalid table field parse should raise error message" do

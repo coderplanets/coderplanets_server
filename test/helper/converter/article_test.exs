@@ -6,7 +6,6 @@ defmodule GroupherServer.Test.Helper.Converter.Article do
   alias Helper.Converter.{Article, EditorToHTML}
 
   describe "[snaitizer test]" do
-    @tag :wip
     test "body_parse should return valid format" do
       body = """
       {
