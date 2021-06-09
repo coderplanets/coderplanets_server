@@ -2,9 +2,14 @@ defmodule GroupherServer.Test.Articles.Job do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
-  alias CMS.Model.{Job, Community}
+  alias Helper.Converter.{EditorToHTML, HtmlSanitizer}
+
+  alias EditorToHTML.{Class, Validator}
+  alias CMS.Model.{Author, Job, Community}
+
   alias Helper.ORM
 
+  @root_class Class.article()
   @last_year Timex.shift(Timex.beginning_of_year(Timex.now()), days: -3, seconds: -1)
 
   setup do
@@ -18,12 +23,19 @@ defmodule GroupherServer.Test.Articles.Job do
   end
 
   describe "[cms jobs curd]" do
-    test "can create a job with valid attrs", ~m(user community job_attrs)a do
+    test "can create job with valid attrs", ~m(user community job_attrs)a do
+      assert {:error, _} = ORM.find_by(Author, user_id: user.id)
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
-      {:ok, found} = ORM.find(Job, job.id)
-      assert found.id == job.id
-      assert found.title == job.title
+      body_map = Jason.decode!(job.body)
+
+      assert job.title == job_attrs.title
+      assert body_map |> Validator.is_valid()
+      assert job.body_html |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
+      assert job.body_html |> String.contains?(~s(<p id="block-))
+
+      paragraph_text = body_map["blocks"] |> List.first() |> get_in(["data", "text"])
+      assert job.digest == paragraph_text |> HtmlSanitizer.strip_all_tags()
     end
 
     test "created job should have a acitve_at field, same with inserted_at",

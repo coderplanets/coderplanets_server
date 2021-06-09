@@ -34,6 +34,14 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   @default_emotions Embeds.ArticleEmotion.default_emotions()
   @default_article_meta Embeds.ArticleMeta.default_meta()
 
+  content = """
+  {
+    "time": 2018,
+    "blocks": [],
+    "version": "2.22.0"
+  }
+  """
+
   @doc """
   read articles for un-logined user
   """
@@ -389,7 +397,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   #  for create artilce step in Multi.new
   defp do_create_article(target, attrs, %Author{id: aid}, %Community{id: cid}) do
-    with {:ok, parsed} <- Converter.Article.parse_body(attrs.body),
+    # special article like Repo do not have :body, assign it with default "{}"
+    default_rich_text = Converter.Article.default_rich_text()
+    body = Map.get(attrs, :body, default_rich_text)
+
+    with {:ok, parsed} <- Converter.Article.parse_body(body),
          {:ok, digest} <- Converter.Article.parse_digest(parsed.body_map) do
       attrs =
         attrs
