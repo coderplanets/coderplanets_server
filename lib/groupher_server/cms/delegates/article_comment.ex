@@ -92,13 +92,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   @doc """
   creates a comment for article like psot, job ...
   """
-  def create_article_comment(thread, article_id, content, %User{} = user) do
+  def create_article_comment(thread, article_id, body, %User{} = user) do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, article_id, preload: [author: :user]),
          true <- can_comment?(article, user) do
       Multi.new()
       |> Multi.run(:create_article_comment, fn _, _ ->
-        do_create_comment(content, info.foreign_key, article, user)
+        do_create_comment(body, info.foreign_key, article, user)
       end)
       |> Multi.run(:update_article_comments_count, fn _, %{create_article_comment: comment} ->
         update_article_comments_count(comment, :inc)
@@ -133,15 +133,15 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   update a comment for article like psot, job ...
   """
   # 如果是 solution, 那么要更新对应的 post 的 solution_digest
-  def update_article_comment(%ArticleComment{is_solution: true} = article_comment, content) do
+  def update_article_comment(%ArticleComment{is_solution: true} = article_comment, body) do
     with {:ok, post} <- ORM.find(Post, article_comment.post_id) do
-      post |> ORM.update(%{solution_digest: content})
-      article_comment |> ORM.update(%{body_html: content})
+      post |> ORM.update(%{solution_digest: body})
+      article_comment |> ORM.update(%{body: body, body_html: body})
     end
   end
 
-  def update_article_comment(%ArticleComment{} = article_comment, content) do
-    article_comment |> ORM.update(%{body_html: content})
+  def update_article_comment(%ArticleComment{} = article_comment, body) do
+    article_comment |> ORM.update(%{body: body, body_html: body})
   end
 
   @doc """
@@ -216,7 +216,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     |> result()
   end
 
-  # add participator to article-like content (Post, Job ...) and update count
+  # add participator to article-like(Post, Job ...) and update count
   def add_participator_to_article(
         %{article_comments_participators: article_comments_participators} = article,
         %User{} = user
@@ -259,7 +259,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   # set floor
   # TODO: parse editor-json
   # set default emotions
-  def do_create_comment(content, foreign_key, article, %User{id: user_id}) do
+  def do_create_comment(body, foreign_key, article, %User{id: user_id}) do
     thread = foreign_key |> to_string |> String.split("_id") |> List.first() |> String.upcase()
 
     count_query = from(c in ArticleComment, where: field(c, ^foreign_key) == ^article.id)
@@ -270,7 +270,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       Map.put(
         %{
           author_id: user_id,
-          body_html: content,
+          body: body,
+          body_html: body,
           emotions: @default_emotions,
           floor: floor,
           is_article_author: user_id == article.author.user.id,

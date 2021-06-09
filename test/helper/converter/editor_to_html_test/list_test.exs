@@ -105,7 +105,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       assert Utils.str_occurence(converted, @class["order_list_prefix"]) == 3
     end
 
-    @tag :wip
     test "edit exsit block will not change id value" do
       editor_json =
         set_items(
