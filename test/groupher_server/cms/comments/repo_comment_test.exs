@@ -135,7 +135,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
     test "recent comment user should appear at first of the psot participators",
          ~m(user user2 repo)a do
       {:ok, _} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
-      {:ok, _} = CMS.create_article_comment(:repo, repo.id, repo_comment_1, user2)
+      {:ok, _} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user2)
 
       {:ok, repo} = ORM.find(Repo, repo.id)
 
