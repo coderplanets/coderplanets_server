@@ -186,8 +186,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentReplies do
 
       {:ok, reply_comment} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user)
 
-      {:ok, reply_comment2} =
-        CMS.reply_article_comment(parent_comment.id, "reply_content_2", user)
+      {:ok, reply_comment2} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user)
 
       {:ok, paged_comments} =
         CMS.paged_article_comments(
