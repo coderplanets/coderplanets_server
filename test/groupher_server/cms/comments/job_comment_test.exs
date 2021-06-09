@@ -37,13 +37,13 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     end
 
     test "comment should have default meta after create", ~m(user job)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
+      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
       assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
     end
 
     test "create comment should update active timestamp of job", ~m(user job)a do
       Process.sleep(1000)
-      {:ok, _comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
+      {:ok, _comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
       {:ok, job} = ORM.find(Job, job.id, preload: :article_comments)
 
       assert not is_nil(job.active_at)
@@ -73,7 +73,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       {:ok, job} = db_insert(:job, %{inserted_at: inserted_at})
       Process.sleep(1000)
-      {:ok, _comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
+      {:ok, _comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
       {:ok, job} = ORM.find(Job, job.id)
 
       assert job.active_at |> DateTime.to_date() == DateTime.utc_now() |> DateTime.to_date()
@@ -84,14 +84,14 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       {:ok, job} = db_insert(:job, %{inserted_at: inserted_at})
       Process.sleep(3000)
-      {:ok, _comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
+      {:ok, _comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
       {:ok, job} = ORM.find(Job, job.id)
 
       assert job.active_at |> DateTime.to_unix() !== DateTime.utc_now() |> DateTime.to_unix()
     end
 
     test "comment can be updated", ~m(job user)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, "job comment", user)
+      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
 
       {:ok, updated_comment} = CMS.update_article_comment(comment, "updated content")
 
@@ -430,8 +430,8 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
         acc ++ [comment]
       end)
 
-      {:ok, random_comment_1} = CMS.create_article_comment(:job, job.id, "pin commment", user)
-      {:ok, random_comment_2} = CMS.create_article_comment(:job, job.id, "pin commment2", user)
+      {:ok, random_comment_1} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, random_comment_2} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
 
       {:ok, pined_comment_1} = CMS.pin_article_comment(random_comment_1.id)
       {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)
@@ -462,8 +462,8 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
         acc ++ [comment]
       end)
 
-      {:ok, random_comment_1} = CMS.create_article_comment(:job, job.id, "pin commment", user)
-      {:ok, random_comment_2} = CMS.create_article_comment(:job, job.id, "pin commment2", user)
+      {:ok, random_comment_1} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, random_comment_2} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
 
       {:ok, pined_comment_1} = CMS.pin_article_comment(random_comment_1.id)
       {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)

@@ -323,7 +323,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       assert first_post["id"] !== to_string(post_last_week.id)
 
       Process.sleep(1500)
-      {:ok, _comment} = CMS.create_article_comment(:post, post_last_week.id, "comment", user)
+      {:ok, _comment} = CMS.create_article_comment(:post, post_last_week.id, mock_comment(), user)
 
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
       entries = results["entries"]
@@ -335,7 +335,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
     test "comment on very old post have no effect", ~m(guest_conn post_last_year user)a do
       variables = %{filter: %{page: 1, size: 20}}
 
-      {:ok, _comment} = CMS.create_article_comment(:post, post_last_year.id, "comment", user)
+      {:ok, _comment} = CMS.create_article_comment(:post, post_last_year.id, mock_comment(), user)
 
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
       entries = results["entries"]

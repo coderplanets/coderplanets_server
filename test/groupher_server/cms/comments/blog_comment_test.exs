@@ -102,7 +102,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
 
   describe "[article comment floor]" do
     test "comment will have a floor number after created", ~m(user blog)a do
-      {:ok, blog_comment} = CMS.create_article_comment(:blog, blog.id, "comment", user)
+      {:ok, blog_comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
       {:ok, blog_comment2} = CMS.create_article_comment(:blog, blog.id, "comment2", user)
 
       {:ok, blog_comment} = ORM.find(ArticleComment, blog_comment.id)
@@ -445,8 +445,8 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
         acc ++ [comment]
       end)
 
-      {:ok, random_comment_1} = CMS.create_article_comment(:blog, blog.id, "pin commment", user)
-      {:ok, random_comment_2} = CMS.create_article_comment(:blog, blog.id, "pin commment2", user)
+      {:ok, random_comment_1} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
+      {:ok, random_comment_2} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
 
       {:ok, pined_comment_1} = CMS.pin_article_comment(random_comment_1.id)
       {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)
@@ -477,8 +477,8 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
         acc ++ [comment]
       end)
 
-      {:ok, random_comment_1} = CMS.create_article_comment(:blog, blog.id, "pin commment", user)
-      {:ok, random_comment_2} = CMS.create_article_comment(:blog, blog.id, "pin commment2", user)
+      {:ok, random_comment_1} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
+      {:ok, random_comment_2} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
 
       {:ok, pined_comment_1} = CMS.pin_article_comment(random_comment_1.id)
       {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)
@@ -645,14 +645,14 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
 
   describe "[lock/unlock blog comment]" do
     test "locked blog can not be comment", ~m(user blog)a do
-      {:ok, _} = CMS.create_article_comment(:blog, blog.id, "comment", user)
+      {:ok, _} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
       {:ok, _} = CMS.lock_article_comment(:blog, blog.id)
 
-      {:error, reason} = CMS.create_article_comment(:blog, blog.id, "comment", user)
+      {:error, reason} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
       assert reason |> is_error?(:article_comment_locked)
 
       {:ok, _} = CMS.undo_lock_article_comment(:blog, blog.id)
-      {:ok, _} = CMS.create_article_comment(:blog, blog.id, "comment", user)
+      {:ok, _} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
     end
 
     test "locked blog can not by reply", ~m(user blog)a do

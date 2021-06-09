@@ -27,8 +27,8 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
 
   describe "[basic article comment]" do
     test "repo are supported by article comment.", ~m(user repo)a do
-      {:ok, repo_comment_1} = CMS.create_article_comment(:repo, repo.id, "repo_comment 1", user)
-      {:ok, repo_comment_2} = CMS.create_article_comment(:repo, repo.id, "repo_comment 2", user)
+      {:ok, repo_comment_1} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
+      {:ok, repo_comment_2} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
 
       {:ok, repo} = ORM.find(Repo, repo.id, preload: :article_comments)
 
@@ -37,13 +37,13 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
     end
 
     test "comment should have default meta after create", ~m(user repo)a do
-      {:ok, comment} = CMS.create_article_comment(:repo, repo.id, "repo comment", user)
+      {:ok, comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
       assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
     end
 
     test "create comment should update active timestamp of repo", ~m(user repo)a do
       Process.sleep(1000)
-      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "repo comment", user)
+      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
       {:ok, repo} = ORM.find(Repo, repo.id, preload: :article_comments)
 
       assert not is_nil(repo.active_at)
@@ -74,7 +74,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
 
       {:ok, repo} = db_insert(:repo, %{inserted_at: inserted_at})
       Process.sleep(1000)
-      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "repo comment", user)
+      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
       {:ok, repo} = ORM.find(Repo, repo.id)
 
       assert repo.active_at |> DateTime.to_date() == DateTime.utc_now() |> DateTime.to_date()
@@ -85,14 +85,14 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
 
       {:ok, repo} = db_insert(:repo, %{inserted_at: inserted_at})
       Process.sleep(3000)
-      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "repo comment", user)
+      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
       {:ok, repo} = ORM.find(Repo, repo.id)
 
       assert repo.active_at |> DateTime.to_unix() !== DateTime.utc_now() |> DateTime.to_unix()
     end
 
     test "comment can be updated", ~m(repo user)a do
-      {:ok, comment} = CMS.create_article_comment(:repo, repo.id, "repo comment", user)
+      {:ok, comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
 
       {:ok, updated_comment} = CMS.update_article_comment(comment, "updated content")
 
@@ -102,7 +102,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
 
   describe "[article comment floor]" do
     test "comment will have a floor number after created", ~m(user repo)a do
-      {:ok, repo_comment} = CMS.create_article_comment(:repo, repo.id, "comment", user)
+      {:ok, repo_comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
       {:ok, repo_comment2} = CMS.create_article_comment(:repo, repo.id, "comment2", user)
 
       {:ok, repo_comment} = ORM.find(ArticleComment, repo_comment.id)
@@ -394,8 +394,8 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
         acc ++ [comment]
       end)
 
-      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "commment", user)
-      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "commment", user)
+      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
+      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
 
       {:ok, results} =
         CMS.paged_article_comments_participators(thread, repo.id, %{page: 1, size: page_size})
@@ -445,8 +445,8 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
         acc ++ [comment]
       end)
 
-      {:ok, random_comment_1} = CMS.create_article_comment(:repo, repo.id, "pin commment", user)
-      {:ok, random_comment_2} = CMS.create_article_comment(:repo, repo.id, "pin commment2", user)
+      {:ok, random_comment_1} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
+      {:ok, random_comment_2} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
 
       {:ok, pined_comment_1} = CMS.pin_article_comment(random_comment_1.id)
       {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)
@@ -477,8 +477,8 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
         acc ++ [comment]
       end)
 
-      {:ok, random_comment_1} = CMS.create_article_comment(:repo, repo.id, "pin commment", user)
-      {:ok, random_comment_2} = CMS.create_article_comment(:repo, repo.id, "pin commment2", user)
+      {:ok, random_comment_1} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
+      {:ok, random_comment_2} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
 
       {:ok, pined_comment_1} = CMS.pin_article_comment(random_comment_1.id)
       {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)
@@ -596,11 +596,11 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
     end
 
     test "delete comment still update article's comments_count field", ~m(user repo)a do
-      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "commment", user)
-      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "commment", user)
+      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
+      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
       {:ok, comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
-      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "commment", user)
-      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "commment", user)
+      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
+      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
 
       {:ok, repo} = ORM.find(Repo, repo.id)
 
@@ -645,18 +645,18 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
 
   describe "[lock/unlock repo comment]" do
     test "locked repo can not be comment", ~m(user repo)a do
-      {:ok, _} = CMS.create_article_comment(:repo, repo.id, "comment", user)
+      {:ok, _} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
       {:ok, _} = CMS.lock_article_comment(:repo, repo.id)
 
-      {:error, reason} = CMS.create_article_comment(:repo, repo.id, "comment", user)
+      {:error, reason} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
       assert reason |> is_error?(:article_comment_locked)
 
       {:ok, _} = CMS.undo_lock_article_comment(:repo, repo.id)
-      {:ok, _} = CMS.create_article_comment(:repo, repo.id, "comment", user)
+      {:ok, _} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
     end
 
     test "locked repo can not by reply", ~m(user repo)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, "parent_conent", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
       {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
 
       {:ok, _} = CMS.lock_article_comment(:repo, repo.id)

@@ -254,17 +254,17 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       thread = :repo
 
       Enum.reduce(1..total_count, [], fn _, acc ->
-        {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment", user)
+        {:ok, comment} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
 
         acc ++ [comment]
       end)
 
-      {:ok, comment} = CMS.create_article_comment(thread, repo.id, "pinned comment", user)
+      {:ok, comment} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
       {:ok, pinned_comment} = CMS.pin_article_comment(comment.id)
 
       Process.sleep(1000)
 
-      {:ok, comment} = CMS.create_article_comment(thread, repo.id, "pinned comment 2", user)
+      {:ok, comment} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
       {:ok, pinned_comment2} = CMS.pin_article_comment(comment.id)
 
       variables = %{id: repo.id, thread: "REPO", filter: %{page: 1, size: 10}}
@@ -282,7 +282,7 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       page_size = 10
 
       Enum.reduce(1..total_count, [], fn _, acc ->
-        {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment", user)
+        {:ok, comment} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
         Process.sleep(1000)
         acc ++ [comment]
       end)
@@ -298,11 +298,11 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       page_size = 10
       thread = :repo
 
-      {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment 1", user)
+      {:ok, comment} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
       Process.sleep(1000)
-      {:ok, _comment2} = CMS.create_article_comment(thread, repo.id, "test comment 2", user)
+      {:ok, _comment2} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
       Process.sleep(1000)
-      {:ok, comment3} = CMS.create_article_comment(thread, repo.id, "test comment 3", user)
+      {:ok, comment3} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
 
       variables = %{
         id: repo.id,
@@ -321,11 +321,11 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       page_size = 10
       thread = :repo
 
-      {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment 1", user)
+      {:ok, comment} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
       Process.sleep(1000)
-      {:ok, _comment2} = CMS.create_article_comment(thread, repo.id, "test comment 2", user)
+      {:ok, _comment2} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
       Process.sleep(1000)
-      {:ok, comment3} = CMS.create_article_comment(thread, repo.id, "test comment 3", user)
+      {:ok, comment3} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
 
       variables = %{
         id: repo.id,
@@ -349,11 +349,11 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       {:ok, _reply_comment} = CMS.reply_article_comment(comment.id, mock_comment(), user)
       {:ok, _reply_comment} = CMS.reply_article_comment(comment.id, mock_comment(), user2)
       Process.sleep(1000)
-      {:ok, comment2} = CMS.create_article_comment(thread, repo.id, "test comment 2", user)
+      {:ok, comment2} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
       {:ok, _reply_comment} = CMS.reply_article_comment(comment2.id, mock_comment(), user)
       {:ok, _reply_comment} = CMS.reply_article_comment(comment2.id, mock_comment(), user2)
       Process.sleep(1000)
-      {:ok, comment3} = CMS.create_article_comment(thread, repo.id, "test comment 3", user)
+      {:ok, comment3} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
       {:ok, _reply_comment} = CMS.reply_article_comment(comment3.id, mock_comment(), user)
       {:ok, _reply_comment} = CMS.reply_article_comment(comment3.id, mock_comment(), user2)
 
@@ -562,8 +562,8 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
         acc ++ [comment]
       end)
 
-      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "commment", user)
-      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "commment", user)
+      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
+      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
 
       variables = %{id: repo.id, thread: thread, filter: %{page: 1, size: page_size}}
 

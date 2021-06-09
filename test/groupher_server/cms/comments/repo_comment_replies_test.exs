@@ -118,7 +118,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentReplies do
     test "comment replies only contains @max_parent_replies_count replies", ~m(repo user)a do
       total_reply_count = @max_parent_replies_count + 1
 
-      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, "parent_conent", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
 
       reply_comment_list =
         Enum.reduce(1..total_reply_count, [], fn n, acc ->
@@ -138,8 +138,8 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentReplies do
     end
 
     test "replyed user should appear in article comment participators", ~m(repo user user2)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, "parent_conent", user)
-      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user2)
+      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
 
       {:ok, article} = ORM.find(Repo, repo.id)
 
@@ -148,14 +148,14 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentReplies do
     end
 
     test "replies count should inc by 1 after got replyed", ~m(repo user user2)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, "parent_conent", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
       assert parent_comment.replies_count === 0
 
-      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user2)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
       assert parent_comment.replies_count === 1
 
-      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user2)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
       assert parent_comment.replies_count === 2
     end
@@ -163,7 +163,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentReplies do
 
   describe "[paged article comment replies]" do
     test "can get paged replies of a parent comment", ~m(repo user)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, "parent_conent", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
       {:ok, paged_replies} = CMS.paged_comment_replies(parent_comment.id, %{page: 1, size: 20})
       assert is_valid_pagination?(paged_replies, :raw, :empty)
 
@@ -192,9 +192,9 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentReplies do
       page_number = 1
       page_size = 10
 
-      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, "parent_conent", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
 
-      {:ok, reply_comment} = CMS.reply_article_comment(parent_comment.id, "reply_content_1", user)
+      {:ok, reply_comment} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user)
 
       {:ok, reply_comment2} =
         CMS.reply_article_comment(parent_comment.id, "reply_content_2", user)

@@ -288,7 +288,7 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     test "questioner can mark a post comment as solution", ~m(post)a do
       {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
       post_author = post.author.user
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, "solution", post_author)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), post_author)
 
       questioner_conn = simu_conn(:user, post_author)
 
@@ -303,7 +303,7 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     test "other user can not mark a post comment as solution", ~m(guest_conn user_conn post)a do
       {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
       post_author = post.author.user
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, "solution", post_author)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), post_author)
 
       variables = %{id: comment.id}
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:require_questioner))
@@ -323,7 +323,7 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     test "questioner can undo mark a post comment as solution", ~m(post)a do
       {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
       post_author = post.author.user
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, "solution", post_author)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), post_author)
       {:ok, comment} = CMS.mark_comment_solution(comment.id, post_author)
 
       questioner_conn = simu_conn(:user, post_author)
@@ -339,7 +339,7 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
          ~m(guest_conn user_conn post)a do
       {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
       post_author = post.author.user
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, "solution", post_author)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), post_author)
 
       variables = %{id: comment.id}
       assert user_conn |> mutation_get_error?(@query, variables, ecode(:require_questioner))

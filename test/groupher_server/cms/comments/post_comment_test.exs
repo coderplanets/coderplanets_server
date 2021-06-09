@@ -446,8 +446,8 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
         acc ++ [comment]
       end)
 
-      {:ok, random_comment_1} = CMS.create_article_comment(:post, post.id, "pin commment", user)
-      {:ok, random_comment_2} = CMS.create_article_comment(:post, post.id, "pin commment2", user)
+      {:ok, random_comment_1} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
+      {:ok, random_comment_2} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
       {:ok, pined_comment_1} = CMS.pin_article_comment(random_comment_1.id)
       {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)
@@ -478,8 +478,8 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
         acc ++ [comment]
       end)
 
-      {:ok, random_comment_1} = CMS.create_article_comment(:post, post.id, "pin commment", user)
-      {:ok, random_comment_2} = CMS.create_article_comment(:post, post.id, "pin commment2", user)
+      {:ok, random_comment_1} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
+      {:ok, random_comment_2} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
       {:ok, pined_comment_1} = CMS.pin_article_comment(random_comment_1.id)
       {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)
@@ -802,7 +802,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
       post_author = post.author.user
 
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, "solution", post_author)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), post_author)
       {:ok, comment} = CMS.mark_comment_solution(comment.id, post_author)
 
       {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])

@@ -139,7 +139,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
 
     test "replyed user should appear in article comment participators", ~m(post user user2)a do
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
-      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user2)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
 
       {:ok, article} = ORM.find(Post, post.id)
 
@@ -151,11 +151,11 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
       assert parent_comment.replies_count === 0
 
-      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user2)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
       assert parent_comment.replies_count === 1
 
-      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user2)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
       assert parent_comment.replies_count === 2
     end
@@ -194,7 +194,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
 
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
 
-      {:ok, reply_comment} = CMS.reply_article_comment(parent_comment.id, "reply_content_1", user)
+      {:ok, reply_comment} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user)
 
       {:ok, reply_comment2} =
         CMS.reply_article_comment(parent_comment.id, "reply_content_2", user)
