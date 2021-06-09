@@ -58,7 +58,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
       Process.sleep(1000)
 
       {:ok, _comment} =
-        CMS.create_article_comment(:blog, blog.id, "blog comment", blog.author.user)
+        CMS.create_article_comment(:blog, blog.id, mock_comment(), blog.author.user)
 
       {:ok, blog} = ORM.find(Blog, blog.id, preload: :article_comments)
 
@@ -147,8 +147,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
 
   describe "[article comment upvotes]" do
     test "user can upvote a blog comment", ~m(user blog)a do
-      comment = "blog_comment"
-      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, comment, user)
+      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
 
       CMS.upvote_article_comment(comment.id, user)
 
@@ -159,8 +158,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
     end
 
     test "article author upvote blog comment will have flag", ~m(blog user)a do
-      comment = "blog_comment"
-      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, comment, user)
+      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
       {:ok, author_user} = ORM.find(User, blog.author.user.id)
 
       CMS.upvote_article_comment(comment.id, author_user)
@@ -170,8 +168,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
     end
 
     test "user upvote blog comment will add id to upvoted_user_ids", ~m(blog user)a do
-      comment = "blog_comment"
-      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, comment, user)
+      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
       {:ok, comment} = CMS.upvote_article_comment(comment.id, user)
 
       assert user.id in comment.meta.upvoted_user_ids
@@ -179,8 +176,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
 
     test "user undo upvote blog comment will remove id from upvoted_user_ids",
          ~m(blog user user2)a do
-      comment = "blog_comment"
-      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, comment, user)
+      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
       {:ok, _comment} = CMS.upvote_article_comment(comment.id, user)
       {:ok, comment} = CMS.upvote_article_comment(comment.id, user2)
 
@@ -194,16 +190,14 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
     end
 
     test "user upvote a already-upvoted comment fails", ~m(user blog)a do
-      comment = "blog_comment"
-      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, comment, user)
+      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
 
       CMS.upvote_article_comment(comment.id, user)
       {:error, _} = CMS.upvote_article_comment(comment.id, user)
     end
 
     test "upvote comment should inc the comment's upvotes_count", ~m(user user2 blog)a do
-      comment = "blog_comment"
-      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, comment, user)
+      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
       assert comment.upvotes_count == 0
 

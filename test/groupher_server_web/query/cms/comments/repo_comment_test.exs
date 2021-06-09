@@ -37,7 +37,7 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       thread = :repo
 
       Enum.reduce(1..total_count, [], fn _, acc ->
-        {:ok, comment} = CMS.create_article_comment(thread, repo.id, comment, user)
+        {:ok, comment} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
 
         acc ++ [comment]
       end)
@@ -242,7 +242,7 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       thread = :repo
 
       Enum.reduce(1..total_count, [], fn _, acc ->
-        {:ok, value} = CMS.create_article_comment(thread, repo.id, comment, user)
+        {:ok, value} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
 
         acc ++ [value]
       end)
@@ -648,7 +648,7 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       thread = :repo
 
       author_user = repo.author.user
-      {:ok, parent_comment} = CMS.create_article_comment(thread, repo.id, comment, user)
+      {:ok, parent_comment} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
 
       Enum.reduce(1..total_count, [], fn i, acc ->
         {:ok, reply_comment} = CMS.reply_article_comment(parent_comment.id, "reply #{i}", user2)
