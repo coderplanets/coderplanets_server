@@ -27,8 +27,8 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
 
   describe "[basic article comment]" do
     test "blog are supported by article comment.", ~m(user blog)a do
-      {:ok, blog_comment_1} = CMS.create_article_comment(:blog, blog.id, "blog_comment 1", user)
-      {:ok, blog_comment_2} = CMS.create_article_comment(:blog, blog.id, "blog_comment 2", user)
+      {:ok, blog_comment_1} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
+      {:ok, blog_comment_2} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
 
       {:ok, blog} = ORM.find(Blog, blog.id, preload: :article_comments)
 
@@ -37,13 +37,13 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
     end
 
     test "comment should have default meta after create", ~m(user blog)a do
-      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, "blog comment", user)
+      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
       assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
     end
 
     test "create comment should update active timestamp of blog", ~m(user blog)a do
       Process.sleep(1000)
-      {:ok, _comment} = CMS.create_article_comment(:blog, blog.id, "blog comment", user)
+      {:ok, _comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
       {:ok, blog} = ORM.find(Blog, blog.id, preload: :article_comments)
 
       assert not is_nil(blog.active_at)
@@ -74,7 +74,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
 
       {:ok, blog} = db_insert(:blog, %{inserted_at: inserted_at})
       Process.sleep(1000)
-      {:ok, _comment} = CMS.create_article_comment(:blog, blog.id, "blog comment", user)
+      {:ok, _comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
       {:ok, blog} = ORM.find(Blog, blog.id)
 
       assert blog.active_at |> DateTime.to_date() == DateTime.utc_now() |> DateTime.to_date()
@@ -85,14 +85,14 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
 
       {:ok, blog} = db_insert(:blog, %{inserted_at: inserted_at})
       Process.sleep(3000)
-      {:ok, _comment} = CMS.create_article_comment(:blog, blog.id, "blog comment", user)
+      {:ok, _comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
       {:ok, blog} = ORM.find(Blog, blog.id)
 
       assert blog.active_at |> DateTime.to_unix() !== DateTime.utc_now() |> DateTime.to_unix()
     end
 
     test "comment can be updated", ~m(blog user)a do
-      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, "blog comment", user)
+      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
 
       {:ok, updated_comment} = CMS.update_article_comment(comment, "updated content")
 
@@ -103,7 +103,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
   describe "[article comment floor]" do
     test "comment will have a floor number after created", ~m(user blog)a do
       {:ok, blog_comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
-      {:ok, blog_comment2} = CMS.create_article_comment(:blog, blog.id, "comment2", user)
+      {:ok, blog_comment2} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
 
       {:ok, blog_comment} = ORM.find(ArticleComment, blog_comment.id)
       {:ok, blog_comment2} = ORM.find(ArticleComment, blog_comment2.id)
@@ -115,9 +115,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
 
   describe "[article comment participator for blog]" do
     test "blog will have participator after comment created", ~m(user blog)a do
-      blog_comment_1 = "blog_comment 1"
-
-      {:ok, _} = CMS.create_article_comment(:blog, blog.id, blog_comment_1, user)
+      {:ok, _} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
 
       {:ok, blog} = ORM.find(Blog, blog.id)
 
@@ -126,10 +124,8 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
     end
 
     test "psot participator will not contains same user", ~m(user blog)a do
-      blog_comment_1 = "blog_comment 1"
-
-      {:ok, _} = CMS.create_article_comment(:blog, blog.id, blog_comment_1, user)
-      {:ok, _} = CMS.create_article_comment(:blog, blog.id, blog_comment_1, user)
+      {:ok, _} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
+      {:ok, _} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
 
       {:ok, blog} = ORM.find(Blog, blog.id)
 
@@ -138,9 +134,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
 
     test "recent comment user should appear at first of the psot participators",
          ~m(user user2 blog)a do
-      blog_comment_1 = "blog_comment 1"
-
-      {:ok, _} = CMS.create_article_comment(:blog, blog.id, blog_comment_1, user)
+      {:ok, _} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
       {:ok, _} = CMS.create_article_comment(:blog, blog.id, blog_comment_1, user2)
 
       {:ok, blog} = ORM.find(Blog, blog.id)
@@ -389,7 +383,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
 
       Enum.reduce(1..total_count, [], fn _, acc ->
         {:ok, new_user} = db_insert(:user)
-        {:ok, comment} = CMS.create_article_comment(:blog, blog.id, "commment", new_user)
+        {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), new_user)
 
         acc ++ [comment]
       end)
@@ -638,7 +632,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
       assert not comment.is_article_author
 
       author_user = blog.author.user
-      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, "commment", author_user)
+      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), author_user)
       assert comment.is_article_author
     end
   end
@@ -657,15 +651,15 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
 
     test "locked blog can not by reply", ~m(user blog)a do
       {:ok, parent_comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
-      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user)
 
       {:ok, _} = CMS.lock_article_comment(:blog, blog.id)
 
-      {:error, reason} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
+      {:error, reason} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user)
       assert reason |> is_error?(:article_comment_locked)
 
       {:ok, _} = CMS.undo_lock_article_comment(:blog, blog.id)
-      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user)
     end
   end
 end

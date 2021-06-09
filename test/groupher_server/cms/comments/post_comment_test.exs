@@ -116,9 +116,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
 
   describe "[article comment participator for post]" do
     test "post will have participator after comment created", ~m(user post)a do
-      post_comment_1 = "post_comment 1"
-
-      {:ok, _} = CMS.create_article_comment(:post, post.id, post_comment_1, user)
+      {:ok, _} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
       {:ok, post} = ORM.find(Post, post.id)
 
@@ -127,10 +125,8 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
     end
 
     test "psot participator will not contains same user", ~m(user post)a do
-      post_comment_1 = "post_comment 1"
-
-      {:ok, _} = CMS.create_article_comment(:post, post.id, post_comment_1, user)
-      {:ok, _} = CMS.create_article_comment(:post, post.id, post_comment_1, user)
+      {:ok, _} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
+      {:ok, _} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
       {:ok, post} = ORM.find(Post, post.id)
 
@@ -139,9 +135,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
 
     test "recent comment user should appear at first of the psot participators",
          ~m(user user2 post)a do
-      post_comment_1 = "post_comment 1"
-
-      {:ok, _} = CMS.create_article_comment(:post, post.id, post_comment_1, user)
+      {:ok, _} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
       {:ok, _} = CMS.create_article_comment(:post, post.id, post_comment_1, user2)
 
       {:ok, post} = ORM.find(Post, post.id)
@@ -154,8 +148,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
 
   describe "[article comment upvotes]" do
     test "user can upvote a post comment", ~m(user post)a do
-      comment = "post_comment"
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
       CMS.upvote_article_comment(comment.id, user)
 
@@ -166,8 +159,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
     end
 
     test "article author upvote post comment will have flag", ~m(post user)a do
-      comment = "post_comment"
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
       {:ok, author_user} = ORM.find(User, post.author.user.id)
 
       CMS.upvote_article_comment(comment.id, author_user)
@@ -177,8 +169,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
     end
 
     test "user upvote post comment will add id to upvoted_user_ids", ~m(post user)a do
-      comment = "post_comment"
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
       {:ok, comment} = CMS.upvote_article_comment(comment.id, user)
 
       assert user.id in comment.meta.upvoted_user_ids
@@ -186,8 +177,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
 
     test "user undo upvote post comment will remove id from upvoted_user_ids",
          ~m(post user user2)a do
-      comment = "post_comment"
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
       {:ok, _comment} = CMS.upvote_article_comment(comment.id, user)
       {:ok, comment} = CMS.upvote_article_comment(comment.id, user2)
 
@@ -201,16 +191,14 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
     end
 
     test "user upvote a already-upvoted comment fails", ~m(user post)a do
-      comment = "post_comment"
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
       CMS.upvote_article_comment(comment.id, user)
       {:error, _} = CMS.upvote_article_comment(comment.id, user)
     end
 
     test "upvote comment should inc the comment's upvotes_count", ~m(user user2 post)a do
-      comment = "post_comment"
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, comment, user)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
       assert comment.upvotes_count == 0
 
@@ -390,7 +378,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
 
       Enum.reduce(1..total_count, [], fn _, acc ->
         {:ok, new_user} = db_insert(:user)
-        {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", new_user)
+        {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), new_user)
 
         acc ++ [comment]
       end)
@@ -639,7 +627,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert not comment.is_article_author
 
       author_user = post.author.user
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", author_user)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), author_user)
       assert comment.is_article_author
     end
   end
@@ -657,16 +645,16 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
     end
 
     test "locked post can not by reply", ~m(user post)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
-      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user)
 
       {:ok, _} = CMS.lock_article_comment(:post, post.id)
 
-      {:error, reason} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
+      {:error, reason} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user)
       assert reason |> is_error?(:article_comment_locked)
 
       {:ok, _} = CMS.undo_lock_article_comment(:post, post.id)
-      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user)
     end
   end
 

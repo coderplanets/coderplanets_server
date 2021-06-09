@@ -20,8 +20,8 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
 
   describe "[article comment CURD]" do
     @write_comment_query """
-    mutation($thread: Thread!, $id: ID!, $content: String!) {
-      createArticleComment(thread: $thread,id: $id, content: $content) {
+    mutation($thread: Thread!, $id: ID!, $body: String!) {
+      createArticleComment(thread: $thread,id: $id, body: $body) {
         id
         bodyHtml
       }
@@ -38,8 +38,8 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     end
 
     @reply_comment_query """
-    mutation($id: ID!, $content: String!) {
-      replyArticleComment(id: $id, content: $content) {
+    mutation($id: ID!, $body: String!) {
+      replyArticleComment(id: $id, body: $body) {
         id
         bodyHtml
       }
@@ -47,7 +47,7 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     """
     test "login user can reply to a comment", ~m(post user user_conn)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
-      variables = %{id: comment.id, content: "reply content"}
+      variables = %{id: comment.id, body: mock_comment()}
 
       result =
         user_conn
@@ -57,8 +57,8 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     end
 
     @update_comment_query """
-    mutation($id: ID!, $content: String!) {
-      updateArticleComment(id: $id, content: $content) {
+    mutation($id: ID!, $body: String!) {
+      updateArticleComment(id: $id, body: $body) {
         id
         bodyHtml
       }
@@ -67,7 +67,7 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     test "only owner can update a exsit comment",
          ~m(post user guest_conn user_conn owner_conn)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
-      variables = %{id: comment.id, content: "updated comment"}
+      variables = %{id: comment.id, content: mock_comment("updated comment")}
 
       assert user_conn |> mutation_get_error?(@update_comment_query, variables, ecode(:passport))
 

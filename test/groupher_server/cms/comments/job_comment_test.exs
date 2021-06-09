@@ -27,8 +27,8 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
   describe "[basic article comment]" do
     test "job are supported by article comment.", ~m(user job)a do
-      {:ok, job_comment_1} = CMS.create_article_comment(:job, job.id, "job_comment 1", user)
-      {:ok, job_comment_2} = CMS.create_article_comment(:job, job.id, "job_comment 2", user)
+      {:ok, job_comment_1} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, job_comment_2} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
 
       {:ok, job} = ORM.find(Job, job.id, preload: :article_comments)
 
@@ -57,7 +57,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       Process.sleep(1000)
 
-      {:ok, _comment} = CMS.create_article_comment(:job, job.id, "job comment", job.author.user)
+      {:ok, _comment} = CMS.create_article_comment(:job, job.id, mock_comment(), job.author.user)
 
       {:ok, job} = ORM.find(Job, job.id, preload: :article_comments)
 
@@ -102,7 +102,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
   describe "[article comment floor]" do
     test "comment will have a floor number after created", ~m(user job)a do
       {:ok, job_comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
-      {:ok, job_comment2} = CMS.create_article_comment(:job, job.id, "comment2", user)
+      {:ok, job_comment2} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
 
       {:ok, job_comment} = ORM.find(ArticleComment, job_comment.id)
       {:ok, job_comment2} = ORM.find(ArticleComment, job_comment2.id)
@@ -374,7 +374,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       Enum.reduce(1..total_count, [], fn _, acc ->
         {:ok, new_user} = db_insert(:user)
-        {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", new_user)
+        {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), new_user)
 
         acc ++ [comment]
       end)
@@ -623,7 +623,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       assert not comment.is_article_author
 
       author_user = job.author.user
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", author_user)
+      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), author_user)
       assert comment.is_article_author
     end
   end

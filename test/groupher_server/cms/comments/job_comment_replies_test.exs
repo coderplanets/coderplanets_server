@@ -20,11 +20,8 @@ defmodule GroupherServer.Test.CMS.Comments.JobCommentReplies do
 
   describe "[basic article comment replies]" do
     test "exsit comment can be reply", ~m(job user user2)a do
-      parent_content = "parent comment"
-      reply_content = "reply comment"
-
-      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, parent_content, user)
-      {:ok, replyed_comment} = CMS.reply_article_comment(parent_comment.id, reply_content, user2)
+      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, replyed_comment} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
       assert replyed_comment.reply_to.id == parent_comment.id
 
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
@@ -33,27 +30,20 @@ defmodule GroupherServer.Test.CMS.Comments.JobCommentReplies do
     end
 
     test "deleted comment can not be reply", ~m(job user user2)a do
-      parent_content = "parent comment"
-      reply_content = "reply comment"
-
-      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
       {:ok, _} = CMS.delete_article_comment(parent_comment)
 
-      {:error, _} = CMS.reply_article_comment(parent_comment.id, reply_content, user2)
+      {:error, _} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
     end
 
     test "multi reply should belong to one parent comment", ~m(job user user2)a do
-      parent_content = "parent comment"
-      reply_content_1 = "reply comment 1"
-      reply_content_2 = "reply comment 2"
-
-      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
 
       {:ok, replyed_comment_1} =
-        CMS.reply_article_comment(parent_comment.id, reply_content_1, user2)
+        CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
 
       {:ok, replyed_comment_2} =
-        CMS.reply_article_comment(parent_comment.id, reply_content_2, user2)
+        CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
 
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
 
@@ -63,7 +53,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobCommentReplies do
 
     test "reply to reply inside a comment should belong same parent comment",
          ~m(job user user2)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, "parent comment", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
 
       {:ok, replyed_comment_1} =
         CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
@@ -93,7 +83,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobCommentReplies do
 
     test "reply to reply inside a comment should have is_reply_to_others flag in meta",
          ~m(job user user2)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, "parent comment", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
 
       {:ok, replyed_comment_1} =
         CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)

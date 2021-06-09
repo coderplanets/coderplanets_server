@@ -10,7 +10,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
       # TODO use thread and force community pass-in
       arg(:thread, :thread, default_value: :post)
       arg(:id, non_null(:id))
-      arg(:content, non_null(:string))
+      arg(:body, non_null(:string))
       # arg(:mention_users, list_of(:ids))
 
       # TDOO: use a comment resolver
@@ -23,7 +23,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
     @desc "update a comment"
     field :update_article_comment, :article_comment do
       arg(:id, non_null(:id))
-      arg(:content, non_null(:string))
+      arg(:body, non_null(:string))
       # arg(:mention_users, list_of(:ids))
 
       middleware(M.Authorize, :login)
@@ -47,7 +47,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
     @desc "reply to a comment"
     field :reply_article_comment, :article_comment do
       arg(:id, non_null(:id))
-      arg(:content, non_null(:string))
+      arg(:body, non_null(:string))
 
       middleware(M.Authorize, :login)
       # TODO: 文章作者可以删除评论，文章可以设置禁止评论

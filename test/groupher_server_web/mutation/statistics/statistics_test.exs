@@ -189,7 +189,7 @@ defmodule GroupherServer.Test.Mutation.Statistics do
     end
 
     @write_comment_query """
-    mutation($thread: Thread!, $id: ID!, $content: String!) {
+    mutation($thread: Thread!, $id: ID!, $body: String!) {
       createArticleComment(thread: $thread, id: $id, content: $content) {
         id
         bodyHtml
