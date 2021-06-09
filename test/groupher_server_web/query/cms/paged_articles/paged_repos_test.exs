@@ -389,7 +389,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
         CMS.create_article_comment(
           :repo,
           repo_last_week.id,
-          modk_comment(),
+          mock_comment(),
           repo_last_week.author.user
         )
 
