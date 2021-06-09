@@ -28,16 +28,35 @@ defmodule GroupherServer.Support.Factory do
   @default_article_meta CMS.Model.Embeds.ArticleMeta.default_meta()
   @default_emotions CMS.Model.Embeds.ArticleCommentEmotion.default_emotions()
 
+  # simulate editor.js fmt rich text
+  defp mock_rich_text() do
+    content = """
+    {
+      "time": 111,
+      "blocks": [
+        {
+          "id": "lldjfiek",
+          "type": "paragraph",
+          "data": {
+            "text": "coderplanets is awesome"
+          }
+        }
+      ],
+      "version": "2.22.0"
+    }
+    """
+  end
+
   defp mock_meta(:post) do
-    body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
+    text = Faker.Lorem.sentence(%Range{first: 80, last: 120})
 
     %{
       meta: @default_article_meta,
-      title: String.slice(body, 1, 49),
-      body: body,
-      digest: String.slice(body, 1, 150),
-      solution_digest: String.slice(body, 1, 150),
-      length: String.length(body),
+      title: String.slice(text, 1, 49),
+      body: mock_rich_text(),
+      digest: String.slice(text, 1, 150),
+      solution_digest: String.slice(text, 1, 150),
+      length: String.length(text),
       author: mock(:author),
       views: Enum.random(0..2000),
       original_community: mock(:community),
@@ -123,16 +142,16 @@ defmodule GroupherServer.Support.Factory do
   end
 
   defp mock_meta(:job) do
-    body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
+    text = Faker.Lorem.sentence(%Range{first: 80, last: 120})
 
     %{
       meta: @default_article_meta,
-      title: String.slice(body, 1, 49),
+      title: String.slice(text, 1, 49),
       company: Faker.Company.name(),
-      body: body,
+      body: mock_rich_text,
       desc: "活少, 美女多",
-      digest: String.slice(body, 1, 150),
-      length: String.length(body),
+      digest: String.slice(text, 1, 150),
+      length: String.length(text),
       author: mock(:author),
       views: Enum.random(0..2000),
       original_community: mock(:community),
@@ -145,14 +164,14 @@ defmodule GroupherServer.Support.Factory do
   end
 
   defp mock_meta(:blog) do
-    body = Faker.Lorem.sentence(%Range{first: 80, last: 120})
+    text = Faker.Lorem.sentence(%Range{first: 80, last: 120})
 
     %{
       meta: @default_article_meta,
-      title: String.slice(body, 1, 49),
-      body: String.slice(body, 1, 49),
-      digest: String.slice(body, 1, 150),
-      length: String.length(body),
+      title: String.slice(text, 1, 49),
+      body: mock_rich_text,
+      digest: String.slice(text, 1, 150),
+      length: String.length(text),
       author: mock(:author),
       views: Enum.random(0..2000),
       original_community: mock(:community),
@@ -165,9 +184,9 @@ defmodule GroupherServer.Support.Factory do
   end
 
   defp mock_meta(:comment) do
-    body = Faker.Lorem.sentence(%Range{first: 30, last: 80})
+    # text = Faker.Lorem.sentence(%Range{first: 30, last: 80})
 
-    %{body: body}
+    %{body: mock_rich_text}
   end
 
   defp mock_meta(:mention) do

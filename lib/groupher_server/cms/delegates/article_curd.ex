@@ -21,7 +21,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   import Helper.ErrorCode
   import ShortMaps
 
-  alias Helper.{Later, ORM, QueryBuilder}
+  alias Helper.{Later, ORM, QueryBuilder, Converter}
   alias GroupherServer.{Accounts, CMS, Delivery, Email, Repo, Statistics}
 
   alias Accounts.Model.User
@@ -389,17 +389,18 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   #  for create artilce step in Multi.new
   defp do_create_article(target, attrs, %Author{id: aid}, %Community{id: cid}) do
-    # {:ok, { body: body, body_html: body_html }} = Convert.Article.body_parse
-    # attrs |> Map.merge(%{body: body, body_html: body_html})
+    with {:ok, %{body: body, body_html: body_html}} <- Converter.Article.body_parse(attrs.body) do
+      attrs = attrs |> Map.merge(%{body: body, body_html: body_html})
 
-    target
-    |> struct()
-    |> target.changeset(attrs)
-    |> Ecto.Changeset.put_change(:emotions, @default_emotions)
-    |> Ecto.Changeset.put_change(:author_id, aid)
-    |> Ecto.Changeset.put_change(:original_community_id, integerfy(cid))
-    |> Ecto.Changeset.put_embed(:meta, @default_article_meta)
-    |> Repo.insert()
+      target
+      |> struct()
+      |> target.changeset(attrs)
+      |> Ecto.Changeset.put_change(:emotions, @default_emotions)
+      |> Ecto.Changeset.put_change(:author_id, aid)
+      |> Ecto.Changeset.put_change(:original_community_id, integerfy(cid))
+      |> Ecto.Changeset.put_embed(:meta, @default_article_meta)
+      |> Repo.insert()
+    end
   end
 
   # except Job, other article will just pass, should use set_article_tags function instead

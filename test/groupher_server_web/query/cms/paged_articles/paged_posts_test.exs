@@ -315,7 +315,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       }
     }
     """
-    @tag :wip
     test "latest commented post should appear on top", ~m(guest_conn post_last_week user)a do
       variables = %{filter: %{page: 1, size: 20}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")

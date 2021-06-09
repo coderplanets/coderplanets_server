@@ -103,4 +103,9 @@ defmodule Helper.Converter.HtmlSanitizer do
     # workarround for https://github.com/rrrene/html_sanitize_ex/issues/48
     |> String.replace(" viewbox=\"", " viewBox=\"")
   end
+
+  @doc """
+  strip all html tags
+  """
+  def strip_all_tags(text), do: text |> HtmlSanitizeEx.strip_tags()
 end
