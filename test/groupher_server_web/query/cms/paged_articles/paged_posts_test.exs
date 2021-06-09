@@ -351,7 +351,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
         CMS.create_article_comment(
           :post,
           post_last_week.id,
-          "comment",
+          modk_comment(),
           post_last_week.author.user
         )
 

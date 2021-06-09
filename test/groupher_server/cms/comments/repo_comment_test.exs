@@ -58,7 +58,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
       Process.sleep(1000)
 
       {:ok, _comment} =
-        CMS.create_article_comment(:repo, repo.id, "repo comment", repo.author.user)
+        CMS.create_article_comment(:repo, repo.id, mock_comment(), repo.author.user)
 
       {:ok, repo} = ORM.find(Repo, repo.id, preload: :article_comments)
 

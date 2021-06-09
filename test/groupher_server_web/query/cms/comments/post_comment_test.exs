@@ -309,7 +309,9 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
 
       Process.sleep(1000)
 
-      {:ok, comment} = CMS.create_article_comment(thread, post.id, "solution", post_author)
+      {:ok, comment} =
+        CMS.create_article_comment(thread, post.id, mock_comment("solution"), post_author)
+
       {:ok, solution_comment} = CMS.mark_comment_solution(comment.id, post_author)
 
       Process.sleep(1000)

@@ -444,7 +444,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
         CMS.create_article_comment(
           :job,
           job_last_week.id,
-          "comment",
+          modk_comment(),
           job_last_week.author.user
         )
 

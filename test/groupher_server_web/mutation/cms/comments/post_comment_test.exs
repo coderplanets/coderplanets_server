@@ -68,7 +68,7 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     test "only owner can update a exsit comment",
          ~m(post user guest_conn user_conn owner_conn)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
-      variables = %{id: comment.id, content: mock_comment("updated comment")}
+      variables = %{id: comment.id, body: mock_comment("updated comment")}
 
       assert user_conn |> mutation_get_error?(@update_comment_query, variables, ecode(:passport))
 

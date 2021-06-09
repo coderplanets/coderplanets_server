@@ -113,7 +113,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobCommentReplies do
       reply_comment_list =
         Enum.reduce(1..total_reply_count, [], fn n, acc ->
           {:ok, replyed_comment} =
-            CMS.reply_article_comment(parent_comment.id, "reply_content_#{n}", user)
+            CMS.reply_article_comment(parent_comment.id, mock_comment("reply_content_#{n}"), user)
 
           acc ++ [replyed_comment]
         end)
@@ -162,7 +162,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobCommentReplies do
       reply_comment_list =
         Enum.reduce(1..total_reply_count, [], fn n, acc ->
           {:ok, replyed_comment} =
-            CMS.reply_article_comment(parent_comment.id, "reply_content_#{n}", user)
+            CMS.reply_article_comment(parent_comment.id, mock_comment("reply_content_#{n}"), user)
 
           acc ++ [replyed_comment]
         end)
