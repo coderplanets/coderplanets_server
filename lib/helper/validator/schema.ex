@@ -93,33 +93,24 @@ defmodule Helper.Validator.Schema do
   defp match(field, value, type, [{:min, min} | options])
        when type in @support_min and g_not_nil(value) and g_pos_int(min) do
     case Utils.large_than(value, min) do
-      true ->
-        match(field, value, type, options)
-
-      false ->
-        error(field, value, :min, min)
+      true -> match(field, value, type, options)
+      false -> error(field, value, :min, min)
     end
   end
 
   ## starts_with option for string
   defp match(field, value, type, [{:starts_with, starts} | options]) when is_binary(value) do
     case String.starts_with?(value, starts) do
-      true ->
-        match(field, value, type, options)
-
-      false ->
-        error(field, value, :starts_with, starts)
+      true -> match(field, value, type, options)
+      false -> error(field, value, :starts_with, starts)
     end
   end
 
   ## item type for list
   defp match(field, value, type, [{:type, :map} | options]) when is_list(value) do
     case Enum.all?(value, &is_map(&1)) do
-      true ->
-        match(field, value, type, options)
-
-      false ->
-        error(field, value, :list_type_map)
+      true -> match(field, value, type, options)
+      false -> error(field, value, :list_type_map)
     end
   end
 

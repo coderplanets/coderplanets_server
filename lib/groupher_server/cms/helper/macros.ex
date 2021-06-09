@@ -187,6 +187,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
     quote do
       field(:title, :string)
       field(:body, :string)
+      field(:body_html, :string)
       field(:digest, :string)
 
       belongs_to(:author, Author)

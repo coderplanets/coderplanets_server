@@ -389,13 +389,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   #  for create artilce step in Multi.new
   defp do_create_article(target, attrs, %Author{id: aid}, %Community{id: cid}) do
-    # {:ok, { body: body, body_html: body_html }} = Convert.body_coverter()
-
-    # body_map = attrs.body |> to_editor_map
-    # body = body_map |> Jason.encode
-    # body_html = body_map |> Convert.to_html
-
-    # |> Ecto.Changeset.put_change(:emotions, @default_emotions)
+    # {:ok, { body: body, body_html: body_html }} = Convert.Article.body_parse
+    # attrs |> Map.merge(%{body: body, body_html: body_html})
 
     target
     |> struct()
