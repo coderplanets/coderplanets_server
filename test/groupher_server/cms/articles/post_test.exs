@@ -3,8 +3,9 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
 
   alias Helper.ORM
   alias GroupherServer.CMS
+  alias Helper.Converter.{EditorToHTML, HtmlSanitizer}
 
-  alias Helper.Converter.EditorToHTML.{Class, Validator}
+  alias EditorToHTML.{Class, Validator}
   alias CMS.Model.{Author, Community, Post}
 
   @root_class Class.article()
@@ -25,16 +26,17 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
     @tag :wip
     test "can create post with valid attrs", ~m(user community post_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
-
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
-      IO.inspect(post.body, label: "post created")
-      IO.inspect(post.body_html, label: "post created2")
+
+      body_map = Jason.decode!(post.body)
 
       assert post.title == post_attrs.title
-
-      assert Jason.decode!(post.body) |> Validator.is_valid()
+      assert body_map |> Validator.is_valid()
       assert post.body_html |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
       assert post.body_html |> String.contains?(~s(<p id="block-))
+
+      paragraph_text = body_map["blocks"] |> List.first() |> get_in(["data", "text"])
+      assert post.digest == paragraph_text |> HtmlSanitizer.strip_all_tags()
     end
 
     test "created post should have a acitve_at field, same with inserted_at",

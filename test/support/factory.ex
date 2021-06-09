@@ -38,7 +38,7 @@ defmodule GroupherServer.Support.Factory do
           "id": "lldjfiek",
           "type": "paragraph",
           "data": {
-            "text": "coderplanets is awesome"
+            "text": "coderplanets is <b>awesome</b>"
           }
         }
       ],
@@ -148,7 +148,7 @@ defmodule GroupherServer.Support.Factory do
       meta: @default_article_meta,
       title: String.slice(text, 1, 49),
       company: Faker.Company.name(),
-      body: mock_rich_text,
+      body: mock_rich_text(),
       desc: "活少, 美女多",
       digest: String.slice(text, 1, 150),
       length: String.length(text),
@@ -169,7 +169,7 @@ defmodule GroupherServer.Support.Factory do
     %{
       meta: @default_article_meta,
       title: String.slice(text, 1, 49),
-      body: mock_rich_text,
+      body: mock_rich_text(),
       digest: String.slice(text, 1, 150),
       length: String.length(text),
       author: mock(:author),
@@ -186,7 +186,7 @@ defmodule GroupherServer.Support.Factory do
   defp mock_meta(:comment) do
     # text = Faker.Lorem.sentence(%Range{first: 30, last: 80})
 
-    %{body: mock_rich_text}
+    %{body: mock_rich_text()}
   end
 
   defp mock_meta(:mention) do

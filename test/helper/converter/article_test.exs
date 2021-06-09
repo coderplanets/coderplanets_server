@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.Helper.Converter.Article do
   alias Helper.Converter.{Article, EditorToHTML}
 
   describe "[snaitizer test]" do
-    test "body_parse should return valid format" do
+    test "parse_body should return valid format" do
       body = """
       {
         "time": 11,
@@ -23,7 +23,7 @@ defmodule GroupherServer.Test.Helper.Converter.Article do
       }
       """
 
-      {:ok, %{body: body, body_html: body_html}} = Article.body_parse(body)
+      {:ok, %{body: body, body_html: body_html}} = Article.parse_body(body)
       {:ok, body_map} = Jason.decode(body)
 
       assert body_html |> String.contains?("<p id=\"block-")

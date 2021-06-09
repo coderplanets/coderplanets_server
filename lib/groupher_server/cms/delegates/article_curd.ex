@@ -389,8 +389,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   #  for create artilce step in Multi.new
   defp do_create_article(target, attrs, %Author{id: aid}, %Community{id: cid}) do
-    with {:ok, %{body: body, body_html: body_html}} <- Converter.Article.body_parse(attrs.body) do
-      attrs = attrs |> Map.merge(%{body: body, body_html: body_html})
+    with {:ok, parsed} <- Converter.Article.parse_body(attrs.body),
+         {:ok, digest} <- Converter.Article.parse_digest(parsed.body_map) do
+      attrs =
+        attrs
+        |> Map.merge(Map.take(parsed, [:body, :body_html]))
+        |> Map.merge(%{digest: digest})
 
       target
       |> struct()
