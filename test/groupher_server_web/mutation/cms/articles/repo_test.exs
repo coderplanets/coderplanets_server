@@ -155,18 +155,19 @@ defmodule GroupherServer.Test.Mutation.Articles.Repo do
       # assert updated["readme"] == "new readme"
     end
 
+    @tag :wip
     test "create repo should excape xss attracts" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
       {:ok, community} = db_insert(:community)
-      repo_attr = mock_attrs(:repo, %{readme: assert_v(:xss_string)})
 
+      repo_attr = mock_attrs(:repo, %{body: mock_xss_string()})
       variables = repo_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
       created = user_conn |> mutation_result(@create_repo_query, variables, "createRepo")
       {:ok, repo} = ORM.find(Repo, created["id"])
 
-      assert repo.readme == assert_v(:xss_safe_string)
+      assert not String.contains?(repo.body_html, "script")
     end
 
     test "unauth user update git-repo fails", ~m(user_conn guest_conn repo)a do

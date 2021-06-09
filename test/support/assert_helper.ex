@@ -27,13 +27,6 @@ defmodule GroupherServer.Test.AssertHelper do
   end
 
   def assert_v(:inner_page_size), do: @inner_page_size
-  def assert_v(:page_size), do: @page_size
-
-  def assert_v(:xss_string), do: "<script>alert(\"hello,world\")</script>"
-
-  def assert_v(:xss_safe_string),
-    # "&lt;script&gt;alert(&quot;hello,world&quot;)&lt;/script&gt;"
-    do: "<script>alert(\"hello,world\")</script>"
 
   def is_valid_kv?(obj, key, :list) when is_map(obj) do
     obj = map_key_stringify(obj)

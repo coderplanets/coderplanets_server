@@ -73,13 +73,28 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       user_conn = simu_conn(:user, user)
 
       {:ok, community} = db_insert(:community)
-      blog_attr = mock_attrs(:blog, %{body: assert_v(:xss_string)})
 
+      blog_attr = mock_attrs(:blog, %{body: mock_xss_string()})
       variables = blog_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
       created = user_conn |> mutation_result(@create_blog_query, variables, "createBlog")
       {:ok, blog} = ORM.find(Blog, created["id"])
 
-      assert blog.body == assert_v(:xss_safe_string)
+      assert not String.contains?(blog.body_html, "script")
+    end
+
+    @tag :wip
+    test "create blog should excape xss attracts 2" do
+      {:ok, user} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      {:ok, community} = db_insert(:community)
+
+      blog_attr = mock_attrs(:blog, %{body: mock_xss_string(:safe)})
+      variables = blog_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
+      created = user_conn |> mutation_result(@create_blog_query, variables, "createBlog")
+      {:ok, blog} = ORM.find(Blog, created["id"])
+
+      assert String.contains?(blog.body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
     end
 
     @query """

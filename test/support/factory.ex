@@ -28,7 +28,8 @@ defmodule GroupherServer.Support.Factory do
   @default_article_meta CMS.Model.Embeds.ArticleMeta.default_meta()
   @default_emotions CMS.Model.Embeds.ArticleCommentEmotion.default_emotions()
 
-  def mock_comment(text \\ "comment") do
+  # simulate editor.js fmt rich text
+  def mock_rich_text(text \\ "text") do
     """
     {
       "time": 111,
@@ -46,23 +47,16 @@ defmodule GroupherServer.Support.Factory do
     """
   end
 
-  # simulate editor.js fmt rich text
-  defp mock_rich_text() do
-    """
-    {
-      "time": 111,
-      "blocks": [
-        {
-          "id": "lldjfiek",
-          "type": "paragraph",
-          "data": {
-            "text": "coderplanets is <b>awesome</b>"
-          }
-        }
-      ],
-      "version": "2.22.0"
-    }
-    """
+  def mock_xss_string(:safe) do
+    mock_rich_text("&lt;script&gt;blackmail&lt;/script&gt;")
+  end
+
+  def mock_xss_string(text \\ "blackmail") do
+    mock_rich_text("<script>alert(#{text})</script>")
+  end
+
+  def mock_comment(text \\ "comment") do
+    mock_rich_text(text)
   end
 
   defp mock_meta(:post) do

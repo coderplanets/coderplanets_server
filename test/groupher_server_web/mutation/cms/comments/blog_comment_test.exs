@@ -27,7 +27,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
       }
     }
     """
-    @tag :wip
+    @tag :wip2
     test "write article comment to a exsit blog", ~m(blog user_conn)a do
       variables = %{thread: "BLOG", id: blog.id, body: mock_comment()}
 

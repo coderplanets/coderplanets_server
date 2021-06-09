@@ -72,18 +72,34 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       assert created["id"] == to_string(found.id)
     end
 
+    @tag :wip
     test "create job should excape xss attracts" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
       {:ok, community} = db_insert(:community)
-      job_attr = mock_attrs(:job, %{body: assert_v(:xss_string)})
 
+      job_attr = mock_attrs(:job, %{body: mock_xss_string()})
       variables = job_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
       created = user_conn |> mutation_result(@create_job_query, variables, "createJob")
       {:ok, job} = ORM.find(Job, created["id"])
 
-      assert job.body == assert_v(:xss_safe_string)
+      assert not String.contains?(job.body_html, "script")
+    end
+
+    @tag :wip
+    test "create job should excape xss attracts 2" do
+      {:ok, user} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      {:ok, community} = db_insert(:community)
+
+      job_attr = mock_attrs(:job, %{body: mock_xss_string(:safe)})
+      variables = job_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
+      created = user_conn |> mutation_result(@create_job_query, variables, "createJob")
+      {:ok, job} = ORM.find(Job, created["id"])
+
+      assert String.contains?(job.body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
     end
 
     test "can create job with mentionUsers" do

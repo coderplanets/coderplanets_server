@@ -63,18 +63,34 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert {:ok, _} = ORM.find_by(Author, user_id: user.id)
     end
 
+    @tag :wip
     test "create post should excape xss attracts" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
       {:ok, community} = db_insert(:community)
-      post_attr = mock_attrs(:post, %{body: assert_v(:xss_string)})
 
-      variables = post_attr |> Map.merge(%{communityId: community.id})
+      post_attr = mock_attrs(:post, %{body: mock_xss_string()})
+      variables = post_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
       created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
       {:ok, post} = ORM.find(Post, created["id"])
 
-      assert post.body == assert_v(:xss_safe_string)
+      assert not String.contains?(post.body_html, "script")
+    end
+
+    @tag :wip
+    test "create post should excape xss attracts 2" do
+      {:ok, user} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      {:ok, community} = db_insert(:community)
+
+      post_attr = mock_attrs(:post, %{body: mock_xss_string(:safe)})
+      variables = post_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
+      created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+      {:ok, post} = ORM.find(Post, created["id"])
+
+      assert String.contains?(post.body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
     end
 
     # NOTE: this test is IMPORTANT, cause json_codec: Jason in router will cause
