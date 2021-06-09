@@ -76,7 +76,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
       assert guest_conn
              |> mutation_get_error?(@update_comment_query, variables, ecode(:account_login))
 
-      updated =
+      result =
         owner_conn |> mutation_result(@update_comment_query, variables, "updateArticleComment")
 
       assert result["bodyHtml"] |> String.contains?(~s(<p id=))
