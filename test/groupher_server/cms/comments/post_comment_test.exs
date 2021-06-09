@@ -209,8 +209,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
     end
 
     test "user can undo upvote a post comment", ~m(user post)a do
-      content = "post_comment"
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, content, user)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
       CMS.upvote_article_comment(comment.id, user)
 
       {:ok, comment} = ORM.find(ArticleComment, comment.id, preload: :upvotes)
@@ -221,8 +220,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
     end
 
     test "user can undo upvote a post comment with no upvote", ~m(user post)a do
-      content = "post_comment"
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, content, user)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
       {:ok, comment} = CMS.undo_upvote_article_comment(comment.id, user)
       assert 0 == comment.upvotes_count
 
