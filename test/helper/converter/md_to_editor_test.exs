@@ -231,7 +231,6 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
              ]
     end
 
-    @tag :wip
     # TODO: inline code parse
     test "complex ast parser should work" do
       markdown = """
