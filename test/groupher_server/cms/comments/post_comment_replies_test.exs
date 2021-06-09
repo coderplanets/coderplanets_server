@@ -63,11 +63,16 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
 
     test "reply to reply inside a comment should belong same parent comment",
          ~m(post user user2)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent comment", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
-      {:ok, replyed_comment_1} = CMS.reply_article_comment(parent_comment.id, "reply 1", user2)
-      {:ok, replyed_comment_2} = CMS.reply_article_comment(replyed_comment_1.id, "reply 2", user2)
-      {:ok, replyed_comment_3} = CMS.reply_article_comment(replyed_comment_2.id, "reply 3", user)
+      {:ok, replyed_comment_1} =
+        CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
+
+      {:ok, replyed_comment_2} =
+        CMS.reply_article_comment(replyed_comment_1.id, mock_comment(), user2)
+
+      {:ok, replyed_comment_3} =
+        CMS.reply_article_comment(replyed_comment_2.id, mock_comment(), user)
 
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
 
@@ -88,11 +93,16 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
 
     test "reply to reply inside a comment should have is_reply_to_others flag in meta",
          ~m(post user user2)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent comment", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
-      {:ok, replyed_comment_1} = CMS.reply_article_comment(parent_comment.id, "reply 1", user2)
-      {:ok, replyed_comment_2} = CMS.reply_article_comment(replyed_comment_1.id, "reply 2", user2)
-      {:ok, replyed_comment_3} = CMS.reply_article_comment(replyed_comment_2.id, "reply 3", user)
+      {:ok, replyed_comment_1} =
+        CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
+
+      {:ok, replyed_comment_2} =
+        CMS.reply_article_comment(replyed_comment_1.id, mock_comment(), user2)
+
+      {:ok, replyed_comment_3} =
+        CMS.reply_article_comment(replyed_comment_2.id, mock_comment(), user)
 
       {:ok, _parent_comment} = ORM.find(ArticleComment, parent_comment.id)
 

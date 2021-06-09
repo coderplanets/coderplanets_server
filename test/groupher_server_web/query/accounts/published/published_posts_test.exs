@@ -79,7 +79,7 @@ defmodule GroupherServer.Test.Query.Accounts.Published.Posts do
     test "user can get paged published comments on post", ~m(guest_conn user post)a do
       pub_comments =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
-          {:ok, comment} = CMS.create_article_comment(:post, post.id, "comment", user)
+          {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
           acc ++ [comment]
         end)
 

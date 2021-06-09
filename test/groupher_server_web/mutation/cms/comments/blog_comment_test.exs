@@ -46,7 +46,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
     }
     """
     test "login user can reply to a comment", ~m(blog user user_conn)a do
-      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, "commment", user)
+      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
       variables = %{id: comment.id, content: "reply content"}
 
       result =

@@ -28,7 +28,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobCommentEmotions do
 
       all_comment =
         Enum.reduce(0..total_count, [], fn _, acc ->
-          {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
+          {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
           acc ++ [comment]
         end)
 

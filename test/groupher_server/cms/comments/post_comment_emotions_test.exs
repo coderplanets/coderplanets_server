@@ -28,7 +28,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
 
       all_comment =
         Enum.reduce(0..total_count, [], fn _, acc ->
-          {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+          {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
           acc ++ [comment]
         end)
 
@@ -147,7 +147,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
     end
 
     test "different user can make same emotions on same comment", ~m(post user user2 user3)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent comment", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :beer, user)
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :beer, user2)

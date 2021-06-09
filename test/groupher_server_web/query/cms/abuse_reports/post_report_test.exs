@@ -92,8 +92,8 @@ defmodule GroupherServer.Test.Query.AbuseReports.PostReport do
     end
 
     test "support article_comment", ~m(guest_conn post user)a do
-      {:ok, comment} = CMS.create_article_comment(:post, post.id, "comment", user)
-      {:ok, _} = CMS.report_article_comment(comment.id, "reason", "attr", user)
+      {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
+      {:ok, _} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
 
       variables = %{filter: %{content_type: "ARTICLE_COMMENT", page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedAbuseReports")

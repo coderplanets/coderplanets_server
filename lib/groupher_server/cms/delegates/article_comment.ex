@@ -11,7 +11,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   import ShortMaps
 
   alias Helper.Types, as: T
-  alias Helper.{ORM, QueryBuilder}
+  alias Helper.{ORM, QueryBuilder, Converter}
   alias GroupherServer.{Accounts, CMS, Repo}
   alias CMS.Model.Post
 
@@ -255,33 +255,27 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     end
   end
 
-  # creat article comment for parent or reply
-  # set floor
-  # TODO: parse editor-json
-  # set default emotions
+  @doc """
+  create article comment for parent or reply
+  """
   def do_create_comment(body, foreign_key, article, %User{id: user_id}) do
-    thread = foreign_key |> to_string |> String.split("_id") |> List.first() |> String.upcase()
+    with {:ok, %{body: body, body_html: body_html}} <- Converter.Article.parse_body(body) do
+      # e.g: :post_id -> "POST", :job_id -> "JOB"
+      thread = foreign_key |> to_string |> String.slice(0..-4) |> String.upcase()
 
-    count_query = from(c in ArticleComment, where: field(c, ^foreign_key) == ^article.id)
-    floor = Repo.aggregate(count_query, :count) + 1
+      attrs = %{
+        author_id: user_id,
+        body: body,
+        body_html: body_html,
+        emotions: @default_emotions,
+        floor: get_comment_floor(article, foreign_key),
+        is_article_author: user_id == article.author.user.id,
+        thread: thread,
+        meta: @default_comment_meta
+      }
 
-    ArticleComment
-    |> ORM.create(
-      Map.put(
-        %{
-          author_id: user_id,
-          body: body,
-          body_html: body,
-          emotions: @default_emotions,
-          floor: floor,
-          is_article_author: user_id == article.author.user.id,
-          thread: thread,
-          meta: @default_comment_meta
-        },
-        foreign_key,
-        article.id
-      )
-    )
+      ArticleComment |> ORM.create(Map.put(attrs, foreign_key, article.id))
+    end
   end
 
   defp do_paged_article_comment(thread, article_id, filters, where_query, user) do
@@ -397,6 +391,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     |> Repo.update_all([])
 
     {:ok, :pass}
+  end
+
+  # get next floor under an article's comments list
+  defp get_comment_floor(article, foreign_key) do
+    count_query = from(c in ArticleComment, where: field(c, ^foreign_key) == ^article.id)
+    Repo.aggregate(count_query, :count) + 1
   end
 
   defp result({:ok, %{set_question_flag_ifneed: result}}), do: {:ok, result}

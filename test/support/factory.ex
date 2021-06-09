@@ -28,9 +28,27 @@ defmodule GroupherServer.Support.Factory do
   @default_article_meta CMS.Model.Embeds.ArticleMeta.default_meta()
   @default_emotions CMS.Model.Embeds.ArticleCommentEmotion.default_emotions()
 
+  def mock_comment(text \\ "comment") do
+    """
+    {
+      "time": 111,
+      "blocks": [
+        {
+          "id": "lldjfiek",
+          "type": "paragraph",
+          "data": {
+            "text": "#{text}"
+          }
+        }
+      ],
+      "version": "2.22.0"
+    }
+    """
+  end
+
   # simulate editor.js fmt rich text
   defp mock_rich_text() do
-    content = """
+    """
     {
       "time": 111,
       "blocks": [

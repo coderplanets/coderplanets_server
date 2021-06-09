@@ -136,8 +136,12 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
         end)
 
       random_comment = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
-      {:ok, replyed_comment_1} = CMS.reply_article_comment(random_comment.id, "reply 1", user2)
-      {:ok, replyed_comment_2} = CMS.reply_article_comment(random_comment.id, "reply 2", user2)
+
+      {:ok, replyed_comment_1} =
+        CMS.reply_article_comment(random_comment.id, mock_comment(), user2)
+
+      {:ok, replyed_comment_2} =
+        CMS.reply_article_comment(random_comment.id, mock_comment(), user2)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
@@ -170,8 +174,11 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
 
       random_comment = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
 
-      {:ok, replyed_comment_1} = CMS.reply_article_comment(random_comment.id, "reply 1", user2)
-      {:ok, replyed_comment_2} = CMS.reply_article_comment(random_comment.id, "reply 2", user2)
+      {:ok, replyed_comment_1} =
+        CMS.reply_article_comment(random_comment.id, mock_comment(), user2)
+
+      {:ok, replyed_comment_2} =
+        CMS.reply_article_comment(random_comment.id, mock_comment(), user2)
 
       variables = %{
         id: post.id,
@@ -202,8 +209,11 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
 
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_content", user)
 
-      {:ok, replyed_comment_1} = CMS.reply_article_comment(parent_comment.id, "reply 1", user2)
-      {:ok, replyed_comment_2} = CMS.reply_article_comment(parent_comment.id, "reply 2", user2)
+      {:ok, replyed_comment_1} =
+        CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
+
+      {:ok, replyed_comment_2} =
+        CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: 10}, mode: "TIMELINE"}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
@@ -379,16 +389,16 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       thread = :post
 
       {:ok, comment} = CMS.create_article_comment(thread, post.id, "parent comment 1", user)
-      {:ok, _reply_comment} = CMS.reply_article_comment(comment.id, "reply 1", user)
-      {:ok, _reply_comment} = CMS.reply_article_comment(comment.id, "reply 2", user2)
+      {:ok, _reply_comment} = CMS.reply_article_comment(comment.id, mock_comment(), user)
+      {:ok, _reply_comment} = CMS.reply_article_comment(comment.id, mock_comment(), user2)
       Process.sleep(1000)
       {:ok, comment2} = CMS.create_article_comment(thread, post.id, "test comment 2", user)
-      {:ok, _reply_comment} = CMS.reply_article_comment(comment2.id, "reply 1", user)
-      {:ok, _reply_comment} = CMS.reply_article_comment(comment2.id, "reply 2", user2)
+      {:ok, _reply_comment} = CMS.reply_article_comment(comment2.id, mock_comment(), user)
+      {:ok, _reply_comment} = CMS.reply_article_comment(comment2.id, mock_comment(), user2)
       Process.sleep(1000)
       {:ok, comment3} = CMS.create_article_comment(thread, post.id, "test comment 3", user)
-      {:ok, _reply_comment} = CMS.reply_article_comment(comment3.id, "reply 1", user)
-      {:ok, _reply_comment} = CMS.reply_article_comment(comment3.id, "reply 2", user2)
+      {:ok, _reply_comment} = CMS.reply_article_comment(comment3.id, mock_comment(), user)
+      {:ok, _reply_comment} = CMS.reply_article_comment(comment3.id, mock_comment(), user2)
 
       variables = %{
         id: post.id,
@@ -595,8 +605,8 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
         acc ++ [comment]
       end)
 
-      {:ok, _comment} = CMS.create_article_comment(:post, post.id, "commment", user)
-      {:ok, _comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+      {:ok, _comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
+      {:ok, _comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
       variables = %{id: post.id, thread: thread, filter: %{page: 1, size: page_size}}
 

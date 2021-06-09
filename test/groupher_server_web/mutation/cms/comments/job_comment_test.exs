@@ -46,7 +46,7 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
     }
     """
     test "login user can reply to a comment", ~m(job user user_conn)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, "commment", user)
+      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
       variables = %{id: comment.id, content: "reply content"}
 
       result =
