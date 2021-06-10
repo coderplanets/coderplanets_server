@@ -794,7 +794,8 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, comment} = CMS.mark_comment_solution(comment.id, post_author)
 
       {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
-      assert post.solution_digest == "solution"
+      assert post.solution_digest |> String.contains?(~s(<p id=))
+      assert post.solution_digest |> String.contains?(~s(solution</p>))
 
       {:ok, _comment} = CMS.update_article_comment(comment, mock_comment("new solution"))
       {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])

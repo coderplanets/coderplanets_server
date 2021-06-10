@@ -67,7 +67,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       assert created["id"] == to_string(found.id)
     end
 
-    @tag :wip
     test "create blog should excape xss attracts" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -82,7 +81,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       assert not String.contains?(blog.body_html, "script")
     end
 
-    @tag :wip
     test "create blog should excape xss attracts 2" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)

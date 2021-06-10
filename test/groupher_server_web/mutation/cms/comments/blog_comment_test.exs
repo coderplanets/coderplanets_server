@@ -60,12 +60,13 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
 
     @update_comment_query """
     mutation($id: ID!, $body: String!) {
-      updateArticleComment(id: $id, content: $content) {
+      updateArticleComment(id: $id, body: $body) {
         id
         bodyHtml
       }
     }
     """
+    @tag :wip
     test "only owner can update a exsit comment",
          ~m(blog user guest_conn user_conn owner_conn)a do
       {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)

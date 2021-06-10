@@ -190,15 +190,16 @@ defmodule GroupherServer.Test.Mutation.Statistics do
 
     @write_comment_query """
     mutation($thread: Thread!, $id: ID!, $body: String!) {
-      createArticleComment(thread: $thread, id: $id, content: $content) {
+      createArticleComment(thread: $thread, id: $id, body: $body) {
         id
         bodyHtml
       }
     }
     """
+    @tag :wip
     test "user should have contribute list after create a comment", ~m(user_conn user)a do
       {:ok, post} = db_insert(:post)
-      variables = %{thread: "POST", id: post.id, content: "comment"}
+      variables = %{thread: "POST", id: post.id, body: mock_comment()}
       user_conn |> mutation_result(@write_comment_query, variables, "createArticleComment")
 
       {:ok, contributes} = ORM.find_by(UserContribute, user_id: user.id)

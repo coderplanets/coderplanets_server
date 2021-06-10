@@ -134,14 +134,19 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   """
   # 如果是 solution, 那么要更新对应的 post 的 solution_digest
   def update_article_comment(%ArticleComment{is_solution: true} = article_comment, body) do
-    with {:ok, post} <- ORM.find(Post, article_comment.post_id) do
-      post |> ORM.update(%{solution_digest: body})
-      article_comment |> ORM.update(%{body: body, body_html: body})
+    with {:ok, post} <- ORM.find(Post, article_comment.post_id),
+         {:ok, parsed} <- Converter.Article.parse_body(body),
+         {:ok, digest} <- Converter.Article.parse_digest(parsed.body_map) do
+      %{body: body, body_html: body_html} = parsed
+      post |> ORM.update(%{solution_digest: digest})
+      article_comment |> ORM.update(%{body: body, body_html: body_html})
     end
   end
 
   def update_article_comment(%ArticleComment{} = article_comment, body) do
-    article_comment |> ORM.update(%{body: body, body_html: body})
+    with {:ok, %{body: body, body_html: body_html}} <- Converter.Article.parse_body(body) do
+      article_comment |> ORM.update(%{body: body, body_html: body_html})
+    end
   end
 
   @doc """

@@ -65,6 +65,7 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
       }
     }
     """
+    @tag :wip
     test "only owner can update a exsit comment",
          ~m(job user guest_conn user_conn owner_conn)a do
       {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)

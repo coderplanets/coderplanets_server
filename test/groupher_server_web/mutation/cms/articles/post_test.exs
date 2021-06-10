@@ -63,7 +63,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert {:ok, _} = ORM.find_by(Author, user_id: user.id)
     end
 
-    @tag :wip
     test "create post should excape xss attracts" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -78,7 +77,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert not String.contains?(post.body_html, "script")
     end
 
-    @tag :wip
     test "create post should excape xss attracts 2" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
