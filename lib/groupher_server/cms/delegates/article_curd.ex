@@ -6,16 +6,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   import GroupherServer.CMS.Helper.Matcher
 
-  import Helper.Utils,
-    only: [
-      done: 1,
-      pick_by: 2,
-      integerfy: 1,
-      strip_struct: 1,
-      module_to_atom: 1,
-      get_config: 2,
-      ensure: 2
-    ]
+  import Helper.Utils, only: [done: 1, pick_by: 2, module_to_atom: 1, get_config: 2, ensure: 2]
 
   import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 2]
   import Helper.ErrorCode
@@ -223,7 +214,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   """
   def update_article(article, args) do
     Multi.new()
-    |> Multi.run(:update_article, fn _, _ -> ORM.update(article, args) end)
+    |> Multi.run(:update_article, fn _, _ ->
+      do_update_article(article, args)
+    end)
     |> Multi.run(:update_comment_question_flag_if_need, fn _, %{update_article: update_article} ->
       # 如果帖子的类型变了，那么 update 所有的 flag
       case Map.has_key?(args, :is_question) do
@@ -396,28 +389,40 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   end
 
   #  for create artilce step in Multi.new
-  defp do_create_article(target, attrs, %Author{id: aid}, %Community{id: cid}) do
-    # special article like Repo do not have :body, assign it with default "{}"
-    default_rich_text = Converter.Article.default_rich_text()
-    body = Map.get(attrs, :body, default_rich_text)
+  defp do_create_article(model, attrs, %Author{id: author_id}, %Community{id: community_id}) do
+    # special article like Repo do not have :body, assign it with default-empty rich text
+    body = Map.get(attrs, :body, Converter.Article.default_rich_text())
+    attrs = attrs |> Map.merge(%{body: body})
 
-    with {:ok, parsed} <- Converter.Article.parse_body(body),
-         {:ok, digest} <- Converter.Article.parse_digest(parsed.body_map) do
-      attrs =
-        attrs
-        |> Map.merge(Map.take(parsed, [:body, :body_html]))
-        |> Map.merge(%{digest: digest})
-
-      target
-      |> struct()
-      |> target.changeset(attrs)
+    with {:ok, attrs} <- add_rich_text_attrs(attrs) do
+      model.__struct__
+      |> model.changeset(attrs)
       |> Ecto.Changeset.put_change(:emotions, @default_emotions)
-      |> Ecto.Changeset.put_change(:author_id, aid)
-      |> Ecto.Changeset.put_change(:original_community_id, integerfy(cid))
+      |> Ecto.Changeset.put_change(:author_id, author_id)
+      |> Ecto.Changeset.put_change(:original_community_id, community_id)
       |> Ecto.Changeset.put_embed(:meta, @default_article_meta)
       |> Repo.insert()
     end
   end
+
+  defp do_update_article(article, attrs) do
+    with {:ok, attrs} <- add_rich_text_attrs(attrs) do
+      ORM.update(article, attrs)
+    end
+  end
+
+  # is update or create article with body field, parsed and extand it into attrs
+  defp add_rich_text_attrs(%{body: body} = attrs) when not is_nil(body) do
+    with {:ok, parsed} <- Converter.Article.parse_body(body),
+         {:ok, digest} <- Converter.Article.parse_digest(parsed.body_map) do
+      attrs
+      |> Map.merge(Map.take(parsed, [:body, :body_html]))
+      |> Map.merge(%{digest: digest})
+      |> done
+    end
+  end
+
+  defp add_rich_text_attrs(attrs), do: attrs
 
   # except Job, other article will just pass, should use set_article_tags function instead
   # defp exec_update_tags(_, _tags_ids), do: {:ok, :pass}
@@ -435,7 +440,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     case Enum.empty?(meta.viewed_user_ids) or user_not_viewed do
       true ->
         new_ids = Enum.uniq([user_id] ++ meta.viewed_user_ids)
-        meta = meta |> Map.merge(%{viewed_user_ids: new_ids}) |> strip_struct
+        meta = meta |> Map.merge(%{viewed_user_ids: new_ids})
         ORM.update_meta(article, meta)
 
       false ->
@@ -456,6 +461,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp result({:error, :create_article, _result, _steps}) do
     {:error, [message: "create article", code: ecode(:create_fails)]}
+  end
+
+  defp result({:error, :update_article, result, _steps}) do
+    {:error, [message: "update article", code: ecode(:update_fails)]}
   end
 
   defp result({:error, :mirror_article, _result, _steps}) do

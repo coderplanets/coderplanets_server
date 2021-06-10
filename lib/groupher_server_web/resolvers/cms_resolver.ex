@@ -69,8 +69,8 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.create_article(%Community{id: community_id}, thread, args, user)
   end
 
-  def update_article(_root, %{passport_source: content} = args, _info) do
-    CMS.update_article(content, args)
+  def update_article(_root, %{passport_source: article} = args, _info) do
+    CMS.update_article(article, args)
   end
 
   def delete_article(_root, %{passport_source: content}, _info), do: ORM.delete(content)

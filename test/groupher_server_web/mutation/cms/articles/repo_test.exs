@@ -175,7 +175,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Repo do
       variables = %{
         id: repo.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}"
+        body: mock_rich_text("updated body #{unique_num}")
       }
 
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})

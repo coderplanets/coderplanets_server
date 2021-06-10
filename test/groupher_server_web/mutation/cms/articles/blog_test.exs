@@ -101,6 +101,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
         id
         title
         body
+        bodyHtml
         articleTags {
           id
         }
@@ -114,7 +115,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       variables = %{
         id: blog.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}"
+        body: mock_rich_text("updated body #{unique_num}")
       }
 
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
@@ -126,13 +127,13 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       variables = %{
         id: blog.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}"
+        body: mock_rich_text("updated body #{unique_num}")
       }
 
       updated = owner_conn |> mutation_result(@query, variables, "updateBlog")
 
       assert updated["title"] == variables.title
-      assert updated["body"] == variables.body
+      assert updated_post["bodyHtml"] |> String.contains?(~s(updated body #{unique_num}))
     end
 
     test "login user with auth passport update a blog", ~m(blog)a do
@@ -145,7 +146,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       variables = %{
         id: blog.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}"
+        body: mock_rich_text("updated body #{unique_num}")
       }
 
       updated = rule_conn |> mutation_result(@query, variables, "updateBlog")
@@ -159,7 +160,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       variables = %{
         id: blog.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}"
+        body: mock_rich_text("updated body #{unique_num}")
       }
 
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
