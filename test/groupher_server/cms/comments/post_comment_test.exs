@@ -94,9 +94,10 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
     test "comment can be updated", ~m(post user)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
-      {:ok, updated_comment} = CMS.update_article_comment(comment, "updated content")
+      {:ok, updated_comment} =
+        CMS.update_article_comment(comment, mock_comment("updated content"))
 
-      assert updated_comment.body_html == "updated content"
+      assert updated_comment.body_html |> String.contains?(~s(updated content</p>))
     end
   end
 
