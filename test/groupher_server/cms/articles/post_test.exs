@@ -172,7 +172,6 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
       assert post.is_question
     end
 
-    @tag :wip
     test "can update post with question", ~m(user community post_attrs)a do
       post_attrs = Map.merge(post_attrs, %{is_question: true})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)

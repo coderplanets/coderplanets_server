@@ -25,14 +25,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   @default_emotions Embeds.ArticleEmotion.default_emotions()
   @default_article_meta Embeds.ArticleMeta.default_meta()
 
-  content = """
-  {
-    "time": 2018,
-    "blocks": [],
-    "version": "2.22.0"
-  }
-  """
-
   @doc """
   read articles for un-logined user
   """
@@ -458,13 +450,14 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp result({:ok, %{update_edit_status: result}}), do: {:ok, result}
   defp result({:ok, %{update_article: result}}), do: {:ok, result}
+  defp result({:ok, %{update_article_meta: result}}), do: {:ok, result}
   defp result({:ok, %{set_viewer_has_states: result}}), do: result |> done()
 
   defp result({:error, :create_article, _result, _steps}) do
     {:error, [message: "create article", code: ecode(:create_fails)]}
   end
 
-  defp result({:error, :update_article, result, _steps}) do
+  defp result({:error, :update_article, _result, _steps}) do
     {:error, [message: "update article", code: ecode(:update_fails)]}
   end
 
