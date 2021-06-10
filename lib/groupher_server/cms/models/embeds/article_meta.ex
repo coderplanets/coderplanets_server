@@ -6,11 +6,12 @@ defmodule GroupherServer.CMS.Model.Embeds.ArticleMeta do
   use Accessible
   import Ecto.Changeset
 
-  @optional_fields ~w(is_edited is_comment_locked upvoted_user_ids collected_user_ids viewed_user_ids reported_user_ids reported_count is_sinked can_undo_sink last_active_at)a
+  @optional_fields ~w(thread is_edited is_comment_locked upvoted_user_ids collected_user_ids viewed_user_ids reported_user_ids reported_count is_sinked can_undo_sink last_active_at)a
 
   @doc "for test usage"
   def default_meta() do
     %{
+      thread: "POST",
       is_edited: false,
       is_comment_locked: false,
       upvoted_user_ids: [],
@@ -25,6 +26,7 @@ defmodule GroupherServer.CMS.Model.Embeds.ArticleMeta do
   end
 
   embedded_schema do
+    field(:thread, :string)
     field(:is_edited, :boolean, default: false)
     field(:is_comment_locked, :boolean, default: false)
     # reaction history

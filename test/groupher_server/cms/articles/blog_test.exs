@@ -22,11 +22,14 @@ defmodule GroupherServer.Test.Articles.Blog do
   end
 
   describe "[cms blogs curd]" do
+    @tag :wip
     test "can create blog with valid attrs", ~m(user community blog_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
       {:ok, blog} = CMS.create_article(community, :blog, blog_attrs, user)
 
       body_map = Jason.decode!(blog.body)
+
+      assert blog.meta.thread == "BLOG"
 
       assert blog.title == blog_attrs.title
       assert body_map |> Validator.is_valid()

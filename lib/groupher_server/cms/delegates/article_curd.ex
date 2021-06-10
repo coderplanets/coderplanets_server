@@ -6,7 +6,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   import GroupherServer.CMS.Helper.Matcher
 
-  import Helper.Utils, only: [done: 1, pick_by: 2, module_to_atom: 1, get_config: 2, ensure: 2]
+  import Helper.Utils,
+    only: [done: 1, pick_by: 2, module_to_atom: 1, get_config: 2, ensure: 2, module_to_upcase: 1]
 
   import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 2]
   import Helper.ErrorCode
@@ -384,6 +385,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp do_create_article(model, attrs, %Author{id: author_id}, %Community{id: community_id}) do
     # special article like Repo do not have :body, assign it with default-empty rich text
     body = Map.get(attrs, :body, Converter.Article.default_rich_text())
+    meta = @default_article_meta |> Map.merge(%{thread: module_to_upcase(model)})
     attrs = attrs |> Map.merge(%{body: body})
 
     with {:ok, attrs} <- add_rich_text_attrs(attrs) do
@@ -392,7 +394,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Ecto.Changeset.put_change(:emotions, @default_emotions)
       |> Ecto.Changeset.put_change(:author_id, author_id)
       |> Ecto.Changeset.put_change(:original_community_id, community_id)
-      |> Ecto.Changeset.put_embed(:meta, @default_article_meta)
+      |> Ecto.Changeset.put_embed(:meta, meta)
       |> Repo.insert()
     end
   end

@@ -23,11 +23,14 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
   end
 
   describe "[cms post curd]" do
+    @tag :wip
     test "can create post with valid attrs", ~m(user community post_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       body_map = Jason.decode!(post.body)
+
+      assert post.meta.thread == "POST"
 
       assert post.title == post_attrs.title
       assert body_map |> Validator.is_valid()

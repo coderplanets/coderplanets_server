@@ -183,6 +183,13 @@ defmodule Helper.Utils do
   def strip_struct(map) when is_map(map), do: map
 
   @doc """
+  get upcase name of a module, most used for store thread in DB
+  """
+  def module_to_upcase(module) do
+    module |> Module.split() |> List.last() |> String.upcase()
+  end
+
+  @doc """
   get atom name of a module
   """
   def module_to_atom(%{__struct__: module_struct}) do
