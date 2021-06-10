@@ -30,6 +30,9 @@ defmodule GroupherServer.CMS.Model.Post do
     field(:is_solved, :boolean, default: false)
     field(:solution_digest, :string)
 
+    # TODO: move to general_article_fields
+    # embeds_one(:block_task_runner, Embeds.BlockTaskRunner, on_replace: :update)
+
     article_tags_field(:post)
     article_communities_field(:post)
     general_article_fields()
