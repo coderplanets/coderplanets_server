@@ -196,7 +196,7 @@ defmodule GroupherServer.Test.Mutation.Statistics do
       }
     }
     """
-    @tag :wip
+
     test "user should have contribute list after create a comment", ~m(user_conn user)a do
       {:ok, post} = db_insert(:post)
       variables = %{thread: "POST", id: post.id, body: mock_comment()}

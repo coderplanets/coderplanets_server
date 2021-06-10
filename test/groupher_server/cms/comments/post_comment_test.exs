@@ -780,7 +780,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert answers |> List.first() |> Map.get(:id) == comment2.id
     end
 
-    @tag :wip
     test "update a solution should also update post's solution digest", ~m(user community)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)

@@ -27,7 +27,6 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
       }
     }
     """
-    @tag :wip2
     test "write article comment to a exsit blog", ~m(blog user_conn)a do
       variables = %{thread: "BLOG", id: blog.id, body: mock_comment()}
 
@@ -66,7 +65,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
       }
     }
     """
-    @tag :wip
+
     test "only owner can update a exsit comment",
          ~m(blog user guest_conn user_conn owner_conn)a do
       {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
