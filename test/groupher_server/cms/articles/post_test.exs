@@ -23,7 +23,6 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
   end
 
   describe "[cms post curd]" do
-    @tag :wip
     test "can create post with valid attrs", ~m(user community post_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
@@ -173,6 +172,7 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
       assert post.is_question
     end
 
+    @tag :wip
     test "can update post with question", ~m(user community post_attrs)a do
       post_attrs = Map.merge(post_attrs, %{is_question: true})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)

@@ -405,11 +405,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  defp do_update_article(article, attrs) do
+  defp do_update_article(article, %{body: _} = attrs) do
     with {:ok, attrs} <- add_rich_text_attrs(attrs) do
       ORM.update(article, attrs)
     end
   end
+
+  defp do_update_article(article, attrs), do: ORM.update(article, attrs)
 
   # is update or create article with body field, parsed and extand it into attrs
   defp add_rich_text_attrs(%{body: body} = attrs) when not is_nil(body) do
@@ -457,7 +459,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp result({:ok, %{update_edit_status: result}}), do: {:ok, result}
   defp result({:ok, %{update_article: result}}), do: {:ok, result}
   defp result({:ok, %{set_viewer_has_states: result}}), do: result |> done()
-  defp result({:ok, %{update_article_meta: result}}), do: {:ok, result}
 
   defp result({:error, :create_article, _result, _steps}) do
     {:error, [message: "create article", code: ecode(:create_fails)]}

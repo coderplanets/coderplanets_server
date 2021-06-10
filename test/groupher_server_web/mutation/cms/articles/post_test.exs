@@ -200,7 +200,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       }
     }
     """
-    @tag :wip
+
     test "update a post without login user fails", ~m(guest_conn post)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
@@ -213,7 +213,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
     end
 
-    @tag :wip
     test "post can be update by owner", ~m(owner_conn post)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
