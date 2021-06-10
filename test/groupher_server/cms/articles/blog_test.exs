@@ -2,9 +2,13 @@ defmodule GroupherServer.Test.Articles.Blog do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
-  alias CMS.Model.{Blog, Community}
+  alias Helper.Converter.{EditorToHTML, HtmlSanitizer}
+
+  alias EditorToHTML.{Class, Validator}
+  alias CMS.Model.{Author, Blog, Community}
   alias Helper.ORM
 
+  @root_class Class.article()
   @last_year Timex.shift(Timex.beginning_of_year(Timex.now()), days: -3, seconds: -1)
 
   setup do
@@ -18,12 +22,19 @@ defmodule GroupherServer.Test.Articles.Blog do
   end
 
   describe "[cms blogs curd]" do
-    test "can create a blog with valid attrs", ~m(user community blog_attrs)a do
+    test "can create blog with valid attrs", ~m(user community blog_attrs)a do
+      assert {:error, _} = ORM.find_by(Author, user_id: user.id)
       {:ok, blog} = CMS.create_article(community, :blog, blog_attrs, user)
 
-      {:ok, found} = ORM.find(Blog, blog.id)
-      assert found.id == blog.id
-      assert found.title == blog.title
+      body_map = Jason.decode!(blog.body)
+
+      assert blog.title == blog_attrs.title
+      assert body_map |> Validator.is_valid()
+      assert blog.body_html |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
+      assert blog.body_html |> String.contains?(~s(<p id="block-))
+
+      paragraph_text = body_map["blocks"] |> List.first() |> get_in(["data", "text"])
+      assert blog.digest == paragraph_text |> HtmlSanitizer.strip_all_tags()
     end
 
     test "created blog should have a acitve_at field, same with inserted_at",

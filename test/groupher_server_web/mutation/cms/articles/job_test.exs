@@ -77,13 +77,27 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       user_conn = simu_conn(:user, user)
 
       {:ok, community} = db_insert(:community)
-      job_attr = mock_attrs(:job, %{body: assert_v(:xss_string)})
 
+      job_attr = mock_attrs(:job, %{body: mock_xss_string()})
       variables = job_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
       created = user_conn |> mutation_result(@create_job_query, variables, "createJob")
       {:ok, job} = ORM.find(Job, created["id"])
 
-      assert job.body == assert_v(:xss_safe_string)
+      assert not String.contains?(job.body_html, "script")
+    end
+
+    test "create job should excape xss attracts 2" do
+      {:ok, user} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      {:ok, community} = db_insert(:community)
+
+      job_attr = mock_attrs(:job, %{body: mock_xss_string(:safe)})
+      variables = job_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
+      created = user_conn |> mutation_result(@create_job_query, variables, "createJob")
+      {:ok, job} = ORM.find(Job, created["id"])
+
+      assert String.contains?(job.body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
     end
 
     test "can create job with mentionUsers" do
@@ -120,6 +134,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
         id
         title
         body
+        bodyHtml
         articleTags {
           id
         }
@@ -132,7 +147,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       variables = %{
         id: job.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}"
+        body: mock_rich_text("updated body #{unique_num}")
       }
 
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
@@ -144,13 +159,13 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       variables = %{
         id: job.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}"
+        body: mock_rich_text("updated body #{unique_num}")
       }
 
       updated = owner_conn |> mutation_result(@query, variables, "updateJob")
 
       assert updated["title"] == variables.title
-      assert updated["body"] == variables.body
+      assert updated["bodyHtml"] |> String.contains?(~s(updated body #{unique_num}))
     end
 
     test "login user with auth passport update a job", ~m(job)a do
@@ -163,7 +178,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       variables = %{
         id: job.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}"
+        body: mock_rich_text("updated body #{unique_num}")
       }
 
       updated = rule_conn |> mutation_result(@query, variables, "updateJob")
@@ -177,7 +192,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       variables = %{
         id: job.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}"
+        body: mock_rich_text("updated body #{unique_num}")
       }
 
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})

@@ -19,6 +19,7 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
       field(:id, :id)
       field(:title, :string)
       field(:body, :string)
+      field(:body_html, :string)
       field(:digest, :string)
       field(:views, :integer)
       field(:is_pinned, :boolean)

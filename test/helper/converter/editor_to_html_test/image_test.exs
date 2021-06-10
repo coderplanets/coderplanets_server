@@ -17,9 +17,9 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
         "time" => 1_567_250_876_713,
         "blocks" => [
           %{
+            "id" => id,
             "type" => "image",
             "data" => %{
-              "id" => id,
               "mode" => mode,
               "items" => items
             }
@@ -166,13 +166,13 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
               "caption" => "this is a caption 1"
             }
           end),
-          "exsit"
+          "block-id-exsit"
         )
 
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      assert Utils.str_occurence(converted, "id=\"exsit\"") == 1
+      assert Utils.str_occurence(converted, ~s(id="block-id-exsit")) == 1
     end
 
     test "invalid mode parse should raise error message" do

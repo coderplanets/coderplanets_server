@@ -28,7 +28,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentEmotions do
 
       all_comment =
         Enum.reduce(0..total_count, [], fn _, acc ->
-          {:ok, comment} = CMS.create_article_comment(:repo, repo.id, "commment", user)
+          {:ok, comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
           acc ++ [comment]
         end)
 
@@ -65,9 +65,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentEmotions do
 
   describe "[basic article comment emotion]" do
     test "comment has default emotions after created", ~m(repo user)a do
-      parent_content = "parent comment"
-
-      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
 
       emotions = parent_comment.emotions |> Map.from_struct() |> Map.delete(:id)
@@ -75,8 +73,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentEmotions do
     end
 
     test "can make emotion to comment", ~m(repo user user2)a do
-      parent_content = "parent comment"
-      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
 
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user2)
@@ -89,8 +86,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentEmotions do
     end
 
     test "can undo emotion to comment", ~m(repo user user2)a do
-      parent_content = "parent comment"
-      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
 
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user2)
@@ -111,8 +107,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentEmotions do
     end
 
     test "same user make same emotion to same comment.", ~m(repo user)a do
-      parent_content = "parent comment"
-      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
 
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
@@ -125,8 +120,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentEmotions do
 
     test "same user same emotion to same comment only have one user_emotion record",
          ~m(repo user)a do
-      parent_content = "parent comment"
-      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
 
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :heart, user)
@@ -147,7 +141,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentEmotions do
     end
 
     test "different user can make same emotions on same comment", ~m(repo user user2 user3)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, "parent comment", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
 
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :beer, user)
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :beer, user2)
@@ -163,8 +157,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentEmotions do
     end
 
     test "same user can make differcent emotions on same comment", ~m(repo user)a do
-      parent_content = "parent comment"
-      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
 
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)

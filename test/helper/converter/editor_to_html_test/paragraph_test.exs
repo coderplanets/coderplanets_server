@@ -26,7 +26,9 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Paragraph do
       {:ok, editor_string} = Jason.encode(@editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      assert converted == ~s(<div class="#{@root_class["viewer"]}"><p>paragraph content</p></div>)
+      assert converted |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
+      assert converted |> String.contains?(~s(<p id="block-))
+      assert converted |> String.contains?(~s(paragraph content))
     end
 
     @editor_json %{

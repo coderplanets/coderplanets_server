@@ -181,6 +181,11 @@ defmodule GroupherServer.Test.Helper.UtilsTest do
   end
 
   describe "[uid generator]" do
+    test "default id should have length of 5" do
+      uid_str = Utils.uid()
+      assert String.length(uid_str) == 5
+    end
+
     test "should gen uniq id with lengh of 5" do
       uid_str = Utils.uid(:html, "what_ever")
       assert String.length(uid_str) == 5

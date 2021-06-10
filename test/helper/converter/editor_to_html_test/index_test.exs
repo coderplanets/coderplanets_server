@@ -25,13 +25,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
   })
 
   describe "[basic convert]" do
-    test "basic string_json parse should work" do
-      string = ~S({"time":1566184478687,"blocks":[{}],"version":"2.15.0"})
-      {:ok, converted} = Parser.string_to_json(string)
-
-      assert converted["version"] == "2.15.0"
-    end
-
     @editor_json %{
       "time" => 1_567_250_876_713,
       "blocks" => [],
@@ -52,6 +45,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
       }
 
       {:ok, editor_string} = Jason.encode(editor_json)
+
       {:error, error} = Parser.to_html(editor_string)
 
       assert error == [
@@ -101,15 +95,6 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
 
       assert String.contains?(error, "undown block: 1")
     end
-
-    test "real-world editor.js data should work" do
-      {:ok, converted} = Parser.string_to_json(@real_editor_data)
-
-      assert not Enum.empty?(converted["blocks"])
-      assert converted["blocks"] |> is_list
-      assert converted["version"] |> is_binary
-      assert converted["time"] |> is_integer
-    end
   end
 
   describe "[secure issues]" do
@@ -130,8 +115,8 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      assert converted ==
-               ~s(<div class="#{@root_class["viewer"]}"><p>evel script</p></div>)
+      assert converted |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
+      assert converted |> String.contains?(~s(<p id="block-))
 
       editor_json = %{
         "time" => 1_567_250_876_713,
@@ -149,8 +134,12 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      assert converted ==
-               ~s(<div class="#{@root_class["viewer"]}"><p>Editor.js is an element &lt;script&gt;evel script&lt;/script&gt;</p></div>)
+      assert converted |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
+
+      assert converted
+             |> String.contains?(
+               ~s(Editor.js is an element &lt;script&gt;evel script&lt;/script&gt;)
+             )
     end
   end
 end

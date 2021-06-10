@@ -416,7 +416,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert first_job["id"] !== to_string(job_last_week.id)
 
       Process.sleep(1500)
-      {:ok, _comment} = CMS.create_article_comment(:job, job_last_week.id, "comment", user)
+      {:ok, _comment} = CMS.create_article_comment(:job, job_last_week.id, mock_comment(), user)
 
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
       entries = results["entries"]
@@ -428,7 +428,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
     test "comment on very old job have no effect", ~m(guest_conn job_last_year user)a do
       variables = %{filter: %{page: 1, size: 20}}
 
-      {:ok, _comment} = CMS.create_article_comment(:job, job_last_year.id, "comment", user)
+      {:ok, _comment} = CMS.create_article_comment(:job, job_last_year.id, mock_comment(), user)
 
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
       entries = results["entries"]
@@ -444,7 +444,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
         CMS.create_article_comment(
           :job,
           job_last_week.id,
-          "comment",
+          mock_comment(),
           job_last_week.author.user
         )
 

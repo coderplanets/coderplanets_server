@@ -68,13 +68,27 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       user_conn = simu_conn(:user, user)
 
       {:ok, community} = db_insert(:community)
-      post_attr = mock_attrs(:post, %{body: assert_v(:xss_string)})
 
-      variables = post_attr |> Map.merge(%{communityId: community.id})
+      post_attr = mock_attrs(:post, %{body: mock_xss_string()})
+      variables = post_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
       created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
       {:ok, post} = ORM.find(Post, created["id"])
 
-      assert post.body == assert_v(:xss_safe_string)
+      assert not String.contains?(post.body_html, "script")
+    end
+
+    test "create post should excape xss attracts 2" do
+      {:ok, user} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      {:ok, community} = db_insert(:community)
+
+      post_attr = mock_attrs(:post, %{body: mock_xss_string(:safe)})
+      variables = post_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
+      created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+      {:ok, post} = ORM.find(Post, created["id"])
+
+      assert String.contains?(post.body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
     end
 
     # NOTE: this test is IMPORTANT, cause json_codec: Jason in router will cause
@@ -171,6 +185,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
         id
         title
         body
+        bodyHtml
         copyRight
         meta {
           isEdited
@@ -185,13 +200,14 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       }
     }
     """
+
     test "update a post without login user fails", ~m(guest_conn post)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
       variables = %{
         id: post.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}"
+        body: mock_rich_text("updated body #{unique_num}")
       }
 
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
@@ -203,14 +219,15 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       variables = %{
         id: post.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}",
+        # body: mock_rich_text("updated body #{unique_num}"),,
+        body: mock_rich_text("updated body #{unique_num}"),
         copyRight: "translate"
       }
 
       updated_post = owner_conn |> mutation_result(@query, variables, "updatePost")
 
       assert updated_post["title"] == variables.title
-      assert updated_post["body"] == variables.body
+      assert updated_post["bodyHtml"] |> String.contains?(~s(updated body #{unique_num}))
       assert updated_post["copyRight"] == variables.copyRight
     end
 
@@ -221,7 +238,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       variables = %{
         id: post.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}"
+        body: mock_rich_text("updated body #{unique_num}")
       }
 
       updated_post = owner_conn |> mutation_result(@query, variables, "updatePost")
@@ -241,7 +258,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       variables = %{
         id: post.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}"
+        body: mock_rich_text("updated body #{unique_num}")
       }
 
       updated_post = rule_conn |> mutation_result(@query, variables, "updatePost")
@@ -255,7 +272,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       variables = %{
         id: post.id,
         title: "updated title #{unique_num}",
-        body: "updated body #{unique_num}"
+        body: mock_rich_text("updated body #{unique_num}")
       }
 
       rule_conn = simu_conn(:user, cms: %{"what.ever" => true})

@@ -17,9 +17,9 @@ defmodule GroupherServer.CMS.Model.ArticleComment do
   # alias Helper.HTML
   @article_threads get_config(:article, :threads)
 
-  @required_fields ~w(body_html author_id)a
-  @optional_fields ~w(reply_to_id replies_count is_folded is_deleted floor is_article_author thread is_for_question is_solution)a
-  @updatable_fields ~w(is_folded is_deleted floor upvotes_count is_pinned is_for_question is_solution)a
+  @required_fields ~w(body author_id)a
+  @optional_fields ~w(body_html reply_to_id replies_count is_folded is_deleted floor is_article_author thread is_for_question is_solution)a
+  @updatable_fields ~w(body_html is_folded is_deleted floor upvotes_count is_pinned is_for_question is_solution)a
 
   @article_fields @article_threads |> Enum.map(&:"#{&1}_id")
 
@@ -52,6 +52,7 @@ defmodule GroupherServer.CMS.Model.ArticleComment do
     belongs_to(:author, User, foreign_key: :author_id)
 
     field(:thread, :string)
+    field(:body, :string)
     field(:body_html, :string)
     # 是否被折叠
     field(:is_folded, :boolean, default: false)

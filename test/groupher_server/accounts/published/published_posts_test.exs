@@ -76,7 +76,7 @@ defmodule GroupherServer.Test.Accounts.Published.Post do
       total_count = 10
 
       Enum.reduce(1..total_count, [], fn _, acc ->
-        {:ok, comment} = CMS.create_article_comment(:post, post.id, "commment", user)
+        {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
         acc ++ [comment]
       end)
 

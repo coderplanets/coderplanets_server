@@ -92,8 +92,8 @@ defmodule GroupherServer.Test.Query.AbuseReports.JobReport do
     end
 
     test "support article_comment", ~m(guest_conn job user)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, "comment", user)
-      {:ok, _} = CMS.report_article_comment(comment.id, "reason", "attr", user)
+      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, _} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
 
       variables = %{filter: %{content_type: "ARTICLE_COMMENT", page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedAbuseReports")
@@ -102,7 +102,7 @@ defmodule GroupherServer.Test.Query.AbuseReports.JobReport do
       report_case = get_in(report, ["reportCases"])
       assert is_list(report_case)
 
-      assert get_in(report, ["articleComment", "bodyHtml"]) == "comment"
+      assert get_in(report, ["articleComment", "bodyHtml"]) |> String.contains?(~s(comment</p>))
       assert get_in(report, ["articleComment", "id"]) == to_string(comment.id)
       assert not is_nil(get_in(report, ["articleComment", "author", "login"]))
     end

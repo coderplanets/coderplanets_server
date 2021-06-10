@@ -8,12 +8,8 @@ defmodule Helper.HTML do
 
   def safe_string(%Ecto.Changeset{valid?: true, changes: changes} = changeset, field) do
     case Map.has_key?(changes, field) do
-      true ->
-        changeset
-        |> put_change(field, escape_to_safe_string(changes[field]))
-
-      _ ->
-        changeset
+      true -> changeset |> put_change(field, escape_to_safe_string(changes[field]))
+      _ -> changeset
     end
   end
 

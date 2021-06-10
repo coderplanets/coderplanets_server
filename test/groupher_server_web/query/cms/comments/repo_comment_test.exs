@@ -32,17 +32,16 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
     """
     test "guest user can get comment participators after comment created",
          ~m(guest_conn repo user user2)a do
-      comment = "test comment"
       total_count = 5
       thread = :repo
 
       Enum.reduce(1..total_count, [], fn _, acc ->
-        {:ok, comment} = CMS.create_article_comment(thread, repo.id, comment, user)
+        {:ok, comment} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
 
         acc ++ [comment]
       end)
 
-      {:ok, _} = CMS.create_article_comment(thread, repo.id, comment, user2)
+      {:ok, _} = CMS.create_article_comment(thread, repo.id, mock_comment(), user2)
 
       variables = %{id: repo.id}
       results = guest_conn |> query_result(@query, variables, "repo")
@@ -126,13 +125,19 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
 
       all_comments =
         Enum.reduce(1..total_count, [], fn i, acc ->
-          {:ok, comment} = CMS.create_article_comment(thread, repo.id, "comment #{i}", user)
+          {:ok, comment} =
+            CMS.create_article_comment(thread, repo.id, mock_comment("comment #{i}"), user)
+
           acc ++ [comment]
         end)
 
       random_comment = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
-      {:ok, replyed_comment_1} = CMS.reply_article_comment(random_comment.id, "reply 1", user2)
-      {:ok, replyed_comment_2} = CMS.reply_article_comment(random_comment.id, "reply 2", user2)
+
+      {:ok, replyed_comment_1} =
+        CMS.reply_article_comment(random_comment.id, mock_comment(), user2)
+
+      {:ok, replyed_comment_2} =
+        CMS.reply_article_comment(random_comment.id, mock_comment(), user2)
 
       variables = %{id: repo.id, thread: "REPO", filter: %{page: 1, size: page_size}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
@@ -159,14 +164,19 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
 
       all_comments =
         Enum.reduce(1..total_count, [], fn i, acc ->
-          {:ok, comment} = CMS.create_article_comment(thread, repo.id, "comment #{i}", user)
+          {:ok, comment} =
+            CMS.create_article_comment(thread, repo.id, mock_comment("comment #{i}"), user)
+
           acc ++ [comment]
         end)
 
       random_comment = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
 
-      {:ok, replyed_comment_1} = CMS.reply_article_comment(random_comment.id, "reply 1", user2)
-      {:ok, replyed_comment_2} = CMS.reply_article_comment(random_comment.id, "reply 2", user2)
+      {:ok, replyed_comment_1} =
+        CMS.reply_article_comment(random_comment.id, mock_comment(), user2)
+
+      {:ok, replyed_comment_2} =
+        CMS.reply_article_comment(random_comment.id, mock_comment(), user2)
 
       variables = %{
         id: repo.id,
@@ -191,14 +201,20 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       thread = :repo
 
       Enum.reduce(0..total_count, [], fn i, acc ->
-        {:ok, comment} = CMS.create_article_comment(thread, repo.id, "comment #{i}", user)
+        {:ok, comment} =
+          CMS.create_article_comment(thread, repo.id, mock_comment("comment #{i}"), user)
+
         acc ++ [comment]
       end)
 
-      {:ok, parent_comment} = CMS.create_article_comment(:repo, repo.id, "parent_content", user)
+      {:ok, parent_comment} =
+        CMS.create_article_comment(:repo, repo.id, mock_comment("parent_comment"), user)
 
-      {:ok, replyed_comment_1} = CMS.reply_article_comment(parent_comment.id, "reply 1", user2)
-      {:ok, replyed_comment_2} = CMS.reply_article_comment(parent_comment.id, "reply 2", user2)
+      {:ok, replyed_comment_1} =
+        CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
+
+      {:ok, replyed_comment_2} =
+        CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
 
       variables = %{id: repo.id, thread: "REPO", filter: %{page: 1, size: 10}, mode: "TIMELINE"}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
@@ -221,12 +237,11 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
     end
 
     test "guest user can get paged comment for repo", ~m(guest_conn repo user)a do
-      comment = "test comment"
       total_count = 30
       thread = :repo
 
       Enum.reduce(1..total_count, [], fn _, acc ->
-        {:ok, value} = CMS.create_article_comment(thread, repo.id, comment, user)
+        {:ok, value} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
 
         acc ++ [value]
       end)
@@ -244,17 +259,17 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       thread = :repo
 
       Enum.reduce(1..total_count, [], fn _, acc ->
-        {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment", user)
+        {:ok, comment} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
 
         acc ++ [comment]
       end)
 
-      {:ok, comment} = CMS.create_article_comment(thread, repo.id, "pinned comment", user)
+      {:ok, comment} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
       {:ok, pinned_comment} = CMS.pin_article_comment(comment.id)
 
       Process.sleep(1000)
 
-      {:ok, comment} = CMS.create_article_comment(thread, repo.id, "pinned comment 2", user)
+      {:ok, comment} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
       {:ok, pinned_comment2} = CMS.pin_article_comment(comment.id)
 
       variables = %{id: repo.id, thread: "REPO", filter: %{page: 1, size: 10}}
@@ -272,7 +287,7 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       page_size = 10
 
       Enum.reduce(1..total_count, [], fn _, acc ->
-        {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment", user)
+        {:ok, comment} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
         Process.sleep(1000)
         acc ++ [comment]
       end)
@@ -288,11 +303,11 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       page_size = 10
       thread = :repo
 
-      {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment 1", user)
+      {:ok, comment} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
       Process.sleep(1000)
-      {:ok, _comment2} = CMS.create_article_comment(thread, repo.id, "test comment 2", user)
+      {:ok, _comment2} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
       Process.sleep(1000)
-      {:ok, comment3} = CMS.create_article_comment(thread, repo.id, "test comment 3", user)
+      {:ok, comment3} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
 
       variables = %{
         id: repo.id,
@@ -311,11 +326,11 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       page_size = 10
       thread = :repo
 
-      {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment 1", user)
+      {:ok, comment} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
       Process.sleep(1000)
-      {:ok, _comment2} = CMS.create_article_comment(thread, repo.id, "test comment 2", user)
+      {:ok, _comment2} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
       Process.sleep(1000)
-      {:ok, comment3} = CMS.create_article_comment(thread, repo.id, "test comment 3", user)
+      {:ok, comment3} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
 
       variables = %{
         id: repo.id,
@@ -335,17 +350,17 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       page_size = 10
       thread = :repo
 
-      {:ok, comment} = CMS.create_article_comment(thread, repo.id, "parent comment 1", user)
-      {:ok, _reply_comment} = CMS.reply_article_comment(comment.id, "reply 1", user)
-      {:ok, _reply_comment} = CMS.reply_article_comment(comment.id, "reply 2", user2)
+      {:ok, comment} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
+      {:ok, _reply_comment} = CMS.reply_article_comment(comment.id, mock_comment(), user)
+      {:ok, _reply_comment} = CMS.reply_article_comment(comment.id, mock_comment(), user2)
       Process.sleep(1000)
-      {:ok, comment2} = CMS.create_article_comment(thread, repo.id, "test comment 2", user)
-      {:ok, _reply_comment} = CMS.reply_article_comment(comment2.id, "reply 1", user)
-      {:ok, _reply_comment} = CMS.reply_article_comment(comment2.id, "reply 2", user2)
+      {:ok, comment2} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
+      {:ok, _reply_comment} = CMS.reply_article_comment(comment2.id, mock_comment(), user)
+      {:ok, _reply_comment} = CMS.reply_article_comment(comment2.id, mock_comment(), user2)
       Process.sleep(1000)
-      {:ok, comment3} = CMS.create_article_comment(thread, repo.id, "test comment 3", user)
-      {:ok, _reply_comment} = CMS.reply_article_comment(comment3.id, "reply 1", user)
-      {:ok, _reply_comment} = CMS.reply_article_comment(comment3.id, "reply 2", user2)
+      {:ok, comment3} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
+      {:ok, _reply_comment} = CMS.reply_article_comment(comment3.id, mock_comment(), user)
+      {:ok, _reply_comment} = CMS.reply_article_comment(comment3.id, mock_comment(), user2)
 
       variables = %{
         id: repo.id,
@@ -366,7 +381,9 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
 
       all_comment =
         Enum.reduce(1..total_count, [], fn i, acc ->
-          {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment #{i}", user)
+          {:ok, comment} =
+            CMS.create_article_comment(thread, repo.id, mock_comment("comment #{i}"), user)
+
           Process.sleep(1000)
           acc ++ [comment]
         end)
@@ -396,7 +413,9 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
 
       all_comments =
         Enum.reduce(0..total_count, [], fn i, acc ->
-          {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment #{i}", user)
+          {:ok, comment} =
+            CMS.create_article_comment(thread, repo.id, mock_comment("comment #{i}"), user)
+
           acc ++ [comment]
         end)
 
@@ -404,7 +423,7 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       {:ok, _} = CMS.upvote_article_comment(random_comment.id, author_user)
 
       {:ok, author_comment} =
-        CMS.create_article_comment(thread, repo.id, "test comment", author_user)
+        CMS.create_article_comment(thread, repo.id, mock_comment(), author_user)
 
       {:ok, _} = CMS.upvote_article_comment(author_comment.id, author_user)
 
@@ -432,7 +451,9 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
 
       all_comment =
         Enum.reduce(1..total_count, [], fn i, acc ->
-          {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment #{i}", user)
+          {:ok, comment} =
+            CMS.create_article_comment(thread, repo.id, mock_comment("comment #{i}"), user)
+
           Process.sleep(1000)
           acc ++ [comment]
         end)
@@ -482,7 +503,9 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
 
       all_comment =
         Enum.reduce(1..total_count, [], fn i, acc ->
-          {:ok, comment} = CMS.create_article_comment(thread, repo.id, "test comment #{i}", user)
+          {:ok, comment} =
+            CMS.create_article_comment(thread, repo.id, mock_comment("comment #{i}"), user)
+
           Process.sleep(1000)
           acc ++ [comment]
         end)
@@ -507,7 +530,9 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
 
       all_comments =
         Enum.reduce(0..total_count, [], fn i, acc ->
-          {:ok, comment} = CMS.create_article_comment(thread, repo.id, "comment #{i}", user)
+          {:ok, comment} =
+            CMS.create_article_comment(thread, repo.id, mock_comment("comment #{i}"), user)
+
           acc ++ [comment]
         end)
 
@@ -547,13 +572,13 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
 
       Enum.reduce(1..total_count, [], fn _, acc ->
         {:ok, new_user} = db_insert(:user)
-        {:ok, comment} = CMS.create_article_comment(:repo, repo.id, "commment", new_user)
+        {:ok, comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), new_user)
 
         acc ++ [comment]
       end)
 
-      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "commment", user)
-      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, "commment", user)
+      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
+      {:ok, _comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
 
       variables = %{id: repo.id, thread: thread, filter: %{page: 1, size: page_size}}
 
@@ -616,22 +641,22 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
     """
 
     test "guest user can get paged replies", ~m(guest_conn repo user user2)a do
-      comment = "test comment"
       total_count = 2
       page_size = 10
       thread = :repo
 
       author_user = repo.author.user
-      {:ok, parent_comment} = CMS.create_article_comment(thread, repo.id, comment, user)
+      {:ok, parent_comment} = CMS.create_article_comment(thread, repo.id, mock_comment(), user)
 
       Enum.reduce(1..total_count, [], fn i, acc ->
-        {:ok, reply_comment} = CMS.reply_article_comment(parent_comment.id, "reply #{i}", user2)
+        {:ok, reply_comment} =
+          CMS.reply_article_comment(parent_comment.id, mock_comment("reply #{i}"), user2)
 
         acc ++ [reply_comment]
       end)
 
       {:ok, author_reply_comment} =
-        CMS.reply_article_comment(parent_comment.id, "author reply", author_user)
+        CMS.reply_article_comment(parent_comment.id, mock_comment("author reply"), author_user)
 
       variables = %{id: parent_comment.id, filter: %{page: 1, size: page_size}}
       results = guest_conn |> query_result(@query, variables, "pagedCommentReplies")

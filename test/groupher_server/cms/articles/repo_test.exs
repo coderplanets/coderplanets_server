@@ -2,10 +2,13 @@ defmodule GroupherServer.Test.Articles.Repo do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
-  alias CMS.Model.{Author, Community, Repo}
+  alias Helper.Converter.{EditorToHTML}
 
+  alias EditorToHTML.{Class, Validator}
+  alias CMS.Model.{Author, Repo, Community}
   alias Helper.ORM
 
+  @root_class Class.article()
   @last_year Timex.shift(Timex.beginning_of_year(Timex.now()), days: -3, seconds: -1)
 
   setup do
@@ -22,10 +25,13 @@ defmodule GroupherServer.Test.Articles.Repo do
   describe "[cms repo curd]" do
     test "can create repo with valid attrs", ~m(user community repo_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
-
       {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
 
+      body_map = Jason.decode!(repo.body)
+
       assert repo.title == repo_attrs.title
+      assert body_map |> Validator.is_valid()
+      assert repo.body_html |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
       assert repo.contributors |> length !== 0
     end
 
@@ -57,6 +63,7 @@ defmodule GroupherServer.Test.Articles.Repo do
       assert user2.id in created.meta.viewed_user_ids
     end
 
+    @tag :wip
     test "read repo should contains viewer_has_xxx state", ~m(repo_attrs community user user2)a do
       {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
       {:ok, repo} = CMS.read_article(:repo, repo.id, user)

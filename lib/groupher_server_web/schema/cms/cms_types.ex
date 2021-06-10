@@ -61,7 +61,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:length, :integer)
     field(:link_addr, :string)
     field(:copy_right, :string)
-    field(:body, :string)
 
     timestamp_fields(:article)
   end
@@ -78,7 +77,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:length, :integer)
     field(:link_addr, :string)
     field(:copy_right, :string)
-    field(:body, :string)
 
     timestamp_fields(:article)
   end
@@ -91,7 +89,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
     field(:length, :integer)
     field(:link_addr, :string)
-    # field(:body, :string)
 
     timestamp_fields(:article)
   end
@@ -259,6 +256,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
   object :article_comment_reply do
     field(:id, :id)
+    field(:body, :string)
     field(:body_html, :string)
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:floor, :integer)

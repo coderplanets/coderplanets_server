@@ -231,6 +231,7 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
              ]
     end
 
+    # TODO: inline code parse
     test "complex ast parser should work" do
       markdown = """
 
@@ -249,10 +250,12 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
 
       {:ok, html} = EditorToHTML.to_html(editor_blocks)
 
-      viewer_class = @root_class["viewer"]
-
-      assert html ==
-               ~s(<div class="#{viewer_class}"><h2>hello</h2><p>this is a basic <i>markdown</i> text</p><h3>delete me</h3><h3><i>italic me</i></h3><p>My <code class=\"inline-code\">in-line-code-content</code> is <b>best</b></p></div>)
+      assert html |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
+      assert html |> String.contains?(~s(<h2 id="block-))
+      assert html |> String.contains?(~s(<h3 id="block-))
+      assert html |> String.contains?(~s(<i>italic me</i>))
+      assert html |> String.contains?(~s(<p id="block-))
+      assert html |> String.contains?(~s(<b>best</b>))
     end
   end
 end

@@ -125,6 +125,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
   def general_article_fields(:cast) do
     [
       :body,
+      :body_html,
       :digest,
       :original_community_id,
       :article_comments_count,
@@ -187,6 +188,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
     quote do
       field(:title, :string)
       field(:body, :string)
+      field(:body_html, :string)
       field(:digest, :string)
 
       belongs_to(:author, Author)

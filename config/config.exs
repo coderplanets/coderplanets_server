@@ -96,7 +96,8 @@ config :groupher_server, :article,
     :confused,
     :pill,
     :popcorn
-  ]
+  ],
+  digest_length: 120
 
 config :groupher_server, GroupherServerWeb.Gettext, default_locale: "zh_CN", locales: ~w(en zh_CN)
 

@@ -20,11 +20,8 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
 
   describe "[basic article comment replies]" do
     test "exsit comment can be reply", ~m(post user user2)a do
-      parent_content = "parent comment"
-      reply_content = "reply comment"
-
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
-      {:ok, replyed_comment} = CMS.reply_article_comment(parent_comment.id, reply_content, user2)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
+      {:ok, replyed_comment} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
       assert replyed_comment.reply_to.id == parent_comment.id
 
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
@@ -33,27 +30,20 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
     end
 
     test "deleted comment can not be reply", ~m(post user user2)a do
-      parent_content = "parent comment"
-      reply_content = "reply comment"
-
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
       {:ok, _} = CMS.delete_article_comment(parent_comment)
 
-      {:error, _} = CMS.reply_article_comment(parent_comment.id, reply_content, user2)
+      {:error, _} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
     end
 
     test "multi reply should belong to one parent comment", ~m(post user user2)a do
-      parent_content = "parent comment"
-      reply_content_1 = "reply comment 1"
-      reply_content_2 = "reply comment 2"
-
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, parent_content, user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
       {:ok, replyed_comment_1} =
-        CMS.reply_article_comment(parent_comment.id, reply_content_1, user2)
+        CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
 
       {:ok, replyed_comment_2} =
-        CMS.reply_article_comment(parent_comment.id, reply_content_2, user2)
+        CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
 
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
 
@@ -63,11 +53,16 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
 
     test "reply to reply inside a comment should belong same parent comment",
          ~m(post user user2)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent comment", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
-      {:ok, replyed_comment_1} = CMS.reply_article_comment(parent_comment.id, "reply 1", user2)
-      {:ok, replyed_comment_2} = CMS.reply_article_comment(replyed_comment_1.id, "reply 2", user2)
-      {:ok, replyed_comment_3} = CMS.reply_article_comment(replyed_comment_2.id, "reply 3", user)
+      {:ok, replyed_comment_1} =
+        CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
+
+      {:ok, replyed_comment_2} =
+        CMS.reply_article_comment(replyed_comment_1.id, mock_comment(), user2)
+
+      {:ok, replyed_comment_3} =
+        CMS.reply_article_comment(replyed_comment_2.id, mock_comment(), user)
 
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
 
@@ -88,11 +83,16 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
 
     test "reply to reply inside a comment should have is_reply_to_others flag in meta",
          ~m(post user user2)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent comment", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
-      {:ok, replyed_comment_1} = CMS.reply_article_comment(parent_comment.id, "reply 1", user2)
-      {:ok, replyed_comment_2} = CMS.reply_article_comment(replyed_comment_1.id, "reply 2", user2)
-      {:ok, replyed_comment_3} = CMS.reply_article_comment(replyed_comment_2.id, "reply 3", user)
+      {:ok, replyed_comment_1} =
+        CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
+
+      {:ok, replyed_comment_2} =
+        CMS.reply_article_comment(replyed_comment_1.id, mock_comment(), user2)
+
+      {:ok, replyed_comment_3} =
+        CMS.reply_article_comment(replyed_comment_2.id, mock_comment(), user)
 
       {:ok, _parent_comment} = ORM.find(ArticleComment, parent_comment.id)
 
@@ -108,12 +108,12 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
     test "comment replies only contains @max_parent_replies_count replies", ~m(post user)a do
       total_reply_count = @max_parent_replies_count + 1
 
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
       reply_comment_list =
         Enum.reduce(1..total_reply_count, [], fn n, acc ->
           {:ok, replyed_comment} =
-            CMS.reply_article_comment(parent_comment.id, "reply_content_#{n}", user)
+            CMS.reply_article_comment(parent_comment.id, mock_comment("reply_content_#{n}"), user)
 
           acc ++ [replyed_comment]
         end)
@@ -128,8 +128,8 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
     end
 
     test "replyed user should appear in article comment participators", ~m(post user user2)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
-      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user2)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
 
       {:ok, article} = ORM.find(Post, post.id)
 
@@ -138,14 +138,14 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
     end
 
     test "replies count should inc by 1 after got replyed", ~m(post user user2)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
       assert parent_comment.replies_count === 0
 
-      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user2)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
       assert parent_comment.replies_count === 1
 
-      {:ok, _} = CMS.reply_article_comment(parent_comment.id, "reply_content", user2)
+      {:ok, _} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
       assert parent_comment.replies_count === 2
     end
@@ -153,7 +153,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
 
   describe "[paged article comment replies]" do
     test "can get paged replies of a parent comment", ~m(post user)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
       {:ok, paged_replies} = CMS.paged_comment_replies(parent_comment.id, %{page: 1, size: 20})
       assert is_valid_pagination?(paged_replies, :raw, :empty)
 
@@ -162,7 +162,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
       reply_comment_list =
         Enum.reduce(1..total_reply_count, [], fn n, acc ->
           {:ok, replyed_comment} =
-            CMS.reply_article_comment(parent_comment.id, "reply_content_#{n}", user)
+            CMS.reply_article_comment(parent_comment.id, mock_comment("reply_content_#{n}"), user)
 
           acc ++ [replyed_comment]
         end)
@@ -182,12 +182,11 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
       page_number = 1
       page_size = 10
 
-      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, "parent_conent", user)
+      {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
-      {:ok, reply_comment} = CMS.reply_article_comment(parent_comment.id, "reply_content_1", user)
+      {:ok, reply_comment} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user)
 
-      {:ok, reply_comment2} =
-        CMS.reply_article_comment(parent_comment.id, "reply_content_2", user)
+      {:ok, reply_comment2} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user)
 
       {:ok, paged_comments} =
         CMS.paged_article_comments(

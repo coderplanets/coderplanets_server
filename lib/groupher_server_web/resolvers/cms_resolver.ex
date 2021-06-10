@@ -69,8 +69,8 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.create_article(%Community{id: community_id}, thread, args, user)
   end
 
-  def update_article(_root, %{passport_source: content} = args, _info) do
-    CMS.update_article(content, args)
+  def update_article(_root, %{passport_source: article} = args, _info) do
+    CMS.update_article(article, args)
   end
 
   def delete_article(_root, %{passport_source: content}, _info), do: ORM.delete(content)
@@ -294,13 +294,13 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.paged_article_comments_participators(thread, id, filter)
   end
 
-  def create_article_comment(_root, ~m(thread id content)a, %{context: %{cur_user: user}}) do
-    CMS.create_article_comment(thread, id, content, user)
+  def create_article_comment(_root, ~m(thread id body)a, %{context: %{cur_user: user}}) do
+    CMS.create_article_comment(thread, id, body, user)
   end
 
-  def update_article_comment(_root, ~m(content passport_source)a, _info) do
+  def update_article_comment(_root, ~m(body passport_source)a, _info) do
     comment = passport_source
-    CMS.update_article_comment(comment, content)
+    CMS.update_article_comment(comment, body)
   end
 
   def delete_article_comment(_root, ~m(passport_source)a, _info) do
@@ -308,8 +308,8 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.delete_article_comment(comment)
   end
 
-  def reply_article_comment(_root, ~m(id content)a, %{context: %{cur_user: user}}) do
-    CMS.reply_article_comment(id, content, user)
+  def reply_article_comment(_root, ~m(id body)a, %{context: %{cur_user: user}}) do
+    CMS.reply_article_comment(id, body, user)
   end
 
   def upvote_article_comment(_root, ~m(id)a, %{context: %{cur_user: user}}) do
