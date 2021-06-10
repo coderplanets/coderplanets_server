@@ -133,7 +133,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       updated = owner_conn |> mutation_result(@query, variables, "updateBlog")
 
       assert updated["title"] == variables.title
-      assert updated_post["bodyHtml"] |> String.contains?(~s(updated body #{unique_num}))
+      assert updated["bodyHtml"] |> String.contains?(~s(updated body #{unique_num}))
     end
 
     test "login user with auth passport update a blog", ~m(blog)a do
