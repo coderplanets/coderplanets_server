@@ -450,8 +450,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp result({:ok, %{update_edit_status: result}}), do: {:ok, result}
   defp result({:ok, %{update_article: result}}), do: {:ok, result}
-  defp result({:ok, %{update_article_meta: result}}), do: {:ok, result}
+  # NOTE:  for read article, order is import
   defp result({:ok, %{set_viewer_has_states: result}}), do: result |> done()
+  defp result({:ok, %{update_article_meta: result}}), do: {:ok, result}
 
   defp result({:error, :create_article, _result, _steps}) do
     {:error, [message: "create article", code: ecode(:create_fails)]}

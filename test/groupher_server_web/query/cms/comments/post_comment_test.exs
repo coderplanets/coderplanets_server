@@ -34,7 +34,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       }
     }
     """
-    @tag :wip
     test "guest user can get comment participators after comment created",
          ~m(guest_conn post user user2)a do
       total_count = 5
