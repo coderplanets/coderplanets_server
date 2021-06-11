@@ -8,18 +8,19 @@ defmodule GroupherServer.CMS.Model.Embeds.BlockTaskRunner do
 
   alias GroupherServer.CMS.Model.Embeds
 
-  @optional_fields ~w(bi_link_tasks mention_user_tasks)a
+  @optional_fields ~w(bi_link_tasks)a
+  # @optional_fields ~w(bi_link_tasks mention_user_tasks)a
 
   @doc "for test usage"
   def default_meta() do
     %{
-      bi_link_tasks: [],
-      mention_user_tasks: []
+      bi_link_tasks: []
+      # mention_user_tasks: []
     }
   end
 
   embedded_schema do
-    embeds_many(:cite_tasks, Embeds.CitedTask, on_replace: :delete)
+    embeds_many(:reference_tasks, Embeds.ReferenceTask, on_replace: :delete)
     # embeds_many(:mention_user_tasks, Embeds.MentionUserTask, on_replace: :delete)
   end
 

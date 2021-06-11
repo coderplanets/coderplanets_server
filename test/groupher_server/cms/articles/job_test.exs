@@ -23,7 +23,6 @@ defmodule GroupherServer.Test.Articles.Job do
   end
 
   describe "[cms jobs curd]" do
-    @tag :wip
     test "can create job with valid attrs", ~m(user community job_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)

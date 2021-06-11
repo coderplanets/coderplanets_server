@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Model.Embeds.CiteTask do
+defmodule GroupherServer.CMS.Model.Embeds.ReferenceTask do
   @moduledoc """
   general article meta info for article-like content, like post, job, works ...
   """
@@ -22,9 +22,9 @@ defmodule GroupherServer.CMS.Model.Embeds.CiteTask do
     field(:article_id, :id)
     field(:block_id, :string)
 
-    field(:cited_article_id, :id)
+    field(:reference_article_id, :id)
     # 可选
-    field(:cited_block_id, :string)
+    field(:reference_block_id, :string)
 
     field(:is_finished, :boolean, default: false)
   end

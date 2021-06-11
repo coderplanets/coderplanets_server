@@ -47,6 +47,32 @@ defmodule GroupherServer.Support.Factory do
     """
   end
 
+  # for link tasks
+  def mock_rich_text(text1, text2) do
+    """
+    {
+      "time": 111,
+      "blocks": [
+        {
+          "id": "lldjfiek",
+          "type": "paragraph",
+          "data": {
+            "text": "#{text1}"
+          }
+        },
+        {
+          "id": "llddiekek",
+          "type": "paragraph",
+          "data": {
+            "text": "#{text2}"
+          }
+        }
+      ],
+      "version": "2.22.0"
+    }
+    """
+  end
+
   def mock_xss_string(:safe) do
     mock_rich_text("&lt;script&gt;blackmail&lt;/script&gt;")
   end

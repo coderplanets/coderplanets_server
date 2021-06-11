@@ -149,6 +149,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Multi.run(:create_article, fn _, _ ->
         do_create_article(info.model, attrs, author, community)
       end)
+      |> Multi.run(:block_tasks, fn _, %{create_article: article} ->
+        # ArticleCommunity.mirror_article(thread, article.id, community.id)
+        # Later
+        # BlockTasks.handle(article)
+        {:ok, :pass}
+      end)
       |> Multi.run(:mirror_article, fn _, %{create_article: article} ->
         ArticleCommunity.mirror_article(thread, article.id, community.id)
       end)
