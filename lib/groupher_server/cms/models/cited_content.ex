@@ -11,13 +11,13 @@ defmodule GroupherServer.CMS.Model.CitedContent do
   alias GroupherServer.{Accounts, CMS}
   alias Accounts.Model.User
 
-  alias CMS.Model.{ArticleComment, Embeds}
+  alias CMS.Model.ArticleComment
 
   @timestamps_opts [type: :utc_datetime_usec]
 
   @required_fields ~w(cited_by_type cited_by_id user_id)a
   @article_cast_fields general_article_fields(:cast)
-  @optional_fields ~w(article_comment_id block_linkers)a ++ @article_cast_fields
+  @optional_fields ~w(article_comment_id block_linker)a ++ @article_cast_fields
 
   @type t :: %CitedContent{}
   schema "cited_contents" do
@@ -29,7 +29,7 @@ defmodule GroupherServer.CMS.Model.CitedContent do
 
     article_belongs_to_fields()
 
-    field(:block_linkers, {:array, :string})
+    field(:block_linker, {:array, :string})
     # content.block_linker = ["block-eee_block-bbb", "block-eee_block-bbb"]
     timestamps()
   end

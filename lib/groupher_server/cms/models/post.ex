@@ -32,6 +32,7 @@ defmodule GroupherServer.CMS.Model.Post do
 
     # TODO: move to general_article_fields
     # embeds_one(:block_task_runner, Embeds.BlockTaskRunner, on_replace: :update)
+    # embeds_many(:citing_contents, CMS.CitedContent, on_replace: :delete)
 
     article_tags_field(:post)
     article_communities_field(:post)

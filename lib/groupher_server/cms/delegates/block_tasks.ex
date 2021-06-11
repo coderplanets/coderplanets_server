@@ -2,6 +2,7 @@ defmodule GroupherServer.CMS.Delegate.BlockTasks do
   @moduledoc """
   run tasks in every article blocks if need
   """
+  import Ecto.Query, warn: false
   import Helper.Utils, only: [get_config: 2]
   import GroupherServer.CMS.Helper.Matcher
 
@@ -48,8 +49,26 @@ defmodule GroupherServer.CMS.Delegate.BlockTasks do
 
     IO.inspect(cited_contents, label: "fuck all")
 
+    CitedContent |> Repo.insert_all(cited_contents)
+    update_citing_count(cited_contents)
+
     # CitedContent |>  ORM.create
   end
+
+  defp update_citing_count(cited_contents) do
+    Enum.each(cited_contents, fn content ->
+      count_query = from(c in CitedContent, where: c.cited_by_id == ^content.cited_by_id)
+      count = Repo.aggregate(count_query, :count)
+
+      IO.inspect(count, label: "the count")
+    end)
+
+    # count = Repo.aggregate(count_query, :count)
+    # IO.inspect cited_contents, label: "update_citing_count"
+  end
+
+  # count_query = from(s in CommunitySubscriber, where: s.user_id == ^user.id)
+  # count = Repo.aggregate(count_query, :count)
 
   @doc """
   e.g:
@@ -128,6 +147,7 @@ defmodule GroupherServer.CMS.Delegate.BlockTasks do
     %{
       cited_by_id: cited_article.id,
       cited_by_type: cited_article.meta.thread,
+      # cited_article: cited_article,
       block_linker: [block_id],
       user_id: article.author.user.id
     }
