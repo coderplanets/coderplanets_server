@@ -3,13 +3,15 @@ defmodule GroupherServer.CMS.Delegate.BlockTasks do
   run tasks in every article blocks if need
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [get_config: 2]
+  import Helper.Utils, only: [get_config: 2, thread_of_article: 1, done: 1]
   import GroupherServer.CMS.Helper.Matcher
+  import Helper.ErrorCode
 
-  alias GroupherServer.Repo
-
-  alias GroupherServer.CMS.Model.CitedContent
+  alias GroupherServer.{CMS, Repo}
+  alias CMS.Model.CitedContent
   alias Helper.ORM
+
+  alias Ecto.Multi
 
   @site_host get_config(:general, :site_host)
   @article_threads get_config(:article, :threads)
@@ -42,60 +44,64 @@ defmodule GroupherServer.CMS.Delegate.BlockTasks do
   defp run_tasks(:cite, article, blocks) do
     article = article |> Repo.preload(author: :user)
 
-    blocks
-    |> Enum.reduce([], &(&2 ++ get_cited_contents_per_block(article, &1)))
-    |> merge_same_cited_article_block
-    |> update_cited_info
+    Multi.new()
+    |> Multi.run(:delete_all_cited_contents, fn _, _ ->
+      delete_all_cited_contents(article)
+    end)
+    |> Multi.run(:update_cited_info, fn _, _ ->
+      blocks
+      |> Enum.reduce([], &(&2 ++ parse_cited_info_per_block(article, &1)))
+      |> merge_same_cited_article_block
+      |> update_cited_info
+    end)
+    |> Repo.transaction()
+    |> result()
   end
 
-  defp update_cited_info(cited_contents) do
-    # batch update CitedContent List
-    cited_contents_fields = [:cited_by_id, :cited_by_type, :block_linker, :user_id]
-    clean_cited_contents = Enum.map(cited_contents, &Map.take(&1, cited_contents_fields))
-    IO.inspect(clean_cited_contents, label: "clean_cited_contents")
-    Repo.insert_all(CitedContent, clean_cited_contents)
+  # delete all records before insert_all, this will dynamiclly update
+  # those cited info when update article
+  # 插入引用记录之前先全部清除，这样可以在更新文章的时候自动计算引用信息
+  defp delete_all_cited_contents(article) do
+    with {:ok, thread} <- thread_of_article(article),
+         {:ok, info} <- match(thread) do
+      query = from(c in CitedContent, where: field(c, ^info.foreign_key) == ^article.id)
 
-    # update citting count meta
-    update_citing_count(cited_contents)
+      ORM.delete_all(query, :if_exist)
+    end
+  end
+
+  # defp batch_done
+
+  defp update_cited_info(cited_contents) do
+    clean_cited_contents = Enum.map(cited_contents, &Map.delete(&1, :cited_article))
+    IO.inspect(clean_cited_contents, label: "clean_cited_contents")
+
+    with true <- {0, nil} !== Repo.insert_all(CitedContent, clean_cited_contents) do
+      update_citing_count(cited_contents)
+    else
+      _ -> {:error, "insert cited content error"}
+    end
   end
 
   defp update_citing_count(cited_contents) do
-    Enum.each(cited_contents, fn content ->
+    Enum.all?(cited_contents, fn content ->
       count_query = from(c in CitedContent, where: c.cited_by_id == ^content.cited_by_id)
       count = Repo.aggregate(count_query, :count)
 
       cited_article = content.cited_article
       meta = Map.merge(cited_article.meta, %{citing_count: count})
-      cited_article |> ORM.update_meta(meta)
+
+      case cited_article |> ORM.update_meta(meta) do
+        {:ok, _} -> true
+        {:error, _} -> false
+      end
     end)
+    |> done
   end
 
   @doc """
+  merge same cited article in different blocks
   e.g:
-  [
-    %{
-      block_linker: ["block-zByQI"],
-      cited_by_id: 190058,
-      cited_by_type: "POST",
-      post_id: 190059,
-      user_id: 1413053
-    },
-    %{
-      block_linker: ["block-zByQI"],
-      cited_by_id: 190057,
-      cited_by_type: "POST",
-      post_id: 190059,
-      user_id: 1413053
-    },
-    %{
-      block_linker: ["block-ZgKJs"],
-      cited_by_id: 190057,
-      cited_by_type: "POST",
-      post_id: 190059,
-      user_id: 1413053
-    }
-  ]
-  into:
   [
     %{
       block_linker: ["block-zByQI"],
@@ -144,7 +150,7 @@ defmodule GroupherServer.CMS.Delegate.BlockTasks do
     ...
   ]
   """
-  defp get_cited_contents_per_block(article, %{
+  defp parse_cited_info_per_block(article, %{
          "id" => block_id,
          "data" => %{"text" => text}
        }) do
@@ -162,12 +168,13 @@ defmodule GroupherServer.CMS.Delegate.BlockTasks do
   end
 
   defp shape_cited_content(article, cited_article, block_id) do
-    thread = article.meta.thread |> String.downcase() |> String.to_atom()
+    {:ok, thread} = thread_of_article(article)
     {:ok, info} = match(thread)
 
     %{
       cited_by_id: cited_article.id,
       cited_by_type: cited_article.meta.thread,
+      # used for updating citing_count, avoid load again
       cited_article: cited_article,
       block_linker: [block_id],
       user_id: article.author.user.id
@@ -213,5 +220,11 @@ defmodule GroupherServer.CMS.Delegate.BlockTasks do
     with {:ok, info} <- match(thread) do
       ORM.find(info.model, article_id)
     end
+  end
+
+  defp result({:ok, %{update_cited_info: result}}), do: {:ok, result}
+
+  defp result({:error, :update_cited_info, _result, _steps}) do
+    {:error, [message: "cited article", code: ecode(:cite_artilce)]}
   end
 end

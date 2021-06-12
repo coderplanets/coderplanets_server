@@ -55,6 +55,8 @@ defmodule Helper.Utils do
   @doc """
   handle General {:ok, ..} or {:error, ..} return
   """
+  def done(false), do: {:error, false}
+  def done(true), do: {:ok, true}
   def done(nil, :boolean), do: {:ok, false}
   def done(_, :boolean), do: {:ok, true}
   def done(nil, err_msg), do: {:error, err_msg}
@@ -207,6 +209,13 @@ defmodule Helper.Utils do
       _ -> nil
     end
   end
+
+  # get thread of article
+  def thread_of_article(%{meta: %{thread: thread}}) do
+    thread |> String.downcase() |> String.to_atom() |> done
+  end
+
+  def thread_of_article(_), do: {:error, "invalid article"}
 
   def uid(str_len \\ 5) do
     Nanoid.generate(str_len, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
