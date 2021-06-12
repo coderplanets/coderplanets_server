@@ -40,6 +40,7 @@ defmodule GroupherServer.CMS.Model.Embeds.ArticleMeta do
     field(:can_undo_sink, :boolean, default: false)
     # if undo_sink, can recover last active_at from here
     field(:last_active_at, :utc_datetime_usec)
+    field(:citing_count, :integer, default: 0)
   end
 
   def changeset(struct, params) do

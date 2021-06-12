@@ -207,7 +207,6 @@ defmodule GroupherServer.CMS.Helper.Macros do
       article_comment_fields()
 
       field(:active_at, :utc_datetime_usec)
-      field(:citing_count, :integer, default: 0)
       # TODO:
       # related_articles
       timestamps()
