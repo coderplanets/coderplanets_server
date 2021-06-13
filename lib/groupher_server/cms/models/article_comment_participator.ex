@@ -8,7 +8,7 @@ defmodule GroupherServer.CMS.Model.ArticleCommentParticipator do
   # alias CMS.Model.{
   #   Post,
   #   Job,
-  #   ArticleCommentUpvote
+  #   CommentUpvote
   # }
 
   # alias Helper.HTML

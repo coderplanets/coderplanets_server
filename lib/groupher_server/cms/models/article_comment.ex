@@ -12,7 +12,7 @@ defmodule GroupherServer.CMS.Model.ArticleComment do
 
   alias GroupherServer.{Accounts, CMS}
   alias Accounts.Model.User
-  alias CMS.Model.{Embeds, ArticleCommentUpvote}
+  alias CMS.Model.{Embeds, CommentUpvote}
 
   # alias Helper.HTML
   @article_threads get_config(:article, :threads)
@@ -81,7 +81,7 @@ defmodule GroupherServer.CMS.Model.ArticleComment do
     embeds_one(:emotions, Embeds.ArticleCommentEmotion, on_replace: :update)
     embeds_one(:meta, Embeds.ArticleCommentMeta, on_replace: :update)
 
-    has_many(:upvotes, {"articles_comments_upvotes", ArticleCommentUpvote})
+    has_many(:upvotes, {"comments_upvotes", CommentUpvote})
 
     article_belongs_to_fields()
     timestamps(type: :utc_datetime)

@@ -25,7 +25,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   alias CMS.Model.{
     ArticleComment,
     ArticlePinnedComment,
-    ArticleCommentUpvote,
+    CommentUpvote,
     ArticleCommentReply,
     Embeds
   }
@@ -162,13 +162,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
          false <- comment.is_deleted do
       Multi.new()
       |> Multi.run(:create_comment_upvote, fn _, _ ->
-        ORM.create(ArticleCommentUpvote, %{article_comment_id: comment.id, user_id: user_id})
+        ORM.create(CommentUpvote, %{article_comment_id: comment.id, user_id: user_id})
       end)
       |> Multi.run(:add_upvoted_user, fn _, _ ->
         update_upvoted_user_list(comment, user_id, :add)
       end)
       |> Multi.run(:inc_upvotes_count, fn _, %{add_upvoted_user: comment} ->
-        count_query = from(c in ArticleCommentUpvote, where: c.article_comment_id == ^comment.id)
+        count_query = from(c in CommentUpvote, where: c.article_comment_id == ^comment.id)
         upvotes_count = Repo.aggregate(count_query, :count)
         ORM.update(comment, %{upvotes_count: upvotes_count})
       end)
@@ -195,7 +195,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
          false <- comment.is_deleted do
       Multi.new()
       |> Multi.run(:delete_comment_upvote, fn _, _ ->
-        ORM.findby_delete(ArticleCommentUpvote, %{
+        ORM.findby_delete(CommentUpvote, %{
           article_comment_id: comment.id,
           user_id: user_id
         })
@@ -204,7 +204,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
         update_upvoted_user_list(comment, user_id, :remove)
       end)
       |> Multi.run(:desc_upvotes_count, fn _, %{remove_upvoted_user: comment} ->
-        count_query = from(c in ArticleCommentUpvote, where: c.article_comment_id == ^comment_id)
+        count_query = from(c in CommentUpvote, where: c.article_comment_id == ^comment_id)
         upvotes_count = Repo.aggregate(count_query, :count)
 
         ORM.update(comment, %{upvotes_count: Enum.max([upvotes_count - 1, 0])})
