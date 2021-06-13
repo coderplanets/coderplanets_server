@@ -148,7 +148,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
     test "user can upvote a repo comment", ~m(user repo)a do
       {:ok, comment} = CMS.create_comment(:repo, repo.id, mock_comment(), user)
 
-      CMS.upvote_article_comment(comment.id, user)
+      CMS.upvote_comment(comment.id, user)
 
       {:ok, comment} = ORM.find(ArticleComment, comment.id, preload: :upvotes)
 
@@ -160,7 +160,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
       {:ok, comment} = CMS.create_comment(:repo, repo.id, mock_comment(), user)
       {:ok, author_user} = ORM.find(User, repo.author.user.id)
 
-      CMS.upvote_article_comment(comment.id, author_user)
+      CMS.upvote_comment(comment.id, author_user)
 
       {:ok, comment} = ORM.find(ArticleComment, comment.id, preload: :upvotes)
       assert comment.meta.is_article_author_upvoted
@@ -168,7 +168,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
 
     test "user upvote repo comment will add id to upvoted_user_ids", ~m(repo user)a do
       {:ok, comment} = CMS.create_comment(:repo, repo.id, mock_comment(), user)
-      {:ok, comment} = CMS.upvote_article_comment(comment.id, user)
+      {:ok, comment} = CMS.upvote_comment(comment.id, user)
 
       assert user.id in comment.meta.upvoted_user_ids
     end
@@ -176,13 +176,13 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
     test "user undo upvote repo comment will remove id from upvoted_user_ids",
          ~m(repo user user2)a do
       {:ok, comment} = CMS.create_comment(:repo, repo.id, mock_comment(), user)
-      {:ok, _comment} = CMS.upvote_article_comment(comment.id, user)
-      {:ok, comment} = CMS.upvote_article_comment(comment.id, user2)
+      {:ok, _comment} = CMS.upvote_comment(comment.id, user)
+      {:ok, comment} = CMS.upvote_comment(comment.id, user2)
 
       assert user2.id in comment.meta.upvoted_user_ids
       assert user.id in comment.meta.upvoted_user_ids
 
-      {:ok, comment} = CMS.undo_upvote_article_comment(comment.id, user2)
+      {:ok, comment} = CMS.undo_upvote_comment(comment.id, user2)
 
       assert user.id in comment.meta.upvoted_user_ids
       assert user2.id not in comment.meta.upvoted_user_ids
@@ -191,8 +191,8 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
     test "user upvote a already-upvoted comment fails", ~m(user repo)a do
       {:ok, comment} = CMS.create_comment(:repo, repo.id, mock_comment(), user)
 
-      CMS.upvote_article_comment(comment.id, user)
-      {:error, _} = CMS.upvote_article_comment(comment.id, user)
+      CMS.upvote_comment(comment.id, user)
+      {:error, _} = CMS.upvote_comment(comment.id, user)
     end
 
     test "upvote comment should inc the comment's upvotes_count", ~m(user user2 repo)a do
@@ -200,8 +200,8 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
       assert comment.upvotes_count == 0
 
-      {:ok, _} = CMS.upvote_article_comment(comment.id, user)
-      {:ok, _} = CMS.upvote_article_comment(comment.id, user2)
+      {:ok, _} = CMS.upvote_comment(comment.id, user)
+      {:ok, _} = CMS.upvote_comment(comment.id, user2)
 
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
       assert comment.upvotes_count == 2
@@ -209,21 +209,21 @@ defmodule GroupherServer.Test.CMS.Comments.RepoComment do
 
     test "user can undo upvote a repo comment", ~m(user repo)a do
       {:ok, comment} = CMS.create_comment(:repo, repo.id, mock_comment(), user)
-      CMS.upvote_article_comment(comment.id, user)
+      CMS.upvote_comment(comment.id, user)
 
       {:ok, comment} = ORM.find(ArticleComment, comment.id, preload: :upvotes)
       assert 1 == length(comment.upvotes)
 
-      {:ok, comment} = CMS.undo_upvote_article_comment(comment.id, user)
+      {:ok, comment} = CMS.undo_upvote_comment(comment.id, user)
       assert 0 == comment.upvotes_count
     end
 
     test "user can undo upvote a repo comment with no upvote", ~m(user repo)a do
       {:ok, comment} = CMS.create_comment(:repo, repo.id, mock_comment(), user)
-      {:ok, comment} = CMS.undo_upvote_article_comment(comment.id, user)
+      {:ok, comment} = CMS.undo_upvote_comment(comment.id, user)
       assert 0 == comment.upvotes_count
 
-      {:ok, comment} = CMS.undo_upvote_article_comment(comment.id, user)
+      {:ok, comment} = CMS.undo_upvote_comment(comment.id, user)
       assert 0 == comment.upvotes_count
     end
   end

@@ -154,7 +154,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
   end
 
   @doc "upvote a comment"
-  def upvote_article_comment(comment_id, %User{id: user_id}) do
+  def upvote_comment(comment_id, %User{id: user_id}) do
     with {:ok, comment} <- ORM.find(ArticleComment, comment_id),
          false <- comment.is_deleted do
       Multi.new()
@@ -187,7 +187,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
   end
 
   @doc "upvote a comment"
-  def undo_upvote_article_comment(comment_id, %User{id: user_id}) do
+  def undo_upvote_comment(comment_id, %User{id: user_id}) do
     with {:ok, comment} <- ORM.find(ArticleComment, comment_id),
          false <- comment.is_deleted do
       Multi.new()

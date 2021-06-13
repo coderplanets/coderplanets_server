@@ -386,9 +386,9 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
 
       upvote_comment = all_comment |> Enum.at(3)
       upvote_comment2 = all_comment |> Enum.at(4)
-      {:ok, _} = CMS.upvote_article_comment(upvote_comment.id, user)
-      {:ok, _} = CMS.upvote_article_comment(upvote_comment2.id, user)
-      {:ok, _} = CMS.upvote_article_comment(upvote_comment2.id, user2)
+      {:ok, _} = CMS.upvote_comment(upvote_comment.id, user)
+      {:ok, _} = CMS.upvote_comment(upvote_comment2.id, user)
+      {:ok, _} = CMS.upvote_comment(upvote_comment2.id, user2)
 
       variables = %{id: repo.id, thread: "REPO", filter: %{page: 1, size: page_size}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
@@ -415,11 +415,11 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
         end)
 
       random_comment = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
-      {:ok, _} = CMS.upvote_article_comment(random_comment.id, author_user)
+      {:ok, _} = CMS.upvote_comment(random_comment.id, author_user)
 
       {:ok, author_comment} = CMS.create_comment(thread, repo.id, mock_comment(), author_user)
 
-      {:ok, _} = CMS.upvote_article_comment(author_comment.id, author_user)
+      {:ok, _} = CMS.upvote_comment(author_comment.id, author_user)
 
       variables = %{id: repo.id, thread: "REPO", filter: %{page: 1, size: page_size}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
@@ -529,7 +529,7 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
 
       random_comment = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
 
-      {:ok, _} = CMS.upvote_article_comment(random_comment.id, user)
+      {:ok, _} = CMS.upvote_comment(random_comment.id, user)
 
       variables = %{id: repo.id, thread: "REPO", filter: %{page: 1, size: page_size}}
       results = user_conn |> query_result(@query, variables, "pagedArticleComments")

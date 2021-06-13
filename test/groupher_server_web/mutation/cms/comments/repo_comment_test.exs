@@ -109,7 +109,7 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
   describe "[article comment upvote]" do
     @upvote_comment_query """
     mutation($id: ID!) {
-      upvoteArticleComment(id: $id) {
+      upvoteComment(id: $id) {
         id
         upvotesCount
         viewerHasUpvoted
@@ -124,8 +124,7 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
       assert guest_conn
              |> mutation_get_error?(@upvote_comment_query, variables, ecode(:account_login))
 
-      result =
-        user_conn |> mutation_result(@upvote_comment_query, variables, "upvoteArticleComment")
+      result = user_conn |> mutation_result(@upvote_comment_query, variables, "upvoteComment")
 
       assert result["id"] == to_string(comment.id)
       assert result["upvotesCount"] == 1
@@ -134,7 +133,7 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
 
     @undo_upvote_comment_query """
     mutation($id: ID!) {
-      undoUpvoteArticleComment(id: $id) {
+      undoUpvoteComment(id: $id) {
         id
         upvotesCount
         viewerHasUpvoted
@@ -145,14 +144,14 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
     test "login user can undo upvote a exsit repo comment", ~m(repo user guest_conn user_conn)a do
       {:ok, comment} = CMS.create_comment(:repo, repo.id, mock_comment(), user)
       variables = %{id: comment.id}
-      user_conn |> mutation_result(@upvote_comment_query, variables, "upvoteArticleComment")
+      user_conn |> mutation_result(@upvote_comment_query, variables, "upvoteComment")
 
       assert guest_conn
              |> mutation_get_error?(@undo_upvote_comment_query, variables, ecode(:account_login))
 
       result =
         user_conn
-        |> mutation_result(@undo_upvote_comment_query, variables, "undoUpvoteArticleComment")
+        |> mutation_result(@undo_upvote_comment_query, variables, "undoUpvoteComment")
 
       assert result["upvotesCount"] == 0
       assert not result["viewerHasUpvoted"]

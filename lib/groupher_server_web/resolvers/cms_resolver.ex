@@ -312,12 +312,12 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.reply_article_comment(id, body, user)
   end
 
-  def upvote_article_comment(_root, ~m(id)a, %{context: %{cur_user: user}}) do
-    CMS.upvote_article_comment(id, user)
+  def upvote_comment(_root, ~m(id)a, %{context: %{cur_user: user}}) do
+    CMS.upvote_comment(id, user)
   end
 
-  def undo_upvote_article_comment(_root, ~m(id)a, %{context: %{cur_user: user}}) do
-    CMS.undo_upvote_article_comment(id, user)
+  def undo_upvote_comment(_root, ~m(id)a, %{context: %{cur_user: user}}) do
+    CMS.undo_upvote_comment(id, user)
   end
 
   def emotion_to_comment(_root, ~m(id emotion)a, %{context: %{cur_user: user}}) do

@@ -56,19 +56,19 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
     end
 
     @desc "upvote to a comment"
-    field :upvote_article_comment, :article_comment do
+    field :upvote_comment, :article_comment do
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      resolve(&R.CMS.upvote_article_comment/3)
+      resolve(&R.CMS.upvote_comment/3)
     end
 
     @desc "undo upvote to a comment"
-    field :undo_upvote_article_comment, :article_comment do
+    field :undo_upvote_comment, :article_comment do
       arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      resolve(&R.CMS.undo_upvote_article_comment/3)
+      resolve(&R.CMS.undo_upvote_comment/3)
     end
 
     @desc "emotion to a comment"
