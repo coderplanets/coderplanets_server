@@ -11,9 +11,9 @@ defmodule GroupherServer.Repo.Migrations.CreateCitedArticles do
       add(:article_comment_id, references(:articles_comments, on_delete: :delete_all))
 
       add(:post_id, references(:cms_posts, on_delete: :delete_all))
-      add(:repo_id, references(:cms_posts, on_delete: :delete_all))
-      add(:job_id, references(:cms_posts, on_delete: :delete_all))
-      add(:blog_id, references(:cms_posts, on_delete: :delete_all))
+      add(:repo_id, references(:cms_repos, on_delete: :delete_all))
+      add(:job_id, references(:cms_jobs, on_delete: :delete_all))
+      add(:blog_id, references(:cms_blogs, on_delete: :delete_all))
 
       add(:block_linker, {:array, :string})
     end

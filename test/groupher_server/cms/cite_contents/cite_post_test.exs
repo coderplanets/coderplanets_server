@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.CMS.CiteContent do
+defmodule GroupherServer.Test.CMS.CiteContent.Post do
   use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
@@ -64,7 +64,7 @@ defmodule GroupherServer.Test.CMS.CiteContent do
     end
 
     @tag :wip
-    test "cited post itself should not work", ~m(user community post post_attrs)a do
+    test "cited post itself should not work", ~m(user community post_attrs)a do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
       body = mock_rich_text(~s(the <a href=#{@site_host}/post/#{post.id} />))

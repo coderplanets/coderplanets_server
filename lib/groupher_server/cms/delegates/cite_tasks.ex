@@ -193,7 +193,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
   {:ok, "https://coderplanets.com/post/190220"}
   """
   defp parse_link(attrs) do
-    with {"href", link} <- Enum.find(attrs, fn {a, v} -> a == "href" end) do
+    with {"href", link} <- Enum.find(attrs, fn {a, _v} -> a == "href" end) do
       {:ok, link}
     else
       _ -> {:error, "invalid fmt"}
