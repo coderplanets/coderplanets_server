@@ -13,7 +13,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
 
   @delete_hint ArticleComment.delete_hint()
   @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
-  @default_comment_meta Embeds.ArticleCommentMeta.default_meta()
+  @default_comment_meta Embeds.CommentMeta.default_meta()
   @pinned_comment_limit ArticleComment.pinned_comment_limit()
 
   setup do

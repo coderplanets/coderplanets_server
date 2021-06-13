@@ -24,7 +24,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   @delete_hint ArticleComment.delete_hint()
 
   @default_article_meta Embeds.ArticleMeta.default_meta()
-  @default_comment_meta Embeds.ArticleCommentMeta.default_meta()
+  @default_comment_meta Embeds.CommentMeta.default_meta()
   @pinned_comment_limit ArticleComment.pinned_comment_limit()
 
   @doc """

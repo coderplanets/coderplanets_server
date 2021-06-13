@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Model.Embeds.ArticleCommentMeta do
+defmodule GroupherServer.CMS.Model.Embeds.CommentMeta do
   @moduledoc """
   general article comment meta info
   """
