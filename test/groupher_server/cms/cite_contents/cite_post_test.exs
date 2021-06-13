@@ -8,7 +8,7 @@ defmodule GroupherServer.Test.CMS.CiteContent do
 
   alias CMS.Model.Post
 
-  alias CMS.Delegate.BlockTasks
+  alias CMS.Delegate.CiteTasks
 
   @site_host get_config(:general, :site_host)
 
@@ -29,7 +29,7 @@ defmodule GroupherServer.Test.CMS.CiteContent do
   end
 
   describe "[cite basic]" do
-    # @tag :wip
+    @tag :wip
     test "cited multi post should work", ~m(user community post2 post3 post4 post5 post_attrs)a do
       body =
         mock_rich_text(
@@ -49,8 +49,8 @@ defmodule GroupherServer.Test.CMS.CiteContent do
       post_attrs = post_attrs |> Map.merge(%{body: body})
       {:ok, post_n} = CMS.create_article(community, :post, post_attrs, user)
 
-      BlockTasks.handle(post)
-      BlockTasks.handle(post_n)
+      CiteTasks.handle(post)
+      CiteTasks.handle(post_n)
 
       {:ok, post2} = ORM.find(Post, post2.id)
       {:ok, post3} = ORM.find(Post, post3.id)
@@ -70,7 +70,7 @@ defmodule GroupherServer.Test.CMS.CiteContent do
       body = mock_rich_text(~s(the <a href=#{@site_host}/post/#{post.id} />))
       {:ok, post} = CMS.update_article(post, %{body: body})
 
-      BlockTasks.handle(post)
+      CiteTasks.handle(post)
 
       {:ok, post} = ORM.find(Post, post.id)
       assert post.meta.citing_count == 0

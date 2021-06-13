@@ -18,7 +18,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   alias Accounts.Model.User
   alias CMS.Model.{Author, Community, PinnedArticle, Embeds}
-  alias CMS.Delegate.{ArticleCommunity, ArticleComment, ArticleTag, CommunityCURD}
+  alias CMS.Delegate.{ArticleCommunity, ArticleComment, ArticleTag, CommunityCURD, CiteTasks}
 
   alias Ecto.Multi
 
@@ -149,12 +149,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Multi.run(:create_article, fn _, _ ->
         do_create_article(info.model, attrs, author, community)
       end)
-      |> Multi.run(:block_tasks, fn _, %{create_article: article} ->
-        # ArticleCommunity.mirror_article(thread, article.id, community.id)
-        # Later
-        # BlockTasks.handle(article)
-        {:ok, :pass}
-      end)
       |> Multi.run(:mirror_article, fn _, %{create_article: article} ->
         ArticleCommunity.mirror_article(thread, article.id, community.id)
       end)
@@ -169,6 +163,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       end)
       |> Multi.run(:update_user_published_meta, fn _, _ ->
         Accounts.update_published_states(uid, thread)
+      end)
+      |> Multi.run(:block_tasks, fn _, %{create_article: article} ->
+        Later.run({CiteTasks, :handle, [article]})
       end)
       # TODO: run mini tasks
       |> Multi.run(:mention_users, fn _, %{create_article: article} ->
@@ -452,7 +449,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   # create done
   defp result({:ok, %{set_active_at_timestamp: result}}) do
-    Later.exec({__MODULE__, :notify_admin_new_article, [result]})
+    Later.run({__MODULE__, :notify_admin_new_article, [result]})
     {:ok, result}
   end
 

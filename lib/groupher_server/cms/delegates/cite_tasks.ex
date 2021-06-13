@@ -1,7 +1,28 @@
-defmodule GroupherServer.CMS.Delegate.BlockTasks do
+defmodule GroupherServer.CMS.Delegate.CiteTasks do
   @moduledoc """
   run tasks in every article blocks if need
+
+  current task: "cite link" and "mention"
+
+  ## cite link
+
+  我被站内哪些文章或评论引用了，是值得关注的事
+  我引用了谁不重要，帖子里链接已经表明了, 这和 github issue 的双向链接不一样，因为一般不需要关注这个
+  帖子是否解决，是否被 merge 等状态。
+
+  基本结构：
+
+  cited_thread, cited_article_id, [xxx_article]_id, [block_id, block2_id],
+
+  POST post_333 -> cited_article_333, [block_id, block2_id]]
+
+  cited_type, cited_content_id, [contents]_id, [block_id, cited_block_id],
+
+  cited_type: thread or comment
+  content: article or comment
+  # cited_article_comment_id, [xxx_article]_id, [block_id, block2_id, ...],
   """
+
   import Ecto.Query, warn: false
   import Helper.Utils, only: [get_config: 2, thread_of_article: 1, done: 1]
   import GroupherServer.CMS.Helper.Matcher
@@ -17,45 +38,22 @@ defmodule GroupherServer.CMS.Delegate.BlockTasks do
   @article_threads get_config(:article, :threads)
   @valid_article_prefix Enum.map(@article_threads, &"#{@site_host}/#{&1}/")
 
-  """
-  我被谁引用了 是最重要的信息
-  我引用了谁不重要，自己扫帖子就行了
-  cited_thread, cited_article_id, [xxx_article]_id, [block_id, cited_block_id],
-
-  POST post_333 -> cited_article_333, [[block_3, cited_block_23]]
-
-  cited_type, cited_content_id, [contents]_id, [block_id, cited_block_id],
-
-  cited_type: thread or comment
-  content: article or comment
-  # cited_article_comment_id, [xxx_article]_id, [block_id, cited_block_id],
-  """
-
-  # reference
-  # mention
-
   def handle(%{body: body} = article) do
-    with {:ok, body_map} <- Jason.decode(body) do
-      run_tasks(:cite, article, body_map["blocks"])
-      # run_tasks(:mention, article, body_map["blocks"])
+    with {:ok, %{"blocks" => blocks}} <- Jason.decode(body),
+         article <- Repo.preload(article, author: :user) do
+      Multi.new()
+      |> Multi.run(:delete_all_cited_contents, fn _, _ ->
+        delete_all_cited_contents(article)
+      end)
+      |> Multi.run(:update_cited_info, fn _, _ ->
+        blocks
+        |> Enum.reduce([], &(&2 ++ parse_cited_info_per_block(article, &1)))
+        |> merge_same_cited_article_block
+        |> update_cited_info
+      end)
+      |> Repo.transaction()
+      |> result()
     end
-  end
-
-  defp run_tasks(:cite, article, blocks) do
-    article = article |> Repo.preload(author: :user)
-
-    Multi.new()
-    |> Multi.run(:delete_all_cited_contents, fn _, _ ->
-      delete_all_cited_contents(article)
-    end)
-    |> Multi.run(:update_cited_info, fn _, _ ->
-      blocks
-      |> Enum.reduce([], &(&2 ++ parse_cited_info_per_block(article, &1)))
-      |> merge_same_cited_article_block
-      |> update_cited_info
-    end)
-    |> Repo.transaction()
-    |> result()
   end
 
   # delete all records before insert_all, this will dynamiclly update
@@ -150,11 +148,7 @@ defmodule GroupherServer.CMS.Delegate.BlockTasks do
     ...
   ]
   """
-  defp parse_cited_info_per_block(article, %{
-         "id" => block_id,
-         "data" => %{"text" => text}
-       }) do
-    #
+  defp parse_cited_info_per_block(article, %{"id" => block_id, "data" => %{"text" => text}}) do
     links_in_block = Floki.find(text, "a[href]")
 
     Enum.reduce(links_in_block, [], fn link, acc ->
