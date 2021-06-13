@@ -361,7 +361,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
       assert first_repo["id"] !== to_string(repo_last_week.id)
 
       Process.sleep(1500)
-      {:ok, _comment} = CMS.create_article_comment(:repo, repo_last_week.id, mock_comment(), user)
+      {:ok, _comment} = CMS.create_comment(:repo, repo_last_week.id, mock_comment(), user)
 
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
       entries = results["entries"]
@@ -373,7 +373,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
     test "comment on very old repo have no effect", ~m(guest_conn repo_last_year user)a do
       variables = %{filter: %{page: 1, size: 20}}
 
-      {:ok, _comment} = CMS.create_article_comment(:repo, repo_last_year.id, mock_comment(), user)
+      {:ok, _comment} = CMS.create_comment(:repo, repo_last_year.id, mock_comment(), user)
 
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
       entries = results["entries"]
@@ -386,7 +386,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
       variables = %{filter: %{page: 1, size: 20}}
 
       {:ok, _comment} =
-        CMS.create_article_comment(
+        CMS.create_comment(
           :repo,
           repo_last_week.id,
           mock_comment(),

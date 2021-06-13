@@ -92,22 +92,22 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   @doc """
   creates a comment for article like psot, job ...
   """
-  def create_article_comment(thread, article_id, body, %User{} = user) do
+  def create_comment(thread, article_id, body, %User{} = user) do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, article_id, preload: [author: :user]),
          true <- can_comment?(article, user) do
       Multi.new()
-      |> Multi.run(:create_article_comment, fn _, _ ->
+      |> Multi.run(:create_comment, fn _, _ ->
         do_create_comment(body, info.foreign_key, article, user)
       end)
-      |> Multi.run(:update_comments_count, fn _, %{create_article_comment: comment} ->
+      |> Multi.run(:update_comments_count, fn _, %{create_comment: comment} ->
         update_comments_count(comment, :inc)
       end)
-      |> Multi.run(:set_question_flag_ifneed, fn _, %{create_article_comment: comment} ->
+      |> Multi.run(:set_question_flag_ifneed, fn _, %{create_comment: comment} ->
         set_question_flag_ifneed(article, comment)
       end)
       |> Multi.run(:add_participator, fn _, _ -> add_participant_to_article(article, user) end)
-      |> Multi.run(:update_article_active_timestamp, fn _, %{create_article_comment: comment} ->
+      |> Multi.run(:update_article_active_timestamp, fn _, %{create_comment: comment} ->
         case comment.author_id == article.author.user.id do
           true -> {:ok, :pass}
           false -> CMS.update_active_timestamp(thread, article)
@@ -133,7 +133,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   update a comment for article like psot, job ...
   """
   # 如果是 solution, 那么要更新对应的 post 的 solution_digest
-  def update_article_comment(%ArticleComment{is_solution: true} = article_comment, body) do
+  def update_comment(%ArticleComment{is_solution: true} = article_comment, body) do
     with {:ok, post} <- ORM.find(Post, article_comment.post_id),
          {:ok, parsed} <- Converter.Article.parse_body(body),
          {:ok, digest} <- Converter.Article.parse_digest(parsed.body_map) do
@@ -143,7 +143,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     end
   end
 
-  def update_article_comment(%ArticleComment{} = article_comment, body) do
+  def update_comment(%ArticleComment{} = article_comment, body) do
     with {:ok, %{body: body, body_html: body_html}} <- Converter.Article.parse_body(body) do
       article_comment |> ORM.update(%{body: body, body_html: body_html})
     end
@@ -206,7 +206,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   def batch_update_question_flag(_), do: {:ok, :pass}
 
   @doc "delete article comment"
-  def delete_article_comment(%ArticleComment{} = comment) do
+  def delete_comment(%ArticleComment{} = comment) do
     Multi.new()
     |> Multi.run(:update_comments_count, fn _, _ ->
       update_comments_count(comment, :dec)
@@ -214,7 +214,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     |> Multi.run(:remove_pined_comment, fn _, _ ->
       ORM.findby_delete(PinnedComment, %{article_comment_id: comment.id})
     end)
-    |> Multi.run(:delete_article_comment, fn _, _ ->
+    |> Multi.run(:delete_comment, fn _, _ ->
       ORM.update(comment, %{body_html: @delete_hint, is_deleted: true})
     end)
     |> Repo.transaction()
@@ -404,11 +404,11 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   end
 
   defp result({:ok, %{set_question_flag_ifneed: result}}), do: {:ok, result}
-  defp result({:ok, %{delete_article_comment: result}}), do: {:ok, result}
+  defp result({:ok, %{delete_comment: result}}), do: {:ok, result}
   defp result({:ok, %{mark_solution: result}}), do: {:ok, result}
 
-  defp result({:error, :create_article_comment, result, _steps}) do
-    raise_error(:create_article_comment, result)
+  defp result({:error, :create_comment, result, _steps}) do
+    raise_error(:create_comment, result)
   end
 
   defp result({:error, _, result, _steps}), do: {:error, result}

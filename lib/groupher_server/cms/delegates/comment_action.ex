@@ -363,15 +363,15 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
     ORM.update_meta(comment, meta)
   end
 
-  defp result({:ok, %{create_article_comment: result}}), do: {:ok, result}
+  defp result({:ok, %{create_comment: result}}), do: {:ok, result}
   defp result({:ok, %{add_reply_to: result}}), do: {:ok, result}
   defp result({:ok, %{upvote_comment_done: result}}), do: {:ok, result}
   defp result({:ok, %{fold_comment_report_too_many: result}}), do: {:ok, result}
   defp result({:ok, %{update_comment_flag: result}}), do: {:ok, result}
-  defp result({:ok, %{delete_article_comment: result}}), do: {:ok, result}
+  defp result({:ok, %{delete_comment: result}}), do: {:ok, result}
 
-  defp result({:error, :create_article_comment, result, _steps}) do
-    raise_error(:create_article_comment, result)
+  defp result({:error, :create_comment, result, _steps}) do
+    raise_error(:create_comment, result)
   end
 
   defp result({:error, :add_participator, result, _steps}) do

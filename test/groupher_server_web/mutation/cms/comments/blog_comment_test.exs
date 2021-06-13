@@ -21,7 +21,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
   describe "[article comment CURD]" do
     @write_comment_query """
     mutation($thread: Thread!, $id: ID!, $body: String!) {
-      createArticleComment(thread: $thread,id: $id, body: $body) {
+      createComment(thread: $thread,id: $id, body: $body) {
         id
         bodyHtml
       }
@@ -30,8 +30,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
     test "write article comment to a exsit blog", ~m(blog user_conn)a do
       variables = %{thread: "BLOG", id: blog.id, body: mock_comment()}
 
-      result =
-        user_conn |> mutation_result(@write_comment_query, variables, "createArticleComment")
+      result = user_conn |> mutation_result(@write_comment_query, variables, "createComment")
 
       assert result["bodyHtml"] |> String.contains?(~s(<p id=))
       assert result["bodyHtml"] |> String.contains?(~s(comment</p>))
@@ -46,7 +45,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
     }
     """
     test "login user can reply to a comment", ~m(blog user user_conn)a do
-      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
       variables = %{id: comment.id, body: mock_comment("reply comment")}
 
       result =
@@ -59,7 +58,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
 
     @update_comment_query """
     mutation($id: ID!, $body: String!) {
-      updateArticleComment(id: $id, body: $body) {
+      updateComment(id: $id, body: $body) {
         id
         bodyHtml
       }
@@ -68,7 +67,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
 
     test "only owner can update a exsit comment",
          ~m(blog user guest_conn user_conn owner_conn)a do
-      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
       variables = %{id: comment.id, body: mock_comment("updated comment")}
 
       assert user_conn |> mutation_get_error?(@update_comment_query, variables, ecode(:passport))
@@ -76,8 +75,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
       assert guest_conn
              |> mutation_get_error?(@update_comment_query, variables, ecode(:account_login))
 
-      result =
-        owner_conn |> mutation_result(@update_comment_query, variables, "updateArticleComment")
+      result = owner_conn |> mutation_result(@update_comment_query, variables, "updateComment")
 
       assert result["bodyHtml"] |> String.contains?(~s(<p id=))
       assert result["bodyHtml"] |> String.contains?(~s(updated comment</p>))
@@ -85,7 +83,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
 
     @delete_comment_query """
     mutation($id: ID!) {
-      deleteArticleComment(id: $id) {
+      deleteComment(id: $id) {
         id
         isDeleted
       }
@@ -93,7 +91,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
     """
     test "only owner can delete a exsit comment",
          ~m(blog user guest_conn user_conn owner_conn)a do
-      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
       variables = %{id: comment.id}
 
       assert user_conn |> mutation_get_error?(@delete_comment_query, variables, ecode(:passport))
@@ -101,8 +99,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
       assert guest_conn
              |> mutation_get_error?(@delete_comment_query, variables, ecode(:account_login))
 
-      deleted =
-        owner_conn |> mutation_result(@delete_comment_query, variables, "deleteArticleComment")
+      deleted = owner_conn |> mutation_result(@delete_comment_query, variables, "deleteComment")
 
       assert deleted["id"] == to_string(comment.id)
       assert deleted["isDeleted"]
@@ -121,7 +118,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
     """
 
     test "login user can upvote a exsit blog comment", ~m(blog user guest_conn user_conn)a do
-      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
       variables = %{id: comment.id}
 
       assert guest_conn
@@ -146,7 +143,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
     """
 
     test "login user can undo upvote a exsit blog comment", ~m(blog user guest_conn user_conn)a do
-      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
       variables = %{id: comment.id}
       user_conn |> mutation_result(@upvote_comment_query, variables, "upvoteArticleComment")
 
@@ -179,7 +176,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
     }
     """
     test "login user can emotion to a comment", ~m(blog user user_conn)a do
-      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
       variables = %{id: comment.id, emotion: "BEER"}
 
       comment =
@@ -205,7 +202,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
     }
     """
     test "login user can undo emotion to a comment", ~m(blog user owner_conn)a do
-      {:ok, comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
       {:ok, _} = CMS.emotion_to_comment(comment.id, :beer, user)
 
       variables = %{id: comment.id, emotion: "BEER"}

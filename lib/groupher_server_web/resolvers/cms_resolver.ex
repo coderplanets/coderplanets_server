@@ -294,18 +294,18 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.paged_comments_participants(thread, id, filter)
   end
 
-  def create_article_comment(_root, ~m(thread id body)a, %{context: %{cur_user: user}}) do
-    CMS.create_article_comment(thread, id, body, user)
+  def create_comment(_root, ~m(thread id body)a, %{context: %{cur_user: user}}) do
+    CMS.create_comment(thread, id, body, user)
   end
 
-  def update_article_comment(_root, ~m(body passport_source)a, _info) do
+  def update_comment(_root, ~m(body passport_source)a, _info) do
     comment = passport_source
-    CMS.update_article_comment(comment, body)
+    CMS.update_comment(comment, body)
   end
 
-  def delete_article_comment(_root, ~m(passport_source)a, _info) do
+  def delete_comment(_root, ~m(passport_source)a, _info) do
     comment = passport_source
-    CMS.delete_article_comment(comment)
+    CMS.delete_comment(comment)
   end
 
   def reply_article_comment(_root, ~m(id body)a, %{context: %{cur_user: user}}) do

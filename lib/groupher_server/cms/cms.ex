@@ -136,9 +136,9 @@ defmodule GroupherServer.CMS do
 
   defdelegate paged_comments_participants(thread, content_id, filters), to: CommentCurd
 
-  defdelegate create_article_comment(thread, article_id, args, user), to: CommentCurd
-  defdelegate update_article_comment(comment, content), to: CommentCurd
-  defdelegate delete_article_comment(comment), to: CommentCurd
+  defdelegate create_comment(thread, article_id, args, user), to: CommentCurd
+  defdelegate update_comment(comment, content), to: CommentCurd
+  defdelegate delete_comment(comment), to: CommentCurd
   defdelegate mark_comment_solution(comment, user), to: CommentCurd
   defdelegate undo_mark_comment_solution(comment, user), to: CommentCurd
 

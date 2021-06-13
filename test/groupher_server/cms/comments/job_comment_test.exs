@@ -27,8 +27,8 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
   describe "[basic article comment]" do
     test "job are supported by article comment.", ~m(user job)a do
-      {:ok, job_comment_1} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
-      {:ok, job_comment_2} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, job_comment_1} = CMS.create_comment(:job, job.id, mock_comment(), user)
+      {:ok, job_comment_2} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
       {:ok, job} = ORM.find(Job, job.id, preload: :article_comments)
 
@@ -37,13 +37,13 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     end
 
     test "comment should have default meta after create", ~m(user job)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
       assert comment.meta |> Map.from_struct() |> Map.delete(:id) == @default_comment_meta
     end
 
     test "create comment should update active timestamp of job", ~m(user job)a do
       Process.sleep(1000)
-      {:ok, _comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, _comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
       {:ok, job} = ORM.find(Job, job.id, preload: :article_comments)
 
       assert not is_nil(job.active_at)
@@ -57,7 +57,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       Process.sleep(1000)
 
-      {:ok, _comment} = CMS.create_article_comment(:job, job.id, mock_comment(), job.author.user)
+      {:ok, _comment} = CMS.create_comment(:job, job.id, mock_comment(), job.author.user)
 
       {:ok, job} = ORM.find(Job, job.id, preload: :article_comments)
 
@@ -73,7 +73,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       {:ok, job} = db_insert(:job, %{inserted_at: inserted_at})
       Process.sleep(1000)
-      {:ok, _comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, _comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
       {:ok, job} = ORM.find(Job, job.id)
 
       assert job.active_at |> DateTime.to_date() == DateTime.utc_now() |> DateTime.to_date()
@@ -84,17 +84,16 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       {:ok, job} = db_insert(:job, %{inserted_at: inserted_at})
       Process.sleep(3000)
-      {:ok, _comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, _comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
       {:ok, job} = ORM.find(Job, job.id)
 
       assert job.active_at |> DateTime.to_unix() !== DateTime.utc_now() |> DateTime.to_unix()
     end
 
     test "comment can be updated", ~m(job user)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
-      {:ok, updated_comment} =
-        CMS.update_article_comment(comment, mock_comment("updated content"))
+      {:ok, updated_comment} = CMS.update_comment(comment, mock_comment("updated content"))
 
       assert updated_comment.body_html |> String.contains?(~s(updated content</p>))
     end
@@ -102,8 +101,8 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
   describe "[article comment floor]" do
     test "comment will have a floor number after created", ~m(user job)a do
-      {:ok, job_comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
-      {:ok, job_comment2} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, job_comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
+      {:ok, job_comment2} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
       {:ok, job_comment} = ORM.find(ArticleComment, job_comment.id)
       {:ok, job_comment2} = ORM.find(ArticleComment, job_comment2.id)
@@ -115,7 +114,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
   describe "[article comment participator for job]" do
     test "job will have participator after comment created", ~m(user job)a do
-      {:ok, _} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, _} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
       {:ok, job} = ORM.find(Job, job.id)
 
@@ -124,8 +123,8 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     end
 
     test "psot participator will not contains same user", ~m(user job)a do
-      {:ok, _} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
-      {:ok, _} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, _} = CMS.create_comment(:job, job.id, mock_comment(), user)
+      {:ok, _} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
       {:ok, job} = ORM.find(Job, job.id)
 
@@ -134,8 +133,8 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
     test "recent comment user should appear at first of the psot participants",
          ~m(user user2 job)a do
-      {:ok, _} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
-      {:ok, _} = CMS.create_article_comment(:job, job.id, mock_comment(), user2)
+      {:ok, _} = CMS.create_comment(:job, job.id, mock_comment(), user)
+      {:ok, _} = CMS.create_comment(:job, job.id, mock_comment(), user2)
 
       {:ok, job} = ORM.find(Job, job.id)
 
@@ -147,7 +146,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
   describe "[article comment upvotes]" do
     test "user can upvote a job comment", ~m(user job)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
       CMS.upvote_article_comment(comment.id, user)
 
@@ -158,7 +157,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     end
 
     test "article author upvote job comment will have flag", ~m(job user)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
       {:ok, author_user} = ORM.find(User, job.author.user.id)
 
       CMS.upvote_article_comment(comment.id, author_user)
@@ -168,7 +167,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     end
 
     test "user upvote job comment will add id to upvoted_user_ids", ~m(job user)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
       {:ok, comment} = CMS.upvote_article_comment(comment.id, user)
 
       assert user.id in comment.meta.upvoted_user_ids
@@ -176,7 +175,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
     test "user undo upvote job comment will remove id from upvoted_user_ids",
          ~m(job user user2)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
       {:ok, _comment} = CMS.upvote_article_comment(comment.id, user)
       {:ok, comment} = CMS.upvote_article_comment(comment.id, user2)
 
@@ -190,14 +189,14 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     end
 
     test "user upvote a already-upvoted comment fails", ~m(user job)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
       CMS.upvote_article_comment(comment.id, user)
       {:error, _} = CMS.upvote_article_comment(comment.id, user)
     end
 
     test "upvote comment should inc the comment's upvotes_count", ~m(user user2 job)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
       assert comment.upvotes_count == 0
 
@@ -209,7 +208,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     end
 
     test "user can undo upvote a job comment", ~m(user job)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
       CMS.upvote_article_comment(comment.id, user)
 
       {:ok, comment} = ORM.find(ArticleComment, comment.id, preload: :upvotes)
@@ -220,7 +219,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     end
 
     test "user can undo upvote a job comment with no upvote", ~m(user job)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
       {:ok, comment} = CMS.undo_upvote_article_comment(comment.id, user)
       assert 0 == comment.upvotes_count
 
@@ -231,7 +230,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
   describe "[article comment fold/unfold]" do
     test "user can fold a comment", ~m(user job)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
 
       assert not comment.is_folded
@@ -242,7 +241,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     end
 
     test "user can unfold a comment", ~m(user job)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
       {:ok, _comment} = CMS.fold_article_comment(comment.id, user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
 
@@ -256,7 +255,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
   describe "[article comment pin/unpin]" do
     test "user can pin a comment", ~m(user job)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
 
       assert not comment.is_pinned
@@ -271,7 +270,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     end
 
     test "user can unpin a comment", ~m(user job)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
       {:ok, _comment} = CMS.pin_article_comment(comment.id)
       {:ok, comment} = CMS.undo_pin_article_comment(comment.id)
@@ -281,7 +280,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     end
 
     test "pinned comments has a limit for each article", ~m(user job)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
       Enum.reduce(0..(@pinned_comment_limit - 1), [], fn _, _acc ->
         {:ok, _comment} = CMS.pin_article_comment(comment.id)
@@ -294,7 +293,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
   describe "[article comment report/unreport]" do
     #
     # test "user can report a comment", ~m(user job)a do
-    #   {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+    #   {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
     #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
 
     #   {:ok, comment} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
@@ -303,7 +302,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
     #
     # test "user can unreport a comment", ~m(user job)a do
-    #   {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+    #   {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
     #   {:ok, _comment} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
     #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
 
@@ -312,7 +311,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     # end
 
     test "can undo a report with other user report it too", ~m(user user2 job)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
       {:ok, _comment} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
       {:ok, _comment} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user2)
@@ -339,7 +338,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     end
 
     test "report user < @report_threshold_for_fold will not fold comment", ~m(user job)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
       assert not comment.is_folded
 
@@ -353,7 +352,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     end
 
     test "report user > @report_threshold_for_fold will cause comment fold", ~m(user job)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
       assert not comment.is_folded
 
@@ -375,13 +374,13 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       Enum.reduce(1..total_count, [], fn _, acc ->
         {:ok, new_user} = db_insert(:user)
-        {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), new_user)
+        {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), new_user)
 
         acc ++ [comment]
       end)
 
-      {:ok, _comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
-      {:ok, _comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, _comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
+      {:ok, _comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
       {:ok, results} =
         CMS.paged_comments_participants(thread, job.id, %{page: 1, size: page_size})
@@ -397,7 +396,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       all_comments =
         Enum.reduce(1..total_count, [], fn _, acc ->
-          {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+          {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
           acc ++ [comment]
         end)
@@ -426,13 +425,13 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       page_size = 5
 
       Enum.reduce(1..total_count, [], fn _, acc ->
-        {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+        {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
         acc ++ [comment]
       end)
 
-      {:ok, random_comment_1} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
-      {:ok, random_comment_2} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, random_comment_1} = CMS.create_comment(:job, job.id, mock_comment(), user)
+      {:ok, random_comment_2} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
       {:ok, pined_comment_1} = CMS.pin_article_comment(random_comment_1.id)
       {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)
@@ -458,13 +457,13 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       page_size = 5
 
       Enum.reduce(1..total_count, [], fn _, acc ->
-        {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+        {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
         acc ++ [comment]
       end)
 
-      {:ok, random_comment_1} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
-      {:ok, random_comment_2} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, random_comment_1} = CMS.create_comment(:job, job.id, mock_comment(), user)
+      {:ok, random_comment_2} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
       {:ok, pined_comment_1} = CMS.pin_article_comment(random_comment_1.id)
       {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)
@@ -491,7 +490,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       all_comments =
         Enum.reduce(1..total_count, [], fn _, acc ->
-          {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+          {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
           acc ++ [comment]
         end)
@@ -528,7 +527,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       all_folded_comments =
         Enum.reduce(1..total_count, [], fn _, acc ->
-          {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+          {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
           CMS.fold_article_comment(comment.id, user)
 
           acc ++ [comment]
@@ -559,14 +558,14 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       all_comments =
         Enum.reduce(1..total_count, [], fn _, acc ->
-          {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+          {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
           acc ++ [comment]
         end)
 
       random_comment = all_comments |> Enum.at(1)
 
-      {:ok, deleted_comment} = CMS.delete_article_comment(random_comment)
+      {:ok, deleted_comment} = CMS.delete_comment(random_comment)
 
       {:ok, paged_comments} =
         CMS.paged_article_comments(
@@ -582,17 +581,17 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     end
 
     test "delete comment still update article's comments_count field", ~m(user job)a do
-      {:ok, _comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
-      {:ok, _comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
-      {:ok, _comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
-      {:ok, _comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, _comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
+      {:ok, _comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
+      {:ok, _comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
+      {:ok, _comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
       {:ok, job} = ORM.find(Job, job.id)
 
       assert job.article_comments_count == 5
 
-      {:ok, _} = CMS.delete_article_comment(comment)
+      {:ok, _} = CMS.delete_comment(comment)
 
       {:ok, job} = ORM.find(Job, job.id)
       assert job.article_comments_count == 4
@@ -603,7 +602,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       all_comments =
         Enum.reduce(1..total_count, [], fn _, acc ->
-          {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+          {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
           acc ++ [comment]
         end)
@@ -613,36 +612,36 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       {:ok, _comment} = CMS.pin_article_comment(random_comment.id)
       {:ok, _comment} = ORM.find(ArticleComment, random_comment.id)
 
-      {:ok, _} = CMS.delete_article_comment(random_comment)
+      {:ok, _} = CMS.delete_comment(random_comment)
       assert {:error, _comment} = ORM.find(PinnedComment, random_comment.id)
     end
   end
 
   describe "[article comment info]" do
     test "author of the article comment a comment should have flag", ~m(user job)a do
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
       assert not comment.is_article_author
 
       author_user = job.author.user
-      {:ok, comment} = CMS.create_article_comment(:job, job.id, mock_comment(), author_user)
+      {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), author_user)
       assert comment.is_article_author
     end
   end
 
   describe "[lock/unlock job comment]" do
     test "locked job can not be comment", ~m(user job)a do
-      {:ok, _} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, _} = CMS.create_comment(:job, job.id, mock_comment(), user)
       {:ok, _} = CMS.lock_article_comment(:job, job.id)
 
-      {:error, reason} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:error, reason} = CMS.create_comment(:job, job.id, mock_comment(), user)
       assert reason |> is_error?(:article_comment_locked)
 
       {:ok, _} = CMS.undo_lock_article_comment(:job, job.id)
-      {:ok, _} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, _} = CMS.create_comment(:job, job.id, mock_comment(), user)
     end
 
     test "locked job can not by reply", ~m(user job)a do
-      {:ok, parent_comment} = CMS.create_article_comment(:job, job.id, mock_comment(), user)
+      {:ok, parent_comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
       {:ok, _} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user)
 
       {:ok, _} = CMS.lock_article_comment(:job, job.id)
