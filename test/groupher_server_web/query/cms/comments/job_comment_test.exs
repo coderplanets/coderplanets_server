@@ -32,7 +32,7 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
     }
     """
 
-    test "guest user can get comment participators after comment created",
+    test "guest user can get comment participants after comment created",
          ~m(guest_conn job user user2)a do
       total_count = 5
       thread = :job
@@ -48,12 +48,12 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       variables = %{id: job.id}
       results = guest_conn |> query_result(@query, variables, "job")
 
-      article_comments_participators = results["articleCommentsParticipators"]
-      article_comments_participators_count = results["articleCommentsParticipatorsCount"]
+      article_comments_participants = results["articleCommentsParticipators"]
+      article_comments_participants_count = results["articleCommentsParticipatorsCount"]
 
-      assert is_list(article_comments_participators)
-      assert length(article_comments_participators) == 2
-      assert article_comments_participators_count == 2
+      assert is_list(article_comments_participants)
+      assert length(article_comments_participants) == 2
+      assert article_comments_participants_count == 2
     end
 
     @query """
@@ -567,7 +567,7 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
     }
     """
 
-    test "guest user can get paged participators", ~m(guest_conn job user)a do
+    test "guest user can get paged participants", ~m(guest_conn job user)a do
       total_count = 30
       page_size = 10
       thread = "JOB"

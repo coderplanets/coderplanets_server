@@ -120,7 +120,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
 
       {:ok, post} = ORM.find(Post, post.id)
 
-      participator = List.first(post.article_comments_participators)
+      participator = List.first(post.article_comments_participants)
       assert participator.id == user.id
     end
 
@@ -130,17 +130,17 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
 
       {:ok, post} = ORM.find(Post, post.id)
 
-      assert 1 == length(post.article_comments_participators)
+      assert 1 == length(post.article_comments_participants)
     end
 
-    test "recent comment user should appear at first of the psot participators",
+    test "recent comment user should appear at first of the psot participants",
          ~m(user user2 post)a do
       {:ok, _} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
       {:ok, _} = CMS.create_article_comment(:post, post.id, mock_comment(), user2)
 
       {:ok, post} = ORM.find(Post, post.id)
 
-      participator = List.first(post.article_comments_participators)
+      participator = List.first(post.article_comments_participants)
 
       assert participator.id == user2.id
     end
@@ -369,7 +369,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
   end
 
   describe "paged article comments" do
-    test "can load paged comments participators of a article", ~m(user post)a do
+    test "can load paged comments participants of a article", ~m(user post)a do
       total_count = 30
       page_size = 10
       thread = :post
@@ -385,7 +385,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, _comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
       {:ok, results} =
-        CMS.paged_article_comments_participators(thread, post.id, %{page: 1, size: page_size})
+        CMS.paged_article_comments_participants(thread, post.id, %{page: 1, size: page_size})
 
       assert results |> is_valid_pagination?(:raw)
       assert results.total_count == total_count + 1

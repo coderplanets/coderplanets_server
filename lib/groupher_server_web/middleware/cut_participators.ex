@@ -1,14 +1,14 @@
 defmodule GroupherServerWeb.Middleware.CutParticipators do
   @moduledoc """
-  # cut comments participators manually by count
+  # cut comments participants manually by count
   # this tem solution may have performace issue when the content's comments
-  # has too much participators
+  # has too much participants
   #
   # NOTE: this is NOT the right solution
   # should use WINDOW function
   # see https://github.com/coderplanets/coderplanets_server/issues/16
   #
-  # the Enum.uniq logic is a tmp sulution for distinct comments users, this should be 
+  # the Enum.uniq logic is a tmp sulution for distinct comments users, this should be
   # in dataloader logic, but the distinct is not working in production env
   """
 

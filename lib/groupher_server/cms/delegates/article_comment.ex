@@ -70,9 +70,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
     do_paged_comment_replies(comment_id, filters, user)
   end
 
-  @spec paged_article_comments_participators(T.article_thread(), Integer.t(), T.paged_filter()) ::
+  @spec paged_article_comments_participants(T.article_thread(), Integer.t(), T.paged_filter()) ::
           {:ok, T.paged_users()}
-  def paged_article_comments_participators(thread, article_id, filters) do
+  def paged_article_comments_participants(thread, article_id, filters) do
     %{page: page, size: size} = filters
 
     with {:ok, thread_query} <- match(thread, :query, article_id) do
@@ -223,19 +223,18 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
 
   # add participator to article-like(Post, Job ...) and update count
   def add_participator_to_article(
-        %{article_comments_participators: article_comments_participators} = article,
+        %{article_comments_participants: participants} = article,
         %User{} = user
       ) do
-    total_participators =
-      article_comments_participators |> List.insert_at(0, user) |> Enum.uniq_by(& &1.id)
+    total_participants = participants |> List.insert_at(0, user) |> Enum.uniq_by(& &1.id)
 
-    new_comment_participators = total_participators |> Enum.slice(0, @max_participator_count)
-    total_participators_count = length(total_participators)
+    latest_participants = total_participants |> Enum.slice(0, @max_participator_count)
+    total_participants_count = length(total_participants)
 
     article
     |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_change(:article_comments_participators_count, total_participators_count)
-    |> Ecto.Changeset.put_embed(:article_comments_participators, new_comment_participators)
+    |> Ecto.Changeset.put_change(:article_comments_participants_count, total_participants_count)
+    |> Ecto.Changeset.put_embed(:article_comments_participants, latest_participants)
     |> Repo.update()
   end
 

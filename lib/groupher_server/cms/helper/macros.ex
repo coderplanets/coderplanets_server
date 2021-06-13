@@ -61,17 +61,17 @@ defmodule GroupherServer.CMS.Helper.Macros do
 
   TABLE: "cms_[article]s"
   -----
-  add(:article_comments_participators_count, :integer, default: 0)
+  add(:article_comments_participants_count, :integer, default: 0)
   add(:article_comments_count, :integer, default: 0)
-  add(:article_comments_participators, :map)
+  add(:article_comments_participants, :map)
   """
   defmacro article_comment_fields() do
     quote do
-      field(:article_comments_participators_count, :integer, default: 0)
+      field(:article_comments_participants_count, :integer, default: 0)
       field(:article_comments_count, :integer, default: 0)
       has_many(:article_comments, {"articles_comments", ArticleComment})
       # 评论参与者，只保留最近 5 个
-      embeds_many(:article_comments_participators, User, on_replace: :delete)
+      embeds_many(:article_comments_participants, User, on_replace: :delete)
     end
   end
 
@@ -129,7 +129,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
       :digest,
       :original_community_id,
       :article_comments_count,
-      :article_comments_participators_count,
+      :article_comments_participants_count,
       :upvotes_count,
       :collects_count,
       :mark_delete,
@@ -168,9 +168,9 @@ defmodule GroupherServer.CMS.Helper.Macros do
   add(:collects_count, :integer, default: 0)
 
   # for :article_comment
-  add(:article_comments_participators_count, :integer, default: 0)
+  add(:article_comments_participants_count, :integer, default: 0)
   add(:article_comments_count, :integer, default: 0)
-  add(:article_comments_participators, :map)
+  add(:article_comments_participants, :map)
 
   # for table contains macro "article_belongs_to_fields":
   # TABLE: "abuse_reports"

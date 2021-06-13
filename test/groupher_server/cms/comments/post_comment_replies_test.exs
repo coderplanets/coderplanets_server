@@ -127,14 +127,14 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
       assert not exist_in?(List.last(reply_comment_list), parent_comment.replies)
     end
 
-    test "replyed user should appear in article comment participators", ~m(post user user2)a do
+    test "replyed user should appear in article comment participants", ~m(post user user2)a do
       {:ok, parent_comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
       {:ok, _} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
 
       {:ok, article} = ORM.find(Post, post.id)
 
-      assert exist_in?(user, article.article_comments_participators)
-      assert exist_in?(user2, article.article_comments_participators)
+      assert exist_in?(user, article.article_comments_participants)
+      assert exist_in?(user2, article.article_comments_participants)
     end
 
     test "replies count should inc by 1 after got replyed", ~m(post user user2)a do

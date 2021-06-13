@@ -35,7 +35,7 @@ defmodule GroupherServer.CMS.Model.ArticleComment do
   # 每篇文章最多含有置顶评论的条数
   @pinned_comment_limit 10
 
-  @doc "latest participators stores in article article_comment_participators field"
+  @doc "latest participants stores in article article_comment_participants field"
   def max_participator_count(), do: @max_participator_count
   @doc "latest replies stores in article_comment replies field, used for frontend display"
   def max_parent_replies_count(), do: @max_parent_replies_count
