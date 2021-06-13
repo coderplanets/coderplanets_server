@@ -26,7 +26,7 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
           id
           nickname
         }
-        articleCommentsParticipatorsCount
+        articleCommentsParticipantsCount
       }
     }
     """
@@ -47,7 +47,7 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       results = guest_conn |> query_result(@query, variables, "repo")
 
       article_comments_participants = results["articleCommentsParticipators"]
-      article_comments_participants_count = results["articleCommentsParticipatorsCount"]
+      article_comments_participants_count = results["articleCommentsParticipantsCount"]
 
       assert is_list(article_comments_participants)
       assert length(article_comments_participants) == 2
