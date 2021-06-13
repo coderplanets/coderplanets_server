@@ -5,10 +5,8 @@ defmodule GroupherServer.Test.CMS.CiteContent do
 
   alias Helper.ORM
   alias GroupherServer.CMS
-  alias Helper.Converter.{EditorToHTML, HtmlSanitizer, Converter}
 
-  alias EditorToHTML.{Class, Validator}
-  alias CMS.Model.{Author, Community, Post}
+  alias CMS.Model.Post
 
   alias CMS.Delegate.BlockTasks
 
@@ -31,8 +29,8 @@ defmodule GroupherServer.Test.CMS.CiteContent do
   end
 
   describe "[cite basic]" do
-    @tag :wip
-    test "basic", ~m(user community post2 post3 post4 post5 post_attrs)a do
+    # @tag :wip
+    test "cited multi post should work", ~m(user community post2 post3 post4 post5 post_attrs)a do
       body =
         mock_rich_text(
           ~s(the <a href=#{@site_host}/post/#{post2.id} /> and <a href=#{@site_host}/post/#{
@@ -45,17 +43,37 @@ defmodule GroupherServer.Test.CMS.CiteContent do
         )
 
       post_attrs = post_attrs |> Map.merge(%{body: body})
-
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+
+      body = mock_rich_text(~s(the <a href=#{@site_host}/post/#{post3.id} />))
+      post_attrs = post_attrs |> Map.merge(%{body: body})
+      {:ok, post_n} = CMS.create_article(community, :post, post_attrs, user)
+
       BlockTasks.handle(post)
+      BlockTasks.handle(post_n)
 
       {:ok, post2} = ORM.find(Post, post2.id)
       {:ok, post3} = ORM.find(Post, post3.id)
       {:ok, post4} = ORM.find(Post, post4.id)
+      {:ok, post5} = ORM.find(Post, post5.id)
 
       assert post2.meta.citing_count == 1
-      assert post3.meta.citing_count == 1
+      assert post3.meta.citing_count == 2
       assert post4.meta.citing_count == 1
+      assert post5.meta.citing_count == 1
+    end
+
+    @tag :wip
+    test "cited post itself should not work", ~m(user community post post_attrs)a do
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+
+      body = mock_rich_text(~s(the <a href=#{@site_host}/post/#{post.id} />))
+      {:ok, post} = CMS.update_article(post, %{body: body})
+
+      BlockTasks.handle(post)
+
+      {:ok, post} = ORM.find(Post, post.id)
+      assert post.meta.citing_count == 0
     end
   end
 end

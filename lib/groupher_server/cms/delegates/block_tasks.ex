@@ -158,10 +158,12 @@ defmodule GroupherServer.CMS.Delegate.BlockTasks do
     links_in_block = Floki.find(text, "a[href]")
 
     Enum.reduce(links_in_block, [], fn link, acc ->
-      with {:ok, cited_article} <- parse_cited_article(link) do
+      with {:ok, cited_article} <- parse_cited_article(link),
+           # do not cite artilce itself
+           true <- article.id !== cited_article.id do
         List.insert_at(acc, 0, shape_cited_content(article, cited_article, block_id))
       else
-        {:error, _} -> acc
+        _ -> acc
       end
     end)
     |> Enum.uniq()

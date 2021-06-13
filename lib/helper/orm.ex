@@ -177,8 +177,8 @@ defmodule Helper.ORM do
   delete all queryable if exist
   """
   def delete_all(queryable, :if_exist) do
-    case Repo.exists?(query) do
-      true -> {:ok, Repo.delete_all(query)}
+    case Repo.exists?(queryable) do
+      true -> {:ok, Repo.delete_all(queryable)}
       false -> {:ok, :pass}
     end
   end
