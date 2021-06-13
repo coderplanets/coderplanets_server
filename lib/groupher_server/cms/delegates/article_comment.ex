@@ -16,7 +16,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   alias CMS.Model.Post
 
   alias Accounts.Model.User
-  alias CMS.Model.{ArticleComment, ArticlePinnedComment, Embeds}
+  alias CMS.Model.{ArticleComment, PinnedComment, Embeds}
   alias Ecto.Multi
 
   @max_participator_count ArticleComment.max_participator_count()
@@ -212,7 +212,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
       update_article_comments_count(comment, :dec)
     end)
     |> Multi.run(:remove_pined_comment, fn _, _ ->
-      ORM.findby_delete(ArticlePinnedComment, %{article_comment_id: comment.id})
+      ORM.findby_delete(PinnedComment, %{article_comment_id: comment.id})
     end)
     |> Multi.run(:delete_article_comment, fn _, _ ->
       ORM.update(comment, %{body_html: @delete_hint, is_deleted: true})
@@ -341,7 +341,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   defp add_pinned_comments_ifneed(paged_comments, _thread, _article_id, _), do: paged_comments
 
   defp list_pinned_comments(%{foreign_key: foreign_key}, article_id) do
-    from(p in ArticlePinnedComment,
+    from(p in PinnedComment,
       join: c in ArticleComment,
       on: p.article_comment_id == c.id,
       where: field(p, ^foreign_key) == ^article_id,

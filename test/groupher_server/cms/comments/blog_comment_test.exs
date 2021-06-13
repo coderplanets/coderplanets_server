@@ -7,7 +7,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS}
   alias Accounts.Model.User
-  alias CMS.Model.{ArticleComment, ArticlePinnedComment, Embeds, Blog}
+  alias CMS.Model.{ArticleComment, PinnedComment, Embeds, Blog}
 
   @active_period get_config(:article, :active_period_days)
 
@@ -267,7 +267,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
 
       assert comment.is_pinned
 
-      {:ok, pined_record} = ArticlePinnedComment |> ORM.find_by(%{blog_id: blog.id})
+      {:ok, pined_record} = PinnedComment |> ORM.find_by(%{blog_id: blog.id})
       assert pined_record.blog_id == blog.id
     end
 
@@ -278,7 +278,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
       {:ok, comment} = CMS.undo_pin_article_comment(comment.id)
 
       assert not comment.is_pinned
-      assert {:error, _} = ArticlePinnedComment |> ORM.find_by(%{article_comment_id: comment.id})
+      assert {:error, _} = PinnedComment |> ORM.find_by(%{article_comment_id: comment.id})
     end
 
     test "pinned comments has a limit for each article", ~m(user blog)a do
@@ -615,7 +615,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
       {:ok, _comment} = ORM.find(ArticleComment, random_comment.id)
 
       {:ok, _} = CMS.delete_article_comment(random_comment)
-      assert {:error, _comment} = ORM.find(ArticlePinnedComment, random_comment.id)
+      assert {:error, _comment} = ORM.find(PinnedComment, random_comment.id)
     end
   end
 
