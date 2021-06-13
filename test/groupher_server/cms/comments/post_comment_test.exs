@@ -190,6 +190,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert user2.id not in comment.meta.upvoted_user_ids
     end
 
+    @tag :wip
     test "user upvote a already-upvoted comment fails", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
