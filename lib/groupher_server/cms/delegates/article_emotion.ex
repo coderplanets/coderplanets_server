@@ -77,7 +77,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleEmotion do
     end
   end
 
-  # @spec query_emotion_status(ArticleComment.t(), Atom.t()) :: {:ok, t_mention_status}
+  # @spec query_emotion_status(Comment.t(), Atom.t()) :: {:ok, t_mention_status}
   defp query_emotion_status(thread, article_id, emotion) do
     with {:ok, info} <- match(thread) do
       # 每次被 emotion 动作触发后重新查询，主要原因

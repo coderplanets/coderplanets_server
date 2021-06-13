@@ -91,7 +91,7 @@ defmodule GroupherServer.Test.Query.AbuseReports.RepoReport do
       assert results["totalCount"] == 1
     end
 
-    test "support article_comment", ~m(guest_conn repo user)a do
+    test "support comment", ~m(guest_conn repo user)a do
       {:ok, comment} = CMS.create_comment(:repo, repo.id, mock_comment(), user)
       {:ok, _} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
 

@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Model.ArticleComment do
+defmodule GroupherServer.CMS.Model.Comment do
   @moduledoc false
   alias __MODULE__
 
@@ -37,7 +37,7 @@ defmodule GroupherServer.CMS.Model.ArticleComment do
 
   @doc "latest participants stores in article article_comment_participants field"
   def max_participator_count(), do: @max_participator_count
-  @doc "latest replies stores in article_comment replies field, used for frontend display"
+  @doc "latest replies stores in comment replies field, used for frontend display"
   def max_parent_replies_count(), do: @max_parent_replies_count
 
   @doc "操作某 emotion 的最近用户"
@@ -47,8 +47,8 @@ defmodule GroupherServer.CMS.Model.ArticleComment do
   def report_threshold_for_fold, do: @report_threshold_for_fold
   def pinned_comment_limit, do: @pinned_comment_limit
 
-  @type t :: %ArticleComment{}
-  schema "articles_comments" do
+  @type t :: %Comment{}
+  schema "comments" do
     belongs_to(:author, User, foreign_key: :author_id)
 
     field(:thread, :string)
@@ -73,9 +73,9 @@ defmodule GroupherServer.CMS.Model.ArticleComment do
     field(:viewer_has_upvoted, :boolean, default: false, virtual: true)
     field(:viewer_has_reported, :boolean, default: false, virtual: true)
 
-    belongs_to(:reply_to, ArticleComment, foreign_key: :reply_to_id)
+    belongs_to(:reply_to, Comment, foreign_key: :reply_to_id)
 
-    embeds_many(:replies, ArticleComment, on_replace: :delete)
+    embeds_many(:replies, Comment, on_replace: :delete)
     field(:replies_count, :integer, default: 0)
 
     embeds_one(:emotions, Embeds.CommentEmotion, on_replace: :update)
@@ -88,8 +88,8 @@ defmodule GroupherServer.CMS.Model.ArticleComment do
   end
 
   @doc false
-  def changeset(%ArticleComment{} = article_comment, attrs) do
-    article_comment
+  def changeset(%Comment{} = comment, attrs) do
+    comment
     |> cast(attrs, @required_fields ++ @optional_fields ++ @article_fields)
     |> cast_embed(:emotions, required: true, with: &Embeds.CommentEmotion.changeset/2)
     |> cast_embed(:meta, required: true, with: &Embeds.CommentMeta.changeset/2)
@@ -98,8 +98,8 @@ defmodule GroupherServer.CMS.Model.ArticleComment do
   end
 
   # @doc false
-  def update_changeset(%ArticleComment{} = article_comment, attrs) do
-    article_comment
+  def update_changeset(%Comment{} = comment, attrs) do
+    comment
     |> cast(attrs, @required_fields ++ @updatable_fields ++ @article_fields)
     |> cast_embed(:meta, required: true, with: &Embeds.CommentMeta.changeset/2)
     |> generl_changeset

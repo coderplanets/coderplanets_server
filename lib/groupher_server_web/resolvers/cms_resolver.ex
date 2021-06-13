@@ -276,17 +276,17 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   # #######################
   # comemnts ..
   # #######################
-  def paged_article_comments(_root, ~m(id thread filter mode)a, %{context: %{cur_user: user}}) do
+  def paged_comments(_root, ~m(id thread filter mode)a, %{context: %{cur_user: user}}) do
     case mode do
-      :replies -> CMS.paged_article_comments(thread, id, filter, :replies, user)
-      :timeline -> CMS.paged_article_comments(thread, id, filter, :timeline, user)
+      :replies -> CMS.paged_comments(thread, id, filter, :replies, user)
+      :timeline -> CMS.paged_comments(thread, id, filter, :timeline, user)
     end
   end
 
-  def paged_article_comments(_root, ~m(id thread filter mode)a, _info) do
+  def paged_comments(_root, ~m(id thread filter mode)a, _info) do
     case mode do
-      :replies -> CMS.paged_article_comments(thread, id, filter, :replies)
-      :timeline -> CMS.paged_article_comments(thread, id, filter, :timeline)
+      :replies -> CMS.paged_comments(thread, id, filter, :replies)
+      :timeline -> CMS.paged_comments(thread, id, filter, :timeline)
     end
   end
 
@@ -308,8 +308,8 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.delete_comment(comment)
   end
 
-  def reply_article_comment(_root, ~m(id body)a, %{context: %{cur_user: user}}) do
-    CMS.reply_article_comment(id, body, user)
+  def reply_comment(_root, ~m(id body)a, %{context: %{cur_user: user}}) do
+    CMS.reply_comment(id, body, user)
   end
 
   def upvote_comment(_root, ~m(id)a, %{context: %{cur_user: user}}) do

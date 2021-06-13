@@ -16,24 +16,24 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   alias CMS.Model.Post
 
   alias Accounts.Model.User
-  alias CMS.Model.{ArticleComment, PinnedComment, Embeds}
+  alias CMS.Model.{Comment, PinnedComment, Embeds}
   alias Ecto.Multi
 
-  @max_participator_count ArticleComment.max_participator_count()
+  @max_participator_count Comment.max_participator_count()
   @default_emotions Embeds.CommentEmotion.default_emotions()
-  @delete_hint ArticleComment.delete_hint()
+  @delete_hint Comment.delete_hint()
 
   @default_article_meta Embeds.ArticleMeta.default_meta()
   @default_comment_meta Embeds.CommentMeta.default_meta()
-  @pinned_comment_limit ArticleComment.pinned_comment_limit()
+  @pinned_comment_limit Comment.pinned_comment_limit()
 
   @doc """
   [timeline-mode] list paged article comments
   """
 
-  def paged_article_comments(thread, article_id, filters, mode, user \\ nil)
+  def paged_comments(thread, article_id, filters, mode, user \\ nil)
 
-  def paged_article_comments(thread, article_id, filters, :timeline, user) do
+  def paged_comments(thread, article_id, filters, :timeline, user) do
     where_query = dynamic([c], not c.is_folded and not c.is_pinned)
     do_paged_comment(thread, article_id, filters, where_query, user)
   end
@@ -41,7 +41,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   @doc """
   [replies-mode] list paged article comments
   """
-  def paged_article_comments(thread, article_id, filters, :replies, user) do
+  def paged_comments(thread, article_id, filters, :replies, user) do
     where_query =
       dynamic(
         [c],
@@ -76,7 +76,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     %{page: page, size: size} = filters
 
     with {:ok, thread_query} <- match(thread, :query, article_id) do
-      ArticleComment
+      Comment
       |> where(^thread_query)
       |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :desc_inserted}))
       |> join(:inner, [c], a in assoc(c, :author))
@@ -133,7 +133,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   update a comment for article like psot, job ...
   """
   # 如果是 solution, 那么要更新对应的 post 的 solution_digest
-  def update_comment(%ArticleComment{is_solution: true} = comment, body) do
+  def update_comment(%Comment{is_solution: true} = comment, body) do
     with {:ok, post} <- ORM.find(Post, comment.post_id),
          {:ok, parsed} <- Converter.Article.parse_body(body),
          {:ok, digest} <- Converter.Article.parse_digest(parsed.body_map) do
@@ -143,7 +143,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     end
   end
 
-  def update_comment(%ArticleComment{} = comment, body) do
+  def update_comment(%Comment{} = comment, body) do
     with {:ok, %{body: body, body_html: body_html}} <- Converter.Article.parse_body(body) do
       comment |> ORM.update(%{body: body, body_html: body_html})
     end
@@ -153,7 +153,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   mark a comment as question post's best solution
   """
   def mark_comment_solution(comment_id, user) do
-    with {:ok, comment} <- ORM.find(ArticleComment, comment_id),
+    with {:ok, comment} <- ORM.find(Comment, comment_id),
          {:ok, post} <- ORM.find(Post, comment.post_id, preload: [author: :user]) do
       # 确保只有一个最佳答案
       batch_update_solution_flag(post, false)
@@ -166,13 +166,13 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   undo mark a comment as question post's best solution
   """
   def undo_mark_comment_solution(comment_id, user) do
-    with {:ok, comment} <- ORM.find(ArticleComment, comment_id),
+    with {:ok, comment} <- ORM.find(Comment, comment_id),
          {:ok, post} <- ORM.find(Post, comment.post_id, preload: [author: :user]) do
       do_mark_comment_solution(post, comment, user, false)
     end
   end
 
-  defp do_mark_comment_solution(post, %ArticleComment{} = comment, user, is_solution) do
+  defp do_mark_comment_solution(post, %Comment{} = comment, user, is_solution) do
     # check if user is questioner
     with true <- user.id == post.author.user.id do
       Multi.new()
@@ -194,7 +194,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   batch update is_question flag for post-only article
   """
   def batch_update_question_flag(%Post{is_question: is_question} = post) do
-    from(c in ArticleComment,
+    from(c in Comment,
       where: c.post_id == ^post.id,
       update: [set: [is_for_question: ^is_question]]
     )
@@ -206,13 +206,13 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   def batch_update_question_flag(_), do: {:ok, :pass}
 
   @doc "delete article comment"
-  def delete_comment(%ArticleComment{} = comment) do
+  def delete_comment(%Comment{} = comment) do
     Multi.new()
     |> Multi.run(:update_comments_count, fn _, _ ->
       update_comments_count(comment, :dec)
     end)
     |> Multi.run(:remove_pined_comment, fn _, _ ->
-      ORM.findby_delete(PinnedComment, %{article_comment_id: comment.id})
+      ORM.findby_delete(PinnedComment, %{comment_id: comment.id})
     end)
     |> Multi.run(:delete_comment, fn _, _ ->
       ORM.update(comment, %{body_html: @delete_hint, is_deleted: true})
@@ -241,12 +241,12 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   def add_participant_to_article(_, _), do: {:ok, :pass}
 
   # update comment's parent article's comments total count
-  @spec update_comments_count(ArticleComment.t(), :inc | :dec) :: ArticleComment.t()
-  def update_comments_count(%ArticleComment{} = comment, opt) do
+  @spec update_comments_count(Comment.t(), :inc | :dec) :: Comment.t()
+  def update_comments_count(%Comment{} = comment, opt) do
     with {:ok, article_info} <- match(:comment_article, comment),
          {:ok, article} <- ORM.find(article_info.model, article_info.id) do
       count_query =
-        from(c in ArticleComment, where: field(c, ^article_info.foreign_key) == ^article_info.id)
+        from(c in Comment, where: field(c, ^article_info.foreign_key) == ^article_info.id)
 
       cur_count = Repo.aggregate(count_query, :count)
 
@@ -278,7 +278,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
         meta: @default_comment_meta
       }
 
-      ArticleComment |> ORM.create(Map.put(attrs, foreign_key, article.id))
+      Comment |> ORM.create(Map.put(attrs, foreign_key, article.id))
     end
   end
 
@@ -287,7 +287,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     sort = Map.get(filters, :sort, :asc_inserted)
 
     with {:ok, thread_query} <- match(thread, :query, article_id) do
-      query = from(c in ArticleComment, preload: [reply_to: :author])
+      query = from(c in Comment, preload: [reply_to: :author])
 
       query
       |> where(^thread_query)
@@ -303,7 +303,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
 
   defp do_paged_comment_replies(comment_id, filters, user) do
     %{page: page, size: size} = filters
-    query = from(c in ArticleComment, preload: [reply_to: :author])
+    query = from(c in Comment, preload: [reply_to: :author])
 
     where_query = dynamic([c], not c.is_folded and c.reply_to_id == ^comment_id)
 
@@ -342,8 +342,8 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
 
   defp list_pinned_comments(%{foreign_key: foreign_key}, article_id) do
     from(p in PinnedComment,
-      join: c in ArticleComment,
-      on: p.article_comment_id == c.id,
+      join: c in Comment,
+      on: p.comment_id == c.id,
       where: field(p, ^foreign_key) == ^article_id,
       order_by: [desc: p.inserted_at],
       select: c
@@ -380,7 +380,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     Map.merge(paged_comments, %{entries: entries})
   end
 
-  defp set_question_flag_ifneed(%{is_question: true} = _article, %ArticleComment{} = comment) do
+  defp set_question_flag_ifneed(%{is_question: true} = _article, %Comment{} = comment) do
     ORM.update(comment, %{is_for_question: true})
   end
 
@@ -388,7 +388,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
 
   # batch update is_solution flag for artilce comment
   defp batch_update_solution_flag(%Post{} = post, is_question) do
-    from(c in ArticleComment,
+    from(c in Comment,
       where: c.post_id == ^post.id,
       update: [set: [is_solution: ^is_question]]
     )
@@ -399,7 +399,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
 
   # get next floor under an article's comments list
   defp next_floor(article, foreign_key) do
-    count_query = from(c in ArticleComment, where: field(c, ^foreign_key) == ^article.id)
+    count_query = from(c in Comment, where: field(c, ^foreign_key) == ^article.id)
     Repo.aggregate(count_query, :count) + 1
   end
 

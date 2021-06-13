@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentEmotions do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.Model.{ArticleComment, Embeds, CommentUserEmotion}
+  alias CMS.Model.{Comment, Embeds, CommentUserEmotion}
 
   @default_emotions Embeds.CommentEmotion.default_emotions()
 
@@ -39,7 +39,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentEmotions do
       {:ok, _} = CMS.emotion_to_comment(first_comment.id, :popcorn, user)
 
       {:ok, paged_comments} =
-        CMS.paged_article_comments(
+        CMS.paged_comments(
           :repo,
           repo.id,
           %{page: page_number, size: page_size},
@@ -66,7 +66,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentEmotions do
   describe "[basic article comment emotion]" do
     test "comment has default emotions after created", ~m(repo user)a do
       {:ok, parent_comment} = CMS.create_comment(:repo, repo.id, mock_comment(), user)
-      {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
+      {:ok, parent_comment} = ORM.find(Comment, parent_comment.id)
 
       emotions = parent_comment.emotions |> Map.from_struct() |> Map.delete(:id)
       assert @default_emotions == emotions
@@ -78,7 +78,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentEmotions do
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user2)
 
-      {:ok, %{emotions: emotions}} = ORM.find(ArticleComment, parent_comment.id)
+      {:ok, %{emotions: emotions}} = ORM.find(Comment, parent_comment.id)
 
       assert emotions.downvote_count == 2
       assert user_exist_in?(user, emotions.latest_downvote_users)
@@ -91,7 +91,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentEmotions do
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user2)
 
-      {:ok, %{emotions: emotions}} = ORM.find(ArticleComment, parent_comment.id)
+      {:ok, %{emotions: emotions}} = ORM.find(Comment, parent_comment.id)
 
       assert emotions.downvote_count == 2
       assert user_exist_in?(user, emotions.latest_downvote_users)
@@ -100,7 +100,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentEmotions do
       {:ok, _} = CMS.undo_emotion_to_comment(parent_comment.id, :downvote, user)
       {:ok, _} = CMS.undo_emotion_to_comment(parent_comment.id, :downvote, user2)
 
-      {:ok, %{emotions: emotions}} = ORM.find(ArticleComment, parent_comment.id)
+      {:ok, %{emotions: emotions}} = ORM.find(Comment, parent_comment.id)
       assert emotions.downvote_count == 0
       assert not user_exist_in?(user, emotions.latest_downvote_users)
       assert not user_exist_in?(user2, emotions.latest_downvote_users)
@@ -112,7 +112,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentEmotions do
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
 
-      {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
+      {:ok, parent_comment} = ORM.find(Comment, parent_comment.id)
 
       assert parent_comment.emotions.downvote_count == 1
       assert user_exist_in?(user, parent_comment.emotions.latest_downvote_users)
@@ -125,16 +125,13 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentEmotions do
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :heart, user)
 
-      {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
+      {:ok, parent_comment} = ORM.find(Comment, parent_comment.id)
 
       {:ok, records} = ORM.find_all(CommentUserEmotion, %{page: 1, size: 10})
       assert records.total_count == 1
 
       {:ok, record} =
-        ORM.find_by(CommentUserEmotion, %{
-          article_comment_id: parent_comment.id,
-          user_id: user.id
-        })
+        ORM.find_by(CommentUserEmotion, %{comment_id: parent_comment.id, user_id: user.id})
 
       assert record.downvote
       assert record.heart
@@ -147,7 +144,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentEmotions do
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :beer, user2)
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :beer, user3)
 
-      {:ok, %{emotions: emotions}} = ORM.find(ArticleComment, parent_comment.id)
+      {:ok, %{emotions: emotions}} = ORM.find(Comment, parent_comment.id)
       # IO.inspect(emotions, label: "the parent_comment")
 
       assert emotions.beer_count == 3
@@ -165,7 +162,7 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentEmotions do
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :heart, user)
       {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :orz, user)
 
-      {:ok, %{emotions: emotions}} = ORM.find(ArticleComment, parent_comment.id)
+      {:ok, %{emotions: emotions}} = ORM.find(Comment, parent_comment.id)
 
       assert emotions.downvote_count == 1
       assert user_exist_in?(user, emotions.latest_downvote_users)

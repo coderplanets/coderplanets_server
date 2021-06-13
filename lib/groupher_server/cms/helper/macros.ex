@@ -11,7 +11,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
     Embeds,
     Author,
     Community,
-    ArticleComment,
+    Comment,
     ArticleTag,
     ArticleUpvote,
     ArticleCollect
@@ -69,7 +69,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
     quote do
       field(:article_comments_participants_count, :integer, default: 0)
       field(:article_comments_count, :integer, default: 0)
-      has_many(:article_comments, {"articles_comments", ArticleComment})
+      has_many(:article_comments, {"articles_comments", Comment})
       # 评论参与者，只保留最近 5 个
       embeds_many(:article_comments_participants, User, on_replace: :delete)
     end
@@ -167,10 +167,10 @@ defmodule GroupherServer.CMS.Helper.Macros do
   add(:upvotes_count, :integer, default: 0)
   add(:collects_count, :integer, default: 0)
 
-  # for :article_comment
-  add(:article_comments_participants_count, :integer, default: 0)
-  add(:article_comments_count, :integer, default: 0)
-  add(:article_comments_participants, :map)
+  # for :comment
+  add(:comments_participants_count, :integer, default: 0)
+  add(:comments_count, :integer, default: 0)
+  add(:comments_participants, :map)
 
   # for table contains macro "article_belongs_to_fields":
   # TABLE: "abuse_reports"

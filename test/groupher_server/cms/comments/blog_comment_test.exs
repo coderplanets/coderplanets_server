@@ -7,14 +7,14 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS}
   alias Accounts.Model.User
-  alias CMS.Model.{ArticleComment, PinnedComment, Embeds, Blog}
+  alias CMS.Model.{Comment, PinnedComment, Embeds, Blog}
 
   @active_period get_config(:article, :active_period_days)
 
-  @delete_hint ArticleComment.delete_hint()
-  @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
+  @delete_hint Comment.delete_hint()
+  @report_threshold_for_fold Comment.report_threshold_for_fold()
   @default_comment_meta Embeds.CommentMeta.default_meta()
-  @pinned_comment_limit ArticleComment.pinned_comment_limit()
+  @pinned_comment_limit Comment.pinned_comment_limit()
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -104,8 +104,8 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
       {:ok, blog_comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
       {:ok, blog_comment2} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
 
-      {:ok, blog_comment} = ORM.find(ArticleComment, blog_comment.id)
-      {:ok, blog_comment2} = ORM.find(ArticleComment, blog_comment2.id)
+      {:ok, blog_comment} = ORM.find(Comment, blog_comment.id)
+      {:ok, blog_comment2} = ORM.find(Comment, blog_comment2.id)
 
       assert blog_comment.floor == 1
       assert blog_comment2.floor == 2
@@ -150,7 +150,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
 
       CMS.upvote_comment(comment.id, user)
 
-      {:ok, comment} = ORM.find(ArticleComment, comment.id, preload: :upvotes)
+      {:ok, comment} = ORM.find(Comment, comment.id, preload: :upvotes)
 
       assert 1 == length(comment.upvotes)
       assert List.first(comment.upvotes).user_id == user.id
@@ -162,7 +162,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
 
       CMS.upvote_comment(comment.id, author_user)
 
-      {:ok, comment} = ORM.find(ArticleComment, comment.id, preload: :upvotes)
+      {:ok, comment} = ORM.find(Comment, comment.id, preload: :upvotes)
       assert comment.meta.is_article_author_upvoted
     end
 
@@ -197,13 +197,13 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
 
     test "upvote comment should inc the comment's upvotes_count", ~m(user user2 blog)a do
       {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
-      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+      {:ok, comment} = ORM.find(Comment, comment.id)
       assert comment.upvotes_count == 0
 
       {:ok, _} = CMS.upvote_comment(comment.id, user)
       {:ok, _} = CMS.upvote_comment(comment.id, user2)
 
-      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+      {:ok, comment} = ORM.find(Comment, comment.id)
       assert comment.upvotes_count == 2
     end
 
@@ -211,7 +211,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
       {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
       CMS.upvote_comment(comment.id, user)
 
-      {:ok, comment} = ORM.find(ArticleComment, comment.id, preload: :upvotes)
+      {:ok, comment} = ORM.find(Comment, comment.id, preload: :upvotes)
       assert 1 == length(comment.upvotes)
 
       {:ok, comment} = CMS.undo_upvote_comment(comment.id, user)
@@ -231,24 +231,24 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
   describe "[article comment fold/unfold]" do
     test "user can fold a comment", ~m(user blog)a do
       {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
-      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+      {:ok, comment} = ORM.find(Comment, comment.id)
 
       assert not comment.is_folded
 
       {:ok, comment} = CMS.fold_article_comment(comment.id, user)
-      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+      {:ok, comment} = ORM.find(Comment, comment.id)
       assert comment.is_folded
     end
 
     test "user can unfold a comment", ~m(user blog)a do
       {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
       {:ok, _comment} = CMS.fold_article_comment(comment.id, user)
-      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+      {:ok, comment} = ORM.find(Comment, comment.id)
 
       assert comment.is_folded
 
       {:ok, _comment} = CMS.unfold_article_comment(comment.id, user)
-      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+      {:ok, comment} = ORM.find(Comment, comment.id)
       assert not comment.is_folded
     end
   end
@@ -256,12 +256,12 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
   describe "[article comment pin/unpin]" do
     test "user can pin a comment", ~m(user blog)a do
       {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
-      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+      {:ok, comment} = ORM.find(Comment, comment.id)
 
       assert not comment.is_pinned
 
       {:ok, comment} = CMS.pin_comment(comment.id)
-      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+      {:ok, comment} = ORM.find(Comment, comment.id)
 
       assert comment.is_pinned
 
@@ -276,7 +276,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
       {:ok, comment} = CMS.undo_pin_comment(comment.id)
 
       assert not comment.is_pinned
-      assert {:error, _} = PinnedComment |> ORM.find_by(%{article_comment_id: comment.id})
+      assert {:error, _} = PinnedComment |> ORM.find_by(%{comment_id: comment.id})
     end
 
     test "pinned comments has a limit for each article", ~m(user blog)a do
@@ -294,20 +294,20 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
     #
     # test "user can report a comment", ~m(user blog)a do
     #   {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
-    #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
+    #   {:ok, comment} = ORM.find(Comment, comment.id)
 
     #   {:ok, comment} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
-    #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
+    #   {:ok, comment} = ORM.find(Comment, comment.id)
     # end
 
     #
     # test "user can unreport a comment", ~m(user blog)a do
     #   {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
     #   {:ok, _comment} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
-    #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
+    #   {:ok, comment} = ORM.find(Comment, comment.id)
 
     #   {:ok, _comment} = CMS.undo_report_article_comment(comment.id, user)
-    #   {:ok, comment} = ORM.find(ArticleComment, comment.id)
+    #   {:ok, comment} = ORM.find(Comment, comment.id)
     # end
 
     test "can undo a report with other user report it too", ~m(user user2 blog)a do
@@ -316,7 +316,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
       {:ok, _comment} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
       {:ok, _comment} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user2)
 
-      filter = %{content_type: :article_comment, content_id: comment.id, page: 1, size: 20}
+      filter = %{content_type: :comment, content_id: comment.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.paged_reports(filter)
       assert all_reports.total_count == 1
 
@@ -325,9 +325,9 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
       assert Enum.any?(report.report_cases, &(&1.user.login == user.login))
       assert Enum.any?(report.report_cases, &(&1.user.login == user2.login))
 
-      {:ok, _report} = CMS.undo_report_article(:article_comment, comment.id, user)
+      {:ok, _report} = CMS.undo_report_article(:comment, comment.id, user)
 
-      filter = %{content_type: :article_comment, content_id: comment.id, page: 1, size: 20}
+      filter = %{content_type: :comment, content_id: comment.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.paged_reports(filter)
 
       assert all_reports.total_count == 1
@@ -347,7 +347,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
         {:ok, _comment} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
       end)
 
-      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+      {:ok, comment} = ORM.find(Comment, comment.id)
       assert not comment.is_folded
     end
 
@@ -361,7 +361,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
         {:ok, _comment} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
       end)
 
-      {:ok, comment} = ORM.find(ArticleComment, comment.id)
+      {:ok, comment} = ORM.find(Comment, comment.id)
       assert comment.is_folded
     end
   end
@@ -402,7 +402,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
         end)
 
       {:ok, paged_comments} =
-        CMS.paged_article_comments(
+        CMS.paged_comments(
           :blog,
           blog.id,
           %{page: page_number, size: page_size},
@@ -437,7 +437,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
       {:ok, pined_comment_2} = CMS.pin_comment(random_comment_2.id)
 
       {:ok, paged_comments} =
-        CMS.paged_article_comments(
+        CMS.paged_comments(
           :blog,
           blog.id,
           %{page: page_number, size: page_size},
@@ -469,7 +469,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
       {:ok, pined_comment_2} = CMS.pin_comment(random_comment_2.id)
 
       {:ok, paged_comments} =
-        CMS.paged_article_comments(
+        CMS.paged_comments(
           :blog,
           blog.id,
           %{page: page_number, size: page_size},
@@ -504,7 +504,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
       {:ok, _comment} = CMS.fold_article_comment(random_comment_3.id, user)
 
       {:ok, paged_comments} =
-        CMS.paged_article_comments(
+        CMS.paged_comments(
           :blog,
           blog.id,
           %{page: page_number, size: page_size},
@@ -568,7 +568,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
       {:ok, deleted_comment} = CMS.delete_comment(random_comment)
 
       {:ok, paged_comments} =
-        CMS.paged_article_comments(
+        CMS.paged_comments(
           :blog,
           blog.id,
           %{page: page_number, size: page_size},
@@ -610,7 +610,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
       random_comment = all_comments |> Enum.at(1)
 
       {:ok, _comment} = CMS.pin_comment(random_comment.id)
-      {:ok, _comment} = ORM.find(ArticleComment, random_comment.id)
+      {:ok, _comment} = ORM.find(Comment, random_comment.id)
 
       {:ok, _} = CMS.delete_comment(random_comment)
       assert {:error, _comment} = ORM.find(PinnedComment, random_comment.id)
@@ -642,15 +642,15 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
 
     test "locked blog can not by reply", ~m(user blog)a do
       {:ok, parent_comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
-      {:ok, _} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user)
+      {:ok, _} = CMS.reply_comment(parent_comment.id, mock_comment(), user)
 
       {:ok, _} = CMS.lock_article_comment(:blog, blog.id)
 
-      {:error, reason} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user)
+      {:error, reason} = CMS.reply_comment(parent_comment.id, mock_comment(), user)
       assert reason |> is_error?(:article_comment_locked)
 
       {:ok, _} = CMS.undo_lock_article_comment(:blog, blog.id)
-      {:ok, _} = CMS.reply_article_comment(parent_comment.id, mock_comment(), user)
+      {:ok, _} = CMS.reply_comment(parent_comment.id, mock_comment(), user)
     end
   end
 end

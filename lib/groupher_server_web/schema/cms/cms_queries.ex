@@ -88,14 +88,14 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
     end
 
     @desc "get paged article comments"
-    field :paged_article_comments, :paged_article_comments do
+    field :paged_comments, :paged_comments do
       arg(:id, non_null(:id))
-      arg(:mode, :article_comments_mode, default_value: :replies)
+      arg(:mode, :comments_mode, default_value: :replies)
       arg(:thread, :thread, default_value: :post)
       arg(:filter, :comments_filter)
 
       middleware(M.PageSizeProof)
-      resolve(&R.CMS.paged_article_comments/3)
+      resolve(&R.CMS.paged_comments/3)
     end
 
     @desc "get paged article comments participants"

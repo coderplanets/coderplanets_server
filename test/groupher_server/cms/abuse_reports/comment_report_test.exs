@@ -19,12 +19,12 @@ defmodule GroupherServer.Test.CMS.AbuseReports.CommentReport do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
       {:ok, _comment} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
 
-      filter = %{content_type: :article_comment, content_id: comment.id, page: 1, size: 20}
+      filter = %{content_type: :comment, content_id: comment.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.paged_reports(filter)
 
       report = List.first(all_reports.entries)
       report_cases = report.report_cases
-      assert report.article_comment.id == comment.id
+      assert report.comment.id == comment.id
 
       assert all_reports.total_count == 1
       assert report.report_cases_count == 1
@@ -37,7 +37,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.CommentReport do
       {:ok, _} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
       {:ok, _} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user2)
 
-      filter = %{content_type: :article_comment, content_id: comment.id, page: 1, size: 20}
+      filter = %{content_type: :comment, content_id: comment.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.paged_reports(filter)
 
       report = List.first(all_reports.entries)

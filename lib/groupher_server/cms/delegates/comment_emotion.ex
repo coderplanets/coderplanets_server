@@ -10,7 +10,7 @@ defmodule GroupherServer.CMS.Delegate.CommentEmotion do
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.Model.User
-  alias CMS.Model.{ArticleComment, CommentUserEmotion}
+  alias CMS.Model.{Comment, CommentUserEmotion}
 
   alias Ecto.Multi
 
@@ -19,11 +19,11 @@ defmodule GroupherServer.CMS.Delegate.CommentEmotion do
 
   @doc "make emotion to a comment"
   def emotion_to_comment(comment_id, emotion, %User{} = user) do
-    with {:ok, comment} <- ORM.find(ArticleComment, comment_id, preload: :author) do
+    with {:ok, comment} <- ORM.find(Comment, comment_id, preload: :author) do
       Multi.new()
       |> Multi.run(:create_user_emotion, fn _, _ ->
         target = %{
-          article_comment_id: comment.id,
+          comment_id: comment.id,
           recived_user_id: comment.author.id,
           user_id: user.id
         }
@@ -47,11 +47,11 @@ defmodule GroupherServer.CMS.Delegate.CommentEmotion do
   end
 
   def undo_emotion_to_comment(comment_id, emotion, %User{} = user) do
-    with {:ok, comment} <- ORM.find(ArticleComment, comment_id, preload: :author) do
+    with {:ok, comment} <- ORM.find(Comment, comment_id, preload: :author) do
       Multi.new()
       |> Multi.run(:update_user_emotion, fn _, _ ->
         target = %{
-          article_comment_id: comment.id,
+          comment_id: comment.id,
           recived_user_id: comment.author.id,
           user_id: user.id
         }
@@ -76,7 +76,7 @@ defmodule GroupherServer.CMS.Delegate.CommentEmotion do
     end
   end
 
-  @spec query_emotion_states(ArticleComment.t(), Atom.t()) :: {:ok, t_mention_status}
+  @spec query_emotion_states(Comment.t(), Atom.t()) :: {:ok, t_mention_status}
   defp query_emotion_states(comment, emotion) do
     # 每次被 emotion 动作触发后重新查询，主要原因
     # 1.并发下保证数据准确，类似 views 阅读数的统计
@@ -85,7 +85,7 @@ defmodule GroupherServer.CMS.Delegate.CommentEmotion do
       from(a in CommentUserEmotion,
         join: user in User,
         on: a.user_id == user.id,
-        where: a.article_comment_id == ^comment.id,
+        where: a.comment_id == ^comment.id,
         where: field(a, ^emotion) == true,
         select: %{login: user.login, nickname: user.nickname}
       )

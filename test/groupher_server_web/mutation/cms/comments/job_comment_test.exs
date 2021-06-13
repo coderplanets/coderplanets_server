@@ -38,7 +38,7 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
 
     @reply_comment_query """
     mutation($id: ID!, $body: String!) {
-      replyArticleComment(id: $id, body: $body) {
+      replyComment(id: $id, body: $body) {
         id
         bodyHtml
       }
@@ -48,9 +48,7 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
       {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
       variables = %{id: comment.id, body: mock_comment("reply comment")}
 
-      result =
-        user_conn
-        |> mutation_result(@reply_comment_query, variables, "replyArticleComment")
+      result = user_conn |> mutation_result(@reply_comment_query, variables, "replyComment")
 
       assert result["bodyHtml"] |> String.contains?(~s(<p id=))
       assert result["bodyHtml"] |> String.contains?(~s(reply comment</p>))

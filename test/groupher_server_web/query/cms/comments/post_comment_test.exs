@@ -60,8 +60,8 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
     end
 
     @query """
-      query($id: ID!, $thread: Thread, $mode: ArticleCommentsMode, $filter: CommentsFilter!) {
-        pagedArticleComments(id: $id, thread: $thread, mode: $mode, filter: $filter) {
+      query($id: ID!, $thread: Thread, $mode: CommentsMode, $filter: CommentsFilter!) {
+        pagedComments(id: $id, thread: $thread, mode: $mode, filter: $filter) {
           entries {
             id
             bodyHtml
@@ -137,14 +137,12 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
 
       random_comment = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
 
-      {:ok, replyed_comment_1} =
-        CMS.reply_article_comment(random_comment.id, mock_comment(), user2)
+      {:ok, replyed_comment_1} = CMS.reply_comment(random_comment.id, mock_comment(), user2)
 
-      {:ok, replyed_comment_2} =
-        CMS.reply_article_comment(random_comment.id, mock_comment(), user2)
+      {:ok, replyed_comment_2} = CMS.reply_comment(random_comment.id, mock_comment(), user2)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
-      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
       assert results["entries"] |> length == total_count
 
       assert not exist_in?(replyed_comment_1, results["entries"], :string_key)
@@ -175,11 +173,9 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
 
       random_comment = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
 
-      {:ok, replyed_comment_1} =
-        CMS.reply_article_comment(random_comment.id, mock_comment(), user2)
+      {:ok, replyed_comment_1} = CMS.reply_comment(random_comment.id, mock_comment(), user2)
 
-      {:ok, replyed_comment_2} =
-        CMS.reply_article_comment(random_comment.id, mock_comment(), user2)
+      {:ok, replyed_comment_2} = CMS.reply_comment(random_comment.id, mock_comment(), user2)
 
       variables = %{
         id: post.id,
@@ -188,7 +184,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
         filter: %{page: 1, size: page_size}
       }
 
-      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
       assert results["entries"] |> length == total_count + 2
 
       assert exist_in?(replyed_comment_1, results["entries"], :string_key)
@@ -212,14 +208,12 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       {:ok, parent_comment} =
         CMS.create_comment(:post, post.id, mock_comment("parent_comment"), user)
 
-      {:ok, replyed_comment_1} =
-        CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
+      {:ok, replyed_comment_1} = CMS.reply_comment(parent_comment.id, mock_comment(), user2)
 
-      {:ok, replyed_comment_2} =
-        CMS.reply_article_comment(parent_comment.id, mock_comment(), user2)
+      {:ok, replyed_comment_2} = CMS.reply_comment(parent_comment.id, mock_comment(), user2)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: 10}, mode: "TIMELINE"}
-      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
 
       replyed_comment_1 =
         Enum.find(results["entries"], &(&1["id"] == to_string(replyed_comment_1.id)))
@@ -249,7 +243,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       end)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: 10}}
-      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
 
       assert results |> is_valid_pagination?
       assert results["totalCount"] == total_count
@@ -275,7 +269,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       {:ok, pinned_comment2} = CMS.pin_comment(comment.id)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: 10}}
-      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
 
       assert results["entries"] |> List.first() |> Map.get("id") == to_string(pinned_comment2.id)
       assert results["entries"] |> Enum.at(1) |> Map.get("id") == to_string(pinned_comment.id)
@@ -316,7 +310,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       {:ok, _pinned_comment2} = CMS.pin_comment(comment.id)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: 10}}
-      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
 
       assert results["entries"] |> List.first() |> Map.get("id") == to_string(solution_comment.id)
       assert results["totalCount"] == total_count + 3
@@ -334,7 +328,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       end)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
-      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
 
       assert results["entries"] |> List.first() |> Map.get("floor") == 1
       assert results["entries"] |> List.last() |> Map.get("floor") == 5
@@ -357,7 +351,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
         mode: "TIMELINE"
       }
 
-      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
 
       assert List.first(results["entries"]) |> Map.get("id") == to_string(comment.id)
       assert List.last(results["entries"]) |> Map.get("id") == to_string(comment3.id)
@@ -380,7 +374,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
         mode: "TIMELINE"
       }
 
-      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
 
       assert List.first(results["entries"]) |> Map.get("id") == to_string(comment3.id)
       assert List.last(results["entries"]) |> Map.get("id") == to_string(comment.id)
@@ -392,16 +386,16 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       thread = :post
 
       {:ok, comment} = CMS.create_comment(thread, post.id, mock_comment(), user)
-      {:ok, _reply_comment} = CMS.reply_article_comment(comment.id, mock_comment(), user)
-      {:ok, _reply_comment} = CMS.reply_article_comment(comment.id, mock_comment(), user2)
+      {:ok, _reply_comment} = CMS.reply_comment(comment.id, mock_comment(), user)
+      {:ok, _reply_comment} = CMS.reply_comment(comment.id, mock_comment(), user2)
       Process.sleep(1000)
       {:ok, comment2} = CMS.create_comment(thread, post.id, mock_comment(), user)
-      {:ok, _reply_comment} = CMS.reply_article_comment(comment2.id, mock_comment(), user)
-      {:ok, _reply_comment} = CMS.reply_article_comment(comment2.id, mock_comment(), user2)
+      {:ok, _reply_comment} = CMS.reply_comment(comment2.id, mock_comment(), user)
+      {:ok, _reply_comment} = CMS.reply_comment(comment2.id, mock_comment(), user2)
       Process.sleep(1000)
       {:ok, comment3} = CMS.create_comment(thread, post.id, mock_comment(), user)
-      {:ok, _reply_comment} = CMS.reply_article_comment(comment3.id, mock_comment(), user)
-      {:ok, _reply_comment} = CMS.reply_article_comment(comment3.id, mock_comment(), user2)
+      {:ok, _reply_comment} = CMS.reply_comment(comment3.id, mock_comment(), user)
+      {:ok, _reply_comment} = CMS.reply_comment(comment3.id, mock_comment(), user2)
 
       variables = %{
         id: post.id,
@@ -409,7 +403,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
         filter: %{page: 1, size: page_size, sort: "DESC_INSERTED"}
       }
 
-      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
 
       assert List.first(results["entries"]) |> Map.get("id") == to_string(comment3.id)
       assert List.last(results["entries"]) |> Map.get("id") == to_string(comment.id)
@@ -435,7 +429,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       {:ok, _} = CMS.upvote_comment(upvote_comment2.id, user2)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
-      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
 
       assert results["entries"] |> Enum.at(3) |> Map.get("upvotesCount") == 1
       assert results["entries"] |> Enum.at(4) |> Map.get("upvotesCount") == 2
@@ -466,7 +460,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       {:ok, _} = CMS.upvote_comment(author_comment.id, author_user)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
-      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
 
       the_author_comment =
         Enum.find(results["entries"], &(&1["id"] == to_string(author_comment.id)))
@@ -503,7 +497,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       {:ok, _} = CMS.emotion_to_comment(comment2.id, :beer, user2)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
-      results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
+      results = guest_conn |> query_result(@query, variables, "pagedComments")
 
       comment_emotion =
         Enum.find(results["entries"], &(&1["id"] == to_string(comment.id))) |> Map.get("emotions")
@@ -553,7 +547,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       {:ok, _} = CMS.emotion_to_comment(comment2.id, :downvote, user2)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
-      results = user_conn |> query_result(@query, variables, "pagedArticleComments")
+      results = user_conn |> query_result(@query, variables, "pagedComments")
 
       assert Enum.find(results["entries"], &(&1["id"] == to_string(comment.id)))
              |> get_in(["emotions", "viewerHasDownvoteed"])
@@ -576,7 +570,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       {:ok, _} = CMS.upvote_comment(random_comment.id, user)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
-      results = user_conn |> query_result(@query, variables, "pagedArticleComments")
+      results = user_conn |> query_result(@query, variables, "pagedComments")
 
       upvoted_comment = Enum.find(results["entries"], &(&1["id"] == to_string(random_comment.id)))
 
@@ -685,13 +679,13 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
 
       Enum.reduce(1..total_count, [], fn i, acc ->
         {:ok, reply_comment} =
-          CMS.reply_article_comment(parent_comment.id, mock_comment("reply #{i}"), user2)
+          CMS.reply_comment(parent_comment.id, mock_comment("reply #{i}"), user2)
 
         acc ++ [reply_comment]
       end)
 
       {:ok, author_reply_comment} =
-        CMS.reply_article_comment(parent_comment.id, mock_comment("author reply"), author_user)
+        CMS.reply_comment(parent_comment.id, mock_comment("author reply"), author_user)
 
       variables = %{id: parent_comment.id, filter: %{page: 1, size: page_size}}
       results = guest_conn |> query_result(@query, variables, "pagedCommentReplies")

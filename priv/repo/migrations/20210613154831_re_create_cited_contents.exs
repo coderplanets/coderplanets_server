@@ -1,4 +1,4 @@
-defmodule GroupherServer.Repo.Migrations.CreateCitedArticles do
+defmodule GroupherServer.Repo.Migrations.ReCreateCitedContents do
   use Ecto.Migration
 
   def change do
@@ -8,7 +8,7 @@ defmodule GroupherServer.Repo.Migrations.CreateCitedArticles do
       add(:cited_by_id, :id)
 
       add(:user_id, references(:users, on_delete: :delete_all), null: false)
-      add(:article_comment_id, references(:articles_comments, on_delete: :delete_all))
+      add(:comment_id, references(:comments, on_delete: :delete_all))
 
       add(:post_id, references(:cms_posts, on_delete: :delete_all))
       add(:repo_id, references(:cms_repos, on_delete: :delete_all))
