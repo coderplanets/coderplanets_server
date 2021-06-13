@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Model.Embeds.ArticleCommentEmotion.Macros do
+defmodule GroupherServer.CMS.Model.Embeds.CommentEmotion.Macros do
   @moduledoc """
   general fields for each emotion
 
@@ -28,7 +28,7 @@ defmodule GroupherServer.CMS.Model.Embeds.ArticleCommentEmotion.Macros do
   end
 end
 
-defmodule GroupherServer.CMS.Model.Embeds.ArticleCommentEmotion do
+defmodule GroupherServer.CMS.Model.Embeds.CommentEmotion do
   @moduledoc """
   general article meta info for article-like content, like post, job, works ...
   """
@@ -36,7 +36,7 @@ defmodule GroupherServer.CMS.Model.Embeds.ArticleCommentEmotion do
   use Accessible
 
   import Ecto.Changeset
-  import GroupherServer.CMS.Model.Embeds.ArticleCommentEmotion.Macros
+  import GroupherServer.CMS.Model.Embeds.CommentEmotion.Macros
   import Helper.Utils, only: [get_config: 2]
 
   @supported_emotions get_config(:article, :comment_emotions)

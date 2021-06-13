@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Model.ArticleCommentUserEmotion.Macros do
+defmodule GroupherServer.CMS.Model.CommentUserEmotion.Macros do
   import Helper.Utils, only: [get_config: 2]
 
   @supported_emotions get_config(:article, :comment_emotions)
@@ -13,13 +13,13 @@ defmodule GroupherServer.CMS.Model.ArticleCommentUserEmotion.Macros do
   end
 end
 
-defmodule GroupherServer.CMS.Model.ArticleCommentUserEmotion do
+defmodule GroupherServer.CMS.Model.CommentUserEmotion do
   @moduledoc false
   alias __MODULE__
 
   use Ecto.Schema
   import Ecto.Changeset
-  import GroupherServer.CMS.Model.ArticleCommentUserEmotion.Macros
+  import GroupherServer.CMS.Model.CommentUserEmotion.Macros
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.{Accounts, CMS}
@@ -32,7 +32,7 @@ defmodule GroupherServer.CMS.Model.ArticleCommentUserEmotion do
   @required_fields ~w(article_comment_id user_id recived_user_id)a
   @optional_fields Enum.map(@supported_emotions, &:"#{&1}")
 
-  @type t :: %ArticleCommentUserEmotion{}
+  @type t :: %CommentUserEmotion{}
   schema "articles_comments_users_emotions" do
     belongs_to(:article_comment, ArticleComment, foreign_key: :article_comment_id)
     belongs_to(:recived_user, User, foreign_key: :recived_user_id)
@@ -43,7 +43,7 @@ defmodule GroupherServer.CMS.Model.ArticleCommentUserEmotion do
   end
 
   @doc false
-  def changeset(%ArticleCommentUserEmotion{} = struct, attrs) do
+  def changeset(%CommentUserEmotion{} = struct, attrs) do
     struct
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
@@ -52,7 +52,7 @@ defmodule GroupherServer.CMS.Model.ArticleCommentUserEmotion do
     |> foreign_key_constraint(:recived_user_id)
   end
 
-  def update_changeset(%ArticleCommentUserEmotion{} = struct, attrs) do
+  def update_changeset(%CommentUserEmotion{} = struct, attrs) do
     struct
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)

@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Delegate.ArticleCommentEmotion do
+defmodule GroupherServer.CMS.Delegate.CommentEmotion do
   @moduledoc """
   CURD and operations for article comments
   """
@@ -10,7 +10,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentEmotion do
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.Model.User
-  alias CMS.Model.{ArticleComment, ArticleCommentUserEmotion}
+  alias CMS.Model.{ArticleComment, CommentUserEmotion}
 
   alias Ecto.Multi
 
@@ -30,9 +30,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentEmotion do
 
         args = Map.put(target, :"#{emotion}", true)
 
-        case ORM.find_by(ArticleCommentUserEmotion, target) do
-          {:ok, article_comment_user_emotion} -> ORM.update(article_comment_user_emotion, args)
-          {:error, _} -> ORM.create(ArticleCommentUserEmotion, args)
+        case ORM.find_by(CommentUserEmotion, target) do
+          {:ok, comment_user_emotion} -> ORM.update(comment_user_emotion, args)
+          {:error, _} -> ORM.create(CommentUserEmotion, args)
         end
       end)
       |> Multi.run(:query_emotion_states, fn _, _ ->
@@ -56,13 +56,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentEmotion do
           user_id: user.id
         }
 
-        case ORM.find_by(ArticleCommentUserEmotion, target) do
-          {:ok, article_comment_user_emotion} ->
+        case ORM.find_by(CommentUserEmotion, target) do
+          {:ok, comment_user_emotion} ->
             args = Map.put(target, :"#{emotion}", false)
-            article_comment_user_emotion |> ORM.update(args)
+            comment_user_emotion |> ORM.update(args)
 
           {:error, _} ->
-            ORM.create(ArticleCommentUserEmotion, target)
+            ORM.create(CommentUserEmotion, target)
         end
       end)
       |> Multi.run(:query_emotion_states, fn _, _ ->
@@ -82,7 +82,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentEmotion do
     # 1.并发下保证数据准确，类似 views 阅读数的统计
     # 2. 前端使用 nickname 而非 login 展示，如果用户改了 nickname, 可以"自动纠正"
     query =
-      from(a in ArticleCommentUserEmotion,
+      from(a in CommentUserEmotion,
         join: user in User,
         on: a.user_id == user.id,
         where: a.article_comment_id == ^comment.id,

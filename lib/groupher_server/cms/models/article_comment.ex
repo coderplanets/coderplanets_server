@@ -78,7 +78,7 @@ defmodule GroupherServer.CMS.Model.ArticleComment do
     embeds_many(:replies, ArticleComment, on_replace: :delete)
     field(:replies_count, :integer, default: 0)
 
-    embeds_one(:emotions, Embeds.ArticleCommentEmotion, on_replace: :update)
+    embeds_one(:emotions, Embeds.CommentEmotion, on_replace: :update)
     embeds_one(:meta, Embeds.ArticleCommentMeta, on_replace: :update)
 
     has_many(:upvotes, {"comments_upvotes", CommentUpvote})
@@ -91,7 +91,7 @@ defmodule GroupherServer.CMS.Model.ArticleComment do
   def changeset(%ArticleComment{} = article_comment, attrs) do
     article_comment
     |> cast(attrs, @required_fields ++ @optional_fields ++ @article_fields)
-    |> cast_embed(:emotions, required: true, with: &Embeds.ArticleCommentEmotion.changeset/2)
+    |> cast_embed(:emotions, required: true, with: &Embeds.CommentEmotion.changeset/2)
     |> cast_embed(:meta, required: true, with: &Embeds.ArticleCommentMeta.changeset/2)
     |> validate_required(@required_fields)
     |> generl_changeset

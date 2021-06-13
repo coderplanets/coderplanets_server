@@ -164,7 +164,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
 
   describe "[article comment emotion]" do
     @emotion_comment_query """
-    mutation($id: ID!, $emotion: ArticleCommentEmotion!) {
+    mutation($id: ID!, $emotion: CommentEmotion!) {
       emotionToComment(id: $id, emotion: $emotion) {
         id
         emotions {
@@ -190,7 +190,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
     end
 
     @emotion_comment_query """
-    mutation($id: ID!, $emotion: ArticleCommentEmotion!) {
+    mutation($id: ID!, $emotion: CommentEmotion!) {
       undoEmotionToComment(id: $id, emotion: $emotion) {
         id
         emotions {

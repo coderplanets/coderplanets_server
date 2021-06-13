@@ -238,7 +238,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     timestamp_fields()
   end
 
-  object :article_comment_emotions do
+  object :comment_emotions do
     emotion_fields(:comment)
   end
 
@@ -262,7 +262,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:floor, :integer)
     field(:upvotes_count, :integer)
     field(:is_article_author, :boolean)
-    field(:emotions, :article_comment_emotions)
+    field(:emotions, :comment_emotions)
     field(:meta, :article_comment_meta)
     field(:replies_count, :integer)
     field(:reply_to, :article_comment_reply)
@@ -279,7 +279,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:is_pinned, :boolean)
     field(:floor, :integer)
     field(:upvotes_count, :integer)
-    field(:emotions, :article_comment_emotions)
+    field(:emotions, :comment_emotions)
     field(:is_article_author, :boolean)
     field(:meta, :article_comment_meta)
     field(:reply_to, :article_comment_reply)

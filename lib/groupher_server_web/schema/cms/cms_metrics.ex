@@ -28,7 +28,7 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
   enum(:article_emotion, do: emotion_values())
 
   @desc "emotion options of comment"
-  enum(:article_comment_emotion, do: emotion_values(:comment))
+  enum(:comment_emotion, do: emotion_values(:comment))
 
   enum :thread do
     article_values()

@@ -74,7 +74,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
     @desc "emotion to a comment"
     field :emotion_to_comment, :article_comment do
       arg(:id, non_null(:id))
-      arg(:emotion, non_null(:article_comment_emotion))
+      arg(:emotion, non_null(:comment_emotion))
 
       middleware(M.Authorize, :login)
       resolve(&R.CMS.emotion_to_comment/3)
@@ -83,7 +83,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
     @desc "undo emotion to a comment"
     field :undo_emotion_to_comment, :article_comment do
       arg(:id, non_null(:id))
-      arg(:emotion, non_null(:article_comment_emotion))
+      arg(:emotion, non_null(:comment_emotion))
 
       middleware(M.Authorize, :login)
       resolve(&R.CMS.undo_emotion_to_comment/3)

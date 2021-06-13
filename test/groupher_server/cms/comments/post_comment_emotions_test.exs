@@ -6,9 +6,9 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.Model.{ArticleComment, Embeds, ArticleCommentUserEmotion}
+  alias CMS.Model.{ArticleComment, Embeds, CommentUserEmotion}
 
-  @default_emotions Embeds.ArticleCommentEmotion.default_emotions()
+  @default_emotions Embeds.CommentEmotion.default_emotions()
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -127,11 +127,11 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
 
       {:ok, parent_comment} = ORM.find(ArticleComment, parent_comment.id)
 
-      {:ok, records} = ORM.find_all(ArticleCommentUserEmotion, %{page: 1, size: 10})
+      {:ok, records} = ORM.find_all(CommentUserEmotion, %{page: 1, size: 10})
       assert records.total_count == 1
 
       {:ok, record} =
-        ORM.find_by(ArticleCommentUserEmotion, %{
+        ORM.find_by(CommentUserEmotion, %{
           article_comment_id: parent_comment.id,
           user_id: user.id
         })

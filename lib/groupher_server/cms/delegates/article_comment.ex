@@ -20,7 +20,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   alias Ecto.Multi
 
   @max_participator_count ArticleComment.max_participator_count()
-  @default_emotions Embeds.ArticleCommentEmotion.default_emotions()
+  @default_emotions Embeds.CommentEmotion.default_emotions()
   @delete_hint ArticleComment.delete_hint()
 
   @default_article_meta Embeds.ArticleMeta.default_meta()
