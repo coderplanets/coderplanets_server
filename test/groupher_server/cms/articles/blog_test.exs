@@ -28,6 +28,8 @@ defmodule GroupherServer.Test.Articles.Blog do
 
       body_map = Jason.decode!(blog.body)
 
+      assert blog.meta.thread == "BLOG"
+
       assert blog.title == blog_attrs.title
       assert body_map |> Validator.is_valid()
       assert blog.body_html |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))

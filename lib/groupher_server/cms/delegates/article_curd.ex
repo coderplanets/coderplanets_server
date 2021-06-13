@@ -6,7 +6,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   import GroupherServer.CMS.Helper.Matcher
 
-  import Helper.Utils, only: [done: 1, pick_by: 2, module_to_atom: 1, get_config: 2, ensure: 2]
+  import Helper.Utils,
+    only: [done: 1, pick_by: 2, module_to_atom: 1, get_config: 2, ensure: 2, module_to_upcase: 1]
 
   import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 2]
   import Helper.ErrorCode
@@ -17,7 +18,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   alias Accounts.Model.User
   alias CMS.Model.{Author, Community, PinnedArticle, Embeds}
-  alias CMS.Delegate.{ArticleCommunity, ArticleComment, ArticleTag, CommunityCURD}
+  alias CMS.Delegate.{ArticleCommunity, ArticleComment, ArticleTag, CommunityCURD, CiteTasks}
 
   alias Ecto.Multi
 
@@ -162,6 +163,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       end)
       |> Multi.run(:update_user_published_meta, fn _, _ ->
         Accounts.update_published_states(uid, thread)
+      end)
+      |> Multi.run(:block_tasks, fn _, %{create_article: article} ->
+        Later.run({CiteTasks, :handle, [article]})
       end)
       # TODO: run mini tasks
       |> Multi.run(:mention_users, fn _, %{create_article: article} ->
@@ -384,6 +388,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp do_create_article(model, attrs, %Author{id: author_id}, %Community{id: community_id}) do
     # special article like Repo do not have :body, assign it with default-empty rich text
     body = Map.get(attrs, :body, Converter.Article.default_rich_text())
+    meta = @default_article_meta |> Map.merge(%{thread: module_to_upcase(model)})
     attrs = attrs |> Map.merge(%{body: body})
 
     with {:ok, attrs} <- add_rich_text_attrs(attrs) do
@@ -392,7 +397,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Ecto.Changeset.put_change(:emotions, @default_emotions)
       |> Ecto.Changeset.put_change(:author_id, author_id)
       |> Ecto.Changeset.put_change(:original_community_id, community_id)
-      |> Ecto.Changeset.put_embed(:meta, @default_article_meta)
+      |> Ecto.Changeset.put_embed(:meta, meta)
       |> Repo.insert()
     end
   end
@@ -444,7 +449,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   # create done
   defp result({:ok, %{set_active_at_timestamp: result}}) do
-    Later.exec({__MODULE__, :notify_admin_new_article, [result]})
+    Later.run({__MODULE__, :notify_admin_new_article, [result]})
     {:ok, result}
   end
 

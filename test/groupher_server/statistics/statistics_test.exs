@@ -222,7 +222,7 @@ defmodule GroupherServer.Test.Statistics do
 
       Statistics.make_contribute(%Community{id: community.id})
 
-      # res = Later.exec({IO, :puts, ["Work, work, work, work, work."]})
+      # res = Later.run({IO, :puts, ["Work, work, work, work, work."]})
       # Process.sleep(1000)
       # IO.inspect(res, label: "res")
 

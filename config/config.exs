@@ -31,6 +31,7 @@ config :pre_commit, commands: ["format"], verbose: false
 # of this file so it overrides the configuration defined above.
 
 config :groupher_server, :general,
+  site_host: "https://coderplanets.com",
   page_size: 30,
   inner_page_size: 5,
   # today is not include

@@ -51,6 +51,7 @@ defmodule Helper.ErrorCode do
   def ecode(:undo_sink_old_article), do: @article_base + 7
   def ecode(:article_comment_locked), do: @article_base + 8
   def ecode(:require_questioner), do: @article_base + 9
+  def ecode(:cite_artilce), do: @article_base + 10
   # def ecode(:already_solved), do: @article_base + 10
 
   def ecode, do: @default_base

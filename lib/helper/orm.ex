@@ -173,6 +173,16 @@ defmodule Helper.ORM do
     end
   end
 
+  @doc """
+  delete all queryable if exist
+  """
+  def delete_all(queryable, :if_exist) do
+    case Repo.exists?(queryable) do
+      true -> {:ok, Repo.delete_all(queryable)}
+      false -> {:ok, :pass}
+    end
+  end
+
   def findby_or_insert(queryable, clauses, attrs) do
     case queryable |> find_by(clauses) do
       {:ok, content} ->

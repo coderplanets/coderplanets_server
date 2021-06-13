@@ -29,6 +29,8 @@ defmodule GroupherServer.Test.Articles.Repo do
 
       body_map = Jason.decode!(repo.body)
 
+      assert repo.meta.thread == "REPO"
+
       assert repo.title == repo_attrs.title
       assert body_map |> Validator.is_valid()
       assert repo.body_html |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
@@ -63,7 +65,6 @@ defmodule GroupherServer.Test.Articles.Repo do
       assert user2.id in created.meta.viewed_user_ids
     end
 
-    @tag :wip
     test "read repo should contains viewer_has_xxx state", ~m(repo_attrs community user user2)a do
       {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
       {:ok, repo} = CMS.read_article(:repo, repo.id, user)

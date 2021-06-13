@@ -208,7 +208,6 @@ defmodule GroupherServer.CMS.Helper.Macros do
 
       field(:active_at, :utc_datetime_usec)
       # TODO:
-      # reference_articles
       # related_articles
       timestamps()
     end

@@ -134,7 +134,7 @@ defmodule GroupherServer.Statistics.Delegate.Contribute do
   end
 
   defp cache_contribute_later(%Community{id: id}) do
-    Later.exec({__MODULE__, :get_contributes_then_cache, [%Community{id: id}]})
+    Later.run({__MODULE__, :get_contributes_then_cache, [%Community{id: id}]})
   end
 
   defp do_get_contributes(%Community{id: id}) do

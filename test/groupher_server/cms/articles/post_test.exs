@@ -29,6 +29,8 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
 
       body_map = Jason.decode!(post.body)
 
+      assert post.meta.thread == "POST"
+
       assert post.title == post_attrs.title
       assert body_map |> Validator.is_valid()
       assert post.body_html |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))

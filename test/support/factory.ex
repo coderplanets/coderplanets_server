@@ -47,6 +47,32 @@ defmodule GroupherServer.Support.Factory do
     """
   end
 
+  # for link tasks
+  def mock_rich_text(text1, text2) do
+    """
+    {
+      "time": 111,
+      "blocks": [
+        {
+          "id": "lldjfiek",
+          "type": "paragraph",
+          "data": {
+            "text": "#{text1}"
+          }
+        },
+        {
+          "id": "llddiekek",
+          "type": "paragraph",
+          "data": {
+            "text": "#{text2}"
+          }
+        }
+      ],
+      "version": "2.22.0"
+    }
+    """
+  end
+
   def mock_xss_string(:safe) do
     mock_rich_text("&lt;script&gt;blackmail&lt;/script&gt;")
   end
@@ -87,7 +113,7 @@ defmodule GroupherServer.Support.Factory do
     desc = Faker.Lorem.sentence(%Range{first: 15, last: 60})
 
     %{
-      meta: @default_article_meta,
+      meta: @default_article_meta |> Map.merge(%{thread: "REPO"}),
       title: String.slice(desc, 1, 49),
       owner_name: "coderplanets",
       owner_url: "http://www.github.com/coderplanets",
@@ -157,7 +183,7 @@ defmodule GroupherServer.Support.Factory do
     text = Faker.Lorem.sentence(%Range{first: 80, last: 120})
 
     %{
-      meta: @default_article_meta,
+      meta: @default_article_meta |> Map.merge(%{thread: "JOB"}),
       title: String.slice(text, 1, 49),
       company: Faker.Company.name(),
       body: mock_rich_text(),
@@ -179,7 +205,7 @@ defmodule GroupherServer.Support.Factory do
     text = Faker.Lorem.sentence(%Range{first: 80, last: 120})
 
     %{
-      meta: @default_article_meta,
+      meta: @default_article_meta |> Map.merge(%{thread: "BLOG"}),
       title: String.slice(text, 1, 49),
       body: mock_rich_text(),
       digest: String.slice(text, 1, 150),

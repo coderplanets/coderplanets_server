@@ -29,6 +29,8 @@ defmodule GroupherServer.Test.Articles.Job do
 
       body_map = Jason.decode!(job.body)
 
+      assert job.meta.thread == "JOB"
+
       assert job.title == job_attrs.title
       assert body_map |> Validator.is_valid()
       assert job.body_html |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
