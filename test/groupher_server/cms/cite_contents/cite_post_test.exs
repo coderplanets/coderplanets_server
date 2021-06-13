@@ -29,7 +29,6 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
   end
 
   describe "[cite basic]" do
-    @tag :wip
     test "cited multi post should work", ~m(user community post2 post3 post4 post5 post_attrs)a do
       body =
         mock_rich_text(
@@ -63,7 +62,6 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       assert post5.meta.citing_count == 1
     end
 
-    @tag :wip
     test "cited post itself should not work", ~m(user community post_attrs)a do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 

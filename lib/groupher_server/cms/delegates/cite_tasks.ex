@@ -72,8 +72,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
 
   defp update_cited_info(cited_contents) do
     clean_cited_contents = Enum.map(cited_contents, &Map.delete(&1, :cited_article))
-    IO.inspect(clean_cited_contents, label: "clean_cited_contents")
-
+    # IO.inspect(clean_cited_contents, label: "clean_cited_contents")
     with true <- {0, nil} !== Repo.insert_all(CitedContent, clean_cited_contents) do
       update_citing_count(cited_contents)
     else

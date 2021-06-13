@@ -20,6 +20,7 @@ defmodule GroupherServer.Test.CMS.PostMeta do
   end
 
   describe "[cms post meta info]" do
+    @tag :wip
     test "can get default meta info", ~m(user community post_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
 

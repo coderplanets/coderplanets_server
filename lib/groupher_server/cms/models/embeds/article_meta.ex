@@ -21,7 +21,8 @@ defmodule GroupherServer.CMS.Model.Embeds.ArticleMeta do
       reported_count: 0,
       is_sinked: false,
       can_undo_sink: true,
-      last_active_at: nil
+      last_active_at: nil,
+      citing_count: 0
     }
   end
 
