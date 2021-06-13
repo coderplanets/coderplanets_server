@@ -22,7 +22,7 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       repo(id: $id) {
         id
         title
-        articleCommentsParticipators {
+        articleCommentsParticipants {
           id
           nickname
         }
@@ -46,7 +46,7 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
       variables = %{id: repo.id}
       results = guest_conn |> query_result(@query, variables, "repo")
 
-      article_comments_participants = results["articleCommentsParticipators"]
+      article_comments_participants = results["articleCommentsParticipants"]
       article_comments_participants_count = results["articleCommentsParticipantsCount"]
 
       assert is_list(article_comments_participants)

@@ -23,7 +23,7 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
         id
         title
         body
-        articleCommentsParticipators {
+        articleCommentsParticipants {
           id
           nickname
         }
@@ -48,7 +48,7 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       variables = %{id: job.id}
       results = guest_conn |> query_result(@query, variables, "job")
 
-      article_comments_participants = results["articleCommentsParticipators"]
+      article_comments_participants = results["articleCommentsParticipants"]
       article_comments_participants_count = results["articleCommentsParticipantsCount"]
 
       assert is_list(article_comments_participants)
