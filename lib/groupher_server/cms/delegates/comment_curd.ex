@@ -133,19 +133,19 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   update a comment for article like psot, job ...
   """
   # 如果是 solution, 那么要更新对应的 post 的 solution_digest
-  def update_comment(%ArticleComment{is_solution: true} = article_comment, body) do
-    with {:ok, post} <- ORM.find(Post, article_comment.post_id),
+  def update_comment(%ArticleComment{is_solution: true} = comment, body) do
+    with {:ok, post} <- ORM.find(Post, comment.post_id),
          {:ok, parsed} <- Converter.Article.parse_body(body),
          {:ok, digest} <- Converter.Article.parse_digest(parsed.body_map) do
       %{body: body, body_html: body_html} = parsed
       post |> ORM.update(%{solution_digest: digest})
-      article_comment |> ORM.update(%{body: body, body_html: body_html})
+      comment |> ORM.update(%{body: body, body_html: body_html})
     end
   end
 
-  def update_comment(%ArticleComment{} = article_comment, body) do
+  def update_comment(%ArticleComment{} = comment, body) do
     with {:ok, %{body: body, body_html: body_html}} <- Converter.Article.parse_body(body) do
-      article_comment |> ORM.update(%{body: body, body_html: body_html})
+      comment |> ORM.update(%{body: body, body_html: body_html})
     end
   end
 
@@ -153,12 +153,12 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   mark a comment as question post's best solution
   """
   def mark_comment_solution(comment_id, user) do
-    with {:ok, article_comment} <- ORM.find(ArticleComment, comment_id),
-         {:ok, post} <- ORM.find(Post, article_comment.post_id, preload: [author: :user]) do
+    with {:ok, comment} <- ORM.find(ArticleComment, comment_id),
+         {:ok, post} <- ORM.find(Post, comment.post_id, preload: [author: :user]) do
       # 确保只有一个最佳答案
       batch_update_solution_flag(post, false)
-      CMS.pin_article_comment(article_comment.id)
-      do_mark_comment_solution(post, article_comment, user, true)
+      CMS.pin_comment(comment.id)
+      do_mark_comment_solution(post, comment, user, true)
     end
   end
 
@@ -166,21 +166,21 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   undo mark a comment as question post's best solution
   """
   def undo_mark_comment_solution(comment_id, user) do
-    with {:ok, article_comment} <- ORM.find(ArticleComment, comment_id),
-         {:ok, post} <- ORM.find(Post, article_comment.post_id, preload: [author: :user]) do
-      do_mark_comment_solution(post, article_comment, user, false)
+    with {:ok, comment} <- ORM.find(ArticleComment, comment_id),
+         {:ok, post} <- ORM.find(Post, comment.post_id, preload: [author: :user]) do
+      do_mark_comment_solution(post, comment, user, false)
     end
   end
 
-  defp do_mark_comment_solution(post, %ArticleComment{} = article_comment, user, is_solution) do
+  defp do_mark_comment_solution(post, %ArticleComment{} = comment, user, is_solution) do
     # check if user is questioner
     with true <- user.id == post.author.user.id do
       Multi.new()
       |> Multi.run(:mark_solution, fn _, _ ->
-        ORM.update(article_comment, %{is_solution: is_solution, is_for_question: true})
+        ORM.update(comment, %{is_solution: is_solution, is_for_question: true})
       end)
       |> Multi.run(:update_post_state, fn _, _ ->
-        ORM.update(post, %{is_solved: is_solution, solution_digest: article_comment.body_html})
+        ORM.update(post, %{is_solved: is_solution, solution_digest: comment.body_html})
       end)
       |> Repo.transaction()
       |> result()

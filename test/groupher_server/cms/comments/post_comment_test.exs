@@ -260,7 +260,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
 
       assert not comment.is_pinned
 
-      {:ok, comment} = CMS.pin_article_comment(comment.id)
+      {:ok, comment} = CMS.pin_comment(comment.id)
       {:ok, comment} = ORM.find(ArticleComment, comment.id)
 
       assert comment.is_pinned
@@ -272,8 +272,8 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
     test "user can unpin a comment", ~m(user post)a do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
 
-      {:ok, _comment} = CMS.pin_article_comment(comment.id)
-      {:ok, comment} = CMS.undo_pin_article_comment(comment.id)
+      {:ok, _comment} = CMS.pin_comment(comment.id)
+      {:ok, comment} = CMS.undo_pin_comment(comment.id)
 
       assert not comment.is_pinned
       assert {:error, _} = PinnedComment |> ORM.find_by(%{article_comment_id: comment.id})
@@ -283,10 +283,10 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
 
       Enum.reduce(0..(@pinned_comment_limit - 1), [], fn _, _acc ->
-        {:ok, _comment} = CMS.pin_article_comment(comment.id)
+        {:ok, _comment} = CMS.pin_comment(comment.id)
       end)
 
-      assert {:error, _} = CMS.pin_article_comment(comment.id)
+      assert {:error, _} = CMS.pin_comment(comment.id)
     end
   end
 
@@ -433,8 +433,8 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, random_comment_1} = CMS.create_comment(:post, post.id, mock_comment(), user)
       {:ok, random_comment_2} = CMS.create_comment(:post, post.id, mock_comment(), user)
 
-      {:ok, pined_comment_1} = CMS.pin_article_comment(random_comment_1.id)
-      {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)
+      {:ok, pined_comment_1} = CMS.pin_comment(random_comment_1.id)
+      {:ok, pined_comment_2} = CMS.pin_comment(random_comment_2.id)
 
       {:ok, paged_comments} =
         CMS.paged_article_comments(
@@ -465,8 +465,8 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, random_comment_1} = CMS.create_comment(:post, post.id, mock_comment(), user)
       {:ok, random_comment_2} = CMS.create_comment(:post, post.id, mock_comment(), user)
 
-      {:ok, pined_comment_1} = CMS.pin_article_comment(random_comment_1.id)
-      {:ok, pined_comment_2} = CMS.pin_article_comment(random_comment_2.id)
+      {:ok, pined_comment_1} = CMS.pin_comment(random_comment_1.id)
+      {:ok, pined_comment_2} = CMS.pin_comment(random_comment_2.id)
 
       {:ok, paged_comments} =
         CMS.paged_article_comments(
@@ -609,7 +609,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
 
       random_comment = all_comments |> Enum.at(1)
 
-      {:ok, _comment} = CMS.pin_article_comment(random_comment.id)
+      {:ok, _comment} = CMS.pin_comment(random_comment.id)
       {:ok, _comment} = ORM.find(ArticleComment, random_comment.id)
 
       {:ok, _} = CMS.delete_comment(random_comment)

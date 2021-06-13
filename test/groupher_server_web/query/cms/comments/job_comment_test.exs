@@ -264,12 +264,12 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       end)
 
       {:ok, comment} = CMS.create_comment(thread, job.id, mock_comment(), user)
-      {:ok, pinned_comment} = CMS.pin_article_comment(comment.id)
+      {:ok, pinned_comment} = CMS.pin_comment(comment.id)
 
       Process.sleep(1000)
 
       {:ok, comment} = CMS.create_comment(thread, job.id, mock_comment(), user)
-      {:ok, pinned_comment2} = CMS.pin_article_comment(comment.id)
+      {:ok, pinned_comment2} = CMS.pin_comment(comment.id)
 
       variables = %{id: job.id, thread: "JOB", filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")

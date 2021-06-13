@@ -267,12 +267,12 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       end)
 
       {:ok, comment} = CMS.create_comment(thread, post.id, mock_comment(), user)
-      {:ok, pinned_comment} = CMS.pin_article_comment(comment.id)
+      {:ok, pinned_comment} = CMS.pin_comment(comment.id)
 
       Process.sleep(1000)
 
       {:ok, comment} = CMS.create_comment(thread, post.id, mock_comment(), user)
-      {:ok, pinned_comment2} = CMS.pin_article_comment(comment.id)
+      {:ok, pinned_comment2} = CMS.pin_comment(comment.id)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")
@@ -303,7 +303,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       post_author = post.author.user
 
       {:ok, comment} = CMS.create_comment(thread, post.id, mock_comment(), user)
-      {:ok, _pinned_comment} = CMS.pin_article_comment(comment.id)
+      {:ok, _pinned_comment} = CMS.pin_comment(comment.id)
 
       Process.sleep(1000)
 
@@ -313,7 +313,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
 
       Process.sleep(1000)
       {:ok, comment} = CMS.create_comment(thread, post.id, mock_comment(), user)
-      {:ok, _pinned_comment2} = CMS.pin_article_comment(comment.id)
+      {:ok, _pinned_comment2} = CMS.pin_comment(comment.id)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleComments")

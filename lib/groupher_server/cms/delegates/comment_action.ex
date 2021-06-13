@@ -38,9 +38,9 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
   @max_parent_replies_count ArticleComment.max_parent_replies_count()
   @pinned_comment_limit ArticleComment.pinned_comment_limit()
 
-  @spec pin_article_comment(Integer.t()) :: {:ok, ArticleComment.t()}
+  @spec pin_comment(Integer.t()) :: {:ok, ArticleComment.t()}
   @doc "pin a comment"
-  def pin_article_comment(comment_id) do
+  def pin_comment(comment_id) do
     with {:ok, comment} <- ORM.find(ArticleComment, comment_id),
          {:ok, full_comment} <- get_full_comment(comment.id),
          {:ok, info} <- match(full_comment.thread) do
@@ -54,11 +54,8 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         pined_comments_count = Repo.aggregate(count_query, :count)
 
         case pined_comments_count >= @pinned_comment_limit do
-          true ->
-            {:error, "only support #{@pinned_comment_limit} pinned comment for each article"}
-
-          false ->
-            {:ok, :pass}
+          true -> {:error, "max #{@pinned_comment_limit} pinned comment for each article"}
+          false -> {:ok, :pass}
         end
       end)
       |> Multi.run(:update_comment_flag, fn _, _ ->
@@ -76,7 +73,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
     end
   end
 
-  def undo_pin_article_comment(comment_id) do
+  def undo_pin_comment(comment_id) do
     with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
       Multi.new()
       |> Multi.run(:update_comment_flag, fn _, _ ->
