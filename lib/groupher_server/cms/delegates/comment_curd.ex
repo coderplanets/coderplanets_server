@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Delegate.ArticleComment do
+defmodule GroupherServer.CMS.Delegate.CommentCurd do
   @moduledoc """
   CURD and operations for article comments
   """
@@ -272,7 +272,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
         body: body,
         body_html: body_html,
         emotions: @default_emotions,
-        floor: get_comment_floor(article, foreign_key),
+        floor: next_floor(article, foreign_key),
         is_article_author: user_id == article.author.user.id,
         thread: thread,
         meta: @default_comment_meta
@@ -398,7 +398,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleComment do
   end
 
   # get next floor under an article's comments list
-  defp get_comment_floor(article, foreign_key) do
+  defp next_floor(article, foreign_key) do
     count_query = from(c in ArticleComment, where: field(c, ^foreign_key) == ^article.id)
     Repo.aggregate(count_query, :count) + 1
   end

@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
+defmodule GroupherServer.CMS.Delegate.CommentAction do
   @moduledoc """
   CURD and operations for article comments
   """
@@ -6,7 +6,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   import Helper.Utils, only: [done: 1, strip_struct: 1, get_config: 2, ensure: 2]
   import Helper.ErrorCode
 
-  import GroupherServer.CMS.Delegate.ArticleComment,
+  import GroupherServer.CMS.Delegate.CommentCurd,
     only: [
       add_participator_to_article: 2,
       do_create_comment: 4,
