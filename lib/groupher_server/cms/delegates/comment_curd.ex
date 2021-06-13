@@ -35,7 +35,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
 
   def paged_article_comments(thread, article_id, filters, :timeline, user) do
     where_query = dynamic([c], not c.is_folded and not c.is_pinned)
-    do_paged_article_comment(thread, article_id, filters, where_query, user)
+    do_paged_comment(thread, article_id, filters, where_query, user)
   end
 
   @doc """
@@ -48,17 +48,17 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
         is_nil(c.reply_to_id) and not c.is_folded and not c.is_pinned
       )
 
-    do_paged_article_comment(thread, article_id, filters, where_query, user)
+    do_paged_comment(thread, article_id, filters, where_query, user)
   end
 
   def paged_folded_article_comments(thread, article_id, filters) do
     where_query = dynamic([c], c.is_folded and not c.is_pinned)
-    do_paged_article_comment(thread, article_id, filters, where_query, nil)
+    do_paged_comment(thread, article_id, filters, where_query, nil)
   end
 
   def paged_folded_article_comments(thread, article_id, filters, user) do
     where_query = dynamic([c], c.is_folded and not c.is_pinned)
-    do_paged_article_comment(thread, article_id, filters, where_query, user)
+    do_paged_comment(thread, article_id, filters, where_query, user)
   end
 
   @doc """
@@ -70,9 +70,9 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     do_paged_comment_replies(comment_id, filters, user)
   end
 
-  @spec paged_article_comments_participants(T.article_thread(), Integer.t(), T.paged_filter()) ::
+  @spec paged_comments_participants(T.article_thread(), Integer.t(), T.paged_filter()) ::
           {:ok, T.paged_users()}
-  def paged_article_comments_participants(thread, article_id, filters) do
+  def paged_comments_participants(thread, article_id, filters) do
     %{page: page, size: size} = filters
 
     with {:ok, thread_query} <- match(thread, :query, article_id) do
@@ -100,13 +100,13 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
       |> Multi.run(:create_article_comment, fn _, _ ->
         do_create_comment(body, info.foreign_key, article, user)
       end)
-      |> Multi.run(:update_article_comments_count, fn _, %{create_article_comment: comment} ->
-        update_article_comments_count(comment, :inc)
+      |> Multi.run(:update_comments_count, fn _, %{create_article_comment: comment} ->
+        update_comments_count(comment, :inc)
       end)
       |> Multi.run(:set_question_flag_ifneed, fn _, %{create_article_comment: comment} ->
         set_question_flag_ifneed(article, comment)
       end)
-      |> Multi.run(:add_participator, fn _, _ -> add_participator_to_article(article, user) end)
+      |> Multi.run(:add_participator, fn _, _ -> add_participant_to_article(article, user) end)
       |> Multi.run(:update_article_active_timestamp, fn _, %{create_article_comment: comment} ->
         case comment.author_id == article.author.user.id do
           true -> {:ok, :pass}
@@ -208,8 +208,8 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   @doc "delete article comment"
   def delete_article_comment(%ArticleComment{} = comment) do
     Multi.new()
-    |> Multi.run(:update_article_comments_count, fn _, _ ->
-      update_article_comments_count(comment, :dec)
+    |> Multi.run(:update_comments_count, fn _, _ ->
+      update_comments_count(comment, :dec)
     end)
     |> Multi.run(:remove_pined_comment, fn _, _ ->
       ORM.findby_delete(PinnedComment, %{article_comment_id: comment.id})
@@ -222,7 +222,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   end
 
   # add participator to article-like(Post, Job ...) and update count
-  def add_participator_to_article(
+  def add_participant_to_article(
         %{article_comments_participants: participants} = article,
         %User{} = user
       ) do
@@ -238,11 +238,11 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     |> Repo.update()
   end
 
-  def add_participator_to_article(_, _), do: {:ok, :pass}
+  def add_participant_to_article(_, _), do: {:ok, :pass}
 
   # update comment's parent article's comments total count
-  @spec update_article_comments_count(ArticleComment.t(), :inc | :dec) :: ArticleComment.t()
-  def update_article_comments_count(%ArticleComment{} = comment, opt) do
+  @spec update_comments_count(ArticleComment.t(), :inc | :dec) :: ArticleComment.t()
+  def update_comments_count(%ArticleComment{} = comment, opt) do
     with {:ok, article_info} <- match(:comment_article, comment),
          {:ok, article} <- ORM.find(article_info.model, article_info.id) do
       count_query =
@@ -282,7 +282,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     end
   end
 
-  defp do_paged_article_comment(thread, article_id, filters, where_query, user) do
+  defp do_paged_comment(thread, article_id, filters, where_query, user) do
     %{page: page, size: size} = filters
     sort = Map.get(filters, :sort, :asc_inserted)
 

@@ -8,9 +8,9 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
 
   import GroupherServer.CMS.Delegate.CommentCurd,
     only: [
-      add_participator_to_article: 2,
+      add_participant_to_article: 2,
       do_create_comment: 4,
-      update_article_comments_count: 2,
+      update_comments_count: 2,
       can_comment?: 2
     ]
 
@@ -123,7 +123,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         do_create_comment(content, info.foreign_key, article, user)
       end)
       |> Multi.run(:update_comments_count, fn _, %{create_reply_comment: replyed_comment} ->
-        update_article_comments_count(replyed_comment, :inc)
+        update_comments_count(replyed_comment, :inc)
       end)
       |> Multi.run(:create_comment_reply, fn _, %{create_reply_comment: replyed_comment} ->
         ArticleCommentReply
@@ -136,7 +136,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         add_replies_ifneed(parent_comment, replyed_comment)
       end)
       |> Multi.run(:add_participator, fn _, _ ->
-        add_participator_to_article(article, user)
+        add_participant_to_article(article, user)
       end)
       |> Multi.run(:set_meta_flag, fn _, %{create_reply_comment: replyed_comment} ->
         update_reply_to_others_state(parent_comment, replying_comment, replyed_comment)

@@ -385,7 +385,7 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
       {:ok, _comment} = CMS.create_article_comment(:blog, blog.id, mock_comment(), user)
 
       {:ok, results} =
-        CMS.paged_article_comments_participants(thread, blog.id, %{page: 1, size: page_size})
+        CMS.paged_comments_participants(thread, blog.id, %{page: 1, size: page_size})
 
       assert results |> is_valid_pagination?(:raw)
       assert results.total_count == total_count + 1

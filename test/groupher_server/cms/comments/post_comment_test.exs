@@ -190,7 +190,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert user2.id not in comment.meta.upvoted_user_ids
     end
 
-    @tag :wip
     test "user upvote a already-upvoted comment fails", ~m(user post)a do
       {:ok, comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
@@ -386,7 +385,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, _comment} = CMS.create_article_comment(:post, post.id, mock_comment(), user)
 
       {:ok, results} =
-        CMS.paged_article_comments_participants(thread, post.id, %{page: 1, size: page_size})
+        CMS.paged_comments_participants(thread, post.id, %{page: 1, size: page_size})
 
       assert results |> is_valid_pagination?(:raw)
       assert results.total_count == total_count + 1
@@ -676,6 +675,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert post_comment.is_for_question
     end
 
+    @tag :wip
     test "update comment with is_question should batch update exsit comments is_for_question field",
          ~m(user community)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})

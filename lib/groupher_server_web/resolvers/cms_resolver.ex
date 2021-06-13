@@ -290,8 +290,8 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     end
   end
 
-  def paged_article_comments_participants(_root, ~m(id thread filter)a, _info) do
-    CMS.paged_article_comments_participants(thread, id, filter)
+  def paged_comments_participants(_root, ~m(id thread filter)a, _info) do
+    CMS.paged_comments_participants(thread, id, filter)
   end
 
   def create_article_comment(_root, ~m(thread id body)a, %{context: %{cur_user: user}}) do

@@ -597,7 +597,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
   describe "paged participants" do
     @query """
       query($id: ID!, $thread: Thread, $filter: PagedFilter!) {
-        pagedArticleCommentsParticipants(id: $id, thread: $thread, filter: $filter) {
+        pagedCommentsParticipants(id: $id, thread: $thread, filter: $filter) {
           entries {
             id
             nickname
@@ -627,7 +627,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
 
       variables = %{id: post.id, thread: thread, filter: %{page: 1, size: page_size}}
 
-      results = guest_conn |> query_result(@query, variables, "pagedArticleCommentsParticipants")
+      results = guest_conn |> query_result(@query, variables, "pagedCommentsParticipants")
 
       assert results |> is_valid_pagination?
       assert results["totalCount"] == total_count + 1
