@@ -74,6 +74,24 @@ defmodule GroupherServer.Test.CMS.CiteContent.Blog do
     end
 
     @tag :wip
+    test "cited comment itself should not work", ~m(user blog)a do
+      {:ok, cited_comment} = CMS.create_comment(:blog, blog.id, mock_rich_text("hello"), user)
+
+      {:ok, comment} =
+        CMS.update_comment(
+          cited_comment,
+          mock_comment(
+            ~s(the <a href=#{@site_host}/blog/#{blog.id}?comment_id=#{cited_comment.id} />)
+          )
+        )
+
+      CiteTasks.handle(comment)
+
+      {:ok, cited_comment} = ORM.find(Comment, cited_comment.id)
+      assert cited_comment.meta.citing_count == 0
+    end
+
+    @tag :wip
     test "can cite blog's comment in blog", ~m(community user blog blog2 blog_attrs)a do
       {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_rich_text("hello"), user)
 

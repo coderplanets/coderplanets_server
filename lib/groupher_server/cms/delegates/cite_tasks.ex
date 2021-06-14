@@ -76,8 +76,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
     end
   end
 
-  # defp batch_done
-
+  # batch insert CitedContent record and update citing count
   defp update_cited_info(cited_contents) do
     # see: https://github.com/elixir-ecto/ecto/issues/1932#issuecomment-314083252
     clean_cited_contents =
@@ -86,10 +85,9 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
       |> Enum.map(&Map.delete(&1, :cited_content))
       |> Enum.map(&Map.delete(&1, :citing_time))
 
-    with true <- {0, nil} !== Repo.insert_all(CitedContent, clean_cited_contents) do
-      update_citing_count(cited_contents)
-    else
-      _ -> {:error, "insert cited content error"}
+    case {0, nil} !== Repo.insert_all(CitedContent, clean_cited_contents) do
+      true -> update_citing_count(cited_contents)
+      false -> {:error, "insert cited content error"}
     end
   end
 
@@ -166,29 +164,29 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
     do_parse_cited_info(content, block_id, links)
   end
 
-  defp do_parse_cited_info(%Comment{} = comment, block_id, links) do
-    # IO.inspect(links, label: "links -> ")
-
+  # links Floki parsed fmt
+  # content means both article and comment
+  # e.g:
+  # [{"a", [{"href", "https://coderplanets.com/post/195675"}], []},]
+  defp do_parse_cited_info(content, block_id, links) do
     Enum.reduce(links, [], fn link, acc ->
-      case parse_cited(link) do
-        {:ok, cited} -> List.insert_at(acc, 0, shape_cited(comment, cited, block_id))
+      case parse_valid_cited(content.id, link) do
+        {:ok, cited} -> List.insert_at(acc, 0, shape_cited(content, cited, block_id))
         _ -> acc
       end
     end)
     |> Enum.uniq()
   end
 
-  # links Floki parsed fmt
-  # e.g:
-  # [{"a", [{"href", "https://coderplanets.com/post/195675"}], []},]
-  defp do_parse_cited_info(article, block_id, links) do
-    Enum.reduce(links, [], fn link, acc ->
-      case parse_cited(link) do
-        {:ok, cited} -> List.insert_at(acc, 0, shape_cited(article, cited, block_id))
-        _ -> acc
+  # parse cited with check if citing link is point to itself
+  defp parse_valid_cited(content_id, link) do
+    with {:ok, cited} <- parse_cited(link),
+         %{content: content} <- cited do
+      case content.id !== content_id do
+        true -> {:ok, cited}
+        false -> {:error, "citing itself"}
       end
-    end)
-    |> Enum.uniq()
+    end
   end
 
   # cite article in comment

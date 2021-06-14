@@ -62,6 +62,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       assert post5.meta.citing_count == 1
     end
 
+    @tag :wip
     test "cited post itself should not work", ~m(user community post_attrs)a do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
@@ -72,6 +73,24 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
 
       {:ok, post} = ORM.find(Post, post.id)
       assert post.meta.citing_count == 0
+    end
+
+    @tag :wip
+    test "cited comment itself should not work", ~m(user post)a do
+      {:ok, cited_comment} = CMS.create_comment(:post, post.id, mock_rich_text("hello"), user)
+
+      {:ok, comment} =
+        CMS.update_comment(
+          cited_comment,
+          mock_comment(
+            ~s(the <a href=#{@site_host}/post/#{post.id}?comment_id=#{cited_comment.id} />)
+          )
+        )
+
+      CiteTasks.handle(comment)
+
+      {:ok, cited_comment} = ORM.find(Comment, cited_comment.id)
+      assert cited_comment.meta.citing_count == 0
     end
 
     @tag :wip
