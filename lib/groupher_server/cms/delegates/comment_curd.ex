@@ -11,7 +11,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   import ShortMaps
 
   alias Helper.Types, as: T
-  alias Helper.{ORM, QueryBuilder, Converter}
+  alias Helper.{Later, ORM, QueryBuilder, Converter}
   alias GroupherServer.{Accounts, CMS, Repo}
   alias CMS.Model.Post
 
@@ -112,6 +112,9 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
           true -> {:ok, :pass}
           false -> CMS.update_active_timestamp(thread, article)
         end
+      end)
+      |> Multi.run(:block_tasks, fn _, %{create_comment: create_comment} ->
+        Later.run({CiteTasks, :handle, [create_comment]})
       end)
       |> Repo.transaction()
       |> result()

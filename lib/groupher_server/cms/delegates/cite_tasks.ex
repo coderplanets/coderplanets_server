@@ -29,7 +29,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
   import Helper.ErrorCode
 
   alias GroupherServer.{CMS, Repo}
-  alias CMS.Model.CitedContent
+  alias CMS.Model.{CitedContent, Comment}
   alias Helper.ORM
 
   alias Ecto.Multi
@@ -38,16 +38,16 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
   @article_threads get_config(:article, :threads)
   @valid_article_prefix Enum.map(@article_threads, &"#{@site_host}/#{&1}/")
 
-  def handle(%{body: body} = article) do
+  def handle(%{body: body} = content) do
     with {:ok, %{"blocks" => blocks}} <- Jason.decode(body),
-         article <- Repo.preload(article, author: :user) do
+         content <- preload_content_author(content) do
       Multi.new()
       |> Multi.run(:delete_all_cited_contents, fn _, _ ->
-        delete_all_cited_contents(article)
+        delete_all_cited_contents(content)
       end)
       |> Multi.run(:update_cited_info, fn _, _ ->
         blocks
-        |> Enum.reduce([], &(&2 ++ parse_cited_info_per_block(article, &1)))
+        |> Enum.reduce([], &(&2 ++ parse_cited_info_per_block(content, &1)))
         |> merge_same_cited_article_block
         |> update_cited_info
       end)
@@ -56,9 +56,17 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
     end
   end
 
+  def preload_content_author(%Comment{} = comment), do: comment
+  def preload_content_author(article), do: Repo.preload(article, author: :user)
+
   # delete all records before insert_all, this will dynamiclly update
   # those cited info when update article
   # 插入引用记录之前先全部清除，这样可以在更新文章的时候自动计算引用信息
+  defp delete_all_cited_contents(%Comment{} = comment) do
+    query = from(c in CitedContent, where: c.comment_id == ^comment.id)
+    ORM.delete_all(query, :if_exist)
+  end
+
   defp delete_all_cited_contents(article) do
     with {:ok, thread} <- thread_of_article(article),
          {:ok, info} <- match(thread) do
@@ -68,15 +76,18 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
     end
   end
 
-  # defp batch_done
-
+  # batch insert CitedContent record and update citing count
   defp update_cited_info(cited_contents) do
-    clean_cited_contents = Enum.map(cited_contents, &Map.delete(&1, :cited_article))
-    # IO.inspect(clean_cited_contents, label: "clean_cited_contents")
-    with true <- {0, nil} !== Repo.insert_all(CitedContent, clean_cited_contents) do
-      update_citing_count(cited_contents)
-    else
-      _ -> {:error, "insert cited content error"}
+    # see: https://github.com/elixir-ecto/ecto/issues/1932#issuecomment-314083252
+    clean_cited_contents =
+      cited_contents
+      |> Enum.map(&(&1 |> Map.merge(%{inserted_at: &1.citing_time, updated_at: &1.citing_time})))
+      |> Enum.map(&Map.delete(&1, :cited_content))
+      |> Enum.map(&Map.delete(&1, :citing_time))
+
+    case {0, nil} !== Repo.insert_all(CitedContent, clean_cited_contents) do
+      true -> update_citing_count(cited_contents)
+      false -> {:error, "insert cited content error"}
     end
   end
 
@@ -85,10 +96,10 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
       count_query = from(c in CitedContent, where: c.cited_by_id == ^content.cited_by_id)
       count = Repo.aggregate(count_query, :count)
 
-      cited_article = content.cited_article
-      meta = Map.merge(cited_article.meta, %{citing_count: count})
+      cited_content = content.cited_content
+      meta = Map.merge(cited_content.meta, %{citing_count: count})
 
-      case cited_article |> ORM.update_meta(meta) do
+      case cited_content |> ORM.update_meta(meta) do
         {:ok, _} -> true
         {:error, _} -> false
       end
@@ -140,47 +151,56 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
       block_linker: ["block-ZgKJs"],
       cited_by_id: 190057,
       cited_by_type: "POST",
-      cited_article: #loaded,
+      cited_content: #loaded,
       post_id: 190059,
       user_id: 1413053
     }
     ...
   ]
   """
-  defp parse_cited_info_per_block(article, %{"id" => block_id, "data" => %{"text" => text}}) do
-    links_in_block = Floki.find(text, "a[href]")
+  defp parse_cited_info_per_block(content, %{"id" => block_id, "data" => %{"text" => text}}) do
+    links = Floki.find(text, "a[href]")
 
-    Enum.reduce(links_in_block, [], fn link, acc ->
-      with {:ok, cited_article} <- parse_cited_article(link),
-           # do not cite artilce itself
-           true <- article.id !== cited_article.id do
-        List.insert_at(acc, 0, shape_cited_content(article, cited_article, block_id))
-      else
+    do_parse_cited_info_per_block(content, block_id, links)
+  end
+
+  # links Floki parsed fmt
+  # content means both article and comment
+  # e.g:
+  # [{"a", [{"href", "https://coderplanets.com/post/195675"}], []},]
+  defp do_parse_cited_info_per_block(content, block_id, links) do
+    Enum.reduce(links, [], fn link, acc ->
+      case parse_valid_cited(content.id, link) do
+        {:ok, cited} -> List.insert_at(acc, 0, shape_cited(content, cited, block_id))
         _ -> acc
       end
     end)
     |> Enum.uniq()
   end
 
-  defp shape_cited_content(article, cited_article, block_id) do
-    {:ok, thread} = thread_of_article(article)
-    {:ok, info} = match(thread)
-
-    %{
-      cited_by_id: cited_article.id,
-      cited_by_type: cited_article.meta.thread,
-      # used for updating citing_count, avoid load again
-      cited_article: cited_article,
-      block_linker: [block_id],
-      user_id: article.author.user.id
-    }
-    |> Map.put(info.foreign_key, article.id)
+  # parse cited with check if citing link is point to itself
+  defp parse_valid_cited(content_id, link) do
+    with {:ok, cited} <- parse_cited(link),
+         %{content: content} <- cited do
+      case content.id !== content_id do
+        true -> {:ok, cited}
+        false -> {:error, "citing itself"}
+      end
+    end
   end
 
-  defp parse_cited_article({"a", attrs, _}) do
+  # return fmt: %{type: :comment | :article, content: %Comment{} | Article}
+  # 要考虑是否有 comment_id 的情况，如果有，那么 就应该 load comment 而不是 article
+  defp parse_cited({"a", attrs, _}) do
     with {:ok, link} <- parse_link(attrs),
          true <- is_site_article_link?(link) do
-      load_cited_article_from_url(link)
+      # IO.inspect(link, label: "parse link")
+      # IO.inspect(is_comment_link?(link), label: "is_comment_link")
+
+      case is_comment_link?(link) do
+        true -> load_cited_comment_from_url(link)
+        false -> load_cited_article_from_url(link)
+      end
     end
   end
 
@@ -204,6 +224,26 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
     Enum.any?(@valid_article_prefix, &String.starts_with?(url, &1))
   end
 
+  defp is_comment_link?(url) do
+    with %{query: query} <- URI.parse(url) do
+      not is_nil(query) and String.starts_with?(query, "comment_id=")
+    end
+  end
+
+  defp load_cited_comment_from_url(url) do
+    %{query: query} = URI.parse(url)
+
+    try do
+      comment_id = URI.decode_query(query) |> Map.get("comment_id")
+
+      with {:ok, comment} <- ORM.find(Comment, comment_id) do
+        {:ok, %{type: :comment, content: comment}}
+      end
+    rescue
+      _ -> {:error, "load comment error"}
+    end
+  end
+
   # get cited article from url
   # e.g: https://coderplanets.com/post/189993 -> ORM.find(Post, 189993)
   defp load_cited_article_from_url(url) do
@@ -212,9 +252,84 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
     thread = path_list |> Enum.at(1) |> String.downcase() |> String.to_atom()
     article_id = path_list |> Enum.at(2)
 
-    with {:ok, info} <- match(thread) do
-      ORM.find(info.model, article_id)
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, article_id) do
+      {:ok, %{type: :article, content: article}}
     end
+  end
+
+  # cite article in comment
+  # 在评论中引用文章
+  defp shape_cited(%Comment{} = comment, %{type: :article, content: cited}, block_id) do
+    %{
+      cited_by_id: cited.id,
+      cited_by_type: cited.meta.thread,
+      comment_id: comment.id,
+      block_linker: [block_id],
+      user_id: comment.author_id,
+      # extra fields for next-step usage
+      # used for updating citing_count, avoid load again
+      cited_content: cited,
+      # for later insert all
+      citing_time: comment.updated_at |> DateTime.truncate(:second)
+    }
+  end
+
+  # cite comment in comment
+  # 评论中引用评论
+  defp shape_cited(%Comment{} = comment, %{type: :comment, content: cited}, block_id) do
+    %{
+      cited_by_id: cited.id,
+      cited_by_type: "COMMENT",
+      comment_id: comment.id,
+      block_linker: [block_id],
+      user_id: comment.author_id,
+      # extra fields for next-step usage
+      # used for updating citing_count, avoid load again
+      cited_content: cited,
+      # for later insert all
+      citing_time: comment.updated_at |> DateTime.truncate(:second)
+    }
+  end
+
+  # cite article in article
+  # 文章之间相互引用
+  defp shape_cited(article, %{type: :article, content: cited}, block_id) do
+    {:ok, thread} = thread_of_article(article)
+    {:ok, info} = match(thread)
+
+    %{
+      cited_by_id: cited.id,
+      cited_by_type: cited.meta.thread,
+      block_linker: [block_id],
+      user_id: article.author.user.id,
+      # extra fields for next-step usage
+      # used for updating citing_count, avoid load again
+      cited_content: cited,
+      # for later insert all
+      citing_time: article.updated_at |> DateTime.truncate(:second)
+    }
+    |> Map.put(info.foreign_key, article.id)
+  end
+
+  # cite comment in article
+  # 文章中引用评论
+  defp shape_cited(article, %{type: :comment, content: cited}, block_id) do
+    {:ok, thread} = thread_of_article(article)
+    {:ok, info} = match(thread)
+
+    %{
+      cited_by_id: cited.id,
+      cited_by_type: "COMMENT",
+      block_linker: [block_id],
+      user_id: article.author.user.id,
+      # extra fields for next-step usage
+      # used for updating citing_count, avoid load again
+      cited_content: cited,
+      # for later insert all
+      citing_time: article.updated_at |> DateTime.truncate(:second)
+    }
+    |> Map.put(info.foreign_key, article.id)
   end
 
   defp result({:ok, %{update_cited_info: result}}), do: {:ok, result}

@@ -164,10 +164,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Multi.run(:update_user_published_meta, fn _, _ ->
         Accounts.update_published_states(uid, thread)
       end)
-      |> Multi.run(:block_tasks, fn _, %{create_article: article} ->
+      |> Multi.run(:after_tasks, fn _, %{create_article: article} ->
         Later.run({CiteTasks, :handle, [article]})
+        Later.run({__MODULE__, :notify_admin_new_article, [article]})
       end)
-      # TODO: run mini tasks
       |> Multi.run(:mention_users, fn _, %{create_article: article} ->
         # article.body |> Jason.decode!() |> 各种小 task
         Delivery.mention_from_content(community.raw, thread, article, attrs, %User{id: uid})
@@ -222,6 +222,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end)
     |> Multi.run(:update_edit_status, fn _, %{update_article: update_article} ->
       ArticleCommunity.update_edit_status(update_article)
+    end)
+    |> Multi.run(:after_tasks, fn _, %{update_article: update_article} ->
+      Later.run({CiteTasks, :handle, [update_article]})
     end)
     |> Repo.transaction()
     |> result()
@@ -449,7 +452,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   # create done
   defp result({:ok, %{set_active_at_timestamp: result}}) do
-    Later.run({__MODULE__, :notify_admin_new_article, [result]})
     {:ok, result}
   end
 

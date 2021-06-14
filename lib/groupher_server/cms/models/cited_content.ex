@@ -13,7 +13,7 @@ defmodule GroupherServer.CMS.Model.CitedContent do
 
   alias CMS.Model.Comment
 
-  @timestamps_opts [type: :utc_datetime_usec]
+  @timestamps_opts [type: :utc_datetime]
 
   @required_fields ~w(cited_by_type cited_by_id user_id)a
   @article_cast_fields general_article_fields(:cast)
