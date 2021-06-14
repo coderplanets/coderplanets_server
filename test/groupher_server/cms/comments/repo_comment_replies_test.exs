@@ -125,8 +125,8 @@ defmodule GroupherServer.Test.CMS.Comments.RepoCommentReplies do
 
       {:ok, article} = ORM.find(Repo, repo.id)
 
-      assert exist_in?(user, article.article_comments_participants)
-      assert exist_in?(user2, article.article_comments_participants)
+      assert exist_in?(user, article.comments_participants)
+      assert exist_in?(user2, article.comments_participants)
     end
 
     test "replies count should inc by 1 after got replyed", ~m(repo user user2)a do

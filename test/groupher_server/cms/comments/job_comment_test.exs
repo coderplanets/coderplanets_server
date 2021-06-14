@@ -30,10 +30,10 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       {:ok, job_comment_1} = CMS.create_comment(:job, job.id, mock_comment(), user)
       {:ok, job_comment_2} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
-      {:ok, job} = ORM.find(Job, job.id, preload: :article_comments)
+      {:ok, job} = ORM.find(Job, job.id, preload: :comments)
 
-      assert exist_in?(job_comment_1, job.article_comments)
-      assert exist_in?(job_comment_2, job.article_comments)
+      assert exist_in?(job_comment_1, job.comments)
+      assert exist_in?(job_comment_2, job.comments)
     end
 
     test "comment should have default meta after create", ~m(user job)a do
@@ -44,7 +44,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     test "create comment should update active timestamp of job", ~m(user job)a do
       Process.sleep(1000)
       {:ok, _comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
-      {:ok, job} = ORM.find(Job, job.id, preload: :article_comments)
+      {:ok, job} = ORM.find(Job, job.id, preload: :comments)
 
       assert not is_nil(job.active_at)
       assert job.active_at > job.inserted_at
@@ -59,7 +59,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       {:ok, _comment} = CMS.create_comment(:job, job.id, mock_comment(), job.author.user)
 
-      {:ok, job} = ORM.find(Job, job.id, preload: :article_comments)
+      {:ok, job} = ORM.find(Job, job.id, preload: :comments)
 
       assert not is_nil(job.active_at)
       assert job.active_at == job.inserted_at
@@ -118,7 +118,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       {:ok, job} = ORM.find(Job, job.id)
 
-      participator = List.first(job.article_comments_participants)
+      participator = List.first(job.comments_participants)
       assert participator.id == user.id
     end
 
@@ -128,7 +128,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       {:ok, job} = ORM.find(Job, job.id)
 
-      assert 1 == length(job.article_comments_participants)
+      assert 1 == length(job.comments_participants)
     end
 
     test "recent comment user should appear at first of the psot participants",
@@ -138,7 +138,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       {:ok, job} = ORM.find(Job, job.id)
 
-      participator = List.first(job.article_comments_participants)
+      participator = List.first(job.comments_participants)
 
       assert participator.id == user2.id
     end
@@ -589,12 +589,12 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       {:ok, job} = ORM.find(Job, job.id)
 
-      assert job.article_comments_count == 5
+      assert job.comments_count == 5
 
       {:ok, _} = CMS.delete_comment(comment)
 
       {:ok, job} = ORM.find(Job, job.id)
-      assert job.article_comments_count == 4
+      assert job.comments_count == 4
     end
 
     test "delete comment still delete pinned record if needed", ~m(user job)a do

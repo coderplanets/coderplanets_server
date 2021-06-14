@@ -56,7 +56,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     interface(:article)
 
     general_article_fields()
-    article_comments_fields()
+    comments_fields()
 
     field(:length, :integer)
     field(:link_addr, :string)
@@ -69,7 +69,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     interface(:article)
 
     general_article_fields()
-    article_comments_fields()
+    comments_fields()
 
     field(:desc, :string)
     field(:company, :string)
@@ -85,7 +85,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     interface(:article)
 
     general_article_fields()
-    article_comments_fields()
+    comments_fields()
 
     field(:length, :integer)
     field(:link_addr, :string)
@@ -97,7 +97,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     interface(:article)
 
     general_article_fields()
-    article_comments_fields()
+    comments_fields()
 
     field(:owner_name, :string)
     field(:owner_url, :string)

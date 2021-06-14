@@ -223,7 +223,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
 
   # add participator to article-like(Post, Job ...) and update count
   def add_participant_to_article(
-        %{article_comments_participants: participants} = article,
+        %{comments_participants: participants} = article,
         %User{} = user
       ) do
     total_participants = participants |> List.insert_at(0, user) |> Enum.uniq_by(& &1.id)
@@ -233,8 +233,8 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
 
     article
     |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_change(:article_comments_participants_count, total_participants_count)
-    |> Ecto.Changeset.put_embed(:article_comments_participants, latest_participants)
+    |> Ecto.Changeset.put_change(:comments_participants_count, total_participants_count)
+    |> Ecto.Changeset.put_embed(:comments_participants, latest_participants)
     |> Repo.update()
   end
 
@@ -253,8 +253,8 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
       # dec 是 comment 还没有删除的时候的操作，和 inc 不同
       # 因为 dec 操作如果放在 delete 后面，那么 update 会失败
       case opt do
-        :inc -> ORM.update(article, %{article_comments_count: cur_count})
-        :dec -> ORM.update(article, %{article_comments_count: Enum.max([1, cur_count]) - 1})
+        :inc -> ORM.update(article, %{comments_count: cur_count})
+        :dec -> ORM.update(article, %{comments_count: Enum.max([1, cur_count]) - 1})
       end
     end
   end

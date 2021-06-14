@@ -26,11 +26,11 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
         id
         title
         body
-        articleCommentsParticipants {
+        commentsParticipants {
           id
           nickname
         }
-        articleCommentsParticipantsCount
+        commentsParticipantsCount
       }
     }
     """
@@ -51,12 +51,12 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       variables = %{id: post.id}
       results = guest_conn |> query_result(@query, variables, "post")
 
-      article_comments_participants = results["articleCommentsParticipants"]
-      article_comments_participants_count = results["articleCommentsParticipantsCount"]
+      comments_participants = results["commentsParticipants"]
+      comments_participants_count = results["commentsParticipantsCount"]
 
-      assert is_list(article_comments_participants)
-      assert length(article_comments_participants) == 2
-      assert article_comments_participants_count == 2
+      assert is_list(comments_participants)
+      assert length(comments_participants) == 2
+      assert comments_participants_count == 2
     end
 
     @query """
