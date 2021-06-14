@@ -79,9 +79,12 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
   # defp batch_done
 
   defp update_cited_info(cited_contents) do
-    clean_cited_contents = Enum.map(cited_contents, &Map.delete(&1, :cited_article))
-    # IO.inspect(clean_cited_contents, label: "clean_cited_contents")
-    # IO.inspect(cited_contents, label: "cited_contents")
+    # see: https://github.com/elixir-ecto/ecto/issues/1932#issuecomment-314083252
+    clean_cited_contents =
+      cited_contents
+      |> Enum.map(&(&1 |> Map.merge(%{inserted_at: &1.citing_time, updated_at: &1.citing_time})))
+      |> Enum.map(&Map.delete(&1, :cited_content))
+      |> Enum.map(&Map.delete(&1, :citing_time))
 
     with true <- {0, nil} !== Repo.insert_all(CitedContent, clean_cited_contents) do
       update_citing_count(cited_contents)
@@ -95,10 +98,10 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
       count_query = from(c in CitedContent, where: c.cited_by_id == ^content.cited_by_id)
       count = Repo.aggregate(count_query, :count)
 
-      cited_article = content.cited_article
-      meta = Map.merge(cited_article.meta, %{citing_count: count})
+      cited_content = content.cited_content
+      meta = Map.merge(cited_content.meta, %{citing_count: count})
 
-      case cited_article |> ORM.update_meta(meta) do
+      case cited_content |> ORM.update_meta(meta) do
         {:ok, _} -> true
         {:error, _} -> false
       end
@@ -150,23 +153,26 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
       block_linker: ["block-ZgKJs"],
       cited_by_id: 190057,
       cited_by_type: "POST",
-      cited_article: #loaded,
+      cited_content: #loaded,
       post_id: 190059,
       user_id: 1413053
     }
     ...
   ]
   """
-  defp parse_cited_info_per_block(article, %{"id" => block_id, "data" => %{"text" => text}}) do
+  defp parse_cited_info_per_block(content, %{"id" => block_id, "data" => %{"text" => text}}) do
     links = Floki.find(text, "a[href]")
 
-    do_parse_cited_info(article, block_id, links)
+    do_parse_cited_info(content, block_id, links)
   end
 
   defp do_parse_cited_info(%Comment{} = comment, block_id, links) do
+    # IO.inspect(links, label: "links -> ")
+
     Enum.reduce(links, [], fn link, acc ->
-      with {:ok, cited_article} <- parse_cited_article(link) do
-        List.insert_at(acc, 0, shape_cited_content(comment, cited_article, block_id))
+      with {:ok, cited_content} <- parse_cited_content(link) do
+        # IO.inspect(cited_content, label: "before shape cited_content")
+        List.insert_at(acc, 0, shape_cited_content(comment, cited_content, block_id))
       else
         _ -> acc
       end
@@ -179,10 +185,10 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
   # [{"a", [{"href", "https://coderplanets.com/post/195675"}], []},]
   defp do_parse_cited_info(article, block_id, links) do
     Enum.reduce(links, [], fn link, acc ->
-      with {:ok, cited_article} <- parse_cited_article(link),
-           # do not cite artilce itself
-           true <- article.id !== cited_article.id do
-        List.insert_at(acc, 0, shape_cited_content(article, cited_article, block_id))
+      with {:ok, cited_content} <- parse_cited_content(link) do
+        # do not cite artilce itself
+        #  true <- article.id !== cited_content.id do
+        List.insert_at(acc, 0, shape_cited_content(article, cited_content, block_id))
       else
         _ -> acc
       end
@@ -190,39 +196,91 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
     |> Enum.uniq()
   end
 
-  # 在评论中引用文章的情况
-  defp shape_cited_content(%Comment{} = comment, cited_article, block_id) do
+  # 在评论中引用文章
+  defp shape_cited_content(
+         %Comment{} = comment,
+         %{type: :article, content: cited_article},
+         block_id
+       ) do
     %{
       cited_by_id: cited_article.id,
       cited_by_type: cited_article.meta.thread,
-      # used for updating citing_count, avoid load again
-      cited_article: cited_article,
       comment_id: comment.id,
       block_linker: [block_id],
-      user_id: comment.author_id
+      user_id: comment.author_id,
+      # used for updating citing_count, avoid load again
+      cited_content: cited_article,
+      # for later insert all
+      citing_time: comment.updated_at |> DateTime.truncate(:second)
     }
   end
 
-  # 文章之间相互引用的情况
-  defp shape_cited_content(article, cited_article, block_id) do
+  # 评论中引用评论
+  defp shape_cited_content(
+         %Comment{} = comment,
+         %{type: :comment, content: cited_comment},
+         block_id
+       ) do
+    %{
+      cited_by_id: cited_comment.id,
+      cited_by_type: "COMMENT",
+      comment_id: comment.id,
+      block_linker: [block_id],
+      user_id: comment.author_id,
+      # used for updating citing_count, avoid load again
+      cited_content: cited_comment,
+      # for later insert all
+      citing_time: comment.updated_at |> DateTime.truncate(:second)
+    }
+  end
+
+  # 文章之间相互引用
+  defp shape_cited_content(article, %{type: :article, content: cited_article}, block_id) do
     {:ok, thread} = thread_of_article(article)
     {:ok, info} = match(thread)
 
     %{
       cited_by_id: cited_article.id,
       cited_by_type: cited_article.meta.thread,
-      # used for updating citing_count, avoid load again
-      cited_article: cited_article,
       block_linker: [block_id],
-      user_id: article.author.user.id
+      user_id: article.author.user.id,
+      # used for updating citing_count, avoid load again
+      cited_content: cited_article,
+      # for later insert all
+      citing_time: article.updated_at |> DateTime.truncate(:second)
     }
     |> Map.put(info.foreign_key, article.id)
   end
 
-  defp parse_cited_article({"a", attrs, _}) do
+  # 文章里引用评论
+  defp shape_cited_content(article, %{type: :comment, content: cited_comment}, block_id) do
+    {:ok, thread} = thread_of_article(article)
+    {:ok, info} = match(thread)
+
+    %{
+      cited_by_id: cited_comment.id,
+      cited_by_type: "COMMENT",
+      block_linker: [block_id],
+      user_id: article.author.user.id,
+      # used for updating citing_count, avoid load again
+      cited_content: cited_comment,
+      # for later insert all
+      citing_time: article.updated_at |> DateTime.truncate(:second)
+    }
+    |> Map.put(info.foreign_key, article.id)
+  end
+
+  # 要考虑是否有 comment_id 的情况，如果有，那么 就应该 load comment 而不是 article
+  defp parse_cited_content({"a", attrs, _}) do
     with {:ok, link} <- parse_link(attrs),
          true <- is_site_article_link?(link) do
-      load_cited_article_from_url(link)
+      # IO.inspect(link, label: "parse link")
+      # IO.inspect(is_comment_link?(link), label: "is_comment_link")
+
+      case is_comment_link?(link) do
+        true -> load_cited_comment_from_url(link)
+        false -> load_cited_article_from_url(link)
+      end
     end
   end
 
@@ -246,6 +304,32 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
     Enum.any?(@valid_article_prefix, &String.starts_with?(url, &1))
   end
 
+  defp is_comment_link?(url) do
+    with %{query: query} <- URI.parse(url) do
+      not is_nil(query) and String.starts_with?(query, "comment_id=")
+      # is_valid_query = not is_nil(query) and String.starts_with?(query, "comment_id=")
+      # comment_id = URI.decode_query(query) |> Map.get("comment_id")
+      # query_not_empty = comment_id
+
+      # URI.decode_query(query) |> String.starts_with?("comment_id=")
+      # IO.inspect(query, label: "the query")
+    end
+  end
+
+  defp load_cited_comment_from_url(url) do
+    %{query: query} = URI.parse(url)
+
+    try do
+      comment_id = URI.decode_query(query) |> Map.get("comment_id")
+
+      with {:ok, comment} <- ORM.find(Comment, comment_id) do
+        {:ok, %{type: :comment, content: comment}}
+      end
+    rescue
+      _ -> {:error, "load comment error"}
+    end
+  end
+
   # get cited article from url
   # e.g: https://coderplanets.com/post/189993 -> ORM.find(Post, 189993)
   defp load_cited_article_from_url(url) do
@@ -254,8 +338,9 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
     thread = path_list |> Enum.at(1) |> String.downcase() |> String.to_atom()
     article_id = path_list |> Enum.at(2)
 
-    with {:ok, info} <- match(thread) do
-      ORM.find(info.model, article_id)
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, article_id) do
+      {:ok, %{type: :article, content: article}}
     end
   end
 

@@ -6,8 +6,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.Model.Post
-
+  alias CMS.Model.{Post, Comment, CitedContent}
   alias CMS.Delegate.CiteTasks
 
   @site_host get_config(:general, :site_host)
@@ -29,7 +28,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
   end
 
   describe "[cite basic]" do
-    # @tag :wip
+    #
     test "cited multi post should work", ~m(user community post2 post3 post4 post5 post_attrs)a do
       body =
         mock_rich_text(
@@ -76,6 +75,47 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
     end
 
     @tag :wip
+    test "can cite post's comment in post", ~m(community user post post2 post_attrs)a do
+      {:ok, comment} = CMS.create_comment(:post, post.id, mock_rich_text("hello"), user)
+
+      body =
+        mock_rich_text(~s(the <a href=#{@site_host}/post/#{post2.id}?comment_id=#{comment.id} />))
+
+      post_attrs = post_attrs |> Map.merge(%{body: body})
+
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+      CiteTasks.handle(post)
+
+      {:ok, comment} = ORM.find(Comment, comment.id)
+      assert comment.meta.citing_count == 1
+
+      {:ok, cite_content} = ORM.find_by(CitedContent, %{cited_by_id: comment.id})
+      assert post.id == cite_content.post_id
+      assert cite_content.cited_by_type == "COMMENT"
+    end
+
+    @tag :wip
+    test "can cite a comment in a comment", ~m(user post)a do
+      {:ok, cited_comment} = CMS.create_comment(:post, post.id, mock_rich_text("hello"), user)
+
+      comment_body =
+        mock_rich_text(
+          ~s(the <a href=#{@site_host}/post/#{post.id}?comment_id=#{cited_comment.id} />)
+        )
+
+      {:ok, comment} = CMS.create_comment(:post, post.id, comment_body, user)
+
+      CiteTasks.handle(comment)
+
+      {:ok, cited_comment} = ORM.find(Comment, cited_comment.id)
+      assert cited_comment.meta.citing_count == 1
+
+      {:ok, cite_content} = ORM.find_by(CitedContent, %{cited_by_id: cited_comment.id})
+      assert comment.id == cite_content.comment_id
+      assert cited_comment.id == cite_content.cited_by_id
+      assert cite_content.cited_by_type == "COMMENT"
+    end
+
     test "can cited post inside a comment", ~m(user post post2 post3 post4 post5)a do
       comment_body =
         mock_rich_text(

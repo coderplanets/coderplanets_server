@@ -6,8 +6,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Blog do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.Model.Blog
-
+  alias CMS.Model.{Blog, Comment, CitedContent}
   alias CMS.Delegate.CiteTasks
 
   @site_host get_config(:general, :site_host)
@@ -75,6 +74,47 @@ defmodule GroupherServer.Test.CMS.CiteContent.Blog do
     end
 
     @tag :wip
+    test "can cite blog's comment in blog", ~m(community user blog blog2 blog_attrs)a do
+      {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_rich_text("hello"), user)
+
+      body =
+        mock_rich_text(~s(the <a href=#{@site_host}/blog/#{blog2.id}?comment_id=#{comment.id} />))
+
+      blog_attrs = blog_attrs |> Map.merge(%{body: body})
+
+      {:ok, blog} = CMS.create_article(community, :blog, blog_attrs, user)
+      CiteTasks.handle(blog)
+
+      {:ok, comment} = ORM.find(Comment, comment.id)
+      assert comment.meta.citing_count == 1
+
+      {:ok, cite_content} = ORM.find_by(CitedContent, %{cited_by_id: comment.id})
+      assert blog.id == cite_content.blog_id
+      assert cite_content.cited_by_type == "COMMENT"
+    end
+
+    @tag :wip
+    test "can cite a comment in a comment", ~m(user blog)a do
+      {:ok, cited_comment} = CMS.create_comment(:blog, blog.id, mock_rich_text("hello"), user)
+
+      comment_body =
+        mock_rich_text(
+          ~s(the <a href=#{@site_host}/blog/#{blog.id}?comment_id=#{cited_comment.id} />)
+        )
+
+      {:ok, comment} = CMS.create_comment(:blog, blog.id, comment_body, user)
+
+      CiteTasks.handle(comment)
+
+      {:ok, cited_comment} = ORM.find(Comment, cited_comment.id)
+      assert cited_comment.meta.citing_count == 1
+
+      {:ok, cite_content} = ORM.find_by(CitedContent, %{cited_by_id: cited_comment.id})
+      assert comment.id == cite_content.comment_id
+      assert cited_comment.id == cite_content.cited_by_id
+      assert cite_content.cited_by_type == "COMMENT"
+    end
+
     test "can cited blog inside a comment", ~m(user blog blog2 blog3 blog4 blog5)a do
       comment_body =
         mock_rich_text(
