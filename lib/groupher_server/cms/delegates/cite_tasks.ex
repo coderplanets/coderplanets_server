@@ -161,14 +161,14 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
   defp parse_cited_info_per_block(content, %{"id" => block_id, "data" => %{"text" => text}}) do
     links = Floki.find(text, "a[href]")
 
-    do_parse_cited_info(content, block_id, links)
+    do_parse_cited_info_per_block(content, block_id, links)
   end
 
   # links Floki parsed fmt
   # content means both article and comment
   # e.g:
   # [{"a", [{"href", "https://coderplanets.com/post/195675"}], []},]
-  defp do_parse_cited_info(content, block_id, links) do
+  defp do_parse_cited_info_per_block(content, block_id, links) do
     Enum.reduce(links, [], fn link, acc ->
       case parse_valid_cited(content.id, link) do
         {:ok, cited} -> List.insert_at(acc, 0, shape_cited(content, cited, block_id))
@@ -186,6 +186,75 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
         true -> {:ok, cited}
         false -> {:error, "citing itself"}
       end
+    end
+  end
+
+  # return fmt: %{type: :comment | :article, content: %Comment{} | Article}
+  # 要考虑是否有 comment_id 的情况，如果有，那么 就应该 load comment 而不是 article
+  defp parse_cited({"a", attrs, _}) do
+    with {:ok, link} <- parse_link(attrs),
+         true <- is_site_article_link?(link) do
+      # IO.inspect(link, label: "parse link")
+      # IO.inspect(is_comment_link?(link), label: "is_comment_link")
+
+      case is_comment_link?(link) do
+        true -> load_cited_comment_from_url(link)
+        false -> load_cited_article_from_url(link)
+      end
+    end
+  end
+
+  @doc """
+  parse link from Floki parse result
+
+  e.g:
+  [{"href", "https://coderplanets.com/post/190220", "bla", "bla"}] ->
+  {:ok, "https://coderplanets.com/post/190220"}
+  """
+  defp parse_link(attrs) do
+    with {"href", link} <- Enum.find(attrs, fn {a, _v} -> a == "href" end) do
+      {:ok, link}
+    else
+      _ -> {:error, "invalid fmt"}
+    end
+  end
+
+  # 检测是否是站内文章的链接
+  defp is_site_article_link?(url) do
+    Enum.any?(@valid_article_prefix, &String.starts_with?(url, &1))
+  end
+
+  defp is_comment_link?(url) do
+    with %{query: query} <- URI.parse(url) do
+      not is_nil(query) and String.starts_with?(query, "comment_id=")
+    end
+  end
+
+  defp load_cited_comment_from_url(url) do
+    %{query: query} = URI.parse(url)
+
+    try do
+      comment_id = URI.decode_query(query) |> Map.get("comment_id")
+
+      with {:ok, comment} <- ORM.find(Comment, comment_id) do
+        {:ok, %{type: :comment, content: comment}}
+      end
+    rescue
+      _ -> {:error, "load comment error"}
+    end
+  end
+
+  # get cited article from url
+  # e.g: https://coderplanets.com/post/189993 -> ORM.find(Post, 189993)
+  defp load_cited_article_from_url(url) do
+    %{path: path} = URI.parse(url)
+    path_list = path |> String.split("/")
+    thread = path_list |> Enum.at(1) |> String.downcase() |> String.to_atom()
+    article_id = path_list |> Enum.at(2)
+
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, article_id) do
+      {:ok, %{type: :article, content: article}}
     end
   end
 
@@ -261,74 +330,6 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
       citing_time: article.updated_at |> DateTime.truncate(:second)
     }
     |> Map.put(info.foreign_key, article.id)
-  end
-
-  # 要考虑是否有 comment_id 的情况，如果有，那么 就应该 load comment 而不是 article
-  defp parse_cited({"a", attrs, _}) do
-    with {:ok, link} <- parse_link(attrs),
-         true <- is_site_article_link?(link) do
-      # IO.inspect(link, label: "parse link")
-      # IO.inspect(is_comment_link?(link), label: "is_comment_link")
-
-      case is_comment_link?(link) do
-        true -> load_cited_comment_from_url(link)
-        false -> load_cited_article_from_url(link)
-      end
-    end
-  end
-
-  @doc """
-  parse link from Floki parse result
-
-  e.g:
-  [{"href", "https://coderplanets.com/post/190220", "bla", "bla"}] ->
-  {:ok, "https://coderplanets.com/post/190220"}
-  """
-  defp parse_link(attrs) do
-    with {"href", link} <- Enum.find(attrs, fn {a, _v} -> a == "href" end) do
-      {:ok, link}
-    else
-      _ -> {:error, "invalid fmt"}
-    end
-  end
-
-  # 检测是否是站内文章的链接
-  defp is_site_article_link?(url) do
-    Enum.any?(@valid_article_prefix, &String.starts_with?(url, &1))
-  end
-
-  defp is_comment_link?(url) do
-    with %{query: query} <- URI.parse(url) do
-      not is_nil(query) and String.starts_with?(query, "comment_id=")
-    end
-  end
-
-  defp load_cited_comment_from_url(url) do
-    %{query: query} = URI.parse(url)
-
-    try do
-      comment_id = URI.decode_query(query) |> Map.get("comment_id")
-
-      with {:ok, comment} <- ORM.find(Comment, comment_id) do
-        {:ok, %{type: :comment, content: comment}}
-      end
-    rescue
-      _ -> {:error, "load comment error"}
-    end
-  end
-
-  # get cited article from url
-  # e.g: https://coderplanets.com/post/189993 -> ORM.find(Post, 189993)
-  defp load_cited_article_from_url(url) do
-    %{path: path} = URI.parse(url)
-    path_list = path |> String.split("/")
-    thread = path_list |> Enum.at(1) |> String.downcase() |> String.to_atom()
-    article_id = path_list |> Enum.at(2)
-
-    with {:ok, info} <- match(thread),
-         {:ok, article} <- ORM.find(info.model, article_id) do
-      {:ok, %{type: :article, content: article}}
-    end
   end
 
   defp result({:ok, %{update_cited_info: result}}), do: {:ok, result}
