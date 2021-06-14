@@ -170,10 +170,8 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
     # IO.inspect(links, label: "links -> ")
 
     Enum.reduce(links, [], fn link, acc ->
-      with {:ok, cited_content} <- parse_cited_content(link) do
-        # IO.inspect(cited_content, label: "before shape cited_content")
-        List.insert_at(acc, 0, shape_cited_content(comment, cited_content, block_id))
-      else
+      case parse_cited(link) do
+        {:ok, cited} -> List.insert_at(acc, 0, shape_cited(comment, cited, block_id))
         _ -> acc
       end
     end)
@@ -185,11 +183,8 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
   # [{"a", [{"href", "https://coderplanets.com/post/195675"}], []},]
   defp do_parse_cited_info(article, block_id, links) do
     Enum.reduce(links, [], fn link, acc ->
-      with {:ok, cited_content} <- parse_cited_content(link) do
-        # do not cite artilce itself
-        #  true <- article.id !== cited_content.id do
-        List.insert_at(acc, 0, shape_cited_content(article, cited_content, block_id))
-      else
+      case parse_cited(link) do
+        {:ok, cited} -> List.insert_at(acc, 0, shape_cited(article, cited, block_id))
         _ -> acc
       end
     end)
@@ -198,20 +193,16 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
 
   # cite article in comment
   # 在评论中引用文章
-  defp shape_cited_content(
-         %Comment{} = comment,
-         %{type: :article, content: cited_article},
-         block_id
-       ) do
+  defp shape_cited(%Comment{} = comment, %{type: :article, content: cited}, block_id) do
     %{
-      cited_by_id: cited_article.id,
-      cited_by_type: cited_article.meta.thread,
+      cited_by_id: cited.id,
+      cited_by_type: cited.meta.thread,
       comment_id: comment.id,
       block_linker: [block_id],
       user_id: comment.author_id,
       # extra fields for next-step usage
       # used for updating citing_count, avoid load again
-      cited_content: cited_article,
+      cited_content: cited,
       # for later insert all
       citing_time: comment.updated_at |> DateTime.truncate(:second)
     }
@@ -219,20 +210,16 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
 
   # cite comment in comment
   # 评论中引用评论
-  defp shape_cited_content(
-         %Comment{} = comment,
-         %{type: :comment, content: cited_comment},
-         block_id
-       ) do
+  defp shape_cited(%Comment{} = comment, %{type: :comment, content: cited}, block_id) do
     %{
-      cited_by_id: cited_comment.id,
+      cited_by_id: cited.id,
       cited_by_type: "COMMENT",
       comment_id: comment.id,
       block_linker: [block_id],
       user_id: comment.author_id,
       # extra fields for next-step usage
       # used for updating citing_count, avoid load again
-      cited_content: cited_comment,
+      cited_content: cited,
       # for later insert all
       citing_time: comment.updated_at |> DateTime.truncate(:second)
     }
@@ -240,18 +227,18 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
 
   # cite article in article
   # 文章之间相互引用
-  defp shape_cited_content(article, %{type: :article, content: cited_article}, block_id) do
+  defp shape_cited(article, %{type: :article, content: cited}, block_id) do
     {:ok, thread} = thread_of_article(article)
     {:ok, info} = match(thread)
 
     %{
-      cited_by_id: cited_article.id,
-      cited_by_type: cited_article.meta.thread,
+      cited_by_id: cited.id,
+      cited_by_type: cited.meta.thread,
       block_linker: [block_id],
       user_id: article.author.user.id,
       # extra fields for next-step usage
       # used for updating citing_count, avoid load again
-      cited_content: cited_article,
+      cited_content: cited,
       # for later insert all
       citing_time: article.updated_at |> DateTime.truncate(:second)
     }
@@ -260,18 +247,18 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
 
   # cite comment in article
   # 文章中引用评论
-  defp shape_cited_content(article, %{type: :comment, content: cited_comment}, block_id) do
+  defp shape_cited(article, %{type: :comment, content: cited}, block_id) do
     {:ok, thread} = thread_of_article(article)
     {:ok, info} = match(thread)
 
     %{
-      cited_by_id: cited_comment.id,
+      cited_by_id: cited.id,
       cited_by_type: "COMMENT",
       block_linker: [block_id],
       user_id: article.author.user.id,
       # extra fields for next-step usage
       # used for updating citing_count, avoid load again
-      cited_content: cited_comment,
+      cited_content: cited,
       # for later insert all
       citing_time: article.updated_at |> DateTime.truncate(:second)
     }
@@ -279,7 +266,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
   end
 
   # 要考虑是否有 comment_id 的情况，如果有，那么 就应该 load comment 而不是 article
-  defp parse_cited_content({"a", attrs, _}) do
+  defp parse_cited({"a", attrs, _}) do
     with {:ok, link} <- parse_link(attrs),
          true <- is_site_article_link?(link) do
       # IO.inspect(link, label: "parse link")
