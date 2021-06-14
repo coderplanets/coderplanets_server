@@ -29,7 +29,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
   import Helper.ErrorCode
 
   alias GroupherServer.{CMS, Repo}
-  alias CMS.Model.CitedContent
+  alias CMS.Model.{CitedContent, Comment}
   alias Helper.ORM
 
   alias Ecto.Multi
@@ -38,16 +38,16 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
   @article_threads get_config(:article, :threads)
   @valid_article_prefix Enum.map(@article_threads, &"#{@site_host}/#{&1}/")
 
-  def handle(%{body: body} = article) do
+  def handle(%{body: body} = content) do
     with {:ok, %{"blocks" => blocks}} <- Jason.decode(body),
-         article <- Repo.preload(article, author: :user) do
+         content <- preload_content_author(content) do
       Multi.new()
       |> Multi.run(:delete_all_cited_contents, fn _, _ ->
-        delete_all_cited_contents(article)
+        delete_all_cited_contents(content)
       end)
       |> Multi.run(:update_cited_info, fn _, _ ->
         blocks
-        |> Enum.reduce([], &(&2 ++ parse_cited_info_per_block(article, &1)))
+        |> Enum.reduce([], &(&2 ++ parse_cited_info_per_block(content, &1)))
         |> merge_same_cited_article_block
         |> update_cited_info
       end)
@@ -56,9 +56,17 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
     end
   end
 
+  def preload_content_author(%Comment{} = comment), do: comment
+  def preload_content_author(article), do: Repo.preload(article, author: :user)
+
   # delete all records before insert_all, this will dynamiclly update
   # those cited info when update article
   # 插入引用记录之前先全部清除，这样可以在更新文章的时候自动计算引用信息
+  defp delete_all_cited_contents(%Comment{} = comment) do
+    query = from(c in CitedContent, where: c.comment_id == ^comment.id)
+    ORM.delete_all(query, :if_exist)
+  end
+
   defp delete_all_cited_contents(article) do
     with {:ok, thread} <- thread_of_article(article),
          {:ok, info} <- match(thread) do
@@ -73,6 +81,8 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
   defp update_cited_info(cited_contents) do
     clean_cited_contents = Enum.map(cited_contents, &Map.delete(&1, :cited_article))
     # IO.inspect(clean_cited_contents, label: "clean_cited_contents")
+    # IO.inspect(cited_contents, label: "cited_contents")
+
     with true <- {0, nil} !== Repo.insert_all(CitedContent, clean_cited_contents) do
       update_citing_count(cited_contents)
     else
@@ -148,9 +158,27 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
   ]
   """
   defp parse_cited_info_per_block(article, %{"id" => block_id, "data" => %{"text" => text}}) do
-    links_in_block = Floki.find(text, "a[href]")
+    links = Floki.find(text, "a[href]")
 
-    Enum.reduce(links_in_block, [], fn link, acc ->
+    do_parse_cited_info(article, block_id, links)
+  end
+
+  defp do_parse_cited_info(%Comment{} = comment, block_id, links) do
+    Enum.reduce(links, [], fn link, acc ->
+      with {:ok, cited_article} <- parse_cited_article(link) do
+        List.insert_at(acc, 0, shape_cited_content(comment, cited_article, block_id))
+      else
+        _ -> acc
+      end
+    end)
+    |> Enum.uniq()
+  end
+
+  # links Floki parsed fmt
+  # e.g:
+  # [{"a", [{"href", "https://coderplanets.com/post/195675"}], []},]
+  defp do_parse_cited_info(article, block_id, links) do
+    Enum.reduce(links, [], fn link, acc ->
       with {:ok, cited_article} <- parse_cited_article(link),
            # do not cite artilce itself
            true <- article.id !== cited_article.id do
@@ -162,6 +190,20 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
     |> Enum.uniq()
   end
 
+  # 在评论中引用文章的情况
+  defp shape_cited_content(%Comment{} = comment, cited_article, block_id) do
+    %{
+      cited_by_id: cited_article.id,
+      cited_by_type: cited_article.meta.thread,
+      # used for updating citing_count, avoid load again
+      cited_article: cited_article,
+      comment_id: comment.id,
+      block_linker: [block_id],
+      user_id: comment.author_id
+    }
+  end
+
+  # 文章之间相互引用的情况
   defp shape_cited_content(article, cited_article, block_id) do
     {:ok, thread} = thread_of_article(article)
     {:ok, info} = match(thread)

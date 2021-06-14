@@ -73,5 +73,37 @@ defmodule GroupherServer.Test.CMS.CiteContent.Blog do
       {:ok, blog} = ORM.find(Blog, blog.id)
       assert blog.meta.citing_count == 0
     end
+
+    @tag :wip
+    test "can cited blog inside a comment", ~m(user blog blog2 blog3 blog4 blog5)a do
+      comment_body =
+        mock_rich_text(
+          ~s(the <a href=#{@site_host}/blog/#{blog2.id} /> and <a href=#{@site_host}/blog/#{
+            blog2.id
+          }>same la</a> is awesome, the <a href=#{@site_host}/blog/#{blog3.id}></a> is awesome too.),
+          # second paragraph
+          ~s(the paragraph 2 <a href=#{@site_host}/blog/#{blog2.id} class=#{blog2.title}> again</a>, the paragraph 2 <a href=#{
+            @site_host
+          }/blog/#{blog4.id}> again</a>, the paragraph 2 <a href=#{@site_host}/blog/#{blog5.id}> again</a>)
+        )
+
+      {:ok, comment} = CMS.create_comment(:blog, blog.id, comment_body, user)
+      CiteTasks.handle(comment)
+
+      comment_body = mock_rich_text(~s(the <a href=#{@site_host}/blog/#{blog3.id} />))
+      {:ok, comment} = CMS.create_comment(:blog, blog.id, comment_body, user)
+
+      CiteTasks.handle(comment)
+
+      {:ok, blog2} = ORM.find(Blog, blog2.id)
+      {:ok, blog3} = ORM.find(Blog, blog3.id)
+      {:ok, blog4} = ORM.find(Blog, blog4.id)
+      {:ok, blog5} = ORM.find(Blog, blog5.id)
+
+      assert blog2.meta.citing_count == 1
+      assert blog3.meta.citing_count == 2
+      assert blog4.meta.citing_count == 1
+      assert blog5.meta.citing_count == 1
+    end
   end
 end

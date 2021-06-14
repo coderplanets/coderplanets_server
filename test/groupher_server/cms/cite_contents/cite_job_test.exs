@@ -73,5 +73,37 @@ defmodule GroupherServer.Test.CMS.CiteContent.Job do
       {:ok, job} = ORM.find(Job, job.id)
       assert job.meta.citing_count == 0
     end
+
+    @tag :wip
+    test "can cited job inside a comment", ~m(user job job2 job3 job4 job5)a do
+      comment_body =
+        mock_rich_text(
+          ~s(the <a href=#{@site_host}/job/#{job2.id} /> and <a href=#{@site_host}/job/#{job2.id}>same la</a> is awesome, the <a href=#{
+            @site_host
+          }/job/#{job3.id}></a> is awesome too.),
+          # second paragraph
+          ~s(the paragraph 2 <a href=#{@site_host}/job/#{job2.id} class=#{job2.title}> again</a>, the paragraph 2 <a href=#{
+            @site_host
+          }/job/#{job4.id}> again</a>, the paragraph 2 <a href=#{@site_host}/job/#{job5.id}> again</a>)
+        )
+
+      {:ok, comment} = CMS.create_comment(:job, job.id, comment_body, user)
+      CiteTasks.handle(comment)
+
+      comment_body = mock_rich_text(~s(the <a href=#{@site_host}/job/#{job3.id} />))
+      {:ok, comment} = CMS.create_comment(:job, job.id, comment_body, user)
+
+      CiteTasks.handle(comment)
+
+      {:ok, job2} = ORM.find(Job, job2.id)
+      {:ok, job3} = ORM.find(Job, job3.id)
+      {:ok, job4} = ORM.find(Job, job4.id)
+      {:ok, job5} = ORM.find(Job, job5.id)
+
+      assert job2.meta.citing_count == 1
+      assert job3.meta.citing_count == 2
+      assert job4.meta.citing_count == 1
+      assert job5.meta.citing_count == 1
+    end
   end
 end

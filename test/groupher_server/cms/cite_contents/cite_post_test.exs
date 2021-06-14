@@ -29,6 +29,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
   end
 
   describe "[cite basic]" do
+    # @tag :wip
     test "cited multi post should work", ~m(user community post2 post3 post4 post5 post_attrs)a do
       body =
         mock_rich_text(
@@ -72,6 +73,38 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
 
       {:ok, post} = ORM.find(Post, post.id)
       assert post.meta.citing_count == 0
+    end
+
+    @tag :wip
+    test "can cited post inside a comment", ~m(user post post2 post3 post4 post5)a do
+      comment_body =
+        mock_rich_text(
+          ~s(the <a href=#{@site_host}/post/#{post2.id} /> and <a href=#{@site_host}/post/#{
+            post2.id
+          }>same la</a> is awesome, the <a href=#{@site_host}/post/#{post3.id}></a> is awesome too.),
+          # second paragraph
+          ~s(the paragraph 2 <a href=#{@site_host}/post/#{post2.id} class=#{post2.title}> again</a>, the paragraph 2 <a href=#{
+            @site_host
+          }/post/#{post4.id}> again</a>, the paragraph 2 <a href=#{@site_host}/post/#{post5.id}> again</a>)
+        )
+
+      {:ok, comment} = CMS.create_comment(:post, post.id, comment_body, user)
+      CiteTasks.handle(comment)
+
+      comment_body = mock_rich_text(~s(the <a href=#{@site_host}/post/#{post3.id} />))
+      {:ok, comment} = CMS.create_comment(:post, post.id, comment_body, user)
+
+      CiteTasks.handle(comment)
+
+      {:ok, post2} = ORM.find(Post, post2.id)
+      {:ok, post3} = ORM.find(Post, post3.id)
+      {:ok, post4} = ORM.find(Post, post4.id)
+      {:ok, post5} = ORM.find(Post, post5.id)
+
+      assert post2.meta.citing_count == 1
+      assert post3.meta.citing_count == 2
+      assert post4.meta.citing_count == 1
+      assert post5.meta.citing_count == 1
     end
   end
 end

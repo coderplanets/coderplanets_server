@@ -279,7 +279,7 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
       }
     }
     """
-    @tag :wip
+
     test "can pin a repo's comment", ~m(owner_conn repo user)a do
       {:ok, comment} = CMS.create_comment(:repo, repo.id, mock_comment(), user)
 
@@ -290,7 +290,6 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
       assert result["isPinned"]
     end
 
-    @tag :wip
     test "unauth user fails.", ~m(guest_conn repo user)a do
       {:ok, comment} = CMS.create_comment(:repo, repo.id, mock_comment(), user)
       variables = %{id: comment.id}
@@ -306,7 +305,7 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
       }
     }
     """
-    @tag :wip
+
     test "can undo pin a repo's comment", ~m(owner_conn repo user)a do
       {:ok, comment} = CMS.create_comment(:repo, repo.id, mock_comment(), user)
       {:ok, _} = CMS.pin_comment(comment.id)
@@ -318,7 +317,6 @@ defmodule GroupherServer.Test.Mutation.Comments.RepoComment do
       assert not result["isPinned"]
     end
 
-    @tag :wip
     test "unauth user undo fails.", ~m(guest_conn repo user)a do
       {:ok, comment} = CMS.create_comment(:repo, repo.id, mock_comment(), user)
       {:ok, _} = CMS.pin_comment(comment.id)
