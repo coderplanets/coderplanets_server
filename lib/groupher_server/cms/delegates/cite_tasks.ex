@@ -196,6 +196,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
     |> Enum.uniq()
   end
 
+  # cite article in comment
   # 在评论中引用文章
   defp shape_cited_content(
          %Comment{} = comment,
@@ -208,6 +209,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
       comment_id: comment.id,
       block_linker: [block_id],
       user_id: comment.author_id,
+      # extra fields for next-step usage
       # used for updating citing_count, avoid load again
       cited_content: cited_article,
       # for later insert all
@@ -215,6 +217,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
     }
   end
 
+  # cite comment in comment
   # 评论中引用评论
   defp shape_cited_content(
          %Comment{} = comment,
@@ -227,6 +230,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
       comment_id: comment.id,
       block_linker: [block_id],
       user_id: comment.author_id,
+      # extra fields for next-step usage
       # used for updating citing_count, avoid load again
       cited_content: cited_comment,
       # for later insert all
@@ -234,6 +238,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
     }
   end
 
+  # cite article in article
   # 文章之间相互引用
   defp shape_cited_content(article, %{type: :article, content: cited_article}, block_id) do
     {:ok, thread} = thread_of_article(article)
@@ -244,6 +249,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
       cited_by_type: cited_article.meta.thread,
       block_linker: [block_id],
       user_id: article.author.user.id,
+      # extra fields for next-step usage
       # used for updating citing_count, avoid load again
       cited_content: cited_article,
       # for later insert all
@@ -252,7 +258,8 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
     |> Map.put(info.foreign_key, article.id)
   end
 
-  # 文章里引用评论
+  # cite comment in article
+  # 文章中引用评论
   defp shape_cited_content(article, %{type: :comment, content: cited_comment}, block_id) do
     {:ok, thread} = thread_of_article(article)
     {:ok, info} = match(thread)
@@ -262,6 +269,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
       cited_by_type: "COMMENT",
       block_linker: [block_id],
       user_id: article.author.user.id,
+      # extra fields for next-step usage
       # used for updating citing_count, avoid load again
       cited_content: cited_comment,
       # for later insert all
@@ -307,12 +315,6 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
   defp is_comment_link?(url) do
     with %{query: query} <- URI.parse(url) do
       not is_nil(query) and String.starts_with?(query, "comment_id=")
-      # is_valid_query = not is_nil(query) and String.starts_with?(query, "comment_id=")
-      # comment_id = URI.decode_query(query) |> Map.get("comment_id")
-      # query_not_empty = comment_id
-
-      # URI.decode_query(query) |> String.starts_with?("comment_id=")
-      # IO.inspect(query, label: "the query")
     end
   end
 
