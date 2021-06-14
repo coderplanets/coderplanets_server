@@ -271,6 +271,64 @@ defmodule GroupherServer.Test.Mutation.Comments.PostComment do
     end
   end
 
+  describe "[article comment pin/unPin]" do
+    @query """
+    mutation($id: ID!){
+      pinComment(id: $id) {
+        id
+        isPinned
+      }
+    }
+    """
+    @tag :wip
+    test "can pin a post's comment", ~m(owner_conn post user)a do
+      {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
+
+      variables = %{id: comment.id}
+      result = owner_conn |> mutation_result(@query, variables, "pinComment")
+
+      assert result["id"] == to_string(comment.id)
+      assert result["isPinned"]
+    end
+
+    @tag :wip
+    test "unauth user fails.", ~m(guest_conn post user)a do
+      {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
+      variables = %{id: comment.id}
+
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
+    end
+
+    @query """
+    mutation($id: ID!){
+      undoPinComment(id: $id) {
+        id
+        isPinned
+      }
+    }
+    """
+    @tag :wip
+    test "can undo pin a post's comment", ~m(owner_conn post user)a do
+      {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
+      {:ok, _} = CMS.pin_comment(comment.id)
+
+      variables = %{id: comment.id}
+      result = owner_conn |> mutation_result(@query, variables, "undoPinComment")
+
+      assert result["id"] == to_string(comment.id)
+      assert not result["isPinned"]
+    end
+
+    @tag :wip
+    test "unauth user undo fails.", ~m(guest_conn post user)a do
+      {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
+      {:ok, _} = CMS.pin_comment(comment.id)
+      variables = %{id: comment.id}
+
+      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
+    end
+  end
+
   describe "[post only: article comment solution]" do
     @query """
     mutation($id: ID!) {

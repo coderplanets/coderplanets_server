@@ -76,7 +76,7 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   def delete_article(_root, %{passport_source: content}, _info), do: ORM.delete(content)
 
   # #######################
-  # content flag ..
+  # article actions
   # #######################
   def pin_article(_root, ~m(id community_id thread)a, _info) do
     CMS.pin_article(thread, id, community_id)
@@ -335,6 +335,9 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   def undo_mark_comment_solution(_root, ~m(id)a, %{context: %{cur_user: user}}) do
     CMS.undo_mark_comment_solution(id, user)
   end
+
+  def pin_comment(_root, ~m(id)a, _info), do: CMS.pin_comment(id)
+  def undo_pin_comment(_root, ~m(id)a, _info), do: CMS.undo_pin_comment(id)
 
   ############
   ############

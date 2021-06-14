@@ -21,14 +21,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.Model.User
-
-  alias CMS.Model.{
-    Comment,
-    PinnedComment,
-    CommentUpvote,
-    CommentReply,
-    Embeds
-  }
+  alias CMS.Model.{Comment, PinnedComment, CommentUpvote, CommentReply, Embeds}
 
   alias Ecto.Multi
 
@@ -38,8 +31,8 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
   @max_parent_replies_count Comment.max_parent_replies_count()
   @pinned_comment_limit Comment.pinned_comment_limit()
 
-  @spec pin_comment(Integer.t()) :: {:ok, Comment.t()}
   @doc "pin a comment"
+  @spec pin_comment(Integer.t()) :: {:ok, Comment.t()}
   def pin_comment(comment_id) do
     with {:ok, comment} <- ORM.find(Comment, comment_id),
          {:ok, full_comment} <- get_full_comment(comment.id),

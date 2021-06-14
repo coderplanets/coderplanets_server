@@ -119,7 +119,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentReplies do
       assert not exist_in?(List.last(reply_comment_list), parent_comment.replies)
     end
 
-    @tag :wip
     test "replyed user should appear in article comment participants", ~m(post user user2)a do
       {:ok, parent_comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
       {:ok, _} = CMS.reply_comment(parent_comment.id, mock_comment(), user2)

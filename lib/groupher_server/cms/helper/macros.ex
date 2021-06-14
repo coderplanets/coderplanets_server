@@ -5,17 +5,9 @@ defmodule GroupherServer.CMS.Helper.Macros do
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.{CMS, Accounts}
-  alias Accounts.Model.User
 
-  alias CMS.Model.{
-    Embeds,
-    Author,
-    Community,
-    Comment,
-    ArticleTag,
-    ArticleUpvote,
-    ArticleCollect
-  }
+  alias Accounts.Model.User
+  alias CMS.Model.{Embeds, Author, Community, Comment, ArticleTag, ArticleUpvote, ArticleCollect}
 
   @article_threads get_config(:article, :threads)
 

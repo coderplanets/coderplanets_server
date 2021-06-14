@@ -104,5 +104,27 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
       middleware(M.Authorize, :login)
       resolve(&R.CMS.undo_mark_comment_solution/3)
     end
+
+    @desc "pin a comment"
+    field :pin_comment, :comment do
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.PassportLoader, source: :comment)
+      middleware(M.Passport, claim: "owner")
+
+      resolve(&R.CMS.pin_comment/3)
+    end
+
+    @desc "undo pin a comment"
+    field :undo_pin_comment, :comment do
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.PassportLoader, source: :comment)
+      middleware(M.Passport, claim: "owner")
+
+      resolve(&R.CMS.undo_pin_comment/3)
+    end
   end
 end
