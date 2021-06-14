@@ -11,7 +11,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
     Embeds,
     Author,
     Community,
-    ArticleComment,
+    Comment,
     ArticleTag,
     ArticleUpvote,
     ArticleCollect
@@ -49,29 +49,29 @@ defmodule GroupherServer.CMS.Helper.Macros do
 
   @doc """
   for GroupherServer.CMS.[Article]
-  article_comments related fields
+  comments related fields
 
   MIGRATION:
   should do migration to DB manually:
   数据库层面的 migration 需要手动添加，参考：
 
-  TABLE: "article_comments"
+  TABLE: "comments"
   -----
   add(:[article]_id, references(:cms_[article]s, on_delete: :delete_all))
 
   TABLE: "cms_[article]s"
   -----
-  add(:article_comments_participators_count, :integer, default: 0)
-  add(:article_comments_count, :integer, default: 0)
-  add(:article_comments_participators, :map)
+  add(:comments_participants_count, :integer, default: 0)
+  add(:comments_count, :integer, default: 0)
+  add(:comments_participants, :map)
   """
-  defmacro article_comment_fields() do
+  defmacro comment_fields() do
     quote do
-      field(:article_comments_participators_count, :integer, default: 0)
-      field(:article_comments_count, :integer, default: 0)
-      has_many(:article_comments, {"articles_comments", ArticleComment})
+      field(:comments_participants_count, :integer, default: 0)
+      field(:comments_count, :integer, default: 0)
+      has_many(:comments, {"comments", Comment})
       # 评论参与者，只保留最近 5 个
-      embeds_many(:article_comments_participators, User, on_replace: :delete)
+      embeds_many(:comments_participants, User, on_replace: :delete)
     end
   end
 
@@ -128,8 +128,8 @@ defmodule GroupherServer.CMS.Helper.Macros do
       :body_html,
       :digest,
       :original_community_id,
-      :article_comments_count,
-      :article_comments_participators_count,
+      :comments_count,
+      :comments_participants_count,
       :upvotes_count,
       :collects_count,
       :mark_delete,
@@ -167,10 +167,10 @@ defmodule GroupherServer.CMS.Helper.Macros do
   add(:upvotes_count, :integer, default: 0)
   add(:collects_count, :integer, default: 0)
 
-  # for :article_comment
-  add(:article_comments_participators_count, :integer, default: 0)
-  add(:article_comments_count, :integer, default: 0)
-  add(:article_comments_participators, :map)
+  # for :comment
+  add(:comments_participants_count, :integer, default: 0)
+  add(:comments_count, :integer, default: 0)
+  add(:comments_participants, :map)
 
   # for table contains macro "article_belongs_to_fields":
   # TABLE: "abuse_reports"
@@ -204,7 +204,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
 
       upvote_and_collect_fields()
       viewer_has_fields()
-      article_comment_fields()
+      comment_fields()
 
       field(:active_at, :utc_datetime_usec)
       # TODO:

@@ -12,11 +12,11 @@ defmodule GroupherServer.CMS do
     ArticleCURD,
     ArticleCommunity,
     ArticleEmotion,
-    ArticleComment,
+    CommentCurd,
     ArticleCollect,
     ArticleUpvote,
-    ArticleCommentAction,
-    ArticleCommentEmotion,
+    CommentAction,
+    CommentEmotion,
     ArticleTag,
     CommunitySync,
     CommunityCURD,
@@ -125,38 +125,37 @@ defmodule GroupherServer.CMS do
   defdelegate undo_emotion_to_article(thread, article_id, args, user), to: ArticleEmotion
 
   # Comment CURD
-  defdelegate paged_article_comments(thread, article_id, filters, mode), to: ArticleComment
-  defdelegate paged_article_comments(thread, article_id, filters, mode, user), to: ArticleComment
+  defdelegate paged_comments(thread, article_id, filters, mode), to: CommentCurd
+  defdelegate paged_comments(thread, article_id, filters, mode, user), to: CommentCurd
 
-  defdelegate paged_folded_article_comments(thread, article_id, filters), to: ArticleComment
-  defdelegate paged_folded_article_comments(thread, article_id, filters, user), to: ArticleComment
+  defdelegate paged_folded_article_comments(thread, article_id, filters), to: CommentCurd
+  defdelegate paged_folded_article_comments(thread, article_id, filters, user), to: CommentCurd
 
-  defdelegate paged_comment_replies(comment_id, filters), to: ArticleComment
-  defdelegate paged_comment_replies(comment_id, filters, user), to: ArticleComment
+  defdelegate paged_comment_replies(comment_id, filters), to: CommentCurd
+  defdelegate paged_comment_replies(comment_id, filters, user), to: CommentCurd
 
-  defdelegate paged_article_comments_participators(thread, content_id, filters),
-    to: ArticleComment
+  defdelegate paged_comments_participants(thread, content_id, filters), to: CommentCurd
 
-  defdelegate create_article_comment(thread, article_id, args, user), to: ArticleComment
-  defdelegate update_article_comment(comment, content), to: ArticleComment
-  defdelegate delete_article_comment(comment), to: ArticleComment
-  defdelegate mark_comment_solution(comment, user), to: ArticleComment
-  defdelegate undo_mark_comment_solution(comment, user), to: ArticleComment
+  defdelegate create_comment(thread, article_id, args, user), to: CommentCurd
+  defdelegate update_comment(comment, content), to: CommentCurd
+  defdelegate delete_comment(comment), to: CommentCurd
+  defdelegate mark_comment_solution(comment, user), to: CommentCurd
+  defdelegate undo_mark_comment_solution(comment, user), to: CommentCurd
 
-  defdelegate upvote_article_comment(comment_id, user), to: ArticleCommentAction
-  defdelegate undo_upvote_article_comment(comment_id, user), to: ArticleCommentAction
-  defdelegate reply_article_comment(comment_id, args, user), to: ArticleCommentAction
-  defdelegate lock_article_comment(thread, article_id), to: ArticleCommentAction
-  defdelegate undo_lock_article_comment(thread, article_id), to: ArticleCommentAction
+  defdelegate upvote_comment(comment_id, user), to: CommentAction
+  defdelegate undo_upvote_comment(comment_id, user), to: CommentAction
+  defdelegate reply_comment(comment_id, args, user), to: CommentAction
+  defdelegate lock_article_comment(thread, article_id), to: CommentAction
+  defdelegate undo_lock_article_comment(thread, article_id), to: CommentAction
 
-  defdelegate pin_article_comment(comment_id), to: ArticleCommentAction
-  defdelegate undo_pin_article_comment(comment_id), to: ArticleCommentAction
+  defdelegate pin_comment(comment_id), to: CommentAction
+  defdelegate undo_pin_comment(comment_id), to: CommentAction
 
-  defdelegate fold_article_comment(comment_id, user), to: ArticleCommentAction
-  defdelegate unfold_article_comment(comment_id, user), to: ArticleCommentAction
+  defdelegate fold_article_comment(comment_id, user), to: CommentAction
+  defdelegate unfold_article_comment(comment_id, user), to: CommentAction
 
-  defdelegate emotion_to_comment(comment_id, args, user), to: ArticleCommentEmotion
-  defdelegate undo_emotion_to_comment(comment_id, args, user), to: ArticleCommentEmotion
+  defdelegate emotion_to_comment(comment_id, args, user), to: CommentEmotion
+  defdelegate undo_emotion_to_comment(comment_id, args, user), to: CommentEmotion
   ###################
   ###################
   ###################

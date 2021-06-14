@@ -11,7 +11,7 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.Model.{ArticleComment, Community}
+  alias CMS.Model.{Comment, Community}
 
   def call(%{errors: errors} = resolution, _) when length(errors) > 0, do: resolution
 
@@ -27,12 +27,12 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
   end
 
   @doc "load article comment"
-  def call(%{context: %{cur_user: _}, arguments: %{id: id}} = resolution, source: :article_comment) do
-    case ORM.find(ArticleComment, id, preload: :author) do
-      {:ok, article_comment} ->
+  def call(%{context: %{cur_user: _}, arguments: %{id: id}} = resolution, source: :comment) do
+    case ORM.find(Comment, id, preload: :author) do
+      {:ok, comment} ->
         resolution
-        |> assign_owner_info(:article_comment, article_comment)
-        |> assign_source(article_comment)
+        |> assign_owner_info(:comment, comment)
+        |> assign_source(comment)
 
       {:error, err_msg} ->
         resolution |> handle_absinthe_error(err_msg, ecode(:passport))
@@ -60,8 +60,7 @@ defmodule GroupherServerWeb.Middleware.PassportLoader do
   end
 
   defp assign_owner_info(%{context: %{cur_user: cur_user}} = resolution, react, article) do
-    article_author_id =
-      if react == :article_comment, do: article.author.id, else: article.author.user_id
+    article_author_id = if react == :comment, do: article.author.id, else: article.author.user_id
 
     case article_author_id == cur_user.id do
       true -> %{resolution | arguments: Map.put(resolution.arguments, :passport_is_owner, true)}

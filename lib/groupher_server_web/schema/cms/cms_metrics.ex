@@ -28,7 +28,7 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
   enum(:article_emotion, do: emotion_values())
 
   @desc "emotion options of comment"
-  enum(:article_comment_emotion, do: emotion_values(:comment))
+  enum(:comment_emotion, do: emotion_values(:comment))
 
   enum :thread do
     article_values()
@@ -107,7 +107,7 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
   end
 
   @desc "the filter mode for list comments"
-  enum :article_comments_mode do
+  enum :comments_mode do
     value(:replies)
     value(:timeline)
   end
@@ -246,7 +246,7 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
   enum :report_content_type do
     article_values()
     value(:account)
-    value(:article_comment)
+    value(:comment)
     # value(:community)
   end
 

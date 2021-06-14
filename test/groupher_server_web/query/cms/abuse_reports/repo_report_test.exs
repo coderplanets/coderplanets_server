@@ -35,7 +35,7 @@ defmodule GroupherServer.Test.Query.AbuseReports.RepoReport do
             id
             login
           }
-          articleComment {
+          comment {
             id
             bodyHtml
             author {
@@ -91,20 +91,20 @@ defmodule GroupherServer.Test.Query.AbuseReports.RepoReport do
       assert results["totalCount"] == 1
     end
 
-    test "support article_comment", ~m(guest_conn repo user)a do
-      {:ok, comment} = CMS.create_article_comment(:repo, repo.id, mock_comment(), user)
+    test "support comment", ~m(guest_conn repo user)a do
+      {:ok, comment} = CMS.create_comment(:repo, repo.id, mock_comment(), user)
       {:ok, _} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
 
-      variables = %{filter: %{content_type: "ARTICLE_COMMENT", page: 1, size: 10}}
+      variables = %{filter: %{content_type: "COMMENT", page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedAbuseReports")
 
       report = results["entries"] |> List.first()
       report_case = get_in(report, ["reportCases"])
       assert is_list(report_case)
 
-      assert get_in(report, ["articleComment", "bodyHtml"]) |> String.contains?(~s(comment</p>))
-      assert get_in(report, ["articleComment", "id"]) == to_string(comment.id)
-      assert not is_nil(get_in(report, ["articleComment", "author", "login"]))
+      assert get_in(report, ["comment", "bodyHtml"]) |> String.contains?(~s(comment</p>))
+      assert get_in(report, ["comment", "id"]) == to_string(comment.id)
+      assert not is_nil(get_in(report, ["comment", "author", "login"]))
     end
   end
 end

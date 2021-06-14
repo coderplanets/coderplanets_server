@@ -26,7 +26,7 @@ defmodule GroupherServer.Support.Factory do
   alias Delivery.Model.{Mention, SysNotification}
 
   @default_article_meta CMS.Model.Embeds.ArticleMeta.default_meta()
-  @default_emotions CMS.Model.Embeds.ArticleCommentEmotion.default_emotions()
+  @default_emotions CMS.Model.Embeds.CommentEmotion.default_emotions()
 
   # simulate editor.js fmt rich text
   def mock_rich_text(text \\ "text") do

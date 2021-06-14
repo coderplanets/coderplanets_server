@@ -16,7 +16,7 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   @default_article_meta CMS.Model.Embeds.ArticleMeta.default_meta()
 
   # TODO:
-  # @max_latest_emotion_users_count ArticleComment.max_latest_emotion_users_count()
+  # @max_latest_emotion_users_count Comment.max_latest_emotion_users_count()
   @max_latest_emotion_users_count 4
   @supported_emotions get_config(:article, :emotions)
   @supported_comment_emotions get_config(:article, :comment_emotions)

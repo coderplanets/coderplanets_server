@@ -32,7 +32,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:author, :common_user)
   end
 
-  object :common_article_comment do
+  object :common_comment do
     field(:id, :id)
     field(:body_html, :string)
     field(:upvotes_count, :integer)
@@ -56,7 +56,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     interface(:article)
 
     general_article_fields()
-    article_comments_fields()
+    comments_fields()
 
     field(:length, :integer)
     field(:link_addr, :string)
@@ -69,7 +69,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     interface(:article)
 
     general_article_fields()
-    article_comments_fields()
+    comments_fields()
 
     field(:desc, :string)
     field(:company, :string)
@@ -85,7 +85,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     interface(:article)
 
     general_article_fields()
-    article_comments_fields()
+    comments_fields()
 
     field(:length, :integer)
     field(:link_addr, :string)
@@ -97,7 +97,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     interface(:article)
 
     general_article_fields()
-    article_comments_fields()
+    comments_fields()
 
     field(:owner_name, :string)
     field(:owner_url, :string)
@@ -238,7 +238,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     timestamp_fields()
   end
 
-  object :article_comment_emotions do
+  object :comment_emotions do
     emotion_fields(:comment)
   end
 
@@ -254,7 +254,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     # field(:is_solution, :boolean)
   end
 
-  object :article_comment_reply do
+  object :comment_reply do
     field(:id, :id)
     field(:body, :string)
     field(:body_html, :string)
@@ -262,28 +262,28 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:floor, :integer)
     field(:upvotes_count, :integer)
     field(:is_article_author, :boolean)
-    field(:emotions, :article_comment_emotions)
+    field(:emotions, :comment_emotions)
     field(:meta, :article_comment_meta)
     field(:replies_count, :integer)
-    field(:reply_to, :article_comment_reply)
+    field(:reply_to, :comment_reply)
     field(:viewer_has_upvoted, :boolean)
     field(:thread, :string)
 
     timestamp_fields()
   end
 
-  object :article_comment do
+  object :comment do
     field(:id, :id)
     field(:body_html, :string)
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:is_pinned, :boolean)
     field(:floor, :integer)
     field(:upvotes_count, :integer)
-    field(:emotions, :article_comment_emotions)
+    field(:emotions, :comment_emotions)
     field(:is_article_author, :boolean)
     field(:meta, :article_comment_meta)
-    field(:reply_to, :article_comment_reply)
-    field(:replies, list_of(:article_comment_reply))
+    field(:reply_to, :comment_reply)
+    field(:replies, list_of(:comment_reply))
     field(:replies_count, :integer)
     field(:thread, :string)
     field(:article, :common_article)
@@ -307,8 +307,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   object :abuse_report do
     field(:id, :id)
     field(:article, :common_article)
-    # field(:article_comment, :article_comment, resolve: dataloader(CMS, :article_comment))
-    field(:article_comment, :common_article_comment)
+    field(:comment, :common_comment)
     field(:account, :common_user)
     field(:report_cases_count, :integer)
     field(:deal_with, :string)
@@ -330,13 +329,13 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     pagination_fields()
   end
 
-  object :paged_article_comments do
-    field(:entries, list_of(:article_comment))
+  object :paged_comments do
+    field(:entries, list_of(:comment))
     pagination_fields()
   end
 
   object :paged_comment_replies do
-    field(:entries, list_of(:article_comment_reply))
+    field(:entries, list_of(:comment_reply))
     pagination_fields()
   end
 

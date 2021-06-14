@@ -205,11 +205,11 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
     )
   end
 
-  defmacro article_comments_fields do
+  defmacro comments_fields do
     quote do
-      field(:article_comments_participators, list_of(:user))
-      field(:article_comments_participators_count, :integer)
-      field(:article_comments_count, :integer)
+      field(:comments_participants, list_of(:user))
+      field(:comments_participants_count, :integer)
+      field(:comments_count, :integer)
     end
   end
 

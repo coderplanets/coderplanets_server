@@ -10,7 +10,7 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
   import GroupherServer.CMS.Helper.Matcher
 
   alias GroupherServer.Accounts.Model.{Embeds, User}
-  alias GroupherServer.CMS.Model.ArticleComment
+  alias GroupherServer.CMS.Model.Comment
 
   alias Helper.{ORM, QueryBuilder}
 
@@ -56,7 +56,7 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
 
   def paged_published_article_comments(%User{id: user_id}, %{page: page, size: size} = filter) do
     with {:ok, user} <- ORM.find(User, user_id) do
-      ArticleComment
+      Comment
       |> join(:inner, [comment], author in assoc(comment, :author))
       |> where([comment, author], author.id == ^user.id)
       |> QueryBuilder.filter_pack(filter)
@@ -76,7 +76,7 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
       thread_atom = thread |> String.downcase() |> String.to_atom()
 
       article_preload = Keyword.new([{thread_atom, [author: :user]}])
-      query = from(comment in ArticleComment, preload: ^article_preload)
+      query = from(comment in Comment, preload: ^article_preload)
 
       query
       |> join(:inner, [comment], author in assoc(comment, :author))

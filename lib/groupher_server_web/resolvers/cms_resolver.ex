@@ -276,48 +276,48 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   # #######################
   # comemnts ..
   # #######################
-  def paged_article_comments(_root, ~m(id thread filter mode)a, %{context: %{cur_user: user}}) do
+  def paged_comments(_root, ~m(id thread filter mode)a, %{context: %{cur_user: user}}) do
     case mode do
-      :replies -> CMS.paged_article_comments(thread, id, filter, :replies, user)
-      :timeline -> CMS.paged_article_comments(thread, id, filter, :timeline, user)
+      :replies -> CMS.paged_comments(thread, id, filter, :replies, user)
+      :timeline -> CMS.paged_comments(thread, id, filter, :timeline, user)
     end
   end
 
-  def paged_article_comments(_root, ~m(id thread filter mode)a, _info) do
+  def paged_comments(_root, ~m(id thread filter mode)a, _info) do
     case mode do
-      :replies -> CMS.paged_article_comments(thread, id, filter, :replies)
-      :timeline -> CMS.paged_article_comments(thread, id, filter, :timeline)
+      :replies -> CMS.paged_comments(thread, id, filter, :replies)
+      :timeline -> CMS.paged_comments(thread, id, filter, :timeline)
     end
   end
 
-  def paged_article_comments_participators(_root, ~m(id thread filter)a, _info) do
-    CMS.paged_article_comments_participators(thread, id, filter)
+  def paged_comments_participants(_root, ~m(id thread filter)a, _info) do
+    CMS.paged_comments_participants(thread, id, filter)
   end
 
-  def create_article_comment(_root, ~m(thread id body)a, %{context: %{cur_user: user}}) do
-    CMS.create_article_comment(thread, id, body, user)
+  def create_comment(_root, ~m(thread id body)a, %{context: %{cur_user: user}}) do
+    CMS.create_comment(thread, id, body, user)
   end
 
-  def update_article_comment(_root, ~m(body passport_source)a, _info) do
+  def update_comment(_root, ~m(body passport_source)a, _info) do
     comment = passport_source
-    CMS.update_article_comment(comment, body)
+    CMS.update_comment(comment, body)
   end
 
-  def delete_article_comment(_root, ~m(passport_source)a, _info) do
+  def delete_comment(_root, ~m(passport_source)a, _info) do
     comment = passport_source
-    CMS.delete_article_comment(comment)
+    CMS.delete_comment(comment)
   end
 
-  def reply_article_comment(_root, ~m(id body)a, %{context: %{cur_user: user}}) do
-    CMS.reply_article_comment(id, body, user)
+  def reply_comment(_root, ~m(id body)a, %{context: %{cur_user: user}}) do
+    CMS.reply_comment(id, body, user)
   end
 
-  def upvote_article_comment(_root, ~m(id)a, %{context: %{cur_user: user}}) do
-    CMS.upvote_article_comment(id, user)
+  def upvote_comment(_root, ~m(id)a, %{context: %{cur_user: user}}) do
+    CMS.upvote_comment(id, user)
   end
 
-  def undo_upvote_article_comment(_root, ~m(id)a, %{context: %{cur_user: user}}) do
-    CMS.undo_upvote_article_comment(id, user)
+  def undo_upvote_comment(_root, ~m(id)a, %{context: %{cur_user: user}}) do
+    CMS.undo_upvote_comment(id, user)
   end
 
   def emotion_to_comment(_root, ~m(id emotion)a, %{context: %{cur_user: user}}) do

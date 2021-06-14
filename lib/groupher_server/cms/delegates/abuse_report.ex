@@ -13,12 +13,12 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.Model.User
-  alias CMS.Model.{AbuseReport, ArticleComment, Embeds}
+  alias CMS.Model.{AbuseReport, Comment, Embeds}
 
   alias Ecto.Multi
 
   @article_threads get_config(:article, :threads)
-  @report_threshold_for_fold ArticleComment.report_threshold_for_fold()
+  @report_threshold_for_fold Comment.report_threshold_for_fold()
 
   @export_author_keys [:id, :login, :nickname, :avatar]
   @export_article_keys [:id, :title, :digest, :upvotes_count, :views]
@@ -50,16 +50,16 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   @doc """
   list paged reports for article comemnts
   """
-  def paged_reports(%{content_type: :article_comment, content_id: content_id} = filter) do
-    with {:ok, info} <- match(:article_comment) do
+  def paged_reports(%{content_type: :comment, content_id: content_id} = filter) do
+    with {:ok, info} <- match(:comment) do
       query =
         from(r in AbuseReport,
           where: field(r, ^info.foreign_key) == ^content_id,
-          preload: [article_comment: ^@article_threads],
-          preload: [article_comment: :author]
+          preload: [comment: ^@article_threads],
+          preload: [comment: :author]
         )
 
-      do_paged_reports(query, :article_comment, filter)
+      do_paged_reports(query, :comment, filter)
     end
   end
 
@@ -86,7 +86,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
         from(r in AbuseReport,
           where: not is_nil(field(r, ^info.foreign_key)),
           preload: [^thread, :operate_user],
-          preload: [article_comment: :author]
+          preload: [comment: :author]
         )
 
       do_paged_reports(query, thread, filter)
@@ -173,13 +173,13 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
 
   @doc "report a comment"
   def report_article_comment(comment_id, reason, attr, %User{} = user) do
-    with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
+    with {:ok, comment} <- ORM.find(Comment, comment_id) do
       Multi.new()
       |> Multi.run(:create_abuse_report, fn _, _ ->
-        create_report(:article_comment, comment_id, reason, attr, user)
+        create_report(:comment, comment_id, reason, attr, user)
       end)
       |> Multi.run(:update_report_meta, fn _, _ ->
-        {:ok, info} = match(:article_comment)
+        {:ok, info} = match(:comment)
         update_report_meta(info, comment)
       end)
       |> Multi.run(:fold_comment_report_too_many, fn _, %{create_abuse_report: abuse_report} ->
@@ -193,7 +193,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   end
 
   def undo_report_article_comment(comment_id, %User{} = user) do
-    undo_report_article(:article_comment, comment_id, user)
+    undo_report_article(:comment, comment_id, user)
   end
 
   defp do_paged_reports(query, thread, filter) do
@@ -320,13 +320,13 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     )
   end
 
-  defp reports_formater(%{entries: entries} = paged_reports, :article_comment) do
+  defp reports_formater(%{entries: entries} = paged_reports, :comment) do
     paged_reports
     |> Map.put(
       :entries,
       Enum.map(entries, fn report ->
         basic_report = report |> Map.take(@export_report_keys)
-        basic_report |> Map.put(:article_comment, extract_article_comment_info(report))
+        basic_report |> Map.put(:comment, extract_article_comment_info(report))
       end)
     )
   end
@@ -357,23 +357,23 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
 
   def extract_article_comment_info(%AbuseReport{} = report) do
     keys = [:id, :upvotes_count, :body_html]
-    author = Map.take(report.article_comment.author, @export_author_keys)
+    author = Map.take(report.comment.author, @export_author_keys)
 
-    comment = Map.take(report.article_comment, keys)
+    comment = Map.take(report.comment, keys)
     comment = Map.merge(comment, %{author: author})
 
-    article = extract_article_in_comment(report.article_comment)
+    article = extract_article_in_comment(report.comment)
     Map.merge(comment, %{article: article})
   end
 
-  defp extract_article_in_comment(%ArticleComment{} = article_comment) do
+  defp extract_article_in_comment(%Comment{} = comment) do
     article_thread =
       Enum.filter(@article_threads, fn thread ->
-        not is_nil(Map.get(article_comment, :"#{thread}_id"))
+        not is_nil(Map.get(comment, :"#{thread}_id"))
       end)
       |> List.first()
 
-    article_comment
+    comment
     |> Map.get(article_thread)
     |> Map.take(@export_article_keys)
     |> Map.merge(%{thread: article_thread})

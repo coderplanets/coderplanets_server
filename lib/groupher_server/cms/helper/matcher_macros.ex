@@ -5,7 +5,7 @@ defmodule GroupherServer.CMS.Helper.MatcherMacros do
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.CMS
-  alias CMS.Model.{ArticleComment, Embeds}
+  alias CMS.Model.{Comment, Embeds}
 
   @article_threads get_config(:article, :threads)
 
@@ -61,9 +61,9 @@ defmodule GroupherServer.CMS.Helper.MatcherMacros do
   end
 
   @doc """
-  mapping basic article_comment -> thread
+  mapping basic comment -> thread
 
-  {:ok, info} <- match(:comment_article, %ArticleComment{post_id: id} = comment)
+  {:ok, info} <- match(:comment_article, %Comment{post_id: id} = comment)
   info:
   %{
     id: id,
@@ -74,10 +74,10 @@ defmodule GroupherServer.CMS.Helper.MatcherMacros do
   defmacro comment_article_matches() do
     @article_threads
     |> Enum.map(fn thread ->
-      # def match(:comment_article, %ArticleComment{post_id: id})
+      # def match(:comment_article, %Comment{post_id: id})
       quote do
         # see https://elixirforum.com/t/generate-map-pattern-matching-functions/21928/2
-        def match(:comment_article, %ArticleComment{unquote(:"#{thread}_id") => id})
+        def match(:comment_article, %Comment{unquote(:"#{thread}_id") => id})
             when not is_nil(id) do
           thread_module = unquote(thread) |> to_string |> Recase.to_pascal()
 

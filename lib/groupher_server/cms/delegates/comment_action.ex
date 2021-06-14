@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
+defmodule GroupherServer.CMS.Delegate.CommentAction do
   @moduledoc """
   CURD and operations for article comments
   """
@@ -6,11 +6,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   import Helper.Utils, only: [done: 1, strip_struct: 1, get_config: 2, ensure: 2]
   import Helper.ErrorCode
 
-  import GroupherServer.CMS.Delegate.ArticleComment,
+  import GroupherServer.CMS.Delegate.CommentCurd,
     only: [
-      add_participator_to_article: 2,
+      add_participant_to_article: 2,
       do_create_comment: 4,
-      update_article_comments_count: 2,
+      update_comments_count: 2,
       can_comment?: 2
     ]
 
@@ -23,10 +23,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   alias Accounts.Model.User
 
   alias CMS.Model.{
-    ArticleComment,
-    ArticlePinnedComment,
-    ArticleCommentUpvote,
-    ArticleCommentReply,
+    Comment,
+    PinnedComment,
+    CommentUpvote,
+    CommentReply,
     Embeds
   }
 
@@ -35,39 +35,36 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   @article_threads get_config(:article, :threads)
 
   @default_article_meta Embeds.ArticleMeta.default_meta()
-  @max_parent_replies_count ArticleComment.max_parent_replies_count()
-  @pinned_comment_limit ArticleComment.pinned_comment_limit()
+  @max_parent_replies_count Comment.max_parent_replies_count()
+  @pinned_comment_limit Comment.pinned_comment_limit()
 
-  @spec pin_article_comment(Integer.t()) :: {:ok, ArticleComment.t()}
+  @spec pin_comment(Integer.t()) :: {:ok, Comment.t()}
   @doc "pin a comment"
-  def pin_article_comment(comment_id) do
-    with {:ok, comment} <- ORM.find(ArticleComment, comment_id),
+  def pin_comment(comment_id) do
+    with {:ok, comment} <- ORM.find(Comment, comment_id),
          {:ok, full_comment} <- get_full_comment(comment.id),
          {:ok, info} <- match(full_comment.thread) do
       Multi.new()
       |> Multi.run(:checked_pined_comments_count, fn _, _ ->
         count_query =
-          from(p in ArticlePinnedComment,
+          from(p in PinnedComment,
             where: field(p, ^info.foreign_key) == ^full_comment.article.id
           )
 
         pined_comments_count = Repo.aggregate(count_query, :count)
 
         case pined_comments_count >= @pinned_comment_limit do
-          true ->
-            {:error, "only support #{@pinned_comment_limit} pinned comment for each article"}
-
-          false ->
-            {:ok, :pass}
+          true -> {:error, "max #{@pinned_comment_limit} pinned comment for each article"}
+          false -> {:ok, :pass}
         end
       end)
       |> Multi.run(:update_comment_flag, fn _, _ ->
         ORM.update(comment, %{is_pinned: true})
       end)
       |> Multi.run(:add_pined_comment, fn _, _ ->
-        ArticlePinnedComment
+        PinnedComment
         |> ORM.create(
-          %{article_comment_id: comment.id}
+          %{comment_id: comment.id}
           |> Map.put(info.foreign_key, full_comment.article.id)
         )
       end)
@@ -76,14 +73,14 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
     end
   end
 
-  def undo_pin_article_comment(comment_id) do
-    with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
+  def undo_pin_comment(comment_id) do
+    with {:ok, comment} <- ORM.find(Comment, comment_id) do
       Multi.new()
       |> Multi.run(:update_comment_flag, fn _, _ ->
         ORM.update(comment, %{is_pinned: false})
       end)
       |> Multi.run(:remove_pined_comment, fn _, _ ->
-        ORM.findby_delete(ArticlePinnedComment, %{article_comment_id: comment.id})
+        ORM.findby_delete(PinnedComment, %{comment_id: comment.id})
       end)
       |> Repo.transaction()
       |> result()
@@ -91,28 +88,28 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   end
 
   @doc "fold a comment"
-  def fold_article_comment(%ArticleComment{} = comment, %User{} = _user) do
+  def fold_article_comment(%Comment{} = comment, %User{} = _user) do
     comment |> ORM.update(%{is_folded: true})
   end
 
   @doc "fold a comment"
   def fold_article_comment(comment_id, %User{} = _user) do
-    with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
+    with {:ok, comment} <- ORM.find(Comment, comment_id) do
       comment |> ORM.update(%{is_folded: true})
     end
   end
 
   @doc "unfold a comment"
   def unfold_article_comment(comment_id, %User{} = _user) do
-    with {:ok, comment} <- ORM.find(ArticleComment, comment_id) do
+    with {:ok, comment} <- ORM.find(Comment, comment_id) do
       comment |> ORM.update(%{is_folded: false})
     end
   end
 
   @doc "reply to exsiting comment"
-  def reply_article_comment(comment_id, content, %User{} = user) do
+  def reply_comment(comment_id, body, %User{} = user) do
     with {:ok, target_comment} <-
-           ORM.find_by(ArticleComment, %{id: comment_id, is_deleted: false}),
+           ORM.find_by(Comment, %{id: comment_id, is_deleted: false}),
          replying_comment <- Repo.preload(target_comment, reply_to: :author),
          {thread, article} <- get_article(replying_comment),
          true <- can_comment?(article, user),
@@ -120,23 +117,23 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
          parent_comment <- get_parent_comment(replying_comment) do
       Multi.new()
       |> Multi.run(:create_reply_comment, fn _, _ ->
-        do_create_comment(content, info.foreign_key, article, user)
+        do_create_comment(body, info.foreign_key, article, user)
       end)
       |> Multi.run(:update_comments_count, fn _, %{create_reply_comment: replyed_comment} ->
-        update_article_comments_count(replyed_comment, :inc)
+        update_comments_count(replyed_comment, :inc)
       end)
       |> Multi.run(:create_comment_reply, fn _, %{create_reply_comment: replyed_comment} ->
-        ArticleCommentReply
-        |> ORM.create(%{article_comment_id: replyed_comment.id, reply_to_id: replying_comment.id})
+        CommentReply
+        |> ORM.create(%{comment_id: replyed_comment.id, reply_to_id: replying_comment.id})
       end)
       |> Multi.run(:inc_replies_count, fn _, _ ->
-        ORM.inc_field(ArticleComment, replying_comment, :replies_count)
+        ORM.inc_field(Comment, replying_comment, :replies_count)
       end)
       |> Multi.run(:add_replies_ifneed, fn _, %{create_reply_comment: replyed_comment} ->
         add_replies_ifneed(parent_comment, replyed_comment)
       end)
       |> Multi.run(:add_participator, fn _, _ ->
-        add_participator_to_article(article, user)
+        add_participant_to_article(article, user)
       end)
       |> Multi.run(:set_meta_flag, fn _, %{create_reply_comment: replyed_comment} ->
         update_reply_to_others_state(parent_comment, replying_comment, replyed_comment)
@@ -157,18 +154,18 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   end
 
   @doc "upvote a comment"
-  def upvote_article_comment(comment_id, %User{id: user_id}) do
-    with {:ok, comment} <- ORM.find(ArticleComment, comment_id),
+  def upvote_comment(comment_id, %User{id: user_id}) do
+    with {:ok, comment} <- ORM.find(Comment, comment_id),
          false <- comment.is_deleted do
       Multi.new()
       |> Multi.run(:create_comment_upvote, fn _, _ ->
-        ORM.create(ArticleCommentUpvote, %{article_comment_id: comment.id, user_id: user_id})
+        ORM.create(CommentUpvote, %{comment_id: comment.id, user_id: user_id})
       end)
       |> Multi.run(:add_upvoted_user, fn _, _ ->
         update_upvoted_user_list(comment, user_id, :add)
       end)
       |> Multi.run(:inc_upvotes_count, fn _, %{add_upvoted_user: comment} ->
-        count_query = from(c in ArticleCommentUpvote, where: c.article_comment_id == ^comment.id)
+        count_query = from(c in CommentUpvote, where: c.comment_id == ^comment.id)
         upvotes_count = Repo.aggregate(count_query, :count)
         ORM.update(comment, %{upvotes_count: upvotes_count})
       end)
@@ -190,13 +187,13 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   end
 
   @doc "upvote a comment"
-  def undo_upvote_article_comment(comment_id, %User{id: user_id}) do
-    with {:ok, comment} <- ORM.find(ArticleComment, comment_id),
+  def undo_upvote_comment(comment_id, %User{id: user_id}) do
+    with {:ok, comment} <- ORM.find(Comment, comment_id),
          false <- comment.is_deleted do
       Multi.new()
       |> Multi.run(:delete_comment_upvote, fn _, _ ->
-        ORM.findby_delete(ArticleCommentUpvote, %{
-          article_comment_id: comment.id,
+        ORM.findby_delete(CommentUpvote, %{
+          comment_id: comment.id,
           user_id: user_id
         })
       end)
@@ -204,7 +201,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
         update_upvoted_user_list(comment, user_id, :remove)
       end)
       |> Multi.run(:desc_upvotes_count, fn _, %{remove_upvoted_user: comment} ->
-        count_query = from(c in ArticleCommentUpvote, where: c.article_comment_id == ^comment_id)
+        count_query = from(c in CommentUpvote, where: c.comment_id == ^comment_id)
         upvotes_count = Repo.aggregate(count_query, :count)
 
         ORM.update(comment, %{upvotes_count: Enum.max([upvotes_count - 1, 0])})
@@ -248,7 +245,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
     end
   end
 
-  defp update_article_author_upvoted_info(%ArticleComment{} = comment, user_id) do
+  defp update_article_author_upvoted_info(%Comment{} = comment, user_id) do
     with {:ok, article} = get_full_comment(comment.id) do
       is_article_author_upvoted = article.author.id == user_id
       meta = comment.meta |> Map.put(:is_article_author_upvoted, is_article_author_upvoted)
@@ -257,18 +254,18 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   end
 
   # 设计盖楼只保留一个层级，回复楼中的评论都会被放到顶楼的 replies 中
-  defp get_parent_comment(%ArticleComment{reply_to_id: nil} = comment), do: comment
+  defp get_parent_comment(%Comment{reply_to_id: nil} = comment), do: comment
 
-  defp get_parent_comment(%ArticleComment{reply_to_id: reply_to_id} = comment)
+  defp get_parent_comment(%Comment{reply_to_id: reply_to_id} = comment)
        when not is_nil(reply_to_id) do
     get_parent_comment(Repo.preload(comment.reply_to, reply_to: :author))
   end
 
   # 如果 replies 没有达到 @max_parent_replies_count, 则添加
-  # "加载更多" 的逻辑使用另外的 paged 接口从 ArticleCommentReply 表中查询
+  # "加载更多" 的逻辑使用另外的 paged 接口从 CommentReply 表中查询
   defp add_replies_ifneed(
-         %ArticleComment{replies: replies} = parent_comment,
-         %ArticleComment{} = replyed_comment
+         %Comment{replies: replies} = parent_comment,
+         %Comment{} = replyed_comment
        )
        when length(replies) < @max_parent_replies_count do
     new_replies =
@@ -283,11 +280,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
   end
 
   # 如果已经有 @max_parent_replies_count 以上的回复了，直接忽略即可
-  defp add_replies_ifneed(%ArticleComment{} = parent_comment, _) do
+  defp add_replies_ifneed(%Comment{} = parent_comment, _) do
     {:ok, parent_comment}
   end
 
-  defp get_article(%ArticleComment{} = comment) do
+  defp get_article(%Comment{} = comment) do
     with article_thread <- find_comment_article_thread(comment),
          {:ok, info} <- match(article_thread),
          article_id <- Map.get(comment, info.foreign_key),
@@ -298,7 +295,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
 
   @spec get_full_comment(String.t()) :: {:ok, T.article_info()} | {:error, nil}
   defp get_full_comment(comment_id) do
-    query = from(c in ArticleComment, where: c.id == ^comment_id, preload: ^@article_threads)
+    query = from(c in Comment, where: c.id == ^comment_id, preload: ^@article_threads)
 
     with {:ok, comment} <- Repo.one(query) |> done(),
          article_thread <- find_comment_article_thread(comment) do
@@ -323,7 +320,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
     end
   end
 
-  defp find_comment_article_thread(%ArticleComment{} = comment) do
+  defp find_comment_article_thread(%Comment{} = comment) do
     @article_threads
     |> Enum.filter(&Map.get(comment, :"#{&1}_id"))
     |> List.first()
@@ -363,15 +360,15 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommentAction do
     ORM.update_meta(comment, meta)
   end
 
-  defp result({:ok, %{create_article_comment: result}}), do: {:ok, result}
+  defp result({:ok, %{create_comment: result}}), do: {:ok, result}
   defp result({:ok, %{add_reply_to: result}}), do: {:ok, result}
   defp result({:ok, %{upvote_comment_done: result}}), do: {:ok, result}
   defp result({:ok, %{fold_comment_report_too_many: result}}), do: {:ok, result}
   defp result({:ok, %{update_comment_flag: result}}), do: {:ok, result}
-  defp result({:ok, %{delete_article_comment: result}}), do: {:ok, result}
+  defp result({:ok, %{delete_comment: result}}), do: {:ok, result}
 
-  defp result({:error, :create_article_comment, result, _steps}) do
-    raise_error(:create_article_comment, result)
+  defp result({:error, :create_comment, result, _steps}) do
+    raise_error(:create_comment, result)
   end
 
   defp result({:error, :add_participator, result, _steps}) do

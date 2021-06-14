@@ -13,19 +13,19 @@ defmodule GroupherServer.CMS.Model.AbuseReport do
   alias GroupherServer.{Accounts, CMS}
 
   alias Accounts.Model.User
-  alias CMS.Model.{ArticleComment, Embeds}
+  alias CMS.Model.{Comment, Embeds}
 
   @article_threads get_config(:article, :threads)
 
-  # @required_fields ~w(article_comment_id user_id recived_user_id)a
-  @optional_fields ~w(article_comment_id account_id operate_user_id deal_with report_cases_count)a
+  # @required_fields ~w(comment_id user_id recived_user_id)a
+  @optional_fields ~w(comment_id account_id operate_user_id deal_with report_cases_count)a
   @update_fields ~w(operate_user_id deal_with report_cases_count)a
 
   @article_fields @article_threads |> Enum.map(&:"#{&1}_id")
 
   @type t :: %AbuseReport{}
   schema "abuse_reports" do
-    belongs_to(:article_comment, ArticleComment, foreign_key: :article_comment_id)
+    belongs_to(:comment, Comment, foreign_key: :comment_id)
     belongs_to(:account, User, foreign_key: :account_id)
 
     embeds_many(:report_cases, Embeds.AbuseReportCase, on_replace: :delete)

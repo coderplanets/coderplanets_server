@@ -112,7 +112,7 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
     end
 
     @desc "get paged published article comments"
-    field :paged_published_article_comments, :paged_article_comments do
+    field :paged_published_article_comments, :paged_comments do
       arg(:login, non_null(:string))
       arg(:filter, non_null(:paged_filter))
       arg(:thread, :thread, default_value: :post)
