@@ -161,4 +161,57 @@ defmodule GroupherServer.Test.CMS.CiteContent.Blog do
       assert blog5.meta.citing_count == 1
     end
   end
+
+  describe "[cite pagi]" do
+    @tag :wip
+    test "can get paged cited articles.", ~m(user community blog2 blog_attrs)a do
+      {:ok, comment} =
+        CMS.create_comment(
+          :blog,
+          blog2.id,
+          mock_comment(~s(the <a href=#{@site_host}/blog/#{blog2.id} />)),
+          user
+        )
+
+      body =
+        mock_rich_text(
+          ~s(the <a href=#{@site_host}/blog/#{blog2.id} />),
+          ~s(the <a href=#{@site_host}/blog/#{blog2.id} />)
+        )
+
+      blog_attrs = blog_attrs |> Map.merge(%{body: body})
+      {:ok, blog_x} = CMS.create_article(community, :blog, blog_attrs, user)
+
+      body = mock_rich_text(~s(the <a href=#{@site_host}/blog/#{blog2.id} />))
+      blog_attrs = blog_attrs |> Map.merge(%{body: body})
+      {:ok, blog_y} = CMS.create_article(community, :blog, blog_attrs, user)
+
+      CiteTasks.handle(blog_x)
+      CiteTasks.handle(comment)
+      CiteTasks.handle(blog_y)
+
+      {:ok, result} = CMS.paged_citing_contents(blog2.id, %{page: 1, size: 10})
+
+      entries = result.entries
+      first = entries |> List.first()
+      middle = entries |> Enum.at(1)
+      last = entries |> List.last()
+      article_map_keys = [:block_linker, :id, :thread, :title, :updated_at, :user]
+
+      assert first.id == blog_x.id
+      assert first.block_linker |> length == 2
+      assert first |> Map.keys() == article_map_keys
+
+      assert middle.comment_id == comment.id
+      assert middle.id == blog2.id
+      assert middle.title == blog2.title
+
+      assert last.id == blog_y.id
+      assert last.block_linker |> length == 1
+      assert last |> Map.keys() == article_map_keys
+
+      assert result |> is_valid_pagination?(:raw)
+      assert result.total_count == 3
+    end
+  end
 end

@@ -27,29 +27,6 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
     {:ok, ~m(user user2 community post post2 post3 post4 post5 post_attrs)a}
   end
 
-  describe "[cite pagi]" do
-    @tag :wip
-    test "--can get paged cited articles.", ~m(user community post2 post_attrs)a do
-      body =
-        mock_rich_text(
-          ~s(the <a href=#{@site_host}/post/#{post2.id} />),
-          ~s(the <a href=#{@site_host}/post/#{post2.id} />)
-        )
-
-      post_attrs = post_attrs |> Map.merge(%{body: body})
-      {:ok, post_x} = CMS.create_article(community, :post, post_attrs, user)
-
-      body = mock_rich_text(~s(the <a href=#{@site_host}/post/#{post2.id} />))
-      post_attrs = post_attrs |> Map.merge(%{body: body})
-      {:ok, post_y} = CMS.create_article(community, :post, post_attrs, user)
-
-      CiteTasks.handle(post_x)
-      CiteTasks.handle(post_y)
-
-      CMS.paged_citing_contents(post2.id, %{page: 1, size: 10})
-    end
-  end
-
   describe "[cite basic]" do
     #
     test "cited multi post should work", ~m(user community post2 post3 post4 post5 post_attrs)a do
@@ -183,6 +160,59 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       assert post3.meta.citing_count == 2
       assert post4.meta.citing_count == 1
       assert post5.meta.citing_count == 1
+    end
+  end
+
+  describe "[cite pagi]" do
+    @tag :wip
+    test "can get paged cited articles.", ~m(user community post2 post_attrs)a do
+      {:ok, comment} =
+        CMS.create_comment(
+          :post,
+          post2.id,
+          mock_comment(~s(the <a href=#{@site_host}/post/#{post2.id} />)),
+          user
+        )
+
+      body =
+        mock_rich_text(
+          ~s(the <a href=#{@site_host}/post/#{post2.id} />),
+          ~s(the <a href=#{@site_host}/post/#{post2.id} />)
+        )
+
+      post_attrs = post_attrs |> Map.merge(%{body: body})
+      {:ok, post_x} = CMS.create_article(community, :post, post_attrs, user)
+
+      body = mock_rich_text(~s(the <a href=#{@site_host}/post/#{post2.id} />))
+      post_attrs = post_attrs |> Map.merge(%{body: body})
+      {:ok, post_y} = CMS.create_article(community, :post, post_attrs, user)
+
+      CiteTasks.handle(post_x)
+      CiteTasks.handle(comment)
+      CiteTasks.handle(post_y)
+
+      {:ok, result} = CMS.paged_citing_contents(post2.id, %{page: 1, size: 10})
+
+      entries = result.entries
+      first = entries |> List.first()
+      middle = entries |> Enum.at(1)
+      last = entries |> List.last()
+      article_map_keys = [:block_linker, :id, :thread, :title, :updated_at, :user]
+
+      assert first.id == post_x.id
+      assert first.block_linker |> length == 2
+      assert first |> Map.keys() == article_map_keys
+
+      assert middle.comment_id == comment.id
+      assert middle.id == post2.id
+      assert middle.title == post2.title
+
+      assert last.id == post_y.id
+      assert last.block_linker |> length == 1
+      assert last |> Map.keys() == article_map_keys
+
+      assert result |> is_valid_pagination?(:raw)
+      assert result.total_count == 3
     end
   end
 end
