@@ -317,10 +317,26 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     timestamp_fields()
   end
 
+  object :citing do
+    field(:id, :id)
+    field(:thread, :string)
+    field(:title, :string)
+    field(:block_linker, list_of(:string))
+    field(:comment_id, :id)
+    field(:user, :common_user)
+
+    timestamp_fields()
+  end
+
   paged_article_objects()
 
   object :paged_reports do
     field(:entries, list_of(:abuse_report))
+    pagination_fields()
+  end
+
+  object :paged_citings do
+    field(:entries, list_of(:citing))
     pagination_fields()
   end
 

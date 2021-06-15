@@ -41,10 +41,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
   defp pack_pin_args(thread, article_id, community_id) do
     with {:ok, info} <- match(thread),
          {:ok, community} <- ORM.find(Community, community_id) do
-      thread_upcase = thread |> to_string |> String.upcase()
+      thread = thread |> to_string |> String.upcase()
 
       Map.put(
-        %{community_id: community.id, thread: thread_upcase},
+        %{community_id: community.id, thread: thread},
         info.foreign_key,
         article_id
       )
@@ -145,12 +145,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
 
   # check if the thread has aready enough pinned articles
   defp check_pinned_article_count(community_id, thread) do
-    thread_upcase = thread |> to_string |> String.upcase()
+    thread = thread |> to_string |> String.upcase()
 
     query =
-      from(p in PinnedArticle,
-        where: p.community_id == ^community_id and p.thread == ^thread_upcase
-      )
+      from(p in PinnedArticle, where: p.community_id == ^community_id and p.thread == ^thread)
 
     pinned_articles = query |> Repo.all()
 

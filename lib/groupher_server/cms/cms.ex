@@ -12,6 +12,7 @@ defmodule GroupherServer.CMS do
     ArticleCURD,
     ArticleCommunity,
     ArticleEmotion,
+    CitedContent,
     CommentCurd,
     ArticleCollect,
     ArticleUpvote,
@@ -95,6 +96,8 @@ defmodule GroupherServer.CMS do
   defdelegate update_active_timestamp(thread, article), to: ArticleCURD
   defdelegate sink_article(thread, id), to: ArticleCURD
   defdelegate undo_sink_article(thread, id), to: ArticleCURD
+
+  defdelegate paged_citing_contents(type, id, filter), to: CitedContent
 
   defdelegate upvote_article(thread, article_id, user), to: ArticleUpvote
   defdelegate undo_upvote_article(thread, article_id, user), to: ArticleUpvote

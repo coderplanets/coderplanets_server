@@ -73,7 +73,6 @@ defmodule GroupherServer.Test.CMS.CiteContent.Blog do
       assert blog.meta.citing_count == 0
     end
 
-    @tag :wip
     test "cited comment itself should not work", ~m(user blog)a do
       {:ok, cited_comment} = CMS.create_comment(:blog, blog.id, mock_rich_text("hello"), user)
 
@@ -91,7 +90,6 @@ defmodule GroupherServer.Test.CMS.CiteContent.Blog do
       assert cited_comment.meta.citing_count == 0
     end
 
-    @tag :wip
     test "can cite blog's comment in blog", ~m(community user blog blog2 blog_attrs)a do
       {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_rich_text("hello"), user)
 
@@ -111,7 +109,6 @@ defmodule GroupherServer.Test.CMS.CiteContent.Blog do
       assert cite_content.cited_by_type == "COMMENT"
     end
 
-    @tag :wip
     test "can cite a comment in a comment", ~m(user blog)a do
       {:ok, cited_comment} = CMS.create_comment(:blog, blog.id, mock_rich_text("hello"), user)
 
@@ -162,6 +159,63 @@ defmodule GroupherServer.Test.CMS.CiteContent.Blog do
       assert blog3.meta.citing_count == 2
       assert blog4.meta.citing_count == 1
       assert blog5.meta.citing_count == 1
+    end
+  end
+
+  describe "[cite pagi]" do
+    test "can get paged cited articles.", ~m(user community blog2 blog_attrs)a do
+      {:ok, comment} =
+        CMS.create_comment(
+          :blog,
+          blog2.id,
+          mock_comment(~s(the <a href=#{@site_host}/blog/#{blog2.id} />)),
+          user
+        )
+
+      Process.sleep(1000)
+
+      body =
+        mock_rich_text(
+          ~s(the <a href=#{@site_host}/blog/#{blog2.id} />),
+          ~s(the <a href=#{@site_host}/blog/#{blog2.id} />)
+        )
+
+      blog_attrs = blog_attrs |> Map.merge(%{body: body})
+      {:ok, blog_x} = CMS.create_article(community, :blog, blog_attrs, user)
+
+      Process.sleep(1000)
+      body = mock_rich_text(~s(the <a href=#{@site_host}/blog/#{blog2.id} />))
+      blog_attrs = blog_attrs |> Map.merge(%{body: body})
+      {:ok, blog_y} = CMS.create_article(community, :blog, blog_attrs, user)
+
+      CiteTasks.handle(blog_x)
+      CiteTasks.handle(comment)
+      CiteTasks.handle(blog_y)
+
+      {:ok, result} = CMS.paged_citing_contents("BLOG", blog2.id, %{page: 1, size: 10})
+
+      entries = result.entries
+
+      result_comment = entries |> List.first()
+      result_blog_x = entries |> Enum.at(1)
+      result_blog_y = entries |> List.last()
+
+      article_map_keys = [:block_linker, :id, :inserted_at, :thread, :title, :user]
+
+      assert result_comment.comment_id == comment.id
+      assert result_comment.id == blog2.id
+      assert result_comment.title == blog2.title
+
+      assert result_blog_x.id == blog_x.id
+      assert result_blog_x.block_linker |> length == 2
+      assert result_blog_x |> Map.keys() == article_map_keys
+
+      assert result_blog_y.id == blog_y.id
+      assert result_blog_y.block_linker |> length == 1
+      assert result_blog_y |> Map.keys() == article_map_keys
+
+      assert result |> is_valid_pagination?(:raw)
+      assert result.total_count == 3
     end
   end
 end

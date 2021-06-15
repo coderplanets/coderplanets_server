@@ -17,8 +17,8 @@ defmodule GroupherServer.Accounts.Delegate.UpvotedArticles do
   get paged upvoted articles
   """
   def paged_upvoted_articles(user_id, %{thread: thread} = filter) do
-    thread_upcase = thread |> to_string |> String.upcase()
-    where_query = dynamic([a], a.user_id == ^user_id and a.thread == ^thread_upcase)
+    thread = thread |> to_string |> String.upcase()
+    where_query = dynamic([a], a.user_id == ^user_id and a.thread == ^thread)
 
     load_upvoted_articles(where_query, filter)
   end

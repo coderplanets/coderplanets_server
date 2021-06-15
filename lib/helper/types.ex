@@ -33,7 +33,7 @@ defmodule Helper.Types do
           company: nil | String.t()
         }
 
-  @type article_thread :: :post | :job | :repo
+  @type article_thread :: :post | :job | :repo | :blog
 
   @type paged_filter :: %{
           page: Integer.t(),
@@ -182,4 +182,18 @@ defmodule Helper.Types do
   html fragment
   """
   @type html :: String.t()
+
+  @type cite_info :: %{
+          id: Integer.t(),
+          thread: article_thread,
+          title: String.t(),
+          inserted_at: String.t(),
+          block_linker: [String.t()],
+          comment_id: Integer.t() | nil,
+          user: %{
+            login: String.t(),
+            avatar: String.t(),
+            nickname: String.t()
+          }
+        }
 end

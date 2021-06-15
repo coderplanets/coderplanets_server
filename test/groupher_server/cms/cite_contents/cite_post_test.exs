@@ -28,7 +28,6 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
   end
 
   describe "[cite basic]" do
-    #
     test "cited multi post should work", ~m(user community post2 post3 post4 post5 post_attrs)a do
       body =
         mock_rich_text(
@@ -62,7 +61,6 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       assert post5.meta.citing_count == 1
     end
 
-    @tag :wip
     test "cited post itself should not work", ~m(user community post_attrs)a do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
@@ -75,7 +73,6 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       assert post.meta.citing_count == 0
     end
 
-    @tag :wip
     test "cited comment itself should not work", ~m(user post)a do
       {:ok, cited_comment} = CMS.create_comment(:post, post.id, mock_rich_text("hello"), user)
 
@@ -93,7 +90,6 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       assert cited_comment.meta.citing_count == 0
     end
 
-    @tag :wip
     test "can cite post's comment in post", ~m(community user post post2 post_attrs)a do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_rich_text("hello"), user)
 
@@ -113,7 +109,6 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       assert cite_content.cited_by_type == "COMMENT"
     end
 
-    @tag :wip
     test "can cite a comment in a comment", ~m(user post)a do
       {:ok, cited_comment} = CMS.create_comment(:post, post.id, mock_rich_text("hello"), user)
 
@@ -164,6 +159,63 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       assert post3.meta.citing_count == 2
       assert post4.meta.citing_count == 1
       assert post5.meta.citing_count == 1
+    end
+  end
+
+  describe "[cite pagi]" do
+    test "can get paged cited articles.", ~m(user community post2 post_attrs)a do
+      {:ok, comment} =
+        CMS.create_comment(
+          :post,
+          post2.id,
+          mock_comment(~s(the <a href=#{@site_host}/post/#{post2.id} />)),
+          user
+        )
+
+      Process.sleep(1000)
+
+      body =
+        mock_rich_text(
+          ~s(the <a href=#{@site_host}/post/#{post2.id} />),
+          ~s(the <a href=#{@site_host}/post/#{post2.id} />)
+        )
+
+      post_attrs = post_attrs |> Map.merge(%{body: body})
+      {:ok, post_x} = CMS.create_article(community, :post, post_attrs, user)
+
+      Process.sleep(1000)
+      body = mock_rich_text(~s(the <a href=#{@site_host}/post/#{post2.id} />))
+      post_attrs = post_attrs |> Map.merge(%{body: body})
+      {:ok, post_y} = CMS.create_article(community, :post, post_attrs, user)
+
+      CiteTasks.handle(post_x)
+      CiteTasks.handle(comment)
+      CiteTasks.handle(post_y)
+
+      {:ok, result} = CMS.paged_citing_contents("POST", post2.id, %{page: 1, size: 10})
+
+      entries = result.entries
+
+      result_comment = entries |> List.first()
+      result_post_x = entries |> Enum.at(1)
+      result_post_y = entries |> List.last()
+
+      article_map_keys = [:block_linker, :id, :inserted_at, :thread, :title, :user]
+
+      assert result_comment.comment_id == comment.id
+      assert result_comment.id == post2.id
+      assert result_comment.title == post2.title
+
+      assert result_post_x.id == post_x.id
+      assert result_post_x.block_linker |> length == 2
+      assert result_post_x |> Map.keys() == article_map_keys
+
+      assert result_post_y.id == post_y.id
+      assert result_post_y.block_linker |> length == 1
+      assert result_post_y |> Map.keys() == article_map_keys
+
+      assert result |> is_valid_pagination?(:raw)
+      assert result.total_count == 3
     end
   end
 end

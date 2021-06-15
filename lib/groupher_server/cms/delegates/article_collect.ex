@@ -46,8 +46,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCollect do
         update_article_reaction_user_list(:collect, article, user_id, :add)
       end)
       |> Multi.run(:create_collect, fn _, _ ->
-        thread_upcase = thread |> to_string |> String.upcase()
-        args = Map.put(%{user_id: user_id, thread: thread_upcase}, info.foreign_key, article.id)
+        thread = thread |> to_string |> String.upcase()
+        args = Map.put(%{user_id: user_id, thread: thread}, info.foreign_key, article.id)
 
         ORM.create(ArticleCollect, args)
       end)
@@ -131,8 +131,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCollect do
 
   defp collection_findby_args(thread, article_id, user_id) do
     with {:ok, info} <- match(thread) do
-      thread_upcase = thread |> to_string |> String.upcase()
-      %{thread: thread_upcase, user_id: user_id} |> Map.put(info.foreign_key, article_id)
+      thread = thread |> to_string |> String.upcase()
+      %{thread: thread, user_id: user_id} |> Map.put(info.foreign_key, article_id)
     end
   end
 
