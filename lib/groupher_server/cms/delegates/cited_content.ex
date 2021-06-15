@@ -9,7 +9,7 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
 
   alias Helper.Types, as: T
   alias GroupherServer.{CMS, Repo}
-  alias Helper.ORM
+  alias Helper.{ORM, QueryBuilder}
 
   alias CMS.Model.CitedContent
 
@@ -21,9 +21,10 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
   @cited_preloads @article_preloads ++ [[comment: :author] ++ @comment_article_preloads]
 
   @doc "get paged citing contents"
-  def paged_citing_contents(cited_by_id, %{page: page, size: size}) do
+  def paged_citing_contents(cited_by_type, cited_by_id, %{page: page, size: size} = filter) do
     CitedContent
-    |> where([c], c.cited_by_id == ^cited_by_id)
+    |> where([c], c.cited_by_id == ^cited_by_id and c.cited_by_type == ^cited_by_type)
+    |> QueryBuilder.filter_pack(Map.merge(filter, %{sort: :asc_inserted}))
     |> ORM.paginater(~m(page size)a)
     |> extract_contents
     |> done
@@ -40,7 +41,12 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
   # shape comment cite
   @spec shape_article(CitedContent.t()) :: T.cite_info()
   defp shape_article(%CitedContent{comment_id: comment_id} = cited) when not is_nil(comment_id) do
-    %{block_linker: block_linker, cited_by_type: cited_by_type, comment: comment} = cited
+    %{
+      block_linker: block_linker,
+      cited_by_type: cited_by_type,
+      comment: comment,
+      inserted_at: inserted_at
+    } = cited
 
     comment_thread = comment.thread |> String.downcase() |> String.to_atom()
     article = comment |> Map.get(comment_thread)
@@ -49,7 +55,7 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
     article
     |> Map.take([:id, :title])
     |> Map.merge(%{
-      updated_at: comment.updated_at,
+      inserted_at: inserted_at,
       user: user,
       thread: thread_to_atom(cited_by_type),
       comment_id: comment.id,
@@ -59,7 +65,7 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
 
   # shape general article cite
   defp shape_article(%CitedContent{} = cited) do
-    %{block_linker: block_linker, cited_by_type: cited_by_type} = cited
+    %{block_linker: block_linker, cited_by_type: cited_by_type, inserted_at: inserted_at} = cited
 
     thread = thread_to_atom(cited_by_type)
     article = Map.get(cited, thread)
@@ -67,7 +73,12 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
     user = get_in(article, [:author, :user]) |> Map.take([:login, :nickname, :avatar])
 
     article
-    |> Map.take([:id, :title, :updated_at])
-    |> Map.merge(%{user: user, thread: thread, block_linker: block_linker})
+    |> Map.take([:id, :title])
+    |> Map.merge(%{
+      user: user,
+      thread: thread,
+      block_linker: block_linker,
+      inserted_at: inserted_at
+    })
   end
 end

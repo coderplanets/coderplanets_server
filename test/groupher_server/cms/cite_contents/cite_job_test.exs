@@ -161,4 +161,61 @@ defmodule GroupherServer.Test.CMS.CiteContent.Job do
       assert job5.meta.citing_count == 1
     end
   end
+
+  describe "[cite pagi]" do
+    @tag :wip
+    test "can get paged cited articles.", ~m(user community job2 job_attrs)a do
+      {:ok, comment} =
+        CMS.create_comment(
+          :job,
+          job2.id,
+          mock_comment(~s(the <a href=#{@site_host}/job/#{job2.id} />)),
+          user
+        )
+
+      Process.sleep(1000)
+
+      body =
+        mock_rich_text(
+          ~s(the <a href=#{@site_host}/job/#{job2.id} />),
+          ~s(the <a href=#{@site_host}/job/#{job2.id} />)
+        )
+
+      job_attrs = job_attrs |> Map.merge(%{body: body})
+      {:ok, job_x} = CMS.create_article(community, :job, job_attrs, user)
+      Process.sleep(1000)
+      body = mock_rich_text(~s(the <a href=#{@site_host}/job/#{job2.id} />))
+      job_attrs = job_attrs |> Map.merge(%{body: body})
+      {:ok, job_y} = CMS.create_article(community, :job, job_attrs, user)
+
+      CiteTasks.handle(job_x)
+      CiteTasks.handle(comment)
+      CiteTasks.handle(job_y)
+
+      {:ok, result} = CMS.paged_citing_contents("JOB", job2.id, %{page: 1, size: 10})
+
+      entries = result.entries
+
+      result_comment = entries |> List.first()
+      result_job_x = entries |> Enum.at(1)
+      result_job_y = entries |> List.last()
+
+      article_map_keys = [:block_linker, :id, :inserted_at, :thread, :title, :user]
+
+      assert result_comment.comment_id == comment.id
+      assert result_comment.id == job2.id
+      assert result_comment.title == job2.title
+
+      assert result_job_x.id == job_x.id
+      assert result_job_x.block_linker |> length == 2
+      assert result_job_x |> Map.keys() == article_map_keys
+
+      assert result_job_y.id == job_y.id
+      assert result_job_y.block_linker |> length == 1
+      assert result_job_y |> Map.keys() == article_map_keys
+
+      assert result |> is_valid_pagination?(:raw)
+      assert result.total_count == 3
+    end
+  end
 end

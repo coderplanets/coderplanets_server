@@ -187,7 +187,7 @@ defmodule Helper.Types do
           id: Integer.t(),
           thread: article_thread,
           title: String.t(),
-          updated_at: String.t(),
+          inserted_at: String.t(),
           block_linker: [String.t()],
           comment_id: Integer.t() | nil,
           user: %{

@@ -174,6 +174,8 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
           user
         )
 
+      Process.sleep(1000)
+
       body =
         mock_rich_text(
           ~s(the <a href=#{@site_host}/post/#{post2.id} />),
@@ -183,6 +185,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       post_attrs = post_attrs |> Map.merge(%{body: body})
       {:ok, post_x} = CMS.create_article(community, :post, post_attrs, user)
 
+      Process.sleep(1000)
       body = mock_rich_text(~s(the <a href=#{@site_host}/post/#{post2.id} />))
       post_attrs = post_attrs |> Map.merge(%{body: body})
       {:ok, post_y} = CMS.create_article(community, :post, post_attrs, user)
@@ -191,25 +194,27 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       CiteTasks.handle(comment)
       CiteTasks.handle(post_y)
 
-      {:ok, result} = CMS.paged_citing_contents(post2.id, %{page: 1, size: 10})
+      {:ok, result} = CMS.paged_citing_contents("POST", post2.id, %{page: 1, size: 10})
 
       entries = result.entries
-      first = entries |> List.first()
-      middle = entries |> Enum.at(1)
-      last = entries |> List.last()
-      article_map_keys = [:block_linker, :id, :thread, :title, :updated_at, :user]
 
-      assert first.id == post_x.id
-      assert first.block_linker |> length == 2
-      assert first |> Map.keys() == article_map_keys
+      result_comment = entries |> List.first()
+      result_post_x = entries |> Enum.at(1)
+      result_post_y = entries |> List.last()
 
-      assert middle.comment_id == comment.id
-      assert middle.id == post2.id
-      assert middle.title == post2.title
+      article_map_keys = [:block_linker, :id, :inserted_at, :thread, :title, :user]
 
-      assert last.id == post_y.id
-      assert last.block_linker |> length == 1
-      assert last |> Map.keys() == article_map_keys
+      assert result_comment.comment_id == comment.id
+      assert result_comment.id == post2.id
+      assert result_comment.title == post2.title
+
+      assert result_post_x.id == post_x.id
+      assert result_post_x.block_linker |> length == 2
+      assert result_post_x |> Map.keys() == article_map_keys
+
+      assert result_post_y.id == post_y.id
+      assert result_post_y.block_linker |> length == 1
+      assert result_post_y |> Map.keys() == article_map_keys
 
       assert result |> is_valid_pagination?(:raw)
       assert result.total_count == 3
