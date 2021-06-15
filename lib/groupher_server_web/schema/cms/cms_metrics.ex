@@ -41,6 +41,11 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
     value(:share)
   end
 
+  enum :content do
+    article_values()
+    value(:comment)
+  end
+
   enum :when_enum do
     value(:today)
     value(:this_week)

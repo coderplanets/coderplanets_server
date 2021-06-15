@@ -43,8 +43,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleUpvote do
         Accounts.achieve(%User{id: achiever_id}, :inc, :upvote)
       end)
       |> Multi.run(:create_upvote, fn _, _ ->
-        thread_upcase = thread |> to_string |> String.upcase()
-        args = Map.put(%{user_id: user_id, thread: thread_upcase}, info.foreign_key, article.id)
+        thread = thread |> to_string |> String.upcase()
+        args = Map.put(%{user_id: user_id, thread: thread}, info.foreign_key, article.id)
 
         with {:ok, _} <- ORM.create(ArticleUpvote, args) do
           ORM.find(info.model, article.id)

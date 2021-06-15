@@ -22,6 +22,8 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
 
   @doc "get paged citing contents"
   def paged_citing_contents(cited_by_type, cited_by_id, %{page: page, size: size} = filter) do
+    cited_by_type = cited_by_type |> to_string |> String.upcase()
+
     CitedContent
     |> where([c], c.cited_by_id == ^cited_by_id and c.cited_by_type == ^cited_by_type)
     |> QueryBuilder.filter_pack(Map.merge(filter, %{sort: :asc_inserted}))

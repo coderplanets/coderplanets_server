@@ -102,6 +102,10 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.undo_report_article(thread, id, user)
   end
 
+  def paged_citing_contents(_root, ~m(content id filter)a, _info) do
+    CMS.paged_citing_contents(content, id, filter)
+  end
+
   # #######################
   # thread reaction ..
   # #######################

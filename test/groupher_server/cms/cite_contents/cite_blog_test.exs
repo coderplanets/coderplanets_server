@@ -163,7 +163,6 @@ defmodule GroupherServer.Test.CMS.CiteContent.Blog do
   end
 
   describe "[cite pagi]" do
-    @tag :wip
     test "can get paged cited articles.", ~m(user community blog2 blog_attrs)a do
       {:ok, comment} =
         CMS.create_comment(

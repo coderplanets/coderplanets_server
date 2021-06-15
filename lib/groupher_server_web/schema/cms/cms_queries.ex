@@ -124,6 +124,15 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.paged_reports/3)
     end
 
+    @desc "paged citings list"
+    field :paged_citing_contents, :paged_citings do
+      arg(:id, non_null(:id))
+      arg(:content, :content, default_value: :post)
+      arg(:filter, :paged_filter)
+
+      resolve(&R.CMS.paged_citing_contents/3)
+    end
+
     @desc "search communities by title"
     field :search_communities, :paged_communities do
       arg(:title, non_null(:string))

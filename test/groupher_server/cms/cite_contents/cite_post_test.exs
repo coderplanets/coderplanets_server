@@ -28,7 +28,6 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
   end
 
   describe "[cite basic]" do
-    #
     test "cited multi post should work", ~m(user community post2 post3 post4 post5 post_attrs)a do
       body =
         mock_rich_text(
@@ -164,7 +163,6 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
   end
 
   describe "[cite pagi]" do
-    @tag :wip
     test "can get paged cited articles.", ~m(user community post2 post_attrs)a do
       {:ok, comment} =
         CMS.create_comment(
