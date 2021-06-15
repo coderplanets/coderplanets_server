@@ -27,6 +27,29 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
     {:ok, ~m(user user2 community post post2 post3 post4 post5 post_attrs)a}
   end
 
+  describe "[cite pagi]" do
+    @tag :wip
+    test "--can get paged cited articles.", ~m(user community post2 post_attrs)a do
+      body =
+        mock_rich_text(
+          ~s(the <a href=#{@site_host}/post/#{post2.id} />),
+          ~s(the <a href=#{@site_host}/post/#{post2.id} />)
+        )
+
+      post_attrs = post_attrs |> Map.merge(%{body: body})
+      {:ok, post_x} = CMS.create_article(community, :post, post_attrs, user)
+
+      body = mock_rich_text(~s(the <a href=#{@site_host}/post/#{post2.id} />))
+      post_attrs = post_attrs |> Map.merge(%{body: body})
+      {:ok, post_y} = CMS.create_article(community, :post, post_attrs, user)
+
+      CiteTasks.handle(post_x)
+      CiteTasks.handle(post_y)
+
+      CMS.paged_citing_contents(post2.id, %{page: 1, size: 10})
+    end
+  end
+
   describe "[cite basic]" do
     #
     test "cited multi post should work", ~m(user community post2 post3 post4 post5 post_attrs)a do
@@ -62,7 +85,6 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       assert post5.meta.citing_count == 1
     end
 
-    @tag :wip
     test "cited post itself should not work", ~m(user community post_attrs)a do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
@@ -75,7 +97,6 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       assert post.meta.citing_count == 0
     end
 
-    @tag :wip
     test "cited comment itself should not work", ~m(user post)a do
       {:ok, cited_comment} = CMS.create_comment(:post, post.id, mock_rich_text("hello"), user)
 
@@ -93,7 +114,6 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       assert cited_comment.meta.citing_count == 0
     end
 
-    @tag :wip
     test "can cite post's comment in post", ~m(community user post post2 post_attrs)a do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_rich_text("hello"), user)
 
@@ -113,7 +133,6 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       assert cite_content.cited_by_type == "COMMENT"
     end
 
-    @tag :wip
     test "can cite a comment in a comment", ~m(user post)a do
       {:ok, cited_comment} = CMS.create_comment(:post, post.id, mock_rich_text("hello"), user)
 
