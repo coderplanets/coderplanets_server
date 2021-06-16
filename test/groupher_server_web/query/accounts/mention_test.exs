@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Query.Accounts.Mention do
+defmodule GroupherServer.Test.Query.Accounts.OldMention do
   use GroupherServer.TestTools
 
   # alias GroupherServer.Accounts

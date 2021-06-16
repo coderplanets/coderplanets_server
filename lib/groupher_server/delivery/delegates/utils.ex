@@ -10,14 +10,14 @@ defmodule GroupherServer.Delivery.Delegate.Utils do
   alias GroupherServer.{Accounts, Delivery, Repo}
 
   alias Accounts.Model.User
-  alias Delivery.Model.{Notification, SysNotification, Mention, Record}
+  alias Delivery.Model.{OldNotification, SysNotification, OldMention, Record}
 
   alias Helper.ORM
 
   def mailbox_status(%User{} = user) do
     filter = %{page: 1, size: 1, read: false}
-    {:ok, mention_mail} = fetch_mails(user, Mention, filter)
-    {:ok, notification_mail} = fetch_mails(user, Notification, filter)
+    {:ok, mention_mail} = fetch_mails(user, OldMention, filter)
+    {:ok, notification_mail} = fetch_mails(user, OldNotification, filter)
 
     mention_count = mention_mail.total_count
     notification_count = notification_mail.total_count
@@ -31,8 +31,8 @@ defmodule GroupherServer.Delivery.Delegate.Utils do
 
   def fetch_record(%User{id: user_id}), do: Record |> ORM.find_by(user_id: user_id)
 
-  def mark_read_all(%User{} = user, :mention), do: Mention |> do_mark_read_all(user)
-  def mark_read_all(%User{} = user, :notification), do: Notification |> do_mark_read_all(user)
+  def mark_read_all(%User{} = user, :mention), do: OldMention |> do_mark_read_all(user)
+  def mark_read_all(%User{} = user, :notification), do: OldNotification |> do_mark_read_all(user)
 
   @doc """
   fetch mentions / notifications
@@ -89,15 +89,15 @@ defmodule GroupherServer.Delivery.Delegate.Utils do
     mails
   end
 
-  defp record_operation(Mention, _read, {:ok, %{entries: []}}), do: {:ok, ""}
-  defp record_operation(Notification, _read, {:ok, %{entries: []}}), do: {:ok, ""}
+  defp record_operation(OldMention, _read, {:ok, %{entries: []}}), do: {:ok, ""}
+  defp record_operation(OldNotification, _read, {:ok, %{entries: []}}), do: {:ok, ""}
   defp record_operation(_, SysNotification, {:ok, %{entries: []}}), do: {:ok, ""}
 
-  defp record_operation(Mention, read, {:ok, %{entries: entries}}) do
+  defp record_operation(OldMention, read, {:ok, %{entries: entries}}) do
     do_record_operation(:mentions_record, read, {:ok, %{entries: entries}})
   end
 
-  defp record_operation(Notification, read, {:ok, %{entries: entries}}) do
+  defp record_operation(OldNotification, read, {:ok, %{entries: entries}}) do
     do_record_operation(:notifications_record, read, {:ok, %{entries: entries}})
   end
 
@@ -145,12 +145,12 @@ defmodule GroupherServer.Delivery.Delegate.Utils do
     Record |> ORM.upsert_by([user_id: user_id], attrs)
   end
 
-  defp get_last_fetch_time(Mention, read, user) do
+  defp get_last_fetch_time(OldMention, read, user) do
     timekey = get_record_lasttime_key(read)
     do_get_last_fetch_time(:mentions_record, user, timekey)
   end
 
-  defp get_last_fetch_time(Notification, read, user) do
+  defp get_last_fetch_time(OldNotification, read, user) do
     timekey = get_record_lasttime_key(read)
     do_get_last_fetch_time(:notifications_record, user, timekey)
   end

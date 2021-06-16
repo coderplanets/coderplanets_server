@@ -7,7 +7,7 @@ defmodule GroupherServer.Delivery.Delegate.Mentions do
   alias GroupherServer.{Accounts, Delivery, Repo}
 
   alias Accounts.Model.User
-  alias Delivery.Model.Mention
+  alias Delivery.Model.OldMention
   alias Delivery.Delegate.Utils
 
   # TODO: move mention logic to create contents
@@ -51,11 +51,22 @@ defmodule GroupherServer.Delivery.Delegate.Mentions do
         acc ++ [attrs]
       end)
 
-    Repo.insert_all(Mention, records)
+    Repo.insert_all(OldMention, records)
 
     {:ok, %{done: true}}
     # |> done(:status)
   end
+
+  """
+  title:
+  thread:
+  id
+  block_linker
+  comment_id
+  """
+
+  # def mention_from_article()
+  # deff mention_from_comment()
 
   def mention_from_content(community, :post, content, args, %User{} = from_user) do
     to_user_ids = Map.get(args, :mention_users)
@@ -133,6 +144,6 @@ defmodule GroupherServer.Delivery.Delegate.Mentions do
   fetch mentions from Delivery stop
   """
   def fetch_mentions(%User{} = user, %{page: _, size: _, read: _} = filter) do
-    Utils.fetch_messages(user, Mention, filter)
+    Utils.fetch_messages(user, OldMention, filter)
   end
 end

@@ -23,7 +23,7 @@ defmodule GroupherServer.Support.Factory do
     Comment
   }
 
-  alias Delivery.Model.{Mention, SysNotification}
+  alias Delivery.Model.{OldMention, SysNotification}
 
   @default_article_meta CMS.Model.Embeds.ArticleMeta.default_meta()
   @default_emotions CMS.Model.Embeds.CommentEmotion.default_emotions()
@@ -383,7 +383,7 @@ defmodule GroupherServer.Support.Factory do
   defp mock(:wiki), do: CommunityWiki |> struct(mock_meta(:wiki))
   defp mock(:cheatsheet), do: CommunityCheatsheet |> struct(mock_meta(:cheatsheet))
   defp mock(:comment), do: Comment |> struct(mock_meta(:comment))
-  defp mock(:mention), do: Mention |> struct(mock_meta(:mention))
+  defp mock(:mention), do: OldMention |> struct(mock_meta(:mention))
   defp mock(:author), do: Author |> struct(mock_meta(:author))
   defp mock(:category), do: Category |> struct(mock_meta(:category))
   defp mock(:article_tag), do: ArticleTag |> struct(mock_meta(:article_tag))

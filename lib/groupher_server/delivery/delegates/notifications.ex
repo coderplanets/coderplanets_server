@@ -7,7 +7,7 @@ defmodule GroupherServer.Delivery.Delegate.Notifications do
   alias GroupherServer.{Accounts, Delivery}
 
   alias Accounts.Model.User
-  alias Delivery.Model.{Notification, SysNotification}
+  alias Delivery.Model.{OldNotification, SysNotification}
   alias Delivery.Delegate.Utils
   alias Helper.ORM
 
@@ -34,14 +34,14 @@ defmodule GroupherServer.Delivery.Delegate.Notifications do
       source_preview: info.source_preview
     }
 
-    Notification |> ORM.create(attrs)
+    OldNotification |> ORM.create(attrs)
   end
 
   @doc """
   fetch notifications from Delivery
   """
   def fetch_notifications(%User{} = user, %{page: _, size: _, read: _} = filter) do
-    Utils.fetch_messages(user, Notification, filter)
+    Utils.fetch_messages(user, OldNotification, filter)
   end
 
   def fetch_sys_notifications(%User{} = user, %{page: _, size: _} = filter) do

@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Delivery.Notification do
+defmodule GroupherServer.Test.Delivery.OldNotification do
   use GroupherServer.TestTools
 
   import Ecto.Query, warn: false
@@ -8,7 +8,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
   alias GroupherServer.{Accounts, Delivery}
 
   alias Accounts.Model.NotificationMail
-  alias Delivery.Model.Notification
+  alias Delivery.Model.OldNotification
 
   describe "[delivery notification]" do
     test "user can notify other user" do
@@ -64,7 +64,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
       {:ok, _mentions} = Accounts.fetch_notifications(user, filter)
 
       {:ok, notifications} =
-        Notification
+        OldNotification
         |> where([m], m.to_user_id == ^user.id)
         |> ORM.paginater(page: 1, size: 10)
         |> done()

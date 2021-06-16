@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Delivery.Mention do
+defmodule GroupherServer.Test.Delivery.OldMention do
   use GroupherServer.TestTools
 
   import Ecto.Query, warn: false
@@ -8,7 +8,7 @@ defmodule GroupherServer.Test.Delivery.Mention do
   alias GroupherServer.{Accounts, Delivery}
 
   alias Accounts.Model.MentionMail
-  alias Delivery.Model.Mention
+  alias Delivery.Model.OldMention
 
   describe "mentions" do
     test "user can mention other user" do
@@ -65,7 +65,7 @@ defmodule GroupherServer.Test.Delivery.Mention do
       {:ok, _mentions} = Accounts.fetch_mentions(user, filter)
 
       {:ok, mentions} =
-        Mention
+        OldMention
         |> where([m], m.to_user_id == ^user.id)
         |> ORM.paginater(page: 1, size: 10)
         |> done()
