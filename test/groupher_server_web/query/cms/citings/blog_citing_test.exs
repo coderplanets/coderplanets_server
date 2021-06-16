@@ -44,7 +44,7 @@ defmodule GroupherServer.Test.Query.AbuseReports.BlogCiting do
       }
     }
     """
-    @tag :wip
+
     test "should get paged cittings", ~m(guest_conn community blog_attrs user)a do
       {:ok, blog2} = db_insert(:blog)
 

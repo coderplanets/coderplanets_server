@@ -38,20 +38,14 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
     Map.put(paged_contents, :entries, entries)
   end
 
-  defp thread_to_atom(thread), do: thread |> String.downcase() |> String.to_atom()
-
   # shape comment cite
   @spec shape_article(CitedContent.t()) :: T.cite_info()
   defp shape_article(%CitedContent{comment_id: comment_id} = cited) when not is_nil(comment_id) do
-    %{
-      block_linker: block_linker,
-      cited_by_type: cited_by_type,
-      comment: comment,
-      inserted_at: inserted_at
-    } = cited
+    %{block_linker: block_linker, comment: comment, inserted_at: inserted_at} = cited
 
     comment_thread = comment.thread |> String.downcase() |> String.to_atom()
     article = comment |> Map.get(comment_thread)
+    article_thread = thread_to_atom(article.meta.thread)
     user = comment.author |> Map.take([:login, :nickname, :avatar])
 
     article
@@ -59,7 +53,7 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
     |> Map.merge(%{
       inserted_at: inserted_at,
       user: user,
-      thread: thread_to_atom(cited_by_type),
+      thread: article_thread,
       comment_id: comment.id,
       block_linker: block_linker
     })
@@ -67,9 +61,9 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
 
   # shape general article cite
   defp shape_article(%CitedContent{} = cited) do
-    %{block_linker: block_linker, cited_by_type: cited_by_type, inserted_at: inserted_at} = cited
+    %{block_linker: block_linker, inserted_at: inserted_at} = cited
 
-    thread = thread_to_atom(cited_by_type)
+    thread = citing_thread(cited)
     article = Map.get(cited, thread)
 
     user = get_in(article, [:author, :user]) |> Map.take([:login, :nickname, :avatar])
@@ -83,4 +77,12 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
       inserted_at: inserted_at
     })
   end
+
+  # find thread_id that not empty
+  # only used for shape_article
+  defp citing_thread(cited) do
+    @article_threads |> Enum.find(fn thread -> not is_nil(Map.get(cited, :"#{thread}_id")) end)
+  end
+
+  defp thread_to_atom(thread), do: thread |> String.downcase() |> String.to_atom()
 end

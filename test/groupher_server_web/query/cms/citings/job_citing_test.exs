@@ -44,7 +44,7 @@ defmodule GroupherServer.Test.Query.AbuseReports.JobCiting do
       }
     }
     """
-    @tag :wip
+
     test "should get paged cittings", ~m(guest_conn community job_attrs user)a do
       {:ok, job2} = db_insert(:job)
 
