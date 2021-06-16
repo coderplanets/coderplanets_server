@@ -220,7 +220,6 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
   end
 
   describe "[cross cite]" do
-    @tag :wip
     test "can citing multi type thread and comment in one time", ~m(user community post2)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id})
       job_attrs = mock_attrs(:job, %{community_id: community.id})

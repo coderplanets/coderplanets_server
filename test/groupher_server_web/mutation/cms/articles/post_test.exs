@@ -104,6 +104,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert user_conn |> mutation_get_error?(@create_post_query, variables)
     end
 
+    @tag :wip
     test "can create post with mentionUsers" do
       {:ok, user} = db_insert(:user)
       {:ok, user2} = db_insert(:user)
