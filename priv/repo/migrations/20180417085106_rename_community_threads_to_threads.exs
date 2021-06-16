@@ -2,7 +2,6 @@ defmodule GroupherServer.Repo.Migrations.RenameCommunityThreadsToThreads do
   use Ecto.Migration
 
   def change do
-    rename(table("mentions"), to: table("old_mentions_old"))
-    rename(table("notifications"), to: table("old_notifications"))
+    rename(table("community_threads"), to: table("threads"))
   end
 end
