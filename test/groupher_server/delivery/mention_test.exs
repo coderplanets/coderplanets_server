@@ -2,43 +2,74 @@ defmodule GroupherServer.Test.Delivery.Mention do
   use GroupherServer.TestTools
 
   import Ecto.Query, warn: false
-  import Helper.Utils
+  # import Helper.Utils
 
-  alias Helper.ORM
-  alias GroupherServer.{Accounts, Delivery}
-
-  alias Accounts.Model.MentionMail
-  alias Delivery.Model.Mention
+  alias GroupherServer.Delivery
 
   setup do
     {:ok, post} = db_insert(:post)
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
+    {:ok, user3} = db_insert(:user)
     {:ok, community} = db_insert(:community)
 
-    guest_conn = simu_conn(:guest)
-    user_conn = simu_conn(:user)
-    owner_conn = simu_conn(:owner, post)
+    mention_contents = [
+      %{
+        type: "POST",
+        title: post.title,
+        article_id: post.id,
+        comment_id: nil,
+        read: false,
+        block_linker: ["tmp"],
+        from_user_id: user.id,
+        to_user_id: user2.id,
+        inserted_at: post.updated_at |> DateTime.truncate(:second),
+        updated_at: post.updated_at |> DateTime.truncate(:second)
+      }
+    ]
 
-    {:ok, ~m(community post user user2)a}
+    {:ok, ~m(community post user user2 user3 mention_contents)a}
   end
-
-  # attrs = %{
-  #   # should also be article's thread
-  #   type: "COMMENT",
-  #   title: content.title,
-  #   article_id: content.article_id,
-  #   comment_id: content.comment_id,
-  #   read: false,
-  #   block_linker: content.block_linker,
-  #   from_user_id: user.id,
-  #   to_user_id: to_user.id
-  # }
 
   describe "mentions" do
     @tag :wip
-    test "can batch send mentions", ~m(post user user2)a do
-      contents = [
+    test "can batch send mentions", ~m(post user user2 mention_contents)a do
+      {:ok, :pass} = Delivery.batch_mention(post, mention_contents, user, user2)
+      {:ok, result} = Delivery.paged_mentions(user2, %{page: 1, size: 10})
+
+      mention = result.entries |> List.first()
+
+      assert mention.title == post.title
+      assert mention.article_id == post.id
+      assert mention.user.login == user.login
+    end
+
+    @tag :wip
+    test "mention multiable times on same article, will only have one record",
+         ~m(post user user2 mention_contents)a do
+      {:ok, :pass} = Delivery.batch_mention(post, mention_contents, user, user2)
+      {:ok, result} = Delivery.paged_mentions(user2, %{page: 1, size: 10})
+
+      assert result.total_count == 1
+
+      {:ok, :pass} = Delivery.batch_mention(post, mention_contents, user, user2)
+      {:ok, result} = Delivery.paged_mentions(user2, %{page: 1, size: 10})
+
+      assert result.total_count == 1
+    end
+
+    @tag :wip
+    test "if mention before, update with no mention content will not do mention in final",
+         ~m(post user user2 user3 mention_contents)a do
+      {:ok, :pass} = Delivery.batch_mention(post, mention_contents, user, user2)
+      {:ok, result} = Delivery.paged_mentions(user2, %{page: 1, size: 10})
+
+      assert result.total_count == 1
+
+      {:ok, result} = Delivery.paged_mentions(user3, %{page: 1, size: 10})
+      assert result.total_count == 0
+
+      mention_contents = [
         %{
           type: "POST",
           title: post.title,
@@ -47,23 +78,18 @@ defmodule GroupherServer.Test.Delivery.Mention do
           read: false,
           block_linker: ["tmp"],
           from_user_id: user.id,
-          to_user_id: user2.id,
+          to_user_id: user3.id,
           inserted_at: post.updated_at |> DateTime.truncate(:second),
           updated_at: post.updated_at |> DateTime.truncate(:second)
         }
       ]
 
-      {:ok, :pass} = Delivery.batch_mention(post, contents, user, user2)
-
+      {:ok, :pass} = Delivery.batch_mention(post, mention_contents, user, user2)
       {:ok, result} = Delivery.paged_mentions(user2, %{page: 1, size: 10})
+      assert result.total_count == 0
 
-      mention = result.entries |> List.first()
-
-      assert mention.title == post.title
-      assert mention.article_id == post.id
-      assert mention.user.login == user.login
-
-      IO.inspect(result, label: "hello --> ")
+      {:ok, result} = Delivery.paged_mentions(user3, %{page: 1, size: 10})
+      assert result.total_count == 1
     end
   end
 end
