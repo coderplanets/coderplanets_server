@@ -40,7 +40,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
 
   def handle(%{body: body} = content) do
     with {:ok, %{"blocks" => blocks}} <- Jason.decode(body),
-         content <- preload_content_author(content) do
+         content <- preload_author(content) do
       Multi.new()
       |> Multi.run(:delete_all_cited_contents, fn _, _ ->
         delete_all_cited_contents(content)
@@ -56,8 +56,8 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
     end
   end
 
-  def preload_content_author(%Comment{} = comment), do: comment
-  def preload_content_author(article), do: Repo.preload(article, author: :user)
+  def preload_author(%Comment{} = comment), do: comment
+  def preload_author(article), do: Repo.preload(article, author: :user)
 
   # delete all records before insert_all, this will dynamiclly update
   # those cited info when update article
@@ -176,7 +176,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
   defp do_parse_cited_info_per_block(content, block_id, links) do
     Enum.reduce(links, [], fn link, acc ->
       case parse_valid_cited(content.id, link) do
-        {:ok, cited} -> List.insert_at(acc, 0, shape_cited(content, cited, block_id))
+        {:ok, cited} -> List.insert_at(acc, 0, shape(content, cited, block_id))
         _ -> acc
       end
     end)
@@ -265,7 +265,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
 
   # cite article in comment
   # 在评论中引用文章
-  defp shape_cited(%Comment{} = comment, %{type: :article, content: cited}, block_id) do
+  defp shape(%Comment{} = comment, %{type: :article, content: cited}, block_id) do
     %{
       cited_by_id: cited.id,
       cited_by_type: cited.meta.thread,
@@ -282,7 +282,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
 
   # cite comment in comment
   # 评论中引用评论
-  defp shape_cited(%Comment{} = comment, %{type: :comment, content: cited}, block_id) do
+  defp shape(%Comment{} = comment, %{type: :comment, content: cited}, block_id) do
     %{
       cited_by_id: cited.id,
       cited_by_type: "COMMENT",
@@ -299,7 +299,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
 
   # cite article in article
   # 文章之间相互引用
-  defp shape_cited(article, %{type: :article, content: cited}, block_id) do
+  defp shape(article, %{type: :article, content: cited}, block_id) do
     {:ok, thread} = thread_of_article(article)
     {:ok, info} = match(thread)
 
@@ -319,7 +319,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
 
   # cite comment in article
   # 文章中引用评论
-  defp shape_cited(article, %{type: :comment, content: cited}, block_id) do
+  defp shape(article, %{type: :comment, content: cited}, block_id) do
     {:ok, thread} = thread_of_article(article)
     {:ok, info} = match(thread)
 

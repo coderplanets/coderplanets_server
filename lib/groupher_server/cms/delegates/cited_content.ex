@@ -33,14 +33,14 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
   end
 
   def extract_contents(%{entries: entries} = paged_contents) do
-    entries = entries |> Repo.preload(@cited_preloads) |> Enum.map(&shape_article(&1))
+    entries = entries |> Repo.preload(@cited_preloads) |> Enum.map(&shape(&1))
 
     Map.put(paged_contents, :entries, entries)
   end
 
   # shape comment cite
-  @spec shape_article(CitedContent.t()) :: T.cite_info()
-  defp shape_article(%CitedContent{comment_id: comment_id} = cited) when not is_nil(comment_id) do
+  @spec shape(CitedContent.t()) :: T.cite_info()
+  defp shape(%CitedContent{comment_id: comment_id} = cited) when not is_nil(comment_id) do
     %{block_linker: block_linker, comment: comment, inserted_at: inserted_at} = cited
 
     comment_thread = comment.thread |> String.downcase() |> String.to_atom()
@@ -60,7 +60,7 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
   end
 
   # shape general article cite
-  defp shape_article(%CitedContent{} = cited) do
+  defp shape(%CitedContent{} = cited) do
     %{block_linker: block_linker, inserted_at: inserted_at} = cited
 
     thread = citing_thread(cited)
@@ -79,7 +79,7 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
   end
 
   # find thread_id that not empty
-  # only used for shape_article
+  # only used for shape
   defp citing_thread(cited) do
     @article_threads |> Enum.find(fn thread -> not is_nil(Map.get(cited, :"#{thread}_id")) end)
   end

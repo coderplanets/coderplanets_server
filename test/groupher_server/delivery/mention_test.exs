@@ -55,9 +55,15 @@ defmodule GroupherServer.Test.Delivery.Mention do
 
       {:ok, :pass} = Delivery.batch_mention(post, contents, user, user2)
 
-      hello = Delivery.paged_mentions(user2, %{page: 1, size: 10})
+      {:ok, result} = Delivery.paged_mentions(user2, %{page: 1, size: 10})
 
-      IO.inspect(hello, label: "hello --> ")
+      mention = result.entries |> List.first()
+
+      assert mention.title == post.title
+      assert mention.article_id == post.id
+      assert mention.user.login == user.login
+
+      IO.inspect(result, label: "hello --> ")
     end
   end
 end

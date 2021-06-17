@@ -42,11 +42,6 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
     end)
     |> Repo.transaction()
     |> result()
-
-    # 1.
-    # delete_all Mention |> where from_user_id == user.id and comment_id == comment.id
-    # 2.
-    # insert_all shaped contents
   end
 
   def batch_mention(article, contents, %User{} = user, %User{} = to_user) do
@@ -62,12 +57,6 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
     end)
     |> Repo.transaction()
     |> result()
-  end
-
-  defp result({:ok, %{batch_insert_related_mentions: result}}), do: {:ok, result}
-
-  defp result({:error, _, result, _steps}) do
-    {:error, result}
   end
 
   defp delete_related_mentions(%Comment{} = comment, %User{} = user) do
@@ -99,13 +88,37 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
     |> where([m], m.to_user_id == ^user.id)
     |> where([m], m.read == ^read)
     |> ORM.paginater(~m(page size)a)
+    |> extract_contents
     |> done()
   end
 
-  @doc """
-  fetch mentions from Delivery stop
-  """
-  def fetch_mentions(%User{} = user, %{page: _, size: _, read: _} = filter) do
-    Utils.fetch_messages(user, OldMention, filter)
+  def extract_contents(%{entries: entries} = paged_contents) do
+    entries = entries |> Repo.preload(:from_user) |> Enum.map(&shape(&1))
+
+    Map.put(paged_contents, :entries, entries)
+  end
+
+  # who in what part, mentioned me?
+  defp shape(%Mention{} = mention) do
+    user = Map.take(mention.from_user, [:login, :nickname, :avatar])
+
+    mention
+    |> Map.take([
+      :type,
+      :article_id,
+      :comment_id,
+      :title,
+      :block_linker,
+      :inserted_at,
+      :updated_at,
+      :read
+    ])
+    |> Map.put(:user, user)
+  end
+
+  defp result({:ok, %{batch_insert_related_mentions: result}}), do: {:ok, result}
+
+  defp result({:error, _, result, _steps}) do
+    {:error, result}
   end
 end
