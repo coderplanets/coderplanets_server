@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Query.AbuseReports.BlogCiting do
+defmodule GroupherServer.Test.Query.Hooks.CiteBlog do
   @moduledoc false
 
   use GroupherServer.TestTools
@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.Query.AbuseReports.BlogCiting do
 
   alias GroupherServer.CMS
 
-  alias CMS.Delegate.CiteTask
+  alias CMS.Delegate.Hooks
 
   @site_host get_config(:general, :site_host)
 
@@ -69,9 +69,9 @@ defmodule GroupherServer.Test.Query.AbuseReports.BlogCiting do
       blog_attrs = blog_attrs |> Map.merge(%{body: body})
       {:ok, blog_y} = CMS.create_article(community, :blog, blog_attrs, user)
 
-      CiteTask.handle(blog_x)
-      CiteTask.handle(comment)
-      CiteTask.handle(blog_y)
+      Hooks.Cite.handle(blog_x)
+      Hooks.Cite.handle(comment)
+      Hooks.Cite.handle(blog_y)
 
       variables = %{content: "BLOG", id: blog2.id, filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedCitingContents")

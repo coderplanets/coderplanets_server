@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Delegate.MentionTask do
+defmodule GroupherServer.CMS.Delegate.Hooks.Mention do
   @moduledoc """
   run tasks in every article blocks if need
 
@@ -25,16 +25,11 @@ defmodule GroupherServer.CMS.Delegate.MentionTask do
 
   import Ecto.Query, warn: false
   import Helper.Utils, only: [get_config: 2, thread_of_article: 1, done: 1]
-  import GroupherServer.CMS.Helper.Matcher
-  import Helper.ErrorCode
+  import GroupherServer.CMS.Delegate.Hooks.Helper, only: [merge_same_block_linker: 2]
 
   alias GroupherServer.{Accounts, CMS, Repo}
-  alias CMS.Model.{CitedContent, Comment}
-  alias Helper.ORM
+  alias CMS.Model.Comment
 
-  alias Ecto.Multi
-
-  @site_host get_config(:general, :site_host)
   @article_threads get_config(:article, :threads)
 
   @article_mention_class "cdx-mention"
@@ -45,7 +40,7 @@ defmodule GroupherServer.CMS.Delegate.MentionTask do
       blocks
       |> Enum.reduce([], &(&2 ++ parse_cited_info_per_block(content, &1)))
       |> merge_same_block_linker(:to_user_id)
-      |> IO.inspect(label: "blocks")
+      |> done
     end
   end
 
@@ -89,7 +84,7 @@ defmodule GroupherServer.CMS.Delegate.MentionTask do
 
   defp shape(article, to_user_id, block_id) do
     %{
-      type: article.meta.thread,
+      type: thread_of_article(article),
       title: article.title,
       article_id: article.id,
       block_linker: [block_id],
@@ -97,22 +92,5 @@ defmodule GroupherServer.CMS.Delegate.MentionTask do
       from_user_id: article.author.user_id,
       to_user_id: to_user_id
     }
-  end
-
-  defp merge_same_block_linker(contents, group_key) do
-    contents
-    |> Enum.reduce([], fn content, acc ->
-      case Enum.find_index(acc, &(Map.get(&1, group_key) == Map.get(content, group_key))) do
-        nil ->
-          acc ++ [content]
-
-        index ->
-          List.update_at(
-            acc,
-            index,
-            &Map.put(&1, :block_linker, &1.block_linker ++ content.block_linker)
-          )
-      end
-    end)
   end
 end

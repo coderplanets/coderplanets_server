@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Delegate.CiteTask do
+defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
   @moduledoc """
   run tasks in every article blocks if need
 
@@ -25,6 +25,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTask do
 
   import Ecto.Query, warn: false
   import Helper.Utils, only: [get_config: 2, thread_of_article: 1, done: 1]
+  import GroupherServer.CMS.Delegate.Hooks.Helper, only: [merge_same_block_linker: 2]
   import GroupherServer.CMS.Helper.Matcher
   import Helper.ErrorCode
 
@@ -48,7 +49,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTask do
       |> Multi.run(:update_cited_info, fn _, _ ->
         blocks
         |> Enum.reduce([], &(&2 ++ parse_cited_info_per_block(content, &1)))
-        |> merge_same_block_linker
+        |> merge_same_block_linker(:cited_by_id)
         |> update_cited_info
       end)
       |> Repo.transaction()
@@ -110,43 +111,6 @@ defmodule GroupherServer.CMS.Delegate.CiteTask do
       end
     end)
     |> done
-  end
-
-  @doc """
-  merge same cited article in different blocks
-  e.g:
-  [
-    %{
-      block_linker: ["block-zByQI"],
-      cited_by_id: 190058,
-      cited_by_type: "POST",
-      post_id: 190059,
-      user_id: 1413053
-    },
-    %{
-      block_linker: ["block-zByQI", "block-ZgKJs"],
-      cited_by_id: 190057,
-      cited_by_type: "POST",
-      post_id: 190059,
-      user_id: 1413053
-    },
-  ]
-  """
-  defp merge_same_block_linker(cited_contents) do
-    cited_contents
-    |> Enum.reduce([], fn content, acc ->
-      case Enum.find_index(acc, &(&1.cited_by_id == content.cited_by_id)) do
-        nil ->
-          acc ++ [content]
-
-        index ->
-          List.update_at(
-            acc,
-            index,
-            &Map.merge(&1, %{block_linker: &1.block_linker ++ content.block_linker})
-          )
-      end
-    end)
   end
 
   @doc """

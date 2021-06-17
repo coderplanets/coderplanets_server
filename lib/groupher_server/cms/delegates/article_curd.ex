@@ -24,8 +24,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     CommentCurd,
     ArticleTag,
     CommunityCURD,
-    CiteTask,
-    MentionTask
+    Hooks
   }
 
   alias Ecto.Multi
@@ -172,9 +171,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Multi.run(:update_user_published_meta, fn _, _ ->
         Accounts.update_published_states(uid, thread)
       end)
-      |> Multi.run(:after_tasks, fn _, %{create_article: article} ->
-        Later.run({CiteTask, :handle, [article]})
-        Later.run({MentionTask, :handle, [article]})
+      |> Multi.run(:after_hooks, fn _, %{create_article: article} ->
+        Later.run({Hooks.Cite, :handle, [article]})
+        Later.run({Hooks.Mention, :handle, [article]})
         Later.run({__MODULE__, :notify_admin_new_article, [article]})
       end)
       |> Multi.run(:mention_users, fn _, %{create_article: article} ->
@@ -232,9 +231,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     |> Multi.run(:update_edit_status, fn _, %{update_article: update_article} ->
       ArticleCommunity.update_edit_status(update_article)
     end)
-    |> Multi.run(:after_tasks, fn _, %{update_article: update_article} ->
-      Later.run({CiteTask, :handle, [update_article]})
-      Later.run({MentionTask, :handle, [update_article]})
+    |> Multi.run(:after_hooks, fn _, %{update_article: update_article} ->
+      Later.run({Hooks.Cite, :handle, [update_article]})
+      Later.run({Hooks.Mention, :handle, [update_article]})
     end)
     |> Repo.transaction()
     |> result()

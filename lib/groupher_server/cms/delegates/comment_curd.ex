@@ -14,6 +14,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   alias Helper.{Later, ORM, QueryBuilder, Converter}
   alias GroupherServer.{Accounts, CMS, Repo}
   alias CMS.Model.Post
+  alias CMS.Delegate.Hooks
 
   alias Accounts.Model.User
   alias CMS.Model.{Comment, PinnedComment, Embeds}
@@ -113,8 +114,8 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
           false -> CMS.update_active_timestamp(thread, article)
         end
       end)
-      |> Multi.run(:block_tasks, fn _, %{create_comment: create_comment} ->
-        Later.run({CiteTask, :handle, [create_comment]})
+      |> Multi.run(:after_hooks, fn _, %{create_comment: create_comment} ->
+        Later.run({Hooks.Cite, :handle, [create_comment]})
       end)
       |> Repo.transaction()
       |> result()
