@@ -78,11 +78,7 @@ defmodule GroupherServer.Delivery.Delegate.Utils do
       |> where([m], m.inserted_at > ^last_fetch_time)
       |> where([m], m.read == ^read)
 
-    mails =
-      query
-      |> order_by(desc: :inserted_at)
-      |> ORM.paginater(~m(page size)a)
-      |> done()
+    mails = query |> order_by(desc: :inserted_at) |> ORM.paginater(~m(page size)a) |> done()
 
     delete_items(query, mails)
 
@@ -211,15 +207,10 @@ defmodule GroupherServer.Delivery.Delegate.Utils do
   end
 
   defp do_mark_read_all(queryable, %User{} = user) do
-    query =
-      queryable
-      |> where([m], m.to_user_id == ^user.id)
+    query = queryable |> where([m], m.to_user_id == ^user.id)
 
     try do
-      Repo.update_all(
-        query,
-        set: [read: true]
-      )
+      Repo.update_all(query, set: [read: true])
 
       {:ok, %{status: true}}
     rescue

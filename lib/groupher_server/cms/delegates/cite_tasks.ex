@@ -70,7 +70,12 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
   defp delete_all_cited_contents(article) do
     with {:ok, thread} <- thread_of_article(article),
          {:ok, info} <- match(thread) do
-      query = from(c in CitedContent, where: field(c, ^info.foreign_key) == ^article.id)
+      thread = thread |> to_string |> String.upcase()
+
+      query =
+        from(c in CitedContent,
+          where: field(c, ^info.foreign_key) == ^article.id and c.cited_by_type == ^thread
+        )
 
       ORM.delete_all(query, :if_exist)
     end

@@ -254,7 +254,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       {:ok, result} = CMS.paged_citing_contents("POST", post2.id, %{page: 1, size: 10})
       # IO.inspect(result, label: "the result")
 
-      result.total_count == 4
+      assert result.total_count == 4
 
       result_post = result.entries |> List.first()
       result_job = result.entries |> Enum.at(1)
