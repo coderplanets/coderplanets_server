@@ -49,7 +49,7 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
     # insert_all shaped contents
   end
 
-  def batch_send(article, contents, %User{} = user, %User{} = to_user) do
+  def batch_mention(article, contents, %User{} = user, %User{} = to_user) do
     Multi.new()
     |> Multi.run(:batch_delete_related_mentions, fn _, _ ->
       delete_related_mentions(article, user)
