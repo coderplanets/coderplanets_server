@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Delegate.CiteTasks do
+defmodule GroupherServer.CMS.Delegate.CiteTask do
   @moduledoc """
   run tasks in every article blocks if need
 
@@ -48,7 +48,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
       |> Multi.run(:update_cited_info, fn _, _ ->
         blocks
         |> Enum.reduce([], &(&2 ++ parse_cited_info_per_block(content, &1)))
-        |> merge_same_cited_article_block
+        |> merge_same_block_linker
         |> update_cited_info
       end)
       |> Repo.transaction()
@@ -132,7 +132,7 @@ defmodule GroupherServer.CMS.Delegate.CiteTasks do
     },
   ]
   """
-  defp merge_same_cited_article_block(cited_contents) do
+  defp merge_same_block_linker(cited_contents) do
     cited_contents
     |> Enum.reduce([], fn content, acc ->
       case Enum.find_index(acc, &(&1.cited_by_id == content.cited_by_id)) do

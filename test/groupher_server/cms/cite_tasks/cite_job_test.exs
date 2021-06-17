@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.CMS.CiteContent.Job do
+defmodule GroupherServer.Test.CMS.CiteTask.Job do
   use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
@@ -7,7 +7,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Job do
   alias GroupherServer.CMS
 
   alias CMS.Model.{Job, Comment, CitedContent}
-  alias CMS.Delegate.CiteTasks
+  alias CMS.Delegate.CiteTask
 
   @site_host get_config(:general, :site_host)
 
@@ -47,8 +47,8 @@ defmodule GroupherServer.Test.CMS.CiteContent.Job do
       job_attrs = job_attrs |> Map.merge(%{body: body})
       {:ok, job_n} = CMS.create_article(community, :job, job_attrs, user)
 
-      CiteTasks.handle(job)
-      CiteTasks.handle(job_n)
+      CiteTask.handle(job)
+      CiteTask.handle(job_n)
 
       {:ok, job2} = ORM.find(Job, job2.id)
       {:ok, job3} = ORM.find(Job, job3.id)
@@ -67,7 +67,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Job do
       body = mock_rich_text(~s(the <a href=#{@site_host}/job/#{job.id} />))
       {:ok, job} = CMS.update_article(job, %{body: body})
 
-      CiteTasks.handle(job)
+      CiteTask.handle(job)
 
       {:ok, job} = ORM.find(Job, job.id)
       assert job.meta.citing_count == 0
@@ -84,7 +84,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Job do
           )
         )
 
-      CiteTasks.handle(comment)
+      CiteTask.handle(comment)
 
       {:ok, cited_comment} = ORM.find(Comment, cited_comment.id)
       assert cited_comment.meta.citing_count == 0
@@ -99,7 +99,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Job do
       job_attrs = job_attrs |> Map.merge(%{body: body})
 
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
-      CiteTasks.handle(job)
+      CiteTask.handle(job)
 
       {:ok, comment} = ORM.find(Comment, comment.id)
       assert comment.meta.citing_count == 1
@@ -119,7 +119,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Job do
 
       {:ok, comment} = CMS.create_comment(:job, job.id, comment_body, user)
 
-      CiteTasks.handle(comment)
+      CiteTask.handle(comment)
 
       {:ok, cited_comment} = ORM.find(Comment, cited_comment.id)
       assert cited_comment.meta.citing_count == 1
@@ -143,12 +143,12 @@ defmodule GroupherServer.Test.CMS.CiteContent.Job do
         )
 
       {:ok, comment} = CMS.create_comment(:job, job.id, comment_body, user)
-      CiteTasks.handle(comment)
+      CiteTask.handle(comment)
 
       comment_body = mock_rich_text(~s(the <a href=#{@site_host}/job/#{job3.id} />))
       {:ok, comment} = CMS.create_comment(:job, job.id, comment_body, user)
 
-      CiteTasks.handle(comment)
+      CiteTask.handle(comment)
 
       {:ok, job2} = ORM.find(Job, job2.id)
       {:ok, job3} = ORM.find(Job, job3.id)
@@ -187,9 +187,9 @@ defmodule GroupherServer.Test.CMS.CiteContent.Job do
       job_attrs = job_attrs |> Map.merge(%{body: body})
       {:ok, job_y} = CMS.create_article(community, :job, job_attrs, user)
 
-      CiteTasks.handle(job_x)
-      CiteTasks.handle(comment)
-      CiteTasks.handle(job_y)
+      CiteTask.handle(job_x)
+      CiteTask.handle(comment)
+      CiteTask.handle(job_y)
 
       {:ok, result} = CMS.paged_citing_contents("JOB", job2.id, %{page: 1, size: 10})
 

@@ -18,7 +18,15 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   alias Accounts.Model.User
   alias CMS.Model.{Author, Community, PinnedArticle, Embeds}
-  alias CMS.Delegate.{ArticleCommunity, CommentCurd, ArticleTag, CommunityCURD, CiteTasks}
+
+  alias CMS.Delegate.{
+    ArticleCommunity,
+    CommentCurd,
+    ArticleTag,
+    CommunityCURD,
+    CiteTask,
+    MentionTask
+  }
 
   alias Ecto.Multi
 
@@ -165,7 +173,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
         Accounts.update_published_states(uid, thread)
       end)
       |> Multi.run(:after_tasks, fn _, %{create_article: article} ->
-        Later.run({CiteTasks, :handle, [article]})
+        Later.run({CiteTask, :handle, [article]})
+        Later.run({MentionTask, :handle, [article]})
         Later.run({__MODULE__, :notify_admin_new_article, [article]})
       end)
       |> Multi.run(:mention_users, fn _, %{create_article: article} ->
@@ -224,7 +233,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       ArticleCommunity.update_edit_status(update_article)
     end)
     |> Multi.run(:after_tasks, fn _, %{update_article: update_article} ->
-      Later.run({CiteTasks, :handle, [update_article]})
+      Later.run({CiteTask, :handle, [update_article]})
+      Later.run({MentionTask, :handle, [update_article]})
     end)
     |> Repo.transaction()
     |> result()

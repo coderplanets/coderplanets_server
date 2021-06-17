@@ -114,7 +114,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
         end
       end)
       |> Multi.run(:block_tasks, fn _, %{create_comment: create_comment} ->
-        Later.run({CiteTasks, :handle, [create_comment]})
+        Later.run({CiteTask, :handle, [create_comment]})
       end)
       |> Repo.transaction()
       |> result()

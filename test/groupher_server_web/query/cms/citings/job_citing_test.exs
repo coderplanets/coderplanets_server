@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.Query.AbuseReports.JobCiting do
 
   alias GroupherServer.CMS
 
-  alias CMS.Delegate.CiteTasks
+  alias CMS.Delegate.CiteTask
 
   @site_host get_config(:general, :site_host)
 
@@ -69,9 +69,9 @@ defmodule GroupherServer.Test.Query.AbuseReports.JobCiting do
       job_attrs = job_attrs |> Map.merge(%{body: body})
       {:ok, job_y} = CMS.create_article(community, :job, job_attrs, user)
 
-      CiteTasks.handle(job_x)
-      CiteTasks.handle(comment)
-      CiteTasks.handle(job_y)
+      CiteTask.handle(job_x)
+      CiteTask.handle(comment)
+      CiteTask.handle(job_y)
 
       variables = %{content: "JOB", id: job2.id, filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedCitingContents")

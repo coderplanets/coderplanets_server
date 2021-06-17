@@ -8,7 +8,7 @@ defmodule GroupherServer.Delivery do
 
   defdelegate mailbox_status(user), to: Utils
 
-  defdelegate batch_mention(content, contents, from_user, to_user), to: Mention
+  defdelegate batch_mention(content, contents, from_user), to: Mention
   defdelegate paged_mentions(user, filter), to: Mention
 
   # system_notifications

@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.CMS.CiteContent.Blog do
+defmodule GroupherServer.Test.CMS.CiteTask.Blog do
   use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
@@ -7,7 +7,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Blog do
   alias GroupherServer.CMS
 
   alias CMS.Model.{Blog, Comment, CitedContent}
-  alias CMS.Delegate.CiteTasks
+  alias CMS.Delegate.CiteTask
 
   @site_host get_config(:general, :site_host)
 
@@ -47,8 +47,8 @@ defmodule GroupherServer.Test.CMS.CiteContent.Blog do
       blog_attrs = blog_attrs |> Map.merge(%{body: body})
       {:ok, blog_n} = CMS.create_article(community, :blog, blog_attrs, user)
 
-      CiteTasks.handle(blog)
-      CiteTasks.handle(blog_n)
+      CiteTask.handle(blog)
+      CiteTask.handle(blog_n)
 
       {:ok, blog2} = ORM.find(Blog, blog2.id)
       {:ok, blog3} = ORM.find(Blog, blog3.id)
@@ -67,7 +67,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Blog do
       body = mock_rich_text(~s(the <a href=#{@site_host}/blog/#{blog.id} />))
       {:ok, blog} = CMS.update_article(blog, %{body: body})
 
-      CiteTasks.handle(blog)
+      CiteTask.handle(blog)
 
       {:ok, blog} = ORM.find(Blog, blog.id)
       assert blog.meta.citing_count == 0
@@ -84,7 +84,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Blog do
           )
         )
 
-      CiteTasks.handle(comment)
+      CiteTask.handle(comment)
 
       {:ok, cited_comment} = ORM.find(Comment, cited_comment.id)
       assert cited_comment.meta.citing_count == 0
@@ -99,7 +99,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Blog do
       blog_attrs = blog_attrs |> Map.merge(%{body: body})
 
       {:ok, blog} = CMS.create_article(community, :blog, blog_attrs, user)
-      CiteTasks.handle(blog)
+      CiteTask.handle(blog)
 
       {:ok, comment} = ORM.find(Comment, comment.id)
       assert comment.meta.citing_count == 1
@@ -119,7 +119,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Blog do
 
       {:ok, comment} = CMS.create_comment(:blog, blog.id, comment_body, user)
 
-      CiteTasks.handle(comment)
+      CiteTask.handle(comment)
 
       {:ok, cited_comment} = ORM.find(Comment, cited_comment.id)
       assert cited_comment.meta.citing_count == 1
@@ -143,12 +143,12 @@ defmodule GroupherServer.Test.CMS.CiteContent.Blog do
         )
 
       {:ok, comment} = CMS.create_comment(:blog, blog.id, comment_body, user)
-      CiteTasks.handle(comment)
+      CiteTask.handle(comment)
 
       comment_body = mock_rich_text(~s(the <a href=#{@site_host}/blog/#{blog3.id} />))
       {:ok, comment} = CMS.create_comment(:blog, blog.id, comment_body, user)
 
-      CiteTasks.handle(comment)
+      CiteTask.handle(comment)
 
       {:ok, blog2} = ORM.find(Blog, blog2.id)
       {:ok, blog3} = ORM.find(Blog, blog3.id)
@@ -188,9 +188,9 @@ defmodule GroupherServer.Test.CMS.CiteContent.Blog do
       blog_attrs = blog_attrs |> Map.merge(%{body: body})
       {:ok, blog_y} = CMS.create_article(community, :blog, blog_attrs, user)
 
-      CiteTasks.handle(blog_x)
-      CiteTasks.handle(comment)
-      CiteTasks.handle(blog_y)
+      CiteTask.handle(blog_x)
+      CiteTask.handle(comment)
+      CiteTask.handle(blog_y)
 
       {:ok, result} = CMS.paged_citing_contents("BLOG", blog2.id, %{page: 1, size: 10})
 

@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.CMS.CiteContent.Post do
+defmodule GroupherServer.Test.CMS.CiteTask.Post do
   use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
@@ -7,7 +7,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
   alias GroupherServer.CMS
 
   alias CMS.Model.{Post, Comment, CitedContent}
-  alias CMS.Delegate.CiteTasks
+  alias CMS.Delegate.CiteTask
 
   @site_host get_config(:general, :site_host)
 
@@ -47,8 +47,8 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       post_attrs = post_attrs |> Map.merge(%{body: body})
       {:ok, post_n} = CMS.create_article(community, :post, post_attrs, user)
 
-      CiteTasks.handle(post)
-      CiteTasks.handle(post_n)
+      CiteTask.handle(post)
+      CiteTask.handle(post_n)
 
       {:ok, post2} = ORM.find(Post, post2.id)
       {:ok, post3} = ORM.find(Post, post3.id)
@@ -67,7 +67,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       body = mock_rich_text(~s(the <a href=#{@site_host}/post/#{post.id} />))
       {:ok, post} = CMS.update_article(post, %{body: body})
 
-      CiteTasks.handle(post)
+      CiteTask.handle(post)
 
       {:ok, post} = ORM.find(Post, post.id)
       assert post.meta.citing_count == 0
@@ -84,7 +84,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
           )
         )
 
-      CiteTasks.handle(comment)
+      CiteTask.handle(comment)
 
       {:ok, cited_comment} = ORM.find(Comment, cited_comment.id)
       assert cited_comment.meta.citing_count == 0
@@ -99,7 +99,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       post_attrs = post_attrs |> Map.merge(%{body: body})
 
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
-      CiteTasks.handle(post)
+      CiteTask.handle(post)
 
       {:ok, comment} = ORM.find(Comment, comment.id)
       assert comment.meta.citing_count == 1
@@ -119,7 +119,7 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
 
       {:ok, comment} = CMS.create_comment(:post, post.id, comment_body, user)
 
-      CiteTasks.handle(comment)
+      CiteTask.handle(comment)
 
       {:ok, cited_comment} = ORM.find(Comment, cited_comment.id)
       assert cited_comment.meta.citing_count == 1
@@ -143,12 +143,12 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
         )
 
       {:ok, comment} = CMS.create_comment(:post, post.id, comment_body, user)
-      CiteTasks.handle(comment)
+      CiteTask.handle(comment)
 
       comment_body = mock_rich_text(~s(the <a href=#{@site_host}/post/#{post3.id} />))
       {:ok, comment} = CMS.create_comment(:post, post.id, comment_body, user)
 
-      CiteTasks.handle(comment)
+      CiteTask.handle(comment)
 
       {:ok, post2} = ORM.find(Post, post2.id)
       {:ok, post3} = ORM.find(Post, post3.id)
@@ -188,9 +188,9 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       post_attrs = post_attrs |> Map.merge(%{body: body})
       {:ok, post_y} = CMS.create_article(community, :post, post_attrs, user)
 
-      CiteTasks.handle(post_x)
-      CiteTasks.handle(comment)
-      CiteTasks.handle(post_y)
+      CiteTask.handle(post_x)
+      CiteTask.handle(comment)
+      CiteTask.handle(post_y)
 
       {:ok, result} = CMS.paged_citing_contents("POST", post2.id, %{page: 1, size: 10})
 
@@ -230,26 +230,26 @@ defmodule GroupherServer.Test.CMS.CiteContent.Post do
       {:ok, post} =
         CMS.create_article(community, :post, Map.merge(post_attrs, %{body: body}), user)
 
-      CiteTasks.handle(post)
+      CiteTask.handle(post)
 
       Process.sleep(1000)
 
       {:ok, job} = CMS.create_article(community, :job, Map.merge(job_attrs, %{body: body}), user)
-      CiteTasks.handle(job)
+      CiteTask.handle(job)
 
       Process.sleep(1000)
 
       comment_body = mock_comment(~s(the <a href=#{@site_host}/post/#{post2.id} />))
       {:ok, comment} = CMS.create_comment(:job, job.id, comment_body, user)
 
-      CiteTasks.handle(comment)
+      CiteTask.handle(comment)
 
       Process.sleep(1000)
 
       {:ok, blog} =
         CMS.create_article(community, :blog, Map.merge(blog_attrs, %{body: body}), user)
 
-      CiteTasks.handle(blog)
+      CiteTask.handle(blog)
 
       {:ok, result} = CMS.paged_citing_contents("POST", post2.id, %{page: 1, size: 10})
       # IO.inspect(result, label: "the result")

@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.Query.AbuseReports.PostCiting do
 
   alias GroupherServer.CMS
 
-  alias CMS.Delegate.CiteTasks
+  alias CMS.Delegate.CiteTask
 
   @site_host get_config(:general, :site_host)
 
@@ -69,9 +69,9 @@ defmodule GroupherServer.Test.Query.AbuseReports.PostCiting do
       post_attrs = post_attrs |> Map.merge(%{body: body})
       {:ok, post_y} = CMS.create_article(community, :post, post_attrs, user)
 
-      CiteTasks.handle(post_x)
-      CiteTasks.handle(comment)
-      CiteTasks.handle(post_y)
+      CiteTask.handle(post_x)
+      CiteTask.handle(comment)
+      CiteTask.handle(post_y)
 
       variables = %{content: "POST", id: post2.id, filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedCitingContents")
