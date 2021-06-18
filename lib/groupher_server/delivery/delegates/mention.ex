@@ -31,6 +31,8 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
   }
   """
 
+  def batch_mention(_, [], _), do: {:ok, :pass}
+
   def batch_mention(%Comment{} = comment, contents, %User{} = from_user) do
     Multi.new()
     |> Multi.run(:batch_delete_mentions, fn _, _ ->

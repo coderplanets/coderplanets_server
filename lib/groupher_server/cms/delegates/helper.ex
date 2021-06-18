@@ -21,8 +21,25 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   @supported_emotions get_config(:article, :emotions)
   @supported_comment_emotions get_config(:article, :comment_emotions)
 
-  def preload_author(%Comment{} = comment), do: comment |> done
+  def preload_author(%Comment{} = comment), do: Repo.preload(comment, :author) |> done
   def preload_author(article), do: Repo.preload(article, author: :user) |> done
+
+  @doc "get author of article or comment"
+  def author_of(%Comment{} = comment) do
+    case Ecto.assoc_loaded?(comment.author) do
+      true -> comment.author
+      false -> Repo.preload(comment, :author) |> Map.get(:author)
+    end
+    |> done
+  end
+
+  def author_of(article) do
+    case Ecto.assoc_loaded?(article.author) do
+      true -> article.author.user
+      false -> Repo.preload(article, author: :user) |> get_in([:author, :user])
+    end
+    |> done
+  end
 
   #######
   # emotion related
