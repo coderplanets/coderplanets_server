@@ -55,7 +55,7 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
   end
 
   @doc "batch insert CitedContent record and update citing count"
-  def batch_insert_cited_contents([]), do: []
+  def batch_insert_cited_contents([]), do: {:ok, :pass}
 
   def batch_insert_cited_contents(cited_contents) do
     # 注意这里多了 cited_content 和 citting_time
