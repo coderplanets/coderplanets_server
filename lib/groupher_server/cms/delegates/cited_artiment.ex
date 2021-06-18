@@ -64,9 +64,8 @@ defmodule GroupherServer.CMS.Delegate.CitedArtiment do
     # see: https://github.com/elixir-ecto/ecto/issues/1932#issuecomment-314083252
     clean_cited_artiments =
       cited_artiments
-      |> Enum.map(&(&1 |> Map.merge(%{inserted_at: &1.citing_time, updated_at: &1.citing_time})))
-      |> Enum.map(&Map.delete(&1, :artiment))
-      |> Enum.map(&Map.delete(&1, :citing_time))
+      |> Enum.map(&Map.merge(&1, %{inserted_at: &1.citing_time, updated_at: &1.citing_time}))
+      |> Enum.map(&Map.drop(&1, [:artiment, :citing_time]))
 
     case {0, nil} !== Repo.insert_all(CitedArtiment, clean_cited_artiments) do
       true -> update_artiment_citing_count(cited_artiments)
