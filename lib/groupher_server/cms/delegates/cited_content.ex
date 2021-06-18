@@ -70,11 +70,6 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
       true -> update_content_citing_count(cited_contents)
       false -> {:error, "insert cited content error"}
     end
-
-    case {0, nil} !== Repo.insert_all(CitedContent, clean_cited_contents) do
-      true -> update_content_citing_count(cited_contents)
-      false -> {:error, "insert cited content error"}
-    end
   end
 
   # update article/comment 's citting_count in meta
