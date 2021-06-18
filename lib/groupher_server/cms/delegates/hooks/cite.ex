@@ -24,15 +24,20 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
   """
 
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [get_config: 2, thread_of_article: 1, done: 1]
-  import GroupherServer.CMS.Delegate.Hooks.Helper, only: [merge_same_block_linker: 2]
+  import Helper.Utils, only: [get_config: 2, thread_of_article: 1]
   import GroupherServer.CMS.Helper.Matcher
+  import GroupherServer.CMS.Delegate.Helper, only: [preload_author: 1]
+  import GroupherServer.CMS.Delegate.Hooks.Helper, only: [merge_same_block_linker: 2]
+
+  import GroupherServer.CMS.Delegate.CitedContent,
+    only: [batch_delete_cited_contents: 1, batch_insert_cited_contents: 1]
+
   import Helper.ErrorCode
 
   alias GroupherServer.{CMS, Repo}
-  alias CMS.Model.{CitedContent, Comment}
-  alias Helper.ORM
+  alias CMS.Model.Comment
 
+  alias Helper.ORM
   alias Ecto.Multi
 
   @site_host get_config(:general, :site_host)
@@ -44,73 +49,17 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
          content <- preload_author(content) do
       Multi.new()
       |> Multi.run(:delete_all_cited_contents, fn _, _ ->
-        delete_all_cited_contents(content)
+        batch_delete_cited_contents(content)
       end)
       |> Multi.run(:update_cited_info, fn _, _ ->
         blocks
-        |> Enum.reduce([], &(&2 ++ parse_cited_info_per_block(content, &1)))
+        |> Enum.reduce([], &(&2 ++ parse_cited_per_block(content, &1)))
         |> merge_same_block_linker(:cited_by_id)
-        |> update_cited_info
+        |> batch_insert_cited_contents
       end)
       |> Repo.transaction()
       |> result()
     end
-  end
-
-  def preload_author(%Comment{} = comment), do: comment
-  def preload_author(article), do: Repo.preload(article, author: :user)
-
-  # delete all records before insert_all, this will dynamiclly update
-  # those cited info when update article
-  # 插入引用记录之前先全部清除，这样可以在更新文章的时候自动计算引用信息
-  defp delete_all_cited_contents(%Comment{} = comment) do
-    query = from(c in CitedContent, where: c.comment_id == ^comment.id)
-    ORM.delete_all(query, :if_exist)
-  end
-
-  defp delete_all_cited_contents(article) do
-    with {:ok, thread} <- thread_of_article(article),
-         {:ok, info} <- match(thread) do
-      thread = thread |> to_string |> String.upcase()
-
-      query =
-        from(c in CitedContent,
-          where: field(c, ^info.foreign_key) == ^article.id and c.cited_by_type == ^thread
-        )
-
-      ORM.delete_all(query, :if_exist)
-    end
-  end
-
-  # batch insert CitedContent record and update citing count
-  defp update_cited_info(cited_contents) do
-    # see: https://github.com/elixir-ecto/ecto/issues/1932#issuecomment-314083252
-    clean_cited_contents =
-      cited_contents
-      |> Enum.map(&(&1 |> Map.merge(%{inserted_at: &1.citing_time, updated_at: &1.citing_time})))
-      |> Enum.map(&Map.delete(&1, :cited_content))
-      |> Enum.map(&Map.delete(&1, :citing_time))
-
-    case {0, nil} !== Repo.insert_all(CitedContent, clean_cited_contents) do
-      true -> update_citing_count(cited_contents)
-      false -> {:error, "insert cited content error"}
-    end
-  end
-
-  defp update_citing_count(cited_contents) do
-    Enum.all?(cited_contents, fn content ->
-      count_query = from(c in CitedContent, where: c.cited_by_id == ^content.cited_by_id)
-      count = Repo.aggregate(count_query, :count)
-
-      cited_content = content.cited_content
-      meta = Map.merge(cited_content.meta, %{citing_count: count})
-
-      case cited_content |> ORM.update_meta(meta) do
-        {:ok, _} -> true
-        {:error, _} -> false
-      end
-    end)
-    |> done
   end
 
   @doc """
@@ -127,17 +76,17 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
     ...
   ]
   """
-  defp parse_cited_info_per_block(content, %{"id" => block_id, "data" => %{"text" => text}}) do
+  defp parse_cited_per_block(content, %{"id" => block_id, "data" => %{"text" => text}}) do
     links = Floki.find(text, "a[href]")
 
-    do_parse_cited_info_per_block(content, block_id, links)
+    parse_links_in_block(content, block_id, links)
   end
 
   # links Floki parsed fmt
   # content means both article and comment
   # e.g:
   # [{"a", [{"href", "https://coderplanets.com/post/195675"}], []},]
-  defp do_parse_cited_info_per_block(content, block_id, links) do
+  defp parse_links_in_block(content, block_id, links) do
     Enum.reduce(links, [], fn link, acc ->
       case parse_valid_cited(content.id, link) do
         {:ok, cited} -> List.insert_at(acc, 0, shape(content, cited, block_id))
@@ -149,24 +98,20 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
 
   # parse cited with check if citing link is point to itself
   defp parse_valid_cited(content_id, link) do
-    with {:ok, cited} <- parse_cited(link),
-         %{content: content} <- cited do
-      case content.id !== content_id do
+    with {:ok, cited} <- parse_cited_in_link(link) do
+      case not is_citing_itself?(content_id, cited) do
         true -> {:ok, cited}
-        false -> {:error, "citing itself"}
+        false -> {:error, "citing itself, ignored"}
       end
     end
   end
 
   # return fmt: %{type: :comment | :article, content: %Comment{} | Article}
   # 要考虑是否有 comment_id 的情况，如果有，那么 就应该 load comment 而不是 article
-  defp parse_cited({"a", attrs, _}) do
+  defp parse_cited_in_link({"a", attrs, _}) do
     with {:ok, link} <- parse_link(attrs),
          true <- is_site_article_link?(link) do
-      # IO.inspect(link, label: "parse link")
-      # IO.inspect(is_comment_link?(link), label: "is_comment_link")
-
-      case is_comment_link?(link) do
+      case is_link_for_comment?(link) do
         true -> load_cited_comment_from_url(link)
         false -> load_cited_article_from_url(link)
       end
@@ -185,17 +130,6 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
       {:ok, link}
     else
       _ -> {:error, "invalid fmt"}
-    end
-  end
-
-  # 检测是否是站内文章的链接
-  defp is_site_article_link?(url) do
-    Enum.any?(@valid_article_prefix, &String.starts_with?(url, &1))
-  end
-
-  defp is_comment_link?(url) do
-    with %{query: query} <- URI.parse(url) do
-      not is_nil(query) and String.starts_with?(query, "comment_id=")
     end
   end
 
@@ -224,6 +158,20 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, article_id) do
       {:ok, %{type: :article, content: article}}
+    end
+  end
+
+  # check if article/comment id is point to itself
+  defp is_citing_itself?(content_id, %{content: %{id: id}}), do: content_id == id
+
+  # 检测是否是站内文章的链接
+  defp is_site_article_link?(url) do
+    Enum.any?(@valid_article_prefix, &String.starts_with?(url, &1))
+  end
+
+  defp is_link_for_comment?(url) do
+    with %{query: query} <- URI.parse(url) do
+      not is_nil(query) and String.starts_with?(query, "comment_id=")
     end
   end
 

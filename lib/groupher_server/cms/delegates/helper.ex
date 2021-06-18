@@ -10,7 +10,7 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   alias Helper.{ORM, QueryBuilder}
   alias GroupherServer.{Accounts, Repo, CMS}
 
-  alias CMS.Model.{ArticleUpvote, ArticleCollect}
+  alias CMS.Model.{ArticleUpvote, ArticleCollect, Comment}
   alias Accounts.Model.User
 
   @default_article_meta CMS.Model.Embeds.ArticleMeta.default_meta()
@@ -20,6 +20,9 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   @max_latest_emotion_users_count 4
   @supported_emotions get_config(:article, :emotions)
   @supported_comment_emotions get_config(:article, :comment_emotions)
+
+  def preload_author(%Comment{} = comment), do: comment
+  def preload_author(article), do: Repo.preload(article, author: :user)
 
   #######
   # emotion related

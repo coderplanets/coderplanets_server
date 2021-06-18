@@ -33,10 +33,10 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
 
   def batch_mention(%Comment{} = comment, contents, %User{} = from_user) do
     Multi.new()
-    |> Multi.run(:batch_delete_related_mentions, fn _, _ ->
-      delete_related_mentions(comment, from_user)
+    |> Multi.run(:batch_delete_mentions, fn _, _ ->
+      batch_delete_mentions(comment, from_user)
     end)
-    |> Multi.run(:batch_insert_related_mentions, fn _, _ ->
+    |> Multi.run(:batch_insert_mentions, fn _, _ ->
       case {0, nil} !== Repo.insert_all(Mention, contents) do
         true -> {:ok, :pass}
         false -> {:error, "insert mentions error"}
@@ -48,10 +48,10 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
 
   def batch_mention(article, contents, %User{} = from_user) do
     Multi.new()
-    |> Multi.run(:batch_delete_related_mentions, fn _, _ ->
-      delete_related_mentions(article, from_user)
+    |> Multi.run(:batch_delete_mentions, fn _, _ ->
+      batch_delete_mentions(article, from_user)
     end)
-    |> Multi.run(:batch_insert_related_mentions, fn _, _ ->
+    |> Multi.run(:batch_insert_mentions, fn _, _ ->
       case {0, nil} !== Repo.insert_all(Mention, contents) do
         true -> {:ok, :pass}
         false -> {:error, "insert mentions error"}
@@ -61,7 +61,7 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
     |> result()
   end
 
-  defp delete_related_mentions(%Comment{} = comment, %User{} = from_user) do
+  defp batch_delete_mentions(%Comment{} = comment, %User{} = from_user) do
     from(m in Mention,
       where: m.comment_id == ^comment.id,
       where: m.from_user_id == ^from_user.id
@@ -69,7 +69,7 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
     |> ORM.delete_all(:if_exist)
   end
 
-  defp delete_related_mentions(article, %User{} = from_user) do
+  defp batch_delete_mentions(article, %User{} = from_user) do
     with {:ok, thread} <- thread_of_article(article),
          {:ok, info} <- match(thread) do
       thread = thread |> to_string |> String.upcase()
@@ -94,7 +94,7 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
     |> done()
   end
 
-  def extract_contents(%{entries: entries} = paged_contents) do
+  defp extract_contents(%{entries: entries} = paged_contents) do
     entries = entries |> Repo.preload(:from_user) |> Enum.map(&shape(&1))
 
     Map.put(paged_contents, :entries, entries)
@@ -118,7 +118,7 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
     |> Map.put(:user, user)
   end
 
-  defp result({:ok, %{batch_insert_related_mentions: result}}), do: {:ok, result}
+  defp result({:ok, %{batch_insert_mentions: result}}), do: {:ok, result}
 
   defp result({:error, _, result, _steps}) do
     {:error, result}

@@ -4,14 +4,16 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
   """
   import Ecto.Query, warn: false
 
-  import Helper.Utils, only: [done: 1, get_config: 2]
+  import Helper.Utils, only: [done: 1, get_config: 2, thread_of_article: 1]
+  import GroupherServer.CMS.Helper.Matcher
   import ShortMaps
 
   alias Helper.Types, as: T
   alias GroupherServer.{CMS, Repo}
+
   alias Helper.{ORM, QueryBuilder}
 
-  alias CMS.Model.CitedContent
+  alias CMS.Model.{CitedContent, Comment}
 
   @article_threads get_config(:article, :threads)
 
@@ -32,7 +34,67 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
     |> done
   end
 
-  def extract_contents(%{entries: entries} = paged_contents) do
+  @doc "delete all records before insert_all, this will dynamiclly update"
+  # those cited info when update article
+  # 插入引用记录之前先全部清除，这样可以在更新文章的时候自动计算引用信息
+  def batch_delete_cited_contents(%Comment{} = comment) do
+    from(c in CitedContent, where: c.comment_id == ^comment.id)
+    |> ORM.delete_all(:if_exist)
+  end
+
+  def batch_delete_cited_contents(article) do
+    with {:ok, thread} <- thread_of_article(article),
+         {:ok, info} <- match(thread) do
+      thread = thread |> to_string |> String.upcase()
+
+      from(c in CitedContent,
+        where: field(c, ^info.foreign_key) == ^article.id and c.cited_by_type == ^thread
+      )
+      |> ORM.delete_all(:if_exist)
+    end
+  end
+
+  @doc "batch insert CitedContent record and update citing count"
+  def batch_insert_cited_contents(cited_contents) do
+    # 注意这里多了 cited_content 和 citting_time
+    # cited_content 是为了下一步更新 citting_count 预先加载的，避免单独 preload 消耗性能
+    # citing_time 是因为 insert_all 必须要自己更新时间
+    # see: https://github.com/elixir-ecto/ecto/issues/1932#issuecomment-314083252
+    clean_cited_contents =
+      cited_contents
+      |> Enum.map(&(&1 |> Map.merge(%{inserted_at: &1.citing_time, updated_at: &1.citing_time})))
+      |> Enum.map(&Map.delete(&1, :cited_content))
+      |> Enum.map(&Map.delete(&1, :citing_time))
+
+    case {0, nil} !== Repo.insert_all(CitedContent, clean_cited_contents) do
+      true -> update_content_citing_count(cited_contents)
+      false -> {:error, "insert cited content error"}
+    end
+
+    case {0, nil} !== Repo.insert_all(CitedContent, clean_cited_contents) do
+      true -> update_content_citing_count(cited_contents)
+      false -> {:error, "insert cited content error"}
+    end
+  end
+
+  # update article/comment 's citting_count in meta
+  defp update_content_citing_count(cited_contents) do
+    Enum.all?(cited_contents, fn content ->
+      count_query = from(c in CitedContent, where: c.cited_by_id == ^content.cited_by_id)
+      count = Repo.aggregate(count_query, :count)
+
+      cited_content = content.cited_content
+      meta = Map.merge(cited_content.meta, %{citing_count: count})
+
+      case cited_content |> ORM.update_meta(meta) do
+        {:ok, _} -> true
+        {:error, _} -> false
+      end
+    end)
+    |> done
+  end
+
+  defp extract_contents(%{entries: entries} = paged_contents) do
     entries = entries |> Repo.preload(@cited_preloads) |> Enum.map(&shape(&1))
 
     Map.put(paged_contents, :entries, entries)
