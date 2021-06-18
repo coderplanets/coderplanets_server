@@ -32,7 +32,6 @@ defmodule GroupherServer.Test.Delivery.Mention do
   end
 
   describe "mentions" do
-    @tag :wip
     test "can batch send mentions", ~m(post user user2 mention_contents)a do
       {:ok, :pass} = Delivery.batch_mention(post, mention_contents, user)
       {:ok, result} = Delivery.paged_mentions(user2, %{page: 1, size: 10})
@@ -44,7 +43,6 @@ defmodule GroupherServer.Test.Delivery.Mention do
       assert mention.user.login == user.login
     end
 
-    @tag :wip
     test "mention multiable times on same article, will only have one record",
          ~m(post user user2 mention_contents)a do
       {:ok, :pass} = Delivery.batch_mention(post, mention_contents, user)
@@ -58,7 +56,6 @@ defmodule GroupherServer.Test.Delivery.Mention do
       assert result.total_count == 1
     end
 
-    @tag :wip
     test "if mention before, update with no mention content will not do mention in final",
          ~m(post user user2 user3 mention_contents)a do
       {:ok, :pass} = Delivery.batch_mention(post, mention_contents, user)

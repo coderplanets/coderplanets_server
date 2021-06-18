@@ -2,9 +2,10 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInPost do
   use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
+  import GroupherServer.CMS.Delegate.Helper, only: [preload_author: 1]
 
   alias Helper.ORM
-  alias GroupherServer.CMS
+  alias GroupherServer.{CMS, Delivery}
 
   alias CMS.Model.{Comment}
   alias CMS.Delegate.Hooks
@@ -39,10 +40,18 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInPost do
 
       post_attrs = post_attrs |> Map.merge(%{body: body})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+      {:ok, post} = preload_author(post)
 
-      {:ok, result} = Hooks.Mention.handle(post)
+      {:ok, _result} = Hooks.Mention.handle(post)
 
-      assert length(result) == 2
+      {:ok, result} = Delivery.paged_mentions(user2, %{page: 1, size: 10})
+
+      mention = result.entries |> List.first()
+      assert mention.article_id == post.id
+      assert mention.title == post.title
+      assert mention.user.login == post.author.user.login
+
+      IO.inspect(result, label: "the result")
     end
   end
 end

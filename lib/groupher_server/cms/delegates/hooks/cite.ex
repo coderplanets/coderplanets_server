@@ -46,7 +46,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
 
   def handle(%{body: body} = content) do
     with {:ok, %{"blocks" => blocks}} <- Jason.decode(body),
-         content <- preload_author(content) do
+         {:ok, content} <- preload_author(content) do
       Multi.new()
       |> Multi.run(:delete_all_cited_contents, fn _, _ ->
         batch_delete_cited_contents(content)
@@ -178,9 +178,11 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
   # cite article in comment
   # 在评论中引用文章
   defp shape(%Comment{} = comment, %{type: :article, content: cited}, block_id) do
+    cited_by_type = cited.meta.thread |> to_string |> String.upcase()
+
     %{
       cited_by_id: cited.id,
-      cited_by_type: cited.meta.thread,
+      cited_by_type: cited_by_type,
       comment_id: comment.id,
       block_linker: [block_id],
       user_id: comment.author_id,
@@ -215,9 +217,11 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
     {:ok, thread} = thread_of_article(article)
     {:ok, info} = match(thread)
 
+    cited_by_type = cited.meta.thread |> to_string |> String.upcase()
+
     %{
       cited_by_id: cited.id,
-      cited_by_type: cited.meta.thread,
+      cited_by_type: cited_by_type,
       block_linker: [block_id],
       user_id: article.author.user.id,
       # extra fields for next-step usage

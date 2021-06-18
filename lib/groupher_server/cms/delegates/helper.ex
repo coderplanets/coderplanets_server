@@ -21,8 +21,8 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   @supported_emotions get_config(:article, :emotions)
   @supported_comment_emotions get_config(:article, :comment_emotions)
 
-  def preload_author(%Comment{} = comment), do: comment
-  def preload_author(article), do: Repo.preload(article, author: :user)
+  def preload_author(%Comment{} = comment), do: comment |> done
+  def preload_author(article), do: Repo.preload(article, author: :user) |> done
 
   #######
   # emotion related

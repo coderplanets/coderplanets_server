@@ -217,6 +217,10 @@ defmodule Helper.Utils do
 
   def thread_of_article(_), do: {:error, "invalid article"}
 
+  def thread_of_article(%{meta: %{thread: thread}}, :upcase) do
+    thread |> to_string |> String.upcase() |> done
+  end
+
   def uid(str_len \\ 5) do
     Nanoid.generate(str_len, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
   end

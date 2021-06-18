@@ -24,10 +24,12 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Mention do
   """
 
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [get_config: 2, thread_of_article: 1, done: 1]
+  import Helper.Utils, only: [get_config: 2, thread_of_article: 2, done: 1]
+
+  import GroupherServer.CMS.Delegate.Helper, only: [preload_author: 1]
   import GroupherServer.CMS.Delegate.Hooks.Helper, only: [merge_same_block_linker: 2]
 
-  alias GroupherServer.{Accounts, CMS, Repo}
+  alias GroupherServer.{Accounts, CMS, Delivery, Repo}
   alias CMS.Model.Comment
 
   @article_threads get_config(:article, :threads)
@@ -36,16 +38,23 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Mention do
 
   def handle(%{body: body} = content) do
     with {:ok, %{"blocks" => blocks}} <- Jason.decode(body),
-         content <- preload_author(content) do
+         {:ok, content} <- preload_author(content) do
       blocks
       |> Enum.reduce([], &(&2 ++ parse_cited_info_per_block(content, &1)))
       |> merge_same_block_linker(:to_user_id)
-      |> done
+      |> batch_mention(content)
     end
   end
 
-  def preload_author(%Comment{} = comment), do: comment
-  def preload_author(article), do: Repo.preload(article, author: :user)
+  # contents list of mention fmt args
+  defp batch_mention(_contents, %Comment{} = _comment) do
+    {:ok, :pass}
+  end
+
+  defp batch_mention(contents, article) do
+    from_user = article.author.user
+    Delivery.batch_mention(article, contents, from_user)
+  end
 
   defp parse_cited_info_per_block(content, %{"id" => block_id, "data" => %{"text" => text}}) do
     mentions = Floki.find(text, ".#{@article_mention_class}")
@@ -75,6 +84,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Mention do
   defp shape(%Comment{} = comment, mention_user_id, block_id) do
     # @article_threads |> Enum.find(fn thread -> not is_nil(Map.get(comment, :"#{thread}_id")) end)
     %{
+      type: "COMMENT",
       block_linker: [block_id],
       read: false,
       from_user_id: comment.author_id,
@@ -83,14 +93,18 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Mention do
   end
 
   defp shape(article, to_user_id, block_id) do
+    {:ok, thread} = thread_of_article(article, :upcase)
+
     %{
-      type: thread_of_article(article),
+      type: thread,
       title: article.title,
       article_id: article.id,
       block_linker: [block_id],
       read: false,
       from_user_id: article.author.user_id,
-      to_user_id: to_user_id
+      to_user_id: to_user_id,
+      inserted_at: article.updated_at |> DateTime.truncate(:second),
+      updated_at: article.updated_at |> DateTime.truncate(:second)
     }
   end
 end
