@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Delegate.CitedContent do
+defmodule GroupherServer.CMS.Delegate.CitedArtiment do
   @moduledoc """
   CURD operation on post/job ...
   """
@@ -13,7 +13,7 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
 
   alias Helper.{ORM, QueryBuilder}
 
-  alias CMS.Model.{CitedContent, Comment}
+  alias CMS.Model.{CitedArtiment, Comment}
 
   @article_threads get_config(:article, :threads)
 
@@ -26,7 +26,7 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
   def paged_citing_contents(cited_by_type, cited_by_id, %{page: page, size: size} = filter) do
     cited_by_type = cited_by_type |> to_string |> String.upcase()
 
-    CitedContent
+    CitedArtiment
     |> where([c], c.cited_by_id == ^cited_by_id and c.cited_by_type == ^cited_by_type)
     |> QueryBuilder.filter_pack(Map.merge(filter, %{sort: :asc_inserted}))
     |> ORM.paginater(~m(page size)a)
@@ -37,53 +37,53 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
   @doc "delete all records before insert_all, this will dynamiclly update"
   # those cited info when update article
   # 插入引用记录之前先全部清除，这样可以在更新文章的时候自动计算引用信息
-  def batch_delete_cited_artiments(%Comment{} = comment) do
-    from(c in CitedContent, where: c.comment_id == ^comment.id)
+  def batch_delete_by(%Comment{} = comment) do
+    from(c in CitedArtiment, where: c.comment_id == ^comment.id)
     |> ORM.delete_all(:if_exist)
   end
 
-  def batch_delete_cited_artiments(article) do
+  def batch_delete_by(article) do
     with {:ok, thread} <- thread_of_article(article),
          {:ok, info} <- match(thread) do
       thread = thread |> to_string |> String.upcase()
 
-      from(c in CitedContent,
+      from(c in CitedArtiment,
         where: field(c, ^info.foreign_key) == ^article.id and c.cited_by_type == ^thread
       )
       |> ORM.delete_all(:if_exist)
     end
   end
 
-  @doc "batch insert CitedContent record and update citing count"
-  def batch_insert_cited_artiments([]), do: {:ok, :pass}
+  @doc "batch insert CitedArtiment record and update citing count"
+  def batch_insert([]), do: {:ok, :pass}
 
-  def batch_insert_cited_artiments(cited_contents) do
-    # 注意这里多了 cited_content 和 citting_time
-    # cited_content 是为了下一步更新 citting_count 预先加载的，避免单独 preload 消耗性能
+  def batch_insert(cited_artiments) do
+    # 注意这里多了 artiment 和 citting_time
+    # artiment 是为了下一步更新 citting_count 预先加载的，避免单独 preload 消耗性能
     # citing_time 是因为 insert_all 必须要自己更新时间
     # see: https://github.com/elixir-ecto/ecto/issues/1932#issuecomment-314083252
-    clean_cited_contents =
-      cited_contents
+    clean_cited_artiments =
+      cited_artiments
       |> Enum.map(&(&1 |> Map.merge(%{inserted_at: &1.citing_time, updated_at: &1.citing_time})))
-      |> Enum.map(&Map.delete(&1, :cited_content))
+      |> Enum.map(&Map.delete(&1, :artiment))
       |> Enum.map(&Map.delete(&1, :citing_time))
 
-    case {0, nil} !== Repo.insert_all(CitedContent, clean_cited_contents) do
-      true -> update_content_citing_count(cited_contents)
-      false -> {:error, "insert cited content error"}
+    case {0, nil} !== Repo.insert_all(CitedArtiment, clean_cited_artiments) do
+      true -> update_artiment_citing_count(cited_artiments)
+      false -> {:error, "insert cited artiment error"}
     end
   end
 
   # update article/comment 's citting_count in meta
-  defp update_content_citing_count(cited_contents) do
-    Enum.all?(cited_contents, fn content ->
-      count_query = from(c in CitedContent, where: c.cited_by_id == ^content.cited_by_id)
+  defp update_artiment_citing_count(cited_artiments) do
+    Enum.all?(cited_artiments, fn cited ->
+      count_query = from(c in CitedArtiment, where: c.cited_by_id == ^cited.cited_by_id)
       count = Repo.aggregate(count_query, :count)
 
-      cited_content = content.cited_content
-      meta = Map.merge(cited_content.meta, %{citing_count: count})
+      artiment = cited.artiment
+      meta = Map.merge(artiment.meta, %{citing_count: count})
 
-      case cited_content |> ORM.update_meta(meta) do
+      case artiment |> ORM.update_meta(meta) do
         {:ok, _} -> true
         {:error, _} -> false
       end
@@ -98,8 +98,8 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
   end
 
   # shape comment cite
-  @spec shape(CitedContent.t()) :: T.cite_info()
-  defp shape(%CitedContent{comment_id: comment_id} = cited) when not is_nil(comment_id) do
+  @spec shape(CitedArtiment.t()) :: T.cite_info()
+  defp shape(%CitedArtiment{comment_id: comment_id} = cited) when not is_nil(comment_id) do
     %{block_linker: block_linker, comment: comment, inserted_at: inserted_at} = cited
 
     comment_thread = comment.thread |> String.downcase() |> String.to_atom()
@@ -119,7 +119,7 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
   end
 
   # shape general article cite
-  defp shape(%CitedContent{} = cited) do
+  defp shape(%CitedArtiment{} = cited) do
     %{block_linker: block_linker, inserted_at: inserted_at} = cited
 
     thread = citing_thread(cited)

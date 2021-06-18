@@ -29,12 +29,10 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
   import GroupherServer.CMS.Delegate.Helper, only: [preload_author: 1]
   import GroupherServer.CMS.Delegate.Hooks.Helper, only: [merge_same_block_linker: 2]
 
-  import GroupherServer.CMS.Delegate.CitedArtiment,
-    only: [batch_delete_cited_artiments: 1, batch_insert_cited_artiments: 1]
-
   import Helper.ErrorCode
 
   alias GroupherServer.{CMS, Repo}
+  alias CMS.Delegate.CitedArtiment
   alias CMS.Model.Comment
 
   alias Helper.ORM
@@ -49,13 +47,13 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
          {:ok, artiment} <- preload_author(artiment) do
       Multi.new()
       |> Multi.run(:delete_all_cited_artiments, fn _, _ ->
-        batch_delete_cited_artiments(artiment)
+        CitedArtiment.batch_delete_by(artiment)
       end)
       |> Multi.run(:update_cited_info, fn _, _ ->
         blocks
         |> Enum.reduce([], &(&2 ++ parse_cited_per_block(artiment, &1)))
         |> merge_same_block_linker(:cited_by_id)
-        |> batch_insert_cited_artiments
+        |> CitedArtiment.batch_insert()
       end)
       |> Repo.transaction()
       |> result()
@@ -69,7 +67,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
       block_linker: ["block-ZgKJs"],
       cited_by_id: 190057,
       cited_by_type: "POST",
-      cited_artiment: #loaded,
+      artiment: #loaded,
       post_id: 190059,
       user_id: 1413053
     }
@@ -188,7 +186,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
       user_id: comment.author_id,
       # extra fields for next-step usage
       # used for updating citing_count, avoid load again
-      cited_artiment: cited,
+      artiment: cited,
       # for later insert all
       citing_time: comment.updated_at |> DateTime.truncate(:second)
     }
@@ -205,7 +203,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
       user_id: comment.author_id,
       # extra fields for next-step usage
       # used for updating citing_count, avoid load again
-      cited_artiment: cited,
+      artiment: cited,
       # for later insert all
       citing_time: comment.updated_at |> DateTime.truncate(:second)
     }
@@ -226,7 +224,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
       user_id: article.author.user.id,
       # extra fields for next-step usage
       # used for updating citing_count, avoid load again
-      cited_artiment: cited,
+      artiment: cited,
       # for later insert all
       citing_time: article.updated_at |> DateTime.truncate(:second)
     }
@@ -246,7 +244,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
       user_id: article.author.user.id,
       # extra fields for next-step usage
       # used for updating citing_count, avoid load again
-      cited_artiment: cited,
+      artiment: cited,
       # for later insert all
       citing_time: article.updated_at |> DateTime.truncate(:second)
     }
