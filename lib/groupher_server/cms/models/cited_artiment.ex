@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Model.CitedContent do
+defmodule GroupherServer.CMS.Model.CitedArtiment do
   @moduledoc false
   alias __MODULE__
 
@@ -19,8 +19,8 @@ defmodule GroupherServer.CMS.Model.CitedContent do
   @article_cast_fields general_article_fields(:cast)
   @optional_fields ~w(comment_id block_linker)a ++ @article_cast_fields
 
-  @type t :: %CitedContent{}
-  schema "cited_contents" do
+  @type t :: %CitedArtiment{}
+  schema "cited_artiments" do
     field(:cited_by_type, :string)
     field(:cited_by_id, :id)
 
@@ -35,15 +35,15 @@ defmodule GroupherServer.CMS.Model.CitedContent do
   end
 
   @doc false
-  def changeset(%CitedContent{} = cited_content, attrs) do
-    cited_content
+  def changeset(%CitedArtiment{} = cited_artiment, attrs) do
+    cited_artiment
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
   end
 
   @doc false
-  def update_changeset(%CitedContent{} = cited_content, attrs) do
-    cited_content
+  def update_changeset(%CitedArtiment{} = cited_artiment, attrs) do
+    cited_artiment
     |> cast(attrs, @optional_fields ++ @required_fields)
   end
 end

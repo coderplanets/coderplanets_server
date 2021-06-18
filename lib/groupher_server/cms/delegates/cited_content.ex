@@ -37,12 +37,12 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
   @doc "delete all records before insert_all, this will dynamiclly update"
   # those cited info when update article
   # 插入引用记录之前先全部清除，这样可以在更新文章的时候自动计算引用信息
-  def batch_delete_cited_contents(%Comment{} = comment) do
+  def batch_delete_cited_artiments(%Comment{} = comment) do
     from(c in CitedContent, where: c.comment_id == ^comment.id)
     |> ORM.delete_all(:if_exist)
   end
 
-  def batch_delete_cited_contents(article) do
+  def batch_delete_cited_artiments(article) do
     with {:ok, thread} <- thread_of_article(article),
          {:ok, info} <- match(thread) do
       thread = thread |> to_string |> String.upcase()
@@ -55,9 +55,9 @@ defmodule GroupherServer.CMS.Delegate.CitedContent do
   end
 
   @doc "batch insert CitedContent record and update citing count"
-  def batch_insert_cited_contents([]), do: {:ok, :pass}
+  def batch_insert_cited_artiments([]), do: {:ok, :pass}
 
-  def batch_insert_cited_contents(cited_contents) do
+  def batch_insert_cited_artiments(cited_contents) do
     # 注意这里多了 cited_content 和 citting_time
     # cited_content 是为了下一步更新 citting_count 预先加载的，避免单独 preload 消耗性能
     # citing_time 是因为 insert_all 必须要自己更新时间

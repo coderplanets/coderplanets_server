@@ -4,42 +4,33 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
   """
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1, thread_of_article: 1]
-  import GroupherServer.CMS.Helper.Matcher
   import ShortMaps
 
   alias GroupherServer.{Accounts, CMS, Delivery, Repo}
 
   alias Accounts.Model.User
   alias CMS.Model.Comment
-  alias Delivery.Model.{OldMention, Mention}
+  alias Delivery.Model.Mention
 
-  alias Delivery.Delegate.Utils
   alias Helper.ORM
-
   alias Ecto.Multi
 
-  """
-  %{
-    type: "POST", # "COMMENT",
-    title: "article title",
-    id: 23,
-    block_linker: ["die"],
-    comment_id: 22,
-    read: false
-    from_user_id: ...
-    to_user_id: ...
-  }
-  """
+  # 发送
+  # Delivery.send(:mention, content, mentions, user)
+  # Delivery.send(:notify, content, mentions, user)
 
-  def batch_mention(_, [], _), do: {:ok, :pass}
+  # 用户侧取
+  # Delivery.fetch(:mention)
 
-  def batch_mention(%Comment{} = comment, contents, %User{} = from_user) do
+  def handle(_, [], _), do: {:ok, :pass}
+
+  def handle(%Comment{} = comment, mentions, %User{} = from_user) do
     Multi.new()
     |> Multi.run(:batch_delete_mentions, fn _, _ ->
       batch_delete_mentions(comment, from_user)
     end)
     |> Multi.run(:batch_insert_mentions, fn _, _ ->
-      case {0, nil} !== Repo.insert_all(Mention, contents) do
+      case {0, nil} !== Repo.insert_all(Mention, mentions) do
         true -> {:ok, :pass}
         false -> {:error, "insert mentions error"}
       end
@@ -48,13 +39,13 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
     |> result()
   end
 
-  def batch_mention(article, contents, %User{} = from_user) do
+  def handle(article, mentions, %User{} = from_user) do
     Multi.new()
     |> Multi.run(:batch_delete_mentions, fn _, _ ->
       batch_delete_mentions(article, from_user)
     end)
     |> Multi.run(:batch_insert_mentions, fn _, _ ->
-      case {0, nil} !== Repo.insert_all(Mention, contents) do
+      case {0, nil} !== Repo.insert_all(Mention, mentions) do
         true -> {:ok, :pass}
         false -> {:error, "insert mentions error"}
       end
@@ -72,8 +63,7 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
   end
 
   defp batch_delete_mentions(article, %User{} = from_user) do
-    with {:ok, thread} <- thread_of_article(article),
-         {:ok, info} <- match(thread) do
+    with {:ok, thread} <- thread_of_article(article) do
       thread = thread |> to_string |> String.upcase()
 
       from(m in Mention,
@@ -92,14 +82,14 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
     |> where([m], m.to_user_id == ^user.id)
     |> where([m], m.read == ^read)
     |> ORM.paginater(~m(page size)a)
-    |> extract_contents
+    |> extract_mentions
     |> done()
   end
 
-  defp extract_contents(%{entries: entries} = paged_contents) do
+  defp extract_mentions(%{entries: entries} = paged_mentions) do
     entries = entries |> Repo.preload(:from_user) |> Enum.map(&shape(&1))
 
-    Map.put(paged_contents, :entries, entries)
+    Map.put(paged_mentions, :entries, entries)
   end
 
   # who in what part, mentioned me?

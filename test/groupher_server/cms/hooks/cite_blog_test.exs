@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.CMS.Hooks.CiteBlog do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.Model.{Blog, Comment, CitedContent}
+  alias CMS.Model.{Blog, Comment, CitedArtiment}
   alias CMS.Delegate.Hooks
 
   @site_host get_config(:general, :site_host)
@@ -104,7 +104,7 @@ defmodule GroupherServer.Test.CMS.Hooks.CiteBlog do
       {:ok, comment} = ORM.find(Comment, comment.id)
       assert comment.meta.citing_count == 1
 
-      {:ok, cite_content} = ORM.find_by(CitedContent, %{cited_by_id: comment.id})
+      {:ok, cite_content} = ORM.find_by(CitedArtiment, %{cited_by_id: comment.id})
       assert blog.id == cite_content.blog_id
       assert cite_content.cited_by_type == "COMMENT"
     end
@@ -124,7 +124,7 @@ defmodule GroupherServer.Test.CMS.Hooks.CiteBlog do
       {:ok, cited_comment} = ORM.find(Comment, cited_comment.id)
       assert cited_comment.meta.citing_count == 1
 
-      {:ok, cite_content} = ORM.find_by(CitedContent, %{cited_by_id: cited_comment.id})
+      {:ok, cite_content} = ORM.find_by(CitedArtiment, %{cited_by_id: cited_comment.id})
       assert comment.id == cite_content.comment_id
       assert cited_comment.id == cite_content.cited_by_id
       assert cite_content.cited_by_type == "COMMENT"

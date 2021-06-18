@@ -1,28 +1,9 @@
 defmodule GroupherServer.CMS.Delegate.Hooks.Mention do
   @moduledoc """
-  run tasks in every article blocks if need
+  hooks for mention task
 
-  current task: "cite link" and "mention"
-
-  ## cite link
-
-  我被站内哪些文章或评论引用了，是值得关注的事
-  我引用了谁不重要，帖子里链接已经表明了, 这和 github issue 的双向链接不一样，因为一般不需要关注这个
-  帖子是否解决，是否被 merge 等状态。
-
-  基本结构：
-
-  cited_thread, cited_article_id, [xxx_article]_id, [block_id, block2_id],
-
-  POST post_333 -> cited_article_333, [block_id, block2_id]]
-
-  cited_type, cited_content_id, [contents]_id, [block_id, cited_block_id],
-
-  cited_type: thread or comment
-  content: article or comment
-  # cited_article_comment_id, [xxx_article]_id, [block_id, block2_id, ...],
+  parse and fmt(see shape function) mentions to Delivery module
   """
-
   import Ecto.Query, warn: false
   import Helper.Utils, only: [get_config: 2, thread_of_article: 2]
 
@@ -36,41 +17,36 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Mention do
 
   @article_mention_class "cdx-mention"
 
-  def handle(%{body: body} = content) do
+  def handle(%{body: body} = artiment) do
     with {:ok, %{"blocks" => blocks}} <- Jason.decode(body),
-         {:ok, content} <- preload_author(content) do
+         {:ok, artiment} <- preload_author(artiment) do
       blocks
-      |> Enum.reduce([], &(&2 ++ parse_mention_info_per_block(content, &1)))
+      |> Enum.reduce([], &(&2 ++ parse_mention_info_per_block(artiment, &1)))
       |> merge_same_block_linker(:to_user_id)
-      |> batch_mention(content)
+      |> handle_mentions(artiment)
     end
   end
 
-  # contents list of mention fmt args
-  defp batch_mention(contents, %Comment{} = comment) do
-    from_user = comment.author
-    Delivery.batch_mention(comment, contents, from_user)
+  defp handle_mentions(mentions, artiment) do
+    with {:ok, author} <- author_of(artiment) do
+      Delivery.send(:mention, artiment, mentions, author)
+    end
   end
 
-  defp batch_mention(contents, article) do
-    from_user = article.author.user
-    Delivery.batch_mention(article, contents, from_user)
-  end
-
-  defp parse_mention_info_per_block(content, %{"id" => block_id, "data" => %{"text" => text}}) do
+  defp parse_mention_info_per_block(artiment, %{"id" => block_id, "data" => %{"text" => text}}) do
     mentions = Floki.find(text, ".#{@article_mention_class}")
 
-    parse_mention_in_block(content, block_id, mentions)
+    parse_mention_in_block(artiment, block_id, mentions)
   end
 
   # mentions Floki parsed fmt
-  # content means both article and comment
+  # artiment means both article and comment
   # e.g:
   # [{"div", [{"class", "cdx-mention"}], ["penelope438"]}]
-  defp parse_mention_in_block(content, block_id, mentions) do
+  defp parse_mention_in_block(artiment, block_id, mentions) do
     Enum.reduce(mentions, [], fn mention, acc ->
-      case parse_mention_user_id(content, mention) do
-        {:ok, user_id} -> List.insert_at(acc, 0, shape(content, user_id, block_id))
+      case parse_mention_user_id(artiment, mention) do
+        {:ok, user_id} -> List.insert_at(acc, 0, shape(artiment, user_id, block_id))
         {:error, _} -> acc
       end
     end)
@@ -79,8 +55,8 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Mention do
 
   # make sure mention user is exsit and not author self
   # 确保 mention 的用户是存在的, 并且不是在提及自己
-  defp parse_mention_user_id(content, {_, _, [user_login]}) do
-    with {:ok, author} <- author_of(content),
+  defp parse_mention_user_id(artiment, {_, _, [user_login]}) do
+    with {:ok, author} <- author_of(artiment),
          {:ok, user_id} <- Accounts.get_userid_and_cache(user_login) do
       case author.id !== user_id do
         true -> {:ok, user_id}
