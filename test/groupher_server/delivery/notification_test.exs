@@ -13,6 +13,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
     {:ok, user3} = db_insert(:user)
+    {:ok, user4} = db_insert(:user)
     {:ok, community} = db_insert(:community)
 
     notify_attrs = %{
@@ -24,7 +25,18 @@ defmodule GroupherServer.Test.Delivery.Notification do
       read: false
     }
 
-    {:ok, ~m(community post user user2 user3 notify_attrs)a}
+    {:ok, ~m(community post user user2 user3 user4 notify_attrs)a}
+  end
+
+  # 将插入时间模拟到 @notify_group_interval_hour 之前, 防止折叠
+  defp move_insert_at_long_ago(notify) do
+    before_inserted_at =
+      Timex.shift(Timex.now(), hours: -@notify_group_interval_hour, minutes: -1)
+      |> DateTime.truncate(:second)
+
+    notify
+    |> Ecto.Changeset.change(%{inserted_at: before_inserted_at})
+    |> Repo.update()
   end
 
   describe "notification curd" do
@@ -66,13 +78,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
          ~m(user user2 user3 notify_attrs)a do
       {:ok, notify} = Delivery.send(:notify, notify_attrs, user2)
 
-      before_inserted_at =
-        Timex.shift(Timex.now(), hours: -@notify_group_interval_hour, minutes: -1)
-        |> DateTime.truncate(:second)
-
-      notify
-      |> Ecto.Changeset.change(%{inserted_at: before_inserted_at})
-      |> Repo.update()
+      move_insert_at_long_ago(notify)
 
       {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
 
@@ -90,6 +96,85 @@ defmodule GroupherServer.Test.Delivery.Notification do
     @tag :wip
     test "notify myself got ignored", ~m(user notify_attrs)a do
       {:error, _} = Delivery.send(:notify, notify_attrs, user)
+    end
+  end
+
+  describe "revoke case" do
+    # @tag :wip
+    test "can revoke a notification", ~m(user user2  notify_attrs)a do
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
+
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      assert paged_notifies.total_count == 1
+
+      Delivery.revoke(:notify, notify_attrs, user2)
+
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      assert paged_notifies.total_count == 0
+    end
+
+    # @tag :wip
+    test "can revoke a multi-user joined notification", ~m(user user2 user3 notify_attrs)a do
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
+
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      assert paged_notifies.total_count == 1
+      notify = paged_notifies.entries |> List.first()
+      assert user_exist_in?(user2, notify.from_users)
+      assert user_exist_in?(user3, notify.from_users)
+
+      Delivery.revoke(:notify, notify_attrs, user2)
+
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      assert paged_notifies.total_count == 1
+
+      notify = paged_notifies.entries |> List.first()
+      assert not user_exist_in?(user2, notify.from_users)
+    end
+
+    @tag :wip
+    test "can revoke a multi-user joined notification, long peroid",
+         ~m(user user2 user3 notify_attrs)a do
+      {:ok, notify} = Delivery.send(:notify, notify_attrs, user2)
+
+      move_insert_at_long_ago(notify)
+
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
+
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      assert paged_notifies.total_count == 2
+
+      Delivery.revoke(:notify, notify_attrs, user2)
+
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      assert paged_notifies.total_count == 1
+      notify = paged_notifies.entries |> List.first()
+      assert not user_exist_in?(user2, notify.from_users)
+    end
+
+    @tag :wip
+    test "can revoke a multi-user joined notification, long peroid, edge case",
+         ~m(user user2 user3 user4 notify_attrs)a do
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
+      {:ok, notify} = Delivery.send(:notify, notify_attrs, user3)
+
+      move_insert_at_long_ago(notify)
+
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user4)
+
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      assert paged_notifies.total_count == 2
+
+      Delivery.revoke(:notify, notify_attrs, user2)
+
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      assert paged_notifies.total_count == 2
+      notify1 = paged_notifies.entries |> List.first()
+      notify2 = paged_notifies.entries |> List.last()
+
+      assert not user_exist_in?(user2, notify1.from_users)
+      assert not user_exist_in?(user2, notify2.from_users)
     end
   end
 

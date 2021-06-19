@@ -9,22 +9,10 @@ defmodule GroupherServer.Delivery.Delegate.Postman do
     Mention.handle(artiment, mentions, from_user)
   end
 
-  def send(:notify, attrs, from_user) do
-    Notification.handle(attrs, from_user)
-  end
-
-  # TODO:
-  # def revoke(:notify, attrs, from_user) do
-  #   Notification.handle(attrs, from_user)
-  # end
-
-  def fetch(:mention, user, filter) do
-    Mention.paged_mentions(user, filter)
-  end
-
-  def fetch(:notification, user, filter) do
-    Notification.paged_notifications(user, filter)
-  end
+  def send(:notify, attrs, from_user), do: Notification.handle(attrs, from_user)
+  def revoke(:notify, attrs, from_user), do: Notification.revoke(attrs, from_user)
+  def fetch(:mention, user, filter), do: Mention.paged_mentions(user, filter)
+  def fetch(:notification, user, filter), do: Notification.paged_notifications(user, filter)
 
   # def send(_, _, _), do: {:error, "delivery, not such service"}
   # def send(_, _, _, _), do: {:error, "delivery, not such service"}

@@ -10,6 +10,7 @@ defmodule GroupherServer.Delivery do
 
   defdelegate send(service, artiment, mentions, from_user), to: Postman
   defdelegate send(service, attrs, from_user), to: Postman
+  defdelegate revoke(service, attrs, from_user), to: Postman
   defdelegate fetch(service, user, filter), to: Postman
 
   # system_notifications

@@ -23,13 +23,37 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
          true <- user_id !== from_user.id do
       from_user = from_user |> Map.take([:login, :nickname]) |> Map.put(:user_id, from_user.id)
 
-      case similar_notify_latest_peroid(attrs) do
+      case find_exist_notify(attrs, :latest_peroid) do
         {:ok, notify} -> merge_notification(notify, from_user)
         {:error, _} -> create_notification(attrs, from_user)
       end
     else
       false -> {:error, "invalid args for notification"}
       error -> error
+    end
+  end
+
+  @doc "revoke action in notification in all history"
+  def revoke(attrs, %User{} = from_user) do
+    attrs = attrs |> Map.put(:from_user, from_user)
+
+    with {:ok, notifications} <- find_exist_notify(attrs, :all) do
+      Enum.each(notifications, fn notify ->
+        case length(notify.from_users) == 1 do
+          # 只有一就删除记录
+          true ->
+            ORM.delete(notify)
+
+          # 如果是多人集合就在 from_users 中删除该用户
+          false ->
+            from_users = Enum.reject(notify.from_users, &(&1.login == from_user.login))
+            notify |> ORM.update_embed(:from_users, from_users)
+        end
+      end)
+      |> done
+    else
+      false -> {:ok, :pass}
+      {:error, _} -> {:ok, :pass}
     end
   end
 
@@ -59,34 +83,50 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
     |> Repo.insert()
   end
 
-  defp similar_notify_latest_peroid(%{action: :follow} = attrs) do
-    do_find_similar(Notification, attrs)
+  defp find_exist_notify(%{action: :follow} = attrs, opt) do
+    do_find_exist_notify(Notification, attrs, opt)
   end
 
-  defp similar_notify_latest_peroid(%{comment_id: comment_id} = attrs)
+  defp find_exist_notify(%{comment_id: comment_id} = attrs, opt)
        when not is_nil(comment_id) do
     ~m(type article_id comment_id)a = atom_values_to_upcase(attrs)
 
     Notification
     |> where([n], n.type == ^type and n.article_id == ^article_id and n.comment_id == ^comment_id)
-    |> do_find_similar(attrs)
+    |> do_find_exist_notify(attrs, opt)
   end
 
-  defp similar_notify_latest_peroid(attrs) do
+  defp find_exist_notify(attrs, opt) do
     ~m(type article_id)a = atom_values_to_upcase(attrs)
 
     Notification
     |> where([n], n.type == ^type and n.article_id == ^article_id)
-    |> do_find_similar(attrs)
+    |> do_find_exist_notify(attrs, opt)
   end
 
-  defp do_find_similar(queryable, attrs) do
+  defp do_find_exist_notify(queryable, attrs, :latest_peroid) do
     ~m(user_id action)a = atom_values_to_upcase(attrs)
 
     queryable
     |> where([n], n.inserted_at >= ^interval_threshold_time() and n.user_id == ^user_id)
     |> where([n], n.action == ^action and n.read == false)
     |> Repo.one()
+    |> done
+  end
+
+  defp do_find_exist_notify(queryable, attrs, _opt) do
+    ~m(user_id action from_user)a = atom_values_to_upcase(attrs)
+
+    queryable = queryable |> where([n], n.user_id == ^user_id and n.action == ^action)
+
+    # select login in from_users
+    # see https://stackoverflow.com/questions/51267155/in-postgresql-how-can-i-select-rows-where-a-jsonb-array-contains-objects
+    # see https://elixirforum.com/t/writing-queries-with-multiple-from-clauses/28646/2?u=mydearxym
+    from(n in queryable,
+      cross_join: fu in fragment("jsonb_array_elements(?)", n.from_users),
+      where: fragment("?->>'login' = ?", fu, ^from_user.login)
+    )
+    |> Repo.all()
     |> done
   end
 
