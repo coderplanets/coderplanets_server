@@ -34,7 +34,7 @@ defmodule GroupherServer.Test.Delivery.Mention do
   describe "mentions" do
     test "can batch send mentions", ~m(post user user2 mention_contents)a do
       {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user)
-      {:ok, result} = Delivery.paged_mentions(user2, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
 
       mention = result.entries |> List.first()
 
@@ -46,12 +46,12 @@ defmodule GroupherServer.Test.Delivery.Mention do
     test "mention multiable times on same article, will only have one record",
          ~m(post user user2 mention_contents)a do
       {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user)
-      {:ok, result} = Delivery.paged_mentions(user2, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
 
       assert result.total_count == 1
 
       {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user)
-      {:ok, result} = Delivery.paged_mentions(user2, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
 
       assert result.total_count == 1
     end
@@ -59,11 +59,11 @@ defmodule GroupherServer.Test.Delivery.Mention do
     test "if mention before, update with no mention content will not do mention in final",
          ~m(post user user2 user3 mention_contents)a do
       {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user)
-      {:ok, result} = Delivery.paged_mentions(user2, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
 
       assert result.total_count == 1
 
-      {:ok, result} = Delivery.paged_mentions(user3, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:mention, user3, %{page: 1, size: 10})
       assert result.total_count == 0
 
       mention_contents = [
@@ -82,10 +82,10 @@ defmodule GroupherServer.Test.Delivery.Mention do
       ]
 
       {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user)
-      {:ok, result} = Delivery.paged_mentions(user2, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
       assert result.total_count == 0
 
-      {:ok, result} = Delivery.paged_mentions(user3, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:mention, user3, %{page: 1, size: 10})
       assert result.total_count == 1
     end
   end

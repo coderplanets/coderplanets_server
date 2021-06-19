@@ -41,7 +41,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInBlog do
 
       {:ok, _result} = Hooks.Mention.handle(blog)
 
-      {:ok, result} = Delivery.paged_mentions(user2, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
 
       mention = result.entries |> List.first()
       assert mention.type == "BLOG"
@@ -50,7 +50,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInBlog do
       assert mention.title == blog.title
       assert mention.user.login == blog.author.user.login
 
-      {:ok, result} = Delivery.paged_mentions(user3, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:mention, user3, %{page: 1, size: 10})
 
       mention = result.entries |> List.first()
       assert mention.type == "BLOG"
@@ -69,7 +69,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInBlog do
       {:ok, comment} = preload_author(comment)
 
       {:ok, _result} = Hooks.Mention.handle(comment)
-      {:ok, result} = Delivery.paged_mentions(user2, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
 
       mention = result.entries |> List.first()
       assert mention.type == "COMMENT"
@@ -86,7 +86,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInBlog do
       blog_attrs = blog_attrs |> Map.merge(%{body: body})
       {:ok, blog} = CMS.create_article(community, :blog, blog_attrs, user)
 
-      {:ok, result} = Delivery.paged_mentions(user, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:mention, user, %{page: 1, size: 10})
       assert result.total_count == 0
 
       comment_body =
@@ -95,7 +95,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInBlog do
       {:ok, comment} = CMS.create_comment(:blog, blog.id, comment_body, user)
 
       {:ok, _result} = Hooks.Mention.handle(comment)
-      {:ok, result} = Delivery.paged_mentions(user, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:mention, user, %{page: 1, size: 10})
 
       assert result.total_count == 0
     end

@@ -4,12 +4,12 @@ defmodule GroupherServer.Delivery do
   """
 
   alias GroupherServer.Delivery
-  alias Delivery.Delegate.{Postman, Mention, Mentions, Notifications, Utils}
+  alias Delivery.Delegate.{Postman, Mentions, Notifications, Utils}
 
   defdelegate mailbox_status(user), to: Utils
 
   defdelegate send(service, artiment, mentions, from_user), to: Postman
-  defdelegate paged_mentions(user, filter), to: Mention
+  defdelegate fetch(service, user, filter), to: Postman
 
   # system_notifications
   defdelegate publish_system_notification(info), to: Notifications

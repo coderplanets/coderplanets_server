@@ -41,7 +41,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInJob do
 
       {:ok, _result} = Hooks.Mention.handle(job)
 
-      {:ok, result} = Delivery.paged_mentions(user2, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
 
       mention = result.entries |> List.first()
       assert mention.type == "JOB"
@@ -50,7 +50,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInJob do
       assert mention.title == job.title
       assert mention.user.login == job.author.user.login
 
-      {:ok, result} = Delivery.paged_mentions(user3, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:mention, user3, %{page: 1, size: 10})
 
       mention = result.entries |> List.first()
       assert mention.type == "JOB"
@@ -69,7 +69,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInJob do
       {:ok, comment} = preload_author(comment)
 
       {:ok, _result} = Hooks.Mention.handle(comment)
-      {:ok, result} = Delivery.paged_mentions(user2, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
 
       mention = result.entries |> List.first()
       assert mention.type == "COMMENT"
@@ -86,7 +86,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInJob do
       job_attrs = job_attrs |> Map.merge(%{body: body})
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
-      {:ok, result} = Delivery.paged_mentions(user, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:mention, user, %{page: 1, size: 10})
       assert result.total_count == 0
 
       comment_body =
@@ -95,7 +95,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInJob do
       {:ok, comment} = CMS.create_comment(:job, job.id, comment_body, user)
 
       {:ok, _result} = Hooks.Mention.handle(comment)
-      {:ok, result} = Delivery.paged_mentions(user, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:mention, user, %{page: 1, size: 10})
 
       assert result.total_count == 0
     end
