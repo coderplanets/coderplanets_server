@@ -25,7 +25,6 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInBlog do
   end
 
   describe "[mention in blog basic]" do
-    @tag :wip
     test "mention multi user in blog should work", ~m(user user2 user3 community  blog_attrs)a do
       body =
         mock_rich_text(
@@ -60,7 +59,6 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInBlog do
       assert mention.user.login == blog.author.user.login
     end
 
-    @tag :wip
     test "mention in blog's comment should work", ~m(user user2 blog)a do
       comment_body =
         mock_rich_text(~s(hi <div class=#{@article_mention_class}>#{user2.login}</div>))
@@ -80,7 +78,6 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInBlog do
       assert mention.user.login == comment.author.login
     end
 
-    @tag :wip
     test "can not mention author self in blog or comment", ~m(community user blog_attrs)a do
       body = mock_rich_text(~s(hi <div class=#{@article_mention_class}>#{user.login}</div>))
       blog_attrs = blog_attrs |> Map.merge(%{body: body})

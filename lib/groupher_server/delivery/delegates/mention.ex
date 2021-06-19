@@ -54,6 +54,17 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
     |> result()
   end
 
+  def paged_mentions(%User{} = user, %{page: page, size: size} = filter) do
+    read = Map.get(filter, :read, false)
+
+    Mention
+    |> where([m], m.to_user_id == ^user.id)
+    |> where([m], m.read == ^read)
+    |> ORM.paginater(~m(page size)a)
+    |> extract_mentions
+    |> done()
+  end
+
   defp batch_delete_mentions(%Comment{} = comment, %User{} = from_user) do
     from(m in Mention,
       where: m.comment_id == ^comment.id,
@@ -73,17 +84,6 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
       )
       |> ORM.delete_all(:if_exist)
     end
-  end
-
-  def paged_mentions(%User{} = user, %{page: page, size: size} = filter) do
-    read = Map.get(filter, :read, false)
-
-    Mention
-    |> where([m], m.to_user_id == ^user.id)
-    |> where([m], m.read == ^read)
-    |> ORM.paginater(~m(page size)a)
-    |> extract_mentions
-    |> done()
   end
 
   defp extract_mentions(%{entries: entries} = paged_mentions) do

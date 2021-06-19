@@ -9,6 +9,7 @@ defmodule GroupherServer.Delivery do
   defdelegate mailbox_status(user), to: Utils
 
   defdelegate send(service, artiment, mentions, from_user), to: Postman
+  defdelegate send(service, attrs, from_user), to: Postman
   defdelegate fetch(service, user, filter), to: Postman
 
   # system_notifications

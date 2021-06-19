@@ -25,7 +25,6 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInJob do
   end
 
   describe "[mention in job basic]" do
-    @tag :wip
     test "mention multi user in job should work", ~m(user user2 user3 community  job_attrs)a do
       body =
         mock_rich_text(
@@ -60,7 +59,6 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInJob do
       assert mention.user.login == job.author.user.login
     end
 
-    @tag :wip
     test "mention in job's comment should work", ~m(user user2 job)a do
       comment_body =
         mock_rich_text(~s(hi <div class=#{@article_mention_class}>#{user2.login}</div>))
@@ -80,7 +78,6 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInJob do
       assert mention.user.login == comment.author.login
     end
 
-    @tag :wip
     test "can not mention author self in job or comment", ~m(community user job_attrs)a do
       body = mock_rich_text(~s(hi <div class=#{@article_mention_class}>#{user.login}</div>))
       job_attrs = job_attrs |> Map.merge(%{body: body})

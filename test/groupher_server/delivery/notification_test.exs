@@ -1,130 +1,40 @@
-defmodule GroupherServer.Test.Delivery.OldNotification do
+defmodule GroupherServer.Test.Delivery.Notification do
   use GroupherServer.TestTools
 
   import Ecto.Query, warn: false
-  import Helper.Utils
+  # import Helper.Utils
 
-  alias Helper.ORM
-  alias GroupherServer.{Accounts, Delivery}
+  alias GroupherServer.Delivery
 
-  alias Accounts.Model.NotificationMail
-  alias Delivery.Model.OldNotification
+  setup do
+    {:ok, post} = db_insert(:post)
+    {:ok, user} = db_insert(:user)
+    {:ok, user2} = db_insert(:user)
+    {:ok, user3} = db_insert(:user)
+    {:ok, community} = db_insert(:community)
 
-  describe "[delivery notification]" do
-    test "user can notify other user" do
-      {:ok, [user, user2]} = db_insert_multi(:user, 2)
+    notify = %{
+      type: "POST",
+      article_id: post.id,
+      title: post.title,
+      action: "UPVOTE",
+      user_id: user.id,
+      read: false
+      # inserted_at: post.updated_at |> DateTime.truncate(:second),
+    }
 
-      mock_notifications_for(user, 1)
-      mock_notifications_for(user2, 1)
+    {:ok, ~m(community post user user2 user3 notify)a}
+  end
 
-      filter = %{page: 1, size: 20, read: false}
-      {:ok, notifications} = Delivery.fetch_notifications(user, filter)
+  describe "notification curd" do
+    @tag :wip
+    test "can insert notification.", ~m(post user user2 user3 notify)a do
+      {:ok, _} = Delivery.send(:notify, notify, user2)
+      {:ok, _} = Delivery.send(:notify, notify, user3)
 
-      assert notifications |> is_valid_pagination?(:raw)
-      assert notifications |> Map.get(:total_count) == 1
-      assert user.id == notifications.entries |> List.first() |> Map.get(:to_user_id)
-    end
+      {:ok, hello} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
 
-    test "user can fetch notifications and store in own mention mail-box" do
-      {:ok, user} = db_insert(:user)
-
-      mock_notifications_for(user, 3)
-
-      filter = %{page: 1, size: 20, read: false}
-      {:ok, notifications} = Accounts.fetch_notifications(user, filter)
-
-      {:ok, notification_mails} =
-        NotificationMail
-        |> where([m], m.to_user_id == ^user.id)
-        |> where([m], m.read == false)
-        |> ORM.paginater(page: 1, size: 10)
-        |> done()
-
-      notification_ids =
-        notifications.entries
-        |> Enum.reduce([], fn m, acc ->
-          acc |> Enum.concat([m |> Map.from_struct() |> Map.get(:id)])
-        end)
-
-      notification_mail_ids =
-        notification_mails.entries
-        |> Enum.reduce([], fn m, acc ->
-          acc |> Enum.concat([m |> Map.from_struct() |> Map.get(:id)])
-        end)
-
-      assert Enum.sort(notification_ids) == Enum.sort(notification_mail_ids)
-    end
-
-    test "delete related delivery notifications after user fetch" do
-      {:ok, user} = db_insert(:user)
-
-      mock_notifications_for(user, 3)
-
-      filter = %{page: 1, size: 20, read: false}
-      {:ok, _mentions} = Accounts.fetch_notifications(user, filter)
-
-      {:ok, notifications} =
-        OldNotification
-        |> where([m], m.to_user_id == ^user.id)
-        |> ORM.paginater(page: 1, size: 10)
-        |> done()
-
-      assert Enum.empty?(notifications.entries)
-    end
-
-    test "store user fetch info in delivery records, with last_fetch_unread_time info" do
-      {:ok, user} = db_insert(:user)
-
-      mock_notifications_for(user, 3)
-
-      filter = %{page: 1, size: 20, read: false}
-      {:ok, notifications} = Accounts.fetch_notifications(user, filter)
-      {:ok, record} = Delivery.fetch_record(user)
-
-      latest_insert_time =
-        notifications.entries |> List.first() |> Map.get(:inserted_at) |> to_string
-
-      record_last_fetch_unresd_time =
-        record |> Map.get(:notifications_record) |> Map.get("last_fetch_unread_time")
-
-      assert latest_insert_time == record_last_fetch_unresd_time
-    end
-
-    test "user can mark one notifications as read" do
-      {:ok, user} = db_insert(:user)
-
-      mock_notifications_for(user, 3)
-
-      filter = %{page: 1, size: 20, read: false}
-      {:ok, notifications} = Accounts.fetch_notifications(user, filter)
-      first_notification = notifications.entries |> List.first()
-      assert notifications.total_count == 3
-      Accounts.mark_mail_read(first_notification, user)
-
-      filter = %{page: 1, size: 20, read: false}
-      {:ok, notifications} = Accounts.fetch_notifications(user, filter)
-      assert notifications.total_count == 2
-
-      filter = %{page: 1, size: 20, read: true}
-      {:ok, notifications} = Accounts.fetch_notifications(user, filter)
-      assert notifications.total_count == 1
-    end
-
-    test "user can mark all unread notifications as read" do
-      {:ok, user} = db_insert(:user)
-
-      mock_notifications_for(user, 3)
-
-      Accounts.mark_mail_read_all(user, :notification)
-
-      filter = %{page: 1, size: 20, read: false}
-      {:ok, notifications} = Accounts.fetch_notifications(user, filter)
-
-      assert Enum.empty?(notifications.entries)
-
-      filter = %{page: 1, size: 20, read: true}
-      {:ok, notifications} = Accounts.fetch_notifications(user, filter)
-      assert notifications.total_count == 3
+      IO.inspect(hello, label: "hello")
     end
   end
 end
