@@ -2,9 +2,11 @@ defmodule GroupherServer.Test.Delivery.Notification do
   use GroupherServer.TestTools
 
   import Ecto.Query, warn: false
-  # import Helper.Utils
+  import Helper.Utils, only: [get_config: 2]
 
-  alias GroupherServer.Delivery
+  alias GroupherServer.{Delivery, Repo}
+
+  @notify_group_interval_hour get_config(:general, :notify_group_interval_hour)
 
   setup do
     {:ok, post} = db_insert(:post)
@@ -13,28 +15,136 @@ defmodule GroupherServer.Test.Delivery.Notification do
     {:ok, user3} = db_insert(:user)
     {:ok, community} = db_insert(:community)
 
-    notify = %{
-      type: "POST",
+    notify_attrs = %{
+      type: :post,
       article_id: post.id,
       title: post.title,
-      action: "UPVOTE",
+      action: :upvote,
       user_id: user.id,
       read: false
-      # inserted_at: post.updated_at |> DateTime.truncate(:second),
     }
 
-    {:ok, ~m(community post user user2 user3 notify)a}
+    {:ok, ~m(community post user user2 user3 notify_attrs)a}
   end
 
   describe "notification curd" do
     @tag :wip
-    test "can insert notification.", ~m(post user user2 user3 notify)a do
-      {:ok, _} = Delivery.send(:notify, notify, user2)
-      {:ok, _} = Delivery.send(:notify, notify, user3)
+    test "similar notify should be merged", ~m(user user2 user3 notify_attrs)a do
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
 
-      {:ok, hello} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
 
-      IO.inspect(hello, label: "hello")
+      notify = paged_notifies.entries |> List.first()
+
+      assert paged_notifies.total_count == 1
+
+      assert notify.from_users |> length == 2
+      assert user2 |> user_exist_in?(notify.from_users)
+      assert user3 |> user_exist_in?(notify.from_users)
+    end
+
+    @tag :wip
+    test "different notify should not be merged", ~m(user user2 user3 notify_attrs)a do
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
+      notify_attrs = notify_attrs |> Map.put(:action, :collect)
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
+
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+
+      assert paged_notifies.total_count == 2
+
+      notify1 = paged_notifies.entries |> List.first()
+      notify2 = paged_notifies.entries |> List.last()
+
+      assert user3 |> user_exist_in?(notify1.from_users)
+      assert user2 |> user_exist_in?(notify2.from_users)
+    end
+
+    @tag :wip
+    test "notify not in @notify_group_interval_hour should not be merged",
+         ~m(user user2 user3 notify_attrs)a do
+      {:ok, notify} = Delivery.send(:notify, notify_attrs, user2)
+
+      before_inserted_at =
+        Timex.shift(Timex.now(), hours: -@notify_group_interval_hour, minutes: -1)
+        |> DateTime.truncate(:second)
+
+      notify
+      |> Ecto.Changeset.change(%{inserted_at: before_inserted_at})
+      |> Repo.update()
+
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
+
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+
+      assert paged_notifies.total_count == 2
+
+      notify1 = paged_notifies.entries |> List.first()
+      notify2 = paged_notifies.entries |> List.last()
+
+      assert user3 |> user_exist_in?(notify1.from_users)
+      assert user2 |> user_exist_in?(notify2.from_users)
+    end
+
+    # @tag :wip
+    # test "notify myself got ignored" do
+    # end
+  end
+
+  describe "basic type support" do
+    @tag :wip
+    test "support upvote", ~m(post user user2 notify_attrs)a do
+      notify_attrs
+      |> Map.merge(%{
+        type: :post,
+        article_id: post.id,
+        title: post.title,
+        action: :upvote,
+        user_id: user.id
+      })
+
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
+
+      notify_attrs
+      |> Map.merge(%{
+        type: :comment,
+        article_id: post.id,
+        comment_id: 11,
+        title: post.title,
+        action: :upvote,
+        user_id: user.id
+      })
+
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
+
+      invalid_notify_attrs =
+        notify_attrs
+        |> Map.merge(%{
+          type: :comment,
+          article_id: post.id,
+          title: post.title,
+          action: :upvote,
+          user_id: user.id
+        })
+
+      {:error, _} = Delivery.send(:notify, invalid_notify_attrs, user2)
+    end
+
+    @tag :wip
+    test "support follow", ~m(user user2)a do
+      notify_attrs = %{
+        action: :follow,
+        user_id: user.id
+      }
+
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
+
+      invalid_notify_attrs = %{
+        action: :follow
+      }
+
+      {:error, _} = Delivery.send(:notify, invalid_notify_attrs, user2)
     end
   end
 end

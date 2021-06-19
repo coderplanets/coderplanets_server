@@ -8,17 +8,17 @@ defmodule Helper.Utils.Map do
   e.g:
   %{hello: :world} # -> %{hello: "WORLD"}
   """
-  def map_atom_values_to_upcase_str(map) when is_map(map) do
+  def atom_values_to_upcase(map) when is_map(map) do
     map
     |> Enum.reduce(%{}, fn {key, val}, acc ->
-      case is_atom(val) do
+      case val !== true and val !== false and is_atom(val) do
         true -> Map.put(acc, key, val |> to_string |> String.upcase())
         false -> Map.put(acc, key, val)
       end
     end)
   end
 
-  def map_atom_values_to_upcase_str(value), do: value
+  def atom_values_to_upcase(value), do: value
 
   def map_key_stringify(%{__struct__: _} = map) when is_map(map) do
     map = Map.from_struct(map)

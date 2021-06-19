@@ -47,7 +47,11 @@ config :groupher_server, :general,
   user_achieve_upvote_weight: 1,
   user_achieve_watch_weight: 1,
   user_achieve_collect_weight: 2,
-  user_achieve_follow_weight: 3
+  user_achieve_follow_weight: 3,
+  # others
+  # 在这个时间段内，多条提醒消息将被合并为一条
+  notify_group_interval_hour: 1,
+  nofity_types: [:upvote, :comment, :reply, :collect, :follow]
 
 config :groupher_server, :customization,
   theme: "cyan",

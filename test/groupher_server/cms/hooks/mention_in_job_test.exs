@@ -1,13 +1,10 @@
 defmodule GroupherServer.Test.CMS.Hooks.MentionInJob do
   use GroupherServer.TestTools
 
-  import Helper.Utils, only: [get_config: 2]
   import GroupherServer.CMS.Delegate.Helper, only: [preload_author: 1]
 
   alias GroupherServer.{CMS, Delivery}
   alias CMS.Delegate.Hooks
-
-  @site_host get_config(:general, :site_host)
 
   @article_mention_class "cdx-mention"
 

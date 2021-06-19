@@ -13,6 +13,11 @@ defmodule GroupherServer.Delivery.Delegate.Postman do
     Notification.handle(attrs, from_user)
   end
 
+  # TODO:
+  # def revoke(:notify, attrs, from_user) do
+  #   Notification.handle(attrs, from_user)
+  # end
+
   def fetch(:mention, user, filter) do
     Mention.paged_mentions(user, filter)
   end

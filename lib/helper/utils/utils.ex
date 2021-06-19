@@ -11,7 +11,7 @@ defmodule Helper.Utils do
   alias Helper.{Cache, Utils}
 
   # Map utils
-  defdelegate map_atom_values_to_upcase_str(map), to: Utils.Map
+  defdelegate atom_values_to_upcase(map), to: Utils.Map
   defdelegate map_key_stringify(map), to: Utils.Map
   defdelegate keys_to_atoms(map), to: Utils.Map
   defdelegate keys_to_strings(map), to: Utils.Map
