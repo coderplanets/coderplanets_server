@@ -87,9 +87,10 @@ defmodule GroupherServer.Test.Delivery.Notification do
       assert user2 |> user_exist_in?(notify2.from_users)
     end
 
-    # @tag :wip
-    # test "notify myself got ignored" do
-    # end
+    @tag :wip
+    test "notify myself got ignored", ~m(user notify_attrs)a do
+      {:error, _} = Delivery.send(:notify, notify_attrs, user)
+    end
   end
 
   describe "basic type support" do
@@ -132,6 +133,82 @@ defmodule GroupherServer.Test.Delivery.Notification do
     end
 
     @tag :wip
+    test "support collect", ~m(post user user2 notify_attrs)a do
+      notify_attrs
+      |> Map.merge(%{
+        type: :post,
+        article_id: post.id,
+        title: post.title,
+        action: :collect,
+        user_id: user.id
+      })
+
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
+
+      invalid_notify_attrs =
+        notify_attrs
+        |> Map.merge(%{
+          article_id: nil,
+          title: post.title,
+          action: :collect,
+          user_id: user.id
+        })
+
+      {:error, _} = Delivery.send(:notify, invalid_notify_attrs, user2)
+    end
+
+    @tag :wip
+    test "support comment and reply", ~m(post user user2 notify_attrs)a do
+      notify_attrs
+      |> Map.merge(%{
+        type: :post,
+        article_id: post.id,
+        title: post.title,
+        comment_id: 11,
+        action: :comment,
+        user_id: user.id
+      })
+
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
+
+      notify_attrs
+      |> Map.merge(%{
+        type: :post,
+        article_id: post.id,
+        comment_id: 11,
+        title: post.title,
+        action: :reply,
+        user_id: user.id
+      })
+
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
+
+      invalid_notify_attrs =
+        notify_attrs
+        |> Map.merge(%{
+          type: :post,
+          article_id: post.id,
+          title: post.title,
+          action: :comment,
+          user_id: user.id
+        })
+
+      {:error, _} = Delivery.send(:notify, invalid_notify_attrs, user2)
+
+      invalid_notify_attrs =
+        notify_attrs
+        |> Map.merge(%{
+          type: :post,
+          article_id: post.id,
+          title: post.title,
+          action: :reply,
+          user_id: user.id
+        })
+
+      {:error, _} = Delivery.send(:notify, invalid_notify_attrs, user2)
+    end
+
+    @tag :wip
     test "support follow", ~m(user user2)a do
       notify_attrs = %{
         action: :follow,
@@ -139,12 +216,6 @@ defmodule GroupherServer.Test.Delivery.Notification do
       }
 
       {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
-
-      invalid_notify_attrs = %{
-        action: :follow
-      }
-
-      {:error, _} = Delivery.send(:notify, invalid_notify_attrs, user2)
     end
   end
 end

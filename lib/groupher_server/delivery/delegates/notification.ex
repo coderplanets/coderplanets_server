@@ -17,9 +17,10 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
   @supported_notify_type get_config(:general, :nofity_types)
   @notify_group_interval_hour get_config(:general, :notify_group_interval_hour)
 
-  def handle(%{action: action} = attrs, %User{} = from_user) do
+  def handle(%{action: action, user_id: user_id} = attrs, %User{} = from_user) do
     with true <- action in @supported_notify_type,
-         true <- is_valid?(attrs) do
+         true <- is_valid?(attrs),
+         true <- user_id !== from_user.id do
       from_user = from_user |> Map.take([:login, :nickname]) |> Map.put(:user_id, from_user.id)
 
       case similar_notify_latest_peroid(attrs) do
@@ -99,7 +100,7 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
   end
 
   defp is_valid?(%{action: :comment} = attrs) do
-    attrs |> all_exist?([:article_id, :type, :title, :user_id])
+    attrs |> all_exist?([:article_id, :type, :title, :comment_id, :user_id])
   end
 
   defp is_valid?(%{action: :reply} = attrs) do
@@ -111,6 +112,8 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
   end
 
   defp is_valid?(%{action: :follow} = attrs), do: attrs |> all_exist?([:user_id])
+
+  defp is_valid?(_), do: false
 
   # 确保 key 存在，并且不为 nil
   defp all_exist?(attrs, keys) when is_map(attrs) and is_list(keys) do
