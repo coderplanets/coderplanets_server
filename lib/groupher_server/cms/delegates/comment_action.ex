@@ -17,11 +17,12 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
   import GroupherServer.CMS.Helper.Matcher
 
   alias Helper.Types, as: T
-  alias Helper.ORM
+  alias Helper.{ORM, Later}
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.Model.User
   alias CMS.Model.{Comment, PinnedComment, CommentUpvote, CommentReply, Embeds}
+  alias CMS.Delegate.Hooks
 
   alias Ecto.Multi
 
@@ -147,7 +148,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
   end
 
   @doc "upvote a comment"
-  def upvote_comment(comment_id, %User{id: user_id}) do
+  def upvote_comment(comment_id, %User{id: user_id} = from_user) do
     with {:ok, comment} <- ORM.find(Comment, comment_id),
          false <- comment.is_deleted do
       Multi.new()
@@ -174,13 +175,16 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         |> Map.merge(%{viewer_has_reported: viewer_has_reported})
         |> done
       end)
+      |> Multi.run(:after_hooks, fn _, _ ->
+        Later.run({Hooks.Notify, :handle, [:upvote, comment, from_user]})
+      end)
       |> Repo.transaction()
       |> result()
     end
   end
 
   @doc "upvote a comment"
-  def undo_upvote_comment(comment_id, %User{id: user_id}) do
+  def undo_upvote_comment(comment_id, %User{id: user_id} = from_user) do
     with {:ok, comment} <- ORM.find(Comment, comment_id),
          false <- comment.is_deleted do
       Multi.new()
@@ -210,6 +214,9 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         |> Map.merge(%{viewer_has_upvoted: viewer_has_upvoted})
         |> Map.merge(%{viewer_has_reported: viewer_has_reported})
         |> done
+      end)
+      |> Multi.run(:after_hooks, fn _, _ ->
+        Later.run({Hooks.Notify, :handle, [:undo, :upvote, comment, from_user]})
       end)
       |> Repo.transaction()
       |> result()
