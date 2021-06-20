@@ -40,7 +40,6 @@ defmodule GroupherServer.Test.Delivery.Notification do
   end
 
   describe "account follow" do
-    @tag :wip
     test "support follow action", ~m(user user2)a do
       notify_attrs = %{
         action: :follow,
@@ -59,7 +58,6 @@ defmodule GroupherServer.Test.Delivery.Notification do
       assert user2 |> user_exist_in?(notify.from_users)
     end
 
-    @tag :wip
     test "similar follow notify should be merged", ~m(user user2 user3)a do
       notify_attrs = %{
         action: :follow,
