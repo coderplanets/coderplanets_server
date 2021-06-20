@@ -35,12 +35,12 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
       notify = notifications.entries |> List.first()
       assert notify.action == "UPVOTE"
       assert notify.article_id == post.id
-      assert notify.type == "POST"
+      assert notify.thread == "POST"
       assert notify.user_id == post.author.user.id
       assert user_exist_in?(user2, notify.from_users)
     end
 
-    @tag :wip
+    @tag :wip2
     test "upvote hook should work on post comment", ~m(user2 post comment)a do
       {:ok, comment} = CMS.upvote_comment(comment.id, user2)
       {:ok, comment} = preload_author(comment)
@@ -55,7 +55,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
       notify = notifications.entries |> List.first()
       assert notify.action == "UPVOTE"
       assert notify.article_id == post.id
-      assert notify.type == "POST"
+      assert notify.thread == "POST"
       assert notify.user_id == comment.author.id
       assert notify.comment_id == comment.id
       assert user_exist_in?(user2, notify.from_users)
@@ -111,7 +111,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
       notify = notifications.entries |> List.first()
       assert notify.action == "COLLECT"
       assert notify.article_id == post.id
-      assert notify.type == "POST"
+      assert notify.thread == "POST"
       assert notify.user_id == post.author.user.id
       assert user_exist_in?(user2, notify.from_users)
     end
@@ -148,12 +148,10 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
 
       notify = notifications.entries |> List.first()
       assert notify.action == "COMMENT"
-      assert notify.type == "POST"
+      assert notify.thread == "POST"
       assert notify.article_id == post.id
       assert notify.user_id == post.author.user.id
       assert user_exist_in?(user2, notify.from_users)
-
-      IO.inspect(notifications, label: "notifications")
     end
   end
 end
