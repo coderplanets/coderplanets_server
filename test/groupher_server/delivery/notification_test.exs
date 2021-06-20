@@ -40,7 +40,6 @@ defmodule GroupherServer.Test.Delivery.Notification do
   end
 
   describe "notification curd" do
-    @tag :wip
     test "similar notify should be merged", ~m(user user2 user3 notify_attrs)a do
       {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
       {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
@@ -56,7 +55,6 @@ defmodule GroupherServer.Test.Delivery.Notification do
       assert user3 |> user_exist_in?(notify.from_users)
     end
 
-    @tag :wip
     test "different notify should not be merged", ~m(user user2 user3 notify_attrs)a do
       {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
       notify_attrs = notify_attrs |> Map.put(:action, :collect)
@@ -73,7 +71,6 @@ defmodule GroupherServer.Test.Delivery.Notification do
       assert user2 |> user_exist_in?(notify2.from_users)
     end
 
-    @tag :wip
     test "notify not in @notify_group_interval_hour should not be merged",
          ~m(user user2 user3 notify_attrs)a do
       {:ok, notify} = Delivery.send(:notify, notify_attrs, user2)
@@ -93,14 +90,12 @@ defmodule GroupherServer.Test.Delivery.Notification do
       assert user2 |> user_exist_in?(notify2.from_users)
     end
 
-    @tag :wip
     test "notify myself got ignored", ~m(user notify_attrs)a do
       {:error, _} = Delivery.send(:notify, notify_attrs, user)
     end
   end
 
   describe "revoke case" do
-    # @tag :wip
     test "can revoke a notification", ~m(user user2  notify_attrs)a do
       {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
 
@@ -113,7 +108,6 @@ defmodule GroupherServer.Test.Delivery.Notification do
       assert paged_notifies.total_count == 0
     end
 
-    # @tag :wip
     test "can revoke a multi-user joined notification", ~m(user user2 user3 notify_attrs)a do
       {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
       {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
@@ -133,7 +127,6 @@ defmodule GroupherServer.Test.Delivery.Notification do
       assert not user_exist_in?(user2, notify.from_users)
     end
 
-    @tag :wip
     test "can revoke a multi-user joined notification, long peroid",
          ~m(user user2 user3 notify_attrs)a do
       {:ok, notify} = Delivery.send(:notify, notify_attrs, user2)
@@ -153,7 +146,6 @@ defmodule GroupherServer.Test.Delivery.Notification do
       assert not user_exist_in?(user2, notify.from_users)
     end
 
-    @tag :wip
     test "can revoke a multi-user joined notification, long peroid, edge case",
          ~m(user user2 user3 user4 notify_attrs)a do
       {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
@@ -179,7 +171,6 @@ defmodule GroupherServer.Test.Delivery.Notification do
   end
 
   describe "basic type support" do
-    @tag :wip
     test "support upvote", ~m(post user user2 notify_attrs)a do
       notify_attrs
       |> Map.merge(%{
@@ -217,7 +208,6 @@ defmodule GroupherServer.Test.Delivery.Notification do
       {:error, _} = Delivery.send(:notify, invalid_notify_attrs, user2)
     end
 
-    @tag :wip
     test "support collect", ~m(post user user2 notify_attrs)a do
       notify_attrs
       |> Map.merge(%{
@@ -242,7 +232,6 @@ defmodule GroupherServer.Test.Delivery.Notification do
       {:error, _} = Delivery.send(:notify, invalid_notify_attrs, user2)
     end
 
-    @tag :wip
     test "support comment and reply", ~m(post user user2 notify_attrs)a do
       notify_attrs
       |> Map.merge(%{
@@ -293,7 +282,6 @@ defmodule GroupherServer.Test.Delivery.Notification do
       {:error, _} = Delivery.send(:notify, invalid_notify_attrs, user2)
     end
 
-    @tag :wip
     test "support follow", ~m(user user2)a do
       notify_attrs = %{
         action: :follow,

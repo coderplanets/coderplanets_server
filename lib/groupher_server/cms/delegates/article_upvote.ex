@@ -15,11 +15,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleUpvote do
 
   # import Helper.ErrorCode
 
-  alias Helper.ORM
+  alias Helper.{ORM, Later}
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.Model.User
   alias CMS.Model.ArticleUpvote
+  alias CMS.Delegate.Hooks
 
   alias Ecto.Multi
 
@@ -28,7 +29,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleUpvote do
   end
 
   @doc "upvote to a article-like content"
-  def upvote_article(thread, article_id, %User{id: user_id}) do
+  def upvote_article(thread, article_id, %User{id: user_id} = from_user) do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, article_id, preload: [author: :user]) do
       Multi.new()
@@ -50,13 +51,16 @@ defmodule GroupherServer.CMS.Delegate.ArticleUpvote do
           ORM.find(info.model, article.id)
         end
       end)
+      |> Multi.run(:after_hooks, fn _, _ ->
+        Later.run({Hooks.Notify, :handle, [:upvote, article, from_user]})
+      end)
       |> Repo.transaction()
       |> result()
     end
   end
 
   @doc "upvote to a article-like content"
-  def undo_upvote_article(thread, article_id, %User{id: user_id}) do
+  def undo_upvote_article(thread, article_id, %User{id: user_id} = from_user) do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, article_id) do
       Multi.new()
@@ -71,6 +75,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleUpvote do
 
         ORM.findby_delete(ArticleUpvote, args)
         ORM.find(info.model, article.id)
+      end)
+      |> Multi.run(:after_hooks, fn _, _ ->
+        Later.run({Hooks.Notify, :handle, [:undo, :upvote, article, from_user]})
       end)
       |> Repo.transaction()
       |> result()
