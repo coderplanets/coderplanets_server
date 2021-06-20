@@ -30,7 +30,9 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
       batch_delete_mentions(comment, from_user)
     end)
     |> Multi.run(:batch_insert_mentions, fn _, _ ->
-      case {0, nil} !== Repo.insert_all(Mention, atom_values_to_upcase(mentions)) do
+      mentions = Enum.map(mentions, &atom_values_to_upcase(&1))
+
+      case {0, nil} !== Repo.insert_all(Mention, mentions) do
         true -> {:ok, :pass}
         false -> {:error, "insert mentions error"}
       end
@@ -45,7 +47,9 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
       batch_delete_mentions(article, from_user)
     end)
     |> Multi.run(:batch_insert_mentions, fn _, _ ->
-      case {0, nil} !== Repo.insert_all(Mention, atom_values_to_upcase(mentions)) do
+      mentions = Enum.map(mentions, &atom_values_to_upcase(&1))
+
+      case {0, nil} !== Repo.insert_all(Mention, mentions) do
         true -> {:ok, :pass}
         false -> {:error, "insert mentions error"}
       end

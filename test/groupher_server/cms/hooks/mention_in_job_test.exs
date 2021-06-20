@@ -40,7 +40,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInJob do
       {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
 
       mention = result.entries |> List.first()
-      assert mention.type == "JOB"
+      assert mention.thread == "JOB"
       assert mention.block_linker |> length == 2
       assert mention.article_id == job.id
       assert mention.title == job.title
@@ -49,7 +49,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInJob do
       {:ok, result} = Delivery.fetch(:mention, user3, %{page: 1, size: 10})
 
       mention = result.entries |> List.first()
-      assert mention.type == "JOB"
+      assert mention.thread == "JOB"
       assert mention.block_linker |> length == 1
       assert mention.article_id == job.id
       assert mention.title == job.title
@@ -67,7 +67,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInJob do
       {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
 
       mention = result.entries |> List.first()
-      assert mention.type == "COMMENT"
+      assert mention.thread == "JOB"
       assert mention.comment_id == comment.id
       assert mention.block_linker |> length == 1
       assert mention.article_id == job.id

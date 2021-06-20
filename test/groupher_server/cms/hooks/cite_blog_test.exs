@@ -90,7 +90,6 @@ defmodule GroupherServer.Test.CMS.Hooks.CiteBlog do
       assert cited_comment.meta.citing_count == 0
     end
 
-    @tag :wip2
     test "can cite blog's comment in blog", ~m(community user blog blog2 blog_attrs)a do
       {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_rich_text("hello"), user)
 

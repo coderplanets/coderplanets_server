@@ -90,7 +90,6 @@ defmodule GroupherServer.Test.CMS.Hooks.CiteJob do
       assert cited_comment.meta.citing_count == 0
     end
 
-    @tag :wip2
     test "can cite job's comment in job", ~m(community user job job2 job_attrs)a do
       {:ok, comment} = CMS.create_comment(:job, job.id, mock_rich_text("hello"), user)
 

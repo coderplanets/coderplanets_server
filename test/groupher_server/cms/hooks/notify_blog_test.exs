@@ -21,7 +21,6 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyBlog do
   end
 
   describe "[upvote notify]" do
-    @tag :wip22
     test "upvote hook should work on blog", ~m(user2 blog)a do
       {:ok, blog} = preload_author(blog)
 
@@ -41,7 +40,6 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyBlog do
       assert user_exist_in?(user2, notify.from_users)
     end
 
-    @tag :wip22
     test "upvote hook should work on blog comment", ~m(user2 blog comment)a do
       {:ok, comment} = CMS.upvote_comment(comment.id, user2)
       {:ok, comment} = preload_author(comment)
@@ -62,7 +60,6 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyBlog do
       assert user_exist_in?(user2, notify.from_users)
     end
 
-    @tag :wip22
     test "undo upvote hook should work on blog", ~m(user2 blog)a do
       {:ok, blog} = preload_author(blog)
 
@@ -78,7 +75,6 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyBlog do
       assert notifications.total_count == 0
     end
 
-    @tag :wip22
     test "undo upvote hook should work on blog comment", ~m(user2 comment)a do
       {:ok, comment} = CMS.upvote_comment(comment.id, user2)
 
@@ -97,7 +93,6 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyBlog do
   end
 
   describe "[collect notify]" do
-    @tag :wip22
     test "collect hook should work on blog", ~m(user2 blog)a do
       {:ok, blog} = preload_author(blog)
 
@@ -117,7 +112,6 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyBlog do
       assert user_exist_in?(user2, notify.from_users)
     end
 
-    @tag :wip22
     test "undo collect hook should work on blog", ~m(user2 blog)a do
       {:ok, blog} = preload_author(blog)
 
@@ -135,7 +129,6 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyBlog do
   end
 
   describe "[comment notify]" do
-    @tag :wip22
     test "blog author should get notify after some one comment on it", ~m(user2 blog)a do
       {:ok, blog} = preload_author(blog)
 
@@ -155,7 +148,6 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyBlog do
       assert user_exist_in?(user2, notify.from_users)
     end
 
-    @tag :wip22
     test "blog comment author should get notify after some one reply it", ~m(user2 user3 blog)a do
       {:ok, blog} = preload_author(blog)
 

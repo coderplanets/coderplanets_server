@@ -40,7 +40,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInBlog do
       {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
 
       mention = result.entries |> List.first()
-      assert mention.type == "BLOG"
+      assert mention.thread == "BLOG"
       assert mention.block_linker |> length == 2
       assert mention.article_id == blog.id
       assert mention.title == blog.title
@@ -49,7 +49,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInBlog do
       {:ok, result} = Delivery.fetch(:mention, user3, %{page: 1, size: 10})
 
       mention = result.entries |> List.first()
-      assert mention.type == "BLOG"
+      assert mention.thread == "BLOG"
       assert mention.block_linker |> length == 1
       assert mention.article_id == blog.id
       assert mention.title == blog.title
@@ -67,7 +67,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInBlog do
       {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
 
       mention = result.entries |> List.first()
-      assert mention.type == "COMMENT"
+      assert mention.thread == "BLOG"
       assert mention.comment_id == comment.id
       assert mention.block_linker |> length == 1
       assert mention.article_id == blog.id

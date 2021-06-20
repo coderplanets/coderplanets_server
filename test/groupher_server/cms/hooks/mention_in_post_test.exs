@@ -22,6 +22,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInPost do
   end
 
   describe "[mention in post basic]" do
+    @tag :wip
     test "mention multi user in post should work", ~m(user user2 user3 community  post_attrs)a do
       body =
         mock_rich_text(
@@ -40,7 +41,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInPost do
       {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
 
       mention = result.entries |> List.first()
-      assert mention.type == "POST"
+      assert mention.thread == "POST"
       assert mention.block_linker |> length == 2
       assert mention.article_id == post.id
       assert mention.title == post.title
@@ -49,7 +50,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInPost do
       {:ok, result} = Delivery.fetch(:mention, user3, %{page: 1, size: 10})
 
       mention = result.entries |> List.first()
-      assert mention.type == "POST"
+      assert mention.thread == "POST"
       assert mention.block_linker |> length == 1
       assert mention.article_id == post.id
       assert mention.title == post.title
@@ -67,7 +68,7 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInPost do
       {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
 
       mention = result.entries |> List.first()
-      assert mention.type == "COMMENT"
+      assert mention.thread == "POST"
       assert mention.comment_id == comment.id
       assert mention.block_linker |> length == 1
       assert mention.article_id == post.id
