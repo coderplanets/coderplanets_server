@@ -7,12 +7,12 @@ defmodule GroupherServer.Delivery.Model.Mention do
 
   alias GroupherServer.Accounts.Model.User
 
-  @required_fields ~w(from_user_id to_user_id title article_id type)a
+  @required_fields ~w(from_user_id to_user_id title article_id thread)a
   @optional_fields ~w(comment_id read)a
 
   @type t :: %Mention{}
   schema "mentions" do
-    field(:type, :string)
+    field(:thread, :string)
     field(:article_id, :id)
     field(:title, :string)
     field(:comment_id, :id)

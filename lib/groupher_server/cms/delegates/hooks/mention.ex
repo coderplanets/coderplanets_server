@@ -5,7 +5,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Mention do
   parse and fmt(see shape function) mentions to Delivery module
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [get_config: 2, thread_of_article: 2]
+  import Helper.Utils, only: [get_config: 2, thread_of_article: 1]
 
   import GroupherServer.CMS.Delegate.Helper, only: [preload_author: 1, author_of: 1]
   import GroupherServer.CMS.Delegate.Hooks.Helper, only: [merge_same_block_linker: 2]
@@ -71,7 +71,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Mention do
     parent_article = comment |> Map.get(article_thread)
 
     %{
-      type: "COMMENT",
+      thread: article_thread,
       title: parent_article.title,
       article_id: parent_article.id,
       comment_id: comment.id,
@@ -85,10 +85,10 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Mention do
   end
 
   defp shape(article, to_user_id, block_id) do
-    {:ok, thread} = thread_of_article(article, :upcase)
+    {:ok, thread} = thread_of_article(article)
 
     %{
-      type: thread,
+      thread: thread,
       title: article.title,
       article_id: article.id,
       block_linker: [block_id],

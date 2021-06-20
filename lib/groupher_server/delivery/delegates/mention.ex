@@ -3,7 +3,7 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
   The Delivery context.
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, thread_of_article: 1]
+  import Helper.Utils, only: [done: 1, thread_of_article: 2, atom_values_to_upcase: 1]
   import ShortMaps
 
   alias GroupherServer.{Accounts, CMS, Delivery, Repo}
@@ -30,7 +30,7 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
       batch_delete_mentions(comment, from_user)
     end)
     |> Multi.run(:batch_insert_mentions, fn _, _ ->
-      case {0, nil} !== Repo.insert_all(Mention, mentions) do
+      case {0, nil} !== Repo.insert_all(Mention, atom_values_to_upcase(mentions)) do
         true -> {:ok, :pass}
         false -> {:error, "insert mentions error"}
       end
@@ -45,7 +45,7 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
       batch_delete_mentions(article, from_user)
     end)
     |> Multi.run(:batch_insert_mentions, fn _, _ ->
-      case {0, nil} !== Repo.insert_all(Mention, mentions) do
+      case {0, nil} !== Repo.insert_all(Mention, atom_values_to_upcase(mentions)) do
         true -> {:ok, :pass}
         false -> {:error, "insert mentions error"}
       end
@@ -74,12 +74,10 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
   end
 
   defp batch_delete_mentions(article, %User{} = from_user) do
-    with {:ok, thread} <- thread_of_article(article) do
-      thread = thread |> to_string |> String.upcase()
-
+    with {:ok, thread} <- thread_of_article(article, :upcase) do
       from(m in Mention,
         where: m.article_id == ^article.id,
-        where: m.type == ^thread,
+        where: m.thread == ^thread,
         where: m.from_user_id == ^from_user.id
       )
       |> ORM.delete_all(:if_exist)
@@ -98,7 +96,7 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
 
     mention
     |> Map.take([
-      :type,
+      :thread,
       :article_id,
       :comment_id,
       :title,

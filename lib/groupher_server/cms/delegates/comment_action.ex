@@ -141,6 +141,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
       end)
       |> Multi.run(:after_hooks, fn _, %{create_reply_comment: replyed_comment} ->
         Later.run({Hooks.Notify, :handle, [:reply, replyed_comment, user]})
+        Later.run({Hooks.Mention, :handle, [replyed_comment]})
       end)
       |> Repo.transaction()
       |> result()
