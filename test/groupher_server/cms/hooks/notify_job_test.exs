@@ -135,7 +135,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyJob do
   end
 
   describe "[comment notify]" do
-    @tag :wip
+    @tag :wip2
     test "job author should get notify after some one comment on it", ~m(user2 job)a do
       {:ok, job} = preload_author(job)
 
@@ -155,7 +155,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyJob do
       assert user_exist_in?(user2, notify.from_users)
     end
 
-    @tag :wip
+    @tag :wip2
     test "job comment author should get notify after some one reply it", ~m(user2 user3 job)a do
       {:ok, job} = preload_author(job)
 

@@ -21,6 +21,11 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
   cited_type: thread or comment
   artiment: article or comment
   # cited_article_comment_id, [xxx_article]_id, [block_id, block2_id, ...],
+
+  注意 cited_by_type 不能命名为 cited_by_thread
+
+  因为 cited_by_thread 无法表示这样的语义:
+  # 某评论被 post 以 comment link 的方式引用了
   """
 
   import Ecto.Query, warn: false

@@ -172,7 +172,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
   end
 
   describe "basic thread support" do
-    @tag :wip
+    @tag :wip2
     test "support upvote", ~m(post user user2 notify_attrs)a do
       notify_attrs
       |> Map.merge(%{

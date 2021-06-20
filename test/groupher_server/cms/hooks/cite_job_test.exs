@@ -90,6 +90,7 @@ defmodule GroupherServer.Test.CMS.Hooks.CiteJob do
       assert cited_comment.meta.citing_count == 0
     end
 
+    @tag :wip
     test "can cite job's comment in job", ~m(community user job job2 job_attrs)a do
       {:ok, comment} = CMS.create_comment(:job, job.id, mock_rich_text("hello"), user)
 
@@ -104,9 +105,11 @@ defmodule GroupherServer.Test.CMS.Hooks.CiteJob do
       {:ok, comment} = ORM.find(Comment, comment.id)
       assert comment.meta.citing_count == 1
 
-      {:ok, cite_content} = ORM.find_by(CitedArtiment, %{cited_by_id: comment.id})
-      assert job.id == cite_content.job_id
-      assert cite_content.cited_by_type == "COMMENT"
+      {:ok, cited_content} = ORM.find_by(CitedArtiment, %{cited_by_id: comment.id})
+
+      # 被 job 以 comment link 的方式引用了
+      assert cited_content.job_id == job.id
+      assert cited_content.cited_by_type == "COMMENT"
     end
 
     test "can cite a comment in a comment", ~m(user job)a do
@@ -124,10 +127,10 @@ defmodule GroupherServer.Test.CMS.Hooks.CiteJob do
       {:ok, cited_comment} = ORM.find(Comment, cited_comment.id)
       assert cited_comment.meta.citing_count == 1
 
-      {:ok, cite_content} = ORM.find_by(CitedArtiment, %{cited_by_id: cited_comment.id})
-      assert comment.id == cite_content.comment_id
-      assert cited_comment.id == cite_content.cited_by_id
-      assert cite_content.cited_by_type == "COMMENT"
+      {:ok, cited_content} = ORM.find_by(CitedArtiment, %{cited_by_id: cited_comment.id})
+      assert comment.id == cited_content.comment_id
+      assert cited_comment.id == cited_content.cited_by_id
+      assert cited_content.cited_by_type == "COMMENT"
     end
 
     test "can cited job inside a comment", ~m(user job job2 job3 job4 job5)a do
@@ -182,6 +185,7 @@ defmodule GroupherServer.Test.CMS.Hooks.CiteJob do
 
       job_attrs = job_attrs |> Map.merge(%{body: body})
       {:ok, job_x} = CMS.create_article(community, :job, job_attrs, user)
+
       Process.sleep(1000)
       body = mock_rich_text(~s(the <a href=#{@site_host}/job/#{job2.id} />))
       job_attrs = job_attrs |> Map.merge(%{body: body})
@@ -215,6 +219,62 @@ defmodule GroupherServer.Test.CMS.Hooks.CiteJob do
 
       assert result |> is_valid_pagination?(:raw)
       assert result.total_count == 3
+    end
+  end
+
+  describe "[cross cite]" do
+    test "can citing multi type thread and comment in one time", ~m(user community job2)a do
+      job_attrs = mock_attrs(:job, %{community_id: community.id})
+      job_attrs = mock_attrs(:job, %{community_id: community.id})
+      blog_attrs = mock_attrs(:blog, %{community_id: community.id})
+
+      body = mock_rich_text(~s(the <a href=#{@site_host}/job/#{job2.id} />))
+
+      {:ok, job} = CMS.create_article(community, :job, Map.merge(job_attrs, %{body: body}), user)
+
+      Hooks.Cite.handle(job)
+
+      Process.sleep(1000)
+
+      {:ok, job} = CMS.create_article(community, :job, Map.merge(job_attrs, %{body: body}), user)
+      Hooks.Cite.handle(job)
+
+      Process.sleep(1000)
+
+      comment_body = mock_comment(~s(the <a href=#{@site_host}/job/#{job2.id} />))
+      {:ok, comment} = CMS.create_comment(:job, job.id, comment_body, user)
+
+      Hooks.Cite.handle(comment)
+
+      Process.sleep(1000)
+
+      {:ok, blog} =
+        CMS.create_article(community, :blog, Map.merge(blog_attrs, %{body: body}), user)
+
+      Hooks.Cite.handle(blog)
+
+      {:ok, result} = CMS.paged_citing_contents("JOB", job2.id, %{page: 1, size: 10})
+      # IO.inspect(result, label: "the result")
+
+      assert result.total_count == 4
+
+      result_job = result.entries |> List.first()
+      result_job = result.entries |> Enum.at(1)
+      result_comment = result.entries |> Enum.at(2)
+      result_blog = result.entries |> List.last()
+
+      assert result_job.id == job.id
+      assert result_job.thread == :job
+
+      assert result_job.id == job.id
+      assert result_job.thread == :job
+
+      assert result_comment.id == job.id
+      assert result_comment.thread == :job
+      assert result_comment.comment_id == comment.id
+
+      assert result_blog.id == blog.id
+      assert result_blog.thread == :blog
     end
   end
 end

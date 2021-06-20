@@ -90,6 +90,7 @@ defmodule GroupherServer.Test.CMS.Hooks.CitePost do
       assert cited_comment.meta.citing_count == 0
     end
 
+    @tag :wip
     test "can cite post's comment in post", ~m(community user post post2 post_attrs)a do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_rich_text("hello"), user)
 
@@ -104,9 +105,11 @@ defmodule GroupherServer.Test.CMS.Hooks.CitePost do
       {:ok, comment} = ORM.find(Comment, comment.id)
       assert comment.meta.citing_count == 1
 
-      {:ok, cite_content} = ORM.find_by(CitedArtiment, %{cited_by_id: comment.id})
-      assert post.id == cite_content.post_id
-      assert cite_content.cited_by_type == "COMMENT"
+      {:ok, cited_content} = ORM.find_by(CitedArtiment, %{cited_by_id: comment.id})
+
+      # 被 post 以 comment link 的方式引用了
+      assert cited_content.post_id == post.id
+      assert cited_content.cited_by_type == "COMMENT"
     end
 
     test "can cite a comment in a comment", ~m(user post)a do
@@ -124,10 +127,10 @@ defmodule GroupherServer.Test.CMS.Hooks.CitePost do
       {:ok, cited_comment} = ORM.find(Comment, cited_comment.id)
       assert cited_comment.meta.citing_count == 1
 
-      {:ok, cite_content} = ORM.find_by(CitedArtiment, %{cited_by_id: cited_comment.id})
-      assert comment.id == cite_content.comment_id
-      assert cited_comment.id == cite_content.cited_by_id
-      assert cite_content.cited_by_type == "COMMENT"
+      {:ok, cited_content} = ORM.find_by(CitedArtiment, %{cited_by_id: cited_comment.id})
+      assert comment.id == cited_content.comment_id
+      assert cited_comment.id == cited_content.cited_by_id
+      assert cited_content.cited_by_type == "COMMENT"
     end
 
     test "can cited post inside a comment", ~m(user post post2 post3 post4 post5)a do
