@@ -15,7 +15,7 @@ defmodule GroupherServer.Test.Delivery.Mention do
 
     mention_contents = [
       %{
-        type: "POST",
+        thread: "POST",
         title: post.title,
         article_id: post.id,
         comment_id: nil,
@@ -43,6 +43,7 @@ defmodule GroupherServer.Test.Delivery.Mention do
       assert mention.user.login == user.login
     end
 
+    @tag :wip
     test "mention multiable times on same article, will only have one record",
          ~m(post user user2 mention_contents)a do
       {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user)

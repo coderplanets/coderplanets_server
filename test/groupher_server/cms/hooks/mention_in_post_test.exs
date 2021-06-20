@@ -22,7 +22,6 @@ defmodule GroupherServer.Test.CMS.Hooks.MentionInPost do
   end
 
   describe "[mention in post basic]" do
-    @tag :wip
     test "mention multi user in post should work", ~m(user user2 user3 community  post_attrs)a do
       body =
         mock_rich_text(

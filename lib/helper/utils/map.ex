@@ -11,7 +11,7 @@ defmodule Helper.Utils.Map do
   def atom_values_to_upcase(map) when is_map(map) do
     map
     |> Enum.reduce(%{}, fn {key, val}, acc ->
-      case val !== true and val !== false and is_atom(val) do
+      case val !== true and val !== false and not is_nil(val) and is_atom(val) do
         true -> Map.put(acc, key, val |> to_string |> String.upcase())
         false -> Map.put(acc, key, val)
       end
