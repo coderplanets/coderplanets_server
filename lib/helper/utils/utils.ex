@@ -221,6 +221,10 @@ defmodule Helper.Utils do
     thread |> to_string |> String.upcase() |> done
   end
 
+  def to_upcase(v) when is_atom(v), do: v |> to_string |> String.upcase()
+  def to_upcase(v) when is_binary(v), do: v |> String.upcase()
+  def to_upcase(_), do: nil
+
   def uid(str_len \\ 5) do
     Nanoid.generate(str_len, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
   end

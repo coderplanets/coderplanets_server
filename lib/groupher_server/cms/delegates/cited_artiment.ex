@@ -4,7 +4,9 @@ defmodule GroupherServer.CMS.Delegate.CitedArtiment do
   """
   import Ecto.Query, warn: false
 
-  import Helper.Utils, only: [done: 1, get_config: 2, thread_of_article: 1]
+  import Helper.Utils,
+    only: [done: 1, get_config: 2, thread_of_article: 1, atom_values_to_upcase: 1, to_upcase: 1]
+
   import GroupherServer.CMS.Helper.Matcher
   import ShortMaps
 
@@ -24,7 +26,7 @@ defmodule GroupherServer.CMS.Delegate.CitedArtiment do
 
   @doc "get paged citing contents"
   def paged_citing_contents(cited_by_type, cited_by_id, %{page: page, size: size} = filter) do
-    cited_by_type = cited_by_type |> to_string |> String.upcase()
+    cited_by_type = to_upcase(cited_by_type)
 
     CitedArtiment
     |> where([c], c.cited_by_id == ^cited_by_id and c.cited_by_type == ^cited_by_type)
@@ -45,7 +47,7 @@ defmodule GroupherServer.CMS.Delegate.CitedArtiment do
   def batch_delete_by(article) do
     with {:ok, thread} <- thread_of_article(article),
          {:ok, info} <- match(thread) do
-      thread = thread |> to_string |> String.upcase()
+      thread = to_upcase(thread)
 
       from(c in CitedArtiment,
         where: field(c, ^info.foreign_key) == ^article.id and c.cited_by_type == ^thread
@@ -66,6 +68,7 @@ defmodule GroupherServer.CMS.Delegate.CitedArtiment do
       cited_artiments
       |> Enum.map(&Map.merge(&1, %{inserted_at: &1.citing_time, updated_at: &1.citing_time}))
       |> Enum.map(&Map.drop(&1, [:artiment, :citing_time]))
+      |> Enum.map(&atom_values_to_upcase(&1))
 
     case {0, nil} !== Repo.insert_all(CitedArtiment, clean_cited_artiments) do
       true -> update_artiment_citing_count(cited_artiments)

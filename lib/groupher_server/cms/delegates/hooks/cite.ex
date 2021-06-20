@@ -66,7 +66,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
     %{
       block_linker: ["block-ZgKJs"],
       cited_by_id: 190057,
-      cited_by_type: "POST",
+      cited_by_type: :post,
       artiment: #loaded,
       post_id: 190059,
       user_id: 1413053
@@ -176,11 +176,9 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
   # cite article in comment
   # 在评论中引用文章
   defp shape(%Comment{} = comment, %{type: :article, artiment: cited}, block_id) do
-    cited_by_type = cited.meta.thread |> to_string |> String.upcase()
-
     %{
       cited_by_id: cited.id,
-      cited_by_type: cited_by_type,
+      cited_by_type: cited.meta.thread,
       comment_id: comment.id,
       block_linker: [block_id],
       user_id: comment.author_id,
@@ -197,7 +195,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
   defp shape(%Comment{} = comment, %{type: :comment, artiment: cited}, block_id) do
     %{
       cited_by_id: cited.id,
-      cited_by_type: "COMMENT",
+      cited_by_type: :comment,
       comment_id: comment.id,
       block_linker: [block_id],
       user_id: comment.author_id,
@@ -215,11 +213,9 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
     {:ok, thread} = thread_of_article(article)
     {:ok, info} = match(thread)
 
-    cited_by_type = cited.meta.thread |> to_string |> String.upcase()
-
     %{
       cited_by_id: cited.id,
-      cited_by_type: cited_by_type,
+      cited_by_type: cited.meta.thread,
       block_linker: [block_id],
       user_id: article.author.user.id,
       # extra fields for next-step usage
@@ -239,7 +235,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
 
     %{
       cited_by_id: cited.id,
-      cited_by_type: "COMMENT",
+      cited_by_type: :comment,
       block_linker: [block_id],
       user_id: article.author.user.id,
       # extra fields for next-step usage
