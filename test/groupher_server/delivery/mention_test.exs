@@ -69,7 +69,7 @@ defmodule GroupherServer.Test.Delivery.Mention do
 
       mention_contents = [
         %{
-          type: "POST",
+          thread: "POST",
           title: post.title,
           article_id: post.id,
           comment_id: nil,
