@@ -139,6 +139,9 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         |> Ecto.Changeset.put_assoc(:reply_to, replying_comment)
         |> Repo.update()
       end)
+      |> Multi.run(:after_hooks, fn _, %{create_reply_comment: replyed_comment} ->
+        Later.run({Hooks.Notify, :handle, [:reply, replyed_comment, user]})
+      end)
       |> Repo.transaction()
       |> result()
     else

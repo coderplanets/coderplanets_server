@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
+defmodule GroupherServer.Test.CMS.Hooks.NotifyBlog do
   use GroupherServer.TestTools
 
   import GroupherServer.CMS.Delegate.Helper, only: [preload_author: 1]
@@ -13,36 +13,36 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
 
     {:ok, community} = db_insert(:community)
 
-    post_attrs = mock_attrs(:post, %{community_id: community.id})
-    {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
-    {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
+    blog_attrs = mock_attrs(:blog, %{community_id: community.id})
+    {:ok, blog} = CMS.create_article(community, :blog, blog_attrs, user)
+    {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
 
-    {:ok, ~m(user2 user3 post comment)a}
+    {:ok, ~m(user2 user3 blog comment)a}
   end
 
   describe "[upvote notify]" do
     @tag :wip2
-    test "upvote hook should work on post", ~m(user2 post)a do
-      {:ok, post} = preload_author(post)
+    test "upvote hook should work on blog", ~m(user2 blog)a do
+      {:ok, blog} = preload_author(blog)
 
-      {:ok, article} = CMS.upvote_article(:post, post.id, user2)
+      {:ok, article} = CMS.upvote_article(:blog, blog.id, user2)
       Hooks.Notify.handle(:upvote, article, user2)
 
       {:ok, notifications} =
-        Delivery.fetch(:notification, post.author.user.id, %{page: 1, size: 20})
+        Delivery.fetch(:notification, blog.author.user.id, %{page: 1, size: 20})
 
       assert notifications.total_count == 1
 
       notify = notifications.entries |> List.first()
       assert notify.action == "UPVOTE"
-      assert notify.article_id == post.id
-      assert notify.thread == "POST"
-      assert notify.user_id == post.author.user.id
+      assert notify.article_id == blog.id
+      assert notify.thread == "BLOG"
+      assert notify.user_id == blog.author.user.id
       assert user_exist_in?(user2, notify.from_users)
     end
 
     @tag :wip2
-    test "upvote hook should work on post comment", ~m(user2 post comment)a do
+    test "upvote hook should work on blog comment", ~m(user2 blog comment)a do
       {:ok, comment} = CMS.upvote_comment(comment.id, user2)
       {:ok, comment} = preload_author(comment)
 
@@ -55,31 +55,31 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
 
       notify = notifications.entries |> List.first()
       assert notify.action == "UPVOTE"
-      assert notify.article_id == post.id
-      assert notify.thread == "POST"
+      assert notify.article_id == blog.id
+      assert notify.thread == "BLOG"
       assert notify.user_id == comment.author.id
       assert notify.comment_id == comment.id
       assert user_exist_in?(user2, notify.from_users)
     end
 
     @tag :wip2
-    test "undo upvote hook should work on post", ~m(user2 post)a do
-      {:ok, post} = preload_author(post)
+    test "undo upvote hook should work on blog", ~m(user2 blog)a do
+      {:ok, blog} = preload_author(blog)
 
-      {:ok, article} = CMS.upvote_article(:post, post.id, user2)
+      {:ok, article} = CMS.upvote_article(:blog, blog.id, user2)
       Hooks.Notify.handle(:upvote, article, user2)
 
-      {:ok, article} = CMS.undo_upvote_article(:post, post.id, user2)
+      {:ok, article} = CMS.undo_upvote_article(:blog, blog.id, user2)
       Hooks.Notify.handle(:undo, :upvote, article, user2)
 
       {:ok, notifications} =
-        Delivery.fetch(:notification, post.author.user.id, %{page: 1, size: 20})
+        Delivery.fetch(:notification, blog.author.user.id, %{page: 1, size: 20})
 
       assert notifications.total_count == 0
     end
 
     @tag :wip2
-    test "undo upvote hook should work on post comment", ~m(user2 comment)a do
+    test "undo upvote hook should work on blog comment", ~m(user2 comment)a do
       {:ok, comment} = CMS.upvote_comment(comment.id, user2)
 
       Hooks.Notify.handle(:upvote, comment, user2)
@@ -98,37 +98,37 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
 
   describe "[collect notify]" do
     @tag :wip2
-    test "collect hook should work on post", ~m(user2 post)a do
-      {:ok, post} = preload_author(post)
+    test "collect hook should work on blog", ~m(user2 blog)a do
+      {:ok, blog} = preload_author(blog)
 
-      {:ok, _} = CMS.collect_article(:post, post.id, user2)
-      Hooks.Notify.handle(:collect, post, user2)
+      {:ok, _} = CMS.collect_article(:blog, blog.id, user2)
+      Hooks.Notify.handle(:collect, blog, user2)
 
       {:ok, notifications} =
-        Delivery.fetch(:notification, post.author.user.id, %{page: 1, size: 20})
+        Delivery.fetch(:notification, blog.author.user.id, %{page: 1, size: 20})
 
       assert notifications.total_count == 1
 
       notify = notifications.entries |> List.first()
       assert notify.action == "COLLECT"
-      assert notify.article_id == post.id
-      assert notify.thread == "POST"
-      assert notify.user_id == post.author.user.id
+      assert notify.article_id == blog.id
+      assert notify.thread == "BLOG"
+      assert notify.user_id == blog.author.user.id
       assert user_exist_in?(user2, notify.from_users)
     end
 
     @tag :wip2
-    test "undo collect hook should work on post", ~m(user2 post)a do
-      {:ok, post} = preload_author(post)
+    test "undo collect hook should work on blog", ~m(user2 blog)a do
+      {:ok, blog} = preload_author(blog)
 
-      {:ok, _} = CMS.upvote_article(:post, post.id, user2)
-      Hooks.Notify.handle(:collect, post, user2)
+      {:ok, _} = CMS.upvote_article(:blog, blog.id, user2)
+      Hooks.Notify.handle(:collect, blog, user2)
 
-      {:ok, _} = CMS.undo_upvote_article(:post, post.id, user2)
-      Hooks.Notify.handle(:undo, :collect, post, user2)
+      {:ok, _} = CMS.undo_upvote_article(:blog, blog.id, user2)
+      Hooks.Notify.handle(:undo, :collect, blog, user2)
 
       {:ok, notifications} =
-        Delivery.fetch(:notification, post.author.user.id, %{page: 1, size: 20})
+        Delivery.fetch(:notification, blog.author.user.id, %{page: 1, size: 20})
 
       assert notifications.total_count == 0
     end
@@ -136,30 +136,30 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
 
   describe "[comment notify]" do
     @tag :wip
-    test "post author should get notify after some one comment on it", ~m(user2 post)a do
-      {:ok, post} = preload_author(post)
+    test "blog author should get notify after some one comment on it", ~m(user2 blog)a do
+      {:ok, blog} = preload_author(blog)
 
-      {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user2)
+      {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user2)
       Hooks.Notify.handle(:comment, comment, user2)
 
       {:ok, notifications} =
-        Delivery.fetch(:notification, post.author.user.id, %{page: 1, size: 20})
+        Delivery.fetch(:notification, blog.author.user.id, %{page: 1, size: 20})
 
       assert notifications.total_count == 1
 
       notify = notifications.entries |> List.first()
       assert notify.action == "COMMENT"
-      assert notify.thread == "POST"
-      assert notify.article_id == post.id
-      assert notify.user_id == post.author.user.id
+      assert notify.thread == "BLOG"
+      assert notify.article_id == blog.id
+      assert notify.user_id == blog.author.user.id
       assert user_exist_in?(user2, notify.from_users)
     end
 
     @tag :wip
-    test "post comment author should get notify after some one reply it", ~m(user2 user3 post)a do
-      {:ok, post} = preload_author(post)
+    test "blog comment author should get notify after some one reply it", ~m(user2 user3 blog)a do
+      {:ok, blog} = preload_author(blog)
 
-      {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user2)
+      {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user2)
       {:ok, replyed_comment} = CMS.reply_comment(comment.id, mock_comment(), user3)
 
       Hooks.Notify.handle(:reply, replyed_comment, user3)
@@ -172,8 +172,8 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
       notify = notifications.entries |> List.first()
 
       assert notify.action == "REPLY"
-      assert notify.thread == "POST"
-      assert notify.article_id == post.id
+      assert notify.thread == "BLOG"
+      assert notify.article_id == blog.id
       assert notify.comment_id == replyed_comment.id
 
       assert notify.user_id == comment.author_id

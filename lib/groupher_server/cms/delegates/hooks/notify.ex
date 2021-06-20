@@ -29,6 +29,25 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Notify do
     Delivery.send(:notify, notify_attrs, from_user)
   end
 
+  # 回复评论是特殊情况，单独处理
+  def handle(:reply, %Comment{} = reply_comment, %User{} = from_user) do
+    {:ok, article} = parent_article_of(reply_comment)
+    {:ok, article} = preload_author(article)
+    {:ok, thread} = thread_of_article(article)
+
+    notify_attrs = %{
+      action: :reply,
+      thread: thread,
+      article_id: article.id,
+      title: article.title,
+      comment_id: reply_comment.id,
+      # NOTE: 这里是提醒该评论的作者，不提醒文章作者了
+      user_id: reply_comment.reply_to.author_id
+    }
+
+    Delivery.send(:notify, notify_attrs, from_user)
+  end
+
   def handle(action, %Comment{} = comment, %User{} = from_user) do
     {:ok, article} = parent_article_of(comment)
     {:ok, thread} = thread_of_article(article)
