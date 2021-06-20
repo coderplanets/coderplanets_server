@@ -1,15 +1,10 @@
 defmodule GroupherServer.Test.CMS.Hooks.NotifyBlog do
   use GroupherServer.TestTools
 
-  import Helper.Utils, only: [get_config: 2]
   import GroupherServer.CMS.Delegate.Helper, only: [preload_author: 1]
 
   alias GroupherServer.{CMS, Delivery}
-
-  # alias CMS.Model.{Comment}
   alias CMS.Delegate.Hooks
-
-  @site_host get_config(:general, :site_host)
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -25,7 +20,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyBlog do
   end
 
   describe "[upvote notify]" do
-    @tag :wip
+    @tag :wip2
     test "upvote hook should work on blog", ~m(user2 blog)a do
       {:ok, blog} = preload_author(blog)
 
@@ -45,7 +40,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyBlog do
       assert user_exist_in?(user2, notify.from_users)
     end
 
-    @tag :wip
+    @tag :wip2
     test "upvote hook should work on blog comment", ~m(user2 blog comment)a do
       {:ok, comment} = CMS.upvote_comment(comment.id, user2)
       {:ok, comment} = preload_author(comment)
@@ -66,7 +61,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyBlog do
       assert user_exist_in?(user2, notify.from_users)
     end
 
-    @tag :wip
+    @tag :wip2
     test "undo upvote hook should work on blog", ~m(user2 blog)a do
       {:ok, blog} = preload_author(blog)
 
@@ -82,7 +77,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyBlog do
       assert notifications.total_count == 0
     end
 
-    @tag :wip
+    @tag :wip2
     test "undo upvote hook should work on blog comment", ~m(user2 comment)a do
       {:ok, comment} = CMS.upvote_comment(comment.id, user2)
 
@@ -95,6 +90,44 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyBlog do
 
       {:ok, notifications} =
         Delivery.fetch(:notification, comment.author.id, %{page: 1, size: 20})
+
+      assert notifications.total_count == 0
+    end
+  end
+
+  describe "[collect notify]" do
+    @tag :wip
+    test "collect hook should work on blog", ~m(user2 blog)a do
+      {:ok, blog} = preload_author(blog)
+
+      {:ok, _} = CMS.collect_article(:blog, blog.id, user2)
+      Hooks.Notify.handle(:collect, blog, user2)
+
+      {:ok, notifications} =
+        Delivery.fetch(:notification, blog.author.user.id, %{page: 1, size: 20})
+
+      assert notifications.total_count == 1
+
+      notify = notifications.entries |> List.first()
+      assert notify.action == "COLLECT"
+      assert notify.article_id == blog.id
+      assert notify.type == "BLOG"
+      assert notify.user_id == blog.author.user.id
+      assert user_exist_in?(user2, notify.from_users)
+    end
+
+    @tag :wip
+    test "undo collect hook should work on blog", ~m(user2 blog)a do
+      {:ok, blog} = preload_author(blog)
+
+      {:ok, _} = CMS.upvote_article(:blog, blog.id, user2)
+      Hooks.Notify.handle(:collect, blog, user2)
+
+      {:ok, _} = CMS.undo_upvote_article(:blog, blog.id, user2)
+      Hooks.Notify.handle(:undo, :collect, blog, user2)
+
+      {:ok, notifications} =
+        Delivery.fetch(:notification, blog.author.user.id, %{page: 1, size: 20})
 
       assert notifications.total_count == 0
     end

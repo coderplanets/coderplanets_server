@@ -14,11 +14,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleCollect do
     ]
 
   # import Helper.ErrorCode
-  alias Helper.{ORM}
+  alias Helper.{ORM, Later}
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.Model.User
   alias CMS.Model.ArticleCollect
+  alias CMS.Delegate.Hooks
 
   alias Ecto.Multi
 
@@ -32,7 +33,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCollect do
   @doc """
   collect an article
   """
-  def collect_article(thread, article_id, %User{id: user_id}) do
+  def collect_article(thread, article_id, %User{id: user_id} = from_user) do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, article_id, preload: [author: :user]) do
       Multi.new()
@@ -50,6 +51,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCollect do
         args = Map.put(%{user_id: user_id, thread: thread}, info.foreign_key, article.id)
 
         ORM.create(ArticleCollect, args)
+      end)
+      |> Multi.run(:after_hooks, fn _, _ ->
+        Later.run({Hooks.Notify, :handle, [:collect, article, from_user]})
       end)
       |> Repo.transaction()
       |> result()
@@ -71,7 +75,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCollect do
     end
   end
 
-  def undo_collect_article(thread, article_id, %User{id: user_id}) do
+  def undo_collect_article(thread, article_id, %User{id: user_id} = from_user) do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, article_id, preload: [author: :user]) do
       Multi.new()
@@ -88,6 +92,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCollect do
         args = Map.put(%{user_id: user_id}, info.foreign_key, article.id)
 
         ORM.findby_delete(ArticleCollect, args)
+      end)
+      |> Multi.run(:after_hooks, fn _, _ ->
+        Later.run({Hooks.Notify, :handle, [:undo, :collect, article, from_user]})
       end)
       |> Repo.transaction()
       |> result()
