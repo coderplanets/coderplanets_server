@@ -114,8 +114,9 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
           false -> CMS.update_active_timestamp(thread, article)
         end
       end)
-      |> Multi.run(:after_hooks, fn _, %{create_comment: create_comment} ->
-        Later.run({Hooks.Cite, :handle, [create_comment]})
+      |> Multi.run(:after_hooks, fn _, %{create_comment: comment} ->
+        Later.run({Hooks.Cite, :handle, [comment]})
+        Later.run({Hooks.Notify, :handle, [:comment, comment, user]})
       end)
       |> Repo.transaction()
       |> result()

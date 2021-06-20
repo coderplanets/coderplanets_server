@@ -14,11 +14,11 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
   alias Accounts.Model.User
   alias Helper.ORM
 
-  @supported_notify_type get_config(:general, :nofity_types)
+  @notify_actions get_config(:general, :nofity_actions)
   @notify_group_interval_hour get_config(:general, :notify_group_interval_hour)
 
   def handle(%{action: action, user_id: user_id} = attrs, %User{} = from_user) do
-    with true <- action in @supported_notify_type,
+    with true <- action in @notify_actions,
          true <- is_valid?(attrs),
          true <- user_id !== from_user.id do
       from_user = from_user |> Map.take([:login, :nickname]) |> Map.put(:user_id, from_user.id)
@@ -90,18 +90,21 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
 
   defp find_exist_notify(%{comment_id: comment_id} = attrs, opt)
        when not is_nil(comment_id) do
-    ~m(type article_id comment_id)a = atom_values_to_upcase(attrs)
+    ~m(thread article_id comment_id)a = atom_values_to_upcase(attrs)
 
     Notification
-    |> where([n], n.type == ^type and n.article_id == ^article_id and n.comment_id == ^comment_id)
+    |> where(
+      [n],
+      n.thread == ^thread and n.article_id == ^article_id and n.comment_id == ^comment_id
+    )
     |> do_find_exist_notify(attrs, opt)
   end
 
   defp find_exist_notify(attrs, opt) do
-    ~m(type article_id)a = atom_values_to_upcase(attrs)
+    ~m(thread article_id)a = atom_values_to_upcase(attrs)
 
     Notification
-    |> where([n], n.type == ^type and n.article_id == ^article_id)
+    |> where([n], n.thread == ^thread and n.article_id == ^article_id)
     |> do_find_exist_notify(attrs, opt)
   end
 
@@ -139,28 +142,23 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
     |> done
   end
 
-  # [:upvote, :comment, :reply, :collect, :follow]
-  defp is_valid?(%{action: :upvote, type: :comment} = attrs) do
-    attrs |> all_exist?([:article_id, :type, :title, :comment_id, :user_id])
-  end
+  defp is_valid?(%{action: :follow} = attrs), do: attrs |> all_exist?([:user_id])
 
   defp is_valid?(%{action: :upvote} = attrs) do
-    attrs |> all_exist?([:article_id, :type, :title, :user_id])
-  end
-
-  defp is_valid?(%{action: :comment} = attrs) do
-    attrs |> all_exist?([:article_id, :type, :title, :comment_id, :user_id])
-  end
-
-  defp is_valid?(%{action: :reply} = attrs) do
-    attrs |> all_exist?([:article_id, :type, :title, :comment_id, :user_id])
+    attrs |> all_exist?([:article_id, :thread, :title, :user_id])
   end
 
   defp is_valid?(%{action: :collect} = attrs) do
-    attrs |> all_exist?([:article_id, :type, :title, :user_id])
+    attrs |> all_exist?([:article_id, :thread, :title, :user_id])
   end
 
-  defp is_valid?(%{action: :follow} = attrs), do: attrs |> all_exist?([:user_id])
+  defp is_valid?(%{action: :comment} = attrs) do
+    attrs |> all_exist?([:article_id, :thread, :title, :comment_id, :user_id])
+  end
+
+  defp is_valid?(%{action: :reply} = attrs) do
+    attrs |> all_exist?([:article_id, :thread, :title, :comment_id, :user_id])
+  end
 
   defp is_valid?(_), do: false
 

@@ -10,13 +10,13 @@ defmodule GroupherServer.Delivery.Model.Notification do
   alias CMS.Model.Embeds
 
   @required_fields ~w(user_id action)a
-  @optional_fields ~w(type article_id comment_id title read)a
+  @optional_fields ~w(thread article_id comment_id title read)a
 
   @type t :: %Notification{}
   schema "notifications" do
     belongs_to(:user, User)
     # article or comment
-    field(:type, :string)
+    field(:thread, :string)
     field(:article_id, :id)
     field(:title, :string)
     # optional comment id

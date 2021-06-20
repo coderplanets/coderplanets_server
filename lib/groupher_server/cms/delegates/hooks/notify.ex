@@ -3,20 +3,70 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Notify do
   notify hooks, for upvote, collect, comment, reply
   """
   import Helper.Utils, only: [thread_of_article: 1]
-  import GroupherServer.CMS.Delegate.Helper, only: [preload_author: 1]
+  import GroupherServer.CMS.Delegate.Helper, only: [preload_author: 1, parent_article_of: 1]
 
-  alias GroupherServer.{Accounts, CMS, Delivery, Repo}
+  alias GroupherServer.{Accounts, CMS, Delivery}
 
   alias Accounts.Model.User
   alias CMS.Model.Comment
 
-  def handle(:undo, action, %Comment{} = comment, %User{} = from_user) do
-    article_thread = comment.thread |> String.downcase() |> String.to_atom()
-    article = comment |> Repo.preload(article_thread) |> Map.get(article_thread)
+  # 发布评论是特殊情况，单独处理
+  def handle(:comment, %Comment{} = comment, %User{} = from_user) do
+    {:ok, article} = parent_article_of(comment)
+    {:ok, article} = preload_author(article)
+    {:ok, thread} = thread_of_article(article)
+
+    notify_attrs = %{
+      action: :comment,
+      thread: thread,
+      article_id: article.id,
+      title: article.title,
+      comment_id: comment.id,
+      # NOTE: 这里是提醒该评论文章的作者，不是评论本身的作者
+      user_id: article.author.user.id
+    }
+
+    Delivery.send(:notify, notify_attrs, from_user)
+  end
+
+  def handle(action, %Comment{} = comment, %User{} = from_user) do
+    {:ok, article} = parent_article_of(comment)
+    {:ok, thread} = thread_of_article(article)
 
     notify_attrs = %{
       action: action,
-      type: :comment,
+      thread: thread,
+      article_id: article.id,
+      title: article.title,
+      user_id: comment.author_id,
+      comment_id: comment.id
+    }
+
+    Delivery.send(:notify, notify_attrs, from_user)
+  end
+
+  def handle(action, article, %User{} = from_user) do
+    {:ok, article} = preload_author(article)
+    {:ok, thread} = thread_of_article(article)
+
+    notify_attrs = %{
+      action: action,
+      thread: thread,
+      article_id: article.id,
+      title: article.title,
+      user_id: article.author.user.id
+    }
+
+    Delivery.send(:notify, notify_attrs, from_user)
+  end
+
+  def handle(:undo, action, %Comment{} = comment, %User{} = from_user) do
+    {:ok, article} = parent_article_of(comment)
+    {:ok, thread} = thread_of_article(article)
+
+    notify_attrs = %{
+      action: action,
+      thread: thread,
       article_id: article.id,
       title: article.title,
       comment_id: comment.id,
@@ -32,42 +82,11 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Notify do
 
     notify_attrs = %{
       action: action,
-      type: thread,
+      thread: thread,
       article_id: article.id,
       user_id: article.author.user.id
     }
 
     Delivery.revoke(:notify, notify_attrs, from_user)
-  end
-
-  def handle(action, %Comment{} = comment, %User{} = from_user) do
-    article_thread = comment.thread |> String.downcase() |> String.to_atom()
-    article = comment |> Repo.preload(article_thread) |> Map.get(article_thread)
-
-    notify_attrs = %{
-      action: action,
-      type: :comment,
-      article_id: article.id,
-      title: article.title,
-      comment_id: comment.id,
-      user_id: comment.author_id
-    }
-
-    Delivery.send(:notify, notify_attrs, from_user)
-  end
-
-  def handle(action, article, %User{} = from_user) do
-    {:ok, article} = preload_author(article)
-    {:ok, thread} = thread_of_article(article)
-
-    notify_attrs = %{
-      action: action,
-      type: thread,
-      article_id: article.id,
-      title: article.title,
-      user_id: article.author.user.id
-    }
-
-    Delivery.send(:notify, notify_attrs, from_user)
   end
 end

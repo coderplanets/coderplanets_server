@@ -51,7 +51,7 @@ config :groupher_server, :general,
   # others
   # 在这个时间段内，多条提醒消息将被合并为一条
   notify_group_interval_hour: 1,
-  nofity_types: [:upvote, :comment, :reply, :collect, :follow]
+  nofity_actions: [:upvote, :comment, :reply, :collect, :follow]
 
 config :groupher_server, :customization,
   theme: "cyan",

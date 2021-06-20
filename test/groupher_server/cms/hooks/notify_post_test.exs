@@ -40,7 +40,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
       assert user_exist_in?(user2, notify.from_users)
     end
 
-    @tag :wip2
+    @tag :wip
     test "upvote hook should work on post comment", ~m(user2 post comment)a do
       {:ok, comment} = CMS.upvote_comment(comment.id, user2)
       {:ok, comment} = preload_author(comment)
@@ -55,7 +55,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
       notify = notifications.entries |> List.first()
       assert notify.action == "UPVOTE"
       assert notify.article_id == post.id
-      assert notify.type == "COMMENT"
+      assert notify.type == "POST"
       assert notify.user_id == comment.author.id
       assert notify.comment_id == comment.id
       assert user_exist_in?(user2, notify.from_users)
@@ -96,7 +96,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
   end
 
   describe "[collect notify]" do
-    @tag :wip
+    @tag :wip2
     test "collect hook should work on post", ~m(user2 post)a do
       {:ok, post} = preload_author(post)
 
@@ -116,7 +116,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
       assert user_exist_in?(user2, notify.from_users)
     end
 
-    @tag :wip
+    @tag :wip2
     test "undo collect hook should work on post", ~m(user2 post)a do
       {:ok, post} = preload_author(post)
 
@@ -130,6 +130,30 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
         Delivery.fetch(:notification, post.author.user.id, %{page: 1, size: 20})
 
       assert notifications.total_count == 0
+    end
+  end
+
+  describe "[comment notify]" do
+    @tag :wip
+    test "post author should get notify after some one comment on it", ~m(user2 post)a do
+      {:ok, post} = preload_author(post)
+
+      {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user2)
+      Hooks.Notify.handle(:comment, comment, user2)
+
+      {:ok, notifications} =
+        Delivery.fetch(:notification, post.author.user.id, %{page: 1, size: 20})
+
+      assert notifications.total_count == 1
+
+      notify = notifications.entries |> List.first()
+      assert notify.action == "COMMENT"
+      assert notify.type == "POST"
+      assert notify.article_id == post.id
+      assert notify.user_id == post.author.user.id
+      assert user_exist_in?(user2, notify.from_users)
+
+      IO.inspect(notifications, label: "notifications")
     end
   end
 end

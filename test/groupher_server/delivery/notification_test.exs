@@ -170,11 +170,11 @@ defmodule GroupherServer.Test.Delivery.Notification do
     end
   end
 
-  describe "basic type support" do
+  describe "basic thread support" do
     test "support upvote", ~m(post user user2 notify_attrs)a do
       notify_attrs
       |> Map.merge(%{
-        type: :post,
+        thread: :post,
         article_id: post.id,
         title: post.title,
         action: :upvote,
@@ -185,7 +185,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
 
       notify_attrs
       |> Map.merge(%{
-        type: :comment,
+        thread: :post,
         article_id: post.id,
         comment_id: 11,
         title: post.title,
@@ -198,8 +198,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
       invalid_notify_attrs =
         notify_attrs
         |> Map.merge(%{
-          type: :comment,
-          article_id: post.id,
+          type: :post,
           title: post.title,
           action: :upvote,
           user_id: user.id
@@ -211,7 +210,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
     test "support collect", ~m(post user user2 notify_attrs)a do
       notify_attrs
       |> Map.merge(%{
-        type: :post,
+        thread: :post,
         article_id: post.id,
         title: post.title,
         action: :collect,
@@ -235,7 +234,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
     test "support comment and reply", ~m(post user user2 notify_attrs)a do
       notify_attrs
       |> Map.merge(%{
-        type: :post,
+        thread: :post,
         article_id: post.id,
         title: post.title,
         comment_id: 11,
@@ -247,7 +246,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
 
       notify_attrs
       |> Map.merge(%{
-        type: :post,
+        thread: :post,
         article_id: post.id,
         comment_id: 11,
         title: post.title,
@@ -260,7 +259,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
       invalid_notify_attrs =
         notify_attrs
         |> Map.merge(%{
-          type: :post,
+          thread: :post,
           article_id: post.id,
           title: post.title,
           action: :comment,
@@ -272,7 +271,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
       invalid_notify_attrs =
         notify_attrs
         |> Map.merge(%{
-          type: :post,
+          thread: :post,
           article_id: post.id,
           title: post.title,
           action: :reply,

@@ -41,6 +41,15 @@ defmodule GroupherServer.CMS.Delegate.Helper do
     |> done
   end
 
+  @doc "get parent article of a comment"
+  def parent_article_of(%Comment{} = comment) do
+    article_thread = comment.thread |> String.downcase() |> String.to_atom()
+
+    comment |> Repo.preload(article_thread) |> Map.get(article_thread) |> done
+  end
+
+  def parent_article_of(_), do: {:error, "only support comment"}
+
   #######
   # emotion related
   #######
