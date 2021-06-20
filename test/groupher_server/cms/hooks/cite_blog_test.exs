@@ -31,9 +31,9 @@ defmodule GroupherServer.Test.CMS.Hooks.CiteBlog do
     test "cited multi blog should work", ~m(user community blog2 blog3 blog4 blog5 blog_attrs)a do
       body =
         mock_rich_text(
-          ~s(the <a href=#{@site_host}/blog/#{blog2.id} /> and <a href=#{@site_host}/blog/#{blog2.id}>same la</a> is awesome, the <a href=#{
-            @site_host
-          }/blog/#{blog3.id}></a> is awesome too.),
+          ~s(the <a href=#{@site_host}/blog/#{blog2.id} /> and <a href=#{@site_host}/blog/#{
+            blog2.id
+          }>same la</a> is awesome, the <a href=#{@site_host}/blog/#{blog3.id}></a> is awesome too.),
           # second paragraph
           ~s(the paragraph 2 <a href=#{@site_host}/blog/#{blog2.id} class=#{blog2.title}> again</a>, the paragraph 2 <a href=#{
             @site_host
@@ -90,7 +90,7 @@ defmodule GroupherServer.Test.CMS.Hooks.CiteBlog do
       assert cited_comment.meta.citing_count == 0
     end
 
-    @tag :wip
+    @tag :wip2
     test "can cite blog's comment in blog", ~m(community user blog blog2 blog_attrs)a do
       {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_rich_text("hello"), user)
 
@@ -136,9 +136,9 @@ defmodule GroupherServer.Test.CMS.Hooks.CiteBlog do
     test "can cited blog inside a comment", ~m(user blog blog2 blog3 blog4 blog5)a do
       comment_body =
         mock_rich_text(
-          ~s(the <a href=#{@site_host}/blog/#{blog2.id} /> and <a href=#{@site_host}/blog/#{blog2.id}>same la</a> is awesome, the <a href=#{
-            @site_host
-          }/blog/#{blog3.id}></a> is awesome too.),
+          ~s(the <a href=#{@site_host}/blog/#{blog2.id} /> and <a href=#{@site_host}/blog/#{
+            blog2.id
+          }>same la</a> is awesome, the <a href=#{@site_host}/blog/#{blog3.id}></a> is awesome too.),
           # second paragraph
           ~s(the paragraph 2 <a href=#{@site_host}/blog/#{blog2.id} class=#{blog2.title}> again</a>, the paragraph 2 <a href=#{
             @site_host
@@ -219,62 +219,6 @@ defmodule GroupherServer.Test.CMS.Hooks.CiteBlog do
 
       assert result |> is_valid_pagination?(:raw)
       assert result.total_count == 3
-    end
-  end
-
-  describe "[cross cite]" do
-    test "can citing multi type thread and comment in one time", ~m(user community blog2)a do
-      blog_attrs = mock_attrs(:blog, %{community_id: community.id})
-      blog_attrs = mock_attrs(:blog, %{community_id: community.id})
-      blog_attrs = mock_attrs(:blog, %{community_id: community.id})
-
-      body = mock_rich_text(~s(the <a href=#{@site_host}/blog/#{blog2.id} />))
-
-      {:ok, blog} = CMS.create_article(community, :blog, Map.merge(blog_attrs, %{body: body}), user)
-
-      Hooks.Cite.handle(blog)
-
-      Process.sleep(1000)
-
-      {:ok, blog} = CMS.create_article(community, :blog, Map.merge(blog_attrs, %{body: body}), user)
-      Hooks.Cite.handle(blog)
-
-      Process.sleep(1000)
-
-      comment_body = mock_comment(~s(the <a href=#{@site_host}/blog/#{blog2.id} />))
-      {:ok, comment} = CMS.create_comment(:blog, blog.id, comment_body, user)
-
-      Hooks.Cite.handle(comment)
-
-      Process.sleep(1000)
-
-      {:ok, blog} =
-        CMS.create_article(community, :blog, Map.merge(blog_attrs, %{body: body}), user)
-
-      Hooks.Cite.handle(blog)
-
-      {:ok, result} = CMS.paged_citing_contents("BLOG", blog2.id, %{page: 1, size: 10})
-      # IO.inspect(result, label: "the result")
-
-      assert result.total_count == 4
-
-      result_blog = result.entries |> List.first()
-      result_blog = result.entries |> Enum.at(1)
-      result_comment = result.entries |> Enum.at(2)
-      result_blog = result.entries |> List.last()
-
-      assert result_blog.id == blog.id
-      assert result_blog.thread == :blog
-
-      assert result_blog.id == blog.id
-      assert result_blog.thread == :blog
-
-      assert result_comment.id == blog.id
-      assert result_comment.thread == :blog
-      assert result_comment.comment_id == comment.id
-
-      assert result_blog.id == blog.id
-      assert result_blog.thread == :blog
     end
   end
 end

@@ -90,7 +90,7 @@ defmodule GroupherServer.Test.CMS.Hooks.CiteJob do
       assert cited_comment.meta.citing_count == 0
     end
 
-    @tag :wip
+    @tag :wip2
     test "can cite job's comment in job", ~m(community user job job2 job_attrs)a do
       {:ok, comment} = CMS.create_comment(:job, job.id, mock_rich_text("hello"), user)
 
@@ -219,62 +219,6 @@ defmodule GroupherServer.Test.CMS.Hooks.CiteJob do
 
       assert result |> is_valid_pagination?(:raw)
       assert result.total_count == 3
-    end
-  end
-
-  describe "[cross cite]" do
-    test "can citing multi type thread and comment in one time", ~m(user community job2)a do
-      job_attrs = mock_attrs(:job, %{community_id: community.id})
-      job_attrs = mock_attrs(:job, %{community_id: community.id})
-      blog_attrs = mock_attrs(:blog, %{community_id: community.id})
-
-      body = mock_rich_text(~s(the <a href=#{@site_host}/job/#{job2.id} />))
-
-      {:ok, job} = CMS.create_article(community, :job, Map.merge(job_attrs, %{body: body}), user)
-
-      Hooks.Cite.handle(job)
-
-      Process.sleep(1000)
-
-      {:ok, job} = CMS.create_article(community, :job, Map.merge(job_attrs, %{body: body}), user)
-      Hooks.Cite.handle(job)
-
-      Process.sleep(1000)
-
-      comment_body = mock_comment(~s(the <a href=#{@site_host}/job/#{job2.id} />))
-      {:ok, comment} = CMS.create_comment(:job, job.id, comment_body, user)
-
-      Hooks.Cite.handle(comment)
-
-      Process.sleep(1000)
-
-      {:ok, blog} =
-        CMS.create_article(community, :blog, Map.merge(blog_attrs, %{body: body}), user)
-
-      Hooks.Cite.handle(blog)
-
-      {:ok, result} = CMS.paged_citing_contents("JOB", job2.id, %{page: 1, size: 10})
-      # IO.inspect(result, label: "the result")
-
-      assert result.total_count == 4
-
-      result_job = result.entries |> List.first()
-      result_job = result.entries |> Enum.at(1)
-      result_comment = result.entries |> Enum.at(2)
-      result_blog = result.entries |> List.last()
-
-      assert result_job.id == job.id
-      assert result_job.thread == :job
-
-      assert result_job.id == job.id
-      assert result_job.thread == :job
-
-      assert result_comment.id == job.id
-      assert result_comment.thread == :job
-      assert result_comment.comment_id == comment.id
-
-      assert result_blog.id == blog.id
-      assert result_blog.thread == :blog
     end
   end
 end

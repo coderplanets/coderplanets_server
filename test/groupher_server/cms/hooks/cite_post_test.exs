@@ -90,7 +90,7 @@ defmodule GroupherServer.Test.CMS.Hooks.CitePost do
       assert cited_comment.meta.citing_count == 0
     end
 
-    @tag :wip
+    @tag :wip2
     test "can cite post's comment in post", ~m(community user post post2 post_attrs)a do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_rich_text("hello"), user)
 
