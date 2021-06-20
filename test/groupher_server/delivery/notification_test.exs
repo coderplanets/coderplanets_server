@@ -55,7 +55,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
       assert user3 |> user_exist_in?(notify.from_users)
     end
 
-    @tag :wip
+    @tag :wip2
     test "different notify should not be merged", ~m(user user2 user3 notify_attrs)a do
       {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
       notify_attrs = notify_attrs |> Map.put(:action, :collect)
@@ -172,6 +172,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
   end
 
   describe "basic thread support" do
+    @tag :wip
     test "support upvote", ~m(post user user2 notify_attrs)a do
       notify_attrs
       |> Map.merge(%{
@@ -200,6 +201,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
         notify_attrs
         |> Map.merge(%{
           type: :post,
+          article_id: nil,
           title: post.title,
           action: :upvote,
           user_id: user.id

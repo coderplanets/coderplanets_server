@@ -134,7 +134,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
   end
 
   describe "[comment notify]" do
-    @tag :wip
+    @tag :wip2
     test "post author should get notify after some one comment on it", ~m(user2 post)a do
       {:ok, post} = preload_author(post)
 
