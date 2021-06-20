@@ -39,7 +39,49 @@ defmodule GroupherServer.Test.Delivery.Notification do
     |> Repo.update()
   end
 
-  describe "notification curd" do
+  describe "account follow" do
+    @tag :wip
+    test "support follow action", ~m(user user2)a do
+      notify_attrs = %{
+        action: :follow,
+        user_id: user.id
+      }
+
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
+
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+
+      assert paged_notifies.total_count == 1
+      notify = paged_notifies.entries |> List.first()
+
+      assert notify.action == "FOLLOW"
+      assert notify.user_id == user.id
+      assert user2 |> user_exist_in?(notify.from_users)
+    end
+
+    @tag :wip
+    test "similar follow notify should be merged", ~m(user user2 user3)a do
+      notify_attrs = %{
+        action: :follow,
+        user_id: user.id
+      }
+
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
+
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+
+      notify = paged_notifies.entries |> List.first()
+
+      assert paged_notifies.total_count == 1
+
+      assert notify.from_users |> length == 2
+      assert user2 |> user_exist_in?(notify.from_users)
+      assert user3 |> user_exist_in?(notify.from_users)
+    end
+  end
+
+  describe "notification" do
     test "similar notify should be merged", ~m(user user2 user3 notify_attrs)a do
       {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
       {:ok, _} = Delivery.send(:notify, notify_attrs, user3)

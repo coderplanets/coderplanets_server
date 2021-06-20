@@ -43,7 +43,6 @@ defmodule GroupherServer.Test.Delivery.Mention do
       assert mention.user.login == user.login
     end
 
-    @tag :wip
     test "mention multiable times on same article, will only have one record",
          ~m(post user user2 mention_contents)a do
       {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user)
