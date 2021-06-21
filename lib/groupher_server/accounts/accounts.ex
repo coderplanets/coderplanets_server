@@ -62,6 +62,7 @@ defmodule GroupherServer.Accounts do
   # upvoted articles
   defdelegate paged_upvoted_articles(user_id, filter), to: UpvotedArticles
 
+  defdelegate mailbox_status(user), to: Mailbox
   defdelegate update_mailbox_status(user_id), to: Mailbox
 
   # customization

@@ -220,8 +220,7 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     Accounts.paged_editable_communities(cur_user, filter)
   end
 
-  # TODO: refactor
-  def get_mail_box_status(_root, _args, %{context: %{cur_user: cur_user}}) do
+  def mailbox_status(_root, _args, %{context: %{cur_user: cur_user}}) do
     Accounts.mailbox_status(cur_user)
   end
 
@@ -241,10 +240,6 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
   # notification
   def fetch_notifications(_root, %{filter: filter}, %{context: %{cur_user: cur_user}}) do
     Accounts.fetch_notifications(cur_user, filter)
-  end
-
-  def fetch_sys_notifications(_root, %{filter: filter}, %{context: %{cur_user: cur_user}}) do
-    Accounts.fetch_sys_notifications(cur_user, filter)
   end
 
   def mark_notification_read(_root, %{id: id}, %{context: %{cur_user: cur_user}}) do

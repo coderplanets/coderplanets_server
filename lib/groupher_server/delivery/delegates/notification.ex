@@ -12,7 +12,9 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
   alias GroupherServer.{Accounts, Delivery, Repo}
   alias Delivery.Model.Notification
   alias Accounts.Model.User
+
   alias Helper.ORM
+  alias Ecto.Multi
 
   @notify_actions get_config(:general, :nofity_actions)
   @notify_group_interval_hour get_config(:general, :notify_group_interval_hour)
@@ -21,12 +23,23 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
     with true <- action in @notify_actions,
          true <- is_valid?(attrs),
          true <- user_id !== from_user.id do
-      from_user = from_user |> Map.take([:login, :nickname]) |> Map.put(:user_id, from_user.id)
+      Multi.new()
+      |> Multi.run(:upsert_notifications, fn _, _ ->
+        from_user =
+          from_user
+          |> Map.take([:login, :nickname])
+          |> Map.put(:user_id, from_user.id)
 
-      case find_exist_notify(attrs, :latest_peroid) do
-        {:ok, notify} -> merge_notification(notify, from_user)
-        {:error, _} -> create_notification(attrs, from_user)
-      end
+        case find_exist_notify(attrs, :latest_peroid) do
+          {:ok, notify} -> merge_notification(notify, from_user)
+          {:error, _} -> create_notification(attrs, from_user)
+        end
+      end)
+      |> Multi.run(:update_user_mailbox_status, fn _, %{upsert_notifications: nofity} ->
+        Accounts.update_mailbox_status(nofity.user_id)
+      end)
+      |> Repo.transaction()
+      |> result()
     else
       false -> {:error, "invalid args for notification"}
       error -> error
@@ -38,19 +51,27 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
     attrs = attrs |> Map.put(:from_user, from_user)
 
     with {:ok, notifications} <- find_exist_notify(attrs, :all) do
-      Enum.each(notifications, fn notify ->
-        case length(notify.from_users) == 1 do
-          # 只有一就删除记录
-          true ->
-            ORM.delete(notify)
+      Multi.new()
+      |> Multi.run(:revoke_notifications, fn _, _ ->
+        Enum.each(notifications, fn notify ->
+          case length(notify.from_users) == 1 do
+            # 只有一就删除记录
+            true ->
+              ORM.delete(notify)
 
-          # 如果是多人集合就在 from_users 中删除该用户
-          false ->
-            from_users = Enum.reject(notify.from_users, &(&1.login == from_user.login))
-            notify |> ORM.update_embed(:from_users, from_users)
-        end
+            # 如果是多人集合就在 from_users 中删除该用户
+            false ->
+              from_users = Enum.reject(notify.from_users, &(&1.login == from_user.login))
+              notify |> ORM.update_embed(:from_users, from_users)
+          end
+        end)
+        |> done
       end)
-      |> done
+      |> Multi.run(:update_user_mailbox_status, fn _, _ ->
+        Enum.each(notifications, &Accounts.update_mailbox_status(&1.to_user_id)) |> done
+      end)
+      |> Repo.transaction()
+      |> result()
     else
       false -> {:ok, :pass}
       {:error, _} -> {:ok, :pass}
@@ -191,4 +212,8 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
   defp interval_threshold_time() do
     Timex.shift(Timex.now(), hours: -@notify_group_interval_hour)
   end
+
+  defp result({:ok, %{upsert_notifications: result}}), do: {:ok, result}
+  defp result({:ok, %{revoke_notifications: result}}), do: {:ok, result}
+  defp result({:error, _, result, _steps}), do: {:error, result}
 end

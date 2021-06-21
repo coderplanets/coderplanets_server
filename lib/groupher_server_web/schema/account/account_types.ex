@@ -82,36 +82,19 @@ defmodule GroupherServerWeb.Schema.Account.Types do
     # 3. has_notifications ?
     # 4. has_watches ?
 
-    field :mail_box, :mail_box_status do
+    field :mailbox, :mailbox_status do
       middleware(M.Authorize, :login)
-      resolve(&R.Accounts.get_mail_box_status/3)
-    end
-
-    field :mentions, :paged_mentions do
-      arg(:filter, :messages_filter)
-
-      middleware(M.Authorize, :login)
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.fetch_mentions/3)
-    end
-
-    field :notifications, :paged_notifications do
-      arg(:filter, :messages_filter)
-
-      middleware(M.Authorize, :login)
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.fetch_notifications/3)
-    end
-
-    field :sys_notifications, :paged_sys_notifications do
-      arg(:filter, :messages_filter)
-
-      middleware(M.Authorize, :login)
-      middleware(M.PageSizeProof)
-      resolve(&R.Accounts.fetch_sys_notifications/3)
+      resolve(&R.Accounts.mailbox_status/3)
     end
 
     timestamp_fields()
+  end
+
+  object :mailbox_status do
+    field(:is_empty, :boolean)
+    field(:unread_total_count, :integer)
+    field(:unread_mentions_count, :integer)
+    field(:unread_notifications_count, :integer)
   end
 
   # field(:sidebar_layout, :map)

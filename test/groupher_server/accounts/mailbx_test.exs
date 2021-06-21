@@ -5,6 +5,8 @@ defmodule GroupherServer.Test.Accounts.Mailbox do
 
   alias GroupherServer.{Accounts, Delivery}
 
+  @default_mailbox_status Accounts.Model.Embeds.UserMailbox.default_status()
+
   setup do
     {:ok, post} = db_insert(:post)
     {:ok, user} = db_insert(:user)
@@ -15,6 +17,12 @@ defmodule GroupherServer.Test.Accounts.Mailbox do
   end
 
   describe "mailbox status" do
+    @tag :wip
+    test "can get default mailbox status", ~m(user)a do
+      {:ok, status} = Accounts.mailbox_status(user)
+      assert status == @default_mailbox_status
+    end
+
     test "can get mailbox status", ~m(post user user2)a do
       notify_attrs = %{
         thread: :post,

@@ -1,10 +1,19 @@
 defmodule GroupherServer.Accounts.Delegate.Mailbox do
   import Ecto.Query, warn: false
 
+  import Helper.Utils, only: [done: 1]
+
   alias GroupherServer.{Accounts, Delivery}
-  alias Accounts.Model.User
+
+  alias Accounts.Model.{Embeds, User}
   alias Helper.ORM
 
+  @default_mailbox_status Embeds.UserMailbox.default_status()
+
+  def mailbox_status(%User{mailbox: nil}), do: @default_mailbox_status |> done
+  def mailbox_status(%User{mailbox: mailbox}), do: mailbox |> done
+
+  @doc "update messages count in mailbox"
   def update_mailbox_status(user_id) do
     with {:ok, user} <- ORM.find(User, user_id),
          {:ok, unread_mentions_count} <- Delivery.unread_count(:mention, user_id),

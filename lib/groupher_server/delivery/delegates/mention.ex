@@ -37,6 +37,9 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
         false -> {:error, "insert mentions error"}
       end
     end)
+    |> Multi.run(:update_user_mailbox_status, fn _, _ ->
+      Enum.each(mentions, &Accounts.update_mailbox_status(&1.to_user_id)) |> done
+    end)
     |> Repo.transaction()
     |> result()
   end
@@ -57,6 +60,9 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
         true -> {:ok, :pass}
         false -> {:error, "insert mentions error"}
       end
+    end)
+    |> Multi.run(:update_user_mailbox_status, fn _, _ ->
+      Enum.each(mentions, &Accounts.update_mailbox_status(&1.to_user_id)) |> done
     end)
     |> Repo.transaction()
     |> result()

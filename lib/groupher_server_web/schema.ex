@@ -7,7 +7,7 @@ defmodule GroupherServerWeb.Schema do
   import GroupherServerWeb.Schema.Helper.Imports
 
   alias GroupherServerWeb.Middleware, as: M
-  alias GroupherServerWeb.Schema.{Account, Billing, CMS, Delivery, Statistics, Helper}
+  alias GroupherServerWeb.Schema.{Account, Billing, CMS, Statistics, Helper}
 
   import_types(Absinthe.Type.Custom)
 
@@ -29,11 +29,6 @@ defmodule GroupherServerWeb.Schema do
   import_types(Statistics.Queries)
   import_types(Statistics.Mutations)
 
-  # delivery
-  import_types(Delivery.Types)
-  import_types(Delivery.Queries)
-  import_types(Delivery.Mutations)
-
   # cms
   import_types(CMS.Types)
   import_types(CMS.Queries)
@@ -48,7 +43,6 @@ defmodule GroupherServerWeb.Schema do
     import_fields(:account_queries)
     import_fields(:billing_queries)
     import_fields(:statistics_queries)
-    import_fields(:delivery_queries)
     import_fields(:cms_queries)
   end
 
@@ -59,8 +53,6 @@ defmodule GroupherServerWeb.Schema do
     import_fields(:billing_mutations)
     # statistics
     import_fields(:statistics_mutations)
-    # delivery
-    import_fields(:delivery_mutations)
     # cms
     import_fields(:cms_mutation_community)
     import_fields(:cms_opertion_mutations)

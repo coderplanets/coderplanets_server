@@ -8,7 +8,7 @@ defmodule GroupherServer.Support.Factory do
   import Helper.Utils, only: [done: 1]
   import GroupherServer.CMS.Helper.Matcher
 
-  alias GroupherServer.{Accounts, CMS, Delivery}
+  alias GroupherServer.{Accounts, CMS}
   alias Accounts.Model.User
 
   alias CMS.Model.{
@@ -22,8 +22,6 @@ defmodule GroupherServer.Support.Factory do
     CommunityCheatsheet,
     Comment
   }
-
-  alias Delivery.Model.{OldMention, SysNotification}
 
   @default_article_meta CMS.Model.Embeds.ArticleMeta.default_meta()
   @default_emotions CMS.Model.Embeds.CommentEmotion.default_emotions()
@@ -383,13 +381,9 @@ defmodule GroupherServer.Support.Factory do
   defp mock(:wiki), do: CommunityWiki |> struct(mock_meta(:wiki))
   defp mock(:cheatsheet), do: CommunityCheatsheet |> struct(mock_meta(:cheatsheet))
   defp mock(:comment), do: Comment |> struct(mock_meta(:comment))
-  defp mock(:mention), do: OldMention |> struct(mock_meta(:mention))
   defp mock(:author), do: Author |> struct(mock_meta(:author))
   defp mock(:category), do: Category |> struct(mock_meta(:category))
   defp mock(:article_tag), do: ArticleTag |> struct(mock_meta(:article_tag))
-
-  defp mock(:sys_notification),
-    do: SysNotification |> struct(mock_meta(:sys_notification))
 
   defp mock(:user), do: User |> struct(mock_meta(:user))
   defp mock(:community), do: Community |> struct(mock_meta(:community))
@@ -425,47 +419,6 @@ defmodule GroupherServer.Support.Factory do
       end)
 
     results |> done
-  end
-
-  def mock_sys_notification(count \\ 3) do
-    # {:ok, sys_notifications} = db_insert_multi(:sys_notification, count)
-    db_insert_multi(:sys_notification, count)
-  end
-
-  def mock_mentions_for(%User{id: _to_user_id} = user, count \\ 3) do
-    {:ok, users} = db_insert_multi(:user, count)
-
-    Enum.map(users, fn u ->
-      unique_num = System.unique_integer([:positive, :monotonic])
-
-      info = %{
-        community: "elixir",
-        source_id: "1",
-        source_title: "Title #{unique_num}",
-        source_type: "post",
-        source_preview: "preview #{unique_num}"
-      }
-
-      {:ok, _} = Delivery.mention_others(u, [%{id: user.id}], info)
-    end)
-  end
-
-  def mock_notifications_for(%User{id: _to_user_id} = user, count \\ 3) do
-    {:ok, users} = db_insert_multi(:user, count)
-
-    Enum.map(users, fn u ->
-      unique_num = System.unique_integer([:positive, :monotonic])
-
-      info = %{
-        source_id: "1",
-        source_title: "Title #{unique_num}",
-        source_type: "post",
-        source_preview: "preview #{unique_num}",
-        action: "like"
-      }
-
-      {:ok, _} = Delivery.notify_someone(u, user, info)
-    end)
   end
 
   @images [
