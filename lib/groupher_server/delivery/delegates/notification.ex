@@ -68,7 +68,7 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
         |> done
       end)
       |> Multi.run(:update_user_mailbox_status, fn _, _ ->
-        Enum.each(notifications, &Accounts.update_mailbox_status(&1.to_user_id)) |> done
+        Enum.each(notifications, &Accounts.update_mailbox_status(&1.user_id)) |> done
       end)
       |> Repo.transaction()
       |> result()

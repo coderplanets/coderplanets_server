@@ -106,6 +106,40 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
     end
   end
 
+  describe "[mark_read/all]" do
+    test "can mark read a mention" do
+      #
+      true
+    end
+
+    test "can mark read all mentions" do
+      #
+      true
+    end
+
+    test "can mark read a notification" do
+      #
+      true
+    end
+
+    test "can mark read all notifications" do
+      #
+      true
+    end
+  end
+
+  describe "[paged messages]" do
+    test "can get paged mentions" do
+      #
+      true
+    end
+
+    test "can get paged notifications" do
+      #
+      true
+    end
+  end
+
   # describe "[accounts mention]" do
   #   @query """
   #   query($filter: MessagesFilter!) {
