@@ -79,8 +79,8 @@ defmodule GroupherServer.CMS.Delegate.CitedArtiment do
   # update article/comment 's citting_count in meta
   defp update_artiment_citing_count(cited_artiments) do
     Enum.all?(cited_artiments, fn cited ->
-      count_query = from(c in CitedArtiment, where: c.cited_by_id == ^cited.cited_by_id)
-      count = Repo.aggregate(count_query, :count)
+      {:ok, count} =
+        from(c in CitedArtiment, where: c.cited_by_id == ^cited.cited_by_id) |> ORM.count()
 
       artiment = cited.artiment
       meta = Map.merge(artiment.meta, %{citing_count: count})

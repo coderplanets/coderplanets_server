@@ -81,7 +81,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
 
   describe "notification" do
     @tag :wip2
-    test "can get unread notification count of a user", ~m(post user user2 user3 notify_attrs)a do
+    test "can get unread notification count of a user", ~m(user user2 user3 notify_attrs)a do
       {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
       {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
 
@@ -124,9 +124,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
     test "notify not in @notify_group_interval_hour should not be merged",
          ~m(user user2 user3 notify_attrs)a do
       {:ok, notify} = Delivery.send(:notify, notify_attrs, user2)
-
       move_insert_at_long_ago(notify)
-
       {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
 
       {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
@@ -339,6 +337,48 @@ defmodule GroupherServer.Test.Delivery.Notification do
       }
 
       {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
+    end
+  end
+
+  describe "mark read" do
+    @tag :wip
+    test "can mark multi notification as read", ~m(user user2 user3 notify_attrs)a do
+      {:ok, notify} = Delivery.send(:notify, notify_attrs, user2)
+      move_insert_at_long_ago(notify)
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
+
+      {:ok, result} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      notify1 = result.entries |> List.first()
+      notify2 = result.entries |> List.last()
+
+      assert result.total_count == 2
+
+      {:ok, _} = Delivery.mark_read(:notification, [notify1.id, notify2.id], user)
+
+      {:ok, result} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      assert result.total_count == 0
+
+      {:ok, result} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10, read: true})
+      assert result.total_count == 2
+    end
+
+    @tag :wip
+    test "can mark all notification as read", ~m(user user2 user3 notify_attrs)a do
+      {:ok, notify} = Delivery.send(:notify, notify_attrs, user2)
+      move_insert_at_long_ago(notify)
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
+
+      {:ok, result} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+
+      assert result.total_count == 2
+
+      {:ok, _} = Delivery.mark_read_all(:notification, user)
+
+      {:ok, result} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      assert result.total_count == 0
+
+      {:ok, result} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10, read: true})
+      assert result.total_count == 2
     end
   end
 end

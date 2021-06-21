@@ -26,55 +26,6 @@ defmodule GroupherServer.Test.Delivery.Mention do
     {:ok, ~m(community post user user2 user3 mention_attr)a}
   end
 
-  describe "mark read" do
-    @tag :wip
-    test "can mark read a mention", ~m(post user user2 mention_attr)a do
-      mention_contents = [
-        Map.merge(mention_attr, %{from_user_id: user.id, to_user_id: user2.id})
-      ]
-
-      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user)
-      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
-
-      mention = result.entries |> List.first()
-      {:ok, _} = Delivery.mark_read(:mention, [mention.id], user2)
-
-      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10, read: true})
-      mention = result.entries |> List.first()
-
-      assert mention.read
-    end
-
-    @tag :wip
-    test "can mark multi mention as read", ~m(post user user2 user3 mention_attr)a do
-      mention_contents = [
-        Map.merge(mention_attr, %{from_user_id: user2.id, to_user_id: user.id})
-      ]
-
-      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user2)
-
-      mention_contents = [
-        Map.merge(mention_attr, %{from_user_id: user3.id, to_user_id: user.id})
-      ]
-
-      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user3)
-      {:ok, result} = Delivery.fetch(:mention, user, %{page: 1, size: 10})
-
-      mention1 = result.entries |> List.first()
-      mention2 = result.entries |> List.last()
-
-      Delivery.mark_read(:mention, [mention1.id, mention2.id], user)
-
-      {:ok, result} = Delivery.fetch(:mention, user, %{page: 1, size: 10, read: true})
-
-      mention1 = result.entries |> List.first()
-      mention2 = result.entries |> List.last()
-
-      assert mention1.read
-      assert mention2.read
-    end
-  end
-
   describe "mentions" do
     @tag :wip2
     test "can get unread mention count of a user", ~m(post user user2 user3 mention_attr)a do
@@ -153,6 +104,81 @@ defmodule GroupherServer.Test.Delivery.Mention do
 
       {:ok, result} = Delivery.fetch(:mention, user3, %{page: 1, size: 10})
       assert result.total_count == 1
+    end
+  end
+
+  describe "mark read" do
+    @tag :wip
+    test "can mark read a mention", ~m(post user user2 mention_attr)a do
+      mention_contents = [
+        Map.merge(mention_attr, %{from_user_id: user.id, to_user_id: user2.id})
+      ]
+
+      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user)
+      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
+
+      mention = result.entries |> List.first()
+      {:ok, _} = Delivery.mark_read(:mention, [mention.id], user2)
+
+      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10, read: true})
+      mention = result.entries |> List.first()
+
+      assert mention.read
+    end
+
+    @tag :wip
+    test "can mark multi mention as read", ~m(post user user2 user3 mention_attr)a do
+      mention_contents = [
+        Map.merge(mention_attr, %{from_user_id: user2.id, to_user_id: user.id})
+      ]
+
+      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user2)
+
+      mention_contents = [
+        Map.merge(mention_attr, %{from_user_id: user3.id, to_user_id: user.id})
+      ]
+
+      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user3)
+      {:ok, result} = Delivery.fetch(:mention, user, %{page: 1, size: 10})
+
+      mention1 = result.entries |> List.first()
+      mention2 = result.entries |> List.last()
+
+      {:ok, _} = Delivery.mark_read(:mention, [mention1.id, mention2.id], user)
+
+      {:ok, result} = Delivery.fetch(:mention, user, %{page: 1, size: 10, read: true})
+
+      mention1 = result.entries |> List.first()
+      mention2 = result.entries |> List.last()
+
+      assert mention1.read
+      assert mention2.read
+    end
+
+    @tag :wip
+    test "can mark read all", ~m(post user user2 user3 mention_attr)a do
+      mention_contents = [
+        Map.merge(mention_attr, %{from_user_id: user2.id, to_user_id: user.id})
+      ]
+
+      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user2)
+
+      mention_contents = [
+        Map.merge(mention_attr, %{from_user_id: user3.id, to_user_id: user.id})
+      ]
+
+      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user3)
+
+      {:ok, result} = Delivery.fetch(:mention, user, %{page: 1, size: 10})
+      assert result.total_count == 2
+
+      {:ok, _} = Delivery.mark_read_all(:mention, user)
+
+      {:ok, result} = Delivery.fetch(:mention, user, %{page: 1, size: 10})
+      assert result.total_count == 0
+
+      {:ok, result} = Delivery.fetch(:mention, user, %{page: 1, size: 10, read: true})
+      assert result.total_count == 2
     end
   end
 end

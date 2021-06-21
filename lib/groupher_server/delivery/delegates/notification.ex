@@ -61,8 +61,7 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
     read = Map.get(filter, :read, false)
 
     Notification
-    |> where([n], n.user_id == ^user_id)
-    |> where([n], n.read == ^read)
+    |> where([n], n.user_id == ^user_id and n.read == ^read)
     |> ORM.paginater(~m(page size)a)
     |> done
   end
@@ -71,8 +70,21 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
   def unread_count(user_id) do
     Notification
     |> where([n], n.user_id == ^user_id and n.read == false)
-    |> Repo.aggregate(:count)
-    |> done
+    |> ORM.count()
+  end
+
+  @doc "mark notification in ids as readed"
+  def mark_read(ids, %User{} = user) when is_list(ids) do
+    Notification
+    |> where([m], m.id in ^ids and m.user_id == ^user.id and m.read == false)
+    |> ORM.mark_read_all()
+  end
+
+  @doc "mark all related notifications as readed"
+  def mark_read_all(%User{} = user) do
+    Notification
+    |> where([m], m.user_id == ^user.id and m.read == false)
+    |> ORM.mark_read_all()
   end
 
   # 如果在临近时间段内有类似操作，直接将这次的操作人添加到 from_users 中即可
@@ -172,9 +184,7 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
 
   # 确保 key 存在，并且不为 nil
   defp all_exist?(attrs, keys) when is_map(attrs) and is_list(keys) do
-    Enum.all?(keys, fn key ->
-      Map.has_key?(attrs, key) and not is_nil(attrs[key])
-    end)
+    Enum.all?(keys, &(Map.has_key?(attrs, &1) and not is_nil(attrs[&1])))
   end
 
   # 此时间段内的相似通知会被 merge

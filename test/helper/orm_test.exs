@@ -62,7 +62,7 @@ defmodule GroupherServer.Test.Helper.ORM do
   end
 
   test "count should work" do
-    assert @posts_count + 1 == ORM.count(Post)
+    assert {:ok, @posts_count + 1} == ORM.count(Post)
   end
 
   describe "[embeds paginator]" do

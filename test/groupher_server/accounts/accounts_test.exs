@@ -150,11 +150,11 @@ defmodule GroupherServer.Test.Accounts do
     end
 
     test "exsit github user created twice fails" do
-      assert ORM.count(GithubUser) == 0
+      assert {:ok, 0} == ORM.count(GithubUser)
       {:ok, _} = Accounts.github_signin(@valid_github_profile)
-      assert ORM.count(GithubUser) == 1
+      assert {:ok, 1} == ORM.count(GithubUser)
       {:ok, _} = Accounts.github_signin(@valid_github_profile)
-      assert ORM.count(GithubUser) == 1
+      assert {:ok, 1} == ORM.count(GithubUser)
     end
 
     test "github signin user should not locate geo city info" do

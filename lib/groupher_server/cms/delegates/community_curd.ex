@@ -58,8 +58,10 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   update editors_count of a community
   """
   def update_community_count_field(%Community{} = community, user_id, :editors_count, opt) do
-    count_query = from(s in CommunityEditor, where: s.community_id == ^community.id)
-    editors_count = Repo.aggregate(count_query, :count)
+    {:ok, editors_count} =
+      from(s in CommunityEditor, where: s.community_id == ^community.id)
+      |> ORM.count()
+
     community_meta = if is_nil(community.meta), do: @default_meta, else: community.meta
 
     editors_ids =
@@ -80,8 +82,9 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   update article_tags_count of a community
   """
   def update_community_count_field(%Community{} = community, :article_tags_count) do
-    count_query = from(t in ArticleTag, where: t.community_id == ^community.id)
-    article_tags_count = Repo.aggregate(count_query, :count)
+    {:ok, article_tags_count} =
+      from(t in ArticleTag, where: t.community_id == ^community.id)
+      |> ORM.count()
 
     community
     |> Ecto.Changeset.change(%{article_tags_count: article_tags_count})
@@ -92,8 +95,9 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   update subscribers_count of a community
   """
   def update_community_count_field(%Community{} = community, user_id, :subscribers_count, opt) do
-    count_query = from(s in CommunitySubscriber, where: s.community_id == ^community.id)
-    subscribers_count = Repo.aggregate(count_query, :count)
+    {:ok, subscribers_count} =
+      from(s in CommunitySubscriber, where: s.community_id == ^community.id) |> ORM.count()
+
     community_meta = if is_nil(community.meta), do: @default_meta, else: community.meta
 
     subscribed_user_ids =
@@ -122,22 +126,18 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   """
   def update_community_count_field(%Community{} = community, thread) do
     with {:ok, info} <- match(thread) do
-      count_query =
+      {:ok, thread_article_count} =
         from(a in info.model,
           join: c in assoc(a, :communities),
-          where: a.mark_delete == false,
-          where: c.id == ^community.id
+          where: a.mark_delete == false and c.id == ^community.id
         )
+        |> ORM.count()
 
-      thread_article_count = Repo.aggregate(count_query, :count)
       community_meta = if is_nil(community.meta), do: @default_meta, else: community.meta
-
-      meta = community_meta |> Map.put(:"#{thread}s_count", thread_article_count) |> strip_struct
+      meta = Map.put(community_meta, :"#{thread}s_count", thread_article_count)
 
       community
-      |> Ecto.Changeset.change(%{articles_count: recount_articles_count(meta)})
-      |> Ecto.Changeset.put_embed(:meta, meta)
-      |> Repo.update()
+      |> ORM.update_meta(meta, changes: %{articles_count: recount_articles_count(meta)})
     end
   end
 

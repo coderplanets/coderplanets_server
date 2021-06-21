@@ -67,8 +67,7 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
     read = Map.get(filter, :read, false)
 
     Mention
-    |> where([m], m.to_user_id == ^user.id)
-    |> where([m], m.read == ^read)
+    |> where([m], m.to_user_id == ^user.id and m.read == ^read)
     |> ORM.paginater(~m(page size)a)
     |> extract_mentions
     |> done()
@@ -78,19 +77,21 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
   def unread_count(user_id) do
     Mention
     |> where([m], m.to_user_id == ^user_id and m.read == false)
-    |> Repo.aggregate(:count)
-    |> done
+    |> ORM.count()
   end
 
+  @doc "mark mention in ids as readed"
   def mark_read(ids, %User{} = user) when is_list(ids) do
-    query = Mention |> where([m], m.id in ^ids and m.to_user_id == ^user.id and m.read == false)
+    Mention
+    |> where([m], m.id in ^ids and m.to_user_id == ^user.id and m.read == false)
+    |> ORM.mark_read_all()
+  end
 
-    result = Repo.update_all(query, set: [read: true])
-
-    case result do
-      {0, nil} -> {:error, "no such mentions found"}
-      _ -> {:ok, :done}
-    end
+  @doc "mark all related mentions as readed"
+  def mark_read_all(%User{} = user) do
+    Mention
+    |> where([m], m.to_user_id == ^user.id and m.read == false)
+    |> ORM.mark_read_all()
   end
 
   defp batch_delete_mentions(%Comment{} = comment, %User{} = from_user) do
@@ -138,8 +139,5 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
   end
 
   defp result({:ok, %{batch_insert_mentions: result}}), do: {:ok, result}
-
-  defp result({:error, _, result, _steps}) do
-    {:error, result}
-  end
+  defp result({:error, _, result, _steps}), do: {:error, result}
 end

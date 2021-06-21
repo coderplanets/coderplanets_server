@@ -40,12 +40,11 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
          {:ok, info} <- match(full_comment.thread) do
       Multi.new()
       |> Multi.run(:checked_pined_comments_count, fn _, _ ->
-        count_query =
+        {:ok, pined_comments_count} =
           from(p in PinnedComment,
             where: field(p, ^info.foreign_key) == ^full_comment.article.id
           )
-
-        pined_comments_count = Repo.aggregate(count_query, :count)
+          |> ORM.count()
 
         case pined_comments_count >= @pinned_comment_limit do
           true -> {:error, "max #{@pinned_comment_limit} pinned comment for each article"}
@@ -163,8 +162,9 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         update_upvoted_user_list(comment, user_id, :add)
       end)
       |> Multi.run(:inc_upvotes_count, fn _, %{add_upvoted_user: comment} ->
-        count_query = from(c in CommentUpvote, where: c.comment_id == ^comment.id)
-        upvotes_count = Repo.aggregate(count_query, :count)
+        {:ok, upvotes_count} =
+          from(c in CommentUpvote, where: c.comment_id == ^comment.id) |> ORM.count()
+
         ORM.update(comment, %{upvotes_count: upvotes_count})
       end)
       |> Multi.run(:check_article_author_upvoted, fn _, %{inc_upvotes_count: comment} ->
@@ -202,8 +202,8 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         update_upvoted_user_list(comment, user_id, :remove)
       end)
       |> Multi.run(:desc_upvotes_count, fn _, %{remove_upvoted_user: comment} ->
-        count_query = from(c in CommentUpvote, where: c.comment_id == ^comment_id)
-        upvotes_count = Repo.aggregate(count_query, :count)
+        {:ok, upvotes_count} =
+          from(c in CommentUpvote, where: c.comment_id == ^comment_id) |> ORM.count()
 
         ORM.update(comment, %{upvotes_count: Enum.max([upvotes_count - 1, 0])})
       end)

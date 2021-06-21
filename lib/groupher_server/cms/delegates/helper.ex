@@ -157,8 +157,8 @@ defmodule GroupherServer.CMS.Delegate.Helper do
         :collects_count -> ArticleCollect
       end
 
-    count_query = from(u in schema, where: field(u, ^info.foreign_key) == ^article.id)
-    cur_count = Repo.aggregate(count_query, :count)
+    {:ok, cur_count} =
+      from(u in schema, where: field(u, ^info.foreign_key) == ^article.id) |> ORM.count()
 
     case opt do
       :inc ->
