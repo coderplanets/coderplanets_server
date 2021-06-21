@@ -80,7 +80,6 @@ defmodule GroupherServer.Test.Delivery.Notification do
   end
 
   describe "notification" do
-    @tag :wip2
     test "can get unread notification count of a user", ~m(user user2 user3 notify_attrs)a do
       {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
       {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
@@ -341,7 +340,6 @@ defmodule GroupherServer.Test.Delivery.Notification do
   end
 
   describe "mark read" do
-    @tag :wip
     test "can mark multi notification as read", ~m(user user2 user3 notify_attrs)a do
       {:ok, notify} = Delivery.send(:notify, notify_attrs, user2)
       move_insert_at_long_ago(notify)
@@ -362,7 +360,6 @@ defmodule GroupherServer.Test.Delivery.Notification do
       assert result.total_count == 2
     end
 
-    @tag :wip
     test "can mark all notification as read", ~m(user user2 user3 notify_attrs)a do
       {:ok, notify} = Delivery.send(:notify, notify_attrs, user2)
       move_insert_at_long_ago(notify)

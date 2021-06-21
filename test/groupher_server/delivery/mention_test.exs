@@ -27,7 +27,6 @@ defmodule GroupherServer.Test.Delivery.Mention do
   end
 
   describe "mentions" do
-    @tag :wip2
     test "can get unread mention count of a user", ~m(post user user2 user3 mention_attr)a do
       mention_contents = [
         Map.merge(mention_attr, %{from_user_id: user.id, to_user_id: user3.id})
@@ -45,7 +44,6 @@ defmodule GroupherServer.Test.Delivery.Mention do
       assert count == 2
     end
 
-    @tag :wip2
     test "can batch send mentions", ~m(post user user2 mention_attr)a do
       mention_contents = [
         Map.merge(mention_attr, %{from_user_id: user.id, to_user_id: user2.id})
@@ -61,7 +59,6 @@ defmodule GroupherServer.Test.Delivery.Mention do
       assert mention.user.login == user.login
     end
 
-    @tag :wip2
     test "mention multiable times on same article, will only have one record",
          ~m(post user user2 mention_attr)a do
       mention_contents = [
@@ -79,7 +76,6 @@ defmodule GroupherServer.Test.Delivery.Mention do
       assert result.total_count == 1
     end
 
-    @tag :wip2
     test "if mention before, update with no mention content will not do mention in final",
          ~m(post user user2 user3 mention_attr)a do
       mention_contents = [
@@ -108,7 +104,6 @@ defmodule GroupherServer.Test.Delivery.Mention do
   end
 
   describe "mark read" do
-    @tag :wip
     test "can mark read a mention", ~m(post user user2 mention_attr)a do
       mention_contents = [
         Map.merge(mention_attr, %{from_user_id: user.id, to_user_id: user2.id})
@@ -126,7 +121,6 @@ defmodule GroupherServer.Test.Delivery.Mention do
       assert mention.read
     end
 
-    @tag :wip
     test "can mark multi mention as read", ~m(post user user2 user3 mention_attr)a do
       mention_contents = [
         Map.merge(mention_attr, %{from_user_id: user2.id, to_user_id: user.id})
@@ -155,7 +149,6 @@ defmodule GroupherServer.Test.Delivery.Mention do
       assert mention2.read
     end
 
-    @tag :wip
     test "can mark read all", ~m(post user user2 user3 mention_attr)a do
       mention_contents = [
         Map.merge(mention_attr, %{from_user_id: user2.id, to_user_id: user.id})

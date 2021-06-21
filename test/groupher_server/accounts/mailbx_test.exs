@@ -11,21 +11,11 @@ defmodule GroupherServer.Test.Accounts.Mailbox do
     {:ok, user2} = db_insert(:user)
     {:ok, user3} = db_insert(:user)
 
-    notify_attrs = %{
-      thread: :post,
-      article_id: post.id,
-      title: post.title,
-      action: :upvote,
-      user_id: user.id,
-      read: false
-    }
-
-    {:ok, ~m(post user user2 user3 notify_attrs)a}
+    {:ok, ~m(post user user2 user3)a}
   end
 
   describe "mailbox status" do
-    @tag :wip2
-    test "can get mailbox status", ~m(post user user2 notify_attrs)a do
+    test "can get mailbox status", ~m(post user user2)a do
       notify_attrs = %{
         thread: :post,
         article_id: post.id,
