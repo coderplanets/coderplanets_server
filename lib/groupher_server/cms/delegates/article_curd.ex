@@ -14,7 +14,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   import ShortMaps
 
   alias Helper.{Later, ORM, QueryBuilder, Converter}
-  alias GroupherServer.{Accounts, CMS, Delivery, Email, Repo, Statistics}
+  alias GroupherServer.{Accounts, CMS, Email, Repo, Statistics}
 
   alias Accounts.Model.User
   alias CMS.Model.{Author, Community, PinnedArticle, Embeds}
@@ -175,11 +175,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
         Later.run({Hooks.Cite, :handle, [article]})
         Later.run({Hooks.Mention, :handle, [article]})
         Later.run({__MODULE__, :notify_admin_new_article, [article]})
-      end)
-      |> Multi.run(:mention_users, fn _, %{create_article: article} ->
-        # article.body |> Jason.decode!() |> 各种小 task
-        Delivery.mention_from_content(community.raw, thread, article, attrs, %User{id: uid})
-        {:ok, :pass}
       end)
       |> Multi.run(:log_action, fn _, _ ->
         Statistics.log_publish_action(%User{id: uid})
