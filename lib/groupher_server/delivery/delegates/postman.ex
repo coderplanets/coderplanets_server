@@ -14,6 +14,13 @@ defmodule GroupherServer.Delivery.Delegate.Postman do
   def fetch(:mention, user, filter), do: Mention.paged_mentions(user, filter)
   def fetch(:notification, user, filter), do: Notification.paged_notifications(user, filter)
 
+  def unread_count(:mention, user_id), do: Mention.unread_count(user_id)
+  def unread_count(:notification, user_id), do: Notification.unread_count(user_id)
+
+  def mark_read(:mention, ids, user), do: Mention.mark_read(ids, user)
+  # def mark_read(:mention, ids, user), do: false
+  # def mark_read_all(:mention, id, user), do: false
+
   # def send(_, _, _), do: {:error, "delivery, not such service"}
   # def send(_, _, _, _), do: {:error, "delivery, not such service"}
 end

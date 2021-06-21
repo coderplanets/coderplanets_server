@@ -12,7 +12,9 @@ defmodule GroupherServer.Delivery do
   defdelegate send(service, attrs, from_user), to: Postman
   defdelegate revoke(service, attrs, from_user), to: Postman
   defdelegate fetch(service, user, filter), to: Postman
+  defdelegate unread_count(service, user), to: Postman
 
+  defdelegate mark_read(service, ids, user), to: Postman
   # system_notifications
   defdelegate publish_system_notification(info), to: Notifications
   defdelegate fetch_sys_notifications(user, filter), to: Notifications

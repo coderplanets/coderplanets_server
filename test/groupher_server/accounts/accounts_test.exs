@@ -6,12 +6,12 @@ defmodule GroupherServer.Test.Accounts do
   alias Helper.{Guardian, ORM}
   alias GroupherServer.Accounts
 
+  alias Accounts.Model.User
+
   # @valid_user mock_attrs(:user)
   @valid_github_profile mock_attrs(:github_profile) |> map_key_stringify
 
   describe "[update user]" do
-    alias Accounts.Model.User
-
     test "update user with valid attrs" do
       {:ok, user} = db_insert(:user)
 

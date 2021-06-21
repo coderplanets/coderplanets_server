@@ -14,7 +14,6 @@ defmodule GroupherServer.Test.Accounts.Hooks.Notify do
   end
 
   describe "[follow notify]" do
-    @tag :wip
     test "follow notify hook should work", ~m(user user2)a do
       {:ok, _} = Accounts.follow(user, user2)
       Hooks.Notify.handle(:follow, user, user2)
@@ -28,7 +27,6 @@ defmodule GroupherServer.Test.Accounts.Hooks.Notify do
       assert user_exist_in?(user2, notify.from_users)
     end
 
-    @tag :wip
     test "undo follow notify hook should work", ~m(user user2)a do
       {:ok, _} = Accounts.follow(user, user2)
       Hooks.Notify.handle(:follow, user, user2)

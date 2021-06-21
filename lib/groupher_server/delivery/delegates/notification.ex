@@ -64,7 +64,15 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
     |> where([n], n.user_id == ^user_id)
     |> where([n], n.read == ^read)
     |> ORM.paginater(~m(page size)a)
-    |> done()
+    |> done
+  end
+
+  # 注意这里并不是准确的 count, 因为可能有短时间内 merge 到一起的通知
+  def unread_count(user_id) do
+    Notification
+    |> where([n], n.user_id == ^user_id and n.read == false)
+    |> Repo.aggregate(:count)
+    |> done
   end
 
   # 如果在临近时间段内有类似操作，直接将这次的操作人添加到 from_users 中即可

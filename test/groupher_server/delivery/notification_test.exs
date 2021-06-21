@@ -80,6 +80,16 @@ defmodule GroupherServer.Test.Delivery.Notification do
   end
 
   describe "notification" do
+    @tag :wip2
+    test "can get unread notification count of a user", ~m(post user user2 user3 notify_attrs)a do
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
+
+      {:ok, count} = Delivery.unread_count(:notification, user.id)
+
+      assert count == 1
+    end
+
     test "similar notify should be merged", ~m(user user2 user3 notify_attrs)a do
       {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
       {:ok, _} = Delivery.send(:notify, notify_attrs, user3)

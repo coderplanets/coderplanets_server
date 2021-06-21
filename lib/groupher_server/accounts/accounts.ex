@@ -8,6 +8,7 @@ defmodule GroupherServer.Accounts do
     CollectFolder,
     Publish,
     Mails,
+    Mailbox,
     Profile,
     UpvotedArticles,
     Search,
@@ -73,6 +74,8 @@ defmodule GroupherServer.Accounts do
   defdelegate mailbox_status(user), to: Mails
   defdelegate mark_mail_read_all(user, opt), to: Mails
   defdelegate mark_mail_read(mail, user), to: Mails
+
+  defdelegate update_mailbox_status(user_id), to: Mailbox
 
   # customization
   defdelegate get_customization(user), to: Customization

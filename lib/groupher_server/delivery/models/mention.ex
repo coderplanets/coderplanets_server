@@ -34,4 +34,8 @@ defmodule GroupherServer.Delivery.Model.Mention do
     |> foreign_key_constraint(:from_user_id)
     |> foreign_key_constraint(:to_user_id)
   end
+
+  def update_changeset(%Mention{} = mention, attrs) do
+    mention |> cast(attrs, @optional_fields ++ @required_fields)
+  end
 end

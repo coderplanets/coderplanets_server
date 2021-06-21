@@ -47,9 +47,13 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
       batch_delete_mentions(article, from_user)
     end)
     |> Multi.run(:batch_insert_mentions, fn _, _ ->
-      mentions = Enum.map(mentions, &atom_values_to_upcase(&1))
+      mentions =
+        mentions
+        |> Enum.map(&atom_values_to_upcase(&1))
+        # ignore mention myself
+        |> Enum.reject(&(&1.to_user_id == from_user.id))
 
-      case {0, nil} !== Repo.insert_all(Mention, mentions) do
+      case Enum.empty?(mentions) or {0, nil} !== Repo.insert_all(Mention, mentions) do
         true -> {:ok, :pass}
         false -> {:error, "insert mentions error"}
       end
@@ -58,6 +62,7 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
     |> result()
   end
 
+  @doc "paged mentions"
   def paged_mentions(%User{} = user, %{page: page, size: size} = filter) do
     read = Map.get(filter, :read, false)
 
@@ -67,6 +72,25 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
     |> ORM.paginater(~m(page size)a)
     |> extract_mentions
     |> done()
+  end
+
+  @doc "get unread mentions count"
+  def unread_count(user_id) do
+    Mention
+    |> where([m], m.to_user_id == ^user_id and m.read == false)
+    |> Repo.aggregate(:count)
+    |> done
+  end
+
+  def mark_read(ids, %User{} = user) when is_list(ids) do
+    query = Mention |> where([m], m.id in ^ids and m.to_user_id == ^user.id and m.read == false)
+
+    result = Repo.update_all(query, set: [read: true])
+
+    case result do
+      {0, nil} -> {:error, "no such mentions found"}
+      _ -> {:ok, :done}
+    end
   end
 
   defp batch_delete_mentions(%Comment{} = comment, %User{} = from_user) do
@@ -100,6 +124,7 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
 
     mention
     |> Map.take([
+      :id,
       :thread,
       :article_id,
       :comment_id,
