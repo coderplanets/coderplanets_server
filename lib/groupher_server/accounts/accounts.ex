@@ -7,7 +7,6 @@ defmodule GroupherServer.Accounts do
     Fans,
     CollectFolder,
     Publish,
-    Mails,
     Mailbox,
     Profile,
     UpvotedArticles,
@@ -62,18 +61,6 @@ defmodule GroupherServer.Accounts do
 
   # upvoted articles
   defdelegate paged_upvoted_articles(user_id, filter), to: UpvotedArticles
-
-  # mentions
-  defdelegate fetch_mentions(user, filter), to: Mails
-
-  # notifications
-  defdelegate fetch_notifications(user, filter), to: Mails
-  defdelegate fetch_sys_notifications(user, filter), to: Mails
-
-  # common message
-  defdelegate mailbox_status(user), to: Mails
-  defdelegate mark_mail_read_all(user, opt), to: Mails
-  defdelegate mark_mail_read(mail, user), to: Mails
 
   defdelegate update_mailbox_status(user_id), to: Mailbox
 
