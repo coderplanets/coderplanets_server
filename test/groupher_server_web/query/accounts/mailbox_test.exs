@@ -99,6 +99,12 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
       assert results |> is_valid_pagination?
       mention = results["entries"] |> List.first()
       assert user2.login == mention |> get_in(["user", "login"])
+
+      varibles = %{filter: %{page: 1, size: 20, read: true}}
+      results = user_conn |> query_result(@query, varibles, "pagedMentions")
+
+      assert results |> is_valid_pagination?
+      assert results["totalCount"] == 0
     end
 
     @query """
@@ -134,6 +140,12 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
 
       assert results |> is_valid_pagination?
       assert results["totalCount"] == 1
+
+      varibles = %{filter: %{page: 1, size: 20, read: true}}
+      results = user_conn |> query_result(@query, varibles, "pagedNotifications")
+
+      assert results |> is_valid_pagination?
+      assert results["totalCount"] == 0
     end
   end
 end
