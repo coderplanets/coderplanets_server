@@ -7,7 +7,7 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
 
   alias GroupherServer.{Accounts, CMS}
 
-  alias Accounts.Model.{MentionMail, NotificationMail, SysNotificationMail, User}
+  alias Accounts.Model.User
   alias Helper.Certification
 
   def user(_root, %{login: login}, %{context: %{cur_user: cur_user}}) do
