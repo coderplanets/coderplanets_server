@@ -3,7 +3,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyJob do
 
   import GroupherServer.CMS.Delegate.Helper, only: [preload_author: 1]
 
-  alias GroupherServer.{CMS, Delivery}
+  alias GroupherServer.{CMS, Delivery, Repo}
   alias CMS.Delegate.Hooks
 
   setup do
@@ -81,7 +81,6 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyJob do
       Hooks.Notify.handle(:undo, :upvote, comment, user2)
 
       {:ok, comment} = preload_author(comment)
-
       {:ok, notifications} = Delivery.fetch(:notification, comment.author, %{page: 1, size: 20})
 
       assert notifications.total_count == 0
@@ -149,8 +148,8 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyJob do
 
       Hooks.Notify.handle(:reply, replyed_comment, user3)
 
-      {:ok, notifications} =
-        Delivery.fetch(:notification, comment.author_id, %{page: 1, size: 20})
+      comment = Repo.preload(comment, :author)
+      {:ok, notifications} = Delivery.fetch(:notification, comment.author, %{page: 1, size: 20})
 
       assert notifications.total_count == 1
 

@@ -3,7 +3,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyBlog do
 
   import GroupherServer.CMS.Delegate.Helper, only: [preload_author: 1]
 
-  alias GroupherServer.{CMS, Delivery}
+  alias GroupherServer.{CMS, Delivery, Repo}
   alias CMS.Delegate.Hooks
 
   setup do
@@ -149,8 +149,8 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyBlog do
 
       Hooks.Notify.handle(:reply, replyed_comment, user3)
 
-      {:ok, notifications} =
-        Delivery.fetch(:notification, comment.author_id, %{page: 1, size: 20})
+      comment = Repo.preload(comment, :author)
+      {:ok, notifications} = Delivery.fetch(:notification, comment.author, %{page: 1, size: 20})
 
       assert notifications.total_count == 1
 
