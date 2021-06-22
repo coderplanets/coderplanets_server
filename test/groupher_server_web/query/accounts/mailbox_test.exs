@@ -25,7 +25,7 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
       }
     }
     """
-    @tag :wip2
+
     test "auth user can get it's own default mailbox status", ~m(user_conn user)a do
       results = user_conn |> query_result(@query, %{login: user.login}, "user")
       mailbox = results["mailbox"]
@@ -36,7 +36,6 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
       assert mailbox["unreadNotificationsCount"] == 0
     end
 
-    @tag :wip2
     test "auth user can get latest mailbox status after being mentioned",
          ~m(user_conn user user2)a do
       {:ok, _} = mock_mention_for(user, user2)
@@ -50,7 +49,6 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
       assert mailbox["unreadNotificationsCount"] == 0
     end
 
-    @tag :wip2
     test "auth user can get latest mailbox status after being notified",
          ~m(user_conn user user2)a do
       mock_notification_for(user, user2)
@@ -89,7 +87,7 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
       }
     }
     """
-    @tag :wip2
+
     test "can get paged mentions", ~m(user_conn user user2)a do
       mock_mention_for(user, user2)
 
@@ -131,7 +129,6 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
     }
     """
 
-    @tag :wip
     test "can get paged notifications", ~m(user_conn user user2)a do
       mock_notification_for(user, user2)
 

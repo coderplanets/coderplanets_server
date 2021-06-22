@@ -17,7 +17,6 @@ defmodule GroupherServer.Test.Accounts.Mailbox do
   end
 
   describe "mailbox status" do
-    @tag :wip2
     test "can get default mailbox status", ~m(user)a do
       {:ok, status} = Accounts.mailbox_status(user)
       assert status == @default_mailbox_status
