@@ -44,6 +44,15 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.paged_mailbox_mentions/3)
     end
 
+    @desc "get login user's notifications in mailbox"
+    field :paged_notifications, :paged_mailbox_notifications do
+      arg(:filter, :mailbox_notifications_filter)
+
+      middleware(M.Authorize, :login)
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.paged_mailbox_notifications/3)
+    end
+
     @desc "get user's follower"
     field :paged_followers, :paged_users do
       arg(:login, non_null(:string))

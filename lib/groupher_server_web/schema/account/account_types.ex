@@ -112,6 +112,20 @@ defmodule GroupherServerWeb.Schema.Account.Types do
     timestamp_fields()
   end
 
+  object :mailbox_notification do
+    field(:id, :id)
+    field(:action, :string)
+    field(:thread, :string)
+    field(:article_id, :id)
+    field(:title, :string)
+    field(:comment_id, :id)
+    field(:read, :boolean)
+
+    field(:from_users, list_of(:common_user))
+
+    timestamp_fields()
+  end
+
   # field(:sidebar_layout, :map)
   object :customization do
     field(:theme, :string)
@@ -217,6 +231,11 @@ defmodule GroupherServerWeb.Schema.Account.Types do
 
   object :paged_mailbox_mentions do
     field(:entries, list_of(:mailbox_mention))
+    pagination_fields()
+  end
+
+  object :paged_mailbox_notifications do
+    field(:entries, list_of(:mailbox_notification))
     pagination_fields()
   end
 

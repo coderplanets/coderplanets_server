@@ -89,12 +89,11 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
       }
     }
     """
-    @tag :wip
+    @tag :wip2
     test "can get paged mentions", ~m(user_conn user user2)a do
       mock_mention_for(user, user2)
 
       varibles = %{filter: %{page: 1, size: 20}}
-
       results = user_conn |> query_result(@query, varibles, "pagedMentions")
 
       assert results |> is_valid_pagination?
@@ -102,59 +101,39 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
       assert user2.login == mention |> get_in(["user", "login"])
     end
 
-    test "can get paged notifications" do
-      #
-      true
+    @query """
+    query($filter: MailboxNotificationsFilter!) {
+      pagedNotifications(filter: $filter) {
+        entries {
+          id
+          action
+          thread
+          articleId
+          title
+          commentId
+          read
+          fromUsers {
+            login
+            nickname
+          }
+        }
+        totalPages
+        totalCount
+        pageSize
+        pageNumber
+      }
+    }
+    """
+
+    @tag :wip
+    test "can get paged notifications", ~m(user_conn user user2)a do
+      mock_notification_for(user, user2)
+
+      varibles = %{filter: %{page: 1, size: 20}}
+      results = user_conn |> query_result(@query, varibles, "pagedNotifications")
+
+      assert results |> is_valid_pagination?
+      assert results["totalCount"] == 1
     end
   end
-
-  # describe "[accounts mention]" do
-  #   @query """
-  #   query($filter: MessagesFilter!) {
-  #     mentions(filter: $filter) {
-  #       entries {
-  #         id
-  #         fromUserId
-  #         fromUser {
-  #           id
-  #           avatar
-  #           nickname
-  #         }
-  #         toUserId
-  #         toUser {
-  #           id
-  #           avatar
-  #           nickname
-  #         }
-  #         sourceTitle
-  #         sourcePreview
-  #         sourceType
-  #         community
-  #         read
-  #       }
-  #       totalPages
-  #       totalCount
-  #       pageSize
-  #       pageNumber
-  #     }
-  #   }
-  #   """
-  #   test "auth user can get it's own mentions" do
-  #     {:ok, [user, user2]} = db_insert_multi(:user, 2)
-
-  #     mock_mentions_for(user, 1)
-  #     mock_mentions_for(user2, 1)
-
-  #     user_conn = simu_conn(:user, user)
-
-  #     variables = %{filter: %{page: 1, size: 20, read: false}}
-  #     results = user_conn |> query_result(@query, variables, "mentions")
-
-  #     assert results |> is_valid_pagination?
-  #     assert results["totalCount"] == 1
-
-  #     assert results["entries"] |> Enum.any?(&(&1["toUserId"] == to_string(user.id)))
-  #     assert results["entries"] |> Enum.any?(&(&1["community"] == "elixir"))
-  #   end
-  # end
 end

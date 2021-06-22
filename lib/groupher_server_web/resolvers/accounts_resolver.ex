@@ -234,8 +234,11 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
   end
 
   def paged_mailbox_mentions(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
-    IO.inspect(cur_user.login, label: "in resolver")
     Accounts.paged_mailbox_messages(:mention, cur_user, filter)
+  end
+
+  def paged_mailbox_notifications(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.paged_mailbox_messages(:notification, cur_user, filter)
   end
 
   # mailbox end

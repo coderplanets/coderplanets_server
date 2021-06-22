@@ -9,6 +9,11 @@ defmodule GroupherServerWeb.Schema.Account.Metrics do
     pagination_args()
   end
 
+  input_object :mailbox_notifications_filter do
+    field(:read, :boolean, default_value: false)
+    pagination_args()
+  end
+
   @desc "article_filter doc"
   input_object :paged_users_filter do
     pagination_args()
