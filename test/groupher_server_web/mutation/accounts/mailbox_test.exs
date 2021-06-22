@@ -22,7 +22,7 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
       }
     }
     """
-    # @tag :wip
+    # @tag :wip2
     test "can mark read a mention", ~m(user_conn user user2)a do
       {:ok, _} = mock_mention_for(user, user2)
 
@@ -37,7 +37,7 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
       assert mention.read
     end
 
-    @tag :wip
+    @tag :wip2
     test "can mark read a notification", ~m(user_conn user user2)a do
       {:ok, _} = mock_notification_for(user, user2)
 
@@ -60,7 +60,7 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
       }
     }
     """
-    @tag :wip
+    @tag :wip2
     test "can mark read all mentions", ~m(user_conn user user2 user3)a do
       {:ok, _} = mock_mention_for(user, user2)
       {:ok, _} = mock_mention_for(user, user3)
@@ -75,7 +75,7 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
       assert mentions.total_count == 2
     end
 
-    @tag :wip
+    @tag :wip2
     test "can mark read all notifications", ~m(user_conn user user2)a do
       {:ok, _} = mock_notification_for(user, user2)
 
@@ -87,18 +87,6 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
 
       {:ok, notifications} = Delivery.fetch(:notification, user, %{page: 1, size: 10, read: true})
       assert notifications.total_count == 1
-    end
-  end
-
-  describe "[paged messages]" do
-    test "can get paged mentions" do
-      #
-      true
-    end
-
-    test "can get paged notifications" do
-      #
-      true
     end
   end
 end

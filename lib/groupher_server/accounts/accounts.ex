@@ -67,6 +67,8 @@ defmodule GroupherServer.Accounts do
   defdelegate mark_read(type, ids, user_id), to: Mailbox
   defdelegate mark_read_all(tyoe, user_id), to: Mailbox
 
+  defdelegate paged_mailbox_messages(type, user, filter), to: Mailbox
+
   # customization
   defdelegate get_customization(user), to: Customization
   defdelegate set_customization(user, key, value), to: Customization

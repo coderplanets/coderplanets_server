@@ -19,6 +19,10 @@ defmodule GroupherServer.Accounts.Delegate.Mailbox do
 
   def mark_read_all(type, %User{} = user), do: Delivery.mark_read_all(type, user)
 
+  def paged_mailbox_messages(type, user, filter) do
+    Delivery.fetch(type, user, filter)
+  end
+
   @doc "update messages count in mailbox"
   def update_mailbox_status(user_id) do
     with {:ok, user} <- ORM.find(User, user_id),

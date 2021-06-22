@@ -233,6 +233,11 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     Accounts.mark_read_all(type, cur_user)
   end
 
+  def paged_mailbox_mentions(_root, ~m(filter)a, %{context: %{cur_user: cur_user}}) do
+    IO.inspect(cur_user.login, label: "in resolver")
+    Accounts.paged_mailbox_messages(:mention, cur_user, filter)
+  end
+
   # mailbox end
 
   # for check other users subscribed_communities
