@@ -14,11 +14,18 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   import ShortMaps
 
   alias Helper.{Later, ORM, QueryBuilder, Converter}
-  alias GroupherServer.{Accounts, CMS, Delivery, Email, Repo, Statistics}
+  alias GroupherServer.{Accounts, CMS, Email, Repo, Statistics}
 
   alias Accounts.Model.User
   alias CMS.Model.{Author, Community, PinnedArticle, Embeds}
-  alias CMS.Delegate.{ArticleCommunity, CommentCurd, ArticleTag, CommunityCURD, CiteTasks}
+
+  alias CMS.Delegate.{
+    ArticleCommunity,
+    CommentCurd,
+    ArticleTag,
+    CommunityCURD,
+    Hooks
+  }
 
   alias Ecto.Multi
 
@@ -164,14 +171,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Multi.run(:update_user_published_meta, fn _, _ ->
         Accounts.update_published_states(uid, thread)
       end)
-      |> Multi.run(:after_tasks, fn _, %{create_article: article} ->
-        Later.run({CiteTasks, :handle, [article]})
+      |> Multi.run(:after_hooks, fn _, %{create_article: article} ->
+        Later.run({Hooks.Cite, :handle, [article]})
+        Later.run({Hooks.Mention, :handle, [article]})
         Later.run({__MODULE__, :notify_admin_new_article, [article]})
-      end)
-      |> Multi.run(:mention_users, fn _, %{create_article: article} ->
-        # article.body |> Jason.decode!() |> 各种小 task
-        Delivery.mention_from_content(community.raw, thread, article, attrs, %User{id: uid})
-        {:ok, :pass}
       end)
       |> Multi.run(:log_action, fn _, _ ->
         Statistics.log_publish_action(%User{id: uid})
@@ -223,8 +226,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     |> Multi.run(:update_edit_status, fn _, %{update_article: update_article} ->
       ArticleCommunity.update_edit_status(update_article)
     end)
-    |> Multi.run(:after_tasks, fn _, %{update_article: update_article} ->
-      Later.run({CiteTasks, :handle, [update_article]})
+    |> Multi.run(:after_hooks, fn _, %{update_article: update_article} ->
+      Later.run({Hooks.Cite, :handle, [update_article]})
+      Later.run({Hooks.Mention, :handle, [update_article]})
     end)
     |> Repo.transaction()
     |> result()

@@ -17,11 +17,12 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
   import GroupherServer.CMS.Helper.Matcher
 
   alias Helper.Types, as: T
-  alias Helper.ORM
+  alias Helper.{ORM, Later}
   alias GroupherServer.{Accounts, CMS, Repo}
 
   alias Accounts.Model.User
   alias CMS.Model.{Comment, PinnedComment, CommentUpvote, CommentReply, Embeds}
+  alias CMS.Delegate.Hooks
 
   alias Ecto.Multi
 
@@ -39,12 +40,11 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
          {:ok, info} <- match(full_comment.thread) do
       Multi.new()
       |> Multi.run(:checked_pined_comments_count, fn _, _ ->
-        count_query =
+        {:ok, pined_comments_count} =
           from(p in PinnedComment,
             where: field(p, ^info.foreign_key) == ^full_comment.article.id
           )
-
-        pined_comments_count = Repo.aggregate(count_query, :count)
+          |> ORM.count()
 
         case pined_comments_count >= @pinned_comment_limit do
           true -> {:error, "max #{@pinned_comment_limit} pinned comment for each article"}
@@ -138,6 +138,10 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         |> Ecto.Changeset.put_assoc(:reply_to, replying_comment)
         |> Repo.update()
       end)
+      |> Multi.run(:after_hooks, fn _, %{create_reply_comment: replyed_comment} ->
+        Later.run({Hooks.Notify, :handle, [:reply, replyed_comment, user]})
+        Later.run({Hooks.Mention, :handle, [replyed_comment]})
+      end)
       |> Repo.transaction()
       |> result()
     else
@@ -147,7 +151,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
   end
 
   @doc "upvote a comment"
-  def upvote_comment(comment_id, %User{id: user_id}) do
+  def upvote_comment(comment_id, %User{id: user_id} = from_user) do
     with {:ok, comment} <- ORM.find(Comment, comment_id),
          false <- comment.is_deleted do
       Multi.new()
@@ -158,8 +162,9 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         update_upvoted_user_list(comment, user_id, :add)
       end)
       |> Multi.run(:inc_upvotes_count, fn _, %{add_upvoted_user: comment} ->
-        count_query = from(c in CommentUpvote, where: c.comment_id == ^comment.id)
-        upvotes_count = Repo.aggregate(count_query, :count)
+        {:ok, upvotes_count} =
+          from(c in CommentUpvote, where: c.comment_id == ^comment.id) |> ORM.count()
+
         ORM.update(comment, %{upvotes_count: upvotes_count})
       end)
       |> Multi.run(:check_article_author_upvoted, fn _, %{inc_upvotes_count: comment} ->
@@ -174,13 +179,16 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         |> Map.merge(%{viewer_has_reported: viewer_has_reported})
         |> done
       end)
+      |> Multi.run(:after_hooks, fn _, _ ->
+        Later.run({Hooks.Notify, :handle, [:upvote, comment, from_user]})
+      end)
       |> Repo.transaction()
       |> result()
     end
   end
 
   @doc "upvote a comment"
-  def undo_upvote_comment(comment_id, %User{id: user_id}) do
+  def undo_upvote_comment(comment_id, %User{id: user_id} = from_user) do
     with {:ok, comment} <- ORM.find(Comment, comment_id),
          false <- comment.is_deleted do
       Multi.new()
@@ -194,8 +202,8 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         update_upvoted_user_list(comment, user_id, :remove)
       end)
       |> Multi.run(:desc_upvotes_count, fn _, %{remove_upvoted_user: comment} ->
-        count_query = from(c in CommentUpvote, where: c.comment_id == ^comment_id)
-        upvotes_count = Repo.aggregate(count_query, :count)
+        {:ok, upvotes_count} =
+          from(c in CommentUpvote, where: c.comment_id == ^comment_id) |> ORM.count()
 
         ORM.update(comment, %{upvotes_count: Enum.max([upvotes_count - 1, 0])})
       end)
@@ -210,6 +218,9 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         |> Map.merge(%{viewer_has_upvoted: viewer_has_upvoted})
         |> Map.merge(%{viewer_has_reported: viewer_has_reported})
         |> done
+      end)
+      |> Multi.run(:after_hooks, fn _, _ ->
+        Later.run({Hooks.Notify, :handle, [:undo, :upvote, comment, from_user]})
       end)
       |> Repo.transaction()
       |> result()

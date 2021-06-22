@@ -2,7 +2,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
   use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias GroupherServer.{CMS, Delivery}
+  alias GroupherServer.CMS
 
   alias CMS.Model.Job
 
@@ -26,7 +26,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       $length: Int!,
       $communityId: ID!,
       $company: String!,
-      $mentionUsers: [Ids],
       $articleTags: [Ids]
      ) {
       createJob(
@@ -36,7 +35,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
         length: $length,
         communityId: $communityId,
         company: $company,
-        mentionUsers: $mentionUsers,
         articleTags: $articleTags
         ) {
           id
@@ -98,34 +96,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       {:ok, job} = ORM.find(Job, created["id"])
 
       assert String.contains?(job.body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
-    end
-
-    test "can create job with mentionUsers" do
-      {:ok, user} = db_insert(:user)
-      {:ok, user2} = db_insert(:user)
-      user_conn = simu_conn(:user, user)
-
-      {:ok, community} = db_insert(:community)
-      job_attr = mock_attrs(:job)
-
-      variables =
-        job_attr
-        |> camelize_map_key
-        |> Map.merge(%{communityId: community.id})
-        |> Map.merge(%{mentionUsers: [%{id: user2.id}]})
-
-      filter = %{page: 1, size: 20, read: false}
-      {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
-      assert mentions.total_count == 0
-
-      _created = user_conn |> mutation_result(@create_job_query, variables, "createJob")
-
-      {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
-      the_mention = mentions.entries |> List.first()
-
-      assert mentions.total_count == 1
-      assert the_mention.source_type == "job"
-      assert the_mention.read == false
     end
 
     @query """

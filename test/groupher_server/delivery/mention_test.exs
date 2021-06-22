@@ -2,132 +2,176 @@ defmodule GroupherServer.Test.Delivery.Mention do
   use GroupherServer.TestTools
 
   import Ecto.Query, warn: false
-  import Helper.Utils
+  # import Helper.Utils
 
-  alias Helper.ORM
-  alias GroupherServer.{Accounts, Delivery}
+  alias GroupherServer.Delivery
 
-  alias Accounts.Model.MentionMail
-  alias Delivery.Model.Mention
+  setup do
+    {:ok, post} = db_insert(:post)
+    {:ok, user} = db_insert(:user)
+    {:ok, user2} = db_insert(:user)
+    {:ok, user3} = db_insert(:user)
+    {:ok, community} = db_insert(:community)
+
+    mention_attr = %{
+      thread: "POST",
+      title: post.title,
+      article_id: post.id,
+      comment_id: nil,
+      block_linker: ["tmp"],
+      inserted_at: post.updated_at |> DateTime.truncate(:second),
+      updated_at: post.updated_at |> DateTime.truncate(:second)
+    }
+
+    {:ok, ~m(community post user user2 user3 mention_attr)a}
+  end
 
   describe "mentions" do
-    test "user can mention other user" do
-      {:ok, [user, user2]} = db_insert_multi(:user, 2)
+    test "can get unread mention count of a user", ~m(post user user2 user3 mention_attr)a do
+      mention_contents = [
+        Map.merge(mention_attr, %{from_user_id: user.id, to_user_id: user3.id})
+      ]
 
-      mock_mentions_for(user, 1)
-      mock_mentions_for(user2, 1)
+      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user)
 
-      filter = %{page: 1, size: 20, read: false}
-      {:ok, mentions} = Delivery.fetch_mentions(user, filter)
+      mention_contents = [
+        Map.merge(mention_attr, %{from_user_id: user2.id, to_user_id: user3.id})
+      ]
 
-      assert mentions |> is_valid_pagination?(:raw)
-      assert mentions |> Map.get(:total_count) == 1
-      assert mentions.entries |> List.first() |> Map.get(:to_user_id) == user.id
-      assert mentions.entries |> List.first() |> Map.get(:community) == "elixir"
+      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user2)
+      {:ok, count} = Delivery.unread_count(:mention, user3.id)
+
+      assert count == 2
     end
 
-    test "user can fetch mentions and store in own mention mail-box" do
-      {:ok, user} = db_insert(:user)
+    test "can batch send mentions", ~m(post user user2 mention_attr)a do
+      mention_contents = [
+        Map.merge(mention_attr, %{from_user_id: user.id, to_user_id: user2.id})
+      ]
 
-      mock_mentions_for(user, 3)
+      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user)
+      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
 
-      filter = %{page: 1, size: 20, read: false}
-      {:ok, mentions} = Accounts.fetch_mentions(user, filter)
+      mention = result.entries |> List.first()
 
-      {:ok, mention_mails} =
-        MentionMail
-        |> where([m], m.to_user_id == ^user.id)
-        |> where([m], m.read == false)
-        |> ORM.paginater(page: 1, size: 10)
-        |> done()
-
-      mention_ids =
-        mentions.entries
-        |> Enum.reduce([], fn m, acc ->
-          acc |> Enum.concat([m |> Map.from_struct() |> Map.get(:id)])
-        end)
-
-      mention_mail_ids =
-        mention_mails.entries
-        |> Enum.reduce([], fn m, acc ->
-          acc |> Enum.concat([m |> Map.from_struct() |> Map.get(:id)])
-        end)
-
-      assert Enum.sort(mention_ids) == Enum.sort(mention_mail_ids)
+      assert mention.title == post.title
+      assert mention.article_id == post.id
+      assert mention.user.login == user.login
     end
 
-    test "delete related delivery mentions after user fetch" do
-      {:ok, user} = db_insert(:user)
+    test "mention multiable times on same article, will only have one record",
+         ~m(post user user2 mention_attr)a do
+      mention_contents = [
+        Map.merge(mention_attr, %{from_user_id: user.id, to_user_id: user2.id})
+      ]
 
-      mock_mentions_for(user, 1)
+      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user)
+      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
 
-      filter = %{page: 1, size: 20, read: false}
-      {:ok, _mentions} = Accounts.fetch_mentions(user, filter)
+      assert result.total_count == 1
 
-      {:ok, mentions} =
-        Mention
-        |> where([m], m.to_user_id == ^user.id)
-        |> ORM.paginater(page: 1, size: 10)
-        |> done()
+      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user)
+      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
 
-      assert Enum.empty?(mentions.entries)
+      assert result.total_count == 1
     end
 
-    test "store user fetch info in delivery records, with last_fetch_unread_time info" do
-      {:ok, user} = db_insert(:user)
+    test "if mention before, update with no mention content will not do mention in final",
+         ~m(post user user2 user3 mention_attr)a do
+      mention_contents = [
+        Map.merge(mention_attr, %{from_user_id: user.id, to_user_id: user2.id})
+      ]
 
-      mock_mentions_for(user, 3)
+      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user)
+      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
 
-      filter = %{page: 1, size: 20, read: false}
-      {:ok, mentions} = Accounts.fetch_mentions(user, filter)
-      {:ok, record} = Delivery.fetch_record(user)
+      assert result.total_count == 1
 
-      latest_insert_time = mentions.entries |> List.first() |> Map.get(:inserted_at) |> to_string
+      {:ok, result} = Delivery.fetch(:mention, user3, %{page: 1, size: 10})
+      assert result.total_count == 0
 
-      record_last_fetch_unresd_time =
-        record |> Map.get(:mentions_record) |> Map.get("last_fetch_unread_time")
+      mention_contents = [
+        Map.merge(mention_attr, %{from_user_id: user.id, to_user_id: user3.id})
+      ]
 
-      assert latest_insert_time == record_last_fetch_unresd_time
+      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user)
+      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
+      assert result.total_count == 0
+
+      {:ok, result} = Delivery.fetch(:mention, user3, %{page: 1, size: 10})
+      assert result.total_count == 1
+    end
+  end
+
+  describe "mark read" do
+    test "can mark read a mention", ~m(post user user2 mention_attr)a do
+      mention_contents = [
+        Map.merge(mention_attr, %{from_user_id: user.id, to_user_id: user2.id})
+      ]
+
+      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user)
+      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10})
+
+      mention = result.entries |> List.first()
+      {:ok, _} = Delivery.mark_read(:mention, [mention.id], user2)
+
+      {:ok, result} = Delivery.fetch(:mention, user2, %{page: 1, size: 10, read: true})
+      mention = result.entries |> List.first()
+
+      assert mention.read
     end
 
-    test "user can mark one mention as read" do
-      {:ok, user} = db_insert(:user)
+    test "can mark multi mention as read", ~m(post user user2 user3 mention_attr)a do
+      mention_contents = [
+        Map.merge(mention_attr, %{from_user_id: user2.id, to_user_id: user.id})
+      ]
 
-      mock_mentions_for(user, 3)
+      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user2)
 
-      filter = %{page: 1, size: 20, read: false}
-      {:ok, mentions} = Accounts.fetch_mentions(user, filter)
-      first_mention = mentions.entries |> List.first()
-      assert mentions.total_count == 3
-      Accounts.mark_mail_read(first_mention, user)
+      mention_contents = [
+        Map.merge(mention_attr, %{from_user_id: user3.id, to_user_id: user.id})
+      ]
 
-      filter = %{page: 1, size: 20, read: false}
-      {:ok, mentions} = Accounts.fetch_mentions(user, filter)
-      assert mentions.total_count == 2
+      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user3)
+      {:ok, result} = Delivery.fetch(:mention, user, %{page: 1, size: 10})
 
-      filter = %{page: 1, size: 20, read: true}
-      {:ok, mentions} = Accounts.fetch_mentions(user, filter)
-      assert mentions.total_count == 1
+      mention1 = result.entries |> List.first()
+      mention2 = result.entries |> List.last()
+
+      {:ok, _} = Delivery.mark_read(:mention, [mention1.id, mention2.id], user)
+
+      {:ok, result} = Delivery.fetch(:mention, user, %{page: 1, size: 10, read: true})
+
+      mention1 = result.entries |> List.first()
+      mention2 = result.entries |> List.last()
+
+      assert mention1.read
+      assert mention2.read
     end
 
-    test "user can mark all unread mentions as read" do
-      {:ok, user} = db_insert(:user)
+    test "can mark read all", ~m(post user user2 user3 mention_attr)a do
+      mention_contents = [
+        Map.merge(mention_attr, %{from_user_id: user2.id, to_user_id: user.id})
+      ]
 
-      mock_mentions_for(user, 3)
+      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user2)
 
-      filter = %{page: 1, size: 20, read: false}
-      {:ok, _mentions} = Accounts.fetch_mentions(user, filter)
-      Accounts.mark_mail_read_all(user, :mention)
+      mention_contents = [
+        Map.merge(mention_attr, %{from_user_id: user3.id, to_user_id: user.id})
+      ]
 
-      filter = %{page: 1, size: 20, read: false}
-      {:ok, mentions} = Accounts.fetch_mentions(user, filter)
+      {:ok, :pass} = Delivery.send(:mention, post, mention_contents, user3)
 
-      assert Enum.empty?(mentions.entries)
+      {:ok, result} = Delivery.fetch(:mention, user, %{page: 1, size: 10})
+      assert result.total_count == 2
 
-      filter = %{page: 1, size: 20, read: true}
-      {:ok, mentions} = Accounts.fetch_mentions(user, filter)
+      {:ok, _} = Delivery.mark_read_all(:mention, user)
 
-      assert mentions.total_count == 3
+      {:ok, result} = Delivery.fetch(:mention, user, %{page: 1, size: 10})
+      assert result.total_count == 0
+
+      {:ok, result} = Delivery.fetch(:mention, user, %{page: 1, size: 10, read: true})
+      assert result.total_count == 2
     end
   end
 end

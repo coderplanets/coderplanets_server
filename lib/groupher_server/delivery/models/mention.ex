@@ -7,22 +7,21 @@ defmodule GroupherServer.Delivery.Model.Mention do
 
   alias GroupherServer.Accounts.Model.User
 
-  @required_fields ~w(from_user_id to_user_id source_title source_id source_type source_preview)a
-  @optional_fields ~w(parent_id parent_type read floor community)a
+  @required_fields ~w(from_user_id to_user_id title article_id thread)a
+  @optional_fields ~w(comment_id read)a
 
   @type t :: %Mention{}
   schema "mentions" do
+    field(:thread, :string)
+    field(:article_id, :id)
+    field(:title, :string)
+    field(:comment_id, :id)
+    field(:read, :boolean)
+
+    field(:block_linker, {:array, :string})
+
     belongs_to(:from_user, User)
     belongs_to(:to_user, User)
-    field(:source_id, :string)
-    field(:source_preview, :string)
-    field(:source_title, :string)
-    field(:source_type, :string)
-    field(:parent_id, :string)
-    field(:parent_type, :string)
-    field(:community, :string)
-    field(:floor, :integer)
-    field(:read, :boolean)
 
     timestamps(type: :utc_datetime)
   end
@@ -34,5 +33,9 @@ defmodule GroupherServer.Delivery.Model.Mention do
     |> validate_required(@required_fields)
     |> foreign_key_constraint(:from_user_id)
     |> foreign_key_constraint(:to_user_id)
+  end
+
+  def update_changeset(%Mention{} = mention, attrs) do
+    mention |> cast(attrs, @optional_fields ++ @required_fields)
   end
 end

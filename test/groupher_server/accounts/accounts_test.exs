@@ -6,12 +6,12 @@ defmodule GroupherServer.Test.Accounts do
   alias Helper.{Guardian, ORM}
   alias GroupherServer.Accounts
 
+  alias Accounts.Model.User
+
   # @valid_user mock_attrs(:user)
   @valid_github_profile mock_attrs(:github_profile) |> map_key_stringify
 
   describe "[update user]" do
-    alias Accounts.Model.User
-
     test "update user with valid attrs" do
       {:ok, user} = db_insert(:user)
 
@@ -150,11 +150,11 @@ defmodule GroupherServer.Test.Accounts do
     end
 
     test "exsit github user created twice fails" do
-      assert ORM.count(GithubUser) == 0
+      assert {:ok, 0} == ORM.count(GithubUser)
       {:ok, _} = Accounts.github_signin(@valid_github_profile)
-      assert ORM.count(GithubUser) == 1
+      assert {:ok, 1} == ORM.count(GithubUser)
       {:ok, _} = Accounts.github_signin(@valid_github_profile)
-      assert ORM.count(GithubUser) == 1
+      assert {:ok, 1} == ORM.count(GithubUser)
     end
 
     test "github signin user should not locate geo city info" do

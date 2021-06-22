@@ -74,6 +74,7 @@ defmodule GroupherServer.Accounts.Model.User do
 
     embeds_one(:meta, Embeds.UserMeta, on_replace: :update)
     embeds_one(:contributes, Embeds.UserContribute, on_replace: :update)
+    embeds_one(:mailbox, Embeds.UserMailbox, on_replace: :update)
 
     has_one(:customization, Customization)
     has_one(:purchase, Purchase)
@@ -97,6 +98,7 @@ defmodule GroupherServer.Accounts.Model.User do
     |> cast_embed(:education_backgrounds, with: &EducationBackground.changeset/2)
     |> cast_embed(:work_backgrounds, with: &WorkBackground.changeset/2)
     |> cast_embed(:meta, required: false, with: &Embeds.UserMeta.changeset/2)
+    |> cast_embed(:mailbox, required: false, with: &Embeds.UserMailbox.changeset/2)
     |> validate_length(:nickname, min: 3, max: 30)
     |> validate_length(:bio, min: 3, max: 100)
     |> validate_inclusion(:sex, ["dude", "girl"])

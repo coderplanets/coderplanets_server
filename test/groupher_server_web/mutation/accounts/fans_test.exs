@@ -3,6 +3,7 @@ defmodule GroupherServer.Test.Mutation.Accounts.Fans do
 
   alias Helper.ORM
   alias GroupherServer.Accounts
+  alias Accounts.Model.User
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -14,8 +15,6 @@ defmodule GroupherServer.Test.Mutation.Accounts.Fans do
   end
 
   describe "[Accounts follower]" do
-    alias Accounts.Model.User
-
     @query """
     mutation($login: String!) {
       follow(login: $login) {

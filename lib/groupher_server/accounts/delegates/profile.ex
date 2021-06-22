@@ -72,8 +72,7 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
   """
   def update_subscribe_count(user_id) do
     with {:ok, user} <- ORM.find(User, user_id) do
-      count_query = from(s in CommunitySubscriber, where: s.user_id == ^user.id)
-      count = Repo.aggregate(count_query, :count)
+      {:ok, count} = from(s in CommunitySubscriber, where: s.user_id == ^user.id) |> ORM.count()
 
       user |> ORM.update(%{subscribed_communities_count: count})
     end

@@ -12,7 +12,7 @@ defmodule GroupherServer.Test.Helper.UtilsTest do
         other: "hello"
       }
 
-      result = Utils.map_atom_values_to_upcase_str(map)
+      result = Utils.atom_values_to_upcase(map)
 
       assert result.color == "GREEN"
       assert result.thread == "POST"

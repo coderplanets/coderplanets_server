@@ -5,34 +5,37 @@ defmodule GroupherServer.Delivery.Model.Notification do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias GroupherServer.Accounts.Model.User
+  alias GroupherServer.{Accounts, CMS}
+  alias Accounts.Model.User
+  alias CMS.Model.Embeds
 
-  @required_fields ~w(from_user_id to_user_id action source_title source_id source_preview source_type)a
-  @optional_fields ~w(parent_id parent_type read)a
+  @required_fields ~w(user_id action)a
+  @optional_fields ~w(thread article_id comment_id title read)a
 
   @type t :: %Notification{}
   schema "notifications" do
-    belongs_to(:from_user, User)
-    belongs_to(:to_user, User)
+    belongs_to(:user, User)
+    # article or comment
+    field(:thread, :string)
+    field(:article_id, :id)
+    field(:title, :string)
+    # optional comment id
+    field(:comment_id, :id)
+    #
     field(:action, :string)
+    embeds_many(:from_users, Embeds.User, on_replace: :delete)
 
-    field(:source_id, :string)
-    field(:source_preview, :string)
-    field(:source_title, :string)
-    field(:source_type, :string)
-    field(:parent_id, :string)
-    field(:parent_type, :string)
-    field(:read, :boolean)
+    field(:read, :boolean, default: false)
 
     timestamps(type: :utc_datetime)
   end
 
   @doc false
-  def changeset(%Notification{} = notification, attrs) do
-    notification
+  def changeset(%Notification{} = mention, attrs) do
+    mention
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
-    |> foreign_key_constraint(:from_user_id)
-    |> foreign_key_constraint(:to_user_id)
+    |> cast_embed(:from_users, required: true, with: &Embeds.User.changeset/2)
+    |> foreign_key_constraint(:user_id)
   end
 end

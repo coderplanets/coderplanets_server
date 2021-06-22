@@ -5,7 +5,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
   import Ecto.Query, warn: false
   import GroupherServer.CMS.Helper.Matcher
   import Helper.Validator.Guards, only: [g_is_id: 1]
-  import Helper.Utils, only: [done: 1, map_atom_values_to_upcase_str: 1]
+  import Helper.Utils, only: [done: 1, atom_values_to_upcase: 1]
   import GroupherServer.CMS.Delegate.ArticleCURD, only: [ensure_author_exists: 1]
   import ShortMaps
   import Helper.ErrorCode
@@ -31,7 +31,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
       Multi.new()
       |> Multi.run(:create_article_tag, fn _, _ ->
         update_attrs = %{author_id: author.id, community_id: community.id, thread: thread}
-        attrs = attrs |> Map.merge(update_attrs) |> map_atom_values_to_upcase_str
+        attrs = attrs |> Map.merge(update_attrs) |> atom_values_to_upcase
 
         ORM.create(ArticleTag, attrs)
       end)
@@ -48,7 +48,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
   """
   def update_article_tag(id, attrs) do
     with {:ok, article_tag} <- ORM.find(ArticleTag, id) do
-      attrs = attrs |> map_atom_values_to_upcase_str
+      attrs = attrs |> atom_values_to_upcase
       ORM.update(article_tag, attrs)
     end
   end

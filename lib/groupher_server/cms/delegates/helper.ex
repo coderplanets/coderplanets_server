@@ -10,7 +10,7 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   alias Helper.{ORM, QueryBuilder}
   alias GroupherServer.{Accounts, Repo, CMS}
 
-  alias CMS.Model.{ArticleUpvote, ArticleCollect}
+  alias CMS.Model.{ArticleUpvote, ArticleCollect, Comment}
   alias Accounts.Model.User
 
   @default_article_meta CMS.Model.Embeds.ArticleMeta.default_meta()
@@ -20,6 +20,35 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   @max_latest_emotion_users_count 4
   @supported_emotions get_config(:article, :emotions)
   @supported_comment_emotions get_config(:article, :comment_emotions)
+
+  def preload_author(%Comment{} = comment), do: Repo.preload(comment, :author) |> done
+  def preload_author(article), do: Repo.preload(article, author: :user) |> done
+
+  @doc "get author of article or comment"
+  def author_of(%Comment{} = comment) do
+    case Ecto.assoc_loaded?(comment.author) do
+      true -> comment.author
+      false -> Repo.preload(comment, :author) |> Map.get(:author)
+    end
+    |> done
+  end
+
+  def author_of(article) do
+    case Ecto.assoc_loaded?(article.author) do
+      true -> article.author.user
+      false -> Repo.preload(article, author: :user) |> get_in([:author, :user])
+    end
+    |> done
+  end
+
+  @doc "get parent article of a comment"
+  def parent_article_of(%Comment{} = comment) do
+    article_thread = comment.thread |> String.downcase() |> String.to_atom()
+
+    comment |> Repo.preload(article_thread) |> Map.get(article_thread) |> done
+  end
+
+  def parent_article_of(_), do: {:error, "only support comment"}
 
   #######
   # emotion related
@@ -128,8 +157,8 @@ defmodule GroupherServer.CMS.Delegate.Helper do
         :collects_count -> ArticleCollect
       end
 
-    count_query = from(u in schema, where: field(u, ^info.foreign_key) == ^article.id)
-    cur_count = Repo.aggregate(count_query, :count)
+    {:ok, cur_count} =
+      from(u in schema, where: field(u, ^info.foreign_key) == ^article.id) |> ORM.count()
 
     case opt do
       :inc ->

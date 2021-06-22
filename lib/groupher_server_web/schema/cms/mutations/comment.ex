@@ -11,7 +11,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
       arg(:thread, :thread, default_value: :post)
       arg(:id, non_null(:id))
       arg(:body, non_null(:string))
-      # arg(:mention_users, list_of(:ids))
 
       # TDOO: use a comment resolver
       middleware(M.Authorize, :login)
@@ -24,7 +23,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Comment do
     field :update_comment, :comment do
       arg(:id, non_null(:id))
       arg(:body, non_null(:string))
-      # arg(:mention_users, list_of(:ids))
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :comment)

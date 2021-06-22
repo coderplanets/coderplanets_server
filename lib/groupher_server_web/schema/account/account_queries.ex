@@ -35,13 +35,22 @@ defmodule GroupherServerWeb.Schema.Account.Queries do
       resolve(&R.Accounts.subscribed_communities/3)
     end
 
-    @desc "get user's mentions"
-    field :mentions, :paged_mentions do
-      arg(:filter, :messages_filter)
+    @desc "get login user's mentions in mailbox"
+    field :paged_mentions, :paged_mailbox_mentions do
+      arg(:filter, :mailbox_mentions_filter)
 
       middleware(M.Authorize, :login)
       middleware(M.PageSizeProof)
-      resolve(&R.Accounts.fetch_mentions/3)
+      resolve(&R.Accounts.paged_mailbox_mentions/3)
+    end
+
+    @desc "get login user's notifications in mailbox"
+    field :paged_notifications, :paged_mailbox_notifications do
+      arg(:filter, :mailbox_notifications_filter)
+
+      middleware(M.Authorize, :login)
+      middleware(M.PageSizeProof)
+      resolve(&R.Accounts.paged_mailbox_notifications/3)
     end
 
     @desc "get user's follower"

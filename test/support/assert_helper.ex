@@ -12,7 +12,6 @@ defmodule GroupherServer.Test.AssertHelper do
 
   @endpoint GroupherServerWeb.Endpoint
 
-  @page_size get_config(:general, :page_size)
   @inner_page_size get_config(:general, :inner_page_size)
 
   @doc """

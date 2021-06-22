@@ -3,7 +3,7 @@ defmodule Helper.ORM do
   General CORD functions
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, done: 3, add: 1, strip_struct: 1, get_config: 2]
+  import Helper.Utils, only: [done: 1, done: 3, strip_struct: 1, get_config: 2]
   import ShortMaps
 
   import Helper.ErrorHandler
@@ -148,6 +148,13 @@ defmodule Helper.ORM do
     put_in(content[field], Enum.max([0, updated_count])) |> done
   end
 
+  @doc "mark read as true for all"
+  def mark_read_all(queryable) do
+    queryable
+    |> Repo.update_all(set: [read: true])
+    |> done
+  end
+
   @doc """
   NOTICE: this should be use together with Authorize/OwnerCheck etc Middleware
   DO NOT use it directly
@@ -259,19 +266,9 @@ defmodule Helper.ORM do
     |> Repo.insert()
   end
 
-  @doc """
-  return the total count of a Modal based on id column
-  also support filters
-  """
-  def count(queryable, filter \\ %{}) do
-    queryable
-    |> QueryBuilder.filter_pack(filter)
-    |> select([f], count(f.id))
-    |> Repo.one()
-  end
-
-  def next_count(queryable) do
-    queryable |> count() |> add()
+  @doc "count current queryable"
+  def count(queryable) do
+    queryable |> Repo.aggregate(:count) |> done
   end
 
   @doc """

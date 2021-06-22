@@ -2,7 +2,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
   use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias GroupherServer.{CMS, Delivery}
+  alias GroupherServer.CMS
 
   alias CMS.Model.{Post, Author}
 
@@ -26,7 +26,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       $length: Int!
       $communityId: ID!
       $articleTags: [Ids]
-      $mentionUsers: [Ids]
     ) {
       createPost(
         title: $title
@@ -35,7 +34,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
         length: $length
         communityId: $communityId
         articleTags: $articleTags
-        mentionUsers: $mentionUsers
       ) {
         title
         body
@@ -102,31 +100,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       variables = post_attr |> Map.merge(%{communityId: community.id}) |> Map.delete(:title)
 
       assert user_conn |> mutation_get_error?(@create_post_query, variables)
-    end
-
-    test "can create post with mentionUsers" do
-      {:ok, user} = db_insert(:user)
-      {:ok, user2} = db_insert(:user)
-      user_conn = simu_conn(:user, user)
-
-      {:ok, community} = db_insert(:community)
-      post_attr = mock_attrs(:post)
-
-      variables =
-        post_attr
-        |> Map.merge(%{communityId: community.id})
-        |> Map.merge(%{mentionUsers: [%{id: user2.id}]})
-
-      filter = %{page: 1, size: 20, read: false}
-      {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
-      assert mentions.total_count == 0
-
-      _created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
-
-      {:ok, mentions} = Delivery.fetch_mentions(user2, filter)
-
-      assert mentions.total_count == 1
-      assert mentions.entries |> List.first() |> Map.get(:community) !== nil
     end
 
     @query """

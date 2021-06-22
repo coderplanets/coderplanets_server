@@ -14,6 +14,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   alias Helper.{Later, ORM, QueryBuilder, Converter}
   alias GroupherServer.{Accounts, CMS, Repo}
   alias CMS.Model.Post
+  alias CMS.Delegate.Hooks
 
   alias Accounts.Model.User
   alias CMS.Model.{Comment, PinnedComment, Embeds}
@@ -113,8 +114,10 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
           false -> CMS.update_active_timestamp(thread, article)
         end
       end)
-      |> Multi.run(:block_tasks, fn _, %{create_comment: create_comment} ->
-        Later.run({CiteTasks, :handle, [create_comment]})
+      |> Multi.run(:after_hooks, fn _, %{create_comment: comment} ->
+        Later.run({Hooks.Cite, :handle, [comment]})
+        Later.run({Hooks.Notify, :handle, [:comment, comment, user]})
+        Later.run({Hooks.Mention, :handle, [comment]})
       end)
       |> Repo.transaction()
       |> result()
@@ -248,10 +251,9 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   def update_comments_count(%Comment{} = comment, opt) do
     with {:ok, article_info} <- match(:comment_article, comment),
          {:ok, article} <- ORM.find(article_info.model, article_info.id) do
-      count_query =
+      {:ok, cur_count} =
         from(c in Comment, where: field(c, ^article_info.foreign_key) == ^article_info.id)
-
-      cur_count = Repo.aggregate(count_query, :count)
+        |> ORM.count()
 
       # dec 是 comment 还没有删除的时候的操作，和 inc 不同
       # 因为 dec 操作如果放在 delete 后面，那么 update 会失败
@@ -402,8 +404,11 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
 
   # get next floor under an article's comments list
   defp next_floor(article, foreign_key) do
-    count_query = from(c in Comment, where: field(c, ^foreign_key) == ^article.id)
-    Repo.aggregate(count_query, :count) + 1
+    {:ok, cur_count} =
+      from(c in Comment, where: field(c, ^foreign_key) == ^article.id)
+      |> ORM.count()
+
+    cur_count + 1
   end
 
   defp result({:ok, %{set_question_flag_ifneed: result}}), do: {:ok, result}

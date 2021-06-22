@@ -7,10 +7,11 @@ defmodule GroupherServer.Accounts.Delegate.Fans do
   import Helper.ErrorCode
   import ShortMaps
 
-  alias Helper.{ORM, QueryBuilder, SpecType}
+  alias Helper.{ORM, QueryBuilder, Later, SpecType}
   alias GroupherServer.{Accounts, Repo}
 
-  alias GroupherServer.Accounts.Model.{User, Embeds, UserFollower, UserFollowing}
+  alias Accounts.Model.{User, Embeds, UserFollower, UserFollowing}
+  alias Accounts.Delegate.Hooks
 
   alias Ecto.Multi
 
@@ -20,26 +21,29 @@ defmodule GroupherServer.Accounts.Delegate.Fans do
   follow a user
   """
   @spec follow(User.t(), User.t()) :: {:ok, User.t()} | SpecType.gq_error()
-  def follow(%User{id: user_id}, %User{id: follower_id}) do
-    with true <- to_string(user_id) !== to_string(follower_id),
-         {:ok, target_user} <- ORM.find(User, follower_id) do
+  def follow(%User{} = user, %User{} = follower) do
+    with true <- to_string(user.id) !== to_string(follower.id),
+         {:ok, target_user} <- ORM.find(User, follower.id) do
       Multi.new()
       |> Multi.insert(
         :create_follower,
-        UserFollower.changeset(%UserFollower{}, %{user_id: target_user.id, follower_id: user_id})
+        UserFollower.changeset(%UserFollower{}, %{user_id: target_user.id, follower_id: user.id})
       )
       |> Multi.insert(
         :create_following,
         UserFollowing.changeset(%UserFollowing{}, %{
-          user_id: user_id,
+          user_id: user.id,
           following_id: target_user.id
         })
       )
       |> Multi.run(:update_user_follow_info, fn _, _ ->
-        update_user_follow_info(target_user, user_id, :add)
+        update_user_follow_info(target_user, user.id, :add)
       end)
       |> Multi.run(:add_achievement, fn _, _ ->
         Accounts.achieve(%User{id: target_user.id}, :inc, :follow)
+      end)
+      |> Multi.run(:after_hooks, fn _, _ ->
+        Later.run({Hooks.Notify, :handle, [:follow, user, follower]})
       end)
       |> Repo.transaction()
       |> result()
@@ -53,21 +57,24 @@ defmodule GroupherServer.Accounts.Delegate.Fans do
   undo a follow action to a user
   """
   @spec undo_follow(User.t(), User.t()) :: {:ok, User.t()} | SpecType.gq_error()
-  def undo_follow(%User{id: user_id}, %User{id: follower_id}) do
-    with true <- to_string(user_id) !== to_string(follower_id),
-         {:ok, target_user} <- ORM.find(User, follower_id) do
+  def undo_follow(%User{} = user, %User{} = follower) do
+    with true <- to_string(user.id) !== to_string(follower.id),
+         {:ok, target_user} <- ORM.find(User, follower.id) do
       Multi.new()
       |> Multi.run(:delete_follower, fn _, _ ->
-        ORM.findby_delete!(UserFollower, %{user_id: target_user.id, follower_id: user_id})
+        ORM.findby_delete!(UserFollower, %{user_id: target_user.id, follower_id: user.id})
       end)
       |> Multi.run(:delete_following, fn _, _ ->
-        ORM.findby_delete!(UserFollowing, %{user_id: user_id, following_id: target_user.id})
+        ORM.findby_delete!(UserFollowing, %{user_id: user.id, following_id: target_user.id})
       end)
       |> Multi.run(:update_user_follow_info, fn _, _ ->
-        update_user_follow_info(target_user, user_id, :remove)
+        update_user_follow_info(target_user, user.id, :remove)
       end)
       |> Multi.run(:minus_achievement, fn _, _ ->
         Accounts.achieve(%User{id: target_user.id}, :dec, :follow)
+      end)
+      |> Multi.run(:after_hooks, fn _, _ ->
+        Later.run({Hooks.Notify, :handle, [:undo, :follow, user, follower]})
       end)
       |> Repo.transaction()
       |> result()

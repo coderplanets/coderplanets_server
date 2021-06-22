@@ -4,25 +4,14 @@ defmodule GroupherServer.Delivery do
   """
 
   alias GroupherServer.Delivery
-  alias Delivery.Delegate.{Mentions, Notifications, Utils}
+  alias Delivery.Delegate.Postman
 
-  defdelegate mailbox_status(user), to: Utils
+  defdelegate send(service, artiment, mentions, from_user), to: Postman
+  defdelegate send(service, attrs, from_user), to: Postman
+  defdelegate revoke(service, attrs, from_user), to: Postman
+  defdelegate fetch(service, user, filter), to: Postman
+  defdelegate unread_count(service, user), to: Postman
 
-  # system_notifications
-  defdelegate publish_system_notification(info), to: Notifications
-  defdelegate fetch_sys_notifications(user, filter), to: Notifications
-
-  # mentions
-  defdelegate mention_others(from_user, to_user_ids, info), to: Mentions
-  defdelegate mention_from_content(community, thread, content, args, user), to: Mentions
-  defdelegate mention_from_comment(community, thread, content, comment, args, user), to: Mentions
-  defdelegate mention_from_comment_reply(community, thread, comment, args, user), to: Mentions
-  defdelegate fetch_mentions(user, filter), to: Mentions
-
-  # notifications
-  defdelegate notify_someone(from_user, to_user, info), to: Notifications
-  defdelegate fetch_notifications(user, filter), to: Notifications
-
-  defdelegate fetch_record(user), to: Utils
-  defdelegate mark_read_all(user, opt), to: Utils
+  defdelegate mark_read(service, ids, user), to: Postman
+  defdelegate mark_read_all(service, user), to: Postman
 end
