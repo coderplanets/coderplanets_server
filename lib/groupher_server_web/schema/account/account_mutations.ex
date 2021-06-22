@@ -105,5 +105,13 @@ defmodule GroupherServerWeb.Schema.Account.Mutations do
       middleware(M.Authorize, :login)
       resolve(&R.Accounts.mark_read/3)
     end
+
+    @desc "mark all unread message as read"
+    field :mark_read_all, :done do
+      arg(:type, :mailbox_type, default_value: :mention)
+
+      middleware(M.Authorize, :login)
+      resolve(&R.Accounts.mark_read_all/3)
+    end
   end
 end
