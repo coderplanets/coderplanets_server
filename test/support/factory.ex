@@ -8,7 +8,7 @@ defmodule GroupherServer.Support.Factory do
   import Helper.Utils, only: [done: 1]
   import GroupherServer.CMS.Helper.Matcher
 
-  alias GroupherServer.{Accounts, CMS}
+  alias GroupherServer.{Accounts, CMS, Delivery}
   alias Accounts.Model.User
 
   alias CMS.Model.{
@@ -291,17 +291,6 @@ defmodule GroupherServer.Support.Factory do
     }
   end
 
-  defp mock_meta(:sys_notification) do
-    unique_num = System.unique_integer([:positive, :monotonic])
-
-    %{
-      source_id: "#{unique_num}",
-      source_title: "#{Faker.Pizza.cheese()}",
-      source_type: "post",
-      source_preview: "#{Faker.Pizza.cheese()}"
-    }
-  end
-
   defp mock_meta(:user) do
     unique_num = System.unique_integer([:positive, :monotonic])
 
@@ -369,7 +358,6 @@ defmodule GroupherServer.Support.Factory do
     do: mock_meta(:communities_threads) |> Map.merge(attrs)
 
   def mock_attrs(:article_tag, attrs), do: mock_meta(:article_tag) |> Map.merge(attrs)
-  def mock_attrs(:sys_notification, attrs), do: mock_meta(:sys_notification) |> Map.merge(attrs)
   def mock_attrs(:category, attrs), do: mock_meta(:category) |> Map.merge(attrs)
   def mock_attrs(:github_profile, attrs), do: mock_meta(:github_profile) |> Map.merge(attrs)
   def mock_attrs(:bill, attrs), do: mock_meta(:bill) |> Map.merge(attrs)
@@ -445,5 +433,40 @@ defmodule GroupherServer.Support.Factory do
   @spec mock_images(Number.t()) :: [String.t()]
   def mock_images(count \\ 1) do
     @images |> Enum.slice(0, count)
+  end
+
+  def mock_mention_for(user, from_user) do
+    {:ok, post} = db_insert(:post)
+
+    mention_attr = %{
+      thread: "POST",
+      title: post.title,
+      article_id: post.id,
+      comment_id: nil,
+      block_linker: ["tmp"],
+      inserted_at: post.updated_at |> DateTime.truncate(:second),
+      updated_at: post.updated_at |> DateTime.truncate(:second)
+    }
+
+    mention_contents = [
+      Map.merge(mention_attr, %{from_user_id: from_user.id, to_user_id: user.id})
+    ]
+
+    Delivery.send(:mention, post, mention_contents, from_user)
+  end
+
+  def mock_notification_for(user, from_user) do
+    {:ok, post} = db_insert(:post)
+
+    notify_attrs = %{
+      thread: :post,
+      article_id: post.id,
+      title: post.title,
+      action: :upvote,
+      user_id: user.id,
+      read: false
+    }
+
+    Delivery.send(:notify, notify_attrs, from_user)
   end
 end

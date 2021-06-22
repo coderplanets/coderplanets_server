@@ -220,39 +220,20 @@ defmodule GroupherServerWeb.Resolvers.Accounts do
     Accounts.paged_editable_communities(cur_user, filter)
   end
 
+  # mailbox
   def mailbox_status(_root, _args, %{context: %{cur_user: cur_user}}) do
     Accounts.mailbox_status(cur_user)
   end
 
-  # mentions
-  def fetch_mentions(_root, %{filter: filter}, %{context: %{cur_user: cur_user}}) do
-    Accounts.fetch_mentions(cur_user, filter)
+  def mark_read(_root, ~m(type ids)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.mark_read(type, ids, cur_user)
   end
 
-  def mark_mention_read(_root, %{id: id}, %{context: %{cur_user: cur_user}}) do
-    Accounts.mark_mail_read(%MentionMail{id: id}, cur_user)
+  def mark_read_all(_root, ~m(type)a, %{context: %{cur_user: cur_user}}) do
+    Accounts.mark_read_all(type, cur_user)
   end
 
-  def mark_mention_read_all(_root, _args, %{context: %{cur_user: cur_user}}) do
-    Accounts.mark_mail_read_all(cur_user, :mention)
-  end
-
-  # notification
-  def fetch_notifications(_root, %{filter: filter}, %{context: %{cur_user: cur_user}}) do
-    Accounts.fetch_notifications(cur_user, filter)
-  end
-
-  def mark_notification_read(_root, %{id: id}, %{context: %{cur_user: cur_user}}) do
-    Accounts.mark_mail_read(%NotificationMail{id: id}, cur_user)
-  end
-
-  def mark_notification_read_all(_root, _args, %{context: %{cur_user: cur_user}}) do
-    Accounts.mark_mail_read_all(cur_user, :notification)
-  end
-
-  def mark_sys_notification_read(_root, %{id: id}, %{context: %{cur_user: cur_user}}) do
-    Accounts.mark_mail_read(%SysNotificationMail{id: id}, cur_user)
-  end
+  # mailbox end
 
   # for check other users subscribed_communities
   def subscribed_communities(_root, %{login: login, filter: filter}, _info) do

@@ -199,4 +199,9 @@ defmodule GroupherServerWeb.Schema.Account.Types do
     field(:entries, list_of(:user))
     pagination_fields()
   end
+
+  enum :mailbox_type do
+    value(:mention)
+    value(:notification)
+  end
 end

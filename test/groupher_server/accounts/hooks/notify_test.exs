@@ -18,7 +18,7 @@ defmodule GroupherServer.Test.Accounts.Hooks.Notify do
       {:ok, _} = Accounts.follow(user, user2)
       Hooks.Notify.handle(:follow, user, user2)
 
-      {:ok, notifications} = Delivery.fetch(:notification, user.id, %{page: 1, size: 20})
+      {:ok, notifications} = Delivery.fetch(:notification, user, %{page: 1, size: 20})
       assert notifications.total_count == 1
 
       notify = notifications.entries |> List.first()
@@ -32,7 +32,7 @@ defmodule GroupherServer.Test.Accounts.Hooks.Notify do
       Hooks.Notify.handle(:follow, user, user2)
       Hooks.Notify.handle(:undo, :follow, user, user2)
 
-      {:ok, notifications} = Delivery.fetch(:notification, user.id, %{page: 1, size: 20})
+      {:ok, notifications} = Delivery.fetch(:notification, user, %{page: 1, size: 20})
       assert notifications.total_count == 0
     end
   end

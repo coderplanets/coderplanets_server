@@ -23,7 +23,7 @@ defmodule GroupherServerWeb.Schema.Account.Mutations do
       resolve(&R.Accounts.github_signin/3)
     end
 
-    @doc "follow a user"
+    @desc "follow a user"
     field :follow, :user do
       arg(:login, non_null(:string))
 
@@ -31,7 +31,7 @@ defmodule GroupherServerWeb.Schema.Account.Mutations do
       resolve(&R.Accounts.follow/3)
     end
 
-    @doc "undo follow to a user"
+    @desc "unfollow a user"
     field :undo_follow, :user do
       arg(:login, non_null(:string))
 
@@ -97,40 +97,13 @@ defmodule GroupherServerWeb.Schema.Account.Mutations do
       resolve(&R.Accounts.set_customization/3)
     end
 
-    @desc "mark a mention as read"
-    field :mark_mention_read, :status do
-      arg(:id, non_null(:id))
+    @desc "mark a message as read"
+    field :mark_read, :done do
+      arg(:ids, list_of(:id))
+      arg(:type, :mailbox_type, default_value: :mention)
 
       middleware(M.Authorize, :login)
-      resolve(&R.Accounts.mark_mention_read/3)
-    end
-
-    @desc "mark a all unread mention as read"
-    field :mark_mention_read_all, :status do
-      middleware(M.Authorize, :login)
-      resolve(&R.Accounts.mark_mention_read_all/3)
-    end
-
-    @desc "mark a notification as read"
-    field :mark_notification_read, :status do
-      arg(:id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      resolve(&R.Accounts.mark_notification_read/3)
-    end
-
-    @desc "mark a all unread notifications as read"
-    field :mark_notification_read_all, :status do
-      middleware(M.Authorize, :login)
-      resolve(&R.Accounts.mark_notification_read_all/3)
-    end
-
-    @desc "mark a system notification as read"
-    field :mark_sys_notification_read, :status do
-      arg(:id, non_null(:id))
-
-      middleware(M.Authorize, :login)
-      resolve(&R.Accounts.mark_sys_notification_read/3)
+      resolve(&R.Accounts.mark_read/3)
     end
   end
 end

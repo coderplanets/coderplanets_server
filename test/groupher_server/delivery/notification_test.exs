@@ -48,7 +48,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
 
       {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
 
-      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user, %{page: 1, size: 10})
 
       assert paged_notifies.total_count == 1
       notify = paged_notifies.entries |> List.first()
@@ -67,7 +67,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
       {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
       {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
 
-      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user, %{page: 1, size: 10})
 
       notify = paged_notifies.entries |> List.first()
 
@@ -93,7 +93,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
       {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
       {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
 
-      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user, %{page: 1, size: 10})
 
       notify = paged_notifies.entries |> List.first()
 
@@ -109,7 +109,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
       notify_attrs = notify_attrs |> Map.put(:action, :collect)
       {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
 
-      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user, %{page: 1, size: 10})
 
       assert paged_notifies.total_count == 2
 
@@ -126,7 +126,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
       move_insert_at_long_ago(notify)
       {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
 
-      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user, %{page: 1, size: 10})
 
       assert paged_notifies.total_count == 2
 
@@ -146,12 +146,12 @@ defmodule GroupherServer.Test.Delivery.Notification do
     test "can revoke a notification", ~m(user user2  notify_attrs)a do
       {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
 
-      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user, %{page: 1, size: 10})
       assert paged_notifies.total_count == 1
 
       Delivery.revoke(:notify, notify_attrs, user2)
 
-      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user, %{page: 1, size: 10})
       assert paged_notifies.total_count == 0
     end
 
@@ -159,7 +159,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
       {:ok, _} = Delivery.send(:notify, notify_attrs, user2)
       {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
 
-      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user, %{page: 1, size: 10})
       assert paged_notifies.total_count == 1
       notify = paged_notifies.entries |> List.first()
       assert user_exist_in?(user2, notify.from_users)
@@ -167,7 +167,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
 
       Delivery.revoke(:notify, notify_attrs, user2)
 
-      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user, %{page: 1, size: 10})
       assert paged_notifies.total_count == 1
 
       notify = paged_notifies.entries |> List.first()
@@ -182,12 +182,12 @@ defmodule GroupherServer.Test.Delivery.Notification do
 
       {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
 
-      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user, %{page: 1, size: 10})
       assert paged_notifies.total_count == 2
 
       Delivery.revoke(:notify, notify_attrs, user2)
 
-      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user, %{page: 1, size: 10})
       assert paged_notifies.total_count == 1
       notify = paged_notifies.entries |> List.first()
       assert not user_exist_in?(user2, notify.from_users)
@@ -202,12 +202,12 @@ defmodule GroupherServer.Test.Delivery.Notification do
 
       {:ok, _} = Delivery.send(:notify, notify_attrs, user4)
 
-      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user, %{page: 1, size: 10})
       assert paged_notifies.total_count == 2
 
       Delivery.revoke(:notify, notify_attrs, user2)
 
-      {:ok, paged_notifies} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user, %{page: 1, size: 10})
       assert paged_notifies.total_count == 2
       notify1 = paged_notifies.entries |> List.first()
       notify2 = paged_notifies.entries |> List.last()
@@ -345,7 +345,7 @@ defmodule GroupherServer.Test.Delivery.Notification do
       move_insert_at_long_ago(notify)
       {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
 
-      {:ok, result} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:notification, user, %{page: 1, size: 10})
       notify1 = result.entries |> List.first()
       notify2 = result.entries |> List.last()
 
@@ -353,10 +353,10 @@ defmodule GroupherServer.Test.Delivery.Notification do
 
       {:ok, _} = Delivery.mark_read(:notification, [notify1.id, notify2.id], user)
 
-      {:ok, result} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:notification, user, %{page: 1, size: 10})
       assert result.total_count == 0
 
-      {:ok, result} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10, read: true})
+      {:ok, result} = Delivery.fetch(:notification, user, %{page: 1, size: 10, read: true})
       assert result.total_count == 2
     end
 
@@ -365,16 +365,16 @@ defmodule GroupherServer.Test.Delivery.Notification do
       move_insert_at_long_ago(notify)
       {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
 
-      {:ok, result} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:notification, user, %{page: 1, size: 10})
 
       assert result.total_count == 2
 
       {:ok, _} = Delivery.mark_read_all(:notification, user)
 
-      {:ok, result} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10})
+      {:ok, result} = Delivery.fetch(:notification, user, %{page: 1, size: 10})
       assert result.total_count == 0
 
-      {:ok, result} = Delivery.fetch(:notification, user.id, %{page: 1, size: 10, read: true})
+      {:ok, result} = Delivery.fetch(:notification, user, %{page: 1, size: 10, read: true})
       assert result.total_count == 2
     end
   end

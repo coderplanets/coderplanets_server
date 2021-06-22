@@ -13,6 +13,12 @@ defmodule GroupherServer.Accounts.Delegate.Mailbox do
   def mailbox_status(%User{mailbox: nil}), do: @default_mailbox_status |> done
   def mailbox_status(%User{mailbox: mailbox}), do: mailbox |> done
 
+  def mark_read(type, ids, %User{} = user) do
+    Delivery.mark_read(type, ids, user)
+  end
+
+  def mark_read_all(type, %User{} = user), do: Delivery.mark_read_all(type, user)
+
   @doc "update messages count in mailbox"
   def update_mailbox_status(user_id) do
     with {:ok, user} <- ORM.find(User, user_id),

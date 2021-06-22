@@ -64,6 +64,8 @@ defmodule GroupherServer.Accounts do
 
   defdelegate mailbox_status(user), to: Mailbox
   defdelegate update_mailbox_status(user_id), to: Mailbox
+  defdelegate mark_read(type, ids, user_id), to: Mailbox
+  defdelegate mark_read_all(tyoe, user_id), to: Mailbox
 
   # customization
   defdelegate get_customization(user), to: Customization

@@ -78,11 +78,11 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
     end
   end
 
-  def paged_notifications(user_id, %{page: page, size: size} = filter) do
+  def paged_notifications(%User{} = user, %{page: page, size: size} = filter) do
     read = Map.get(filter, :read, false)
 
     Notification
-    |> where([n], n.user_id == ^user_id and n.read == ^read)
+    |> where([n], n.user_id == ^user.id and n.read == ^read)
     |> ORM.paginater(~m(page size)a)
     |> done
   end

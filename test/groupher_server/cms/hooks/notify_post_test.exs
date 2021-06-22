@@ -27,8 +27,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
       {:ok, article} = CMS.upvote_article(:post, post.id, user2)
       Hooks.Notify.handle(:upvote, article, user2)
 
-      {:ok, notifications} =
-        Delivery.fetch(:notification, post.author.user.id, %{page: 1, size: 20})
+      {:ok, notifications} = Delivery.fetch(:notification, post.author.user, %{page: 1, size: 20})
 
       assert notifications.total_count == 1
 
@@ -46,8 +45,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
 
       Hooks.Notify.handle(:upvote, comment, user2)
 
-      {:ok, notifications} =
-        Delivery.fetch(:notification, comment.author.id, %{page: 1, size: 20})
+      {:ok, notifications} = Delivery.fetch(:notification, comment.author, %{page: 1, size: 20})
 
       assert notifications.total_count == 1
 
@@ -69,8 +67,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
       {:ok, article} = CMS.undo_upvote_article(:post, post.id, user2)
       Hooks.Notify.handle(:undo, :upvote, article, user2)
 
-      {:ok, notifications} =
-        Delivery.fetch(:notification, post.author.user.id, %{page: 1, size: 20})
+      {:ok, notifications} = Delivery.fetch(:notification, post.author.user, %{page: 1, size: 20})
 
       assert notifications.total_count == 0
     end
@@ -85,8 +82,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
 
       {:ok, comment} = preload_author(comment)
 
-      {:ok, notifications} =
-        Delivery.fetch(:notification, comment.author.id, %{page: 1, size: 20})
+      {:ok, notifications} = Delivery.fetch(:notification, comment.author, %{page: 1, size: 20})
 
       assert notifications.total_count == 0
     end
@@ -99,8 +95,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
       {:ok, _} = CMS.collect_article(:post, post.id, user2)
       Hooks.Notify.handle(:collect, post, user2)
 
-      {:ok, notifications} =
-        Delivery.fetch(:notification, post.author.user.id, %{page: 1, size: 20})
+      {:ok, notifications} = Delivery.fetch(:notification, post.author.user, %{page: 1, size: 20})
 
       assert notifications.total_count == 1
 
@@ -121,8 +116,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
       {:ok, _} = CMS.undo_upvote_article(:post, post.id, user2)
       Hooks.Notify.handle(:undo, :collect, post, user2)
 
-      {:ok, notifications} =
-        Delivery.fetch(:notification, post.author.user.id, %{page: 1, size: 20})
+      {:ok, notifications} = Delivery.fetch(:notification, post.author.user, %{page: 1, size: 20})
 
       assert notifications.total_count == 0
     end
@@ -135,8 +129,7 @@ defmodule GroupherServer.Test.CMS.Hooks.NotifyPost do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user2)
       Hooks.Notify.handle(:comment, comment, user2)
 
-      {:ok, notifications} =
-        Delivery.fetch(:notification, post.author.user.id, %{page: 1, size: 20})
+      {:ok, notifications} = Delivery.fetch(:notification, post.author.user, %{page: 1, size: 20})
 
       assert notifications.total_count == 1
 

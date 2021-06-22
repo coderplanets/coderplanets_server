@@ -1,8 +1,6 @@
 defmodule GroupherServer.Test.Query.Accounts.Mailbox do
   use GroupherServer.TestTools
 
-  alias GroupherServer.Delivery
-
   setup do
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
@@ -11,41 +9,6 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
     guest_conn = simu_conn(:guest)
 
     {:ok, ~m(user_conn guest_conn user user2)a}
-  end
-
-  defp mock_mention_for(user, from_user) do
-    {:ok, post} = db_insert(:post)
-
-    mention_attr = %{
-      thread: "POST",
-      title: post.title,
-      article_id: post.id,
-      comment_id: nil,
-      block_linker: ["tmp"],
-      inserted_at: post.updated_at |> DateTime.truncate(:second),
-      updated_at: post.updated_at |> DateTime.truncate(:second)
-    }
-
-    mention_contents = [
-      Map.merge(mention_attr, %{from_user_id: from_user.id, to_user_id: user.id})
-    ]
-
-    Delivery.send(:mention, post, mention_contents, from_user)
-  end
-
-  defp mock_nofity_for(user, from_user) do
-    {:ok, post} = db_insert(:post)
-
-    notify_attrs = %{
-      thread: :post,
-      article_id: post.id,
-      title: post.title,
-      action: :upvote,
-      user_id: user.id,
-      read: false
-    }
-
-    Delivery.send(:notify, notify_attrs, from_user)
   end
 
   describe "[accounts mailbox status]" do
@@ -92,7 +55,7 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
 
     @tag :wip
     test "auth user can get latest mailbox status after being notified", ~m(user user2)a do
-      mock_nofity_for(user, user2)
+      mock_notification_for(user, user2)
 
       user_conn = simu_conn(:user, user)
 
@@ -103,40 +66,6 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
       assert mailbox["unreadTotalCount"] == 1
       assert mailbox["unreadMentionsCount"] == 0
       assert mailbox["unreadNotificationsCount"] == 1
-    end
-  end
-
-  describe "[mark_read/all]" do
-    test "can mark read a mention" do
-      #
-      true
-    end
-
-    test "can mark read all mentions" do
-      #
-      true
-    end
-
-    test "can mark read a notification" do
-      #
-      true
-    end
-
-    test "can mark read all notifications" do
-      #
-      true
-    end
-  end
-
-  describe "[paged messages]" do
-    test "can get paged mentions" do
-      #
-      true
-    end
-
-    test "can get paged notifications" do
-      #
-      true
     end
   end
 
