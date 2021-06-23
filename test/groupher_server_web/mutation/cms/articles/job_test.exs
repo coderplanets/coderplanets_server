@@ -9,12 +9,13 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
   setup do
     {:ok, job} = db_insert(:job)
     {:ok, user} = db_insert(:user)
+    {:ok, community} = db_insert(:community)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
     owner_conn = simu_conn(:owner, job)
 
-    {:ok, ~m(user_conn guest_conn owner_conn user job)a}
+    {:ok, ~m(user_conn guest_conn owner_conn user community job)a}
   end
 
   describe "[mutation job curd]" do
@@ -26,7 +27,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       $length: Int!,
       $communityId: ID!,
       $company: String!,
-      $articleTags: [Ids]
+      $articleTags: [Id]
      ) {
       createJob(
         title: $title,
@@ -50,7 +51,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       }
     }
     """
-
     test "create job with valid attrs and make sure author exsit" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -68,6 +68,21 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       assert created["originalCommunity"]["id"] == to_string(community.id)
 
       assert created["id"] == to_string(found.id)
+    end
+
+    test "create job with valid tags id list.", ~m(user_conn user community)a do
+      article_tag_attrs = mock_attrs(:article_tag)
+      {:ok, article_tag} = CMS.create_article_tag(community, :job, article_tag_attrs, user)
+
+      job_attr = mock_attrs(:job)
+
+      variables =
+        job_attr |> Map.merge(%{communityId: community.id, articleTags: [article_tag.id]})
+
+      created = user_conn |> mutation_result(@create_job_query, variables, "createJob")
+      {:ok, job} = ORM.find(Job, created["id"], preload: :article_tags)
+
+      assert exist_in?(%{id: article_tag.id}, job.article_tags)
     end
 
     test "create job should excape xss attracts" do

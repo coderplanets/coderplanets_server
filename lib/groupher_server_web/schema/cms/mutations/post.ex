@@ -17,7 +17,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Post do
       arg(:copy_right, :string)
       arg(:community_id, non_null(:id))
       arg(:thread, :thread, default_value: :post)
-      arg(:article_tags, list_of(:ids))
+      arg(:article_tags, list_of(:id))
 
       middleware(M.Authorize, :login)
       # middleware(M.PublishThrottle)
@@ -34,7 +34,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Post do
       arg(:digest, :string)
       arg(:copy_right, :string)
       arg(:link_addr, :string)
-      arg(:article_tags, list_of(:ids))
+      arg(:article_tags, list_of(:id))
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :post)

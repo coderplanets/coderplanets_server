@@ -27,10 +27,6 @@ defmodule GroupherServerWeb.Schema.Helper.Metrics do
     pagination_fields()
   end
 
-  input_object :ids do
-    field(:id, :id)
-  end
-
   input_object :common_paged_filter do
     pagination_args()
     field(:sort, :inserted_sort_enum, default_value: :desc_inserted)

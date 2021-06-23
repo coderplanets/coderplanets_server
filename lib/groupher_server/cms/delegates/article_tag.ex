@@ -72,12 +72,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
   end
 
   # check if the tag to be set is in same community & thread
-  defp is_article_tag_in_some_thread?(article_tags, filter) do
+  defp is_article_tag_in_some_thread?(article_tag_ids, filter) do
     with {:ok, paged_article_tags} <- paged_article_tags(filter) do
       domain_tags_ids = Enum.map(paged_article_tags.entries, &to_string(&1.id))
-      cur_tags_ids = Enum.map(article_tags, &to_string(&1.id))
-
-      Enum.all?(cur_tags_ids, &Enum.member?(domain_tags_ids, &1))
+      Enum.all?(article_tag_ids, &Enum.member?(domain_tags_ids, &1))
     end
   end
 
@@ -86,15 +84,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
 
   used for create article with article_tags in args
   """
-  def set_article_tags(%Community{id: cid}, thread, article, %{article_tags: article_tags}) do
+  def set_article_tags(%Community{id: cid}, thread, article, %{article_tags: article_tag_ids}) do
     check_filter = %{page: 1, size: 100, community_id: cid, thread: thread}
 
-    with true <- is_article_tag_in_some_thread?(article_tags, check_filter) do
-      Enum.each(article_tags, fn article_tag ->
-        set_article_tag(thread, article, article_tag.id)
-      end)
-
-      {:ok, :pass}
+    with true <- is_article_tag_in_some_thread?(article_tag_ids, check_filter) do
+      Enum.each(article_tag_ids, &set_article_tag(thread, article, &1)) |> done
     else
       false -> raise_error(:invalid_domain_tag, "tag not in same community & thread")
     end

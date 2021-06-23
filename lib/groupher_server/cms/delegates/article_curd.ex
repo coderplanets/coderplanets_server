@@ -430,9 +430,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp add_rich_text_attrs(attrs), do: attrs
 
-  # except Job, other article will just pass, should use set_article_tags function instead
-  # defp exec_update_tags(_, _tags_ids), do: {:ok, :pass}
-
   defp update_viewed_user_list(%{meta: nil} = article, user_id) do
     new_ids = Enum.uniq([user_id] ++ @default_article_meta.viewed_user_ids)
     meta = @default_article_meta |> Map.merge(%{viewed_user_ids: new_ids})

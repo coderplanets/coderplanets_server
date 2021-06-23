@@ -9,12 +9,13 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
   setup do
     {:ok, blog} = db_insert(:blog)
     {:ok, user} = db_insert(:user)
+    {:ok, community} = db_insert(:community)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
     owner_conn = simu_conn(:owner, blog)
 
-    {:ok, ~m(user_conn guest_conn owner_conn user blog)a}
+    {:ok, ~m(user_conn guest_conn owner_conn community user blog)a}
   end
 
   describe "[mutation blog curd]" do
@@ -25,7 +26,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       $digest: String!,
       $length: Int,
       $communityId: ID!,
-      $articleTags: [Ids]
+      $articleTags: [Id]
      ) {
       createBlog(
         title: $title,
@@ -65,6 +66,21 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       assert created["originalCommunity"]["id"] == to_string(community.id)
 
       assert created["id"] == to_string(found.id)
+    end
+
+    test "create blog with valid tags id list", ~m(user_conn user community)a do
+      article_tag_attrs = mock_attrs(:article_tag)
+      {:ok, article_tag} = CMS.create_article_tag(community, :blog, article_tag_attrs, user)
+
+      blog_attr = mock_attrs(:blog)
+
+      variables =
+        blog_attr |> Map.merge(%{communityId: community.id, articleTags: [article_tag.id]})
+
+      created = user_conn |> mutation_result(@create_blog_query, variables, "createBlog")
+      {:ok, blog} = ORM.find(Blog, created["id"], preload: :article_tags)
+
+      assert exist_in?(%{id: article_tag.id}, blog.article_tags)
     end
 
     test "create blog should excape xss attracts" do

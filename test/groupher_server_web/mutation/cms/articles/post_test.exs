@@ -8,13 +8,14 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
 
   setup do
     {:ok, post} = db_insert(:post)
+    {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
     owner_conn = simu_conn(:owner, post)
 
-    {:ok, ~m(user_conn guest_conn owner_conn community post)a}
+    {:ok, ~m(user_conn guest_conn owner_conn user community post)a}
   end
 
   describe "[mutation post curd]" do
@@ -25,7 +26,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       $digest: String!
       $length: Int!
       $communityId: ID!
-      $articleTags: [Ids]
+      $articleTags: [Id]
     ) {
       createPost(
         title: $title
@@ -59,6 +60,21 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert created["originalCommunity"]["id"] == to_string(community.id)
 
       assert {:ok, _} = ORM.find_by(Author, user_id: user.id)
+    end
+
+    test "create post with valid tags id list", ~m(user_conn user community)a do
+      article_tag_attrs = mock_attrs(:article_tag)
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
+
+      post_attr = mock_attrs(:post)
+
+      variables =
+        post_attr |> Map.merge(%{communityId: community.id, articleTags: [article_tag.id]})
+
+      created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+      {:ok, post} = ORM.find(Post, created["id"], preload: :article_tags)
+
+      assert exist_in?(%{id: article_tag.id}, post.article_tags)
     end
 
     test "create post should excape xss attracts" do
@@ -153,7 +169,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
     end
 
     @query """
-    mutation($id: ID!, $title: String, $body: String, $copyRight: String, $articleTags: [Ids]){
+    mutation($id: ID!, $title: String, $body: String, $copyRight: String, $articleTags: [Id]){
       updatePost(id: $id, title: $title, body: $body, copyRight: $copyRight, articleTags: $articleTags) {
         id
         title
