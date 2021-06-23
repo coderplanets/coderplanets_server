@@ -137,6 +137,28 @@ defmodule GroupherServer.Test.Delivery.Notification do
       assert user2 |> user_exist_in?(notify2.from_users)
     end
 
+    test "notify's from_users_count should work", ~m(user user2 user3 user4 notify_attrs)a do
+      {:ok, user5} = db_insert(:user)
+
+      {:ok, _notify} = Delivery.send(:notify, notify_attrs, user2)
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user3)
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user4)
+      {:ok, _} = Delivery.send(:notify, notify_attrs, user5)
+
+      {:ok, paged_notifies} = Delivery.fetch(:notification, user, %{page: 1, size: 10})
+
+      assert paged_notifies.total_count == 1
+      notify = paged_notifies.entries |> List.first()
+
+      assert notify.from_users_count == 4
+      assert length(notify.from_users) == 3
+
+      assert user5 |> user_exist_in?(notify.from_users)
+      assert user4 |> user_exist_in?(notify.from_users)
+      assert user3 |> user_exist_in?(notify.from_users)
+      assert not user_exist_in?(user2, notify.from_users)
+    end
+
     test "notify myself got ignored", ~m(user notify_attrs)a do
       {:error, _} = Delivery.send(:notify, notify_attrs, user)
     end
