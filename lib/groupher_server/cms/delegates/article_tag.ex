@@ -75,6 +75,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
   defp is_article_tag_in_some_thread?(article_tag_ids, filter) do
     with {:ok, paged_article_tags} <- paged_article_tags(filter) do
       domain_tags_ids = Enum.map(paged_article_tags.entries, &to_string(&1.id))
+      article_tag_ids = Enum.map(article_tag_ids, &to_string(&1))
+
       Enum.all?(article_tag_ids, &Enum.member?(domain_tags_ids, &1))
     end
   end
