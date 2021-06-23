@@ -24,6 +24,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     CommentCurd,
     ArticleTag,
     CommunityCURD,
+    Document,
     Hooks
   }
 
@@ -32,6 +33,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   @active_period get_config(:article, :active_period_days)
   @default_emotions Embeds.ArticleEmotion.default_emotions()
   @default_article_meta Embeds.ArticleMeta.default_meta()
+  @remove_article_hint "The content does not comply with the community norms"
 
   @doc """
   read articles for un-logined user
@@ -156,6 +158,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Multi.run(:create_article, fn _, _ ->
         do_create_article(info.model, attrs, author, community)
       end)
+      |> Multi.run(:create_document, fn _, %{create_article: article} ->
+        Document.create(article, attrs)
+      end)
       |> Multi.run(:mirror_article, fn _, %{create_article: article} ->
         ArticleCommunity.mirror_article(thread, article.id, community.id)
       end)
@@ -211,14 +216,17 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   @doc """
   update a article(post/job ...)
   """
-  def update_article(article, args) do
+  def update_article(article, attrs) do
     Multi.new()
     |> Multi.run(:update_article, fn _, _ ->
-      do_update_article(article, args)
+      do_update_article(article, attrs)
+    end)
+    |> Multi.run(:update_document, fn _, %{update_article: update_article} ->
+      Document.update(update_article, attrs)
     end)
     |> Multi.run(:update_comment_question_flag_if_need, fn _, %{update_article: update_article} ->
       # 如果帖子的类型变了，那么 update 所有的 flag
-      case Map.has_key?(args, :is_question) do
+      case Map.has_key?(attrs, :is_question) do
         true -> CommentCurd.batch_update_question_flag(update_article)
         false -> {:ok, :pass}
       end
@@ -319,6 +327,31 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end
   end
 
+  @doc """
+  remove article forever
+  """
+  def remove_article(thread, id, reason \\ @remove_article_hint) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id, preload: [:communities, [author: :user]]) do
+      Multi.new()
+      |> Multi.run(:remove_article, fn _, _ ->
+        article |> ORM.delete()
+      end)
+      |> Multi.run(:update_community_article_count, fn _, _ ->
+        CommunityCURD.update_community_count_field(article.communities, thread)
+      end)
+      |> Multi.run(:update_user_published_meta, fn _, _ ->
+        Accounts.update_published_states(article.author.user.id, thread)
+      end)
+      |> Multi.run(:delete_document, fn _, _ ->
+        Document.remove(thread, id)
+      end)
+      # TODO: notify author
+      |> Repo.transaction()
+      |> result()
+    end
+  end
+
   @spec ensure_author_exists(User.t()) :: {:ok, User.t()}
   def ensure_author_exists(%User{} = user) do
     # unique_constraint: avoid race conditions, make sure user_id unique
@@ -394,11 +427,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   #  for create artilce step in Multi.new
   defp do_create_article(model, attrs, %Author{id: author_id}, %Community{id: community_id}) do
     # special article like Repo do not have :body, assign it with default-empty rich text
-    body = Map.get(attrs, :body, Converter.Article.default_rich_text())
+    # body = Map.get(attrs, :body, Converter.Article.default_rich_text())
     meta = @default_article_meta |> Map.merge(%{thread: module_to_upcase(model)})
-    attrs = attrs |> Map.merge(%{body: body})
 
-    with {:ok, attrs} <- add_rich_text_attrs(attrs) do
+    with {:ok, attrs} <- add_digest_attrs(attrs) do
       model.__struct__
       |> model.changeset(attrs)
       |> Ecto.Changeset.put_change(:emotions, @default_emotions)
@@ -410,7 +442,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   end
 
   defp do_update_article(article, %{body: _} = attrs) do
-    with {:ok, attrs} <- add_rich_text_attrs(attrs) do
+    with {:ok, attrs} <- add_digest_attrs(attrs) do
       ORM.update(article, attrs)
     end
   end
@@ -418,17 +450,16 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   defp do_update_article(article, attrs), do: ORM.update(article, attrs)
 
   # is update or create article with body field, parsed and extand it into attrs
-  defp add_rich_text_attrs(%{body: body} = attrs) when not is_nil(body) do
+  defp add_digest_attrs(%{body: body} = attrs) when not is_nil(body) do
     with {:ok, parsed} <- Converter.Article.parse_body(body),
          {:ok, digest} <- Converter.Article.parse_digest(parsed.body_map) do
       attrs
-      |> Map.merge(Map.take(parsed, [:body, :body_html]))
       |> Map.merge(%{digest: digest})
       |> done
     end
   end
 
-  defp add_rich_text_attrs(attrs), do: attrs
+  defp add_digest_attrs(attrs), do: attrs
 
   defp update_viewed_user_list(%{meta: nil} = article, user_id) do
     new_ids = Enum.uniq([user_id] ++ @default_article_meta.viewed_user_ids)
@@ -458,6 +489,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp result({:ok, %{update_edit_status: result}}), do: {:ok, result}
   defp result({:ok, %{update_article: result}}), do: {:ok, result}
+  defp result({:ok, %{remove_article: result}}), do: {:ok, result}
   # NOTE:  for read article, order is import
   defp result({:ok, %{set_viewer_has_states: result}}), do: result |> done()
   defp result({:ok, %{update_article_meta: result}}), do: {:ok, result}

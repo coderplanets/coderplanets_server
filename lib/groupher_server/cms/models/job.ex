@@ -14,7 +14,7 @@ defmodule GroupherServer.CMS.Model.Job do
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title company body digest length)a
-  @article_cast_fields general_article_fields(:cast)
+  @article_cast_fields general_article_cast_fields()
   @optional_fields @article_cast_fields ++ ~w(desc company_link link_addr copy_right)a
 
   @type t :: %Job{}
@@ -29,7 +29,7 @@ defmodule GroupherServer.CMS.Model.Job do
 
     article_tags_field(:job)
     article_communities_field(:job)
-    general_article_fields()
+    general_article_fields(:job)
   end
 
   @doc false

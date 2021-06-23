@@ -17,21 +17,16 @@ defmodule GroupherServer.CMS.Model.PostDocument do
 
   @timestamps_opts [type: :utc_datetime_usec]
 
-  @required_fields ~w(thread title article_id body body_html post_id)a
+  @required_fields ~w(body body_html post_id)a
   @optional_fields []
 
   @type t :: %PostDocument{}
   schema "post_documents" do
-    field(:thread, :string)
-    field(:title, :string)
-    field(:article_id, :id)
+    belongs_to(:post, Post, foreign_key: :post_id)
+
     field(:body, :string)
     field(:body_html, :string)
     field(:toc, :map)
-
-    belongs_to(:post, Post, foreign_key: :post_id)
-
-    timestamps()
   end
 
   @doc false

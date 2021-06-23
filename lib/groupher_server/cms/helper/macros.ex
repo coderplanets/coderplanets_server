@@ -114,10 +114,9 @@ defmodule GroupherServer.CMS.Helper.Macros do
 
   common casting fields for general_article_fields
   """
-  def general_article_fields(:cast) do
+  def general_article_cast_fields() do
     [
       :body,
-      :body_html,
       :digest,
       :original_community_id,
       :comments_count,
@@ -176,18 +175,23 @@ defmodule GroupherServer.CMS.Helper.Macros do
   add(:[article]_id, references(:cms_[article]s, on_delete: :delete_all))
 
   """
-  defmacro general_article_fields do
+  defmacro general_article_fields(thread) do
     quote do
       field(:title, :string)
+      # TODO: delete, use document
       field(:body, :string)
-      field(:body_html, :string)
       field(:digest, :string)
-
-      belongs_to(:author, Author)
 
       field(:views, :integer, default: 0)
       field(:is_pinned, :boolean, default: false, virtual: true)
       field(:mark_delete, :boolean, default: false)
+
+      belongs_to(:author, Author)
+
+      has_one(
+        :document,
+        unquote(Module.concat(CMS.Model, "#{Recase.to_title(to_string(thread))}Document"))
+      )
 
       embeds_one(:meta, Embeds.ArticleMeta, on_replace: :update)
       embeds_one(:emotions, Embeds.ArticleEmotion, on_replace: :update)

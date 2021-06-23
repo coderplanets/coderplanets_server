@@ -2,11 +2,11 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
   use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias GroupherServer.CMS
+  alias GroupherServer.{CMS, Repo}
   alias Helper.Converter.{EditorToHTML, HtmlSanitizer}
 
   alias EditorToHTML.{Class, Validator}
-  alias CMS.Model.{Author, Community, Post}
+  alias CMS.Model.{Author, ArticleDocument, Community, Post, PostDocument}
 
   @root_class Class.article()
   @last_year Timex.shift(Timex.beginning_of_year(Timex.now()), days: -3, seconds: -1)
@@ -20,6 +20,48 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
     post_attrs = mock_attrs(:post, %{community_id: community.id})
 
     {:ok, ~m(user user2 community post post_attrs)a}
+  end
+
+  describe "[cms post document]" do
+    @tag :wip
+    test "will create post document after create", ~m(user community post_attrs)a do
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+
+      post = Repo.preload(post, :document)
+
+      {:ok, article_doc} = ORM.find_by(ArticleDocument, %{article_id: post.id, thread: "POST"})
+      {:ok, post_doc} = ORM.find_by(PostDocument, %{post_id: post.id})
+
+      assert post.document.body == post_doc.body
+      assert article_doc.body == post_doc.body
+    end
+
+    @tag :wip
+    test "delete post should also delete related article", ~m(user community post_attrs)a do
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+      {:ok, _article_doc} = ORM.find_by(ArticleDocument, %{article_id: post.id, thread: "POST"})
+      {:ok, _post_doc} = ORM.find_by(PostDocument, %{post_id: post.id})
+
+      CMS.remove_article(:post, post.id)
+
+      {:error, _} = ORM.find(Post, post.id)
+      {:error, _} = ORM.find_by(ArticleDocument, %{article_id: post.id, thread: "POST"})
+      {:error, _} = ORM.find_by(PostDocument, %{post_id: post.id})
+    end
+
+    @tag :wip
+    test "update post should also update related article", ~m(user community post_attrs)a do
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+
+      body = mock_rich_text(~s(new content))
+      {:ok, post} = CMS.update_article(post, %{body: body})
+
+      {:ok, article_doc} = ORM.find_by(ArticleDocument, %{article_id: post.id, thread: "POST"})
+      {:ok, post_doc} = ORM.find_by(PostDocument, %{post_id: post.id})
+
+      assert String.contains?(post_doc.body, "new content")
+      assert String.contains?(article_doc.body, "new content")
+    end
   end
 
   describe "[cms post curd]" do

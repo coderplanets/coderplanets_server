@@ -1,6 +1,6 @@
 defmodule GroupherServerWeb.Schema.Helper.Fields do
   @moduledoc """
-  general fields used in schema definition
+  general fields used in GraphQL schema definition
   """
   import Helper.Utils, only: [get_config: 2]
   import Absinthe.Resolution.Helpers, only: [dataloader: 2]
@@ -18,8 +18,8 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
     quote do
       field(:id, :id)
       field(:title, :string)
+      # TODO: use document
       field(:body, :string)
-      field(:body_html, :string)
       field(:digest, :string)
       field(:views, :integer)
       field(:is_pinned, :boolean)
