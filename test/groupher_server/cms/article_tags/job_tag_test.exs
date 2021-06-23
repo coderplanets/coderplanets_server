@@ -99,8 +99,7 @@ defmodule GroupherServer.Test.CMS.ArticleTag.JobTag do
       {:ok, article_tag} = CMS.create_article_tag(community, :job, article_tag_attrs, user)
       {:ok, article_tag2} = CMS.create_article_tag(community2, :job, article_tag_attrs2, user)
 
-      job_with_tags =
-        Map.merge(job_attrs, %{article_tags: [%{id: article_tag.id}, %{id: article_tag2.id}]})
+      job_with_tags = Map.merge(job_attrs, %{article_tags: [article_tag.id, article_tag2.id]})
 
       {:error, reason} = CMS.create_article(community, :job, job_with_tags, user)
       is_error?(reason, :invalid_domain_tag)
