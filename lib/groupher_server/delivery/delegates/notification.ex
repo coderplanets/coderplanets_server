@@ -18,6 +18,7 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
 
   @notify_actions get_config(:general, :nofity_actions)
   @notify_group_interval_hour get_config(:general, :notify_group_interval_hour)
+  @cut_from_users_count 3
 
   def handle(%{action: action, user_id: user_id} = attrs, %User{} = from_user) do
     with true <- action in @notify_actions,
@@ -84,7 +85,19 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
     Notification
     |> where([n], n.user_id == ^user.id and n.read == ^read)
     |> ORM.paginater(~m(page size)a)
+    |> cut_from_users_ifneed
     |> done
+  end
+
+  # @cut_from_users_count
+  defp cut_from_users_ifneed(%{entries: entries} = paged_contents) do
+    entries =
+      Enum.map(entries, fn notify ->
+        from_users = Enum.slice(notify.from_users, 0, @cut_from_users_count)
+        notify |> Map.put(:from_users, from_users)
+      end)
+
+    paged_contents |> Map.put(:entries, entries)
   end
 
   # 注意这里并不是准确的 count, 因为可能有短时间内 merge 到一起的通知
@@ -114,13 +127,18 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
     cur_from_users = notify.from_users |> Enum.map(&strip_struct(&1))
     from_users = ([from_user] ++ cur_from_users) |> Enum.uniq()
 
-    notify |> ORM.update_embed(:from_users, from_users)
+    notify
+    |> Ecto.Changeset.change(%{from_users_count: length(from_users)})
+    |> Ecto.Changeset.put_embed(:from_users, from_users)
+    |> Repo.update()
   end
 
   # 创建通知
   defp create_notification(attrs, from_user) do
+    attrs = attrs |> Map.merge(%{from_users_count: 1}) |> atom_values_to_upcase
+
     %Notification{}
-    |> Ecto.Changeset.change(atom_values_to_upcase(attrs))
+    |> Ecto.Changeset.change(attrs)
     |> Ecto.Changeset.put_embed(:from_users, [from_user])
     |> Repo.insert()
   end

@@ -24,6 +24,7 @@ defmodule GroupherServer.Delivery.Model.Notification do
     #
     field(:action, :string)
     embeds_many(:from_users, Embeds.User, on_replace: :delete)
+    field(:from_users_count, :integer)
 
     field(:read, :boolean, default: false)
 

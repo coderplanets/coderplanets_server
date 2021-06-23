@@ -122,6 +122,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
     field(:read, :boolean)
 
     field(:from_users, list_of(:common_user))
+    field(:from_users_count, :integer)
 
     timestamp_fields()
   end
