@@ -6,11 +6,6 @@ defmodule GroupherServerWeb.Schema.Helper.Metrics do
 
   use Absinthe.Schema.Notation
 
-  object :status do
-    field(:done, :boolean)
-    field(:id, :id)
-  end
-
   object :done do
     field(:done, :boolean)
   end

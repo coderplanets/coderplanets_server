@@ -64,9 +64,6 @@ defmodule Helper.Utils do
   def done({:ok, _}, with: result), do: {:ok, result}
   def done({:error, reason}, with: _result), do: {:error, reason}
 
-  def done({:ok, %{id: id}}, :status), do: {:ok, %{done: true, id: id}}
-  def done({:error, _}, :status), do: {:ok, %{done: false}}
-
   def done(nil, queryable, id), do: {:error, not_found_formater(queryable, id)}
   def done(result, _, _), do: {:ok, result}
 
