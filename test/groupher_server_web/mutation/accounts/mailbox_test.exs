@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Query.Accounts.Mailbox do
+defmodule GroupherServer.Test.Mutaion.Accounts.Mailbox do
   use GroupherServer.TestTools
 
   alias GroupherServer.Delivery
@@ -30,7 +30,7 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
       mention = mentions.entries |> List.first()
 
       variables = %{ids: [mention.id], type: "MENTION"}
-      result = user_conn |> mutation_result(@query, variables, "markRead")
+      user_conn |> mutation_result(@query, variables, "markRead")
 
       {:ok, mentions} = Delivery.fetch(:mention, user, %{page: 1, size: 10, read: true})
       mention = mentions.entries |> List.first()
@@ -44,7 +44,7 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
       notify = notifications.entries |> List.first()
 
       variables = %{ids: [notify.id], type: "NOTIFICATION"}
-      result = user_conn |> mutation_result(@query, variables, "markRead")
+      user_conn |> mutation_result(@query, variables, "markRead")
 
       {:ok, notifications} = Delivery.fetch(:notification, user, %{page: 1, size: 10, read: true})
       notify = notifications.entries |> List.first()
@@ -68,7 +68,7 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
       assert mentions.total_count == 2
 
       variables = %{type: "MENTION"}
-      result = user_conn |> mutation_result(@query, variables, "markReadAll")
+      user_conn |> mutation_result(@query, variables, "markReadAll")
 
       {:ok, mentions} = Delivery.fetch(:mention, user, %{page: 1, size: 10, read: true})
       assert mentions.total_count == 2
@@ -81,7 +81,7 @@ defmodule GroupherServer.Test.Query.Accounts.Mailbox do
       assert notifications.total_count == 1
 
       variables = %{type: "NOTIFICATION"}
-      result = user_conn |> mutation_result(@query, variables, "markReadAll")
+      user_conn |> mutation_result(@query, variables, "markReadAll")
 
       {:ok, notifications} = Delivery.fetch(:notification, user, %{page: 1, size: 10, read: true})
       assert notifications.total_count == 1

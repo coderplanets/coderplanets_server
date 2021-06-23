@@ -31,7 +31,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Repo do
 
       arg(:community_id, non_null(:id))
       arg(:thread, :thread, default_value: :repo)
-      arg(:article_tags, list_of(:ids))
+      arg(:article_tags, list_of(:id))
 
       middleware(M.Authorize, :login)
       middleware(M.PublishThrottle)

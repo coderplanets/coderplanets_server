@@ -15,7 +15,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Blog do
       arg(:community_id, non_null(:id))
       arg(:link_addr, :string)
       arg(:thread, :thread, default_value: :blog)
-      arg(:article_tags, list_of(:ids))
+      arg(:article_tags, list_of(:id))
 
       middleware(M.Authorize, :login)
       middleware(M.PublishThrottle)
@@ -34,7 +34,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Blog do
 
       arg(:company, :string)
       arg(:company_link, :string)
-      arg(:article_tags, list_of(:ids))
+      arg(:article_tags, list_of(:id))
 
       # ...
 

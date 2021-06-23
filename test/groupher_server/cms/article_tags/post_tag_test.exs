@@ -84,8 +84,7 @@ defmodule GroupherServer.Test.CMS.ArticleTag.PostTag do
       {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
       {:ok, article_tag2} = CMS.create_article_tag(community, :post, article_tag_attrs2, user)
 
-      post_with_tags =
-        Map.merge(post_attrs, %{article_tags: [%{id: article_tag.id}, %{id: article_tag2.id}]})
+      post_with_tags = Map.merge(post_attrs, %{article_tags: [article_tag.id, article_tag2.id]})
 
       {:ok, created} = CMS.create_article(community, :post, post_with_tags, user)
       {:ok, post} = ORM.find(Post, created.id, preload: :article_tags)
@@ -100,8 +99,7 @@ defmodule GroupherServer.Test.CMS.ArticleTag.PostTag do
       {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
       {:ok, article_tag2} = CMS.create_article_tag(community2, :post, article_tag_attrs2, user)
 
-      post_with_tags =
-        Map.merge(post_attrs, %{article_tags: [%{id: article_tag.id}, %{id: article_tag2.id}]})
+      post_with_tags = Map.merge(post_attrs, %{article_tags: [article_tag.id, article_tag2.id]})
 
       {:error, reason} = CMS.create_article(community, :post, post_with_tags, user)
       is_error?(reason, :invalid_domain_tag)

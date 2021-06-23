@@ -21,7 +21,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Job do
       arg(:copy_right, :string)
 
       arg(:thread, :thread, default_value: :job)
-      arg(:article_tags, list_of(:ids))
+      arg(:article_tags, list_of(:id))
 
       middleware(M.Authorize, :login)
       middleware(M.PublishThrottle)
@@ -42,7 +42,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Job do
 
       arg(:company, :string)
       arg(:company_link, :string)
-      arg(:article_tags, list_of(:ids))
+      arg(:article_tags, list_of(:id))
 
       # ...
 

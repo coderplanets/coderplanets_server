@@ -8,12 +8,14 @@ defmodule GroupherServer.Test.Mutation.Articles.Repo do
 
   setup do
     {:ok, repo} = db_insert(:repo)
+    {:ok, user} = db_insert(:user)
+    {:ok, community} = db_insert(:community)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
     owner_conn = simu_conn(:owner, repo)
 
-    {:ok, ~m(user_conn guest_conn owner_conn repo)a}
+    {:ok, ~m(user_conn guest_conn owner_conn user community repo)a}
   end
 
   describe "[mutation repo curd]" do
@@ -36,7 +38,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Repo do
       $primaryLanguage: RepoLangInput,
       $contributors: [RepoContributorInput],
       $communityId: ID!,
-      $articleTags: [Ids]
+      $articleTags: [Id]
     ) {
       createRepo(
         title: $title,
@@ -83,6 +85,21 @@ defmodule GroupherServer.Test.Mutation.Articles.Repo do
       assert created["id"] == to_string(repo.id)
       assert created["originalCommunity"]["id"] == to_string(community.id)
       assert {:ok, _} = ORM.find_by(Author, user_id: user.id)
+    end
+
+    test "create repo with valid tags id list.", ~m(user_conn user community)a do
+      article_tag_attrs = mock_attrs(:article_tag)
+      {:ok, article_tag} = CMS.create_article_tag(community, :repo, article_tag_attrs, user)
+
+      repo_attr = mock_attrs(:repo) |> camelize_map_key
+
+      variables =
+        repo_attr |> Map.merge(%{communityId: community.id, articleTags: [article_tag.id]})
+
+      created = user_conn |> mutation_result(@create_repo_query, variables, "createRepo")
+      {:ok, repo} = ORM.find(Repo, created["id"], preload: :article_tags)
+
+      assert exist_in?(%{id: article_tag.id}, repo.article_tags)
     end
 
     @update_repo_query """

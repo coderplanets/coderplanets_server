@@ -12,9 +12,9 @@ defmodule GroupherServer.Test.CMS.ArticleTag.RepoTag do
     article_tag_attrs = mock_attrs(:article_tag)
     article_tag_attrs2 = mock_attrs(:article_tag)
 
-    post_attrs = mock_attrs(:repo)
+    repo_attrs = mock_attrs(:repo)
 
-    {:ok, ~m(user community repo post_attrs article_tag_attrs article_tag_attrs2)a}
+    {:ok, ~m(user community repo repo_attrs article_tag_attrs article_tag_attrs2)a}
   end
 
   describe "[repo tag CURD]" do
@@ -80,14 +80,13 @@ defmodule GroupherServer.Test.CMS.ArticleTag.RepoTag do
 
   describe "[create/update repo with tags]" do
     test "can create repo with exsited article tags",
-         ~m(community user post_attrs article_tag_attrs article_tag_attrs2)a do
+         ~m(community user repo_attrs article_tag_attrs article_tag_attrs2)a do
       {:ok, article_tag} = CMS.create_article_tag(community, :repo, article_tag_attrs, user)
       {:ok, article_tag2} = CMS.create_article_tag(community, :repo, article_tag_attrs2, user)
 
-      post_with_tags =
-        Map.merge(post_attrs, %{article_tags: [%{id: article_tag.id}, %{id: article_tag2.id}]})
+      repo_with_tags = Map.merge(repo_attrs, %{article_tags: [article_tag.id, article_tag2.id]})
 
-      {:ok, created} = CMS.create_article(community, :repo, post_with_tags, user)
+      {:ok, created} = CMS.create_article(community, :repo, repo_with_tags, user)
       {:ok, repo} = ORM.find(Repo, created.id, preload: :article_tags)
 
       assert exist_in?(article_tag, repo.article_tags)
@@ -95,15 +94,14 @@ defmodule GroupherServer.Test.CMS.ArticleTag.RepoTag do
     end
 
     test "can not create repo with other community's article tags",
-         ~m(community user post_attrs article_tag_attrs article_tag_attrs2)a do
+         ~m(community user repo_attrs article_tag_attrs article_tag_attrs2)a do
       {:ok, community2} = db_insert(:community)
       {:ok, article_tag} = CMS.create_article_tag(community, :repo, article_tag_attrs, user)
       {:ok, article_tag2} = CMS.create_article_tag(community2, :repo, article_tag_attrs2, user)
 
-      post_with_tags =
-        Map.merge(post_attrs, %{article_tags: [%{id: article_tag.id}, %{id: article_tag2.id}]})
+      repo_with_tags = Map.merge(repo_attrs, %{article_tags: [article_tag.id, article_tag2.id]})
 
-      {:error, reason} = CMS.create_article(community, :repo, post_with_tags, user)
+      {:error, reason} = CMS.create_article(community, :repo, repo_with_tags, user)
       is_error?(reason, :invalid_domain_tag)
     end
   end
