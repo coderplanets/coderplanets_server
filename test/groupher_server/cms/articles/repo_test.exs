@@ -2,6 +2,7 @@ defmodule GroupherServer.Test.Articles.Repo do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
+  alias GroupherServer.Repo, as: GlabelRepo
   alias Helper.Converter.{EditorToHTML}
 
   alias EditorToHTML.{Class, Validator}
@@ -26,14 +27,18 @@ defmodule GroupherServer.Test.Articles.Repo do
     test "can create repo with valid attrs", ~m(user community repo_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
       {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
+      repo = GlabelRepo.preload(repo, :document)
 
-      body_map = Jason.decode!(repo.body)
+      body_map = Jason.decode!(repo.document.body)
 
       assert repo.meta.thread == "REPO"
 
       assert repo.title == repo_attrs.title
       assert body_map |> Validator.is_valid()
-      assert repo.body_html |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
+
+      assert repo.document.body_html
+             |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
+
       assert repo.contributors |> length !== 0
     end
 

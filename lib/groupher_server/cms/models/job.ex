@@ -10,11 +10,10 @@ defmodule GroupherServer.CMS.Model.Job do
 
   alias GroupherServer.CMS
   alias CMS.Model.Embeds
-  alias Helper.HTML
 
   @timestamps_opts [type: :utc_datetime_usec]
-  @required_fields ~w(title company body digest length)a
-  @article_cast_fields general_article_fields(:cast)
+  @required_fields ~w(title company digest length)a
+  @article_cast_fields general_article_cast_fields()
   @optional_fields @article_cast_fields ++ ~w(desc company_link link_addr copy_right)a
 
   @type t :: %Job{}
@@ -29,7 +28,7 @@ defmodule GroupherServer.CMS.Model.Job do
 
     article_tags_field(:job)
     article_communities_field(:job)
-    general_article_fields()
+    general_article_fields(:job)
   end
 
   @doc false
@@ -52,8 +51,5 @@ defmodule GroupherServer.CMS.Model.Job do
   defp generl_changeset(content) do
     content
     |> validate_length(:title, min: 3, max: 50)
-    |> validate_length(:body, min: 3, max: 10_000)
-    # |> cast_embed(:emotions, with: &Embeds.ArticleEmotion.changeset/2)
-    |> HTML.safe_string(:body)
   end
 end

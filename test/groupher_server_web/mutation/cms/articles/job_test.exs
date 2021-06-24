@@ -2,14 +2,16 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
   use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias GroupherServer.CMS
+  alias GroupherServer.{CMS, Repo}
 
   alias CMS.Model.Job
 
   setup do
-    {:ok, job} = db_insert(:job)
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
+
+    job_attrs = mock_attrs(:job, %{community_id: community.id})
+    {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
@@ -40,7 +42,9 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
         ) {
           id
           title
-          body
+          document {
+            bodyHtml
+          }
           originalCommunity {
             id
           }
@@ -93,10 +97,12 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
 
       job_attr = mock_attrs(:job, %{body: mock_xss_string()})
       variables = job_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
-      created = user_conn |> mutation_result(@create_job_query, variables, "createJob")
-      {:ok, job} = ORM.find(Job, created["id"])
+      result = user_conn |> mutation_result(@create_job_query, variables, "createJob")
+      {:ok, job} = ORM.find(Job, result["id"], preload: :document)
 
-      assert not String.contains?(job.body_html, "script")
+      body_html = job |> get_in([:document, :body_html])
+
+      assert not String.contains?(body_html, "script")
     end
 
     test "create job should excape xss attracts 2" do
@@ -107,10 +113,12 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
 
       job_attr = mock_attrs(:job, %{body: mock_xss_string(:safe)})
       variables = job_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
-      created = user_conn |> mutation_result(@create_job_query, variables, "createJob")
-      {:ok, job} = ORM.find(Job, created["id"])
+      result = user_conn |> mutation_result(@create_job_query, variables, "createJob")
 
-      assert String.contains?(job.body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
+      {:ok, job} = ORM.find(Job, result["id"], preload: :document)
+      body_html = job |> get_in([:document, :body_html])
+
+      assert String.contains?(body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
     end
 
     @query """
@@ -118,8 +126,9 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       updateJob(id: $id, title: $title, body: $body, articleTags: $articleTags) {
         id
         title
-        body
-        bodyHtml
+        document {
+          bodyHtml
+        }
         articleTags {
           id
         }
@@ -147,13 +156,18 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
         body: mock_rich_text("updated body #{unique_num}")
       }
 
-      updated = owner_conn |> mutation_result(@query, variables, "updateJob")
+      result = owner_conn |> mutation_result(@query, variables, "updateJob")
 
-      assert updated["title"] == variables.title
-      assert updated["bodyHtml"] |> String.contains?(~s(updated body #{unique_num}))
+      assert result["title"] == variables.title
+
+      assert result
+             |> get_in(["document", "bodyHtml"])
+             |> String.contains?(~s(updated body #{unique_num}))
     end
 
     test "login user with auth passport update a job", ~m(job)a do
+      job = job |> Repo.preload(:communities)
+
       job_communities_0 = job.communities |> List.first() |> Map.get(:title)
       passport_rules = %{job_communities_0 => %{"job.edit" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
@@ -203,6 +217,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
     end
 
     test "can delete a job by auth user", ~m(job)a do
+      job = job |> Repo.preload(:communities)
       belongs_community_title = job.communities |> List.first() |> Map.get(:title)
       rule_conn = simu_conn(:user, cms: %{belongs_community_title => %{"job.delete" => true}})
 

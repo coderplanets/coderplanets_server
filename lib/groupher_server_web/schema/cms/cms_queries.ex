@@ -147,6 +147,7 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
 
     article_queries(:post)
     article_queries(:job)
+    article_queries(:blog)
     article_queries(:repo)
   end
 end

@@ -22,7 +22,6 @@ defmodule GroupherServer.Test.Query.Comments.JobComment do
       job(id: $id) {
         id
         title
-        body
         commentsParticipants {
           id
           nickname

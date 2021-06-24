@@ -14,7 +14,7 @@ defmodule GroupherServer.CMS.Model.Blog do
   @timestamps_opts [type: :utc_datetime_usec]
 
   @required_fields ~w(title digest)a
-  @article_cast_fields general_article_fields(:cast)
+  @article_cast_fields general_article_cast_fields()
   @optional_fields ~w(link_addr digest length)a ++ @article_cast_fields
 
   @type t :: %Blog{}
@@ -24,7 +24,7 @@ defmodule GroupherServer.CMS.Model.Blog do
 
     article_tags_field(:blog)
     article_communities_field(:blog)
-    general_article_fields()
+    general_article_fields(:blog)
   end
 
   @doc false

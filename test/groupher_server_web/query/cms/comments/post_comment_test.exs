@@ -25,7 +25,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       post(id: $id) {
         id
         title
-        body
         commentsParticipants {
           id
           nickname
@@ -34,7 +33,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       }
     }
     """
-
     test "guest user can get comment participants after comment created",
          ~m(guest_conn post user user2)a do
       total_count = 5

@@ -1,6 +1,6 @@
 defmodule GroupherServerWeb.Schema.Helper.Fields do
   @moduledoc """
-  general fields used in schema definition
+  general fields used in GraphQL schema definition
   """
   import Helper.Utils, only: [get_config: 2]
   import Absinthe.Resolution.Helpers, only: [dataloader: 2]
@@ -18,8 +18,7 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
     quote do
       field(:id, :id)
       field(:title, :string)
-      field(:body, :string)
-      field(:body_html, :string)
+      field(:document, :thread_document, resolve: dataloader(CMS, :document))
       field(:digest, :string)
       field(:views, :integer)
       field(:is_pinned, :boolean)
@@ -112,7 +111,7 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
       &quote do
         field(unquote(:"#{&1}_count"), :integer)
         field(unquote(:"viewer_has_#{&1}ed"), :boolean)
-        field(unquote(:"latest_#{&1}_users"), list_of(:simple_user))
+        field(unquote(:"latest_#{&1}_users"), list_of(:common_user))
       end
     )
   end
@@ -123,7 +122,7 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
       &quote do
         field(unquote(:"#{&1}_count"), :integer)
         field(unquote(:"viewer_has_#{&1}ed"), :boolean)
-        field(unquote(:"latest_#{&1}_users"), list_of(:simple_user))
+        field(unquote(:"latest_#{&1}_users"), list_of(:common_user))
       end
     )
   end

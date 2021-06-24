@@ -15,8 +15,8 @@ defmodule GroupherServer.CMS.Model.Post do
 
   @timestamps_opts [type: :utc_datetime_usec]
 
-  @required_fields ~w(title body digest length)a
-  @article_cast_fields general_article_fields(:cast)
+  @required_fields ~w(title digest length)a
+  @article_cast_fields general_article_cast_fields()
   @optional_fields ~w(link_addr copy_right is_question is_solved solution_digest)a ++
                      @article_cast_fields
 
@@ -30,13 +30,9 @@ defmodule GroupherServer.CMS.Model.Post do
     field(:is_solved, :boolean, default: false)
     field(:solution_digest, :string)
 
-    # TODO: move to general_article_fields
-    # embeds_one(:block_task_runner, Embeds.BlockTaskRunner, on_replace: :update)
-    # embeds_many(:citing_contents, CMS.CitedArtiment, on_replace: :delete)
-
     article_tags_field(:post)
     article_communities_field(:post)
-    general_article_fields()
+    general_article_fields(:post)
   end
 
   @doc false
@@ -59,7 +55,6 @@ defmodule GroupherServer.CMS.Model.Post do
     changeset
     |> validate_length(:title, min: 3, max: 50)
     |> cast_embed(:emotions, with: &Embeds.ArticleEmotion.changeset/2)
-    |> validate_length(:body, min: 3, max: 10_000)
     |> validate_length(:link_addr, min: 5, max: 400)
     |> HTML.safe_string(:body)
   end

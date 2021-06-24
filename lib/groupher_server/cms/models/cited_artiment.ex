@@ -16,7 +16,7 @@ defmodule GroupherServer.CMS.Model.CitedArtiment do
   @timestamps_opts [type: :utc_datetime]
 
   @required_fields ~w(cited_by_type cited_by_id user_id)a
-  @article_cast_fields general_article_fields(:cast)
+  @article_cast_fields general_article_cast_fields()
   @optional_fields ~w(comment_id block_linker)a ++ @article_cast_fields
 
   @type t :: %CitedArtiment{}

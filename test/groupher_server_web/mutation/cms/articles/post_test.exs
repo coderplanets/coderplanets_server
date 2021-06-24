@@ -2,14 +2,16 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
   use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias GroupherServer.CMS
+  alias GroupherServer.{CMS, Repo}
 
   alias CMS.Model.{Post, Author}
 
   setup do
-    {:ok, post} = db_insert(:post)
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
+
+    post_attrs = mock_attrs(:post, %{community_id: community.id})
+    {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
@@ -36,9 +38,11 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
         communityId: $communityId
         articleTags: $articleTags
       ) {
-        title
-        body
         id
+        title
+        document {
+          bodyHtml
+        }
         originalCommunity {
           id
         }
@@ -85,10 +89,11 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
 
       post_attr = mock_attrs(:post, %{body: mock_xss_string()})
       variables = post_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
-      created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
-      {:ok, post} = ORM.find(Post, created["id"])
+      result = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+      {:ok, post} = ORM.find(Post, result["id"], preload: :document)
+      body_html = post |> get_in([:document, :body_html])
 
-      assert not String.contains?(post.body_html, "script")
+      assert not String.contains?(body_html, "script")
     end
 
     test "create post should excape xss attracts 2" do
@@ -99,10 +104,11 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
 
       post_attr = mock_attrs(:post, %{body: mock_xss_string(:safe)})
       variables = post_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
-      created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
-      {:ok, post} = ORM.find(Post, created["id"])
+      result = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+      {:ok, post} = ORM.find(Post, result["id"], preload: :document)
+      body_html = post |> get_in([:document, :body_html])
 
-      assert String.contains?(post.body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
+      assert String.contains?(body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
     end
 
     # NOTE: this test is IMPORTANT, cause json_codec: Jason in router will cause
@@ -134,6 +140,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
     end
 
     test "can delete a post by auth user", ~m(post)a do
+      post = post |> Repo.preload(:communities)
       belongs_community_title = post.communities |> List.first() |> Map.get(:title)
       rule_conn = simu_conn(:user, cms: %{belongs_community_title => %{"post.delete" => true}})
 
@@ -148,6 +155,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
     end
 
     test "login user with auth passport delete a post", ~m(post)a do
+      post = post |> Repo.preload(:communities)
       post_communities_0 = post.communities |> List.first() |> Map.get(:title)
       passport_rules = %{post_communities_0 => %{"post.delete" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
@@ -173,8 +181,9 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       updatePost(id: $id, title: $title, body: $body, copyRight: $copyRight, articleTags: $articleTags) {
         id
         title
-        body
-        bodyHtml
+        document {
+          bodyHtml
+        }
         copyRight
         meta {
           isEdited
@@ -213,11 +222,14 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
         copyRight: "translate"
       }
 
-      updated_post = owner_conn |> mutation_result(@query, variables, "updatePost")
+      result = owner_conn |> mutation_result(@query, variables, "updatePost")
+      assert result["title"] == variables.title
 
-      assert updated_post["title"] == variables.title
-      assert updated_post["bodyHtml"] |> String.contains?(~s(updated body #{unique_num}))
-      assert updated_post["copyRight"] == variables.copyRight
+      assert result
+             |> get_in(["document", "bodyHtml"])
+             |> String.contains?(~s(updated body #{unique_num}))
+
+      assert result["copyRight"] == variables.copyRight
     end
 
     test "update post with valid attrs should have is_edited meta info update",
@@ -236,6 +248,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
     end
 
     test "login user with auth passport update a post", ~m(post)a do
+      post = post |> Repo.preload(:communities)
       belongs_community_title = post.communities |> List.first() |> Map.get(:title)
 
       passport_rules = %{belongs_community_title => %{"post.edit" => true}}

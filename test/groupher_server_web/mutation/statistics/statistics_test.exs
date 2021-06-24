@@ -35,7 +35,6 @@ defmodule GroupherServer.Test.Mutation.Statistics do
         articleTags: $articleTags
       ) {
         title
-        body
         id
       }
     }
@@ -82,7 +81,6 @@ defmodule GroupherServer.Test.Mutation.Statistics do
       ) {
         id
         title
-        body
         communities {
           id
           title
@@ -117,7 +115,6 @@ defmodule GroupherServer.Test.Mutation.Statistics do
       ) {
         id
         title
-        body
       }
     }
     """

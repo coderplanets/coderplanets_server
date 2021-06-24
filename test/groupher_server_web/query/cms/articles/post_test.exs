@@ -21,7 +21,6 @@ defmodule GroupherServer.Test.Query.Articles.Post do
     post(id: $id) {
       id
       title
-      body
       meta {
         isEdited
       }
@@ -38,9 +37,8 @@ defmodule GroupherServer.Test.Query.Articles.Post do
 
     assert results["id"] == to_string(post.id)
     assert is_valid_kv?(results, "title", :string)
-    assert is_valid_kv?(results, "body", :string)
     assert %{"isEdited" => false} == results["meta"]
-    assert length(Map.keys(results)) == 4
+    assert length(Map.keys(results)) == 3
   end
 
   test "basic graphql query on post with stranger(unloged user)", ~m(guest_conn post)a do
@@ -49,6 +47,5 @@ defmodule GroupherServer.Test.Query.Articles.Post do
 
     assert results["id"] == to_string(post.id)
     assert is_valid_kv?(results, "title", :string)
-    assert is_valid_kv?(results, "body", :string)
   end
 end

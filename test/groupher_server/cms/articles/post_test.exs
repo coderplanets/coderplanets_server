@@ -2,11 +2,11 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
   use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias GroupherServer.CMS
+  alias GroupherServer.{CMS, Repo}
   alias Helper.Converter.{EditorToHTML, HtmlSanitizer}
 
   alias EditorToHTML.{Class, Validator}
-  alias CMS.Model.{Author, Community, Post}
+  alias CMS.Model.{Author, ArticleDocument, Community, Post, PostDocument}
 
   @root_class Class.article()
   @last_year Timex.shift(Timex.beginning_of_year(Timex.now()), days: -3, seconds: -1)
@@ -26,15 +26,19 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
     test "can create post with valid attrs", ~m(user community post_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+      post = Repo.preload(post, :document)
 
-      body_map = Jason.decode!(post.body)
+      body_map = Jason.decode!(post.document.body)
 
       assert post.meta.thread == "POST"
 
       assert post.title == post_attrs.title
       assert body_map |> Validator.is_valid()
-      assert post.body_html |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
-      assert post.body_html |> String.contains?(~s(<p id="block-))
+
+      assert post.document.body_html
+             |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
+
+      assert post.document.body_html |> String.contains?(~s(<p id="block-))
 
       paragraph_text = body_map["blocks"] |> List.first() |> get_in(["data", "text"])
       assert post.digest == paragraph_text |> HtmlSanitizer.strip_all_tags()
@@ -181,6 +185,47 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
 
       {:ok, post} = CMS.update_article(post, %{is_question: false})
       assert not post.is_question
+    end
+  end
+
+  describe "[cms post document]" do
+    test "will create related document after create", ~m(user community post_attrs)a do
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+      {:ok, post} = CMS.read_article(:post, post.id)
+      assert not is_nil(post.document.body_html)
+      {:ok, post} = CMS.read_article(:post, post.id, user)
+      assert not is_nil(post.document.body_html)
+
+      {:ok, article_doc} = ORM.find_by(ArticleDocument, %{article_id: post.id, thread: "POST"})
+      {:ok, post_doc} = ORM.find_by(PostDocument, %{post_id: post.id})
+
+      assert post.document.body == post_doc.body
+      assert article_doc.body == post_doc.body
+    end
+
+    test "delete post should also delete related document", ~m(user community post_attrs)a do
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+      {:ok, _article_doc} = ORM.find_by(ArticleDocument, %{article_id: post.id, thread: "POST"})
+      {:ok, _post_doc} = ORM.find_by(PostDocument, %{post_id: post.id})
+
+      CMS.remove_article(:post, post.id)
+
+      {:error, _} = ORM.find(Post, post.id)
+      {:error, _} = ORM.find_by(ArticleDocument, %{article_id: post.id, thread: "POST"})
+      {:error, _} = ORM.find_by(PostDocument, %{post_id: post.id})
+    end
+
+    test "update post should also update related document", ~m(user community post_attrs)a do
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+
+      body = mock_rich_text(~s(new content))
+      {:ok, post} = CMS.update_article(post, %{body: body})
+
+      {:ok, article_doc} = ORM.find_by(ArticleDocument, %{article_id: post.id, thread: "POST"})
+      {:ok, post_doc} = ORM.find_by(PostDocument, %{post_id: post.id})
+
+      assert String.contains?(post_doc.body, "new content")
+      assert String.contains?(article_doc.body, "new content")
     end
   end
 end

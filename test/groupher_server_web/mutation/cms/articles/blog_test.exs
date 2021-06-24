@@ -2,14 +2,16 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
   use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias GroupherServer.CMS
+  alias GroupherServer.{CMS, Repo}
 
   alias CMS.Model.Blog
 
   setup do
-    {:ok, blog} = db_insert(:blog)
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
+
+    blog_attrs = mock_attrs(:blog, %{community_id: community.id})
+    {:ok, blog} = CMS.create_article(community, :blog, blog_attrs, user)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
@@ -38,7 +40,9 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
         ) {
           id
           title
-          body
+          document {
+            bodyHtml
+          }
           originalCommunity {
             id
           }
@@ -91,10 +95,12 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
 
       blog_attr = mock_attrs(:blog, %{body: mock_xss_string()})
       variables = blog_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
-      created = user_conn |> mutation_result(@create_blog_query, variables, "createBlog")
-      {:ok, blog} = ORM.find(Blog, created["id"])
+      result = user_conn |> mutation_result(@create_blog_query, variables, "createBlog")
 
-      assert not String.contains?(blog.body_html, "script")
+      {:ok, blog} = ORM.find(Blog, result["id"], preload: :document)
+      body_html = blog |> get_in([:document, :body_html])
+
+      assert not String.contains?(body_html, "script")
     end
 
     test "create blog should excape xss attracts 2" do
@@ -105,10 +111,11 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
 
       blog_attr = mock_attrs(:blog, %{body: mock_xss_string(:safe)})
       variables = blog_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
-      created = user_conn |> mutation_result(@create_blog_query, variables, "createBlog")
-      {:ok, blog} = ORM.find(Blog, created["id"])
+      result = user_conn |> mutation_result(@create_blog_query, variables, "createBlog")
+      {:ok, blog} = ORM.find(Blog, result["id"], preload: :document)
+      body_html = blog |> get_in([:document, :body_html])
 
-      assert String.contains?(blog.body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
+      assert String.contains?(body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
     end
 
     @query """
@@ -116,15 +123,15 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       updateBlog(id: $id, title: $title, body: $body, articleTags: $articleTags) {
         id
         title
-        body
-        bodyHtml
+        document {
+          bodyHtml
+        }
         articleTags {
           id
         }
       }
     }
     """
-
     test "update a blog without login user fails", ~m(guest_conn blog)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
@@ -146,13 +153,18 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
         body: mock_rich_text("updated body #{unique_num}")
       }
 
-      updated = owner_conn |> mutation_result(@query, variables, "updateBlog")
+      result = owner_conn |> mutation_result(@query, variables, "updateBlog")
 
-      assert updated["title"] == variables.title
-      assert updated["bodyHtml"] |> String.contains?(~s(updated body #{unique_num}))
+      assert result["title"] == variables.title
+
+      assert result
+             |> get_in(["document", "bodyHtml"])
+             |> String.contains?(~s(updated body #{unique_num}))
     end
 
     test "login user with auth passport update a blog", ~m(blog)a do
+      blog = blog |> Repo.preload(:communities)
+
       blog_communities_0 = blog.communities |> List.first() |> Map.get(:title)
       passport_rules = %{blog_communities_0 => %{"blog.edit" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
@@ -202,6 +214,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
     end
 
     test "can delete a blog by auth user", ~m(blog)a do
+      blog = blog |> Repo.preload(:communities)
       belongs_community_title = blog.communities |> List.first() |> Map.get(:title)
       rule_conn = simu_conn(:user, cms: %{belongs_community_title => %{"blog.delete" => true}})
 

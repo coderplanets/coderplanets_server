@@ -35,7 +35,6 @@ defmodule GroupherServer.Test.Mutation.PublishThrottle do
       communityId: $communityId
     ) {
       title
-      body
       id
     }
   }

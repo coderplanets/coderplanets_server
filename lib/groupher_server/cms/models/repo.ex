@@ -15,7 +15,7 @@ defmodule GroupherServer.CMS.Model.Repo do
 
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title owner_name owner_url repo_url desc readme star_count issues_count prs_count fork_count watch_count)a
-  @article_cast_fields general_article_fields(:cast)
+  @article_cast_fields general_article_cast_fields()
   @optional_fields @article_cast_fields ++ ~w(last_sync homepage_url release_tag license)a
 
   @type t :: %Repo{}
@@ -42,7 +42,7 @@ defmodule GroupherServer.CMS.Model.Repo do
 
     article_tags_field(:repo)
     article_communities_field(:repo)
-    general_article_fields()
+    general_article_fields(:repo)
   end
 
   @doc false
