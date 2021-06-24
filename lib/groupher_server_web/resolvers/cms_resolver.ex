@@ -73,7 +73,9 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.update_article(article, args)
   end
 
-  def delete_article(_root, %{passport_source: content}, _info), do: ORM.delete(content)
+  def delete_article(_root, %{passport_source: article}, _info) do
+    CMS.delete_article(article)
+  end
 
   # #######################
   # article actions

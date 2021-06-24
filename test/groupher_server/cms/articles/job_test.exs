@@ -174,7 +174,7 @@ defmodule GroupherServer.Test.Articles.Job do
       {:ok, _article_doc} = ORM.find_by(ArticleDocument, %{article_id: job.id, thread: "JOB"})
       {:ok, _job_doc} = ORM.find_by(JobDocument, %{job_id: job.id})
 
-      CMS.remove_article(:job, job.id)
+      {:ok, _} = CMS.delete_article(job)
 
       {:error, _} = ORM.find(Job, job.id)
       {:error, _} = ORM.find_by(ArticleDocument, %{article_id: job.id, thread: "JOB"})

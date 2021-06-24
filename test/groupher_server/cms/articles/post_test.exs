@@ -208,7 +208,7 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
       {:ok, _article_doc} = ORM.find_by(ArticleDocument, %{article_id: post.id, thread: "POST"})
       {:ok, _post_doc} = ORM.find_by(PostDocument, %{post_id: post.id})
 
-      CMS.remove_article(:post, post.id)
+      {:ok, _} = CMS.delete_article(post)
 
       {:error, _} = ORM.find(Post, post.id)
       {:error, _} = ORM.find_by(ArticleDocument, %{article_id: post.id, thread: "POST"})

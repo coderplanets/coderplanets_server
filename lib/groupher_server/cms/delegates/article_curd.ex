@@ -7,7 +7,15 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   import GroupherServer.CMS.Helper.Matcher
 
   import Helper.Utils,
-    only: [done: 1, pick_by: 2, module_to_atom: 1, get_config: 2, ensure: 2, module_to_upcase: 1]
+    only: [
+      done: 1,
+      pick_by: 2,
+      module_to_atom: 1,
+      get_config: 2,
+      ensure: 2,
+      module_to_upcase: 1,
+      thread_of_article: 1
+    ]
 
   import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 2]
   import Helper.ErrorCode
@@ -328,26 +336,28 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   @doc """
   remove article forever
   """
-  def remove_article(thread, id, reason \\ @remove_article_hint) do
-    with {:ok, info} <- match(thread),
-         {:ok, article} <- ORM.find(info.model, id, preload: [:communities, [author: :user]]) do
-      Multi.new()
-      |> Multi.run(:remove_article, fn _, _ ->
-        article |> ORM.delete()
-      end)
-      |> Multi.run(:update_community_article_count, fn _, _ ->
-        CommunityCURD.update_community_count_field(article.communities, thread)
-      end)
-      |> Multi.run(:update_user_published_meta, fn _, _ ->
-        Accounts.update_published_states(article.author.user.id, thread)
-      end)
-      |> Multi.run(:delete_document, fn _, _ ->
-        Document.remove(thread, id)
-      end)
-      # TODO: notify author
-      |> Repo.transaction()
-      |> result()
-    end
+  def delete_article(article, reason \\ @remove_article_hint) do
+    article = Repo.preload(article, [:communities, [author: :user]])
+    {:ok, thread} = thread_of_article(article)
+
+    Multi.new()
+    |> Multi.run(:delete_article, fn _, _ ->
+      article |> ORM.delete()
+    end)
+    |> Multi.run(:update_community_article_count, fn _, _ ->
+      CommunityCURD.update_community_count_field(article.communities, thread)
+    end)
+    |> Multi.run(:update_user_published_meta, fn _, _ ->
+      Accounts.update_published_states(article.author.user.id, thread)
+    end)
+    |> Multi.run(:delete_document, fn _, _ ->
+      Document.remove(thread, article.id)
+      # for those history & test setup case
+      {:ok, :pass}
+    end)
+    # TODO: notify author
+    |> Repo.transaction()
+    |> result()
   end
 
   @spec ensure_author_exists(User.t()) :: {:ok, User.t()}
@@ -497,7 +507,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   defp result({:ok, %{update_edit_status: result}}), do: {:ok, result}
   defp result({:ok, %{update_article: result}}), do: {:ok, result}
-  defp result({:ok, %{remove_article: result}}), do: {:ok, result}
+  defp result({:ok, %{delete_article: result}}), do: {:ok, result}
   # NOTE:  for read article, order is import
   defp result({:ok, %{set_viewer_has_states: result}}), do: result |> done()
   defp result({:ok, %{update_article_meta: result}}), do: {:ok, result}

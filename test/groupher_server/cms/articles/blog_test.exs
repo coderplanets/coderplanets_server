@@ -173,7 +173,7 @@ defmodule GroupherServer.Test.Articles.Blog do
       {:ok, _article_doc} = ORM.find_by(ArticleDocument, %{article_id: blog.id, thread: "BLOG"})
       {:ok, _blog_doc} = ORM.find_by(BlogDocument, %{blog_id: blog.id})
 
-      CMS.remove_article(:blog, blog.id)
+      {:ok, _} = CMS.delete_article(blog)
 
       {:error, _} = ORM.find(Blog, blog.id)
       {:error, _} = ORM.find_by(ArticleDocument, %{article_id: blog.id, thread: "BLOG"})
