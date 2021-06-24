@@ -248,7 +248,7 @@ defmodule GroupherServer.Test.Mutation.Comments.BlogComment do
     """
 
     test "can undo lock a blog's comment", ~m(community blog)a do
-      {:ok, _} = CMS.lock_article_comment(:blog, blog.id)
+      {:ok, _} = CMS.lock_article_comments(:blog, blog.id)
       {:ok, blog} = ORM.find(Blog, blog.id)
       assert blog.meta.is_comment_locked
 

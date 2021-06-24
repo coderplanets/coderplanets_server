@@ -248,7 +248,7 @@ defmodule GroupherServer.Test.Mutation.Comments.JobComment do
     """
 
     test "can undo lock a job's comment", ~m(community job)a do
-      {:ok, _} = CMS.lock_article_comment(:job, job.id)
+      {:ok, _} = CMS.lock_article_comments(:job, job.id)
       {:ok, job} = ORM.find(Job, job.id)
       assert job.meta.is_comment_locked
 

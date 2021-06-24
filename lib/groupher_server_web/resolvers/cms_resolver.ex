@@ -111,10 +111,11 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   # #######################
   # thread reaction ..
   # #######################
-  def lock_article_comment(_root, ~m(id thread)a, _info), do: CMS.lock_article_comment(thread, id)
+  def lock_article_comments(_root, ~m(id thread)a, _info),
+    do: CMS.lock_article_comments(thread, id)
 
-  def undo_lock_article_comment(_root, ~m(id thread)a, _info) do
-    CMS.undo_lock_article_comment(thread, id)
+  def undo_lock_article_comments(_root, ~m(id thread)a, _info) do
+    CMS.undo_lock_article_comments(thread, id)
   end
 
   def sink_article(_root, ~m(id thread)a, _info), do: CMS.sink_article(thread, id)

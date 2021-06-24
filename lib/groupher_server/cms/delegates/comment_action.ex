@@ -81,19 +81,19 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
   end
 
   @doc "fold a comment"
-  def fold_article_comment(%Comment{} = comment, %User{} = _user) do
+  def fold_comment(%Comment{} = comment, %User{} = _user) do
     comment |> ORM.update(%{is_folded: true})
   end
 
   @doc "fold a comment"
-  def fold_article_comment(comment_id, %User{} = _user) do
+  def fold_comment(comment_id, %User{} = _user) do
     with {:ok, comment} <- ORM.find(Comment, comment_id) do
       comment |> ORM.update(%{is_folded: true})
     end
   end
 
   @doc "unfold a comment"
-  def unfold_article_comment(comment_id, %User{} = _user) do
+  def unfold_comment(comment_id, %User{} = _user) do
     with {:ok, comment} <- ORM.find(Comment, comment_id) do
       comment |> ORM.update(%{is_folded: false})
     end
@@ -145,7 +145,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
       |> Repo.transaction()
       |> result()
     else
-      false -> raise_error(:article_comment_locked, "this article is forbid comment")
+      false -> raise_error(:article_comments_locked, "this article is forbid comment")
       {:error, error} -> {:error, error}
     end
   end
@@ -228,7 +228,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
   end
 
   @doc "lock comment of a article"
-  def lock_article_comment(thread, id) do
+  def lock_article_comments(thread, id) do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, id) do
       article_meta = ensure(article.meta, @default_article_meta)
@@ -239,7 +239,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
   end
 
   @doc "undo lock comment of a article"
-  def undo_lock_article_comment(thread, id) do
+  def undo_lock_article_comments(thread, id) do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, id) do
       article_meta = ensure(article.meta, @default_article_meta)

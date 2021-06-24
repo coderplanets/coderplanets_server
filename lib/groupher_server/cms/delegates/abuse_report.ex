@@ -172,7 +172,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   end
 
   @doc "report a comment"
-  def report_article_comment(comment_id, reason, attr, %User{} = user) do
+  def report_comment(comment_id, reason, attr, %User{} = user) do
     with {:ok, comment} <- ORM.find(Comment, comment_id) do
       Multi.new()
       |> Multi.run(:create_abuse_report, fn _, _ ->
@@ -184,7 +184,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
       end)
       |> Multi.run(:fold_comment_report_too_many, fn _, %{create_abuse_report: abuse_report} ->
         if abuse_report.report_cases_count >= @report_threshold_for_fold,
-          do: CMS.fold_article_comment(comment, user),
+          do: CMS.fold_comment(comment, user),
           else: {:ok, comment}
       end)
       |> Repo.transaction()
@@ -192,7 +192,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     end
   end
 
-  def undo_report_article_comment(comment_id, %User{} = user) do
+  def undo_report_comment(comment_id, %User{} = user) do
     undo_report_article(:comment, comment_id, user)
   end
 

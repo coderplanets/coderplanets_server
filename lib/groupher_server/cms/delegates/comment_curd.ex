@@ -153,7 +153,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
       |> Repo.transaction()
       |> result()
     else
-      false -> raise_error(:article_comment_locked, "this article is forbid comment")
+      false -> raise_error(:article_comments_locked, "this article is forbid comment")
       {:error, error} -> {:error, error}
     end
   end

@@ -46,12 +46,12 @@ defmodule GroupherServer.Test.CMS.PostMeta do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
       assert not post.meta.is_comment_locked
 
-      {:ok, _} = CMS.lock_article_comment(:post, post.id)
+      {:ok, _} = CMS.lock_article_comments(:post, post.id)
       {:ok, post} = ORM.find_by(Post, id: post.id)
 
       assert post.meta.is_comment_locked
 
-      {:ok, _} = CMS.undo_lock_article_comment(:post, post.id)
+      {:ok, _} = CMS.undo_lock_article_comments(:post, post.id)
       {:ok, post} = ORM.find_by(Post, id: post.id)
 
       assert not post.meta.is_comment_locked

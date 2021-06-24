@@ -21,8 +21,8 @@ defmodule GroupherServer.CMS.Model.CommentUpvote do
   end
 
   @doc false
-  def changeset(%CommentUpvote{} = article_comment_upvote, attrs) do
-    article_comment_upvote
+  def changeset(%CommentUpvote{} = comment_upvote, attrs) do
+    comment_upvote
     |> cast(attrs, @required_fields)
     |> validate_required(@required_fields)
     |> foreign_key_constraint(:comment_id)

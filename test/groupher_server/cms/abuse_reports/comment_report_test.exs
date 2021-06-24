@@ -17,7 +17,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.CommentReport do
   describe "[article comment report/unreport]" do
     test "report a comment should have a abuse report record", ~m(user post)a do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
-      {:ok, _comment} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
+      {:ok, _comment} = CMS.report_comment(comment.id, mock_comment(), "attr", user)
 
       filter = %{content_type: :comment, content_id: comment.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.paged_reports(filter)
@@ -34,8 +34,8 @@ defmodule GroupherServer.Test.CMS.AbuseReports.CommentReport do
     test "different user report a comment should have same report with different report cases",
          ~m(user user2 post)a do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
-      {:ok, _} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
-      {:ok, _} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user2)
+      {:ok, _} = CMS.report_comment(comment.id, mock_comment(), "attr", user)
+      {:ok, _} = CMS.report_comment(comment.id, mock_comment(), "attr", user2)
 
       filter = %{content_type: :comment, content_id: comment.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.paged_reports(filter)
@@ -53,8 +53,8 @@ defmodule GroupherServer.Test.CMS.AbuseReports.CommentReport do
 
     test "same user can not report a comment twice", ~m(user post)a do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
-      {:ok, comment} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
-      assert {:error, _} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
+      {:ok, comment} = CMS.report_comment(comment.id, mock_comment(), "attr", user)
+      assert {:error, _} = CMS.report_comment(comment.id, mock_comment(), "attr", user)
     end
   end
 end
