@@ -155,6 +155,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
     end
 
     test "login user with auth passport delete a post", ~m(post)a do
+      post = post |> Repo.preload(:communities)
       post_communities_0 = post.communities |> List.first() |> Map.get(:title)
       passport_rules = %{post_communities_0 => %{"post.delete" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)

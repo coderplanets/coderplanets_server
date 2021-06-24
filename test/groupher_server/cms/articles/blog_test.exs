@@ -1,7 +1,7 @@
 defmodule GroupherServer.Test.Articles.Blog do
   use GroupherServer.TestTools
 
-  alias GroupherServer.CMS
+  alias GroupherServer.{CMS, Repo}
   alias Helper.Converter.{EditorToHTML, HtmlSanitizer}
 
   alias EditorToHTML.{Class, Validator}
@@ -22,18 +22,23 @@ defmodule GroupherServer.Test.Articles.Blog do
   end
 
   describe "[cms blogs curd]" do
+    @tag :wip
     test "can create blog with valid attrs", ~m(user community blog_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
       {:ok, blog} = CMS.create_article(community, :blog, blog_attrs, user)
+      blog = Repo.preload(blog, :document)
 
-      body_map = Jason.decode!(blog.body)
+      body_map = Jason.decode!(blog.document.body)
 
       assert blog.meta.thread == "BLOG"
 
       assert blog.title == blog_attrs.title
       assert body_map |> Validator.is_valid()
-      assert blog.body_html |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
-      assert blog.body_html |> String.contains?(~s(<p id="block-))
+
+      assert blog.document.body_html
+             |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
+
+      assert blog.document.body_html |> String.contains?(~s(<p id="block-))
 
       paragraph_text = body_map["blocks"] |> List.first() |> get_in(["data", "text"])
       assert blog.digest == paragraph_text |> HtmlSanitizer.strip_all_tags()

@@ -1,7 +1,7 @@
 defmodule GroupherServer.Test.Articles.Job do
   use GroupherServer.TestTools
 
-  alias GroupherServer.CMS
+  alias GroupherServer.{CMS, Repo}
   alias Helper.Converter.{EditorToHTML, HtmlSanitizer}
 
   alias EditorToHTML.{Class, Validator}
@@ -23,18 +23,23 @@ defmodule GroupherServer.Test.Articles.Job do
   end
 
   describe "[cms jobs curd]" do
+    @tag :wip
     test "can create job with valid attrs", ~m(user community job_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
+      job = Repo.preload(job, :document)
 
-      body_map = Jason.decode!(job.body)
+      body_map = Jason.decode!(job.document.body)
 
       assert job.meta.thread == "JOB"
 
       assert job.title == job_attrs.title
       assert body_map |> Validator.is_valid()
-      assert job.body_html |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
-      assert job.body_html |> String.contains?(~s(<p id="block-))
+
+      assert job.document.body_html
+             |> String.contains?(~s(<div class="#{@root_class["viewer"]}">))
+
+      assert job.document.body_html |> String.contains?(~s(<p id="block-))
 
       paragraph_text = body_map["blocks"] |> List.first() |> get_in(["data", "text"])
       assert job.digest == paragraph_text |> HtmlSanitizer.strip_all_tags()
