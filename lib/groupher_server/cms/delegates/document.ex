@@ -14,6 +14,18 @@ defmodule GroupherServer.CMS.Delegate.Document do
   alias CMS.Model.ArticleDocument
   alias Ecto.Multi
 
+  # alias Helper.Converter.MdToEditor
+  alias GroupherServer.Support.Factory
+
+  # TODO: spec repo logic
+  def create(article, %{readme: readme} = attrs) do
+    # .parse(markdown)
+    # body = MdToEditor.mock_rich_text(readme)
+    body = Factory.mock_rich_text(readme)
+    attrs = attrs |> Map.drop([:readme]) |> Map.put(:body, body)
+    create(article, attrs)
+  end
+
   #  for create artilce step in Multi.new
   def create(article, %{body: body} = attrs) do
     with {:ok, article_thread} <- thread_of_article(article, :upcase),

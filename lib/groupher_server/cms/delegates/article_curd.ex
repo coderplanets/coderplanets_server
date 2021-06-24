@@ -18,6 +18,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   alias Accounts.Model.User
   alias CMS.Model.{Author, Community, PinnedArticle, Embeds}
+  alias CMS.Model.Repo, as: CMSRepo
 
   alias CMS.Delegate.{
     ArticleCommunity,
@@ -422,9 +423,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   end
 
   #  for create artilce step in Multi.new
-  defp do_create_article(model, attrs, %Author{id: author_id}, %Community{id: community_id}) do
-    # special article like Repo do not have :body, assign it with default-empty rich text
-    # body = Map.get(attrs, :body, Converter.Article.default_rich_text())
+  defp do_create_article(model, %{body: _body} = attrs, %Author{id: author_id}, %Community{
+         id: community_id
+       }) do
     meta = @default_article_meta |> Map.merge(%{thread: module_to_upcase(model)})
 
     with {:ok, attrs} <- add_digest_attrs(attrs) do
@@ -436,6 +437,16 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Ecto.Changeset.put_embed(:meta, meta)
       |> Repo.insert()
     end
+  end
+
+  # Github Repo 没有传统的 body, 需要特殊处理
+  # 赋值一个空的 body, 后续在 document 中处理
+  # 注意：digest 那里也要特殊处理
+  defp do_create_article(CMSRepo, attrs, author, community) do
+    body = Map.get(attrs, :body, Converter.Article.default_rich_text())
+    attrs = Map.put(attrs, :body, body)
+
+    do_create_article(CMSRepo, attrs, author, community)
   end
 
   defp do_update_article(article, %{body: _} = attrs) do

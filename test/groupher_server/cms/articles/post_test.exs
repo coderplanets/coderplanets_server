@@ -185,7 +185,6 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
   end
 
   describe "[cms post document]" do
-    @tag :wip
     test "will create related document after create", ~m(user community post_attrs)a do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
       {:ok, post} = CMS.read_article(:post, post.id)

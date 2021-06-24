@@ -18,8 +18,6 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
     quote do
       field(:id, :id)
       field(:title, :string)
-      # TODO: use document
-      field(:body, :string)
       field(:document, :thread_document, resolve: dataloader(CMS, :document))
       field(:digest, :string)
       field(:views, :integer)

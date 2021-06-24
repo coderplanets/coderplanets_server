@@ -76,7 +76,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert results["entries"] |> List.first() |> Map.get("articleTags") |> is_list
     end
 
-    # @tag :wip
+    #
     test "should get valid thread document", ~m(guest_conn)a do
       {:ok, user} = db_insert(:user)
       {:ok, community} = db_insert(:community)
