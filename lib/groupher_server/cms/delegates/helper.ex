@@ -56,15 +56,15 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   defp get_supported_mentions(:comment), do: @supported_comment_emotions
   defp get_supported_mentions(_), do: @supported_emotions
 
-  def mark_viewer_emotion_states(paged_contents, nil), do: paged_contents
-  def mark_viewer_emotion_states(%{entries: []} = paged_contents, _), do: paged_contents
-  def mark_viewer_emotion_states(paged_contents, nil, :comment), do: paged_contents
+  def mark_viewer_emotion_states(paged_artiments, nil), do: paged_artiments
+  def mark_viewer_emotion_states(%{entries: []} = paged_artiments, _), do: paged_artiments
+  def mark_viewer_emotion_states(paged_artiments, nil, :comment), do: paged_artiments
 
   @doc """
   mark viewer emotions status for article or comment
   """
   def mark_viewer_emotion_states(
-        %{entries: entries} = paged_contents,
+        %{entries: entries} = paged_artiments,
         %User{} = user,
         type \\ :article
       ) do
@@ -84,7 +84,7 @@ defmodule GroupherServer.CMS.Delegate.Helper do
         Map.put(article, :emotions, updated_emotions)
       end)
 
-    %{paged_contents | entries: new_entries}
+    %{paged_artiments | entries: new_entries}
   end
 
   @doc """

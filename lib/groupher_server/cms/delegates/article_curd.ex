@@ -91,6 +91,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end
   end
 
+  @doc """
+  get paged articles
+  """
   def paged_articles(thread, filter) do
     %{page: page, size: size} = filter
 
@@ -105,14 +108,26 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   end
 
   def paged_articles(thread, filter, %User{} = user) do
+    with {:ok, stateless_paged_articles} <- paged_articles(thread, filter) do
+      stateless_paged_articles
+      |> mark_viewer_emotion_states(user)
+      |> mark_viewer_has_states(user)
+      |> done()
+    end
+  end
+
+  @doc "paged published articles for accounts"
+  def paged_published_articles(thread, filter, user_id) do
     %{page: page, size: size} = filter
 
-    with {:ok, info} <- match(thread) do
+    with {:ok, info} <- match(thread),
+         {:ok, user} <- ORM.find(User, user_id) do
       info.model
-      |> QueryBuilder.domain_query(filter)
-      |> QueryBuilder.filter_pack(Map.merge(filter, %{mark_delete: false}))
+      |> join(:inner, [article], author in assoc(article, :author))
+      |> where([article, author], author.user_id == ^user.id)
+      |> select([article, author], article)
+      |> QueryBuilder.filter_pack(filter)
       |> ORM.paginater(~m(page size)a)
-      |> add_pin_articles_ifneed(info.model, filter)
       |> mark_viewer_emotion_states(user)
       |> mark_viewer_has_states(user)
       |> done()

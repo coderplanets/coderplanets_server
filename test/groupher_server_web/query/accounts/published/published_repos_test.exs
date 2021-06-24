@@ -52,7 +52,7 @@ defmodule GroupherServer.Test.Query.Accounts.Published.Repos do
   describe "[account published comments on repo]" do
     @query """
     query($login: String!, $thread: Thread, $filter: PagedFilter!) {
-      pagedPublishedArticleComments(login: $login, thread: $thread, filter: $filter) {
+      pagedPublishedComments(login: $login, thread: $thread, filter: $filter) {
         entries {
           id
           bodyHtml
@@ -87,7 +87,7 @@ defmodule GroupherServer.Test.Query.Accounts.Published.Repos do
 
       variables = %{login: user.login, thread: "REPO", filter: %{page: 1, size: 20}}
 
-      results = guest_conn |> query_result(@query, variables, "pagedPublishedArticleComments")
+      results = guest_conn |> query_result(@query, variables, "pagedPublishedComments")
 
       entries = results["entries"]
       assert results |> is_valid_pagination?

@@ -81,7 +81,7 @@ defmodule GroupherServer.Test.Accounts.Published.Repo do
       end)
 
       filter = %{page: 1, size: 20}
-      {:ok, articles} = Accounts.paged_published_article_comments(user, :repo, filter)
+      {:ok, articles} = Accounts.paged_published_comments(user, :repo, filter)
 
       entries = articles.entries
       article = entries |> List.first()

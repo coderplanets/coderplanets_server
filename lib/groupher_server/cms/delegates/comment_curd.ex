@@ -52,6 +52,37 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     do_paged_comment(thread, article_id, filters, where_query, user)
   end
 
+  def paged_published_comments(%User{id: user_id}, filter) do
+    %{page: page, size: size} = filter
+
+    Comment
+    |> join(:inner, [comment], author in assoc(comment, :author))
+    |> where([comment, author], author.id == ^user_id)
+    |> QueryBuilder.filter_pack(filter)
+    |> ORM.paginater(~m(page size)a)
+    |> ORM.extract_and_assign_article()
+    |> done()
+  end
+
+  def paged_published_comments(%User{id: user_id}, thread, filter) do
+    %{page: page, size: size} = filter
+
+    thread = thread |> to_string |> String.upcase()
+    thread_atom = thread |> String.downcase() |> String.to_atom()
+
+    article_preload = Keyword.new([{thread_atom, [author: :user]}])
+    query = from(comment in Comment, preload: ^article_preload)
+
+    query
+    |> join(:inner, [comment], author in assoc(comment, :author))
+    |> where([comment, author], comment.thread == ^thread)
+    |> where([comment, author], author.id == ^user_id)
+    |> QueryBuilder.filter_pack(filter)
+    |> ORM.paginater(~m(page size)a)
+    |> ORM.extract_and_assign_article()
+    |> done()
+  end
+
   def paged_folded_article_comments(thread, article_id, filters) do
     where_query = dynamic([c], c.is_folded and not c.is_pinned)
     do_paged_comment(thread, article_id, filters, where_query, nil)
