@@ -137,8 +137,8 @@ defmodule GroupherServer.CMS do
   defdelegate paged_published_comments(user, thread, filters), to: CommentCurd
   defdelegate paged_published_comments(user, filters), to: CommentCurd
 
-  defdelegate paged_folded_article_comments(thread, article_id, filters), to: CommentCurd
-  defdelegate paged_folded_article_comments(thread, article_id, filters, user), to: CommentCurd
+  defdelegate paged_folded_comments(thread, article_id, filters), to: CommentCurd
+  defdelegate paged_folded_comments(thread, article_id, filters, user), to: CommentCurd
 
   defdelegate paged_comment_replies(comment_id, filters), to: CommentCurd
   defdelegate paged_comment_replies(comment_id, filters, user), to: CommentCurd

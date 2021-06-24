@@ -538,7 +538,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       random_comment_3 = all_folded_comments |> Enum.at(5)
 
       {:ok, paged_comments} =
-        CMS.paged_folded_article_comments(:post, post.id, %{page: page_number, size: page_size})
+        CMS.paged_folded_comments(:post, post.id, %{page: page_number, size: page_size})
 
       assert exist_in?(random_comment_1, paged_comments.entries)
       assert exist_in?(random_comment_2, paged_comments.entries)
