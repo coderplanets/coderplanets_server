@@ -80,7 +80,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       {:ok, user} = db_insert(:user)
       {:ok, community} = db_insert(:community)
       job_attrs = mock_attrs(:job, %{community_id: community.id})
-      Process.sleep(1000)
+      Process.sleep(2000)
       {:ok, _job} = CMS.create_article(community, :job, job_attrs, user)
 
       variables = %{filter: %{page: 1, size: 30}}

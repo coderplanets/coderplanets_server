@@ -80,7 +80,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedBlogs do
       {:ok, user} = db_insert(:user)
       {:ok, community} = db_insert(:community)
       blog_attrs = mock_attrs(:blog, %{community_id: community.id})
-      Process.sleep(1000)
+      Process.sleep(2000)
       {:ok, _blog} = CMS.create_article(community, :blog, blog_attrs, user)
 
       variables = %{filter: %{page: 1, size: 30}}
