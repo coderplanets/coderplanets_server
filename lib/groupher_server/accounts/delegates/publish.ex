@@ -3,16 +3,12 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
   user followers / following related
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, ensure: 2]
-  # import Helper.ErrorCode
-  import ShortMaps
+  import Helper.Utils, only: [ensure: 2]
 
-  import GroupherServer.CMS.Helper.Matcher
+  alias GroupherServer.{Accounts, CMS}
+  alias Accounts.Model.{Embeds, User}
 
-  alias GroupherServer.Accounts.Model.{Embeds, User}
-  alias GroupherServer.CMS.Model.Comment
-
-  alias Helper.{ORM, QueryBuilder}
+  alias Helper.ORM
 
   @default_meta Embeds.UserMeta.default_meta()
 
@@ -20,10 +16,7 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
   get paged published contets of a user
   """
   def paged_published_articles(%User{id: user_id}, thread, filter) do
-    with {:ok, info} <- match(thread),
-         {:ok, user} <- ORM.find(User, user_id) do
-      do_paged_published_articles(info.model, user, filter)
-    end
+    CMS.paged_published_articles(thread, filter, user_id)
   end
 
   @doc """
@@ -32,57 +25,21 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
   def update_published_states(user_id, thread) do
     filter = %{page: 1, size: 1}
 
-    with {:ok, info} <- match(thread),
-         {:ok, user} <- ORM.find(User, user_id),
-         {:ok, paged_published_articles} <- do_paged_published_articles(info.model, user, filter) do
-      articles_count = paged_published_articles.total_count
-
-      meta =
-        ensure(user.meta, @default_meta)
-        |> Map.put(:"published_#{thread}s_count", articles_count)
+    with {:ok, user} <- ORM.find(User, user_id),
+         {:ok, paged_articles} <- CMS.paged_published_articles(thread, filter, user_id) do
+      #
+      user_meta = ensure(user.meta, @default_meta)
+      meta = Map.put(user_meta, :"published_#{thread}s_count", paged_articles.total_count)
 
       ORM.update_meta(user, meta)
     end
   end
 
-  defp do_paged_published_articles(queryable, %User{} = user, %{page: page, size: size} = filter) do
-    queryable
-    |> join(:inner, [article], author in assoc(article, :author))
-    |> where([article, author], author.user_id == ^user.id)
-    |> select([article, author], article)
-    |> QueryBuilder.filter_pack(filter)
-    |> ORM.paginater(~m(page size)a)
-    |> done()
+  def paged_published_comments(user, filter) do
+    CMS.paged_published_comments(user, filter)
   end
 
-  def paged_published_comments(%User{id: user_id}, %{page: page, size: size} = filter) do
-    with {:ok, user} <- ORM.find(User, user_id) do
-      Comment
-      |> join(:inner, [comment], author in assoc(comment, :author))
-      |> where([comment, author], author.id == ^user.id)
-      |> QueryBuilder.filter_pack(filter)
-      |> ORM.paginater(~m(page size)a)
-      |> ORM.extract_and_assign_article()
-      |> done()
-    end
-  end
-
-  def paged_published_comments(%User{id: user_id}, thread, %{page: page, size: size} = filter) do
-    with {:ok, user} <- ORM.find(User, user_id) do
-      thread = thread |> to_string |> String.upcase()
-      thread_atom = thread |> String.downcase() |> String.to_atom()
-
-      article_preload = Keyword.new([{thread_atom, [author: :user]}])
-      query = from(comment in Comment, preload: ^article_preload)
-
-      query
-      |> join(:inner, [comment], author in assoc(comment, :author))
-      |> where([comment, author], author.id == ^user.id)
-      |> where([comment, author], comment.thread == ^thread)
-      |> QueryBuilder.filter_pack(filter)
-      |> ORM.paginater(~m(page size)a)
-      |> ORM.extract_and_assign_article()
-      |> done()
-    end
+  def paged_published_comments(user, thread, filter) do
+    CMS.paged_published_comments(user, thread, filter)
   end
 end

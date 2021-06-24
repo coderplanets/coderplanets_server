@@ -116,6 +116,24 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end
   end
 
+  @doc "paged published articles for accounts"
+  def paged_published_articles(thread, filter, user_id) do
+    %{page: page, size: size} = filter
+
+    with {:ok, info} <- match(thread),
+         {:ok, user} <- ORM.find(User, user_id) do
+      info.model
+      |> join(:inner, [article], author in assoc(article, :author))
+      |> where([article, author], author.user_id == ^user.id)
+      |> select([article, author], article)
+      |> QueryBuilder.filter_pack(filter)
+      |> ORM.paginater(~m(page size)a)
+      |> mark_viewer_emotion_states(user)
+      |> mark_viewer_has_states(user)
+      |> done()
+    end
+  end
+
   defp mark_viewer_has_states(%{entries: []} = articles, _), do: articles
 
   defp mark_viewer_has_states(%{entries: entries} = articles, user) do

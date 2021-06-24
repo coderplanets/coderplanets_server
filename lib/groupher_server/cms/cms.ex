@@ -86,6 +86,7 @@ defmodule GroupherServer.CMS do
 
   defdelegate paged_articles(queryable, filter), to: ArticleCURD
   defdelegate paged_articles(queryable, filter, user), to: ArticleCURD
+  defdelegate paged_published_articles(queryable, filter, user), to: ArticleCURD
 
   defdelegate create_article(community, thread, attrs, user), to: ArticleCURD
   defdelegate update_article(article, attrs), to: ArticleCURD
@@ -132,6 +133,9 @@ defmodule GroupherServer.CMS do
   # Comment CURD
   defdelegate paged_comments(thread, article_id, filters, mode), to: CommentCurd
   defdelegate paged_comments(thread, article_id, filters, mode, user), to: CommentCurd
+
+  defdelegate paged_published_comments(user, thread, filters), to: CommentCurd
+  defdelegate paged_published_comments(user, filters), to: CommentCurd
 
   defdelegate paged_folded_article_comments(thread, article_id, filters), to: CommentCurd
   defdelegate paged_folded_article_comments(thread, article_id, filters, user), to: CommentCurd
