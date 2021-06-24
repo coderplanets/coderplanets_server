@@ -81,7 +81,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert exist_in?(%{id: article_tag.id}, post.article_tags)
     end
 
-    @tag :wip
     test "create post should excape xss attracts" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -97,7 +96,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert not String.contains?(body_html, "script")
     end
 
-    @tag :wip
     test "create post should excape xss attracts 2" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -141,7 +139,9 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert {:error, _} = ORM.find(Post, deleted["id"])
     end
 
+    @tag :wip2
     test "can delete a post by auth user", ~m(post)a do
+      post = post |> Repo.preload(:communities)
       belongs_community_title = post.communities |> List.first() |> Map.get(:title)
       rule_conn = simu_conn(:user, cms: %{belongs_community_title => %{"post.delete" => true}})
 
@@ -247,7 +247,9 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert true == updated_post["meta"]["isEdited"]
     end
 
+    @tag :wip2
     test "login user with auth passport update a post", ~m(post)a do
+      post = post |> Repo.preload(:communities)
       belongs_community_title = post.communities |> List.first() |> Map.get(:title)
 
       passport_rules = %{belongs_community_title => %{"post.edit" => true}}

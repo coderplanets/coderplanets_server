@@ -15,7 +15,6 @@ defmodule GroupherServer.Test.Query.Articles.Job do
     job(id: $id) {
       id
       title
-      body
     }
   }
   """
@@ -25,16 +24,15 @@ defmodule GroupherServer.Test.Query.Articles.Job do
 
     assert results["id"] == to_string(job.id)
     assert is_valid_kv?(results, "title", :string)
-    assert is_valid_kv?(results, "body", :string)
     assert length(Map.keys(results)) == 3
   end
 
+  @tag :wip
   test "basic graphql query on job with stranger(unloged user)", ~m(guest_conn job)a do
     variables = %{id: job.id}
     results = guest_conn |> query_result(@query, variables, "job")
 
     assert results["id"] == to_string(job.id)
     assert is_valid_kv?(results, "title", :string)
-    assert is_valid_kv?(results, "body", :string)
   end
 end

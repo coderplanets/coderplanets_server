@@ -76,14 +76,15 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert results["entries"] |> List.first() |> Map.get("articleTags") |> is_list
     end
 
-    #
+    @tag :wip
     test "should get valid thread document", ~m(guest_conn)a do
       {:ok, user} = db_insert(:user)
       {:ok, community} = db_insert(:community)
       job_attrs = mock_attrs(:job, %{community_id: community.id})
+      Process.sleep(1000)
       {:ok, _job} = CMS.create_article(community, :job, job_attrs, user)
 
-      variables = %{filter: %{page: 1, size: 10}}
+      variables = %{filter: %{page: 1, size: 30}}
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
 
       job = results["entries"] |> List.first()

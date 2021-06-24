@@ -2,7 +2,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
   use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias GroupherServer.CMS
+  alias GroupherServer.{CMS, Repo}
 
   alias CMS.Model.Blog
 
@@ -87,7 +87,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       assert exist_in?(%{id: article_tag.id}, blog.article_tags)
     end
 
-    @tag :wip
     test "create blog should excape xss attracts" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -104,7 +103,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       assert not String.contains?(body_html, "script")
     end
 
-    @tag :wip
     test "create blog should excape xss attracts 2" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -164,7 +162,10 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
              |> String.contains?(~s(updated body #{unique_num}))
     end
 
+    @tag :wip2
     test "login user with auth passport update a blog", ~m(blog)a do
+      blog = blog |> Repo.preload(:communities)
+
       blog_communities_0 = blog.communities |> List.first() |> Map.get(:title)
       passport_rules = %{blog_communities_0 => %{"blog.edit" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
@@ -213,7 +214,9 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       assert {:error, _} = ORM.find(Blog, deleted["id"])
     end
 
+    @tag :wip2
     test "can delete a blog by auth user", ~m(blog)a do
+      blog = blog |> Repo.preload(:communities)
       belongs_community_title = blog.communities |> List.first() |> Map.get(:title)
       rule_conn = simu_conn(:user, cms: %{belongs_community_title => %{"blog.delete" => true}})
 

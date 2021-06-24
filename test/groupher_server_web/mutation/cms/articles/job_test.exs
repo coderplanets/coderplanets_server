@@ -2,7 +2,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
   use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias GroupherServer.CMS
+  alias GroupherServer.{CMS, Repo}
 
   alias CMS.Model.Job
 
@@ -89,7 +89,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       assert exist_in?(%{id: article_tag.id}, job.article_tags)
     end
 
-    @tag :wip
     test "create job should excape xss attracts" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -106,7 +105,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       assert not String.contains?(body_html, "script")
     end
 
-    @tag :wip
     test "create job should excape xss attracts 2" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -167,7 +165,10 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
              |> String.contains?(~s(updated body #{unique_num}))
     end
 
+    @tag :wip2
     test "login user with auth passport update a job", ~m(job)a do
+      job = job |> Repo.preload(:communities)
+
       job_communities_0 = job.communities |> List.first() |> Map.get(:title)
       passport_rules = %{job_communities_0 => %{"job.edit" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
@@ -216,7 +217,9 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       assert {:error, _} = ORM.find(Job, deleted["id"])
     end
 
+    @tag :wip2
     test "can delete a job by auth user", ~m(job)a do
+      job = job |> Repo.preload(:communities)
       belongs_community_title = job.communities |> List.first() |> Map.get(:title)
       rule_conn = simu_conn(:user, cms: %{belongs_community_title => %{"job.delete" => true}})
 
