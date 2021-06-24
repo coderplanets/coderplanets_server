@@ -93,7 +93,7 @@ defmodule GroupherServer.Test.Query.AbuseReports.JobReport do
 
     test "support comment", ~m(guest_conn job user)a do
       {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
-      {:ok, _} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
+      {:ok, _} = CMS.report_comment(comment.id, mock_comment(), "attr", user)
 
       variables = %{filter: %{content_type: "COMMENT", page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedAbuseReports")

@@ -246,7 +246,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     emotion_fields()
   end
 
-  object :article_comment_meta do
+  object :comment_meta do
     field(:is_article_author_upvoted, :boolean)
     field(:is_reply_to_others, :boolean)
 
@@ -263,7 +263,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:upvotes_count, :integer)
     field(:is_article_author, :boolean)
     field(:emotions, :comment_emotions)
-    field(:meta, :article_comment_meta)
+    field(:meta, :comment_meta)
     field(:replies_count, :integer)
     field(:reply_to, :comment_reply)
     field(:viewer_has_upvoted, :boolean)
@@ -281,7 +281,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:upvotes_count, :integer)
     field(:emotions, :comment_emotions)
     field(:is_article_author, :boolean)
-    field(:meta, :article_comment_meta)
+    field(:meta, :comment_meta)
     field(:reply_to, :comment_reply)
     field(:replies, list_of(:comment_reply))
     field(:replies_count, :integer)

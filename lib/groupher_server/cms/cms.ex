@@ -137,8 +137,8 @@ defmodule GroupherServer.CMS do
   defdelegate paged_published_comments(user, thread, filters), to: CommentCurd
   defdelegate paged_published_comments(user, filters), to: CommentCurd
 
-  defdelegate paged_folded_article_comments(thread, article_id, filters), to: CommentCurd
-  defdelegate paged_folded_article_comments(thread, article_id, filters, user), to: CommentCurd
+  defdelegate paged_folded_comments(thread, article_id, filters), to: CommentCurd
+  defdelegate paged_folded_comments(thread, article_id, filters, user), to: CommentCurd
 
   defdelegate paged_comment_replies(comment_id, filters), to: CommentCurd
   defdelegate paged_comment_replies(comment_id, filters, user), to: CommentCurd
@@ -154,14 +154,14 @@ defmodule GroupherServer.CMS do
   defdelegate upvote_comment(comment_id, user), to: CommentAction
   defdelegate undo_upvote_comment(comment_id, user), to: CommentAction
   defdelegate reply_comment(comment_id, args, user), to: CommentAction
-  defdelegate lock_article_comment(thread, article_id), to: CommentAction
-  defdelegate undo_lock_article_comment(thread, article_id), to: CommentAction
+  defdelegate lock_article_comments(thread, article_id), to: CommentAction
+  defdelegate undo_lock_article_comments(thread, article_id), to: CommentAction
 
   defdelegate pin_comment(comment_id), to: CommentAction
   defdelegate undo_pin_comment(comment_id), to: CommentAction
 
-  defdelegate fold_article_comment(comment_id, user), to: CommentAction
-  defdelegate unfold_article_comment(comment_id, user), to: CommentAction
+  defdelegate fold_comment(comment_id, user), to: CommentAction
+  defdelegate unfold_comment(comment_id, user), to: CommentAction
 
   defdelegate emotion_to_comment(comment_id, args, user), to: CommentEmotion
   defdelegate undo_emotion_to_comment(comment_id, args, user), to: CommentEmotion
@@ -172,12 +172,12 @@ defmodule GroupherServer.CMS do
 
   # TODO: move report to abuse report module
   defdelegate report_article(thread, article_id, reason, attr, user), to: AbuseReport
-  defdelegate report_article_comment(comment_id, reason, attr, user), to: AbuseReport
+  defdelegate report_comment(comment_id, reason, attr, user), to: AbuseReport
   defdelegate report_account(account_id, reason, attr, user), to: AbuseReport
   defdelegate undo_report_account(account_id, user), to: AbuseReport
   defdelegate undo_report_article(thread, article_id, user), to: AbuseReport
   defdelegate paged_reports(filter), to: AbuseReport
-  defdelegate undo_report_article_comment(comment_id, user), to: AbuseReport
+  defdelegate undo_report_comment(comment_id, user), to: AbuseReport
 
   # Passport CURD
   defdelegate stamp_passport(rules, user), to: PassportCURD

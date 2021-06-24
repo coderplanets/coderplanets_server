@@ -235,19 +235,19 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       assert not comment.is_folded
 
-      {:ok, comment} = CMS.fold_article_comment(comment.id, user)
+      {:ok, comment} = CMS.fold_comment(comment.id, user)
       {:ok, comment} = ORM.find(Comment, comment.id)
       assert comment.is_folded
     end
 
     test "user can unfold a comment", ~m(user job)a do
       {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
-      {:ok, _comment} = CMS.fold_article_comment(comment.id, user)
+      {:ok, _comment} = CMS.fold_comment(comment.id, user)
       {:ok, comment} = ORM.find(Comment, comment.id)
 
       assert comment.is_folded
 
-      {:ok, _comment} = CMS.unfold_article_comment(comment.id, user)
+      {:ok, _comment} = CMS.unfold_comment(comment.id, user)
       {:ok, comment} = ORM.find(Comment, comment.id)
       assert not comment.is_folded
     end
@@ -296,25 +296,25 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
     #   {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
     #   {:ok, comment} = ORM.find(Comment, comment.id)
 
-    #   {:ok, comment} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
+    #   {:ok, comment} = CMS.report_comment(comment.id, mock_comment(), "attr", user)
     #   {:ok, comment} = ORM.find(Comment, comment.id)
     # end
 
     #
     # test "user can unreport a comment", ~m(user job)a do
     #   {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
-    #   {:ok, _comment} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
+    #   {:ok, _comment} = CMS.report_comment(comment.id, mock_comment(), "attr", user)
     #   {:ok, comment} = ORM.find(Comment, comment.id)
 
-    #   {:ok, _comment} = CMS.undo_report_article_comment(comment.id, user)
+    #   {:ok, _comment} = CMS.undo_report_comment(comment.id, user)
     #   {:ok, comment} = ORM.find(Comment, comment.id)
     # end
 
     test "can undo a report with other user report it too", ~m(user user2 job)a do
       {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
 
-      {:ok, _comment} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
-      {:ok, _comment} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user2)
+      {:ok, _comment} = CMS.report_comment(comment.id, mock_comment(), "attr", user)
+      {:ok, _comment} = CMS.report_comment(comment.id, mock_comment(), "attr", user2)
 
       filter = %{content_type: :comment, content_id: comment.id, page: 1, size: 20}
       {:ok, all_reports} = CMS.paged_reports(filter)
@@ -344,7 +344,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       Enum.reduce(1..(@report_threshold_for_fold - 1), [], fn _, _acc ->
         {:ok, user} = db_insert(:user)
-        {:ok, _comment} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
+        {:ok, _comment} = CMS.report_comment(comment.id, mock_comment(), "attr", user)
       end)
 
       {:ok, comment} = ORM.find(Comment, comment.id)
@@ -358,7 +358,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
 
       Enum.reduce(1..(@report_threshold_for_fold + 1), [], fn _, _acc ->
         {:ok, user} = db_insert(:user)
-        {:ok, _comment} = CMS.report_article_comment(comment.id, mock_comment(), "attr", user)
+        {:ok, _comment} = CMS.report_comment(comment.id, mock_comment(), "attr", user)
       end)
 
       {:ok, comment} = ORM.find(Comment, comment.id)
@@ -499,9 +499,9 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       random_comment_2 = all_comments |> Enum.at(1)
       random_comment_3 = all_comments |> Enum.at(3)
 
-      {:ok, _comment} = CMS.fold_article_comment(random_comment_1.id, user)
-      {:ok, _comment} = CMS.fold_article_comment(random_comment_2.id, user)
-      {:ok, _comment} = CMS.fold_article_comment(random_comment_3.id, user)
+      {:ok, _comment} = CMS.fold_comment(random_comment_1.id, user)
+      {:ok, _comment} = CMS.fold_comment(random_comment_2.id, user)
+      {:ok, _comment} = CMS.fold_comment(random_comment_3.id, user)
 
       {:ok, paged_comments} =
         CMS.paged_comments(
@@ -528,7 +528,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       all_folded_comments =
         Enum.reduce(1..total_count, [], fn _, acc ->
           {:ok, comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
-          CMS.fold_article_comment(comment.id, user)
+          CMS.fold_comment(comment.id, user)
 
           acc ++ [comment]
         end)
@@ -538,7 +538,7 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       random_comment_3 = all_folded_comments |> Enum.at(5)
 
       {:ok, paged_comments} =
-        CMS.paged_folded_article_comments(:job, job.id, %{page: page_number, size: page_size})
+        CMS.paged_folded_comments(:job, job.id, %{page: page_number, size: page_size})
 
       assert exist_in?(random_comment_1, paged_comments.entries)
       assert exist_in?(random_comment_2, paged_comments.entries)
@@ -631,12 +631,12 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
   describe "[lock/unlock job comment]" do
     test "locked job can not be comment", ~m(user job)a do
       {:ok, _} = CMS.create_comment(:job, job.id, mock_comment(), user)
-      {:ok, _} = CMS.lock_article_comment(:job, job.id)
+      {:ok, _} = CMS.lock_article_comments(:job, job.id)
 
       {:error, reason} = CMS.create_comment(:job, job.id, mock_comment(), user)
-      assert reason |> is_error?(:article_comment_locked)
+      assert reason |> is_error?(:article_comments_locked)
 
-      {:ok, _} = CMS.undo_lock_article_comment(:job, job.id)
+      {:ok, _} = CMS.undo_lock_article_comments(:job, job.id)
       {:ok, _} = CMS.create_comment(:job, job.id, mock_comment(), user)
     end
 
@@ -644,12 +644,12 @@ defmodule GroupherServer.Test.CMS.Comments.JobComment do
       {:ok, parent_comment} = CMS.create_comment(:job, job.id, mock_comment(), user)
       {:ok, _} = CMS.reply_comment(parent_comment.id, mock_comment(), user)
 
-      {:ok, _} = CMS.lock_article_comment(:job, job.id)
+      {:ok, _} = CMS.lock_article_comments(:job, job.id)
 
       {:error, reason} = CMS.reply_comment(parent_comment.id, mock_comment(), user)
-      assert reason |> is_error?(:article_comment_locked)
+      assert reason |> is_error?(:article_comments_locked)
 
-      {:ok, _} = CMS.undo_lock_article_comment(:job, job.id)
+      {:ok, _} = CMS.undo_lock_article_comments(:job, job.id)
       {:ok, _} = CMS.reply_comment(parent_comment.id, mock_comment(), user)
     end
   end

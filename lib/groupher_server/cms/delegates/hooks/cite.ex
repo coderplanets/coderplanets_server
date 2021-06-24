@@ -20,7 +20,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
 
   cited_type: thread or comment
   artiment: article or comment
-  # cited_article_comment_id, [xxx_article]_id, [block_id, block2_id, ...],
+  # cited_comment_id, [xxx_article]_id, [block_id, block2_id, ...],
 
   注意 cited_by_type 不能命名为 cited_by_thread
 

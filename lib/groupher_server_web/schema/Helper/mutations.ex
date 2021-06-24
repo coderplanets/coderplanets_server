@@ -261,7 +261,7 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
         middleware(M.Authorize, :login)
         middleware(M.PassportLoader, source: :community)
         middleware(M.Passport, claim: unquote("cms->c?->#{to_string(thread)}.lock_comment"))
-        resolve(&R.CMS.lock_article_comment/3)
+        resolve(&R.CMS.lock_article_comments/3)
       end
 
       @desc unquote("undo lock to a #{thread}")
@@ -273,7 +273,7 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
         middleware(M.Authorize, :login)
         middleware(M.PassportLoader, source: :community)
         middleware(M.Passport, claim: unquote("cms->c?->#{to_string(thread)}.undo_lock_comment"))
-        resolve(&R.CMS.undo_lock_article_comment/3)
+        resolve(&R.CMS.undo_lock_article_comments/3)
       end
     end
   end

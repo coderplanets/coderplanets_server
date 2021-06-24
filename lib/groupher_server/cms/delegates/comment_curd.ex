@@ -83,12 +83,12 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     |> done()
   end
 
-  def paged_folded_article_comments(thread, article_id, filters) do
+  def paged_folded_comments(thread, article_id, filters) do
     where_query = dynamic([c], c.is_folded and not c.is_pinned)
     do_paged_comment(thread, article_id, filters, where_query, nil)
   end
 
-  def paged_folded_article_comments(thread, article_id, filters, user) do
+  def paged_folded_comments(thread, article_id, filters, user) do
     where_query = dynamic([c], c.is_folded and not c.is_pinned)
     do_paged_comment(thread, article_id, filters, where_query, user)
   end
@@ -153,7 +153,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
       |> Repo.transaction()
       |> result()
     else
-      false -> raise_error(:article_comment_locked, "this article is forbid comment")
+      false -> raise_error(:article_comments_locked, "this article is forbid comment")
       {:error, error} -> {:error, error}
     end
   end
