@@ -116,7 +116,6 @@ defmodule GroupherServer.CMS.Helper.Macros do
   """
   def general_article_cast_fields() do
     [
-      :body,
       :digest,
       :original_community_id,
       :comments_count,
@@ -178,8 +177,6 @@ defmodule GroupherServer.CMS.Helper.Macros do
   defmacro general_article_fields(thread) do
     quote do
       field(:title, :string)
-      # TODO: delete, use document
-      field(:body, :string)
       field(:digest, :string)
 
       field(:views, :integer, default: 0)

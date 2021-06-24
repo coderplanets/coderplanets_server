@@ -42,7 +42,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     with {:ok, info} <- match(thread) do
       Multi.new()
       |> Multi.run(:inc_views, fn _, _ -> ORM.read(info.model, id, inc: :views) end)
-      |> Multi.run(:update_article_meta, fn _, %{inc_views: article} ->
+      |> Multi.run(:load_html, fn _, %{inc_views: article} ->
+        article |> Repo.preload(:document) |> done
+      end)
+      |> Multi.run(:update_article_meta, fn _, %{load_html: article} ->
         article_meta = ensure(article.meta, @default_article_meta)
         meta = Map.merge(article_meta, %{can_undo_sink: in_active_period?(thread, article)})
 
@@ -59,17 +62,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   def read_article(thread, id, %User{id: user_id}) do
     with {:ok, info} <- match(thread) do
       Multi.new()
-      |> Multi.run(:inc_views, fn _, _ -> ORM.read(info.model, id, inc: :views) end)
-      |> Multi.run(:update_article_meta, fn _, %{inc_views: article} ->
-        article_meta = ensure(article.meta, @default_article_meta)
-        meta = Map.merge(article_meta, %{can_undo_sink: in_active_period?(thread, article)})
-
-        ORM.update_meta(article, meta)
-      end)
-      |> Multi.run(:add_viewed_user, fn _, %{inc_views: article} ->
+      |> Multi.run(:normal_read, fn _, _ -> read_article(thread, id) end)
+      |> Multi.run(:add_viewed_user, fn _, %{normal_read: article} ->
         update_viewed_user_list(article, user_id)
       end)
-      |> Multi.run(:set_viewer_has_states, fn _, %{inc_views: article} ->
+      |> Multi.run(:set_viewer_has_states, fn _, %{normal_read: article} ->
         article_meta = if is_nil(article.meta), do: @default_article_meta, else: article.meta
 
         viewer_has_states = %{
@@ -78,7 +75,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
           viewer_has_reported: user_id in article_meta.reported_user_ids
         }
 
-        {:ok, Map.merge(article, viewer_has_states)}
+        article |> Map.merge(viewer_has_states) |> done
       end)
       |> Repo.transaction()
       |> result()

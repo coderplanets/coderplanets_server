@@ -46,9 +46,9 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:id, :id)
   end
 
-  object :simple_user do
-    field(:login, :string)
-    field(:nickname, :string)
+  object :thread_document do
+    field(:body, :string)
+    field(:body_html, :string)
   end
 
   object :post do

@@ -31,12 +31,12 @@ defmodule GroupherServer.CMS.Delegate.Document do
 
         ArticleDocument |> ORM.create(document_attrs)
       end)
-      |> Multi.run(:create_domain_document, fn _, _ ->
-        domain_attrs = attrs |> Map.put(foreign_key(article_thread), article.id)
+      |> Multi.run(:create_thread_document, fn _, _ ->
+        attrs = attrs |> Map.put(foreign_key(article_thread), article.id)
 
         CMS.Model
         |> Module.concat("#{Recase.to_title(article_thread)}Document")
-        |> ORM.create(domain_attrs)
+        |> ORM.create(attrs)
       end)
       |> Repo.transaction()
       |> result()
@@ -44,12 +44,12 @@ defmodule GroupherServer.CMS.Delegate.Document do
   end
 
   @doc """
-  update both article and domain document
+  update both article and thread document
   """
   def update(article, %{body: body} = attrs) when not is_nil(body) do
     with {:ok, article_thread} <- thread_of_article(article, :upcase),
          {:ok, article_doc} <- find_article_document(article_thread, article),
-         {:ok, domain_doc} <- find_domain_document(article_thread, article),
+         {:ok, thread_doc} <- find_thread_document(article_thread, article),
          {:ok, parsed} <- Converter.Article.parse_body(body) do
       attrs = Map.take(parsed, [:body, :body_html])
 
@@ -60,8 +60,8 @@ defmodule GroupherServer.CMS.Delegate.Document do
           false -> article_doc |> ORM.update(attrs)
         end
       end)
-      |> Multi.run(:update_domain_document, fn _, _ ->
-        domain_doc |> ORM.update(attrs)
+      |> Multi.run(:update_thread_document, fn _, _ ->
+        thread_doc |> ORM.update(attrs)
       end)
       |> Repo.transaction()
       |> result()
@@ -82,7 +82,7 @@ defmodule GroupherServer.CMS.Delegate.Document do
     ORM.find_by(ArticleDocument, %{article_id: article.id, thread: article_thread})
   end
 
-  defp find_domain_document(article_thread, article) do
+  defp find_thread_document(article_thread, article) do
     CMS.Model
     |> Module.concat("#{Recase.to_title(article_thread)}Document")
     |> ORM.find_by(Map.put(%{}, foreign_key(article_thread), article.id))
@@ -103,7 +103,7 @@ defmodule GroupherServer.CMS.Delegate.Document do
     :"#{thread_atom}_id"
   end
 
-  defp result({:ok, %{create_domain_document: result}}), do: {:ok, result}
+  defp result({:ok, %{create_thread_document: result}}), do: {:ok, result}
   defp result({:ok, %{update_article_document: result}}), do: {:ok, result}
 
   defp result({:error, _, _result, _steps}) do

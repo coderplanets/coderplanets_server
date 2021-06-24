@@ -49,6 +49,9 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       pagedPosts(filter: $filter) {
         entries {
           id
+          document {
+            bodyHtml
+          }
           communities {
             id
             raw
@@ -72,6 +75,20 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       assert results["pageSize"] == 10
       assert results["totalCount"] == @total_count
       assert results["entries"] |> List.first() |> Map.get("articleTags") |> is_list
+    end
+
+    test "should get valid thread document", ~m(guest_conn)a do
+      {:ok, user} = db_insert(:user)
+      {:ok, community} = db_insert(:community)
+      post_attrs = mock_attrs(:post, %{community_id: community.id})
+      {:ok, _post} = CMS.create_article(community, :post, post_attrs, user)
+
+      variables = %{filter: %{page: 1, size: 10}}
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+
+      post = results["entries"] |> List.first()
+
+      assert not is_nil(get_in(post, ["document", "bodyHtml"]))
     end
 
     test "support article_tag filter", ~m(guest_conn user)a do

@@ -48,6 +48,9 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       pagedJobs(filter: $filter) {
         entries {
           id
+          document {
+            bodyHtml
+          }
           communities {
             id
             raw
@@ -71,6 +74,20 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert results["pageSize"] == 10
       assert results["totalCount"] == @total_count
       assert results["entries"] |> List.first() |> Map.get("articleTags") |> is_list
+    end
+
+    # @tag :wip
+    test "should get valid thread document", ~m(guest_conn)a do
+      {:ok, user} = db_insert(:user)
+      {:ok, community} = db_insert(:community)
+      job_attrs = mock_attrs(:job, %{community_id: community.id})
+      {:ok, _job} = CMS.create_article(community, :job, job_attrs, user)
+
+      variables = %{filter: %{page: 1, size: 10}}
+      results = guest_conn |> query_result(@query, variables, "pagedJobs")
+
+      job = results["entries"] |> List.first()
+      assert not is_nil(get_in(job, ["document", "bodyHtml"]))
     end
 
     test "support article_tag filter", ~m(guest_conn user)a do
@@ -318,7 +335,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       pagedJobs(filter: $filter) {
         entries {
           id
-          body
           company
           views
           inserted_at

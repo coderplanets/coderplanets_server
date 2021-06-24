@@ -5,7 +5,7 @@ defmodule GroupherServer.Test.Articles.Blog do
   alias Helper.Converter.{EditorToHTML, HtmlSanitizer}
 
   alias EditorToHTML.{Class, Validator}
-  alias CMS.Model.{Author, Blog, Community}
+  alias CMS.Model.{Author, Blog, Community, ArticleDocument, BlogDocument}
   alias Helper.ORM
 
   @root_class Class.article()
@@ -146,6 +146,48 @@ defmodule GroupherServer.Test.Articles.Blog do
 
       {:error, reason} = CMS.undo_sink_article(:blog, blog_last_year.id)
       is_error?(reason, :undo_sink_old_article)
+    end
+  end
+
+  describe "[cms blog document]" do
+    @tag :wip
+    test "will create related document after create", ~m(user community blog_attrs)a do
+      {:ok, blog} = CMS.create_article(community, :blog, blog_attrs, user)
+      {:ok, blog} = CMS.read_article(:blog, blog.id)
+      assert not is_nil(blog.document.body_html)
+      {:ok, blog} = CMS.read_article(:blog, blog.id, user)
+      assert not is_nil(blog.document.body_html)
+
+      {:ok, article_doc} = ORM.find_by(ArticleDocument, %{article_id: blog.id, thread: "BLOG"})
+      {:ok, blog_doc} = ORM.find_by(BlogDocument, %{blog_id: blog.id})
+
+      assert blog.document.body == blog_doc.body
+      assert article_doc.body == blog_doc.body
+    end
+
+    test "delete blog should also delete related document", ~m(user community blog_attrs)a do
+      {:ok, blog} = CMS.create_article(community, :blog, blog_attrs, user)
+      {:ok, _article_doc} = ORM.find_by(ArticleDocument, %{article_id: blog.id, thread: "BLOG"})
+      {:ok, _blog_doc} = ORM.find_by(BlogDocument, %{blog_id: blog.id})
+
+      CMS.remove_article(:blog, blog.id)
+
+      {:error, _} = ORM.find(Blog, blog.id)
+      {:error, _} = ORM.find_by(ArticleDocument, %{article_id: blog.id, thread: "BLOG"})
+      {:error, _} = ORM.find_by(BlogDocument, %{blog_id: blog.id})
+    end
+
+    test "update blog should also update related document", ~m(user community blog_attrs)a do
+      {:ok, blog} = CMS.create_article(community, :blog, blog_attrs, user)
+
+      body = mock_rich_text(~s(new content))
+      {:ok, blog} = CMS.update_article(blog, %{body: body})
+
+      {:ok, article_doc} = ORM.find_by(ArticleDocument, %{article_id: blog.id, thread: "BLOG"})
+      {:ok, blog_doc} = ORM.find_by(BlogDocument, %{blog_id: blog.id})
+
+      assert String.contains?(blog_doc.body, "new content")
+      assert String.contains?(article_doc.body, "new content")
     end
   end
 end

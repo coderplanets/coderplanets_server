@@ -5,7 +5,7 @@ defmodule GroupherServer.Test.Articles.Job do
   alias Helper.Converter.{EditorToHTML, HtmlSanitizer}
 
   alias EditorToHTML.{Class, Validator}
-  alias CMS.Model.{Author, Job, Community}
+  alias CMS.Model.{Author, Job, Community, ArticleDocument, JobDocument}
 
   alias Helper.ORM
 
@@ -147,6 +147,48 @@ defmodule GroupherServer.Test.Articles.Job do
 
       {:error, reason} = CMS.undo_sink_article(:job, job_last_year.id)
       is_error?(reason, :undo_sink_old_article)
+    end
+  end
+
+  describe "[cms job document]" do
+    @tag :wip
+    test "will create related document after create", ~m(user community job_attrs)a do
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
+      {:ok, job} = CMS.read_article(:job, job.id)
+      assert not is_nil(job.document.body_html)
+      {:ok, job} = CMS.read_article(:job, job.id, user)
+      assert not is_nil(job.document.body_html)
+
+      {:ok, article_doc} = ORM.find_by(ArticleDocument, %{article_id: job.id, thread: "JOB"})
+      {:ok, job_doc} = ORM.find_by(JobDocument, %{job_id: job.id})
+
+      assert job.document.body == job_doc.body
+      assert article_doc.body == job_doc.body
+    end
+
+    test "delete job should also delete related document", ~m(user community job_attrs)a do
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
+      {:ok, _article_doc} = ORM.find_by(ArticleDocument, %{article_id: job.id, thread: "JOB"})
+      {:ok, _job_doc} = ORM.find_by(JobDocument, %{job_id: job.id})
+
+      CMS.remove_article(:job, job.id)
+
+      {:error, _} = ORM.find(Job, job.id)
+      {:error, _} = ORM.find_by(ArticleDocument, %{article_id: job.id, thread: "JOB"})
+      {:error, _} = ORM.find_by(JobDocument, %{job_id: job.id})
+    end
+
+    test "update job should also update related document", ~m(user community job_attrs)a do
+      {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
+
+      body = mock_rich_text(~s(new content))
+      {:ok, job} = CMS.update_article(job, %{body: body})
+
+      {:ok, article_doc} = ORM.find_by(ArticleDocument, %{article_id: job.id, thread: "JOB"})
+      {:ok, job_doc} = ORM.find_by(JobDocument, %{job_id: job.id})
+
+      assert String.contains?(job_doc.body, "new content")
+      assert String.contains?(article_doc.body, "new content")
     end
   end
 end

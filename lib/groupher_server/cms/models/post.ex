@@ -15,7 +15,7 @@ defmodule GroupherServer.CMS.Model.Post do
 
   @timestamps_opts [type: :utc_datetime_usec]
 
-  @required_fields ~w(title body digest length)a
+  @required_fields ~w(title digest length)a
   @article_cast_fields general_article_cast_fields()
   @optional_fields ~w(link_addr copy_right is_question is_solved solution_digest)a ++
                      @article_cast_fields
@@ -55,7 +55,6 @@ defmodule GroupherServer.CMS.Model.Post do
     changeset
     |> validate_length(:title, min: 3, max: 50)
     |> cast_embed(:emotions, with: &Embeds.ArticleEmotion.changeset/2)
-    |> validate_length(:body, min: 3, max: 10_000)
     |> validate_length(:link_addr, min: 5, max: 400)
     |> HTML.safe_string(:body)
   end

@@ -66,6 +66,8 @@ config :groupher_server, :customization,
   sidebar_communities_index: %{}
 
 config :groupher_server, :article,
+  min_length: 10,
+  max_length: 20_000,
   # NOTE: do not change unless you know what you are doing
   threads: [:post, :job, :repo, :blog],
   # in this period, paged articles will sort front if non-article-author commented

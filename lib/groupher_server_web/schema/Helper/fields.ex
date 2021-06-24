@@ -20,6 +20,7 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
       field(:title, :string)
       # TODO: use document
       field(:body, :string)
+      field(:document, :thread_document, resolve: dataloader(CMS, :document))
       field(:digest, :string)
       field(:views, :integer)
       field(:is_pinned, :boolean)
@@ -112,7 +113,7 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
       &quote do
         field(unquote(:"#{&1}_count"), :integer)
         field(unquote(:"viewer_has_#{&1}ed"), :boolean)
-        field(unquote(:"latest_#{&1}_users"), list_of(:simple_user))
+        field(unquote(:"latest_#{&1}_users"), list_of(:common_user))
       end
     )
   end
@@ -123,7 +124,7 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
       &quote do
         field(unquote(:"#{&1}_count"), :integer)
         field(unquote(:"viewer_has_#{&1}ed"), :boolean)
-        field(unquote(:"latest_#{&1}_users"), list_of(:simple_user))
+        field(unquote(:"latest_#{&1}_users"), list_of(:common_user))
       end
     )
   end

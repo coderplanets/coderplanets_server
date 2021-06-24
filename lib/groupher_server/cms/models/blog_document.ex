@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Model.ArticleDocument do
+defmodule GroupherServer.CMS.Model.BlogDocument do
   @moduledoc """
   mainly for full-text search
   """
@@ -8,45 +8,39 @@ defmodule GroupherServer.CMS.Model.ArticleDocument do
   use Accessible
 
   import Ecto.Changeset
-  import GroupherServer.CMS.Helper.Macros
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.CMS
-  alias CMS.Model.Embeds
-
-  alias Helper.HTML
+  alias CMS.Model.{Embeds, Blog}
 
   @timestamps_opts [type: :utc_datetime_usec]
 
   @max_body_length get_config(:article, :max_length)
   @min_body_length get_config(:article, :min_length)
 
-  @required_fields ~w(thread title article_id body body_html)a
+  @required_fields ~w(body body_html blog_id)a
   @optional_fields []
 
-  @type t :: %ArticleDocument{}
-  schema "article_documents" do
-    field(:thread, :string)
-    field(:title, :string)
-    field(:article_id, :id)
+  @type t :: %BlogDocument{}
+  schema "blog_documents" do
+    belongs_to(:blog, Blog, foreign_key: :blog_id)
+
     field(:body, :string)
     field(:body_html, :string)
-    # TODO: 分词数据
-
-    timestamps()
+    field(:toc, :map)
   end
 
   @doc false
-  def changeset(%ArticleDocument{} = doc, attrs) do
-    doc
+  def changeset(%BlogDocument{} = blog, attrs) do
+    blog
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
     |> validate_length(:body, min: @min_body_length, max: @max_body_length)
   end
 
   @doc false
-  def update_changeset(%ArticleDocument{} = doc, attrs) do
-    doc
+  def update_changeset(%BlogDocument{} = blog, attrs) do
+    blog
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_length(:body, min: @min_body_length, max: @max_body_length)
   end
