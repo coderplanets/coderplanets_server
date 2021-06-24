@@ -194,6 +194,7 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
   input_object :paged_blogs_filter do
     pagination_args()
     article_filter_fields()
+    field(:sort, :sort_enum)
   end
 
   @desc "article_filter doc"

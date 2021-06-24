@@ -24,7 +24,6 @@ defmodule GroupherServer.Test.Articles.Repo do
   end
 
   describe "[cms repo curd]" do
-    @tag :wip
     test "can create repo with valid attrs", ~m(user community repo_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
       {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)

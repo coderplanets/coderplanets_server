@@ -76,6 +76,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedBlogs do
       assert results["entries"] |> List.first() |> Map.get("articleTags") |> is_list
     end
 
+
     test "should get valid thread document", ~m(guest_conn)a do
       {:ok, user} = db_insert(:user)
       {:ok, community} = db_insert(:community)
@@ -314,6 +315,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedBlogs do
       }
     }
     """
+
     test "filter sort MOST_VIEWS should work", ~m(guest_conn)a do
       most_views_blog = Blog |> order_by(desc: :views) |> limit(1) |> Repo.one()
       variables = %{filter: %{sort: "MOST_VIEWS"}}
