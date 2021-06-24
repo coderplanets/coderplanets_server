@@ -165,7 +165,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
              |> String.contains?(~s(updated body #{unique_num}))
     end
 
-    @tag :wip2
     test "login user with auth passport update a job", ~m(job)a do
       job = job |> Repo.preload(:communities)
 
@@ -217,7 +216,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       assert {:error, _} = ORM.find(Job, deleted["id"])
     end
 
-    @tag :wip2
     test "can delete a job by auth user", ~m(job)a do
       job = job |> Repo.preload(:communities)
       belongs_community_title = job.communities |> List.first() |> Map.get(:title)

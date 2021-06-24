@@ -139,7 +139,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert {:error, _} = ORM.find(Post, deleted["id"])
     end
 
-    @tag :wip2
     test "can delete a post by auth user", ~m(post)a do
       post = post |> Repo.preload(:communities)
       belongs_community_title = post.communities |> List.first() |> Map.get(:title)
@@ -247,7 +246,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert true == updated_post["meta"]["isEdited"]
     end
 
-    @tag :wip2
     test "login user with auth passport update a post", ~m(post)a do
       post = post |> Repo.preload(:communities)
       belongs_community_title = post.communities |> List.first() |> Map.get(:title)

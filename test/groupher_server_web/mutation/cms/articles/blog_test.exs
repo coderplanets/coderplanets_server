@@ -162,7 +162,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
              |> String.contains?(~s(updated body #{unique_num}))
     end
 
-    @tag :wip2
     test "login user with auth passport update a blog", ~m(blog)a do
       blog = blog |> Repo.preload(:communities)
 
@@ -214,7 +213,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       assert {:error, _} = ORM.find(Blog, deleted["id"])
     end
 
-    @tag :wip2
     test "can delete a blog by auth user", ~m(blog)a do
       blog = blog |> Repo.preload(:communities)
       belongs_community_title = blog.communities |> List.first() |> Map.get(:title)

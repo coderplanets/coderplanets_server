@@ -27,7 +27,6 @@ defmodule GroupherServer.Test.Query.Articles.Job do
     assert length(Map.keys(results)) == 3
   end
 
-  @tag :wip
   test "basic graphql query on job with stranger(unloged user)", ~m(guest_conn job)a do
     variables = %{id: job.id}
     results = guest_conn |> query_result(@query, variables, "job")
