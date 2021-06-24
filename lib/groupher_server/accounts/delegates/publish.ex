@@ -38,7 +38,8 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
       articles_count = paged_published_articles.total_count
 
       meta =
-        ensure(user.meta, @default_meta) |> Map.put(:"published_#{thread}s_count", articles_count)
+        ensure(user.meta, @default_meta)
+        |> Map.put(:"published_#{thread}s_count", articles_count)
 
       ORM.update_meta(user, meta)
     end
