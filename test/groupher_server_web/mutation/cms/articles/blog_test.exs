@@ -40,7 +40,9 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
         ) {
           id
           title
-          body
+          document {
+            bodyHtml
+          }
           originalCommunity {
             id
           }
@@ -85,6 +87,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       assert exist_in?(%{id: article_tag.id}, blog.article_tags)
     end
 
+    @tag :wip
     test "create blog should excape xss attracts" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -93,12 +96,15 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
 
       blog_attr = mock_attrs(:blog, %{body: mock_xss_string()})
       variables = blog_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
-      created = user_conn |> mutation_result(@create_blog_query, variables, "createBlog")
-      {:ok, blog} = ORM.find(Blog, created["id"])
+      result = user_conn |> mutation_result(@create_blog_query, variables, "createBlog")
 
-      assert not String.contains?(blog.body_html, "script")
+      {:ok, blog} = ORM.find(Blog, result["id"], preload: :document)
+      body_html = blog |> get_in([:document, :body_html])
+
+      assert not String.contains?(body_html, "script")
     end
 
+    @tag :wip
     test "create blog should excape xss attracts 2" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -107,10 +113,11 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
 
       blog_attr = mock_attrs(:blog, %{body: mock_xss_string(:safe)})
       variables = blog_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
-      created = user_conn |> mutation_result(@create_blog_query, variables, "createBlog")
-      {:ok, blog} = ORM.find(Blog, created["id"])
+      result = user_conn |> mutation_result(@create_blog_query, variables, "createBlog")
+      {:ok, blog} = ORM.find(Blog, result["id"], preload: :document)
+      body_html = blog |> get_in([:document, :body_html])
 
-      assert String.contains?(blog.body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
+      assert String.contains?(body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
     end
 
     @query """
@@ -139,7 +146,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
     end
 
-    @tag :wip
     test "blog can be update by owner", ~m(owner_conn blog)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 

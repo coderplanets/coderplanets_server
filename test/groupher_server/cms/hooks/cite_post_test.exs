@@ -28,7 +28,6 @@ defmodule GroupherServer.Test.CMS.Hooks.CitePost do
   end
 
   describe "[cite basic]" do
-    @tag :wip
     test "cited multi post should work", ~m(user community post2 post3 post4 post5 post_attrs)a do
       body =
         mock_rich_text(

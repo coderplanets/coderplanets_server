@@ -38,8 +38,11 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
         communityId: $communityId
         articleTags: $articleTags
       ) {
-        title
         id
+        title
+        document {
+          bodyHtml
+        }
         originalCommunity {
           id
         }
@@ -78,6 +81,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert exist_in?(%{id: article_tag.id}, post.article_tags)
     end
 
+    @tag :wip
     test "create post should excape xss attracts" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -86,12 +90,14 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
 
       post_attr = mock_attrs(:post, %{body: mock_xss_string()})
       variables = post_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
-      created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
-      {:ok, post} = ORM.find(Post, created["id"])
+      result = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+      {:ok, post} = ORM.find(Post, result["id"], preload: :document)
+      body_html = post |> get_in([:document, :body_html])
 
-      assert not String.contains?(post.body_html, "script")
+      assert not String.contains?(body_html, "script")
     end
 
+    @tag :wip
     test "create post should excape xss attracts 2" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -100,10 +106,11 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
 
       post_attr = mock_attrs(:post, %{body: mock_xss_string(:safe)})
       variables = post_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
-      created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
-      {:ok, post} = ORM.find(Post, created["id"])
+      result = user_conn |> mutation_result(@create_post_query, variables, "createPost")
+      {:ok, post} = ORM.find(Post, result["id"], preload: :document)
+      body_html = post |> get_in([:document, :body_html])
 
-      assert String.contains?(post.body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
+      assert String.contains?(body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
     end
 
     # NOTE: this test is IMPORTANT, cause json_codec: Jason in router will cause
@@ -204,7 +211,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
     end
 
-    @tag :wip
     test "post can be update by owner", ~m(owner_conn post)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
