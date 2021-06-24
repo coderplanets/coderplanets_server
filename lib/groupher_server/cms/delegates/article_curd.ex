@@ -352,6 +352,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end)
     |> Multi.run(:delete_document, fn _, _ ->
       Document.remove(thread, article.id)
+      # for those history & test setup case
+      {:ok, :pass}
     end)
     # TODO: notify author
     |> Repo.transaction()

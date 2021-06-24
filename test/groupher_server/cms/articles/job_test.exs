@@ -169,7 +169,6 @@ defmodule GroupherServer.Test.Articles.Job do
       assert article_doc.body == job_doc.body
     end
 
-    @tag :wip
     test "delete job should also delete related document", ~m(user community job_attrs)a do
       {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
       {:ok, _article_doc} = ORM.find_by(ArticleDocument, %{article_id: job.id, thread: "JOB"})
