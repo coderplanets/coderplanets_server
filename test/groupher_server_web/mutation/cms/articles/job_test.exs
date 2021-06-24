@@ -7,9 +7,11 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
   alias CMS.Model.Job
 
   setup do
-    {:ok, job} = db_insert(:job)
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
+
+    job_attrs = mock_attrs(:job, %{community_id: community.id})
+    {:ok, job} = CMS.create_article(community, :job, job_attrs, user)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
@@ -118,8 +120,9 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       updateJob(id: $id, title: $title, body: $body, articleTags: $articleTags) {
         id
         title
-        body
-        bodyHtml
+        document {
+          bodyHtml
+        }
         articleTags {
           id
         }
@@ -138,6 +141,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
     end
 
+    @tag :wip
     test "job can be update by owner", ~m(owner_conn job)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
@@ -147,10 +151,13 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
         body: mock_rich_text("updated body #{unique_num}")
       }
 
-      updated = owner_conn |> mutation_result(@query, variables, "updateJob")
+      result = owner_conn |> mutation_result(@query, variables, "updateJob")
 
-      assert updated["title"] == variables.title
-      assert updated["bodyHtml"] |> String.contains?(~s(updated body #{unique_num}))
+      assert result["title"] == variables.title
+
+      assert result
+             |> get_in(["document", "bodyHtml"])
+             |> String.contains?(~s(updated body #{unique_num}))
     end
 
     test "login user with auth passport update a job", ~m(job)a do

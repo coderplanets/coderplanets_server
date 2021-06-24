@@ -7,9 +7,11 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
   alias CMS.Model.Blog
 
   setup do
-    {:ok, blog} = db_insert(:blog)
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
+
+    blog_attrs = mock_attrs(:blog, %{community_id: community.id})
+    {:ok, blog} = CMS.create_article(community, :blog, blog_attrs, user)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
@@ -116,15 +118,15 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       updateBlog(id: $id, title: $title, body: $body, articleTags: $articleTags) {
         id
         title
-        body
-        bodyHtml
+        document {
+          bodyHtml
+        }
         articleTags {
           id
         }
       }
     }
     """
-
     test "update a blog without login user fails", ~m(guest_conn blog)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
@@ -137,6 +139,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
     end
 
+    @tag :wip
     test "blog can be update by owner", ~m(owner_conn blog)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
@@ -146,10 +149,13 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
         body: mock_rich_text("updated body #{unique_num}")
       }
 
-      updated = owner_conn |> mutation_result(@query, variables, "updateBlog")
+      result = owner_conn |> mutation_result(@query, variables, "updateBlog")
 
-      assert updated["title"] == variables.title
-      assert updated["bodyHtml"] |> String.contains?(~s(updated body #{unique_num}))
+      assert result["title"] == variables.title
+
+      assert result
+             |> get_in(["document", "bodyHtml"])
+             |> String.contains?(~s(updated body #{unique_num}))
     end
 
     test "login user with auth passport update a blog", ~m(blog)a do

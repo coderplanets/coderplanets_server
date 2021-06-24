@@ -2,14 +2,16 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
   use GroupherServer.TestTools
 
   alias Helper.ORM
-  alias GroupherServer.CMS
+  alias GroupherServer.{CMS, Repo}
 
   alias CMS.Model.{Post, Author}
 
   setup do
-    {:ok, post} = db_insert(:post)
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
+
+    post_attrs = mock_attrs(:post, %{community_id: community.id})
+    {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
     guest_conn = simu_conn(:guest)
     user_conn = simu_conn(:user)
@@ -37,7 +39,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
         articleTags: $articleTags
       ) {
         title
-        body
         id
         originalCommunity {
           id
@@ -173,8 +174,9 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       updatePost(id: $id, title: $title, body: $body, copyRight: $copyRight, articleTags: $articleTags) {
         id
         title
-        body
-        bodyHtml
+        document {
+          bodyHtml
+        }
         copyRight
         meta {
           isEdited
@@ -202,6 +204,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
     end
 
+    @tag :wip
     test "post can be update by owner", ~m(owner_conn post)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
@@ -213,11 +216,14 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
         copyRight: "translate"
       }
 
-      updated_post = owner_conn |> mutation_result(@query, variables, "updatePost")
+      result = owner_conn |> mutation_result(@query, variables, "updatePost")
+      assert result["title"] == variables.title
 
-      assert updated_post["title"] == variables.title
-      assert updated_post["bodyHtml"] |> String.contains?(~s(updated body #{unique_num}))
-      assert updated_post["copyRight"] == variables.copyRight
+      assert result
+             |> get_in(["document", "bodyHtml"])
+             |> String.contains?(~s(updated body #{unique_num}))
+
+      assert result["copyRight"] == variables.copyRight
     end
 
     test "update post with valid attrs should have is_edited meta info update",
