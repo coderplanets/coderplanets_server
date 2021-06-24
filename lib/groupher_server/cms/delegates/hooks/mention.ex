@@ -27,6 +27,12 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Mention do
     end
   end
 
+  def handle(%{document: document} = article) do
+    body = Repo.preload(article, :document) |> get_in([:document, :body])
+    article = article |> Map.put(:body, body)
+    handle(article)
+  end
+
   defp handle_mentions(mentions, artiment) do
     with {:ok, author} <- author_of(artiment) do
       Delivery.send(:mention, artiment, mentions, author)
