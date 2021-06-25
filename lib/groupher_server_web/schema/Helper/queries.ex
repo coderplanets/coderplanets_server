@@ -81,4 +81,7 @@ defmodule GroupherServerWeb.Schema.Helper.Queries do
       end
     end
   end
+
+  def thread_plural(:works), do: :works
+  def thread_plural(thread), do: :"#{thread}s"
 end

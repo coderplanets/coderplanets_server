@@ -1,20 +1,19 @@
-defmodule GroupherServerWeb.Schema.CMS.Mutations.Blog do
+defmodule GroupherServerWeb.Schema.CMS.Mutations.Works do
   @moduledoc """
-  CMS mutations for blog
+  CMS mutations for works
   """
   use Helper.GqlSchemaSuite
   import GroupherServerWeb.Schema.Helper.Mutations
 
-  object :cms_blog_mutations do
-    @desc "create a blog"
-    field :create_blog, :blog do
+  object :cms_works_mutations do
+    @desc "create a works"
+    field :create_works, :works do
       arg(:title, non_null(:string))
       arg(:body, non_null(:string))
       arg(:digest, non_null(:string))
-      arg(:length, :integer)
       arg(:community_id, non_null(:id))
       arg(:link_addr, :string)
-      arg(:thread, :thread, default_value: :blog)
+      arg(:thread, :thread, default_value: :works)
       arg(:article_tags, list_of(:id))
 
       middleware(M.Authorize, :login)
@@ -23,35 +22,32 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Blog do
       middleware(M.Statistics.MakeContribute, for: [:user, :community])
     end
 
-    @desc "update a cms/blog"
-    field :update_blog, :blog do
+    @desc "update a cms/works"
+    field :update_works, :works do
       arg(:id, non_null(:id))
       arg(:title, :string)
       arg(:body, :string)
       arg(:digest, :string)
-      arg(:length, :integer)
-      arg(:link_addr, :string)
 
       arg(:article_tags, list_of(:id))
-
       # ...
 
       middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :blog)
-      middleware(M.Passport, claim: "owner;cms->c?->blog.edit")
+      middleware(M.PassportLoader, source: :works)
+      middleware(M.Passport, claim: "owner;cms->c?->works.edit")
 
       resolve(&R.CMS.update_article/3)
     end
 
     #############
-    article_upvote_mutation(:blog)
-    article_pin_mutation(:blog)
-    article_mark_delete_mutation(:blog)
-    article_delete_mutation(:blog)
-    article_emotion_mutation(:blog)
-    article_report_mutation(:blog)
-    article_sink_mutation(:blog)
-    article_lock_comment_mutation(:blog)
+    article_upvote_mutation(:works)
+    article_pin_mutation(:works)
+    article_mark_delete_mutation(:works)
+    article_delete_mutation(:works)
+    article_emotion_mutation(:works)
+    article_report_mutation(:works)
+    article_sink_mutation(:works)
+    article_lock_comment_mutation(:works)
     #############
   end
 end

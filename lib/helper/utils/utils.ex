@@ -50,6 +50,12 @@ defmodule Helper.Utils do
   end
 
   @doc """
+  get plural version of a thread
+  """
+  def thread_plural(:works), do: :works
+  def thread_plural(thread), do: :"#{thread}s"
+
+  @doc """
   like || in javascript
   """
   def ensure(nil, default_data), do: default_data
