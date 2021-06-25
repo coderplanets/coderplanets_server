@@ -26,7 +26,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       $title: String!,
       $body: String,
       $digest: String!,
-      $length: Int,
       $communityId: ID!,
       $articleTags: [Id]
      ) {
@@ -34,7 +33,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
         title: $title,
         body: $body,
         digest: $digest,
-        length: $length,
         communityId: $communityId,
         articleTags: $articleTags
         ) {
@@ -82,6 +80,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
         works_attr |> Map.merge(%{communityId: community.id, articleTags: [article_tag.id]})
 
       created = user_conn |> mutation_result(@create_works_query, variables, "createWorks")
+
       {:ok, works} = ORM.find(Works, created["id"], preload: :article_tags)
 
       assert exist_in?(%{id: article_tag.id}, works.article_tags)
