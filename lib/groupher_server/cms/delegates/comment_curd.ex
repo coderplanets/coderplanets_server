@@ -13,13 +13,14 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   import ShortMaps
 
   alias Helper.Types, as: T
-  alias Helper.{Later, ORM, QueryBuilder, Converter}
   alias GroupherServer.{Accounts, CMS, Repo}
-  alias CMS.Model.Post
-  alias CMS.Delegate.Hooks
 
   alias Accounts.Model.User
-  alias CMS.Model.{Comment, PinnedComment, Embeds}
+  alias CMS.Model.{Post, Comment, PinnedComment, Embeds}
+
+  alias CMS.Delegate.Hooks
+  alias Helper.{Later, ORM, QueryBuilder, Converter}
+
   alias Ecto.Multi
 
   @max_participator_count Comment.max_participator_count()
