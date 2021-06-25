@@ -13,11 +13,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       module_to_atom: 1,
       get_config: 2,
       ensure: 2,
-      module_to_upcase: 1,
-      thread_of_article: 1
+      module_to_upcase: 1
     ]
 
-  import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 2]
+  import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 2, thread_of: 1]
   import Helper.ErrorCode
   import ShortMaps
 
@@ -353,7 +352,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   """
   def delete_article(article, reason \\ @remove_article_hint) do
     article = Repo.preload(article, [:communities, [author: :user]])
-    {:ok, thread} = thread_of_article(article)
+    {:ok, thread} = thread_of(article)
 
     Multi.new()
     |> Multi.run(:delete_article, fn _, _ ->

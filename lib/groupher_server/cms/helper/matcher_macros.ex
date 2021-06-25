@@ -59,36 +59,4 @@ defmodule GroupherServer.CMS.Helper.MatcherMacros do
       end
     end)
   end
-
-  @doc """
-  mapping basic comment -> thread
-
-  {:ok, info} <- match(:comment_article, %Comment{post_id: id} = comment)
-  info:
-  %{
-    id: id,
-    model: CMS.Model.Post,
-    foreign_key: :post_id,
-  }
-  """
-  defmacro comment_article_matches() do
-    @article_threads
-    |> Enum.map(fn thread ->
-      # def match(:comment_article, %Comment{post_id: id})
-      quote do
-        # see https://elixirforum.com/t/generate-map-pattern-matching-functions/21928/2
-        def match(:comment_article, %Comment{unquote(:"#{thread}_id") => id})
-            when not is_nil(id) do
-          thread_module = unquote(thread) |> to_string |> Recase.to_pascal()
-
-          {:ok,
-           %{
-             id: id,
-             model: Module.concat(CMS.Model, thread_module),
-             foreign_key: unquote(:"#{thread}_id")
-           }}
-        end
-      end
-    end)
-  end
 end

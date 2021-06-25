@@ -11,11 +11,6 @@ defmodule GroupherServer.CMS.Model.ArticleDocument do
   import GroupherServer.CMS.Helper.Macros
   import Helper.Utils, only: [get_config: 2]
 
-  alias GroupherServer.CMS
-  alias CMS.Model.Embeds
-
-  alias Helper.HTML
-
   @timestamps_opts [type: :utc_datetime_usec]
 
   @max_body_length get_config(:article, :max_length)

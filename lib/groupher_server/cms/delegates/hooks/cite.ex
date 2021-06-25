@@ -29,9 +29,10 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
   """
 
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [get_config: 2, thread_of_article: 1]
+  import Helper.Utils, only: [get_config: 2]
+
   import GroupherServer.CMS.Helper.Matcher
-  import GroupherServer.CMS.Delegate.Helper, only: [preload_author: 1]
+  import GroupherServer.CMS.Delegate.Helper, only: [preload_author: 1, thread_of: 1]
   import GroupherServer.CMS.Delegate.Hooks.Helper, only: [merge_same_block_linker: 2]
 
   import Helper.ErrorCode
@@ -221,7 +222,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
   # cite article in article
   # 文章之间相互引用
   defp shape(article, %{type: :article, artiment: cited}, block_id) do
-    {:ok, thread} = thread_of_article(article)
+    {:ok, thread} = thread_of(article)
     {:ok, info} = match(thread)
 
     %{
@@ -241,7 +242,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
   # cite comment in article
   # 文章中引用评论
   defp shape(article, %{type: :comment, artiment: cited}, block_id) do
-    {:ok, thread} = thread_of_article(article)
+    {:ok, thread} = thread_of(article)
     {:ok, info} = match(thread)
 
     %{

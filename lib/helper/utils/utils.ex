@@ -8,6 +8,7 @@ defmodule Helper.Utils do
 
   import Helper.Validator.Guards, only: [g_none_empty_str: 1]
 
+  alias GroupherServer.CMS
   alias Helper.{Cache, Utils}
 
   # Map utils
@@ -25,6 +26,8 @@ defmodule Helper.Utils do
   defdelegate stringfy(str), to: Utils.String
   defdelegate count_words(str), to: Utils.String
   defdelegate str_occurence(string, substr), to: Utils.String
+
+  defdelegate thread_of(artiment, opt), to: CMS.Delegate.Helper
 
   def get_config(section, key, app \\ :groupher_server)
 
@@ -207,17 +210,6 @@ defmodule Helper.Utils do
     rescue
       _ -> nil
     end
-  end
-
-  # get thread of article
-  def thread_of_article(%{meta: %{thread: thread}}) do
-    thread |> String.downcase() |> String.to_atom() |> done
-  end
-
-  def thread_of_article(_), do: {:error, "invalid article"}
-
-  def thread_of_article(%{meta: %{thread: thread}}, :upcase) do
-    thread |> to_string |> String.upcase() |> done
   end
 
   def to_upcase(v) when is_atom(v), do: v |> to_string |> String.upcase()

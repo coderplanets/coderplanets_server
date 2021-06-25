@@ -4,6 +4,8 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
   """
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1, strip_struct: 1, get_config: 2, ensure: 2]
+  import GroupherServer.CMS.Delegate.Helper, only: [article_of: 1, thread_of: 1]
+
   import Helper.ErrorCode
 
   import GroupherServer.CMS.Delegate.CommentCurd,
@@ -40,26 +42,25 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
          {:ok, info} <- match(full_comment.thread) do
       Multi.new()
       |> Multi.run(:checked_pined_comments_count, fn _, _ ->
-        {:ok, pined_comments_count} =
+        pined_comments_query =
           from(p in PinnedComment,
             where: field(p, ^info.foreign_key) == ^full_comment.article.id
           )
-          |> ORM.count()
 
-        case pined_comments_count >= @pinned_comment_limit do
-          true -> {:error, "max #{@pinned_comment_limit} pinned comment for each article"}
-          false -> {:ok, :pass}
+        with {:ok, pined_comments_count} <- ORM.count(pined_comments_query) do
+          case pined_comments_count >= @pinned_comment_limit do
+            true -> {:error, "max #{@pinned_comment_limit} pinned comment for each article"}
+            false -> {:ok, :pass}
+          end
         end
       end)
       |> Multi.run(:update_comment_flag, fn _, _ ->
         ORM.update(comment, %{is_pinned: true})
       end)
       |> Multi.run(:add_pined_comment, fn _, _ ->
-        PinnedComment
-        |> ORM.create(
-          %{comment_id: comment.id}
-          |> Map.put(info.foreign_key, full_comment.article.id)
-        )
+        attrs = %{comment_id: comment.id} |> Map.put(info.foreign_key, full_comment.article.id)
+
+        PinnedComment |> ORM.create(attrs)
       end)
       |> Repo.transaction()
       |> result()
@@ -81,21 +82,19 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
   end
 
   @doc "fold a comment"
-  def fold_comment(%Comment{} = comment, %User{} = _user) do
-    comment |> ORM.update(%{is_folded: true})
-  end
+  def fold_comment(%Comment{} = comment, %User{} = _user), do: do_fold_comment(comment, true)
 
-  @doc "fold a comment"
+  @doc "fold a comment by id"
   def fold_comment(comment_id, %User{} = _user) do
     with {:ok, comment} <- ORM.find(Comment, comment_id) do
-      comment |> ORM.update(%{is_folded: true})
+      do_fold_comment(comment, true)
     end
   end
 
   @doc "unfold a comment"
   def unfold_comment(comment_id, %User{} = _user) do
     with {:ok, comment} <- ORM.find(Comment, comment_id) do
-      comment |> ORM.update(%{is_folded: false})
+      do_fold_comment(comment, false)
     end
   end
 
@@ -249,6 +248,26 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
     end
   end
 
+  # do (un)fold and update folded count in article meta
+  defp do_fold_comment(%Comment{} = comment, is_folded) when is_boolean(is_folded) do
+    Multi.new()
+    |> Multi.run(:fold_comment, fn _, _ ->
+      comment |> ORM.update(%{is_folded: is_folded})
+    end)
+    |> Multi.run(:update_article_fold_count, fn _, _ ->
+      {:ok, article} = article_of(comment)
+      {:ok, article_thread} = thread_of(article)
+
+      {:ok, %{total_count: total_count}} =
+        CMS.paged_folded_comments(article_thread, article.id, %{page: 1, size: 1})
+
+      meta = article.meta |> Map.put(:folded_comment_count, total_count)
+      article |> ORM.update_meta(meta)
+    end)
+    |> Repo.transaction()
+    |> result()
+  end
+
   defp update_article_author_upvoted_info(%Comment{} = comment, user_id) do
     with {:ok, article} = get_full_comment(comment.id) do
       is_article_author_upvoted = article.author.id == user_id
@@ -367,9 +386,9 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
   defp result({:ok, %{create_comment: result}}), do: {:ok, result}
   defp result({:ok, %{add_reply_to: result}}), do: {:ok, result}
   defp result({:ok, %{upvote_comment_done: result}}), do: {:ok, result}
-  defp result({:ok, %{fold_comment_report_too_many: result}}), do: {:ok, result}
   defp result({:ok, %{update_comment_flag: result}}), do: {:ok, result}
   defp result({:ok, %{delete_comment: result}}), do: {:ok, result}
+  defp result({:ok, %{fold_comment: result}}), do: {:ok, result}
 
   defp result({:error, :create_comment, result, _steps}) do
     raise_error(:create_comment, result)

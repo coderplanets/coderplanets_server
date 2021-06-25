@@ -14,6 +14,7 @@ defmodule GroupherServer.CMS.Model.Embeds.ArticleMeta do
       thread: "POST",
       is_edited: false,
       is_comment_locked: false,
+      folded_comment_count: 0,
       upvoted_user_ids: [],
       collected_user_ids: [],
       viewed_user_ids: [],
@@ -30,6 +31,7 @@ defmodule GroupherServer.CMS.Model.Embeds.ArticleMeta do
     field(:thread, :string)
     field(:is_edited, :boolean, default: false)
     field(:is_comment_locked, :boolean, default: false)
+    field(:folded_comment_count, :integer, default: 0)
     # reaction history
     field(:upvoted_user_ids, {:array, :integer}, default: [])
     field(:collected_user_ids, {:array, :integer}, default: [])

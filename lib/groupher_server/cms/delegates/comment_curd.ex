@@ -6,18 +6,21 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   import Helper.Utils, only: [done: 1, ensure: 2]
   import Helper.ErrorCode
 
-  import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 3]
+  import GroupherServer.CMS.Delegate.Helper,
+    only: [mark_viewer_emotion_states: 3, article_of: 1, thread_of: 1]
+
   import GroupherServer.CMS.Helper.Matcher
   import ShortMaps
 
   alias Helper.Types, as: T
-  alias Helper.{Later, ORM, QueryBuilder, Converter}
   alias GroupherServer.{Accounts, CMS, Repo}
-  alias CMS.Model.Post
-  alias CMS.Delegate.Hooks
 
   alias Accounts.Model.User
-  alias CMS.Model.{Comment, PinnedComment, Embeds}
+  alias CMS.Model.{Post, Comment, PinnedComment, Embeds}
+
+  alias CMS.Delegate.Hooks
+  alias Helper.{Later, ORM, QueryBuilder, Converter}
+
   alias Ecto.Multi
 
   @max_participator_count Comment.max_participator_count()
@@ -259,10 +262,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   end
 
   # add participator to article-like(Post, Job ...) and update count
-  def add_participant_to_article(
-        %{comments_participants: participants} = article,
-        %User{} = user
-      ) do
+  def add_participant_to_article(%{comments_participants: participants} = article, %User{} = user) do
     total_participants = participants |> List.insert_at(0, user) |> Enum.uniq_by(& &1.id)
 
     latest_participants = total_participants |> Enum.slice(0, @max_participator_count)
@@ -280,10 +280,12 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   # update comment's parent article's comments total count
   @spec update_comments_count(Comment.t(), :inc | :dec) :: Comment.t()
   def update_comments_count(%Comment{} = comment, opt) do
-    with {:ok, article_info} <- match(:comment_article, comment),
-         {:ok, article} <- ORM.find(article_info.model, article_info.id) do
+    with {:ok, article} <- article_of(comment),
+         {:ok, article_thread} <- thread_of(article) do
+      foreign_key = :"#{article_thread}_id"
+
       {:ok, cur_count} =
-        from(c in Comment, where: field(c, ^article_info.foreign_key) == ^article_info.id)
+        from(c in Comment, where: field(c, ^foreign_key) == ^article.id)
         |> ORM.count()
 
       # dec 是 comment 还没有删除的时候的操作，和 inc 不同
