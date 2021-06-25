@@ -191,7 +191,16 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
     field(:sort, :sort_enum)
   end
 
+  @desc "blog_filter doc"
   input_object :paged_blogs_filter do
+    pagination_args()
+    article_filter_fields()
+    field(:sort, :sort_enum)
+  end
+
+  @desc "works_filter doc"
+  # TODO:
+  input_object :paged_workss_filter do
     pagination_args()
     article_filter_fields()
     field(:sort, :sort_enum)
