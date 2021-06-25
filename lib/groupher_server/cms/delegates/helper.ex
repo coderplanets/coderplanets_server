@@ -2,10 +2,10 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   @moduledoc """
   helpers for GroupherServer.CMS.Delegate
   """
-  import Helper.Utils, only: [get_config: 2, done: 1, strip_struct: 1]
   import Ecto.Query, warn: false
   import GroupherServer.CMS.Helper.Matcher
   import ShortMaps
+  import Helper.Utils, only: [get_config: 2, done: 1, strip_struct: 1]
 
   alias Helper.{ORM, QueryBuilder}
   alias GroupherServer.{Accounts, Repo, CMS}
@@ -42,13 +42,29 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   end
 
   @doc "get parent article of a comment"
-  def parent_article_of(%Comment{} = comment) do
-    article_thread = comment.thread |> String.downcase() |> String.to_atom()
-
-    comment |> Repo.preload(article_thread) |> Map.get(article_thread) |> done
+  def article_of(%Comment{} = comment) do
+    with {:ok, article_thread} <- thread_of(comment) do
+      comment |> Repo.preload(article_thread) |> Map.get(article_thread) |> done
+    end
   end
 
-  def parent_article_of(_), do: {:error, "only support comment"}
+  def article_of(_), do: {:error, "only support comment"}
+
+  # get thread of comment
+  def thread_of(%Comment{thread: thread}) do
+    thread |> String.downcase() |> String.to_atom() |> done
+  end
+
+  # get thread of article
+  def thread_of(%{meta: %{thread: thread}}) do
+    thread |> String.downcase() |> String.to_atom() |> done
+  end
+
+  def thread_of(_), do: {:error, "invalid article"}
+
+  def thread_of(%{meta: %{thread: thread}}, :upcase) do
+    thread |> to_string |> String.upcase() |> done
+  end
 
   #######
   # emotion related

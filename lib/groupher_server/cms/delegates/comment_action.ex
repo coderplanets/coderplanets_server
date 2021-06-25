@@ -40,26 +40,25 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
          {:ok, info} <- match(full_comment.thread) do
       Multi.new()
       |> Multi.run(:checked_pined_comments_count, fn _, _ ->
-        {:ok, pined_comments_count} =
+        pined_comments_query =
           from(p in PinnedComment,
             where: field(p, ^info.foreign_key) == ^full_comment.article.id
           )
-          |> ORM.count()
 
-        case pined_comments_count >= @pinned_comment_limit do
-          true -> {:error, "max #{@pinned_comment_limit} pinned comment for each article"}
-          false -> {:ok, :pass}
+        with {:ok, pined_comments_count} <- ORM.count(pined_comments_query) do
+          case pined_comments_count >= @pinned_comment_limit do
+            true -> {:error, "max #{@pinned_comment_limit} pinned comment for each article"}
+            false -> {:ok, :pass}
+          end
         end
       end)
       |> Multi.run(:update_comment_flag, fn _, _ ->
         ORM.update(comment, %{is_pinned: true})
       end)
       |> Multi.run(:add_pined_comment, fn _, _ ->
-        PinnedComment
-        |> ORM.create(
-          %{comment_id: comment.id}
-          |> Map.put(info.foreign_key, full_comment.article.id)
-        )
+        attrs = %{comment_id: comment.id} |> Map.put(info.foreign_key, full_comment.article.id)
+
+        PinnedComment |> ORM.create(attrs)
       end)
       |> Repo.transaction()
       |> result()

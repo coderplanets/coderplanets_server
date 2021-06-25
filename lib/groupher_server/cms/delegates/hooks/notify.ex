@@ -2,8 +2,8 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Notify do
   @moduledoc """
   notify hooks, for upvote, collect, comment, reply
   """
-  import Helper.Utils, only: [thread_of_article: 1]
-  import GroupherServer.CMS.Delegate.Helper, only: [preload_author: 1, parent_article_of: 1]
+  import GroupherServer.CMS.Delegate.Helper,
+    only: [preload_author: 1, article_of: 1, thread_of: 1]
 
   alias GroupherServer.{Accounts, CMS, Delivery}
 
@@ -12,9 +12,9 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Notify do
 
   # 发布评论是特殊情况，单独处理
   def handle(:comment, %Comment{} = comment, %User{} = from_user) do
-    {:ok, article} = parent_article_of(comment)
+    {:ok, article} = article_of(comment)
     {:ok, article} = preload_author(article)
-    {:ok, thread} = thread_of_article(article)
+    {:ok, thread} = thread_of(article)
 
     notify_attrs = %{
       action: :comment,
@@ -31,9 +31,9 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Notify do
 
   # 回复评论是特殊情况，单独处理
   def handle(:reply, %Comment{} = reply_comment, %User{} = from_user) do
-    {:ok, article} = parent_article_of(reply_comment)
+    {:ok, article} = article_of(reply_comment)
     {:ok, article} = preload_author(article)
-    {:ok, thread} = thread_of_article(article)
+    {:ok, thread} = thread_of(article)
 
     notify_attrs = %{
       action: :reply,
@@ -49,8 +49,8 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Notify do
   end
 
   def handle(action, %Comment{} = comment, %User{} = from_user) do
-    {:ok, article} = parent_article_of(comment)
-    {:ok, thread} = thread_of_article(article)
+    {:ok, article} = article_of(comment)
+    {:ok, thread} = thread_of(article)
 
     notify_attrs = %{
       action: action,
@@ -66,7 +66,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Notify do
 
   def handle(action, article, %User{} = from_user) do
     {:ok, article} = preload_author(article)
-    {:ok, thread} = thread_of_article(article)
+    {:ok, thread} = thread_of(article)
 
     notify_attrs = %{
       action: action,
@@ -80,8 +80,8 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Notify do
   end
 
   def handle(:undo, action, %Comment{} = comment, %User{} = from_user) do
-    {:ok, article} = parent_article_of(comment)
-    {:ok, thread} = thread_of_article(article)
+    {:ok, article} = article_of(comment)
+    {:ok, thread} = thread_of(article)
 
     notify_attrs = %{
       action: action,
@@ -97,7 +97,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Notify do
 
   def handle(:undo, action, article, %User{} = from_user) do
     {:ok, article} = preload_author(article)
-    {:ok, thread} = thread_of_article(article)
+    {:ok, thread} = thread_of(article)
 
     notify_attrs = %{
       action: action,

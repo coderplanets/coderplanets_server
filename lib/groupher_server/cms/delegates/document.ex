@@ -3,7 +3,7 @@ defmodule GroupherServer.CMS.Delegate.Document do
   CURD operation on post/job ...
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, thread_of_article: 2, get_config: 2]
+  import Helper.Utils, only: [done: 1, thread_of: 2, get_config: 2]
 
   import Helper.ErrorCode
   import ShortMaps
@@ -28,7 +28,7 @@ defmodule GroupherServer.CMS.Delegate.Document do
 
   #  for create artilce step in Multi.new
   def create(article, %{body: body} = attrs) do
-    with {:ok, article_thread} <- thread_of_article(article, :upcase),
+    with {:ok, article_thread} <- thread_of(article, :upcase),
          {:ok, parsed} <- Converter.Article.parse_body(body) do
       attrs = Map.take(parsed, [:body, :body_html])
 
@@ -59,7 +59,7 @@ defmodule GroupherServer.CMS.Delegate.Document do
   update both article and thread document
   """
   def update(article, %{body: body} = attrs) when not is_nil(body) do
-    with {:ok, article_thread} <- thread_of_article(article, :upcase),
+    with {:ok, article_thread} <- thread_of(article, :upcase),
          {:ok, article_doc} <- find_article_document(article_thread, article),
          {:ok, thread_doc} <- find_thread_document(article_thread, article),
          {:ok, parsed} <- Converter.Article.parse_body(body) do
@@ -82,7 +82,7 @@ defmodule GroupherServer.CMS.Delegate.Document do
 
   # 只更新 title 的情况
   def update(article, %{title: title} = attrs) do
-    with {:ok, article_thread} <- thread_of_article(article, :upcase),
+    with {:ok, article_thread} <- thread_of(article, :upcase),
          {:ok, article_doc} <- find_article_document(article_thread, article) do
       article_doc |> ORM.update(%{title: attrs.title})
     end

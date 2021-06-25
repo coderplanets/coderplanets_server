@@ -3,7 +3,7 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
   The Delivery context.
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, thread_of_article: 2, atom_values_to_upcase: 1]
+  import Helper.Utils, only: [done: 1, thread_of: 2, atom_values_to_upcase: 1]
   import ShortMaps
 
   alias GroupherServer.{Accounts, CMS, Delivery, Repo}
@@ -109,7 +109,7 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
   end
 
   defp batch_delete_mentions(article, %User{} = from_user) do
-    with {:ok, thread} <- thread_of_article(article, :upcase) do
+    with {:ok, thread} <- thread_of(article, :upcase) do
       from(m in Mention,
         where: m.article_id == ^article.id,
         where: m.thread == ^thread,

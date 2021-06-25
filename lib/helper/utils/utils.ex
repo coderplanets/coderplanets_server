@@ -209,17 +209,6 @@ defmodule Helper.Utils do
     end
   end
 
-  # get thread of article
-  def thread_of_article(%{meta: %{thread: thread}}) do
-    thread |> String.downcase() |> String.to_atom() |> done
-  end
-
-  def thread_of_article(_), do: {:error, "invalid article"}
-
-  def thread_of_article(%{meta: %{thread: thread}}, :upcase) do
-    thread |> to_string |> String.upcase() |> done
-  end
-
   def to_upcase(v) when is_atom(v), do: v |> to_string |> String.upcase()
   def to_upcase(v) when is_binary(v), do: v |> String.upcase()
   def to_upcase(_), do: nil

@@ -5,7 +5,14 @@ defmodule GroupherServer.CMS.Delegate.CitedArtiment do
   import Ecto.Query, warn: false
 
   import Helper.Utils,
-    only: [done: 1, get_config: 2, thread_of_article: 1, atom_values_to_upcase: 1, to_upcase: 1]
+    only: [
+      done: 1,
+      get_config: 2,
+      atom_values_to_upcase: 1,
+      to_upcase: 1
+    ]
+
+  import GroupherServer.CMS.Delegate.Helper, only: [thread_of: 1, article_of: 1]
 
   import GroupherServer.CMS.Helper.Matcher
   import ShortMaps
@@ -45,7 +52,7 @@ defmodule GroupherServer.CMS.Delegate.CitedArtiment do
   end
 
   def batch_delete_by(article) do
-    with {:ok, thread} <- thread_of_article(article),
+    with {:ok, thread} <- thread_of(article),
          {:ok, info} <- match(thread) do
       thread = to_upcase(thread)
 
@@ -104,9 +111,9 @@ defmodule GroupherServer.CMS.Delegate.CitedArtiment do
   defp shape(%CitedArtiment{comment_id: comment_id} = cited) when not is_nil(comment_id) do
     %{block_linker: block_linker, comment: comment, inserted_at: inserted_at} = cited
 
-    comment_thread = comment.thread |> String.downcase() |> String.to_atom()
-    article = comment |> Map.get(comment_thread)
-    article_thread = thread_to_atom(article.meta.thread)
+    {:ok, article} = article_of(comment)
+    {:ok, article_thread} = thread_of(article)
+
     user = comment.author |> Map.take([:login, :nickname, :avatar])
 
     article
@@ -144,6 +151,4 @@ defmodule GroupherServer.CMS.Delegate.CitedArtiment do
   defp citing_thread(cited) do
     @article_threads |> Enum.find(fn thread -> not is_nil(Map.get(cited, :"#{thread}_id")) end)
   end
-
-  defp thread_to_atom(thread), do: thread |> String.downcase() |> String.to_atom()
 end
