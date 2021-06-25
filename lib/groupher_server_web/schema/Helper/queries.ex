@@ -48,25 +48,28 @@ defmodule GroupherServerWeb.Schema.Helper.Queries do
 
   post, page_posts ...
   """
-  defmacro article_queries(thread) do
-    quote do
-      @desc unquote("get #{thread} by id")
-      field unquote(thread), non_null(unquote(thread)) do
-        arg(:id, non_null(:id))
-        arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
+  defmacro article_queries() do
+    @article_threads
+    |> Enum.map(fn thread ->
+      quote do
+        @desc unquote("get #{thread} by id")
+        field unquote(thread), non_null(unquote(thread)) do
+          arg(:id, non_null(:id))
+          arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
 
-        resolve(&R.CMS.read_article/3)
+          resolve(&R.CMS.read_article/3)
+        end
+
+        @desc unquote("get paged #{plural(thread)}")
+        field unquote(:"paged_#{plural(thread)}"), unquote(:"paged_#{plural(thread)}") do
+          arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
+          arg(:filter, non_null(unquote(:"paged_#{plural(thread)}_filter")))
+
+          middleware(M.PageSizeProof, default_sort: :desc_active)
+          resolve(&R.CMS.paged_articles/3)
+        end
       end
-
-      @desc unquote("get paged #{plural(thread)}")
-      field unquote(:"paged_#{plural(thread)}"), unquote(:"paged_#{plural(thread)}") do
-        arg(:thread, unquote(:"#{thread}_thread"), default_value: unquote(thread))
-        arg(:filter, non_null(unquote(:"paged_#{plural(thread)}_filter")))
-
-        middleware(M.PageSizeProof, default_sort: :desc_active)
-        resolve(&R.CMS.paged_articles/3)
-      end
-    end
+    end)
   end
 
   defmacro article_reacted_users_query(action, resolver) do

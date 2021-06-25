@@ -145,9 +145,6 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
     article_reacted_users_query(:upvot, &R.CMS.upvoted_users/3)
     article_reacted_users_query(:collect, &R.CMS.collected_users/3)
 
-    article_queries(:post)
-    article_queries(:job)
-    article_queries(:blog)
-    article_queries(:repo)
+    article_queries()
   end
 end
