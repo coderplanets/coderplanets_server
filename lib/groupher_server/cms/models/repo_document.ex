@@ -10,7 +10,7 @@ defmodule GroupherServer.CMS.Model.RepoDocument do
   import Ecto.Changeset
 
   alias GroupherServer.CMS
-  alias CMS.Model.{Embeds, Repo}
+  alias CMS.Model.Repo
 
   @timestamps_opts [type: :utc_datetime_usec]
 

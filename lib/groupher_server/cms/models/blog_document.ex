@@ -11,7 +11,7 @@ defmodule GroupherServer.CMS.Model.BlogDocument do
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.CMS
-  alias CMS.Model.{Embeds, Blog}
+  alias CMS.Model.Blog
 
   @timestamps_opts [type: :utc_datetime_usec]
 

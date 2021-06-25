@@ -8,6 +8,7 @@ defmodule Helper.Utils do
 
   import Helper.Validator.Guards, only: [g_none_empty_str: 1]
 
+  alias GroupherServer.CMS
   alias Helper.{Cache, Utils}
 
   # Map utils
@@ -25,6 +26,8 @@ defmodule Helper.Utils do
   defdelegate stringfy(str), to: Utils.String
   defdelegate count_words(str), to: Utils.String
   defdelegate str_occurence(string, substr), to: Utils.String
+
+  defdelegate thread_of(artiment, opt), to: CMS.Delegate.Helper
 
   def get_config(section, key, app \\ :groupher_server)
 

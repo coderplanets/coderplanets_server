@@ -11,7 +11,7 @@ defmodule GroupherServer.CMS.Model.JobDocument do
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.CMS
-  alias CMS.Model.{Embeds, Job}
+  alias CMS.Model.Job
 
   @timestamps_opts [type: :utc_datetime_usec]
 

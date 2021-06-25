@@ -11,7 +11,7 @@ defmodule GroupherServer.CMS.Model.PostDocument do
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.CMS
-  alias CMS.Model.{Embeds, Post}
+  alias CMS.Model.Post
 
   @timestamps_opts [type: :utc_datetime_usec]
 
