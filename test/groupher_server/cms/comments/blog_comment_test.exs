@@ -229,7 +229,6 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
   end
 
   describe "[article comment fold/unfold]" do
-    @tag :wip
     test "user can fold a comment", ~m(user blog)a do
       {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
       {:ok, comment} = ORM.find(Comment, comment.id)
@@ -244,7 +243,6 @@ defmodule GroupherServer.Test.CMS.Comments.BlogComment do
       assert blog.meta.folded_comment_count == 1
     end
 
-    @tag :wip
     test "user can unfold a comment", ~m(user blog)a do
       {:ok, comment} = CMS.create_comment(:blog, blog.id, mock_comment(), user)
       {:ok, _comment} = CMS.fold_comment(comment.id, user)
