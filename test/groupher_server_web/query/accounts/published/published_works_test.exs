@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Query.Accounts.Published.Workss do
+defmodule GroupherServer.Test.Query.Accounts.Published.Works do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
@@ -19,7 +19,7 @@ defmodule GroupherServer.Test.Query.Accounts.Published.Workss do
   describe "[published workss]" do
     @query """
     query($login: String!, $filter: PagedFilter!) {
-      pagedPublishedWorkss(login: $login, filter: $filter) {
+      pagedPublishedWorks(login: $login, filter: $filter) {
         entries {
           id
           title
@@ -42,7 +42,7 @@ defmodule GroupherServer.Test.Query.Accounts.Published.Workss do
       {:ok, works2} = CMS.create_article(community, :works, works_attrs, user)
 
       variables = %{login: user.login, filter: %{page: 1, size: 20}}
-      results = guest_conn |> query_result(@query, variables, "pagedPublishedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedPublishedWorks")
 
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(works.id)))
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(works2.id)))

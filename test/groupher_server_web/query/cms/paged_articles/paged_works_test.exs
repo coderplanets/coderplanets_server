@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
+defmodule GroupherServer.Test.Query.PagedArticles.PagedWorks do
   @moduledoc false
   use GroupherServer.TestTools
 
@@ -44,8 +44,8 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
 
   describe "[query paged_workss filter pagination]" do
     @query """
-    query($filter: PagedWorkssFilter!) {
-      pagedWorkss(filter: $filter) {
+    query($filter: PagedWorksFilter!) {
+      pagedWorks(filter: $filter) {
         entries {
           id
           document {
@@ -68,7 +68,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
     """
     test "should get pagination info", ~m(guest_conn)a do
       variables = %{filter: %{page: 1, size: 10}}
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
 
       assert results |> is_valid_pagination?
       assert results["pageSize"] == 10
@@ -84,7 +84,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
       {:ok, _works} = CMS.create_article(community, :works, works_attrs, user)
 
       variables = %{filter: %{page: 1, size: 30}}
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
 
       works = results["entries"] |> List.first()
       assert not is_nil(get_in(works, ["document", "bodyHtml"]))
@@ -100,7 +100,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
       {:ok, _} = CMS.set_article_tag(:works, works.id, article_tag.id)
 
       variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.title}}
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
 
       works = results["entries"] |> List.first()
       assert results["totalCount"] == 1
@@ -125,7 +125,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
         filter: %{page: 1, size: 10, article_tags: [article_tag.title, article_tag2.title]}
       }
 
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
 
       works = results["entries"] |> List.first()
       assert results["totalCount"] == 1
@@ -151,7 +151,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
         filter: %{page: 1, size: 10, community: community.raw, article_tag: article_tag.title}
       }
 
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
 
       assert not exist_in?(pinned_works, results["entries"], :string_key)
       assert exist_in?(works, results["entries"], :string_key)
@@ -160,7 +160,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
         filter: %{page: 1, size: 10, community: community.raw, article_tags: [article_tag.title]}
       }
 
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
 
       assert not exist_in?(pinned_works, results["entries"], :string_key)
       assert exist_in?(works, results["entries"], :string_key)
@@ -175,7 +175,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
       {:ok, _works} = CMS.create_article(community, :works, works_attrs2, user)
 
       variables = %{filter: %{page: 1, size: 10, community: community.raw}}
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
 
       works = results["entries"] |> List.first()
       assert results["totalCount"] == 2
@@ -197,7 +197,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
 
     test "pagination should have default page and size arg", ~m(guest_conn)a do
       variables = %{filter: %{}}
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
       assert results |> is_valid_pagination?
       assert results["pageSize"] == @page_size
       assert results["totalCount"] == @total_count
@@ -206,8 +206,8 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
 
   describe "[query paged_workss filter has_xxx]" do
     @query """
-    query($filter: PagedWorkssFilter!) {
-      pagedWorkss(filter: $filter) {
+    query($filter: PagedWorksFilter!) {
+      pagedWorks(filter: $filter) {
         entries {
           id
           viewerHasCollected
@@ -229,7 +229,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
       {:ok, _works3} = CMS.create_article(community, :works, mock_attrs(:works), user)
 
       variables = %{filter: %{community: community.raw}}
-      results = user_conn |> query_result(@query, variables, "pagedWorkss")
+      results = user_conn |> query_result(@query, variables, "pagedWorks")
       assert results["totalCount"] == 3
 
       the_works = Enum.find(results["entries"], &(&1["id"] == to_string(works.id)))
@@ -243,7 +243,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
       {:ok, _} = CMS.collect_article(:works, works.id, user)
       {:ok, _} = CMS.report_article(:works, works.id, "reason", "attr_info", user)
 
-      results = user_conn |> query_result(@query, variables, "pagedWorkss")
+      results = user_conn |> query_result(@query, variables, "pagedWorks")
       the_works = Enum.find(results["entries"], &(&1["id"] == to_string(works.id)))
       assert the_works["viewerHasViewed"]
       assert the_works["viewerHasUpvoted"]
@@ -254,8 +254,8 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
 
   describe "[query paged_workss filter sort]" do
     @query """
-    query($filter: PagedWorkssFilter!) {
-      pagedWorkss(filter: $filter) {
+    query($filter: PagedWorksFilter!) {
+      pagedWorks(filter: $filter) {
         entries {
           id
           inserted_at
@@ -276,7 +276,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
       {:ok, works} = CMS.create_article(community, :works, mock_attrs(:works), user)
 
       variables = %{filter: %{community: community.raw}}
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
 
       assert length(results["entries"]) == 1
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(works.id)))
@@ -287,7 +287,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
       {:ok, _works} = CMS.create_article(community, :works, mock_attrs(:works), user)
 
       variables = %{filter: %{community: community.raw}}
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
       works = results["entries"] |> List.first()
 
       assert works["inserted_at"] == works["active_at"]
@@ -295,7 +295,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
 
     test "filter sort should have default :desc_active", ~m(guest_conn)a do
       variables = %{filter: %{}}
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
       active_timestamps = results["entries"] |> Enum.map(& &1["active_at"])
 
       {:ok, first_active_time, 0} = active_timestamps |> List.first() |> DateTime.from_iso8601()
@@ -305,8 +305,8 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
     end
 
     @query """
-    query($filter: PagedWorkssFilter!) {
-      pagedWorkss(filter: $filter) {
+    query($filter: PagedWorksFilter!) {
+      pagedWorks(filter: $filter) {
         entries {
           id
           views
@@ -319,7 +319,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
       most_views_works = Works |> order_by(desc: :views) |> limit(1) |> Repo.one()
       variables = %{filter: %{sort: "MOST_VIEWS"}}
 
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
       find_works = results |> Map.get("entries") |> hd
 
       assert find_works["views"] == most_views_works |> Map.get(:views)
@@ -332,8 +332,8 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
   """
   describe "[query paged_workss filter when]" do
     @query """
-    query($filter: PagedWorkssFilter!) {
-      pagedWorkss(filter: $filter) {
+    query($filter: PagedWorksFilter!) {
+      pagedWorks(filter: $filter) {
         entries {
           id
           views
@@ -345,14 +345,14 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
     """
     test "THIS_YEAR option should work", ~m(guest_conn works_last_year)a do
       variables = %{filter: %{when: "THIS_YEAR"}}
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
 
       assert results["entries"] |> Enum.any?(&(&1["id"] != works_last_year.id))
     end
 
     test "TODAY option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "TODAY"}}
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
 
       expect_count = @total_count - @last_year_count - @last_month_count - @last_week_count
 
@@ -361,14 +361,14 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
 
     test "THIS_WEEK option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_WEEK"}}
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
 
       assert results |> Map.get("totalCount") == @today_count
     end
 
     test "THIS_MONTH option should work", ~m(guest_conn)a do
       variables = %{filter: %{when: "THIS_MONTH"}}
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
 
       {_, cur_week_month, _} = @cur_date |> Date.to_erl()
       {_, last_week_month, _} = @last_week |> Date.to_erl()
@@ -388,8 +388,8 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
 
   describe "[query paged_workss filter extra]" do
     @query """
-    query($filter: PagedWorkssFilter!) {
-      pagedWorkss(filter: $filter) {
+    query($filter: PagedWorksFilter!) {
+      pagedWorks(filter: $filter) {
         entries {
           id
           title
@@ -403,7 +403,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
       {:ok, works2} = db_insert(:works)
 
       variables = %{filter: %{page: 1, size: 20}}
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
 
       assert results["totalCount"] >= 1
       assert results["entries"] |> Enum.any?(&(&1["id"] == to_string(works.id)))
@@ -413,8 +413,8 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
 
   describe "[paged workss active_at]" do
     @query """
-    query($filter: PagedWorkssFilter!) {
-      pagedWorkss(filter: $filter) {
+    query($filter: PagedWorksFilter!) {
+      pagedWorks(filter: $filter) {
         entries {
           id
           insertedAt
@@ -426,7 +426,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
 
     test "latest commented works should appear on top", ~m(guest_conn works_last_week user)a do
       variables = %{filter: %{page: 1, size: 20}}
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
       entries = results["entries"]
       first_works = entries |> List.first()
       assert first_works["id"] !== to_string(works_last_week.id)
@@ -434,7 +434,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
       Process.sleep(1500)
       {:ok, _comment} = CMS.create_comment(:works, works_last_week.id, mock_comment(), user)
 
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
       entries = results["entries"]
       first_works = entries |> List.first()
 
@@ -446,7 +446,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
 
       {:ok, _comment} = CMS.create_comment(:works, works_last_year.id, mock_comment(), user)
 
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
       entries = results["entries"]
       first_works = entries |> List.first()
 
@@ -464,7 +464,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorkss do
           works_last_week.author.user
         )
 
-      results = guest_conn |> query_result(@query, variables, "pagedWorkss")
+      results = guest_conn |> query_result(@query, variables, "pagedWorks")
       entries = results["entries"]
       first_works = entries |> List.first()
 
