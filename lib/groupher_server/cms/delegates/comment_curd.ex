@@ -6,7 +6,9 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   import Helper.Utils, only: [done: 1, ensure: 2]
   import Helper.ErrorCode
 
-  import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 3]
+  import GroupherServer.CMS.Delegate.Helper,
+    only: [mark_viewer_emotion_states: 3, article_of: 1, thread_of: 1]
+
   import GroupherServer.CMS.Helper.Matcher
   import ShortMaps
 
@@ -280,10 +282,12 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   # update comment's parent article's comments total count
   @spec update_comments_count(Comment.t(), :inc | :dec) :: Comment.t()
   def update_comments_count(%Comment{} = comment, opt) do
-    with {:ok, article_info} <- match(:comment_article, comment),
-         {:ok, article} <- ORM.find(article_info.model, article_info.id) do
+    with {:ok, article} <- article_of(comment),
+         {:ok, article_thread} <- thread_of(article) do
+      foreign_key = :"#{article_thread}_id"
+
       {:ok, cur_count} =
-        from(c in Comment, where: field(c, ^article_info.foreign_key) == ^article_info.id)
+        from(c in Comment, where: field(c, ^foreign_key) == ^article.id)
         |> ORM.count()
 
       # dec 是 comment 还没有删除的时候的操作，和 inc 不同

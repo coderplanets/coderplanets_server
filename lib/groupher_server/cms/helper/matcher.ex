@@ -33,5 +33,4 @@ defmodule GroupherServer.CMS.Helper.Matcher do
 
   thread_matches()
   thread_query_matches()
-  comment_article_matches()
 end
