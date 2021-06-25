@@ -261,10 +261,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   end
 
   # add participator to article-like(Post, Job ...) and update count
-  def add_participant_to_article(
-        %{comments_participants: participants} = article,
-        %User{} = user
-      ) do
+  def add_participant_to_article(%{comments_participants: participants} = article, %User{} = user) do
     total_participants = participants |> List.insert_at(0, user) |> Enum.uniq_by(& &1.id)
 
     latest_participants = total_participants |> Enum.slice(0, @max_participator_count)
