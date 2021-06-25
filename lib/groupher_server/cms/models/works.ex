@@ -11,8 +11,6 @@ defmodule GroupherServer.CMS.Model.Works do
   alias GroupherServer.CMS
   alias CMS.Model.Embeds
 
-  alias Helper.HTML
-
   @timestamps_opts [type: :utc_datetime_usec]
 
   @required_fields ~w(title digest)a
@@ -46,7 +44,5 @@ defmodule GroupherServer.CMS.Model.Works do
     changeset
     |> validate_length(:title, min: 3, max: 50)
     |> cast_embed(:emotions, with: &Embeds.ArticleEmotion.changeset/2)
-    |> validate_length(:link_addr, min: 5, max: 400)
-    |> HTML.safe_string(:body)
   end
 end

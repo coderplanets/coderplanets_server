@@ -12,7 +12,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Works do
       arg(:body, non_null(:string))
       arg(:digest, non_null(:string))
       arg(:community_id, non_null(:id))
-      arg(:link_addr, :string)
       arg(:thread, :thread, default_value: :works)
       arg(:article_tags, list_of(:id))
 

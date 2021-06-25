@@ -20,9 +20,9 @@ defmodule GroupherServer.Repo.Migrations.CreateWorksTable do
       add(:collects_count, :integer, default: 0)
 
       # comments
-      add(:article_comments_participators_count, :integer, default: 0)
-      add(:article_comments_count, :integer, default: 0)
-      add(:article_comments_participators, :map)
+      add(:comments_participants_count, :integer, default: 0)
+      add(:comments_count, :integer, default: 0)
+      add(:comments_participants, :map)
 
       timestamps()
     end

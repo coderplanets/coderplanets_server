@@ -2,7 +2,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
   @moduledoc """
   macros for define article related fields in CMS models
   """
-  import Helper.Utils, only: [get_config: 2]
+  import Helper.Utils, only: [get_config: 2, plural: 1]
 
   alias GroupherServer.{CMS, Accounts}
 
@@ -220,7 +220,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
       many_to_many(
         :communities,
         Community,
-        join_through: unquote("communities_join_#{to_string(thread)}s"),
+        join_through: unquote("communities_join_#{plural(thread)}"),
         on_replace: :delete
       )
     end
