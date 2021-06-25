@@ -200,7 +200,7 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
 
   @desc "works_filter doc"
   # TODO:
-  input_object :paged_workss_filter do
+  input_object :paged_works_filter do
     pagination_args()
     article_filter_fields()
     field(:sort, :sort_enum)
