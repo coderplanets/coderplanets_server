@@ -223,7 +223,7 @@ defmodule GroupherServer.Support.Factory do
     text = Faker.Lorem.sentence(%Range{first: 80, last: 120})
 
     %{
-      meta: @default_article_meta |> Map.merge(%{thread: "BLOG"}),
+      meta: @default_article_meta |> Map.merge(%{thread: "WORKS"}),
       title: String.slice(text, 1, 49),
       body: mock_rich_text(),
       digest: String.slice(text, 1, 150),
