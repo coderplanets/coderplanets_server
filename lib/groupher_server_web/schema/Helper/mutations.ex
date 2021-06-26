@@ -38,7 +38,6 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
     reactions
     |> Enum.map(
       &quote do
-        value(unquote(&1))
         unquote(:"article_#{&1}_mutation")(thread)
       end
     )
