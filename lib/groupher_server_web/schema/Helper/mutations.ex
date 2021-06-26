@@ -19,6 +19,32 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
   alias GroupherServerWeb.Resolvers, as: R
 
   @doc """
+  e.g:
+
+  turn:
+    article_react_mutations(:radar, [:upvote, :pin, :mark_delete, :delete, :emotion, :report, :sink, :lock_comment])
+
+  into:
+    article_upvote_mutation(:radar)
+    article_pin_mutation(:radar)
+    article_mark_delete_mutation(:radar)
+    article_delete_mutation(:radar)
+    article_emotion_mutation(:radar)
+    article_report_mutation(:radar)
+    article_sink_mutation(:radar)
+    article_lock_comment_mutation(:radar)
+  """
+  defmacro article_react_mutations(thread, reactions) do
+    reactions
+    |> Enum.map(
+      &quote do
+        value(unquote(&1))
+        unquote(:"article_#{&1}_mutation")(thread)
+      end
+    )
+  end
+
+  @doc """
   upvote mutation for article
 
   include:

@@ -199,8 +199,14 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
   end
 
   @desc "works_filter doc"
-  # TODO:
   input_object :paged_works_filter do
+    pagination_args()
+    article_filter_fields()
+    field(:sort, :sort_enum)
+  end
+
+  @desc "radar_filter doc"
+  input_object :paged_radars_filter do
     pagination_args()
     article_filter_fields()
     field(:sort, :sort_enum)
