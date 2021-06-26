@@ -87,7 +87,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       assert exist_in?(%{id: article_tag.id}, job.article_tags)
     end
 
-    @tag :wip
     test "create job should excape xss attracts" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
