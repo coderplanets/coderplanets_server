@@ -129,6 +129,18 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     timestamp_fields(:article)
   end
 
+  object :meetup do
+    interface(:article)
+
+    general_article_fields()
+    comments_fields()
+
+    field(:length, :integer)
+    field(:link_addr, :string)
+
+    timestamp_fields(:article)
+  end
+
   object :repo do
     interface(:article)
 

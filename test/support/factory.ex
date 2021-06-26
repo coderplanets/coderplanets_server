@@ -279,6 +279,26 @@ defmodule GroupherServer.Support.Factory do
     }
   end
 
+  defp mock_meta(:meetup) do
+    text = Faker.Lorem.sentence(%Range{first: 80, last: 120})
+
+    %{
+      meta: @default_article_meta |> Map.merge(%{thread: "MEETUP"}),
+      title: String.slice(text, 1, 49),
+      body: mock_rich_text(),
+      digest: String.slice(text, 1, 150),
+      # length: String.length(text),
+      author: mock(:author),
+      views: Enum.random(0..2000),
+      original_community: mock(:community),
+      communities: [
+        mock(:community)
+      ],
+      emotions: @default_emotions,
+      active_at: Timex.shift(Timex.now(), seconds: +1)
+    }
+  end
+
   defp mock_meta(:comment) do
     # text = Faker.Lorem.sentence(%Range{first: 30, last: 80})
 
