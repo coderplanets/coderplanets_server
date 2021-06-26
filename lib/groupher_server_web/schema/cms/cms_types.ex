@@ -135,8 +135,14 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     general_article_fields()
     comments_fields()
 
-    field(:length, :integer)
-    field(:link_addr, :string)
+    timestamp_fields(:article)
+  end
+
+  object :drink do
+    interface(:article)
+
+    general_article_fields()
+    comments_fields()
 
     timestamp_fields(:article)
   end

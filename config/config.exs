@@ -69,7 +69,7 @@ config :groupher_server, :article,
   min_length: 10,
   max_length: 20_000,
   # NOTE: do not change unless you know what you are doing
-  threads: [:post, :job, :repo, :blog, :works, :radar, :guide, :meetup],
+  threads: [:post, :job, :repo, :blog, :works, :radar, :guide, :meetup, :drink],
   # in this period, paged articles will sort front if non-article-author commented
   # 在此时间段内，一旦有非文章作者的用户评论，该文章就会排到前面
   active_period_days: %{
@@ -80,7 +80,8 @@ config :groupher_server, :article,
     works: 10,
     radar: 10,
     guide: 10,
-    meetup: 10
+    meetup: 10,
+    drink: 10
   },
 
   # NOTE: if you want to add/remove emotion, just edit the list below
