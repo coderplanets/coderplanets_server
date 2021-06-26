@@ -1,48 +1,44 @@
-defmodule GroupherServerWeb.Schema.CMS.Mutations.Post do
+defmodule GroupherServerWeb.Schema.CMS.Mutations.Drink do
   @moduledoc """
-  CMS mutations for post
+  CMS mutations for drink
   """
   use Helper.GqlSchemaSuite
-
   import GroupherServerWeb.Schema.Helper.Mutations
 
-  object :cms_post_mutations do
-    @desc "create a post"
-    field :create_post, :post do
+  object :cms_drink_mutations do
+    @desc "create a drink"
+    field :create_drink, :drink do
       arg(:title, non_null(:string))
       arg(:body, non_null(:string))
       arg(:digest, non_null(:string))
-      arg(:link_addr, :string)
-      arg(:copy_right, :string)
       arg(:community_id, non_null(:id))
-      arg(:thread, :thread, default_value: :post)
+      arg(:thread, :thread, default_value: :drink)
       arg(:article_tags, list_of(:id))
 
       middleware(M.Authorize, :login)
-      # middleware(M.PublishThrottle)
-      middleware(M.PublishThrottle, interval: 3, hour_limit: 15, day_limit: 30)
+      middleware(M.PublishThrottle)
       resolve(&R.CMS.create_article/3)
       middleware(M.Statistics.MakeContribute, for: [:user, :community])
     end
 
-    @desc "update a cms/post"
-    field :update_post, :post do
+    @desc "update a cms/drink"
+    field :update_drink, :drink do
       arg(:id, non_null(:id))
       arg(:title, :string)
       arg(:body, :string)
       arg(:digest, :string)
-      arg(:copy_right, :string)
-      arg(:link_addr, :string)
+
       arg(:article_tags, list_of(:id))
+      # ...
 
       middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :post)
-      middleware(M.Passport, claim: "owner;cms->c?->post.edit")
+      middleware(M.PassportLoader, source: :drink)
+      middleware(M.Passport, claim: "owner;cms->c?->drink.edit")
 
       resolve(&R.CMS.update_article/3)
     end
 
-    article_react_mutations(:post, [
+    article_react_mutations(:drink, [
       :upvote,
       :pin,
       :mark_delete,

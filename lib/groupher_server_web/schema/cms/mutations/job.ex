@@ -13,7 +13,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Job do
       arg(:company_link, :string)
       arg(:body, non_null(:string))
       arg(:digest, non_null(:string))
-      arg(:length, non_null(:integer))
       arg(:community_id, non_null(:id))
 
       arg(:desc, :string)
@@ -35,7 +34,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Job do
       arg(:title, :string)
       arg(:body, :string)
       arg(:digest, :string)
-      arg(:length, :integer)
       arg(:copy_right, :string)
       arg(:desc, :string)
       arg(:link_addr, :string)

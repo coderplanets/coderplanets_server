@@ -161,7 +161,6 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
     # field(:sort, :sort_input)
     field(:when, :when_enum)
     field(:sort, :sort_enum)
-    field(:length, :length_enum)
     # @desc "Matching a tag"
     # @desc "Added to the menu after this date"
     # field(:added_after, :datetime)
@@ -221,6 +220,13 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
 
   @desc "meetup_filter doc"
   input_object :paged_meetups_filter do
+    pagination_args()
+    article_filter_fields()
+    field(:sort, :sort_enum)
+  end
+
+  @desc "drink_filter doc"
+  input_object :paged_drinks_filter do
     pagination_args()
     article_filter_fields()
     field(:sort, :sort_enum)

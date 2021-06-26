@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Model.Blog do
+defmodule GroupherServer.CMS.Model.Drink do
   @moduledoc false
   alias __MODULE__
 
@@ -15,20 +15,18 @@ defmodule GroupherServer.CMS.Model.Blog do
 
   @required_fields ~w(title digest)a
   @article_cast_fields general_article_cast_fields()
-  @optional_fields ~w(link_addr digest)a ++ @article_cast_fields
+  @optional_fields @article_cast_fields
 
-  @type t :: %Blog{}
-  schema "cms_blogs" do
-    field(:link_addr, :string)
-
-    article_tags_field(:blog)
-    article_communities_field(:blog)
-    general_article_fields(:blog)
+  @type t :: %Drink{}
+  schema "cms_drinks" do
+    article_tags_field(:drink)
+    article_communities_field(:drink)
+    general_article_fields(:drink)
   end
 
   @doc false
-  def changeset(%Blog{} = blog, attrs) do
-    blog
+  def changeset(%Drink{} = drink, attrs) do
+    drink
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
     |> cast_embed(:meta, required: false, with: &Embeds.ArticleMeta.changeset/2)
@@ -36,8 +34,8 @@ defmodule GroupherServer.CMS.Model.Blog do
   end
 
   @doc false
-  def update_changeset(%Blog{} = blog, attrs) do
-    blog
+  def update_changeset(%Drink{} = drink, attrs) do
+    drink
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> generl_changeset
   end
@@ -46,6 +44,5 @@ defmodule GroupherServer.CMS.Model.Blog do
     changeset
     |> validate_length(:title, min: 3, max: 50)
     |> cast_embed(:emotions, with: &Embeds.ArticleEmotion.changeset/2)
-    |> validate_length(:link_addr, min: 5, max: 400)
   end
 end

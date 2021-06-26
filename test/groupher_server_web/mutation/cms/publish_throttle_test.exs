@@ -24,14 +24,12 @@ defmodule GroupherServer.Test.Mutation.PublishThrottle do
     $title: String!
     $body: String!
     $digest: String!
-    $length: Int!
     $communityId: ID!
   ) {
     createPost(
       title: $title
       body: $body
       digest: $digest
-      length: $length
       communityId: $communityId
     ) {
       title

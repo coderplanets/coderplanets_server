@@ -169,7 +169,6 @@ defmodule GroupherServer.Test.Articles.Radar do
       assert article_doc.body == radar_doc.body
     end
 
-    @tag :wip
     test "delete radar should also delete related document", ~m(user community radar_attrs)a do
       {:ok, radar} = CMS.create_article(community, :radar, radar_attrs, user)
       {:ok, _article_doc} = ORM.find_by(ArticleDocument, %{article_id: radar.id, thread: "RADAR"})
