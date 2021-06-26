@@ -2,21 +2,41 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
   @moduledoc """
   general mutations used for articles
 
+  can not dedefine private macros, see:
+  https://github.com/elixir-lang/elixir/issues/3887
+
   e.g:
   in schema/cms/mutation/post.ex
 
   add following:
-  article_upvote_mutation(:post)
+    article_react_mutations(:post, [:upvote, :pin, :mark_delete, :delete, :emotion, :report, :sink, :lock_comment])
 
-  post will have two mutation endpoint:
-
-  upvote_post
-  unto_emotion_post
+  it will expand as
+    article_upvote_mutation(:radar)
+    article_pin_mutation(:radar)
+    article_mark_delete_mutation(:radar)
+    article_delete_mutation(:radar)
+    article_emotion_mutation(:radar)
+    article_report_mutation(:radar)
+    article_sink_mutation(:radar)
+    article_lock_comment_mutation(:radar)
 
   same for the job/repo .. article thread
   """
   alias GroupherServerWeb.Middleware, as: M
   alias GroupherServerWeb.Resolvers, as: R
+
+  @doc """
+  add basic mutation reactions to article
+  """
+  defmacro article_react_mutations(thread, reactions) do
+    reactions
+    |> Enum.map(
+      &quote do
+        unquote(:"article_#{&1}_mutation")(unquote(thread))
+      end
+    )
+  end
 
   @doc """
   upvote mutation for article
