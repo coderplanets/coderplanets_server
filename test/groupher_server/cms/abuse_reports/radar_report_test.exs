@@ -28,7 +28,7 @@ defmodule GroupherServer.Test.CMS.AbuseReports.RadarReport do
 
       report = all_reports.entries |> List.first()
       assert report.article.id == radar.id
-      assert report.article.thread == "WORKS"
+      assert report.article.thread == "RADAR"
     end
 
     test "report a radar should have a abuse report record", ~m(community user radar_attrs)a do
