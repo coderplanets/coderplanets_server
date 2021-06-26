@@ -10,7 +10,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Drink do
     field :create_drink, :drink do
       arg(:title, non_null(:string))
       arg(:body, non_null(:string))
-      arg(:digest, non_null(:string))
       arg(:community_id, non_null(:id))
       arg(:thread, :thread, default_value: :drink)
       arg(:article_tags, list_of(:id))

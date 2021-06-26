@@ -25,7 +25,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
     mutation (
       $title: String!,
       $body: String!,
-      $digest: String!,
       $communityId: ID!,
       $company: String!,
       $articleTags: [Id]
@@ -33,7 +32,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Job do
       createJob(
         title: $title,
         body: $body,
-        digest: $digest,
         communityId: $communityId,
         company: $company,
         articleTags: $articleTags

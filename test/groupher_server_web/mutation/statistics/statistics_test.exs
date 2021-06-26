@@ -21,14 +21,12 @@ defmodule GroupherServer.Test.Mutation.Statistics do
     mutation(
       $title: String!
       $body: String!
-      $digest: String!
       $communityId: ID!
       $articleTags: [Ids]
     ) {
       createPost(
         title: $title
         body: $body
-        digest: $digest
         communityId: $communityId
         articleTags: $articleTags
       ) {
@@ -62,7 +60,6 @@ defmodule GroupherServer.Test.Mutation.Statistics do
     mutation (
       $title: String!,
       $body: String!,
-      $digest: String!,
       $communityId: ID!,
       $company: String!,
       $articleTags: [Ids]
@@ -70,7 +67,6 @@ defmodule GroupherServer.Test.Mutation.Statistics do
       createJob(
         title: $title,
         body: $body,
-        digest: $digest,
         communityId: $communityId,
         company: $company,
         articleTags: $articleTags
@@ -98,14 +94,12 @@ defmodule GroupherServer.Test.Mutation.Statistics do
     mutation (
       $title: String!,
       $body: String!,
-      $digest: String!,
       $communityId: ID!,
       $articleTags: [Ids]
     ) {
       createBlog(
         title: $title,
         body: $body,
-        digest: $digest,
         communityId: $communityId,
         articleTags: $articleTags
       ) {

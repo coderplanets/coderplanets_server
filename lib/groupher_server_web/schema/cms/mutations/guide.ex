@@ -10,7 +10,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Guide do
     field :create_guide, :guide do
       arg(:title, non_null(:string))
       arg(:body, non_null(:string))
-      arg(:digest, non_null(:string))
       arg(:community_id, non_null(:id))
       arg(:thread, :thread, default_value: :guide)
       arg(:article_tags, list_of(:id))
