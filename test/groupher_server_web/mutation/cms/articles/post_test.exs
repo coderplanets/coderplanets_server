@@ -26,7 +26,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       $title: String!
       $body: String!
       $digest: String!
-      $length: Int!
       $communityId: ID!
       $articleTags: [Id]
     ) {
@@ -34,7 +33,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
         title: $title
         body: $body
         digest: $digest
-        length: $length
         communityId: $communityId
         articleTags: $articleTags
       ) {

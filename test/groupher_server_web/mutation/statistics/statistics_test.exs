@@ -65,7 +65,6 @@ defmodule GroupherServer.Test.Mutation.Statistics do
       $title: String!,
       $body: String!,
       $digest: String!,
-      $length: Int!,
       $communityId: ID!,
       $company: String!,
       $articleTags: [Ids]
@@ -74,7 +73,6 @@ defmodule GroupherServer.Test.Mutation.Statistics do
         title: $title,
         body: $body,
         digest: $digest,
-        length: $length,
         communityId: $communityId,
         company: $company,
         articleTags: $articleTags
