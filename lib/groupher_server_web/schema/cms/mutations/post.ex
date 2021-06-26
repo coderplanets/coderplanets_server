@@ -11,7 +11,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Post do
     field :create_post, :post do
       arg(:title, non_null(:string))
       arg(:body, non_null(:string))
-      arg(:digest, non_null(:string))
       arg(:link_addr, :string)
       arg(:copy_right, :string)
       arg(:community_id, non_null(:id))

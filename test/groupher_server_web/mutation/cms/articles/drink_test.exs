@@ -25,14 +25,12 @@ defmodule GroupherServer.Test.Mutation.Articles.Drink do
     mutation (
       $title: String!,
       $body: String,
-      $digest: String!,
       $communityId: ID!,
       $articleTags: [Id]
      ) {
       createDrink(
         title: $title,
         body: $body,
-        digest: $digest,
         communityId: $communityId,
         articleTags: $articleTags
         ) {

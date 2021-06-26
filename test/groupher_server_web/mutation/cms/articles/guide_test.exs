@@ -25,14 +25,12 @@ defmodule GroupherServer.Test.Mutation.Articles.Guide do
     mutation (
       $title: String!,
       $body: String,
-      $digest: String!,
       $communityId: ID!,
       $articleTags: [Id]
      ) {
       createGuide(
         title: $title,
         body: $body,
-        digest: $digest,
         communityId: $communityId,
         articleTags: $articleTags
         ) {

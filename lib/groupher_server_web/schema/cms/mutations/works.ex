@@ -10,7 +10,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Works do
     field :create_works, :works do
       arg(:title, non_null(:string))
       arg(:body, non_null(:string))
-      arg(:digest, non_null(:string))
       arg(:community_id, non_null(:id))
       arg(:thread, :thread, default_value: :works)
       arg(:article_tags, list_of(:id))
