@@ -85,7 +85,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Meetup do
       assert exist_in?(%{id: article_tag.id}, meetup.article_tags)
     end
 
-    @tag :wip
     test "create meetup should excape xss attracts" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)

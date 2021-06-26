@@ -171,7 +171,6 @@ defmodule GroupherServer.Test.Articles.Meetup do
       assert article_doc.body == meetup_doc.body
     end
 
-    @tag :wip
     test "delete meetup should also delete related document", ~m(user community meetup_attrs)a do
       {:ok, meetup} = CMS.create_article(community, :meetup, meetup_attrs, user)
 

@@ -12,7 +12,7 @@ defmodule GroupherServer.CMS.Model.Job do
   alias CMS.Model.Embeds
 
   @timestamps_opts [type: :utc_datetime_usec]
-  @required_fields ~w(title company digest length)a
+  @required_fields ~w(title company digest)a
   @article_cast_fields general_article_cast_fields()
   @optional_fields @article_cast_fields ++ ~w(desc company_link link_addr copy_right)a
 
@@ -24,7 +24,6 @@ defmodule GroupherServer.CMS.Model.Job do
 
     field(:link_addr, :string)
     field(:copy_right, :string)
-    field(:length, :integer)
 
     article_tags_field(:job)
     article_communities_field(:job)

@@ -58,7 +58,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     general_article_fields()
     comments_fields()
 
-    field(:length, :integer)
     field(:link_addr, :string)
     field(:copy_right, :string)
 
@@ -74,7 +73,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:desc, :string)
     field(:company, :string)
     field(:company_link, :string)
-    field(:length, :integer)
     field(:link_addr, :string)
     field(:copy_right, :string)
 
@@ -87,7 +85,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     general_article_fields()
     comments_fields()
 
-    field(:length, :integer)
     field(:link_addr, :string)
 
     timestamp_fields(:article)
@@ -99,7 +96,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     general_article_fields()
     comments_fields()
 
-    field(:length, :integer)
     field(:link_addr, :string)
 
     timestamp_fields(:article)
@@ -111,7 +107,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     general_article_fields()
     comments_fields()
 
-    field(:length, :integer)
     field(:link_addr, :string)
 
     timestamp_fields(:article)
@@ -123,7 +118,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     general_article_fields()
     comments_fields()
 
-    field(:length, :integer)
     field(:link_addr, :string)
 
     timestamp_fields(:article)

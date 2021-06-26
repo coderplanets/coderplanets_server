@@ -161,7 +161,6 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
     # field(:sort, :sort_input)
     field(:when, :when_enum)
     field(:sort, :sort_enum)
-    field(:length, :length_enum)
     # @desc "Matching a tag"
     # @desc "Added to the menu after this date"
     # field(:added_after, :datetime)

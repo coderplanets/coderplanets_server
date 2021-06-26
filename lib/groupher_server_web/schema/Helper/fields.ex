@@ -168,7 +168,6 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
   defmacro article_filter_fields do
     quote do
       field(:when, :when_enum)
-      field(:length, :length_enum)
       field(:article_tag, :string)
       field(:article_tags, list_of(:string))
       field(:community, :string)

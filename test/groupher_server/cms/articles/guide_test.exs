@@ -169,7 +169,6 @@ defmodule GroupherServer.Test.Articles.Guide do
       assert article_doc.body == guide_doc.body
     end
 
-    @tag :wip
     test "delete guide should also delete related document", ~m(user community guide_attrs)a do
       {:ok, guide} = CMS.create_article(community, :guide, guide_attrs, user)
       {:ok, _article_doc} = ORM.find_by(ArticleDocument, %{article_id: guide.id, thread: "GUIDE"})

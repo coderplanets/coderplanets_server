@@ -34,7 +34,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Job do
       arg(:title, :string)
       arg(:body, :string)
       arg(:digest, :string)
-      arg(:length, :integer)
       arg(:copy_right, :string)
       arg(:desc, :string)
       arg(:link_addr, :string)
