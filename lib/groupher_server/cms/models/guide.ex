@@ -18,7 +18,7 @@ defmodule GroupherServer.CMS.Model.Guide do
   @optional_fields @article_cast_fields
 
   @type t :: %Guide{}
-  schema "cms_guide" do
+  schema "cms_guides" do
     article_tags_field(:guide)
     article_communities_field(:guide)
     general_article_fields(:guide)
