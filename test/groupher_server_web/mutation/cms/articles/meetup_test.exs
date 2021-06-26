@@ -26,7 +26,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Meetup do
       $title: String!,
       $body: String,
       $digest: String!,
-      $length: Int,
       $communityId: ID!,
       $articleTags: [Id]
      ) {
@@ -34,7 +33,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Meetup do
         title: $title,
         body: $body,
         digest: $digest,
-        length: $length,
         communityId: $communityId,
         articleTags: $articleTags
         ) {
@@ -87,6 +85,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Meetup do
       assert exist_in?(%{id: article_tag.id}, meetup.article_tags)
     end
 
+    @tag :wip
     test "create meetup should excape xss attracts" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -95,6 +94,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Meetup do
 
       meetup_attr = mock_attrs(:meetup, %{body: mock_xss_string()})
       variables = meetup_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
+
       result = user_conn |> mutation_result(@create_meetup_query, variables, "createMeetup")
 
       {:ok, meetup} = ORM.find(Meetup, result["id"], preload: :document)
