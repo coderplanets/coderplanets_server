@@ -27,7 +27,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Mention do
     end
   end
 
-  def handle(%{document: document} = article) do
+  def handle(%{document: _document} = article) do
     body = Repo.preload(article, :document) |> get_in([:document, :body])
     article = article |> Map.put(:body, body)
     handle(article)

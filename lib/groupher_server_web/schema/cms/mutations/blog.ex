@@ -32,8 +32,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Blog do
       arg(:length, :integer)
       arg(:link_addr, :string)
 
-      arg(:company, :string)
-      arg(:company_link, :string)
       arg(:article_tags, list_of(:id))
 
       # ...

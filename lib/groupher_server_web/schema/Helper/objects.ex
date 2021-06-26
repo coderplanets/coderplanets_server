@@ -2,7 +2,7 @@ defmodule GroupherServerWeb.Schema.Helper.Objects do
   @moduledoc """
   general fields used in schema definition
   """
-  import Helper.Utils, only: [get_config: 2]
+  import Helper.Utils, only: [get_config: 2, plural: 1]
 
   @article_threads get_config(:article, :threads)
 
@@ -19,7 +19,7 @@ defmodule GroupherServerWeb.Schema.Helper.Objects do
     @article_threads
     |> Enum.map(
       &quote do
-        object unquote(:"paged_#{&1}s") do
+        object unquote(:"paged_#{plural(&1)}") do
           field(:entries, list_of(unquote(&1)))
           pagination_fields()
         end
