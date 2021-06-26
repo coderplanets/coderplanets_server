@@ -51,7 +51,7 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
   upvote_[thread]
   unto_emotion_[thread]
   """
-  defmacro article_upvote_mutation(thread) do
+  defmacrop article_upvote_mutation(thread) do
     quote do
       @desc unquote("upvote to #{thread}")
       field unquote(:"upvote_#{thread}"), :article do
@@ -81,7 +81,7 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
   pin_[thread]
   unto_pin_[thread]
   """
-  defmacro article_pin_mutation(thread) do
+  defmacrop article_pin_mutation(thread) do
     quote do
       @desc unquote("pin to #{thread}")
       field unquote(:"pin_#{thread}"), unquote(thread) do
@@ -117,7 +117,7 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
   mark_delete_[thread]
   unto_mark_delete_[thread]
   """
-  defmacro article_mark_delete_mutation(thread) do
+  defmacrop article_mark_delete_mutation(thread) do
     quote do
       @desc unquote("mark delete a #{thread} type article, aka soft-delete")
       field unquote(:"mark_delete_#{thread}"), unquote(thread) do
@@ -152,7 +152,7 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
   mark_delete_[thread]
   """
   # TODO: if post belongs to multi communities, unset instead delete
-  defmacro article_delete_mutation(thread) do
+  defmacrop article_delete_mutation(thread) do
     quote do
       @desc unquote("delete a #{thread}, not delete")
       field unquote(:"delete_#{thread}"), unquote(thread) do
@@ -175,7 +175,7 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
   emotion_to_[thread]
   unto_emotion_to_[thread]
   """
-  defmacro article_emotion_mutation(thread) do
+  defmacrop article_emotion_mutation(thread) do
     quote do
       @desc unquote("emotion to #{thread}")
       field unquote(:"emotion_to_#{thread}"), unquote(thread) do
@@ -207,7 +207,7 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
   report_[thread]
   undo_report_[thread]
   """
-  defmacro article_report_mutation(thread) do
+  defmacrop article_report_mutation(thread) do
     quote do
       @desc unquote("report a #{thread}")
       field unquote(:"report_#{thread}"), unquote(thread) do
@@ -239,7 +239,7 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
   sink_[thread]
   undo_sink_[thread]
   """
-  defmacro article_sink_mutation(thread) do
+  defmacrop article_sink_mutation(thread) do
     quote do
       @desc unquote("sink a #{thread}")
       field unquote(:"sink_#{thread}"), :article do
@@ -275,7 +275,7 @@ defmodule GroupherServerWeb.Schema.Helper.Mutations do
   lock_[thread]_comment
   undo_lock_[thread]_comment
   """
-  defmacro article_lock_comment_mutation(thread) do
+  defmacrop article_lock_comment_mutation(thread) do
     quote do
       @desc unquote("lock comment of a #{thread}")
       field unquote(:"lock_#{thread}_comment"), :article do

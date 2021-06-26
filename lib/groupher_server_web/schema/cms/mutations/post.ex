@@ -43,15 +43,15 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Post do
       resolve(&R.CMS.update_article/3)
     end
 
-    #############
-    article_upvote_mutation(:post)
-    article_pin_mutation(:post)
-    article_mark_delete_mutation(:post)
-    article_delete_mutation(:post)
-    article_emotion_mutation(:post)
-    article_report_mutation(:post)
-    article_sink_mutation(:post)
-    article_lock_comment_mutation(:post)
-    #############
+    article_react_mutations(:post, [
+      :upvote,
+      :pin,
+      :mark_delete,
+      :delete,
+      :emotion,
+      :report,
+      :sink,
+      :lock_comment
+    ])
   end
 end

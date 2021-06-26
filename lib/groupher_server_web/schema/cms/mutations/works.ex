@@ -38,7 +38,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Works do
       resolve(&R.CMS.update_article/3)
     end
 
-    #############
     article_react_mutations(:works, [
       :upvote,
       :pin,
@@ -49,7 +48,5 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Works do
       :sink,
       :lock_comment
     ])
-
-    #############
   end
 end

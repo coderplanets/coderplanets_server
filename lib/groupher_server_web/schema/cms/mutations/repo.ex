@@ -70,14 +70,14 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Repo do
       resolve(&R.CMS.update_article/3)
     end
 
-    #############
-    article_pin_mutation(:repo)
-    article_mark_delete_mutation(:repo)
-    article_delete_mutation(:repo)
-    article_emotion_mutation(:repo)
-    article_report_mutation(:repo)
-    article_sink_mutation(:repo)
-    article_lock_comment_mutation(:repo)
-    #############
+    article_react_mutations(:repo, [
+      :pin,
+      :mark_delete,
+      :delete,
+      :emotion,
+      :report,
+      :sink,
+      :lock_comment
+    ])
   end
 end
