@@ -18,7 +18,17 @@ defmodule Helper.ORM do
   offset-limit based pagination
   total_count is a personal-taste naming convert
   """
+  def paginater(queryable, page: page, size: size) do
+    IO.inspect("111 x")
+    do_paginate(queryable, page, size)
+  end
+
   def paginater(queryable, ~m(page size)a) do
+    IO.inspect("222 x")
+    do_paginate(queryable, page, size)
+  end
+
+  defp do_paginate(queryable, page, size) do
     result = queryable |> Repo.paginate(page: page, page_size: size)
     total_count = result.total_entries
     result |> Map.put(:total_count, total_count) |> Map.drop([:total_entries])

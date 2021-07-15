@@ -119,6 +119,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
       |> group_by([c, a], a.id)
       |> group_by([c, a], c.inserted_at)
       |> select([c, a], a)
+      |> IO.inspect(label: "bb")
       |> ORM.paginater(~m(page size)a)
       |> done()
     end
