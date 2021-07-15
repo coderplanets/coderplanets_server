@@ -82,7 +82,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
       end)
 
     Repo.preload(folder.collects, article_preload)
-    |> ORM.embeds_paginater(filter)
+    |> ORM.embeds_paginator(filter)
     |> ORM.extract_articles()
     |> done()
   end

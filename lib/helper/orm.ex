@@ -29,7 +29,7 @@ defmodule Helper.ORM do
 
   # NOTE: should have limit length for list, otherwise it will cause mem issues
   @doc "simu paginator in normal list, used for embeds_many etc"
-  def embeds_paginater(list, %{page: page, size: size} = _filter) when is_list(list) do
+  def embeds_paginator(list, %{page: page, size: size} = _filter) when is_list(list) do
     chunked_list = Enum.chunk_every(list, size)
 
     entries = chunked_list |> Enum.at(page - 1)
