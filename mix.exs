@@ -74,9 +74,9 @@ defmodule GroupherServer.Mixfile do
       {:poison, "~> 3.1"},
       # for fake data in test env
       {:faker, "~> 0.9"},
-      {:scrivener_ecto,
-       git: "https://github.com/mastani-stack/scrivener_ecto", branch: "dev", override: true},
-      # {:scrivener_ecto, "~> 2.0.0"},
+      {:scrivener_ecto, "~> 2.7.0"},
+      # cursor based pagination
+      {:paginator, "~> 1.0.4"},
       {:guardian, "~> 2.0"},
       {:timex, "~> 3.7.5"},
       {:dataloader, "~> 1.0.7"},

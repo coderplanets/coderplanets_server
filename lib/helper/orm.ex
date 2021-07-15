@@ -15,14 +15,13 @@ defmodule Helper.ORM do
   @article_threads get_config(:article, :threads)
 
   @doc """
-  a wrap for paginate request
+  offset-limit based pagination
+  total_count is a personal-taste naming convert
   """
-  def paginater(queryable, page: page, size: size) do
-    queryable |> Repo.paginate(page: page, page_size: size)
-  end
-
   def paginater(queryable, ~m(page size)a) do
-    queryable |> Repo.paginate(page: page, page_size: size)
+    result = queryable |> Repo.paginate(page: page, page_size: size)
+    total_count = result.total_entries
+    result |> Map.put(:total_count, total_count) |> Map.drop([:total_entries])
   end
 
   # NOTE: should have limit length for list, otherwise it will cause mem issues
