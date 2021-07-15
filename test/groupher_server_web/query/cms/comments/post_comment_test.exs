@@ -591,7 +591,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
         }
     }
     """
-
     test "guest user can get paged participants", ~m(guest_conn post user)a do
       total_count = 30
       page_size = 10

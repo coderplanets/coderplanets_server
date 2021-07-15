@@ -201,13 +201,13 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
 
     query
     |> QueryBuilder.filter_pack(filter)
-    |> ORM.paginater(~m(page size)a)
+    |> ORM.paginator(~m(page size)a)
     |> reports_formater(thread)
     |> done()
   end
 
   defp do_paged_reports(query, %{page: page, size: size}) do
-    query |> ORM.paginater(~m(page size)a) |> done()
+    query |> ORM.paginator(~m(page size)a) |> done()
   end
 
   defp create_report(type, content_id, reason, attr, %User{} = user) do

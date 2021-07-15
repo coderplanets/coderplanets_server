@@ -62,7 +62,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     |> join(:inner, [comment], author in assoc(comment, :author))
     |> where([comment, author], author.id == ^user_id)
     |> QueryBuilder.filter_pack(filter)
-    |> ORM.paginater(~m(page size)a)
+    |> ORM.paginator(~m(page size)a)
     |> ORM.extract_and_assign_article()
     |> done()
   end
@@ -81,7 +81,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     |> where([comment, author], comment.thread == ^thread)
     |> where([comment, author], author.id == ^user_id)
     |> QueryBuilder.filter_pack(filter)
-    |> ORM.paginater(~m(page size)a)
+    |> ORM.paginator(~m(page size)a)
     |> ORM.extract_and_assign_article()
     |> done()
   end
@@ -116,10 +116,12 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
       |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :desc_inserted}))
       |> join(:inner, [c], a in assoc(c, :author))
       |> distinct([c, a], a.id)
+      # group_by
       |> group_by([c, a], a.id)
       |> group_by([c, a], c.inserted_at)
+      |> group_by([c, a], c.id)
       |> select([c, a], a)
-      |> ORM.paginater(~m(page size)a)
+      |> ORM.paginator(~m(page size)a)
       |> done()
     end
   end
@@ -331,7 +333,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
       |> where(^thread_query)
       |> where(^where_query)
       |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: sort}))
-      |> ORM.paginater(~m(page size)a)
+      |> ORM.paginator(~m(page size)a)
       |> add_pinned_comments_ifneed(thread, article_id, filters)
       |> mark_viewer_emotion_states(user, :comment)
       |> mark_viewer_has_upvoted(user)
@@ -348,7 +350,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     query
     |> where(^where_query)
     |> QueryBuilder.filter_pack(filters)
-    |> ORM.paginater(~m(page size)a)
+    |> ORM.paginator(~m(page size)a)
     |> mark_viewer_emotion_states(user, :comment)
     |> mark_viewer_has_upvoted(user)
     |> done()

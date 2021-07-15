@@ -68,8 +68,6 @@ defmodule GroupherServer.Test.Mutation.Sink.WorksSink do
       assert not works.meta.is_sinked
     end
 
-    :wip2
-
     test "unauth user undo sink a works fails", ~m(guest_conn community works)a do
       variables = %{id: works.id, communityId: community.id}
 

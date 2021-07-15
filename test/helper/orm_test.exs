@@ -75,7 +75,7 @@ defmodule GroupherServer.Test.Helper.ORM do
         end)
 
       filter = %{page: 1, size: 30}
-      result = ORM.embeds_paginater(list, filter)
+      result = ORM.embeds_paginator(list, filter)
 
       assert result |> is_valid_pagination?(:raw)
       assert result.total_count == length(list)
@@ -85,7 +85,7 @@ defmodule GroupherServer.Test.Helper.ORM do
       assert result.entries |> List.last() == "i-30"
 
       filter = %{page: 4, size: 30}
-      result = ORM.embeds_paginater(list, filter)
+      result = ORM.embeds_paginator(list, filter)
 
       assert result.page_number == 4
       assert result.entries |> List.first() == "i-91"

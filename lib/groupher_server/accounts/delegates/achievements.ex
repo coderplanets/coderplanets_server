@@ -134,7 +134,7 @@ defmodule GroupherServer.Accounts.Delegate.Achievements do
       |> where([e], e.user_id == ^user.id)
       |> join(:inner, [e], c in assoc(e, :community))
       |> select([e, c], c)
-      |> ORM.paginater(page: page, size: size)
+      |> ORM.paginator(page: page, size: size)
       |> done()
     end
   end

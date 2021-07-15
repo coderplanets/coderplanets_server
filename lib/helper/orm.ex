@@ -15,19 +15,21 @@ defmodule Helper.ORM do
   @article_threads get_config(:article, :threads)
 
   @doc """
-  a wrap for paginate request
+  offset-limit based pagination
+  total_count is a personal-taste naming convert
   """
-  def paginater(queryable, page: page, size: size) do
-    queryable |> Repo.paginate(page: page, page_size: size)
-  end
+  def paginator(queryable, page: page, size: size), do: do_pagi(queryable, page, size)
+  def paginator(queryable, ~m(page size)a), do: do_pagi(queryable, page, size)
 
-  def paginater(queryable, ~m(page size)a) do
-    queryable |> Repo.paginate(page: page, page_size: size)
+  defp do_pagi(queryable, page, size) do
+    result = queryable |> Repo.paginate(page: page, page_size: size)
+    total_count = result.total_entries
+    result |> Map.put(:total_count, total_count) |> Map.drop([:total_entries])
   end
 
   # NOTE: should have limit length for list, otherwise it will cause mem issues
   @doc "simu paginator in normal list, used for embeds_many etc"
-  def embeds_paginater(list, %{page: page, size: size} = _filter) when is_list(list) do
+  def embeds_paginator(list, %{page: page, size: size} = _filter) when is_list(list) do
     chunked_list = Enum.chunk_every(list, size)
 
     entries = chunked_list |> Enum.at(page - 1)
@@ -84,7 +86,7 @@ defmodule Helper.ORM do
   def find_all(queryable, %{page: page, size: size} = filter) do
     queryable
     |> QueryBuilder.filter_pack(filter)
-    |> paginater(page: page, size: size)
+    |> paginator(page: page, size: size)
     |> done()
   end
 

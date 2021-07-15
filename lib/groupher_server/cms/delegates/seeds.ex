@@ -233,7 +233,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
 
     CMS.Thread
     |> where([t], t.raw in ^thread_titles)
-    |> ORM.paginater(page: 1, size: 30)
+    |> ORM.paginator(page: 1, size: 30)
     |> done()
   end
 
@@ -248,7 +248,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
 
     CMS.Thread
     |> where([t], t.raw in @city_threads)
-    |> ORM.paginater(page: 1, size: 10)
+    |> ORM.paginator(page: 1, size: 10)
     |> done()
   end
 
@@ -266,7 +266,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
 
     CMS.Thread
     |> where([t], t.raw in @home_threads)
-    |> ORM.paginater(page: 1, size: 10)
+    |> ORM.paginator(page: 1, size: 10)
     |> done()
   end
 

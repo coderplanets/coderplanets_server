@@ -82,7 +82,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
       end)
 
     Repo.preload(folder.collects, article_preload)
-    |> ORM.embeds_paginater(filter)
+    |> ORM.embeds_paginator(filter)
     |> ORM.extract_articles()
     |> done()
   end
@@ -241,7 +241,7 @@ defmodule GroupherServer.Accounts.Delegate.CollectFolder do
     |> filter_thread_ifneed(filter)
     # delete thread in filter for now, otherwise it will crash querybuilder, because thread not exsit on CollectFolder
     |> QueryBuilder.filter_pack(filter |> Map.delete(:thread))
-    |> ORM.paginater(page: page, size: size)
+    |> ORM.paginator(page: page, size: size)
     |> done()
   end
 
