@@ -147,7 +147,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
   def paged_article_tags(%{page: page, size: size} = filter) do
     ArticleTag
     |> QueryBuilder.filter_pack(filter)
-    |> ORM.paginater(~m(page size)a)
+    |> ORM.paginator(~m(page size)a)
     |> done()
   end
 
@@ -155,7 +155,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
   def paged_article_tags(filter) do
     ArticleTag
     |> QueryBuilder.filter_pack(filter)
-    |> ORM.paginater(%{page: 1, size: 100})
+    |> ORM.paginator(%{page: 1, size: 100})
     |> done()
   end
 

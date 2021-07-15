@@ -68,8 +68,6 @@ defmodule GroupherServer.Test.Mutation.Sink.RepoSink do
       assert not repo.meta.is_sinked
     end
 
-    :wip2
-
     test "unauth user undo sink a repo fails", ~m(guest_conn community repo)a do
       variables = %{id: repo.id, communityId: community.id}
 

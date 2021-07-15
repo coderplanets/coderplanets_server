@@ -38,7 +38,7 @@ defmodule GroupherServer.CMS.Delegate.CitedArtiment do
     CitedArtiment
     |> where([c], c.cited_by_id == ^cited_by_id and c.cited_by_type == ^cited_by_type)
     |> QueryBuilder.filter_pack(Map.merge(filter, %{sort: :asc_inserted}))
-    |> ORM.paginater(~m(page size)a)
+    |> ORM.paginator(~m(page size)a)
     |> extract_contents
     |> done
   end

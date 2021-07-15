@@ -233,7 +233,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
       result =
         ArticleTag
         |> where([t], t.community_id == ^community.id)
-        |> ORM.paginater(page: 1, size: 1)
+        |> ORM.paginator(page: 1, size: 1)
 
       {:ok, result.total_count}
     end
@@ -262,7 +262,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     queryable
     |> where([c], c.community_id == ^id)
     |> QueryBuilder.load_inner_users(filters)
-    |> ORM.paginater(~m(page size)a)
+    |> ORM.paginator(~m(page size)a)
     |> done()
   end
 
@@ -277,7 +277,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     |> join(:inner, [member], u in assoc(member, :user))
     |> select([member, c, u], u)
     |> QueryBuilder.filter_pack(filters)
-    |> ORM.paginater(~m(page size)a)
+    |> ORM.paginator(~m(page size)a)
     |> done()
   end
 end

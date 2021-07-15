@@ -67,8 +67,6 @@ defmodule GroupherServer.Test.Mutation.Sink.PostSink do
       assert not post.meta.is_sinked
     end
 
-    :wip2
-
     test "unauth user undo sink a post fails", ~m(guest_conn community post)a do
       variables = %{id: post.id, communityId: community.id}
 

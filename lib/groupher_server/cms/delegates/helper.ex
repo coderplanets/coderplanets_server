@@ -156,7 +156,7 @@ defmodule GroupherServer.CMS.Delegate.Helper do
       queryable
       |> where([u], field(u, ^info.foreign_key) == ^article_id)
       |> QueryBuilder.load_inner_users(filter)
-      |> ORM.paginater(~m(page size)a)
+      |> ORM.paginator(~m(page size)a)
       |> done()
     end
   end

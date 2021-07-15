@@ -159,7 +159,7 @@ defmodule GroupherServer.Accounts.Delegate.Fans do
     queryable
     |> select([uf, u], u)
     |> QueryBuilder.filter_pack(filter)
-    |> ORM.paginater(~m(page size)a)
+    |> ORM.paginator(~m(page size)a)
     |> done()
   end
 

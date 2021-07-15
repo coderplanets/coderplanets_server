@@ -25,7 +25,7 @@ defmodule GroupherServer.Billing.Delegate.CURD do
     with {:ok, user} <- ORM.find(User, user_id) do
       BillRecord
       |> where([r], r.user_id == ^user.id)
-      |> ORM.paginater(page: page, size: size)
+      |> ORM.paginator(page: page, size: size)
       |> done()
     end
   end

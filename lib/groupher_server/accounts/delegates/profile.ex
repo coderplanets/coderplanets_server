@@ -155,7 +155,7 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
     |> join(:inner, [c], cc in assoc(c, :community))
     |> select([c, cc], cc)
     |> QueryBuilder.filter_pack(filter)
-    |> ORM.paginater(~m(page size)a)
+    |> ORM.paginator(~m(page size)a)
     |> sort_communities(user)
     |> done()
   end

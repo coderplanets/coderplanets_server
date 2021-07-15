@@ -41,7 +41,7 @@ defmodule GroupherServer.Accounts.Delegate.UpvotedArticles do
     query
     |> where(^where_query)
     |> QueryBuilder.filter_pack(filter)
-    |> ORM.paginater(~m(page size)a)
+    |> ORM.paginator(~m(page size)a)
     |> ORM.extract_articles()
     |> done()
   end

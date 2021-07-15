@@ -68,8 +68,6 @@ defmodule GroupherServer.Test.Mutation.Sink.RadarSink do
       assert not radar.meta.is_sinked
     end
 
-    :wip2
-
     test "unauth user undo sink a radar fails", ~m(guest_conn community radar)a do
       variables = %{id: radar.id, communityId: community.id}
 

@@ -18,7 +18,7 @@ defmodule GroupherServer.Statistics.Delegate.Geo do
   def list_cities_info do
     UserGeoInfo
     |> where([g], g.value > 0)
-    |> ORM.paginater(page: 1, size: 300)
+    |> ORM.paginator(page: 1, size: 300)
     |> done()
   end
 end

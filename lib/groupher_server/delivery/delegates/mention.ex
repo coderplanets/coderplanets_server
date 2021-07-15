@@ -74,7 +74,7 @@ defmodule GroupherServer.Delivery.Delegate.Mention do
 
     Mention
     |> where([m], m.to_user_id == ^user.id and m.read == ^read)
-    |> ORM.paginater(~m(page size)a)
+    |> ORM.paginator(~m(page size)a)
     |> extract_mentions
     |> done()
   end

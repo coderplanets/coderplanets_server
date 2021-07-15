@@ -17,7 +17,7 @@ defmodule GroupherServer.Accounts.Delegate.Search do
   def search_users(%{name: name} = _args) do
     User
     |> where([c], ilike(c.nickname, ^"%#{name}%"))
-    |> ORM.paginater(page: 1, size: @search_items_count)
+    |> ORM.paginator(page: 1, size: @search_items_count)
     |> done()
   end
 end

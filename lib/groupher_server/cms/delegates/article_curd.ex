@@ -100,7 +100,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       info.model
       |> QueryBuilder.domain_query(filter)
       |> QueryBuilder.filter_pack(Map.merge(filter, %{mark_delete: false}))
-      |> ORM.paginater(~m(page size)a)
+      |> ORM.paginator(~m(page size)a)
       |> add_pin_articles_ifneed(info.model, filter)
       |> done()
     end
@@ -126,7 +126,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> where([article, author], author.user_id == ^user.id)
       |> select([article, author], article)
       |> QueryBuilder.filter_pack(filter)
-      |> ORM.paginater(~m(page size)a)
+      |> ORM.paginator(~m(page size)a)
       |> mark_viewer_emotion_states(user)
       |> mark_viewer_has_states(user)
       |> done()
