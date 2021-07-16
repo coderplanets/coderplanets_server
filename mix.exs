@@ -75,8 +75,8 @@ defmodule GroupherServer.Mixfile do
       # for fake data in test env
       {:faker, "~> 0.9"},
       {:scrivener_ecto, "~> 2.7.0"},
-      # cursor based pagination
-      {:paginator, "~> 1.0.4"},
+      # enhanced cursor based pagination
+      {:quarto, "~> 1.1.5"},
       {:guardian, "~> 2.0"},
       {:timex, "~> 3.7.5"},
       {:dataloader, "~> 1.0.7"},

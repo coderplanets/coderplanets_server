@@ -373,7 +373,6 @@ defmodule GroupherServer.Test.CMS.Comments.MeetupComment do
   end
 
   describe "paged article comments" do
-    @tag :wip
     test "can load paged comments participants of a article", ~m(user meetup)a do
       total_count = 30
       page_size = 10

@@ -27,6 +27,14 @@ defmodule Helper.ORM do
     result |> Map.put(:total_count, total_count) |> Map.drop([:total_entries])
   end
 
+  @doc """
+  cursor-based paginator, works well
+  see: https://hexdocs.pm/quarto/Quarto.html
+  """
+  def cursor_paginator(queryable) do
+    queryable |> Quarto.paginate([limit: 10], Repo)
+  end
+
   # NOTE: should have limit length for list, otherwise it will cause mem issues
   @doc "simu paginator in normal list, used for embeds_many etc"
   def embeds_paginator(list, %{page: page, size: size} = _filter) when is_list(list) do
