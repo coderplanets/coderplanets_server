@@ -66,7 +66,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
     end
 
     test "old post will not update active after comment created", ~m(user)a do
-      active_period_days = Map.get(@active_period, :post)
+      active_period_days = @active_period[:post] || @active_period[:default]
 
       inserted_at =
         Timex.shift(Timex.now(), days: -(active_period_days - 1)) |> Timex.to_datetime()

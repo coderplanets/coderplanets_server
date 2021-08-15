@@ -324,7 +324,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   # check is an article's active_at is in active period
   defp in_active_period?(thread, article) do
-    active_period_days = Map.get(@active_period, thread)
+    active_period_days = @active_period[thread] || @active_period[:default]
 
     inserted_at = article.inserted_at
     active_threshold = Timex.shift(Timex.now(), days: -active_period_days)
