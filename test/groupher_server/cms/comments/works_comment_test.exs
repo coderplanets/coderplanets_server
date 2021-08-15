@@ -66,7 +66,7 @@ defmodule GroupherServer.Test.CMS.Comments.WorksComment do
     end
 
     test "old works will not update active after comment created", ~m(user)a do
-      active_period_days = Map.get(@active_period, :works)
+      active_period_days = @active_period[:works] || @active_period[:default]
 
       inserted_at =
         Timex.shift(Timex.now(), days: -(active_period_days - 1)) |> Timex.to_datetime()

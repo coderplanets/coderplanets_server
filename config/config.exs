@@ -73,15 +73,10 @@ config :groupher_server, :article,
   # in this period, paged articles will sort front if non-article-author commented
   # 在此时间段内，一旦有非文章作者的用户评论，该文章就会排到前面
   active_period_days: %{
-    post: 10,
-    job: 10,
-    repo: 10,
-    blog: 10,
-    works: 10,
-    radar: 10,
-    guide: 10,
-    meetup: 10,
-    drink: 10
+    default: 10
+    # post: 10,
+    # job: 10,
+    # ...
   },
 
   # NOTE: if you want to add/remove emotion, just edit the list below
