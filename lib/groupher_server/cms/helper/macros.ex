@@ -200,6 +200,10 @@ defmodule GroupherServer.CMS.Helper.Macros do
       comment_fields()
 
       field(:active_at, :utc_datetime_usec)
+
+      field(:is_archived, :boolean, default: false)
+      field(:archived_at, :utc_datetime_usec)
+
       # TODO:
       # related_articles
       timestamps()

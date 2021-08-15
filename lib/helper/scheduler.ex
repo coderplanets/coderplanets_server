@@ -12,4 +12,11 @@ defmodule Helper.Scheduler do
   def clear_all_cache do
     # Cache.clear_all()
   end
+
+  @doc """
+  archive articles and comments based on config
+  """
+  def archive_artiments() do
+    # TODO
+  end
 end

@@ -24,10 +24,12 @@ defmodule GroupherServer.Test.Query.Articles.Post do
       meta {
         isEdited
       }
+      isArchived
+      archivedAt
     }
   }
   """
-
+  @tag :wip
   test "basic graphql query on post with logined user",
        ~m(user_conn community user post_attrs)a do
     {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
@@ -38,7 +40,7 @@ defmodule GroupherServer.Test.Query.Articles.Post do
     assert results["id"] == to_string(post.id)
     assert is_valid_kv?(results, "title", :string)
     assert %{"isEdited" => false} == results["meta"]
-    assert length(Map.keys(results)) == 3
+    assert length(Map.keys(results)) == 5
   end
 
   test "basic graphql query on post with stranger(unloged user)", ~m(guest_conn post)a do

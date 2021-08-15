@@ -100,6 +100,8 @@ defmodule GroupherServer.CMS do
   defdelegate sink_article(thread, id), to: ArticleCURD
   defdelegate undo_sink_article(thread, id), to: ArticleCURD
 
+  defdelegate archive_articles(thread), to: ArticleCURD
+
   defdelegate paged_citing_contents(type, id, filter), to: CitedArtiment
 
   defdelegate upvote_article(thread, article_id, user), to: ArticleUpvote

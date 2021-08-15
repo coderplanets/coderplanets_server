@@ -38,6 +38,9 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
       field(:viewer_has_upvoted, :boolean)
       field(:viewer_has_viewed, :boolean)
       field(:viewer_has_reported, :boolean)
+
+      field(:is_archived, :boolean)
+      field(:archived_at, :datetime)
     end
   end
 
