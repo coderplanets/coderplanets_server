@@ -9,10 +9,10 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
 
   @page_size get_config(:general, :page_size)
 
-  @cur_date Timex.now()
-  @last_week Timex.shift(Timex.beginning_of_week(@cur_date), days: -1, seconds: -1)
-  @last_month Timex.shift(Timex.beginning_of_month(@cur_date), days: -7, seconds: -1)
-  @last_year Timex.shift(Timex.beginning_of_year(@cur_date), days: -2, seconds: -1)
+  @now Timex.now()
+  @last_week Timex.shift(Timex.beginning_of_week(@now), days: -1, seconds: -1)
+  @last_month Timex.shift(Timex.beginning_of_month(@now), days: -7, seconds: -1)
+  @last_year Timex.shift(Timex.beginning_of_year(@now), days: -2, seconds: -1)
 
   @today_count 15
 
@@ -308,7 +308,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
       variables = %{filter: %{when: "THIS_MONTH"}}
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
 
-      {_, cur_week_month, _} = @cur_date |> Date.to_erl()
+      {_, cur_week_month, _} = @now |> Date.to_erl()
       {_, last_week_month, _} = @last_week |> Date.to_erl()
 
       expect_count =

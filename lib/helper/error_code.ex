@@ -52,6 +52,7 @@ defmodule Helper.ErrorCode do
   def ecode(:article_comments_locked), do: @article_base + 8
   def ecode(:require_questioner), do: @article_base + 9
   def ecode(:cite_artilce), do: @article_base + 10
+  def ecode(:archived), do: @article_base + 11
   # def ecode(:already_solved), do: @article_base + 10
 
   def ecode, do: @default_base

@@ -39,6 +39,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   alias Ecto.Multi
 
   @active_period get_config(:article, :active_period_days)
+  @archive_threshold get_config(:article, :archive_threshold)
+
   @default_emotions Embeds.ArticleEmotion.default_emotions()
   @default_article_meta Embeds.ArticleMeta.default_meta()
   @remove_article_hint "The content does not comply with the community norms"
@@ -68,26 +70,24 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   read articles for logined user
   """
   def read_article(thread, id, %User{id: user_id}) do
-    with {:ok, info} <- match(thread) do
-      Multi.new()
-      |> Multi.run(:normal_read, fn _, _ -> read_article(thread, id) end)
-      |> Multi.run(:add_viewed_user, fn _, %{normal_read: article} ->
-        update_viewed_user_list(article, user_id)
-      end)
-      |> Multi.run(:set_viewer_has_states, fn _, %{normal_read: article} ->
-        article_meta = if is_nil(article.meta), do: @default_article_meta, else: article.meta
+    Multi.new()
+    |> Multi.run(:normal_read, fn _, _ -> read_article(thread, id) end)
+    |> Multi.run(:add_viewed_user, fn _, %{normal_read: article} ->
+      update_viewed_user_list(article, user_id)
+    end)
+    |> Multi.run(:set_viewer_has_states, fn _, %{normal_read: article} ->
+      article_meta = if is_nil(article.meta), do: @default_article_meta, else: article.meta
 
-        viewer_has_states = %{
-          viewer_has_collected: user_id in article_meta.collected_user_ids,
-          viewer_has_upvoted: user_id in article_meta.upvoted_user_ids,
-          viewer_has_reported: user_id in article_meta.reported_user_ids
-        }
+      viewer_has_states = %{
+        viewer_has_collected: user_id in article_meta.collected_user_ids,
+        viewer_has_upvoted: user_id in article_meta.upvoted_user_ids,
+        viewer_has_reported: user_id in article_meta.reported_user_ids
+      }
 
-        article |> Map.merge(viewer_has_states) |> done
-      end)
-      |> Repo.transaction()
-      |> result()
-    end
+      article |> Map.merge(viewer_has_states) |> done
+    end)
+    |> Repo.transaction()
+    |> result()
   end
 
   @doc """
@@ -130,6 +130,23 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> ORM.paginator(~m(page size)a)
       |> mark_viewer_emotion_states(user)
       |> mark_viewer_has_states(user)
+      |> done()
+    end
+  end
+
+  @doc """
+  archive articles based on thread
+  called every day by scheuler job
+  """
+  def archive_articles(thread) do
+    with {:ok, info} <- match(thread) do
+      now = Timex.now()
+      threshold = @archive_threshold[thread] || @archive_threshold[:default]
+      archive_threshold = Timex.shift(now, threshold)
+
+      info.model
+      |> where([article], article.inserted_at < ^archive_threshold)
+      |> Repo.update_all(set: [is_archived: true, archived_at: now])
       |> done()
     end
   end
@@ -237,6 +254,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   @doc """
   update a article(post/job ...)
   """
+  def update_article(%{is_archived: true}, _attrs),
+    do: raise_error(:archived, "article is archived, can not be edit or delete")
+
   def update_article(article, attrs) do
     Multi.new()
     |> Multi.run(:update_article, fn _, _ ->
@@ -317,7 +337,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   """
   def mark_delete_article(thread, id) do
     with {:ok, info} <- match(thread),
-         {:ok, article} <- ORM.find(info.model, id, preload: :communities) do
+         {:ok, article} <- ORM.find(info.model, id, preload: :communities),
+         false <- article.is_archived do
       Multi.new()
       |> Multi.run(:update_article, fn _, _ ->
         ORM.update(article, %{mark_delete: true})
@@ -327,6 +348,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       end)
       |> Repo.transaction()
       |> result()
+    else
+      true -> raise_error(:archived, "article is archived, can not be edit or delete")
     end
   end
 

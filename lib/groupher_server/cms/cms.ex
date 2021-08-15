@@ -100,6 +100,8 @@ defmodule GroupherServer.CMS do
   defdelegate sink_article(thread, id), to: ArticleCURD
   defdelegate undo_sink_article(thread, id), to: ArticleCURD
 
+  defdelegate archive_articles(thread), to: ArticleCURD
+
   defdelegate paged_citing_contents(type, id, filter), to: CitedArtiment
 
   defdelegate upvote_article(thread, article_id, user), to: ArticleUpvote
@@ -150,6 +152,8 @@ defmodule GroupherServer.CMS do
   defdelegate delete_comment(comment), to: CommentCurd
   defdelegate mark_comment_solution(comment, user), to: CommentCurd
   defdelegate undo_mark_comment_solution(comment, user), to: CommentCurd
+
+  defdelegate archive_comments(), to: CommentCurd
 
   defdelegate upvote_comment(comment_id, user), to: CommentAction
   defdelegate undo_upvote_comment(comment_id, user), to: CommentAction

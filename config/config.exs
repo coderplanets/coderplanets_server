@@ -109,7 +109,15 @@ config :groupher_server, :article,
     :pill,
     :popcorn
   ],
-  digest_length: 120
+  digest_length: 120,
+  archive_threshold: %{
+    # for post, blog, job, works, radar, job
+    default: [weeks: -1],
+    meetups: [months: -1],
+    drink: [years: -99],
+    repo: [years: -99],
+    guide: [years: -99]
+  }
 
 config :groupher_server, GroupherServerWeb.Gettext, default_locale: "zh_CN", locales: ~w(en zh_CN)
 
@@ -137,7 +145,8 @@ config :rihanna,
 config :groupher_server, Helper.Scheduler,
   jobs: [
     # Every midnight
-    {"@daily", {Helper.Scheduler, :clear_all_cache, []}}
+    {"@daily", {Helper.Scheduler, :clear_all_cache, []}},
+    {"@daily", {Helper.Scheduler, :archive_artiments, []}}
   ]
 
 import_config "#{Mix.env()}.exs"
