@@ -83,6 +83,9 @@ defmodule GroupherServer.CMS.Model.Comment do
 
     has_many(:upvotes, {"comments_upvotes", CommentUpvote})
 
+    field(:is_archived, :boolean, default: false)
+    field(:archived_at, :utc_datetime)
+
     article_belongs_to_fields()
     timestamps(type: :utc_datetime)
   end

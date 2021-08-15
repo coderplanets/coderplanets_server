@@ -27,7 +27,6 @@ defmodule GroupherServer.Test.CMS.WorksArchive do
   end
 
   describe "[cms works archive]" do
-    @tag :wip
     test "can archive workss", ~m(works_long_ago)a do
       {:ok, _} = CMS.archive_articles(:works)
 
@@ -41,7 +40,6 @@ defmodule GroupherServer.Test.CMS.WorksArchive do
       assert archived_works.id == works_long_ago.id
     end
 
-    @tag :wip
     test "can not edit archived works" do
       {:ok, _} = CMS.archive_articles(:works)
 
@@ -55,7 +53,6 @@ defmodule GroupherServer.Test.CMS.WorksArchive do
       assert reason |> is_error?(:archived)
     end
 
-    @tag :wip
     test "can not delete archived works" do
       {:ok, _} = CMS.archive_articles(:works)
 

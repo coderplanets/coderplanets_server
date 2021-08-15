@@ -3,7 +3,11 @@ defmodule Helper.Scheduler do
   cron-like job scheduler
   """
   use Quantum.Scheduler, otp_app: :groupher_server
-  # alias Helper.Cache
+
+  import Helper.Utils, only: [get_config: 2]
+  alias GroupherServer.CMS
+
+  @article_threads get_config(:article, :threads)
 
   @doc """
   clear all the cache in Cachex
@@ -17,6 +21,10 @@ defmodule Helper.Scheduler do
   archive articles and comments based on config
   """
   def archive_artiments() do
-    # TODO
+    Enum.map(@article_threads, &CMS.archive_articles(&1))
+  end
+
+  def arthive_comments() do
+    CMS.archive_comments()
   end
 end

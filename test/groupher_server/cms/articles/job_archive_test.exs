@@ -27,7 +27,6 @@ defmodule GroupherServer.Test.CMS.JobArchive do
   end
 
   describe "[cms job archive]" do
-    @tag :wip
     test "can archive jobs", ~m(job_long_ago)a do
       {:ok, _} = CMS.archive_articles(:job)
 
@@ -41,7 +40,6 @@ defmodule GroupherServer.Test.CMS.JobArchive do
       assert archived_job.id == job_long_ago.id
     end
 
-    @tag :wip
     test "can not edit archived job" do
       {:ok, _} = CMS.archive_articles(:job)
 
@@ -55,7 +53,6 @@ defmodule GroupherServer.Test.CMS.JobArchive do
       assert reason |> is_error?(:archived)
     end
 
-    @tag :wip
     test "can not delete archived job" do
       {:ok, _} = CMS.archive_articles(:job)
 

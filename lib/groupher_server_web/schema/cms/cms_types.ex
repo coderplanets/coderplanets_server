@@ -342,6 +342,9 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:is_for_question, :boolean)
     field(:is_solution, :boolean)
 
+    field(:is_archived, :boolean)
+    field(:archived_at, :datetime)
+
     timestamp_fields()
   end
 

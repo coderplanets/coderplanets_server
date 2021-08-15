@@ -27,7 +27,6 @@ defmodule GroupherServer.Test.CMS.MeetupArchive do
   end
 
   describe "[cms meetup archive]" do
-    @tag :wip
     test "can archive meetups", ~m(meetup_long_ago)a do
       {:ok, _} = CMS.archive_articles(:meetup)
 
@@ -41,7 +40,6 @@ defmodule GroupherServer.Test.CMS.MeetupArchive do
       assert archived_meetup.id == meetup_long_ago.id
     end
 
-    @tag :wip
     test "can not edit archived meetup" do
       {:ok, _} = CMS.archive_articles(:meetup)
 
@@ -55,7 +53,6 @@ defmodule GroupherServer.Test.CMS.MeetupArchive do
       assert reason |> is_error?(:archived)
     end
 
-    @tag :wip
     test "can not delete archived meetup" do
       {:ok, _} = CMS.archive_articles(:meetup)
 

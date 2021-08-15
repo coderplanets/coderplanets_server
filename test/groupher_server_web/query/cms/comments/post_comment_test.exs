@@ -25,6 +25,28 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       post(id: $id) {
         id
         title
+        isArchived
+        archivedAt
+      }
+    }
+    """
+    @tag :wip
+    test "guest user can get basic archive info", ~m(guest_conn post user)a do
+      thread = :post
+
+      {:ok, _} = CMS.create_comment(thread, post.id, mock_comment(), user)
+
+      variables = %{id: post.id}
+      results = guest_conn |> query_result(@query, variables, "post")
+
+      assert not results["isArchived"]
+    end
+
+    @query """
+    query($id: ID!) {
+      post(id: $id) {
+        id
+        title
         commentsParticipants {
           id
           nickname

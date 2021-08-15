@@ -27,7 +27,6 @@ defmodule GroupherServer.Test.CMS.RadarArchive do
   end
 
   describe "[cms radar archive]" do
-    @tag :wip
     test "can archive radars", ~m(radar_long_ago)a do
       {:ok, _} = CMS.archive_articles(:radar)
 
@@ -41,7 +40,6 @@ defmodule GroupherServer.Test.CMS.RadarArchive do
       assert archived_radar.id == radar_long_ago.id
     end
 
-    @tag :wip
     test "can not edit archived radar" do
       {:ok, _} = CMS.archive_articles(:radar)
 
@@ -55,7 +53,6 @@ defmodule GroupherServer.Test.CMS.RadarArchive do
       assert reason |> is_error?(:archived)
     end
 
-    @tag :wip
     test "can not delete archived radar" do
       {:ok, _} = CMS.archive_articles(:radar)
 

@@ -201,7 +201,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
 
       field(:active_at, :utc_datetime_usec)
 
-      field(:is_archived, :boolean, default: false)
+      field(:is_archived, :boolean)
       field(:archived_at, :utc_datetime_usec)
 
       # TODO:

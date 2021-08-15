@@ -27,7 +27,6 @@ defmodule GroupherServer.Test.CMS.BlogArchive do
   end
 
   describe "[cms blog archive]" do
-    @tag :wip
     test "can archive blogs", ~m(blog_long_ago)a do
       {:ok, _} = CMS.archive_articles(:blog)
 
@@ -41,7 +40,6 @@ defmodule GroupherServer.Test.CMS.BlogArchive do
       assert archived_blog.id == blog_long_ago.id
     end
 
-    @tag :wip
     test "can not edit archived blog" do
       {:ok, _} = CMS.archive_articles(:blog)
 
@@ -55,7 +53,6 @@ defmodule GroupherServer.Test.CMS.BlogArchive do
       assert reason |> is_error?(:archived)
     end
 
-    @tag :wip
     test "can not delete archived blog" do
       {:ok, _} = CMS.archive_articles(:blog)
 

@@ -153,6 +153,8 @@ defmodule GroupherServer.CMS do
   defdelegate mark_comment_solution(comment, user), to: CommentCurd
   defdelegate undo_mark_comment_solution(comment, user), to: CommentCurd
 
+  defdelegate archive_comments(), to: CommentCurd
+
   defdelegate upvote_comment(comment_id, user), to: CommentAction
   defdelegate undo_upvote_comment(comment_id, user), to: CommentAction
   defdelegate reply_comment(comment_id, args, user), to: CommentAction

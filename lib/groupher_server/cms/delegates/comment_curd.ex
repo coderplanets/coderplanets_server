@@ -3,7 +3,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   CURD and operations for article comments
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, ensure: 2]
+  import Helper.Utils, only: [done: 1, ensure: 2, get_config: 2]
   import Helper.ErrorCode
 
   import GroupherServer.CMS.Delegate.Helper,
@@ -30,6 +30,8 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   @default_article_meta Embeds.ArticleMeta.default_meta()
   @default_comment_meta Embeds.CommentMeta.default_meta()
   @pinned_comment_limit Comment.pinned_comment_limit()
+
+  @archive_threshold get_config(:article, :archive_threshold)
 
   @doc """
   [timeline-mode] list paged article comments
@@ -171,6 +173,9 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     not article_meta.is_comment_locked
   end
 
+  def update_comment(%{is_archived: true}, _body),
+    do: raise_error(:archived, "comment is archived, can not be edit or delete")
+
   @doc """
   update a comment for article like psot, job ...
   """
@@ -247,6 +252,9 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
 
   def batch_update_question_flag(_), do: {:ok, :pass}
 
+  def delete_comment(%{is_archived: true}),
+    do: raise_error(:archived, "article is archived, can not be edit or delete")
+
   @doc "delete article comment"
   def delete_comment(%Comment{} = comment) do
     Multi.new()
@@ -320,6 +328,21 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
 
       Comment |> ORM.create(Map.put(attrs, foreign_key, article.id))
     end
+  end
+
+  @doc """
+  archive comments
+  called every day by scheuler job
+  """
+  def archive_comments() do
+    now = Timex.now() |> DateTime.truncate(:second)
+    threshold = @archive_threshold[:default]
+    archive_threshold = Timex.shift(now, threshold)
+
+    Comment
+    |> where([c], c.inserted_at < ^archive_threshold)
+    |> Repo.update_all(set: [is_archived: true, archived_at: now])
+    |> done()
   end
 
   defp do_paged_comment(thread, article_id, filters, where_query, user) do
