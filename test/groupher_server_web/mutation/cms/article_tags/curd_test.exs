@@ -23,13 +23,14 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
 
   describe "[mutation cms tag]" do
     @create_tag_query """
-    mutation($thread: Thread!, $title: String!, $color: RainbowColor!, $group: String, $communityId: ID!) {
-      createArticleTag(thread: $thread, title: $title, color: $color, group: $group, communityId: $communityId) {
+    mutation($thread: Thread!, $title: String!, $color: RainbowColor!, $group: String, $communityId: ID!, $extra: [String] ) {
+      createArticleTag(thread: $thread, title: $title, color: $color, group: $group, communityId: $communityId, extra: $extra) {
         id
         title
         color
         thread
         group
+        extra
         community {
           id
           logo
@@ -38,7 +39,6 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
       }
     }
     """
-
     test "create tag with valid attrs, has default POST thread and default posts",
          ~m(community)a do
       variables = %{
@@ -64,6 +64,24 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
       assert belong_community["id"] == to_string(community.id)
     end
 
+    test "create tag with extra", ~m(community)a do
+      variables = %{
+        title: "tag title",
+        communityId: community.id,
+        thread: "POST",
+        color: "GREEN",
+        group: "awesome",
+        extra: ["menuID", "menuID2"]
+      }
+
+      passport_rules = %{community.title => %{"post.article_tag.create" => true}}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      created = rule_conn |> mutation_result(@create_tag_query, variables, "createArticleTag")
+
+      assert created["extra"] == ["menuID", "menuID2"]
+    end
+
     test "unauth user create tag fails", ~m(community user_conn guest_conn)a do
       variables = %{
         title: "tag title",
@@ -83,15 +101,16 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
     end
 
     @update_tag_query """
-    mutation($id: ID!, $color: RainbowColor, $title: String, $communityId: ID!) {
-      updateArticleTag(id: $id, color: $color, title: $title, communityId: $communityId) {
+    mutation($id: ID!, $color: RainbowColor, $title: String, $communityId: ID!, $extra: [String]) {
+      updateArticleTag(id: $id, color: $color, title: $title, communityId: $communityId, extra: $extra) {
         id
         title
         color
+        extra
       }
     }
     """
-
+    @tag :wip
     test "auth user can update a tag", ~m(article_tag_attrs community user)a do
       {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
 
@@ -99,7 +118,8 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
         id: article_tag.id,
         color: "YELLOW",
         title: "new title",
-        communityId: community.id
+        communityId: community.id,
+        extra: ["newMenuID"]
       }
 
       passport_rules = %{community.title => %{"post.article_tag.update" => true}}
@@ -109,6 +129,7 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
 
       assert updated["color"] == "YELLOW"
       assert updated["title"] == "new title"
+      assert updated["extra"] == ["newMenuID"]
     end
 
     @delete_tag_query """

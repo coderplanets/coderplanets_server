@@ -25,6 +25,7 @@ defmodule GroupherServer.Test.Query.CMS.ArticleTags do
           title
           color
           thread
+          extra
           community {
             id
             title
