@@ -386,7 +386,8 @@ defmodule GroupherServer.Support.Factory do
       group: "cool",
       # community: Faker.Pizza.topping(),
       community: mock(:community),
-      author: mock(:author)
+      author: mock(:author),
+      extra: []
       # user_id: 1
     }
   end

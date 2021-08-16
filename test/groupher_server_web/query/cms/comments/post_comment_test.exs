@@ -30,7 +30,7 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       }
     }
     """
-    @tag :wip
+
     test "guest user can get basic archive info", ~m(guest_conn post user)a do
       thread = :post
 
