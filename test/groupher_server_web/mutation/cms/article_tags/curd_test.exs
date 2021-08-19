@@ -101,12 +101,13 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
     end
 
     @update_tag_query """
-    mutation($id: ID!, $color: RainbowColor, $title: String, $communityId: ID!, $extra: [String]) {
-      updateArticleTag(id: $id, color: $color, title: $title, communityId: $communityId, extra: $extra) {
+    mutation($id: ID!, $color: RainbowColor, $title: String, $communityId: ID!, $extra: [String], $icon: String) {
+      updateArticleTag(id: $id, color: $color, title: $title, communityId: $communityId, extra: $extra, icon: $icon) {
         id
         title
         color
         extra
+        icon
       }
     }
     """
@@ -119,7 +120,8 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
         color: "YELLOW",
         title: "new title",
         communityId: community.id,
-        extra: ["newMenuID"]
+        extra: ["newMenuID"],
+        icon: "icon"
       }
 
       passport_rules = %{community.title => %{"post.article_tag.update" => true}}
@@ -130,6 +132,7 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
       assert updated["color"] == "YELLOW"
       assert updated["title"] == "new title"
       assert updated["extra"] == ["newMenuID"]
+      assert updated["icon"] == "icon"
     end
 
     @delete_tag_query """

@@ -11,7 +11,7 @@ defmodule GroupherServer.CMS.Model.ArticleTag do
   alias CMS.Model.{Author, Community}
 
   @required_fields ~w(thread title color author_id community_id)a
-  @updatable_fields ~w(thread title color community_id group extra)a
+  @updatable_fields ~w(thread title color community_id group extra icon)a
 
   @type t :: %ArticleTag{}
   schema "article_tags" do
@@ -20,6 +20,7 @@ defmodule GroupherServer.CMS.Model.ArticleTag do
     field(:thread, :string)
     field(:group, :string)
     field(:extra, {:array, :string})
+    field(:icon, :string)
 
     belongs_to(:community, Community)
     belongs_to(:author, Author)

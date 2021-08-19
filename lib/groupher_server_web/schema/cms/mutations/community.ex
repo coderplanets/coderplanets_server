@@ -134,6 +134,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Community do
       arg(:group, :string)
       arg(:thread, :thread, default_value: :post)
       arg(:extra, list_of(:string))
+      arg(:icon, :string)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
@@ -151,6 +152,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Community do
       arg(:group, :string)
       arg(:thread, :thread, default_value: :post)
       arg(:extra, list_of(:string))
+      arg(:icon, :string)
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :community)
