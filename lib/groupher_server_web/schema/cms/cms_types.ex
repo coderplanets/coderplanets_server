@@ -280,6 +280,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:thread, :string)
     field(:group, :string)
     field(:extra, list_of(:string))
+    field(:icon, :string)
 
     field(:author, :user, resolve: dataloader(CMS, :author))
     field(:community, :community, resolve: dataloader(CMS, :community))
