@@ -212,11 +212,12 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     end
   end
 
+  @spec seed_threads(:city | :default | :home) :: {:error, false | <<_::136>>} | {:ok, any}
   @doc """
   seed default threads like: post, user, wiki, cheetsheet, job ..
   """
   def seed_threads(:default) do
-    case ORM.find_by(CMS.Thread, %{raw: "post"}) do
+    case ORM.find_by(Thread, %{raw: "post"}) do
       {:ok, _} ->
         {:ok, :pass}
 
@@ -231,14 +232,14 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
       @default_threads
       |> Enum.reduce([], fn x, acc -> acc ++ [x.title] end)
 
-    CMS.Thread
+    Thread
     |> where([t], t.raw in ^thread_titles)
     |> ORM.paginator(page: 1, size: 30)
     |> done()
   end
 
   def seed_threads(:city) do
-    case ORM.find_by(CMS.Thread, %{raw: "post"}) do
+    case ORM.find_by(Thread, %{raw: "post"}) do
       {:ok, _} -> {:ok, :pass}
       {:error, _} -> seed_threads(:default)
     end
@@ -246,7 +247,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     {:ok, _thread} = CMS.create_thread(%{title: "group", raw: "group", index: 1})
     {:ok, _thread} = CMS.create_thread(%{title: "company", raw: "company", index: 2})
 
-    CMS.Thread
+    Thread
     |> where([t], t.raw in @city_threads)
     |> ORM.paginator(page: 1, size: 10)
     |> done()
@@ -254,20 +255,21 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
 
   # NOTE: the home threads should be insert after default threads
   def seed_threads(:home) do
-    case ORM.find_by(CMS.Thread, %{raw: "post"}) do
-      {:ok, _} -> {:ok, :pass}
-      {:error, _} -> seed_threads(:default)
+    with {:error, _} <- ORM.find_by(Thread, %{raw: "post"}) do
+      {:ok, _thread} = CMS.create_thread(%{title: "帖子", raw: "post", index: 1})
+      {:ok, _thread} = CMS.create_thread(%{title: "雷达", raw: "radar", index: 2})
+      {:ok, _thread} = CMS.create_thread(%{title: "博客", raw: "blog", index: 3})
+      {:ok, _thread} = CMS.create_thread(%{title: "工作", raw: "job", index: 4})
+      {:ok, _thread} = CMS.create_thread(%{title: "Cper", raw: "cper", index: 5})
+      {:ok, _thread} = CMS.create_thread(%{title: "设置", raw: "setting", index: 6})
+
+      Thread
+      |> where([t], t.raw in @home_threads)
+      |> ORM.paginator(page: 1, size: 10)
+      |> done()
+    else
+      _ -> IO.inspect("home alread been seed")
     end
-
-    {:ok, _thread} = CMS.create_thread(%{title: "tech", raw: "tech", index: 1})
-    {:ok, _thread} = CMS.create_thread(%{title: "radar", raw: "radar", index: 2})
-    {:ok, _thread} = CMS.create_thread(%{title: "share", raw: "share", index: 3})
-    {:ok, _thread} = CMS.create_thread(%{title: "city", raw: "city", index: 16})
-
-    CMS.Thread
-    |> where([t], t.raw in @home_threads)
-    |> ORM.paginator(page: 1, size: 10)
-    |> done()
   end
 
   def seed_categories(bot, :default) do
@@ -459,13 +461,13 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     thread = raw |> String.to_atom()
 
     Enum.each(SeedsConfig.tags(thread), fn attr ->
-      CMS.create_tag(community, thread, attr, bot)
+      CMS.create_article_tag(community, thread, attr, bot)
     end)
   end
 
   defp create_tags(%Community{} = community, :post, bot, :city) do
     Enum.each(SeedsConfig.tags(:city, :post), fn attr ->
-      CMS.create_tag(community, :post, attr, bot)
+      CMS.create_article_tag(community, :post, attr, bot)
     end)
   end
 
@@ -473,7 +475,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     thread = raw |> String.to_atom()
 
     Enum.each(SeedsConfig.tags(:home, thread), fn attr ->
-      CMS.create_tag(community, thread, attr, bot)
+      CMS.create_article_tag(community, thread, attr, bot)
     end)
   end
 

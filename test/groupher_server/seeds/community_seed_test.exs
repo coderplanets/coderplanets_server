@@ -1,10 +1,10 @@
-defmodule GroupherServer.Test.Seeds.Communities do
+defmodule GroupherServer.Test.Seeds.CommunitySeed do
   use GroupherServer.TestTools
 
   # alias GroupherServer.Accounts.Model.User
   alias GroupherServer.CMS
 
-  alias CMS.Model.Community
+  alias CMS.Model.{Community, Thread}
   alias CMS.Delegate.SeedsConfig
 
   alias Helper.{ORM, Utils}
@@ -16,6 +16,18 @@ defmodule GroupherServer.Test.Seeds.Communities do
   # end
 
   describe "[cms communities seeds]" do
+    @tag :wip
+    test "seed home community should works" do
+      {:ok, community} = CMS.seed_communities(:home)
+      {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])
+
+      assert found.threads |> length == 6
+
+      threads = found.threads |> Enum.map(& &1.thread.title)
+      assert threads == ["帖子", "雷达", "博客", "工作", "Cper", "设置"]
+      # IO.inspect(found, label: "found --> ")
+    end
+
     test "default pl communities seeds works" do
       CMS.seed_communities(:pl)
 

@@ -252,7 +252,7 @@ defmodule GroupherServer.CMS.Delegate.SeedsConfig do
   default threads seeds for home
   """
   def threads(:home, :list) do
-    ["post", "tech", "user", "radar", "city", "share", "job"]
+    ["post", "radar", "blog", "job", "cper", "setting"]
   end
 
   @doc """
