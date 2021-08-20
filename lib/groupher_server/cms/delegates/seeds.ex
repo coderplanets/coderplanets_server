@@ -21,9 +21,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   alias CMS.Delegate.SeedsConfig
 
   # threads
-  @default_threads SeedsConfig.threads(:default)
-  @city_threads SeedsConfig.threads(:city, :list)
-  @home_threads SeedsConfig.threads(:home, :list)
+  @lang_threads SeedsConfig.threads(:lang)
 
   # communities
   # done
@@ -45,36 +43,12 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   @doc """
   seed communities for pl_patch
   """
-  def seed_communities(:pl_patch) do
-    with {:ok, threads} <- seed_threads(:default),
-         {:ok, bot} <- seed_bot(),
-         {:ok, categories} <- seed_categories(bot, :default),
-         {:ok, communities} <- seed_for_communities(bot, :pl_patch) do
-      threadify_communities(communities, threads.entries)
-      tagfy_threads(communities, threads.entries, bot)
-      categorify_communities(communities, categories, :pl)
-    end
-  end
-
-  @doc """
-  seed communities for pl_patch
-  """
-  def seed_communities(:framework_patch) do
-    with {:ok, threads} <- seed_threads(:default),
-         {:ok, bot} <- seed_bot(),
-         {:ok, categories} <- seed_categories(bot, :default),
-         {:ok, communities} <- seed_for_communities(bot, :framework_patch) do
-      threadify_communities(communities, threads.entries)
-      tagfy_threads(communities, threads.entries, bot)
-      categorify_communities(communities, categories, :ai)
-    end
-  end
 
   @doc """
   seed communities pragraming languages
   """
   def seed_communities(:pl) do
-    with {:ok, threads} <- seed_threads(:default),
+    with {:ok, threads} <- seed_threads(:lang),
          {:ok, bot} <- seed_bot(),
          {:ok, categories} <- seed_categories(bot, :default),
          {:ok, communities} <- seed_for_communities(bot, :pl) do
@@ -88,7 +62,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   seed communities for frameworks
   """
   def seed_communities(:framework) do
-    with {:ok, threads} <- seed_threads(:default),
+    with {:ok, threads} <- seed_threads(:lang),
          {:ok, bot} <- seed_bot(),
          {:ok, _categories} <- seed_categories(bot, :default),
          {:ok, communities} <- seed_for_communities(bot, :framework) do
@@ -103,7 +77,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   seed communities for editors
   """
   def seed_communities(:editor) do
-    with {:ok, threads} <- seed_threads(:default),
+    with {:ok, threads} <- seed_threads(:lang),
          {:ok, bot} <- seed_bot(),
          {:ok, categories} <- seed_categories(bot, :default),
          {:ok, communities} <- seed_for_communities(bot, :editor) do
@@ -118,7 +92,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   seed communities for database
   """
   def seed_communities(:database) do
-    with {:ok, threads} <- seed_threads(:default),
+    with {:ok, threads} <- seed_threads(:lang),
          {:ok, bot} <- seed_bot(),
          {:ok, _categories} <- seed_categories(bot, :default),
          {:ok, communities} <- seed_for_communities(bot, :database) do
@@ -133,7 +107,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   seed communities for database
   """
   def seed_communities(:devops) do
-    with {:ok, threads} <- seed_threads(:default),
+    with {:ok, threads} <- seed_threads(:lang),
          {:ok, bot} <- seed_bot(),
          {:ok, categories} <- seed_categories(bot, :default),
          {:ok, communities} <- seed_for_communities(bot, :devops) do
@@ -145,25 +119,10 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   end
 
   @doc """
-  seed communities for database
-  """
-  def seed_communities(:blockchain) do
-    with {:ok, threads} <- seed_threads(:default),
-         {:ok, bot} <- seed_bot(),
-         {:ok, _categories} <- seed_categories(bot, :default),
-         {:ok, communities} <- seed_for_communities(bot, :blockchain) do
-      threadify_communities(communities, threads.entries)
-      tagfy_threads(communities, threads.entries, bot)
-
-      # categorify_communities(communities, categories, :other)
-    end
-  end
-
-  @doc """
   seed communities for designs
   """
   def seed_communities(:ui) do
-    with {:ok, threads} <- seed_threads(:default),
+    with {:ok, threads} <- seed_threads(:lang),
          {:ok, bot} <- seed_bot(),
          {:ok, _categories} <- seed_categories(bot, :default),
          {:ok, communities} <- seed_for_communities(bot, :ui) do
@@ -178,20 +137,16 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   seed communities for cities
   """
   def seed_communities(:city) do
-    with {:ok, threads} <- seed_threads(:city),
-         {:ok, bot} <- seed_bot(),
-         {:ok, categories} <- seed_categories(bot, :default),
-         {:ok, communities} <- seed_for_communities(bot, :city) do
-      threadify_communities(communities, threads.entries)
-      tagfy_threads(communities, threads.entries, bot, :city)
-      categorify_communities(communities, categories, :city)
-    end
+    SeedsConfig.communities(:city)
+    |> Enum.each(&seed_community(&1, :city))
+
+    {:ok, :pass}
   end
 
   @doc """
   seed community for home
   """
-  def seed_communities(:home) do
+  def seed_community(:home) do
     with {:error, _} <- ORM.find_by(Community, %{raw: "home"}),
          {:ok, bot} <- seed_bot(),
          {:ok, threads} <- seed_threads(:home),
@@ -212,7 +167,20 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     end
   end
 
-  @spec seed_threads(:city | :default | :home) :: {:error, false | <<_::136>>} | {:ok, any}
+  # type: city, pl, framework, ...
+  def seed_community(raw, type) do
+    with {:ok, threads} <- seed_threads(type),
+         {:ok, bot} <- seed_bot(),
+         {:ok, categories} <- seed_categories(bot, :default),
+         {:ok, community} <- insert_community(bot, raw, type) do
+      threadify_communities([community], threads.entries)
+      tagfy_threads([community], threads.entries, bot, type)
+      categorify_communities([community], categories, type)
+
+      {:ok, community}
+    end
+  end
+
   @doc """
   seed default threads like: post, user, wiki, cheetsheet, job ..
   """
@@ -222,14 +190,14 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
         {:ok, :pass}
 
       {:error, _} ->
-        @default_threads
+        @lang_threads
         |> Enum.each(fn thread ->
           {:ok, _thread} = CMS.create_thread(thread)
         end)
     end
 
     thread_titles =
-      @default_threads
+      @lang_threads
       |> Enum.reduce([], fn x, acc -> acc ++ [x.title] end)
 
     Thread
@@ -238,38 +206,45 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     |> done()
   end
 
-  def seed_threads(:city) do
-    case ORM.find_by(Thread, %{raw: "post"}) do
-      {:ok, _} -> {:ok, :pass}
-      {:error, _} -> seed_threads(:default)
-    end
+  def seed_threads(:city), do: do_seed_threads(:city)
+  # def seed_threads(:city) do
+  #   with {:error, _} <- ORM.find_by(Thread, %{raw: "post"}) do
+  #     {:ok, _thread} = CMS.create_thread(%{title: "帖子", raw: "post", index: 1})
+  #     {:ok, _thread} = CMS.create_thread(%{title: "团队", raw: "team", index: 2})
+  #     {:ok, _thread} = CMS.create_thread(%{title: "工作", raw: "job", index: 3})
+  #     # {:ok, _thread} = CMS.create_thread(%{title: "打听", raw: "ask", index: 1})
+  #     # {:ok, _thread} = CMS.create_thread(%{title: "讨论", raw: "discuss", index: 2})
+  #     # {:ok, _thread} = CMS.create_thread(%{title: "下班后", raw: "afterwork", index: 3})
+  #     # {:ok, _thread} = CMS.create_thread(%{title: "推荐", raw: "REC", index: 4})
+  #     # {:ok, _thread} = CMS.create_thread(%{title: "二手", raw: "trade", index: 5})
+  #     # {:ok, _thread} = CMS.create_thread(%{title: "小聚", raw: "meetup", index: 6})
+  #     # {:ok, _thread} = CMS.create_thread(%{title: "吐槽", raw: "WTF", index: 7})
+  #     # {:ok, _thread} = CMS.create_thread(%{title: "求/转/合租", raw: "rent", index: 8})
+  #     # {:ok, _thread} = CMS.create_thread(%{title: "其他", raw: "others", index: 9})
 
-    {:ok, _thread} = CMS.create_thread(%{title: "group", raw: "group", index: 1})
-    {:ok, _thread} = CMS.create_thread(%{title: "company", raw: "company", index: 2})
+  #     Thread
+  #     |> where([t], t.raw in @city_threads)
+  #     |> ORM.paginator(page: 1, size: 10)
+  #     |> done()
+  #   else
+  #     _ -> IO.inspect("city threads is already been seed")
+  #   end
+  # end
+
+  def seed_threads(:home), do: do_seed_threads(:home)
+
+  defp do_seed_threads(community) do
+    threads = SeedsConfig.threads(community)
+    threads_list = threads |> Enum.map(& &1.raw)
+
+    with {:error, _} <- ORM.find_by(Thread, %{raw: "post"}) do
+      threads |> Enum.each(&CMS.create_thread(&1))
+    end
 
     Thread
-    |> where([t], t.raw in @city_threads)
+    |> where([t], t.raw in ^threads_list)
     |> ORM.paginator(page: 1, size: 10)
     |> done()
-  end
-
-  # NOTE: the home threads should be insert after default threads
-  def seed_threads(:home) do
-    with {:error, _} <- ORM.find_by(Thread, %{raw: "post"}) do
-      {:ok, _thread} = CMS.create_thread(%{title: "帖子", raw: "post", index: 1})
-      {:ok, _thread} = CMS.create_thread(%{title: "雷达", raw: "radar", index: 2})
-      {:ok, _thread} = CMS.create_thread(%{title: "博客", raw: "blog", index: 3})
-      {:ok, _thread} = CMS.create_thread(%{title: "工作", raw: "job", index: 4})
-      {:ok, _thread} = CMS.create_thread(%{title: "Cper", raw: "cper", index: 5})
-      {:ok, _thread} = CMS.create_thread(%{title: "设置", raw: "setting", index: 6})
-
-      Thread
-      |> where([t], t.raw in @home_threads)
-      |> ORM.paginator(page: 1, size: 10)
-      |> done()
-    else
-      _ -> IO.inspect("home alread been seed")
-    end
   end
 
   def seed_categories(bot, :default) do
@@ -371,55 +346,33 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     end
   end
 
-  defp svg_icons do
-    [
-      "cps-support",
-      "beijing",
-      "shanghai",
-      "shenzhen",
-      "hangzhou",
-      "guangzhou",
-      "chengdu",
-      "wuhan",
-      "xiamen",
-      "nanjing"
-    ]
-  end
-
   defp insert_multi_communities(bot, communities, type) do
     type = Atom.to_string(type)
 
     communities =
       Enum.reduce(communities, [], fn c, acc ->
-        ext = if Enum.member?(svg_icons(), c), do: "svg", else: "png"
-
-        args = %{
-          title: trans(c),
-          aka: c,
-          desc: "#{c} is awesome!",
-          logo: "#{@oss_endpoint}/icons/#{type}/#{c}.#{ext}",
-          raw: c,
-          user_id: bot.id
-        }
-
-        {:ok, community} = ORM.create(Community, args)
-
+        {:ok, community} = insert_community(bot, c, type)
         acc ++ [community]
       end)
 
     {:ok, communities}
   end
 
-  defp trans("beijing"), do: "北京"
-  defp trans("shanghai"), do: "上海"
-  defp trans("shenzhen"), do: "深圳"
-  defp trans("hangzhou"), do: "杭州"
-  defp trans("guangzhou"), do: "广州"
-  defp trans("chengdu"), do: "成都"
-  defp trans("wuhan"), do: "武汉"
-  defp trans("xiamen"), do: "厦门"
-  defp trans("nanjing"), do: "南京"
-  defp trans(c), do: c
+  defp insert_community(bot, raw, type) do
+    type = Atom.to_string(type)
+    ext = if Enum.member?(SeedsConfig.svg_icons(), raw), do: "svg", else: "png"
+
+    args = %{
+      title: SeedsConfig.trans(raw),
+      aka: raw,
+      desc: "#{raw} is awesome!",
+      logo: "#{@oss_endpoint}/icons/#{type}/#{raw}.#{ext}",
+      raw: raw,
+      user_id: bot.id
+    }
+
+    ORM.create(Community, args)
+  end
 
   # set threads to given communities
   defp threadify_communities(communities, threads) when is_list(communities) do
