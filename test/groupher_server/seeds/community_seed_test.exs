@@ -30,7 +30,7 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       # IO.inspect(found, label: "found --> ")
     end
 
-    @tag :wip
+    # @tag :wip
     test "can seed a city community" do
       {:ok, community} = CMS.seed_community("chengdu", :city)
       {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])
@@ -42,7 +42,7 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       assert threads == ["帖子", "团队", "工作"]
     end
 
-    @tag :wip
+    # @tag :wip
     test "can seed multi cities community" do
       {:ok, _} = CMS.seed_communities(:city)
       {:ok, communities} = ORM.find_all(Community, %{page: 1, size: 20})
@@ -54,12 +54,12 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       assert threads == ["帖子", "团队", "工作"]
     end
 
-    @tag :wip
+    # @tag :wip
     test "seed pl & framework community should works" do
       #
     end
 
-    @tag :wip
+    # @tag :wip
     test "seed city community should works" do
       #
     end

@@ -19,30 +19,19 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   alias CMS.Model.{Community, Thread, Category}
 
   alias CMS.Delegate.SeedsConfig
+  alias CMS.Delegate.Seeds
 
   # threads
-  @lang_threads SeedsConfig.threads(:lang)
+  @lang_threads Seeds.Threads.get(:lang)
 
-  # communities
-  # done
-  @pl_patch_communities SeedsConfig.communities(:pl_patch)
-  @framework_patch_communities SeedsConfig.communities(:framework_patch)
-  @pl_communities SeedsConfig.communities(:pl)
-  @framework_communities SeedsConfig.communities(:framework)
-  @ui_communities SeedsConfig.communities(:ui)
-  @editor_communities SeedsConfig.communities(:editor)
-  @database_communities SeedsConfig.communities(:database)
-  @devops_communities SeedsConfig.communities(:devops)
-  @dblockchain_communities SeedsConfig.communities(:blockchain)
-  # done
-  @city_communities SeedsConfig.communities(:city)
-
+  @pl_communities Seeds.Communities.get(:pl)
+  @framework_communities Seeds.Communities.get(:framework)
+  @editor_communities Seeds.Communities.get(:editor)
+  @database_communities Seeds.Communities.get(:database)
+  @devops_communities Seeds.Communities.get(:devops)
+  @city_communities Seeds.Communities.get(:city)
   # categories
-  @default_categories SeedsConfig.categories(:default)
-
-  @doc """
-  seed communities for pl_patch
-  """
+  @default_categories Seeds.Categories.get(:default)
 
   @doc """
   seed communities pragraming languages
@@ -119,25 +108,10 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   end
 
   @doc """
-  seed communities for designs
-  """
-  def seed_communities(:ui) do
-    with {:ok, threads} <- seed_threads(:lang),
-         {:ok, bot} <- seed_bot(),
-         {:ok, _categories} <- seed_categories(bot, :default),
-         {:ok, communities} <- seed_for_communities(bot, :ui) do
-      threadify_communities(communities, threads.entries)
-      tagfy_threads(communities, threads.entries, bot)
-
-      # categorify_communities(communities, categories, :other)
-    end
-  end
-
-  @doc """
   seed communities for cities
   """
   def seed_communities(:city) do
-    SeedsConfig.communities(:city)
+    Seeds.Communities.get(:city)
     |> Enum.each(&seed_community(&1, :city))
 
     {:ok, :pass}
@@ -207,34 +181,10 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   end
 
   def seed_threads(:city), do: do_seed_threads(:city)
-  # def seed_threads(:city) do
-  #   with {:error, _} <- ORM.find_by(Thread, %{raw: "post"}) do
-  #     {:ok, _thread} = CMS.create_thread(%{title: "帖子", raw: "post", index: 1})
-  #     {:ok, _thread} = CMS.create_thread(%{title: "团队", raw: "team", index: 2})
-  #     {:ok, _thread} = CMS.create_thread(%{title: "工作", raw: "job", index: 3})
-  #     # {:ok, _thread} = CMS.create_thread(%{title: "打听", raw: "ask", index: 1})
-  #     # {:ok, _thread} = CMS.create_thread(%{title: "讨论", raw: "discuss", index: 2})
-  #     # {:ok, _thread} = CMS.create_thread(%{title: "下班后", raw: "afterwork", index: 3})
-  #     # {:ok, _thread} = CMS.create_thread(%{title: "推荐", raw: "REC", index: 4})
-  #     # {:ok, _thread} = CMS.create_thread(%{title: "二手", raw: "trade", index: 5})
-  #     # {:ok, _thread} = CMS.create_thread(%{title: "小聚", raw: "meetup", index: 6})
-  #     # {:ok, _thread} = CMS.create_thread(%{title: "吐槽", raw: "WTF", index: 7})
-  #     # {:ok, _thread} = CMS.create_thread(%{title: "求/转/合租", raw: "rent", index: 8})
-  #     # {:ok, _thread} = CMS.create_thread(%{title: "其他", raw: "others", index: 9})
-
-  #     Thread
-  #     |> where([t], t.raw in @city_threads)
-  #     |> ORM.paginator(page: 1, size: 10)
-  #     |> done()
-  #   else
-  #     _ -> IO.inspect("city threads is already been seed")
-  #   end
-  # end
-
   def seed_threads(:home), do: do_seed_threads(:home)
 
   defp do_seed_threads(community) do
-    threads = SeedsConfig.threads(community)
+    threads = Seeds.Threads.get(community)
     threads_list = threads |> Enum.map(& &1.raw)
 
     with {:error, _} <- ORM.find_by(Thread, %{raw: "post"}) do
@@ -287,16 +237,6 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     end
   end
 
-  # manual pl patch missing community
-  defp seed_for_communities(bot, :pl_patch) do
-    {:ok, _communities} = insert_multi_communities(bot, @pl_patch_communities, :pl)
-  end
-
-  # manual framework patch missing community
-  defp seed_for_communities(bot, :framework_patch) do
-    {:ok, _communities} = insert_multi_communities(bot, @framework_patch_communities, :framework)
-  end
-
   # seed raw communities, without thread or categories staff
   defp seed_for_communities(bot, :pl) do
     with {:error, _} <- ORM.find_by(Community, %{raw: "javascript"}) do
@@ -325,18 +265,6 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   defp seed_for_communities(bot, :devops) do
     with {:error, _} <- ORM.find_by(Community, %{raw: "cps-support"}) do
       {:ok, _communities} = insert_multi_communities(bot, @devops_communities, :devops)
-    end
-  end
-
-  defp seed_for_communities(bot, :blockchain) do
-    with {:error, _} <- ORM.find_by(Community, %{raw: "bitcoin"}) do
-      {:ok, _communities} = insert_multi_communities(bot, @dblockchain_communities, :blockchain)
-    end
-  end
-
-  defp seed_for_communities(bot, :ui) do
-    with {:error, _} <- ORM.find_by(Community, %{raw: "css"}) do
-      {:ok, _communities} = insert_multi_communities(bot, @ui_communities, :ui)
     end
   end
 
@@ -396,6 +324,11 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     end)
   end
 
+  defp tagfy_threads(community, threads, bot, :home) do
+    threads
+    |> Enum.each(&create_tags(community, &1, bot, :home))
+  end
+
   defp tagfy_threads(communities, threads, bot) when is_list(communities) do
     Enum.each(communities, fn community ->
       Enum.each(threads, fn thread ->
@@ -404,22 +337,16 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     end)
   end
 
-  defp tagfy_threads(community, threads, bot, :home) do
-    Enum.each(threads, fn thread ->
-      create_tags(community, thread, bot, :home)
-    end)
-  end
-
   defp create_tags(%Community{} = community, %Thread{raw: raw}, bot) do
     thread = raw |> String.to_atom()
 
-    Enum.each(SeedsConfig.tags(thread), fn attr ->
+    Enum.each(Seeds.Tags.get(community, thread), fn attr ->
       CMS.create_article_tag(community, thread, attr, bot)
     end)
   end
 
   defp create_tags(%Community{} = community, :post, bot, :city) do
-    Enum.each(SeedsConfig.tags(:city, :post), fn attr ->
+    Enum.each(Seeds.Tags.get(community, :post, :city), fn attr ->
       CMS.create_article_tag(community, :post, attr, bot)
     end)
   end
@@ -427,7 +354,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   defp create_tags(%Community{} = community, %Thread{raw: raw}, bot, :home) do
     thread = raw |> String.to_atom()
 
-    Enum.each(SeedsConfig.tags(:home, thread), fn attr ->
+    Enum.each(Seeds.Tags.get(community, thread), fn attr ->
       CMS.create_article_tag(community, thread, attr, bot)
     end)
   end

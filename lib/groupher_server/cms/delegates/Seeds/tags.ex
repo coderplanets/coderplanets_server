@@ -1,4 +1,8 @@
 defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
+  @moduledoc """
+  tags seeds
+  """
+
   alias GroupherServer.CMS
   alias CMS.Model.Community
 
@@ -6,10 +10,13 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
 
   def random_color(), do: @tag_colors |> Enum.random() |> String.to_atom()
 
+  def get(_, :users), do: []
+  def get(_, :setting), do: []
+
   ## 首页 start
 
   @doc "post thread of HOME community"
-  def tags(%Community{raw: "home"}, :post) do
+  def get(%Community{raw: "home"}, :post) do
     [
       %{
         title: "求助",
@@ -85,7 +92,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
     |> Enum.map(fn attr -> Map.merge(%{thread: :post, color: random_color()}, attr) end)
   end
 
-  def tags(%Community{raw: "home"}, :radar) do
+  def get(%Community{raw: "home"}, :radar) do
     [
       %{
         title: "语言 & 框架",
@@ -131,7 +138,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
     |> Enum.map(fn attr -> Map.merge(%{thread: :radar, color: random_color()}, attr) end)
   end
 
-  def tags(%Community{raw: "home"}, :blog) do
+  def get(%Community{raw: "home"}, :blog) do
     [
       %{
         title: "前端",
@@ -173,7 +180,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
     |> Enum.map(fn attr -> Map.merge(%{thread: :radar, color: random_color()}, attr) end)
   end
 
-  def tags(%Community{raw: "home"}, :job) do
+  def get(%Community{raw: "home"}, :job) do
     [
       %{
         raw: "beijing",
@@ -285,7 +292,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
 
   ## 首页 end
 
-  def tags(_, :post, :city) do
+  def get(_, :post, :city) do
     [
       %{
         title: "打听",
@@ -328,11 +335,11 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
   end
 
   ## 语言与框架
-  def tags(_, :post, :pl), do: post_tags(:post, :lang)
+  def get(_, :post, :pl), do: post_tags(:post, :lang)
 
-  def tags(_, :radar, :pl), do: lang_tags(:radar, :lang)
-  def tags(_, :radar, :framework), do: lang_tags(:radar, :lang)
-  def tags(_, :radar, :devops), do: lang_tags(:radar, :lang)
+  def get(_, :radar, :pl), do: lang_tags(:radar, :lang)
+  def get(_, :radar, :framework), do: lang_tags(:radar, :lang)
+  def get(_, :radar, :devops), do: lang_tags(:radar, :lang)
 
   defp post_tags(:post, :lang) do
     [
@@ -384,7 +391,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
   ## 语言与框架 end
 
   @doc "post thread of FEEDBACK community"
-  def tags(%Community{raw: "feedback"}, :post) do
+  def get(%Community{raw: "feedback"}, :post) do
     [
       %{
         title: "Bug",
@@ -431,7 +438,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
   end
 
   @doc "post thread of BLACK community"
-  def tags(%Community{raw: "blackhole"}, :post) do
+  def get(%Community{raw: "blackhole"}, :post) do
     [
       %{
         title: "传单",
@@ -470,7 +477,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
   end
 
   @doc "post thread of MACKERS community"
-  def tags(%Community{raw: "makers"}, :post) do
+  def get(%Community{raw: "makers"}, :post) do
     [
       %{
         title: "求教",
@@ -537,7 +544,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
   end
 
   @doc "post thread of ADWALL community"
-  def tags(%Community{raw: "adwall"}, :post) do
+  def get(%Community{raw: "adwall"}, :post) do
     [
       %{
         title: "产品推广",
