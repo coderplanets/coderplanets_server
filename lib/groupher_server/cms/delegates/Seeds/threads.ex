@@ -55,27 +55,32 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Threads do
       %{
         title: "101",
         raw: "tut",
-        index: 20
+        index: 4
       },
       %{
         title: "awesome",
         raw: "awesome",
-        index: 20
+        index: 5
       },
       %{
         title: "作品",
         raw: "works",
-        index: 25
+        index: 6
       },
       %{
         title: "工作",
         raw: "job",
-        index: 30
+        index: 7
       },
       %{
-        title: "users",
+        title: "分布",
         raw: "users",
-        index: 30
+        index: 8
+      },
+      %{
+        title: "设置",
+        raw: "setting",
+        index: 8
       }
     ]
   end

@@ -123,6 +123,6 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Communities do
   end
 
   def get(:devops) do
-    ["git", "feedback", "docker", "kubernetes", "shell"]
+    ["git", "docker", "kubernetes", "shell"]
   end
 end

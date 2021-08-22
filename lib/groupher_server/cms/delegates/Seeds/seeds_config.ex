@@ -4,7 +4,7 @@ defmodule GroupherServer.CMS.Delegate.SeedsConfig do
   """
   def svg_icons do
     [
-      "cps-support",
+      "feedback",
       "beijing",
       "shanghai",
       "shenzhen",
