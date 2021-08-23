@@ -10,13 +10,14 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
 
   def random_color(), do: @tag_colors |> Enum.random() |> String.to_atom()
 
-  def get(_, :users), do: []
-  def get(_, :setting), do: []
+  def get(_, :users, _), do: []
+  def get(_, :setting, _), do: []
+  def get(_, :team, _), do: []
 
   ## 首页 start
 
   @doc "post thread of HOME community"
-  def get(%Community{raw: "home"}, :post) do
+  def get(_, :post, :home) do
     [
       %{
         title: "求助",
@@ -92,7 +93,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
     |> Enum.map(fn attr -> Map.merge(%{thread: :post, color: random_color()}, attr) end)
   end
 
-  def get(%Community{raw: "home"}, :radar) do
+  def get(_, :radar, :home) do
     [
       %{
         title: "语言 & 框架",
@@ -138,7 +139,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
     |> Enum.map(fn attr -> Map.merge(%{thread: :radar, color: random_color()}, attr) end)
   end
 
-  def get(%Community{raw: "home"}, :blog) do
+  def get(_, :blog, :home) do
     [
       %{
         title: "前端",
@@ -180,7 +181,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
     |> Enum.map(fn attr -> Map.merge(%{thread: :radar, color: random_color()}, attr) end)
   end
 
-  def get(%Community{raw: "home"}, :job) do
+  def get(_, :job, :home) do
     [
       %{
         raw: "beijing",
@@ -292,6 +293,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
 
   ## 首页 end
 
+  ## 城市
   def get(_, :post, :city) do
     [
       %{
@@ -334,14 +336,16 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
     |> Enum.map(fn attr -> Map.merge(%{thread: :radar, color: random_color()}, attr) end)
   end
 
+  def get(_, :job, :city) do
+    get(:ignore, :job, :home) |> Enum.reject(&(&1.group in ["城市"]))
+  end
+
+  ## 城市 end
+
   ## 语言与框架
-  def get(_, :post, :pl), do: post_tags(:post, :lang)
+  def get(_, :post, :pl), do: get(:ignore, :post, :framework)
 
-  def get(_, :radar, :pl), do: lang_tags(:radar, :lang)
-  def get(_, :radar, :framework), do: lang_tags(:radar, :lang)
-  def get(_, :radar, :devops), do: lang_tags(:radar, :lang)
-
-  defp post_tags(:post, :lang) do
+  def get(_, :post, :framework) do
     [
       %{
         title: "求助",
@@ -364,9 +368,13 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
         raw: "others"
       }
     ]
+    |> Enum.map(fn attr -> Map.merge(%{thread: :post, color: random_color()}, attr) end)
   end
 
-  defp lang_tags(:radar, :lang) do
+  def get(_, :radar, :pl), do: get(:ignore, :radar, :framework)
+  def get(_, :radar, :devops), do: get(:ignore, :radar, :framework)
+
+  def get(_, :radar, :framework) do
     [
       %{
         title: "官方",
@@ -387,6 +395,88 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
     ]
     |> Enum.map(fn attr -> Map.merge(%{thread: :radar, color: random_color()}, attr) end)
   end
+
+  def get(_, :blog, :pl) do
+    get(:ignore, :blog, :framework) |> Enum.reject(&(&1.raw in ["arch", "eco"]))
+  end
+
+  def get(_, :blog, :framework) do
+    [
+      %{
+        title: "教程",
+        raw: "tuts"
+      },
+      %{
+        title: "踩坑",
+        raw: "trap"
+      },
+      %{
+        title: "硬核",
+        raw: "hardcore"
+      },
+      %{
+        title: "技巧",
+        raw: "tips"
+      },
+      %{
+        title: "组织 & 架构",
+        raw: "arch"
+      },
+      %{
+        title: "重构",
+        raw: "clean-code"
+      },
+      %{
+        title: "生态链",
+        raw: "eco"
+      },
+      %{
+        title: "其他",
+        raw: "others"
+      }
+    ]
+    |> Enum.map(fn attr -> Map.merge(%{thread: :blog, color: random_color()}, attr) end)
+  end
+
+  def get(_, :tut, :pl) do
+    get(:ignore, :tut, :framework)
+  end
+
+  def get(_, :tut, :framework) do
+    [
+      %{
+        title: "速查表",
+        raw: "cheatsheet"
+      },
+      %{
+        title: "Tips",
+        raw: "tips"
+      },
+      %{
+        title: "工具链",
+        raw: "tooling"
+      },
+      %{
+        title: "工具链",
+        raw: "tooling"
+      }
+    ]
+    |> Enum.map(fn attr -> Map.merge(%{thread: :tut, color: random_color()}, attr) end)
+  end
+
+  def get(_, :job, :pl) do
+    get(:ignore, :job, :home) |> Enum.reject(&(&1.group in ["职位"]))
+  end
+
+  def get(_, :job, :framework) do
+    get(:ignore, :job, :home) |> Enum.reject(&(&1.group in ["职位"]))
+  end
+
+  def get(_, :awesome, :pl), do: []
+  def get(_, :awesome, :framework), do: []
+
+  def get(_, :works, :pl), do: []
+  def get(_, :works, :framework), do: []
 
   ## 语言与框架 end
 

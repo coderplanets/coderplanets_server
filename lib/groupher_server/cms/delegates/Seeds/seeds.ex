@@ -20,6 +20,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
 
   alias CMS.Delegate.SeedsConfig
   alias CMS.Delegate.Seeds
+  alias Seeds.Helper
 
   @pl_communities Seeds.Communities.get(:pl)
   @framework_communities Seeds.Communities.get(:framework)
@@ -27,87 +28,17 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   @database_communities Seeds.Communities.get(:database)
   @devops_communities Seeds.Communities.get(:devops)
   # categories
-  @default_categories Seeds.Categories.get(:default)
+  @categories Seeds.Categories.get()
+
+  @community_types [:pl, :framework, :editor, :database, :devops, :city]
+
+  # seed community
 
   @doc """
   seed communities pragraming languages
   """
-  def seed_communities(:pl) do
-    with {:ok, threads} <- seed_threads(:pl),
-         {:ok, bot} <- seed_bot(),
-         {:ok, categories} <- seed_categories(bot, :default),
-         {:ok, communities} <- seed_for_communities(bot, :pl) do
-      threadify_communities(communities, threads.entries)
-      tagfy_threads(communities, threads.entries, bot)
-      categorify_communities(communities, categories, :pl)
-    end
-  end
-
-  @doc """
-  seed communities for frameworks
-  """
-  def seed_communities(:framework) do
-    with {:ok, threads} <- seed_threads(:framework),
-         {:ok, bot} <- seed_bot(),
-         {:ok, _categories} <- seed_categories(bot, :default),
-         {:ok, communities} <- seed_for_communities(bot, :framework) do
-      threadify_communities(communities, threads.entries)
-      tagfy_threads(communities, threads.entries, bot)
-
-      # categorify_communities(communities, categories, :other)
-    end
-  end
-
-  @doc """
-  seed communities for editors
-  """
-  def seed_communities(:editor) do
-    with {:ok, threads} <- seed_threads(:editor),
-         {:ok, bot} <- seed_bot(),
-         {:ok, categories} <- seed_categories(bot, :default),
-         {:ok, communities} <- seed_for_communities(bot, :editor) do
-      threadify_communities(communities, threads.entries)
-      tagfy_threads(communities, threads.entries, bot)
-
-      categorify_communities(communities, categories, :other)
-    end
-  end
-
-  @doc """
-  seed communities for database
-  """
-  def seed_communities(:database) do
-    with {:ok, threads} <- seed_threads(:database),
-         {:ok, bot} <- seed_bot(),
-         {:ok, _categories} <- seed_categories(bot, :default),
-         {:ok, communities} <- seed_for_communities(bot, :database) do
-      threadify_communities(communities, threads.entries)
-      tagfy_threads(communities, threads.entries, bot)
-
-      # categorify_communities(communities, categories, :other)
-    end
-  end
-
-  @doc """
-  seed communities for database
-  """
-  def seed_communities(:devops) do
-    with {:ok, threads} <- seed_threads(:devops),
-         {:ok, bot} <- seed_bot(),
-         {:ok, categories} <- seed_categories(bot, :default),
-         {:ok, communities} <- seed_for_communities(bot, :devops) do
-      threadify_communities(communities, threads.entries)
-      tagfy_threads(communities, threads.entries, bot)
-
-      categorify_communities(communities, categories, :other)
-    end
-  end
-
-  @doc """
-  seed communities for cities
-  """
-  def seed_communities(:city) do
-    Seeds.Communities.get(:city) |> Enum.each(&seed_community(&1, :city)) |> done
+  def seed_communities(type) when type in @community_types do
+    Seeds.Communities.get(type) |> Enum.each(&seed_community(&1, type)) |> done
   end
 
   @doc """
@@ -117,7 +48,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     with {:error, _} <- ORM.find_by(Community, %{raw: "home"}),
          {:ok, bot} <- seed_bot(),
          {:ok, threads} <- seed_threads(:home),
-         {:ok, categories} <- seed_categories(bot, :default) do
+         {:ok, categories} <- seed_categories_ifneed(bot) do
       args = %{
         title: "coderplanets",
         desc: "the most sexy community for developers, ever.",
@@ -127,19 +58,46 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
       }
 
       {:ok, community} = Community |> ORM.create(args)
+      threadify_communities([community], threads.entries)
+      tagfy_threads([community], threads.entries, bot, :home)
 
-      threadify_communities(community, threads.entries)
-      tagfy_threads(community, threads.entries, bot, :home)
-      categorify_communities(community, categories, :other)
+      {:ok, community}
+      # home 不设置分类，比较特殊
+    end
+  end
+
+  @doc """
+  seed community for home
+  """
+  def seed_community(:blackhole) do
+    with {:error, _} <- ORM.find_by(Community, %{raw: "blackhole"}),
+         {:ok, bot} <- seed_bot(),
+         {:ok, threads} <- seed_threads(:blackhole),
+         {:ok, categories} <- seed_categories_ifneed(bot) do
+      args = %{
+        title: "黑洞",
+        desc: "这里收录不适合出现在本站的内容。",
+        logo: "#{@oss_endpoint}/icons/cmd/keyboard_logo.png",
+        raw: "blackhole",
+        user_id: bot.id
+      }
+
+      {:ok, community} = Community |> ORM.create(args)
+      threadify_communities([community], threads.entries)
+      tagfy_threads([community], threads.entries, bot, :blackhole)
+      categorify_communities([community], categories, :others)
+
+      {:ok, community}
+      # home 不设置分类，比较特殊
     end
   end
 
   # type: city, pl, framework, ...
-  def seed_community(raw, type) do
+  def seed_community(raw, type) when type in @community_types do
     with {:ok, threads} <- seed_threads(type),
          {:ok, bot} <- seed_bot(),
-         {:ok, categories} <- seed_categories(bot, :default),
-         {:ok, community} <- insert_community(bot, raw, type) do
+         {:ok, categories} <- seed_categories_ifneed(bot),
+         {:ok, community} <- Helper.insert_community(bot, raw, type) do
       threadify_communities([community], threads.entries)
       tagfy_threads([community], threads.entries, bot, type)
       categorify_communities([community], categories, type)
@@ -148,14 +106,21 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     end
   end
 
+  def seed_community(_raw, _type), do: "undown community type"
+
+  # seed community end
+
+  # seed thread
   def seed_threads(:city), do: do_seed_threads(:city)
+  def seed_threads(:pl), do: do_seed_threads(:pl)
+  def seed_threads(:framework), do: do_seed_threads(:framework)
+
   def seed_threads(:home), do: do_seed_threads(:home)
+  def seed_threads(:blackhole), do: do_seed_threads(:blackhole)
 
   # def seed_threads(:feedback), do: do_seed_threads(:home)
   # def seed_threads(:adwall), do: do_seed_threads(:home)
   # def seed_threads(:blackhole), do: do_seed_threads(:home)
-
-  def seed_threads(_), do: do_seed_threads(:lang)
 
   defp do_seed_threads(type) do
     threads = Seeds.Threads.get(type)
@@ -171,15 +136,11 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     |> done()
   end
 
-  def seed_categories(bot, :default) do
-    case is_empty_db?(Category) do
-      true ->
-        Enum.each(@default_categories, fn cat ->
-          CMS.create_category(cat, bot)
-        end)
+  # seed thread end
 
-      false ->
-        "pass"
+  def seed_categories_ifneed(bot) do
+    with true <- is_empty_in_db?(Category) do
+      Enum.each(@categories, &CMS.create_category(&1, bot))
     end
 
     ORM.find_all(Category, %{page: 1, size: 20})
@@ -211,65 +172,6 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     end
   end
 
-  # seed raw communities, without thread or categories staff
-  defp seed_for_communities(bot, :pl) do
-    with {:error, _} <- ORM.find_by(Community, %{raw: "javascript"}) do
-      {:ok, _communities} = insert_multi_communities(bot, @pl_communities, :pl)
-    end
-  end
-
-  defp seed_for_communities(bot, :framework) do
-    with {:error, _} <- ORM.find_by(Community, %{raw: "react"}) do
-      {:ok, _communities} = insert_multi_communities(bot, @framework_communities, :framework)
-    end
-  end
-
-  defp seed_for_communities(bot, :editor) do
-    with {:error, _} <- ORM.find_by(Community, %{raw: "emacs"}) do
-      {:ok, _communities} = insert_multi_communities(bot, @editor_communities, :editor)
-    end
-  end
-
-  defp seed_for_communities(bot, :database) do
-    with {:error, _} <- ORM.find_by(Community, %{raw: "mysql"}) do
-      {:ok, _communities} = insert_multi_communities(bot, @database_communities, :database)
-    end
-  end
-
-  defp seed_for_communities(bot, :devops) do
-    with {:error, _} <- ORM.find_by(Community, %{raw: "shell"}) do
-      {:ok, _communities} = insert_multi_communities(bot, @devops_communities, :devops)
-    end
-  end
-
-  defp insert_multi_communities(bot, communities, type) do
-    type = Atom.to_string(type)
-
-    communities =
-      Enum.reduce(communities, [], fn c, acc ->
-        {:ok, community} = insert_community(bot, c, type)
-        acc ++ [community]
-      end)
-
-    {:ok, communities}
-  end
-
-  defp insert_community(bot, raw, type) do
-    type = Atom.to_string(type)
-    ext = if Enum.member?(SeedsConfig.svg_icons(), raw), do: "svg", else: "png"
-
-    args = %{
-      title: SeedsConfig.trans(raw),
-      aka: raw,
-      desc: "#{raw} is awesome!",
-      logo: "#{@oss_endpoint}/icons/#{type}/#{raw}.#{ext}",
-      raw: raw,
-      user_id: bot.id
-    }
-
-    ORM.create(Community, args)
-  end
-
   # set threads to given communities
   defp threadify_communities(communities, threads) when is_list(communities) do
     Enum.each(communities, fn community ->
@@ -279,66 +181,29 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     end)
   end
 
-  defp threadify_communities(community, threads) do
-    Enum.each(threads, fn thread ->
-      # System.halt(0)
-      {:ok, _} = CMS.set_thread(%Community{id: community.id}, %Thread{id: thread.id})
-    end)
-  end
+  # create tags
 
-  defp tagfy_threads(communities, _threads, bot, :city) when is_list(communities) do
-    Enum.each(communities, fn community ->
-      # IO.inspect(community.title, label: "create tags for")
-      # IO.inspect(community.id, label: "id")
-      create_tags(community, :post, bot, :city)
-    end)
-  end
-
-  defp tagfy_threads(communities, _threads, bot, :pl) when is_list(communities) do
-    # TODO: tags for all threads
-    Enum.each(communities, fn community ->
-      create_tags(community, :post, bot, :city)
-    end)
-  end
-
-  defp tagfy_threads(community, threads, bot, :home) do
-    threads |> Enum.each(&create_tags(community, &1, bot, :home))
-  end
-
-  defp tagfy_threads(communities, threads, bot) when is_list(communities) do
+  defp tagfy_threads(communities, threads, bot, type) when is_list(communities) do
     Enum.each(communities, fn community ->
       Enum.each(threads, fn thread ->
-        create_tags(community, thread, bot)
+        create_tags(community, thread, bot, type)
       end)
     end)
   end
 
-  defp create_tags(%Community{} = community, %Thread{raw: raw}, bot) do
+  defp create_tags(%Community{} = community, %Thread{raw: raw}, bot, type) do
     thread = raw |> String.to_atom()
 
-    Enum.each(Seeds.Tags.get(community, thread), fn attr ->
-      CMS.create_article_tag(community, thread, attr, bot)
-    end)
+    Enum.each(
+      Seeds.Tags.get(community, thread, type),
+      &CMS.create_article_tag(community, thread, &1, bot)
+    )
   end
 
-  defp create_tags(%Community{} = community, thread, bot, :pl) do
-    Enum.each(Seeds.Tags.get(community, thread, :pl), fn attr ->
-      CMS.create_article_tag(community, thread, attr, bot)
-    end)
-  end
+  # create tags end
 
-  defp create_tags(%Community{} = community, thread, bot, :city) do
-    Enum.each(Seeds.Tags.get(community, thread, :city), fn attr ->
-      CMS.create_article_tag(community, thread, attr, bot)
-    end)
-  end
-
-  defp create_tags(%Community{} = community, %Thread{raw: raw}, bot, :home) do
-    thread = raw |> String.to_atom()
-
-    Enum.each(Seeds.Tags.get(community, thread), fn attr ->
-      CMS.create_article_tag(community, thread, attr, bot)
-    end)
+  defp categorify_communities(communities, categories, :editor) do
+    categorify_communities(communities, categories, :tools)
   end
 
   # set categories to given communities
@@ -351,14 +216,8 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     end)
   end
 
-  defp categorify_communities(community, categories, part) when is_atom(part) do
-    the_category = categories.entries |> Enum.find(fn cat -> cat.raw == Atom.to_string(part) end)
-
-    {:ok, _} = CMS.set_category(%Community{id: community.id}, %Category{id: the_category.id})
-  end
-
   # check is the seeds alreay runed
-  defp is_empty_db?(queryable) do
+  defp is_empty_in_db?(queryable) do
     {:ok, results} = ORM.find_all(queryable, %{page: 1, size: 20})
     results.total_count == 0
   end

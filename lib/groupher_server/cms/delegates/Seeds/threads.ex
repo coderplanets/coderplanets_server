@@ -34,8 +34,85 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Threads do
     ]
   end
 
+  def get(:blackhole) do
+    [
+      %{
+        title: "帖子",
+        raw: "post",
+        index: 1
+      },
+      %{
+        title: "用户",
+        raw: "account",
+        index: 2
+      }
+    ]
+  end
+
+  def get(:feedback) do
+    [
+      %{
+        title: "帖子",
+        raw: "post",
+        index: 1
+      },
+      %{
+        title: "看板",
+        raw: "roadmap",
+        index: 2
+      }
+    ]
+  end
+
+  def get(:makers) do
+    [
+      %{
+        title: "帖子",
+        raw: "post",
+        index: 1
+      },
+      %{
+        title: "作品",
+        raw: "works",
+        index: 2
+      },
+      %{
+        title: "访谈",
+        raw: "interview",
+        index: 3
+      }
+      # %{
+      #   title: "101",
+      #   raw: "101",
+      #   index: 4
+      # },
+    ]
+  end
+
+  def get(:adwall) do
+    [
+      %{
+        title: "帖子",
+        raw: "post",
+        index: 1
+      }
+    ]
+  end
+
+  def get(:ask) do
+    [
+      %{
+        title: "帖子",
+        raw: "post",
+        index: 1
+      }
+    ]
+  end
+
+  def get(:pl), do: get(:framework)
+
   # 语言，编程框架等
-  def get(:lang) do
+  def get(:framework) do
     [
       %{
         title: "帖子",

@@ -123,6 +123,8 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Communities do
   end
 
   def get(:devops) do
-    ["git", "docker", "kubernetes", "shell"]
+    # gcp -> google-cloud-platform
+    # search google: devops tools
+    ["git", "docker", "kubernetes", "jenkins", "puppet", "aws", "azure", "aliyun", "gcp"]
   end
 end

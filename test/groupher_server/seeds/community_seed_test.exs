@@ -6,7 +6,7 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
   # alias GroupherServer.Accounts.Model.User
   alias GroupherServer.CMS
 
-  alias CMS.Model.{Community, ArticleTag}
+  alias CMS.Model.{Community}
   # alias CMS.Delegate.SeedsConfig
 
   alias Helper.ORM
@@ -17,9 +17,9 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
   # {:ok, ~m(user category)a}
   # end
 
-  describe "[cms communities seeds]" do
-    @tag :wip2
-    test "seed home community should works" do
+  describe "[special communities seeds]" do
+    @tag :wip
+    test "can seed home community" do
       {:ok, community} = CMS.seed_community(:home)
       {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])
 
@@ -32,7 +32,28 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       # IO.inspect(found, label: "found --> ")
     end
 
-    @tag :wip2
+    # 黑洞，Feedback，Makers,  广告墙,  求助，外包合作
+    test "blackhole community" do
+    end
+
+    test "Feedback community" do
+    end
+
+    test "Makers community" do
+    end
+
+    test "Adwall community" do
+    end
+
+    test "Ask community" do
+    end
+
+    test "outwork community" do
+    end
+  end
+
+  describe "[common communities seeds]" do
+    @tag :wip
     test "can seed a city community" do
       {:ok, community} = CMS.seed_community("chengdu", :city)
       {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])
@@ -70,10 +91,16 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       assert threads == ["帖子", "团队", "工作"]
     end
 
-    @tag :wip2
+    @tag :wip
     test "can seed a general lang community" do
       {:ok, community} = CMS.seed_community("elixir", :pl)
       {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])
+
+      filter = %{community_id: community.id, thread: "POST"}
+      {:ok, tags} = CMS.paged_article_tags(filter)
+      tags_titles = tags |> Enum.map(& &1.title)
+
+      assert tags_titles == ["求助", "讨论", "推荐", "小聚", "其他"]
 
       assert community.title == "elixir"
       assert community.raw == "elixir"
@@ -82,54 +109,42 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       assert threads == ["帖子", "雷达", "博客", "101", "awesome", "作品", "工作", "分布", "设置"]
     end
 
-    # @tag :wip2
-    test "can seed multi cities community" do
-      {:ok, _} = CMS.seed_communities(:city)
+    @tag :wip
+    test "can seed multi lang communities" do
+      {:ok, _} = CMS.seed_communities(:pl)
+
       {:ok, communities} = ORM.find_all(Community, %{page: 1, size: 20})
+
+      # assert communities.total_count == 9
       radom_community = communities.entries |> Enum.random()
       {:ok, found} = ORM.find(Community, radom_community.id, preload: [threads: :thread])
-      assert length(found.threads) == 3
+      assert length(found.threads) == 9
+
+      filter = %{community_id: radom_community.id, thread: "POST"}
+      {:ok, tags} = CMS.paged_article_tags(filter)
+      tags_titles = tags |> Enum.map(& &1.title)
+      assert tags_titles == ["求助", "讨论", "推荐", "小聚", "其他"]
 
       threads = found.threads |> Enum.map(& &1.thread.title)
-      assert threads == ["帖子", "团队", "工作"]
+      assert threads == ["帖子", "雷达", "博客", "101", "awesome", "作品", "工作", "分布", "设置"]
     end
 
-    # @tag :wip2
-    test "seed pl & framework community should works" do
-      #
-    end
+    @tag :wip
+    test "can seed a general framework community" do
+      {:ok, community} = CMS.seed_community("react", :framework)
+      {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])
 
-    # @tag :wip2
-    test "seed city community should works" do
-      #
-    end
+      filter = %{community_id: community.id, thread: "POST"}
+      {:ok, tags} = CMS.paged_article_tags(filter)
+      tags_titles = tags |> Enum.map(& &1.title)
 
-    test "default pl communities seeds works" do
-      CMS.seed_communities(:pl)
+      assert tags_titles == ["求助", "讨论", "推荐", "小聚", "其他"]
 
-      # {:ok, results} = ORM.find_all(CMS.Thread, %{page: 1, size: 20})
-      {:ok, results} = ORM.find_all(Community, %{page: 1, size: 20})
-      radom_community = results.entries |> Enum.random()
+      assert community.title == "react"
+      assert community.raw == "react"
 
-      {:ok, found} = ORM.find(Community, radom_community.id, preload: :threads)
-      assert length(found.threads) == 6
-
-      {:ok, found} = ORM.find(Community, radom_community.id, preload: :categories)
-      assert length(found.categories) !== 0
-    end
-
-    test "city communities seeds works" do
-      CMS.seed_communities(:city)
-
-      # {:ok, results} = ORM.find_all(CMS.Thread, %{page: 1, size: 20})
-      {:ok, results} = ORM.find_all(Community, %{page: 1, size: 20})
-      radom_community = results.entries |> Enum.random()
-
-      {:ok, found} = ORM.find(Community, radom_community.id, preload: :threads)
-      assert length(found.threads) == 5
-
-      {:ok, found} = ORM.find(Community, radom_community.id, preload: :categories)
-      assert length(found.categories) !== 0
+      threads = found.threads |> Enum.map(& &1.thread.title)
+      assert threads == ["帖子", "雷达", "博客", "101", "awesome", "作品", "工作", "分布", "设置"]
     end
   end
 end

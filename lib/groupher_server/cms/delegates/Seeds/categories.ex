@@ -2,52 +2,59 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Categories do
   @doc """
   default categories seeds for general community
   """
-  def get(:default) do
+  def get() do
     [
       %{
-        title: "pl",
+        title: "编程语言",
         raw: "pl",
         index: 0
       },
       %{
-        title: "frontend",
-        raw: "frontend",
+        title: "框架 & 库",
+        raw: "framework",
+        index: 1
+      },
+      %{
+        title: "数据库",
+        raw: "database",
+        index: 2
+      },
+      %{
+        title: "devops",
+        raw: "devops",
         index: 3
       },
       %{
-        title: "backend",
-        raw: "backend",
+        title: "开发工具",
+        raw: "tools",
+        index: 4
+      },
+      %{
+        title: "城市",
+        raw: "city",
+        index: 5
+      },
+      %{
+        title: "人工智能",
+        raw: "ai",
         index: 6
       },
       %{
-        title: "mobile",
-        raw: "mobile",
+        title: "作品",
+        raw: "works",
+        index: 7
+      },
+      %{
+        # blackhole, Feedback
+        title: "站务",
+        raw: "feedback",
+        index: 8
+      },
+      %{
+        # Makers, Adwall, Outwork
+        title: "其他",
+        raw: "others",
         index: 9
-      },
-      %{
-        title: "ai",
-        raw: "ai",
-        index: 12
-      },
-      %{
-        title: "ui",
-        raw: "ui",
-        index: 15
-      },
-      %{
-        title: "blockchain",
-        raw: "blockchain",
-        index: 18
-      },
-      %{
-        title: "city",
-        raw: "city",
-        index: 21
-      },
-      %{
-        title: "other",
-        raw: "other",
-        index: 24
       }
     ]
   end
