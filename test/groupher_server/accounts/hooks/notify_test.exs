@@ -1,8 +1,6 @@
 defmodule GroupherServer.Test.Accounts.Hooks.Notify do
   use GroupherServer.TestTools
 
-  import GroupherServer.CMS.Delegate.Helper, only: [preload_author: 1]
-
   alias GroupherServer.{Accounts, Delivery}
   alias Accounts.Delegate.Hooks
 

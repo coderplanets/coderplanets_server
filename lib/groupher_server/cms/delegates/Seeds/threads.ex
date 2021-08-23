@@ -60,6 +60,11 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Threads do
         title: "看板",
         raw: "roadmap",
         index: 2
+      },
+      %{
+        title: "分布",
+        raw: "users",
+        index: 3
       }
     ]
   end

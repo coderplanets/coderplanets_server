@@ -32,7 +32,6 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       # IO.inspect(found, label: "found --> ")
     end
 
-    # 黑洞，Feedback，Makers,  广告墙,  求助，外包合作
     @tag :wip
     test "blackhole community" do
       {:ok, community} = CMS.seed_community(:blackhole)
@@ -46,9 +45,20 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       assert threads == ["帖子", "账户"]
     end
 
+    @tag :wip
     test "Feedback community" do
+      {:ok, community} = CMS.seed_community(:feedback)
+      {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])
+
+      assert community.title == "反馈与建议"
+      assert community.raw == "feedback"
+      assert found.threads |> length == 3
+
+      threads = found.threads |> Enum.map(& &1.thread.title)
+      assert threads == ["帖子", "看板", "分布"]
     end
 
+    # Makers,  广告墙,  求助，外包合作
     test "Makers community" do
     end
 

@@ -328,7 +328,6 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
     |> Enum.map(fn attr -> Map.merge(%{thread: :post, color: random_color()}, attr) end)
   end
 
-  ## Blackhole
   def get(_, :account, :blackhole) do
     [
       %{
@@ -352,6 +351,79 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
   end
 
   ## Blackhole end
+
+  ## Feedback
+  def get(_, :post, :feedback) do
+    [
+      %{
+        title: "Bug",
+        raw: "bug"
+      },
+      %{
+        title: "官方公告",
+        raw: "offical"
+      },
+      %{
+        title: "产品建议",
+        raw: "suggest"
+      },
+      %{
+        title: "内容审核",
+        raw: "audit"
+      },
+      %{
+        title: "编辑器",
+        raw: "editor"
+      },
+      %{
+        title: "UI/UX",
+        raw: "UI"
+      },
+      %{
+        title: "使用疑问",
+        raw: "manual"
+      },
+      %{
+        title: "更新日志",
+        raw: "log"
+      },
+      %{
+        title: "社区治理",
+        raw: "management"
+      },
+      %{
+        title: "其他",
+        raw: "others"
+      }
+    ]
+    |> Enum.map(fn attr -> Map.merge(%{thread: :post, color: random_color()}, attr) end)
+  end
+
+  def get(_, :roadmap, :feedback), do: []
+
+  def get(_, :account, :blackhole) do
+    [
+      %{
+        title: "发传单",
+        raw: "flyers"
+      },
+      %{
+        title: "负能量",
+        raw: "negative"
+      },
+      %{
+        title: "滥用权限",
+        raw: "ugly"
+      },
+      %{
+        title: "无法无天",
+        raw: "law"
+      }
+    ]
+    |> Enum.map(fn attr -> Map.merge(%{thread: :account, color: random_color()}, attr) end)
+  end
+
+  ## Feedback end
 
   ## 城市
   def get(_, :post, :city) do
