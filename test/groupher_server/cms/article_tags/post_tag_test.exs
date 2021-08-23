@@ -24,7 +24,6 @@ defmodule GroupherServer.Test.CMS.ArticleTag.PostTag do
       assert article_tag.group == article_tag_attrs.group
     end
 
-    @tag :wip
     test "create article tag with extra & icon data", ~m(community article_tag_attrs user)a do
       tag_attrs = Map.merge(article_tag_attrs, %{extra: ["menuID", "menuID2"], icon: "icon addr"})
       {:ok, article_tag} = CMS.create_article_tag(community, :post, tag_attrs, user)
