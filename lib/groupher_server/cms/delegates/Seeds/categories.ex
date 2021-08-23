@@ -45,7 +45,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Categories do
         index: 7
       },
       %{
-        # blackhole, Feedback
+        # blackhole, Feedback, dev
         title: "站务",
         raw: "feedback",
         index: 8

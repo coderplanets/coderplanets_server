@@ -42,7 +42,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Threads do
         index: 1
       },
       %{
-        title: "用户",
+        title: "账户",
         raw: "account",
         index: 2
       }
@@ -60,6 +60,26 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Threads do
         title: "看板",
         raw: "roadmap",
         index: 2
+      }
+    ]
+  end
+
+  def get(:dev) do
+    [
+      %{
+        title: "帖子",
+        raw: "post",
+        index: 1
+      },
+      %{
+        title: "工作",
+        raw: "job",
+        index: 2
+      },
+      %{
+        title: "作品",
+        raw: "works",
+        index: 3
       }
     ]
   end

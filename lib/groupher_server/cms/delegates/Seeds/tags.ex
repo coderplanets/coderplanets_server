@@ -293,6 +293,66 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
 
   ## 首页 end
 
+  ## Blackhole
+  def get(_, :post, :blackhole) do
+    [
+      %{
+        title: "传单",
+        raw: "flyers"
+      },
+      %{
+        title: "标题党",
+        raw: "clickbait"
+      },
+      %{
+        title: "封闭平台",
+        raw: "ugly"
+      },
+      %{
+        title: "盗版 & 侵权",
+        raw: "pirate"
+      },
+      %{
+        title: "水贴",
+        raw: "cheat"
+      },
+      %{
+        title: "无法无天",
+        raw: "law"
+      },
+      %{
+        title: "其他",
+        raw: "others"
+      }
+    ]
+    |> Enum.map(fn attr -> Map.merge(%{thread: :post, color: random_color()}, attr) end)
+  end
+
+  ## Blackhole
+  def get(_, :account, :blackhole) do
+    [
+      %{
+        title: "发传单",
+        raw: "flyers"
+      },
+      %{
+        title: "负能量",
+        raw: "negative"
+      },
+      %{
+        title: "滥用权限",
+        raw: "ugly"
+      },
+      %{
+        title: "无法无天",
+        raw: "law"
+      }
+    ]
+    |> Enum.map(fn attr -> Map.merge(%{thread: :account, color: random_color()}, attr) end)
+  end
+
+  ## Blackhole end
+
   ## 城市
   def get(_, :post, :city) do
     [
