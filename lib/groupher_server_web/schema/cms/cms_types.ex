@@ -248,11 +248,15 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:categories, list_of(:category), resolve: dataloader(CMS, :categories))
     field(:meta, :community_meta)
     field(:views, :integer)
+    field(:contributes_digest, list_of(:integer))
 
     field(:articles_count, :integer)
     field(:subscribers_count, :integer)
     field(:editors_count, :integer)
     field(:article_tags_count, :integer)
+
+    field(:viewer_has_subscribed, :boolean)
+    field(:viewer_is_editor, :boolean)
 
     # TODO: remove
     field :threads_count, :integer do
@@ -437,6 +441,5 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
   object :community_meta do
     threads_count_fields()
-    # field(:contributes_digest, list_of(:integer))
   end
 end
