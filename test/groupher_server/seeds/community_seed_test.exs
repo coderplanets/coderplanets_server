@@ -3,22 +3,12 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
 
   use GroupherServer.TestTools
 
-  # alias GroupherServer.Accounts.Model.User
   alias GroupherServer.CMS
-
   alias CMS.Model.{Community}
-  # alias CMS.Delegate.SeedsConfig
-
   alias Helper.ORM
 
-  # setup do
-  # {:ok, user} = db_insert(:user)
-
-  # {:ok, ~m(user category)a}
-  # end
-
   describe "[special communities seeds]" do
-    @tag :wip
+
     test "can seed home community" do
       {:ok, community} = CMS.seed_community(:home)
       {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])
@@ -32,7 +22,7 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       # IO.inspect(found, label: "found --> ")
     end
 
-    @tag :wip
+
     test "blackhole community" do
       {:ok, community} = CMS.seed_community(:blackhole)
       {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])
@@ -45,7 +35,7 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       assert threads == ["帖子", "账户"]
     end
 
-    @tag :wip
+
     test "Feedback community" do
       {:ok, community} = CMS.seed_community(:feedback)
       {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])
@@ -73,7 +63,7 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
   end
 
   describe "[common communities seeds]" do
-    @tag :wip
+
     test "can seed a city community" do
       {:ok, community} = CMS.seed_community("chengdu", :city)
       {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])
@@ -91,7 +81,7 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       assert threads == ["帖子", "团队", "工作"]
     end
 
-    @tag :wip
+
     test "can seed multi city communities" do
       {:ok, _} = CMS.seed_communities(:city)
 
@@ -111,7 +101,7 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       assert threads == ["帖子", "团队", "工作"]
     end
 
-    @tag :wip
+
     test "can seed a general lang community" do
       {:ok, community} = CMS.seed_community("elixir", :pl)
       {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])
@@ -129,7 +119,7 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       assert threads == ["帖子", "雷达", "博客", "101", "awesome", "作品", "工作", "分布", "设置"]
     end
 
-    @tag :wip
+
     test "can seed multi lang communities" do
       {:ok, _} = CMS.seed_communities(:pl)
 
@@ -149,7 +139,7 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       assert threads == ["帖子", "雷达", "博客", "101", "awesome", "作品", "工作", "分布", "设置"]
     end
 
-    @tag :wip
+
     test "can seed a general framework community" do
       {:ok, community} = CMS.seed_community("react", :framework)
       {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])

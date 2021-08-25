@@ -199,6 +199,11 @@ defmodule GroupherServer.CMS do
   defdelegate seed_community(raw, type), to: Seeds
   defdelegate seed_community(raw), to: Seeds
   defdelegate seed_set_category(communities, category), to: Seeds
+  defdelegate seed_articles(community, type), to: Seeds
+  defdelegate seed_articles(community, type, count), to: Seeds
 
-  defdelegate seed_bot, to: Seeds
+  defdelegate clean_up_community(raw), to: Seeds
+  defdelegate clean_up_articles(community, type), to: Seeds
+
+  # defdelegate seed_bot, to: Seeds
 end

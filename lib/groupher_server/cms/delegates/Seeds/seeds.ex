@@ -3,6 +3,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   seeds data for init, should be called ONLY in new database, like migration
   """
 
+  import GroupherServer.Support.Factory
   import Helper.Utils, only: [done: 1]
   import Ecto.Query, warn: false
 
@@ -17,15 +18,10 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
       insert_community: 3
     ]
 
-  @oss_endpoint "https://cps-oss.oss-cn-shanghai.aliyuncs.com"
-  # import Helper.Utils, only: [done: 1, map_atom_value: 2]
-  # import GroupherServer.CMS.Delegate.ArticleCURD, only: [ensure_author_exists: 1]
-  # import ShortMaps
-
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.Model.{Community, Category}
+  alias CMS.Model.{Community, Category, Thread, Post}
   alias CMS.Delegate.Seeds
   alias Seeds.Domain
 
@@ -75,5 +71,39 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
 
       {:ok, _} = CMS.set_category(%Community{id: community.id}, %Category{id: category.id})
     end)
+  end
+
+  def seed_articles(%Community{} = community, :post, count \\ 3) do
+    with {:ok, community} <- ORM.find(Community, community.id) do
+      1..count
+      |> Enum.each(fn _ ->
+        {:ok, user} = db_insert(:user)
+        post_attrs = mock_attrs(:post, %{community_id: community.id})
+        CMS.create_article(community, :post, post_attrs, user)
+      end)
+    end
+  end
+
+  def seed_posts(:other_articles) do
+  end
+
+  # clean up
+
+  def clean_up(:all) do
+  end
+
+  def clean_up_community(raw) do
+    with {:ok, community} <- ORM.findby_delete(Community, %{raw: to_string(raw)}) do
+      clean_up_articles(community, :post)
+      IO.inspect("clean_up_community done")
+    end
+  end
+
+  def clean_up_articles(%Community{} = community, :post) do
+    Post
+    |> join(:inner, [p], c in assoc(p, :original_community))
+    |> where([p, c], c.id == ^community.id)
+    |> ORM.delete_all(:if_exist)
+    |> done
   end
 end
