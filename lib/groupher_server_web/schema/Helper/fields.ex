@@ -2,7 +2,7 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
   @moduledoc """
   general fields used in GraphQL schema definition
   """
-  import Helper.Utils, only: [get_config: 2]
+  import Helper.Utils, only: [get_config: 2, plural: 1]
   import Absinthe.Resolution.Helpers, only: [dataloader: 2]
 
   alias GroupherServer.CMS
@@ -201,7 +201,7 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
     @article_threads
     |> Enum.map(
       &quote do
-        field(unquote(:"#{&1}s_count"), :integer)
+        field(unquote(:"#{plural(&1)}_count"), :integer)
       end
     )
   end

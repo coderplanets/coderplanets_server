@@ -65,9 +65,12 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Helper do
     threads = Seeds.Threads.get(type)
     threads_list = threads |> Enum.map(& &1.raw)
 
-    with {:error, _} <- ORM.find_by(Thread, %{raw: "post"}) do
-      threads |> Enum.each(&CMS.create_thread(&1))
-    end
+    threads
+    |> Enum.each(fn thread ->
+      with {:error, _} <- ORM.find_by(Thread, %{raw: thread.raw}) do
+        CMS.create_thread(thread)
+      end
+    end)
 
     Thread
     |> where([t], t.raw in ^threads_list)

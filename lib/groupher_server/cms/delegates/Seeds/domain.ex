@@ -29,8 +29,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Domain do
   def seed_community(:home) do
     with {:error, _} <- ORM.find_by(Community, %{raw: "home"}),
          {:ok, bot} <- seed_bot(),
-         {:ok, threads} <- seed_threads(:home),
-         {:ok, categories} <- seed_categories_ifneed(bot) do
+         {:ok, threads} <- seed_threads(:home) do
       args = %{
         title: "coderplanets",
         desc: "the most sexy community for developers, ever.",

@@ -3,7 +3,7 @@ defmodule GroupherServer.Test.Seeds.Articles do
   use GroupherServer.TestTools
 
   # alias GroupherServer.Accounts.Model.User
-  alias GroupherServer.{CMS, Repo}
+  alias GroupherServer.CMS
 
   alias CMS.Model.Post
   # alias CMS.Delegate.SeedsConfig
@@ -11,7 +11,6 @@ defmodule GroupherServer.Test.Seeds.Articles do
   alias Helper.ORM
 
   describe "[posts seed]" do
-    @tag :wip
     test "can clean up a community" do
       {:ok, community} = CMS.seed_community(:home)
       CMS.seed_articles(community, :post, 5)

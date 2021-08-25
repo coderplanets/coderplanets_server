@@ -11,6 +11,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
   def random_color(), do: @tag_colors |> Enum.random() |> String.to_atom()
 
   def get(_, :users, _), do: []
+  def get(_, :cper, _), do: []
   def get(_, :setting, _), do: []
   def get(_, :team, _), do: []
 

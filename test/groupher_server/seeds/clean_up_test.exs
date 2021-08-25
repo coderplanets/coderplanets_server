@@ -20,7 +20,6 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
   end
 
   describe "[community clean up]" do
-    @tag :wip
     test "can clean up a community", ~m(user post_attrs)a do
       {:ok, community} = CMS.seed_community(:home)
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)

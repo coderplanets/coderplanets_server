@@ -4,10 +4,11 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
   use GroupherServer.TestTools
 
   alias GroupherServer.CMS
-  alias CMS.Model.{Community}
+  alias CMS.Model.Community
   alias Helper.ORM
 
   describe "[special communities seeds]" do
+    @tag :wip
     test "can seed home community" do
       {:ok, community} = CMS.seed_community(:home)
       {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])

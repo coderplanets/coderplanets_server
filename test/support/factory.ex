@@ -89,8 +89,8 @@ defmodule GroupherServer.Support.Factory do
     %{
       meta: @default_article_meta,
       title: String.slice(text, 1, 49),
-      body: mock_rich_text(),
-      digest: String.slice(text, 1, 150),
+      body: mock_rich_text(text),
+      digest: String.slice(text, 100, 150),
       solution_digest: String.slice(text, 1, 150),
       length: String.length(text),
       author: mock(:author),
