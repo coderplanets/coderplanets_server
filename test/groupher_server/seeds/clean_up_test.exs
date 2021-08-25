@@ -3,9 +3,9 @@ defmodule GroupherServer.Test.Seeds.CleanUp do
   use GroupherServer.TestTools
 
   # alias GroupherServer.Accounts.Model.User
-  alias GroupherServer.{CMS, Repo}
+  alias GroupherServer.CMS
 
-  alias CMS.Model.{Community, Thread, CommunityThread, ArticleTag, Post}
+  alias CMS.Model.{Thread, CommunityThread, ArticleTag, Post}
   # alias CMS.Delegate.SeedsConfig
 
   alias Helper.ORM

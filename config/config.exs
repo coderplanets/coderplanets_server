@@ -104,7 +104,7 @@ config :groupher_server, :article,
     :pill,
     :popcorn
   ],
-  digest_length: 120,
+  digest_length: 150,
   archive_threshold: %{
     # for post, blog, job, works, radar, job
     default: [weeks: -1],
