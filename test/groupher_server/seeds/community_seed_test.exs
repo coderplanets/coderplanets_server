@@ -8,7 +8,6 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
   alias Helper.ORM
 
   describe "[special communities seeds]" do
-
     test "can seed home community" do
       {:ok, community} = CMS.seed_community(:home)
       {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])
@@ -22,7 +21,6 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       # IO.inspect(found, label: "found --> ")
     end
 
-
     test "blackhole community" do
       {:ok, community} = CMS.seed_community(:blackhole)
       {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])
@@ -34,7 +32,6 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       threads = found.threads |> Enum.map(& &1.thread.title)
       assert threads == ["帖子", "账户"]
     end
-
 
     test "Feedback community" do
       {:ok, community} = CMS.seed_community(:feedback)
@@ -63,7 +60,6 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
   end
 
   describe "[common communities seeds]" do
-
     test "can seed a city community" do
       {:ok, community} = CMS.seed_community("chengdu", :city)
       {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])
@@ -80,7 +76,6 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       threads = found.threads |> Enum.map(& &1.thread.title)
       assert threads == ["帖子", "团队", "工作"]
     end
-
 
     test "can seed multi city communities" do
       {:ok, _} = CMS.seed_communities(:city)
@@ -101,7 +96,6 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       assert threads == ["帖子", "团队", "工作"]
     end
 
-
     test "can seed a general lang community" do
       {:ok, community} = CMS.seed_community("elixir", :pl)
       {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])
@@ -118,7 +112,6 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       threads = found.threads |> Enum.map(& &1.thread.title)
       assert threads == ["帖子", "雷达", "博客", "101", "awesome", "作品", "工作", "分布", "设置"]
     end
-
 
     test "can seed multi lang communities" do
       {:ok, _} = CMS.seed_communities(:pl)
@@ -138,7 +131,6 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       threads = found.threads |> Enum.map(& &1.thread.title)
       assert threads == ["帖子", "雷达", "博客", "101", "awesome", "作品", "工作", "分布", "设置"]
     end
-
 
     test "can seed a general framework community" do
       {:ok, community} = CMS.seed_community("react", :framework)

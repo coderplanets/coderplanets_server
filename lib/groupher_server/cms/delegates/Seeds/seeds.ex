@@ -21,7 +21,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.Model.{Community, Category, Thread, Post}
+  alias CMS.Model.{Community, Category, Post}
   alias CMS.Delegate.Seeds
   alias Seeds.Domain
 
@@ -90,12 +90,12 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   # clean up
 
   def clean_up(:all) do
+    #
   end
 
   def clean_up_community(raw) do
     with {:ok, community} <- ORM.findby_delete(Community, %{raw: to_string(raw)}) do
       clean_up_articles(community, :post)
-      IO.inspect("clean_up_community done")
     end
   end
 
