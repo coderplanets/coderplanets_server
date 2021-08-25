@@ -1,4 +1,4 @@
-defmodule GroupherServer.Test.Seeds.CommunitySeed do
+defmodule GroupherServer.Test.Seeds.CleanUp do
   @moduledoc false
   use GroupherServer.TestTools
 
