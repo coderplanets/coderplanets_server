@@ -75,9 +75,10 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
 
   def seed_articles(%Community{} = community, :post, count \\ 3) do
     with {:ok, community} <- ORM.find(Community, community.id) do
+      {:ok, user} = db_insert(:user)
+
       1..count
       |> Enum.each(fn _ ->
-        {:ok, user} = db_insert(:user)
         post_attrs = mock_attrs(:post, %{community_id: community.id})
         CMS.create_article(community, :post, post_attrs, user)
       end)
@@ -106,4 +107,6 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     |> ORM.delete_all(:if_exist)
     |> done
   end
+
+  def clean_up_articles(_, _), do: {:ok, :pass}
 end
