@@ -31,7 +31,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Domain do
          {:ok, bot} <- seed_bot(),
          {:ok, threads} <- seed_threads(:home) do
       args = %{
-        title: "coderplanets",
+        title: "CoderPlanets",
         desc: "the most sexy community for developers, ever.",
         logo: "#{@oss_endpoint}/icons/cmd/keyboard_logo.png",
         raw: "home",

@@ -280,6 +280,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   object :article_tag do
     field(:id, :id)
     field(:title, :string)
+    field(:raw, :string)
     field(:color, :string)
     field(:thread, :string)
     field(:group, :string)

@@ -380,7 +380,8 @@ defmodule GroupherServer.Support.Factory do
     unique_num = System.unique_integer([:positive, :monotonic])
 
     %{
-      title: "#{Faker.Pizza.cheese()} #{unique_num}",
+      title: "#{Faker.Pizza.cheese()}#{unique_num}",
+      raw: "#{Faker.Pizza.cheese()}#{unique_num}",
       thread: "POST",
       color: "YELLOW",
       group: "cool",

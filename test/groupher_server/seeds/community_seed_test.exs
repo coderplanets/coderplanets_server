@@ -13,7 +13,7 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       {:ok, community} = CMS.seed_community(:home)
       {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])
 
-      assert community.title == "coderplanets"
+      assert community.title == "CoderPlanets"
       assert community.raw == "home"
       assert found.threads |> length == 6
 
