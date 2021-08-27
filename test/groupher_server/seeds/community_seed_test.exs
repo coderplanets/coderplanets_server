@@ -8,7 +8,6 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
   alias Helper.ORM
 
   describe "[special communities seeds]" do
-    @tag :wip
     test "can seed home community" do
       {:ok, community} = CMS.seed_community(:home)
       {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])

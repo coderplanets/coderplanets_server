@@ -290,6 +290,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
         group: "薪资范围"
       }
     ]
+    |> Enum.map(fn attr -> Map.merge(%{thread: :job, color: random_color()}, attr) end)
   end
 
   ## 首页 end

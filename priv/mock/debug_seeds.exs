@@ -6,8 +6,11 @@ alias Helper.ORM
 CMS.clean_up_community(:home)
 {:ok, community} = CMS.seed_community(:home)
 
-hello = ORM.find(CMS.Model.Community, community.id)
-
+# hello = ORM.find(CMS.Model.Community, community.id)
 # IO.inspect(hello, label: "hello -> ")
 
 CMS.seed_articles(community, :post, 5)
+CMS.seed_articles(community, :job, 5)
+CMS.seed_articles(community, :blog, 5)
+CMS.seed_articles(community, :radar, 5)
+CMS.seed_articles(community, :works, 5)

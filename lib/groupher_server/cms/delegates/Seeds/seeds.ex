@@ -4,7 +4,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   """
 
   import GroupherServer.Support.Factory
-  import Helper.Utils, only: [done: 1]
+  import Helper.Utils, only: [done: 1, get_config: 2]
   import Ecto.Query, warn: false
 
   import GroupherServer.CMS.Delegate.Seeds.Helper,
@@ -25,6 +25,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   alias CMS.Delegate.Seeds
   alias Seeds.Domain
 
+  @article_threads get_config(:article, :threads)
   # categories
   @community_types [:pl, :framework, :editor, :database, :devops, :city]
 
@@ -73,19 +74,37 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     end)
   end
 
-  def seed_articles(%Community{} = community, :post, count \\ 3) do
-    with {:ok, community} <- ORM.find(Community, community.id) do
-      {:ok, user} = db_insert(:user)
+  def seed_articles(%Community{} = community, thread, count \\ 3)
+      when thread in @article_threads do
+    #
+    thread_upcase = thread |> to_string |> String.upcase()
+    tags_filter = %{community_id: community.id, thread: thread_upcase}
 
+    with {:ok, community} <- ORM.find(Community, community.id),
+         {:ok, tags} <- CMS.paged_article_tags(tags_filter),
+         {:ok, user} <- db_insert(:user) do
       1..count
       |> Enum.each(fn _ ->
-        post_attrs = mock_attrs(:post, %{community_id: community.id})
-        CMS.create_article(community, :post, post_attrs, user)
+        attrs = mock_attrs(thread, %{community_id: community.id})
+        {:ok, article} = CMS.create_article(community, thread, attrs, user)
+        set_tags(tags, thread, article.id)
       end)
     end
   end
 
-  def seed_posts(:other_articles) do
+  defp set_tags(tags, thread, article_id) do
+    get_tag_ids(tags, thread)
+    |> Enum.each(fn tag_id ->
+      CMS.set_article_tag(thread, article_id, tag_id)
+    end)
+  end
+
+  defp get_tag_ids(tags, :job) do
+    tags.entries |> Enum.map(& &1.id) |> Enum.shuffle() |> Enum.take(3)
+  end
+
+  defp get_tag_ids(tags, _) do
+    tags.entries |> Enum.map(& &1.id) |> Enum.shuffle() |> Enum.take(1)
   end
 
   # clean up
