@@ -41,6 +41,8 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
 
       field(:is_archived, :boolean)
       field(:archived_at, :datetime)
+
+      field(:copy_right, :string)
     end
   end
 

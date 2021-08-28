@@ -49,6 +49,6 @@ defmodule GroupherServer.CMS.Model.Job do
 
   defp generl_changeset(content) do
     content
-    |> validate_length(:title, min: 3, max: 50)
+    |> validate_length(:title, min: 3, max: 100)
   end
 end

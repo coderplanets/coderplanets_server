@@ -88,7 +88,7 @@ defmodule GroupherServer.Support.Factory do
 
     %{
       meta: @default_article_meta,
-      title: String.slice(text, 1, 49),
+      title: "post-#{String.slice(text, 1, 49)}",
       body: mock_rich_text(text),
       digest: String.slice(text, 100, 150),
       solution_digest: String.slice(text, 1, 150),
@@ -182,7 +182,7 @@ defmodule GroupherServer.Support.Factory do
 
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "JOB"}),
-      title: String.slice(text, 1, 49),
+      title: "job-#{String.slice(text, 1, 49)}",
       company: Faker.Company.name(),
       body: mock_rich_text(),
       desc: "活少, 美女多",
@@ -204,7 +204,7 @@ defmodule GroupherServer.Support.Factory do
 
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "BLOG"}),
-      title: String.slice(text, 1, 49),
+      title: "blog-#{String.slice(text, 1, 49)}",
       body: mock_rich_text(),
       digest: String.slice(text, 1, 150),
       length: String.length(text),
@@ -224,7 +224,7 @@ defmodule GroupherServer.Support.Factory do
 
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "WORKS"}),
-      title: String.slice(text, 1, 49),
+      title: "works-#{String.slice(text, 1, 49)}",
       body: mock_rich_text(),
       digest: String.slice(text, 1, 150),
       # length: String.length(text),
@@ -244,7 +244,7 @@ defmodule GroupherServer.Support.Factory do
 
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "RADAR"}),
-      title: String.slice(text, 1, 49),
+      title: "radar-#{String.slice(text, 1, 49)}",
       body: mock_rich_text(),
       digest: String.slice(text, 1, 150),
       # length: String.length(text),

@@ -55,7 +55,7 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   end
 
   def paged_articles(_root, ~m(thread filter)a, _info) do
-    CMS.paged_articles(thread, filter) |> IO.inspect(label: "文章")
+    CMS.paged_articles(thread, filter)
   end
 
   def paged_reports(_root, ~m(filter)a, _) do

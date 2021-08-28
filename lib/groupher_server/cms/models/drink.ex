@@ -42,7 +42,7 @@ defmodule GroupherServer.CMS.Model.Drink do
 
   defp generl_changeset(changeset) do
     changeset
-    |> validate_length(:title, min: 3, max: 50)
+    |> validate_length(:title, min: 3, max: 100)
     |> cast_embed(:emotions, with: &Embeds.ArticleEmotion.changeset/2)
   end
 end

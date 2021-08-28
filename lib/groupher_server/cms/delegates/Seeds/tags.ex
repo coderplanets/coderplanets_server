@@ -190,13 +190,23 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
         group: "城市"
       },
       %{
-        raw: "yrd",
-        title: "长三角",
+        raw: "shanghai",
+        title: "上海",
         group: "城市"
       },
       %{
-        raw: "prd",
-        title: "珠三角",
+        raw: "hangzhou",
+        title: "杭州",
+        group: "城市"
+      },
+      %{
+        raw: "shenzhen",
+        title: "深圳",
+        group: "城市"
+      },
+      %{
+        raw: "guangzhou",
+        title: "广州",
         group: "城市"
       },
       %{
@@ -207,6 +217,11 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
       %{
         raw: "chengdu",
         title: "成都",
+        group: "城市"
+      },
+      %{
+        raw: "xian",
+        title: "西安",
         group: "城市"
       },
       %{
@@ -230,8 +245,8 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
         group: "城市"
       },
       %{
-        raw: "web",
-        title: "web 前端",
+        raw: "frontend",
+        title: "前端",
         group: "职位"
       },
       %{
@@ -251,7 +266,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
       },
       %{
         raw: "devops",
-        title: "运维",
+        title: "DevOps",
         group: "职位"
       },
       %{
@@ -260,8 +275,8 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
         group: "职位"
       },
       %{
-        raw: "DBA",
-        title: "DBA",
+        raw: "others",
+        title: "其他",
         group: "职位"
       },
       %{

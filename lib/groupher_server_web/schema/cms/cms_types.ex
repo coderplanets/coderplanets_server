@@ -59,7 +59,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     comments_fields()
 
     field(:link_addr, :string)
-    field(:copy_right, :string)
 
     timestamp_fields(:article)
   end
@@ -74,7 +73,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:company, :string)
     field(:company_link, :string)
     field(:link_addr, :string)
-    field(:copy_right, :string)
 
     timestamp_fields(:article)
   end
