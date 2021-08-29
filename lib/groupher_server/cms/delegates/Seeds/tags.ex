@@ -151,7 +151,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
         raw: "backend"
       },
       %{
-        title: "iOS/Mac",
+        title: "apple",
         raw: "apple"
       },
       %{
@@ -171,8 +171,12 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
         raw: "ai"
       },
       %{
-        title: "运营 & 增长",
-        raw: "marketing"
+        title: "运营",
+        raw: "growth"
+      },
+      %{
+        title: "生活",
+        raw: "life"
       },
       %{
         title: "其他",

@@ -90,6 +90,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedBlogs do
       assert not is_nil(get_in(blog, ["document", "bodyHtml"]))
     end
 
+    @tag :wip
     test "support article_tag filter", ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
       blog_attrs = mock_attrs(:blog, %{community_id: community.id})
@@ -99,8 +100,12 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedBlogs do
       {:ok, article_tag} = CMS.create_article_tag(community, :blog, article_tag_attrs, user)
       {:ok, _} = CMS.set_article_tag(:blog, blog.id, article_tag.id)
 
-      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.title}}
+      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedBlogs")
+
+      variables = %{filter: %{page: 1, size: 10, article_tags: [article_tag.raw]}}
+      results2 = guest_conn |> query_result(@query, variables, "pagedBlogs")
+      assert results == results2
 
       blog = results["entries"] |> List.first()
       assert results["totalCount"] == 1

@@ -11,7 +11,6 @@ defmodule GroupherServer.Test.Seeds.Articles do
   alias Helper.ORM
 
   describe "[posts seed]" do
-    @tag :wip2
     test "can seed posts" do
       {:ok, community} = CMS.seed_community(:home)
       CMS.seed_articles(community, :post, 5)
@@ -27,7 +26,6 @@ defmodule GroupherServer.Test.Seeds.Articles do
       assert original_community_ids === [community.id]
     end
 
-    @tag :wip
     test "can seed jobs" do
       {:ok, community} = CMS.seed_community(:home)
       CMS.seed_articles(community, :job, 5)
@@ -42,7 +40,6 @@ defmodule GroupherServer.Test.Seeds.Articles do
       assert original_community_ids === [community.id]
     end
 
-    @tag :wip2
     test "can seed radars" do
       {:ok, community} = CMS.seed_community(:home)
       CMS.seed_articles(community, :radar, 5)
@@ -55,7 +52,6 @@ defmodule GroupherServer.Test.Seeds.Articles do
       assert original_community_ids === [community.id]
     end
 
-    @tag :wip2
     test "can seed blogs" do
       {:ok, community} = CMS.seed_community(:home)
       CMS.seed_articles(community, :blog, 5)
@@ -68,7 +64,6 @@ defmodule GroupherServer.Test.Seeds.Articles do
       assert original_community_ids === [community.id]
     end
 
-    @tag :wip2
     test "can seed works" do
       {:ok, community} = CMS.seed_community(:home)
       CMS.seed_articles(community, :works, 5)

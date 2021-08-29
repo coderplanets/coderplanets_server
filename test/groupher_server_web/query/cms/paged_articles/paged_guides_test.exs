@@ -90,6 +90,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedGuide do
       assert not is_nil(get_in(guide, ["document", "bodyHtml"]))
     end
 
+    @tag :wip
     test "support article_tag filter", ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
       guide_attrs = mock_attrs(:guide, %{community_id: community.id})
@@ -99,8 +100,12 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedGuide do
       {:ok, article_tag} = CMS.create_article_tag(community, :guide, article_tag_attrs, user)
       {:ok, _} = CMS.set_article_tag(:guide, guide.id, article_tag.id)
 
-      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.title}}
+      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedGuides")
+
+      variables = %{filter: %{page: 1, size: 10, article_tags: [article_tag.raw]}}
+      results2 = guest_conn |> query_result(@query, variables, "pagedGuides")
+      assert results == results2
 
       guide = results["entries"] |> List.first()
       assert results["totalCount"] == 1

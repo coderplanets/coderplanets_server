@@ -51,6 +51,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRadar do
           document {
             bodyHtml
           }
+          linkAddr
           communities {
             id
             raw
@@ -66,6 +67,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRadar do
       }
     }
     """
+
     test "should get pagination info", ~m(guest_conn)a do
       variables = %{filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedRadars")
@@ -90,6 +92,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRadar do
       assert not is_nil(get_in(radar, ["document", "bodyHtml"]))
     end
 
+    @tag :wip
     test "support article_tag filter", ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
       radar_attrs = mock_attrs(:radar, %{community_id: community.id})
@@ -99,8 +102,12 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRadar do
       {:ok, article_tag} = CMS.create_article_tag(community, :radar, article_tag_attrs, user)
       {:ok, _} = CMS.set_article_tag(:radar, radar.id, article_tag.id)
 
-      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.title}}
+      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedRadars")
+
+      variables = %{filter: %{page: 1, size: 10, article_tags: [article_tag.raw]}}
+      results2 = guest_conn |> query_result(@query, variables, "pagedRadars")
+      assert results == results2
 
       radar = results["entries"] |> List.first()
       assert results["totalCount"] == 1

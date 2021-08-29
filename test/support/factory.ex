@@ -184,7 +184,7 @@ defmodule GroupherServer.Support.Factory do
       meta: @default_article_meta |> Map.merge(%{thread: "JOB"}),
       title: "job-#{String.slice(text, 1, 49)}",
       company: Faker.Company.name(),
-      body: mock_rich_text(),
+      body: mock_rich_text(text),
       desc: "活少, 美女多",
       digest: String.slice(text, 1, 150),
       length: String.length(text),
@@ -205,7 +205,7 @@ defmodule GroupherServer.Support.Factory do
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "BLOG"}),
       title: "blog-#{String.slice(text, 1, 49)}",
-      body: mock_rich_text(),
+      body: mock_rich_text(text),
       digest: String.slice(text, 1, 150),
       length: String.length(text),
       author: mock(:author),
@@ -225,7 +225,7 @@ defmodule GroupherServer.Support.Factory do
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "WORKS"}),
       title: "works-#{String.slice(text, 1, 49)}",
-      body: mock_rich_text(),
+      body: mock_rich_text(text),
       digest: String.slice(text, 1, 150),
       # length: String.length(text),
       author: mock(:author),
@@ -245,8 +245,9 @@ defmodule GroupherServer.Support.Factory do
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "RADAR"}),
       title: "radar-#{String.slice(text, 1, 49)}",
-      body: mock_rich_text(),
+      body: mock_rich_text(text),
       digest: String.slice(text, 1, 150),
+      link_addr: "https://#{Faker.Company.name()}.com/#{Faker.Company.name()}/post",
       # length: String.length(text),
       author: mock(:author),
       views: Enum.random(0..2000),
@@ -265,7 +266,7 @@ defmodule GroupherServer.Support.Factory do
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "GUIDE"}),
       title: String.slice(text, 1, 49),
-      body: mock_rich_text(),
+      body: mock_rich_text(text),
       digest: String.slice(text, 1, 150),
       # length: String.length(text),
       author: mock(:author),
@@ -285,7 +286,7 @@ defmodule GroupherServer.Support.Factory do
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "MEETUP"}),
       title: String.slice(text, 1, 49),
-      body: mock_rich_text(),
+      body: mock_rich_text(text),
       digest: String.slice(text, 1, 150),
       # length: String.length(text),
       author: mock(:author),
@@ -305,7 +306,7 @@ defmodule GroupherServer.Support.Factory do
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "DRINK"}),
       title: String.slice(text, 1, 49),
-      body: mock_rich_text(),
+      body: mock_rich_text(text),
       digest: String.slice(text, 1, 150),
       # length: String.length(text),
       author: mock(:author),

@@ -64,9 +64,6 @@ defmodule Helper.QueryBuilder do
         # queryable |> order_by(^sort_strategy(:desc_inserted))
         queryable |> order_by(desc: :inserted_at)
 
-      {:sort, :desc_active}, queryable ->
-        queryable |> order_by(desc: :active_at)
-
       {:sort, :asc_inserted}, queryable ->
         queryable |> order_by(asc: :inserted_at)
 
@@ -129,14 +126,14 @@ defmodule Helper.QueryBuilder do
         from(
           q in queryable,
           join: t in assoc(q, :article_tags),
-          where: t.title == ^tag_name
+          where: t.raw == ^tag_name
         )
 
       {:article_tags, tag_name_list}, queryable ->
         from(
           q in queryable,
           join: t in assoc(q, :article_tags),
-          where: t.title in ^tag_name_list,
+          where: t.raw in ^tag_name_list,
           distinct: q.id,
           group_by: q.id
         )

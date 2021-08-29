@@ -90,6 +90,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert not is_nil(get_in(job, ["document", "bodyHtml"]))
     end
 
+    @tag :wip
     test "support article_tag filter", ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
       job_attrs = mock_attrs(:job, %{community_id: community.id})
@@ -99,8 +100,12 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       {:ok, article_tag} = CMS.create_article_tag(community, :job, article_tag_attrs, user)
       {:ok, _} = CMS.set_article_tag(:job, job.id, article_tag.id)
 
-      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.title}}
+      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
+
+      variables = %{filter: %{page: 1, size: 10, article_tags: [article_tag.raw]}}
+      results2 = guest_conn |> query_result(@query, variables, "pagedJobs")
+      assert results == results2
 
       job = results["entries"] |> List.first()
       assert results["totalCount"] == 1
