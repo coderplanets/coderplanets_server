@@ -142,8 +142,8 @@ defmodule GroupherServer.Test.Query.Comments.GuideComment do
       results = guest_conn |> query_result(@query, variables, "pagedComments")
       assert results["entries"] |> length == total_count
 
-      assert not exist_in?(replyed_comment_1, results["entries"], :string_key)
-      assert not exist_in?(replyed_comment_2, results["entries"], :string_key)
+      assert not exist_in?(replyed_comment_1, results["entries"])
+      assert not exist_in?(replyed_comment_2, results["entries"])
 
       random_comment = Enum.find(results["entries"], &(&1["id"] == to_string(random_comment.id)))
       assert random_comment["replies"] |> length == 2
@@ -185,8 +185,8 @@ defmodule GroupherServer.Test.Query.Comments.GuideComment do
       results = guest_conn |> query_result(@query, variables, "pagedComments")
       assert results["entries"] |> length == total_count + 2
 
-      assert exist_in?(replyed_comment_1, results["entries"], :string_key)
-      assert exist_in?(replyed_comment_2, results["entries"], :string_key)
+      assert exist_in?(replyed_comment_1, results["entries"])
+      assert exist_in?(replyed_comment_2, results["entries"])
 
       random_comment = Enum.find(results["entries"], &(&1["id"] == to_string(random_comment.id)))
       assert random_comment["replies"] |> length == 2

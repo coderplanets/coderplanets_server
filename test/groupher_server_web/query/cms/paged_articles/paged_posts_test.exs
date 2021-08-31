@@ -110,7 +110,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
 
       post = results["entries"] |> List.first()
       assert results["totalCount"] == 1
-      assert exist_in?(article_tag, post["articleTags"], :string_key)
+      assert exist_in?(article_tag, post["articleTags"])
     end
 
     test "support community filter", ~m(guest_conn user)a do
@@ -126,7 +126,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
 
       post = results["entries"] |> List.first()
       assert results["totalCount"] == 2
-      assert exist_in?(%{id: to_string(community.id)}, post["communities"], :string_key)
+      assert exist_in?(%{id: to_string(community.id)}, post["communities"])
     end
 
     test "request large size fails", ~m(guest_conn)a do
