@@ -25,6 +25,7 @@ defmodule GroupherServer.Test.Articles.Drink do
   end
 
   describe "[cms drinks curd]" do
+    @tag :wip
     test "can create drink with valid attrs", ~m(user community drink_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
       {:ok, drink} = CMS.create_article(community, :drink, drink_attrs, user)
@@ -43,7 +44,6 @@ defmodule GroupherServer.Test.Articles.Drink do
       assert drink.document.body_html |> String.contains?(~s(<p id="block-))
 
       paragraph_text = body_map["blocks"] |> List.first() |> get_in(["data", "text"])
-      assert drink.digest == paragraph_text |> HtmlSanitizer.strip_all_tags()
 
       assert drink.digest ==
                paragraph_text

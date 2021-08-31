@@ -44,7 +44,6 @@ defmodule GroupherServer.Test.Articles.Job do
       assert job.document.body_html |> String.contains?(~s(<p id="block-))
 
       paragraph_text = body_map["blocks"] |> List.first() |> get_in(["data", "text"])
-      assert job.digest == paragraph_text |> HtmlSanitizer.strip_all_tags()
 
       assert job.digest ==
                paragraph_text

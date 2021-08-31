@@ -33,7 +33,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
         update_attrs = %{author_id: author.id, community_id: community.id, thread: thread}
         attrs = attrs |> Map.merge(update_attrs) |> atom_values_to_upcase
 
-        ORM.create(ArticleTag, attrs) |> IO.inspect(label: "the r?")
+        ORM.create(ArticleTag, attrs)
       end)
       |> Multi.run(:update_community_count, fn _, _ ->
         CommunityCURD.update_community_count_field(community, :article_tags_count)

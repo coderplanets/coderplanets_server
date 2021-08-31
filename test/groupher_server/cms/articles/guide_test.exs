@@ -43,7 +43,6 @@ defmodule GroupherServer.Test.Articles.Guide do
       assert guide.document.body_html |> String.contains?(~s(<p id="block-))
 
       paragraph_text = body_map["blocks"] |> List.first() |> get_in(["data", "text"])
-      assert guide.digest == paragraph_text |> HtmlSanitizer.strip_all_tags()
 
       assert guide.digest ==
                paragraph_text
