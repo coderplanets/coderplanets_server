@@ -90,7 +90,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedGuide do
       assert not is_nil(get_in(guide, ["document", "bodyHtml"]))
     end
 
-    @tag :wip
     test "support article_tag filter", ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
       guide_attrs = mock_attrs(:guide, %{community_id: community.id})

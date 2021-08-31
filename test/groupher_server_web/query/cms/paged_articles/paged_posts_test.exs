@@ -92,7 +92,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       assert not is_nil(get_in(post, ["document", "bodyHtml"]))
     end
 
-    @tag :wip
     test "support article_tag filter", ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
       post_attrs = mock_attrs(:post, %{community_id: community.id})
@@ -240,12 +239,17 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
           viewerHasUpvoted
           viewerHasViewed
           viewerHasReported
+          meta {
+            latestUpvotedUsers {
+              login
+            }
+          }
         }
         totalCount
       }
     }
     """
-
+    @tag :wip
     test "has_xxx state should work", ~m(user)a do
       user_conn = simu_conn(:user, user)
       {:ok, community} = db_insert(:community)
@@ -270,11 +274,14 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       {:ok, _} = CMS.report_article(:post, post.id, "reason", "attr_info", user)
 
       results = user_conn |> query_result(@query, variables, "pagedPosts")
+
       the_post = Enum.find(results["entries"], &(&1["id"] == to_string(post.id)))
       assert the_post["viewerHasViewed"]
       assert the_post["viewerHasUpvoted"]
       assert the_post["viewerHasCollected"]
       assert the_post["viewerHasReported"]
+
+      assert user_exist_in?(user, the_post["meta"]["latestUpvotedUsers"])
     end
   end
 

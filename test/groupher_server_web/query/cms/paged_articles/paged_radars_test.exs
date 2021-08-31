@@ -92,7 +92,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRadar do
       assert not is_nil(get_in(radar, ["document", "bodyHtml"]))
     end
 
-    @tag :wip
     test "support article_tag filter", ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
       radar_attrs = mock_attrs(:radar, %{community_id: community.id})

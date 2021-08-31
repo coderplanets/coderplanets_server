@@ -20,6 +20,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   # usually used in abuse_report, feeds, etc ..
   object :common_user do
     field(:login, :string)
+    field(:avatar, :string)
     field(:nickname, :string)
     field(:avatar, :string)
   end
@@ -435,6 +436,9 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   object :article_meta do
     field(:is_edited, :boolean)
     field(:is_comment_locked, :boolean)
+    field(:last_active_at, :datetime)
+    field(:citing_count, :integer)
+    field(:latest_upvoted_users, list_of(:common_user))
     # field(:linked_posts_count, :integer)
   end
 

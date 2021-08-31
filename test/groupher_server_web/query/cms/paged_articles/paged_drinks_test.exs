@@ -90,7 +90,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedDrink do
       assert not is_nil(get_in(drink, ["document", "bodyHtml"]))
     end
 
-    @tag :wip
     test "support article_tag filter", ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
       drink_attrs = mock_attrs(:drink, %{community_id: community.id})

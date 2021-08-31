@@ -14,6 +14,7 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   alias Accounts.Model.User
 
   @default_article_meta CMS.Model.Embeds.ArticleMeta.default_meta()
+  @max_latest_upvoted_users_count get_config(:article, :max_upvoted_users_count)
 
   # TODO:
   # @max_latest_emotion_users_count Comment.max_latest_emotion_users_count()
@@ -195,32 +196,68 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   @spec update_article_reaction_user_list(
           :upvot | :collect,
           T.article_common(),
-          String.t(),
+          User.t(),
           :add | :remove
         ) :: T.article_common()
-  def update_article_reaction_user_list(action, %{meta: nil} = article, user_id, opt) do
+  def update_article_reaction_user_list(action, %{meta: nil} = article, %User{} = user, opt) do
     cur_user_ids = []
+    cur_users = []
 
     updated_user_ids =
       case opt do
-        :add -> [user_id] ++ cur_user_ids
-        :remove -> cur_user_ids -- [user_id]
+        :add -> [user.id] ++ cur_user_ids
+        :remove -> cur_user_ids -- [user.id]
       end
 
-    meta = @default_article_meta |> Map.merge(%{"#{action}ed_user_ids": updated_user_ids})
+    updated_users =
+      case opt do
+        :add -> [extract_embed_user(user)] ++ cur_users
+        :remove -> cur_users -- [extract_embed_user(user)]
+      end
+
+    # updated_users = updated_users |> Enum.map(&strip_struct(&1)) |> Enum.uniq()
+
+    meta =
+      @default_article_meta
+      |> Map.merge(%{"#{action}ed_user_ids": updated_user_ids})
+      |> Map.merge(%{"latest_#{action}ed_users": updated_users})
+
     ORM.update_meta(article, meta)
   end
 
-  def update_article_reaction_user_list(action, article, user_id, opt) do
+  def update_article_reaction_user_list(action, article, %User{} = user, opt) do
     cur_user_ids = get_in(article, [:meta, :"#{action}ed_user_ids"])
+    cur_users = get_in(article, [:meta, :"latest_#{action}ed_users"])
 
     updated_user_ids =
       case opt do
-        :add -> [user_id] ++ cur_user_ids
-        :remove -> cur_user_ids -- [user_id]
+        :add -> [user.id] ++ cur_user_ids
+        :remove -> cur_user_ids -- [user.id]
       end
 
-    meta = article.meta |> Map.merge(%{"#{action}ed_user_ids": updated_user_ids}) |> strip_struct
+    updated_users =
+      case opt do
+        :add -> [extract_embed_user(user)] ++ cur_users
+        :remove -> cur_users -- [extract_embed_user(user)]
+      end
+      |> Enum.map(&strip_struct(&1))
+      |> Enum.uniq()
+      |> Enum.slice(0, @max_latest_upvoted_users_count)
+
+    meta =
+      article.meta
+      |> Map.merge(%{"#{action}ed_user_ids": updated_user_ids})
+      |> Map.merge(%{"latest_#{action}ed_users": updated_users})
+
     ORM.update_meta(article, meta)
+  end
+
+  defp extract_embed_user(%User{} = user) do
+    %{
+      user_id: user.id,
+      avatar: user.avatar,
+      login: user.login,
+      nickname: user.nickname
+    }
   end
 end

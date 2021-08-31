@@ -90,7 +90,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedMeetup do
       assert not is_nil(get_in(meetup, ["document", "bodyHtml"]))
     end
 
-    @tag :wip
     test "support article_tag filter", ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
       meetup_attrs = mock_attrs(:meetup, %{community_id: community.id})

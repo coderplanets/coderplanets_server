@@ -209,6 +209,10 @@ defmodule GroupherServer.Test.AssertHelper do
 
   # for embed user situation
   def user_exist_in?(%{login: login}, list) when is_list(list) do
-    list |> Enum.any?(&(&1.login == login))
+    # list |> Enum.any?(&(&1.login == login or &1["login"] == login))
+    list
+    |> Enum.any?(fn u ->
+      login == Map.get(u, :login, Map.get(u, "login"))
+    end)
   end
 end

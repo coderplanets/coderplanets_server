@@ -89,7 +89,6 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
     #   assert not is_nil(get_in(repo, ["document", "bodyHtml"]))
     # end
 
-    @tag :wip
     test "support article_tag filter", ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
       repo_attrs = mock_attrs(:repo, %{community_id: community.id})
