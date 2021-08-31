@@ -129,6 +129,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Community do
     @desc "create a tag"
     field :create_article_tag, :article_tag do
       arg(:title, non_null(:string))
+      arg(:raw, non_null(:string))
       arg(:color, non_null(:rainbow_color))
       arg(:community_id, non_null(:id))
       arg(:group, :string)
@@ -148,6 +149,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Community do
       arg(:id, non_null(:id))
       arg(:community_id, non_null(:id))
       arg(:title, :string)
+      arg(:raw, :string)
       arg(:color, :rainbow_color)
       arg(:group, :string)
       arg(:thread, :thread, default_value: :post)

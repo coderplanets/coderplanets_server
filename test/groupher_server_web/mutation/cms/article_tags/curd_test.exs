@@ -43,6 +43,7 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
          ~m(community)a do
       variables = %{
         title: "tag title",
+        raw: "tag_raw",
         communityId: community.id,
         thread: "POST",
         color: "GREEN",
@@ -64,7 +65,6 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
       assert belong_community["id"] == to_string(community.id)
     end
 
-    @tag :wip
     test "create tag with extra", ~m(community)a do
       variables = %{
         title: "tag title",
@@ -79,12 +79,12 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
       passport_rules = %{community.title => %{"post.article_tag.create" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      created = rule_conn |> mutation_result(@create_tag_query, variables, "createArticleTag")
+      created =
+        rule_conn |> mutation_result(@create_tag_query, variables, "createArticleTag", :debug)
 
       assert created["extra"] == ["menuID", "menuID2"]
     end
 
-    @tag :wip
     test "unauth user create tag fails", ~m(community user_conn guest_conn)a do
       variables = %{
         title: "tag title",
@@ -115,7 +115,7 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
       }
     }
     """
-    @tag :wip
+
     test "auth user can update a tag", ~m(article_tag_attrs community user)a do
       {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
 
