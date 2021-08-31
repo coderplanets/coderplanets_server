@@ -25,7 +25,6 @@ defmodule GroupherServer.Test.Articles.Meetup do
   end
 
   describe "[cms meetups curd]" do
-    @tag :wip
     test "can create meetup with valid attrs", ~m(user community meetup_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
       {:ok, meetup} = CMS.create_article(community, :meetup, meetup_attrs, user)

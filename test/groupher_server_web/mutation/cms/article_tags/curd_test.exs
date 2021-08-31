@@ -64,9 +64,11 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
       assert belong_community["id"] == to_string(community.id)
     end
 
+    @tag :wip
     test "create tag with extra", ~m(community)a do
       variables = %{
         title: "tag title",
+        raw: "tag",
         communityId: community.id,
         thread: "POST",
         color: "GREEN",
@@ -82,9 +84,11 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
       assert created["extra"] == ["menuID", "menuID2"]
     end
 
+    @tag :wip
     test "unauth user create tag fails", ~m(community user_conn guest_conn)a do
       variables = %{
         title: "tag title",
+        raw: "tag",
         communityId: community.id,
         thread: "POST",
         color: "GREEN"
@@ -111,7 +115,7 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
       }
     }
     """
-
+    @tag :wip
     test "auth user can update a tag", ~m(article_tag_attrs community user)a do
       {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
 
@@ -119,6 +123,7 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
         id: article_tag.id,
         color: "YELLOW",
         title: "new title",
+        raw: "new_title",
         communityId: community.id,
         extra: ["newMenuID"],
         icon: "icon"

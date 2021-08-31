@@ -44,7 +44,7 @@ defmodule GroupherServer.Test.Articles.Works do
       paragraph_text = body_map["blocks"] |> List.first() |> get_in(["data", "text"])
       assert works.digest == paragraph_text |> HtmlSanitizer.strip_all_tags()
 
-      assert radar.digest ==
+      assert works.digest ==
                paragraph_text
                |> HtmlSanitizer.strip_all_tags()
                |> String.slice(0, @article_digest_length)

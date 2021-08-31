@@ -25,7 +25,6 @@ defmodule GroupherServer.Test.Articles.Guide do
   end
 
   describe "[cms guides curd]" do
-    @tag :wip
     test "can create guide with valid attrs", ~m(user community guide_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
       {:ok, guide} = CMS.create_article(community, :guide, guide_attrs, user)
