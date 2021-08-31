@@ -24,7 +24,6 @@ defmodule GroupherServer.Test.Query.Account.Fans do
       }
     }
     """
-    @tag :wip
     test "login user can get basic paged followers info", ~m(user)a do
       variables = %{login: user.login, filter: %{page: 1, size: 20}}
 

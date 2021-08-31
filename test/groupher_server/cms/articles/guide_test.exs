@@ -1,6 +1,8 @@
 defmodule GroupherServer.Test.Articles.Guide do
   use GroupherServer.TestTools
 
+  import Helper.Utils, only: [get_config: 2]
+
   alias GroupherServer.{CMS, Repo}
   alias Helper.Converter.{EditorToHTML, HtmlSanitizer}
 
@@ -10,6 +12,7 @@ defmodule GroupherServer.Test.Articles.Guide do
 
   @root_class Class.article()
   @last_year Timex.shift(Timex.beginning_of_year(Timex.now()), days: -3, seconds: -1)
+  @article_digest_length get_config(:article, :digest_length)
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -22,6 +25,7 @@ defmodule GroupherServer.Test.Articles.Guide do
   end
 
   describe "[cms guides curd]" do
+    @tag :wip
     test "can create guide with valid attrs", ~m(user community guide_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
       {:ok, guide} = CMS.create_article(community, :guide, guide_attrs, user)
@@ -41,6 +45,11 @@ defmodule GroupherServer.Test.Articles.Guide do
 
       paragraph_text = body_map["blocks"] |> List.first() |> get_in(["data", "text"])
       assert guide.digest == paragraph_text |> HtmlSanitizer.strip_all_tags()
+
+      assert guide.digest ==
+               paragraph_text
+               |> HtmlSanitizer.strip_all_tags()
+               |> String.slice(0, @article_digest_length)
     end
 
     test "created guide should have a acitve_at field, same with inserted_at",

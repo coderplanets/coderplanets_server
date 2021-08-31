@@ -1,6 +1,8 @@
 defmodule GroupherServer.Test.Articles.Meetup do
   use GroupherServer.TestTools
 
+  import Helper.Utils, only: [get_config: 2]
+
   alias GroupherServer.{CMS, Repo}
   alias Helper.Converter.{EditorToHTML, HtmlSanitizer}
 
@@ -10,6 +12,7 @@ defmodule GroupherServer.Test.Articles.Meetup do
 
   @root_class Class.article()
   @last_year Timex.shift(Timex.beginning_of_year(Timex.now()), days: -3, seconds: -1)
+  @article_digest_length get_config(:article, :digest_length)
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -22,6 +25,7 @@ defmodule GroupherServer.Test.Articles.Meetup do
   end
 
   describe "[cms meetups curd]" do
+    @tag :wip
     test "can create meetup with valid attrs", ~m(user community meetup_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
       {:ok, meetup} = CMS.create_article(community, :meetup, meetup_attrs, user)
@@ -41,6 +45,11 @@ defmodule GroupherServer.Test.Articles.Meetup do
 
       paragraph_text = body_map["blocks"] |> List.first() |> get_in(["data", "text"])
       assert meetup.digest == paragraph_text |> HtmlSanitizer.strip_all_tags()
+
+      assert meetup.digest ==
+               paragraph_text
+               |> HtmlSanitizer.strip_all_tags()
+               |> String.slice(0, @article_digest_length)
     end
 
     test "created meetup should have a acitve_at field, same with inserted_at",
