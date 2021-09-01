@@ -23,8 +23,8 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
 
   describe "[mutation cms tag]" do
     @create_tag_query """
-    mutation($thread: Thread!, $title: String!, $color: RainbowColor!, $group: String, $communityId: ID!, $extra: [String] ) {
-      createArticleTag(thread: $thread, title: $title, color: $color, group: $group, communityId: $communityId, extra: $extra) {
+    mutation($thread: Thread!, $title: String!, $raw: String!, $color: RainbowColor!, $group: String, $communityId: ID!, $extra: [String] ) {
+      createArticleTag(thread: $thread, title: $title, raw: $raw, color: $color, group: $group, communityId: $communityId, extra: $extra) {
         id
         title
         color
@@ -65,6 +65,7 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
       assert belong_community["id"] == to_string(community.id)
     end
 
+    @tag :wip
     test "create tag with extra", ~m(community)a do
       variables = %{
         title: "tag title",
@@ -79,8 +80,7 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
       passport_rules = %{community.title => %{"post.article_tag.create" => true}}
       rule_conn = simu_conn(:user, cms: passport_rules)
 
-      created =
-        rule_conn |> mutation_result(@create_tag_query, variables, "createArticleTag", :debug)
+      created = rule_conn |> mutation_result(@create_tag_query, variables, "createArticleTag")
 
       assert created["extra"] == ["menuID", "menuID2"]
     end
@@ -105,8 +105,8 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
     end
 
     @update_tag_query """
-    mutation($id: ID!, $color: RainbowColor, $title: String, $communityId: ID!, $extra: [String], $icon: String) {
-      updateArticleTag(id: $id, color: $color, title: $title, communityId: $communityId, extra: $extra, icon: $icon) {
+    mutation($id: ID!, $color: RainbowColor, $title: String, $raw: String, $communityId: ID!, $extra: [String], $icon: String) {
+      updateArticleTag(id: $id, color: $color, title: $title, raw: $raw, communityId: $communityId, extra: $extra, icon: $icon) {
         id
         title
         color
@@ -115,7 +115,7 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
       }
     }
     """
-
+    @tag :wip
     test "auth user can update a tag", ~m(article_tag_attrs community user)a do
       {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
 

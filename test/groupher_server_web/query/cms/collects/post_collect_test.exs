@@ -24,7 +24,7 @@ defmodule GroupherServer.Test.Query.Collects.PostCollect do
     ) {
       collectedUsers(id: $id, thread: $thread, filter: $filter) {
         entries {
-          id
+          login
           avatar
           nickname
         }
@@ -35,7 +35,7 @@ defmodule GroupherServer.Test.Query.Collects.PostCollect do
       }
     }
     """
-
+    @tag :wip
     test "guest can get collected users list after collect a post",
          ~m(guest_conn post user user2)a do
       {:ok, _} = CMS.collect_article(:post, post.id, user)

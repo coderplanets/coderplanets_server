@@ -24,7 +24,7 @@ defmodule GroupherServer.Test.Query.Upvotes.PostUpvote do
     ) {
       upvotedUsers(id: $id, thread: $thread, filter: $filter) {
         entries {
-          id
+          login
           avatar
           nickname
         }
@@ -35,7 +35,7 @@ defmodule GroupherServer.Test.Query.Upvotes.PostUpvote do
       }
     }
     """
-
+    @tag :wip
     test "guest can get upvoted users list after upvote to a post",
          ~m(guest_conn post user user2)a do
       {:ok, _} = CMS.upvote_article(:post, post.id, user)

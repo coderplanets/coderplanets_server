@@ -24,7 +24,7 @@ defmodule GroupherServer.Test.Query.Collects.JobCollect do
     ) {
       collectedUsers(id: $id, thread: $thread, filter: $filter) {
         entries {
-          id
+          login
           avatar
           nickname
         }
@@ -35,7 +35,7 @@ defmodule GroupherServer.Test.Query.Collects.JobCollect do
       }
     }
     """
-
+    @tag :wip
     test "guest can get collected users list after collect a job",
          ~m(guest_conn job user user2)a do
       {:ok, _} = CMS.collect_article(:job, job.id, user)
