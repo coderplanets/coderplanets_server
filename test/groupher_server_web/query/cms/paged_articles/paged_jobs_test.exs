@@ -126,7 +126,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       {:ok, _} = CMS.set_article_tag(:job, job.id, article_tag2.id)
 
       variables = %{
-        filter: %{page: 1, size: 10, article_tags: [article_tag.title, article_tag2.title]}
+        filter: %{page: 1, size: 10, article_tags: [article_tag.raw, article_tag2.raw]}
       }
 
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
@@ -161,7 +161,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       assert exist_in?(job, results["entries"])
 
       variables = %{
-        filter: %{page: 1, size: 10, community: community.raw, article_tags: [article_tag.title]}
+        filter: %{page: 1, size: 10, community: community.raw, article_tags: [article_tag.raw]}
       }
 
       results = guest_conn |> query_result(@query, variables, "pagedJobs")

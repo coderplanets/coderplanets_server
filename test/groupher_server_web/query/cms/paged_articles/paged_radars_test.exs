@@ -128,7 +128,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRadar do
       {:ok, _} = CMS.set_article_tag(:radar, radar.id, article_tag2.id)
 
       variables = %{
-        filter: %{page: 1, size: 10, article_tags: [article_tag.title, article_tag2.title]}
+        filter: %{page: 1, size: 10, article_tags: [article_tag.raw, article_tag2.raw]}
       }
 
       results = guest_conn |> query_result(@query, variables, "pagedRadars")
