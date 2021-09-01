@@ -1,5 +1,5 @@
 alias GroupherServer.CMS
-alias Helper.ORM
+# alias Helper.ORM
 
 # ORM.delete_all(CMS.Model.Thread, :if_exist)
 
@@ -13,5 +13,5 @@ CMS.seed_articles(community, :post, 5)
 CMS.seed_articles(community, :job, 5)
 CMS.seed_articles(community, :blog, 5)
 CMS.seed_articles(community, :radar, 5)
-
+CMS.seed_articles(community, :meetup, 5)
 CMS.seed_articles(community, :works, 10)

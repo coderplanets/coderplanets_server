@@ -87,15 +87,25 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
       |> Enum.each(fn _ ->
         attrs = mock_attrs(thread, %{community_id: community.id})
         {:ok, article} = CMS.create_article(community, thread, attrs, user)
-        set_tags(tags, thread, article.id)
+        seed_tags(tags, thread, article.id)
+        seed_upvotes(thread, article.id)
       end)
     end
   end
 
-  defp set_tags(tags, thread, article_id) do
+  defp seed_upvotes(thread, article_id) do
+    with {:ok, users} <- db_insert_multi(:user, Enum.random(1..10)) do
+      users
+      |> Enum.each(fn user ->
+        {:ok, _article} = CMS.upvote_article(thread, article_id, user)
+      end)
+    end
+  end
+
+  defp seed_tags(tags, thread, article_id) do
     get_tag_ids(tags, thread)
     |> Enum.each(fn tag_id ->
-      CMS.set_article_tag(thread, article_id, tag_id)
+      {:ok, _} = CMS.set_article_tag(thread, article_id, tag_id)
     end)
   end
 
