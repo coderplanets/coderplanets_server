@@ -154,7 +154,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRadar do
       {:ok, _} = CMS.set_article_tag(:radar, radar.id, article_tag.id)
 
       variables = %{
-        filter: %{page: 1, size: 10, community: community.raw, article_tag: article_tag.title}
+        filter: %{page: 1, size: 10, community: community.raw, article_tag: article_tag.raw}
       }
 
       results = guest_conn |> query_result(@query, variables, "pagedRadars")
@@ -163,7 +163,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRadar do
       assert exist_in?(radar, results["entries"])
 
       variables = %{
-        filter: %{page: 1, size: 10, community: community.raw, article_tags: [article_tag.title]}
+        filter: %{page: 1, size: 10, community: community.raw, article_tags: [article_tag.raw]}
       }
 
       results = guest_conn |> query_result(@query, variables, "pagedRadars")
