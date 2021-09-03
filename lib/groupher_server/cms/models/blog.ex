@@ -15,11 +15,10 @@ defmodule GroupherServer.CMS.Model.Blog do
 
   @required_fields ~w(title digest)a
   @article_cast_fields general_article_cast_fields()
-  @optional_fields ~w(link_addr digest)a ++ @article_cast_fields
+  @optional_fields ~w(digest)a ++ @article_cast_fields
 
   @type t :: %Blog{}
   schema "cms_blogs" do
-    field(:link_addr, :string)
     # for frontend constant
     field(:copy_right, :string, default: "", virtual: true)
 

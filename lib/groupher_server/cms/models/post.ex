@@ -17,12 +17,11 @@ defmodule GroupherServer.CMS.Model.Post do
 
   @required_fields ~w(title digest)a
   @article_cast_fields general_article_cast_fields()
-  @optional_fields ~w(link_addr copy_right is_question is_solved solution_digest)a ++
+  @optional_fields ~w(copy_right is_question is_solved solution_digest)a ++
                      @article_cast_fields
 
   @type t :: %Post{}
   schema "cms_posts" do
-    field(:link_addr, :string)
     field(:copy_right, :string)
 
     field(:is_question, :boolean, default: false)

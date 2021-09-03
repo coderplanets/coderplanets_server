@@ -117,6 +117,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
   def general_article_cast_fields() do
     [
       :digest,
+      :link_addr,
       :original_community_id,
       :comments_count,
       :comments_participants_count,
@@ -184,6 +185,8 @@ defmodule GroupherServer.CMS.Helper.Macros do
       field(:mark_delete, :boolean, default: false)
 
       belongs_to(:author, Author)
+
+      field(:link_addr, :string)
 
       has_one(
         :document,

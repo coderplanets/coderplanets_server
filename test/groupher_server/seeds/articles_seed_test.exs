@@ -18,9 +18,11 @@ defmodule GroupherServer.Test.Seeds.Articles do
 
       {:ok, posts} = ORM.find_all(Post, %{page: 1, size: 20})
       ramdom_post = posts.entries |> List.first()
-      {:ok, ramdom_post} = ORM.find(Post, ramdom_post.id, preload: :article_tags)
+      {:ok, ramdom_post} = ORM.find(Post, ramdom_post.id, preload: [:article_tags, :document])
+
       assert ramdom_post.article_tags |> length == 1
       assert ramdom_post.upvotes_count !== 0
+      assert not is_nil(ramdom_post.document.body_html)
 
       original_community_ids =
         posts.entries |> Enum.map(& &1.original_community_id) |> Enum.uniq()

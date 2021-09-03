@@ -15,12 +15,11 @@ defmodule GroupherServer.CMS.Model.Radar do
 
   @required_fields ~w(title digest)a
   @article_cast_fields general_article_cast_fields()
-  @optional_fields ~w(link_addr)a ++ @article_cast_fields
+  @optional_fields ~w(copy_right)a ++ @article_cast_fields
 
   @type t :: %Radar{}
   schema "cms_radars" do
     field(:copy_right, :string, default: "", virtual: true)
-    field(:link_addr, :string)
 
     article_tags_field(:radar)
     article_communities_field(:radar)

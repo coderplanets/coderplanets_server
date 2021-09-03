@@ -43,6 +43,7 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
       field(:archived_at, :datetime)
 
       field(:copy_right, :string)
+      field(:link_addr, :string)
     end
   end
 

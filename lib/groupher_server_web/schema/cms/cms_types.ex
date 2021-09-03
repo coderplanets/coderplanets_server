@@ -59,8 +59,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     general_article_fields()
     comments_fields()
 
-    field(:link_addr, :string)
-
     timestamp_fields(:article)
   end
 
@@ -73,7 +71,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:desc, :string)
     field(:company, :string)
     field(:company_link, :string)
-    field(:link_addr, :string)
 
     timestamp_fields(:article)
   end
@@ -83,8 +80,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
     general_article_fields()
     comments_fields()
-
-    field(:link_addr, :string)
 
     timestamp_fields(:article)
   end
@@ -116,8 +111,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
     general_article_fields()
     comments_fields()
-
-    field(:link_addr, :string)
 
     timestamp_fields(:article)
   end

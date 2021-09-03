@@ -288,6 +288,7 @@ defmodule GroupherServer.Support.Factory do
       title: String.slice(text, 1, 49),
       body: mock_rich_text(text),
       digest: String.slice(text, 1, 150),
+      link_addr: "https://#{Faker.Company.name()}.com/#{Faker.Company.name()}/post",
       # length: String.length(text),
       author: mock(:author),
       views: Enum.random(0..2000),
