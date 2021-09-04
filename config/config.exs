@@ -79,7 +79,8 @@ config :groupher_server, :article,
     # ...
   },
   # record count in article meta
-  max_upvoted_users_count: 5,
+  # works use 8
+  max_upvoted_users_count: 8,
 
   # NOTE: if you want to add/remove emotion, just edit the list below
   # and migrate the field to table "articles_users_emotions"
