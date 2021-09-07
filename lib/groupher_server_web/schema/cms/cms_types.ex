@@ -427,6 +427,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
   @desc "article meta info"
   object :article_meta do
+    field(:thread, :string)
     field(:is_edited, :boolean)
     field(:is_comment_locked, :boolean)
     field(:last_active_at, :datetime)
