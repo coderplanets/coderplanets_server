@@ -41,7 +41,7 @@ defmodule GroupherServer.CMS.Model.Community do
     embeds_one(:meta, Embeds.CommunityMeta, on_replace: :delete)
     belongs_to(:author, User, foreign_key: :user_id)
 
-    has_many(:threads, {"communities_threads", CommunityThread})
+    has_many(:threads, {"communities_threads", CommunityThread}, on_delete: :delete_all)
     has_many(:subscribers, {"communities_subscribers", CommunitySubscriber})
     has_many(:editors, {"communities_editors", CommunityEditor})
 

@@ -20,6 +20,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   # usually used in abuse_report, feeds, etc ..
   object :common_user do
     field(:login, :string)
+    field(:avatar, :string)
     field(:nickname, :string)
     field(:avatar, :string)
   end
@@ -58,9 +59,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     general_article_fields()
     comments_fields()
 
-    field(:link_addr, :string)
-    field(:copy_right, :string)
-
     timestamp_fields(:article)
   end
 
@@ -73,8 +71,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:desc, :string)
     field(:company, :string)
     field(:company_link, :string)
-    field(:link_addr, :string)
-    field(:copy_right, :string)
 
     timestamp_fields(:article)
   end
@@ -84,8 +80,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
     general_article_fields()
     comments_fields()
-
-    field(:link_addr, :string)
 
     timestamp_fields(:article)
   end
@@ -117,8 +111,6 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
     general_article_fields()
     comments_fields()
-
-    field(:link_addr, :string)
 
     timestamp_fields(:article)
   end
@@ -248,11 +240,15 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:categories, list_of(:category), resolve: dataloader(CMS, :categories))
     field(:meta, :community_meta)
     field(:views, :integer)
+    field(:contributes_digest, list_of(:integer))
 
     field(:articles_count, :integer)
     field(:subscribers_count, :integer)
     field(:editors_count, :integer)
     field(:article_tags_count, :integer)
+
+    field(:viewer_has_subscribed, :boolean)
+    field(:viewer_is_editor, :boolean)
 
     # TODO: remove
     field :threads_count, :integer do
@@ -276,6 +272,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   object :article_tag do
     field(:id, :id)
     field(:title, :string)
+    field(:raw, :string)
     field(:color, :string)
     field(:thread, :string)
     field(:group, :string)
@@ -430,13 +427,16 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
   @desc "article meta info"
   object :article_meta do
+    field(:thread, :string)
     field(:is_edited, :boolean)
     field(:is_comment_locked, :boolean)
+    field(:last_active_at, :datetime)
+    field(:citing_count, :integer)
+    field(:latest_upvoted_users, list_of(:common_user))
     # field(:linked_posts_count, :integer)
   end
 
   object :community_meta do
     threads_count_fields()
-    # field(:contributes_digest, list_of(:integer))
   end
 end

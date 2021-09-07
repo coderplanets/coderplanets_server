@@ -138,5 +138,13 @@ defmodule GroupherServer.Test.CMS.ArticleTag.PostTag do
       assert not exist_in?(article_tag, post.article_tags)
       assert not exist_in?(article_tag2, post.article_tags)
     end
+
+    test "can not set dup tag ", ~m(community post article_tag_attrs article_tag_attrs2 user)a do
+      {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
+      {:ok, post} = CMS.set_article_tag(:post, post.id, article_tag.id)
+      {:ok, post} = CMS.set_article_tag(:post, post.id, article_tag.id)
+
+      assert post.article_tags |> length == 1
+    end
   end
 end

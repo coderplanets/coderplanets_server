@@ -23,6 +23,7 @@ defmodule GroupherServer.Test.Query.CMS.ArticleTags do
         entries {
           id
           title
+          raw
           color
           thread
           extra

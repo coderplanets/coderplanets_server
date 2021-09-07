@@ -98,12 +98,16 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
       {:ok, article_tag} = CMS.create_article_tag(community, :repo, article_tag_attrs, user)
       {:ok, _} = CMS.set_article_tag(:repo, repo.id, article_tag.id)
 
-      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.title}}
+      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedRepos")
+
+      variables = %{filter: %{page: 1, size: 10, article_tags: [article_tag.raw]}}
+      results2 = guest_conn |> query_result(@query, variables, "pagedRepos")
+      assert results == results2
 
       repo = results["entries"] |> List.first()
       assert results["totalCount"] == 1
-      assert exist_in?(article_tag, repo["articleTags"], :string_key)
+      assert exist_in?(article_tag, repo["articleTags"])
     end
 
     test "support community filter", ~m(guest_conn user)a do
@@ -119,7 +123,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRepos do
 
       repo = results["entries"] |> List.first()
       assert results["totalCount"] == 2
-      assert exist_in?(%{id: to_string(community.id)}, repo["communities"], :string_key)
+      assert exist_in?(%{id: to_string(community.id)}, repo["communities"])
     end
 
     test "request large size fails", ~m(guest_conn)a do

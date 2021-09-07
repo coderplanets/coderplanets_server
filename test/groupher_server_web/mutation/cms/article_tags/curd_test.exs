@@ -23,8 +23,8 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
 
   describe "[mutation cms tag]" do
     @create_tag_query """
-    mutation($thread: Thread!, $title: String!, $color: RainbowColor!, $group: String, $communityId: ID!, $extra: [String] ) {
-      createArticleTag(thread: $thread, title: $title, color: $color, group: $group, communityId: $communityId, extra: $extra) {
+    mutation($thread: Thread!, $title: String!, $raw: String!, $color: RainbowColor!, $group: String, $communityId: ID!, $extra: [String] ) {
+      createArticleTag(thread: $thread, title: $title, raw: $raw, color: $color, group: $group, communityId: $communityId, extra: $extra) {
         id
         title
         color
@@ -43,6 +43,7 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
          ~m(community)a do
       variables = %{
         title: "tag title",
+        raw: "tag_raw",
         communityId: community.id,
         thread: "POST",
         color: "GREEN",
@@ -67,6 +68,7 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
     test "create tag with extra", ~m(community)a do
       variables = %{
         title: "tag title",
+        raw: "tag",
         communityId: community.id,
         thread: "POST",
         color: "GREEN",
@@ -85,6 +87,7 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
     test "unauth user create tag fails", ~m(community user_conn guest_conn)a do
       variables = %{
         title: "tag title",
+        raw: "tag",
         communityId: community.id,
         thread: "POST",
         color: "GREEN"
@@ -101,8 +104,8 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
     end
 
     @update_tag_query """
-    mutation($id: ID!, $color: RainbowColor, $title: String, $communityId: ID!, $extra: [String], $icon: String) {
-      updateArticleTag(id: $id, color: $color, title: $title, communityId: $communityId, extra: $extra, icon: $icon) {
+    mutation($id: ID!, $color: RainbowColor, $title: String, $raw: String, $communityId: ID!, $extra: [String], $icon: String) {
+      updateArticleTag(id: $id, color: $color, title: $title, raw: $raw, communityId: $communityId, extra: $extra, icon: $icon) {
         id
         title
         color
@@ -119,6 +122,7 @@ defmodule GroupherServer.Test.Mutation.CMS.ArticleArticleTags.CURD do
         id: article_tag.id,
         color: "YELLOW",
         title: "new title",
+        raw: "new_title",
         communityId: community.id,
         extra: ["newMenuID"],
         icon: "icon"

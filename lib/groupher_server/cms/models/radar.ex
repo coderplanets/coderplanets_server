@@ -15,10 +15,12 @@ defmodule GroupherServer.CMS.Model.Radar do
 
   @required_fields ~w(title digest)a
   @article_cast_fields general_article_cast_fields()
-  @optional_fields @article_cast_fields
+  @optional_fields ~w(copy_right)a ++ @article_cast_fields
 
   @type t :: %Radar{}
   schema "cms_radars" do
+    field(:copy_right, :string, default: "", virtual: true)
+
     article_tags_field(:radar)
     article_communities_field(:radar)
     general_article_fields(:radar)
@@ -42,7 +44,7 @@ defmodule GroupherServer.CMS.Model.Radar do
 
   defp generl_changeset(changeset) do
     changeset
-    |> validate_length(:title, min: 3, max: 50)
+    |> validate_length(:title, min: 3, max: 100)
     |> cast_embed(:emotions, with: &Embeds.ArticleEmotion.changeset/2)
   end
 end

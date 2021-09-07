@@ -11,6 +11,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
   def random_color(), do: @tag_colors |> Enum.random() |> String.to_atom()
 
   def get(_, :users, _), do: []
+  def get(_, :cper, _), do: []
   def get(_, :setting, _), do: []
   def get(_, :team, _), do: []
 
@@ -150,7 +151,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
         raw: "backend"
       },
       %{
-        title: "iOS/Mac",
+        title: "apple",
         raw: "apple"
       },
       %{
@@ -170,8 +171,12 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
         raw: "ai"
       },
       %{
-        title: "运营 & 增长",
-        raw: "marketing"
+        title: "运营",
+        raw: "growth"
+      },
+      %{
+        title: "生活",
+        raw: "life"
       },
       %{
         title: "其他",
@@ -189,13 +194,23 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
         group: "城市"
       },
       %{
-        raw: "yrd",
-        title: "长三角",
+        raw: "shanghai",
+        title: "上海",
         group: "城市"
       },
       %{
-        raw: "prd",
-        title: "珠三角",
+        raw: "hangzhou",
+        title: "杭州",
+        group: "城市"
+      },
+      %{
+        raw: "shenzhen",
+        title: "深圳",
+        group: "城市"
+      },
+      %{
+        raw: "guangzhou",
+        title: "广州",
         group: "城市"
       },
       %{
@@ -206,6 +221,11 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
       %{
         raw: "chengdu",
         title: "成都",
+        group: "城市"
+      },
+      %{
+        raw: "xian",
+        title: "西安",
         group: "城市"
       },
       %{
@@ -229,8 +249,8 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
         group: "城市"
       },
       %{
-        raw: "web",
-        title: "web 前端",
+        raw: "frontend",
+        title: "前端",
         group: "职位"
       },
       %{
@@ -250,7 +270,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
       },
       %{
         raw: "devops",
-        title: "运维",
+        title: "DevOps",
         group: "职位"
       },
       %{
@@ -259,8 +279,8 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
         group: "职位"
       },
       %{
-        raw: "DBA",
-        title: "DBA",
+        raw: "others",
+        title: "其他",
         group: "职位"
       },
       %{
@@ -289,6 +309,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
         group: "薪资范围"
       }
     ]
+    |> Enum.map(fn attr -> Map.merge(%{thread: :job, color: random_color()}, attr) end)
   end
 
   ## 首页 end

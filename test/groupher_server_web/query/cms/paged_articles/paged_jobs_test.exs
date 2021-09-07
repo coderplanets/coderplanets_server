@@ -99,12 +99,16 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       {:ok, article_tag} = CMS.create_article_tag(community, :job, article_tag_attrs, user)
       {:ok, _} = CMS.set_article_tag(:job, job.id, article_tag.id)
 
-      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.title}}
+      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
+
+      variables = %{filter: %{page: 1, size: 10, article_tags: [article_tag.raw]}}
+      results2 = guest_conn |> query_result(@query, variables, "pagedJobs")
+      assert results == results2
 
       job = results["entries"] |> List.first()
       assert results["totalCount"] == 1
-      assert exist_in?(article_tag, job["articleTags"], :string_key)
+      assert exist_in?(article_tag, job["articleTags"])
     end
 
     test "support multi-tag (article_tags) filter", ~m(guest_conn user)a do
@@ -122,16 +126,16 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       {:ok, _} = CMS.set_article_tag(:job, job.id, article_tag2.id)
 
       variables = %{
-        filter: %{page: 1, size: 10, article_tags: [article_tag.title, article_tag2.title]}
+        filter: %{page: 1, size: 10, article_tags: [article_tag.raw, article_tag2.raw]}
       }
 
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
 
       job = results["entries"] |> List.first()
       assert results["totalCount"] == 1
-      assert exist_in?(article_tag, job["articleTags"], :string_key)
-      assert exist_in?(article_tag2, job["articleTags"], :string_key)
-      assert not exist_in?(article_tag3, job["articleTags"], :string_key)
+      assert exist_in?(article_tag, job["articleTags"])
+      assert exist_in?(article_tag2, job["articleTags"])
+      assert not exist_in?(article_tag3, job["articleTags"])
     end
 
     test "should not have pined jobs when filter have article_tag or article_tags",
@@ -148,22 +152,22 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
       {:ok, _} = CMS.set_article_tag(:job, job.id, article_tag.id)
 
       variables = %{
-        filter: %{page: 1, size: 10, community: community.raw, article_tag: article_tag.title}
+        filter: %{page: 1, size: 10, community: community.raw, article_tag: article_tag.raw}
       }
 
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
 
-      assert not exist_in?(pinned_job, results["entries"], :string_key)
-      assert exist_in?(job, results["entries"], :string_key)
+      assert not exist_in?(pinned_job, results["entries"])
+      assert exist_in?(job, results["entries"])
 
       variables = %{
-        filter: %{page: 1, size: 10, community: community.raw, article_tags: [article_tag.title]}
+        filter: %{page: 1, size: 10, community: community.raw, article_tags: [article_tag.raw]}
       }
 
       results = guest_conn |> query_result(@query, variables, "pagedJobs")
 
-      assert not exist_in?(pinned_job, results["entries"], :string_key)
-      assert exist_in?(job, results["entries"], :string_key)
+      assert not exist_in?(pinned_job, results["entries"])
+      assert exist_in?(job, results["entries"])
     end
 
     test "support community filter", ~m(guest_conn user)a do
@@ -179,7 +183,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedJobs do
 
       job = results["entries"] |> List.first()
       assert results["totalCount"] == 2
-      assert exist_in?(%{id: to_string(community.id)}, job["communities"], :string_key)
+      assert exist_in?(%{id: to_string(community.id)}, job["communities"])
     end
 
     test "request large size fails", ~m(guest_conn)a do

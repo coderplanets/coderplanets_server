@@ -51,6 +51,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRadar do
           document {
             bodyHtml
           }
+          linkAddr
           communities {
             id
             raw
@@ -66,6 +67,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRadar do
       }
     }
     """
+
     test "should get pagination info", ~m(guest_conn)a do
       variables = %{filter: %{page: 1, size: 10}}
       results = guest_conn |> query_result(@query, variables, "pagedRadars")
@@ -99,12 +101,16 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRadar do
       {:ok, article_tag} = CMS.create_article_tag(community, :radar, article_tag_attrs, user)
       {:ok, _} = CMS.set_article_tag(:radar, radar.id, article_tag.id)
 
-      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.title}}
+      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedRadars")
+
+      variables = %{filter: %{page: 1, size: 10, article_tags: [article_tag.raw]}}
+      results2 = guest_conn |> query_result(@query, variables, "pagedRadars")
+      assert results == results2
 
       radar = results["entries"] |> List.first()
       assert results["totalCount"] == 1
-      assert exist_in?(article_tag, radar["articleTags"], :string_key)
+      assert exist_in?(article_tag, radar["articleTags"])
     end
 
     test "support multi-tag (article_tags) filter", ~m(guest_conn user)a do
@@ -122,16 +128,16 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRadar do
       {:ok, _} = CMS.set_article_tag(:radar, radar.id, article_tag2.id)
 
       variables = %{
-        filter: %{page: 1, size: 10, article_tags: [article_tag.title, article_tag2.title]}
+        filter: %{page: 1, size: 10, article_tags: [article_tag.raw, article_tag2.raw]}
       }
 
       results = guest_conn |> query_result(@query, variables, "pagedRadars")
 
       radar = results["entries"] |> List.first()
       assert results["totalCount"] == 1
-      assert exist_in?(article_tag, radar["articleTags"], :string_key)
-      assert exist_in?(article_tag2, radar["articleTags"], :string_key)
-      assert not exist_in?(article_tag3, radar["articleTags"], :string_key)
+      assert exist_in?(article_tag, radar["articleTags"])
+      assert exist_in?(article_tag2, radar["articleTags"])
+      assert not exist_in?(article_tag3, radar["articleTags"])
     end
 
     test "should not have pined radars when filter have article_tag or article_tags",
@@ -148,22 +154,22 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRadar do
       {:ok, _} = CMS.set_article_tag(:radar, radar.id, article_tag.id)
 
       variables = %{
-        filter: %{page: 1, size: 10, community: community.raw, article_tag: article_tag.title}
+        filter: %{page: 1, size: 10, community: community.raw, article_tag: article_tag.raw}
       }
 
       results = guest_conn |> query_result(@query, variables, "pagedRadars")
 
-      assert not exist_in?(pinned_radar, results["entries"], :string_key)
-      assert exist_in?(radar, results["entries"], :string_key)
+      assert not exist_in?(pinned_radar, results["entries"])
+      assert exist_in?(radar, results["entries"])
 
       variables = %{
-        filter: %{page: 1, size: 10, community: community.raw, article_tags: [article_tag.title]}
+        filter: %{page: 1, size: 10, community: community.raw, article_tags: [article_tag.raw]}
       }
 
       results = guest_conn |> query_result(@query, variables, "pagedRadars")
 
-      assert not exist_in?(pinned_radar, results["entries"], :string_key)
-      assert exist_in?(radar, results["entries"], :string_key)
+      assert not exist_in?(pinned_radar, results["entries"])
+      assert exist_in?(radar, results["entries"])
     end
 
     test "support community filter", ~m(guest_conn user)a do
@@ -179,7 +185,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedRadar do
 
       radar = results["entries"] |> List.first()
       assert results["totalCount"] == 2
-      assert exist_in?(%{id: to_string(community.id)}, radar["communities"], :string_key)
+      assert exist_in?(%{id: to_string(community.id)}, radar["communities"])
     end
 
     test "request large size fails", ~m(guest_conn)a do

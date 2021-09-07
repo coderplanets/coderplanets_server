@@ -15,11 +15,12 @@ defmodule GroupherServer.CMS.Model.Blog do
 
   @required_fields ~w(title digest)a
   @article_cast_fields general_article_cast_fields()
-  @optional_fields ~w(link_addr digest)a ++ @article_cast_fields
+  @optional_fields ~w(digest)a ++ @article_cast_fields
 
   @type t :: %Blog{}
   schema "cms_blogs" do
-    field(:link_addr, :string)
+    # for frontend constant
+    field(:copy_right, :string, default: "", virtual: true)
 
     article_tags_field(:blog)
     article_communities_field(:blog)
@@ -44,7 +45,7 @@ defmodule GroupherServer.CMS.Model.Blog do
 
   defp generl_changeset(changeset) do
     changeset
-    |> validate_length(:title, min: 3, max: 50)
+    |> validate_length(:title, min: 3, max: 100)
     |> cast_embed(:emotions, with: &Embeds.ArticleEmotion.changeset/2)
     |> validate_length(:link_addr, min: 5, max: 400)
   end

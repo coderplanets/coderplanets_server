@@ -14,7 +14,7 @@ defmodule GroupherServer.CMS.Model.Job do
   @timestamps_opts [type: :utc_datetime_usec]
   @required_fields ~w(title company digest)a
   @article_cast_fields general_article_cast_fields()
-  @optional_fields @article_cast_fields ++ ~w(desc company_link link_addr copy_right)a
+  @optional_fields @article_cast_fields ++ ~w(desc company_link copy_right)a
 
   @type t :: %Job{}
   schema "cms_jobs" do
@@ -22,7 +22,6 @@ defmodule GroupherServer.CMS.Model.Job do
     field(:company_link, :string)
     field(:desc, :string)
 
-    field(:link_addr, :string)
     field(:copy_right, :string)
 
     article_tags_field(:job)
@@ -49,6 +48,6 @@ defmodule GroupherServer.CMS.Model.Job do
 
   defp generl_changeset(content) do
     content
-    |> validate_length(:title, min: 3, max: 50)
+    |> validate_length(:title, min: 3, max: 100)
   end
 end

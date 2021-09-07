@@ -99,12 +99,16 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedGuide do
       {:ok, article_tag} = CMS.create_article_tag(community, :guide, article_tag_attrs, user)
       {:ok, _} = CMS.set_article_tag(:guide, guide.id, article_tag.id)
 
-      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.title}}
+      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedGuides")
+
+      variables = %{filter: %{page: 1, size: 10, article_tags: [article_tag.raw]}}
+      results2 = guest_conn |> query_result(@query, variables, "pagedGuides")
+      assert results == results2
 
       guide = results["entries"] |> List.first()
       assert results["totalCount"] == 1
-      assert exist_in?(article_tag, guide["articleTags"], :string_key)
+      assert exist_in?(article_tag, guide["articleTags"])
     end
 
     test "support multi-tag (article_tags) filter", ~m(guest_conn user)a do
@@ -122,16 +126,16 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedGuide do
       {:ok, _} = CMS.set_article_tag(:guide, guide.id, article_tag2.id)
 
       variables = %{
-        filter: %{page: 1, size: 10, article_tags: [article_tag.title, article_tag2.title]}
+        filter: %{page: 1, size: 10, article_tags: [article_tag.raw, article_tag2.raw]}
       }
 
       results = guest_conn |> query_result(@query, variables, "pagedGuides")
 
       guide = results["entries"] |> List.first()
       assert results["totalCount"] == 1
-      assert exist_in?(article_tag, guide["articleTags"], :string_key)
-      assert exist_in?(article_tag2, guide["articleTags"], :string_key)
-      assert not exist_in?(article_tag3, guide["articleTags"], :string_key)
+      assert exist_in?(article_tag, guide["articleTags"])
+      assert exist_in?(article_tag2, guide["articleTags"])
+      assert not exist_in?(article_tag3, guide["articleTags"])
     end
 
     test "should not have pined guides when filter have article_tag or article_tags",
@@ -148,22 +152,22 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedGuide do
       {:ok, _} = CMS.set_article_tag(:guide, guide.id, article_tag.id)
 
       variables = %{
-        filter: %{page: 1, size: 10, community: community.raw, article_tag: article_tag.title}
+        filter: %{page: 1, size: 10, community: community.raw, article_tag: article_tag.raw}
       }
 
       results = guest_conn |> query_result(@query, variables, "pagedGuides")
 
-      assert not exist_in?(pinned_guide, results["entries"], :string_key)
-      assert exist_in?(guide, results["entries"], :string_key)
+      assert not exist_in?(pinned_guide, results["entries"])
+      assert exist_in?(guide, results["entries"])
 
       variables = %{
-        filter: %{page: 1, size: 10, community: community.raw, article_tags: [article_tag.title]}
+        filter: %{page: 1, size: 10, community: community.raw, article_tags: [article_tag.raw]}
       }
 
       results = guest_conn |> query_result(@query, variables, "pagedGuides")
 
-      assert not exist_in?(pinned_guide, results["entries"], :string_key)
-      assert exist_in?(guide, results["entries"], :string_key)
+      assert not exist_in?(pinned_guide, results["entries"])
+      assert exist_in?(guide, results["entries"])
     end
 
     test "support community filter", ~m(guest_conn user)a do
@@ -179,7 +183,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedGuide do
 
       guide = results["entries"] |> List.first()
       assert results["totalCount"] == 2
-      assert exist_in?(%{id: to_string(community.id)}, guide["communities"], :string_key)
+      assert exist_in?(%{id: to_string(community.id)}, guide["communities"])
     end
 
     test "request large size fails", ~m(guest_conn)a do

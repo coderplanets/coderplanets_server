@@ -37,7 +37,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleUpvote do
         update_article_reactions_count(info, article, :upvotes_count, :inc)
       end)
       |> Multi.run(:update_article_reaction_user_list, fn _, _ ->
-        update_article_reaction_user_list(:upvot, article, user_id, :add)
+        update_article_reaction_user_list(:upvot, article, from_user, :add)
       end)
       |> Multi.run(:add_achievement, fn _, _ ->
         achiever_id = article.author.user_id
@@ -68,7 +68,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleUpvote do
         update_article_reactions_count(info, article, :upvotes_count, :dec)
       end)
       |> Multi.run(:update_article_reaction_user_list, fn _, _ ->
-        update_article_reaction_user_list(:upvot, article, user_id, :remove)
+        update_article_reaction_user_list(:upvot, article, from_user, :remove)
       end)
       |> Multi.run(:undo_upvote, fn _, _ ->
         args = Map.put(%{user_id: user_id}, info.foreign_key, article.id)

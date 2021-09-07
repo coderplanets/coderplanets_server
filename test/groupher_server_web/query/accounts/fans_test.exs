@@ -42,8 +42,8 @@ defmodule GroupherServer.Test.Query.Account.Fans do
       assert entries |> List.first() |> Map.get("viewerBeenFollowed")
       assert entries |> List.last() |> Map.get("viewerBeenFollowed")
 
-      assert user2 |> exist_in?(entries, :string_key)
-      assert user3 |> exist_in?(entries, :string_key)
+      assert user2 |> exist_in?(entries)
+      assert user3 |> exist_in?(entries)
     end
 
     test "login user can get other user's paged followers", ~m(guest_conn user)a do
@@ -56,7 +56,7 @@ defmodule GroupherServer.Test.Query.Account.Fans do
       assert results |> Map.get("totalCount") == 1
       entries = results |> Map.get("entries")
 
-      assert user |> exist_in?(entries, :string_key)
+      assert user |> exist_in?(entries)
     end
 
     @query """
@@ -91,9 +91,9 @@ defmodule GroupherServer.Test.Query.Account.Fans do
       assert entries |> List.first() |> Map.get("viewerHasFollowed")
       assert entries |> List.last() |> Map.get("viewerHasFollowed")
 
-      assert user2 |> exist_in?(entries, :string_key)
-      assert user3 |> exist_in?(entries, :string_key)
-      assert user4 |> exist_in?(entries, :string_key)
+      assert user2 |> exist_in?(entries)
+      assert user3 |> exist_in?(entries)
+      assert user4 |> exist_in?(entries)
     end
 
     test "login user can get other user's paged followings", ~m(guest_conn user)a do

@@ -195,20 +195,23 @@ defmodule GroupherServer.Test.AssertHelper do
 
   @doc "check id is exsit in list of Map<id: xxx> structure"
   @spec exist_in?(Map.t(), [Map.t()]) :: boolean
-  def exist_in?(%{id: id}, list, :string_key) when is_list(list) do
-    list |> Enum.any?(&(&1["id"] == to_string(id)))
-  end
-
   def exist_in?(%{id: id}, list) when is_list(list) do
-    list |> Enum.any?(&(&1.id == id))
+    list
+    |> Enum.any?(fn item ->
+      to_string(id) == to_string(Map.get(item, :id, Map.get(item, "id")))
+    end)
   end
 
-  def user_exist_in?(%{id: id}, list, :string_key) when is_list(list) do
-    list |> Enum.any?(&(&1["id"] == to_string(id)))
-  end
+  # def user_exist_in?(%{id: id}, list) when is_list(list) do
+  #   list |> Enum.any?(&(&1["id"] == to_string(id)))
+  # end
 
   # for embed user situation
   def user_exist_in?(%{login: login}, list) when is_list(list) do
-    list |> Enum.any?(&(&1.login == login))
+    # list |> Enum.any?(&(&1.login == login or &1["login"] == login))
+    list
+    |> Enum.any?(fn u ->
+      login == Map.get(u, :login, Map.get(u, "login"))
+    end)
   end
 end

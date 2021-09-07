@@ -24,7 +24,7 @@ defmodule GroupherServer.Test.Query.Collects.PostCollect do
     ) {
       collectedUsers(id: $id, thread: $thread, filter: $filter) {
         entries {
-          id
+          login
           avatar
           nickname
         }
@@ -47,8 +47,8 @@ defmodule GroupherServer.Test.Query.Collects.PostCollect do
       assert results |> is_valid_pagination?
       assert results["totalCount"] == 2
 
-      assert user_exist_in?(user, results["entries"], :string_key)
-      assert user_exist_in?(user2, results["entries"], :string_key)
+      assert user_exist_in?(user, results["entries"])
+      assert user_exist_in?(user2, results["entries"])
     end
   end
 end

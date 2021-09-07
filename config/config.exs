@@ -78,6 +78,9 @@ config :groupher_server, :article,
     # job: 10,
     # ...
   },
+  # record count in article meta
+  # works use 8
+  max_upvoted_users_count: 8,
 
   # NOTE: if you want to add/remove emotion, just edit the list below
   # and migrate the field to table "articles_users_emotions"
@@ -104,7 +107,7 @@ config :groupher_server, :article,
     :pill,
     :popcorn
   ],
-  digest_length: 120,
+  digest_length: 150,
   archive_threshold: %{
     # for post, blog, job, works, radar, job
     default: [weeks: -1],

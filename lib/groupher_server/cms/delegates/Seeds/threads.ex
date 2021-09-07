@@ -23,7 +23,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Threads do
       },
       %{
         title: "CPer",
-        raw: "users",
+        raw: "cper",
         index: 5
       },
       %{

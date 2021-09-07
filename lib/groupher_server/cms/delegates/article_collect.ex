@@ -44,7 +44,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCollect do
         update_article_reactions_count(info, article, :collects_count, :inc)
       end)
       |> Multi.run(:update_article_reaction_user_list, fn _, _ ->
-        update_article_reaction_user_list(:collect, article, user_id, :add)
+        update_article_reaction_user_list(:collect, article, from_user, :add)
       end)
       |> Multi.run(:create_collect, fn _, _ ->
         thread = thread |> to_string |> String.upcase()
@@ -86,7 +86,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCollect do
         update_article_reactions_count(info, article, :collects_count, :dec)
       end)
       |> Multi.run(:update_article_reaction_user_list, fn _, _ ->
-        update_article_reaction_user_list(:collect, article, user_id, :remove)
+        update_article_reaction_user_list(:collect, article, from_user, :remove)
       end)
       |> Multi.run(:undo_collect, fn _, _ ->
         args = Map.put(%{user_id: user_id}, info.foreign_key, article.id)

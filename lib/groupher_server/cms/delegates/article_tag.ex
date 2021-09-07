@@ -131,7 +131,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
   defp do_update_article_tags_assoc(article, %ArticleTag{} = tag, opt) do
     article_tags =
       case opt do
-        :add -> article.article_tags ++ [tag]
+        :add -> (article.article_tags ++ [tag]) |> Enum.uniq_by(& &1.id)
         :remove -> article.article_tags -- [tag]
       end
 

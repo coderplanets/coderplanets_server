@@ -101,12 +101,16 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
       {:ok, _} = CMS.set_article_tag(:post, post.id, article_tag.id)
 
-      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.title}}
+      variables = %{filter: %{page: 1, size: 10, article_tag: article_tag.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
+
+      variables = %{filter: %{page: 1, size: 10, article_tags: [article_tag.raw]}}
+      results2 = guest_conn |> query_result(@query, variables, "pagedPosts")
+      assert results == results2
 
       post = results["entries"] |> List.first()
       assert results["totalCount"] == 1
-      assert exist_in?(article_tag, post["articleTags"], :string_key)
+      assert exist_in?(article_tag, post["articleTags"])
     end
 
     test "support community filter", ~m(guest_conn user)a do
@@ -122,7 +126,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
 
       post = results["entries"] |> List.first()
       assert results["totalCount"] == 2
-      assert exist_in?(%{id: to_string(community.id)}, post["communities"], :string_key)
+      assert exist_in?(%{id: to_string(community.id)}, post["communities"])
     end
 
     test "request large size fails", ~m(guest_conn)a do
@@ -235,6 +239,11 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
           viewerHasUpvoted
           viewerHasViewed
           viewerHasReported
+          meta {
+            latestUpvotedUsers {
+              login
+            }
+          }
         }
         totalCount
       }
@@ -265,11 +274,14 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       {:ok, _} = CMS.report_article(:post, post.id, "reason", "attr_info", user)
 
       results = user_conn |> query_result(@query, variables, "pagedPosts")
+
       the_post = Enum.find(results["entries"], &(&1["id"] == to_string(post.id)))
       assert the_post["viewerHasViewed"]
       assert the_post["viewerHasUpvoted"]
       assert the_post["viewerHasCollected"]
       assert the_post["viewerHasReported"]
+
+      assert user_exist_in?(user, the_post["meta"]["latestUpvotedUsers"])
     end
   end
 
