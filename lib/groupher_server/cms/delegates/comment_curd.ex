@@ -110,22 +110,38 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   @spec paged_comments_participants(T.article_thread(), Integer.t(), T.paged_filter()) ::
           {:ok, T.paged_users()}
   def paged_comments_participants(thread, article_id, filters) do
+    with {:ok, thread_query} <- match(thread, :query, article_id),
+         {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, article_id),
+         {:ok, paged_data} <- do_paged_comments_participants(thread_query, filters) do
+      # check participants_count if history data do not match
+      case article.comments_participants_count !== paged_data.total_count do
+        true ->
+          article |> ORM.update(%{comments_participants_count: paged_data.total_count})
+
+        false ->
+          {:ok, :pass}
+      end
+
+      paged_data |> done
+    end
+  end
+
+  defp do_paged_comments_participants(query, filters) do
     %{page: page, size: size} = filters
 
-    with {:ok, thread_query} <- match(thread, :query, article_id) do
-      Comment
-      |> where(^thread_query)
-      |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :desc_inserted}))
-      |> join(:inner, [c], a in assoc(c, :author))
-      |> distinct([c, a], a.id)
-      # group_by
-      |> group_by([c, a], a.id)
-      |> group_by([c, a], c.inserted_at)
-      |> group_by([c, a], c.id)
-      |> select([c, a], a)
-      |> ORM.paginator(~m(page size)a)
-      |> done()
-    end
+    Comment
+    |> where(^query)
+    |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: :desc_inserted}))
+    |> join(:inner, [c], a in assoc(c, :author))
+    |> distinct([c, a], a.id)
+    # group_by
+    |> group_by([c, a], a.id)
+    |> group_by([c, a], c.inserted_at)
+    |> group_by([c, a], c.id)
+    |> select([c, a], a)
+    |> ORM.paginator(~m(page size)a)
+    |> done()
   end
 
   @doc """
@@ -273,10 +289,10 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
 
   # add participator to article-like(Post, Job ...) and update count
   def add_participant_to_article(%{comments_participants: participants} = article, %User{} = user) do
-    total_participants = participants |> List.insert_at(0, user) |> Enum.uniq_by(& &1.id)
+    cur_participants = participants |> List.insert_at(0, user) |> Enum.uniq_by(& &1.id)
 
-    latest_participants = total_participants |> Enum.slice(0, @max_participator_count)
-    total_participants_count = length(total_participants)
+    latest_participants = cur_participants |> Enum.slice(0, @max_participator_count)
+    total_participants_count = article.comments_participants_count + 1
 
     article
     |> Ecto.Changeset.change()

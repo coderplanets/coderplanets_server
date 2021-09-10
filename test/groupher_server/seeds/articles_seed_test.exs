@@ -34,8 +34,7 @@ defmodule GroupherServer.Test.Seeds.Articles do
       {:ok, paged_comments} =
         CMS.paged_comments(:post, ramdom_post.id, %{page: 1, size: 10}, :timeline)
 
-      IO.inspect(paged_comments, label: "paged_comments -> ")
-
+      # IO.inspect(paged_comments, label: "paged_comments -> ")
       assert paged_comments.total_count !== 0
     end
 
