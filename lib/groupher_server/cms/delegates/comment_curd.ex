@@ -3,7 +3,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   CURD and operations for article comments
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, ensure: 2, get_config: 2]
+  import Helper.Utils, only: [done: 1, ensure: 2, strip_struct: 1, get_config: 2]
   import Helper.ErrorCode
 
   import GroupherServer.CMS.Delegate.Helper,
@@ -291,13 +291,17 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   def add_participant_to_article(%{comments_participants: participants} = article, %User{} = user) do
     cur_participants = participants |> List.insert_at(0, user) |> Enum.uniq_by(& &1.id)
 
+    meta = article.meta |> strip_struct
+    cur_participants_ids = (meta.comments_participant_user_ids ++ [user.id]) |> Enum.uniq()
+    meta = Map.merge(meta, %{comments_participant_user_ids: cur_participants_ids})
+
     latest_participants = cur_participants |> Enum.slice(0, @max_participator_count)
-    total_participants_count = article.comments_participants_count + 1
 
     article
     |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_change(:comments_participants_count, total_participants_count)
+    |> Ecto.Changeset.put_change(:comments_participants_count, cur_participants_ids |> length)
     |> Ecto.Changeset.put_embed(:comments_participants, latest_participants)
+    |> Ecto.Changeset.put_embed(:meta, meta)
     |> Repo.update()
   end
 
