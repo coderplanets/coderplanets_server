@@ -42,7 +42,9 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       assert found.threads |> length == 3
 
       threads = found.threads |> Enum.map(& &1.thread.title)
-      assert threads == ["帖子", "看板", "分布"]
+      assert "帖子" in threads
+      assert "看板" in threads
+      assert "分布" in threads
     end
 
     # Makers,  广告墙,  求助，外包合作
