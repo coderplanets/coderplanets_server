@@ -21,7 +21,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   alias Helper.ORM
   alias GroupherServer.CMS
 
-  alias CMS.Model.{Community, Category, Post}
+  alias CMS.Model.{Community, Category, Post, Comment}
   alias CMS.Delegate.Seeds
   alias Seeds.Domain
 
@@ -29,6 +29,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   # categories
   @community_types [:pl, :framework, :editor, :database, :devops, :city]
 
+  @comment_emotions get_config(:article, :comment_emotions)
   # seed community
 
   @doc """
@@ -88,6 +89,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
         attrs = mock_attrs(thread, %{community_id: community.id})
         {:ok, article} = CMS.create_article(community, thread, attrs, user)
         seed_tags(tags, thread, article.id)
+        seed_comments(thread, article.id, user)
         seed_upvotes(thread, article.id)
       end)
     end
@@ -115,6 +117,36 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
 
   defp get_tag_ids(tags, _) do
     tags.entries |> Enum.map(& &1.id) |> Enum.shuffle() |> Enum.take(1)
+  end
+
+  defp seed_comments(thread, article_id, user) do
+    0..Enum.random(1..5)
+    |> Enum.each(fn _ ->
+      text = Faker.Lorem.sentence(%Range{first: 30, last: 80})
+      {:ok, comment} = CMS.create_comment(thread, article_id, mock_comment(text), user)
+      seed_comment_emotions(comment)
+      seed_comment_replies(comment)
+    end)
+  end
+
+  defp seed_comment_replies(%Comment{} = comment) do
+    with {:ok, users} <- db_insert_multi(:user, Enum.random(1..5)) do
+      users
+      |> Enum.each(fn user ->
+        text = Faker.Lorem.sentence(%Range{first: 30, last: 80})
+        {:ok, _} = CMS.reply_comment(comment.id, mock_comment(text), user)
+      end)
+    end
+  end
+
+  defp seed_comment_emotions(%Comment{} = comment) do
+    with {:ok, users} <- db_insert_multi(:user, Enum.random(1..5)) do
+      users
+      |> Enum.each(fn user ->
+        emotion = @comment_emotions |> Enum.random()
+        {:ok, _} = CMS.emotion_to_comment(comment.id, emotion, user)
+      end)
+    end
   end
 
   # clean up

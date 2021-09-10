@@ -151,6 +151,31 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
     end
   end
 
+  defmacro comment_general_fields do
+    quote do
+      field(:id, :id)
+      field(:body, :string)
+      field(:body_html, :string)
+      field(:author, :user, resolve: dataloader(CMS, :author))
+      field(:is_pinned, :boolean)
+      field(:floor, :integer)
+      field(:upvotes_count, :integer)
+      field(:is_article_author, :boolean)
+      field(:emotions, :comment_emotions)
+      field(:meta, :comment_meta)
+      field(:replies_count, :integer)
+      field(:reply_to, :comment_reply)
+      field(:thread, :string)
+      field(:viewer_has_upvoted, :boolean)
+      field(:thread, :string)
+      field(:replies_count, :integer)
+
+      field(:is_deleted, :boolean)
+
+      timestamp_fields()
+    end
+  end
+
   # see: https://github.com/absinthe-graphql/absinthe/issues/363
   defmacro pagination_args do
     quote do
