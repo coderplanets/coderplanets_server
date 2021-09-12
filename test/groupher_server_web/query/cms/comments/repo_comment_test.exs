@@ -604,16 +604,6 @@ defmodule GroupherServer.Test.Query.Comments.RepoComment do
             meta {
               isArticleAuthorUpvoted
             }
-            replyTo {
-              id
-              bodyHtml
-              floor
-              isArticleAuthor
-              author {
-                id
-                login
-              }
-            }
             repliesCount
             viewerHasUpvoted
           }
