@@ -30,7 +30,7 @@ defmodule GroupherServer.Test.Query.Comments.GuideComment do
       }
     }
     """
-
+    @tag :wip
     test "guest user can get comment participants after comment created",
          ~m(guest_conn guide user user2)a do
       total_count = 5
@@ -613,16 +613,6 @@ defmodule GroupherServer.Test.Query.Comments.GuideComment do
             isArticleAuthor
             meta {
               isArticleAuthorUpvoted
-            }
-            replyTo {
-              id
-              bodyHtml
-              floor
-              isArticleAuthor
-              author {
-                id
-                login
-              }
             }
             repliesCount
             viewerHasUpvoted

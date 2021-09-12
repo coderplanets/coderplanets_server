@@ -8,7 +8,7 @@ defmodule GroupherServer.CMS.Model.Embeds.ArticleMeta do
 
   alias GroupherServer.CMS.Model.Embeds
 
-  @optional_fields ~w(thread is_edited is_comment_locked upvoted_user_ids collected_user_ids viewed_user_ids reported_user_ids reported_count is_sinked can_undo_sink last_active_at)a
+  @optional_fields ~w(thread is_edited is_comment_locked upvoted_user_ids collected_user_ids viewed_user_ids comments_participant_user_ids reported_user_ids reported_count is_sinked can_undo_sink last_active_at)a
 
   @doc "for test usage"
   def default_meta() do
@@ -21,6 +21,7 @@ defmodule GroupherServer.CMS.Model.Embeds.ArticleMeta do
       collected_user_ids: [],
       viewed_user_ids: [],
       reported_user_ids: [],
+      comments_participant_user_ids: [],
       reported_count: 0,
       is_sinked: false,
       can_undo_sink: true,
@@ -43,6 +44,8 @@ defmodule GroupherServer.CMS.Model.Embeds.ArticleMeta do
     field(:viewed_user_ids, {:array, :integer}, default: [])
     field(:reported_user_ids, {:array, :integer}, default: [])
     field(:reported_count, :integer, default: 0)
+
+    field(:comments_participant_user_ids, {:array, :integer}, default: [])
 
     field(:is_sinked, :boolean, default: false)
     field(:can_undo_sink, :boolean, default: false)

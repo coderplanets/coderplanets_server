@@ -29,6 +29,12 @@ defmodule GroupherServer.Test.Seeds.Articles do
         posts.entries |> Enum.map(& &1.original_community_id) |> Enum.uniq()
 
       assert original_community_ids === [community.id]
+
+      {:ok, paged_comments} =
+        CMS.paged_comments(:post, ramdom_post.id, %{page: 1, size: 10}, :timeline)
+
+      # IO.inspect(paged_comments, label: "paged_comments -> ")
+      assert paged_comments.total_count !== 0
     end
 
     test "can seed jobs" do
@@ -45,6 +51,11 @@ defmodule GroupherServer.Test.Seeds.Articles do
       original_community_ids = jobs.entries |> Enum.map(& &1.original_community_id) |> Enum.uniq()
 
       assert original_community_ids === [community.id]
+
+      {:ok, paged_comments} =
+        CMS.paged_comments(:job, ramdom_job.id, %{page: 1, size: 20}, :timeline)
+
+      assert paged_comments.total_count !== 0
     end
 
     test "can seed radars" do
@@ -62,6 +73,11 @@ defmodule GroupherServer.Test.Seeds.Articles do
         radars.entries |> Enum.map(& &1.original_community_id) |> Enum.uniq()
 
       assert original_community_ids === [community.id]
+
+      {:ok, paged_comments} =
+        CMS.paged_comments(:radar, ramdom_radar.id, %{page: 1, size: 20}, :timeline)
+
+      assert paged_comments.total_count !== 0
     end
 
     test "can seed blogs" do
@@ -78,6 +94,11 @@ defmodule GroupherServer.Test.Seeds.Articles do
         blogs.entries |> Enum.map(& &1.original_community_id) |> Enum.uniq()
 
       assert original_community_ids === [community.id]
+
+      {:ok, paged_comments} =
+        CMS.paged_comments(:blog, ramdom_blog.id, %{page: 1, size: 20}, :timeline)
+
+      assert paged_comments.total_count !== 0
     end
 
     test "can seed works" do
@@ -95,6 +116,11 @@ defmodule GroupherServer.Test.Seeds.Articles do
         works.entries |> Enum.map(& &1.original_community_id) |> Enum.uniq()
 
       assert original_community_ids === [community.id]
+
+      {:ok, paged_comments} =
+        CMS.paged_comments(:works, ramdom_works.id, %{page: 1, size: 20}, :timeline)
+
+      assert paged_comments.total_count !== 0
     end
   end
 end

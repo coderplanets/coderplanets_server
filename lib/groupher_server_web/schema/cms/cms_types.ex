@@ -302,49 +302,18 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
   end
 
   object :comment_reply do
-    field(:id, :id)
-    field(:body, :string)
-    field(:body_html, :string)
-    field(:author, :user, resolve: dataloader(CMS, :author))
-    field(:floor, :integer)
-    field(:upvotes_count, :integer)
-    field(:is_article_author, :boolean)
-    field(:emotions, :comment_emotions)
-    field(:meta, :comment_meta)
-    field(:replies_count, :integer)
-    field(:reply_to, :comment_reply)
-    field(:viewer_has_upvoted, :boolean)
-    field(:thread, :string)
-
-    timestamp_fields()
+    comment_general_fields()
   end
 
   object :comment do
-    field(:id, :id)
-    field(:body_html, :string)
-    field(:author, :user, resolve: dataloader(CMS, :author))
-    field(:is_pinned, :boolean)
-    field(:floor, :integer)
-    field(:upvotes_count, :integer)
-    field(:emotions, :comment_emotions)
-    field(:is_article_author, :boolean)
-    field(:meta, :comment_meta)
+    comment_general_fields()
     field(:reply_to, :comment_reply)
-    field(:replies, list_of(:comment_reply))
-    field(:replies_count, :integer)
-    field(:thread, :string)
-    field(:article, :common_article)
 
-    field(:is_deleted, :boolean)
-    field(:viewer_has_upvoted, :boolean)
+    field(:replies, list_of(:comment_reply))
+    field(:article, :common_article)
 
     field(:is_for_question, :boolean)
     field(:is_solution, :boolean)
-
-    field(:is_archived, :boolean)
-    field(:archived_at, :datetime)
-
-    timestamp_fields()
   end
 
   ####### reports
