@@ -307,6 +307,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
   object :comment do
     comment_general_fields()
+    field(:reply_to, :comment_reply)
 
     field(:replies, list_of(:comment_reply))
     field(:article, :common_article)

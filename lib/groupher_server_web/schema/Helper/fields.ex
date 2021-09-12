@@ -164,13 +164,14 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
       field(:emotions, :comment_emotions)
       field(:meta, :comment_meta)
       field(:replies_count, :integer)
-      field(:reply_to, :comment_reply)
       field(:thread, :string)
       field(:viewer_has_upvoted, :boolean)
       field(:thread, :string)
       field(:replies_count, :integer)
 
       field(:is_deleted, :boolean)
+      field(:is_archived, :boolean)
+      field(:archived_at, :datetime)
 
       timestamp_fields()
     end
