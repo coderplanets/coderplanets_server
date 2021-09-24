@@ -3,25 +3,44 @@ defmodule Helper.Cache do
   memory cache using cachex https://github.com/whitfin/cachex
   """
   import Cachex.Spec
+  import Helper.Utils, only: [get_config: 2]
 
-  def config(:common) do
+  @cache_pool get_config(:cache, :pool)
+
+  def config(pool_name) do
     [
-      limit: limit(size: 5000, policy: Cachex.Policy.LRW, reclaim: 0.1),
-      expiration: expiration(default: :timer.minutes(10))
+      limit: limit(size: @cache_pool[pool_name].size, policy: Cachex.Policy.LRW, reclaim: 0.1),
+      expiration: expiration(default: :timer.minutes(@cache_pool[pool_name].minutes))
     ]
   end
 
-  @doc """
-  cache config for user.login -> user.id, used in accounts resolver
-  user.id is a linearly increasing integer, kind sensitive, so use user.login instead
-  """
-  def config(:user_login) do
-    [
-      limit: limit(size: 10_000, policy: Cachex.Policy.LRW, reclaim: 0.1),
-      # expired in one week, it's fine, since user's login and id will never change
-      expiration: expiration(default: :timer.minutes(10_080))
-    ]
-  end
+  # # size, minites
+  # def config(:common) do
+  #   [
+  #     limit: limit(size: 5000, policy: Cachex.Policy.LRW, reclaim: 0.1),
+  #     expiration: expiration(default: :timer.minutes(10))
+  #   ]
+  # end
+
+  # @doc """
+  # cache config for user.login -> user.id, used in accounts resolver
+  # user.id is a linearly increasing integer, kind sensitive, so use user.login instead
+  # """
+  # def config(:user_login) do
+  #   [
+  #     limit: limit(size: 10_000, policy: Cachex.Policy.LRW, reclaim: 0.1),
+  #     # expired in one week, it's fine, since user's login and id will never change
+  #     expiration: expiration(default: :timer.minutes(10_080))
+  #   ]
+  # end
+
+  # def config(:blog_rss) do
+  #   [
+  #     limit: limit(size: 1000, policy: Cachex.Policy.LRW, reclaim: 0.1),
+  #     # expired in one week, it's fine, since user's login and id will never change
+  #     expiration: expiration(default: :timer.minutes(10))
+  #   ]
+  # end
 
   @doc """
   ## Example
