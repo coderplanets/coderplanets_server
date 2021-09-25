@@ -2,9 +2,12 @@ defmodule Helper.RSS do
   @moduledoc """
   RSS get and parser
   """
-  def get(addr) do
-    with {:ok, %{body: body}} <- HTTPoison.get(addr) do
-      rss_parser(body)
+  import Helper.Utils, only: [done: 1]
+
+  def get(rss) do
+    with {:ok, %{body: body}} <- HTTPoison.get(rss),
+         {:ok, blog_rss} <- rss_parser(body) do
+      blog_rss |> Map.merge(%{rss: rss}) |> done
     else
       error ->
         IO.inspect(error, label: "error")
