@@ -5,6 +5,7 @@ defmodule GroupherServer.CMS.Delegate.BlogCURD do
   import Ecto.Query, warn: false
   import Helper.Utils, only: [strip_struct: 1]
 
+  import GroupherServer.CMS.Delegate.ArticleCURD, only: [create_article: 4]
   # import Helper.Utils, only: [done: 1]
 
   # import Helper.ErrorCode
@@ -40,7 +41,6 @@ defmodule GroupherServer.CMS.Delegate.BlogCURD do
       # IO.inspect(feed, label: "create blog")
       # 通过 feed 有没有 id 来 insert / update
       # 通过 blog_title, 组合 attrs 传给 create_article
-      {:ok, :pass}
     end
 
     # 2. 创建 blog
@@ -50,12 +50,30 @@ defmodule GroupherServer.CMS.Delegate.BlogCURD do
     # 前台获取作者信息的时候从 rss 表读取
   end
 
-  defp do_create_blog(%Community{id: cid}, attrs, %User{id: uid}, %{id: id} = feed) do
+  defp do_create_blog(%Community{} = community, attrs, %User{} = user, %{id: _} = feed) do
     IO.inspect("rss 记录存在, 直接创建 blog", label: "do_create_blog")
+
+    # author = feed.author
+    selected_feed = Enum.find(feed.history_feed, &(&1.title == attrs.title))
+    IO.inspect(selected_feed, label: "target feed")
+    IO.inspect(feed, label: "the author")
+    # IO.inspect(feed, label: "feed -")
+
+    attrs =
+      attrs
+      |> Map.merge(%{link_addr: selected_feed.link_addr, published: selected_feed.published})
+
+    IO.inspect(attrs, label: "attrs -")
+    create_article(community, :blog, attrs, user)
+    # arg(:title, non_null(:string))
+    # arg(:body, non_null(:string))
+    # arg(:community_id, non_null(:id))
+    # arg(:link_addr, :string)
   end
 
   defp do_create_blog(%Community{id: cid}, attrs, %User{id: uid}, feed) do
     IO.inspect("rss 记录不存在, 先创建 rss, 再创建 blog", label: "do_create_blog")
+    {:ok, :pass}
   end
 
   def create_blog_rss(attrs) do

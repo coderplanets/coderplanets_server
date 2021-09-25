@@ -22,10 +22,20 @@ defmodule GroupherServer.Test.Helper.RSSTest do
       {:ok, feed} = CMS.blog_rss_feed(@rss)
       {:ok, _rss_record} = CMS.create_blog_rss(feed)
 
-      blog_attrs = mock_attrs(:blog, %{community_id: community.id})
+      selected_feed = feed.history_feed |> List.first()
+      title = selected_feed |> Map.get(:title)
+      link_addr = selected_feed |> Map.get(:link_addr)
+      # blog_attrs = mock_attrs(:blog, %{community_id: community.id})
+      blog_attrs = %{
+        rss: @rss,
+        title: title,
+        body: mock_rich_text("pleace use content field instead")
+      }
 
-      blog_attrs = %{rss: @rss}
       {:ok, blog} = CMS.create_blog(community, blog_attrs, user)
+      assert blog.title == title
+      assert blog.link_addr == link_addr
+      # blog
     end
   end
 
