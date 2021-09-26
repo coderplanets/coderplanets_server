@@ -15,12 +15,17 @@ defmodule GroupherServer.CMS.Model.Blog do
 
   @required_fields ~w(title digest)a
   @article_cast_fields general_article_cast_fields()
-  @optional_fields ~w(digest)a ++ @article_cast_fields
+  @optional_fields ~w(digest feed_digest feed_content published)a ++ @article_cast_fields
 
   @type t :: %Blog{}
   schema "cms_blogs" do
     # for frontend constant
     field(:copy_right, :string, default: "", virtual: true)
+
+    field(:feed_digest, :string)
+    field(:feed_content, :string)
+    field(:published, :string)
+    embeds_one(:blog_author, Embeds.BlogAuthor, on_replace: :update)
 
     article_tags_field(:blog)
     article_communities_field(:blog)
@@ -33,6 +38,7 @@ defmodule GroupherServer.CMS.Model.Blog do
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
     |> cast_embed(:meta, required: false, with: &Embeds.ArticleMeta.changeset/2)
+    |> cast_embed(:blog_author, required: false, with: &Embeds.BlogAuthor.changeset/2)
     |> generl_changeset
   end
 
@@ -40,6 +46,7 @@ defmodule GroupherServer.CMS.Model.Blog do
   def update_changeset(%Blog{} = blog, attrs) do
     blog
     |> cast(attrs, @optional_fields ++ @required_fields)
+    |> cast_embed(:blog_author, required: false, with: &Embeds.BlogAuthor.changeset/2)
     |> generl_changeset
   end
 

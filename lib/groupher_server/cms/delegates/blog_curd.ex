@@ -50,30 +50,31 @@ defmodule GroupherServer.CMS.Delegate.BlogCURD do
     # 前台获取作者信息的时候从 rss 表读取
   end
 
+  # rss 记录存在, 直接创建 blog
   defp do_create_blog(%Community{} = community, attrs, %User{} = user, %{id: _} = feed) do
-    IO.inspect("rss 记录存在, 直接创建 blog", label: "do_create_blog")
-
-    # author = feed.author
+    blog_author = if is_nil(feed.author), do: nil, else: Map.from_struct(feed.author)
     selected_feed = Enum.find(feed.history_feed, &(&1.title == attrs.title))
-    IO.inspect(selected_feed, label: "target feed")
-    IO.inspect(feed, label: "the author")
-    # IO.inspect(feed, label: "feed -")
 
+    # TODO: feed_digest, feed_content
     attrs =
       attrs
-      |> Map.merge(%{link_addr: selected_feed.link_addr, published: selected_feed.published})
+      |> Map.merge(%{
+        link_addr: selected_feed.link_addr,
+        published: selected_feed.published,
+        blog_author: blog_author
+      })
+      |> Enum.reject(fn {_, v} -> is_nil(v) end)
+      |> Map.new()
 
-    IO.inspect(attrs, label: "attrs -")
     create_article(community, :blog, attrs, user)
-    # arg(:title, non_null(:string))
-    # arg(:body, non_null(:string))
-    # arg(:community_id, non_null(:id))
-    # arg(:link_addr, :string)
   end
 
-  defp do_create_blog(%Community{id: cid}, attrs, %User{id: uid}, feed) do
-    IO.inspect("rss 记录不存在, 先创建 rss, 再创建 blog", label: "do_create_blog")
-    {:ok, :pass}
+  # rss 记录不存在, 先创建 rss, 再创建 blog
+  defp do_create_blog(%Community{} = community, attrs, %User{} = user, feed) do
+    with {:ok, feed} <- CMS.blog_rss_feed(attrs.rss),
+         {:ok, feed} <- create_blog_rss(feed) do
+      do_create_blog(community, attrs, user, feed)
+    end
   end
 
   def create_blog_rss(attrs) do
