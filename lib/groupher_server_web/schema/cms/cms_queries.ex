@@ -140,6 +140,13 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.search_communities/3)
     end
 
+    @desc "get rss info based on blog rss address"
+    field :blog_rss_info, :blog_rss do
+      arg(:rss, non_null(:string))
+
+      resolve(&R.CMS.blog_rss_info/3)
+    end
+
     article_search_queries()
 
     article_reacted_users_query(:upvot, &R.CMS.upvoted_users/3)

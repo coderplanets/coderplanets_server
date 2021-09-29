@@ -62,6 +62,11 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.paged_reports(filter)
   end
 
+  # TODO: login only
+  def blog_rss_info(_root, ~m(rss)a, _) do
+    CMS.blog_rss_info(rss)
+  end
+
   def wiki(_root, ~m(community)a, _info), do: CMS.get_wiki(%Community{raw: community})
   def cheatsheet(_root, ~m(community)a, _info), do: CMS.get_cheatsheet(%Community{raw: community})
 

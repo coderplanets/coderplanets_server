@@ -3,7 +3,8 @@ defmodule GroupherServer.CMS.Delegate.BlogCURD do
   CURD operation on post/job ...
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [strip_struct: 1]
+  import Helper.Utils, only: [strip_struct: 1, done: 1]
+  import Helper.ErrorCode
 
   import GroupherServer.CMS.Delegate.ArticleCURD, only: [create_article: 4]
   # import Helper.Utils, only: [done: 1]
@@ -21,11 +22,11 @@ defmodule GroupherServer.CMS.Delegate.BlogCURD do
   @cache_pool :blog_rss
 
   # alias Ecto.Multi
-  def blog_rss_feed(rss) when is_binary(rss) do
+  def blog_rss_info(rss) when is_binary(rss) do
     with {:ok, feed} <- ORM.find_by(BlogRSS, %{rss: rss}) do
       {:ok, feed}
     else
-      _ -> fetch_fresh_feed_and_cache(rss)
+      _ -> fetch_fresh_rssinfo_and_cache(rss)
     end
   end
 
@@ -35,7 +36,7 @@ defmodule GroupherServer.CMS.Delegate.BlogCURD do
     # 1. 先判断 rss 是否存在
     ##  1.1 如果存在，从 cache 中获取
     ##  1.2 如不存在，则创建一条 RSS
-    with {:ok, feed} <- blog_rss_feed(attrs.rss) do
+    with {:ok, feed} <- blog_rss_info(attrs.rss) do
       do_create_blog(community, attrs, user, feed)
 
       # IO.inspect(feed, label: "create blog")
@@ -71,7 +72,7 @@ defmodule GroupherServer.CMS.Delegate.BlogCURD do
 
   # rss 记录不存在, 先创建 rss, 再创建 blog
   defp do_create_blog(%Community{} = community, attrs, %User{} = user, feed) do
-    with {:ok, feed} <- CMS.blog_rss_feed(attrs.rss),
+    with {:ok, feed} <- CMS.blog_rss_info(attrs.rss),
          {:ok, feed} <- create_blog_rss(feed) do
       do_create_blog(community, attrs, user, feed)
     end
@@ -117,18 +118,20 @@ defmodule GroupherServer.CMS.Delegate.BlogCURD do
   @doc """
   get and cache feed by rss address as key
   """
-  def fetch_fresh_feed_and_cache(rss) do
+  def fetch_fresh_rssinfo_and_cache(rss) do
     case Cache.get(@cache_pool, rss) do
-      {:ok, feed} -> {:ok, feed}
-      {:error, _} -> get_feed_and_cache(rss)
+      {:ok, rssinfo} -> {:ok, rssinfo}
+      {:error, _} -> get_rssinfo_and_cache(rss)
     end
   end
 
-  defp get_feed_and_cache(rss) do
+  defp get_rssinfo_and_cache(rss) do
     # {:ok, feed} = RSS.get(rss)
-    with {:ok, feed} = RSS.get(rss) do
-      Cache.put(@cache_pool, rss, feed)
-      {:ok, feed}
+    with {:ok, rssinfo} <- RSS.get(rss) do
+      Cache.put(@cache_pool, rss, rssinfo)
+      {:ok, rssinfo}
+    else
+      {:error, _} -> {:error, [message: "blog rss is invalid", code: ecode(:invalid_blog_rss)]}
     end
   end
 end

@@ -347,6 +347,32 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     timestamp_fields()
   end
 
+  object :blog_feed do
+    field(:title, :string)
+    field(:digest, :string)
+    field(:link_addr, :string)
+    field(:content, :string)
+    field(:published, :string)
+    field(:updated, :string)
+  end
+
+  object :blog_author do
+    field(:name, :string)
+    field(:intro, :string)
+    field(:github, :string)
+    field(:twitter, :string)
+  end
+
+  object :blog_rss do
+    field(:rss, :string)
+    field(:title, :string)
+    field(:subtitle, :string)
+    field(:link, :string)
+    field(:updated, :string)
+    field(:author, :blog_author)
+    field(:history_feed, list_of(:blog_feed))
+  end
+
   paged_article_objects()
 
   object :paged_reports do

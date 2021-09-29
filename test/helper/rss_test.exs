@@ -11,15 +11,14 @@ defmodule GroupherServer.Test.Helper.RSSTest do
   setup do
     {:ok, community} = db_insert(:community)
     {:ok, user} = db_insert(:user)
-    blog_attrs = mock_attrs(:blog, %{community_id: community.id})
 
-    {:ok, ~m(community user blog_attrs)a}
+    {:ok, ~m(community user)a}
   end
 
   describe "blog curd" do
-    @tag :wip
-    test "can create blog", ~m(community user blog_attrs)a do
-      {:ok, feed} = CMS.blog_rss_feed(@rss)
+    @tag :wip2
+    test "can create blog", ~m(community user)a do
+      {:ok, feed} = CMS.blog_rss_info(@rss)
       {:ok, _rss_record} = CMS.create_blog_rss(feed)
 
       selected_feed = feed.history_feed |> List.first()
@@ -37,9 +36,9 @@ defmodule GroupherServer.Test.Helper.RSSTest do
       assert blog.link_addr == link_addr
     end
 
-    @tag :wip
-    test "can create blog with no-exsit rss record", ~m(community user blog_attrs)a do
-      {:ok, feed} = CMS.blog_rss_feed(@rss)
+    @tag :wip2
+    test "can create blog with no-exsit rss record", ~m(community user)a do
+      {:ok, feed} = CMS.blog_rss_info(@rss)
 
       selected_feed = feed.history_feed |> List.first()
       title = selected_feed |> Map.get(:title)
@@ -56,12 +55,13 @@ defmodule GroupherServer.Test.Helper.RSSTest do
       assert blog.link_addr == link_addr
     end
 
-    @tag :wip
-    test "can create blog with blog_author", ~m(community user blog_attrs)a do
-      {:ok, feed} = CMS.blog_rss_feed(@rss)
+    @tag :wip2
+    test "can create blog with blog_author", ~m(community user)a do
+      {:ok, feed} = CMS.blog_rss_info(@rss)
 
       author = %{
         name: "mydearxym",
+        intro: "this is mydearxym",
         link: "https://coderplaents.com"
       }
 
@@ -86,14 +86,15 @@ defmodule GroupherServer.Test.Helper.RSSTest do
       assert blog.title == title
       assert blog.link_addr == link_addr
       assert blog.blog_author.name == author.name
+      assert blog.blog_author.intro == author.intro
       assert blog.blog_author.link == author.link
     end
   end
 
   describe "fetch rss & curd" do
-    @tag :wip
+    @tag :wip2
     test "parse and create basic rss" do
-      {:ok, feed} = CMS.blog_rss_feed(@rss)
+      {:ok, feed} = CMS.blog_rss_info(@rss)
       feed = feed |> Map.merge(%{rss: @rss})
 
       {:ok, rss_record} = CMS.create_blog_rss(feed)
@@ -103,9 +104,9 @@ defmodule GroupherServer.Test.Helper.RSSTest do
       assert not is_nil(cache)
     end
 
-    @tag :wip
+    @tag :wip2
     test "create rss with author" do
-      {:ok, feed} = CMS.blog_rss_feed(@rss)
+      {:ok, feed} = CMS.blog_rss_info(@rss)
 
       author = %{
         name: "mydearxym",
@@ -121,9 +122,9 @@ defmodule GroupherServer.Test.Helper.RSSTest do
       assert rss_record.author.name == "mydearxym"
     end
 
-    @tag :wip
+    @tag :wip2
     test "update rss with author and exsit feed" do
-      {:ok, feed} = CMS.blog_rss_feed(@rss)
+      {:ok, feed} = CMS.blog_rss_info(@rss)
       {:ok, rss_record} = CMS.create_blog_rss(feed)
 
       author = %{
