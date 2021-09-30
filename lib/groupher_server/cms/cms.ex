@@ -10,6 +10,7 @@ defmodule GroupherServer.CMS do
   alias Delegate.{
     AbuseReport,
     ArticleCURD,
+    BlogCURD,
     ArticleCommunity,
     ArticleEmotion,
     CitedArtiment,
@@ -101,6 +102,11 @@ defmodule GroupherServer.CMS do
   defdelegate undo_sink_article(thread, id), to: ArticleCURD
 
   defdelegate archive_articles(thread), to: ArticleCURD
+
+  defdelegate create_blog(community, attrs, user), to: BlogCURD
+  defdelegate create_blog_rss(attrs), to: BlogCURD
+  defdelegate update_blog_rss(attrs), to: BlogCURD
+  defdelegate blog_rss_info(rss), to: BlogCURD
 
   defdelegate paged_citing_contents(type, id, filter), to: CitedArtiment
 

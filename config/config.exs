@@ -134,10 +134,24 @@ config :groupher_server, GroupherServer.Mailer,
   adapter: Bamboo.MailgunAdapter,
   domain: "mailer.coderplanets.com"
 
-# handle background jobs
-config :rihanna,
-  jobs_table_name: "background_jobs",
-  producer_postgres_connection: {Ecto, GroupherServer.Repo}
+config :groupher_server, :cache,
+  pool: %{
+    common: %{
+      name: :common,
+      size: 5000,
+      minutes: 10
+    },
+    user_login: %{
+      name: :user_login,
+      size: 10_000,
+      minutes: 10_080
+    },
+    blog_rss: %{
+      name: :blog_rss,
+      size: 1000,
+      minutes: 15
+    }
+  }
 
 # cron-like job scheduler
 config :groupher_server, Helper.Scheduler,
@@ -146,6 +160,11 @@ config :groupher_server, Helper.Scheduler,
     {"@daily", {Helper.Scheduler, :clear_all_cache, []}},
     {"@daily", {Helper.Scheduler, :archive_artiments, []}}
   ]
+
+# handle background jobs
+config :rihanna,
+  jobs_table_name: "background_jobs",
+  producer_postgres_connection: {Ecto, GroupherServer.Repo}
 
 import_config "#{Mix.env()}.exs"
 
