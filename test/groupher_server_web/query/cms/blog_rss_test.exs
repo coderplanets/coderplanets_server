@@ -34,7 +34,7 @@ defmodule GroupherServer.Test.Query.CMS.BlogRSS do
     }
   }
   """
-  # @tag :wip2
+  #
   test "basic graphql query blog rss info", ~m(user_conn)a do
     variables = %{rss: @rss}
     results = user_conn |> query_result(@query, variables, "blogRssInfo")
@@ -42,7 +42,6 @@ defmodule GroupherServer.Test.Query.CMS.BlogRSS do
     assert not is_nil(results["title"])
   end
 
-  @tag :wip
   test "invalid rss will get error", ~m(user_conn)a do
     variables = %{rss: "invalid rss address"}
     # results = user_conn |> query_result(@query, variables, "blogRssInfo")
