@@ -19,11 +19,14 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
   alias Helper.ORM
 
   # works can only be published on home community
-  def create_works(%{techstacks: techstacks} = attrs, %User{} = user) do
+  def create_works(attrs, %User{} = user) do
+    techstacks = Map.get(attrs, :techstacks, [])
+    cities = Map.get(attrs, :cities, [])
+
     with {:ok, home_community} <- ORM.find_by(Community, %{raw: "home"}),
          {:ok, works} <- create_article(home_community, :works, attrs, user),
          {:ok, techstacks} <- get_or_create_techstacks(techstacks),
-         {:ok, cities} <- get_or_create_cities(attrs.cities) do
+         {:ok, cities} <- get_or_create_cities(cities) do
       works = Repo.preload(works, [:techstacks, :cities])
 
       works
