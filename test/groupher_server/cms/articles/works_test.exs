@@ -26,7 +26,6 @@ defmodule GroupherServer.Test.Articles.Works do
   describe "[cms real works curd]" do
     @tag :wip
     test "create works with techstack", ~m(user community works_attrs)a do
-      # IO.inspect(works_attrs, label: "on create")
       social_info = [
         %{platform: "github", link: "https://github.com/xxx"},
         %{platform: "twitter", link: "https://twitter.com/xxx"}
@@ -41,18 +40,24 @@ defmodule GroupherServer.Test.Articles.Works do
       attrs =
         works_attrs
         |> Map.merge(%{
+          profit_mode: "love",
+          working_mode: "fulltime",
           techstacks: ["elixir", "React"],
+          cities: ["chengdu", "xiamen"],
           social_info: social_info,
           app_store: app_store
         })
 
-      IO.inspect(attrs, label: "the attrs")
-
       {:ok, works} = CMS.create_works(attrs, user)
+
+      IO.inspect(works, label: "the attrs")
+
+      assert works.profit_mode == "love"
+      assert works.working_mode == "fulltime"
 
       assert not is_nil(works.social_info)
       assert not is_nil(works.app_store)
-      # IO.inspect(works, label: "after")
+      assert not is_nil(works.cities)
     end
   end
 

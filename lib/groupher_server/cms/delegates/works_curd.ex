@@ -13,7 +13,7 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
 
   # alias Helper.{ORM}
   alias GroupherServer.{Accounts, CMS, Repo}
-  alias CMS.Model.{Community, Techstack}
+  alias CMS.Model.{Community, Techstack, City}
   alias Accounts.Model.User
 
   alias Helper.ORM
@@ -22,27 +22,54 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
   def create_works(%{techstacks: techstacks} = attrs, %User{} = user) do
     with {:ok, home_community} <- ORM.find_by(Community, %{raw: "home"}),
          {:ok, works} <- create_article(home_community, :works, attrs, user),
-         {:ok, techstacks} <- get_or_create_techstacks(techstacks) do
-      works = Repo.preload(works, :techstacks)
+         {:ok, techstacks} <- get_or_create_techstacks(techstacks),
+         {:ok, cities} <- get_or_create_cities(attrs.cities) do
+      works = Repo.preload(works, [:techstacks, :cities])
 
       works
       |> Ecto.Changeset.change()
       |> Ecto.Changeset.put_assoc(:techstacks, works.techstacks ++ techstacks)
+      |> Ecto.Changeset.put_assoc(:cities, works.cities ++ cities)
       |> Ecto.Changeset.put_embed(:social_info, Map.get(attrs, :social_info, []))
       |> Ecto.Changeset.put_embed(:app_store, Map.get(attrs, :app_store, []))
       |> Repo.update()
     end
+  end
 
-    # create_article
-    # create_article(community, :works, attrs, user)
+  defp get_or_create_cities(cities) do
+    cities
+    |> Enum.map(&String.downcase(&1))
+    |> Enum.reduce([], fn title, acc ->
+      with {:ok, city} <- get_city(title) do
+        acc ++ [city]
+      end
+    end)
+    |> done
+  end
 
-    # 1. make sure Techstack exists
-    # 2. create works
+  defp get_city(title) do
+    case ORM.find_by(City, %{title: title}) do
+      {:error, _} -> create_city(title)
+      {:ok, city} -> {:ok, city}
+    end
+  end
 
-    # works
-    # |> Ecto.Changeset.change()
-    # |> Ecto.Changeset.put_assoc(:techstacks, works.communities ++ [techstack])
-    # |> Repo.update()
+  defp create_city(title) do
+    attrs =
+      case ORM.find_by(Community, %{raw: title}) do
+        {:ok, community} ->
+          %{
+            title: community.title,
+            logo: community.logo,
+            desc: community.desc,
+            link: "/#{community.raw}"
+          }
+
+        {:error, _} ->
+          %{title: title}
+      end
+
+    ORM.create(City, attrs)
   end
 
   defp get_or_create_techstacks(techstacks) do

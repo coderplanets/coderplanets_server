@@ -9,7 +9,7 @@ defmodule GroupherServer.CMS.Model.Works do
   import GroupherServer.CMS.Helper.Macros
 
   alias GroupherServer.CMS
-  alias CMS.Model.{Embeds, Techstack}
+  alias CMS.Model.{Embeds, Techstack, City}
 
   @timestamps_opts [type: :utc_datetime_usec]
 
@@ -22,14 +22,14 @@ defmodule GroupherServer.CMS.Model.Works do
   schema "cms_works" do
     ## mailstone
     field(:home_link, :string)
+    # ...
     field(:profit_mode, :string)
+    # fulltime / parttime
     field(:working_mode, :string)
 
     embeds_many(:social_info, Embeds.SocialInfo, on_replace: :delete)
-    embeds_many(:city_info, Embeds.CityInfo, on_replace: :delete)
     embeds_many(:app_store, Embeds.AppStore, on_replace: :delete)
     # embeds_many(:teamate, Embeds.Teammate, on_replace: :delete)
-    # field(:techstack, :map)
 
     field(:community_link, :string)
     field(:interview_link, :string)
@@ -38,6 +38,13 @@ defmodule GroupherServer.CMS.Model.Works do
       :techstacks,
       Techstack,
       join_through: "works_join_techstacks",
+      on_replace: :delete
+    )
+
+    many_to_many(
+      :cities,
+      City,
+      join_through: "works_join_cities",
       on_replace: :delete
     )
 
@@ -53,7 +60,6 @@ defmodule GroupherServer.CMS.Model.Works do
     |> validate_required(@required_fields)
     |> cast_embed(:meta, required: false, with: &Embeds.ArticleMeta.changeset/2)
     |> cast_embed(:social_info, required: false, with: &Embeds.SocialInfo.changeset/2)
-    |> cast_embed(:city_info, required: false, with: &Embeds.CityInfo.changeset/2)
     |> cast_embed(:app_store, required: false, with: &Embeds.AppStore.changeset/2)
     |> generl_changeset
   end
