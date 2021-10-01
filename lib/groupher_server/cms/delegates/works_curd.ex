@@ -3,40 +3,68 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
   CURD operation on post/job ...
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [strip_struct: 1, done: 1]
+  import Helper.Utils, only: [done: 1]
   import Helper.ErrorCode
 
-  import GroupherServer.CMS.Delegate.ArticleCURD, only: [create_article: 4]
+  import GroupherServer.CMS.Delegate.ArticleCURD, only: [create_article: 4, update_article: 2]
 
-  # import Helper.ErrorCode
-  # import ShortMaps
-
-  # alias Helper.{ORM}
   alias GroupherServer.{Accounts, CMS, Repo}
-  alias CMS.Model.{Community, Techstack, City}
+  alias CMS.Model.{Community, Techstack, City, Works}
   alias Accounts.Model.User
 
   alias Helper.ORM
+  alias Ecto.Multi
 
   # works can only be published on home community
   def create_works(attrs, %User{} = user) do
+    with {:ok, home_community} <- ORM.find_by(Community, %{raw: "home"}) do
+      techstacks = Map.get(attrs, :techstacks, [])
+      cities = Map.get(attrs, :cities, [])
+
+      Multi.new()
+      |> Multi.run(:create_works, fn _, _ ->
+        create_article(home_community, :works, attrs, user)
+      end)
+      |> Multi.run(:update_works_fields, fn _, %{create_works: works} ->
+        with {:ok, techstacks} <- get_or_create_techstacks(techstacks),
+             {:ok, cities} <- get_or_create_cities(cities) do
+          attrs = attrs |> Map.merge(%{cities: cities, techstacks: techstacks})
+          update_works_fields(works, attrs)
+        end
+      end)
+      |> Repo.transaction()
+      |> result()
+    end
+  end
+
+  def update_works(%Works{} = works, attrs) do
+    Multi.new()
+    |> Multi.run(:update_works_fields, fn _, _ ->
+      update_works_fields(works, attrs)
+    end)
+    |> Multi.run(:update_works, fn _, %{update_works_fields: works} ->
+      update_article(works, attrs)
+    end)
+    |> Repo.transaction()
+    |> result()
+  end
+
+  # update works spec fields
+  defp update_works_fields(%Works{} = works, attrs) do
     techstacks = Map.get(attrs, :techstacks, [])
     cities = Map.get(attrs, :cities, [])
+    social_info = Map.get(attrs, :social_info, [])
+    app_store = Map.get(attrs, :app_store, [])
 
-    with {:ok, home_community} <- ORM.find_by(Community, %{raw: "home"}),
-         {:ok, works} <- create_article(home_community, :works, attrs, user),
-         {:ok, techstacks} <- get_or_create_techstacks(techstacks),
-         {:ok, cities} <- get_or_create_cities(cities) do
-      works = Repo.preload(works, [:techstacks, :cities])
+    works = Repo.preload(works, [:techstacks, :cities])
 
-      works
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:techstacks, works.techstacks ++ techstacks)
-      |> Ecto.Changeset.put_assoc(:cities, works.cities ++ cities)
-      |> Ecto.Changeset.put_embed(:social_info, Map.get(attrs, :social_info, []))
-      |> Ecto.Changeset.put_embed(:app_store, Map.get(attrs, :app_store, []))
-      |> Repo.update()
-    end
+    works
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_assoc(:techstacks, works.techstacks ++ techstacks)
+    |> Ecto.Changeset.put_assoc(:cities, works.cities ++ cities)
+    |> Ecto.Changeset.put_embed(:social_info, social_info)
+    |> Ecto.Changeset.put_embed(:app_store, app_store)
+    |> Repo.update()
   end
 
   defp get_or_create_cities(cities) do
@@ -109,5 +137,20 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
       end
 
     ORM.create(Techstack, attrs)
+  end
+
+  defp result({:ok, %{create_works: result}}), do: {:ok, result}
+  defp result({:ok, %{update_works: result}}), do: {:ok, result}
+
+  defp result({:error, :create_works, _result, _steps}) do
+    {:error, [message: "create works", code: ecode(:create_fails)]}
+  end
+
+  defp result({:error, :update_works_fields, _result, _steps}) do
+    {:error, [message: "update works fields", code: ecode(:create_fails)]}
+  end
+
+  defp result({:error, :update_works, _result, _steps}) do
+    {:error, [message: "update works", code: ecode(:update_fails)]}
   end
 end

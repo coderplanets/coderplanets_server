@@ -110,6 +110,7 @@ defmodule GroupherServer.CMS do
   defdelegate blog_rss_info(rss), to: BlogCURD
 
   defdelegate create_works(attrs, user), to: WorksCURD
+  defdelegate update_works(attrs, user), to: WorksCURD
 
   defdelegate paged_citing_contents(type, id, filter), to: CitedArtiment
 
