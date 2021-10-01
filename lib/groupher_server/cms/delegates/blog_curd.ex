@@ -3,7 +3,7 @@ defmodule GroupherServer.CMS.Delegate.BlogCURD do
   CURD operation on post/job ...
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [strip_struct: 1, done: 1]
+  import Helper.Utils, only: [strip_struct: 1]
   import Helper.ErrorCode
 
   import GroupherServer.CMS.Delegate.ArticleCURD, only: [create_article: 4]
@@ -38,17 +38,7 @@ defmodule GroupherServer.CMS.Delegate.BlogCURD do
     ##  1.2 如不存在，则创建一条 RSS
     with {:ok, feed} <- blog_rss_info(attrs.rss) do
       do_create_blog(community, attrs, user, feed)
-
-      # IO.inspect(feed, label: "create blog")
-      # 通过 feed 有没有 id 来 insert / update
-      # 通过 blog_title, 组合 attrs 传给 create_article
     end
-
-    # 2. 创建 blog
-    ##  2.1 blog +字段 rss, author
-    ##  2.2 title, digest, xxx
-
-    # 前台获取作者信息的时候从 rss 表读取
   end
 
   # rss 记录存在, 直接创建 blog
@@ -101,19 +91,6 @@ defmodule GroupherServer.CMS.Delegate.BlogCURD do
       |> Repo.insert()
     end
   end
-
-  # create done
-  # defp result({:ok, %{set_active_at_timestamp: result}}) do
-  #   {:ok, result}
-  # end
-
-  # defp result({:ok, %{update_article_meta: result}}), do: {:ok, result}
-
-  # defp result({:error, :create_article, _result, _steps}) do
-  #   {:error, [message: "create article", code: ecode(:create_fails)]}
-  # end
-
-  # defp result({:error, _, result, _steps}), do: {:error, result}
 
   @doc """
   get and cache feed by rss address as key

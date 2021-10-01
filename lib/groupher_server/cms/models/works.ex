@@ -9,16 +9,38 @@ defmodule GroupherServer.CMS.Model.Works do
   import GroupherServer.CMS.Helper.Macros
 
   alias GroupherServer.CMS
-  alias CMS.Model.Embeds
+  alias CMS.Model.{Embeds, Techstack}
 
   @timestamps_opts [type: :utc_datetime_usec]
 
   @required_fields ~w(title digest)a
   @article_cast_fields general_article_cast_fields()
-  @optional_fields @article_cast_fields
+  @optional_fields ~w(home_link profit_mode working_mode community_link interview_link)a ++
+                     @article_cast_fields
 
   @type t :: %Works{}
   schema "cms_works" do
+    ## mailstone
+    field(:home_link, :string)
+    field(:profit_mode, :string)
+    field(:working_mode, :string)
+
+    embeds_many(:social_info, Embeds.SocialInfo, on_replace: :delete)
+    embeds_many(:city_info, Embeds.CityInfo, on_replace: :delete)
+    embeds_many(:app_store, Embeds.AppStore, on_replace: :delete)
+    # embeds_many(:teamate, Embeds.Teammate, on_replace: :delete)
+    # field(:techstack, :map)
+
+    field(:community_link, :string)
+    field(:interview_link, :string)
+
+    many_to_many(
+      :techstacks,
+      Techstack,
+      join_through: "works_join_techstacks",
+      on_replace: :delete
+    )
+
     article_tags_field(:works)
     article_communities_field(:works)
     general_article_fields(:works)
@@ -30,6 +52,9 @@ defmodule GroupherServer.CMS.Model.Works do
     |> cast(attrs, @optional_fields ++ @required_fields)
     |> validate_required(@required_fields)
     |> cast_embed(:meta, required: false, with: &Embeds.ArticleMeta.changeset/2)
+    |> cast_embed(:social_info, required: false, with: &Embeds.SocialInfo.changeset/2)
+    |> cast_embed(:city_info, required: false, with: &Embeds.CityInfo.changeset/2)
+    |> cast_embed(:app_store, required: false, with: &Embeds.AppStore.changeset/2)
     |> generl_changeset
   end
 

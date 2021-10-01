@@ -16,14 +16,47 @@ defmodule GroupherServer.Test.Articles.Works do
   setup do
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
-    {:ok, community} = db_insert(:community)
+    {:ok, community} = db_insert(:community, %{raw: "home"})
 
     works_attrs = mock_attrs(:works, %{community_id: community.id})
 
     {:ok, ~m(user user2 community works_attrs)a}
   end
 
-  describe "[cms workss curd]" do
+  describe "[cms real works curd]" do
+    @tag :wip
+    test "create works with techstack", ~m(user community works_attrs)a do
+      # IO.inspect(works_attrs, label: "on create")
+      social_info = [
+        %{platform: "github", link: "https://github.com/xxx"},
+        %{platform: "twitter", link: "https://twitter.com/xxx"}
+      ]
+
+      app_store = [
+        %{platform: "apple", link: "https://apple.com/xxx"},
+        %{platform: "google", link: "https://google.com/xxx"},
+        %{platform: "others", link: "https://others.com/xxx"}
+      ]
+
+      attrs =
+        works_attrs
+        |> Map.merge(%{
+          techstacks: ["elixir", "React"],
+          social_info: social_info,
+          app_store: app_store
+        })
+
+      IO.inspect(attrs, label: "the attrs")
+
+      {:ok, works} = CMS.create_works(attrs, user)
+
+      assert not is_nil(works.social_info)
+      assert not is_nil(works.app_store)
+      # IO.inspect(works, label: "after")
+    end
+  end
+
+  describe "[cms works curd]" do
     test "can create works with valid attrs", ~m(user community works_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
       {:ok, works} = CMS.create_article(community, :works, works_attrs, user)
