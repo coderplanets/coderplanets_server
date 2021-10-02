@@ -8,7 +8,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
 
   setup do
     {:ok, user} = db_insert(:user)
-    {:ok, community} = db_insert(:community)
+    {:ok, community} = db_insert(:community, %{raw: "home"})
 
     works_attrs = mock_attrs(:works, %{community_id: community.id})
     {:ok, works} = CMS.create_article(community, :works, works_attrs, user)
@@ -26,16 +26,42 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       $title: String!,
       $body: String,
       $communityId: ID!,
+      $profitMode: ProfitMode,
+      $workingMode: WorkingMode,
+      $cities: [String],
+      $techstacks: [String],
+      $socialInfo: [SocialInfo],
       $articleTags: [Id]
      ) {
       createWorks(
         title: $title,
         body: $body,
         communityId: $communityId,
+        profitMode: $profitMode,
+        workingMode: $workingMode,
+        cities: $cities,
+        techstacks: $techstacks,
+        socialInfo: $socialInfo,
         articleTags: $articleTags
         ) {
           id
           title
+          profitMode
+          workingMode
+          cities {
+            title
+            logo
+            link
+          }
+          techstacks {
+            title
+            desc
+            logo
+          }
+          socialInfo {
+            platform
+            link
+          }
           document {
             bodyHtml
           }
@@ -49,12 +75,28 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       }
     }
     """
-    test "create works with valid attrs and make sure author exsit" do
+    @tag :wip
+    test "create works with valid attrs and make sure author exsit", ~m(community)a do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
-      {:ok, community} = db_insert(:community)
-      works_attr = mock_attrs(:works)
+      works_attr =
+        mock_attrs(:works, %{
+          profitMode: "FREE",
+          workingMode: "FULLTIME",
+          cities: ["chengdu", "xiamen"],
+          techstacks: ["elixir", "React"],
+          socialInfo: [
+            %{
+              platform: "TWITTER",
+              link: "https://twitter.com/xxx"
+            },
+            %{
+              platform: "GITHUB",
+              link: "https://github.com/xxx"
+            }
+          ]
+        })
 
       variables = works_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
 
@@ -63,7 +105,12 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       {:ok, found} = ORM.find(Works, created["id"])
 
       assert created["id"] == to_string(found.id)
+      assert created["profitMode"] == "FREE"
+      assert created["workingMode"] == "FULLTIME"
       assert created["originalCommunity"]["id"] == to_string(community.id)
+      assert not is_nil(created["cities"])
+      assert not is_nil(created["techstacks"])
+      assert not is_nil(created["socialInfo"])
 
       assert created["id"] == to_string(found.id)
     end
@@ -84,11 +131,9 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       assert exist_in?(%{id: article_tag.id}, works.article_tags)
     end
 
-    test "create works should excape xss attracts" do
+    test "create works should excape xss attracts", ~m(community)a do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
-
-      {:ok, community} = db_insert(:community)
 
       works_attr = mock_attrs(:works, %{body: mock_xss_string()})
       variables = works_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
@@ -100,11 +145,9 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       assert not String.contains?(body_html, "script")
     end
 
-    test "create works should excape xss attracts 2" do
+    test "create works should excape xss attracts 2", ~m(community)a do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
-
-      {:ok, community} = db_insert(:community)
 
       works_attr = mock_attrs(:works, %{body: mock_xss_string(:safe)})
       variables = works_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key

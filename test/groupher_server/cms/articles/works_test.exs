@@ -24,7 +24,6 @@ defmodule GroupherServer.Test.Articles.Works do
   end
 
   describe "[cms real works curd]" do
-    @tag :wip
     test "create works with full attrs", ~m(user works_attrs)a do
       social_info = [
         %{platform: "github", link: "https://github.com/xxx"},
@@ -58,7 +57,6 @@ defmodule GroupherServer.Test.Articles.Works do
       assert not is_nil(works.cities)
     end
 
-    @tag :wip
     test "create works with minimal attrs", ~m(user works_attrs)a do
       attrs =
         works_attrs
@@ -74,7 +72,6 @@ defmodule GroupherServer.Test.Articles.Works do
       assert works.working_mode == "fulltime"
     end
 
-    @tag :wip
     test "update works with full attrs", ~m(user works_attrs)a do
       {:ok, works} = CMS.create_works(works_attrs, user)
 

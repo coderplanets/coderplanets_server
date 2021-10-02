@@ -10,13 +10,24 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Works do
     field :create_works, :works do
       arg(:title, non_null(:string))
       arg(:body, non_null(:string))
+      # not for resolver, is for middleware
       arg(:community_id, non_null(:id))
       arg(:thread, :thread, default_value: :works)
       arg(:article_tags, list_of(:id))
 
+      arg(:techstacks, list_of(:string))
+      arg(:cities, list_of(:string))
+
+      arg(:profit_mode, :profit_mode)
+      arg(:working_mode, :working_mode)
+
+      arg(:social_info, list_of(:social_info))
+
+      # app_store
+
       middleware(M.Authorize, :login)
       middleware(M.PublishThrottle)
-      resolve(&R.CMS.create_article/3)
+      resolve(&R.CMS.create_works/3)
       middleware(M.Statistics.MakeContribute, for: [:user, :community])
     end
 

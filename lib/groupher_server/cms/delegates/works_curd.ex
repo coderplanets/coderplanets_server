@@ -3,7 +3,7 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
   CURD operation on post/job ...
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1]
+  import Helper.Utils, only: [done: 1, atom_values_to_upcase: 1]
   import Helper.ErrorCode
 
   import GroupherServer.CMS.Delegate.ArticleCURD, only: [create_article: 4, update_article: 2]
@@ -17,6 +17,8 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
 
   # works can only be published on home community
   def create_works(attrs, %User{} = user) do
+    attrs = attrs |> atom_values_to_upcase
+
     with {:ok, home_community} <- ORM.find_by(Community, %{raw: "home"}) do
       techstacks = Map.get(attrs, :techstacks, [])
       cities = Map.get(attrs, :cities, [])

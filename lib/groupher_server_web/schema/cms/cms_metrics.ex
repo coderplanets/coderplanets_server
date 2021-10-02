@@ -303,8 +303,50 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
     field(:content_type, :report_content_type)
     field(:content_id, :id)
     pagination_args()
-    #   operate_user_id,
-    #   min_case_count,
-    #   max_case_count,
+  end
+
+  # works-spec
+  enum :profit_mode do
+    value(:free)
+    value(:ad)
+    value(:freemium)
+    value(:paid)
+  end
+
+  enum :working_mode do
+    value(:fulltime)
+    value(:parttime)
+  end
+
+  object :city do
+    field(:title, :string)
+    field(:logo, :string)
+    field(:desc, :string)
+    field(:link, :string)
+  end
+
+  object :techstack do
+    field(:title, :string)
+    field(:logo, :string)
+    field(:desc, :string)
+
+    field(:home_link, :string)
+    field(:community_link, :string)
+    field(:category, :string)
+  end
+
+  object :social do
+    field(:platform, :string)
+    field(:link, :string)
+  end
+
+  input_object :social_info do
+    field(:platform, :string)
+    field(:link, :string)
+  end
+
+  input_object :app_store do
+    field(:platform, :string)
+    field(:link, :string)
   end
 end
