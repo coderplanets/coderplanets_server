@@ -22,8 +22,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Works do
       arg(:working_mode, :working_mode)
 
       arg(:social_info, list_of(:social_info))
-
-      # app_store
+      arg(:app_store, list_of(:app_store_info))
 
       middleware(M.Authorize, :login)
       middleware(M.PublishThrottle)

@@ -31,6 +31,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       $cities: [String],
       $techstacks: [String],
       $socialInfo: [SocialInfo],
+      $appStore: [AppStoreInfo],
       $articleTags: [Id]
      ) {
       createWorks(
@@ -42,6 +43,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
         cities: $cities,
         techstacks: $techstacks,
         socialInfo: $socialInfo,
+        appStore: $appStore,
         articleTags: $articleTags
         ) {
           id
@@ -59,6 +61,10 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
             logo
           }
           socialInfo {
+            platform
+            link
+          }
+          appStore {
             platform
             link
           }
@@ -95,6 +101,16 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
               platform: "GITHUB",
               link: "https://github.com/xxx"
             }
+          ],
+          appStore: [
+            %{
+              platform: "apple",
+              link: "https://apple.com/xxx"
+            },
+            %{
+              platform: "others",
+              link: "https://others.com/xxx"
+            }
           ]
         })
 
@@ -111,6 +127,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       assert not is_nil(created["cities"])
       assert not is_nil(created["techstacks"])
       assert not is_nil(created["socialInfo"])
+      assert not is_nil(created["appStore"])
 
       assert created["id"] == to_string(found.id)
     end

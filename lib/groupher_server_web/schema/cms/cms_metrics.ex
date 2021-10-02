@@ -340,12 +340,17 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
     field(:link, :string)
   end
 
+  object :app_store do
+    field(:platform, :string)
+    field(:link, :string)
+  end
+
   input_object :social_info do
     field(:platform, :string)
     field(:link, :string)
   end
 
-  input_object :app_store do
+  input_object :app_store_info do
     field(:platform, :string)
     field(:link, :string)
   end
