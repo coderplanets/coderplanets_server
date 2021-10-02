@@ -70,6 +70,14 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   def wiki(_root, ~m(community)a, _info), do: CMS.get_wiki(%Community{raw: community})
   def cheatsheet(_root, ~m(community)a, _info), do: CMS.get_cheatsheet(%Community{raw: community})
 
+  def create_works(_root, args, %{context: %{cur_user: user}}) do
+    CMS.create_works(args, user)
+  end
+
+  def update_works(_root, %{passport_source: works} = args, _info) do
+    CMS.update_works(works, args)
+  end
+
   def create_article(_root, ~m(community_id thread)a = args, %{context: %{cur_user: user}}) do
     CMS.create_article(%Community{id: community_id}, thread, args, user)
   end

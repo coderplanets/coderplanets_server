@@ -91,6 +91,12 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     comments_fields()
 
     field(:link_addr, :string)
+    field(:profit_mode, :string)
+    field(:working_mode, :string)
+    field(:cities, list_of(:city), resolve: dataloader(CMS, :cities))
+    field(:techstacks, list_of(:techstack), resolve: dataloader(CMS, :techstacks))
+    field(:social_info, list_of(:social))
+    field(:app_store, list_of(:app_store))
 
     timestamp_fields(:article)
   end

@@ -11,7 +11,6 @@ defmodule GroupherServer.Test.Seeds.Articles do
   alias Helper.ORM
 
   describe "[posts seed]" do
-    @tag :wip
     test "can seed posts" do
       {:ok, community} = CMS.seed_community(:home)
       CMS.seed_articles(community, :post, 5)

@@ -16,14 +16,83 @@ defmodule GroupherServer.Test.Articles.Works do
   setup do
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
-    {:ok, community} = db_insert(:community)
+    {:ok, community} = db_insert(:community, %{raw: "home"})
 
     works_attrs = mock_attrs(:works, %{community_id: community.id})
 
     {:ok, ~m(user user2 community works_attrs)a}
   end
 
-  describe "[cms workss curd]" do
+  describe "[cms real works curd]" do
+    test "create works with full attrs", ~m(user works_attrs)a do
+      social_info = [
+        %{platform: "github", link: "https://github.com/xxx"},
+        %{platform: "twitter", link: "https://twitter.com/xxx"}
+      ]
+
+      app_store = [
+        %{platform: "apple", link: "https://apple.com/xxx"},
+        %{platform: "google", link: "https://google.com/xxx"},
+        %{platform: "others", link: "https://others.com/xxx"}
+      ]
+
+      attrs =
+        works_attrs
+        |> Map.merge(%{
+          profit_mode: "love",
+          working_mode: "fulltime",
+          techstacks: ["elixir", "React"],
+          cities: ["chengdu", "xiamen"],
+          social_info: social_info,
+          app_store: app_store
+        })
+
+      {:ok, works} = CMS.create_works(attrs, user)
+
+      assert works.profit_mode == "love"
+      assert works.working_mode == "fulltime"
+
+      assert not is_nil(works.social_info)
+      assert not is_nil(works.app_store)
+      assert not is_nil(works.cities)
+    end
+
+    test "create works with minimal attrs", ~m(user works_attrs)a do
+      attrs =
+        works_attrs
+        |> Map.merge(%{
+          profit_mode: "love",
+          working_mode: "fulltime"
+        })
+
+      {:ok, works} = CMS.create_works(attrs, user)
+
+      # IO.inspect(works, label: "the attrs")
+      assert works.profit_mode == "love"
+      assert works.working_mode == "fulltime"
+    end
+
+    test "update works with full attrs", ~m(user works_attrs)a do
+      {:ok, works} = CMS.create_works(works_attrs, user)
+
+      social_info = [
+        %{platform: "github", link: "https://github.com/xxx"},
+        %{platform: "twitter", link: "https://twitter.com/xxx"}
+      ]
+
+      app_store = [
+        %{platform: "apple", link: "https://apple.com/xxx"},
+        %{platform: "google", link: "https://google.com/xxx"},
+        %{platform: "others", link: "https://others.com/xxx"}
+      ]
+
+      {:ok, works} = CMS.update_works(works, %{social_info: social_info, app_store: app_store})
+      assert not is_nil(works.social_info)
+      assert not is_nil(works.app_store)
+    end
+  end
+
+  describe "[cms works curd]" do
     test "can create works with valid attrs", ~m(user community works_attrs)a do
       assert {:error, _} = ORM.find_by(Author, user_id: user.id)
       {:ok, works} = CMS.create_article(community, :works, works_attrs, user)
