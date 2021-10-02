@@ -20,19 +20,12 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
     attrs = attrs |> atom_values_to_upcase
 
     with {:ok, home_community} <- ORM.find_by(Community, %{raw: "home"}) do
-      techstacks = Map.get(attrs, :techstacks, [])
-      cities = Map.get(attrs, :cities, [])
-
       Multi.new()
       |> Multi.run(:create_works, fn _, _ ->
         create_article(home_community, :works, attrs, user)
       end)
       |> Multi.run(:update_works_fields, fn _, %{create_works: works} ->
-        with {:ok, techstacks} <- get_or_create_techstacks(techstacks),
-             {:ok, cities} <- get_or_create_cities(cities) do
-          attrs = attrs |> Map.merge(%{cities: cities, techstacks: techstacks})
-          update_works_fields(works, attrs)
-        end
+        update_works_fields(works, attrs)
       end)
       |> Repo.transaction()
       |> result()
@@ -40,6 +33,8 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
   end
 
   def update_works(%Works{} = works, attrs) do
+    attrs = attrs |> atom_values_to_upcase
+
     Multi.new()
     |> Multi.run(:update_works_fields, fn _, _ ->
       update_works_fields(works, attrs)
@@ -58,16 +53,21 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
     social_info = Map.get(attrs, :social_info, [])
     app_store = Map.get(attrs, :app_store, [])
 
-    works = Repo.preload(works, [:techstacks, :cities])
+    with {:ok, techstacks} <- get_or_create_techstacks(techstacks),
+         {:ok, cities} <- get_or_create_cities(cities) do
+      works = Repo.preload(works, [:techstacks, :cities])
 
-    works
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_assoc(:techstacks, works.techstacks ++ techstacks)
-    |> Ecto.Changeset.put_assoc(:cities, works.cities ++ cities)
-    |> Ecto.Changeset.put_embed(:social_info, social_info)
-    |> Ecto.Changeset.put_embed(:app_store, app_store)
-    |> Repo.update()
+      works
+      |> Ecto.Changeset.change()
+      |> Ecto.Changeset.put_assoc(:techstacks, works.techstacks ++ techstacks)
+      |> Ecto.Changeset.put_assoc(:cities, works.cities ++ cities)
+      |> Ecto.Changeset.put_embed(:social_info, social_info)
+      |> Ecto.Changeset.put_embed(:app_store, app_store)
+      |> Repo.update()
+    end
   end
+
+  defp get_or_create_cities([]), do: {:ok, []}
 
   defp get_or_create_cities(cities) do
     cities
@@ -104,6 +104,8 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
 
     ORM.create(City, attrs)
   end
+
+  defp get_or_create_techstacks([]), do: {:ok, []}
 
   defp get_or_create_techstacks(techstacks) do
     techstacks

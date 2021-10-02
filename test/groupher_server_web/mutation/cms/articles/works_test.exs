@@ -1,6 +1,7 @@
 defmodule GroupherServer.Test.Mutation.Articles.Works do
   use GroupherServer.TestTools
 
+  import Helper.Utils, only: [keys_to_atoms: 1, camelize_map_key: 1]
   alias Helper.ORM
   alias GroupherServer.{CMS, Repo}
 
@@ -176,10 +177,52 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
     end
 
     @query """
-    mutation($id: ID!, $title: String, $body: String, $articleTags: [Ids]){
-      updateWorks(id: $id, title: $title, body: $body, articleTags: $articleTags) {
+    mutation(
+      $id: ID!,
+      $title: String,
+      $body: String,
+      $profitMode: ProfitMode,
+      $workingMode: WorkingMode,
+      $cities: [String],
+      $techstacks: [String],
+      $socialInfo: [SocialInfo],
+      $appStore: [AppStoreInfo],
+      $articleTags: [Ids]
+    ){
+      updateWorks(
+        id: $id,
+        title: $title,
+        body: $body,
+        profitMode: $profitMode,
+        workingMode: $workingMode,
+        cities: $cities,
+        techstacks: $techstacks,
+        socialInfo: $socialInfo,
+        appStore: $appStore,
+        articleTags: $articleTags
+      ) {
         id
         title
+        profitMode
+        workingMode
+        cities {
+          title
+          logo
+          link
+        }
+        techstacks {
+          title
+          desc
+          logo
+        }
+        socialInfo {
+          platform
+          link
+        }
+        appStore {
+          platform
+          link
+        }
         document {
           bodyHtml
         }
@@ -189,6 +232,53 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       }
     }
     """
+    @tag :wip
+    test "works can be update by owner", ~m(owner_conn works)a do
+      unique_num = System.unique_integer([:positive, :monotonic])
+
+      variables = %{
+        id: works.id,
+        title: "updated title #{unique_num}",
+        body: mock_rich_text("updated body #{unique_num}"),
+        profitMode: "FREE",
+        workingMode: "FULLTIME",
+        cities: ["chengdu", "xiamen"],
+        techstacks: ["elixir", "React"],
+        socialInfo: [
+          %{
+            platform: "TWITTER",
+            link: "https://twitter.com/xxx"
+          },
+          %{
+            platform: "GITHUB",
+            link: "https://github.com/xxx"
+          }
+        ],
+        appStore: [
+          %{
+            platform: "apple",
+            link: "https://apple.com/xxx"
+          },
+          %{
+            platform: "others",
+            link: "https://others.com/xxx"
+          }
+        ]
+      }
+
+      result = owner_conn |> mutation_result(@query, variables, "updateWorks")
+
+      assert result["title"] == variables.title
+      assert result["appStore"] |> Enum.map(&keys_to_atoms(&1)) == variables.appStore
+      assert result["socialInfo"] |> Enum.map(&keys_to_atoms(&1)) == variables.socialInfo
+      assert result["profitMode"] == variables.profitMode
+      assert result["workingMode"] == variables.workingMode
+
+      assert result
+             |> get_in(["document", "bodyHtml"])
+             |> String.contains?(~s(updated body #{unique_num}))
+    end
+
     test "update a works without login user fails", ~m(guest_conn works)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 
@@ -199,24 +289,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       }
 
       assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
-    end
-
-    test "works can be update by owner", ~m(owner_conn works)a do
-      unique_num = System.unique_integer([:positive, :monotonic])
-
-      variables = %{
-        id: works.id,
-        title: "updated title #{unique_num}",
-        body: mock_rich_text("updated body #{unique_num}")
-      }
-
-      result = owner_conn |> mutation_result(@query, variables, "updateWorks")
-
-      assert result["title"] == variables.title
-
-      assert result
-             |> get_in(["document", "bodyHtml"])
-             |> String.contains?(~s(updated body #{unique_num}))
     end
 
     test "login user with auth passport update a works", ~m(works)a do

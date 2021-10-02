@@ -35,16 +35,23 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Works do
       arg(:id, non_null(:id))
       arg(:title, :string)
       arg(:body, :string)
-      arg(:digest, :string)
 
       arg(:article_tags, list_of(:id))
-      # ...
+
+      arg(:techstacks, list_of(:string))
+      arg(:cities, list_of(:string))
+
+      arg(:profit_mode, :profit_mode)
+      arg(:working_mode, :working_mode)
+
+      arg(:social_info, list_of(:social_info))
+      arg(:app_store, list_of(:app_store_info))
 
       middleware(M.Authorize, :login)
       middleware(M.PassportLoader, source: :works)
       middleware(M.Passport, claim: "owner;cms->c?->works.edit")
 
-      resolve(&R.CMS.update_article/3)
+      resolve(&R.CMS.update_works/3)
     end
 
     article_react_mutations(:works, [

@@ -13,7 +13,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       module_to_atom: 1,
       get_config: 2,
       ensure: 2,
-      module_to_upcase: 1
+      module_to_upcase: 1,
+      atom_values_to_upcase: 1
     ]
 
   import GroupherServer.CMS.Delegate.Helper, only: [mark_viewer_emotion_states: 2, thread_of: 1]
@@ -189,6 +190,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   {:ok, %Post{}}
   """
   def create_article(%Community{id: cid}, thread, attrs, %User{id: uid}) do
+    attrs = atom_values_to_upcase(attrs)
+
     with {:ok, author} <- ensure_author_exists(%User{id: uid}),
          {:ok, info} <- match(thread),
          {:ok, community} <- ORM.find(Community, cid) do
@@ -258,6 +261,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     do: raise_error(:archived, "article is archived, can not be edit or delete")
 
   def update_article(article, attrs) do
+    attrs = atom_values_to_upcase(attrs)
+
     Multi.new()
     |> Multi.run(:update_article, fn _, _ ->
       do_update_article(article, attrs)
