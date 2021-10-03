@@ -93,13 +93,13 @@ defmodule GroupherServer.Test.Mutation.Statistics do
     @create_blog_query """
     mutation (
       $title: String!,
-      $body: String!,
+      $rss: String!
       $communityId: ID!,
       $articleTags: [Ids]
     ) {
       createBlog(
         title: $title,
-        body: $body,
+        rss: $rss,
         communityId: $communityId,
         articleTags: $articleTags
       ) {

@@ -20,20 +20,20 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Blog do
       middleware(M.Statistics.MakeContribute, for: [:user, :community])
     end
 
-    @desc "update a cms/blog"
-    field :update_blog, :blog do
-      arg(:id, non_null(:id))
-      arg(:title, :string)
+    # @desc "update a cms/blog"
+    # field :update_blog, :blog do
+    #   arg(:id, non_null(:id))
+    #   arg(:title, :string)
 
-      arg(:article_tags, list_of(:id))
-      # ...
+    #   arg(:article_tags, list_of(:id))
+    #   # ...
 
-      middleware(M.Authorize, :login)
-      middleware(M.PassportLoader, source: :blog)
-      middleware(M.Passport, claim: "owner;cms->c?->blog.edit")
+    #   middleware(M.Authorize, :login)
+    #   middleware(M.PassportLoader, source: :blog)
+    #   middleware(M.Passport, claim: "owner;cms->c?->blog.edit")
 
-      resolve(&R.CMS.update_article/3)
-    end
+    #   resolve(&R.CMS.update_article/3)
+    # end
 
     article_react_mutations(:blog, [
       :upvote,
