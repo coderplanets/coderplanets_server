@@ -26,8 +26,7 @@ defmodule GroupherServer.Test.Helper.RSSTest do
       # blog_attrs = mock_attrs(:blog, %{community_id: community.id})
       blog_attrs = %{
         rss: @rss,
-        title: title,
-        body: mock_rich_text("pleace use content field instead")
+        title: title
       }
 
       {:ok, blog} = CMS.create_blog(community, blog_attrs, user)
@@ -44,8 +43,7 @@ defmodule GroupherServer.Test.Helper.RSSTest do
       # blog_attrs = mock_attrs(:blog, %{community_id: community.id})
       blog_attrs = %{
         rss: @rss,
-        title: title,
-        body: mock_rich_text("pleace use content field instead")
+        title: title
       }
 
       {:ok, blog} = CMS.create_blog(community, blog_attrs, user)
@@ -75,8 +73,7 @@ defmodule GroupherServer.Test.Helper.RSSTest do
       # blog_attrs = mock_attrs(:blog, %{community_id: community.id})
       blog_attrs = %{
         rss: @rss,
-        title: title,
-        body: mock_rich_text("pleace use content field instead")
+        title: title
       }
 
       {:ok, blog} = CMS.create_blog(community, blog_attrs, user)

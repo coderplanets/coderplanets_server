@@ -3,16 +3,12 @@ defmodule GroupherServer.CMS.Delegate.BlogCURD do
   CURD operation on post/job ...
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [strip_struct: 1]
+  import Helper.Utils, only: [strip_struct: 1, done: 1]
+  import GroupherServer.Support.Factory, only: [mock_rich_text: 1]
   import Helper.ErrorCode
 
   import GroupherServer.CMS.Delegate.ArticleCURD, only: [create_article: 4]
-  # import Helper.Utils, only: [done: 1]
 
-  # import Helper.ErrorCode
-  # import ShortMaps
-
-  # alias Helper.{ORM}
   alias GroupherServer.{Accounts, CMS, Repo}
   alias CMS.Model.{BlogRSS, Community}
   alias Accounts.Model.User
@@ -46,22 +42,14 @@ defmodule GroupherServer.CMS.Delegate.BlogCURD do
     blog_author = if is_nil(feed.author), do: nil, else: Map.from_struct(feed.author)
     selected_feed = Enum.find(feed.history_feed, &(&1.title == attrs.title))
 
-    # TODO: feed_digest, feed_content
-    attrs =
-      attrs
-      |> Map.merge(%{
-        link_addr: selected_feed.link_addr,
-        published: selected_feed.published,
-        blog_author: blog_author
-      })
-      |> Enum.reject(fn {_, v} -> is_nil(v) end)
-      |> Map.new()
-
-    create_article(community, :blog, attrs, user)
+    with {:ok, attrs} <- build_blog_attrs(attrs, blog_author, selected_feed) do
+      # TODO: feed_digest, feed_content
+      create_article(community, :blog, attrs, user)
+    end
   end
 
   # rss 记录不存在, 先创建 rss, 再创建 blog
-  defp do_create_blog(%Community{} = community, attrs, %User{} = user, feed) do
+  defp do_create_blog(%Community{} = community, attrs, %User{} = user, _feed) do
     with {:ok, feed} <- CMS.blog_rss_info(attrs.rss),
          {:ok, feed} <- create_blog_rss(feed) do
       do_create_blog(community, attrs, user, feed)
@@ -110,5 +98,21 @@ defmodule GroupherServer.CMS.Delegate.BlogCURD do
     else
       {:error, _} -> {:error, [message: "blog rss is invalid", code: ecode(:invalid_blog_rss)]}
     end
+  end
+
+  defp build_blog_attrs(_attrs, _blog_author, nil),
+    do: {:error, [message: "blog title not in rss", code: ecode(:invalid_blog_title)]}
+
+  defp build_blog_attrs(attrs, blog_author, selected_feed) do
+    attrs
+    |> Map.merge(%{
+      link_addr: selected_feed.link_addr,
+      published: selected_feed.published,
+      blog_author: blog_author,
+      body: mock_rich_text("pleace use content field instead")
+    })
+    |> Enum.reject(fn {_, v} -> is_nil(v) end)
+    |> Map.new()
+    |> done
   end
 end

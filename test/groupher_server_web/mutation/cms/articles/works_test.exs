@@ -82,7 +82,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       }
     }
     """
-    @tag :wip
     test "create works with valid attrs and make sure author exsit", ~m(community)a do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -232,7 +231,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       }
     }
     """
-    @tag :wip
     test "works can be update by owner", ~m(owner_conn works)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 

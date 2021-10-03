@@ -6,6 +6,8 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
 
   alias CMS.Model.Blog
 
+  @rss mock_rss_addr()
+
   setup do
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
@@ -24,18 +26,19 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
     @create_blog_query """
     mutation (
       $title: String!,
-      $body: String,
+      $rss: String!,
       $communityId: ID!,
       $articleTags: [Id]
      ) {
       createBlog(
         title: $title,
-        body: $body,
+        rss: $rss,
         communityId: $communityId,
         articleTags: $articleTags
         ) {
           id
           title
+          digest
           document {
             bodyHtml
           }
@@ -49,13 +52,14 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       }
     }
     """
+    @tag :wip
     test "create blog with valid attrs and make sure author exsit" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
       {:ok, community} = db_insert(:community)
-      blog_attr = mock_attrs(:blog)
-
+      blog_attr = mock_attrs(:blog) |> Map.merge(%{rss: @rss})
+      # IO.inspect(blog_attr, label: "# blog_attr -> ")
       variables = blog_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
 
       created = user_conn |> mutation_result(@create_blog_query, variables, "createBlog")
@@ -64,8 +68,24 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
 
       assert created["id"] == to_string(found.id)
       assert created["originalCommunity"]["id"] == to_string(community.id)
-
       assert created["id"] == to_string(found.id)
+    end
+
+    @tag :wip
+    test "create blog with non-exsit title fails" do
+      {:ok, user} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      {:ok, community} = db_insert(:community)
+      blog_attr = mock_attrs(:blog) |> Map.merge(%{rss: @rss})
+
+      variables =
+        blog_attr
+        |> Map.merge(%{communityId: community.id, title: "non-exsit"})
+        |> camelize_map_key
+
+      assert user_conn
+             |> mutation_get_error?(@create_blog_query, variables, ecode(:invalid_blog_title))
     end
 
     test "create blog with valid tags id list", ~m(user_conn user community)a do

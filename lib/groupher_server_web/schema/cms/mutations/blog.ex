@@ -9,15 +9,14 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Blog do
     @desc "create a blog"
     field :create_blog, :blog do
       arg(:title, non_null(:string))
-      arg(:body, non_null(:string))
+      arg(:rss, non_null(:string))
       arg(:community_id, non_null(:id))
-      arg(:link_addr, :string)
       arg(:thread, :thread, default_value: :blog)
       arg(:article_tags, list_of(:id))
 
       middleware(M.Authorize, :login)
       middleware(M.PublishThrottle)
-      resolve(&R.CMS.create_article/3)
+      resolve(&R.CMS.create_blog/3)
       middleware(M.Statistics.MakeContribute, for: [:user, :community])
     end
 
@@ -25,12 +24,8 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Blog do
     field :update_blog, :blog do
       arg(:id, non_null(:id))
       arg(:title, :string)
-      arg(:body, :string)
-      arg(:digest, :string)
-      arg(:link_addr, :string)
 
       arg(:article_tags, list_of(:id))
-
       # ...
 
       middleware(M.Authorize, :login)
