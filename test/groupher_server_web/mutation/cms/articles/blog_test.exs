@@ -119,20 +119,20 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       assert not String.contains?(body_html, "script")
     end
 
-    test "create blog should excape xss attracts 2" do
-      {:ok, user} = db_insert(:user)
-      user_conn = simu_conn(:user, user)
+    # test "create blog should excape xss attracts" do
+    #   {:ok, user} = db_insert(:user)
+    #   user_conn = simu_conn(:user, user)
 
-      {:ok, community} = db_insert(:community)
+    #   {:ok, community} = db_insert(:community)
 
-      blog_attr = mock_attrs(:blog, %{body: mock_xss_string(:safe)})
-      variables = blog_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
-      result = user_conn |> mutation_result(@create_blog_query, variables, "createBlog")
-      {:ok, blog} = ORM.find(Blog, result["id"], preload: :document)
-      body_html = blog |> get_in([:document, :body_html])
+    #   blog_attr = mock_attrs(:blog, %{body: mock_xss_string(:safe)})
+    #   variables = blog_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
+    #   result = user_conn |> mutation_result(@create_blog_query, variables, "createBlog")
+    #   {:ok, blog} = ORM.find(Blog, result["id"], preload: :document)
+    #   body_html = blog |> get_in([:document, :body_html])
 
-      assert String.contains?(body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
-    end
+    #   assert String.contains?(body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
+    # end
 
     @query """
     mutation($id: ID!){
