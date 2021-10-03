@@ -54,6 +54,7 @@ defmodule Helper.ErrorCode do
   def ecode(:cite_artilce), do: @article_base + 10
   def ecode(:archived), do: @article_base + 11
   def ecode(:invalid_blog_rss), do: @article_base + 12
+  def ecode(:invalid_blog_title), do: @article_base + 13
   # def ecode(:already_solved), do: @article_base + 10
 
   def ecode, do: @default_base

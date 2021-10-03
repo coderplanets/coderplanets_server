@@ -6,6 +6,8 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
 
   alias CMS.Model.Blog
 
+  @rss mock_rss_addr()
+
   setup do
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
@@ -24,18 +26,19 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
     @create_blog_query """
     mutation (
       $title: String!,
-      $body: String,
+      $rss: String!,
       $communityId: ID!,
       $articleTags: [Id]
      ) {
       createBlog(
         title: $title,
-        body: $body,
+        rss: $rss,
         communityId: $communityId,
         articleTags: $articleTags
         ) {
           id
           title
+          digest
           document {
             bodyHtml
           }
@@ -49,13 +52,14 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       }
     }
     """
+    @tag :wip
     test "create blog with valid attrs and make sure author exsit" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
       {:ok, community} = db_insert(:community)
-      blog_attr = mock_attrs(:blog)
-
+      blog_attr = mock_attrs(:blog) |> Map.merge(%{rss: @rss})
+      # IO.inspect(blog_attr, label: "# blog_attr -> ")
       variables = blog_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
 
       created = user_conn |> mutation_result(@create_blog_query, variables, "createBlog")
@@ -64,8 +68,24 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
 
       assert created["id"] == to_string(found.id)
       assert created["originalCommunity"]["id"] == to_string(community.id)
-
       assert created["id"] == to_string(found.id)
+    end
+
+    @tag :wip
+    test "create blog with non-exsit title fails" do
+      {:ok, user} = db_insert(:user)
+      user_conn = simu_conn(:user, user)
+
+      {:ok, community} = db_insert(:community)
+      blog_attr = mock_attrs(:blog) |> Map.merge(%{rss: @rss})
+
+      variables =
+        blog_attr
+        |> Map.merge(%{communityId: community.id, title: "non-exsit"})
+        |> camelize_map_key
+
+      assert user_conn
+             |> mutation_get_error?(@create_blog_query, variables, ecode(:invalid_blog_title))
     end
 
     test "create blog with valid tags id list", ~m(user_conn user community)a do
@@ -99,100 +119,20 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       assert not String.contains?(body_html, "script")
     end
 
-    test "create blog should excape xss attracts 2" do
-      {:ok, user} = db_insert(:user)
-      user_conn = simu_conn(:user, user)
+    # test "create blog should excape xss attracts" do
+    #   {:ok, user} = db_insert(:user)
+    #   user_conn = simu_conn(:user, user)
 
-      {:ok, community} = db_insert(:community)
+    #   {:ok, community} = db_insert(:community)
 
-      blog_attr = mock_attrs(:blog, %{body: mock_xss_string(:safe)})
-      variables = blog_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
-      result = user_conn |> mutation_result(@create_blog_query, variables, "createBlog")
-      {:ok, blog} = ORM.find(Blog, result["id"], preload: :document)
-      body_html = blog |> get_in([:document, :body_html])
+    #   blog_attr = mock_attrs(:blog, %{body: mock_xss_string(:safe)})
+    #   variables = blog_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
+    #   result = user_conn |> mutation_result(@create_blog_query, variables, "createBlog")
+    #   {:ok, blog} = ORM.find(Blog, result["id"], preload: :document)
+    #   body_html = blog |> get_in([:document, :body_html])
 
-      assert String.contains?(body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
-    end
-
-    @query """
-    mutation($id: ID!, $title: String, $body: String, $articleTags: [Ids]){
-      updateBlog(id: $id, title: $title, body: $body, articleTags: $articleTags) {
-        id
-        title
-        document {
-          bodyHtml
-        }
-        articleTags {
-          id
-        }
-      }
-    }
-    """
-    test "update a blog without login user fails", ~m(guest_conn blog)a do
-      unique_num = System.unique_integer([:positive, :monotonic])
-
-      variables = %{
-        id: blog.id,
-        title: "updated title #{unique_num}",
-        body: mock_rich_text("updated body #{unique_num}")
-      }
-
-      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
-    end
-
-    test "blog can be update by owner", ~m(owner_conn blog)a do
-      unique_num = System.unique_integer([:positive, :monotonic])
-
-      variables = %{
-        id: blog.id,
-        title: "updated title #{unique_num}",
-        body: mock_rich_text("updated body #{unique_num}")
-      }
-
-      result = owner_conn |> mutation_result(@query, variables, "updateBlog")
-
-      assert result["title"] == variables.title
-
-      assert result
-             |> get_in(["document", "bodyHtml"])
-             |> String.contains?(~s(updated body #{unique_num}))
-    end
-
-    test "login user with auth passport update a blog", ~m(blog)a do
-      blog = blog |> Repo.preload(:communities)
-
-      blog_communities_0 = blog.communities |> List.first() |> Map.get(:title)
-      passport_rules = %{blog_communities_0 => %{"blog.edit" => true}}
-      rule_conn = simu_conn(:user, cms: passport_rules)
-
-      unique_num = System.unique_integer([:positive, :monotonic])
-
-      variables = %{
-        id: blog.id,
-        title: "updated title #{unique_num}",
-        body: mock_rich_text("updated body #{unique_num}")
-      }
-
-      updated = rule_conn |> mutation_result(@query, variables, "updateBlog")
-
-      assert updated["id"] == to_string(blog.id)
-    end
-
-    test "unauth user update blog fails", ~m(user_conn guest_conn blog)a do
-      unique_num = System.unique_integer([:positive, :monotonic])
-
-      variables = %{
-        id: blog.id,
-        title: "updated title #{unique_num}",
-        body: mock_rich_text("updated body #{unique_num}")
-      }
-
-      rule_conn = simu_conn(:user, cms: %{"what.ever" => true})
-
-      assert user_conn |> mutation_get_error?(@query, variables, ecode(:passport))
-      assert guest_conn |> mutation_get_error?(@query, variables, ecode(:account_login))
-      assert rule_conn |> mutation_get_error?(@query, variables, ecode(:passport))
-    end
+    #   assert String.contains?(body_html, "&lt;script&gt;blackmail&lt;/script&gt;")
+    # end
 
     @query """
     mutation($id: ID!){

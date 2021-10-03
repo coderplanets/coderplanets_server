@@ -204,9 +204,10 @@ defmodule GroupherServer.Support.Factory do
 
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "BLOG"}),
-      title: "blog-#{String.slice(text, 1, 49)}",
+      title: "HTML slot 插槽元素深入",
+      rss: mock_rss_addr(),
       body: mock_rich_text(text),
-      digest: String.slice(text, 1, 150),
+      # digest: String.slice(text, 1, 150),
       length: String.length(text),
       author: mock(:author),
       views: Enum.random(0..2000),
