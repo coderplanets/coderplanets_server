@@ -7,6 +7,10 @@ config :groupher_server, GroupherServerWeb.Endpoint,
   check_origin: false,
   watchers: []
 
+config :groupher_server, Helper.Guardian,
+  issuer: "groupher_server",
+  secret_key: "hello"
+
 config :logger, :console, format: "[$level] $message\n"
 
 config :phoenix, :stacktrace_depth, 20
