@@ -27,6 +27,7 @@ defmodule GroupherServer.Test.Upvotes.PostUpvote do
       assert article.upvotes_count == 2
     end
 
+    @tag :wip
     test "post can be undo upvote && upvotes_count should dec by 1",
          ~m(user user2 community post_attrs)a do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
