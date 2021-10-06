@@ -188,7 +188,7 @@ defmodule Helper.Utils do
   convert struct to normal map and remove :id field
   """
   def strip_struct(struct) when is_struct(struct) do
-    struct |> Map.from_struct() |> Map.delete(:id)
+    struct |> Map.from_struct() |> Map.delete(:id) |> Map.delete(:__meta__)
   end
 
   def strip_struct(map) when is_map(map), do: map

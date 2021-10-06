@@ -114,10 +114,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCollect do
   def set_collect_folder(%ArticleCollect{} = collect, folder) do
     collect_folders = (collect.collect_folders ++ [folder]) |> Enum.uniq()
 
-    collect
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_embed(:collect_folders, collect_folders)
-    |> Repo.update()
+    ORM.update_embed(collect, :collect_folders, collect_folders)
   end
 
   def undo_set_collect_folder(%ArticleCollect{} = collect, folder) do
@@ -129,10 +126,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCollect do
         {:ok, :pass}
 
       _ ->
-        collect
-        |> Ecto.Changeset.change()
-        |> Ecto.Changeset.put_embed(:collect_folders, collect_folders)
-        |> Repo.update()
+        ORM.update_embed(collect, :collect_folders, collect_folders)
     end
   end
 

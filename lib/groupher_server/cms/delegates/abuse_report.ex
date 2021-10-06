@@ -258,10 +258,10 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
         _ ->
           report_cases = report.report_cases |> Enum.reject(&(&1.user.login == user.login))
 
+          changes = %{report_cases_count: length(report_cases)}
+
           report
-          |> Ecto.Changeset.change(%{report_cases_count: length(report_cases)})
-          |> Ecto.Changeset.put_embed(:report_cases, report_cases)
-          |> Repo.update()
+          |> ORM.update_embed(:report_cases, report_cases, changes)
       end
     end
   end

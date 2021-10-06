@@ -19,10 +19,11 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
   setup do
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
+    {:ok, user3} = db_insert(:user)
     {:ok, post} = db_insert(:post)
     {:ok, community} = db_insert(:community)
 
-    {:ok, ~m(community user user2 post)a}
+    {:ok, ~m(community user user2 user3 post)a}
   end
 
   describe "[basic article comment]" do
@@ -225,6 +226,33 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
 
       {:ok, comment} = CMS.undo_upvote_comment(comment.id, user)
       assert 0 == comment.upvotes_count
+    end
+
+    @tag :wip
+    test "upvote comment should update embeded replies too", ~m(user user2 user3 post)a do
+      {:ok, parent_comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
+      {:ok, replied_comment} = CMS.reply_comment(parent_comment.id, mock_comment(), user)
+
+      {:ok, _} = CMS.upvote_comment(parent_comment.id, user)
+      {:ok, _} = CMS.upvote_comment(replied_comment.id, user)
+      {:ok, _} = CMS.upvote_comment(replied_comment.id, user2)
+      {:ok, _} = CMS.upvote_comment(replied_comment.id, user3)
+
+      filter = %{page: 1, size: 20}
+      {:ok, paged_comments} = CMS.paged_comments(:post, post.id, filter, :replies)
+
+      parent = paged_comments.entries |> List.first()
+      reply = parent |> Map.get(:replies) |> List.first()
+      assert parent.upvotes_count == 1
+      assert reply.upvotes_count == 3
+
+      {:ok, _} = CMS.undo_upvote_comment(replied_comment.id, user2)
+      {:ok, paged_comments} = CMS.paged_comments(:post, post.id, filter, :replies)
+
+      parent = paged_comments.entries |> List.first()
+      reply = parent |> Map.get(:replies) |> List.first()
+      assert parent.upvotes_count == 1
+      assert reply.upvotes_count == 2
     end
   end
 

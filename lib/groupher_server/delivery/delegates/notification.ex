@@ -128,9 +128,7 @@ defmodule GroupherServer.Delivery.Delegate.Notification do
     from_users = ([from_user] ++ cur_from_users) |> Enum.uniq()
 
     notify
-    |> Ecto.Changeset.change(%{from_users_count: length(from_users)})
-    |> Ecto.Changeset.put_embed(:from_users, from_users)
-    |> Repo.update()
+    |> ORM.update_embed(:from_users, from_users, %{from_users_count: length(from_users)})
   end
 
   # 创建通知

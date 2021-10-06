@@ -73,9 +73,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     meta = community_meta |> Map.put(:editors_ids, editors_ids) |> strip_struct
 
     community
-    |> Ecto.Changeset.change(%{editors_count: editors_count})
-    |> Ecto.Changeset.put_embed(:meta, meta)
-    |> Repo.update()
+    |> ORM.update_embed(:meta, meta, %{editors_count: editors_count})
   end
 
   @doc """
@@ -109,9 +107,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     meta = community_meta |> Map.put(:subscribed_user_ids, subscribed_user_ids) |> strip_struct
 
     community
-    |> Ecto.Changeset.change(%{subscribers_count: subscribers_count})
-    |> Ecto.Changeset.put_embed(:meta, meta)
-    |> Repo.update()
+    |> ORM.update_embed(:meta, meta, %{subscribers_count: subscribers_count})
   end
 
   def update_community_count_field(communities, thread) when is_list(communities) do

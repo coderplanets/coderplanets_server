@@ -305,6 +305,13 @@ defmodule Helper.ORM do
   @doc """
   update embed data
   """
+  def update_embed(queryable, key, value, changes) do
+    queryable
+    |> Ecto.Changeset.change(changes)
+    |> Ecto.Changeset.put_embed(key, value)
+    |> Repo.update()
+  end
+
   def update_embed(queryable, key, value) do
     queryable
     |> Ecto.Changeset.change()

@@ -169,7 +169,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
       |> Multi.run(:check_article_author_upvoted, fn _, %{inc_upvotes_count: comment} ->
         update_article_author_upvoted_info(comment, user_id)
       end)
-      |> Multi.run(:upvote_comment_done, fn _, %{check_article_author_upvoted: comment} ->
+      |> Multi.run(:viewer_states, fn _, %{check_article_author_upvoted: comment} ->
         viewer_has_upvoted = Enum.member?(comment.meta.upvoted_user_ids, user_id)
         viewer_has_reported = Enum.member?(comment.meta.reported_user_ids, user_id)
 
@@ -177,6 +177,9 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         |> Map.merge(%{viewer_has_upvoted: viewer_has_upvoted})
         |> Map.merge(%{viewer_has_reported: viewer_has_reported})
         |> done
+      end)
+      |> Multi.run(:upvote_comment_done, fn _, %{viewer_states: comment} ->
+        update_embed_comment_in_replies(comment)
       end)
       |> Multi.run(:after_hooks, fn _, _ ->
         Later.run({Hooks.Notify, :handle, [:upvote, comment, from_user]})
@@ -204,12 +207,12 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         {:ok, upvotes_count} =
           from(c in CommentUpvote, where: c.comment_id == ^comment_id) |> ORM.count()
 
-        ORM.update(comment, %{upvotes_count: Enum.max([upvotes_count - 1, 0])})
+        ORM.update(comment, %{upvotes_count: Enum.max([upvotes_count, 0])})
       end)
       |> Multi.run(:check_article_author_upvoted, fn _, %{desc_upvotes_count: updated_comment} ->
         update_article_author_upvoted_info(updated_comment, user_id)
       end)
-      |> Multi.run(:upvote_comment_done, fn _, %{check_article_author_upvoted: comment} ->
+      |> Multi.run(:viewer_states, fn _, %{check_article_author_upvoted: comment} ->
         viewer_has_upvoted = Enum.member?(comment.meta.upvoted_user_ids, user_id)
         viewer_has_reported = Enum.member?(comment.meta.reported_user_ids, user_id)
 
@@ -217,6 +220,9 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         |> Map.merge(%{viewer_has_upvoted: viewer_has_upvoted})
         |> Map.merge(%{viewer_has_reported: viewer_has_reported})
         |> done
+      end)
+      |> Multi.run(:upvote_comment_done, fn _, %{viewer_states: comment} ->
+        update_embed_comment_in_replies(comment)
       end)
       |> Multi.run(:after_hooks, fn _, _ ->
         Later.run({Hooks.Notify, :handle, [:undo, :upvote, comment, from_user]})
@@ -296,10 +302,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
       |> List.insert_at(length(replies), replyed_comment)
       |> Enum.slice(0, @max_parent_replies_count)
 
-    parent_comment
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_embed(:replies, new_replies)
-    |> Repo.update()
+    ORM.update_embed(parent_comment, :replies, new_replies)
   end
 
   # 如果已经有 @max_parent_replies_count 以上的回复了，直接忽略即可
@@ -383,6 +386,38 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
     ORM.update_meta(comment, meta)
   end
 
+  defp update_embed_comment_in_replies(%Comment{reply_to_id: nil} = comment) do
+    {:ok, comment}
+  end
+
+  # replies(embed_many) 不会自定更新，需要手动更新，否则在 replies 模式下数据会不同步。
+  # update_embed_replies
+  # upvote/undo-upvote
+  # emotion/undo-emotion
+  # update body
+  # delete
+  # report
+  # ...
+  defp update_embed_comment_in_replies(%Comment{reply_to_id: reply_to_id} = comment) do
+    with {:ok, parent_comment} <- ORM.find(Comment, reply_to_id),
+         embed_index <- Enum.find_index(parent_comment.replies, &(&1.id == comment.id)) do
+      case is_nil(embed_index) do
+        true ->
+          {:ok, comment}
+
+        false ->
+          replies = List.replace_at(parent_comment.replies, embed_index, comment)
+          # IO.inspect(replies, label: "replies ---> ")
+
+          # 理论上更新一次即可，但 Changeset 无法识别数量一致的 replies ，不确定是业务代码的问题还是 Ecto 的问题，好坑啊
+          {:ok, parent_comment} = ORM.update_embed(parent_comment, :replies, [])
+          {:ok, _} = ORM.update_embed(parent_comment, :replies, replies)
+      end
+
+      {:ok, comment}
+    end
+  end
+
   defp result({:ok, %{create_comment: result}}), do: {:ok, result}
   defp result({:ok, %{add_reply_to: result}}), do: {:ok, result}
   defp result({:ok, %{upvote_comment_done: result}}), do: {:ok, result}
@@ -392,6 +427,10 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
 
   defp result({:error, :create_comment, result, _steps}) do
     raise_error(:create_comment, result)
+  end
+
+  defp result({:error, :create_comment_upvote, result, _steps}) do
+    raise_error(:comment_already_upvote, result)
   end
 
   defp result({:error, :add_participator, result, _steps}) do

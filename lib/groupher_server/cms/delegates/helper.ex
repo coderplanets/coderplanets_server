@@ -123,9 +123,7 @@ defmodule GroupherServer.CMS.Delegate.Helper do
     emotions = emotions |> Map.put(:"viewer_has_#{emotion}ed", viewer_has_emotioned)
 
     content
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_embed(:emotions, emotions)
-    |> Repo.update()
+    |> ORM.update_embed(:emotions, emotions)
     # virtual field can not be updated
     |> add_viewer_emotioned_ifneed(emotions)
     |> done
