@@ -43,7 +43,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleUpvote do
         achiever_id = article.author.user_id
         Accounts.achieve(%User{id: achiever_id}, :inc, :upvote)
       end)
-      |> Multi.run(:create_upvote, fn _, %{inc_article_upvotes_count: article} ->
+      |> Multi.run(:create_upvote, fn _, %{update_article_reaction_user_list: article} ->
         thread = thread |> to_string |> String.upcase()
         args = Map.put(%{user_id: user_id, thread: thread}, info.foreign_key, article.id)
 
@@ -70,7 +70,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleUpvote do
       |> Multi.run(:update_article_reaction_user_list, fn _, _ ->
         update_article_reaction_user_list(:upvot, article, from_user, :remove)
       end)
-      |> Multi.run(:undo_upvote, fn _, %{inc_article_upvotes_count: article} ->
+      |> Multi.run(:undo_upvote, fn _, %{update_article_reaction_user_list: article} ->
         args = Map.put(%{user_id: user_id}, info.foreign_key, article.id)
 
         ORM.findby_delete(ArticleUpvote, args)

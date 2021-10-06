@@ -63,6 +63,7 @@ defmodule GroupherServer.Test.Upvotes.WorksUpvote do
       assert user2.id in article.meta.upvoted_user_ids
     end
 
+    @tag :wip
     test "works meta history should be updated after undo upvote",
          ~m(user user2 community works_attrs)a do
       {:ok, works} = CMS.create_article(community, :works, works_attrs, user)

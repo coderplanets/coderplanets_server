@@ -228,7 +228,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert 0 == comment.upvotes_count
     end
 
-    @tag :wip
     test "upvote comment should update embeded replies too", ~m(user user2 user3 post)a do
       {:ok, parent_comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
       {:ok, replied_comment} = CMS.reply_comment(parent_comment.id, mock_comment(), user)
