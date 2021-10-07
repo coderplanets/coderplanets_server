@@ -27,6 +27,15 @@ defmodule GroupherServer.Test.Upvotes.GuideUpvote do
       assert article.upvotes_count == 2
     end
 
+    test "upvote a already upvoted guide is fine", ~m(user community guide_attrs)a do
+      {:ok, guide} = CMS.create_article(community, :guide, guide_attrs, user)
+
+      {:ok, article} = CMS.upvote_article(:guide, guide.id, user)
+      {:error, _error} = CMS.upvote_article(:guide, guide.id, user)
+
+      assert article.upvotes_count == 1
+    end
+
     test "guide can be undo upvote && upvotes_count should dec by 1",
          ~m(user user2 community guide_attrs)a do
       {:ok, guide} = CMS.create_article(community, :guide, guide_attrs, user)

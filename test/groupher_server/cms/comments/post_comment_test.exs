@@ -832,4 +832,15 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert post.solution_digest == "new solution"
     end
   end
+
+  describe "[update user info in comments_participants]" do
+    test "basic find", ~m(user community)a do
+      post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+
+      {:ok, _comment} = CMS.create_comment(:post, post.id, mock_comment("solution"), user)
+
+      CMS.update_user_in_comments_participants(user)
+    end
+  end
 end

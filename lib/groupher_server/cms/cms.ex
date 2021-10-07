@@ -143,6 +143,8 @@ defmodule GroupherServer.CMS do
   defdelegate undo_emotion_to_article(thread, article_id, args, user), to: ArticleEmotion
 
   # Comment CURD
+
+  defdelegate update_user_in_comments_participants(user), to: CommentCurd
   defdelegate paged_comments(thread, article_id, filters, mode), to: CommentCurd
   defdelegate paged_comments(thread, article_id, filters, mode, user), to: CommentCurd
 

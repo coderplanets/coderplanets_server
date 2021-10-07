@@ -5,6 +5,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleUpvote do
   import GroupherServer.CMS.Helper.Matcher
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1]
+  import Helper.ErrorCode
 
   import GroupherServer.CMS.Delegate.Helper,
     only: [
@@ -49,6 +50,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleUpvote do
 
         with {:ok, _} <- ORM.create(ArticleUpvote, args) do
           article |> done
+        else
+          _ -> {:error, [message: "viewer already upvoted", code: ecode(:already_upvoted)]}
         end
       end)
       |> Multi.run(:after_hooks, fn _, _ ->

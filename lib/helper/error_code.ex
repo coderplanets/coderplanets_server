@@ -57,6 +57,7 @@ defmodule Helper.ErrorCode do
   def ecode(:invalid_blog_rss), do: @article_base + 12
   def ecode(:invalid_blog_title), do: @article_base + 13
   # def ecode(:already_solved), do: @article_base + 10
+  def ecode(:already_upvoted), do: @article_base + 14
 
   def ecode, do: @default_base
   # def ecode(_), do: @default_base

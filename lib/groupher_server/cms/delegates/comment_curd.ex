@@ -144,6 +144,15 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     |> done()
   end
 
+  def update_user_in_comments_participants(%User{login: login}) do
+    from(a in CMS.Model.Post,
+      cross_join: cp in fragment("jsonb_array_elements(?)", a.comments_participants),
+      where: fragment("?->>'login' = ?", cp, ^login)
+    )
+    |> Repo.all()
+    |> IO.inspect(label: "TODO")
+  end
+
   @doc """
   creates a comment for article like psot, job ...
   """
@@ -457,7 +466,19 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     entries =
       Enum.map(
         entries,
-        &Map.merge(&1, %{viewer_has_upvoted: Enum.member?(&1.meta.upvoted_user_ids, user.id)})
+        fn comment ->
+          replies =
+            Enum.map(comment.replies, fn reply_comment ->
+              Map.merge(reply_comment, %{
+                viewer_has_upvoted: Enum.member?(reply_comment.meta.upvoted_user_ids, user.id)
+              })
+            end)
+
+          Map.merge(comment, %{
+            viewer_has_upvoted: Enum.member?(comment.meta.upvoted_user_ids, user.id),
+            replies: replies
+          })
+        end
       )
 
     Map.merge(paged_comments, %{entries: entries})

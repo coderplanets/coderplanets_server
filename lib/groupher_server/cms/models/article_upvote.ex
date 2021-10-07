@@ -7,7 +7,9 @@ defmodule GroupherServer.CMS.Model.ArticleUpvote do
   import Ecto.Changeset
   import Helper.Utils, only: [get_config: 2]
   import GroupherServer.CMS.Helper.Macros
-  import GroupherServer.CMS.Helper.Utils, only: [articles_foreign_key_constraint: 1]
+
+  import GroupherServer.CMS.Helper.Utils,
+    only: [articles_foreign_key_constraint: 1, articles_upvote_unique_key_constraint: 1]
 
   alias GroupherServer.Accounts
   alias Accounts.Model.User
@@ -34,6 +36,7 @@ defmodule GroupherServer.CMS.Model.ArticleUpvote do
     |> cast(attrs, @optional_fields ++ @required_fields ++ @article_fields)
     |> validate_required(@required_fields)
     |> foreign_key_constraint(:user_id)
+    |> articles_upvote_unique_key_constraint
     |> articles_foreign_key_constraint
   end
 end

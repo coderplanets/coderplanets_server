@@ -27,6 +27,15 @@ defmodule GroupherServer.Test.Upvotes.WorksUpvote do
       assert article.upvotes_count == 2
     end
 
+    test "upvote a already upvoted works is fine", ~m(user community works_attrs)a do
+      {:ok, works} = CMS.create_article(community, :works, works_attrs, user)
+
+      {:ok, article} = CMS.upvote_article(:works, works.id, user)
+      {:error, _error} = CMS.upvote_article(:works, works.id, user)
+
+      assert article.upvotes_count == 1
+    end
+
     test "works can be undo upvote && upvotes_count should dec by 1",
          ~m(user user2 community works_attrs)a do
       {:ok, works} = CMS.create_article(community, :works, works_attrs, user)

@@ -27,6 +27,15 @@ defmodule GroupherServer.Test.Upvotes.MeetupUpvote do
       assert article.upvotes_count == 2
     end
 
+    test "upvote a already upvoted meetup is fine", ~m(user community meetup_attrs)a do
+      {:ok, meetup} = CMS.create_article(community, :meetup, meetup_attrs, user)
+
+      {:ok, article} = CMS.upvote_article(:meetup, meetup.id, user)
+      {:error, _error} = CMS.upvote_article(:meetup, meetup.id, user)
+
+      assert article.upvotes_count == 1
+    end
+
     test "meetup can be undo upvote && upvotes_count should dec by 1",
          ~m(user user2 community meetup_attrs)a do
       {:ok, meetup} = CMS.create_article(community, :meetup, meetup_attrs, user)
