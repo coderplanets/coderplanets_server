@@ -168,9 +168,6 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
       |> Multi.run(:update_report_meta, fn _, _ ->
         update_report_meta(info, article)
       end)
-      |> Multi.run(:sync_embed_replies, fn _, %{update_report_meta: comment} ->
-        sync_embed_replies(comment)
-      end)
       |> Repo.transaction()
       |> result()
     end
@@ -388,6 +385,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   end
 
   defp result({:ok, %{sync_embed_replies: result}}), do: result |> done()
+  defp result({:ok, %{update_report_meta: result}}), do: result |> done()
   defp result({:ok, %{update_content_reported_flag: result}}), do: result |> done()
 
   defp result({:error, _, result, _steps}) do
