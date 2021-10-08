@@ -21,6 +21,26 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
   end
 
   describe "[emotion in paged article comment]" do
+    @tag :wip
+    test "emotioned comment should return valid viewer_has status", ~m(post user user2)a do
+      total_count = 3
+
+      all_comment =
+        Enum.reduce(0..total_count, [], fn _, acc ->
+          {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
+          acc ++ [comment]
+        end)
+
+      first_comment = List.first(all_comment)
+
+      {:ok, _} = CMS.emotion_to_comment(first_comment.id, :downvote, user)
+      {:ok, _} = CMS.emotion_to_comment(first_comment.id, :beer, user2)
+      {:ok, comment} = CMS.emotion_to_comment(first_comment.id, :beer, user)
+
+      assert comment.emotions.viewer_has_downvoteed == true
+      assert comment.emotions.viewer_has_beered == true
+    end
+
     test "login user should got viewer has emotioned status", ~m(post user)a do
       total_count = 0
       page_number = 10

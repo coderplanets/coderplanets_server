@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   import Helper.ErrorCode
 
   import GroupherServer.CMS.Delegate.Helper,
-    only: [mark_viewer_emotion_states: 3, article_of: 1, thread_of: 1]
+    only: [mark_viewer_emotion_states: 2, article_of: 1, thread_of: 1]
 
   import GroupherServer.CMS.Helper.Matcher
   import ShortMaps
@@ -387,7 +387,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
       |> QueryBuilder.filter_pack(Map.merge(filters, %{sort: sort}))
       |> ORM.paginator(~m(page size)a)
       |> add_pinned_comments_ifneed(thread, article_id, filters)
-      |> mark_viewer_emotion_states(user, :comment)
+      |> mark_viewer_emotion_states(user)
       |> mark_viewer_has_upvoted(user)
       |> done()
     end
@@ -403,7 +403,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     |> where(^where_query)
     |> QueryBuilder.filter_pack(filters)
     |> ORM.paginator(~m(page size)a)
-    |> mark_viewer_emotion_states(user, :comment)
+    |> mark_viewer_emotion_states(user)
     |> mark_viewer_has_upvoted(user)
     |> done()
   end

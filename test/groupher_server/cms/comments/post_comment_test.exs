@@ -157,6 +157,16 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert List.first(comment.upvotes).user_id == user.id
     end
 
+    test "user can upvote a post comment twice is fine", ~m(user post)a do
+      {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
+
+      {:ok, _} = CMS.upvote_comment(comment.id, user)
+      {:error, _} = CMS.upvote_comment(comment.id, user)
+
+      {:ok, comment} = ORM.find(Comment, comment.id, preload: :upvotes)
+      assert 1 == length(comment.upvotes)
+    end
+
     test "article author upvote post comment will have flag", ~m(post user)a do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
       {:ok, author_user} = ORM.find(User, post.author.user.id)

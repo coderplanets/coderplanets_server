@@ -70,44 +70,44 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   #######
   # emotion related
   #######
-  defp get_supported_mentions(:comment), do: @supported_comment_emotions
-  defp get_supported_mentions(_), do: @supported_emotions
 
   def mark_viewer_emotion_states(paged_artiments, nil), do: paged_artiments
   def mark_viewer_emotion_states(%{entries: []} = paged_artiments, _), do: paged_artiments
-  def mark_viewer_emotion_states(paged_artiments, nil, :comment), do: paged_artiments
 
   @doc """
   mark viewer emotions status for article or comment
   """
-  def mark_viewer_emotion_states(
-        %{entries: entries} = paged_artiments,
-        %User{} = user,
-        type \\ :article
-      ) do
-    supported_emotions = get_supported_mentions(type)
+  def mark_viewer_emotion_states(%{entries: entries} = artiments, %User{} = user) do
+    new_entries = Enum.map(entries, &mark_viewer_emotion_states(&1, user))
+    %{artiments | entries: new_entries}
+  end
 
-    new_entries =
-      Enum.map(entries, fn article ->
-        update_viewed_status =
-          supported_emotions
-          |> Enum.reduce([], fn emotion, acc ->
-            already_emotioned = user_in_logins?(article.emotions[:"#{emotion}_user_logins"], user)
-            acc ++ ["viewer_has_#{emotion}ed": already_emotioned]
-          end)
-          |> Enum.into(%{})
+  def mark_viewer_emotion_states(%Comment{} = comment, %User{} = user) do
+    do_mark_viewer_emotion_states(comment, user, @supported_comment_emotions)
+  end
 
-        updated_emotions = Map.merge(article.emotions, update_viewed_status)
-        Map.put(article, :emotions, updated_emotions)
+  def mark_viewer_emotion_states(article, %User{} = user) do
+    do_mark_viewer_emotion_states(article, user, @supported_emotions)
+  end
+
+  defp do_mark_viewer_emotion_states(artiment, %User{} = user, emotions) do
+    update_viewed_status =
+      emotions
+      |> Enum.reduce([], fn emotion, acc ->
+        already_emotioned = user_in_logins?(artiment.emotions[:"#{emotion}_user_logins"], user)
+        acc ++ ["viewer_has_#{emotion}ed": already_emotioned]
       end)
+      |> Enum.into(%{})
 
-    %{paged_artiments | entries: new_entries}
+    updated_emotions = Map.merge(artiment.emotions, update_viewed_status)
+
+    %{artiment | emotions: updated_emotions}
   end
 
   @doc """
   update emotions field for boty article and comment
   """
-  def update_emotions_field(content, emotion, status, user) do
+  def update_emotions_field(artiment, emotion, status, user) do
     %{user_count: user_count, user_list: user_list} = status
 
     emotions =
@@ -122,7 +122,7 @@ defmodule GroupherServer.CMS.Delegate.Helper do
     viewer_has_emotioned = user.login in Map.get(emotions, :"#{emotion}_user_logins")
     emotions = emotions |> Map.put(:"viewer_has_#{emotion}ed", viewer_has_emotioned)
 
-    content
+    artiment
     |> ORM.update_embed(:emotions, emotions)
     # virtual field can not be updated
     |> add_viewer_emotioned_ifneed(emotions)
