@@ -180,7 +180,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         |> Map.merge(%{viewer_has_reported: viewer_has_reported})
         |> done
       end)
-      |> Multi.run(:upvote_comment_done, fn _, %{viewer_states: comment} ->
+      |> Multi.run(:sync_embed_replies, fn _, %{viewer_states: comment} ->
         sync_embed_replies(comment)
       end)
       |> Multi.run(:after_hooks, fn _, _ ->
@@ -223,7 +223,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         |> Map.merge(%{viewer_has_reported: viewer_has_reported})
         |> done
       end)
-      |> Multi.run(:upvote_comment_done, fn _, %{viewer_states: comment} ->
+      |> Multi.run(:sync_embed_replies, fn _, %{viewer_states: comment} ->
         sync_embed_replies(comment)
       end)
       |> Multi.run(:after_hooks, fn _, _ ->
@@ -390,7 +390,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
 
   defp result({:ok, %{create_comment: result}}), do: {:ok, result}
   defp result({:ok, %{add_reply_to: result}}), do: {:ok, result}
-  defp result({:ok, %{upvote_comment_done: result}}), do: {:ok, result}
+  defp result({:ok, %{sync_embed_replies: result}}), do: {:ok, result}
   defp result({:ok, %{update_comment_flag: result}}), do: {:ok, result}
   defp result({:ok, %{delete_comment: result}}), do: {:ok, result}
   defp result({:ok, %{fold_comment: result}}), do: {:ok, result}

@@ -5,6 +5,8 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1, strip_struct: 1, get_config: 2]
 
+  import GroupherServer.CMS.Delegate.Helper, only: [sync_embed_replies: 1]
+
   import GroupherServer.CMS.Helper.Matcher
   import ShortMaps
 
@@ -166,6 +168,9 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
       |> Multi.run(:update_report_meta, fn _, _ ->
         update_report_meta(info, article)
       end)
+      |> Multi.run(:sync_embed_replies, fn _, %{update_report_meta: comment} ->
+        sync_embed_replies(comment)
+      end)
       |> Repo.transaction()
       |> result()
     end
@@ -186,6 +191,9 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
         if abuse_report.report_cases_count >= @report_threshold_for_fold,
           do: CMS.fold_comment(comment, user),
           else: {:ok, comment}
+      end)
+      |> Multi.run(:sync_embed_replies, fn _, %{update_report_meta: comment} ->
+        sync_embed_replies(comment)
       end)
       |> Repo.transaction()
       |> result()
@@ -379,7 +387,7 @@ defmodule GroupherServer.CMS.Delegate.AbuseReport do
     |> Map.merge(%{thread: article_thread})
   end
 
-  defp result({:ok, %{update_report_meta: result}}), do: result |> done()
+  defp result({:ok, %{sync_embed_replies: result}}), do: result |> done()
   defp result({:ok, %{update_content_reported_flag: result}}), do: result |> done()
 
   defp result({:error, _, result, _steps}) do

@@ -153,9 +153,6 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   end
 
   # replies(embed_many) 不会自定更新，需要手动更新，否则在 replies 模式下数据会不同步。
-  # TODO: CURD comment in replies list
-  # TODO: report / emotion / upvote comment in replies list
-  # ...
   def sync_embed_replies(%Comment{reply_to_id: reply_to_id} = comment) do
     with {:ok, parent_comment} <- ORM.find(Comment, reply_to_id),
          embed_index <- Enum.find_index(parent_comment.replies, &(&1.id == comment.id)) do

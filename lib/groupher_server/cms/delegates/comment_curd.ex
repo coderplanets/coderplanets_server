@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   import Helper.ErrorCode
 
   import GroupherServer.CMS.Delegate.Helper,
-    only: [mark_viewer_emotion_states: 2, article_of: 1, thread_of: 1]
+    only: [mark_viewer_emotion_states: 2, article_of: 1, thread_of: 1, sync_embed_replies: 1]
 
   import GroupherServer.CMS.Helper.Matcher
   import ShortMaps
@@ -209,15 +209,33 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     with {:ok, post} <- ORM.find(Post, comment.post_id),
          {:ok, parsed} <- Converter.Article.parse_body(body),
          {:ok, digest} <- Converter.Article.parse_digest(parsed.body_map) do
-      %{body: body, body_html: body_html} = parsed
-      post |> ORM.update(%{solution_digest: digest})
-      comment |> ORM.update(%{body: body, body_html: body_html})
+      Multi.new()
+      |> Multi.run(:update_parent_post, fn _, _ ->
+        ORM.update(post, %{solution_digest: digest})
+      end)
+      |> Multi.run(:update_comment, fn _, _ ->
+        %{body: body, body_html: body_html} = parsed
+        comment |> ORM.update(%{body: body, body_html: body_html})
+      end)
+      |> Multi.run(:sync_embed_replies, fn _, %{update_comment: comment} ->
+        sync_embed_replies(comment)
+      end)
+      |> Repo.transaction()
+      |> result()
     end
   end
 
   def update_comment(%Comment{} = comment, body) do
     with {:ok, %{body: body, body_html: body_html}} <- Converter.Article.parse_body(body) do
-      comment |> ORM.update(%{body: body, body_html: body_html})
+      Multi.new()
+      |> Multi.run(:update_comment, fn _, _ ->
+        ORM.update(comment, %{body: body, body_html: body_html})
+      end)
+      |> Multi.run(:sync_embed_replies, fn _, %{update_comment: comment} ->
+        sync_embed_replies(comment)
+      end)
+      |> Repo.transaction()
+      |> result()
     end
   end
 
@@ -253,6 +271,9 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
       end)
       |> Multi.run(:update_post_state, fn _, _ ->
         ORM.update(post, %{is_solved: is_solution, solution_digest: comment.body_html})
+      end)
+      |> Multi.run(:sync_embed_replies, fn _, %{mark_solution: comment} ->
+        sync_embed_replies(comment)
       end)
       |> Repo.transaction()
       |> result()
@@ -513,6 +534,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   defp result({:ok, %{set_question_flag_ifneed: result}}), do: {:ok, result}
   defp result({:ok, %{delete_comment: result}}), do: {:ok, result}
   defp result({:ok, %{mark_solution: result}}), do: {:ok, result}
+  defp result({:ok, %{sync_embed_replies: result}}), do: {:ok, result}
 
   defp result({:error, :create_comment, result, _steps}) do
     raise_error(:create_comment, result)
