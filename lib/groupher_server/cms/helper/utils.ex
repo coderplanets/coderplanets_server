@@ -19,4 +19,11 @@ defmodule GroupherServer.CMS.Helper.Utils do
       foreign_key_constraint(acc, thread_id)
     end)
   end
+
+  def articles_upvote_unique_key_constraint(%Ecto.Changeset{} = changeset) do
+    # |> unique_constraint(:post_id, name: :article_upvotes_user_id_post_id_index)
+    Enum.reduce(@article_fields, changeset, fn thread_id, acc ->
+      unique_constraint(acc, thread_id, name: :"article_upvotes_user_id_#{thread_id}_index")
+    end)
+  end
 end

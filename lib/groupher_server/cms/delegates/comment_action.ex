@@ -4,7 +4,9 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
   """
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1, strip_struct: 1, get_config: 2, ensure: 2]
-  import GroupherServer.CMS.Delegate.Helper, only: [article_of: 1, thread_of: 1]
+
+  import GroupherServer.CMS.Delegate.Helper,
+    only: [article_of: 1, thread_of: 1, sync_embed_replies: 1]
 
   import Helper.ErrorCode
 
@@ -169,7 +171,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
       |> Multi.run(:check_article_author_upvoted, fn _, %{inc_upvotes_count: comment} ->
         update_article_author_upvoted_info(comment, user_id)
       end)
-      |> Multi.run(:upvote_comment_done, fn _, %{check_article_author_upvoted: comment} ->
+      |> Multi.run(:viewer_states, fn _, %{check_article_author_upvoted: comment} ->
         viewer_has_upvoted = Enum.member?(comment.meta.upvoted_user_ids, user_id)
         viewer_has_reported = Enum.member?(comment.meta.reported_user_ids, user_id)
 
@@ -177,6 +179,9 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         |> Map.merge(%{viewer_has_upvoted: viewer_has_upvoted})
         |> Map.merge(%{viewer_has_reported: viewer_has_reported})
         |> done
+      end)
+      |> Multi.run(:sync_embed_replies, fn _, %{viewer_states: comment} ->
+        sync_embed_replies(comment)
       end)
       |> Multi.run(:after_hooks, fn _, _ ->
         Later.run({Hooks.Notify, :handle, [:upvote, comment, from_user]})
@@ -204,12 +209,12 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         {:ok, upvotes_count} =
           from(c in CommentUpvote, where: c.comment_id == ^comment_id) |> ORM.count()
 
-        ORM.update(comment, %{upvotes_count: Enum.max([upvotes_count - 1, 0])})
+        ORM.update(comment, %{upvotes_count: Enum.max([upvotes_count, 0])})
       end)
       |> Multi.run(:check_article_author_upvoted, fn _, %{desc_upvotes_count: updated_comment} ->
         update_article_author_upvoted_info(updated_comment, user_id)
       end)
-      |> Multi.run(:upvote_comment_done, fn _, %{check_article_author_upvoted: comment} ->
+      |> Multi.run(:viewer_states, fn _, %{check_article_author_upvoted: comment} ->
         viewer_has_upvoted = Enum.member?(comment.meta.upvoted_user_ids, user_id)
         viewer_has_reported = Enum.member?(comment.meta.reported_user_ids, user_id)
 
@@ -217,6 +222,9 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         |> Map.merge(%{viewer_has_upvoted: viewer_has_upvoted})
         |> Map.merge(%{viewer_has_reported: viewer_has_reported})
         |> done
+      end)
+      |> Multi.run(:sync_embed_replies, fn _, %{viewer_states: comment} ->
+        sync_embed_replies(comment)
       end)
       |> Multi.run(:after_hooks, fn _, _ ->
         Later.run({Hooks.Notify, :handle, [:undo, :upvote, comment, from_user]})
@@ -296,10 +304,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
       |> List.insert_at(length(replies), replyed_comment)
       |> Enum.slice(0, @max_parent_replies_count)
 
-    parent_comment
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_embed(:replies, new_replies)
-    |> Repo.update()
+    ORM.update_embed(parent_comment, :replies, new_replies)
   end
 
   # 如果已经有 @max_parent_replies_count 以上的回复了，直接忽略即可
@@ -385,13 +390,17 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
 
   defp result({:ok, %{create_comment: result}}), do: {:ok, result}
   defp result({:ok, %{add_reply_to: result}}), do: {:ok, result}
-  defp result({:ok, %{upvote_comment_done: result}}), do: {:ok, result}
+  defp result({:ok, %{sync_embed_replies: result}}), do: {:ok, result}
   defp result({:ok, %{update_comment_flag: result}}), do: {:ok, result}
   defp result({:ok, %{delete_comment: result}}), do: {:ok, result}
   defp result({:ok, %{fold_comment: result}}), do: {:ok, result}
 
   defp result({:error, :create_comment, result, _steps}) do
     raise_error(:create_comment, result)
+  end
+
+  defp result({:error, :create_comment_upvote, result, _steps}) do
+    raise_error(:comment_already_upvote, result)
   end
 
   defp result({:error, :add_participator, result, _steps}) do

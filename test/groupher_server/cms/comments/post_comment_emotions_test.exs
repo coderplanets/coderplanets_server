@@ -61,6 +61,47 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
       assert user_exist_in?(user, target.emotions.latest_popcorn_users)
       assert target.emotions.viewer_has_popcorned
     end
+
+    test "emotioned comment should return valid viewer_has status", ~m(post user user2)a do
+      total_count = 3
+
+      all_comment =
+        Enum.reduce(0..total_count, [], fn _, acc ->
+          {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
+          acc ++ [comment]
+        end)
+
+      first_comment = List.first(all_comment)
+
+      {:ok, _} = CMS.emotion_to_comment(first_comment.id, :downvote, user)
+      {:ok, _} = CMS.emotion_to_comment(first_comment.id, :beer, user2)
+      {:ok, comment} = CMS.emotion_to_comment(first_comment.id, :beer, user)
+
+      assert comment.emotions.viewer_has_downvoteed == true
+      assert comment.emotions.viewer_has_beered == true
+    end
+
+    @tag :wip
+    test "nested reply should have viewer emotion status in replies mode", ~m(post user)a do
+      {:ok, parent_comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
+
+      {:ok, reply_comment} =
+        CMS.reply_comment(parent_comment.id, mock_comment("reply_content"), user)
+
+      {:ok, _} = CMS.emotion_to_comment(parent_comment.id, :downvote, user)
+      {:ok, _} = CMS.emotion_to_comment(reply_comment.id, :downvote, user)
+      # IO.inspect(ff.emotions, label: "ff")
+
+      filter = %{page: 1, size: 10}
+      {:ok, %{entries: entries}} = CMS.paged_comments(:post, post.id, filter, :replies, user)
+      # IO.inspect(entries, label: "entries: ")
+      parent = entries |> List.first()
+      parent_emotion = parent |> Map.get(:emotions)
+      reply_emotion = parent |> Map.get(:replies) |> List.first() |> Map.get(:emotions)
+
+      assert parent_emotion.viewer_has_downvoteed
+      assert reply_emotion.viewer_has_downvoteed
+    end
   end
 
   describe "[basic article comment emotion]" do

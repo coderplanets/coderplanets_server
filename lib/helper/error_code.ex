@@ -41,6 +41,7 @@ defmodule Helper.ErrorCode do
   def ecode(:throttle_day), do: @throttle_base + 3
   # comment
   def ecode(:create_comment), do: @comment_base + 1
+  def ecode(:comment_already_upvote), do: @comment_base + 2
   # article
   def ecode(:too_much_pinned_article), do: @article_base + 1
   def ecode(:already_collected_in_folder), do: @article_base + 2
@@ -56,6 +57,7 @@ defmodule Helper.ErrorCode do
   def ecode(:invalid_blog_rss), do: @article_base + 12
   def ecode(:invalid_blog_title), do: @article_base + 13
   # def ecode(:already_solved), do: @article_base + 10
+  def ecode(:already_upvoted), do: @article_base + 14
 
   def ecode, do: @default_base
   # def ecode(_), do: @default_base

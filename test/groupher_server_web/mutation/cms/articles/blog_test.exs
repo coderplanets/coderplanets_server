@@ -52,7 +52,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       }
     }
     """
-    @tag :wip
     test "create blog with valid attrs and make sure author exsit" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -71,7 +70,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
       assert created["id"] == to_string(found.id)
     end
 
-    @tag :wip
     test "create blog with non-exsit title fails" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)

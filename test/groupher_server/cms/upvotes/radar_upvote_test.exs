@@ -27,6 +27,15 @@ defmodule GroupherServer.Test.Upvotes.RadarUpvote do
       assert article.upvotes_count == 2
     end
 
+    test "upvote a already upvoted radar is fine", ~m(user community radar_attrs)a do
+      {:ok, radar} = CMS.create_article(community, :radar, radar_attrs, user)
+
+      {:ok, article} = CMS.upvote_article(:radar, radar.id, user)
+      {:error, _error} = CMS.upvote_article(:radar, radar.id, user)
+
+      assert article.upvotes_count == 1
+    end
+
     test "radar can be undo upvote && upvotes_count should dec by 1",
          ~m(user user2 community radar_attrs)a do
       {:ok, radar} = CMS.create_article(community, :radar, radar_attrs, user)

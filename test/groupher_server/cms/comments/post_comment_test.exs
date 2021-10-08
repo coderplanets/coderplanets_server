@@ -19,10 +19,11 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
   setup do
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
+    {:ok, user3} = db_insert(:user)
     {:ok, post} = db_insert(:post)
     {:ok, community} = db_insert(:community)
 
-    {:ok, ~m(community user user2 post)a}
+    {:ok, ~m(community user user2 user3 post)a}
   end
 
   describe "[basic article comment]" do
@@ -156,6 +157,16 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert List.first(comment.upvotes).user_id == user.id
     end
 
+    test "user can upvote a post comment twice is fine", ~m(user post)a do
+      {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
+
+      {:ok, _} = CMS.upvote_comment(comment.id, user)
+      {:error, _} = CMS.upvote_comment(comment.id, user)
+
+      {:ok, comment} = ORM.find(Comment, comment.id, preload: :upvotes)
+      assert 1 == length(comment.upvotes)
+    end
+
     test "article author upvote post comment will have flag", ~m(post user)a do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
       {:ok, author_user} = ORM.find(User, post.author.user.id)
@@ -225,6 +236,32 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
 
       {:ok, comment} = CMS.undo_upvote_comment(comment.id, user)
       assert 0 == comment.upvotes_count
+    end
+
+    test "upvote comment should update embeded replies too", ~m(user user2 user3 post)a do
+      {:ok, parent_comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
+      {:ok, replied_comment} = CMS.reply_comment(parent_comment.id, mock_comment(), user)
+
+      {:ok, _} = CMS.upvote_comment(parent_comment.id, user)
+      {:ok, _} = CMS.upvote_comment(replied_comment.id, user)
+      {:ok, _} = CMS.upvote_comment(replied_comment.id, user2)
+      {:ok, _} = CMS.upvote_comment(replied_comment.id, user3)
+
+      filter = %{page: 1, size: 20}
+      {:ok, paged_comments} = CMS.paged_comments(:post, post.id, filter, :replies)
+
+      parent = paged_comments.entries |> List.first()
+      reply = parent |> Map.get(:replies) |> List.first()
+      assert parent.upvotes_count == 1
+      assert reply.upvotes_count == 3
+
+      {:ok, _} = CMS.undo_upvote_comment(replied_comment.id, user2)
+      {:ok, paged_comments} = CMS.paged_comments(:post, post.id, filter, :replies)
+
+      parent = paged_comments.entries |> List.first()
+      reply = parent |> Map.get(:replies) |> List.first()
+      assert parent.upvotes_count == 1
+      assert reply.upvotes_count == 2
     end
   end
 
@@ -803,6 +840,17 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       {:ok, _comment} = CMS.update_comment(comment, mock_comment("new solution"))
       {:ok, post} = ORM.find(Post, post.id, preload: [author: :user])
       assert post.solution_digest == "new solution"
+    end
+  end
+
+  describe "[update user info in comments_participants]" do
+    test "basic find", ~m(user community)a do
+      post_attrs = mock_attrs(:post, %{community_id: community.id, is_question: true})
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+
+      {:ok, _comment} = CMS.create_comment(:post, post.id, mock_comment("solution"), user)
+
+      CMS.update_user_in_comments_participants(user)
     end
   end
 end

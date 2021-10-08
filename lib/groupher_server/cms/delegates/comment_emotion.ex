@@ -4,7 +4,14 @@ defmodule GroupherServer.CMS.Delegate.CommentEmotion do
   """
   import Ecto.Query, warn: false
 
-  import GroupherServer.CMS.Delegate.Helper, only: [update_emotions_field: 4]
+  import Helper.Utils, only: [done: 1]
+
+  import GroupherServer.CMS.Delegate.Helper,
+    only: [
+      update_emotions_field: 4,
+      mark_viewer_emotion_states: 2,
+      sync_embed_replies: 1
+    ]
 
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS, Repo}
@@ -36,13 +43,17 @@ defmodule GroupherServer.CMS.Delegate.CommentEmotion do
         end
       end)
       |> Multi.run(:query_emotion_states, fn _, _ ->
+        # query_emotion_states2(comment)
         query_emotion_states(comment, emotion)
       end)
       |> Multi.run(:update_emotions_field, fn _, %{query_emotion_states: status} ->
-        update_emotions_field(comment, emotion, status, user)
+        with {:ok, comment} <- update_emotions_field(comment, emotion, status, user),
+             {:ok, comment} <- sync_embed_replies(comment) do
+          mark_viewer_emotion_states(comment, user) |> done
+        end
       end)
       |> Repo.transaction()
-      |> update_emotions_field_result
+      |> result
     end
   end
 
@@ -69,10 +80,12 @@ defmodule GroupherServer.CMS.Delegate.CommentEmotion do
         query_emotion_states(comment, emotion)
       end)
       |> Multi.run(:update_emotions_field, fn _, %{query_emotion_states: status} ->
-        update_emotions_field(comment, emotion, status, user)
+        with {:ok, comment} <- update_emotions_field(comment, emotion, status, user) do
+          mark_viewer_emotion_states(comment, user) |> done
+        end
       end)
       |> Repo.transaction()
-      |> update_emotions_field_result
+      |> result
     end
   end
 
@@ -96,9 +109,9 @@ defmodule GroupherServer.CMS.Delegate.CommentEmotion do
     {:ok, %{user_list: emotioned_user_info_list, user_count: emotioned_user_count}}
   end
 
-  defp update_emotions_field_result({:ok, %{update_emotions_field: result}}), do: {:ok, result}
+  defp result({:ok, %{update_emotions_field: result}}), do: {:ok, result}
 
-  defp update_emotions_field_result({:error, _, result, _steps}) do
+  defp result({:error, _, result, _steps}) do
     {:error, result}
   end
 end
