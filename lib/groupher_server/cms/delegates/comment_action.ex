@@ -4,7 +4,9 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
   """
   import Ecto.Query, warn: false
   import Helper.Utils, only: [done: 1, strip_struct: 1, get_config: 2, ensure: 2]
-  import GroupherServer.CMS.Delegate.Helper, only: [article_of: 1, thread_of: 1]
+
+  import GroupherServer.CMS.Delegate.Helper,
+    only: [article_of: 1, thread_of: 1, sync_embed_replies: 1]
 
   import Helper.ErrorCode
 
@@ -179,7 +181,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         |> done
       end)
       |> Multi.run(:upvote_comment_done, fn _, %{viewer_states: comment} ->
-        update_embed_comment_in_replies(comment)
+        sync_embed_replies(comment)
       end)
       |> Multi.run(:after_hooks, fn _, _ ->
         Later.run({Hooks.Notify, :handle, [:upvote, comment, from_user]})
@@ -222,7 +224,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         |> done
       end)
       |> Multi.run(:upvote_comment_done, fn _, %{viewer_states: comment} ->
-        update_embed_comment_in_replies(comment)
+        sync_embed_replies(comment)
       end)
       |> Multi.run(:after_hooks, fn _, _ ->
         Later.run({Hooks.Notify, :handle, [:undo, :upvote, comment, from_user]})
@@ -384,38 +386,6 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
 
     meta = comment.meta |> Map.merge(%{upvoted_user_ids: user_ids}) |> strip_struct
     ORM.update_meta(comment, meta)
-  end
-
-  defp update_embed_comment_in_replies(%Comment{reply_to_id: nil} = comment) do
-    {:ok, comment}
-  end
-
-  # replies(embed_many) 不会自定更新，需要手动更新，否则在 replies 模式下数据会不同步。
-  # update_embed_replies
-  # upvote/undo-upvote
-  # emotion/undo-emotion
-  # update body
-  # delete
-  # report
-  # ...
-  defp update_embed_comment_in_replies(%Comment{reply_to_id: reply_to_id} = comment) do
-    with {:ok, parent_comment} <- ORM.find(Comment, reply_to_id),
-         embed_index <- Enum.find_index(parent_comment.replies, &(&1.id == comment.id)) do
-      case is_nil(embed_index) do
-        true ->
-          {:ok, comment}
-
-        false ->
-          replies = List.replace_at(parent_comment.replies, embed_index, comment)
-          # IO.inspect(replies, label: "replies ---> ")
-
-          # 理论上更新一次即可，但 Changeset 无法识别数量一致的 replies ，不确定是业务代码的问题还是 Ecto 的问题，好坑啊
-          {:ok, parent_comment} = ORM.update_embed(parent_comment, :replies, [])
-          {:ok, _} = ORM.update_embed(parent_comment, :replies, replies)
-      end
-
-      {:ok, comment}
-    end
   end
 
   defp result({:ok, %{create_comment: result}}), do: {:ok, result}

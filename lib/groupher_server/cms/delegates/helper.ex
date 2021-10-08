@@ -78,8 +78,19 @@ defmodule GroupherServer.CMS.Delegate.Helper do
   mark viewer emotions status for article or comment
   """
   def mark_viewer_emotion_states(%{entries: entries} = artiments, %User{} = user) do
-    new_entries = Enum.map(entries, &mark_viewer_emotion_states(&1, user))
-    %{artiments | entries: new_entries}
+    entries =
+      Enum.map(entries, fn artiment ->
+        case Map.has_key?(artiment, :replies) do
+          true ->
+            mark_viewer_emotion_states(artiment, user)
+            |> Map.put(:replies, mark_replies_emotion_states(artiment, user))
+
+          false ->
+            mark_viewer_emotion_states(artiment, user)
+        end
+      end)
+
+    %{artiments | entries: entries}
   end
 
   def mark_viewer_emotion_states(%Comment{} = comment, %User{} = user) do
@@ -102,6 +113,14 @@ defmodule GroupherServer.CMS.Delegate.Helper do
     updated_emotions = Map.merge(artiment.emotions, update_viewed_status)
 
     %{artiment | emotions: updated_emotions}
+  end
+
+  defp mark_replies_emotion_states(%Comment{replies: []}, _), do: []
+
+  defp mark_replies_emotion_states(%Comment{replies: replies}, user) do
+    Enum.map(replies, fn reply_comment ->
+      mark_viewer_emotion_states(reply_comment, user)
+    end)
   end
 
   @doc """
@@ -127,6 +146,33 @@ defmodule GroupherServer.CMS.Delegate.Helper do
     # virtual field can not be updated
     |> add_viewer_emotioned_ifneed(emotions)
     |> done
+  end
+
+  def sync_embed_replies(%Comment{reply_to_id: nil} = comment) do
+    {:ok, comment}
+  end
+
+  # replies(embed_many) 不会自定更新，需要手动更新，否则在 replies 模式下数据会不同步。
+  # TODO: CURD comment in replies list
+  # TODO: report / emotion / upvote comment in replies list
+  # ...
+  def sync_embed_replies(%Comment{reply_to_id: reply_to_id} = comment) do
+    with {:ok, parent_comment} <- ORM.find(Comment, reply_to_id),
+         embed_index <- Enum.find_index(parent_comment.replies, &(&1.id == comment.id)) do
+      case is_nil(embed_index) do
+        true ->
+          {:ok, comment}
+
+        false ->
+          replies = List.replace_at(parent_comment.replies, embed_index, comment)
+
+          # 理论上更新一次即可，但 Changeset 无法识别数量一致的 replies ，不确定是业务代码的问题还是 Ecto 的问题，好坑啊
+          {:ok, parent_comment} = ORM.update_embed(parent_comment, :replies, [])
+          {:ok, _} = ORM.update_embed(parent_comment, :replies, replies)
+      end
+
+      {:ok, comment}
+    end
   end
 
   defp add_viewer_emotioned_ifneed({:error, error}, _), do: {:error, error}

@@ -7,7 +7,11 @@ defmodule GroupherServer.CMS.Delegate.CommentEmotion do
   import Helper.Utils, only: [done: 1]
 
   import GroupherServer.CMS.Delegate.Helper,
-    only: [update_emotions_field: 4, mark_viewer_emotion_states: 2]
+    only: [
+      update_emotions_field: 4,
+      mark_viewer_emotion_states: 2,
+      sync_embed_replies: 1
+    ]
 
   alias Helper.ORM
   alias GroupherServer.{Accounts, CMS, Repo}
@@ -43,7 +47,8 @@ defmodule GroupherServer.CMS.Delegate.CommentEmotion do
         query_emotion_states(comment, emotion)
       end)
       |> Multi.run(:update_emotions_field, fn _, %{query_emotion_states: status} ->
-        with {:ok, comment} <- update_emotions_field(comment, emotion, status, user) do
+        with {:ok, comment} <- update_emotions_field(comment, emotion, status, user),
+             {:ok, comment} <- sync_embed_replies(comment) do
           mark_viewer_emotion_states(comment, user) |> done
         end
       end)
