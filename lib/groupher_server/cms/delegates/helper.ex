@@ -144,7 +144,7 @@ defmodule GroupherServer.CMS.Delegate.Helper do
     artiment
     |> ORM.update_embed(:emotions, emotions)
     # virtual field can not be updated
-    |> add_viewer_emotioned_ifneed(emotions)
+    # |> add_viewer_emotioned_ifneed(emotions)
     |> done
   end
 
@@ -253,10 +253,8 @@ defmodule GroupherServer.CMS.Delegate.Helper do
     updated_users =
       case opt do
         :add -> [extract_embed_user(user)] ++ cur_users
-        :remove -> cur_users -- [extract_embed_user(user)]
+        :remove -> Enum.reject(cur_users, &(&1.user_id == user.id))
       end
-
-    # updated_users = updated_users |> Enum.map(&strip_struct(&1)) |> Enum.uniq()
 
     meta =
       @default_article_meta
@@ -268,7 +266,9 @@ defmodule GroupherServer.CMS.Delegate.Helper do
 
   def update_article_reaction_user_list(action, article, %User{} = user, opt) do
     cur_user_ids = get_in(article, [:meta, :"#{action}ed_user_ids"])
-    cur_users = get_in(article, [:meta, :"latest_#{action}ed_users"])
+
+    cur_users =
+      get_in(article, [:meta, :"latest_#{action}ed_users"]) |> Enum.map(&strip_struct(&1))
 
     updated_user_ids =
       case opt do
@@ -279,9 +279,8 @@ defmodule GroupherServer.CMS.Delegate.Helper do
     updated_users =
       case opt do
         :add -> [extract_embed_user(user)] ++ cur_users
-        :remove -> cur_users -- [extract_embed_user(user)]
+        :remove -> Enum.reject(cur_users, &(&1.user_id == user.id))
       end
-      |> Enum.map(&strip_struct(&1))
       |> Enum.uniq()
       |> Enum.slice(0, @max_latest_upvoted_users_count)
 
@@ -290,6 +289,7 @@ defmodule GroupherServer.CMS.Delegate.Helper do
       |> Map.merge(%{"#{action}ed_user_ids": updated_user_ids})
       |> Map.merge(%{"latest_#{action}ed_users": updated_users})
 
+    IO.inspect(meta, label: "# new meta")
     ORM.update_meta(article, meta)
   end
 
