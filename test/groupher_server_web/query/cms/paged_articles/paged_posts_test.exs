@@ -249,7 +249,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedPosts do
       }
     }
     """
-    @tag :wip
+
     test "has_xxx state should work", ~m(user)a do
       user_conn = simu_conn(:user, user)
       {:ok, community} = db_insert(:community)

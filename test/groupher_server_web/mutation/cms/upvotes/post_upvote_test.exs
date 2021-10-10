@@ -48,7 +48,7 @@ defmodule GroupherServer.Test.Mutation.Upvotes.PostUpvote do
       }
     }
     """
-    @tag :wip
+
     test "login user can undo upvote to a post", ~m(user_conn post user)a do
       {:ok, _} = CMS.upvote_article(:post, post.id, user)
 

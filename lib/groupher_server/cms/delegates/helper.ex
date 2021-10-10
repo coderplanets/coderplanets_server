@@ -141,11 +141,7 @@ defmodule GroupherServer.CMS.Delegate.Helper do
     viewer_has_emotioned = user.login in Map.get(emotions, :"#{emotion}_user_logins")
     emotions = emotions |> Map.put(:"viewer_has_#{emotion}ed", viewer_has_emotioned)
 
-    artiment
-    |> ORM.update_embed(:emotions, emotions)
-    # virtual field can not be updated
-    # |> add_viewer_emotioned_ifneed(emotions)
-    |> done
+    artiment |> ORM.update_embed(:emotions, emotions)
   end
 
   def sync_embed_replies(%Comment{reply_to_id: nil} = comment) do
@@ -170,12 +166,6 @@ defmodule GroupherServer.CMS.Delegate.Helper do
 
       {:ok, comment}
     end
-  end
-
-  defp add_viewer_emotioned_ifneed({:error, error}, _), do: {:error, error}
-
-  defp add_viewer_emotioned_ifneed({:ok, comment}, emotions) do
-    Map.merge(comment, %{emotion: emotions})
   end
 
   defp user_in_logins?([], _), do: false
