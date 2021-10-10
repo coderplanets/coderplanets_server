@@ -112,7 +112,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
       assert @default_emotions == emotions
     end
 
-    @tag :wip
     test "can make emotion to comment", ~m(post user user2)a do
       {:ok, parent_comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
 

@@ -66,15 +66,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleUpvote do
   def undo_upvote_article(thread, article_id, %User{id: user_id} = from_user) do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, article_id) do
-      IO.inspect(label: "111")
-
       Multi.new()
       |> Multi.run(:update_upvotes_count, fn _, _ ->
-        IO.inspect(label: "222")
         update_article_reactions_count(info, article, :upvotes_count, :dec)
       end)
       |> Multi.run(:update_reaction_user_list, fn _, %{update_upvotes_count: article} ->
-        IO.inspect(from_user.login, label: "## undo_upvote_article remove")
         update_article_reaction_user_list(:upvot, article, from_user, :remove)
       end)
       |> Multi.run(:undo_upvote, fn _, %{update_reaction_user_list: article} ->
