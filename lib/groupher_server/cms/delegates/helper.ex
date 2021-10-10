@@ -279,7 +279,6 @@ defmodule GroupherServer.CMS.Delegate.Helper do
       |> Map.merge(%{"#{action}ed_user_ids": updated_user_ids})
       |> Map.merge(%{"latest_#{action}ed_users": updated_users})
 
-    IO.inspect(meta, label: "# new meta")
     ORM.update_meta(article, meta)
   end
 
