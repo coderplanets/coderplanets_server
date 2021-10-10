@@ -81,7 +81,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostCommentEmotions do
       assert comment.emotions.viewer_has_beered == true
     end
 
-    @tag :wip
     test "nested reply should have viewer emotion status in replies mode", ~m(post user)a do
       {:ok, parent_comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
 

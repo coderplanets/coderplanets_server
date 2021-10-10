@@ -43,7 +43,6 @@ defmodule GroupherServer.CMS.Delegate.CommentEmotion do
         end
       end)
       |> Multi.run(:query_emotion_states, fn _, _ ->
-        # query_emotion_states2(comment)
         query_emotion_states(comment, emotion)
       end)
       |> Multi.run(:update_emotions_field, fn _, %{query_emotion_states: status} ->

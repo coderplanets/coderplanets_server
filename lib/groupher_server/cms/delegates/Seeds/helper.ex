@@ -95,9 +95,10 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Helper do
 
       {:error, _} ->
         nickname = "cps_bot_2398614_2018"
+        login = "cp_bot"
         avatar = "https://avatars1.githubusercontent.com/u/6184465?s=460&v=4"
 
-        User |> ORM.findby_or_insert(~m(nickname avatar)a, ~m(nickname avatar)a)
+        User |> ORM.findby_or_insert(~m(nickname avatar)a, ~m(nickname avatar login)a)
     end
   end
 

@@ -23,6 +23,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:avatar, :string)
     field(:nickname, :string)
     field(:avatar, :string)
+    field(:bio, :string)
   end
 
   object :common_article do
