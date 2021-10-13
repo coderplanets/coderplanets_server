@@ -60,6 +60,8 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     general_article_fields()
     comments_fields()
 
+    field(:is_question, :boolean)
+
     timestamp_fields(:article)
   end
 

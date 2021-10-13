@@ -278,7 +278,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       end
     end)
     |> Multi.run(:update_edit_status, fn _, %{update_article: update_article} ->
-      ArticleCommunity.update_edit_status(update_article)
+      IO.inspect(update_article, label: "## -3")
+      ArticleCommunity.update_edit_status(update_article) |> IO.inspect(label: "## 2")
     end)
     |> Multi.run(:after_hooks, fn _, %{update_article: update_article} ->
       Later.run({Hooks.Cite, :handle, [update_article]})

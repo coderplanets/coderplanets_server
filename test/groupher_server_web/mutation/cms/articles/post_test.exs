@@ -27,15 +27,18 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       $body: String!
       $communityId: ID!
       $articleTags: [Id]
+      $linkAddr: String
     ) {
       createPost(
         title: $title
         body: $body
         communityId: $communityId
         articleTags: $articleTags
+        linkAddr: $linkAddr
       ) {
         id
         title
+        linkAddr
         document {
           bodyHtml
         }
@@ -45,12 +48,13 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
       }
     }
     """
+    @tag :wip
     test "create post with valid attrs and make sure author exsit" do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
       {:ok, community} = db_insert(:community)
-      post_attr = mock_attrs(:post)
+      post_attr = mock_attrs(:post) |> Map.merge(%{linkAddr: "https://helloworld"})
 
       variables = post_attr |> Map.merge(%{communityId: community.id})
       created = user_conn |> mutation_result(@create_post_query, variables, "createPost")
@@ -58,6 +62,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Post do
 
       assert created["id"] == to_string(post.id)
       assert created["originalCommunity"]["id"] == to_string(community.id)
+      assert created["linkAddr"] == "https://helloworld"
 
       assert {:ok, _} = ORM.find_by(Author, user_id: user.id)
     end
