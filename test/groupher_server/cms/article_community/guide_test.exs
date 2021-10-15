@@ -37,6 +37,32 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Guide do
       assert not is_nil(Enum.find(guide.communities, &(&1.id == community2.id)))
     end
 
+    @tag :wip
+    test "tags should be clean after guide move to other community",
+         ~m(user community community2 guide_attrs)a do
+      article_tag_attrs = mock_attrs(:article_tag)
+      article_tag_attrs2 = mock_attrs(:article_tag)
+
+      {:ok, guide} = CMS.create_article(community, :guide, guide_attrs, user)
+      {:ok, article_tag} = CMS.create_article_tag(community, :guide, article_tag_attrs, user)
+      {:ok, article_tag2} = CMS.create_article_tag(community, :guide, article_tag_attrs2, user)
+
+      {:ok, _guide} = CMS.set_article_tag(:guide, guide.id, article_tag.id)
+      {:ok, guide} = CMS.set_article_tag(:guide, guide.id, article_tag2.id)
+
+      assert guide.article_tags |> length == 2
+      assert guide.original_community_id == community.id
+
+      {:ok, _} = CMS.move_article(:guide, guide.id, community2.id)
+
+      {:ok, guide} =
+        ORM.find(Guide, guide.id, preload: [:original_community, :communities, :article_tags])
+
+      assert guide.article_tags |> length == 0
+      assert guide.original_community.id == community2.id
+      assert not is_nil(Enum.find(guide.communities, &(&1.id == community2.id)))
+    end
+
     test "guide can be mirror to other community", ~m(user community community2 guide_attrs)a do
       {:ok, guide} = CMS.create_article(community, :guide, guide_attrs, user)
 

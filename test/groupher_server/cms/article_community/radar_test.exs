@@ -37,6 +37,32 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Radar do
       assert not is_nil(Enum.find(radar.communities, &(&1.id == community2.id)))
     end
 
+    @tag :wip
+    test "tags should be clean after radar move to other community",
+         ~m(user community community2 radar_attrs)a do
+      article_tag_attrs = mock_attrs(:article_tag)
+      article_tag_attrs2 = mock_attrs(:article_tag)
+
+      {:ok, radar} = CMS.create_article(community, :radar, radar_attrs, user)
+      {:ok, article_tag} = CMS.create_article_tag(community, :radar, article_tag_attrs, user)
+      {:ok, article_tag2} = CMS.create_article_tag(community, :radar, article_tag_attrs2, user)
+
+      {:ok, _radar} = CMS.set_article_tag(:radar, radar.id, article_tag.id)
+      {:ok, radar} = CMS.set_article_tag(:radar, radar.id, article_tag2.id)
+
+      assert radar.article_tags |> length == 2
+      assert radar.original_community_id == community.id
+
+      {:ok, _} = CMS.move_article(:radar, radar.id, community2.id)
+
+      {:ok, radar} =
+        ORM.find(Radar, radar.id, preload: [:original_community, :communities, :article_tags])
+
+      assert radar.article_tags |> length == 0
+      assert radar.original_community.id == community2.id
+      assert not is_nil(Enum.find(radar.communities, &(&1.id == community2.id)))
+    end
+
     test "radar can be mirror to other community", ~m(user community community2 radar_attrs)a do
       {:ok, radar} = CMS.create_article(community, :radar, radar_attrs, user)
 

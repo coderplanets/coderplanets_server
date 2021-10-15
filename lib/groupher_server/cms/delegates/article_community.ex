@@ -90,17 +90,28 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
     end
   end
 
+  def move_to_blackhole(thread, article_id, [tagIds]) do
+    #
+  end
+
   @doc """
   move article original community to other community
   """
   def move_article(thread, article_id, community_id) do
+    preload = [:communities, :original_community, :article_tags]
+
     with {:ok, info} <- match(thread),
          {:ok, community} <- ORM.find(Community, community_id),
-         {:ok, article} <-
-           ORM.find(info.model, article_id, preload: [:communities, :original_community]) do
+         {:ok, article} <- ORM.find(info.model, article_id, preload: preload) do
       cur_original_community = article.original_community
 
       Multi.new()
+      |> Multi.run(:clean_original_tags, fn _, _ ->
+        article
+        |> Ecto.Changeset.change()
+        |> Ecto.Changeset.put_assoc(:article_tags, [])
+        |> Repo.update()
+      end)
       |> Multi.run(:change_original_community, fn _, _ ->
         article
         |> Ecto.Changeset.change()
