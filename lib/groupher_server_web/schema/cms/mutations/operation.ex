@@ -112,6 +112,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Operation do
       arg(:id, non_null(:id))
       arg(:community_id, non_null(:id))
       arg(:thread, :thread, default_value: :post)
+      arg(:article_tags, list_of(:id), default_value: [])
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->t?.community.mirror")
@@ -134,10 +135,22 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Operation do
       arg(:id, non_null(:id))
       arg(:community_id, non_null(:id))
       arg(:thread, :thread, default_value: :post)
+      arg(:article_tags, list_of(:id), default_value: [])
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->t?.community.move")
       resolve(&R.CMS.move_article/3)
+    end
+
+    @desc "move article to other community"
+    field :move_to_blackhole, :article do
+      arg(:id, non_null(:id))
+      arg(:thread, :thread, default_value: :post)
+      arg(:article_tags, list_of(:id), default_value: [])
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->blackeye")
+      resolve(&R.CMS.move_to_blackhole/3)
     end
   end
 end

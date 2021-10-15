@@ -68,6 +68,7 @@ defmodule Helper.Certification do
         build_article_rules(@article_rules) ++
           [
             "root",
+            "blackeye",
             "system_accountant",
             "system_notification.publish",
             "stamp_passport",

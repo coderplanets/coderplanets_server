@@ -293,8 +293,12 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.unmirror_article(thread, id, community_id)
   end
 
-  def move_article(_root, ~m(thread id community_id)a, _info) do
-    CMS.move_article(thread, id, community_id)
+  def move_article(_root, ~m(thread id community_id article_tags)a, _info) do
+    CMS.move_article(thread, id, community_id, article_tags)
+  end
+
+  def move_to_blackhole(_root, ~m(thread id article_tags)a, _info) do
+    CMS.move_to_blackhole(thread, id, article_tags)
   end
 
   # #######################
