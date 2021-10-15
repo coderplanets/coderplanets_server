@@ -189,6 +189,12 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Blog do
       assert blog.communities |> length == 1
 
       assert exist_in?(blackhole_community, blog.communities)
+
+      filter = %{page: 1, size: 10, community: blackhole_community.raw}
+      {:ok, paged_articles} = CMS.paged_articles(:blog, filter)
+
+      assert exist_in?(blog, paged_articles.entries)
+      assert paged_articles.total_count === 1
     end
 
     test "blog can be move to blackhole with tags", ~m(community blog_attrs user)a do
