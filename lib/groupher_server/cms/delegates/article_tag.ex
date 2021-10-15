@@ -78,6 +78,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
       article_tag_ids = Enum.map(article_tag_ids, &to_string(&1))
 
       Enum.all?(article_tag_ids, &Enum.member?(domain_tags_ids, &1))
+    else
+      _ -> false
     end
   end
 
@@ -86,17 +88,20 @@ defmodule GroupherServer.CMS.Delegate.ArticleTag do
 
   used for create article with article_tags in args
   """
+  def set_article_tags(_, _, article, %{article_tags: []}), do: {:ok, article}
+
   def set_article_tags(%Community{id: cid}, thread, article, %{article_tags: article_tag_ids}) do
     check_filter = %{page: 1, size: 100, community_id: cid, thread: thread}
 
-    with true <- is_article_tag_in_some_thread?(article_tag_ids, check_filter) do
-      Enum.each(article_tag_ids, &set_article_tag(thread, article, &1)) |> done
+    with true <- is_article_tag_in_some_thread?(article_tag_ids, check_filter),
+         Enum.each(article_tag_ids, &set_article_tag(thread, article, &1)) |> done do
+      {:ok, article}
     else
       false -> raise_error(:invalid_domain_tag, "tag not in same community & thread")
     end
   end
 
-  def set_article_tags(_community, _thread, _id, _attrs), do: {:ok, :pass}
+  def set_article_tags(_community, _thread, article, _), do: {:ok, article}
 
   @doc """
   set article a tag
