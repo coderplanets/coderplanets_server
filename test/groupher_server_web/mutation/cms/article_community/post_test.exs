@@ -109,6 +109,30 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Post do
       assert community2.id in assoc_communities
     end
 
+    @move_to_blackhole """
+    mutation($id: ID!, $thread: Thread, $articleTags: [Id]) {
+      moveToBlackhole(id: $id, thread: $thread, articleTags: $articleTags) {
+        id
+      }
+    }
+    """
+    @tag :wip
+    test "auth user can move post to blackhole", ~m(post)a do
+      {:ok, blackhole_community} = db_insert(:community, %{raw: "blackhole"})
+
+      variables = %{id: post.id, thread: "POST"}
+
+      passport_rules = %{"blackeye" => true}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      rule_conn |> mutation_result(@move_to_blackhole, variables, "moveToBlackhole")
+
+      {:ok, post} =
+        ORM.find(Post, post.id, preload: [:original_community, :communities, :article_tags])
+
+      assert post.original_community.id == blackhole_community.id
+    end
+
     @move_article_query """
     mutation($id: ID!, $thread: Thread, $communityId: ID!, $articleTags: [Id]) {
       moveArticle(id: $id, thread: $thread, communityId: $communityId, articleTags: $articleTags) {
