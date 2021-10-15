@@ -112,6 +112,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Operation do
       arg(:id, non_null(:id))
       arg(:community_id, non_null(:id))
       arg(:thread, :thread, default_value: :post)
+      arg(:article_tags, list_of(:id), default_value: [])
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->t?.community.mirror")
@@ -134,6 +135,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Operation do
       arg(:id, non_null(:id))
       arg(:community_id, non_null(:id))
       arg(:thread, :thread, default_value: :post)
+      arg(:article_tags, list_of(:id), default_value: [])
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->t?.community.move")

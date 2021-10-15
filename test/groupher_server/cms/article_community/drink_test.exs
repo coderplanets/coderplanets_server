@@ -26,7 +26,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Drink do
       assert drink.original_community_id == community.id
     end
 
-    @tag :wip
     test "drink can be move to other community", ~m(user community community2 drink_attrs)a do
       {:ok, drink} = CMS.create_article(community, :drink, drink_attrs, user)
       assert drink.original_community_id == community.id
@@ -38,7 +37,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Drink do
       assert exist_in?(community2, drink.communities)
     end
 
-    @tag :wip
     test "tags should be clean after drink move to other community",
          ~m(user community community2 drink_attrs)a do
       article_tag_attrs = mock_attrs(:article_tag)
@@ -64,7 +62,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Drink do
       assert exist_in?(community2, drink.communities)
     end
 
-    @tag :wip
     test "drink move to other community with new tag",
          ~m(user community community2 drink_attrs)a do
       article_tag_attrs0 = mock_attrs(:article_tag)
@@ -97,7 +94,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Drink do
       assert exist_in?(article_tag2, drink.article_tags)
     end
 
-    @tag :wip
     test "drink can be mirror to other community", ~m(user community community2 drink_attrs)a do
       {:ok, drink} = CMS.create_article(community, :drink, drink_attrs, user)
 
@@ -115,7 +111,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Drink do
       assert exist_in?(community2, drink.communities)
     end
 
-    @tag :wip
     test "drink can be mirror to other community with tags",
          ~m(user community community2 drink_attrs)a do
       article_tag_attrs = mock_attrs(:article_tag)
@@ -151,7 +146,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Drink do
       assert not exist_in?(community3, drink.communities)
     end
 
-    @tag :wip
     test "drink can be unmirror from community with tags",
          ~m(user community community2 community3 drink_attrs)a do
       article_tag_attrs2 = mock_attrs(:article_tag)
@@ -183,7 +177,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Drink do
       assert reason |> is_error?(:mirror_article)
     end
 
-    @tag :wip
     test "drink can be move to blackhole", ~m(community drink_attrs user)a do
       {:ok, blackhole_community} = db_insert(:community, %{raw: "blackhole"})
 
@@ -199,7 +192,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Drink do
       assert exist_in?(blackhole_community, drink.communities)
     end
 
-    @tag :wip
     test "drink can be move to blackhole with tags", ~m(community drink_attrs user)a do
       {:ok, blackhole_community} = db_insert(:community, %{raw: "blackhole"})
 

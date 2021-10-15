@@ -26,7 +26,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Radar do
       assert radar.original_community_id == community.id
     end
 
-    @tag :wip
     test "radar can be move to other community", ~m(user community community2 radar_attrs)a do
       {:ok, radar} = CMS.create_article(community, :radar, radar_attrs, user)
       assert radar.original_community_id == community.id
@@ -38,7 +37,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Radar do
       assert exist_in?(community2, radar.communities)
     end
 
-    @tag :wip
     test "tags should be clean after radar move to other community",
          ~m(user community community2 radar_attrs)a do
       article_tag_attrs = mock_attrs(:article_tag)
@@ -64,7 +62,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Radar do
       assert exist_in?(community2, radar.communities)
     end
 
-    @tag :wip
     test "radar move to other community with new tag",
          ~m(user community community2 radar_attrs)a do
       article_tag_attrs0 = mock_attrs(:article_tag)
@@ -97,7 +94,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Radar do
       assert exist_in?(article_tag2, radar.article_tags)
     end
 
-    @tag :wip
     test "radar can be mirror to other community", ~m(user community community2 radar_attrs)a do
       {:ok, radar} = CMS.create_article(community, :radar, radar_attrs, user)
 
@@ -115,7 +111,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Radar do
       assert exist_in?(community2, radar.communities)
     end
 
-    @tag :wip
     test "radar can be mirror to other community with tags",
          ~m(user community community2 radar_attrs)a do
       article_tag_attrs = mock_attrs(:article_tag)
@@ -151,7 +146,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Radar do
       assert not exist_in?(community3, radar.communities)
     end
 
-    @tag :wip
     test "radar can be unmirror from community with tags",
          ~m(user community community2 community3 radar_attrs)a do
       article_tag_attrs2 = mock_attrs(:article_tag)
@@ -183,7 +177,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Radar do
       assert reason |> is_error?(:mirror_article)
     end
 
-    @tag :wip
     test "radar can be move to blackhole", ~m(community radar_attrs user)a do
       {:ok, blackhole_community} = db_insert(:community, %{raw: "blackhole"})
 
@@ -199,7 +192,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Radar do
       assert exist_in?(blackhole_community, radar.communities)
     end
 
-    @tag :wip
     test "radar can be move to blackhole with tags", ~m(community radar_attrs user)a do
       {:ok, blackhole_community} = db_insert(:community, %{raw: "blackhole"})
 

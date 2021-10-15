@@ -26,7 +26,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Blog do
       assert blog.original_community_id == community.id
     end
 
-    @tag :wip
     test "blog can be move to other community", ~m(user community community2 blog_attrs)a do
       {:ok, blog} = CMS.create_article(community, :blog, blog_attrs, user)
       assert blog.original_community_id == community.id
@@ -38,7 +37,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Blog do
       assert exist_in?(community2, blog.communities)
     end
 
-    @tag :wip
     test "tags should be clean after blog move to other community",
          ~m(user community community2 blog_attrs)a do
       article_tag_attrs = mock_attrs(:article_tag)
@@ -64,7 +62,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Blog do
       assert exist_in?(community2, blog.communities)
     end
 
-    @tag :wip
     test "blog move to other community with new tag", ~m(user community community2 blog_attrs)a do
       article_tag_attrs0 = mock_attrs(:article_tag)
       article_tag_attrs = mock_attrs(:article_tag)
@@ -96,7 +93,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Blog do
       assert exist_in?(article_tag2, blog.article_tags)
     end
 
-    @tag :wip
     test "blog can be mirror to other community", ~m(user community community2 blog_attrs)a do
       {:ok, blog} = CMS.create_article(community, :blog, blog_attrs, user)
 
@@ -114,7 +110,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Blog do
       assert exist_in?(community2, blog.communities)
     end
 
-    @tag :wip
     test "blog can be mirror to other community with tags",
          ~m(user community community2 blog_attrs)a do
       article_tag_attrs = mock_attrs(:article_tag)
@@ -150,7 +145,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Blog do
       assert not exist_in?(community3, blog.communities)
     end
 
-    @tag :wip
     test "blog can be unmirror from community with tags",
          ~m(user community community2 community3 blog_attrs)a do
       article_tag_attrs2 = mock_attrs(:article_tag)
@@ -182,7 +176,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Blog do
       assert reason |> is_error?(:mirror_article)
     end
 
-    @tag :wip
     test "blog can be move to blackhole", ~m(community blog_attrs user)a do
       {:ok, blackhole_community} = db_insert(:community, %{raw: "blackhole"})
 
@@ -198,7 +191,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Blog do
       assert exist_in?(blackhole_community, blog.communities)
     end
 
-    @tag :wip
     test "blog can be move to blackhole with tags", ~m(community blog_attrs user)a do
       {:ok, blackhole_community} = db_insert(:community, %{raw: "blackhole"})
 

@@ -26,7 +26,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Repo do
       assert repo.original_community_id == community.id
     end
 
-    @tag :wip
     test "repo can be move to other community", ~m(user community community2 repo_attrs)a do
       {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
       assert repo.original_community_id == community.id
@@ -38,7 +37,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Repo do
       assert exist_in?(community2, repo.communities)
     end
 
-    @tag :wip
     test "tags should be clean after repo move to other community",
          ~m(user community community2 repo_attrs)a do
       article_tag_attrs = mock_attrs(:article_tag)
@@ -64,7 +62,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Repo do
       assert exist_in?(community2, repo.communities)
     end
 
-    @tag :wip
     test "repo move to other community with new tag",
          ~m(user community community2 repo_attrs)a do
       article_tag_attrs0 = mock_attrs(:article_tag)
@@ -97,7 +94,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Repo do
       assert exist_in?(article_tag2, repo.article_tags)
     end
 
-    @tag :wip
     test "repo can be mirror to other community", ~m(user community community2 repo_attrs)a do
       {:ok, repo} = CMS.create_article(community, :repo, repo_attrs, user)
 
@@ -115,7 +111,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Repo do
       assert exist_in?(community2, repo.communities)
     end
 
-    @tag :wip
     test "repo can be mirror to other community with tags",
          ~m(user community community2 repo_attrs)a do
       article_tag_attrs = mock_attrs(:article_tag)
@@ -151,7 +146,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Repo do
       assert not exist_in?(community3, repo.communities)
     end
 
-    @tag :wip
     test "repo can be unmirror from community with tags",
          ~m(user community community2 community3 repo_attrs)a do
       article_tag_attrs2 = mock_attrs(:article_tag)
@@ -183,7 +177,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Repo do
       assert reason |> is_error?(:mirror_article)
     end
 
-    @tag :wip
     test "repo can be move to blackhole", ~m(community repo_attrs user)a do
       {:ok, blackhole_community} = db_insert(:community, %{raw: "blackhole"})
 
@@ -199,7 +192,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Repo do
       assert exist_in?(blackhole_community, repo.communities)
     end
 
-    @tag :wip
     test "repo can be move to blackhole with tags", ~m(community repo_attrs user)a do
       {:ok, blackhole_community} = db_insert(:community, %{raw: "blackhole"})
 
