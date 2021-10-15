@@ -116,7 +116,6 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Post do
       }
     }
     """
-    @tag :wip
     test "auth user can move post to blackhole", ~m(post)a do
       {:ok, blackhole_community} = db_insert(:community, %{raw: "blackhole"})
 

@@ -88,7 +88,7 @@ defmodule Helper.Certification do
           ],
       community: [
         "thread.set",
-        "thread.unset",
+        "thread.unset"
       ]
     }
   end
