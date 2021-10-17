@@ -142,6 +142,17 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Operation do
       resolve(&R.CMS.move_article/3)
     end
 
+    @desc "mirror article to home community"
+    field :mirror_to_home, :article do
+      arg(:id, non_null(:id))
+      arg(:thread, :thread, default_value: :post)
+      arg(:article_tags, list_of(:id), default_value: [])
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->homemirror")
+      resolve(&R.CMS.mirror_to_home/3)
+    end
+
     @desc "move article to other community"
     field :move_to_blackhole, :article do
       arg(:id, non_null(:id))

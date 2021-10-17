@@ -68,7 +68,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Works do
       article_tag_attrs = mock_attrs(:article_tag)
       article_tag_attrs2 = mock_attrs(:article_tag)
 
-      {:ok, article_tag0} = CMS.create_article_tag(community, :works, article_tag_attrs, user)
+      {:ok, article_tag0} = CMS.create_article_tag(community, :works, article_tag_attrs0, user)
       {:ok, article_tag} = CMS.create_article_tag(community2, :works, article_tag_attrs, user)
       {:ok, article_tag2} = CMS.create_article_tag(community2, :works, article_tag_attrs2, user)
 
@@ -177,6 +177,78 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Works do
       assert reason |> is_error?(:mirror_article)
     end
 
+    @tag :wip
+    test "works can be mirror to home", ~m(community works_attrs user)a do
+      {:ok, home_community} = db_insert(:community, %{raw: "home"})
+
+      {:ok, works} = CMS.create_article(community, :works, works_attrs, user)
+      assert works.original_community_id == community.id
+
+      {:ok, _} = CMS.mirror_to_home(:works, works.id)
+      {:ok, works} = ORM.find(Works, works.id, preload: [:original_community, :communities])
+
+      assert works.original_community_id == community.id
+      assert works.communities |> length == 2
+
+      assert exist_in?(community, works.communities)
+      assert exist_in?(home_community, works.communities)
+
+      filter = %{page: 1, size: 10, community: community.raw}
+      {:ok, paged_articles} = CMS.paged_articles(:works, filter)
+
+      assert exist_in?(works, paged_articles.entries)
+      assert paged_articles.total_count === 1
+
+      filter = %{page: 1, size: 10, community: home_community.raw}
+      {:ok, paged_articles} = CMS.paged_articles(:works, filter)
+
+      assert exist_in?(works, paged_articles.entries)
+      assert paged_articles.total_count === 1
+    end
+
+    @tag :wip
+    test "works can be mirror to home with tags", ~m(community works_attrs user)a do
+      {:ok, home_community} = db_insert(:community, %{raw: "home"})
+
+      article_tag_attrs0 = mock_attrs(:article_tag)
+      article_tag_attrs = mock_attrs(:article_tag)
+
+      {:ok, article_tag0} =
+        CMS.create_article_tag(home_community, :works, article_tag_attrs0, user)
+
+      {:ok, article_tag} = CMS.create_article_tag(home_community, :works, article_tag_attrs, user)
+
+      {:ok, works} = CMS.create_article(community, :works, works_attrs, user)
+      assert works.original_community_id == community.id
+
+      {:ok, _} = CMS.mirror_to_home(:works, works.id, [article_tag0.id, article_tag.id])
+
+      {:ok, works} =
+        ORM.find(Works, works.id, preload: [:original_community, :communities, :article_tags])
+
+      assert works.original_community_id == community.id
+      assert works.communities |> length == 2
+
+      assert exist_in?(community, works.communities)
+      assert exist_in?(home_community, works.communities)
+
+      assert works.article_tags |> length == 2
+      assert exist_in?(article_tag0, works.article_tags)
+      assert exist_in?(article_tag, works.article_tags)
+
+      filter = %{page: 1, size: 10, community: community.raw}
+      {:ok, paged_articles} = CMS.paged_articles(:works, filter)
+
+      assert exist_in?(works, paged_articles.entries)
+      assert paged_articles.total_count === 1
+
+      filter = %{page: 1, size: 10, community: home_community.raw}
+      {:ok, paged_articles} = CMS.paged_articles(:works, filter)
+
+      assert exist_in?(works, paged_articles.entries)
+      assert paged_articles.total_count === 1
+    end
+
     test "works can be move to blackhole", ~m(community works_attrs user)a do
       {:ok, blackhole_community} = db_insert(:community, %{raw: "blackhole"})
 
@@ -190,6 +262,12 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Works do
       assert works.communities |> length == 1
 
       assert exist_in?(blackhole_community, works.communities)
+
+      filter = %{page: 1, size: 10, community: blackhole_community.raw}
+      {:ok, paged_articles} = CMS.paged_articles(:works, filter)
+
+      assert exist_in?(works, paged_articles.entries)
+      assert paged_articles.total_count === 1
     end
 
     test "works can be move to blackhole with tags", ~m(community works_attrs user)a do
@@ -199,7 +277,7 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Works do
       article_tag_attrs = mock_attrs(:article_tag)
 
       {:ok, article_tag0} =
-        CMS.create_article_tag(blackhole_community, :works, article_tag_attrs, user)
+        CMS.create_article_tag(blackhole_community, :works, article_tag_attrs0, user)
 
       {:ok, article_tag} =
         CMS.create_article_tag(blackhole_community, :works, article_tag_attrs, user)

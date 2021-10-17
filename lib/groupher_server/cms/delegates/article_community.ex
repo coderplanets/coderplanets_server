@@ -134,6 +134,33 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
     end
   end
 
+  @doc """
+  shortcut for mirror article to home page
+  """
+  def mirror_to_home(thread, article_id, article_tag_ids \\ []) do
+    preload = [:communities, :article_tags]
+
+    with {:ok, info} <- match(thread),
+         {:ok, community} <- ORM.find_by(Community, %{raw: "home"}),
+         {:ok, article} <- ORM.find(info.model, article_id, preload: preload) do
+      Multi.new()
+      |> Multi.run(:set_community, fn _, _ ->
+        article
+        |> Ecto.Changeset.change()
+        |> Ecto.Changeset.put_assoc(:communities, article.communities ++ [community])
+        |> Repo.update()
+      end)
+      |> Multi.run(:set_target_tags, fn _, %{set_community: article} ->
+        ArticleTag.set_article_tags(community, thread, article, %{article_tags: article_tag_ids})
+      end)
+      |> Repo.transaction()
+      |> result()
+    end
+  end
+
+  @doc """
+  shortcut for move article to blackhole
+  """
   def move_to_blackhole(thread, article_id, article_tag_ids \\ []) do
     preload = [:communities, :original_community, :article_tags]
 

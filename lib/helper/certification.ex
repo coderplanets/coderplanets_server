@@ -69,6 +69,7 @@ defmodule Helper.Certification do
           [
             "root",
             "blackeye",
+            "homemirror",
             "system_accountant",
             "system_notification.publish",
             "stamp_passport",

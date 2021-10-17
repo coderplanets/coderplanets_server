@@ -109,6 +109,29 @@ defmodule GroupherServer.Test.Mutation.ArticleCommunity.Post do
       assert community2.id in assoc_communities
     end
 
+    @mirror_to_home """
+    mutation($id: ID!, $thread: Thread, $articleTags: [Id]) {
+      mirrorToHome(id: $id, thread: $thread, articleTags: $articleTags) {
+        id
+      }
+    }
+    """
+    @tag :wip
+    test "auth user can mirror post home", ~m(post)a do
+      {:ok, home_community} = db_insert(:community, %{raw: "home"})
+
+      variables = %{id: post.id, thread: "POST"}
+
+      passport_rules = %{"homemirror" => true}
+      rule_conn = simu_conn(:user, cms: passport_rules)
+
+      rule_conn |> mutation_result(@mirror_to_home, variables, "mirrorToHome")
+
+      {:ok, post} = ORM.find(Post, post.id, preload: [:communities, :article_tags])
+
+      assert exist_in?(home_community, post.communities)
+    end
+
     @move_to_blackhole """
     mutation($id: ID!, $thread: Thread, $articleTags: [Id]) {
       moveToBlackhole(id: $id, thread: $thread, articleTags: $articleTags) {
