@@ -211,10 +211,11 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
 
         ORM.update(comment, %{upvotes_count: Enum.max([upvotes_count, 0])})
       end)
-      |> Multi.run(:check_article_author_upvoted, fn _, %{desc_upvotes_count: updated_comment} ->
-        update_article_author_upvoted_info(updated_comment, user_id)
+      |> Multi.run(:unset_article_author_upvoted, fn _, %{desc_upvotes_count: updated_comment} ->
+        meta = updated_comment.meta |> Map.put(:is_article_author_upvoted, false)
+        updated_comment |> ORM.update_meta(meta)
       end)
-      |> Multi.run(:viewer_states, fn _, %{check_article_author_upvoted: comment} ->
+      |> Multi.run(:viewer_states, fn _, %{unset_article_author_upvoted: comment} ->
         viewer_has_upvoted = Enum.member?(comment.meta.upvoted_user_ids, user_id)
         viewer_has_reported = Enum.member?(comment.meta.reported_user_ids, user_id)
 
