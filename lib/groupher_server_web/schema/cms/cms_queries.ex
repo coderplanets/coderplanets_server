@@ -87,6 +87,12 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.paged_article_tags/3)
     end
 
+    field :one_comment, :comment do
+      arg(:id, non_null(:id))
+
+      resolve(&R.CMS.one_comment/3)
+    end
+
     @desc "get paged article comments"
     field :paged_comments, :paged_comments do
       arg(:id, non_null(:id))

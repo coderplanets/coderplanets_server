@@ -177,7 +177,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Meetup do
       assert reason |> is_error?(:mirror_article)
     end
 
-    @tag :wip
     test "meetup can be mirror to home", ~m(community meetup_attrs user)a do
       {:ok, home_community} = db_insert(:community, %{raw: "home"})
 
@@ -206,7 +205,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Meetup do
       assert paged_articles.total_count === 1
     end
 
-    @tag :wip
     test "meetup can be mirror to home with tags", ~m(community meetup_attrs user)a do
       {:ok, home_community} = db_insert(:community, %{raw: "home"})
 

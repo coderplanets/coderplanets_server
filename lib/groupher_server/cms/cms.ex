@@ -152,6 +152,9 @@ defmodule GroupherServer.CMS do
 
   # Comment CURD
 
+  defdelegate one_comment(id), to: CommentCurd
+  defdelegate one_comment(id, user), to: CommentCurd
+
   defdelegate update_user_in_comments_participants(user), to: CommentCurd
   defdelegate paged_comments(thread, article_id, filters, mode), to: CommentCurd
   defdelegate paged_comments(thread, article_id, filters, mode, user), to: CommentCurd

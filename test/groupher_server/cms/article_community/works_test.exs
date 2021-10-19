@@ -177,7 +177,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Works do
       assert reason |> is_error?(:mirror_article)
     end
 
-    @tag :wip
     test "works can be mirror to home", ~m(community works_attrs user)a do
       {:ok, home_community} = db_insert(:community, %{raw: "home"})
 
@@ -206,7 +205,6 @@ defmodule GroupherServer.Test.CMS.ArticleCommunity.Works do
       assert paged_articles.total_count === 1
     end
 
-    @tag :wip
     test "works can be mirror to home with tags", ~m(community works_attrs user)a do
       {:ok, home_community} = db_insert(:community, %{raw: "home"})
 

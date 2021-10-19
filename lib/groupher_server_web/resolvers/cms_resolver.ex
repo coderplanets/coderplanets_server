@@ -308,6 +308,14 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   # #######################
   # comemnts ..
   # #######################
+  def one_comment(_root, ~m(id)a, %{context: %{cur_user: user}}) do
+    CMS.one_comment(id, user)
+  end
+
+  def one_comment(_root, ~m(id)a, _) do
+    CMS.one_comment(id)
+  end
+
   def paged_comments(_root, ~m(id thread filter mode)a, %{context: %{cur_user: user}}) do
     case mode do
       :replies -> CMS.paged_comments(thread, id, filter, :replies, user)

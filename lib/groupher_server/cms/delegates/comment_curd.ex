@@ -34,9 +34,24 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   @archive_threshold get_config(:article, :archive_threshold)
 
   @doc """
+  get spec comment by id
+  """
+  def one_comment(id), do: ORM.find(Comment, id)
+
+  def one_comment(id, %User{} = user) do
+    with {:ok, comment} <- ORM.find(Comment, id) do
+      %{entries: [comment]}
+      |> mark_viewer_emotion_states(user)
+      |> mark_viewer_has_upvoted(user)
+      |> Map.get(:entries)
+      |> List.first()
+      |> done
+    end
+  end
+
+  @doc """
   [timeline-mode] list paged article comments
   """
-
   def paged_comments(thread, article_id, filters, mode, user \\ nil)
 
   def paged_comments(thread, article_id, filters, :timeline, user) do

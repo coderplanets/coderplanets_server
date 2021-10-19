@@ -19,6 +19,49 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
     {:ok, ~m(user_conn guest_conn community post user user2)a}
   end
 
+  @query """
+  query($id: ID!) {
+    oneComment(id: $id) {
+      id
+      body
+      isArchived
+      archivedAt
+      viewerHasUpvoted
+      emotions {
+        downvoteCount
+        viewerHasDownvoteed
+      }
+    }
+  }
+  """
+  @tag :wip
+  test "can get one comment by id", ~m(guest_conn post user)a do
+    thread = :post
+    {:ok, comment} = CMS.create_comment(thread, post.id, mock_comment(), user)
+
+    variables = %{id: comment.id}
+    results = guest_conn |> query_result(@query, variables, "oneComment")
+
+    # IO.inspect(results, label: "oneComment")
+    assert results["id"] == to_string(comment.id)
+  end
+
+  @tag :wip
+  test "can get one comment by id with viewer states", ~m(user_conn post user)a do
+    thread = :post
+    {:ok, comment} = CMS.create_comment(thread, post.id, mock_comment(), user)
+    {:ok, _} = CMS.upvote_comment(comment.id, user)
+    {:ok, _} = CMS.emotion_to_comment(comment.id, :downvote, user)
+
+    variables = %{id: comment.id}
+    results = user_conn |> query_result(@query, variables, "oneComment")
+
+    # IO.inspect(results, label: "oneComment")
+    assert results["id"] == to_string(comment.id)
+    assert results["viewerHasUpvoted"]
+    assert results["emotions"]["viewerHasDownvoteed"]
+  end
+
   describe "[baisc article post comment]" do
     @query """
     query($id: ID!) {
@@ -30,7 +73,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       }
     }
     """
-
     test "guest user can get basic archive info", ~m(guest_conn post user)a do
       thread = :post
 
