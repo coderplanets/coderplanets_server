@@ -5,7 +5,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Notify do
   import GroupherServer.CMS.Delegate.Helper,
     only: [preload_author: 1, article_of: 1, thread_of: 1]
 
-  alias GroupherServer.{Accounts, CMS, Delivery}
+  alias GroupherServer.{Accounts, CMS, Delivery, Repo}
 
   alias Accounts.Model.User
   alias CMS.Model.Comment
@@ -31,6 +31,8 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Notify do
 
   # 回复评论是特殊情况，单独处理
   def handle(:reply, %Comment{} = reply_comment, %User{} = from_user) do
+    reply_comment = Repo.preload(reply_comment, reply_to: :author)
+
     {:ok, article} = article_of(reply_comment)
     {:ok, article} = preload_author(article)
     {:ok, thread} = thread_of(article)

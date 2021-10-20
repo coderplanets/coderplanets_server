@@ -34,7 +34,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
     }
   }
   """
-  @tag :wip
   test "can get one comment by id", ~m(guest_conn post user)a do
     thread = :post
     {:ok, comment} = CMS.create_comment(thread, post.id, mock_comment(), user)
@@ -46,7 +45,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
     assert results["id"] == to_string(comment.id)
   end
 
-  @tag :wip
   test "can get one comment by id with viewer states", ~m(user_conn post user)a do
     thread = :post
     {:ok, comment} = CMS.create_comment(thread, post.id, mock_comment(), user)
@@ -156,7 +154,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
             meta {
               isArticleAuthorUpvoted
             }
-            replyToId
             replyTo {
               id
               bodyHtml
@@ -171,6 +168,14 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
             replies {
               id
               bodyHtml
+              replyTo {
+                id
+                author {
+                  login
+                  nickname
+                }
+              }
+              repliesCount
               author {
                 id
                 login
@@ -185,9 +190,9 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
         }
     }
     """
-
+    @tag :wip
     test "list comments with default replies-mode", ~m(guest_conn post user user2)a do
-      total_count = 10
+      total_count = 3
       page_size = 20
       thread = :post
 
@@ -201,7 +206,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       random_comment = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
 
       {:ok, replyed_comment_1} = CMS.reply_comment(random_comment.id, mock_comment(), user2)
-
       {:ok, replyed_comment_2} = CMS.reply_comment(random_comment.id, mock_comment(), user2)
 
       variables = %{id: post.id, thread: "POST", filter: %{page: 1, size: page_size}}
@@ -212,11 +216,14 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
       assert not exist_in?(replyed_comment_2, results["entries"])
 
       random_comment = Enum.find(results["entries"], &(&1["id"] == to_string(random_comment.id)))
+
       assert random_comment["replies"] |> length == 2
       assert random_comment["repliesCount"] == 2
 
       assert random_comment["replies"] |> List.first() |> Map.get("id") ==
                to_string(replyed_comment_1.id)
+
+      assert not is_nil(random_comment["replies"] |> List.first() |> Map.get("replyTo"))
 
       assert random_comment["replies"] |> List.last() |> Map.get("id") ==
                to_string(replyed_comment_2.id)

@@ -166,8 +166,7 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
       field(:replies_count, :integer)
       field(:thread, :string)
       field(:viewer_has_upvoted, :boolean)
-      field(:thread, :string)
-      field(:replies_count, :integer)
+      field(:reply_to, :comment, resolve: dataloader(CMS, :reply_to))
       field(:reply_to_id, :id)
 
       field(:is_deleted, :boolean)

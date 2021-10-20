@@ -157,6 +157,7 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert List.first(comment.upvotes).user_id == user.id
     end
 
+    @tag :wip
     test "user can upvote a post comment twice is fine", ~m(user post)a do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
 

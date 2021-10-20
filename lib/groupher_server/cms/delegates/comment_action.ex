@@ -15,7 +15,8 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
       add_participant_to_article: 2,
       do_create_comment: 4,
       update_comments_count: 2,
-      can_comment?: 2
+      can_comment?: 2,
+      paged_comment_replies: 2
     ]
 
   import GroupherServer.CMS.Helper.Matcher
@@ -120,12 +121,6 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         CommentReply
         |> ORM.create(%{comment_id: replyed_comment.id, reply_to_id: replying_comment.id})
       end)
-      |> Multi.run(:inc_replies_count, fn _, _ ->
-        ORM.inc_field(Comment, replying_comment, :replies_count)
-      end)
-      |> Multi.run(:add_replies_ifneed, fn _, %{create_reply_comment: replyed_comment} ->
-        add_replies_ifneed(parent_comment, replyed_comment)
-      end)
       |> Multi.run(:add_participator, fn _, _ ->
         add_participant_to_article(article, user)
       end)
@@ -139,7 +134,18 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
         |> Ecto.Changeset.put_assoc(:reply_to, replying_comment)
         |> Repo.update()
       end)
-      |> Multi.run(:after_hooks, fn _, %{create_reply_comment: replyed_comment} ->
+      |> Multi.run(:add_replies_ifneed, fn _, %{add_reply_to: replyed_comment} ->
+        add_replies_ifneed(parent_comment, replyed_comment)
+      end)
+      |> Multi.run(:inc_replies_count, fn _, %{add_reply_to: replyed_comment} ->
+        filter = %{page: 1, size: 1}
+
+        with {:ok, paged_replies} <- paged_comment_replies(parent_comment.id, filter),
+             {:ok, _} <- ORM.update(parent_comment, %{replies_count: paged_replies.total_count}) do
+          {:ok, replyed_comment}
+        end
+      end)
+      |> Multi.run(:after_hooks, fn _, %{add_reply_to: replyed_comment} ->
         Later.run({Hooks.Notify, :handle, [:reply, replyed_comment, user]})
         Later.run({Hooks.Mention, :handle, [replyed_comment]})
       end)
@@ -390,18 +396,18 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
   end
 
   defp result({:ok, %{create_comment: result}}), do: {:ok, result}
-  defp result({:ok, %{add_reply_to: result}}), do: {:ok, result}
+  defp result({:ok, %{inc_replies_count: result}}), do: {:ok, result}
   defp result({:ok, %{sync_embed_replies: result}}), do: {:ok, result}
   defp result({:ok, %{update_comment_flag: result}}), do: {:ok, result}
   defp result({:ok, %{delete_comment: result}}), do: {:ok, result}
   defp result({:ok, %{fold_comment: result}}), do: {:ok, result}
 
-  defp result({:error, :create_comment, result, _steps}) do
-    raise_error(:create_comment, result)
+  defp result({:error, :create_comment, _result, _steps}) do
+    raise_error(:create_comment, "create comment error")
   end
 
-  defp result({:error, :create_comment_upvote, result, _steps}) do
-    raise_error(:comment_already_upvote, result)
+  defp result({:error, :create_comment_upvote, _result, _steps}) do
+    raise_error(:comment_already_upvote, "already upvoted")
   end
 
   defp result({:error, :add_participator, result, _steps}) do
