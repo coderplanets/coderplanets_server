@@ -324,6 +324,13 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:is_solution, :boolean)
   end
 
+  object :comments_list_state do
+    field(:total_count, :integer)
+    field(:participants_count, :integer)
+    field(:participants, list_of(:common_user))
+    field(:is_viewer_joined, :boolean)
+  end
+
   ####### reports
   object :abuse_report_case do
     field(:reason, :string)

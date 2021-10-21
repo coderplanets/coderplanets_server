@@ -152,6 +152,8 @@ defmodule GroupherServer.CMS do
 
   # Comment CURD
 
+  defdelegate comments_state(thread, article_id), to: CommentCurd
+  defdelegate comments_state(thread, article_id, user), to: CommentCurd
   defdelegate one_comment(id), to: CommentCurd
   defdelegate one_comment(id, user), to: CommentCurd
 

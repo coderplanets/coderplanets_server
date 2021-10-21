@@ -26,6 +26,45 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
     {:ok, ~m(community user user2 user3 post)a}
   end
 
+  describe "[comments state]" do
+    test "can get basic state", ~m(user post)a do
+      {:ok, _} = CMS.create_comment(:post, post.id, mock_comment(), user)
+      {:ok, _} = CMS.create_comment(:post, post.id, mock_comment(), user)
+
+      {:ok, state} = CMS.comments_state(:post, post.id)
+
+      assert state.participants_count == 1
+      assert state.total_count == 2
+
+      assert state.participants |> length == 1
+      assert not state.is_viewer_joined
+    end
+
+    test "can get viewer joined state", ~m(user post)a do
+      {:ok, _} = CMS.create_comment(:post, post.id, mock_comment(), user)
+      {:ok, _} = CMS.create_comment(:post, post.id, mock_comment(), user)
+
+      {:ok, state} = CMS.comments_state(:post, post.id, user)
+
+      assert state.participants_count == 1
+      assert state.total_count == 2
+      assert state.participants |> length == 1
+      assert state.is_viewer_joined
+    end
+
+    test "can get viewer joined state 2", ~m(user user2 user3 post)a do
+      {:ok, _} = CMS.create_comment(:post, post.id, mock_comment(), user2)
+      {:ok, _} = CMS.create_comment(:post, post.id, mock_comment(), user3)
+
+      {:ok, state} = CMS.comments_state(:post, post.id, user)
+
+      assert state.participants_count == 2
+      assert state.total_count == 2
+      assert state.participants |> length == 2
+      assert not state.is_viewer_joined
+    end
+  end
+
   describe "[basic article comment]" do
     test "post are supported by article comment.", ~m(user post)a do
       {:ok, post_comment_1} = CMS.create_comment(:post, post.id, mock_comment(), user)
@@ -157,7 +196,6 @@ defmodule GroupherServer.Test.CMS.Comments.PostComment do
       assert List.first(comment.upvotes).user_id == user.id
     end
 
-    @tag :wip
     test "user can upvote a post comment twice is fine", ~m(user post)a do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
 

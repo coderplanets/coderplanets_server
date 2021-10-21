@@ -20,6 +20,36 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
   end
 
   @query """
+  query($id: ID!, $thread: Thread) {
+    commentsState(id: $id, thread: $thread) {
+      totalCount
+      isViewerJoined
+      participantsCount
+
+      participants {
+        login
+        nickname
+        avatar
+      }
+    }
+  }
+  """
+  test "can get basic comments state", ~m(guest_conn user_conn post user user2)a do
+    {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
+
+    variables = %{id: post.id, thread: "POST"}
+    results = guest_conn |> query_result(@query, variables, "commentsState")
+
+    assert results["participantsCount"] == 1
+    assert results["totalCount"] == 1
+    assert not results["isViewerJoined"]
+    assert user_exist_in?(user, results["participants"])
+
+    results = user_conn |> query_result(@query, variables, "commentsState")
+    assert results["isViewerJoined"]
+  end
+
+  @query """
   query($id: ID!) {
     oneComment(id: $id) {
       id
@@ -190,7 +220,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
         }
     }
     """
-    @tag :wip
     test "list comments with default replies-mode", ~m(guest_conn post user user2)a do
       total_count = 3
       page_size = 20

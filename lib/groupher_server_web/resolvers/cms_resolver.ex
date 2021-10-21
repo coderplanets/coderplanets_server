@@ -308,6 +308,14 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   # #######################
   # comemnts ..
   # #######################
+  def comments_state(_root, ~m(thread id)a, %{context: %{cur_user: user}}) do
+    CMS.comments_state(thread, id, user)
+  end
+
+  def comments_state(_root, ~m(thread id)a, _) do
+    CMS.comments_state(thread, id)
+  end
+
   def one_comment(_root, ~m(id)a, %{context: %{cur_user: user}}) do
     CMS.one_comment(id, user)
   end

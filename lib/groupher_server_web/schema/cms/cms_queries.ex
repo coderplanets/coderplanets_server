@@ -87,6 +87,15 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.paged_article_tags/3)
     end
 
+    @desc "got basic commnets state"
+    field :comments_state, :comments_list_state do
+      arg(:id, non_null(:id))
+      arg(:thread, :thread, default_value: :post)
+
+      resolve(&R.CMS.comments_state/3)
+    end
+
+    @desc "got spec commnet by id"
     field :one_comment, :comment do
       arg(:id, non_null(:id))
 

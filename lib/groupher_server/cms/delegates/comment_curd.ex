@@ -33,6 +33,44 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
 
   @archive_threshold get_config(:article, :archive_threshold)
 
+  def comments_state(thread, article_id) do
+    filter = %{page: 1, size: 20}
+
+    with {:ok, thread_query} <- match(thread, :query, article_id),
+         {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, article_id),
+         {:ok, paged_participants} <- do_paged_comments_participants(thread_query, filter) do
+      %{
+        total_count: article.comments_count,
+        participants_count: article.comments_participants_count,
+        participants: paged_participants.entries,
+        is_viewer_joined: false
+      }
+      |> done
+    end
+  end
+
+  def comments_state(thread, article_id, user) do
+    with {:ok, thread_query} <- match(thread, :query, article_id),
+         {:ok, state} <- comments_state(thread, article_id) do
+      user_joined =
+        case state.participants |> Enum.any?(&(&1.id == user.id)) do
+          true ->
+            true
+
+          false ->
+            from(c in Comment)
+            |> where(^thread_query)
+            |> where([c], c.author_id == ^user.id)
+            |> Repo.all()
+            |> length
+            |> Kernel.>(0)
+        end
+
+      state |> Map.merge(%{is_viewer_joined: user_joined}) |> done
+    end
+  end
+
   @doc """
   get spec comment by id
   """
