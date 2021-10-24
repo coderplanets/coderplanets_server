@@ -84,6 +84,8 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     general_article_fields()
     comments_fields()
 
+    field(:rss, :string)
+
     timestamp_fields(:article)
   end
 

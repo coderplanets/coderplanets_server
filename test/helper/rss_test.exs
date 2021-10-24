@@ -30,8 +30,28 @@ defmodule GroupherServer.Test.Helper.RSSTest do
       }
 
       {:ok, blog} = CMS.create_blog(community, blog_attrs, user)
+
+      assert blog.rss == @rss
       assert blog.title == title
       assert blog.link_addr == link_addr
+    end
+
+    @tag :wip
+    test "can update rss author" do
+      {:ok, feed} = CMS.blog_rss_info(@rss)
+      feed = feed |> Map.merge(%{rss: @rss})
+      {:ok, _rss_record} = CMS.create_blog_rss(feed)
+
+      {:ok, rss_record} =
+        CMS.update_rss_author(@rss, %{
+          name: "mydearxym",
+          twitter: "https://twitter.com/xxx",
+          github: "https://github.com/xxx"
+        })
+
+      assert rss_record.author.name == "mydearxym"
+      assert rss_record.author.twitter == "https://twitter.com/xxx"
+      assert rss_record.author.github == "https://github.com/xxx"
     end
 
     test "can create blog with no-exsit rss record", ~m(community user)a do

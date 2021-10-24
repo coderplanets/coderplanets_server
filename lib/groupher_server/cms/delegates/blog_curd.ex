@@ -22,7 +22,8 @@ defmodule GroupherServer.CMS.Delegate.BlogCURD do
     with {:ok, feed} <- ORM.find_by(BlogRSS, %{rss: rss}) do
       {:ok, feed}
     else
-      _ -> fetch_fresh_rssinfo_and_cache(rss)
+      _ ->
+        fetch_fresh_rssinfo_and_cache(rss)
     end
   end
 
@@ -34,6 +35,12 @@ defmodule GroupherServer.CMS.Delegate.BlogCURD do
     ##  1.2 如不存在，则创建一条 RSS
     with {:ok, feed} <- blog_rss_info(attrs.rss) do
       do_create_blog(community, attrs, user, feed)
+    end
+  end
+
+  def update_rss_author(rss, attrs) do
+    with {:ok, feed} <- ORM.find_by(BlogRSS, %{rss: rss}) do
+      ORM.update_embed(feed, :author, Map.drop(attrs, [:rss]))
     end
   end
 
@@ -106,6 +113,7 @@ defmodule GroupherServer.CMS.Delegate.BlogCURD do
   defp build_blog_attrs(attrs, blog_author, selected_feed) do
     attrs
     |> Map.merge(%{
+      rss: attrs.rss,
       link_addr: selected_feed.link_addr,
       published: selected_feed.published,
       blog_author: blog_author,

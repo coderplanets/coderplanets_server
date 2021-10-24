@@ -543,8 +543,8 @@ defmodule GroupherServer.Support.Factory do
   def mock_rss_addr() do
     # "https://www.xiabingbao.com/atom.xml" # 不规范
     # "https://rsshub.app/blogs/wangyin"
-    "https://www.zhangxinxu.com/wordpress/feed/"
-    # "https://overreacted.io/rss.xml"
+    # "https://www.zhangxinxu.com/wordpress/feed/"
+    "https://overreacted.io/rss.xml"
     # "https://www.ruanyifeng.com/blog/atom.xml"
     # "https://lutaonan.com/rss.xml"
   end
