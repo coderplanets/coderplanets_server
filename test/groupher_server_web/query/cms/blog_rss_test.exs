@@ -23,7 +23,6 @@ defmodule GroupherServer.Test.Query.CMS.BlogRSS do
     }
   }
   """
-  @tag :wip
   test "update rss author info", ~m(user_conn)a do
     {:ok, feed} = CMS.blog_rss_info(@rss)
     feed = feed |> Map.merge(%{rss: @rss})

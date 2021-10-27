@@ -72,6 +72,24 @@ defmodule GroupherServer.Test.Articles.Works do
       assert works.working_mode == "fulltime"
     end
 
+    @tag :wip
+    test "create works with exsit communit should have same attrs", ~m(user works_attrs)a do
+      {:ok, _community} = db_insert(:community, %{title: "Elixir", raw: "elixir"})
+
+      attrs =
+        works_attrs
+        |> Map.merge(%{
+          techstacks: ["elixir", "React"]
+        })
+
+      {:ok, works} = CMS.create_works(attrs, user)
+
+      techstack = works.techstacks |> List.first()
+
+      assert techstack.title == "Elixir"
+      assert techstack.raw == "elixir"
+    end
+
     test "update works with full attrs", ~m(user works_attrs)a do
       {:ok, works} = CMS.create_works(works_attrs, user)
 

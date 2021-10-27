@@ -34,8 +34,8 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
     }
   }
   """
-  test "can get basic comments state", ~m(guest_conn user_conn post user user2)a do
-    {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
+  test "can get basic comments state", ~m(guest_conn user_conn post user)a do
+    {:ok, _comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
 
     variables = %{id: post.id, thread: "POST"}
     results = guest_conn |> query_result(@query, variables, "commentsState")

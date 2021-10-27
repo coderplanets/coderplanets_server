@@ -36,7 +36,6 @@ defmodule GroupherServer.Test.Helper.RSSTest do
       assert blog.link_addr == link_addr
     end
 
-    @tag :wip
     test "can update rss author" do
       {:ok, feed} = CMS.blog_rss_info(@rss)
       feed = feed |> Map.merge(%{rss: @rss})

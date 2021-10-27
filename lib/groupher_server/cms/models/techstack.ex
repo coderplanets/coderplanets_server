@@ -11,13 +11,14 @@ defmodule GroupherServer.CMS.Model.Techstack do
 
   @timestamps_opts [type: :utc_datetime_usec]
 
-  @required_fields ~w(title)a
+  @required_fields ~w(title raw)a
   @optional_fields ~w(logo desc home_link community_link category)a
 
   @type t :: %Techstack{}
   schema "cms_techstacks" do
     ## mailstone
     field(:title, :string)
+    field(:raw, :string)
     field(:logo, :string)
     field(:desc, :string)
 

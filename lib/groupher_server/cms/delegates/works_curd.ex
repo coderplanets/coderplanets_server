@@ -131,19 +131,21 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
         {:ok, community} ->
           %{
             title: community.title,
+            raw: community.raw,
             logo: community.logo,
             community_link: "/#{community.raw}",
             desc: community.desc
           }
 
         {:error, _} ->
-          %{title: title}
+          %{title: title, raw: String.downcase(title)}
       end
 
     ORM.create(Techstack, attrs)
   end
 
-  defp result({:ok, %{create_works: result}}), do: {:ok, result}
+  # defp result({:ok, %{create_works: result}}), do: {:ok, result}
+  defp result({:ok, %{update_works_fields: result}}), do: {:ok, result}
   defp result({:ok, %{update_works: result}}), do: {:ok, result}
 
   defp result({:error, :create_works, _result, _steps}) do
