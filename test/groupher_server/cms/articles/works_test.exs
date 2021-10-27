@@ -72,7 +72,6 @@ defmodule GroupherServer.Test.Articles.Works do
       assert works.working_mode == "fulltime"
     end
 
-    @tag :wip
     test "create works with exsit communit should have same attrs", ~m(user works_attrs)a do
       {:ok, _community} = db_insert(:community, %{title: "Elixir", raw: "elixir"})
 

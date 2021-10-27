@@ -152,6 +152,7 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
     @desc "search communities by title"
     field :search_communities, :paged_communities do
       arg(:title, non_null(:string))
+      arg(:category, :string)
 
       resolve(&R.CMS.search_communities/3)
     end

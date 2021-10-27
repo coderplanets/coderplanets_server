@@ -219,6 +219,7 @@ defmodule GroupherServer.CMS do
   # search
   defdelegate search_articles(thread, args), to: Search
   defdelegate search_communities(args), to: Search
+  defdelegate search_communities(args, category), to: Search
 
   # seeds
   defdelegate seed_communities(opt), to: Seeds
