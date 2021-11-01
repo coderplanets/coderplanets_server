@@ -12,7 +12,7 @@ defmodule GroupherServer.CMS.Model.City do
   @timestamps_opts [type: :utc_datetime_usec]
 
   @required_fields ~w(title)a
-  @optional_fields ~w(logo desc link)a
+  @optional_fields ~w(logo desc raw)a
 
   @type t :: %City{}
   schema "cms_cities" do
@@ -20,7 +20,7 @@ defmodule GroupherServer.CMS.Model.City do
     field(:title, :string)
     field(:logo, :string)
     field(:desc, :string)
-    field(:link, :string)
+    field(:raw, :string)
 
     timestamps()
   end

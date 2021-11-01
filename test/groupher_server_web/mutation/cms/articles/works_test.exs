@@ -25,7 +25,9 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
     @create_works_query """
     mutation (
       $title: String!,
-      $body: String,
+      $desc: String!,
+      $homeLink: String!,
+      $body: String!,
       $communityId: ID!,
       $profitMode: ProfitMode,
       $workingMode: WorkingMode,
@@ -37,6 +39,8 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
      ) {
       createWorks(
         title: $title,
+        desc: $desc,
+        homeLink: $homeLink,
         body: $body,
         communityId: $communityId,
         profitMode: $profitMode,
@@ -49,12 +53,13 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
         ) {
           id
           title
+          homeLink
           profitMode
           workingMode
           cities {
             title
             logo
-            link
+            raw
           }
           techstacks {
             title
@@ -82,12 +87,15 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       }
     }
     """
+
     test "create works with valid attrs and make sure author exsit", ~m(community)a do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
       works_attr =
         mock_attrs(:works, %{
+          desc: "cool works",
+          homeLink: "homeLink",
           profitMode: "FREE",
           workingMode: "FULLTIME",
           cities: ["chengdu", "xiamen"],
@@ -116,11 +124,15 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
 
       variables = works_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
 
-      created = user_conn |> mutation_result(@create_works_query, variables, "createWorks")
+      created =
+        user_conn |> mutation_result(@create_works_query, variables, "createWorks", :debug)
 
       {:ok, found} = ORM.find(Works, created["id"])
 
       assert created["id"] == to_string(found.id)
+      assert created["desc"] == "cool works"
+      assert created["homeLink"] == "homeLink"
+
       assert created["profitMode"] == "FREE"
       assert created["workingMode"] == "FULLTIME"
       assert created["originalCommunity"]["id"] == to_string(community.id)
@@ -207,7 +219,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
         cities {
           title
           logo
-          link
+          raw
         }
         techstacks {
           title
@@ -231,6 +243,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       }
     }
     """
+    @tag :wip
     test "works can be update by owner", ~m(owner_conn works)a do
       unique_num = System.unique_integer([:positive, :monotonic])
 

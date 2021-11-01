@@ -408,19 +408,35 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     # unique_constraint: avoid race conditions, make sure user_id unique
     # foreign_key_constraint: check foreign key: user_id exsit or not
     # see alos no_assoc_constraint in https://hexdocs.pm/ecto/Ecto.Changeset.html
-    %Author{user_id: user.id}
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.unique_constraint(:user_id)
-    |> Ecto.Changeset.foreign_key_constraint(:user_id)
-    |> Repo.insert()
-    |> handle_existing_author()
+    case ORM.find_by(Author, user_id: user.id) do
+      {:ok, author} ->
+        {:ok, author}
+
+      {:error, _} ->
+        %Author{user_id: user.id}
+        |> Ecto.Changeset.change()
+        |> Ecto.Changeset.unique_constraint(:user_id)
+        |> Ecto.Changeset.foreign_key_constraint(:user_id)
+        |> Repo.insert()
+    end
+
+    # %Author{user_id: user.id}
+    # |> Ecto.Changeset.change()
+    # |> Ecto.Changeset.unique_constraint(:user_id)
+    # |> Ecto.Changeset.foreign_key_constraint(:user_id)
+    # |> Repo.insert()
+    # |> handle_existing_author()
   end
 
-  defp handle_existing_author({:ok, author}), do: {:ok, author}
+  # defp handle_existing_author({:ok, author}), do: {:ok, author}
 
-  defp handle_existing_author({:error, changeset}) do
-    ORM.find_by(Author, user_id: changeset.data.user_id)
-  end
+  # defp handle_existing_author({:error, %Ecto.Changeset{changes: %{user_id: user_id}}}) do
+  #   ORM.find_by(Author, user_id: user_id) |> IO.inspect(label: "after f2")
+  # end
+
+  # defp handle_existing_author({:error, changeset}) do
+  #   ORM.find_by(Author, user_id: changeset.data.user_id)
+  # end
 
   defp add_pin_articles_ifneed(articles, querable, %{community: community} = filter) do
     thread = module_to_atom(querable)

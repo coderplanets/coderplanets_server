@@ -15,13 +15,14 @@ defmodule GroupherServer.CMS.Model.Works do
 
   @required_fields ~w(title digest)a
   @article_cast_fields general_article_cast_fields()
-  @optional_fields ~w(home_link profit_mode working_mode community_link interview_link)a ++
+  @optional_fields ~w(desc home_link profit_mode working_mode community_link interview_link)a ++
                      @article_cast_fields
 
   @type t :: %Works{}
   schema "cms_works" do
     ## mailstone
     field(:home_link, :string)
+    field(:desc, :string)
     # ...
     field(:profit_mode, :string)
     # fulltime / parttime

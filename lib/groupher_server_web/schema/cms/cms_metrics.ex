@@ -309,28 +309,30 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
 
   # works-spec
   enum :profit_mode do
-    value(:free)
     value(:ad)
     value(:freemium)
-    value(:paid)
+    value(:free)
+    value(:product)
+    value(:others)
   end
 
   enum :working_mode do
     value(:fulltime)
-    value(:parttime)
+    value(:side_project)
   end
 
   object :city do
     field(:title, :string)
     field(:logo, :string)
     field(:desc, :string)
-    field(:link, :string)
+    field(:raw, :string)
   end
 
   object :techstack do
     field(:title, :string)
     field(:logo, :string)
     field(:desc, :string)
+    field(:raw, :string)
 
     field(:home_link, :string)
     field(:community_link, :string)

@@ -36,11 +36,11 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
     attrs = attrs |> atom_values_to_upcase
 
     Multi.new()
-    |> Multi.run(:update_works_fields, fn _, _ ->
-      update_works_fields(works, attrs)
-    end)
-    |> Multi.run(:update_works, fn _, %{update_works_fields: works} ->
+    |> Multi.run(:update_works, fn _, _ ->
       update_article(works, attrs)
+    end)
+    |> Multi.run(:update_works_fields, fn _, %{update_works: works} ->
+      update_works_fields(works, attrs)
     end)
     |> Repo.transaction()
     |> result()
@@ -48,19 +48,21 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
 
   # update works spec fields
   defp update_works_fields(%Works{} = works, attrs) do
-    techstacks = Map.get(attrs, :techstacks, [])
-    cities = Map.get(attrs, :cities, [])
-    social_info = Map.get(attrs, :social_info, [])
-    app_store = Map.get(attrs, :app_store, [])
+    works = Repo.preload(works, [:techstacks, :cities])
+
+    desc = Map.get(attrs, :desc, works.desc)
+    home_link = Map.get(attrs, :home_link, works.home_link)
+    techstacks = Map.get(attrs, :techstacks, works.techstacks)
+    cities = Map.get(attrs, :cities, works.cities)
+    social_info = Map.get(attrs, :social_info, works.social_info)
+    app_store = Map.get(attrs, :app_store, works.app_store)
 
     with {:ok, techstacks} <- get_or_create_techstacks(techstacks),
          {:ok, cities} <- get_or_create_cities(cities) do
-      works = Repo.preload(works, [:techstacks, :cities])
-
       works
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:techstacks, works.techstacks ++ techstacks)
-      |> Ecto.Changeset.put_assoc(:cities, works.cities ++ cities)
+      |> Ecto.Changeset.change(%{desc: desc, home_link: home_link})
+      |> Ecto.Changeset.put_assoc(:techstacks, uniq_by_raw(techstacks))
+      |> Ecto.Changeset.put_assoc(:cities, uniq_by_raw(cities))
       |> Ecto.Changeset.put_embed(:social_info, social_info)
       |> Ecto.Changeset.put_embed(:app_store, app_store)
       |> Repo.update()
@@ -77,6 +79,7 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
         acc ++ [city]
       end
     end)
+    |> uniq_by_raw
     |> done
   end
 
@@ -95,7 +98,7 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
             title: community.title,
             logo: community.logo,
             desc: community.desc,
-            link: "/#{community.raw}"
+            raw: community.raw
           }
 
         {:error, _} ->
@@ -142,6 +145,10 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
       end
 
     ORM.create(Techstack, attrs)
+  end
+
+  defp uniq_by_raw(list) do
+    Enum.uniq_by(list, & &1.raw)
   end
 
   # defp result({:ok, %{create_works: result}}), do: {:ok, result}
