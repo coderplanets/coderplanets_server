@@ -73,13 +73,13 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
 
   defp get_or_create_cities(cities) do
     cities
+    |> Enum.uniq()
     |> Enum.map(&String.downcase(&1))
     |> Enum.reduce([], fn title, acc ->
       with {:ok, city} <- get_city(title) do
         acc ++ [city]
       end
     end)
-    |> uniq_by_raw
     |> done
   end
 

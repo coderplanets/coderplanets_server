@@ -25,17 +25,20 @@ defmodule GroupherServer.Test.Mutation.Articles.Radar do
     mutation (
       $title: String!,
       $body: String,
+      $linkAddr: String!
       $communityId: ID!,
       $articleTags: [Id]
      ) {
       createRadar(
         title: $title,
         body: $body,
+        linkAddr: $linkAddr,
         communityId: $communityId,
         articleTags: $articleTags
         ) {
           id
           title
+          linkAddr
           document {
             bodyHtml
           }
@@ -63,6 +66,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Radar do
       {:ok, found} = ORM.find(Radar, created["id"])
 
       assert created["id"] == to_string(found.id)
+      assert not is_nil(created["linkAddr"])
       assert created["originalCommunity"]["id"] == to_string(community.id)
 
       assert created["id"] == to_string(found.id)

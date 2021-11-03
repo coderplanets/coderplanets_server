@@ -27,6 +27,9 @@ defmodule GroupherServer.Test.Query.Account.Basic do
         views
         cmsPassport
         cmsPassportString
+        subscribedCommunitiesCount
+        followersCount
+        followingsCount
         contributes {
           records {
             count
@@ -62,6 +65,10 @@ defmodule GroupherServer.Test.Query.Account.Basic do
       assert results["social"]["github"] == nil
       assert results["social"]["douban"] == nil
       assert results["cmsPassport"] == nil
+
+      assert results["subscribedCommunitiesCount"] == 0
+      assert results["followersCount"] == 0
+      assert results["followingsCount"] == 0
     end
 
     test "user should have default contributes", ~m(guest_conn user_conn user)a do
