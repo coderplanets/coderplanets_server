@@ -7,7 +7,7 @@ defmodule Helper.Guardian do
   """
   use Guardian, otp_app: :groupher_server
 
-  @token_expireation 24 * 14
+  @token_expireation 24 * 30
 
   @spec subject_for_token(atom | %{id: any}, any) :: {:ok, binary}
   def subject_for_token(resource, _claims) do

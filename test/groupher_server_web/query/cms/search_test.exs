@@ -2,7 +2,7 @@ defmodule GroupherServer.Test.Query.CMS.Search do
   use GroupherServer.TestTools
 
   # alias GroupherServer.Accounts.Model.User
-  # alias GroupherServer.CMS
+  alias GroupherServer.CMS
 
   setup do
     guest_conn = simu_conn(:guest)
@@ -143,8 +143,8 @@ defmodule GroupherServer.Test.Query.CMS.Search do
 
   describe "[cms search community query]" do
     @query """
-    query($title: String!) {
-      searchCommunities(title: $title) {
+    query($title: String!, $category: String) {
+      searchCommunities(title: $title, category: $category) {
         entries {
           id
           title
@@ -166,6 +166,19 @@ defmodule GroupherServer.Test.Query.CMS.Search do
       assert results["totalCount"] == 2
       assert results["entries"] |> Enum.any?(&(&1["title"] == "java"))
       assert results["entries"] |> Enum.any?(&(&1["title"] == "javascript"))
+    end
+
+    test "can search community with category", ~m(guest_conn)a do
+      {:ok, community} = db_insert(:community, %{title: "cool-pl"})
+      {:ok, category} = db_insert(:category, %{raw: "pl"})
+
+      {:ok, _} = CMS.set_category(community, category)
+
+      variables = %{title: "cool-pl", category: "pl"}
+      results = guest_conn |> query_result(@query, variables, "searchCommunities")
+
+      assert results["totalCount"] == 1
+      assert results["entries"] |> Enum.any?(&(&1["title"] == "cool-pl"))
     end
 
     test "search non-exsit community should get empty pagi data", ~m(guest_conn)a do

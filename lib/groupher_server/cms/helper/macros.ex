@@ -116,6 +116,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
   """
   def general_article_cast_fields() do
     [
+      :title,
       :digest,
       :link_addr,
       :original_community_id,

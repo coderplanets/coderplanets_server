@@ -16,7 +16,20 @@ defmodule GroupherServer.CMS.Delegate.Search do
   search community by title
   """
   def search_communities(title) do
-    Community
+    do_search_communities(Community, title)
+  end
+
+  def search_communities(title, category) do
+    from(
+      c in Community,
+      join: cat in assoc(c, :categories),
+      where: cat.raw == ^category
+    )
+    |> do_search_communities(title)
+  end
+
+  defp do_search_communities(queryable, title) do
+    queryable
     |> where([c], ilike(c.title, ^"%#{title}%") or ilike(c.raw, ^"%#{title}%"))
     |> ORM.paginator(page: 1, size: @search_items_count)
     |> done()

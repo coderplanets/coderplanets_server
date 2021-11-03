@@ -20,6 +20,19 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Blog do
       middleware(M.Statistics.MakeContribute, for: [:user, :community])
     end
 
+    @desc "update author of a rss"
+    field :update_rss_author, :blog_rss do
+      arg(:rss, non_null(:string))
+      arg(:name, :string)
+      arg(:link, :string)
+      arg(:intro, :string)
+      arg(:github, :string)
+      arg(:twitter, :string)
+
+      middleware(M.Authorize, :login)
+      resolve(&R.CMS.update_rss_author/3)
+    end
+
     # @desc "update a cms/blog"
     # field :update_blog, :blog do
     #   arg(:id, non_null(:id))

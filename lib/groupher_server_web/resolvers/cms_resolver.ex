@@ -67,6 +67,11 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.blog_rss_info(rss)
   end
 
+  def update_rss_author(_root, attrs, _) do
+    rss = Map.get(attrs, :rss)
+    CMS.update_rss_author(rss, attrs)
+  end
+
   def wiki(_root, ~m(community)a, _info), do: CMS.get_wiki(%Community{raw: community})
   def cheatsheet(_root, ~m(community)a, _info), do: CMS.get_cheatsheet(%Community{raw: community})
 
@@ -420,6 +425,10 @@ defmodule GroupherServerWeb.Resolvers.CMS do
 
   def add_cheatsheet_contributor(_root, ~m(id contributor)a, %{context: %{cur_user: _user}}) do
     CMS.add_contributor(%CommunityCheatsheet{id: id}, contributor)
+  end
+
+  def search_communities(_root, %{title: title, category: category}, _info) do
+    CMS.search_communities(title, category)
   end
 
   def search_communities(_root, %{title: title}, _info) do

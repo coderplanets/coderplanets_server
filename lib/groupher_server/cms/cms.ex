@@ -108,6 +108,7 @@ defmodule GroupherServer.CMS do
   defdelegate create_blog_rss(attrs), to: BlogCURD
   defdelegate update_blog_rss(attrs), to: BlogCURD
   defdelegate blog_rss_info(rss), to: BlogCURD
+  defdelegate update_rss_author(rss, attrs), to: BlogCURD
 
   defdelegate create_works(attrs, user), to: WorksCURD
   defdelegate update_works(attrs, user), to: WorksCURD
@@ -218,6 +219,7 @@ defmodule GroupherServer.CMS do
   # search
   defdelegate search_articles(thread, args), to: Search
   defdelegate search_communities(args), to: Search
+  defdelegate search_communities(args, category), to: Search
 
   # seeds
   defdelegate seed_communities(opt), to: Seeds

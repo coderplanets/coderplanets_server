@@ -9,19 +9,24 @@ defmodule Helper.RSS do
          {:ok, blog_rss} <- rss_parser(body) do
       blog_rss |> Map.merge(%{rss: rss}) |> done
     else
-      error ->
-        IO.inspect(error, label: "error")
+      _ ->
         {:error, :invalid_rss_address}
     end
   end
 
   defp rss_parser(body) do
     with {:ok, feed} <- Fiet.Atom.parse(body) do
-      # IO.inspect(feed, label: "atom feed")
       format(:atom, feed)
     else
       {:error, %Fiet.Atom.ParsingError{reason: {:not_atom, "rss"}}} ->
         rss_parser(body, :rss2)
+
+      {:error, %HTTPoison.Error{id: nil, reason: :timeout}} ->
+        {:error, "fetch rss timeout"}
+
+      {:error, error} ->
+        IO.inspect(error, label: "rss parser error")
+        {:error, "unknow token"}
     end
   end
 

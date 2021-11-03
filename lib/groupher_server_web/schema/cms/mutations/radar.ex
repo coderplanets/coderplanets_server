@@ -10,6 +10,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Radar do
     field :create_radar, :radar do
       arg(:title, non_null(:string))
       arg(:body, non_null(:string))
+      arg(:link_addr, non_null(:string))
       arg(:community_id, non_null(:id))
       arg(:thread, :thread, default_value: :radar)
       arg(:article_tags, list_of(:id))
@@ -26,6 +27,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Radar do
       arg(:title, :string)
       arg(:body, :string)
       arg(:digest, :string)
+      arg(:link_addr, :string)
 
       arg(:article_tags, list_of(:id))
       # ...

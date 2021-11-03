@@ -39,8 +39,10 @@ defmodule GroupherServer.Test.Articles.Works do
       attrs =
         works_attrs
         |> Map.merge(%{
-          profit_mode: "love",
-          working_mode: "fulltime",
+          title: "title",
+          desc: "cool works",
+          profit_mode: "FREE",
+          working_mode: "FULLTIME",
           techstacks: ["elixir", "React"],
           cities: ["chengdu", "xiamen"],
           social_info: social_info,
@@ -49,8 +51,10 @@ defmodule GroupherServer.Test.Articles.Works do
 
       {:ok, works} = CMS.create_works(attrs, user)
 
-      assert works.profit_mode == "love"
-      assert works.working_mode == "fulltime"
+      assert works.title == "title"
+      assert works.desc == "cool works"
+      assert works.profit_mode == "FREE"
+      assert works.working_mode == "FULLTIME"
 
       assert not is_nil(works.social_info)
       assert not is_nil(works.app_store)
@@ -70,6 +74,23 @@ defmodule GroupherServer.Test.Articles.Works do
       # IO.inspect(works, label: "the attrs")
       assert works.profit_mode == "love"
       assert works.working_mode == "fulltime"
+    end
+
+    test "create works with exsit communit should have same attrs", ~m(user works_attrs)a do
+      {:ok, _community} = db_insert(:community, %{title: "Elixir", raw: "elixir"})
+
+      attrs =
+        works_attrs
+        |> Map.merge(%{
+          techstacks: ["elixir", "React"]
+        })
+
+      {:ok, works} = CMS.create_works(attrs, user)
+
+      techstack = works.techstacks |> List.first()
+
+      assert techstack.title == "Elixir"
+      assert techstack.raw == "elixir"
     end
 
     test "update works with full attrs", ~m(user works_attrs)a do

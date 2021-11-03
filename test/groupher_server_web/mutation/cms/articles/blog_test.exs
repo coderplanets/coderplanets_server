@@ -58,7 +58,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
 
       {:ok, community} = db_insert(:community)
       blog_attr = mock_attrs(:blog) |> Map.merge(%{rss: @rss})
-      # IO.inspect(blog_attr, label: "# blog_attr -> ")
       variables = blog_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
 
       created = user_conn |> mutation_result(@create_blog_query, variables, "createBlog")

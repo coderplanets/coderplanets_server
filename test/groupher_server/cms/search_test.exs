@@ -59,6 +59,18 @@ defmodule GroupherServer.Test.CMS.Search do
     end
   end
 
+  describe "[cms search community with category]" do
+    test "community with category can be searched" do
+      {:ok, community} = db_insert(:community, %{title: "cool-pl"})
+      {:ok, category} = db_insert(:category, %{raw: "pl"})
+
+      {:ok, _} = CMS.set_category(community, category)
+
+      {:ok, searched} = CMS.search_communities("cool-pl", "pl")
+      assert searched.entries |> List.first() |> Map.get(:title) == "cool-pl"
+    end
+  end
+
   describe "[cms search community]" do
     test "search community by full title should valid paged communities" do
       {:ok, searched} = CMS.search_communities("react")

@@ -25,17 +25,20 @@ defmodule GroupherServer.Test.Mutation.Articles.Radar do
     mutation (
       $title: String!,
       $body: String,
+      $linkAddr: String!
       $communityId: ID!,
       $articleTags: [Id]
      ) {
       createRadar(
         title: $title,
         body: $body,
+        linkAddr: $linkAddr,
         communityId: $communityId,
         articleTags: $articleTags
         ) {
           id
           title
+          linkAddr
           document {
             bodyHtml
           }
@@ -63,6 +66,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Radar do
       {:ok, found} = ORM.find(Radar, created["id"])
 
       assert created["id"] == to_string(found.id)
+      assert not is_nil(created["linkAddr"])
       assert created["originalCommunity"]["id"] == to_string(community.id)
 
       assert created["id"] == to_string(found.id)
@@ -75,7 +79,9 @@ defmodule GroupherServer.Test.Mutation.Articles.Radar do
       radar_attr = mock_attrs(:radar)
 
       variables =
-        radar_attr |> Map.merge(%{communityId: community.id, articleTags: [article_tag.id]})
+        radar_attr
+        |> Map.merge(%{communityId: community.id, articleTags: [article_tag.id]})
+        |> camelize_map_key
 
       created = user_conn |> mutation_result(@create_radar_query, variables, "createRadar")
 

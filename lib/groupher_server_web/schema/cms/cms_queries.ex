@@ -91,6 +91,7 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
     field :comments_state, :comments_list_state do
       arg(:id, non_null(:id))
       arg(:thread, :thread, default_value: :post)
+      arg(:freshkey, :string)
 
       resolve(&R.CMS.comments_state/3)
     end
@@ -151,6 +152,7 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
     @desc "search communities by title"
     field :search_communities, :paged_communities do
       arg(:title, non_null(:string))
+      arg(:category, :string)
 
       resolve(&R.CMS.search_communities/3)
     end

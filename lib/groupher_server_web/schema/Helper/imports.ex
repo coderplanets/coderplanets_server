@@ -12,8 +12,7 @@ defmodule GroupherServerWeb.Schema.Helper.Imports do
   import article fields based on @article_threads
   e.g:
   ----
-  import_types(:cms_post_mutations)
-  import_types(:cms_job_mutations)
+  import_types(:cms_[article]_mutations)
   # ...
   """
   defmacro import_article_fields(:mutations) do
@@ -29,8 +28,7 @@ defmodule GroupherServerWeb.Schema.Helper.Imports do
   import article fields based on @article_threads
   e.g:
   ----
-  import_types(CMS.Mutations.Post)
-  import_types(CMS.Mutations.Job)
+  import_types(CMS.Mutations.[Article])
   # ...
   """
   defmacro import_article_fields(:mutations, :module) do

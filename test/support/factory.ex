@@ -226,6 +226,8 @@ defmodule GroupherServer.Support.Factory do
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "WORKS"}),
       title: "works-#{String.slice(text, 1, 49)}",
+      desc: "works desc",
+      homeLink: "https://cool-works.com",
       body: mock_rich_text(text),
       digest: String.slice(text, 1, 150),
       # length: String.length(text),

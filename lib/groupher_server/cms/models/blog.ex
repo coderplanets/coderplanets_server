@@ -15,12 +15,13 @@ defmodule GroupherServer.CMS.Model.Blog do
 
   @required_fields ~w(title digest)a
   @article_cast_fields general_article_cast_fields()
-  @optional_fields ~w(digest feed_digest feed_content published)a ++ @article_cast_fields
+  @optional_fields ~w(digest feed_digest feed_content published rss)a ++ @article_cast_fields
 
   @type t :: %Blog{}
   schema "cms_blogs" do
     # for frontend constant
     field(:copy_right, :string, default: "", virtual: true)
+    field(:rss, :string)
 
     field(:feed_digest, :string)
     field(:feed_content, :string)

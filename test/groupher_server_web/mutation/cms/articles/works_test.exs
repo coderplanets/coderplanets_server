@@ -25,7 +25,9 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
     @create_works_query """
     mutation (
       $title: String!,
-      $body: String,
+      $desc: String!,
+      $homeLink: String!,
+      $body: String!,
       $communityId: ID!,
       $profitMode: ProfitMode,
       $workingMode: WorkingMode,
@@ -37,6 +39,8 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
      ) {
       createWorks(
         title: $title,
+        desc: $desc,
+        homeLink: $homeLink,
         body: $body,
         communityId: $communityId,
         profitMode: $profitMode,
@@ -49,12 +53,14 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
         ) {
           id
           title
+          desc
+          homeLink
           profitMode
           workingMode
           cities {
             title
             logo
-            link
+            raw
           }
           techstacks {
             title
@@ -88,6 +94,8 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
 
       works_attr =
         mock_attrs(:works, %{
+          desc: "cool works",
+          homeLink: "homeLink",
           profitMode: "FREE",
           workingMode: "FULLTIME",
           cities: ["chengdu", "xiamen"],
@@ -121,6 +129,9 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       {:ok, found} = ORM.find(Works, created["id"])
 
       assert created["id"] == to_string(found.id)
+      assert created["desc"] == "cool works"
+      assert created["homeLink"] == "homeLink"
+
       assert created["profitMode"] == "FREE"
       assert created["workingMode"] == "FULLTIME"
       assert created["originalCommunity"]["id"] == to_string(community.id)
@@ -207,7 +218,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
         cities {
           title
           logo
-          link
+          raw
         }
         techstacks {
           title

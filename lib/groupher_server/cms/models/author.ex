@@ -13,7 +13,7 @@ defmodule GroupherServer.CMS.Model.Author do
   @type t :: %Author{}
 
   schema "cms_authors" do
-    field(:role, :string)
+    # field(:role, :string)
     # field(:user_id, :id)
     # has_many(:posts, Post)
     # user_id filed in own-table
@@ -23,11 +23,12 @@ defmodule GroupherServer.CMS.Model.Author do
   end
 
   @doc false
-  def changeset(%Author{} = author, attrs) do
+  def changeset(%Author{} = author, _attrs) do
     # |> foreign_key_constraint(:user_id)
     author
-    |> cast(attrs, [:role])
-    |> validate_required([:role])
+    # |> cast(attrs, [:role])
+    # |> validate_required([:role])
     |> unique_constraint(:user_id)
+    |> foreign_key_constraint(:user_id)
   end
 end
