@@ -53,6 +53,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
         ) {
           id
           title
+          desc
           homeLink
           profitMode
           workingMode
@@ -87,7 +88,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       }
     }
     """
-
+    @tag :wip
     test "create works with valid attrs and make sure author exsit", ~m(community)a do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
@@ -124,8 +125,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
 
       variables = works_attr |> Map.merge(%{communityId: community.id}) |> camelize_map_key
 
-      created =
-        user_conn |> mutation_result(@create_works_query, variables, "createWorks", :debug)
+      created = user_conn |> mutation_result(@create_works_query, variables, "createWorks")
 
       {:ok, found} = ORM.find(Works, created["id"])
 

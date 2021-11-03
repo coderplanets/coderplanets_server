@@ -79,7 +79,9 @@ defmodule GroupherServer.Test.Mutation.Articles.Radar do
       radar_attr = mock_attrs(:radar)
 
       variables =
-        radar_attr |> Map.merge(%{communityId: community.id, articleTags: [article_tag.id]})
+        radar_attr
+        |> Map.merge(%{communityId: community.id, articleTags: [article_tag.id]})
+        |> camelize_map_key
 
       created = user_conn |> mutation_result(@create_radar_query, variables, "createRadar")
 
