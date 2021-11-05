@@ -25,7 +25,7 @@ defmodule GroupherServer.Accounts.Model.User do
   alias GroupherServer.CMS.Model.{Passport, CommunitySubscriber}
 
   @required_fields ~w(nickname avatar)a
-  @optional_fields ~w(login nickname bio remote_ip sex location email subscribed_communities_count)a
+  @optional_fields ~w(login nickname bio shortbio remote_ip sex location email subscribed_communities_count)a
 
   @type t :: %User{}
   schema "users" do
@@ -34,6 +34,7 @@ defmodule GroupherServer.Accounts.Model.User do
     field(:avatar, :string)
     field(:sex, :string)
     field(:bio, :string)
+    field(:shortbio, :string)
     field(:email, :string)
     field(:location, :string)
     field(:from_github, :boolean)

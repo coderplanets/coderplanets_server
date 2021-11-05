@@ -32,7 +32,9 @@ defmodule GroupherServer.Test.Mutation.Account.Basic do
         social {
           zhihu
           github
+          blog
           twitter
+          company
         }
         education_backgrounds {
           school
@@ -45,6 +47,7 @@ defmodule GroupherServer.Test.Mutation.Account.Basic do
       }
     }
     """
+    @tag :wip
     test "user can update it's own profile", ~m(user)a do
       ownd_conn = simu_conn(:user, user)
 
@@ -58,7 +61,9 @@ defmodule GroupherServer.Test.Mutation.Account.Basic do
         social: %{
           zhihu: "xieyiming-75",
           github: "mydearxym",
-          twitter: "fe2"
+          twitter: "fe2",
+          blog: "hello",
+          company: "world"
         }
       }
 
@@ -68,6 +73,8 @@ defmodule GroupherServer.Test.Mutation.Account.Basic do
       assert updated["social"]["zhihu"] == variables.social.zhihu
       assert updated["social"]["github"] == variables.social.github
       assert updated["social"]["twitter"] == variables.social.twitter
+      assert updated["social"]["blog"] == variables.social.blog
+      assert updated["social"]["company"] == variables.social.company
     end
 
     test "user can update it's own backgrounds", ~m(user)a do

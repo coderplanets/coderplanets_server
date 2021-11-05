@@ -8,7 +8,7 @@ defmodule GroupherServer.Accounts.Model.Social do
   alias GroupherServer.Accounts.Model.User
 
   @required_fields ~w(user_id)a
-  @optional_fields ~w(github twitter facebook zhihu dribble huaban douban pinterest instagram qq weichat weibo)a
+  @optional_fields ~w(github twitter blog company zhihu dribble huaban douban pinterest)a
 
   @type t :: %Social{}
   schema "user_socials" do
@@ -16,19 +16,14 @@ defmodule GroupherServer.Accounts.Model.Social do
 
     field(:github, :string)
     field(:twitter, :string)
-    field(:facebook, :string)
+    field(:blog, :string)
+    field(:company, :string)
     field(:zhihu, :string)
     field(:dribble, :string)
     field(:huaban, :string)
     field(:douban, :string)
 
     field(:pinterest, :string)
-    field(:instagram, :string)
-
-    field(:qq, :string)
-    field(:weichat, :string)
-    field(:weibo, :string)
-
     # timestamps(type: :utc_datetime)
   end
 

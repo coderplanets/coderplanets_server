@@ -211,16 +211,13 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
   """
   defmacro social_fields do
     quote do
-      field(:qq, :string)
-      field(:weibo, :string)
-      field(:weichat, :string)
       field(:github, :string)
-      field(:zhihu, :string)
+      field(:company, :string)
+      field(:blog, :string)
       field(:douban, :string)
       field(:twitter, :string)
-      field(:facebook, :string)
+      field(:zhihu, :string)
       field(:dribble, :string)
-      field(:instagram, :string)
       field(:pinterest, :string)
       field(:huaban, :string)
     end

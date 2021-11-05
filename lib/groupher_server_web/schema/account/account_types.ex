@@ -24,6 +24,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
     field(:login, :string)
     field(:avatar, :string)
     field(:bio, :string)
+    field(:shortbio, :string)
     field(:sex, :string)
     field(:email, :string)
 
