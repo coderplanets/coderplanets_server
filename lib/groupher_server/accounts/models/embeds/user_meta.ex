@@ -29,6 +29,7 @@ defmodule GroupherServer.Accounts.Model.Embeds.UserMeta do
   @article_threads get_config(:article, :threads)
 
   @general_options %{
+    is_maker: false,
     reported_count: 0,
     reported_user_ids: [],
     follower_user_ids: [],
