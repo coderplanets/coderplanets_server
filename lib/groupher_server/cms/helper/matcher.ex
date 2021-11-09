@@ -17,7 +17,7 @@ defmodule GroupherServer.CMS.Helper.Matcher do
        model: User,
        foreign_key: :account_id,
        preload: :account,
-       default_meta: Accounts.Embeds.UserMeta.default_meta()
+       default_meta: Accounts.Model.Embeds.UserMeta.default_meta()
      }}
   end
 
