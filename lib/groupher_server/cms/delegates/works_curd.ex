@@ -50,6 +50,7 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
   defp update_works_fields(%Works{} = works, attrs) do
     works = Repo.preload(works, [:techstacks, :cities])
 
+    cover = Map.get(attrs, :cover, works.cover)
     desc = Map.get(attrs, :desc, works.desc)
     home_link = Map.get(attrs, :home_link, works.home_link)
     techstacks = Map.get(attrs, :techstacks, works.techstacks)
@@ -60,7 +61,7 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
     with {:ok, techstacks} <- get_or_create_techstacks(techstacks),
          {:ok, cities} <- get_or_create_cities(cities) do
       works
-      |> Ecto.Changeset.change(%{desc: desc, home_link: home_link})
+      |> Ecto.Changeset.change(%{cover: cover, desc: desc, home_link: home_link})
       |> Ecto.Changeset.put_assoc(:techstacks, uniq_by_raw(techstacks))
       |> Ecto.Changeset.put_assoc(:cities, uniq_by_raw(cities))
       |> Ecto.Changeset.put_embed(:social_info, social_info)

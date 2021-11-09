@@ -3,7 +3,7 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
   user followers / following related
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [ensure: 2]
+  import Helper.Utils, only: [ensure: 2, plural: 1]
 
   alias GroupherServer.{Accounts, CMS}
   alias Accounts.Model.{Embeds, User}
@@ -29,7 +29,7 @@ defmodule GroupherServer.Accounts.Delegate.Publish do
          {:ok, paged_articles} <- CMS.paged_published_articles(thread, filter, user_id) do
       #
       user_meta = ensure(user.meta, @default_meta)
-      meta = Map.put(user_meta, :"published_#{thread}s_count", paged_articles.total_count)
+      meta = Map.put(user_meta, :"published_#{plural(thread)}_count", paged_articles.total_count)
 
       ORM.update_meta(user, meta)
     end

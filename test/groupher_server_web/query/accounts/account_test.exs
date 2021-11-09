@@ -24,6 +24,14 @@ defmodule GroupherServer.Test.Query.Account.Basic do
         id
         nickname
         bio
+        meta {
+          publishedPostsCount
+          publishedJobsCount
+          publishedBlogsCount
+          publishedWorksCount
+          publishedRadarsCount
+          publishedMeetupsCount
+        }
         views
         cmsPassport
         cmsPassportString
@@ -57,6 +65,8 @@ defmodule GroupherServer.Test.Query.Account.Basic do
     test "guest user can get specific user's info by user's id", ~m(guest_conn user)a do
       variables = %{login: user.login}
       results = guest_conn |> query_result(@query, variables, "user")
+
+      assert not is_nil(results["meta"])
 
       assert results["id"] == to_string(user.id)
       assert results["nickname"] == user.nickname

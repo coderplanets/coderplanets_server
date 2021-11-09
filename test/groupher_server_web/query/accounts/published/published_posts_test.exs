@@ -62,6 +62,7 @@ defmodule GroupherServer.Test.Query.Accounts.Published.Posts do
           article {
             id
             title
+            thread
             author {
               nickname
               login
@@ -75,7 +76,6 @@ defmodule GroupherServer.Test.Query.Accounts.Published.Posts do
       }
     }
     """
-
     test "user can get paged published comments on post", ~m(guest_conn user post)a do
       pub_comments =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
@@ -85,7 +85,8 @@ defmodule GroupherServer.Test.Query.Accounts.Published.Posts do
 
       random_comment_id = pub_comments |> Enum.random() |> Map.get(:id) |> to_string
 
-      variables = %{login: user.login, thread: "POST", filter: %{page: 1, size: 20}}
+      # variables = %{login: user.login, thread: "POST", filter: %{page: 1, size: 20}}
+      variables = %{login: user.login, filter: %{page: 1, size: 20}}
 
       results = guest_conn |> query_result(@query, variables, "pagedPublishedComments")
 

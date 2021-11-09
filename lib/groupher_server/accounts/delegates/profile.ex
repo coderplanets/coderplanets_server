@@ -8,7 +8,7 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
 
   alias GroupherServer.{Accounts, CMS, Email, Repo, Statistics}
 
-  alias Accounts.Model.{Achievement, GithubUser, User, Social}
+  alias Accounts.Model.{Achievement, GithubUser, User, Social, Embeds}
   alias CMS.Model.{Community, CommunitySubscriber}
 
   alias GroupherServer.Accounts.Delegate.Fans
@@ -16,10 +16,12 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
   alias Helper.{Guardian, ORM, QueryBuilder, RadarSearch}
   alias Ecto.Multi
 
+  @default_user_meta Embeds.UserMeta.default_meta()
   @default_subscribed_communities get_config(:general, :default_subscribed_communities)
 
   def read_user(login) when is_binary(login) do
-    with {:ok, user} <- ORM.read_by(User, %{login: login}, inc: :views) do
+    with {:ok, user} <- ORM.read_by(User, %{login: login}, inc: :views),
+         {:ok, user} <- assign_meta_ifneed(user) do
       case user.contributes do
         nil -> assign_default_contributes(user)
         _ -> {:ok, user}
@@ -44,6 +46,14 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
 
       {:ok, user}
     end
+  end
+
+  defp assign_meta_ifneed(%User{meta: nil} = user) do
+    {:ok, Map.merge(user, %{meta: @default_user_meta})}
+  end
+
+  defp assign_meta_ifneed(user) do
+    {:ok, user}
   end
 
   def paged_users(filter, %User{} = user) do

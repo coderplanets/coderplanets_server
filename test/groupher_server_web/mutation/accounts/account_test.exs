@@ -28,6 +28,7 @@ defmodule GroupherServer.Test.Mutation.Account.Basic do
         workBackgrounds: $workBackgrounds,
       ) {
         id
+        avatar
         nickname
         social {
           zhihu
@@ -47,12 +48,12 @@ defmodule GroupherServer.Test.Mutation.Account.Basic do
       }
     }
     """
-    @tag :wip
     test "user can update it's own profile", ~m(user)a do
       ownd_conn = simu_conn(:user, user)
 
       variables = %{
         profile: %{
+          avatar: "new avatar",
           nickname: "new nickname",
           bio: "everyday is the opportunity you don't get back,  so live life to the fullest",
           location: "china |> chengDu (成都).",
@@ -69,6 +70,7 @@ defmodule GroupherServer.Test.Mutation.Account.Basic do
 
       updated = ownd_conn |> mutation_result(@update_query, variables, "updateProfile")
 
+      assert updated["avatar"] == "new avatar"
       assert updated["nickname"] == "new nickname"
       assert updated["social"]["zhihu"] == variables.social.zhihu
       assert updated["social"]["github"] == variables.social.github

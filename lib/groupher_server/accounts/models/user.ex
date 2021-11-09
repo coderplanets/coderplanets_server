@@ -105,9 +105,5 @@ defmodule GroupherServer.Accounts.Model.User do
     |> validate_inclusion(:sex, ["dude", "girl"])
     |> validate_format(:email, ~r/@/)
     |> validate_length(:location, min: 2, max: 30)
-
-    # |> validate_length(:qq, min: 8, max: 15)
-    # |> validate_length(:weichat, min: 3, max: 30)
-    # |> validate_length(:weibo, min: 3, max: 30)
   end
 end

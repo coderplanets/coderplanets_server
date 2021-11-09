@@ -12,7 +12,6 @@ defmodule GroupherServer.Test.Accounts do
   @valid_github_profile mock_attrs(:github_profile) |> map_key_stringify
 
   describe "[update user]" do
-    @tag :wip
     test "update user with valid attrs" do
       {:ok, user} = db_insert(:user)
 
@@ -32,7 +31,6 @@ defmodule GroupherServer.Test.Accounts do
       assert updated.sex == attrs.sex
     end
 
-    @tag :wip
     test "update user social fields with valid attrs" do
       {:ok, user} = db_insert(:user)
 

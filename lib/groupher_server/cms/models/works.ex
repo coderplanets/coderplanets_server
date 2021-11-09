@@ -13,14 +13,14 @@ defmodule GroupherServer.CMS.Model.Works do
 
   @timestamps_opts [type: :utc_datetime_usec]
 
-  @required_fields ~w(title digest)a
+  @required_fields ~w(cover title digest)a
   @article_cast_fields general_article_cast_fields()
   @optional_fields ~w(desc home_link profit_mode working_mode community_link interview_link)a ++
                      @article_cast_fields
 
   @type t :: %Works{}
   schema "cms_works" do
-    ## mailstone
+    field(:cover, :string)
     field(:home_link, :string)
     field(:desc, :string)
     # ...

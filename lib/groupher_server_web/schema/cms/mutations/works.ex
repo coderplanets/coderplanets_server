@@ -8,6 +8,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Works do
   object :cms_works_mutations do
     @desc "create a works"
     field :create_works, :works do
+      arg(:cover, non_null(:string))
       arg(:title, non_null(:string))
       arg(:desc, non_null(:string))
       arg(:home_link, non_null(:string))
@@ -36,6 +37,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Works do
     field :update_works, :works do
       arg(:id, non_null(:id))
       arg(:title, :string)
+      arg(:cover, :string)
       arg(:desc, :string)
       arg(:home_link, :string)
       arg(:body, :string)
