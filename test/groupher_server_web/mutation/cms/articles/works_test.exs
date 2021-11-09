@@ -3,9 +3,10 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
 
   import Helper.Utils, only: [keys_to_atoms: 1, camelize_map_key: 1]
   alias Helper.ORM
-  alias GroupherServer.{CMS, Repo}
+  alias GroupherServer.{Accounts, CMS, Repo}
 
   alias CMS.Model.Works
+  alias Accounts.Model.User
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -100,7 +101,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
     }
     """
     @tag :wip
-    test "create works with valid attrs and make sure author exsit", ~m(community user user2)a do
+    test "create works with valid attrs and make sure author exsit", ~m(community user2)a do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
@@ -160,6 +161,12 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       assert not is_nil(created["appStore"])
 
       assert created["id"] == to_string(found.id)
+
+      {:ok, user} = ORM.find(User, user.id)
+      {:ok, user2} = ORM.find(User, user2.id)
+
+      assert user.meta.is_maker
+      assert user2.meta.is_maker
     end
 
     test "create works with valid tags id list", ~m(user_conn user community)a do

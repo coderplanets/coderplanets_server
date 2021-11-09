@@ -12,6 +12,8 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
   alias CMS.Model.{Community, Techstack, City, Works}
   alias Accounts.Model.User
 
+  @default_user_meta Accounts.Model.Embeds.UserMeta.default_meta()
+
   alias Helper.ORM
   alias Ecto.Multi
 
@@ -117,11 +119,22 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
   defp get_teammates(teammates) do
     teammates
     |> Enum.reduce([], fn login, acc ->
-      with {:ok, teammate} <- ORM.find_by(User, login: login) do
+      with {:ok, teammate} <- ORM.find_by(User, login: login),
+           {:ok, _} <- set_teammate_flag(teammate) do
         acc ++ [teammate]
       end
     end)
     |> done
+  end
+
+  defp set_teammate_flag(%User{meta: nil} = teammate) do
+    meta = Map.merge(@default_user_meta, %{is_maker: true})
+    ORM.update_meta(teammate, meta)
+  end
+
+  defp set_teammate_flag(%User{} = teammate) do
+    meta = Map.merge(teammate.meta, %{is_maker: true})
+    ORM.update_meta(teammate, meta)
   end
 
   defp get_or_create_techstacks([]), do: {:ok, []}

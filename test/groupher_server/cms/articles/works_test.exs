@@ -24,7 +24,6 @@ defmodule GroupherServer.Test.Articles.Works do
   end
 
   describe "[cms real works curd]" do
-    @tag :wip
     test "create works with full attrs", ~m(user works_attrs)a do
       social_info = [
         %{platform: "github", link: "https://github.com/xxx"},
@@ -97,7 +96,6 @@ defmodule GroupherServer.Test.Articles.Works do
       assert techstack.raw == "elixir"
     end
 
-    @tag :wip
     test "update works with full attrs", ~m(user user2 works_attrs)a do
       works_attrs = works_attrs |> Map.merge(%{teammates: [user.login]})
       {:ok, works} = CMS.create_works(works_attrs, user)

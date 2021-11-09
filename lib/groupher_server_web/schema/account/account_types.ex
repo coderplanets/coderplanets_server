@@ -19,6 +19,7 @@ defmodule GroupherServerWeb.Schema.Account.Types do
 
   object :user_meta do
     field(:reported_count, :integer)
+    field(:is_maker, :boolean)
     field(:published_posts_count, :integer)
     field(:published_jobs_count, :integer)
     field(:published_radars_count, :integer)
