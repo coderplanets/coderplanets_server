@@ -3,12 +3,14 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
 
   import Helper.Utils, only: [keys_to_atoms: 1, camelize_map_key: 1]
   alias Helper.ORM
-  alias GroupherServer.{CMS, Repo}
+  alias GroupherServer.{Accounts, CMS, Repo}
 
   alias CMS.Model.Works
+  alias Accounts.Model.User
 
   setup do
     {:ok, user} = db_insert(:user)
+    {:ok, user2} = db_insert(:user)
     {:ok, community} = db_insert(:community, %{raw: "home"})
 
     works_attrs = mock_attrs(:works, %{community_id: community.id})
@@ -18,7 +20,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
     user_conn = simu_conn(:user)
     owner_conn = simu_conn(:owner, works)
 
-    {:ok, ~m(user_conn guest_conn owner_conn community user works)a}
+    {:ok, ~m(user_conn user user2 guest_conn owner_conn community user works)a}
   end
 
   describe "[mutation works curd]" do
@@ -34,6 +36,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       $workingMode: WorkingMode,
       $cities: [String],
       $techstacks: [String],
+      $teammates: [String],
       $socialInfo: [SocialInfo],
       $appStore: [AppStoreInfo],
       $articleTags: [Id]
@@ -49,6 +52,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
         workingMode: $workingMode,
         cities: $cities,
         techstacks: $techstacks,
+        teammates: $teammates,
         socialInfo: $socialInfo,
         appStore: $appStore,
         articleTags: $articleTags
@@ -69,6 +73,11 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
             title
             desc
             logo
+          }
+          teammates {
+            login
+            nickname
+            avatar
           }
           socialInfo {
             platform
@@ -91,7 +100,8 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       }
     }
     """
-    test "create works with valid attrs and make sure author exsit", ~m(community)a do
+    @tag :wip
+    test "create works with valid attrs and make sure author exsit", ~m(community user2)a do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
@@ -104,6 +114,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
           workingMode: "FULLTIME",
           cities: ["chengdu", "xiamen"],
           techstacks: ["elixir", "React"],
+          teammates: [user.login, user2.login],
           socialInfo: [
             %{
               platform: "TWITTER",
@@ -137,6 +148,10 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       assert created["cover"] == "cool cover"
       assert created["homeLink"] == "homeLink"
 
+      assert created["teammates"] |> length == 2
+      assert user_exist_in?(user, created["teammates"])
+      assert user_exist_in?(user2, created["teammates"])
+
       assert created["profitMode"] == "FREE"
       assert created["workingMode"] == "FULLTIME"
       assert created["originalCommunity"]["id"] == to_string(community.id)
@@ -146,6 +161,12 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       assert not is_nil(created["appStore"])
 
       assert created["id"] == to_string(found.id)
+
+      {:ok, user} = ORM.find(User, user.id)
+      {:ok, user2} = ORM.find(User, user2.id)
+
+      assert user.meta.is_maker
+      assert user2.meta.is_maker
     end
 
     test "create works with valid tags id list", ~m(user_conn user community)a do

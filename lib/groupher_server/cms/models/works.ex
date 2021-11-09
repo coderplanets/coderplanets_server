@@ -8,8 +8,9 @@ defmodule GroupherServer.CMS.Model.Works do
   import Ecto.Changeset
   import GroupherServer.CMS.Helper.Macros
 
-  alias GroupherServer.CMS
+  alias GroupherServer.{CMS, Accounts}
   alias CMS.Model.{Embeds, Techstack, City}
+  alias Accounts.Model.User
 
   @timestamps_opts [type: :utc_datetime_usec]
 
@@ -39,6 +40,13 @@ defmodule GroupherServer.CMS.Model.Works do
       :techstacks,
       Techstack,
       join_through: "works_join_techstacks",
+      on_replace: :delete
+    )
+
+    many_to_many(
+      :teammates,
+      User,
+      join_through: "works_join_teammates",
       on_replace: :delete
     )
 

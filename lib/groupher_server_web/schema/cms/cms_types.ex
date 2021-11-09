@@ -102,6 +102,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:profit_mode, :string)
     field(:working_mode, :string)
     field(:cities, list_of(:city), resolve: dataloader(CMS, :cities))
+    field(:teammates, list_of(:common_user), resolve: dataloader(CMS, :teammates))
     field(:techstacks, list_of(:techstack), resolve: dataloader(CMS, :techstacks))
     field(:social_info, list_of(:social))
     field(:app_store, list_of(:app_store))

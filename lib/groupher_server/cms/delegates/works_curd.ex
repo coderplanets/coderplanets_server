@@ -12,6 +12,8 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
   alias CMS.Model.{Community, Techstack, City, Works}
   alias Accounts.Model.User
 
+  @default_user_meta Accounts.Model.Embeds.UserMeta.default_meta()
+
   alias Helper.ORM
   alias Ecto.Multi
 
@@ -48,21 +50,24 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
 
   # update works spec fields
   defp update_works_fields(%Works{} = works, attrs) do
-    works = Repo.preload(works, [:techstacks, :cities])
+    works = Repo.preload(works, [:techstacks, :cities, :teammates])
 
     cover = Map.get(attrs, :cover, works.cover)
     desc = Map.get(attrs, :desc, works.desc)
     home_link = Map.get(attrs, :home_link, works.home_link)
     techstacks = Map.get(attrs, :techstacks, works.techstacks)
+    teammates = Map.get(attrs, :teammates, works.teammates)
     cities = Map.get(attrs, :cities, works.cities)
     social_info = Map.get(attrs, :social_info, works.social_info)
     app_store = Map.get(attrs, :app_store, works.app_store)
 
     with {:ok, techstacks} <- get_or_create_techstacks(techstacks),
-         {:ok, cities} <- get_or_create_cities(cities) do
+         {:ok, cities} <- get_or_create_cities(cities),
+         {:ok, teammates} <- get_teammates(teammates) do
       works
       |> Ecto.Changeset.change(%{cover: cover, desc: desc, home_link: home_link})
       |> Ecto.Changeset.put_assoc(:techstacks, uniq_by_raw(techstacks))
+      |> Ecto.Changeset.put_assoc(:teammates, uniq_by_login(teammates))
       |> Ecto.Changeset.put_assoc(:cities, uniq_by_raw(cities))
       |> Ecto.Changeset.put_embed(:social_info, social_info)
       |> Ecto.Changeset.put_embed(:app_store, app_store)
@@ -109,6 +114,29 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
     ORM.create(City, attrs)
   end
 
+  defp get_teammates([]), do: {:ok, []}
+
+  defp get_teammates(teammates) do
+    teammates
+    |> Enum.reduce([], fn login, acc ->
+      with {:ok, teammate} <- ORM.find_by(User, login: login),
+           {:ok, _} <- set_teammate_flag(teammate) do
+        acc ++ [teammate]
+      end
+    end)
+    |> done
+  end
+
+  defp set_teammate_flag(%User{meta: nil} = teammate) do
+    meta = Map.merge(@default_user_meta, %{is_maker: true})
+    ORM.update_meta(teammate, meta)
+  end
+
+  defp set_teammate_flag(%User{} = teammate) do
+    meta = Map.merge(teammate.meta, %{is_maker: true})
+    ORM.update_meta(teammate, meta)
+  end
+
   defp get_or_create_techstacks([]), do: {:ok, []}
 
   defp get_or_create_techstacks(techstacks) do
@@ -148,9 +176,10 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
     ORM.create(Techstack, attrs)
   end
 
-  defp uniq_by_raw(list) do
-    Enum.uniq_by(list, & &1.raw)
-  end
+  defp uniq_by_raw([]), do: []
+  defp uniq_by_raw(list), do: Enum.uniq_by(list, & &1.raw)
+  defp uniq_by_login([]), do: []
+  defp uniq_by_login(list), do: Enum.uniq_by(list, & &1.login)
 
   # defp result({:ok, %{create_works: result}}), do: {:ok, result}
   defp result({:ok, %{update_works_fields: result}}), do: {:ok, result}

@@ -29,6 +29,7 @@ defmodule GroupherServer.Accounts.Model.Embeds.UserMeta do
   @article_threads get_config(:article, :threads)
 
   @general_options %{
+    is_maker: false,
     reported_count: 0,
     reported_user_ids: [],
     follower_user_ids: [],
@@ -48,6 +49,8 @@ defmodule GroupherServer.Accounts.Model.Embeds.UserMeta do
   end
 
   embedded_schema do
+    field(:is_maker, :boolean, default: false)
+
     field(:reported_count, :integer, default: 0)
     field(:reported_user_ids, {:array, :integer}, default: [])
 
