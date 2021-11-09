@@ -46,7 +46,7 @@ defmodule GroupherServer.Test.Mutation.Flags.WorksFlag do
       {:ok, works} = CMS.create_article(community, :works, mock_attrs(:works), user)
 
       {:ok, community} = ORM.find(Community, community.id)
-      assert community.meta.workss_count == 1
+      assert community.meta.works_count == 1
 
       variables = %{id: works.id}
       passport_rules = %{"works.mark_delete" => true}
@@ -55,7 +55,7 @@ defmodule GroupherServer.Test.Mutation.Flags.WorksFlag do
       rule_conn |> mutation_result(@query, variables, "markDeleteWorks")
 
       {:ok, community} = ORM.find(Community, community.id)
-      assert community.meta.workss_count == 0
+      assert community.meta.works_count == 0
     end
 
     test "unauth user markDelete works fails", ~m(user_conn guest_conn works)a do
@@ -97,7 +97,7 @@ defmodule GroupherServer.Test.Mutation.Flags.WorksFlag do
       {:ok, _} = CMS.mark_delete_article(:works, works.id)
 
       {:ok, community} = ORM.find(Community, community.id)
-      assert community.meta.workss_count == 0
+      assert community.meta.works_count == 0
 
       variables = %{id: works.id}
       passport_rules = %{"works.undo_mark_delete" => true}
@@ -105,7 +105,7 @@ defmodule GroupherServer.Test.Mutation.Flags.WorksFlag do
       rule_conn |> mutation_result(@query, variables, "undoMarkDeleteWorks")
 
       {:ok, community} = ORM.find(Community, community.id)
-      assert community.meta.workss_count == 1
+      assert community.meta.works_count == 1
     end
 
     test "unauth user undo markDelete works fails", ~m(user_conn guest_conn works)a do

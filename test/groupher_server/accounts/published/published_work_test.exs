@@ -17,25 +17,25 @@ defmodule GroupherServer.Test.Accounts.Published.Works do
     {:ok, ~m(user user2 works community community2)a}
   end
 
-  describe "[publised workss]" do
+  describe "[publised works]" do
     test "create works should update user published meta", ~m(community user)a do
       works_attrs = mock_attrs(:works, %{community_id: community.id})
       {:ok, _works} = CMS.create_article(community, :works, works_attrs, user)
       {:ok, _works} = CMS.create_article(community, :works, works_attrs, user)
 
       {:ok, user} = ORM.find(User, user.id)
-      assert user.meta.published_workss_count == 2
+      assert user.meta.published_works_count == 2
     end
 
-    test "fresh user get empty paged published workss", ~m(user)a do
+    test "fresh user get empty paged published works", ~m(user)a do
       {:ok, results} = Accounts.paged_published_articles(user, :works, %{page: 1, size: 20})
 
       assert results |> is_valid_pagination?(:raw)
       assert results.total_count == 0
     end
 
-    test "user can get paged published workss", ~m(user user2 community community2)a do
-      pub_workss =
+    test "user can get paged published works", ~m(user user2 community community2)a do
+      pub_works =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
           works_attrs = mock_attrs(:works, %{community_id: community.id})
           {:ok, works} = CMS.create_article(community, :works, works_attrs, user)
@@ -43,7 +43,7 @@ defmodule GroupherServer.Test.Accounts.Published.Works do
           acc ++ [works]
         end)
 
-      pub_workss2 =
+      pub_works2 =
         Enum.reduce(1..@publish_count, [], fn _, acc ->
           works_attrs = mock_attrs(:works, %{community_id: community2.id})
           {:ok, works} = CMS.create_article(community, :works, works_attrs, user)
@@ -64,8 +64,8 @@ defmodule GroupherServer.Test.Accounts.Published.Works do
       assert results |> is_valid_pagination?(:raw)
       assert results.total_count == @publish_count * 2
 
-      random_works_id = pub_workss |> Enum.random() |> Map.get(:id)
-      random_works_id2 = pub_workss2 |> Enum.random() |> Map.get(:id)
+      random_works_id = pub_works |> Enum.random() |> Map.get(:id)
+      random_works_id2 = pub_works2 |> Enum.random() |> Map.get(:id)
       assert results.entries |> Enum.any?(&(&1.id == random_works_id))
       assert results.entries |> Enum.any?(&(&1.id == random_works_id2))
     end

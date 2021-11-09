@@ -42,7 +42,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorks do
     {:ok, ~m(guest_conn user works_last_week works_last_year)a}
   end
 
-  describe "[query paged_workss filter pagination]" do
+  describe "[query paged_works filter pagination]" do
     @query """
     query($filter: PagedWorksFilter!) {
       pagedWorks(filter: $filter) {
@@ -138,7 +138,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorks do
       assert not exist_in?(article_tag3, works["articleTags"])
     end
 
-    test "should not have pined workss when filter have article_tag or article_tags",
+    test "should not have pined works when filter have article_tag or article_tags",
          ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
       works_attrs = mock_attrs(:works, %{community_id: community.id})
@@ -208,7 +208,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorks do
     end
   end
 
-  describe "[query paged_workss filter has_xxx]" do
+  describe "[query paged_works filter has_xxx]" do
     @query """
     query($filter: PagedWorksFilter!) {
       pagedWorks(filter: $filter) {
@@ -256,7 +256,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorks do
     end
   end
 
-  describe "[query paged_workss filter sort]" do
+  describe "[query paged_works filter sort]" do
     @query """
     query($filter: PagedWorksFilter!) {
       pagedWorks(filter: $filter) {
@@ -274,7 +274,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorks do
     }
     """
 
-    test "filter community should get workss which belongs to that community",
+    test "filter community should get works which belongs to that community",
          ~m(guest_conn user)a do
       {:ok, community} = db_insert(:community)
       {:ok, works} = CMS.create_article(community, :works, mock_attrs(:works), user)
@@ -334,7 +334,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorks do
   @doc """
   test: FILTER when [TODAY] [THIS_WEEK] [THIS_MONTH] [THIS_YEAR]
   """
-  describe "[query paged_workss filter when]" do
+  describe "[query paged_works filter when]" do
     @query """
     query($filter: PagedWorksFilter!) {
       pagedWorks(filter: $filter) {
@@ -390,7 +390,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorks do
     end
   end
 
-  describe "[query paged_workss filter extra]" do
+  describe "[query paged_works filter extra]" do
     @query """
     query($filter: PagedWorksFilter!) {
       pagedWorks(filter: $filter) {
@@ -415,7 +415,7 @@ defmodule GroupherServer.Test.Query.PagedArticles.PagedWorks do
     end
   end
 
-  describe "[paged workss active_at]" do
+  describe "[paged works active_at]" do
     @query """
     query($filter: PagedWorksFilter!) {
       pagedWorks(filter: $filter) {
