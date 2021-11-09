@@ -6,7 +6,7 @@ defmodule GroupherServer.Accounts.Model.Embeds.UserContribute do
   use Accessible
   import Ecto.Changeset
 
-  alias GroupherServer.Accounts.Embeds
+  alias GroupherServer.Accounts.Model.Embeds
 
   @optional_fields ~w(reported_count)a
 

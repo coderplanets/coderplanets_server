@@ -3,7 +3,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   community curd
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, strip_struct: 1, get_config: 2]
+  import Helper.Utils, only: [done: 1, strip_struct: 1, get_config: 2, plural: 1]
   import GroupherServer.CMS.Delegate.ArticleCURD, only: [ensure_author_exists: 1]
   import GroupherServer.CMS.Helper.Matcher
   import ShortMaps
@@ -130,7 +130,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
         |> ORM.count()
 
       community_meta = if is_nil(community.meta), do: @default_meta, else: community.meta
-      meta = Map.put(community_meta, :"#{thread}s_count", thread_article_count)
+      meta = Map.put(community_meta, :"#{plural(thread)}_count", thread_article_count)
 
       community
       |> ORM.update_meta(meta, changes: %{articles_count: recount_articles_count(meta)})
@@ -138,7 +138,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   end
 
   defp recount_articles_count(meta) do
-    @article_threads |> Enum.reduce(0, &(&2 + Map.get(meta, :"#{&1}s_count")))
+    @article_threads |> Enum.reduce(0, &(&2 + Map.get(meta, :"#{plural(&1)}_count")))
   end
 
   @doc """

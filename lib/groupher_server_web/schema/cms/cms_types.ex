@@ -95,6 +95,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     general_article_fields()
     comments_fields()
 
+    field(:cover, :string)
     field(:desc, :string)
     field(:home_link, :string)
     field(:link_addr, :string)

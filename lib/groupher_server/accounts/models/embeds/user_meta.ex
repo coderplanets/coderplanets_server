@@ -1,7 +1,7 @@
 defmodule GroupherServer.Accounts.Model.Embeds.UserMeta.Macro do
   @moduledoc false
 
-  import Helper.Utils, only: [get_config: 2]
+  import Helper.Utils, only: [get_config: 2, plural: 1]
 
   @article_threads get_config(:article, :threads)
 
@@ -9,7 +9,7 @@ defmodule GroupherServer.Accounts.Model.Embeds.UserMeta.Macro do
     @article_threads
     |> Enum.map(fn thread ->
       quote do
-        field(unquote(:"published_#{thread}s_count"), :integer, default: 0)
+        field(unquote(:"published_#{plural(thread)}_count"), :integer, default: 0)
       end
     end)
   end
@@ -23,8 +23,8 @@ defmodule GroupherServer.Accounts.Model.Embeds.UserMeta do
   use Accessible
 
   import Ecto.Changeset
-  import GroupherServer.Accounts.Embeds.UserMeta.Macro
-  import Helper.Utils, only: [get_config: 2]
+  import GroupherServer.Accounts.Model.Embeds.UserMeta.Macro
+  import Helper.Utils, only: [get_config: 2, plural: 1]
 
   @article_threads get_config(:article, :threads)
 
@@ -36,12 +36,12 @@ defmodule GroupherServer.Accounts.Model.Embeds.UserMeta do
   }
 
   @optional_fields Map.keys(@general_options) ++
-                     Enum.map(@article_threads, &:"published_#{&1}s_count")
+                     Enum.map(@article_threads, &:"published_#{plural(&1)}_count")
 
   def default_meta() do
     published_article_counts =
       @article_threads
-      |> Enum.reduce([], &(&2 ++ ["published_#{&1}s_count": 0]))
+      |> Enum.reduce([], &(&2 ++ ["published_#{plural(&1)}_count": 0]))
       |> Enum.into(%{})
 
     @general_options |> Map.merge(published_article_counts)

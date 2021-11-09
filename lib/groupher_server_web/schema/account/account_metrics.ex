@@ -50,8 +50,10 @@ defmodule GroupherServerWeb.Schema.Account.Metrics do
   end
 
   input_object :user_profile_input do
+    field(:avatar, :string)
     field(:nickname, :string)
     field(:bio, :string)
+    field(:shortbio, :string)
     field(:sex, :string)
     field(:location, :string)
     field(:email, :string)

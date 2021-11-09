@@ -16,7 +16,7 @@ defmodule GroupherServer.Test.Query.Accounts.Published.Works do
     {:ok, ~m(guest_conn user_conn community works user)a}
   end
 
-  describe "[published workss]" do
+  describe "[published works]" do
     @query """
     query($login: String!, $filter: PagedFilter!) {
       pagedPublishedWorks(login: $login, filter: $filter) {
@@ -35,7 +35,7 @@ defmodule GroupherServer.Test.Query.Accounts.Published.Works do
     }
     """
 
-    test "can get published workss", ~m(guest_conn community user)a do
+    test "can get published works", ~m(guest_conn community user)a do
       works_attrs = mock_attrs(:works, %{community_id: community.id})
 
       {:ok, works} = CMS.create_article(community, :works, works_attrs, user)

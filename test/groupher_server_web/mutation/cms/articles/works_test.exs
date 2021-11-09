@@ -24,6 +24,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
   describe "[mutation works curd]" do
     @create_works_query """
     mutation (
+      $cover: String!,
       $title: String!,
       $desc: String!,
       $homeLink: String!,
@@ -38,6 +39,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       $articleTags: [Id]
      ) {
       createWorks(
+        cover: $cover,
         title: $title,
         desc: $desc,
         homeLink: $homeLink,
@@ -53,6 +55,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
         ) {
           id
           title
+          cover
           desc
           homeLink
           profitMode
@@ -94,6 +97,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
 
       works_attr =
         mock_attrs(:works, %{
+          cover: "cool cover",
           desc: "cool works",
           homeLink: "homeLink",
           profitMode: "FREE",
@@ -130,6 +134,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
 
       assert created["id"] == to_string(found.id)
       assert created["desc"] == "cool works"
+      assert created["cover"] == "cool cover"
       assert created["homeLink"] == "homeLink"
 
       assert created["profitMode"] == "FREE"

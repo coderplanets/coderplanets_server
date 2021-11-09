@@ -1,7 +1,7 @@
 defmodule GroupherServer.CMS.Model.Embeds.CommunityMeta.Macro do
   @moduledoc false
 
-  import Helper.Utils, only: [get_config: 2]
+  import Helper.Utils, only: [get_config: 2, plural: 1]
 
   @article_threads get_config(:article, :threads)
 
@@ -9,7 +9,7 @@ defmodule GroupherServer.CMS.Model.Embeds.CommunityMeta.Macro do
     @article_threads
     |> Enum.map(fn thread ->
       quote do
-        field(unquote(:"#{thread}s_count"), :integer, default: 0)
+        field(unquote(:"#{plural(thread)}_count"), :integer, default: 0)
       end
     end)
   end
@@ -23,7 +23,7 @@ defmodule GroupherServer.CMS.Model.Embeds.CommunityMeta do
   use Accessible
 
   import Ecto.Changeset
-  import Helper.Utils, only: [get_config: 2]
+  import Helper.Utils, only: [get_config: 2, plural: 1]
   import GroupherServer.CMS.Model.Embeds.CommunityMeta.Macro
 
   @article_threads get_config(:article, :threads)
@@ -34,12 +34,13 @@ defmodule GroupherServer.CMS.Model.Embeds.CommunityMeta do
     contributes_digest: []
   }
 
-  @optional_fields Map.keys(@general_options) ++ Enum.map(@article_threads, &:"#{&1}s_count")
+  @optional_fields Map.keys(@general_options) ++
+                     Enum.map(@article_threads, &:"#{plural(&1)}_count")
 
   def default_meta() do
     threads_counts =
       @article_threads
-      |> Enum.reduce([], &(&2 ++ ["#{&1}s_count": 0]))
+      |> Enum.reduce([], &(&2 ++ ["#{plural(&1)}_count": 0]))
       |> Enum.into(%{})
 
     @general_options |> Map.merge(threads_counts)

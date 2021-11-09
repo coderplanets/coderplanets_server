@@ -21,20 +21,20 @@ defmodule GroupherServer.Test.CMS.Emotions.WorksEmotions do
     {:ok, ~m(user user2 user3 community works_attrs)a}
   end
 
-  describe "[emotion in paged workss]" do
+  describe "[emotion in paged works]" do
     test "login user should got viewer has emotioned status",
          ~m(community works_attrs user)a do
       total_count = 10
       page_number = 10
       page_size = 20
 
-      all_workss =
+      all_works =
         Enum.reduce(0..total_count, [], fn _, acc ->
           {:ok, works} = CMS.create_article(community, :works, works_attrs, user)
           acc ++ [works]
         end)
 
-      random_works = all_workss |> Enum.at(3)
+      random_works = all_works |> Enum.at(3)
 
       {:ok, _} = CMS.emotion_to_article(:works, random_works.id, :downvote, user)
       {:ok, _} = CMS.emotion_to_article(:works, random_works.id, :beer, user)

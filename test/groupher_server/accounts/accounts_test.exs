@@ -19,6 +19,7 @@ defmodule GroupherServer.Test.Accounts do
         nickname: "new nickname",
         sex: "dude",
         bio: "new bio",
+        shortbio: "new shortbio",
         email: "new@qq.com"
       }
 
@@ -26,6 +27,7 @@ defmodule GroupherServer.Test.Accounts do
 
       assert updated.bio == attrs.bio
       assert updated.nickname == attrs.nickname
+      assert updated.shortbio == attrs.shortbio
       assert updated.sex == attrs.sex
     end
 
@@ -36,7 +38,9 @@ defmodule GroupherServer.Test.Accounts do
         location: "new name",
         social: %{
           github: "github addr",
-          weibo: "weibo addr"
+          blog: "my blog",
+          company: "my company",
+          twitter: "twitter addr"
         }
       }
 
@@ -45,7 +49,10 @@ defmodule GroupherServer.Test.Accounts do
       assert updated.location == "new name"
 
       assert updated.social.github == attrs.social.github
-      assert updated.social.weibo == attrs.social.weibo
+      assert updated.social.twitter == attrs.social.twitter
+
+      assert updated.social.company == attrs.social.company
+      assert updated.social.blog == attrs.social.blog
     end
 
     test "update user education backgorunds with valid attrs" do

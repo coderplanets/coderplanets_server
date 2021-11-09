@@ -17,13 +17,25 @@ defmodule GroupherServerWeb.Schema.Account.Types do
     field(:is_valid, :boolean)
   end
 
+  object :user_meta do
+    field(:reported_count, :integer)
+    field(:published_posts_count, :integer)
+    field(:published_jobs_count, :integer)
+    field(:published_radars_count, :integer)
+    field(:published_blogs_count, :integer)
+    field(:published_works_count, :integer)
+    field(:published_meetups_count, :integer)
+  end
+
   object :user do
     meta(:cache, max_age: 30)
+    field(:meta, :user_meta)
     field(:id, :id)
     field(:nickname, :string)
     field(:login, :string)
     field(:avatar, :string)
     field(:bio, :string)
+    field(:shortbio, :string)
     field(:sex, :string)
     field(:email, :string)
 

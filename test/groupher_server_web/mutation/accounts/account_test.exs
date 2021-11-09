@@ -28,11 +28,14 @@ defmodule GroupherServer.Test.Mutation.Account.Basic do
         workBackgrounds: $workBackgrounds,
       ) {
         id
+        avatar
         nickname
         social {
           zhihu
           github
+          blog
           twitter
+          company
         }
         education_backgrounds {
           school
@@ -50,6 +53,7 @@ defmodule GroupherServer.Test.Mutation.Account.Basic do
 
       variables = %{
         profile: %{
+          avatar: "new avatar",
           nickname: "new nickname",
           bio: "everyday is the opportunity you don't get back,  so live life to the fullest",
           location: "china |> chengDu (成都).",
@@ -58,16 +62,21 @@ defmodule GroupherServer.Test.Mutation.Account.Basic do
         social: %{
           zhihu: "xieyiming-75",
           github: "mydearxym",
-          twitter: "fe2"
+          twitter: "fe2",
+          blog: "hello",
+          company: "world"
         }
       }
 
       updated = ownd_conn |> mutation_result(@update_query, variables, "updateProfile")
 
+      assert updated["avatar"] == "new avatar"
       assert updated["nickname"] == "new nickname"
       assert updated["social"]["zhihu"] == variables.social.zhihu
       assert updated["social"]["github"] == variables.social.github
       assert updated["social"]["twitter"] == variables.social.twitter
+      assert updated["social"]["blog"] == variables.social.blog
+      assert updated["social"]["company"] == variables.social.company
     end
 
     test "user can update it's own backgrounds", ~m(user)a do

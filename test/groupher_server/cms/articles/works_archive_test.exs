@@ -27,28 +27,28 @@ defmodule GroupherServer.Test.CMS.WorksArchive do
   end
 
   describe "[cms works archive]" do
-    test "can archive workss", ~m(works_long_ago)a do
+    test "can archive works", ~m(works_long_ago)a do
       {:ok, _} = CMS.archive_articles(:works)
 
-      archived_workss =
+      archived_works =
         Works
         |> where([article], article.inserted_at < ^@works_archive_threshold)
         |> Repo.all()
 
-      assert length(archived_workss) == 1
-      archived_works = archived_workss |> List.first()
+      assert length(archived_works) == 1
+      archived_works = archived_works |> List.first()
       assert archived_works.id == works_long_ago.id
     end
 
     test "can not edit archived works" do
       {:ok, _} = CMS.archive_articles(:works)
 
-      archived_workss =
+      archived_works =
         Works
         |> where([article], article.inserted_at < ^@works_archive_threshold)
         |> Repo.all()
 
-      archived_works = archived_workss |> List.first()
+      archived_works = archived_works |> List.first()
       {:error, reason} = CMS.update_article(archived_works, %{"title" => "new title"})
       assert reason |> is_error?(:archived)
     end
@@ -56,12 +56,12 @@ defmodule GroupherServer.Test.CMS.WorksArchive do
     test "can not delete archived works" do
       {:ok, _} = CMS.archive_articles(:works)
 
-      archived_workss =
+      archived_works =
         Works
         |> where([article], article.inserted_at < ^@works_archive_threshold)
         |> Repo.all()
 
-      archived_works = archived_workss |> List.first()
+      archived_works = archived_works |> List.first()
 
       {:error, reason} = CMS.mark_delete_article(:works, archived_works.id)
       assert reason |> is_error?(:archived)

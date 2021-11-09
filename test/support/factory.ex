@@ -225,6 +225,7 @@ defmodule GroupherServer.Support.Factory do
 
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "WORKS"}),
+      cover: "cover attrs",
       title: "works-#{String.slice(text, 1, 49)}",
       desc: "works desc",
       homeLink: "https://cool-works.com",
