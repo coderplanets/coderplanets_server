@@ -24,6 +24,7 @@ defmodule GroupherServer.Test.Articles.Works do
   end
 
   describe "[cms real works curd]" do
+    @tag :wip
     test "create works with full attrs", ~m(user works_attrs)a do
       social_info = [
         %{platform: "github", link: "https://github.com/xxx"},
@@ -45,6 +46,7 @@ defmodule GroupherServer.Test.Articles.Works do
           working_mode: "FULLTIME",
           techstacks: ["elixir", "React"],
           cities: ["chengdu", "xiamen"],
+          teammates: [user.login],
           social_info: social_info,
           app_store: app_store
         })
@@ -55,6 +57,8 @@ defmodule GroupherServer.Test.Articles.Works do
       assert works.desc == "cool works"
       assert works.profit_mode == "FREE"
       assert works.working_mode == "FULLTIME"
+
+      assert works.teammates |> List.first() |> Map.get(:login) === user.login
 
       assert not is_nil(works.social_info)
       assert not is_nil(works.app_store)
@@ -93,8 +97,11 @@ defmodule GroupherServer.Test.Articles.Works do
       assert techstack.raw == "elixir"
     end
 
-    test "update works with full attrs", ~m(user works_attrs)a do
+    @tag :wip
+    test "update works with full attrs", ~m(user user2 works_attrs)a do
+      works_attrs = works_attrs |> Map.merge(%{teammates: [user.login]})
       {:ok, works} = CMS.create_works(works_attrs, user)
+      assert works.teammates |> length == 1
 
       social_info = [
         %{platform: "github", link: "https://github.com/xxx"},
@@ -107,7 +114,17 @@ defmodule GroupherServer.Test.Articles.Works do
         %{platform: "others", link: "https://others.com/xxx"}
       ]
 
-      {:ok, works} = CMS.update_works(works, %{social_info: social_info, app_store: app_store})
+      teammates = [user.login, user2.login]
+
+      {:ok, works} =
+        CMS.update_works(works, %{
+          social_info: social_info,
+          app_store: app_store,
+          teammates: teammates
+        })
+
+      assert works.teammates |> length == 2
+
       assert not is_nil(works.social_info)
       assert not is_nil(works.app_store)
     end

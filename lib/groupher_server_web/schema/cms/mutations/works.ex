@@ -19,6 +19,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Works do
       arg(:article_tags, list_of(:id))
 
       arg(:techstacks, list_of(:string))
+      arg(:teammates, list_of(:string))
       arg(:cities, list_of(:string))
 
       arg(:profit_mode, :profit_mode)
@@ -45,6 +46,7 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Works do
       arg(:article_tags, list_of(:id))
 
       arg(:techstacks, list_of(:string))
+      arg(:teammates, list_of(:string))
       arg(:cities, list_of(:string))
 
       arg(:profit_mode, :profit_mode)

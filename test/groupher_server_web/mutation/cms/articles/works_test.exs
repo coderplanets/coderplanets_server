@@ -9,6 +9,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
 
   setup do
     {:ok, user} = db_insert(:user)
+    {:ok, user2} = db_insert(:user)
     {:ok, community} = db_insert(:community, %{raw: "home"})
 
     works_attrs = mock_attrs(:works, %{community_id: community.id})
@@ -18,7 +19,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
     user_conn = simu_conn(:user)
     owner_conn = simu_conn(:owner, works)
 
-    {:ok, ~m(user_conn guest_conn owner_conn community user works)a}
+    {:ok, ~m(user_conn user user2 guest_conn owner_conn community user works)a}
   end
 
   describe "[mutation works curd]" do
@@ -34,6 +35,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       $workingMode: WorkingMode,
       $cities: [String],
       $techstacks: [String],
+      $teammates: [String],
       $socialInfo: [SocialInfo],
       $appStore: [AppStoreInfo],
       $articleTags: [Id]
@@ -49,6 +51,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
         workingMode: $workingMode,
         cities: $cities,
         techstacks: $techstacks,
+        teammates: $teammates,
         socialInfo: $socialInfo,
         appStore: $appStore,
         articleTags: $articleTags
@@ -69,6 +72,11 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
             title
             desc
             logo
+          }
+          teammates {
+            login
+            nickname
+            avatar
           }
           socialInfo {
             platform
@@ -91,7 +99,8 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       }
     }
     """
-    test "create works with valid attrs and make sure author exsit", ~m(community)a do
+    @tag :wip
+    test "create works with valid attrs and make sure author exsit", ~m(community user user2)a do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)
 
@@ -104,6 +113,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
           workingMode: "FULLTIME",
           cities: ["chengdu", "xiamen"],
           techstacks: ["elixir", "React"],
+          teammates: [user.login, user2.login],
           socialInfo: [
             %{
               platform: "TWITTER",
@@ -136,6 +146,10 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       assert created["desc"] == "cool works"
       assert created["cover"] == "cool cover"
       assert created["homeLink"] == "homeLink"
+
+      assert created["teammates"] |> length == 2
+      assert user_exist_in?(user, created["teammates"])
+      assert user_exist_in?(user2, created["teammates"])
 
       assert created["profitMode"] == "FREE"
       assert created["workingMode"] == "FULLTIME"
