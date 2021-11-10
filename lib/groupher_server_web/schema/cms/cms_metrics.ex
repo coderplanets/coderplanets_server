@@ -19,6 +19,7 @@ defmodule GroupherServerWeb.Schema.CMS.Metrics do
     field(:views, :integer)
     field(:upvotes_count, :integer)
     field(:meta, :article_meta)
+    field(:pending, :integer)
 
     # 这里只是遵循 absinthe 的规范，并不是指返回以下的字段
     resolve_type(fn parent_module, _ -> module_to_atom(parent_module) end)

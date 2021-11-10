@@ -100,7 +100,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       }
     }
     """
-    @tag :wip
     test "create works with valid attrs and make sure author exsit", ~m(community user2)a do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)

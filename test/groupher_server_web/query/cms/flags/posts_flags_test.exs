@@ -4,9 +4,11 @@ defmodule GroupherServer.Test.Query.Flags.PostsFlags do
   import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.CMS
+  alias Helper.ORM
 
   @total_count 35
   @page_size get_config(:general, :page_size)
+  @audit_pending 1
 
   setup do
     {:ok, user} = db_insert(:user)
@@ -30,7 +32,41 @@ defmodule GroupherServer.Test.Query.Flags.PostsFlags do
     {:ok, ~m(guest_conn community user post_b post_m post_e)a}
   end
 
-  describe "[query posts flags]" do
+  describe "[pending posts flags]" do
+    @query """
+    query($filter: PagedPostsFilter!) {
+      pagedPosts(filter: $filter) {
+        entries {
+          id
+          pending
+          communities {
+            raw
+          }
+        }
+        totalPages
+        totalCount
+        pageSize
+        pageNumber
+      }
+    }
+    """
+    @tag :wip
+    test "pending post should not see in paged query", ~m(guest_conn community post_m)a do
+      variables = %{filter: %{community: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+
+      assert results["totalCount"] == @total_count
+
+      {:ok, _} = CMS.set_pending(:post, post_m.id, %{})
+      {:ok, post_m} = ORM.find(CMS.Model.Post, post_m.id)
+      assert post_m.pending == @audit_pending
+
+      results = guest_conn |> query_result(@query, variables, "pagedPosts")
+      assert results["totalCount"] == @total_count - 1
+    end
+  end
+
+  describe "[pinned posts flags]" do
     @query """
     query($filter: PagedPostsFilter!) {
       pagedPosts(filter: $filter) {
@@ -48,7 +84,6 @@ defmodule GroupherServer.Test.Query.Flags.PostsFlags do
       }
     }
     """
-
     test "if have pinned posts, the pinned posts should at the top of entries",
          ~m(guest_conn community post_m)a do
       variables = %{filter: %{community: community.raw}}

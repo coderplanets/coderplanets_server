@@ -125,7 +125,8 @@ defmodule GroupherServer.CMS.Helper.Macros do
       :upvotes_count,
       :collects_count,
       :mark_delete,
-      :active_at
+      :active_at,
+      :pending
     ]
   end
 
@@ -208,8 +209,8 @@ defmodule GroupherServer.CMS.Helper.Macros do
       field(:is_archived, :boolean)
       field(:archived_at, :utc_datetime_usec)
 
-      # TODO:
-      # related_articles
+      field(:pending, :integer)
+
       timestamps()
     end
   end

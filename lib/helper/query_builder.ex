@@ -169,6 +169,9 @@ defmodule Helper.QueryBuilder do
       {:mark_delete, bool}, queryable ->
         queryable |> where([p], p.mark_delete == ^bool)
 
+      {:pending, state}, queryable ->
+        queryable |> where([p], p.pending == ^state)
+
       {_, _}, queryable ->
         queryable
     end)

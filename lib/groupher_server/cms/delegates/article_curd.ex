@@ -46,6 +46,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   @default_article_meta Embeds.ArticleMeta.default_meta()
   @remove_article_hint "The content does not comply with the community norms"
 
+  @no_pending 0
+  @audit_pending 1
+  @audit_pending_failed 2
+
   @doc """
   read articles for un-logined user
   """
@@ -96,16 +100,30 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   """
   def paged_articles(thread, filter) do
     %{page: page, size: size} = filter
+    flags = %{mark_delete: false, pending: @no_pending}
 
     with {:ok, info} <- match(thread) do
       info.model
       |> QueryBuilder.domain_query(filter)
-      |> QueryBuilder.filter_pack(Map.merge(filter, %{mark_delete: false}))
+      |> QueryBuilder.filter_pack(Map.merge(filter, flags))
       |> ORM.paginator(~m(page size)a)
       # |> ORM.cursor_paginator()
       |> add_pin_articles_ifneed(info.model, filter)
       |> done()
     end
+  end
+
+  @doc """
+  pending an article due to forbid words or spam talk
+  """
+  def set_pending(thread, id, attrs) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id) do
+      ORM.update(article, %{pending: @audit_pending})
+    end
+  end
+
+  def unset_pending(thread, id, attrs) do
   end
 
   def paged_articles(thread, filter, %User{} = user) do
