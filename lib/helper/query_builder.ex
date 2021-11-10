@@ -7,6 +7,8 @@ defmodule Helper.QueryBuilder do
   alias GroupherServer.CMS
   alias CMS.Model.Repo, as: CMSRepo
 
+  @audit_illegal CMS.Constant.pending(:illegal)
+
   @doc """
   load inner user field
   """
@@ -169,8 +171,8 @@ defmodule Helper.QueryBuilder do
       {:mark_delete, bool}, queryable ->
         queryable |> where([p], p.mark_delete == ^bool)
 
-      {:pending, state}, queryable ->
-        queryable |> where([p], p.pending == ^state)
+      {:pending, :no_illegal}, queryable ->
+        queryable |> where([p], p.pending != ^@audit_illegal)
 
       {_, _}, queryable ->
         queryable
