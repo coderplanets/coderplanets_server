@@ -8,6 +8,7 @@ defmodule GroupherServer.Test.Query.Flags.PostsFlags do
 
   @total_count 35
   @page_size get_config(:general, :page_size)
+  @no_pending 0
   @audit_pending 1
 
   setup do
@@ -63,6 +64,50 @@ defmodule GroupherServer.Test.Query.Flags.PostsFlags do
 
       results = guest_conn |> query_result(@query, variables, "pagedPosts")
       assert results["totalCount"] == @total_count - 1
+    end
+
+    @tag :wip
+    test "pending post can not be read", ~m(post_m)a do
+      {:ok, _} = CMS.read_article(:post, post_m.id)
+
+      {:ok, _} = CMS.set_pending(:post, post_m.id, %{})
+      {:ok, post_m} = ORM.find(CMS.Model.Post, post_m.id)
+      assert post_m.pending == @audit_pending
+
+      {:error, reason} = CMS.read_article(:post, post_m.id)
+      assert reason |> is_error?(:pending)
+    end
+
+    @tag :wip
+    test "author can read it's own pending post", ~m(community user)a do
+      post_attrs = mock_attrs(:post, %{community_id: community.id})
+      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+
+      {:ok, _} = CMS.read_article(:post, post.id)
+      {:ok, _} = CMS.set_pending(:post, post.id, %{})
+
+      {:ok, post_read} = CMS.read_article(:post, post.id, user)
+      assert post_read.id == post.id
+
+      {:ok, user2} = db_insert(:user)
+      {:error, reason} = CMS.read_article(:post, post.id, user2)
+      assert reason |> is_error?(:pending)
+    end
+
+    @tag :wip
+    test "pending post can unset pending", ~m(post_m)a do
+      {:ok, _} = CMS.read_article(:post, post_m.id)
+
+      {:ok, _} = CMS.set_pending(:post, post_m.id, %{})
+      {:ok, post_m} = ORM.find(CMS.Model.Post, post_m.id)
+      assert post_m.pending == @audit_pending
+
+      {:ok, _} = CMS.unset_pending(:post, post_m.id, %{})
+
+      {:ok, post_m} = ORM.find(CMS.Model.Post, post_m.id)
+      assert post_m.pending == @no_pending
+
+      {:ok, _} = CMS.read_article(:post, post_m.id)
     end
   end
 

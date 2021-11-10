@@ -54,45 +54,32 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   read articles for un-logined user
   """
   def read_article(thread, id) do
-    with {:ok, info} <- match(thread) do
-      Multi.new()
-      |> Multi.run(:inc_views, fn _, _ -> ORM.read(info.model, id, inc: :views) end)
-      |> Multi.run(:load_html, fn _, %{inc_views: article} ->
-        article |> Repo.preload(:document) |> done
-      end)
-      |> Multi.run(:update_article_meta, fn _, %{load_html: article} ->
-        article_meta = ensure(article.meta, @default_article_meta)
-        meta = Map.merge(article_meta, %{can_undo_sink: in_active_period?(thread, article)})
+    with {:ok, article} <- check_article_state(thread, id) do
+      do_read_article(article, thread)
+    end
+  end
 
-        ORM.update_meta(article, meta)
+  def read_article(thread, id, %User{id: user_id}) do
+    with {:ok, article} <- check_article_state(thread, id, user_id) do
+      Multi.new()
+      |> Multi.run(:normal_read, fn _, _ -> do_read_article(article, thread) end)
+      |> Multi.run(:add_viewed_user, fn _, %{normal_read: article} ->
+        update_viewed_user_list(article, user_id)
+      end)
+      |> Multi.run(:set_viewer_has_states, fn _, %{normal_read: article} ->
+        article_meta = if is_nil(article.meta), do: @default_article_meta, else: article.meta
+
+        viewer_has_states = %{
+          viewer_has_collected: user_id in article_meta.collected_user_ids,
+          viewer_has_upvoted: user_id in article_meta.upvoted_user_ids,
+          viewer_has_reported: user_id in article_meta.reported_user_ids
+        }
+
+        article |> Map.merge(viewer_has_states) |> done
       end)
       |> Repo.transaction()
       |> result()
     end
-  end
-
-  @doc """
-  read articles for logined user
-  """
-  def read_article(thread, id, %User{id: user_id}) do
-    Multi.new()
-    |> Multi.run(:normal_read, fn _, _ -> read_article(thread, id) end)
-    |> Multi.run(:add_viewed_user, fn _, %{normal_read: article} ->
-      update_viewed_user_list(article, user_id)
-    end)
-    |> Multi.run(:set_viewer_has_states, fn _, %{normal_read: article} ->
-      article_meta = if is_nil(article.meta), do: @default_article_meta, else: article.meta
-
-      viewer_has_states = %{
-        viewer_has_collected: user_id in article_meta.collected_user_ids,
-        viewer_has_upvoted: user_id in article_meta.upvoted_user_ids,
-        viewer_has_reported: user_id in article_meta.reported_user_ids
-      }
-
-      article |> Map.merge(viewer_has_states) |> done
-    end)
-    |> Repo.transaction()
-    |> result()
   end
 
   @doc """
@@ -124,6 +111,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   end
 
   def unset_pending(thread, id, attrs) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id) do
+      ORM.update(article, %{pending: @no_pending})
+    end
   end
 
   def paged_articles(thread, filter, %User{} = user) do
@@ -455,6 +446,44 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   # defp handle_existing_author({:error, changeset}) do
   #   ORM.find_by(Author, user_id: changeset.data.user_id)
   # end
+
+  defp do_read_article(article, thread) do
+    Multi.new()
+    |> Multi.run(:inc_views, fn _, _ -> ORM.read(article, inc: :views) end)
+    |> Multi.run(:load_html, fn _, %{inc_views: article} ->
+      article |> Repo.preload(:document) |> done
+    end)
+    |> Multi.run(:update_article_meta, fn _, %{load_html: article} ->
+      article_meta = ensure(article.meta, @default_article_meta)
+      meta = Map.merge(article_meta, %{can_undo_sink: in_active_period?(thread, article)})
+
+      ORM.update_meta(article, meta)
+    end)
+    |> Repo.transaction()
+    |> result()
+  end
+
+  # pending article should not be seen
+  defp check_article_state(thread, id) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id) do
+      case article.pending === @no_pending do
+        true -> {:ok, article}
+        false -> raise_error(:pending, "this article is under audition")
+      end
+    end
+  end
+
+  # pending article can be seen is viewer is author
+  defp check_article_state(thread, id, user_id) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id, preload: :author) do
+      case article.pending != @no_pending and article.author.user_id != user_id do
+        true -> raise_error(:pending, "this article is under audition")
+        false -> {:ok, article}
+      end
+    end
+  end
 
   defp add_pin_articles_ifneed(articles, querable, %{community: community} = filter) do
     thread = module_to_atom(querable)
