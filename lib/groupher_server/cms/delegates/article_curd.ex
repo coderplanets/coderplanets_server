@@ -31,7 +31,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   alias CMS.Delegate.{
     ArticleCommunity,
-    CommentCurd,
+    CommentCURD,
     ArticleTag,
     CommunityCURD,
     Document,
@@ -357,7 +357,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     |> Multi.run(:update_comment_question_flag_if_need, fn _, %{update_article: update_article} ->
       # 如果帖子的类型变了，那么 update 所有的 flag
       case Map.has_key?(attrs, :is_question) do
-        true -> CommentCurd.batch_update_question_flag(update_article)
+        true -> CommentCURD.batch_update_question_flag(update_article)
         false -> {:ok, :pass}
       end
     end)
@@ -367,6 +367,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     |> Multi.run(:after_hooks, fn _, %{update_article: update_article} ->
       Later.run({Hooks.Cite, :handle, [update_article]})
       Later.run({Hooks.Mention, :handle, [update_article]})
+      Later.run({Hooks.Audition, :handle, [update_article]})
     end)
     |> Repo.transaction()
     |> result()

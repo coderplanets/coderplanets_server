@@ -1,4 +1,6 @@
-defmodule GroupherServer.Test.CMS.Comments.PendingFlag do
+defmodule GroupherServer.Test.CMS.Comments.GuidePending do
+  @moduledoc false
+
   use GroupherServer.TestTools
 
   import Helper.Utils, only: [get_config: 2]
@@ -7,23 +9,25 @@ defmodule GroupherServer.Test.CMS.Comments.PendingFlag do
   alias Accounts.Model.User
   alias CMS.Model.Comment
   alias Helper.ORM
+  alias CMS.Constant
 
-  @total_count 35
-  @page_size get_config(:general, :page_size)
+  @audit_legal Constant.pending(:legal)
+  @audit_illegal Constant.pending(:illegal)
 
   setup do
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
 
-    {:ok, post} = db_insert(:post)
+    {:ok, guide} = db_insert(:guide)
     guest_conn = simu_conn(:guest)
 
-    {:ok, ~m(guest_conn community user post)a}
+    {:ok, ~m(guest_conn community user guide)a}
   end
 
-  describe "[pending post comemnt flags]" do
-    test "pending post comment can set/unset pending", ~m(post user)a do
-      {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
+  describe "[pending guide comemnt flags]" do
+    @tag :wip
+    test "pending guide comment can set/unset pending", ~m(guide user)a do
+      {:ok, comment} = CMS.create_comment(:guide, guide.id, mock_comment(), user)
 
       {:ok, _} =
         CMS.set_comment_illegal(comment.id, %{
@@ -46,15 +50,16 @@ defmodule GroupherServer.Test.CMS.Comments.PendingFlag do
       assert comment.pending == @audit_legal
     end
 
-    test "pending post-comment's meta should have info", ~m(post user)a do
-      {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
+    @tag :wip
+    test "pending guide-comment's meta should have info", ~m(guide user)a do
+      {:ok, comment} = CMS.create_comment(:guide, guide.id, mock_comment(), user)
 
       {:ok, _} =
         CMS.set_comment_illegal(comment.id, %{
           is_legal: false,
           illegal_reason: ["some-reason"],
           illegal_words: ["some-word"],
-          illegal_comments: ["/post/#{post.id}/comment/#{comment.id}"]
+          illegal_comments: ["/guide/#{guide.id}/comment/#{comment.id}"]
         })
 
       {:ok, comment} = ORM.find(Comment, comment.id)
@@ -65,14 +70,14 @@ defmodule GroupherServer.Test.CMS.Comments.PendingFlag do
 
       {:ok, user} = ORM.find(User, comment.author_id)
       assert user.meta.has_illegal_comments
-      assert user.meta.illegal_comments == ["/post/#{post.id}/comment/#{comment.id}"]
+      assert user.meta.illegal_comments == ["/guide/#{guide.id}/comment/#{comment.id}"]
 
       {:ok, _} =
         CMS.unset_comment_illegal(comment.id, %{
           is_legal: true,
           illegal_reason: [],
           illegal_words: [],
-          illegal_comments: ["/post/#{post.id}/comment/#{comment.id}"]
+          illegal_comments: ["/guide/#{guide.id}/comment/#{comment.id}"]
         })
 
       {:ok, comment} = ORM.find(Comment, comment.id)
@@ -84,11 +89,6 @@ defmodule GroupherServer.Test.CMS.Comments.PendingFlag do
       {:ok, user} = ORM.find(User, comment.author_id)
       assert not user.meta.has_illegal_comments
       assert user.meta.illegal_comments == []
-    end
-  end
-
-  describe "audit hooks" do
-    test "forbid words should return relative state" do
     end
   end
 end
