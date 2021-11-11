@@ -5,7 +5,6 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Audition do
   parse and fmt(see shape function) mentions to Delivery module
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [get_config: 2]
 
   alias GroupherServer.{CMS, Repo}
   alias Helper.AuditBot

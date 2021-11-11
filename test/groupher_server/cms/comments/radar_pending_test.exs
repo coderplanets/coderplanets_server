@@ -3,8 +3,6 @@ defmodule GroupherServer.Test.CMS.Comments.RadarPending do
 
   use GroupherServer.TestTools
 
-  import Helper.Utils, only: [get_config: 2]
-
   alias GroupherServer.{Accounts, CMS}
   alias Accounts.Model.User
   alias CMS.Model.Comment
@@ -25,7 +23,6 @@ defmodule GroupherServer.Test.CMS.Comments.RadarPending do
   end
 
   describe "[pending radar comemnt flags]" do
-    @tag :wip
     test "pending radar comment can set/unset pending", ~m(radar user)a do
       {:ok, comment} = CMS.create_comment(:radar, radar.id, mock_comment(), user)
 
@@ -50,7 +47,6 @@ defmodule GroupherServer.Test.CMS.Comments.RadarPending do
       assert comment.pending == @audit_legal
     end
 
-    @tag :wip
     test "pending radar-comment's meta should have info", ~m(radar user)a do
       {:ok, comment} = CMS.create_comment(:radar, radar.id, mock_comment(), user)
 

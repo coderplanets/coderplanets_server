@@ -3,8 +3,6 @@ defmodule GroupherServer.Test.CMS.Comments.GuidePending do
 
   use GroupherServer.TestTools
 
-  import Helper.Utils, only: [get_config: 2]
-
   alias GroupherServer.{Accounts, CMS}
   alias Accounts.Model.User
   alias CMS.Model.Comment
@@ -25,7 +23,6 @@ defmodule GroupherServer.Test.CMS.Comments.GuidePending do
   end
 
   describe "[pending guide comemnt flags]" do
-    @tag :wip
     test "pending guide comment can set/unset pending", ~m(guide user)a do
       {:ok, comment} = CMS.create_comment(:guide, guide.id, mock_comment(), user)
 
@@ -50,7 +47,6 @@ defmodule GroupherServer.Test.CMS.Comments.GuidePending do
       assert comment.pending == @audit_legal
     end
 
-    @tag :wip
     test "pending guide-comment's meta should have info", ~m(guide user)a do
       {:ok, comment} = CMS.create_comment(:guide, guide.id, mock_comment(), user)
 

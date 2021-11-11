@@ -92,9 +92,10 @@ defmodule GroupherServer.CMS do
   defdelegate unset_article_illegal(article, attrs), to: ArticleCURD
   defdelegate set_article_audit_failed(article, state), to: ArticleCURD
 
-  defdelegate paged_articles(queryable, filter), to: ArticleCURD
-  defdelegate paged_articles(queryable, filter, user), to: ArticleCURD
-  defdelegate paged_published_articles(queryable, filter, user), to: ArticleCURD
+  defdelegate paged_articles(thread, filter), to: ArticleCURD
+  defdelegate paged_articles(thread, filter, user), to: ArticleCURD
+  defdelegate paged_published_articles(thread, filter, user), to: ArticleCURD
+  defdelegate paged_audit_failed_articles(thread, filter), to: ArticleCURD
 
   defdelegate create_article(community, thread, attrs, user), to: ArticleCURD
   defdelegate update_article(article, attrs), to: ArticleCURD
@@ -161,6 +162,7 @@ defmodule GroupherServer.CMS do
 
   defdelegate set_comment_illegal(comment_id, attrs), to: CommentCURD
   defdelegate unset_comment_illegal(comment_id, attrs), to: CommentCURD
+  defdelegate paged_audit_failed_comments(filter), to: CommentCURD
 
   defdelegate set_comment_audit_failed(comment, state), to: CommentCURD
 

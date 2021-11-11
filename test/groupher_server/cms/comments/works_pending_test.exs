@@ -3,8 +3,6 @@ defmodule GroupherServer.Test.CMS.Comments.WorksPending do
 
   use GroupherServer.TestTools
 
-  import Helper.Utils, only: [get_config: 2]
-
   alias GroupherServer.{Accounts, CMS}
   alias Accounts.Model.User
   alias CMS.Model.Comment
@@ -25,7 +23,6 @@ defmodule GroupherServer.Test.CMS.Comments.WorksPending do
   end
 
   describe "[pending works comemnt flags]" do
-    @tag :wip
     test "pending works comment can set/unset pending", ~m(works user)a do
       {:ok, comment} = CMS.create_comment(:works, works.id, mock_comment(), user)
 
@@ -50,7 +47,6 @@ defmodule GroupherServer.Test.CMS.Comments.WorksPending do
       assert comment.pending == @audit_legal
     end
 
-    @tag :wip
     test "pending works-comment's meta should have info", ~m(works user)a do
       {:ok, comment} = CMS.create_comment(:works, works.id, mock_comment(), user)
 

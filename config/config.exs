@@ -158,7 +158,11 @@ config :groupher_server, Helper.Scheduler,
   jobs: [
     # Every midnight
     {"@daily", {Helper.Scheduler, :clear_all_cache, []}},
-    {"@daily", {Helper.Scheduler, :archive_artiments, []}}
+    {"@daily", {Helper.Scheduler, :archive_artiments, []}},
+    # Every 59 minutes
+    {"*/59 * * * *", {Helper.Scheduler, :articles_audition, []}},
+    # Every 29 minutes
+    {"*/29 * * * *", {Helper.Scheduler, :comments_audition, []}}
   ]
 
 # handle background jobs

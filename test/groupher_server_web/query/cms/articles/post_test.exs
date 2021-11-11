@@ -53,7 +53,6 @@ defmodule GroupherServer.Test.Query.Articles.Post do
     assert is_valid_kv?(results, "title", :string)
   end
 
-  @tag :wip2
   test "pending state should in meta", ~m(guest_conn user_conn community user post_attrs)a do
     {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
     variables = %{id: post.id}

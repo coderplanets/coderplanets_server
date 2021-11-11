@@ -1,14 +1,11 @@
 defmodule GroupherServer.Test.CMS.PostPendingFlag do
   use GroupherServer.TestTools
 
-  import Helper.Utils, only: [get_config: 2]
-
   alias GroupherServer.{Accounts, CMS, Repo}
   alias Accounts.Model.User
   alias Helper.ORM
 
   @total_count 35
-  @page_size get_config(:general, :page_size)
 
   @audit_legal CMS.Constant.pending(:legal)
   @audit_illegal CMS.Constant.pending(:illegal)
@@ -138,8 +135,22 @@ defmodule GroupherServer.Test.CMS.PostPendingFlag do
     end
   end
 
-  describe "audit hooks" do
-    test "forbid words should return relative state" do
-    end
+  alias CMS.Delegate.Hooks
+
+  test "can audit paged audit failed posts", ~m(post_m)a do
+    {:ok, post} = ORM.find(CMS.Model.Post, post_m.id)
+
+    {:ok, _} = CMS.set_article_audit_failed(post, %{})
+
+    {:ok, result} = CMS.paged_audit_failed_articles(:post, %{page: 1, size: 20})
+    assert result |> is_valid_pagination?(:raw)
+    assert result.total_count == 1
+
+    Enum.map(result.entries, fn post ->
+      Hooks.Audition.handle(post)
+    end)
+
+    {:ok, result} = CMS.paged_audit_failed_articles(:post, %{page: 1, size: 20})
+    assert result.total_count == 0
   end
 end

@@ -158,6 +158,17 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
     do_paged_comment(thread, article_id, filters, where_query, user)
   end
 
+  # get audit failed articles
+  def paged_audit_failed_comments(filter) do
+    %{page: page, size: size} = filter
+    flags = %{pending: :audit_failed}
+
+    Comment
+    |> QueryBuilder.filter_pack(Map.merge(filter, flags))
+    |> ORM.paginator(~m(page size)a)
+    |> done()
+  end
+
   @doc """
   list paged comment replies
   """

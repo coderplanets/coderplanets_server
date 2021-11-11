@@ -89,7 +89,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   """
   def paged_articles(thread, filter) do
     %{page: page, size: size} = filter
-    flags = %{mark_delete: false, pending: :no_illegal}
+    flags = %{mark_delete: false, pending: :legal}
 
     with {:ok, info} <- match(thread) do
       info.model
@@ -98,6 +98,63 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> ORM.paginator(~m(page size)a)
       # |> ORM.cursor_paginator()
       |> add_pin_articles_ifneed(info.model, filter)
+      |> done()
+    end
+  end
+
+  def paged_articles(thread, filter, %User{} = user) do
+    with {:ok, stateless_paged_articles} <- paged_articles(thread, filter) do
+      stateless_paged_articles
+      |> mark_viewer_emotion_states(user)
+      |> mark_viewer_has_states(user)
+      |> done()
+    end
+  end
+
+  @doc "paged published articles for accounts"
+  def paged_published_articles(thread, filter, user_id) do
+    %{page: page, size: size} = filter
+
+    with {:ok, info} <- match(thread),
+         {:ok, user} <- ORM.find(User, user_id) do
+      info.model
+      |> join(:inner, [article], author in assoc(article, :author))
+      |> where([article, author], author.user_id == ^user.id)
+      |> select([article, author], article)
+      |> QueryBuilder.filter_pack(filter)
+      |> ORM.paginator(~m(page size)a)
+      |> mark_viewer_emotion_states(user)
+      |> mark_viewer_has_states(user)
+      |> done()
+    end
+  end
+
+  # get audit failed articles
+  def paged_audit_failed_articles(thread, filter) do
+    %{page: page, size: size} = filter
+    flags = %{mark_delete: false, pending: :audit_failed}
+
+    with {:ok, info} <- match(thread) do
+      info.model
+      |> QueryBuilder.filter_pack(Map.merge(filter, flags))
+      |> ORM.paginator(~m(page size)a)
+      |> done()
+    end
+  end
+
+  @doc """
+  archive articles based on thread
+  called every day by scheuler job
+  """
+  def archive_articles(thread) do
+    with {:ok, info} <- match(thread) do
+      now = Timex.now()
+      threshold = @archive_threshold[thread] || @archive_threshold[:default]
+      archive_threshold = Timex.shift(now, threshold)
+
+      info.model
+      |> where([article], article.inserted_at < ^archive_threshold)
+      |> Repo.update_all(set: [is_archived: true, archived_at: now])
       |> done()
     end
   end
@@ -189,50 +246,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end)
     |> Repo.transaction()
     |> result()
-  end
-
-  def paged_articles(thread, filter, %User{} = user) do
-    with {:ok, stateless_paged_articles} <- paged_articles(thread, filter) do
-      stateless_paged_articles
-      |> mark_viewer_emotion_states(user)
-      |> mark_viewer_has_states(user)
-      |> done()
-    end
-  end
-
-  @doc "paged published articles for accounts"
-  def paged_published_articles(thread, filter, user_id) do
-    %{page: page, size: size} = filter
-
-    with {:ok, info} <- match(thread),
-         {:ok, user} <- ORM.find(User, user_id) do
-      info.model
-      |> join(:inner, [article], author in assoc(article, :author))
-      |> where([article, author], author.user_id == ^user.id)
-      |> select([article, author], article)
-      |> QueryBuilder.filter_pack(filter)
-      |> ORM.paginator(~m(page size)a)
-      |> mark_viewer_emotion_states(user)
-      |> mark_viewer_has_states(user)
-      |> done()
-    end
-  end
-
-  @doc """
-  archive articles based on thread
-  called every day by scheuler job
-  """
-  def archive_articles(thread) do
-    with {:ok, info} <- match(thread) do
-      now = Timex.now()
-      threshold = @archive_threshold[thread] || @archive_threshold[:default]
-      archive_threshold = Timex.shift(now, threshold)
-
-      info.model
-      |> where([article], article.inserted_at < ^archive_threshold)
-      |> Repo.update_all(set: [is_archived: true, archived_at: now])
-      |> done()
-    end
   end
 
   defp mark_viewer_has_states(%{entries: []} = articles, _), do: articles

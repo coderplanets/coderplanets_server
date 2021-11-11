@@ -8,6 +8,7 @@ defmodule Helper.QueryBuilder do
   alias CMS.Model.Repo, as: CMSRepo
 
   @audit_illegal CMS.Constant.pending(:illegal)
+  @audit_failed CMS.Constant.pending(:audit_failed)
 
   @doc """
   load inner user field
@@ -171,8 +172,11 @@ defmodule Helper.QueryBuilder do
       {:mark_delete, bool}, queryable ->
         queryable |> where([p], p.mark_delete == ^bool)
 
-      {:pending, :no_illegal}, queryable ->
+      {:pending, :legal}, queryable ->
         queryable |> where([p], p.pending != ^@audit_illegal)
+
+      {:pending, :audit_failed}, queryable ->
+        queryable |> where([p], p.pending == ^@audit_failed)
 
       {_, _}, queryable ->
         queryable

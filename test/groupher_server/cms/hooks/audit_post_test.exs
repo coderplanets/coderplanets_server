@@ -24,7 +24,6 @@ defmodule GroupherServer.Test.CMS.Hooks.AuditPost do
   end
 
   describe "[audit post basic]" do
-    @tag :wip
     test "ugly words shoud get audit", ~m(user community  post_attrs)a do
       body = mock_rich_text("M卖批, 这也太操蛋了, 党中央")
 
@@ -41,7 +40,6 @@ defmodule GroupherServer.Test.CMS.Hooks.AuditPost do
       assert post.meta.illegal_words == ["党中央", "操蛋", "卖批"]
     end
 
-    @tag :wip
     test "normal words shoud not get audit", ~m(user community  post_attrs)a do
       body = mock_rich_text("世界属于三体")
 
@@ -58,7 +56,6 @@ defmodule GroupherServer.Test.CMS.Hooks.AuditPost do
       assert post.meta.illegal_words == []
     end
 
-    @tag :wip
     test "failed audit should have falied state", ~m(user community  post_attrs)a do
       body = mock_rich_text("世界属于三体")
 

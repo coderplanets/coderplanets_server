@@ -20,7 +20,6 @@ defmodule GroupherServer.Test.CMS.Hooks.AuditPostComment do
   end
 
   describe "[audit post basic]" do
-    @tag :wip
     test "ugly words shoud get audit", ~m(user post)a do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment("M卖批, 这也太操蛋了, 党中央"), user)
 
@@ -33,7 +32,6 @@ defmodule GroupherServer.Test.CMS.Hooks.AuditPostComment do
       assert comment.meta.illegal_words == ["党中央", "操蛋", "卖批"]
     end
 
-    @tag :wip
     test "normal words shoud not get audit", ~m(user post)a do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment("世界属于三体"), user)
 
@@ -46,7 +44,6 @@ defmodule GroupherServer.Test.CMS.Hooks.AuditPostComment do
       assert comment.meta.illegal_words == []
     end
 
-    @tag :wip
     test "failed audit should have falied state", ~m(user post)a do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment("世界属于三体"), user)
 
@@ -54,6 +51,22 @@ defmodule GroupherServer.Test.CMS.Hooks.AuditPostComment do
 
       {:ok, comment} = ORM.find(CMS.Model.Comment, comment.id)
       assert comment.pending == @audit_failed
+    end
+
+    test "can handle paged audit failed comments", ~m(user post)a do
+      {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment("世界属于三体"), user)
+      CMS.set_article_audit_failed(comment, %{})
+
+      {:ok, paged_comments} = CMS.paged_audit_failed_comments(%{page: 1, size: 30})
+      assert paged_comments |> is_valid_pagination?(:raw)
+      assert paged_comments.total_count == 1
+
+      Enum.map(paged_comments.entries, fn comment ->
+        Hooks.Audition.handle(comment)
+      end)
+
+      {:ok, paged_comments} = CMS.paged_audit_failed_comments(%{page: 1, size: 30})
+      assert paged_comments.total_count == 0
     end
   end
 end
