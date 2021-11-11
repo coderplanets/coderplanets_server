@@ -9,7 +9,7 @@ defmodule GroupherServer.Test.Query.Articles.Post do
     {:ok, community} = db_insert(:community)
 
     guest_conn = simu_conn(:guest)
-    user_conn = simu_conn(:user)
+    user_conn = simu_conn(:user, user)
 
     post_attrs = mock_attrs(:post, %{community_id: community.id})
 
@@ -23,6 +23,9 @@ defmodule GroupherServer.Test.Query.Articles.Post do
       title
       meta {
         isEdited
+        isLegal
+        illegalReason
+        illegalWords
       }
       isArchived
       archivedAt
@@ -39,7 +42,14 @@ defmodule GroupherServer.Test.Query.Articles.Post do
 
     assert results["id"] == to_string(post.id)
     assert is_valid_kv?(results, "title", :string)
-    assert %{"isEdited" => false} == results["meta"]
+
+    assert results["meta"] == %{
+             "isEdited" => false,
+             "illegalReason" => [],
+             "illegalWords" => [],
+             "isLegal" => true
+           }
+
     assert length(Map.keys(results)) == 5
   end
 
@@ -49,5 +59,33 @@ defmodule GroupherServer.Test.Query.Articles.Post do
 
     assert results["id"] == to_string(post.id)
     assert is_valid_kv?(results, "title", :string)
+  end
+
+  test "pending state should in meta", ~m(guest_conn user_conn community user post_attrs)a do
+    {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+    variables = %{id: post.id}
+    results = user_conn |> query_result(@query, variables, "post")
+
+    assert results |> get_in(["meta", "isLegal"])
+    assert results |> get_in(["meta", "illegalReason"]) == []
+    assert results |> get_in(["meta", "illegalWords"]) == []
+
+    results = guest_conn |> query_result(@query, variables, "post")
+    assert results |> get_in(["meta", "isLegal"])
+    assert results |> get_in(["meta", "illegalReason"]) == []
+    assert results |> get_in(["meta", "illegalWords"]) == []
+
+    {:ok, _} =
+      CMS.set_article_illegal(:post, post.id, %{
+        is_legal: false,
+        illegal_reason: ["some-reason"],
+        illegal_words: ["some-word"]
+      })
+
+    results = user_conn |> query_result(@query, variables, "post")
+
+    assert not get_in(results, ["meta", "isLegal"])
+    assert results |> get_in(["meta", "illegalReason"]) == ["some-reason"]
+    assert results |> get_in(["meta", "illegalWords"]) == ["some-word"]
   end
 end

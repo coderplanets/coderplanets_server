@@ -20,7 +20,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
     user_conn = simu_conn(:user)
     owner_conn = simu_conn(:owner, works)
 
-    {:ok, ~m(user_conn user user2 guest_conn owner_conn community user works)a}
+    {:ok, ~m(user_conn user user2 guest_conn owner_conn community works)a}
   end
 
   describe "[mutation works curd]" do
@@ -100,7 +100,6 @@ defmodule GroupherServer.Test.Mutation.Articles.Works do
       }
     }
     """
-    @tag :wip
     test "create works with valid attrs and make sure author exsit", ~m(community user2)a do
       {:ok, user} = db_insert(:user)
       user_conn = simu_conn(:user, user)

@@ -27,10 +27,11 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   alias Accounts.Model.User
   alias CMS.Model.{Author, Community, PinnedArticle, Embeds}
   alias CMS.Model.Repo, as: CMSRepo
+  alias CMS.Constant
 
   alias CMS.Delegate.{
     ArticleCommunity,
-    CommentCurd,
+    CommentCURD,
     ArticleTag,
     CommunityCURD,
     Document,
@@ -44,23 +45,39 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   @default_emotions Embeds.ArticleEmotion.default_emotions()
   @default_article_meta Embeds.ArticleMeta.default_meta()
+  @default_user_meta Accounts.Model.Embeds.UserMeta.default_meta()
   @remove_article_hint "The content does not comply with the community norms"
+
+  @audit_legal Constant.pending(:legal)
+  @audit_illegal Constant.pending(:illegal)
+  @audit_failed Constant.pending(:audit_failed)
 
   @doc """
   read articles for un-logined user
   """
   def read_article(thread, id) do
-    with {:ok, info} <- match(thread) do
-      Multi.new()
-      |> Multi.run(:inc_views, fn _, _ -> ORM.read(info.model, id, inc: :views) end)
-      |> Multi.run(:load_html, fn _, %{inc_views: article} ->
-        article |> Repo.preload(:document) |> done
-      end)
-      |> Multi.run(:update_article_meta, fn _, %{load_html: article} ->
-        article_meta = ensure(article.meta, @default_article_meta)
-        meta = Map.merge(article_meta, %{can_undo_sink: in_active_period?(thread, article)})
+    with {:ok, article} <- check_article_pending(thread, id) do
+      do_read_article(article, thread)
+    end
+  end
 
-        ORM.update_meta(article, meta)
+  def read_article(thread, id, %User{id: user_id} = user) do
+    with {:ok, article} <- check_article_pending(thread, id, user) do
+      Multi.new()
+      |> Multi.run(:normal_read, fn _, _ -> do_read_article(article, thread) end)
+      |> Multi.run(:add_viewed_user, fn _, %{normal_read: article} ->
+        update_viewed_user_list(article, user_id)
+      end)
+      |> Multi.run(:set_viewer_has_states, fn _, %{normal_read: article} ->
+        article_meta = if is_nil(article.meta), do: @default_article_meta, else: article.meta
+
+        viewer_has_states = %{
+          viewer_has_collected: user_id in article_meta.collected_user_ids,
+          viewer_has_upvoted: user_id in article_meta.upvoted_user_ids,
+          viewer_has_reported: user_id in article_meta.reported_user_ids
+        }
+
+        article |> Map.merge(viewer_has_states) |> done
       end)
       |> Repo.transaction()
       |> result()
@@ -68,39 +85,16 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   end
 
   @doc """
-  read articles for logined user
-  """
-  def read_article(thread, id, %User{id: user_id}) do
-    Multi.new()
-    |> Multi.run(:normal_read, fn _, _ -> read_article(thread, id) end)
-    |> Multi.run(:add_viewed_user, fn _, %{normal_read: article} ->
-      update_viewed_user_list(article, user_id)
-    end)
-    |> Multi.run(:set_viewer_has_states, fn _, %{normal_read: article} ->
-      article_meta = if is_nil(article.meta), do: @default_article_meta, else: article.meta
-
-      viewer_has_states = %{
-        viewer_has_collected: user_id in article_meta.collected_user_ids,
-        viewer_has_upvoted: user_id in article_meta.upvoted_user_ids,
-        viewer_has_reported: user_id in article_meta.reported_user_ids
-      }
-
-      article |> Map.merge(viewer_has_states) |> done
-    end)
-    |> Repo.transaction()
-    |> result()
-  end
-
-  @doc """
   get paged articles
   """
   def paged_articles(thread, filter) do
     %{page: page, size: size} = filter
+    flags = %{mark_delete: false, pending: :legal}
 
     with {:ok, info} <- match(thread) do
       info.model
       |> QueryBuilder.domain_query(filter)
-      |> QueryBuilder.filter_pack(Map.merge(filter, %{mark_delete: false}))
+      |> QueryBuilder.filter_pack(Map.merge(filter, flags))
       |> ORM.paginator(~m(page size)a)
       # |> ORM.cursor_paginator()
       |> add_pin_articles_ifneed(info.model, filter)
@@ -135,6 +129,19 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end
   end
 
+  # get audit failed articles
+  def paged_audit_failed_articles(thread, filter) do
+    %{page: page, size: size} = filter
+    flags = %{mark_delete: false, pending: :audit_failed}
+
+    with {:ok, info} <- match(thread) do
+      info.model
+      |> QueryBuilder.filter_pack(Map.merge(filter, flags))
+      |> ORM.paginator(~m(page size)a)
+      |> done()
+    end
+  end
+
   @doc """
   archive articles based on thread
   called every day by scheuler job
@@ -150,6 +157,95 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Repo.update_all(set: [is_archived: true, archived_at: now])
       |> done()
     end
+  end
+
+  # 调用审核接口失败，等待队列定时处理
+  def set_article_audit_failed(article, _audit_state) do
+    ORM.update(article, %{pending: @audit_failed})
+  end
+
+  @doc """
+  pending an article due to forbid words or spam talk
+  """
+  def set_article_illegal(thread, id, audit_state) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id) do
+      set_article_illegal(article, audit_state)
+    end
+  end
+
+  def set_article_illegal(article, audit_state) do
+    # 1. set pending state
+    # 2. set article meta
+    # 3. set author meta
+    Multi.new()
+    |> Multi.run(:update_pending_state, fn _, _ ->
+      ORM.update(article, %{pending: @audit_illegal})
+    end)
+    |> Multi.run(:update_article_meta, fn _, %{update_pending_state: article} ->
+      legal_state = Map.take(audit_state, [:is_legal, :illegal_reason, :illegal_words])
+      article_meta = ensure(article.meta, @default_article_meta)
+      meta = Map.merge(article_meta, legal_state)
+
+      ORM.update_meta(article, meta)
+    end)
+    |> Multi.run(:update_author_meta, fn _, _ ->
+      article = Repo.preload(article, :author)
+      illegal_articles = Map.get(audit_state, :illegal_articles, [])
+
+      with {:ok, user} <- ORM.find(User, article.author.user_id) do
+        user_meta = ensure(user.meta, @default_user_meta)
+        illegal_articles = user_meta.illegal_articles ++ illegal_articles
+
+        meta =
+          Map.merge(user_meta, %{has_illegal_articles: true, illegal_articles: illegal_articles})
+
+        ORM.update_meta(user, meta)
+      end
+    end)
+    |> Repo.transaction()
+    |> result()
+  end
+
+  def unset_article_illegal(thread, id, audit_state) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id) do
+      unset_article_illegal(article, audit_state)
+    end
+  end
+
+  def unset_article_illegal(article, audit_state) do
+    Multi.new()
+    |> Multi.run(:update_pending_state, fn _, _ ->
+      ORM.update(article, %{pending: @audit_legal})
+    end)
+    |> Multi.run(:update_article_meta, fn _, %{update_pending_state: article} ->
+      legal_state = Map.take(audit_state, [:is_legal, :illegal_reason, :illegal_words])
+      article_meta = ensure(article.meta, @default_article_meta)
+      meta = Map.merge(article_meta, legal_state)
+
+      ORM.update_meta(article, meta)
+    end)
+    |> Multi.run(:update_author_meta, fn _, _ ->
+      article = Repo.preload(article, :author)
+      illegal_articles = Map.get(audit_state, :illegal_articles, [])
+
+      with {:ok, user} <- ORM.find(User, article.author.user_id) do
+        user_meta = ensure(user.meta, @default_user_meta)
+        illegal_articles = user_meta.illegal_articles -- illegal_articles
+        has_illegal_articles = not Enum.empty?(illegal_articles)
+
+        meta =
+          Map.merge(user_meta, %{
+            has_illegal_articles: has_illegal_articles,
+            illegal_articles: illegal_articles
+          })
+
+        ORM.update_meta(user, meta)
+      end
+    end)
+    |> Repo.transaction()
+    |> result()
   end
 
   defp mark_viewer_has_states(%{entries: []} = articles, _), do: articles
@@ -220,6 +316,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Multi.run(:after_hooks, fn _, %{create_article: article} ->
         Later.run({Hooks.Cite, :handle, [article]})
         Later.run({Hooks.Mention, :handle, [article]})
+        Later.run({Hooks.Audition, :handle, [article]})
         Later.run({__MODULE__, :notify_admin_new_article, [article]})
       end)
       |> Multi.run(:log_action, fn _, _ ->
@@ -273,7 +370,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     |> Multi.run(:update_comment_question_flag_if_need, fn _, %{update_article: update_article} ->
       # 如果帖子的类型变了，那么 update 所有的 flag
       case Map.has_key?(attrs, :is_question) do
-        true -> CommentCurd.batch_update_question_flag(update_article)
+        true -> CommentCURD.batch_update_question_flag(update_article)
         false -> {:ok, :pass}
       end
     end)
@@ -283,6 +380,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     |> Multi.run(:after_hooks, fn _, %{update_article: update_article} ->
       Later.run({Hooks.Cite, :handle, [update_article]})
       Later.run({Hooks.Mention, :handle, [update_article]})
+      Later.run({Hooks.Audition, :handle, [update_article]})
     end)
     |> Repo.transaction()
     |> result()
@@ -437,6 +535,55 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   # defp handle_existing_author({:error, changeset}) do
   #   ORM.find_by(Author, user_id: changeset.data.user_id)
   # end
+
+  defp do_read_article(article, thread) do
+    Multi.new()
+    |> Multi.run(:inc_views, fn _, _ -> ORM.read(article, inc: :views) end)
+    |> Multi.run(:load_html, fn _, %{inc_views: article} ->
+      article |> Repo.preload(:document) |> done
+    end)
+    |> Multi.run(:update_article_meta, fn _, %{load_html: article} ->
+      article_meta = ensure(article.meta, @default_article_meta)
+      meta = Map.merge(article_meta, %{can_undo_sink: in_active_period?(thread, article)})
+
+      ORM.update_meta(article, meta)
+    end)
+    |> Repo.transaction()
+    |> result()
+  end
+
+  defp check_article_pending(%{pending: @audit_legal} = article, _) do
+    {:ok, article}
+  end
+
+  defp check_article_pending(%{pending: @audit_illegal} = article, %User{id: user_id}) do
+    case article.author.user_id == user_id do
+      true -> {:ok, article}
+      false -> raise_error(:pending, "this article is under audition")
+    end
+  end
+
+  # pending article should not be seen
+  defp check_article_pending(thread, id) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id) do
+      check_article_pending(article)
+    end
+  end
+
+  # pending article can be seen is viewer is author
+  defp check_article_pending(thread, id, %User{} = user) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id, preload: :author) do
+      check_article_pending(article, user)
+    end
+  end
+
+  defp check_article_pending(%{pending: @audit_illegal}) do
+    raise_error(:pending, "this article is under audition")
+  end
+
+  defp check_article_pending(article), do: {:ok, article}
 
   defp add_pin_articles_ifneed(articles, querable, %{community: community} = filter) do
     thread = module_to_atom(querable)

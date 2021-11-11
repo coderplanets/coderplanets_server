@@ -15,7 +15,7 @@ defmodule GroupherServer.CMS do
     ArticleCommunity,
     ArticleEmotion,
     CitedArtiment,
-    CommentCurd,
+    CommentCURD,
     ArticleCollect,
     ArticleUpvote,
     CommentAction,
@@ -86,9 +86,16 @@ defmodule GroupherServer.CMS do
   defdelegate read_article(thread, id), to: ArticleCURD
   defdelegate read_article(thread, id, user), to: ArticleCURD
 
-  defdelegate paged_articles(queryable, filter), to: ArticleCURD
-  defdelegate paged_articles(queryable, filter, user), to: ArticleCURD
-  defdelegate paged_published_articles(queryable, filter, user), to: ArticleCURD
+  defdelegate set_article_illegal(thread, id, attrs), to: ArticleCURD
+  defdelegate set_article_illegal(article, attrs), to: ArticleCURD
+  defdelegate unset_article_illegal(thread, id, attrs), to: ArticleCURD
+  defdelegate unset_article_illegal(article, attrs), to: ArticleCURD
+  defdelegate set_article_audit_failed(article, state), to: ArticleCURD
+
+  defdelegate paged_articles(thread, filter), to: ArticleCURD
+  defdelegate paged_articles(thread, filter, user), to: ArticleCURD
+  defdelegate paged_published_articles(thread, filter, user), to: ArticleCURD
+  defdelegate paged_audit_failed_articles(thread, filter), to: ArticleCURD
 
   defdelegate create_article(community, thread, attrs, user), to: ArticleCURD
   defdelegate update_article(article, attrs), to: ArticleCURD
@@ -153,33 +160,39 @@ defmodule GroupherServer.CMS do
 
   # Comment CURD
 
-  defdelegate comments_state(thread, article_id), to: CommentCurd
-  defdelegate comments_state(thread, article_id, user), to: CommentCurd
-  defdelegate one_comment(id), to: CommentCurd
-  defdelegate one_comment(id, user), to: CommentCurd
+  defdelegate set_comment_illegal(comment_id, attrs), to: CommentCURD
+  defdelegate unset_comment_illegal(comment_id, attrs), to: CommentCURD
+  defdelegate paged_audit_failed_comments(filter), to: CommentCURD
 
-  defdelegate update_user_in_comments_participants(user), to: CommentCurd
-  defdelegate paged_comments(thread, article_id, filters, mode), to: CommentCurd
-  defdelegate paged_comments(thread, article_id, filters, mode, user), to: CommentCurd
+  defdelegate set_comment_audit_failed(comment, state), to: CommentCURD
 
-  defdelegate paged_published_comments(user, thread, filters), to: CommentCurd
-  defdelegate paged_published_comments(user, filters), to: CommentCurd
+  defdelegate comments_state(thread, article_id), to: CommentCURD
+  defdelegate comments_state(thread, article_id, user), to: CommentCURD
+  defdelegate one_comment(id), to: CommentCURD
+  defdelegate one_comment(id, user), to: CommentCURD
 
-  defdelegate paged_folded_comments(thread, article_id, filters), to: CommentCurd
-  defdelegate paged_folded_comments(thread, article_id, filters, user), to: CommentCurd
+  defdelegate update_user_in_comments_participants(user), to: CommentCURD
+  defdelegate paged_comments(thread, article_id, filters, mode), to: CommentCURD
+  defdelegate paged_comments(thread, article_id, filters, mode, user), to: CommentCURD
 
-  defdelegate paged_comment_replies(comment_id, filters), to: CommentCurd
-  defdelegate paged_comment_replies(comment_id, filters, user), to: CommentCurd
+  defdelegate paged_published_comments(user, thread, filters), to: CommentCURD
+  defdelegate paged_published_comments(user, filters), to: CommentCURD
 
-  defdelegate paged_comments_participants(thread, content_id, filters), to: CommentCurd
+  defdelegate paged_folded_comments(thread, article_id, filters), to: CommentCURD
+  defdelegate paged_folded_comments(thread, article_id, filters, user), to: CommentCURD
 
-  defdelegate create_comment(thread, article_id, args, user), to: CommentCurd
-  defdelegate update_comment(comment, content), to: CommentCurd
-  defdelegate delete_comment(comment), to: CommentCurd
-  defdelegate mark_comment_solution(comment, user), to: CommentCurd
-  defdelegate undo_mark_comment_solution(comment, user), to: CommentCurd
+  defdelegate paged_comment_replies(comment_id, filters), to: CommentCURD
+  defdelegate paged_comment_replies(comment_id, filters, user), to: CommentCURD
 
-  defdelegate archive_comments(), to: CommentCurd
+  defdelegate paged_comments_participants(thread, content_id, filters), to: CommentCURD
+
+  defdelegate create_comment(thread, article_id, args, user), to: CommentCURD
+  defdelegate update_comment(comment, content), to: CommentCURD
+  defdelegate delete_comment(comment), to: CommentCURD
+  defdelegate mark_comment_solution(comment, user), to: CommentCURD
+  defdelegate undo_mark_comment_solution(comment, user), to: CommentCURD
+
+  defdelegate archive_comments(), to: CommentCURD
 
   defdelegate upvote_comment(comment_id, user), to: CommentAction
   defdelegate undo_upvote_comment(comment_id, user), to: CommentAction

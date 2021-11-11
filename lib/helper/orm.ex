@@ -115,6 +115,10 @@ defmodule Helper.ORM do
     end
   end
 
+  def read(article, inc: :views) do
+    article |> inc_views_count(article.__struct__) |> done()
+  end
+
   def read_by(queryable, clauses, inc: :views) do
     with {:ok, result} <- find_by(queryable, clauses) do
       result |> inc_views_count(queryable) |> done()

@@ -18,8 +18,8 @@ defmodule GroupherServer.CMS.Model.Comment do
   @article_threads get_config(:article, :threads)
 
   @required_fields ~w(body author_id)a
-  @optional_fields ~w(body_html reply_to_id replies_count is_folded is_deleted floor is_article_author thread is_for_question is_solution)a
-  @updatable_fields ~w(body_html is_folded is_deleted floor upvotes_count is_pinned is_for_question is_solution replies_count)a
+  @optional_fields ~w(body_html reply_to_id replies_count is_folded is_deleted floor is_article_author thread is_for_question is_solution pending)a
+  @updatable_fields ~w(body_html is_folded is_deleted floor upvotes_count is_pinned is_for_question is_solution replies_count pending)a
 
   @article_fields @article_threads |> Enum.map(&:"#{&1}_id")
 
@@ -85,6 +85,8 @@ defmodule GroupherServer.CMS.Model.Comment do
 
     field(:is_archived, :boolean, default: false)
     field(:archived_at, :utc_datetime)
+
+    field(:pending, :integer, default: 0)
 
     article_belongs_to_fields()
     timestamps(type: :utc_datetime)

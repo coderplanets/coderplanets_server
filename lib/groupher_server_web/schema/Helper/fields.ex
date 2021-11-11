@@ -44,6 +44,8 @@ defmodule GroupherServerWeb.Schema.Helper.Fields do
 
       field(:copy_right, :string)
       field(:link_addr, :string)
+
+      field(:pending, :integer)
     end
   end
 

@@ -33,7 +33,12 @@ defmodule GroupherServer.Accounts.Model.Embeds.UserMeta do
     reported_count: 0,
     reported_user_ids: [],
     follower_user_ids: [],
-    following_user_ids: []
+    following_user_ids: [],
+    # audit_artiment state
+    has_illegal_articles: false,
+    illegal_articles: [],
+    has_illegal_comments: false,
+    illegal_comments: []
   }
 
   @optional_fields Map.keys(@general_options) ++
@@ -57,6 +62,12 @@ defmodule GroupherServer.Accounts.Model.Embeds.UserMeta do
     # TODO: 怎样处理历史数据 ？
     field(:follower_user_ids, {:array, :integer}, default: [])
     field(:following_user_ids, {:array, :integer}, default: [])
+
+    field(:has_illegal_articles, :boolean, default: false)
+    field(:has_illegal_comments, :boolean, default: false)
+
+    field(:illegal_articles, {:array, :string}, default: [])
+    field(:illegal_comments, {:array, :string}, default: [])
 
     published_article_count_fields()
   end

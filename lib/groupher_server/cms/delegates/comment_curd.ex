@@ -1,4 +1,4 @@
-defmodule GroupherServer.CMS.Delegate.CommentCurd do
+defmodule GroupherServer.CMS.Delegate.CommentCURD do
   @moduledoc """
   CURD and operations for article comments
   """
@@ -18,6 +18,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   alias Accounts.Model.User
   alias CMS.Model.{Post, Comment, PinnedComment, Embeds}
 
+  alias CMS.Constant
   alias CMS.Delegate.Hooks
   alias Helper.{Later, ORM, QueryBuilder, Converter}
 
@@ -32,6 +33,12 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   @pinned_comment_limit Comment.pinned_comment_limit()
 
   @archive_threshold get_config(:article, :archive_threshold)
+
+  @default_user_meta Accounts.Model.Embeds.UserMeta.default_meta()
+
+  @audit_legal Constant.pending(:legal)
+  @audit_illegal Constant.pending(:illegal)
+  @audit_failed Constant.pending(:audit_failed)
 
   def comments_state(thread, article_id) do
     filter = %{page: 1, size: 20}
@@ -151,6 +158,17 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     do_paged_comment(thread, article_id, filters, where_query, user)
   end
 
+  # get audit failed articles
+  def paged_audit_failed_comments(filter) do
+    %{page: page, size: size} = filter
+    flags = %{pending: :audit_failed}
+
+    Comment
+    |> QueryBuilder.filter_pack(Map.merge(filter, flags))
+    |> ORM.paginator(~m(page size)a)
+    |> done()
+  end
+
   @doc """
   list paged comment replies
   """
@@ -180,6 +198,88 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
     end
   end
 
+  # 调用审核接口失败，等待队列定时处理
+  def set_comment_audit_failed(%Comment{} = comment, _audit_state) do
+    ORM.update(comment, %{pending: @audit_failed})
+  end
+
+  def set_comment_illegal(%Comment{} = comment, audit_state) do
+    # 1. set pending
+    # 2. update comment-meta
+    # 3. update user-meta
+    Multi.new()
+    |> Multi.run(:update_pending_state, fn _, _ ->
+      ORM.update(comment, %{pending: @audit_illegal})
+    end)
+    |> Multi.run(:update_comment_meta, fn _, %{update_pending_state: comment} ->
+      legal_state = Map.take(audit_state, [:is_legal, :illegal_reason, :illegal_words])
+      comment_meta = ensure(comment.meta, @default_comment_meta)
+      meta = Map.merge(comment_meta, legal_state)
+
+      ORM.update_meta(comment, meta)
+    end)
+    |> Multi.run(:update_author_meta, fn _, _ ->
+      illegal_comments = Map.get(audit_state, :illegal_comments, [])
+
+      with {:ok, user} <- ORM.find(User, comment.author_id) do
+        user_meta = ensure(user.meta, @default_user_meta)
+        illegal_comments = user_meta.illegal_comments ++ illegal_comments
+
+        meta =
+          Map.merge(user_meta, %{has_illegal_comments: true, illegal_comments: illegal_comments})
+
+        ORM.update_meta(user, meta)
+      end
+    end)
+    |> Repo.transaction()
+    |> result()
+  end
+
+  def set_comment_illegal(comment_id, audit_state) do
+    with {:ok, comment} <- ORM.find(Comment, comment_id) do
+      set_comment_illegal(comment, audit_state)
+    end
+  end
+
+  def unset_comment_illegal(%Comment{} = comment, audit_state) do
+    Multi.new()
+    |> Multi.run(:update_pending_state, fn _, _ ->
+      ORM.update(comment, %{pending: @audit_legal})
+    end)
+    |> Multi.run(:update_comment_meta, fn _, %{update_pending_state: comment} ->
+      legal_state = Map.take(audit_state, [:is_legal, :illegal_reason, :illegal_words])
+      comment_meta = ensure(comment.meta, @default_comment_meta)
+      meta = Map.merge(comment_meta, legal_state)
+
+      ORM.update_meta(comment, meta)
+    end)
+    |> Multi.run(:update_author_meta, fn _, _ ->
+      illegal_comments = Map.get(audit_state, :illegal_comments, [])
+
+      with {:ok, user} <- ORM.find(User, comment.author_id) do
+        user_meta = ensure(user.meta, @default_user_meta)
+        illegal_comments = user_meta.illegal_comments -- illegal_comments
+        has_illegal_comments = not Enum.empty?(illegal_comments)
+
+        meta =
+          Map.merge(user_meta, %{
+            has_illegal_comments: has_illegal_comments,
+            illegal_comments: illegal_comments
+          })
+
+        ORM.update_meta(user, meta)
+      end
+    end)
+    |> Repo.transaction()
+    |> result()
+  end
+
+  def unset_comment_illegal(comment_id, audit_state) do
+    with {:ok, comment} <- ORM.find(Comment, comment_id) do
+      unset_comment_illegal(comment, audit_state)
+    end
+  end
+
   defp do_paged_comments_participants(query, filters) do
     %{page: page, size: size} = filters
 
@@ -203,7 +303,6 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
       where: fragment("?->>'login' = ?", cp, ^login)
     )
     |> Repo.all()
-    |> IO.inspect(label: "TODO")
   end
 
   @doc """
@@ -234,6 +333,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
         Later.run({Hooks.Cite, :handle, [comment]})
         Later.run({Hooks.Notify, :handle, [:comment, comment, user]})
         Later.run({Hooks.Mention, :handle, [comment]})
+        Later.run({Hooks.Audition, :handle, [comment]})
       end)
       |> Repo.transaction()
       |> result()
@@ -273,6 +373,9 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
       |> Multi.run(:sync_embed_replies, fn _, %{update_comment: comment} ->
         sync_embed_replies(comment)
       end)
+      |> Multi.run(:after_hooks, fn _, %{update_comment: comment} ->
+        Later.run({Hooks.Audition, :handle, [comment]})
+      end)
       |> Repo.transaction()
       |> result()
     end
@@ -286,6 +389,9 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
       end)
       |> Multi.run(:sync_embed_replies, fn _, %{update_comment: comment} ->
         sync_embed_replies(comment)
+      end)
+      |> Multi.run(:after_hooks, fn _, %{update_comment: comment} ->
+        Later.run({Hooks.Audition, :handle, [comment]})
       end)
       |> Repo.transaction()
       |> result()
@@ -588,6 +694,7 @@ defmodule GroupherServer.CMS.Delegate.CommentCurd do
   defp result({:ok, %{delete_comment: result}}), do: {:ok, result}
   defp result({:ok, %{mark_solution: result}}), do: {:ok, result}
   defp result({:ok, %{sync_embed_replies: result}}), do: {:ok, result}
+  defp result({:ok, %{update_comment_meta: result}}), do: {:ok, result}
 
   defp result({:error, :create_comment, result, _steps}) do
     raise_error(:create_comment, result)

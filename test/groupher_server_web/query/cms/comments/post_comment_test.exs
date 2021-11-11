@@ -183,6 +183,9 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
             isArticleAuthor
             meta {
               isArticleAuthorUpvoted
+              isLegal
+              illegalReason
+              illegalWords
             }
             replyTo {
               id
@@ -233,6 +236,8 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
         end)
 
       random_comment = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
+
+      assert random_comment.meta.is_legal
 
       {:ok, replyed_comment_1} = CMS.reply_comment(random_comment.id, mock_comment(), user2)
       {:ok, replyed_comment_2} = CMS.reply_comment(random_comment.id, mock_comment(), user2)
@@ -318,7 +323,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
         Enum.find(results["entries"], &(&1["id"] == to_string(replyed_comment_1.id)))
 
       assert replyed_comment_1 |> get_in(["replyTo", "id"]) == to_string(parent_comment.id)
-      assert replyed_comment_1 |> get_in(["replyToId"]) == to_string(parent_comment.id)
 
       assert replyed_comment_1 |> get_in(["replyTo", "author", "id"]) ==
                to_string(parent_comment.author_id)

@@ -10,7 +10,7 @@ defmodule GroupherServer.CMS.Delegate.CommentAction do
 
   import Helper.ErrorCode
 
-  import GroupherServer.CMS.Delegate.CommentCurd,
+  import GroupherServer.CMS.Delegate.CommentCURD,
     only: [
       add_participant_to_article: 2,
       do_create_comment: 4,
