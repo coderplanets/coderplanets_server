@@ -5,7 +5,6 @@ defmodule GroupherServer.Test.Helper.AuditBot do
   alias Helper.AuditBot
 
   describe "[general test]" do
-    @tag :wip
     test "illgal words should be detected" do
       {:error, result} = AuditBot.analysis(:text, "<div>M卖批, 这也太操蛋了, 党中央</div>")
 
@@ -16,7 +15,6 @@ defmodule GroupherServer.Test.Helper.AuditBot do
              }
     end
 
-    @tag :wip
     test "lgal words should be detected" do
       {:ok, result} = AuditBot.analysis(:text, "消灭人类暴政，世界属于三体")
 

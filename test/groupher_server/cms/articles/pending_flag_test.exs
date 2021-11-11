@@ -36,7 +36,6 @@ defmodule GroupherServer.Test.CMS.PostPendingFlag do
   end
 
   describe "[pending posts flags]" do
-    @tag :wip
     test "pending post can not be read", ~m(post_m)a do
       {:ok, _} = CMS.read_article(:post, post_m.id)
 
@@ -54,7 +53,6 @@ defmodule GroupherServer.Test.CMS.PostPendingFlag do
       assert reason |> is_error?(:pending)
     end
 
-    @tag :wip
     test "author can read it's own pending post", ~m(community user)a do
       post_attrs = mock_attrs(:post, %{community_id: community.id})
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
@@ -76,7 +74,6 @@ defmodule GroupherServer.Test.CMS.PostPendingFlag do
       assert reason |> is_error?(:pending)
     end
 
-    @tag :wip
     test "pending post can set/unset pending", ~m(post_m)a do
       {:ok, _} = CMS.read_article(:post, post_m.id)
 
@@ -98,7 +95,6 @@ defmodule GroupherServer.Test.CMS.PostPendingFlag do
       {:ok, _} = CMS.read_article(:post, post_m.id)
     end
 
-    @tag :wip
     test "pending post's meta should have info", ~m(post_m)a do
       {:ok, _} = CMS.read_article(:post, post_m.id)
 
@@ -143,7 +139,6 @@ defmodule GroupherServer.Test.CMS.PostPendingFlag do
   end
 
   describe "audit hooks" do
-    @tag :wip
     test "forbid words should return relative state" do
     end
   end

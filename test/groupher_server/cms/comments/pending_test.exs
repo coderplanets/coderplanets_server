@@ -11,9 +11,6 @@ defmodule GroupherServer.Test.CMS.Comments.PendingFlag do
   @total_count 35
   @page_size get_config(:general, :page_size)
 
-  @audit_legal CMS.Constant.pending(:legal)
-  @audit_illegal CMS.Constant.pending(:illegal)
-
   setup do
     {:ok, user} = db_insert(:user)
     {:ok, community} = db_insert(:community)
@@ -25,7 +22,6 @@ defmodule GroupherServer.Test.CMS.Comments.PendingFlag do
   end
 
   describe "[pending post comemnt flags]" do
-    @tag :wip
     test "pending post comment can set/unset pending", ~m(post user)a do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
 
@@ -50,7 +46,6 @@ defmodule GroupherServer.Test.CMS.Comments.PendingFlag do
       assert comment.pending == @audit_legal
     end
 
-    @tag :wip
     test "pending post-comment's meta should have info", ~m(post user)a do
       {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment(), user)
 
@@ -93,7 +88,6 @@ defmodule GroupherServer.Test.CMS.Comments.PendingFlag do
   end
 
   describe "audit hooks" do
-    @tag :wip
     test "forbid words should return relative state" do
     end
   end

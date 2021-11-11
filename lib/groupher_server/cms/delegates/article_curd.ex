@@ -50,6 +50,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
 
   @audit_legal Constant.pending(:legal)
   @audit_illegal Constant.pending(:illegal)
+  @audit_failed Constant.pending(:audit_failed)
 
   @doc """
   read articles for un-logined user
@@ -101,80 +102,93 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end
   end
 
+  # 调用审核接口失败，等待队列定时处理
+  def set_article_audit_failed(article, _audit_state) do
+    ORM.update(article, %{pending: @audit_failed})
+  end
+
   @doc """
   pending an article due to forbid words or spam talk
   """
   def set_article_illegal(thread, id, audit_state) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id) do
+      set_article_illegal(article, audit_state)
+    end
+  end
+
+  def set_article_illegal(article, audit_state) do
     # 1. set pending state
     # 2. set article meta
     # 3. set author meta
-    with {:ok, info} <- match(thread),
-         {:ok, article} <- ORM.find(info.model, id) do
-      Multi.new()
-      |> Multi.run(:update_pending_state, fn _, _ ->
-        ORM.update(article, %{pending: @audit_illegal})
-      end)
-      |> Multi.run(:update_article_meta, fn _, %{update_pending_state: article} ->
-        legal_state = Map.take(audit_state, [:is_legal, :illegal_reason, :illegal_words])
-        article_meta = ensure(article.meta, @default_article_meta)
-        meta = Map.merge(article_meta, legal_state)
+    Multi.new()
+    |> Multi.run(:update_pending_state, fn _, _ ->
+      ORM.update(article, %{pending: @audit_illegal})
+    end)
+    |> Multi.run(:update_article_meta, fn _, %{update_pending_state: article} ->
+      legal_state = Map.take(audit_state, [:is_legal, :illegal_reason, :illegal_words])
+      article_meta = ensure(article.meta, @default_article_meta)
+      meta = Map.merge(article_meta, legal_state)
 
-        ORM.update_meta(article, meta)
-      end)
-      |> Multi.run(:update_author_meta, fn _, _ ->
-        article = Repo.preload(article, :author)
-        illegal_articles = Map.get(audit_state, :illegal_articles, [])
+      ORM.update_meta(article, meta)
+    end)
+    |> Multi.run(:update_author_meta, fn _, _ ->
+      article = Repo.preload(article, :author)
+      illegal_articles = Map.get(audit_state, :illegal_articles, [])
 
-        with {:ok, user} <- ORM.find(User, article.author.user_id) do
-          user_meta = ensure(user.meta, @default_user_meta)
-          illegal_articles = user_meta.illegal_articles ++ illegal_articles
+      with {:ok, user} <- ORM.find(User, article.author.user_id) do
+        user_meta = ensure(user.meta, @default_user_meta)
+        illegal_articles = user_meta.illegal_articles ++ illegal_articles
 
-          meta =
-            Map.merge(user_meta, %{has_illegal_articles: true, illegal_articles: illegal_articles})
+        meta =
+          Map.merge(user_meta, %{has_illegal_articles: true, illegal_articles: illegal_articles})
 
-          ORM.update_meta(user, meta)
-        end
-      end)
-      |> Repo.transaction()
-      |> result()
-    end
+        ORM.update_meta(user, meta)
+      end
+    end)
+    |> Repo.transaction()
+    |> result()
   end
 
   def unset_article_illegal(thread, id, audit_state) do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, id) do
-      Multi.new()
-      |> Multi.run(:update_pending_state, fn _, _ ->
-        ORM.update(article, %{pending: @audit_legal})
-      end)
-      |> Multi.run(:update_article_meta, fn _, %{update_pending_state: article} ->
-        legal_state = Map.take(audit_state, [:is_legal, :illegal_reason, :illegal_words])
-        article_meta = ensure(article.meta, @default_article_meta)
-        meta = Map.merge(article_meta, legal_state)
-
-        ORM.update_meta(article, meta)
-      end)
-      |> Multi.run(:update_author_meta, fn _, _ ->
-        article = Repo.preload(article, :author)
-        illegal_articles = Map.get(audit_state, :illegal_articles, [])
-
-        with {:ok, user} <- ORM.find(User, article.author.user_id) do
-          user_meta = ensure(user.meta, @default_user_meta)
-          illegal_articles = user_meta.illegal_articles -- illegal_articles
-          has_illegal_articles = not Enum.empty?(illegal_articles)
-
-          meta =
-            Map.merge(user_meta, %{
-              has_illegal_articles: has_illegal_articles,
-              illegal_articles: illegal_articles
-            })
-
-          ORM.update_meta(user, meta)
-        end
-      end)
-      |> Repo.transaction()
-      |> result()
+      unset_article_illegal(article, audit_state)
     end
+  end
+
+  def unset_article_illegal(article, audit_state) do
+    Multi.new()
+    |> Multi.run(:update_pending_state, fn _, _ ->
+      ORM.update(article, %{pending: @audit_legal})
+    end)
+    |> Multi.run(:update_article_meta, fn _, %{update_pending_state: article} ->
+      legal_state = Map.take(audit_state, [:is_legal, :illegal_reason, :illegal_words])
+      article_meta = ensure(article.meta, @default_article_meta)
+      meta = Map.merge(article_meta, legal_state)
+
+      ORM.update_meta(article, meta)
+    end)
+    |> Multi.run(:update_author_meta, fn _, _ ->
+      article = Repo.preload(article, :author)
+      illegal_articles = Map.get(audit_state, :illegal_articles, [])
+
+      with {:ok, user} <- ORM.find(User, article.author.user_id) do
+        user_meta = ensure(user.meta, @default_user_meta)
+        illegal_articles = user_meta.illegal_articles -- illegal_articles
+        has_illegal_articles = not Enum.empty?(illegal_articles)
+
+        meta =
+          Map.merge(user_meta, %{
+            has_illegal_articles: has_illegal_articles,
+            illegal_articles: illegal_articles
+          })
+
+        ORM.update_meta(user, meta)
+      end
+    end)
+    |> Repo.transaction()
+    |> result()
   end
 
   def paged_articles(thread, filter, %User{} = user) do
@@ -289,6 +303,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       |> Multi.run(:after_hooks, fn _, %{create_article: article} ->
         Later.run({Hooks.Cite, :handle, [article]})
         Later.run({Hooks.Mention, :handle, [article]})
+        Later.run({Hooks.Audition, :handle, [article]})
         Later.run({__MODULE__, :notify_admin_new_article, [article]})
       end)
       |> Multi.run(:log_action, fn _, _ ->

@@ -87,7 +87,10 @@ defmodule GroupherServer.CMS do
   defdelegate read_article(thread, id, user), to: ArticleCURD
 
   defdelegate set_article_illegal(thread, id, attrs), to: ArticleCURD
+  defdelegate set_article_illegal(article, attrs), to: ArticleCURD
   defdelegate unset_article_illegal(thread, id, attrs), to: ArticleCURD
+  defdelegate unset_article_illegal(article, attrs), to: ArticleCURD
+  defdelegate set_article_audit_failed(article, state), to: ArticleCURD
 
   defdelegate paged_articles(queryable, filter), to: ArticleCURD
   defdelegate paged_articles(queryable, filter, user), to: ArticleCURD

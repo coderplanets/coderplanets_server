@@ -51,7 +51,7 @@ defmodule GroupherServer.Test.Query.Flags.PostsFlags do
       }
     }
     """
-    @tag :wip
+
     test "pending post should not see in paged query", ~m(guest_conn community post_m)a do
       variables = %{filter: %{community: community.raw}}
       results = guest_conn |> query_result(@query, variables, "pagedPosts")

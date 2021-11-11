@@ -76,8 +76,6 @@ defmodule Helper.Converter.EditorToHTML do
   defp parse_block(%{"id" => id, "type" => "table", "data" => data}) do
     %{"items" => items, "columnCount" => column_count} = data
 
-    # IO.inspect(column_count, label: "the fuck column_count")
-
     groupped_items = Enum.chunk_every(items, column_count)
 
     rows_content =
