@@ -183,6 +183,9 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
             isArticleAuthor
             meta {
               isArticleAuthorUpvoted
+              isLegal
+              illegalReason
+              illegalWords
             }
             replyTo {
               id
@@ -233,6 +236,8 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
         end)
 
       random_comment = all_comments |> Enum.at(Enum.random(0..(total_count - 1)))
+
+      assert random_comment.meta.is_legal
 
       {:ok, replyed_comment_1} = CMS.reply_comment(random_comment.id, mock_comment(), user2)
       {:ok, replyed_comment_2} = CMS.reply_comment(random_comment.id, mock_comment(), user2)
