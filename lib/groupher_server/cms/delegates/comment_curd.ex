@@ -303,7 +303,6 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
       where: fragment("?->>'login' = ?", cp, ^login)
     )
     |> Repo.all()
-    |> IO.inspect(label: "TODO")
   end
 
   @doc """

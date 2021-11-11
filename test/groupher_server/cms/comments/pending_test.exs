@@ -4,7 +4,12 @@ defmodule GroupherServer.Test.CMS.Comments.PendingFlag do
   alias GroupherServer.{Accounts, CMS}
   alias Accounts.Model.User
   alias CMS.Model.Comment
+  alias CMS.Constant
+
   alias Helper.ORM
+
+  @audit_legal Constant.pending(:legal)
+  @audit_illegal Constant.pending(:illegal)
 
   setup do
     {:ok, user} = db_insert(:user)

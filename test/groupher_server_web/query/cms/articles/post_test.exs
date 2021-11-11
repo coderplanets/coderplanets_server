@@ -32,6 +32,7 @@ defmodule GroupherServer.Test.Query.Articles.Post do
     }
   }
   """
+
   test "basic graphql query on post with logined user",
        ~m(user_conn community user post_attrs)a do
     {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
@@ -41,7 +42,14 @@ defmodule GroupherServer.Test.Query.Articles.Post do
 
     assert results["id"] == to_string(post.id)
     assert is_valid_kv?(results, "title", :string)
-    assert %{"isEdited" => false} == results["meta"]
+
+    assert results["meta"] == %{
+             "isEdited" => false,
+             "illegalReason" => [],
+             "illegalWords" => [],
+             "isLegal" => true
+           }
+
     assert length(Map.keys(results)) == 5
   end
 

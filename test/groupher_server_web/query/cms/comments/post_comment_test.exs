@@ -323,7 +323,6 @@ defmodule GroupherServer.Test.Query.Comments.PostComment do
         Enum.find(results["entries"], &(&1["id"] == to_string(replyed_comment_1.id)))
 
       assert replyed_comment_1 |> get_in(["replyTo", "id"]) == to_string(parent_comment.id)
-      assert replyed_comment_1 |> get_in(["replyToId"]) == to_string(parent_comment.id)
 
       assert replyed_comment_1 |> get_in(["replyTo", "author", "id"]) ==
                to_string(parent_comment.author_id)
