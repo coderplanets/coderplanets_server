@@ -209,7 +209,7 @@ defmodule GroupherServer.CMS.Helper.Macros do
       field(:is_archived, :boolean)
       field(:archived_at, :utc_datetime_usec)
 
-      field(:pending, :integer)
+      field(:pending, :integer, default: 0)
 
       timestamps()
     end

@@ -156,6 +156,9 @@ defmodule GroupherServer.CMS do
 
   # Comment CURD
 
+  defdelegate set_comment_illegal(comment_id, attrs), to: CommentCurd
+  defdelegate unset_comment_illegal(comment_id, attrs), to: CommentCurd
+
   defdelegate comments_state(thread, article_id), to: CommentCurd
   defdelegate comments_state(thread, article_id, user), to: CommentCurd
   defdelegate one_comment(id), to: CommentCurd

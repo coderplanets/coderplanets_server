@@ -105,8 +105,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
   pending an article due to forbid words or spam talk
   """
   def set_article_illegal(thread, id, audit_state) do
-    # 1. set pending state -- done
-    # 2. set article meta -- done
+    # 1. set pending state
+    # 2. set article meta
     # 3. set author meta
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, id) do
@@ -137,8 +137,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
       end)
       |> Repo.transaction()
       |> result()
-
-      ORM.update(article, %{pending: @audit_illegal})
     end
   end
 
@@ -523,6 +521,10 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end)
     |> Repo.transaction()
     |> result()
+  end
+
+  defp check_article_pending(%{pending: @audit_legal} = article, _) do
+    {:ok, article}
   end
 
   defp check_article_pending(%{pending: @audit_illegal} = article, %User{id: user_id}) do

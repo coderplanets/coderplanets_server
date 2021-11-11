@@ -7,7 +7,7 @@ defmodule GroupherServer.CMS.Model.Embeds.CommentMeta do
 
   import Ecto.Changeset
 
-  @optional_fields ~w(is_article_author_upvoted report_count is_reply_to_others reported_count reported_user_ids citing_count)a
+  @optional_fields ~w(is_article_author_upvoted report_count is_reply_to_others reported_count reported_user_ids citing_count is_legal illegal_reason illegal_words)a
 
   @doc "for test usage"
   def default_meta() do
@@ -18,7 +18,12 @@ defmodule GroupherServer.CMS.Model.Embeds.CommentMeta do
       upvoted_user_ids: [],
       reported_user_ids: [],
       reported_count: 0,
-      citing_count: 0
+      citing_count: 0,
+
+      # audit
+      is_legal: true,
+      illegal_reason: [],
+      illegal_words: []
     }
   end
 
@@ -33,6 +38,11 @@ defmodule GroupherServer.CMS.Model.Embeds.CommentMeta do
     field(:reported_user_ids, {:array, :integer}, default: [])
     field(:reported_count, :integer, default: 0)
     field(:citing_count, :integer, default: 0)
+
+    # audit state
+    field(:is_legal, :boolean, default: true)
+    field(:illegal_reason, {:array, :string}, default: [])
+    field(:illegal_words, {:array, :string}, default: [])
   end
 
   def changeset(struct, params) do

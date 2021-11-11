@@ -30,7 +30,7 @@ defmodule GroupherServer.CMS.Model.Embeds.ArticleMeta do
       latest_upvoted_users: [],
       latest_collected_users: [],
       # audit state
-      is_legal: false,
+      is_legal: true,
       illegal_reason: [],
       illegal_words: []
     }

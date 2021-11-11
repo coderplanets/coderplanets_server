@@ -312,6 +312,10 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:is_article_author_upvoted, :boolean)
     field(:is_reply_to_others, :boolean)
 
+    # audit states
+    field(:is_legal, :boolean)
+    field(:illegal_reason, list_of(:string))
+    field(:illegal_words, list_of(:string))
     # field(:report_count, :boolean)
     # field(:is_solution, :boolean)
   end
