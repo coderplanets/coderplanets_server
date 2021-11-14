@@ -20,6 +20,13 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Community do
       middleware(M.Statistics.MakeContribute, for: [:user])
     end
 
+    field :is_community_exist, :check_state do
+      arg(:raw, non_null(:string))
+
+      middleware(M.Authorize, :login)
+      resolve(&R.CMS.is_community_exist?/3)
+    end
+
     @desc "update a community"
     field :update_community, :community do
       arg(:id, non_null(:id))

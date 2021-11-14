@@ -37,6 +37,8 @@ defmodule GroupherServer.CMS do
   defdelegate read_community(args, user), to: CommunityCURD
   defdelegate create_community(args), to: CommunityCURD
   defdelegate update_community(id, args), to: CommunityCURD
+  defdelegate is_community_exist?(raw), to: CommunityCURD
+
   # >> editor ..
   defdelegate update_editor(user, community, title), to: CommunityCURD
   # >> geo info ..

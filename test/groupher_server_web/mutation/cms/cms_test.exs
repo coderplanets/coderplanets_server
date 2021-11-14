@@ -210,6 +210,68 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       assert created["id"] == to_string(found.id)
     end
 
+    @tag :wip
+    test "can create community with some title, different raw" do
+      rule_conn = simu_conn(:user, cms: %{"community.create" => true})
+      variables = mock_attrs(:community, %{title: "elixir", raw: "elixir1"})
+      rule_conn |> mutation_result(@create_community_query, variables, "createCommunity")
+      variables = mock_attrs(:community, %{title: "elixir", raw: "elixir2"})
+      rule_conn |> mutation_result(@create_community_query, variables, "createCommunity")
+
+      {:ok, community} = Community |> ORM.find_by(%{raw: "elixir1"})
+      assert community.title == "elixir"
+
+      {:ok, community} = Community |> ORM.find_by(%{raw: "elixir2"})
+      assert community.title == "elixir"
+    end
+
+    @tag :wip
+    test "can not create community with some raw" do
+      rule_conn = simu_conn(:user, cms: %{"community.create" => true})
+      variables = mock_attrs(:community, %{title: "elixir1", raw: "elixir"})
+
+      first =
+        rule_conn
+        |> mutation_result(@create_community_query, variables, "createCommunity")
+
+      assert not is_nil(first)
+
+      variables = mock_attrs(:community, %{title: "elixir2", raw: "elixir"})
+
+      last =
+        rule_conn
+        |> mutation_result(@create_community_query, variables, "createCommunity")
+
+      assert is_nil(last)
+    end
+
+    @check_community_exist_query """
+    mutation($raw: String!) {
+      isCommunityExist(raw: $raw) {
+        exist
+      }
+    }
+    """
+    @tag :wip
+    test "can check if a community is exist" do
+      rule_conn = simu_conn(:user, cms: %{"community.create" => true})
+
+      check_state =
+        rule_conn
+        |> mutation_result(@check_community_exist_query, %{raw: "elixir"}, "isCommunityExist")
+
+      assert not check_state["exist"]
+
+      variables = mock_attrs(:community, %{raw: "elixir"})
+      rule_conn |> mutation_result(@create_community_query, variables, "createCommunity")
+
+      check_state =
+        rule_conn
+        |> mutation_result(@check_community_exist_query, %{raw: "elixir"}, "isCommunityExist")
+
+      assert check_state["exist"]
+    end
+
     @update_community_query """
     mutation($id: ID!, $title: String, $desc: String, $logo: String, $raw: String) {
       updateCommunity(id: $id, title: $title, desc: $desc, logo: $logo, raw: $raw) {

@@ -39,6 +39,10 @@ defmodule GroupherServerWeb.Resolvers.CMS do
 
   def delete_community(_root, %{id: id}, _info), do: Community |> ORM.find_delete!(id)
 
+  def is_community_exist?(_root, %{raw: raw}, _) do
+    CMS.is_community_exist?(raw)
+  end
+
   # #######################
   # community thread (post, job), login user should be logged
   # #######################

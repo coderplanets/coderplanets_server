@@ -81,8 +81,9 @@ defmodule GroupherServer.CMS.Model.Community do
     |> validate_required(@required_fields)
     |> cast_embed(:meta, with: &Embeds.CommunityMeta.changeset/2)
     |> validate_length(:title, min: 1, max: 30)
+    |> validate_length(:raw, min: 1, max: 30)
     |> foreign_key_constraint(:user_id)
-    |> unique_constraint(:title, name: :communities_title_index)
+    |> unique_constraint(:raw, name: :communities_raw_index)
     |> unique_constraint(:aka, name: :communities_aka_index)
 
     # |> foreign_key_constraint(:communities_author_fkey)

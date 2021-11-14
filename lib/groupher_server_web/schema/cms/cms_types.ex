@@ -15,6 +15,10 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
   import_types(Schema.CMS.Metrics)
 
+  object :check_state do
+    field(:exist, :boolean)
+  end
+
   ######
   # common stands for minimal info of the type
   # usually used in abuse_report, feeds, etc ..
@@ -24,6 +28,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:nickname, :string)
     field(:avatar, :string)
     field(:bio, :string)
+    field(:shortbio, :string)
   end
 
   object :common_article do

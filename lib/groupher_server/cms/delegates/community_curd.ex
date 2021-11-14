@@ -6,6 +6,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   import Helper.Utils, only: [done: 1, strip_struct: 1, get_config: 2, plural: 1]
   import GroupherServer.CMS.Delegate.ArticleCURD, only: [ensure_author_exists: 1]
   import GroupherServer.CMS.Helper.Matcher
+  import Helper.ErrorCode
   import ShortMaps
 
   alias Helper.ORM
@@ -51,6 +52,16 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
         nil -> ORM.update(community, args |> Map.merge(%{meta: @default_meta}))
         _ -> ORM.update(community, args)
       end
+    end
+  end
+
+  @doc """
+  check if community exist
+  """
+  def is_community_exist?(raw) do
+    case ORM.find_by(Community, raw: raw) do
+      {:ok, _} -> {:ok, %{exist: true}}
+      {:error, _} -> {:ok, %{exist: false}}
     end
   end
 
