@@ -8,6 +8,11 @@ defmodule GroupherServer.Test.CMS.Community do
 
   alias Helper.ORM
 
+  alias CMS.Constant
+
+  @community_normal Constant.pending(:normal)
+  @community_applying Constant.pending(:applying)
+
   setup do
     {:ok, user} = db_insert(:user)
     {:ok, user2} = db_insert(:user)
@@ -18,42 +23,83 @@ defmodule GroupherServer.Test.CMS.Community do
     {:ok, ~m(user community article_tag_attrs user2)a}
   end
 
-  describe "[cms community read]" do
-    test "read community should inc views", ~m(community)a do
-      {:ok, community} = CMS.read_community(%{id: community.id})
+  describe "[cms community apply]" do
+    @tag :wip
+    test "apply a community should have pending and can not be read", ~m(user)a do
+      attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id})
+      {:ok, community} = CMS.apply_community(attrs)
 
+      {:ok, community} = ORM.find(Community, community.id)
+      assert community.pending == @community_applying
+      assert {:error, _} = CMS.read_community(community.raw)
+
+      {:ok, community} = CMS.approve_community_apply(community.raw)
+
+      {:ok, community} = ORM.find(Community, community.id)
+      assert community.pending == @community_normal
+      assert {:ok, _} = CMS.read_community(community.raw)
+    end
+
+    @tag :wip
+    test "apply can be deny", ~m(user)a do
+      attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id})
+      {:ok, community} = CMS.apply_community(attrs)
+      {:ok, community} = CMS.deny_community_apply(community.raw)
+
+      {:error, _} = ORM.find(Community, community.id)
+    end
+
+    @tag :wip
+    test "user can query has pending apply or not", ~m(user user2)a do
+      attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id})
+      {:ok, _community} = CMS.apply_community(attrs)
+
+      {:ok, state} = CMS.has_pending_apply?(user)
+      assert state.exist
+
+      {:ok, state} = CMS.has_pending_apply?(user2)
+      assert not state.exist
+    end
+  end
+
+  describe "[cms community read]" do
+    @tag :wip
+    test "read community should inc views", ~m(community)a do
+      {:ok, community} = CMS.read_community(community.raw)
       assert community.views == 1
-      {:ok, community} = CMS.read_community(%{title: community.title})
+      {:ok, community} = CMS.read_community(community.raw)
       assert community.views == 2
-      {:ok, community} = CMS.read_community(%{raw: community.raw})
+      {:ok, community} = CMS.read_community(community.raw)
       assert community.views == 3
     end
 
+    @tag :wip
     test "read subscribed community should have a flag", ~m(community user user2)a do
       {:ok, _} = CMS.subscribe_community(community, user)
 
-      {:ok, community} = CMS.read_community(%{id: community.id}, user)
+      {:ok, community} = CMS.read_community(community.raw, user)
 
       assert community.viewer_has_subscribed
       assert user.id in community.meta.subscribed_user_ids
 
-      {:ok, community} = CMS.read_community(%{id: community.id}, user2)
+      {:ok, community} = CMS.read_community(community.raw, user2)
       assert not community.viewer_has_subscribed
       assert user2.id not in community.meta.subscribed_user_ids
     end
 
+    @tag :wip
     test "read editored community should have a flag", ~m(community user user2)a do
       title = "chief editor"
       {:ok, community} = CMS.set_editor(community, title, user)
 
-      {:ok, community} = CMS.read_community(%{id: community.id}, user)
+      {:ok, community} = CMS.read_community(community.raw, user)
       assert community.viewer_is_editor
 
-      {:ok, community} = CMS.read_community(%{id: community.id}, user2)
+      {:ok, community} = CMS.read_community(community.raw, user2)
       assert not community.viewer_is_editor
 
       {:ok, community} = CMS.unset_editor(community, user)
-      {:ok, community} = CMS.read_community(%{id: community.id}, user)
+      {:ok, community} = CMS.read_community(community.raw, user)
       assert not community.viewer_is_editor
     end
   end

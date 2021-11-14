@@ -14,18 +14,12 @@ defmodule GroupherServerWeb.Resolvers.CMS do
   # #######################
   # community ..
   # #######################
-  def community(_root, args, %{context: %{cur_user: user}}) do
-    case Enum.empty?(args) do
-      false -> CMS.read_community(args, user)
-      true -> {:error, "please provide community id or title or raw"}
-    end
+  def community(_root, %{raw: raw}, %{context: %{cur_user: user}}) do
+    CMS.read_community(raw, user)
   end
 
-  def community(_root, args, _info) do
-    case Enum.empty?(args) do
-      false -> CMS.read_community(args)
-      true -> {:error, "please provide community id or title or raw"}
-    end
+  def community(_root, %{raw: raw}, _info) do
+    CMS.read_community(raw)
   end
 
   def paged_communities(_root, ~m(filter)a, _info), do: Community |> ORM.find_all(filter)

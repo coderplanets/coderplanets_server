@@ -10,9 +10,8 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
     @desc "spec community info"
     field :community, :community do
       # arg(:id, non_null(:id))
-      arg(:id, :id)
-      arg(:title, :string)
-      arg(:raw, :string)
+      # arg(:title, :string)
+      arg(:raw, non_null(:string))
       resolve(&R.CMS.community/3)
     end
 

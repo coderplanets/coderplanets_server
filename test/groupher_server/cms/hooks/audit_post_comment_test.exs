@@ -5,7 +5,7 @@ defmodule GroupherServer.Test.CMS.Hooks.AuditPostComment do
 
   alias GroupherServer.{CMS}
   alias CMS.Delegate.Hooks
-  alias Helper.ORM
+  alias Helper.{ORM, Scheduler}
   alias CMS.Constant
 
   @audit_legal Constant.pending(:legal)
@@ -69,10 +69,8 @@ defmodule GroupherServer.Test.CMS.Hooks.AuditPostComment do
       assert paged_comments.total_count == 0
     end
 
-    alias Helper.Scheduler
-    @tag :wip
     test "can handle paged audit failed comments from Scheduler" do
-      {:ok, results} = Scheduler.comments_audition()
+      {:ok, _results} = Scheduler.comments_audition()
     end
   end
 end

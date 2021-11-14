@@ -6,7 +6,6 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   import Helper.Utils, only: [done: 1, strip_struct: 1, get_config: 2, plural: 1]
   import GroupherServer.CMS.Delegate.ArticleCURD, only: [ensure_author_exists: 1]
   import GroupherServer.CMS.Helper.Matcher
-  import Helper.ErrorCode
   import ShortMaps
 
   alias Helper.ORM
@@ -25,13 +24,16 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     Thread
   }
 
+  alias CMS.Constant
+
   @default_meta Embeds.CommunityMeta.default_meta()
   @article_threads get_config(:article, :threads)
 
-  def read_community(clauses, user), do: read_community(clauses) |> viewer_has_states(user)
-  def read_community(%{id: id}), do: ORM.read(Community, id, inc: :views)
-  def read_community(%{raw: raw} = clauses), do: do_read_community(clauses, raw)
-  def read_community(%{title: title} = clauses), do: do_read_community(clauses, title)
+  @community_normal Constant.pending(:normal)
+  @community_applying Constant.pending(:applying)
+
+  def read_community(raw, user), do: read_community(raw) |> viewer_has_states(user)
+  def read_community(raw), do: do_read_community(raw)
 
   @doc """
   create a community
@@ -62,6 +64,32 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     case ORM.find_by(Community, raw: raw) do
       {:ok, _} -> {:ok, %{exist: true}}
       {:error, _} -> {:ok, %{exist: false}}
+    end
+  end
+
+  def has_pending_apply?(%User{} = user) do
+    case ORM.find_by(Community, %{user_id: user.id, pending: @community_applying}) do
+      {:ok, _} -> {:ok, %{exist: true}}
+      {:error, _} -> {:ok, %{exist: false}}
+    end
+  end
+
+  def apply_community(args) do
+    create_community(Map.merge(args, %{pending: @community_applying}))
+  end
+
+  def approve_community_apply(raw) do
+    with {:ok, community} <- ORM.find_by(Community, raw: raw) do
+      ORM.update(community, %{pending: @community_normal})
+    end
+  end
+
+  def deny_community_apply(raw) do
+    with {:ok, community} <- ORM.find_by(Community, raw: raw) do
+      case community.pending == @community_applying do
+        true -> ORM.delete(community)
+        false -> {:ok, community}
+      end
     end
   end
 
@@ -246,11 +274,18 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     end
   end
 
-  defp do_read_community(clauses, aka) do
-    case ORM.read_by(Community, clauses, inc: :views) do
-      {:ok, community} -> {:ok, community}
-      {:error, _} -> ORM.find_by(Community, aka: aka)
+  defp do_read_community(raw) do
+    with {:ok, community} <- find_community(raw) do
+      community |> ORM.read(inc: :views)
     end
+  end
+
+  defp find_community(raw) do
+    Community
+    |> where([c], c.pending == ^@community_normal)
+    |> where([c], c.raw == ^raw or c.aka == ^raw)
+    |> Repo.one()
+    |> done
   end
 
   defp viewer_has_states({:ok, community}, %User{id: user_id}) do
