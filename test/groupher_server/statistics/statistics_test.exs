@@ -100,6 +100,7 @@ defmodule GroupherServer.Test.Statistics do
   end
 
   describe "[statistics community_contribute] " do
+    @tag :wip
     test "should inserted a community contribute when create community", ~m(community)a do
       community_id = community.id
       assert {:error, _} = ORM.find_by(CommunityContribute, ~m(community_id)a)

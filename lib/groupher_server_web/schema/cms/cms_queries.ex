@@ -15,6 +15,20 @@ defmodule GroupherServerWeb.Schema.CMS.Queries do
       resolve(&R.CMS.community/3)
     end
 
+    @desc "if use has pending apply"
+    field :has_pending_community_apply, :check_state do
+      middleware(M.Authorize, :login)
+      resolve(&R.CMS.has_pending_community_apply?/3)
+    end
+
+    @desc "if the community exist or not"
+    field :is_community_exist, :check_state do
+      arg(:raw, non_null(:string))
+
+      middleware(M.Authorize, :login)
+      resolve(&R.CMS.is_community_exist?/3)
+    end
+
     @desc "communities with pagination info"
     field :paged_communities, :paged_communities do
       arg(:filter, non_null(:communities_filter))

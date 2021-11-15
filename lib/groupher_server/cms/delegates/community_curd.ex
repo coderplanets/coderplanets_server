@@ -67,7 +67,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     end
   end
 
-  def has_pending_apply?(%User{} = user) do
+  def has_pending_community_apply?(%User{} = user) do
     case ORM.find_by(Community, %{user_id: user.id, pending: @community_applying}) do
       {:ok, _} -> {:ok, %{exist: true}}
       {:error, _} -> {:ok, %{exist: false}}
@@ -78,14 +78,14 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     create_community(Map.merge(args, %{pending: @community_applying}))
   end
 
-  def approve_community_apply(raw) do
-    with {:ok, community} <- ORM.find_by(Community, raw: raw) do
+  def approve_community_apply(id) do
+    with {:ok, community} <- ORM.find(Community, id) do
       ORM.update(community, %{pending: @community_normal})
     end
   end
 
-  def deny_community_apply(raw) do
-    with {:ok, community} <- ORM.find_by(Community, raw: raw) do
+  def deny_community_apply(id) do
+    with {:ok, community} <- ORM.find(Community, id) do
       case community.pending == @community_applying do
         true -> ORM.delete(community)
         false -> {:ok, community}

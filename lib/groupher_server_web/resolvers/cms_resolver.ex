@@ -26,15 +26,34 @@ defmodule GroupherServerWeb.Resolvers.CMS do
 
   def create_community(_root, args, %{context: %{cur_user: user}}) do
     args = args |> Map.merge(%{user_id: user.id})
-    Community |> ORM.create(args)
+    CMS.create_community(args)
   end
 
-  def update_community(_root, args, _info), do: Community |> ORM.find_update(args)
+  def update_community(_root, args, _info) do
+    CMS.update_community(args.id, args)
+  end
 
   def delete_community(_root, %{id: id}, _info), do: Community |> ORM.find_delete!(id)
 
+  def apply_community(_root, args, %{context: %{cur_user: user}}) do
+    args = args |> Map.merge(%{user_id: user.id})
+    CMS.apply_community(args)
+  end
+
+  def approve_community_apply(_root, %{id: id}, _) do
+    CMS.approve_community_apply(id)
+  end
+
+  def deny_community_apply(_root, %{id: id}, _) do
+    CMS.deny_community_apply(id)
+  end
+
   def is_community_exist?(_root, %{raw: raw}, _) do
     CMS.is_community_exist?(raw)
+  end
+
+  def has_pending_community_apply?(_root, _, %{context: %{cur_user: user}}) do
+    CMS.has_pending_community_apply?(user)
   end
 
   # #######################

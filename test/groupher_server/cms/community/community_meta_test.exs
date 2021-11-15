@@ -29,6 +29,7 @@ defmodule GroupherServer.Test.Community.CommunityMeta do
       assert community.meta |> strip_struct == @default_meta
     end
 
+    @tag :wip
     test "update legacy community should add default meta", ~m(community)a do
       assert is_nil(community.meta)
 

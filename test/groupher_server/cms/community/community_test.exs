@@ -33,7 +33,7 @@ defmodule GroupherServer.Test.CMS.Community do
       assert community.pending == @community_applying
       assert {:error, _} = CMS.read_community(community.raw)
 
-      {:ok, community} = CMS.approve_community_apply(community.raw)
+      {:ok, community} = CMS.approve_community_apply(community.id)
 
       {:ok, community} = ORM.find(Community, community.id)
       assert community.pending == @community_normal
@@ -44,7 +44,7 @@ defmodule GroupherServer.Test.CMS.Community do
     test "apply can be deny", ~m(user)a do
       attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id})
       {:ok, community} = CMS.apply_community(attrs)
-      {:ok, community} = CMS.deny_community_apply(community.raw)
+      {:ok, community} = CMS.deny_community_apply(community.id)
 
       {:error, _} = ORM.find(Community, community.id)
     end
@@ -54,10 +54,10 @@ defmodule GroupherServer.Test.CMS.Community do
       attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id})
       {:ok, _community} = CMS.apply_community(attrs)
 
-      {:ok, state} = CMS.has_pending_apply?(user)
+      {:ok, state} = CMS.has_pending_community_apply?(user)
       assert state.exist
 
-      {:ok, state} = CMS.has_pending_apply?(user2)
+      {:ok, state} = CMS.has_pending_community_apply?(user2)
       assert not state.exist
     end
   end
