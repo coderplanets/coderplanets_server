@@ -270,6 +270,8 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:viewer_has_subscribed, :boolean)
     field(:viewer_is_editor, :boolean)
 
+    field(:pending, :integer)
+
     # TODO: remove
     field :threads_count, :integer do
       resolve(&R.CMS.threads_count/3)

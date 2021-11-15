@@ -19,13 +19,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Community do
       middleware(M.Statistics.MakeContribute, for: [:user])
     end
 
-    field :is_community_exist, :check_state do
-      arg(:raw, non_null(:string))
-
-      middleware(M.Authorize, :login)
-      resolve(&R.CMS.is_community_exist?/3)
-    end
-
     @desc "update a community"
     field :update_community, :community do
       arg(:id, non_null(:id))
@@ -62,19 +55,19 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Community do
 
     @desc "approve the apply to create a community"
     field :approve_community_apply, :community do
-      arg(:id, non_null(:string))
+      arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      # middleware(M.Passport, claim: "cms->community.approve") # TODO
-      resolve(&R.CMS.apply_community/3)
+      middleware(M.Passport, claim: "cms->community.apply.approve")
+      resolve(&R.CMS.approve_community_apply/3)
     end
 
     @desc "deny the apply to create a community"
     field :deny_community_apply, :community do
-      arg(:id, non_null(:string))
+      arg(:id, non_null(:id))
 
       middleware(M.Authorize, :login)
-      # middleware(M.Passport, claim: "cms->community.deny") # TODO
+      middleware(M.Passport, claim: "cms->community.apply.deny")
       resolve(&R.CMS.deny_community_apply/3)
     end
 
