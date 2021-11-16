@@ -730,21 +730,34 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
 
   describe "mutation cms community apply" do
     @apply_community_query """
-    mutation($title: String!, $desc: String!, $logo: String!, $raw: String!) {
-      applyCommunity(title: $title, desc: $desc, logo: $logo, raw: $raw) {
+    mutation($title: String!, $desc: String!, $logo: String!, $raw: String!, $applyMsg: String, $applyCategory: String) {
+      applyCommunity(title: $title, desc: $desc, logo: $logo, raw: $raw, applyMsg: $applyMsg, applyCategory: $applyCategory) {
         id
         pending
+
+        meta {
+          applyMsg
+          applyCategory
+        }
       }
     }
     """
     @tag :wip
-    test "can apply a community", ~m(user_conn)a do
+    test "can apply a community with or without apply info", ~m(user_conn)a do
       variables = mock_attrs(:community)
       created = user_conn |> mutation_result(@apply_community_query, variables, "applyCommunity")
 
       {:ok, found} = Community |> ORM.find(created["id"])
       assert created["id"] == to_string(found.id)
       assert created["pending"] == @community_applying
+
+      variables = mock_attrs(:community, %{applyMsg: "apply msg", applyCategory: "CITY"})
+      created = user_conn |> mutation_result(@apply_community_query, variables, "applyCommunity")
+
+      assert created["pending"] == @community_applying
+
+      assert created |> get_in(["meta", "applyMsg"]) == "apply msg"
+      assert created |> get_in(["meta", "applyCategory"]) == "CITY"
     end
 
     @approve_community_query """

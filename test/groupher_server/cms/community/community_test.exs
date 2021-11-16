@@ -26,8 +26,11 @@ defmodule GroupherServer.Test.CMS.Community do
   describe "[cms community apply]" do
     @tag :wip
     test "apply a community should have pending and can not be read", ~m(user)a do
-      attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id})
+      attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id, apply_msg: "apply msg"})
       {:ok, community} = CMS.apply_community(attrs)
+
+      assert community.meta.apply_msg == "apply msg"
+      assert community.meta.apply_category == "PUBLIC"
 
       {:ok, community} = ORM.find(Community, community.id)
       assert community.pending == @community_applying

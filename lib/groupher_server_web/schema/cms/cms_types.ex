@@ -468,5 +468,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
   object :community_meta do
     threads_count_fields()
+    field(:apply_msg, :string)
+    field(:apply_category, :string)
   end
 end

@@ -32,6 +32,8 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   @community_normal Constant.pending(:normal)
   @community_applying Constant.pending(:applying)
 
+  @default_apply_category Constant.apply_category(:public)
+
   def read_community(raw, user), do: read_community(raw) |> viewer_has_states(user)
   def read_community(raw), do: do_read_community(raw)
 
@@ -75,7 +77,13 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   end
 
   def apply_community(args) do
-    create_community(Map.merge(args, %{pending: @community_applying}))
+    with {:ok, community} <- create_community(Map.merge(args, %{pending: @community_applying})) do
+      apply_msg = Map.get(args, :apply_msg, "")
+      apply_category = Map.get(args, :apply_category, @default_apply_category)
+
+      meta = community.meta |> Map.merge(~m(apply_msg apply_category)a)
+      ORM.update_meta(community, meta)
+    end
   end
 
   def approve_community_apply(id) do

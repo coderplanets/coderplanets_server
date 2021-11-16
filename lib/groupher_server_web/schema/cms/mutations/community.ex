@@ -48,6 +48,8 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Community do
       arg(:desc, non_null(:string))
       arg(:raw, non_null(:string))
       arg(:logo, non_null(:string))
+      arg(:apply_msg, :string)
+      arg(:apply_category, :string)
 
       middleware(M.Authorize, :login)
       resolve(&R.CMS.apply_community/3)
