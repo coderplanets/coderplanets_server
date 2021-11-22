@@ -17,7 +17,6 @@ ADD api_server.tar.gz /root/api_server
 # RUN mix hex.config mirror_url https://cdn.jsdelivr.net/hex
 
 RUN cd /root/api_server && MIX_ENV=prod mix deps.get --only prod && MIX_ENV=prod mix compile
-RUN cd /root/api_server && MIX_ENV=prod mix ecto.migrate 
 
 ADD loader.sh /usr/local/bin/loader.sh
 RUN chmod +x /usr/local/bin/loader.sh
