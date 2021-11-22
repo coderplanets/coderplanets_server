@@ -15,6 +15,10 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
   import_types(Schema.CMS.Metrics)
 
+  object :check_state do
+    field(:exist, :boolean)
+  end
+
   ######
   # common stands for minimal info of the type
   # usually used in abuse_report, feeds, etc ..
@@ -24,6 +28,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:nickname, :string)
     field(:avatar, :string)
     field(:bio, :string)
+    field(:shortbio, :string)
   end
 
   object :common_article do
@@ -265,6 +270,8 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
     field(:viewer_has_subscribed, :boolean)
     field(:viewer_is_editor, :boolean)
 
+    field(:pending, :integer)
+
     # TODO: remove
     field :threads_count, :integer do
       resolve(&R.CMS.threads_count/3)
@@ -461,5 +468,7 @@ defmodule GroupherServerWeb.Schema.CMS.Types do
 
   object :community_meta do
     threads_count_fields()
+    field(:apply_msg, :string)
+    field(:apply_category, :string)
   end
 end

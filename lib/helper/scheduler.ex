@@ -4,7 +4,7 @@ defmodule Helper.Scheduler do
   """
   use Quantum.Scheduler, otp_app: :groupher_server
 
-  import Helper.Utils, only: [get_config: 2]
+  import Helper.Utils, only: [get_config: 2, done: 1]
   alias GroupherServer.CMS
   alias CMS.Delegate.Hooks
 
@@ -23,10 +23,12 @@ defmodule Helper.Scheduler do
   """
   def archive_artiments() do
     Enum.map(@article_threads, &CMS.archive_articles(&1))
+    |> done
   end
 
   def arthive_comments() do
     CMS.archive_comments()
+    |> done
   end
 
   def articles_audition() do
@@ -42,6 +44,7 @@ defmodule Helper.Scheduler do
       Enum.map(paged_comments.entries, fn comment ->
         Hooks.Audition.handle(comment)
       end)
+      |> done
     end
   end
 
@@ -52,6 +55,7 @@ defmodule Helper.Scheduler do
         # the free audition service's QPS is limit to 2
         Process.sleep(500)
       end)
+      |> done
     end
   end
 end

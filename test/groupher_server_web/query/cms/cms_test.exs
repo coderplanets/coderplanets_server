@@ -14,6 +14,68 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
     {:ok, ~m(guest_conn community user)a}
   end
 
+  describe "apply community" do
+    @check_community_pending_query """
+    query {
+      hasPendingCommunityApply {
+        exist
+      }
+    }
+    """
+    @tag :wip
+    test "can check if user has penging apply", ~m(user)a do
+      user_conn = simu_conn(:user, user)
+
+      check_state =
+        user_conn
+        |> query_result(@check_community_pending_query, %{}, "hasPendingCommunityApply")
+
+      assert not check_state["exist"]
+
+      attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id})
+      {:ok, _community} = CMS.apply_community(attrs)
+
+      user_conn = simu_conn(:user, user)
+
+      check_state =
+        user_conn
+        |> query_result(@check_community_pending_query, %{}, "hasPendingCommunityApply")
+
+      assert check_state["exist"]
+    end
+
+    @check_community_exist_query """
+    query($raw: String!) {
+      isCommunityExist(raw: $raw) {
+        exist
+      }
+    }
+    """
+    @tag :wip
+    test "can check if a community is exist", ~m(user)a do
+      rule_conn = simu_conn(:user, cms: %{"community.create" => true})
+
+      check_state =
+        rule_conn
+        |> query_result(
+          @check_community_exist_query,
+          %{raw: "elixir"},
+          "isCommunityExist"
+        )
+
+      assert not check_state["exist"]
+
+      community_attrs = mock_attrs(:community, %{raw: "elixir", user_id: user.id})
+      {:ok, _community} = CMS.create_community(community_attrs)
+
+      check_state =
+        rule_conn
+        |> query_result(@check_community_exist_query, %{raw: "elixir"}, "isCommunityExist")
+
+      assert check_state["exist"]
+    end
+  end
+
   describe "[cms communities]" do
     @query """
     query($id: ID, $raw: String) {

@@ -30,7 +30,10 @@ defmodule GroupherServer.CMS.Delegate.Search do
 
   defp do_search_communities(queryable, title) do
     queryable
-    |> where([c], ilike(c.title, ^"%#{title}%") or ilike(c.raw, ^"%#{title}%"))
+    |> where(
+      [c],
+      ilike(c.title, ^"%#{title}%") or ilike(c.raw, ^"%#{title}%") or ilike(c.aka, ^"%#{title}%")
+    )
     |> ORM.paginator(page: 1, size: @search_items_count)
     |> done()
   end

@@ -9,6 +9,10 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
   alias CMS.Model.{Category, Community, CommunityEditor, Passport}
 
   alias Helper.ORM
+  alias CMS.Constant
+
+  @community_normal Constant.pending(:normal)
+  @community_applying Constant.pending(:applying)
 
   setup do
     {:ok, category} = db_insert(:category)
@@ -210,15 +214,51 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       assert created["id"] == to_string(found.id)
     end
 
+    @tag :wip
+    test "can create community with some title, different raw" do
+      rule_conn = simu_conn(:user, cms: %{"community.create" => true})
+      variables = mock_attrs(:community, %{title: "elixir", raw: "elixir1"})
+      rule_conn |> mutation_result(@create_community_query, variables, "createCommunity")
+      variables = mock_attrs(:community, %{title: "elixir", raw: "elixir2"})
+      rule_conn |> mutation_result(@create_community_query, variables, "createCommunity")
+
+      {:ok, community} = Community |> ORM.find_by(%{raw: "elixir1"})
+      assert community.title == "elixir"
+
+      {:ok, community} = Community |> ORM.find_by(%{raw: "elixir2"})
+      assert community.title == "elixir"
+    end
+
+    @tag :wip
+    test "can not create community with some raw" do
+      rule_conn = simu_conn(:user, cms: %{"community.create" => true})
+      variables = mock_attrs(:community, %{title: "elixir1", raw: "elixir"})
+
+      first =
+        rule_conn
+        |> mutation_result(@create_community_query, variables, "createCommunity")
+
+      assert not is_nil(first)
+
+      variables = mock_attrs(:community, %{title: "elixir2", raw: "elixir"})
+
+      last =
+        rule_conn
+        |> mutation_result(@create_community_query, variables, "createCommunity")
+
+      assert is_nil(last)
+    end
+
     @update_community_query """
-    mutation($id: ID!, $title: String, $desc: String, $logo: String, $raw: String) {
-      updateCommunity(id: $id, title: $title, desc: $desc, logo: $logo, raw: $raw) {
+    mutation($id: ID!, $title: String, $desc: String, $logo: String) {
+      updateCommunity(id: $id, title: $title, desc: $desc, logo: $logo) {
         id
         title
         desc
       }
     }
     """
+    @tag :wip
     test "update community with valid attrs", ~m(community)a do
       rule_conn = simu_conn(:user, cms: %{"community.update" => true})
       variables = %{id: community.id, title: "new title"}
@@ -231,12 +271,14 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       assert updated["title"] == variables.title
     end
 
+    @tag :wip
     test "update community with empty attrs return the same", ~m(community)a do
       rule_conn = simu_conn(:user, cms: %{"community.update" => true})
       variables = %{id: community.id}
 
       updated =
-        rule_conn |> mutation_result(@update_community_query, variables, "updateCommunity")
+        rule_conn
+        |> mutation_result(@update_community_query, variables, "updateCommunity")
 
       {:ok, found} = Community |> ORM.find(updated["id"])
       assert updated["id"] == to_string(found.id)
@@ -683,6 +725,85 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       rules = found.rules |> Map.get("python")
 
       assert Map.equal?(rules, %{"post.tag.edit" => true})
+    end
+  end
+
+  describe "mutation cms community apply" do
+    @apply_community_query """
+    mutation($title: String!, $desc: String!, $logo: String!, $raw: String!, $applyMsg: String, $applyCategory: String) {
+      applyCommunity(title: $title, desc: $desc, logo: $logo, raw: $raw, applyMsg: $applyMsg, applyCategory: $applyCategory) {
+        id
+        pending
+
+        meta {
+          applyMsg
+          applyCategory
+        }
+      }
+    }
+    """
+    @tag :wip
+    test "can apply a community with or without apply info", ~m(user_conn)a do
+      variables = mock_attrs(:community)
+      created = user_conn |> mutation_result(@apply_community_query, variables, "applyCommunity")
+
+      {:ok, found} = Community |> ORM.find(created["id"])
+      assert created["id"] == to_string(found.id)
+      assert created["pending"] == @community_applying
+
+      variables = mock_attrs(:community, %{applyMsg: "apply msg", applyCategory: "CITY"})
+      created = user_conn |> mutation_result(@apply_community_query, variables, "applyCommunity")
+
+      assert created["pending"] == @community_applying
+
+      assert created |> get_in(["meta", "applyMsg"]) == "apply msg"
+      assert created |> get_in(["meta", "applyCategory"]) == "CITY"
+    end
+
+    @approve_community_query """
+    mutation($id: ID!) {
+      approveCommunityApply(id: $id) {
+        id
+        pending
+      }
+    }
+    """
+    @tag :wip
+    test "can approve a community apply2", ~m(user_conn)a do
+      variables = mock_attrs(:community)
+      created = user_conn |> mutation_result(@apply_community_query, variables, "applyCommunity")
+
+      variables = %{id: created["id"]}
+      rule_conn = simu_conn(:user, cms: %{"community.apply.approve" => true})
+
+      rule_conn
+      |> mutation_result(@approve_community_query, variables, "approveCommunityApply")
+
+      {:ok, found} = Community |> ORM.find(created["id"])
+      assert found.pending == @community_normal
+    end
+
+    @deny_community_query """
+    mutation($id: ID!) {
+      denyCommunityApply(id: $id) {
+        id
+        pending
+      }
+    }
+    """
+    @tag :wip
+    test "can deny a community apply", ~m(user_conn)a do
+      variables = mock_attrs(:community)
+      created = user_conn |> mutation_result(@apply_community_query, variables, "applyCommunity")
+      assert {:ok, _} = Community |> ORM.find(created["id"])
+
+      variables = %{id: created["id"]}
+      rule_conn = simu_conn(:user, cms: %{"community.apply.deny" => true})
+
+      rule_conn
+      |> mutation_result(@deny_community_query, variables, "denyCommunityApply")
+
+      assert {:error, _} = Community |> ORM.find(created["id"])
     end
   end
 end

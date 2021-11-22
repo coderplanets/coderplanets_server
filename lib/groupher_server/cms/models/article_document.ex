@@ -8,7 +8,6 @@ defmodule GroupherServer.CMS.Model.ArticleDocument do
   use Accessible
 
   import Ecto.Changeset
-  import GroupherServer.CMS.Helper.Macros
   import Helper.Utils, only: [get_config: 2]
 
   @timestamps_opts [type: :utc_datetime_usec]

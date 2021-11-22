@@ -24,13 +24,18 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     Thread
   }
 
+  alias CMS.Constant
+
   @default_meta Embeds.CommunityMeta.default_meta()
   @article_threads get_config(:article, :threads)
 
-  def read_community(clauses, user), do: read_community(clauses) |> viewer_has_states(user)
-  def read_community(%{id: id}), do: ORM.read(Community, id, inc: :views)
-  def read_community(%{raw: raw} = clauses), do: do_read_community(clauses, raw)
-  def read_community(%{title: title} = clauses), do: do_read_community(clauses, title)
+  @community_normal Constant.pending(:normal)
+  @community_applying Constant.pending(:applying)
+
+  @default_apply_category Constant.apply_category(:public)
+
+  def read_community(raw, user), do: read_community(raw) |> viewer_has_states(user)
+  def read_community(raw), do: do_read_community(raw)
 
   @doc """
   create a community
@@ -50,6 +55,59 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
       case community.meta do
         nil -> ORM.update(community, args |> Map.merge(%{meta: @default_meta}))
         _ -> ORM.update(community, args)
+      end
+    end
+  end
+
+  @doc """
+  check if community exist
+  """
+  def is_community_exist?(raw) do
+    case ORM.find_by(Community, raw: raw) do
+      {:ok, _} -> {:ok, %{exist: true}}
+      {:error, _} -> {:ok, %{exist: false}}
+    end
+  end
+
+  def has_pending_community_apply?(%User{} = user) do
+    with {:ok, paged_applies} <- paged_community_applies(user, %{page: 1, size: 1}) do
+      case paged_applies.total_count > 0 do
+        true -> {:ok, %{exist: true}}
+        false -> {:ok, %{exist: false}}
+      end
+    end
+  end
+
+  def paged_community_applies(%User{} = user, %{page: page, size: size} = _filter) do
+    Community
+    |> where([c], c.pending == ^@community_applying)
+    |> where([c], c.user_id == ^user.id)
+    |> ORM.paginator(~m(page size)a)
+    |> done
+  end
+
+  def apply_community(args) do
+    with {:ok, community} <- create_community(Map.merge(args, %{pending: @community_applying})) do
+      apply_msg = Map.get(args, :apply_msg, "")
+      apply_category = Map.get(args, :apply_category, @default_apply_category)
+
+      meta = community.meta |> Map.merge(~m(apply_msg apply_category)a)
+      ORM.update_meta(community, meta)
+    end
+  end
+
+  def approve_community_apply(id) do
+    # TODO: create community with thread, category and tags
+    with {:ok, community} <- ORM.find(Community, id) do
+      ORM.update(community, %{pending: @community_normal})
+    end
+  end
+
+  def deny_community_apply(id) do
+    with {:ok, community} <- ORM.find(Community, id) do
+      case community.pending == @community_applying do
+        true -> ORM.delete(community)
+        false -> {:ok, community}
       end
     end
   end
@@ -235,11 +293,18 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     end
   end
 
-  defp do_read_community(clauses, aka) do
-    case ORM.read_by(Community, clauses, inc: :views) do
-      {:ok, community} -> {:ok, community}
-      {:error, _} -> ORM.find_by(Community, aka: aka)
+  defp do_read_community(raw) do
+    with {:ok, community} <- find_community(raw) do
+      community |> ORM.read(inc: :views)
     end
+  end
+
+  defp find_community(raw) do
+    Community
+    |> where([c], c.pending == ^@community_normal)
+    |> where([c], c.raw == ^raw or c.aka == ^raw)
+    |> Repo.one()
+    |> done
   end
 
   defp viewer_has_states({:ok, community}, %User{id: user_id}) do

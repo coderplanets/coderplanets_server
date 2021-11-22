@@ -109,20 +109,21 @@ defmodule Helper.ORM do
   @doc """
   Require queryable has a views fields to count the views of the queryable Modal
   """
-  def read(queryable, id, inc: :views) do
+  def read(queryable, id, inc: :views) when is_number(id) or is_binary(id) do
     with {:ok, result} <- find(queryable, id) do
       result |> inc_views_count(queryable) |> done()
     end
-  end
-
-  def read(article, inc: :views) do
-    article |> inc_views_count(article.__struct__) |> done()
   end
 
   def read_by(queryable, clauses, inc: :views) do
     with {:ok, result} <- find_by(queryable, clauses) do
       result |> inc_views_count(queryable) |> done()
     end
+  end
+
+  # content counld be article/community
+  def read(content, inc: :views) do
+    content |> inc_views_count(content.__struct__) |> done()
   end
 
   defp inc_views_count(content, queryable) do

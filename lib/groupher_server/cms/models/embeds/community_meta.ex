@@ -31,7 +31,9 @@ defmodule GroupherServer.CMS.Model.Embeds.CommunityMeta do
   @general_options %{
     editors_ids: [],
     subscribed_user_ids: [],
-    contributes_digest: []
+    contributes_digest: [],
+    apply_msg: "",
+    apply_category: ""
   }
 
   @optional_fields Map.keys(@general_options) ++
@@ -53,6 +55,9 @@ defmodule GroupherServer.CMS.Model.Embeds.CommunityMeta do
     # 关注相关
     field(:subscribed_user_ids, {:array, :integer}, default: [])
     field(:contributes_digest, {:array, :integer}, default: [])
+    # 申请信息
+    field(:apply_msg, :string, default: "")
+    field(:apply_category, :string, default: "")
   end
 
   def changeset(struct, params) do

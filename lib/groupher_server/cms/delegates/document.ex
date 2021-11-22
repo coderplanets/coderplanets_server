@@ -3,10 +3,9 @@ defmodule GroupherServer.CMS.Delegate.Document do
   CURD operation on post/job ...
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, thread_of: 2, get_config: 2]
+  import Helper.Utils, only: [thread_of: 2]
 
   import Helper.ErrorCode
-  import ShortMaps
 
   alias Helper.{ORM, Converter}
   alias GroupherServer.{CMS, Repo}

@@ -85,7 +85,10 @@ defmodule Helper.Certification do
             "category.update",
             "category.set",
             "category.unset",
-            "thread.create"
+            "thread.create",
+            "community.apply.approve",
+            "community.apply.deny"
+            #
           ],
       community: [
         "thread.set",

@@ -187,7 +187,7 @@ defmodule GroupherServer.CMS.Delegate.ArticleCommunity do
   @doc "update isEdited meta label if needed"
   # TODO: diff history
   def update_edit_status(%{meta: %Embeds.ArticleMeta{is_edited: _} = meta} = content) do
-    meta = meta |> strip_struct |> Map.merge(%{is_edited: true})
+    meta = meta |> Map.merge(%{is_edited: true})
     ORM.update_meta(content, meta)
   end
 

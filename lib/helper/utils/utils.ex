@@ -67,6 +67,7 @@ defmodule Helper.Utils do
   def done(false), do: {:error, false}
   def done(true), do: {:ok, true}
   def done(nil), do: {:error, "record not found."}
+  def done([]), do: {:ok, []}
   def done(:ok), do: {:ok, :pass}
   def done(nil, :boolean), do: {:ok, false}
   def done(_, :boolean), do: {:ok, true}

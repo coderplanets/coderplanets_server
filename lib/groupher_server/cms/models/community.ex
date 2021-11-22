@@ -3,6 +3,8 @@ defmodule GroupherServer.CMS.Model.Community do
   alias __MODULE__
 
   use Ecto.Schema
+  use Accessible
+
   import Ecto.Changeset
 
   alias GroupherServer.{Accounts, CMS}
@@ -22,7 +24,7 @@ defmodule GroupherServer.CMS.Model.Community do
 
   @required_fields ~w(title desc user_id logo raw)a
   # @required_fields ~w(title desc user_id)a
-  @optional_fields ~w(label geo_info index aka contributes_digest)a
+  @optional_fields ~w(label geo_info index aka contributes_digest pending)a
 
   def max_pinned_article_count_per_thread, do: @max_pinned_article_count_per_thread
 
@@ -50,6 +52,8 @@ defmodule GroupherServer.CMS.Model.Community do
     field(:subscribers_count, :integer, default: 0)
     field(:article_tags_count, :integer, default: 0)
     field(:threads_count, :integer, default: 0)
+
+    field(:pending, :integer, default: 0)
 
     field(:viewer_has_subscribed, :boolean, default: false, virtual: true)
     field(:viewer_is_editor, :boolean, default: false, virtual: true)
@@ -81,8 +85,9 @@ defmodule GroupherServer.CMS.Model.Community do
     |> validate_required(@required_fields)
     |> cast_embed(:meta, with: &Embeds.CommunityMeta.changeset/2)
     |> validate_length(:title, min: 1, max: 30)
+    |> validate_length(:raw, min: 1, max: 30)
     |> foreign_key_constraint(:user_id)
-    |> unique_constraint(:title, name: :communities_title_index)
+    |> unique_constraint(:raw, name: :communities_raw_index)
     |> unique_constraint(:aka, name: :communities_aka_index)
 
     # |> foreign_key_constraint(:communities_author_fkey)

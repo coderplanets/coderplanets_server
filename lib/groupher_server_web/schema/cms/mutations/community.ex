@@ -11,7 +11,6 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Community do
       arg(:desc, non_null(:string))
       arg(:raw, non_null(:string))
       arg(:logo, non_null(:string))
-      # arg(:category, non_null(:string))
 
       middleware(M.Authorize, :login)
       middleware(M.Passport, claim: "cms->community.create")
@@ -41,6 +40,37 @@ defmodule GroupherServerWeb.Schema.CMS.Mutations.Community do
       middleware(M.Passport, claim: "cms->community.delete")
 
       resolve(&R.CMS.delete_community/3)
+    end
+
+    @desc "apply to create a community"
+    field :apply_community, :community do
+      arg(:title, non_null(:string))
+      arg(:desc, non_null(:string))
+      arg(:raw, non_null(:string))
+      arg(:logo, non_null(:string))
+      arg(:apply_msg, :string)
+      arg(:apply_category, :string)
+
+      middleware(M.Authorize, :login)
+      resolve(&R.CMS.apply_community/3)
+    end
+
+    @desc "approve the apply to create a community"
+    field :approve_community_apply, :community do
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->community.apply.approve")
+      resolve(&R.CMS.approve_community_apply/3)
+    end
+
+    @desc "deny the apply to create a community"
+    field :deny_community_apply, :community do
+      arg(:id, non_null(:id))
+
+      middleware(M.Authorize, :login)
+      middleware(M.Passport, claim: "cms->community.apply.deny")
+      resolve(&R.CMS.deny_community_apply/3)
     end
 
     @desc "create category"
