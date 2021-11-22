@@ -52,7 +52,7 @@ defmodule GroupherServer.Test.CMS.Community do
       {:error, _} = ORM.find(Community, community.id)
     end
 
-    @tag :wip
+    @tag :wip2
     test "user can query has pending apply or not", ~m(user user2)a do
       attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id})
       {:ok, _community} = CMS.apply_community(attrs)

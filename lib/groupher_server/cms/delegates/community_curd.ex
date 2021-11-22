@@ -70,10 +70,20 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   end
 
   def has_pending_community_apply?(%User{} = user) do
-    case ORM.find_by(Community, %{user_id: user.id, pending: @community_applying}) do
-      {:ok, _} -> {:ok, %{exist: true}}
-      {:error, _} -> {:ok, %{exist: false}}
+    with {:ok, paged_applies} <- paged_community_applies(user, %{page: 1, size: 1}) do
+      case paged_applies.total_count > 0 do
+        true -> {:ok, %{exist: true}}
+        false -> {:ok, %{exist: false}}
+      end
     end
+  end
+
+  def paged_community_applies(%User{} = user, %{page: page, size: size} = _filter) do
+    Community
+    |> where([c], c.pending == ^@community_applying)
+    |> where([c], c.user_id == ^user.id)
+    |> ORM.paginator(~m(page size)a)
+    |> done
   end
 
   def apply_community(args) do
@@ -87,6 +97,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   end
 
   def approve_community_apply(id) do
+    # TODO: create community with thread, category and tags
     with {:ok, community} <- ORM.find(Community, id) do
       ORM.update(community, %{pending: @community_normal})
     end
