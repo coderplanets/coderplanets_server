@@ -84,7 +84,7 @@ defmodule GroupherServer.Support.Factory do
   end
 
   defp mock_meta(:post) do
-    text = Faker.Lorem.sentence(%Range{first: 80, last: 120})
+    text = Faker.Lorem.sentence(10)
 
     %{
       meta: @default_article_meta,
@@ -109,7 +109,7 @@ defmodule GroupherServer.Support.Factory do
   end
 
   defp mock_meta(:repo) do
-    desc = Faker.Lorem.sentence(%Range{first: 15, last: 60})
+    desc = Faker.Lorem.sentence(10)
 
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "REPO"}),
@@ -151,7 +151,7 @@ defmodule GroupherServer.Support.Factory do
   defp mock_meta(:wiki) do
     %{
       community: mock(:community),
-      readme: Faker.Lorem.sentence(%Range{first: 15, last: 60}),
+      readme: Faker.Lorem.sentence(10),
       last_sync: Timex.today() |> Timex.to_datetime(),
       contributors: [
         mock_meta(:github_contributor),
@@ -169,18 +169,18 @@ defmodule GroupherServer.Support.Factory do
     unique_num = System.unique_integer([:positive, :monotonic])
 
     %{
-      github_id: "#{unique_num}-#{Faker.Lorem.sentence(%Range{first: 5, last: 10})}",
+      github_id: "#{unique_num}-#{Faker.Lorem.sentence(10)}",
       avatar: Faker.Avatar.image_url(),
       html_url: Faker.Avatar.image_url(),
       nickname: "mydearxym2",
-      bio: Faker.Lorem.sentence(%Range{first: 15, last: 60}),
+      bio: Faker.Lorem.sentence(10),
       location: "location #{unique_num}",
       company: Faker.Company.name()
     }
   end
 
   defp mock_meta(:job) do
-    text = Faker.Lorem.sentence(%Range{first: 80, last: 120})
+    text = Faker.Lorem.sentence(10)
 
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "JOB"}),
@@ -203,7 +203,7 @@ defmodule GroupherServer.Support.Factory do
   end
 
   defp mock_meta(:blog) do
-    text = Faker.Lorem.sentence(%Range{first: 80, last: 120})
+    text = Faker.Lorem.sentence(10)
 
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "BLOG"}),
@@ -225,7 +225,7 @@ defmodule GroupherServer.Support.Factory do
   end
 
   defp mock_meta(:works) do
-    text = Faker.Lorem.sentence(%Range{first: 80, last: 120})
+    text = Faker.Lorem.sentence(10)
 
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "WORKS"}),
@@ -249,7 +249,7 @@ defmodule GroupherServer.Support.Factory do
   end
 
   defp mock_meta(:radar) do
-    text = Faker.Lorem.sentence(%Range{first: 80, last: 120})
+    text = Faker.Lorem.sentence(10)
 
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "RADAR"}),
@@ -271,7 +271,7 @@ defmodule GroupherServer.Support.Factory do
   end
 
   defp mock_meta(:guide) do
-    text = Faker.Lorem.sentence(%Range{first: 80, last: 120})
+    text = Faker.Lorem.sentence(10)
 
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "GUIDE"}),
@@ -292,7 +292,7 @@ defmodule GroupherServer.Support.Factory do
   end
 
   defp mock_meta(:meetup) do
-    text = Faker.Lorem.sentence(%Range{first: 80, last: 120})
+    text = Faker.Lorem.sentence(20)
 
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "MEETUP"}),
@@ -314,7 +314,7 @@ defmodule GroupherServer.Support.Factory do
   end
 
   defp mock_meta(:drink) do
-    text = Faker.Lorem.sentence(%Range{first: 80, last: 120})
+    text = Faker.Lorem.sentence(20)
 
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "DRINK"}),
