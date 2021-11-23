@@ -1,4 +1,4 @@
-From bitwalker/alpine-elixir-phoenix:1.9.0
+From bitwalker/alpine-elixir-phoenix:1.12.2
 
 RUN mkdir /root/api_server
 

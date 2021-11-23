@@ -24,6 +24,7 @@ fi
 mkdir -p "${PACKER_TMP_DIR}/config"
 mkdir -p "${PACKER_TMP_DIR}/lib"
 mkdir -p "${PACKER_TMP_DIR}/priv"
+mkdir -p "${PACKER_TMP_DIR}/test/support"
 
 echo "[Step 3/${TOTAL_STEPS}] creating ${ARCHIVE_NAME} ..."
 
@@ -32,6 +33,7 @@ cp Makefile "${PACKER_TMP_DIR}/"
 cp Makefile.include.mk "${PACKER_TMP_DIR}/"
 cp config/prod.exs "${PACKER_TMP_DIR}/config"
 cp config/config.exs "${PACKER_TMP_DIR}/config"
+cp test/support/factory.ex "${PACKER_TMP_DIR}/test/support"
 cp -rf lib/* "${PACKER_TMP_DIR}/lib"
 cp -rf priv/* "${PACKER_TMP_DIR}/priv"
 
