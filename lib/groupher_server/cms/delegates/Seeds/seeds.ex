@@ -122,7 +122,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
   defp seed_comments(thread, article_id, user) do
     0..Enum.random(1..5)
     |> Enum.each(fn _ ->
-      text = Faker.Lorem.sentence(%Range{first: 30, last: 80})
+      text = Faker.Lorem.sentence(20)
       {:ok, comment} = CMS.create_comment(thread, article_id, mock_comment(text), user)
       seed_comment_emotions(comment)
       seed_comment_replies(comment)
@@ -133,7 +133,7 @@ defmodule GroupherServer.CMS.Delegate.Seeds do
     with {:ok, users} <- db_insert_multi(:user, Enum.random(1..5)) do
       users
       |> Enum.each(fn user ->
-        text = Faker.Lorem.sentence(%Range{first: 30, last: 80})
+        text = Faker.Lorem.sentence(20)
         {:ok, _} = CMS.reply_comment(comment.id, mock_comment(text), user)
       end)
     end
