@@ -296,8 +296,11 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
              |> mutation_get_error?(@create_community_query, variables, ecode(:passport))
     end
 
+    @tag :wip
     test "create duplicated community fails", %{community: community} do
-      variables = mock_attrs(:community, %{title: community.title, desc: community.desc})
+      variables =
+        mock_attrs(:community, %{raw: community.raw, title: community.title, desc: community.desc})
+
       rule_conn = simu_conn(:user, cms: %{"community.create" => true})
 
       assert rule_conn

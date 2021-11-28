@@ -16,7 +16,7 @@ defmodule GroupherServer.Test.Statistics.Status do
 
   test "can get basic online state" do
     {:ok, state} = Statistics.online_status()
-    assert state == %{realtime_visitors: 0}
+    assert state == %{realtime_visitors: 1}
     Cache.put(:online_status, :realtime_visitors, 10)
 
     {:ok, state} = Statistics.online_status()

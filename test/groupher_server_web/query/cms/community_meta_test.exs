@@ -16,8 +16,8 @@ defmodule GroupherServer.Test.Query.CMS.CommunityMeta do
 
   describe "[community meta]" do
     @query """
-    query($id: ID) {
-      community(id: $id) {
+    query($raw: String!) {
+      community(raw: $raw) {
         id
         title
         articlesCount
@@ -37,7 +37,7 @@ defmodule GroupherServer.Test.Query.CMS.CommunityMeta do
       {:ok, _post} = CMS.create_article(community, :job, mock_attrs(:job), user)
       {:ok, _post} = CMS.create_article(community, :repo, mock_attrs(:repo), user)
 
-      variables = %{id: community.id}
+      variables = %{raw: community.raw}
       results = guest_conn |> query_result(@query, variables, "community")
 
       meta = results["meta"]
