@@ -20,6 +20,10 @@ defmodule GroupherServerWeb.Resolvers.Statistics do
     Statistics.list_cities_info()
   end
 
+  def online_status(_root, _args, _info) do
+    Statistics.online_status()
+  end
+
   def count_status(_root, _args, _info) do
     Statistics.count_status()
   end

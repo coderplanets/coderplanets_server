@@ -7,6 +7,7 @@ defmodule Helper.Scheduler do
   import Helper.Utils, only: [get_config: 2, done: 1]
   alias GroupherServer.CMS
   alias CMS.Delegate.Hooks
+  alias Helper.Plausible
 
   @article_threads get_config(:article, :threads)
 
@@ -56,6 +57,12 @@ defmodule Helper.Scheduler do
         Process.sleep(500)
       end)
       |> done
+    end
+  end
+
+  def gather_online_status() do
+    with true <- Mix.env() !== :test do
+      Plausible.realtime_visitors()
     end
   end
 end

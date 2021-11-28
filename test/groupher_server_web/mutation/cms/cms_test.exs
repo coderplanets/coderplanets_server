@@ -214,7 +214,6 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       assert created["id"] == to_string(found.id)
     end
 
-    @tag :wip
     test "can create community with some title, different raw" do
       rule_conn = simu_conn(:user, cms: %{"community.create" => true})
       variables = mock_attrs(:community, %{title: "elixir", raw: "elixir1"})
@@ -229,7 +228,6 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       assert community.title == "elixir"
     end
 
-    @tag :wip
     test "can not create community with some raw" do
       rule_conn = simu_conn(:user, cms: %{"community.create" => true})
       variables = mock_attrs(:community, %{title: "elixir1", raw: "elixir"})
@@ -258,7 +256,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       }
     }
     """
-    @tag :wip
+
     test "update community with valid attrs", ~m(community)a do
       rule_conn = simu_conn(:user, cms: %{"community.update" => true})
       variables = %{id: community.id, title: "new title"}
@@ -271,7 +269,6 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       assert updated["title"] == variables.title
     end
 
-    @tag :wip
     test "update community with empty attrs return the same", ~m(community)a do
       rule_conn = simu_conn(:user, cms: %{"community.update" => true})
       variables = %{id: community.id}
@@ -299,8 +296,11 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
              |> mutation_get_error?(@create_community_query, variables, ecode(:passport))
     end
 
+    @tag :wip
     test "create duplicated community fails", %{community: community} do
-      variables = mock_attrs(:community, %{title: community.title, desc: community.desc})
+      variables =
+        mock_attrs(:community, %{raw: community.raw, title: community.title, desc: community.desc})
+
       rule_conn = simu_conn(:user, cms: %{"community.create" => true})
 
       assert rule_conn
@@ -742,7 +742,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       }
     }
     """
-    @tag :wip
+
     test "can apply a community with or without apply info", ~m(user_conn)a do
       variables = mock_attrs(:community)
       created = user_conn |> mutation_result(@apply_community_query, variables, "applyCommunity")
@@ -768,7 +768,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       }
     }
     """
-    @tag :wip
+
     test "can approve a community apply2", ~m(user_conn)a do
       variables = mock_attrs(:community)
       created = user_conn |> mutation_result(@apply_community_query, variables, "applyCommunity")
@@ -791,7 +791,7 @@ defmodule GroupherServer.Test.Mutation.CMS.Basic do
       }
     }
     """
-    @tag :wip
+
     test "can deny a community apply", ~m(user_conn)a do
       variables = mock_attrs(:community)
       created = user_conn |> mutation_result(@apply_community_query, variables, "applyCommunity")

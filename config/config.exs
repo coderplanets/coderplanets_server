@@ -139,17 +139,22 @@ config :groupher_server, :cache,
     common: %{
       name: :common,
       size: 5000,
-      minutes: 10
+      seconds: 10 * 60
     },
     user_login: %{
       name: :user_login,
       size: 10_000,
-      minutes: 10_080
+      seconds: 10_080 * 60
     },
     blog_rss: %{
       name: :blog_rss,
       size: 1000,
-      minutes: 15
+      seconds: 15 * 60
+    },
+    online_status: %{
+      name: :online_status,
+      size: 30,
+      seconds: 25
     }
   }
 
@@ -162,8 +167,15 @@ config :groupher_server, Helper.Scheduler,
     # Every 59 minutes
     {"*/59 * * * *", {Helper.Scheduler, :articles_audition, []}},
     # Every 29 minutes
-    {"*/29 * * * *", {Helper.Scheduler, :comments_audition, []}}
+    {"*/29 * * * *", {Helper.Scheduler, :comments_audition, []}},
+    online_status: [
+      # Runs every 20 seconds
+      schedule: {:extended, "*/20"},
+      task: {Helper.Scheduler, :gather_online_status, []}
+    ]
   ]
+
+config :tesla, adapter: Tesla.Adapter.Hackney
 
 # handle background jobs
 config :rihanna,

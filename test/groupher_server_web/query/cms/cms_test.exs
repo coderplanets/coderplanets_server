@@ -22,7 +22,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
-    @tag :wip
+
     test "can check if user has penging apply", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
@@ -51,7 +51,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
-    @tag :wip
+
     test "can check if a community is exist", ~m(user)a do
       rule_conn = simu_conn(:user, cms: %{"community.create" => true})
 
@@ -78,8 +78,8 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
 
   describe "[cms communities]" do
     @query """
-    query($id: ID, $raw: String) {
-      community(id: $id, raw: $raw) {
+    query($raw: String) {
+      community(raw: $raw) {
         id
         title
         threadsCount
@@ -93,10 +93,11 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
+
     test "views should work", ~m(guest_conn)a do
       {:ok, community} = db_insert(:community)
 
-      variables = %{id: community.id}
+      variables = %{raw: community.raw}
       guest_conn |> query_result(@query, variables, "community")
 
       {:ok, community} = ORM.find(Community, community.id)
@@ -152,7 +153,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
         CMS.set_thread(community, thread)
       end)
 
-      variables = %{id: community.id}
+      variables = %{raw: community.raw}
       results = guest_conn |> query_result(@query, variables, "community")
 
       first_idx = results["threads"] |> List.first() |> Map.get("index")
@@ -342,31 +343,14 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
 
   describe "[cms query community]" do
     @query """
-    query($id: ID, $title: String) {
-      community(id: $id, title: $title) {
+    query($raw: String!) {
+      community(raw: $raw, title: $title) {
         id
         title
         desc
       }
     }
     """
-    test "guest user can get badic info of a community by id", ~m(guest_conn community)a do
-      variables = %{id: community.id}
-      results = guest_conn |> query_result(@query, variables, "community")
-
-      assert results["id"] == to_string(community.id)
-      assert results["title"] == community.title
-      assert results["desc"] == community.desc
-    end
-
-    test "guest user can get badic info of a community by title", ~m(guest_conn community)a do
-      variables = %{title: community.title}
-      results = guest_conn |> query_result(@query, variables, "community")
-
-      assert results["id"] == to_string(community.id)
-      assert results["title"] == community.title
-      assert results["desc"] == community.desc
-    end
 
     test "guest user can get community info without args fails", ~m(guest_conn)a do
       variables = %{}
@@ -376,8 +360,8 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
 
   describe "[cms community editors]" do
     @query """
-    query($id: ID!) {
-      community(id: $id) {
+    query($raw: String!) {
+      community(raw: $raw) {
         id
         editorsCount
       }
@@ -390,7 +374,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
 
       Enum.each(users, &CMS.set_editor(community, title, %User{id: &1.id}))
 
-      variables = %{id: community.id}
+      variables = %{raw: community.raw}
       results = guest_conn |> query_result(@query, variables, "community")
       editors_count = results["editorsCount"]
 
@@ -427,19 +411,20 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
 
   describe "[cms community subscribe]" do
     @query """
-    query($id: ID!) {
-      community(id: $id) {
+    query($raw: String!) {
+      community(raw: $raw) {
         id
         subscribersCount
       }
     }
     """
+
     test "guest can get subscribers count of a community", ~m(guest_conn community)a do
       {:ok, users} = db_insert_multi(:user, assert_v(:inner_page_size))
 
       Enum.each(users, &CMS.subscribe_community(community, %User{id: &1.id}))
 
-      variables = %{id: community.id}
+      variables = %{raw: community.raw}
       results = guest_conn |> query_result(@query, variables, "community")
       subscribers_count = results["subscribersCount"]
 

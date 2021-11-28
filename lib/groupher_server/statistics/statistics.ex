@@ -21,4 +21,5 @@ defmodule GroupherServer.Statistics do
 
   # countStatus
   defdelegate count_status(), to: Status
+  defdelegate online_status(), to: Status
 end

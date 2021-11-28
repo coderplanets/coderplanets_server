@@ -13,7 +13,7 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
 
   alias GroupherServer.Accounts.Delegate.Fans
 
-  alias Helper.{Guardian, ORM, QueryBuilder, RadarSearch}
+  alias Helper.{Guardian, ORM, QueryBuilder, IP2City}
   alias Ecto.Multi
 
   @default_user_meta Embeds.UserMeta.default_meta()
@@ -92,7 +92,7 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
   update geo info for user, include geo_city & remote ip
   """
   def update_geo(%User{geo_city: geo_city} = user, remote_ip) when is_nil(geo_city) do
-    case RadarSearch.locate_city(remote_ip) do
+    case IP2City.locate_city(remote_ip) do
       {:ok, city} ->
         update_profile(user, %{geo_city: city, remote_ip: remote_ip})
 

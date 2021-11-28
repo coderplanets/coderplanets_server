@@ -4,7 +4,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
   """
   import ShortMaps
 
-  alias Helper.{Certification, RadarSearch, ORM}
+  alias Helper.{Certification, IP2City, ORM}
 
   alias GroupherServer.{Accounts, CMS, Repo}
 
@@ -285,7 +285,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityOperation do
   end
 
   defp get_user_geocity(nil, remote_ip) do
-    case RadarSearch.locate_city(remote_ip) do
+    case IP2City.locate_city(remote_ip) do
       {:ok, city} -> {:ok, city}
       {:error, _} -> {:error, "update_community geo error"}
     end

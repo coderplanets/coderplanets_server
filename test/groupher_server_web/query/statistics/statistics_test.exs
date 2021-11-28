@@ -47,14 +47,26 @@ defmodule GroupherServer.Test.Query.Statistics do
     end
   end
 
-  describe "[statistics count status]" do
+  describe "[statistics basic status]" do
+    @query """
+    query {
+      onlineStatus {
+        realtimeVisitors
+      }
+    }
+    """
+    test "every body can get online status", ~m(guest_conn)a do
+      result = guest_conn |> query_result(@query, %{}, "onlineStatus")
+      assert result["realtimeVisitors"] |> is_number
+    end
+
     @query """
     query {
       countStatus {
         communitiesCount
         postsCount
         jobsCount
-        reposCount
+        meetupsCount
         categoriesCount
         articleTagsCount
         threadsCount
