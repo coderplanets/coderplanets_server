@@ -73,7 +73,6 @@ defmodule GroupherServer.Test.Query.Statistics do
       }
     }
     """
-    @tag :wip
     test "root manager should get count status" do
       passport_rules = %{"root" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)
