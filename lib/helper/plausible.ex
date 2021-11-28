@@ -29,13 +29,20 @@ defmodule Helper.Plausible do
     # NOTICE: DO NOT use Tesla.get, otherwise the middleware will not woking
     # see https://github.com/teamon/tesla/issues/88
     # with true <- Mix.env() !== :test do
-    with {:ok, result} <- get(path, query: query),
-         Cache.put(@cache_pool, :realtime_visitors, result.body) do
-      # cache_get = Cache.get(@cache_pool, :realtime_visitors)
-      {:ok, result.body}
+    with {:ok, %{body: body}} <- get(path, query: query) do
+      case is_number(body) do
+        true ->
+          Cache.put(@cache_pool, :realtime_visitors, body)
+          {:ok, body}
+
+        false ->
+          {:ok, 1}
+      end
     else
       error ->
         IO.inspect(error, label: "got error")
+        Cache.put(@cache_pool, :realtime_visitors, 1)
+        {:ok, 1}
     end
   end
 end

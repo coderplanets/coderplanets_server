@@ -34,7 +34,7 @@ defmodule GroupherServer.Statistics.Delegate.Status do
       {:ok, %{realtime_visitors: realtime_visitors}}
     else
       _ ->
-        {:ok, %{realtime_visitors: 0}}
+        {:ok, %{realtime_visitors: 1}}
     end
   end
 

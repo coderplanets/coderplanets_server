@@ -12,6 +12,8 @@ defmodule GroupherServerWeb.Schema.Statistics.Queries do
 
     @desc "basic online status"
     field :online_status, :online_status_info do
+      arg(:freshkey, :string)
+
       resolve(&R.Statistics.online_status/3)
     end
 
