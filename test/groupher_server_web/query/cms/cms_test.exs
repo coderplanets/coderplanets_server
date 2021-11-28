@@ -93,7 +93,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
-    @tag :wip
+
     test "views should work", ~m(guest_conn)a do
       {:ok, community} = db_insert(:community)
 
@@ -120,7 +120,6 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       assert results["id"] == aka_results["id"]
     end
 
-    @tag :wip
     test "can get threads count ", ~m(community guest_conn)a do
       {:ok, threads} = db_insert_multi(:thread, 5)
 
@@ -352,7 +351,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
-    @tag :wip
+
     test "guest user can get community info without args fails", ~m(guest_conn)a do
       variables = %{}
       assert guest_conn |> query_get_error?(@query, variables)
@@ -368,7 +367,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
-    @tag :wip
+
     test "guest can get editors count of a community", ~m(guest_conn community)a do
       title = "chief editor"
       {:ok, users} = db_insert_multi(:user, assert_v(:inner_page_size))
@@ -419,7 +418,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
-    @tag :wip
+
     test "guest can get subscribers count of a community", ~m(guest_conn community)a do
       {:ok, users} = db_insert_multi(:user, assert_v(:inner_page_size))
 
