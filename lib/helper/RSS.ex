@@ -11,7 +11,7 @@ defmodule Helper.RSS do
   plug(Tesla.Middleware.Timeout, timeout: @timeout_limit)
   plug(Tesla.Middleware.JSON)
 
-  def get(rss) do
+  def query(rss) do
     with {:ok, %{body: body}} <- get(rss),
          {:ok, blog_rss} <- rss_parser(body) do
       blog_rss |> Map.merge(%{rss: rss}) |> done

@@ -105,6 +105,7 @@ defmodule GroupherServer.Test.Helper.RSSTest do
   end
 
   describe "fetch rss & curd" do
+    @tag :wip
     test "parse and create basic rss" do
       {:ok, feed} = CMS.blog_rss_info(@rss)
       feed = feed |> Map.merge(%{rss: @rss})

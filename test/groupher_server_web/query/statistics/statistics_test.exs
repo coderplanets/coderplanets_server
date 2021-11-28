@@ -55,7 +55,6 @@ defmodule GroupherServer.Test.Query.Statistics do
       }
     }
     """
-    @tag :wip
     test "every body can get online status", ~m(guest_conn)a do
       result = guest_conn |> query_result(@query, %{}, "onlineStatus")
       assert result["realtimeVisitors"] |> is_number
@@ -67,13 +66,14 @@ defmodule GroupherServer.Test.Query.Statistics do
         communitiesCount
         postsCount
         jobsCount
-        reposCount
+        meetupsCount
         categoriesCount
         articleTagsCount
         threadsCount
       }
     }
     """
+    @tag :wip
     test "root manager should get count status" do
       passport_rules = %{"root" => true}
       rule_conn = simu_conn(:user, cms: passport_rules)

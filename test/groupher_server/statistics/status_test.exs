@@ -14,7 +14,6 @@ defmodule GroupherServer.Test.Statistics.Status do
     :ok
   end
 
-  @tag :wip
   test "can get basic online state" do
     {:ok, state} = Statistics.online_status()
     assert state == %{realtime_visitors: 0}
