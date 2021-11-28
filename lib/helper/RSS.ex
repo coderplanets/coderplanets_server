@@ -2,10 +2,17 @@ defmodule Helper.RSS do
   @moduledoc """
   RSS get and parser
   """
+  use Tesla, only: [:get]
   import Helper.Utils, only: [done: 1]
 
+  @timeout_limit 4000
+
+  plug(Tesla.Middleware.Retry, delay: 200, max_retries: 2)
+  plug(Tesla.Middleware.Timeout, timeout: @timeout_limit)
+  plug(Tesla.Middleware.JSON)
+
   def get(rss) do
-    with {:ok, %{body: body}} <- HTTPoison.get(rss),
+    with {:ok, %{body: body}} <- get(rss),
          {:ok, blog_rss} <- rss_parser(body) do
       blog_rss |> Map.merge(%{rss: rss}) |> done
     else

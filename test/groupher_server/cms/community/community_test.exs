@@ -24,7 +24,6 @@ defmodule GroupherServer.Test.CMS.Community do
   end
 
   describe "[cms community apply]" do
-    @tag :wip
     test "apply a community should have pending and can not be read", ~m(user)a do
       attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id, apply_msg: "apply msg"})
       {:ok, community} = CMS.apply_community(attrs)
@@ -43,7 +42,6 @@ defmodule GroupherServer.Test.CMS.Community do
       assert {:ok, _} = CMS.read_community(community.raw)
     end
 
-    @tag :wip
     test "apply can be deny", ~m(user)a do
       attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id})
       {:ok, community} = CMS.apply_community(attrs)
@@ -52,7 +50,6 @@ defmodule GroupherServer.Test.CMS.Community do
       {:error, _} = ORM.find(Community, community.id)
     end
 
-    @tag :wip2
     test "user can query has pending apply or not", ~m(user user2)a do
       attrs = mock_attrs(:community) |> Map.merge(%{user_id: user.id})
       {:ok, _community} = CMS.apply_community(attrs)
@@ -66,7 +63,6 @@ defmodule GroupherServer.Test.CMS.Community do
   end
 
   describe "[cms community read]" do
-    @tag :wip
     test "read community should inc views", ~m(community)a do
       {:ok, community} = CMS.read_community(community.raw)
       assert community.views == 1
@@ -76,7 +72,6 @@ defmodule GroupherServer.Test.CMS.Community do
       assert community.views == 3
     end
 
-    @tag :wip
     test "read subscribed community should have a flag", ~m(community user user2)a do
       {:ok, _} = CMS.subscribe_community(community, user)
 
@@ -90,7 +85,6 @@ defmodule GroupherServer.Test.CMS.Community do
       assert user2.id not in community.meta.subscribed_user_ids
     end
 
-    @tag :wip
     test "read editored community should have a flag", ~m(community user user2)a do
       title = "chief editor"
       {:ok, community} = CMS.set_editor(community, title, user)

@@ -1,4 +1,4 @@
-defmodule Helper.RadarSearch do
+defmodule Helper.IP2City do
   @moduledoc """
   find city info by ip
   refer: https://lbs.amap.com/api/webservice/guide/api/ipconfig/?sug_index=0
@@ -8,6 +8,7 @@ defmodule Helper.RadarSearch do
 
   @endpoint "https://restapi.amap.com/v3/ip"
   @timeout_limit 5000
+  @service_key get_config(:ip_locate, :ip_service)
 
   # plug(Tesla.Middleware.BaseUrl, "https://restapi.amap.com/v3/ip")
   plug(Tesla.Middleware.Retry, delay: 200, max_retries: 2)
@@ -30,7 +31,7 @@ defmodule Helper.RadarSearch do
 
   # http://ip.yqie.com/search.aspx?searchword=%E6%88%90%E9%83%BD%E5%B8%82
   def locate_city(ip) do
-    query = [ip: ip, key: get_config(:radar_search, :ip_service)]
+    query = [ip: ip, key: @service_key]
 
     with true <- Mix.env() !== :test do
       case get(@endpoint, query: query) do

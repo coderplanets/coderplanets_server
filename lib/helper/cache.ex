@@ -10,7 +10,7 @@ defmodule Helper.Cache do
   def config(pool_name) do
     [
       limit: limit(size: @cache_pool[pool_name].size, policy: Cachex.Policy.LRW, reclaim: 0.1),
-      expiration: expiration(default: :timer.minutes(@cache_pool[pool_name].minutes))
+      expiration: expiration(default: :timer.seconds(@cache_pool[pool_name].seconds))
     ]
   end
 

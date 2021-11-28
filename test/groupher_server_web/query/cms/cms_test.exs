@@ -22,7 +22,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
-    @tag :wip
+
     test "can check if user has penging apply", ~m(user)a do
       user_conn = simu_conn(:user, user)
 
@@ -51,7 +51,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
-    @tag :wip
+
     test "can check if a community is exist", ~m(user)a do
       rule_conn = simu_conn(:user, cms: %{"community.create" => true})
 

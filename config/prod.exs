@@ -89,7 +89,8 @@ config :groupher_server, :github_oauth,
   client_secret: System.get_env("OAUTH_GITHUB_CLIENT_SECRET"),
   redirect_uri: System.get_env("OAUTH_GITHUB_REDIRECT_URI")
 
-config :groupher_server, :radar_search, ip_service: System.get_env("IP_LOCATE_KEY")
+config :groupher_server, :ip_locate, ip_service: System.get_env("IP_LOCATE_KEY")
+config :groupher_server, :plausible, token: System.get_env("PLAUSIBLE_TOKEN")
 
 config :sentry,
   dsn: System.get_env("SENTRY_DSN"),

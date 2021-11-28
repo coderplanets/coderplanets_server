@@ -47,6 +47,7 @@ defmodule GroupherServer.Application do
     # worker(Cachex, [:common, Cache.config(:common)], id: :common),
     # worker(Cachex, [:user_login, Cache.config(:user_login)], id: :user_login),
     # worker(Cachex, [:blog_rss, Cache.config(:blog_rss)], id: :blog_rss),
+
     @cache_pool
     |> Map.keys()
     |> Enum.reduce([], fn key, acc ->

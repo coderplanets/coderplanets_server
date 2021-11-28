@@ -335,8 +335,6 @@ defmodule GroupherServer.Support.Factory do
   end
 
   defp mock_meta(:comment) do
-    # text = Faker.Lorem.sentence(%Range{first: 30, last: 80})
-
     %{body: mock_rich_text(), author: mock(:user)}
   end
 
