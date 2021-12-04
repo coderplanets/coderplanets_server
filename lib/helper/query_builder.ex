@@ -159,6 +159,13 @@ defmodule Helper.QueryBuilder do
           where: t.id == ^community_id
         )
 
+      {:community_raw, community_raw}, queryable ->
+        from(
+          q in queryable,
+          join: t in assoc(q, :community),
+          where: t.raw == ^community_raw
+        )
+
       {:community, community_raw}, queryable ->
         from(
           q in queryable,

@@ -19,7 +19,8 @@ defmodule GroupherServer.CMS.Model.Comment do
 
   @required_fields ~w(body author_id)a
   @optional_fields ~w(body_html reply_to_id replies_count is_folded is_deleted floor is_article_author thread is_for_question is_solution pending)a
-  @updatable_fields ~w(body_html is_folded is_deleted floor upvotes_count is_pinned is_for_question is_solution replies_count pending)a
+  # @updatable_fields ~w(body_html is_folded is_deleted floor upvotes_count is_pinned is_for_question is_solution replies_count pending)a
+  @updatable_fields ~w(body_html is_folded is_deleted floor upvotes_count is_pinned is_for_question is_solution replies_count pending inserted_at updated_at is_archived archived_at is_article_author)a
 
   @article_fields @article_threads |> Enum.map(&:"#{&1}_id")
 

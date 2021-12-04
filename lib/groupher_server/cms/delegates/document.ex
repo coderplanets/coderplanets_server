@@ -26,8 +26,9 @@ defmodule GroupherServer.CMS.Delegate.Document do
   end
 
   #  for create artilce step in Multi.new
-  def create(article, %{body: body} = attrs) do
+  def create(article, %{body: body}) do
     with {:ok, article_thread} <- thread_of(article, :upcase),
+         false <- article_document_exist(article),
          {:ok, parsed} <- Converter.Article.parse_body(body) do
       attrs = Map.take(parsed, [:body, :body_html])
 
@@ -51,6 +52,20 @@ defmodule GroupherServer.CMS.Delegate.Document do
       end)
       |> Repo.transaction()
       |> result()
+    else
+      true ->
+        {:error, "document already exist"}
+    end
+  end
+
+  defp article_document_exist(article) do
+    with {:ok, article_thread} <- thread_of(article, :upcase) do
+      {:ok, count} =
+        ArticleDocument
+        |> where([ad], ad.thread == ^article_thread and ad.article_id == ^article.id)
+        |> ORM.count()
+
+      count > 0
     end
   end
 

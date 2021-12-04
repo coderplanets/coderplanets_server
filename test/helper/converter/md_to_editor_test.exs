@@ -69,9 +69,9 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
                %{data: %{text: "--     -> invalid spliter"}, type: "paragraph"},
                %{data: %{level: 2, text: "valid spliter"}, type: "header"},
                %{data: %{text: "valid soliter"}, type: "paragraph"},
-               %{data: {}, type: "delimiter"},
+               %{data: %{}, type: "delimiter"},
                %{data: %{text: "valid soliter"}, type: "paragraph"},
-               %{data: {}, type: "delimiter"},
+               %{data: %{}, type: "delimiter"},
                %{
                  data: %{
                    text:

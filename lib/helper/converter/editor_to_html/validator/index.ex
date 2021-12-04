@@ -27,7 +27,7 @@ defmodule Helper.Converter.EditorToHTML.Validator do
         e in RuntimeError ->
           format_parse_error(e)
 
-        _ ->
+        _e ->
           format_parse_error()
       end
     end
