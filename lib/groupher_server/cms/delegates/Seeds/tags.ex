@@ -10,10 +10,13 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
 
   def random_color(), do: @tag_colors |> Enum.random() |> String.to_atom()
 
-  def get(_, :users, _), do: []
+  def get(_, :map, _), do: []
   def get(_, :cper, _), do: []
   def get(_, :setting, _), do: []
   def get(_, :team, _), do: []
+  def get(_, :kanban, _), do: []
+  def get(_, :works, _), do: []
+  def get(_, :interview, _), do: []
 
   ## 首页 start
 
@@ -378,43 +381,48 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
     [
       %{
         title: "Bug",
-        raw: "bug"
+        raw: "bug",
+        group: "产品"
       },
       %{
-        title: "官方公告",
-        raw: "offical"
-      },
-      %{
-        title: "产品建议",
-        raw: "suggest"
+        title: "功能建议",
+        raw: "demand",
+        group: "产品"
       },
       %{
         title: "内容审核",
-        raw: "audit"
+        raw: "audit",
+        group: "产品"
       },
       %{
         title: "编辑器",
-        raw: "editor"
+        raw: "editor",
+        group: "产品"
       },
       %{
-        title: "UI/UX",
-        raw: "UI"
-      },
-      %{
-        title: "使用疑问",
-        raw: "manual"
-      },
-      %{
-        title: "更新日志",
-        raw: "log"
+        title: "界面交互",
+        raw: "UI/UX",
+        group: "产品"
       },
       %{
         title: "社区治理",
-        raw: "management"
+        raw: "manage",
+        group: "产品"
+      },
+      %{
+        title: "规章指南",
+        raw: "intro",
+        group: "其他"
+      },
+      %{
+        title: "周报",
+        raw: "devlog",
+        group: "其他"
       },
       %{
         title: "其他",
-        raw: "others"
+        raw: "others",
+        group: "其他"
       }
     ]
     |> Enum.map(fn attr -> Map.merge(%{thread: :post, color: random_color()}, attr) end)
@@ -502,23 +510,38 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
     [
       %{
         title: "求助",
-        raw: "help"
+        raw: "help",
+        group: "技术与工程"
+      },
+      %{
+        title: "分享推荐",
+        raw: "REC",
+        group: "技术与工程"
       },
       %{
         title: "讨论",
-        raw: "hangout"
+        raw: "discuss",
+        group: "技术与工程"
       },
       %{
-        title: "推荐",
-        raw: "REC"
+        title: "学习资源",
+        raw: "tuts",
+        group: "技术与工程"
       },
       %{
         title: "小聚",
-        raw: "meetup"
+        raw: "meetup",
+        group: "其他"
       },
       %{
-        title: "其他",
-        raw: "others"
+        title: "杂谈",
+        raw: "others",
+        group: "其他"
+      },
+      %{
+        title: "社区事务",
+        raw: "routine",
+        group: "其他"
       }
     ]
     |> Enum.map(fn attr -> Map.merge(%{thread: :post, color: random_color()}, attr) end)
@@ -531,61 +554,69 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
     [
       %{
         title: "官方",
-        raw: "offical"
+        raw: "offical",
+        group: "资讯"
       },
       %{
-        title: "技术领袖",
-        raw: "techlead"
+        title: "业界新闻",
+        raw: "news",
+        group: "资讯"
       },
       %{
-        title: "大V",
-        raw: "influencer"
+        title: "言论",
+        raw: "views",
+        group: "资讯"
+      },
+      %{
+        title: "框架 / 库",
+        raw: "release",
+        group: "其他"
       },
       %{
         title: "有意思",
-        raw: "intersting"
+        raw: "others",
+        group: "其他"
       }
     ]
     |> Enum.map(fn attr -> Map.merge(%{thread: :radar, color: random_color()}, attr) end)
   end
 
   def get(_, :blog, :pl) do
-    get(:ignore, :blog, :framework) |> Enum.reject(&(&1.raw in ["arch", "eco"]))
+    get(:ignore, :blog, :framework)
+    # get(:ignore, :blog, :framework) |> Enum.reject(&(&1.raw in ["arch", "eco"]))
   end
 
   def get(_, :blog, :framework) do
     [
       %{
-        title: "教程",
-        raw: "tuts"
-      },
-      %{
         title: "踩坑",
-        raw: "trap"
-      },
-      %{
-        title: "硬核",
-        raw: "hardcore"
+        raw: "trap",
+        group: "工程"
       },
       %{
         title: "技巧",
-        raw: "tips"
-      },
-      %{
-        title: "组织 & 架构",
-        raw: "arch"
+        raw: "tips",
+        group: "工程"
       },
       %{
         title: "重构",
-        raw: "clean-code"
+        raw: "clean-code",
+        group: "工程"
+      },
+      %{
+        title: "教程",
+        raw: "tuts",
+        group: "其他"
       },
       %{
         title: "生态链",
-        raw: "eco"
+        raw: "eco",
+        group: "其他"
       },
       %{
-        title: "其他",
-        raw: "others"
+        title: "杂谈",
+        raw: "others",
+        group: "其他"
       }
     ]
     |> Enum.map(fn attr -> Map.merge(%{thread: :blog, color: random_color()}, attr) end)
@@ -632,53 +663,6 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Tags do
   def get(_, :works, :framework), do: []
 
   ## 语言与框架 end
-
-  @doc "post thread of FEEDBACK community"
-  def get(%Community{raw: "feedback"}, :post) do
-    [
-      %{
-        title: "Bug",
-        raw: "bug"
-      },
-      %{
-        title: "官方公告",
-        raw: "official"
-      },
-      %{
-        title: "需求池",
-        raw: "demand"
-      },
-      %{
-        title: "内容审核",
-        raw: "audit"
-      },
-      %{
-        title: "编辑器",
-        raw: "editor"
-      },
-      %{
-        title: "界面交互",
-        raw: "UI/UX"
-      },
-      %{
-        title: "使用疑问",
-        raw: "ask"
-      },
-      %{
-        title: "周报",
-        raw: "changelog"
-      },
-      %{
-        title: "社区治理",
-        raw: "manage"
-      },
-      %{
-        title: "其他",
-        raw: "others"
-      }
-    ]
-    |> Enum.map(fn attr -> Map.merge(%{thread: :post, color: random_color()}, attr) end)
-  end
 
   @doc "post thread of BLACK community"
   def get(%Community{raw: "blackhole"}, :post) do

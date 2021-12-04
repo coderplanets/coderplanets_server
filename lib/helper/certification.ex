@@ -27,7 +27,15 @@ defmodule Helper.Certification do
   ]
 
   def editor_titles(:cms) do
-    ["chief editor", "post editor"]
+    ["chief editor", "post editor", "volunteer"]
+  end
+
+  def passport_rules(cms: "volunteer") do
+    %{
+      "post.article_tag.create" => true,
+      "post.article_tag.edit" => true,
+      "post.mark_delete" => true
+    }
   end
 
   def passport_rules(cms: "chief editor") do

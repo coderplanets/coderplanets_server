@@ -25,12 +25,12 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Threads do
         title: "CPer",
         raw: "cper",
         index: 5
-      },
-      %{
-        title: "设置",
-        raw: "setting",
-        index: 6
       }
+      # %{
+      #   title: "设置",
+      #   raw: "setting",
+      #   index: 6
+      # }
     ]
   end
 
@@ -45,6 +45,26 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Threads do
         title: "账户",
         raw: "account",
         index: 2
+      },
+      %{
+        title: "工作",
+        raw: "job",
+        index: 3
+      },
+      %{
+        title: "雷达",
+        raw: "radar",
+        index: 4
+      },
+      %{
+        title: "博客",
+        raw: "blog",
+        index: 5
+      },
+      %{
+        title: "作品",
+        raw: "works",
+        index: 6
       }
     ]
   end
@@ -58,32 +78,12 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Threads do
       },
       %{
         title: "看板",
-        raw: "roadmap",
+        raw: "kanban",
         index: 2
       },
       %{
         title: "分布",
-        raw: "users",
-        index: 3
-      }
-    ]
-  end
-
-  def get(:dev) do
-    [
-      %{
-        title: "帖子",
-        raw: "post",
-        index: 1
-      },
-      %{
-        title: "工作",
-        raw: "job",
-        index: 2
-      },
-      %{
-        title: "作品",
-        raw: "works",
+        raw: "map",
         index: 3
       }
     ]
@@ -154,16 +154,16 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Threads do
         raw: "blog",
         index: 3
       },
-      %{
-        title: "101",
-        raw: "tut",
-        index: 4
-      },
-      %{
-        title: "awesome",
-        raw: "awesome",
-        index: 5
-      },
+      # %{
+      #   title: "101",
+      #   raw: "tut",
+      #   index: 4
+      # },
+      # %{
+      #   title: "awesome",
+      #   raw: "awesome",
+      #   index: 5
+      # },
       %{
         title: "作品",
         raw: "works",
@@ -176,14 +176,14 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Threads do
       },
       %{
         title: "分布",
-        raw: "users",
-        index: 8
-      },
-      %{
-        title: "设置",
-        raw: "setting",
+        raw: "map",
         index: 8
       }
+      # %{
+      #   title: "设置",
+      #   raw: "setting",
+      #   index: 8
+      # }
     ]
   end
 

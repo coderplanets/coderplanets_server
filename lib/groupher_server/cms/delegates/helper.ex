@@ -101,6 +101,10 @@ defmodule GroupherServer.CMS.Delegate.Helper do
     do_mark_viewer_emotion_states(article, user, @supported_emotions)
   end
 
+  defp do_mark_viewer_emotion_states(%{emotions: nil} = artiment, _user, _emotions) do
+    artiment
+  end
+
   defp do_mark_viewer_emotion_states(artiment, %User{} = user, emotions) do
     update_viewed_status =
       emotions

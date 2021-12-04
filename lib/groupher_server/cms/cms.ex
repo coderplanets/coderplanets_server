@@ -43,6 +43,9 @@ defmodule GroupherServer.CMS do
   defdelegate is_community_exist?(raw), to: CommunityCURD
   defdelegate has_pending_community_apply?(user), to: CommunityCURD
 
+  # TODO: delete after prod seed
+  defdelegate update_community_count_field(community, user_id, type, opt), to: CommunityCURD
+  defdelegate update_community_count_field(community, thread), to: CommunityCURD
   # >> editor ..
   defdelegate update_editor(user, community, title), to: CommunityCURD
   # >> geo info ..

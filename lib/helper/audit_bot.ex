@@ -22,7 +22,9 @@ defmodule Helper.AuditBot do
 
   # conclusionType === 1
   @conclusionOK 1
+  @conclusionMaybe 3
 
+  # @token "24.4d53f20a8a47348f5a90011bc1a16e84.2592000.1639149221.282335-25148796"
   @token "24.4d53f20a8a47348f5a90011bc1a16e84.2592000.1639149221.282335-25148796"
 
   @url "https://aip.baidubce.com"
@@ -56,7 +58,9 @@ defmodule Helper.AuditBot do
   defp parse_result(%HTTPoison.Response{body: body, status_code: 200}) do
     with {:ok, result} <- Jason.decode(body),
          {:ok, result} <- is_request_ok?(result) do
-      case result["conclusionType"] === @conclusionOK do
+      conclusion = result["conclusionType"]
+
+      case conclusion === @conclusionOK or conclusion === @conclusionMaybe do
         true ->
           {:ok,
            %{

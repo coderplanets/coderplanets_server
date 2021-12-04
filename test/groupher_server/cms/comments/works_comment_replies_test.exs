@@ -144,7 +144,6 @@ defmodule GroupherServer.Test.CMS.Comments.WorksCommentReplies do
   end
 
   describe "[paged article comment replies]" do
-    @tag :wip
     test "can get paged replies of a parent comment", ~m(works user)a do
       {:ok, parent_comment} = CMS.create_comment(:works, works.id, mock_comment(), user)
       {:ok, paged_replies} = CMS.paged_comment_replies(parent_comment.id, %{page: 1, size: 20})

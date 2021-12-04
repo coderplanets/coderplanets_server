@@ -53,6 +53,7 @@ defmodule GroupherServer.Test.Query.CMS.ArticleTags do
       assert results["totalCount"] == 3
     end
 
+    @tag :wip
     test "guest user can get all paged tags belongs to a community",
          ~m(guest_conn community article_tag_attrs article_tag_attrs2 user)a do
       {:ok, _article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
@@ -64,8 +65,15 @@ defmodule GroupherServer.Test.Query.CMS.ArticleTags do
 
       assert results |> is_valid_pagination?
       assert results["totalCount"] == 3
+
+      variables = %{filter: %{communityRaw: community.raw}}
+      results = guest_conn |> query_result(@query, variables, "pagedArticleTags")
+
+      assert results |> is_valid_pagination?
+      assert results["totalCount"] == 3
     end
 
+    @tag :wip
     test "guest user can get tags by communityId and thread",
          ~m(guest_conn community community2 article_tag_attrs article_tag_attrs2 user)a do
       {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
@@ -73,7 +81,14 @@ defmodule GroupherServer.Test.Query.CMS.ArticleTags do
       {:ok, _article_tag2} = CMS.create_article_tag(community2, :repo, article_tag_attrs2, user)
 
       variables = %{filter: %{communityId: community.id, thread: "POST"}}
+      results = guest_conn |> query_result(@query, variables, "pagedArticleTags")
 
+      assert results["totalCount"] == 1
+
+      tag = results["entries"] |> List.first()
+      assert tag["id"] == to_string(article_tag.id)
+
+      variables = %{filter: %{communityRaw: community.raw, thread: "POST"}}
       results = guest_conn |> query_result(@query, variables, "pagedArticleTags")
 
       assert results["totalCount"] == 1
