@@ -27,6 +27,8 @@ defmodule Helper.OAuth2.Github do
       redirect_uri: @redirect_uri
     ]
 
+    IO.inspect(query, label: "# before query")
+
     try do
       ret = post(@endpoint_token, %{}, query: query)
       IO.inspect(ret, label: "## got user_profile")
