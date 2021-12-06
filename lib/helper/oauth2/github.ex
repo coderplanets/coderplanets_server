@@ -5,8 +5,8 @@ defmodule Helper.OAuth2.Github do
   # see Tesla intro: https://medium.com/@teamon/introducing-tesla-the-flexible-http-client-for-elixir-95b699656d88
   @timeout_limit 5000
 
-  @client_id get_config(:github_oauth, :client_id)
-  @client_secret get_config(:github_oauth, :client_secret)
+  # @client_id get_config(:github_oauth, :client_id)
+  # @client_secret get_config(:github_oauth, :client_secret)
   @redirect_uri get_config(:github_oauth, :redirect_uri)
 
   @endpoint_token "https://github.com/login/oauth/access_token"
@@ -22,8 +22,8 @@ defmodule Helper.OAuth2.Github do
   def user_profile(code) do
     query = [
       code: code,
-      client_id: @client_id,
-      client_secret: @client_secret,
+      client_id: get_config(:github_oauth, :client_id),
+      client_secret: get_config(:github_oauth, :client_secret),
       redirect_uri: @redirect_uri
     ]
 
