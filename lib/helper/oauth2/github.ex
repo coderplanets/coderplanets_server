@@ -37,7 +37,10 @@ defmodule Helper.OAuth2.Github do
     ]
 
     try do
-      case post("/access_token", %{}, query: query, headers: headers) do
+      ret = post("/access_token", %{}, query: query, headers: headers)
+      IO.inspect(ret, label: "user_profile got ret")
+
+      case ret do
         %{status: 200, body: %{"error" => error, "error_description" => description}} ->
           {:error, "#{error}: #{description}"}
 
@@ -59,7 +62,10 @@ defmodule Helper.OAuth2.Github do
     query = [access_token: access_token]
 
     try do
-      case get(url, query: query, headers: headers) do
+      ret = get(url, query: query, headers: headers)
+      IO.inspect(ret, laebl: "user_info got ret:")
+
+      case ret do
         %{status: 200, body: body} ->
           body = body |> Map.merge(%{"access_token" => access_token})
           {:ok, body}
