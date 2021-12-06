@@ -29,6 +29,7 @@ defmodule Helper.OAuth2.Github do
 
     try do
       ret = post(@endpoint_token, %{}, query: query)
+      IO.inspect(ret, label: "## got user_profile")
 
       case ret do
         {:ok, %Tesla.Env{body: %{"error" => error, "error_description" => description}}} ->
@@ -49,6 +50,7 @@ defmodule Helper.OAuth2.Github do
 
     try do
       ret = get(@endpoint_user, query: query, headers: headers)
+      IO.inspect(ret, label: "## got user_info")
 
       case ret do
         {:ok, %Tesla.Env{status: 200, body: body}} ->

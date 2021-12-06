@@ -8,6 +8,8 @@ defmodule GroupherServerWeb.Middleware.GithubUser do
   alias Helper.OAuth2.Github
 
   def call(%{arguments: %{code: code}} = resolution, _) do
+    IO.inspect(label: "# M user_profile")
+
     case Github.user_profile(code) do
       {:ok, user} ->
         arguments = resolution.arguments |> Map.merge(%{github_user: user})
