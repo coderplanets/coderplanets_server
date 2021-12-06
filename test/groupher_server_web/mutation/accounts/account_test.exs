@@ -27,7 +27,7 @@ defmodule GroupherServer.Test.Mutation.Account.Basic do
     @tag :wip
     test "github signin should work", ~m(guest_conn)a do
       variables = %{
-        code: "ae0bd3b5d3b00adbf63e"
+        code: "e2f03e0a9de4284d49ac"
       }
 
       ret = guest_conn |> mutation_result(@github_sigin_query, variables, "githubSignin")

@@ -29,7 +29,6 @@ defmodule Helper.OAuth2.Github do
 
     try do
       ret = post(@endpoint_token, %{}, query: query)
-      IO.inspect(ret, label: "user_profile got ret")
 
       case ret do
         {:ok, %Tesla.Env{body: %{"error" => error, "error_description" => description}}} ->
@@ -45,15 +44,11 @@ defmodule Helper.OAuth2.Github do
   end
 
   defp user_info(access_token) do
-    # this special header is too get node_id
-    # see: https://developer.github.com/v3/
-    # headers = %{"Accept" => "application/vnd.github.jean-grey-preview+json"}
-
     query = [access_token: access_token]
+    headers = [{"Authorization", "token #{access_token}"}]
 
     try do
-      ret = get(@endpoint_user, query: query)
-      IO.inspect(ret, laebl: "user_info got ret:")
+      ret = get(@endpoint_user, query: query, headers: headers)
 
       case ret do
         {:ok, %Tesla.Env{status: 200, body: body}} ->
@@ -76,8 +71,6 @@ defmodule Helper.OAuth2.Github do
   end
 
   defp handle_tesla_error(error) do
-    IO.inspect(error, label: "handle_tesla_error")
-
     case error do
       %{reason: :timeout} -> {:error, "OAuth2 Github: timeout in #{@timeout_limit} msec"}
       %{reason: reason} -> {:error, "OAuth2 Github: #{reason}"}
