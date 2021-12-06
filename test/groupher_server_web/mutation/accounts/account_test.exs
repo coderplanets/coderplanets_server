@@ -13,6 +13,29 @@ defmodule GroupherServer.Test.Mutation.Account.Basic do
     {:ok, ~m(user_conn guest_conn user)a}
   end
 
+  describe "[oauth signin]" do
+    @github_sigin_query """
+    mutation($code: String!) {
+      githubSignin(code: $code) {
+        token
+        user {
+          login
+        }
+      }
+    }
+    """
+    @tag :wip
+    test "github signin should work", ~m(guest_conn)a do
+      variables = %{
+        code: "ae0bd3b5d3b00adbf63e"
+      }
+
+      ret = guest_conn |> mutation_result(@github_sigin_query, variables, "githubSignin")
+
+      IO.inspect(ret, label: "# ret")
+    end
+  end
+
   describe "[account update]" do
     @update_query """
     mutation(

@@ -40,7 +40,6 @@ defmodule Helper.Plausible do
       end
     else
       error ->
-        IO.inspect(error, label: "got error")
         Cache.put(@cache_pool, :realtime_visitors, 1)
         {:ok, 1}
     end

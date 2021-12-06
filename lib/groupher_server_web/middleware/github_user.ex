@@ -1,4 +1,7 @@
 defmodule GroupherServerWeb.Middleware.GithubUser do
+  @moduledoc """
+  handle github oauth login
+  """
   @behaviour Absinthe.Middleware
 
   import Helper.Utils, only: [handle_absinthe_error: 2]

@@ -53,7 +53,6 @@ defmodule GroupherServer.Test.Query.CMS.ArticleTags do
       assert results["totalCount"] == 3
     end
 
-    @tag :wip
     test "guest user can get all paged tags belongs to a community",
          ~m(guest_conn community article_tag_attrs article_tag_attrs2 user)a do
       {:ok, _article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
@@ -73,7 +72,6 @@ defmodule GroupherServer.Test.Query.CMS.ArticleTags do
       assert results["totalCount"] == 3
     end
 
-    @tag :wip
     test "guest user can get tags by communityId and thread",
          ~m(guest_conn community community2 article_tag_attrs article_tag_attrs2 user)a do
       {:ok, article_tag} = CMS.create_article_tag(community, :post, article_tag_attrs, user)
