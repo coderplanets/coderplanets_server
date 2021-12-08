@@ -17,8 +17,7 @@ config :phoenix, :stacktrace_depth, 20
 
 # Configure your database
 config :groupher_server, GroupherServer.Repo,
-  adapter: Ecto.Adapters.Postgres,
-
+  port: 3432,
   # username: "postgres",
   # password: "postgres",
   # database: "groupher_server_mock",

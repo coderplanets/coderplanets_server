@@ -48,7 +48,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Cite do
   @article_threads get_config(:article, :threads)
   @valid_article_prefix Enum.map(@article_threads, &"#{@site_host}/#{&1}/")
 
-  def handle(%{body: body} = artiment) do
+  def handle(%{body: body} = artiment) when not is_nil(body) do
     with {:ok, %{"blocks" => blocks}} <- Jason.decode(body),
          {:ok, artiment} <- preload_author(artiment) do
       Multi.new()

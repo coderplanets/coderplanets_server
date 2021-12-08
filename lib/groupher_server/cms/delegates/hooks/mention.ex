@@ -17,7 +17,7 @@ defmodule GroupherServer.CMS.Delegate.Hooks.Mention do
 
   @article_mention_class "cdx-mention"
 
-  def handle(%{body: body} = artiment) do
+  def handle(%{body: body} = artiment) when not is_nil(body) do
     with {:ok, %{"blocks" => blocks}} <- Jason.decode(body),
          {:ok, artiment} <- preload_author(artiment) do
       blocks

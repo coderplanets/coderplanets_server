@@ -22,16 +22,14 @@ defmodule Helper.OAuth2.Github do
   def user_profile(code) do
     query = [
       code: code,
+      # 不知道是不是 Bug, 如果把这个提出去会导致读取不到。。
       client_id: get_config(:github_oauth, :client_id),
       client_secret: get_config(:github_oauth, :client_secret),
       redirect_uri: @redirect_uri
     ]
 
-    IO.inspect(query, label: "# before query")
-
     try do
       ret = post(@endpoint_token, %{}, query: query)
-      IO.inspect(ret, label: "## got user_profile")
 
       case ret do
         {:ok, %Tesla.Env{body: %{"error" => error, "error_description" => description}}} ->
@@ -52,7 +50,6 @@ defmodule Helper.OAuth2.Github do
 
     try do
       ret = get(@endpoint_user, query: query, headers: headers)
-      IO.inspect(ret, label: "## got user_info")
 
       case ret do
         {:ok, %Tesla.Env{status: 200, body: body}} ->

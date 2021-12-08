@@ -8,7 +8,8 @@ defmodule Helper.IP2City do
 
   @endpoint "https://restapi.amap.com/v3/ip"
   @timeout_limit 5000
-  @service_key get_config(:ip_locate, :ip_service)
+  @token get_config(:ip_locate, :ip_service)
+  # @token "52ecdfe2505a4a5a6ff66b2184c10036"
 
   # plug(Tesla.Middleware.BaseUrl, "https://restapi.amap.com/v3/ip")
   plug(Tesla.Middleware.Retry, delay: 200, max_retries: 2)
@@ -31,14 +32,15 @@ defmodule Helper.IP2City do
 
   # http://ip.yqie.com/search.aspx?searchword=%E6%88%90%E9%83%BD%E5%B8%82
   def locate_city(ip) do
-    query = [ip: ip, key: @service_key]
+    # query = [ip: ip, key: @token]
+    query = [ip: ip, key: get_config(:ip_locate, :ip_service)]
 
     with true <- Mix.env() !== :test do
       case get(@endpoint, query: query) do
-        %{status: 200, body: %{"city" => city}} ->
+        {:ok, %Tesla.Env{status: 200, body: %{"city" => city}}} ->
           handle_result({:ok, city})
 
-        _error ->
+        error ->
           {:error, "error"}
       end
     else
