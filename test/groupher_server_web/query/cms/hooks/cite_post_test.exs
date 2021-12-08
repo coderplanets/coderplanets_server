@@ -44,7 +44,6 @@ defmodule GroupherServer.Test.Query.Hooks.PostCiting do
       }
     }
     """
-    @tag :wip
     test "should get paged cittings", ~m(guest_conn community post_attrs user)a do
       {:ok, post2} = db_insert(:post)
 

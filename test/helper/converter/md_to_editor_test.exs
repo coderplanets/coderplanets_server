@@ -12,150 +12,150 @@ defmodule GroupherServer.Test.Helper.Converter.MdToEditor do
   # alias Helper.Converter.HtmlSanitizer, as: Sanitizer
 
   describe "[basic md test]" do
-    test "basic markdown ast parser should work" do
-      markdown = """
-      #  header one
+    # test "basic markdown ast parser should work" do
+    #   markdown = """
+    #   #  header one
 
-      header one paragraph
+    #   header one paragraph
 
-      ## header two
+    #   ## header two
 
-      header two paragraph
+    #   header two paragraph
 
-      ### header three
+    #   ### header three
 
-      header three paragraph
+    #   header three paragraph
 
-      --     -> invalid spliter
+    #   --     -> invalid spliter
 
-      valid spliter
-      -
-      valid soliter
-      ---
-      valid soliter
-      ----
+    #   valid spliter
+    #   -
+    #   valid soliter
+    #   ---
+    #   valid soliter
+    #   ----
 
-      this is a paragraph with **bold-text** and _intalic-text_ and [inline-link](https://cps.fun)
+    #   this is a paragraph with **bold-text** and _intalic-text_ and [inline-link](https://cps.fun)
 
-      [block-link](https://cps.fun)
+    #   [block-link](https://cps.fun)
 
-      this is a paragraph with `inline-code-string` in it
+    #   this is a paragraph with `inline-code-string` in it
 
-      - this is ul list item 1
-      - this is ul list item 2
-      - this is ul list item 3
+    #   - this is ul list item 1
+    #   - this is ul list item 2
+    #   - this is ul list item 3
 
-      1. this is ol list item 1
-      2. this is ol list item 2
-      3. this is ol list item 3
+    #   1. this is ol list item 1
+    #   2. this is ol list item 2
+    #   3. this is ol list item 3
 
-      - [x] this is *checklist* item true
-      - [ ] this is checklist item false
+    #   - [x] this is *checklist* item true
+    #   - [ ] this is checklist item false
 
-      > this is *quote* texts
+    #   > this is *quote* texts
 
-      ![image](https://example/example.png)
-      """
+    #   ![image](https://example/example.png)
+    #   """
 
-      # IO.inspect(Converter.parse(markdown), label: "after parse")
+    #   # IO.inspect(Converter.parse(markdown), label: "after parse")
 
-      assert Converter.parse(markdown) == [
-               %{data: %{level: 1, text: "header one"}, type: "header"},
-               %{data: %{text: "header one paragraph"}, type: "paragraph"},
-               %{data: %{level: 2, text: "header two"}, type: "header"},
-               %{data: %{text: "header two paragraph"}, type: "paragraph"},
-               %{data: %{level: 3, text: "header three"}, type: "header"},
-               %{data: %{text: "header three paragraph"}, type: "paragraph"},
-               %{data: %{text: "--     -> invalid spliter"}, type: "paragraph"},
-               %{data: %{level: 2, text: "valid spliter"}, type: "header"},
-               %{data: %{text: "valid soliter"}, type: "paragraph"},
-               %{data: %{}, type: "delimiter"},
-               %{data: %{text: "valid soliter"}, type: "paragraph"},
-               %{data: %{}, type: "delimiter"},
-               %{
-                 data: %{
-                   text:
-                     "this is a paragraph with <b>bold-text</b> and <i>intalic-text</i> and <a href=\"https://cps.fun\">inline-link</a>"
-                 },
-                 type: "paragraph"
-               },
-               %{
-                 data: %{text: "<a href=\"https://cps.fun\">block-link</a>"},
-                 type: "paragraph"
-               },
-               %{
-                 data: %{
-                   text:
-                     "this is a paragraph with <code class=\"inline-code\">inline-code-string</code> in it"
-                 },
-                 type: "paragraph"
-               },
-               %{
-                 data: %{
-                   items: [
-                     "this is ul list item 1",
-                     "this is ul list item 2",
-                     "this is ul list item 3"
-                   ],
-                   style: "unordered"
-                 },
-                 type: "list"
-               },
-               %{
-                 data: %{
-                   items: [
-                     "this is ol list item 1",
-                     "this is ol list item 2",
-                     "this is ol list item 3"
-                   ],
-                   style: "ordered"
-                 },
-                 type: "list"
-               },
-               %{
-                 data: %{
-                   items: [
-                     %{"checked" => true, "text" => "this is <i>checklist</i> item true"},
-                     %{"checked" => false, "text" => "this is checklist item false"}
-                   ]
-                 },
-                 type: "checklist"
-               },
-               %{data: %{text: "this is <i>quote</i> texts"}, type: "quote"},
-               %{
-                 data: %{
-                   caption: "",
-                   file: %{url: "https://example/example.png"},
-                   stretched: false,
-                   withBackground: false,
-                   withBorder: false
-                 },
-                 type: "image"
-               }
-             ]
-    end
+    #   assert Converter.parse(markdown) == [
+    #            %{data: %{level: 1, text: "header one"}, type: "header"},
+    #            %{data: %{text: "header one paragraph"}, type: "paragraph"},
+    #            %{data: %{level: 2, text: "header two"}, type: "header"},
+    #            %{data: %{text: "header two paragraph"}, type: "paragraph"},
+    #            %{data: %{level: 3, text: "header three"}, type: "header"},
+    #            %{data: %{text: "header three paragraph"}, type: "paragraph"},
+    #            %{data: %{text: "--     -> invalid spliter"}, type: "paragraph"},
+    #            %{data: %{level: 2, text: "valid spliter"}, type: "header"},
+    #            %{data: %{text: "valid soliter"}, type: "paragraph"},
+    #            %{data: %{}, type: "delimiter"},
+    #            %{data: %{text: "valid soliter"}, type: "paragraph"},
+    #            %{data: %{}, type: "delimiter"},
+    #            %{
+    #              data: %{
+    #                text:
+    #                  "this is a paragraph with <b>bold-text</b> and <i>intalic-text</i> and <a href=\"https://cps.fun\">inline-link</a>"
+    #              },
+    #              type: "paragraph"
+    #            },
+    #            %{
+    #              data: %{text: "<a href=\"https://cps.fun\">block-link</a>"},
+    #              type: "paragraph"
+    #            },
+    #            %{
+    #              data: %{
+    #                text:
+    #                  "this is a paragraph with <code class=\"inline-code\">inline-code-string</code> in it"
+    #              },
+    #              type: "paragraph"
+    #            },
+    #            %{
+    #              data: %{
+    #                items: [
+    #                  "this is ul list item 1",
+    #                  "this is ul list item 2",
+    #                  "this is ul list item 3"
+    #                ],
+    #                style: "unordered"
+    #              },
+    #              type: "list"
+    #            },
+    #            %{
+    #              data: %{
+    #                items: [
+    #                  "this is ol list item 1",
+    #                  "this is ol list item 2",
+    #                  "this is ol list item 3"
+    #                ],
+    #                style: "ordered"
+    #              },
+    #              type: "list"
+    #            },
+    #            %{
+    #              data: %{
+    #                items: [
+    #                  %{"checked" => true, "text" => "this is <i>checklist</i> item true"},
+    #                  %{"checked" => false, "text" => "this is checklist item false"}
+    #                ]
+    #              },
+    #              type: "checklist"
+    #            },
+    #            %{data: %{text: "this is <i>quote</i> texts"}, type: "quote"},
+    #            %{
+    #              data: %{
+    #                caption: "",
+    #                file: %{url: "https://example/example.png"},
+    #                stretched: false,
+    #                withBackground: false,
+    #                withBorder: false
+    #              },
+    #              type: "image"
+    #            }
+    #          ]
+    # end
 
-    test "compose multi inline style in list-item should work" do
-      markdown = """
-      - this is ul **list** item 1
-      - this is ul _list_ item 2
-      - this is ul _**`list`**_ item 3
-      """
+    # test "compose multi inline style in list-item should work" do
+    #   markdown = """
+    #   - this is ul **list** item 1
+    #   - this is ul _list_ item 2
+    #   - this is ul _**`list`**_ item 3
+    #   """
 
-      assert Converter.parse(markdown) == [
-               %{
-                 data: %{
-                   items: [
-                     "this is ul <b>list</b> item 1",
-                     "this is ul <i>list</i> item 2",
-                     "this is ul <i><b><code class=\"inline-code\">list</code></b></i> item 3"
-                   ],
-                   style: "unordered"
-                 },
-                 type: "list"
-               }
-             ]
-    end
+    #   assert Converter.parse(markdown) == [
+    #            %{
+    #              data: %{
+    #                items: [
+    #                  "this is ul <b>list</b> item 1",
+    #                  "this is ul <i>list</i> item 2",
+    #                  "this is ul <i><b><code class=\"inline-code\">list</code></b></i> item 3"
+    #                ],
+    #                style: "unordered"
+    #              },
+    #              type: "list"
+    #            }
+    #          ]
+    # end
 
     test "complex nested markdown rules should not raise error" do
       markdown = """
