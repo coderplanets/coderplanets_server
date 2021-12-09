@@ -32,10 +32,23 @@ defmodule GroupherServerWeb.Context do
   def build_context(conn) do
     with ["Bearer " <> token] <- get_req_header(conn, "authorization"),
          {:ok, cur_user} <- authorize(token) do
+      IO.inspect("##########")
+      IO.inspect("#")
+      IO.inspect("#")
+
       IO.inspect(
         RemoteIP.parse(get_req_header(conn, "x-forwarded-for")),
         label: "#># x-forwarded-for"
       )
+
+      IO.inspect(
+        RemoteIP.parse(get_req_header(conn, "x-Original-Forwarded-For")),
+        label: "#># x-Original-Forwarded-For"
+      )
+
+      IO.inspect("#")
+      IO.inspect("#")
+      IO.inspect("##########")
 
       case RemoteIP.parse(get_req_header(conn, "x-forwarded-for")) do
         {:ok, remote_ip} ->
