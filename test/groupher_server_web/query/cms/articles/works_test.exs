@@ -32,7 +32,6 @@ defmodule GroupherServer.Test.Query.Articles.Works do
     }
   }
   """
-  @tag :wip
   test "basic graphql query on works with logined user",
        ~m(user_conn community user works_attrs)a do
     {:ok, works} = CMS.create_article(community, :works, works_attrs, user)
@@ -53,7 +52,6 @@ defmodule GroupherServer.Test.Query.Articles.Works do
     assert length(Map.keys(results)) == 5
   end
 
-  @tag :wip
   test "basic graphql query on illegal audit works with logined user",
        ~m(user_conn community user works_attrs)a do
     {:ok, works} = CMS.create_article(community, :works, works_attrs, user)
@@ -74,7 +72,6 @@ defmodule GroupherServer.Test.Query.Articles.Works do
     assert not results["meta"]["isLegal"]
   end
 
-  @tag :wip
   test "basic graphql query on audit filed works with logined user",
        ~m(user_conn community user works_attrs)a do
     {:ok, works} = CMS.create_article(community, :works, works_attrs, user)

@@ -32,3 +32,6 @@ config :groupher_server, :github_oauth,
 
 #  config email services
 config :groupher_server, GroupherServer.Mailer, adapter: Bamboo.TestAdapter
+
+config :groupher_server, :audit,
+  token: "24.aa6fb4e4018c371e9ed228db5bea3ec0.2592000.1641816180.282335-25148796"
