@@ -135,7 +135,8 @@ defmodule GroupherServer.Mixfile do
       "doc.report": ["inch.report"],
       lint: ["credo --strict"],
       "lint.static": ["dialyzer --format dialyxir"],
-      "cps.seeds": ["run priv/mock/cps_seeds.exs"]
+      "cps.seeds": ["run priv/mock/cps_seeds.exs"],
+      sentry_recompile: ["compile", "deps.compile sentry --force"]
     ]
   end
 end
