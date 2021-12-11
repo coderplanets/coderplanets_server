@@ -1,4 +1,5 @@
 defmodule GroupherServerWeb.Endpoint do
+  use Sentry.PlugCapture
   use Phoenix.Endpoint, otp_app: :groupher_server
 
   socket("/socket", GroupherServerWeb.UserSocket)
@@ -13,6 +14,7 @@ defmodule GroupherServerWeb.Endpoint do
     json_decoder: Jason
   )
 
+  plug(Sentry.PlugContext)
   plug(Plug.MethodOverride)
   plug(Plug.Head)
 

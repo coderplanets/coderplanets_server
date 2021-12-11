@@ -2,8 +2,6 @@ defmodule GroupherServerWeb.Router do
   @moduledoc false
 
   use GroupherServerWeb, :router
-  use Plug.ErrorHandler
-  use Sentry.Plug
 
   pipeline :api do
     plug(:accepts, ["json"])
