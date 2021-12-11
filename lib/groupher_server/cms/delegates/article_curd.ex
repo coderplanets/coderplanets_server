@@ -84,20 +84,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end
   end
 
-  @spec paged_articles(
-          :account
-          | :blog
-          | :comment
-          | :drink
-          | :guide
-          | :job
-          | :meetup
-          | :post
-          | :radar
-          | :repo
-          | :works,
-          %{:page => any, :size => any, optional(any) => any}
-        ) :: {:error, false | <<_::136>>} | {:ok, any}
   @doc """
   get paged articles
   """
@@ -106,12 +92,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     flags = %{mark_delete: false, pending: :legal}
 
     with {:ok, info} <- match(thread) do
-      IO.inspect(info, label: "info")
-
       info.model
       |> QueryBuilder.domain_query(filter)
       |> QueryBuilder.filter_pack(Map.merge(filter, flags))
-      |> IO.inspect(label: "query")
       |> ORM.paginator(~m(page size)a)
       # |> ORM.cursor_paginator()
       |> add_pin_articles_ifneed(info.model, filter)
@@ -569,7 +552,19 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     |> result()
   end
 
+  # pending article can be seen is viewer is author
+  defp check_article_pending(thread, id, %User{} = user) when is_atom(thread) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id, preload: :author) do
+      check_article_pending(article, user)
+    end
+  end
+
   defp check_article_pending(%{pending: @audit_legal} = article, _) do
+    {:ok, article}
+  end
+
+  defp check_article_pending(%{pending: @audit_failed} = article, _) do
     {:ok, article}
   end
 
@@ -585,14 +580,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, id) do
       check_article_pending(article)
-    end
-  end
-
-  # pending article can be seen is viewer is author
-  defp check_article_pending(thread, id, %User{} = user) do
-    with {:ok, info} <- match(thread),
-         {:ok, article} <- ORM.find(info.model, id, preload: :author) do
-      check_article_pending(article, user)
     end
   end
 

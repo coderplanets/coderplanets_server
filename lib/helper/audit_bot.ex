@@ -18,14 +18,13 @@ defmodule Helper.AuditBot do
     audit_failed_reason: ""
   }
   """
-  # import Helper.Utils, only: [done: 1]
+  import Helper.Utils, only: [get_config: 2]
 
   # conclusionType === 1
   @conclusionOK 1
   @conclusionMaybe 3
 
-  # @token "24.4d53f20a8a47348f5a90011bc1a16e84.2592000.1639149221.282335-25148796"
-  @token "24.4d53f20a8a47348f5a90011bc1a16e84.2592000.1639149221.282335-25148796"
+  @token get_config(:audit, :token)
 
   @url "https://aip.baidubce.com"
   @endpoint "#{@url}/rest/2.0/solution/v1/text_censor/v2/user_defined?access_token=#{@token}"

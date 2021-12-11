@@ -53,6 +53,43 @@ defmodule GroupherServer.Test.Query.Articles.Works do
     assert length(Map.keys(results)) == 5
   end
 
+  @tag :wip
+  test "basic graphql query on illegal audit works with logined user",
+       ~m(user_conn community user works_attrs)a do
+    {:ok, works} = CMS.create_article(community, :works, works_attrs, user)
+
+    {:ok, works} =
+      CMS.set_article_illegal(
+        works,
+        %{
+          is_legal: false,
+          illegal_reason: ["some-reason"],
+          illegal_words: ["some-word"]
+        }
+      )
+
+    variables = %{id: works.id}
+    results = user_conn |> query_result(@query, variables, "works")
+
+    assert not results["meta"]["isLegal"]
+  end
+
+  @tag :wip
+  test "basic graphql query on audit filed works with logined user",
+       ~m(user_conn community user works_attrs)a do
+    {:ok, works} = CMS.create_article(community, :works, works_attrs, user)
+
+    {:ok, works} = CMS.set_article_audit_failed(works, %{})
+
+    variables = %{id: works.id}
+    results = user_conn |> query_result(@query, variables, "works")
+
+    assert results["id"] == to_string(works.id)
+    assert is_valid_kv?(results, "title", :string)
+
+    assert results["meta"]["isLegal"]
+  end
+
   test "basic graphql query on works with stranger(unloged user)", ~m(guest_conn works)a do
     variables = %{id: works.id}
     results = guest_conn |> query_result(@query, variables, "works")
