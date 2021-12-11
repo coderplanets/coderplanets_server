@@ -151,7 +151,7 @@ defmodule GroupherServer.CMS.Delegate.WorksCURD do
   end
 
   defp get_techstack(title) do
-    case ORM.find_by(Techstack, %{title: title}) do
+    case ORM.find_by(Techstack, %{raw: title}) do
       {:error, _} -> create_techstack(title)
       {:ok, techstack} -> {:ok, techstack}
     end

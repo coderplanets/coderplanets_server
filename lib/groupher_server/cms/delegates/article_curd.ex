@@ -84,6 +84,20 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     end
   end
 
+  @spec paged_articles(
+          :account
+          | :blog
+          | :comment
+          | :drink
+          | :guide
+          | :job
+          | :meetup
+          | :post
+          | :radar
+          | :repo
+          | :works,
+          %{:page => any, :size => any, optional(any) => any}
+        ) :: {:error, false | <<_::136>>} | {:ok, any}
   @doc """
   get paged articles
   """
@@ -92,9 +106,12 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     flags = %{mark_delete: false, pending: :legal}
 
     with {:ok, info} <- match(thread) do
+      IO.inspect(info, label: "info")
+
       info.model
       |> QueryBuilder.domain_query(filter)
       |> QueryBuilder.filter_pack(Map.merge(filter, flags))
+      |> IO.inspect(label: "query")
       |> ORM.paginator(~m(page size)a)
       # |> ORM.cursor_paginator()
       |> add_pin_articles_ifneed(info.model, filter)
