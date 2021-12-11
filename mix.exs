@@ -94,7 +94,7 @@ defmodule GroupherServer.Mixfile do
       {:credo, "~> 1.5.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1.0", only: [:dev, :mock], runtime: false},
       {:excoveralls, "~> 0.8", only: :test},
-      {:sentry, "~> 7.1"},
+      {:sentry, "~> 8.0.6"},
       {:recase, "~> 0.7.0"},
       {:nanoid, "~> 2.0.5"},
       # mailer
