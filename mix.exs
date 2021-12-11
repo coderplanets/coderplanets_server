@@ -73,7 +73,7 @@ defmodule GroupherServer.Mixfile do
       {:corsica, "~> 1.1.2"},
       {:tesla, "~> 1.4"},
       # optional, but recommended adapter
-      {:hackney, "~> 1.17.4"},
+      {:hackney, "~> 1.8"},
       # only used for tesla's JSON-encoder
       {:poison, "~> 3.1"},
       # for fake data in test env
@@ -94,7 +94,7 @@ defmodule GroupherServer.Mixfile do
       {:credo, "~> 1.5.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1.0", only: [:dev, :mock], runtime: false},
       {:excoveralls, "~> 0.8", only: :test},
-      {:sentry, "~> 8.0.6"},
+      {:sentry, "~> 8.0"},
       {:recase, "~> 0.7.0"},
       {:nanoid, "~> 2.0.5"},
       # mailer
