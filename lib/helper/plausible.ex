@@ -13,12 +13,12 @@ defmodule Helper.Plausible do
   @timeout_limit 4000
 
   @site_id "coderplanets.com"
-  @service_key get_config(:plausible, :token)
+  @token get_config(:plausible, :token)
 
   @cache_pool :online_status
 
   plug(Tesla.Middleware.BaseUrl, @endpoint)
-  plug(Tesla.Middleware.Headers, [{"Authorization", "Bearer #{@service_key}"}])
+  plug(Tesla.Middleware.Headers, [{"Authorization", "Bearer #{@token}"}])
   plug(Tesla.Middleware.Retry, delay: 200, max_retries: 2)
   plug(Tesla.Middleware.Timeout, timeout: @timeout_limit)
   plug(Tesla.Middleware.JSON)
@@ -40,7 +40,6 @@ defmodule Helper.Plausible do
       end
     else
       error ->
-        IO.inspect(error, label: "got error")
         Cache.put(@cache_pool, :realtime_visitors, 1)
         {:ok, 1}
     end

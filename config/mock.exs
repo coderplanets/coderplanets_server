@@ -17,12 +17,10 @@ config :phoenix, :stacktrace_depth, 20
 
 # Configure your database
 config :groupher_server, GroupherServer.Repo,
-  adapter: Ecto.Adapters.Postgres,
-
-  # username: "postgres",
-  # password: "postgres",
-  # database: "groupher_server_mock",
-  # hostname: "localhost",
+  username: "postgres",
+  password: "postgres",
+  database: "groupher_server_mock",
+  hostname: "localhost",
   pool_size: 90
 
 #  config email services

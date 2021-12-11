@@ -44,7 +44,6 @@ defmodule GroupherServer.Test.Query.Hooks.PostCiting do
       }
     }
     """
-
     test "should get paged cittings", ~m(guest_conn community post_attrs user)a do
       {:ok, post2} = db_insert(:post)
 
@@ -68,6 +67,8 @@ defmodule GroupherServer.Test.Query.Hooks.PostCiting do
       body = mock_rich_text(~s(the <a href=#{@site_host}/post/#{post2.id} />))
       post_attrs = post_attrs |> Map.merge(%{body: body})
       {:ok, post_y} = CMS.create_article(community, :post, post_attrs, user)
+
+      IO.inspect(post_x.document, label: "hello?")
 
       Hooks.Cite.handle(post_x)
       Hooks.Cite.handle(comment)

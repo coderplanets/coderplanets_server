@@ -91,6 +91,7 @@ config :groupher_server, :github_oauth,
 
 config :groupher_server, :ip_locate, ip_service: System.get_env("IP_LOCATE_KEY")
 config :groupher_server, :plausible, token: System.get_env("PLAUSIBLE_TOKEN")
+config :groupher_server, :audit, token: System.get_env("AUDIT_TOKEN")
 
 config :sentry,
   dsn: System.get_env("SENTRY_DSN"),

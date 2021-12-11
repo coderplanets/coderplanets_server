@@ -14,24 +14,24 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
 
       assert community.title == "CoderPlanets"
       assert community.raw == "home"
-      assert found.threads |> length == 6
+      assert found.threads |> length == 5
 
       threads = found.threads |> Enum.map(& &1.thread.title)
-      assert threads == ["帖子", "雷达", "博客", "工作", "CPer", "设置"]
+      assert threads == ["帖子", "雷达", "博客", "工作", "CPer"]
       # IO.inspect(found, label: "found --> ")
     end
 
-    test "blackhole community" do
-      {:ok, community} = CMS.seed_community(:blackhole)
-      {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])
+    # test "blackhole community" do
+    #   {:ok, community} = CMS.seed_community(:blackhole)
+    #   {:ok, found} = ORM.find(Community, community.id, preload: [threads: :thread])
 
-      assert community.title == "黑洞"
-      assert community.raw == "blackhole"
-      assert found.threads |> length == 2
+    #   assert community.title == "黑洞"
+    #   assert community.raw == "blackhole"
+    #   assert found.threads |> length == 2
 
-      threads = found.threads |> Enum.map(& &1.thread.title)
-      assert threads == ["帖子", "账户"]
-    end
+    #   threads = found.threads |> Enum.map(& &1.thread.title)
+    #   assert threads == ["帖子", "账户"]
+    # end
 
     test "Feedback community" do
       {:ok, community} = CMS.seed_community(:feedback)
@@ -106,13 +106,13 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       {:ok, tags} = CMS.paged_article_tags(filter)
       tags_titles = tags |> Enum.map(& &1.title)
 
-      assert tags_titles == ["求助", "讨论", "推荐", "小聚", "其他"]
+      assert tags_titles == ["求助", "分享推荐", "讨论", "学习资源", "小聚", "杂谈", "社区事务"]
 
       assert community.title == "elixir"
       assert community.raw == "elixir"
 
-      threads = found.threads |> Enum.map(& &1.thread.title)
-      assert threads == ["帖子", "雷达", "博客", "101", "awesome", "作品", "工作", "分布", "设置"]
+      # threads = found.threads |> Enum.map(& &1.thread.title)
+      # assert threads == ["帖子", "雷达", "博客", "101", "awesome", "作品", "工作", "分布", "设置"]
     end
 
     test "can seed multi lang communities" do
@@ -123,15 +123,15 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       # assert communities.total_count == 9
       radom_community = communities.entries |> Enum.random()
       {:ok, found} = ORM.find(Community, radom_community.id, preload: [threads: :thread])
-      assert length(found.threads) == 9
+      assert length(found.threads) == 6
 
-      filter = %{community_id: radom_community.id, thread: "POST"}
-      {:ok, tags} = CMS.paged_article_tags(filter)
-      tags_titles = tags |> Enum.map(& &1.title)
-      assert tags_titles == ["求助", "讨论", "推荐", "小聚", "其他"]
+      # filter = %{community_id: radom_community.id, thread: "POST"}
+      # {:ok, tags} = CMS.paged_article_tags(filter)
+      # tags_titles = tags |> Enum.map(& &1.title)
+      # assert tags_titles == ["求助", "讨论", "推荐", "小聚", "其他"]
 
-      threads = found.threads |> Enum.map(& &1.thread.title)
-      assert threads == ["帖子", "雷达", "博客", "101", "awesome", "作品", "工作", "分布", "设置"]
+      # threads = found.threads |> Enum.map(& &1.thread.title)
+      # assert threads == ["帖子", "雷达", "博客", "101", "awesome", "作品", "工作", "分布", "设置"]
     end
 
     test "can seed a general framework community" do
@@ -142,13 +142,13 @@ defmodule GroupherServer.Test.Seeds.CommunitySeed do
       {:ok, tags} = CMS.paged_article_tags(filter)
       tags_titles = tags |> Enum.map(& &1.title)
 
-      assert tags_titles == ["求助", "讨论", "推荐", "小聚", "其他"]
+      assert tags_titles == ["求助", "分享推荐", "讨论", "学习资源", "小聚", "杂谈", "社区事务"]
 
       assert community.title == "react"
       assert community.raw == "react"
 
       threads = found.threads |> Enum.map(& &1.thread.title)
-      assert threads == ["帖子", "雷达", "博客", "101", "awesome", "作品", "工作", "分布", "设置"]
+      assert threads == ["帖子", "雷达", "博客", "作品", "工作", "分布"]
     end
   end
 end

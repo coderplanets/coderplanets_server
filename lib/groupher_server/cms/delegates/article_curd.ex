@@ -552,7 +552,19 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     |> result()
   end
 
+  # pending article can be seen is viewer is author
+  defp check_article_pending(thread, id, %User{} = user) when is_atom(thread) do
+    with {:ok, info} <- match(thread),
+         {:ok, article} <- ORM.find(info.model, id, preload: :author) do
+      check_article_pending(article, user)
+    end
+  end
+
   defp check_article_pending(%{pending: @audit_legal} = article, _) do
+    {:ok, article}
+  end
+
+  defp check_article_pending(%{pending: @audit_failed} = article, _) do
     {:ok, article}
   end
 
@@ -568,14 +580,6 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
     with {:ok, info} <- match(thread),
          {:ok, article} <- ORM.find(info.model, id) do
       check_article_pending(article)
-    end
-  end
-
-  # pending article can be seen is viewer is author
-  defp check_article_pending(thread, id, %User{} = user) do
-    with {:ok, info} <- match(thread),
-         {:ok, article} <- ORM.find(info.model, id, preload: :author) do
-      check_article_pending(article, user)
     end
   end
 
