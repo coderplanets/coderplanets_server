@@ -37,26 +37,26 @@ defmodule GroupherServer.Test.Seeds.Articles do
       assert paged_comments.total_count !== 0
     end
 
-    test "can seed jobs" do
-      {:ok, community} = CMS.seed_community(:home)
-      CMS.seed_articles(community, :job, 5)
+    # test "can seed jobs" do
+    #   {:ok, community} = CMS.seed_community(:home)
+    #   CMS.seed_articles(community, :job, 5)
 
-      {:ok, jobs} = ORM.find_all(Job, %{page: 1, size: 20})
-      ramdom_job = jobs.entries |> List.first()
-      {:ok, ramdom_job} = ORM.find(Job, ramdom_job.id, preload: :article_tags)
-      assert ramdom_job.article_tags |> length == 3
-      assert ramdom_job.upvotes_count !== 0
-      assert ramdom_job.meta.latest_upvoted_users |> length !== 0
+    #   {:ok, jobs} = ORM.find_all(Job, %{page: 1, size: 20})
+    #   ramdom_job = jobs.entries |> List.first()
+    #   {:ok, ramdom_job} = ORM.find(Job, ramdom_job.id, preload: :article_tags)
+    #   assert ramdom_job.article_tags |> length == 3
+    #   assert ramdom_job.upvotes_count !== 0
+    #   assert ramdom_job.meta.latest_upvoted_users |> length !== 0
 
-      original_community_ids = jobs.entries |> Enum.map(& &1.original_community_id) |> Enum.uniq()
+    #   original_community_ids = jobs.entries |> Enum.map(& &1.original_community_id) |> Enum.uniq()
 
-      assert original_community_ids === [community.id]
+    #   assert original_community_ids === [community.id]
 
-      {:ok, paged_comments} =
-        CMS.paged_comments(:job, ramdom_job.id, %{page: 1, size: 20}, :timeline)
+    #   {:ok, paged_comments} =
+    #     CMS.paged_comments(:job, ramdom_job.id, %{page: 1, size: 20}, :timeline)
 
-      assert paged_comments.total_count !== 0
-    end
+    #   assert paged_comments.total_count !== 0
+    # end
 
     test "can seed radars" do
       {:ok, community} = CMS.seed_community(:home)
@@ -101,26 +101,26 @@ defmodule GroupherServer.Test.Seeds.Articles do
       assert paged_comments.total_count !== 0
     end
 
-    test "can seed works" do
-      {:ok, community} = CMS.seed_community(:home)
-      CMS.seed_articles(community, :works, 5)
+    # test "can seed works" do
+    #   {:ok, community} = CMS.seed_community(:home)
+    #   CMS.seed_articles(community, :works, 5)
 
-      {:ok, works} = ORM.find_all(Works, %{page: 1, size: 20})
-      ramdom_works = works.entries |> List.first()
-      {:ok, ramdom_works} = ORM.find(Works, ramdom_works.id, preload: [:article_tags])
+    #   {:ok, works} = ORM.find_all(Works, %{page: 1, size: 20})
+    #   ramdom_works = works.entries |> List.first()
+    #   {:ok, ramdom_works} = ORM.find(Works, ramdom_works.id, preload: [:article_tags])
 
-      assert ramdom_works.upvotes_count !== 0
-      assert ramdom_works.meta.latest_upvoted_users |> length !== 0
+    #   assert ramdom_works.upvotes_count !== 0
+    #   assert ramdom_works.meta.latest_upvoted_users |> length !== 0
 
-      original_community_ids =
-        works.entries |> Enum.map(& &1.original_community_id) |> Enum.uniq()
+    #   original_community_ids =
+    #     works.entries |> Enum.map(& &1.original_community_id) |> Enum.uniq()
 
-      assert original_community_ids === [community.id]
+    #   assert original_community_ids === [community.id]
 
-      {:ok, paged_comments} =
-        CMS.paged_comments(:works, ramdom_works.id, %{page: 1, size: 20}, :timeline)
+    #   {:ok, paged_comments} =
+    #     CMS.paged_comments(:works, ramdom_works.id, %{page: 1, size: 20}, :timeline)
 
-      assert paged_comments.total_count !== 0
-    end
+    #   assert paged_comments.total_count !== 0
+    # end
   end
 end
