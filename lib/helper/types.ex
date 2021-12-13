@@ -121,7 +121,7 @@ defmodule Helper.Types do
   @type editor_list_label_type :: :default | :red | :green | :warn
 
   @typedoc """
-  editor.js's list item for order_list | unorder_list | checklist
+  editor.js's list item for order_list | unordered_list | checklist
   """
   @type editor_list_item :: %{
           required(:hideLabel) => String.t(),

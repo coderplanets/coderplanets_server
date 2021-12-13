@@ -29,7 +29,8 @@ defmodule Helper.Converter.Article do
     with {:ok, body_map} <- to_editor_map(body),
          {:ok, body_html} <- EditorToHTML.to_html(body_map),
          {:ok, body_encode} <- Jason.encode(body_map) do
-      %{body: body_encode, body_html: body_html, body_map: body_map} |> done
+      %{body: body_encode, body_html: body_html, body_map: body_map}
+      |> done
     end
   end
 
@@ -39,18 +40,47 @@ defmodule Helper.Converter.Article do
   parse digest by concat all the paragraph blocks
   """
   def parse_digest(%{"blocks" => blocks} = body_map) when is_map(body_map) do
-    paragraph_blocks = Enum.filter(blocks, &(&1["type"] == "paragraph"))
+    digest_blocks = Enum.filter(blocks, &(&1["type"] == "paragraph"))
 
-    Enum.reduce(paragraph_blocks, "", fn block, acc ->
+    Enum.reduce(digest_blocks, "", fn block, acc ->
       text = block["data"]["text"] |> HtmlSanitizer.strip_all_tags()
       acc <> text <> "   "
     end)
     |> String.trim_trailing()
+    |> parse_other_blocks_ifneed(blocks)
     |> String.slice(0, @article_digest_length)
     |> done
   end
 
-  def parse_digest(_), do: {:ok, "unknow digest"}
+  def parse_digest(_), do: {:ok, "无可预览摘要"}
+
+  # 如果文章里没有段落，可以使用列表内容（如果有的话）作为预览内容
+  defp parse_other_blocks_ifneed("", blocks) do
+    list_blocks = Enum.filter(blocks, &(&1["type"] == "list"))
+
+    digest =
+      case list_blocks do
+        [] ->
+          "无可预览摘要"
+
+        _ ->
+          digest_block = list_blocks |> List.first()
+
+          Enum.reduce(digest_block["data"]["items"], "", fn item, acc ->
+            text = item["text"]
+            acc <> text <> "   "
+          end)
+          |> String.trim_trailing()
+          |> HtmlSanitizer.strip_all_tags()
+          |> String.slice(0, @article_digest_length)
+      end
+
+    digest
+  end
+
+  defp parse_other_blocks_ifneed(paragraph_digest, _blocks) do
+    paragraph_digest
+  end
 
   @doc """
   decode article body string to editor map and assign id for each block

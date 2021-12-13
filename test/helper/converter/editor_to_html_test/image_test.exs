@@ -70,7 +70,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      # unorder_list_prefix_class = @class["unorder_list_prefix"]
+      # unordered_list_prefix_class = @class["unordered_list_prefix"]
       assert Utils.str_occurence(converted, "<img") == 1
       assert Utils.str_occurence(converted, "width:") == 0
       assert Utils.str_occurence(converted, "height:") == 0
@@ -91,7 +91,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.Image do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      # unorder_list_prefix_class = @class["unorder_list_prefix"]
+      # unordered_list_prefix_class = @class["unordered_list_prefix"]
       assert Utils.str_occurence(converted, "<img") == 1
       assert Utils.str_occurence(converted, "width:") == 0
       assert Utils.str_occurence(converted, "height:") == 0

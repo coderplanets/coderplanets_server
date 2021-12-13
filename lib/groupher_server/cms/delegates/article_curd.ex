@@ -293,31 +293,24 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
          {:ok, community} <- ORM.find(Community, cid) do
       Multi.new()
       |> Multi.run(:create_article, fn _, _ ->
-        IO.inspect(attrs, label: "1 create article")
         do_create_article(info.model, attrs, author, community)
       end)
       |> Multi.run(:create_document, fn _, %{create_article: article} ->
-        IO.inspect(article, label: "2 article")
         Document.create(article, attrs)
       end)
       |> Multi.run(:mirror_article, fn _, %{create_article: article} ->
-        IO.inspect("3")
         ArticleCommunity.mirror_article(thread, article.id, community.id)
       end)
       |> Multi.run(:set_article_tags, fn _, %{create_article: article} ->
-        IO.inspect("4")
         ArticleTag.set_article_tags(community, thread, article, attrs)
       end)
       |> Multi.run(:set_active_at_timestamp, fn _, %{create_article: article} ->
-        IO.inspect("5")
         ORM.update(article, %{active_at: article.inserted_at})
       end)
       |> Multi.run(:update_community_article_count, fn _, _ ->
-        IO.inspect("6")
         CommunityCURD.update_community_count_field(community, thread)
       end)
       |> Multi.run(:update_user_published_meta, fn _, _ ->
-        IO.inspect("7")
         Accounts.update_published_states(uid, thread)
       end)
       |> Multi.run(:after_hooks, fn _, %{create_article: article} ->

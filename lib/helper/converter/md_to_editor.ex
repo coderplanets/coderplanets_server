@@ -108,7 +108,7 @@ defmodule Helper.Converter.MdToEditor do
         %{
           type: "list",
           data: %{
-            mode: "unorder_list",
+            mode: "unordered_list",
             items: items
           }
         }

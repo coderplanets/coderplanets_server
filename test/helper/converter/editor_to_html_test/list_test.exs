@@ -30,7 +30,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
 
     test "basic list parse should work" do
       editor_json =
-        set_items("unorder_list", [
+        set_items("unordered_list", [
           %{
             "checked" => true,
             "hideLabel" => false,
@@ -61,7 +61,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
       {:ok, editor_string} = Jason.encode(editor_json)
       {:ok, converted} = Parser.to_html(editor_string)
 
-      assert Utils.str_occurence(converted, @class["unorder_list_prefix"]) == 3
+      assert Utils.str_occurence(converted, @class["unordered_list_prefix"]) == 3
     end
 
     test "basic order list parse should work" do
@@ -211,7 +211,7 @@ defmodule GroupherServer.Test.Helper.Converter.EditorToHTML.List do
                %{
                  block: "list",
                  field: "mode",
-                 message: "should be: checklist | order_list | unorder_list"
+                 message: "should be: checklist | order_list | unordered_list"
                }
              ] == err_msg
     end
