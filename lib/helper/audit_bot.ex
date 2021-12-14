@@ -18,7 +18,15 @@ defmodule Helper.AuditBot do
     audit_failed_reason: ""
   }
   """
+  use Tesla, only: [:post]
   import Helper.Utils, only: [get_config: 2]
+
+  @timeout_limit 4000
+
+  plug(Tesla.Middleware.Headers, [{"Content-Type", "application/x-www-form-urlencoded"}])
+  plug(Tesla.Middleware.Retry, delay: 300, max_retries: 3)
+  plug(Tesla.Middleware.Timeout, timeout: @timeout_limit)
+  plug(Tesla.Middleware.FormUrlencoded)
 
   # conclusionType === 1
   @conclusionOK 1
@@ -35,26 +43,26 @@ defmodule Helper.AuditBot do
       {"Content-Type", "application/x-www-form-urlencoded"}
     ]
 
-    text = text |> HtmlSanitizeEx.strip_tags()
+    query = %{
+      text: text |> HtmlSanitizeEx.strip_tags()
+    }
 
-    with {:ok, result} <- HTTPoison.post(get_endpoint(), {:form, [text: text]}, headers) do
+    with {:ok, result} <- post(get_endpoint(), query) do
       parse_result(result)
     end
   end
 
   def analysis_wrong(:text, text) do
-    headers = [
-      {"Content-Type", "application/x-www-form-urlencoded"}
-    ]
+    query = %{
+      text: text |> HtmlSanitizeEx.strip_tags()
+    }
 
-    text = text |> HtmlSanitizeEx.strip_tags()
-
-    with {:ok, result} <- HTTPoison.post(@wrong_endpoint, {:form, [text: text]}, headers) do
+    with {:ok, result} <- post(@wrong_endpoint, query) do
       parse_result(result)
     end
   end
 
-  defp parse_result(%HTTPoison.Response{body: body, status_code: 200}) do
+  defp parse_result(%Tesla.Env{body: body, status: 200}) do
     with {:ok, result} <- Jason.decode(body),
          {:ok, result} <- is_request_ok?(result) do
       conclusion = result["conclusionType"]
