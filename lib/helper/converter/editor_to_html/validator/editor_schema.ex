@@ -8,8 +8,8 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
   @valid_quote_mode ["short", "long"]
 
   # list
-  @valid_list_mode ["checklist", "order_list", "unorder_list"]
-  @valid_list_label_type ["green", "red", "warn", "default"]
+  @valid_list_mode ["checklist", "order_list", "unordered_list"]
+  @valid_list_label_type ["green", "red", "warn", "default", nil]
   @valid_list_indent [0, 1, 2, 3]
 
   # table
@@ -66,7 +66,7 @@ defmodule Helper.Converter.EditorToHTML.Validator.EditorSchema do
       item: %{
         "checked" => [:boolean],
         "hideLabel" => [:boolean],
-        "label" => [:string],
+        "label" => [:string, required: false],
         "labelType" => [enum: @valid_list_label_type],
         "prefixIndex" => [:string, required: false],
         "indent" => [enum: @valid_list_indent],

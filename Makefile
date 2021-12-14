@@ -201,6 +201,8 @@ console.dev:
 	MIX_ENV=dev iex --erl "-kernel shell_history enabled" -S mix
 console.mock:
 	MIX_ENV=mock iex --erl "-kernel shell_history enabled" -S mix
+console.test:
+	MIX_ENV=test iex --erl "-kernel shell_history enabled" -S mix
 
 # dashboard
 dashboard.help:

@@ -9,9 +9,9 @@ defmodule Helper.Converter.EditorToHTML.Frags.List do
 
   @class get_in(Class.article(), ["list"])
 
-  @spec get_item(:checklist | :unorder_list | :order_list, T.editor_list_item()) :: T.html()
+  @spec get_item(:checklist | :unordered_list | :order_list, T.editor_list_item()) :: T.html()
   def get_item(
-        :unorder_list,
+        :unordered_list,
         %{
           "hideLabel" => hide_label,
           "indent" => indent,
@@ -20,7 +20,7 @@ defmodule Helper.Converter.EditorToHTML.Frags.List do
           "text" => text
         }
       ) do
-    prefix_frag = frag(:unorder_list_prefix)
+    prefix_frag = frag(:unordered_list_prefix)
     label_frag = if hide_label, do: "", else: frag(:label, label_type, indent, label)
     text_frag = frag(:text, text)
 
@@ -91,9 +91,9 @@ defmodule Helper.Converter.EditorToHTML.Frags.List do
       </div>)
   end
 
-  @spec frag(:unorder_list_prefix) :: T.html()
-  def frag(:unorder_list_prefix) do
-    ~s(<div class="#{@class["unorder_list_prefix"]}"></div>)
+  @spec frag(:unordered_list_prefix) :: T.html()
+  def frag(:unordered_list_prefix) do
+    ~s(<div class="#{@class["unordered_list_prefix"]}"></div>)
   end
 
   @spec frag(:order_list_prefix, String.t()) :: T.html()

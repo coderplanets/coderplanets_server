@@ -13,15 +13,17 @@ defmodule Helper.Plausible do
   @timeout_limit 4000
 
   @site_id "coderplanets.com"
-  @token get_config(:plausible, :token)
+  # @token get_config(:plausible, :token)
 
   @cache_pool :online_status
 
   plug(Tesla.Middleware.BaseUrl, @endpoint)
-  plug(Tesla.Middleware.Headers, [{"Authorization", "Bearer #{@token}"}])
+  # plug(Tesla.Middleware.Headers, [{"Authorization", "Bearer #{@token}"}])
   plug(Tesla.Middleware.Retry, delay: 200, max_retries: 2)
   plug(Tesla.Middleware.Timeout, timeout: @timeout_limit)
   plug(Tesla.Middleware.JSON)
+
+  defp get_token(), do: get_config(:plausible, :token)
 
   def realtime_visitors() do
     query = [site_id: @site_id]
@@ -29,17 +31,18 @@ defmodule Helper.Plausible do
     # NOTICE: DO NOT use Tesla.get, otherwise the middleware will not woking
     # see https://github.com/teamon/tesla/issues/88
     # with true <- Mix.env() !== :test do
-    with {:ok, %{body: body}} <- get(path, query: query) do
+    with {:ok, %{body: body}} <-
+           get(path, query: query, headers: [{"Authorization", "Bearer #{get_token()}"}]) do
       case is_number(body) do
         true ->
           Cache.put(@cache_pool, :realtime_visitors, body)
-          {:ok, body}
+          {:ok, Enum.max([body, 1])}
 
         false ->
           {:ok, 1}
       end
     else
-      error ->
+      _ ->
         Cache.put(@cache_pool, :realtime_visitors, 1)
         {:ok, 1}
     end
