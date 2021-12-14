@@ -60,14 +60,9 @@ defmodule Helper.Scheduler do
     end
   end
 
-  alias Helper.AuditBot
-
   def gather_online_status() do
     with true <- Mix.env() !== :test do
-      online = Plausible.realtime_visitors()
-      IO.inspect(online, label: "gather_online_status")
-      AuditBot.test()
-      # tmp debug online
+      Plausible.realtime_visitors()
     end
   end
 end

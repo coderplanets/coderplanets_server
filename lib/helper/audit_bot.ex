@@ -38,7 +38,6 @@ defmodule Helper.AuditBot do
     text = text |> HtmlSanitizeEx.strip_tags()
 
     with {:ok, result} <- HTTPoison.post(get_endpoint(), {:form, [text: text]}, headers) do
-      IO.inspect(result, label: "audit result")
       parse_result(result)
     end
   end

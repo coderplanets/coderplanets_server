@@ -41,7 +41,6 @@ defmodule Helper.Plausible do
         false ->
           {:ok, 1}
       end
-      |> IO.inspect(label: "RV")
     else
       _ ->
         Cache.put(@cache_pool, :realtime_visitors, 1)
