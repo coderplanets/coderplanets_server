@@ -41,7 +41,7 @@ defmodule Helper.AuditBot do
     """
 
     IO.inspect(@token, label: "# abot")
-    IO.inspect(get_endpoint(), label: "# abot get")
+    IO.inspect(get_endpoint(), label: "# abot 2")
 
     analysis(:text, text)
   end

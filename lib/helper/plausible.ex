@@ -23,8 +23,13 @@ defmodule Helper.Plausible do
   plug(Tesla.Middleware.Timeout, timeout: @timeout_limit)
   plug(Tesla.Middleware.JSON)
 
+  defp get_token() do
+    get_config(:plausible, :token)
+  end
+
   def realtime_visitors() do
     IO.inspect(@token, label: "realtime_visitors token")
+    IO.inspect(get_token(), label: "realtime_visitors token2")
 
     query = [site_id: @site_id]
     path = "#{@realtime_visitors_query}"
