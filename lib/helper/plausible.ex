@@ -24,6 +24,8 @@ defmodule Helper.Plausible do
   plug(Tesla.Middleware.JSON)
 
   def realtime_visitors() do
+    IO.inspect(@token, label: "realtime_visitors token")
+
     query = [site_id: @site_id]
     path = "#{@realtime_visitors_query}"
     # NOTICE: DO NOT use Tesla.get, otherwise the middleware will not woking
