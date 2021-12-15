@@ -169,6 +169,7 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
           id
           title
           index
+          viewerHasSubscribed
           categories {
             id
             title
@@ -182,6 +183,18 @@ defmodule GroupherServer.Test.Query.CMS.Basic do
       }
     }
     """
+    @tag :wip
+    test "user can get viewer has subscribed state", ~m(guest_conn user)a do
+      {:ok, communities} = db_insert_multi(:community, 5)
+      {:ok, record} = CMS.subscribe_community(communities |> List.first(), user)
+
+      variables = %{filter: %{page: 1, size: 20}}
+      user_conn = simu_conn(:user, user)
+      results = user_conn |> query_result(@query, variables, "pagedCommunities")
+
+      assert results["entries"] |> List.last() |> Map.get("viewerHasSubscribed")
+    end
+
     test "guest user can get paged communities", ~m(guest_conn)a do
       {:ok, _communities} = db_insert_multi(:community, 5)
 

@@ -22,7 +22,13 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.read_community(raw)
   end
 
-  def paged_communities(_root, ~m(filter)a, _info), do: Community |> ORM.find_all(filter)
+  def paged_communities(_root, ~m(filter)a, %{context: %{cur_user: user}}) do
+    CMS.paged_communities(filter, user)
+  end
+
+  def paged_communities(_root, ~m(filter)a, _info) do
+    CMS.paged_communities(filter)
+  end
 
   def create_community(_root, args, %{context: %{cur_user: user}}) do
     args = args |> Map.merge(%{user_id: user.id})
@@ -297,8 +303,16 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.unsubscribe_community(%Community{id: community_id}, cur_user)
   end
 
+  def paged_community_subscribers(_root, ~m(id filter)a, %{context: %{cur_user: cur_user}}) do
+    CMS.community_members(:subscribers, %Community{id: id}, filter, cur_user)
+  end
+
   def paged_community_subscribers(_root, ~m(id filter)a, _info) do
     CMS.community_members(:subscribers, %Community{id: id}, filter)
+  end
+
+  def paged_community_subscribers(_root, ~m(community filter)a, %{context: %{cur_user: cur_user}}) do
+    CMS.community_members(:subscribers, %Community{raw: community}, filter, cur_user)
   end
 
   def paged_community_subscribers(_root, ~m(community filter)a, _info) do
@@ -444,8 +458,16 @@ defmodule GroupherServerWeb.Resolvers.CMS do
     CMS.add_contributor(%CommunityCheatsheet{id: id}, contributor)
   end
 
+  def search_communities(_root, %{title: title, category: category}, %{context: %{cur_user: user}}) do
+    CMS.search_communities(title, category, user)
+  end
+
   def search_communities(_root, %{title: title, category: category}, _info) do
     CMS.search_communities(title, category)
+  end
+
+  def search_communities(_root, %{title: title}, %{context: %{cur_user: user}}) do
+    CMS.search_communities(title, user)
   end
 
   def search_communities(_root, %{title: title}, _info) do
