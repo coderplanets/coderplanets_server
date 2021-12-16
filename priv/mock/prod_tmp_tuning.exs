@@ -1,6 +1,6 @@
 # import GroupherServer.Support.Factory
-
 import Ecto.Query, warn: false
+import GroupherServer.Support.Factory
 
 alias Helper.ORM
 alias GroupherServer.{CMS, Repo, Accounts}
@@ -13,11 +13,19 @@ alias Converter.Article
 alias CMS.Delegate.{Document, Seeds}
 alias Seeds.Prod.Turning
 
+# {:ok, community} = ORM.find_by(Community, %{raw: "home"})
+# {:ok, user} = ORM.find_by(User, %{login: "hello you"})
+
+# post_attrs = mock_attrs(:meetup, %{community_id: community.id})
+
+# {:ok, _meetup} = CMS.create_article(community, :post, post_attrs, user)
+{:ok, _} = CMS.move_article(:post, 242, 105)
+
 # ---
 # XXX 社区上 Threads 和 Tags
 
 # Seeds.Prod.Turning.seed_home()
-Seeds.Prod.Turning.seed_one_community(:feedback, :feedback)
+# Seeds.Prod.Turning.seed_one_community(:feedback, :feedback)
 # Seeds.Prod.Turning.seed_one_community(:elixir, :pl)
 # ---
 

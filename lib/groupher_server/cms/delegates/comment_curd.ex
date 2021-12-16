@@ -261,11 +261,11 @@ defmodule GroupherServer.CMS.Delegate.CommentCURD do
         illegal_comments = user_meta.illegal_comments -- illegal_comments
         has_illegal_comments = not Enum.empty?(illegal_comments)
 
-        meta =
-          Map.merge(user_meta, %{
-            has_illegal_comments: has_illegal_comments,
+        meta = %{
+          user_meta
+          | has_illegal_comments: has_illegal_comments,
             illegal_comments: illegal_comments
-          })
+        }
 
         ORM.update_meta(user, meta)
       end

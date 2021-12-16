@@ -3,7 +3,7 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
   accounts profile
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, get_config: 2]
+  import Helper.Utils, only: [done: 1, get_config: 2, ensure: 2]
   import ShortMaps
 
   alias GroupherServer.{Accounts, CMS, Email, Repo, Statistics}
@@ -80,11 +80,25 @@ defmodule GroupherServer.Accounts.Delegate.Profile do
   @doc """
   update user's subscribed communities count
   """
-  def update_subscribe_count(user_id) do
+  def update_subscribe_state(user_id) do
     with {:ok, user} <- ORM.find(User, user_id) do
-      {:ok, count} = from(s in CommunitySubscriber, where: s.user_id == ^user.id) |> ORM.count()
+      query =
+        from(s in CommunitySubscriber,
+          where: s.user_id == ^user.id,
+          join: c in assoc(s, :community),
+          select: c.id
+        )
 
-      user |> ORM.update(%{subscribed_communities_count: count})
+      subscribed_communities_ids = query |> Repo.all()
+      subscribed_communities_count = subscribed_communities_ids |> length
+
+      user_meta = ensure(user.meta, @default_user_meta)
+      meta = %{user_meta | subscribed_communities_ids: subscribed_communities_ids}
+
+      user
+      |> ORM.update_meta(meta,
+        changes: %{subscribed_communities_count: subscribed_communities_count}
+      )
     end
   end
 

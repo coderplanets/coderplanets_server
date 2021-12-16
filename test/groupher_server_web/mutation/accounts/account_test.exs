@@ -24,7 +24,6 @@ defmodule GroupherServer.Test.Mutation.Account.Basic do
   #     }
   #   }
   #   """
-  #   @tag :wip
   #   test "github signin should work", ~m(guest_conn)a do
   #     variables = %{
   #       code: "e2f03e0a9de4284d49ac"

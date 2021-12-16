@@ -38,7 +38,8 @@ defmodule GroupherServer.Accounts.Model.Embeds.UserMeta do
     has_illegal_articles: false,
     illegal_articles: [],
     has_illegal_comments: false,
-    illegal_comments: []
+    illegal_comments: [],
+    subscribed_communities_ids: []
   }
 
   @optional_fields Map.keys(@general_options) ++
@@ -68,6 +69,8 @@ defmodule GroupherServer.Accounts.Model.Embeds.UserMeta do
 
     field(:illegal_articles, {:array, :string}, default: [])
     field(:illegal_comments, {:array, :string}, default: [])
+
+    field(:subscribed_communities_ids, {:array, :id}, default: [])
 
     published_article_count_fields()
   end

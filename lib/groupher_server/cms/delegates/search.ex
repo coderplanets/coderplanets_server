@@ -3,12 +3,17 @@ defmodule GroupherServer.CMS.Delegate.Search do
   search for community, post, job ...
   """
 
-  import Helper.Utils, only: [done: 1]
+  import Helper.Utils, only: [done: 1, ensure: 2]
   import Ecto.Query, warn: false
   import GroupherServer.CMS.Helper.Matcher
 
   alias Helper.ORM
-  alias GroupherServer.CMS.Model.{Community}
+
+  alias GroupherServer.{Accounts, CMS}
+  alias CMS.Model.{Community}
+  alias Accounts.Model.{User}
+
+  @default_user_meta Accounts.Model.Embeds.UserMeta.default_meta()
 
   @search_items_count 15
 
@@ -17,6 +22,25 @@ defmodule GroupherServer.CMS.Delegate.Search do
   """
   def search_communities(title) do
     do_search_communities(Community, title)
+  end
+
+  def search_communities(title, %User{meta: meta}) do
+    with {:ok, communities} <- do_search_communities(Community, title) do
+      user_meta = ensure(meta, @default_user_meta)
+      %{entries: entries} = communities
+
+      entries =
+        Enum.map(entries, fn community ->
+          viewer_has_subscribed = community.id in user_meta.subscribed_communities_ids
+          %{community | viewer_has_subscribed: viewer_has_subscribed}
+        end)
+
+      %{communities | entries: entries} |> done
+    end
+  end
+
+  def search_communities(title, category, %User{meta: meta}) do
+    search_communities(title, category)
   end
 
   def search_communities(title, category) do

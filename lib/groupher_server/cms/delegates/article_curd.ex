@@ -69,7 +69,8 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
         update_viewed_user_list(article, user_id)
       end)
       |> Multi.run(:set_viewer_has_states, fn _, %{normal_read: article} ->
-        article_meta = if is_nil(article.meta), do: @default_article_meta, else: article.meta
+        article = Repo.preload(article, :original_community)
+        article_meta = ensure(article.meta, @default_article_meta)
 
         viewer_has_states = %{
           viewer_has_collected: user_id in article_meta.collected_user_ids,
@@ -77,7 +78,9 @@ defmodule GroupherServer.CMS.Delegate.ArticleCURD do
           viewer_has_reported: user_id in article_meta.reported_user_ids
         }
 
-        article |> Map.merge(viewer_has_states) |> done
+        article
+        |> Map.merge(viewer_has_states)
+        |> done
       end)
       |> Repo.transaction()
       |> result()

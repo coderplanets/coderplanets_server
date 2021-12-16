@@ -3,7 +3,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   community curd
   """
   import Ecto.Query, warn: false
-  import Helper.Utils, only: [done: 1, strip_struct: 1, get_config: 2, plural: 1]
+  import Helper.Utils, only: [done: 1, strip_struct: 1, get_config: 2, plural: 1, ensure: 2]
   import GroupherServer.CMS.Delegate.ArticleCURD, only: [ensure_author_exists: 1]
   import GroupherServer.CMS.Helper.Matcher
   import ShortMaps
@@ -29,6 +29,7 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
   @default_meta Embeds.CommunityMeta.default_meta()
   @article_threads get_config(:article, :threads)
 
+  @default_user_meta Accounts.Model.Embeds.UserMeta.default_meta()
   @community_normal Constant.pending(:normal)
   @community_applying Constant.pending(:applying)
 
@@ -36,6 +37,25 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
 
   def read_community(raw, user), do: read_community(raw) |> viewer_has_states(user)
   def read_community(raw), do: do_read_community(raw)
+
+  def paged_communities(filter, %User{id: user_id, meta: meta}) do
+    with {:ok, paged_communtiies} <- paged_communities(filter) do
+      %{entries: entries} = paged_communtiies
+
+      entries =
+        Enum.map(entries, fn community ->
+          viewer_has_subscribed = community.id in meta.subscribed_communities_ids
+          %{community | viewer_has_subscribed: viewer_has_subscribed}
+        end)
+
+      %{paged_communtiies | entries: entries} |> done
+    end
+  end
+
+  def paged_communities(filter) do
+    filter = filter |> Enum.reject(fn {_k, v} -> is_nil(v) end) |> Enum.into(%{})
+    Community |> ORM.find_all(filter)
+  end
 
   @doc """
   create a community
@@ -212,6 +232,22 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
     load_community_members(community, CommunityEditor, filters)
   end
 
+  def community_members(:subscribers, %Community{id: id} = community, filters, %User{meta: meta})
+      when not is_nil(id) do
+    with {:ok, members} <- community_members(:subscribers, community, filters) do
+      user_meta = ensure(meta, @default_user_meta)
+
+      %{entries: entries} = members
+
+      entries =
+        Enum.map(entries, fn member ->
+          %{member | viewer_has_followed: member.id in user_meta.following_user_ids}
+        end)
+
+      %{members | entries: entries} |> done
+    end
+  end
+
   def community_members(:subscribers, %Community{id: id} = community, filters)
       when not is_nil(id) do
     load_community_members(community, CommunitySubscriber, filters)
@@ -295,7 +331,14 @@ defmodule GroupherServer.CMS.Delegate.CommunityCURD do
 
   defp do_read_community(raw) do
     with {:ok, community} <- find_community(raw) do
-      community |> ORM.read(inc: :views)
+      case community.meta do
+        nil ->
+          {:ok, community} = ORM.update_meta(community, @default_meta)
+          community |> ORM.read(inc: :views)
+
+        _ ->
+          community |> ORM.read(inc: :views)
+      end
     end
   end
 

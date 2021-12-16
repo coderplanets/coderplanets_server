@@ -35,9 +35,11 @@ defmodule GroupherServer.CMS do
   # Community CURD: editors, thread, tag
   defdelegate read_community(args), to: CommunityCURD
   defdelegate read_community(args, user), to: CommunityCURD
+  defdelegate paged_communities(filter, user), to: CommunityCURD
+  defdelegate paged_communities(filter), to: CommunityCURD
   defdelegate create_community(args), to: CommunityCURD
-  defdelegate update_community(id, args), to: CommunityCURD
   defdelegate apply_community(args), to: CommunityCURD
+  defdelegate update_community(id, args), to: CommunityCURD
   defdelegate approve_community_apply(id), to: CommunityCURD
   defdelegate deny_community_apply(id), to: CommunityCURD
   defdelegate is_community_exist?(raw), to: CommunityCURD
@@ -52,6 +54,7 @@ defmodule GroupherServer.CMS do
   defdelegate community_geo_info(community), to: CommunityCURD
   # >> subscribers / editors
   defdelegate community_members(type, community, filters), to: CommunityCURD
+  defdelegate community_members(type, community, filters, user), to: CommunityCURD
   # >> category
   defdelegate create_category(category_attrs, user), to: CommunityCURD
   defdelegate update_category(category_attrs), to: CommunityCURD
@@ -240,8 +243,10 @@ defmodule GroupherServer.CMS do
 
   # search
   defdelegate search_articles(thread, args), to: Search
-  defdelegate search_communities(args), to: Search
-  defdelegate search_communities(args, category), to: Search
+  defdelegate search_communities(filter), to: Search
+  defdelegate search_communities(filter, user), to: Search
+  defdelegate search_communities(filter, category), to: Search
+  defdelegate search_communities(filter, category, user), to: Search
 
   # seeds
   defdelegate seed_communities(opt), to: Seeds

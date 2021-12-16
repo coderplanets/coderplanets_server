@@ -88,6 +88,14 @@ defmodule GroupherServer.CMS.Delegate.Seeds.Helper do
     ORM.find_all(Category, %{page: 1, size: 20})
   end
 
+  def seed_user(name) do
+    nickname = name
+    login = name
+    avatar = "https://avatars1.githubusercontent.com/u/6184465?s=460&v=4"
+
+    User |> ORM.findby_or_insert(~m(nickname avatar)a, ~m(nickname avatar login)a)
+  end
+
   def seed_bot() do
     case ORM.find(User, 1) do
       {:ok, user} ->

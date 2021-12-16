@@ -61,8 +61,13 @@ defmodule GroupherServer.Test.CMS.Articles.Post do
     test "read post should update views and meta viewed_user_list",
          ~m(post_attrs community user user2)a do
       {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
-      {:ok, _} = CMS.read_article(:post, post.id, user)
-      {:ok, _created} = ORM.find(Post, post.id)
+      {:ok, _} = CMS.subscribe_community(community, user)
+      {:ok, post} = CMS.read_article(:post, post.id, user)
+      assert post.original_community.viewer_has_subscribed
+
+      # {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+      # {:ok, _} = CMS.read_article(:post, post.id, user)
+      # {:ok, _created} = ORM.find(Post, post.id)
 
       # same user duplicate case
       {:ok, _} = CMS.read_article(:post, post.id, user)
