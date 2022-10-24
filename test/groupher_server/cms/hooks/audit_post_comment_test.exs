@@ -44,33 +44,33 @@ defmodule GroupherServer.Test.CMS.Hooks.AuditPostComment do
     #   assert comment.meta.illegal_words == []
     # end
 
-    test "failed audit should have falied state", ~m(user post)a do
-      {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment("世界属于三体"), user)
+    # test "failed audit should have falied state", ~m(user post)a do
+    #   {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment("世界属于三体"), user)
 
-      Hooks.Audition.handle_edge(comment)
+    #   Hooks.Audition.handle_edge(comment)
 
-      {:ok, comment} = ORM.find(CMS.Model.Comment, comment.id)
-      assert comment.pending == @audit_failed
-    end
+    #   {:ok, comment} = ORM.find(CMS.Model.Comment, comment.id)
+    #   assert comment.pending == @audit_failed
+    # end
 
-    test "can handle paged audit failed comments", ~m(user post)a do
-      {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment("世界属于三体"), user)
-      CMS.set_article_audit_failed(comment, %{})
+    # test "can handle paged audit failed comments", ~m(user post)a do
+    #   {:ok, comment} = CMS.create_comment(:post, post.id, mock_comment("世界属于三体"), user)
+    #   CMS.set_article_audit_failed(comment, %{})
 
-      {:ok, paged_comments} = CMS.paged_audit_failed_comments(%{page: 1, size: 30})
-      assert paged_comments |> is_valid_pagination?(:raw)
-      assert paged_comments.total_count == 1
+    #   {:ok, paged_comments} = CMS.paged_audit_failed_comments(%{page: 1, size: 30})
+    #   assert paged_comments |> is_valid_pagination?(:raw)
+    #   assert paged_comments.total_count == 1
 
-      Enum.map(paged_comments.entries, fn comment ->
-        Hooks.Audition.handle(comment)
-      end)
+    #   Enum.map(paged_comments.entries, fn comment ->
+    #     Hooks.Audition.handle(comment)
+    #   end)
 
-      {:ok, paged_comments} = CMS.paged_audit_failed_comments(%{page: 1, size: 30})
-      assert paged_comments.total_count == 0
-    end
+    #   {:ok, paged_comments} = CMS.paged_audit_failed_comments(%{page: 1, size: 30})
+    #   assert paged_comments.total_count == 0
+    # end
 
-    test "can handle paged audit failed comments from Scheduler" do
-      {:ok, _results} = Scheduler.comments_audition()
-    end
+    # test "can handle paged audit failed comments from Scheduler" do
+    #   {:ok, _results} = Scheduler.comments_audition()
+    # end
   end
 end
