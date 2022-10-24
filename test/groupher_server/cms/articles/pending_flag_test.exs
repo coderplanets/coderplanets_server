@@ -137,7 +137,6 @@ defmodule GroupherServer.Test.CMS.PostPendingFlag do
 
   alias CMS.Delegate.Hooks
 
-  # @tag :wip
   # test "can audit paged audit failed posts", ~m(post_m)a do
   #   {:ok, post} = ORM.find(CMS.Model.Post, post_m.id)
 

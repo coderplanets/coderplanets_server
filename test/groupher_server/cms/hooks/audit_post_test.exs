@@ -24,48 +24,48 @@ defmodule GroupherServer.Test.CMS.Hooks.AuditPost do
   end
 
   describe "[audit post basic]" do
-    test "ugly words shoud get audit", ~m(user community  post_attrs)a do
-      body = mock_rich_text("M卖批, 这也太操蛋了, 党中央")
+    # test "ugly words shoud get audit", ~m(user community  post_attrs)a do
+    #   body = mock_rich_text("M卖批, 这也太操蛋了, 党中央")
 
-      post_attrs = post_attrs |> Map.merge(%{body: body})
-      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+    #   post_attrs = post_attrs |> Map.merge(%{body: body})
+    #   {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
-      Hooks.Audition.handle(post)
+    #   Hooks.Audition.handle(post)
 
-      {:ok, post} = ORM.find(CMS.Model.Post, post.id)
+    #   {:ok, post} = ORM.find(CMS.Model.Post, post.id)
 
-      assert post.pending == @audit_illegal
-      assert post.meta.is_legal == false
-      assert post.meta.illegal_reason == ["政治敏感", "低俗辱骂"]
-      assert post.meta.illegal_words == ["党中央", "操蛋", "卖批"]
-    end
+    #   assert post.pending == @audit_illegal
+    #   assert post.meta.is_legal == false
+    #   assert post.meta.illegal_reason == ["政治敏感", "低俗辱骂"]
+    #   assert post.meta.illegal_words == ["党中央", "操蛋", "卖批"]
+    # end
 
-    test "normal words shoud not get audit", ~m(user community  post_attrs)a do
-      body = mock_rich_text("世界属于三体")
+    # test "normal words shoud not get audit", ~m(user community  post_attrs)a do
+    #   body = mock_rich_text("世界属于三体")
 
-      post_attrs = post_attrs |> Map.merge(%{body: body})
-      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+    #   post_attrs = post_attrs |> Map.merge(%{body: body})
+    #   {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
-      Hooks.Audition.handle(post)
+    #   Hooks.Audition.handle(post)
 
-      {:ok, post} = ORM.find(CMS.Model.Post, post.id)
+    #   {:ok, post} = ORM.find(CMS.Model.Post, post.id)
 
-      assert post.pending == @audit_legal
-      assert post.meta.is_legal == true
-      assert post.meta.illegal_reason == []
-      assert post.meta.illegal_words == []
-    end
+    #   assert post.pending == @audit_legal
+    #   assert post.meta.is_legal == true
+    #   assert post.meta.illegal_reason == []
+    #   assert post.meta.illegal_words == []
+    # end
 
-    test "failed audit should have falied state", ~m(user community  post_attrs)a do
-      body = mock_rich_text("世界属于三体")
+    # test "failed audit should have falied state", ~m(user community  post_attrs)a do
+    #   body = mock_rich_text("世界属于三体")
 
-      post_attrs = post_attrs |> Map.merge(%{body: body})
-      {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
+    #   post_attrs = post_attrs |> Map.merge(%{body: body})
+    #   {:ok, post} = CMS.create_article(community, :post, post_attrs, user)
 
-      Hooks.Audition.handle_edge(post)
+    #   Hooks.Audition.handle_edge(post)
 
-      {:ok, post} = ORM.find(CMS.Model.Post, post.id)
-      assert post.pending == @audit_failed
-    end
+    #   {:ok, post} = ORM.find(CMS.Model.Post, post.id)
+    #   assert post.pending == @audit_failed
+    # end
   end
 end

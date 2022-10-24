@@ -68,8 +68,6 @@ defmodule GroupherServer.Test.Query.Hooks.PostCiting do
       post_attrs = post_attrs |> Map.merge(%{body: body})
       {:ok, post_y} = CMS.create_article(community, :post, post_attrs, user)
 
-      IO.inspect(post_x.document, label: "hello?")
-
       Hooks.Cite.handle(post_x)
       Hooks.Cite.handle(comment)
       Hooks.Cite.handle(post_y)
