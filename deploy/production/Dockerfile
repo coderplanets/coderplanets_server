@@ -1,4 +1,4 @@
-From bitwalker/alpine-elixir-phoenix:1.12.2
+From bitwalker/alpine-elixir-phoenix:1.13
 
 RUN mkdir /root/api_server
 
@@ -13,7 +13,7 @@ RUN apk add tzdata --force-broken-world
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo "Asia/Shanghai" > /etc/timezone
 
 ADD api_server.tar.gz /root/api_server
-# RUN mix hex.config mirror_url https://hexpm.upyun.com
+RUN mix hex.config mirror_url https://hexpm.upyun.com
 # RUN mix hex.config mirror_url https://cdn.jsdelivr.net/hex
 
 RUN cd /root/api_server && MIX_ENV=prod mix deps.get --only prod && MIX_ENV=prod mix compile
