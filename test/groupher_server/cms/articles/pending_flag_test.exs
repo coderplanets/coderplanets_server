@@ -137,20 +137,21 @@ defmodule GroupherServer.Test.CMS.PostPendingFlag do
 
   alias CMS.Delegate.Hooks
 
-  test "can audit paged audit failed posts", ~m(post_m)a do
-    {:ok, post} = ORM.find(CMS.Model.Post, post_m.id)
+  # @tag :wip
+  # test "can audit paged audit failed posts", ~m(post_m)a do
+  #   {:ok, post} = ORM.find(CMS.Model.Post, post_m.id)
 
-    {:ok, post} = CMS.set_article_audit_failed(post, %{})
+  #   {:ok, post} = CMS.set_article_audit_failed(post, %{})
 
-    {:ok, result} = CMS.paged_audit_failed_articles(:post, %{page: 1, size: 20})
-    assert result |> is_valid_pagination?(:raw)
-    assert result.total_count == 1
+  #   {:ok, result} = CMS.paged_audit_failed_articles(:post, %{page: 1, size: 20})
+  #   assert result |> is_valid_pagination?(:raw)
+  #   assert result.total_count == 1
 
-    Enum.map(result.entries, fn post ->
-      Hooks.Audition.handle(post)
-    end)
+  #   Enum.map(result.entries, fn post ->
+  #     Hooks.Audition.handle(post)
+  #   end)
 
-    {:ok, result} = CMS.paged_audit_failed_articles(:post, %{page: 1, size: 20})
-    assert result.total_count == 0
-  end
+  #   {:ok, result} = CMS.paged_audit_failed_articles(:post, %{page: 1, size: 20})
+  #   assert result.total_count == 0
+  # end
 end

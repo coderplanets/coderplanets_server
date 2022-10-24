@@ -98,6 +98,8 @@ defmodule GroupherServer.CMS.Delegate.BlogCURD do
   end
 
   defp get_rssinfo_and_cache(rss) do
+    IO.inspect(rss, label: "the rss")
+
     with {:ok, rssinfo} <- RSS.query(rss) do
       Cache.put(@cache_pool, rss, rssinfo)
       {:ok, rssinfo}

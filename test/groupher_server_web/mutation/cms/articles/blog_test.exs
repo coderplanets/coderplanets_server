@@ -1,4 +1,6 @@
 defmodule GroupherServer.Test.Mutation.Articles.Blog do
+  @moduledoc false
+
   use GroupherServer.TestTools
 
   alias Helper.ORM
@@ -85,6 +87,7 @@ defmodule GroupherServer.Test.Mutation.Articles.Blog do
              |> mutation_get_error?(@create_blog_query, variables, ecode(:invalid_blog_title))
     end
 
+    @tag :wip
     test "create blog with valid tags id list", ~m(user_conn user community)a do
       article_tag_attrs = mock_attrs(:article_tag)
       {:ok, article_tag} = CMS.create_article_tag(community, :blog, article_tag_attrs, user)

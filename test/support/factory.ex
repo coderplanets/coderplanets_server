@@ -207,7 +207,7 @@ defmodule GroupherServer.Support.Factory do
 
     %{
       meta: @default_article_meta |> Map.merge(%{thread: "BLOG"}),
-      title: "HTML slot 插槽元素深入",
+      title: "告别pointer-events:none使用HTML inert属性真正禁用",
       rss: mock_rss_addr(),
       body: mock_rich_text(text),
       # digest: String.slice(text, 1, 150),
