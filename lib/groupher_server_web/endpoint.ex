@@ -27,7 +27,7 @@ defmodule GroupherServerWeb.Endpoint do
     origins: [
       "http://localhost:3000",
       "http://localhost:3001",
-      ~r{^https://(.*\.?)coderplanets\.com$}
+      ~r{^https://(.*\.?)groupher\.com$}
     ],
     # origins: "*",
     allow_headers: [

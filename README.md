@@ -7,7 +7,7 @@ English | [中文](https://github.com/coderplanets/coderplanets_server/blob/dev/
 
 ## Introduction
 
-backend server of coderplanets.com
+backend server of groupher.com
 
 ## Documentation
 

@@ -15,7 +15,7 @@ use Mix.Config
 # which you typically run after static files are built.
 config :groupher_server, GroupherServerWeb.Endpoint,
   load_from_system_env: true,
-  url: [host: "coderplanets.com", port: 80]
+  url: [host: "groupher.com", port: 80]
 
 # cache_static_manifest: "priv/static/cache_manifest.json"
 
